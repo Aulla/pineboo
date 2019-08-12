@@ -2894,9 +2894,8 @@ class PNSqlCursor(QtCore.QObject):
             self.d._model.Insert(self)
             self.d._model.refresh()
             pk_row = self.d._model.findPKRow((pk_value,))
-            if pk_row is None:
-                raise Exception("pk_row not found after insert!")
-            self.move(pk_row)
+            if pk_row is not None:
+                self.move(pk_row)
 
             updated = True
 
