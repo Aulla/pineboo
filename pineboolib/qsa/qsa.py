@@ -46,7 +46,7 @@ from .pncontrolsfactory import FLDoubleValidator, FLIntValidator, FLUIntValidato
 from .pncontrolsfactory import FLCodBar, FLWidget, FLWorkSpace, FLPosPrinter  # noqa: F401
 from .pncontrolsfactory import FLSqlQuery, FLSqlCursor, FLNetwork  # noqa: F401
 from .pncontrolsfactory import FLApplication, FLVar, FLSmtpClient, FLTable  # noqa: F401
-from .pncontrolsfactory import FLListViewItem, FLReportViewer, FLUtil  # noqa: F401
+from .pncontrolsfactory import FLListViewItem, FLReportViewer, FLUtil, FLSettings  # noqa: F401
 
 
 # QSA

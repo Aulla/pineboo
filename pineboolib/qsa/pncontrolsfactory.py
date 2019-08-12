@@ -104,7 +104,7 @@ from pineboolib.fllegacy.flcodbar import FLCodBar  # noqa: F401
 from pineboolib.fllegacy.flwidget import FLWidget  # noqa: F401
 from pineboolib.fllegacy.flworkspace import FLWorkSpace  # noqa: F401
 from pineboolib.fllegacy.flutil import FLUtil  # noqa: F401
-
+from pineboolib.fllegacy.flsettings import FLSettings  # noqa: F401
 from pineboolib.fllegacy.flposprinter import FLPosPrinter  # noqa: F401
 from pineboolib.fllegacy.flsqlquery import FLSqlQuery  # noqa: F401
 from pineboolib.fllegacy.flsqlcursor import FLSqlCursor  # noqa: F401
