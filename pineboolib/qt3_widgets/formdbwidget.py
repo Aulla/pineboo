@@ -106,7 +106,9 @@ class FormDBWidget(QtWidgets.QWidget):
             if hasattr(self.iface, "ctx"):
                 del self.iface.ctx
 
-            del self.iface
+            del self._action.formrecord_widget
+
+            self.iface = None
             self._action.formrecord_widget = None
 
     def clear_connections(self):
