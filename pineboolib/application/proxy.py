@@ -42,7 +42,9 @@ class DelayedObjectProxyLoader(object):
 
         @return objeto nuevo o si ya existe , cacheado
         """
-        if self.loaded_obj is not None:
+        if (
+            self.loaded_obj is not None and self.loaded_obj._loaded
+        ):  # Si no está _loaded lo sobrecarga también
             return self.loaded_obj
         self.logger.debug(
             "DelayedObjectProxyLoader: loading %s %s( *%s **%s)",
@@ -65,5 +67,6 @@ class DelayedObjectProxyLoader(object):
         @param name. Nombre del la función buscada
         @return el objecto del XMLAction afectado
         """
+
         obj_ = self.__load()
         return getattr(obj_, name, getattr(obj_.widget, name, None))
