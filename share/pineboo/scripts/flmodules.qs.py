@@ -32,7 +32,7 @@ class FormInternalObj(qsa.FormDBWidget):
             return
         cursorFicheros = qsa.FLSqlCursor(u"flfiles")
         cursor = self.cursor()
-        cursorFicheros.select(ustr(u"nombre = '", nombre, u"'"))
+        cursorFicheros.select(qsa.ustr(u"nombre = '", nombre, u"'"))
         if not cursorFicheros.first():
             if nombre.endswith(u".ar"):
                 if not self.cargarAr(nombre, contenido, log, directorio):
@@ -51,7 +51,7 @@ class FormInternalObj(qsa.FormDBWidget):
             cursorFicheros.refreshBuffer()
             contenidoCopia = cursorFicheros.valueBuffer(u"contenido")
             if contenidoCopia != contenido:
-                log.append(util.translate(u"scripts", u"- Actualizando :: ") + nombre)
+                log.append(qsa.util.translate(u"scripts", u"- Actualizando :: ") + nombre)
                 cursorFicheros.setModeAccess(cursorFicheros.Insert)
                 cursorFicheros.refreshBuffer()
                 d = qsa.Date()
@@ -60,14 +60,14 @@ class FormInternalObj(qsa.FormDBWidget):
                 cursorFicheros.setValueBuffer(u"contenido", contenidoCopia)
                 cursorFicheros.commitBuffer()
                 log.append(
-                    util.translate(u"scripts", u"- Backup :: ") + nombre + qsa.parseString(d)
+                    qsa.util.translate(u"scripts", u"- Backup :: ") + nombre + qsa.parseString(d)
                 )
-                cursorFicheros.select(ustr(u"nombre = '", nombre, u"'"))
+                cursorFicheros.select(qsa.ustr(u"nombre = '", nombre, u"'"))
                 cursorFicheros.first()
                 cursorFicheros.setModeAccess(cursorFicheros.Edit)
                 cursorFicheros.refreshBuffer()
                 cursorFicheros.setValueBuffer(u"idmodulo", cursor.valueBuffer(u"idmodulo"))
-                cursorFicheros.setValueBuffer(u"sha", util.sha1(contenido))
+                cursorFicheros.setValueBuffer(u"sha", qsa.util.sha1(contenido))
                 cursorFicheros.setValueBuffer(u"contenido", contenido)
                 cursorFicheros.commitBuffer()
                 if nombre.endswith(u".ar"):
@@ -78,7 +78,7 @@ class FormInternalObj(qsa.FormDBWidget):
             return False
         if qsa.util.readSettingEntry(u"scripts/sys/conversionAr") != u"true":
             return False
-        log.append(util.translate(u"scripts", u"Convirtiendo %s a kut") % (str(nombre)))
+        log.append(qsa.util.translate(u"scripts", u"Convirtiendo %s a kut") % (str(nombre)))
         contenido = qsa.sys.toUnicode(contenido, u"UTF-8")
         contenido = qsa.from_project("flar2kut").iface.pub_ar2kut(contenido)
         nombre = qsa.ustr(qsa.parseString(nombre)[0 : len(nombre) - 3], u".kut")
@@ -88,8 +88,8 @@ class FormInternalObj(qsa.FormDBWidget):
                 localEnc = u"ISO-8859-15"
             contenido = qsa.sys.fromUnicode(contenido, localEnc)
             self.cargarFicheroEnBD(nombre, contenido, log, directorio)
-            log.append(util.translate(u"scripts", u"Volcando a disco ") + nombre)
-            qsa.File.write(qsa.Dir.cleanDirPath(ustr(directorio, u"/", nombre)), contenido)
+            log.append(qsa.util.translate(u"scripts", u"Volcando a disco ") + nombre)
+            qsa.File.write(qsa.Dir.cleanDirPath(qsa.ustr(directorio, u"/", nombre)), contenido)
 
         else:
             log.append(qsa.util.translate(u"scripts", u"Error de conversión"))
@@ -102,7 +102,6 @@ class FormInternalObj(qsa.FormDBWidget):
         ficheros = dir.entryList(extension, qsa.Dir.Files)
         log = self.child(u"log")
         i = 0
-        from pineboolib.fllegacy.flsettings import FLSettings
         from pineboolib.application.parsers.qsaparser import postparse
         import os
 
@@ -114,7 +113,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 while_pass = True
                 continue
             while_pass = False
-            path_ = qsa.Dir.cleanDirPath(ustr(directorio, u"/", ficheros[i]))
+            path_ = qsa.Dir.cleanDirPath(qsa.ustr(directorio, u"/", ficheros[i]))
             if settings.readBoolEntry("ebcomportamiento/parseModulesOnLoad", False):
                 file_py_path_ = "%s.py" % path_
                 if os.path.exists(file_py_path_):
@@ -200,20 +199,20 @@ class FormInternalObj(qsa.FormDBWidget):
                 log = self.child(u"log")
                 log.text = u""
                 self.setDisabled(True)
-                self.cargarFicheros(ustr(directorio, u"/"), u"*.xml")
-                self.cargarFicheros(ustr(directorio, u"/"), u"*.mod")
-                self.cargarFicheros(ustr(directorio, u"/"), u"*.xpm")
-                self.cargarFicheros(ustr(directorio, u"/"), u"*.signatures")
-                self.cargarFicheros(ustr(directorio, u"/"), u"*.certificates")
-                self.cargarFicheros(ustr(directorio, u"/"), u"*.checksum")
-                self.cargarFicheros(ustr(directorio, u"/forms/"), u"*.ui")
-                self.cargarFicheros(ustr(directorio, u"/tables/"), u"*.mtd")
-                self.cargarFicheros(ustr(directorio, u"/scripts/"), u"*.qs")
-                self.cargarFicheros(ustr(directorio, u"/scripts/"), u"*.qs.py")
-                self.cargarFicheros(ustr(directorio, u"/queries/"), u"*.qry")
-                self.cargarFicheros(ustr(directorio, u"/reports/"), u"*.kut")
-                self.cargarFicheros(ustr(directorio, u"/reports/"), u"*.ar")
-                self.cargarFicheros(ustr(directorio, u"/translations/"), u"*.ts")
+                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.xml")
+                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.mod")
+                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.xpm")
+                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.signatures")
+                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.certificates")
+                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.checksum")
+                self.cargarFicheros(qsa.ustr(directorio, u"/forms/"), u"*.ui")
+                self.cargarFicheros(qsa.ustr(directorio, u"/tables/"), u"*.mtd")
+                self.cargarFicheros(qsa.ustr(directorio, u"/scripts/"), u"*.qs")
+                self.cargarFicheros(qsa.ustr(directorio, u"/scripts/"), u"*.qs.py")
+                self.cargarFicheros(qsa.ustr(directorio, u"/queries/"), u"*.qry")
+                self.cargarFicheros(qsa.ustr(directorio, u"/reports/"), u"*.kut")
+                self.cargarFicheros(qsa.ustr(directorio, u"/reports/"), u"*.ar")
+                self.cargarFicheros(qsa.ustr(directorio, u"/translations/"), u"*.ts")
                 self.setDisabled(False)
                 log.append(qsa.util.translate(u"scripts", u"* Carga finalizada."))
                 self.child(u"lineas").refresh()
@@ -237,15 +236,15 @@ class FormInternalObj(qsa.FormDBWidget):
                     dir.mkdir(directorio)
                 if not dir.fileExists(qsa.ustr(directorio, u"/forms")):
                     dir.mkdir(qsa.ustr(directorio, u"/forms"))
-                if not dir.fileExists(ustr(directorio, u"/scripts")):
+                if not dir.fileExists(qsa.ustr(directorio, u"/scripts")):
                     dir.mkdir(qsa.ustr(directorio, u"/scripts"))
-                if not dir.fileExists(ustr(directorio, u"/queries")):
+                if not dir.fileExists(qsa.ustr(directorio, u"/queries")):
                     dir.mkdir(qsa.ustr(directorio, u"/queries"))
-                if not dir.fileExists(ustr(directorio, u"/tables")):
+                if not dir.fileExists(qsa.ustr(directorio, u"/tables")):
                     dir.mkdir(qsa.ustr(directorio, u"/tables"))
-                if not dir.fileExists(ustr(directorio, u"/reports")):
+                if not dir.fileExists(qsa.ustr(directorio, u"/reports")):
                     dir.mkdir(qsa.ustr(directorio, u"/reports"))
-                if not dir.fileExists(ustr(directorio, u"/translations")):
+                if not dir.fileExists(qsa.ustr(directorio, u"/translations")):
                     dir.mkdir(qsa.ustr(directorio, u"/translations"))
                 curFiles.first()
                 file = None
@@ -431,7 +430,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
                     qsa.sys.processEvents()
 
-                cursorModules.select(ustr(u"idmodulo = '", idModulo, u"'"))
+                cursorModules.select(qsa.ustr(u"idmodulo = '", idModulo, u"'"))
                 if cursorModules.first():
                     cursorAreas.select(
                         qsa.ustr(u"idarea = '", cursorModules.valueBuffer(u"idarea"), u"'")
@@ -461,7 +460,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     if not qsa.File.exists(
                         qsa.ustr(directorio, u"/", cursorModules.valueBuffer(u"idmodulo"), u".mod")
                     ):
-                        contenido = ustr(
+                        contenido = qsa.ustr(
                             u"<!DOCTYPE MODULE>\n<MODULE>\n<name>",
                             cursorModules.valueBuffer(u"idmodulo"),
                             u'</name>\n<alias>QT_TRANSLATE_NOOP("FLWidgetApplication","',

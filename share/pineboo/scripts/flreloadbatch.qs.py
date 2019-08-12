@@ -129,7 +129,7 @@ class FormInternalObj(qsa.FormDBWidget):
             res[u"salida"] = qsa.ProcessStatic.stderr
             if self.iface.pub_log:
                 self.iface.pub_log.child(u"log").append(
-                    ustr(
+                    qsa.ustr(
                         u"Error al ejecutar el comando: ", comando, u"\n", qsa.ProcessStatic.stderr
                     )
                 )
@@ -215,7 +215,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         descripcion = self.iface.traducirCadena(descripcion, fichero.path, modulo)
         desArea = self.iface.traducirCadena(desArea, fichero.path, modulo)
-        fichIcono = qsa.File(ustr(fichero.path, u"/", nombreIcono))
+        fichIcono = qsa.File(qsa.ustr(fichero.path, u"/", nombreIcono))
         fichIcono.open(qsa.File.ReadOnly)
         icono = fichIcono.read()
 
@@ -226,19 +226,21 @@ class FormInternalObj(qsa.FormDBWidget):
         #    contVersion = MessageBox.warning(util.translate(u"scripts", u"Este módulo necesita la versión ") + versionMinimaFL + util.translate(u"scripts", u" o superior de la aplicación base,\nactualmente la versión instalada es la ") + sys.version() + util.translate(u"scripts", u".\nFacturaLUX puede fallar por esta causa.\n¿Desea continuar la carga?"), MessageBox.Yes, MessageBox.No)
         #    if contVersion == MessageBox.No:
         #        return
-        if not util.sqlSelect(u"flareas", u"idarea", ustr(u"idarea = '", area, u"'")):
-            if not util.sqlInsert(u"flareas", u"idarea,descripcion", ustr(area, u",", desArea)):
+        if not util.sqlSelect(u"flareas", u"idarea", qsa.ustr(u"idarea = '", area, u"'")):
+            if not util.sqlInsert(u"flareas", u"idarea,descripcion", qsa.ustr(area, u",", desArea)):
                 qsa.MessageBox.warning(
                     util.translate(u"scripts", u"Error al crear el área:\n") + area,
                     qsa.MessageBox.Ok,
                     qsa.MessageBox.NoButton,
                 )
                 return False
-        recargar = util.sqlSelect(u"flmodules", u"idmodulo", ustr(u"idmodulo = '", modulo, u"'"))
+        recargar = util.sqlSelect(
+            u"flmodules", u"idmodulo", qsa.ustr(u"idmodulo = '", modulo, u"'")
+        )
         curModulo = qsa.FLSqlCursor(u"flmodules")
         if recargar:
             # WITH_START
-            curModulo.select(ustr(u"idmodulo = '", modulo, u"'"))
+            curModulo.select(qsa.ustr(u"idmodulo = '", modulo, u"'"))
             curModulo.first()
             curModulo.setModeAccess(curModulo.Edit)
             # WITH_END
@@ -256,7 +258,7 @@ class FormInternalObj(qsa.FormDBWidget):
         curModulo.commitBuffer()
         # WITH_END
         curSeleccion = qsa.FLSqlCursor(u"flmodules")
-        curModulo.setMainFilter(ustr(u"idmodulo = '", modulo, u"'"))
+        curModulo.setMainFilter(qsa.ustr(u"idmodulo = '", modulo, u"'"))
         curModulo.editRecord(False)
         qsa.from_project("formRecordflmodules").cargarDeDisco(u"%s/" % fichero.path, False)
         qsa.from_project("formRecordflmodules").accept()
