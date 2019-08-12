@@ -119,6 +119,7 @@ class FLManagerModules(object):
         self.staticBdInfo_ = AQStaticBdInfo(self.conn_)
         self.activeIdModule_ = None
         self.activeIdArea_ = None
+        self.shaLocal_ = ""
         self.filesCached_ = {}
 
     # """
