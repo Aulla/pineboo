@@ -200,7 +200,7 @@ class SysBaseType(object):
             if not conn_db.isOpen():
                 if conn_db.driverSql is None:
                     raise Exception("driverSql not loaded!")
-                conn_db.driverName_ = conn_db.driverSql.aliasToName(args[0])
+                conn_db.driverName_ = args[0].lower()
                 if conn_db.driverName_ and conn_db.driverSql.loadDriver(conn_db.driverName_):
                     conn_db.conn = conn_db.conectar(args[1], args[4], args[5], args[2], args[3])
 
