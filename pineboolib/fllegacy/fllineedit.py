@@ -112,6 +112,9 @@ class FLLineEdit(QtWidgets.QLineEdit):
             if minus:
                 text_ = "-%s" % text_
 
+            if text_ == ",":
+                text_ = ""
+
         elif self._tipo == "uint":
             val, ok = QtCore.QLocale.system().toUInt(text_)
             if ok:
@@ -156,12 +159,12 @@ class FLLineEdit(QtWidgets.QLineEdit):
 
         if self._tipo in ("double", "int", "uint"):
             self.blockSignals(True)
-            s = self.text()
+            s_orig = self.text()
             if self._tipo == "double":
-                if s != "":
-                    s = QtCore.QLocale.system().toString(float(s), "f", self._part_decimal)
+                if s_orig != "":
+                    s = QtCore.QLocale.system().toString(float(s_orig), "f", self._part_decimal)
 
-                if QtCore.QLocale.system().toString(float(s), "f", 1)[1] == ",":
+                if QtCore.QLocale.system().toString(float(s_orig), "f", 1)[1] == ",":
                     s = s.replace(".", "")
                 else:
                     s = s.replace(",", "")
