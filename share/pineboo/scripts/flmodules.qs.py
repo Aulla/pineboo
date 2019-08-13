@@ -37,7 +37,7 @@ class FormInternalObj(qsa.FormDBWidget):
             if nombre.endswith(u".ar"):
                 if not self.cargarAr(nombre, contenido, log, directorio):
                     return
-            log.append(util.translate(u"scripts", u"- Cargando :: ") + nombre)
+            log.append(qsa.util.translate(u"scripts", u"- Cargando :: ") + nombre)
             cursorFicheros.setModeAccess(cursorFicheros.Insert)
             cursorFicheros.refreshBuffer()
             cursorFicheros.setValueBuffer(u"nombre", nombre)

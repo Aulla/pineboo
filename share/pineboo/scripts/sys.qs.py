@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
 import traceback
+from pineboolib import logging
+
+logger = logging.getLogger(__name__)
 
 
 class FormInternalObj(qsa.FormDBWidget):
@@ -12,7 +15,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         settings = qsa.AQSettings()
         flfactppal = qsa.SysType().isLoadedModule("flfactppal")
-        if flfactppal is not None:
+        if flfactppal is True:
             try:
                 codEjercicio = qsa.from_project("flfactppal").iface.pub_ejercicioActual()
             except Exception as e:
