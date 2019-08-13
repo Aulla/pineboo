@@ -3450,27 +3450,25 @@ class FLFieldDB(QtWidgets.QWidget):
         else:
             self.fieldAlias_ = self.fieldName_
 
-        if not self.editor_:
+        from pineboolib.application import project
 
-            from pineboolib.application import project
+        self.editor_ = QLineEdit(self)
+        self.editor_.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        if self.textLabelDB:
+            self.textLabelDB.setSizePolicy(
+                QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Fixed
+            )
+        # self.editor_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self.editor_.setMinimumWidth(100)
+        if project.DGI.mobilePlatform():
+            self.editor_.setMinimumHeight(60)
 
-            self.editor_ = QLineEdit(self)
-            self.editor_.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-            if self.textLabelDB:
-                self.textLabelDB.setSizePolicy(
-                    QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Fixed
-                )
-            # self.editor_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
-            self.editor_.setMinimumWidth(100)
-            if project.DGI.mobilePlatform():
-                self.editor_.setMinimumHeight(60)
+        if self.FLWidgetFieldDBLayout:
+            self.FLWidgetFieldDBLayout.addWidget(self.editor_)
+        self.editor_.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusProxy(self.editor_)
 
-            if self.FLWidgetFieldDBLayout:
-                self.FLWidgetFieldDBLayout.addWidget(self.editor_)
-            self.editor_.setFocusPolicy(Qt.StrongFocus)
-            self.setFocusProxy(self.editor_)
-
-            self.editor_.show()
+        self.editor_.show()
 
         if self.textLabelDB:
             self.textLabelDB.setText(self.fieldAlias_)
