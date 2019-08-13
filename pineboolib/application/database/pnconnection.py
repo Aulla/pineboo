@@ -73,12 +73,18 @@ class PNConnection(QtCore.QObject, IConnection):
 
         self.driverName_ = self.driverSql.aliasToName(driverAlias)
 
+        self.transaction_ = 0
+        self.stackSavePoints_ = []
+        self.queueSavePoints_ = []
+        self.interactiveGUI_ = True
+        self._last_active_cursor = None
+
         if name and name not in ("dbAux", "Aux"):
             self._isOpen = False
             return
 
         if self.driverName_ and self.driverSql.loadDriver(self.driverName_):
-            self.driver_ = self.driverSql.driver()
+            # self.driver_ = self.driverSql.driver()
             self.conn = self.conectar(db_name, db_host, db_port, db_userName, db_password)
             if self.conn is False:
                 return
@@ -91,11 +97,6 @@ class PNConnection(QtCore.QObject, IConnection):
 
             sys.exit(0)
 
-        self.transaction_ = 0
-        self.stackSavePoints_ = []
-        self.queueSavePoints_ = []
-        self.interactiveGUI_ = True
-        self._last_active_cursor = None
         self.driver().db_ = self
 
     @decorators.NotImplementedWarn
@@ -187,6 +188,8 @@ class PNConnection(QtCore.QObject, IConnection):
 
     def driver(self) -> Any:
         """Return the instance of the driver that is using the connection."""
+        if self.driver_ is None:
+            self.driver_ = self.driverSql.driver()
 
         return self.driver_
 
