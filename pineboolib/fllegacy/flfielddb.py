@@ -3223,6 +3223,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
     def setEnabled(self, enable: bool) -> None:
         # print("FLFieldDB: %r setEnabled: %r" % (self.fieldName_, enable))
+
         if self.editor_:
             if not self.cursor():
                 self.default_style = self.editor_.styleSheet()
@@ -3239,8 +3240,10 @@ class FLFieldDB(QtWidgets.QWidget):
                     if not enable or not field.editable():
                         self.editor_.setStyleSheet("background-color: #f0f0f0")
                     else:
-                        if not field.allowNull() and not (
-                            field.type() == "time" or field.type() == "date"
+                        if (
+                            not field.allowNull()
+                            and not (field.type() == "time" or field.type() == "date")
+                            and (self.cursor_ and self.cursor_.modeAccess() != self.cursor_.Browse)
                         ):
                             self.editor_.setStyleSheet(
                                 "background-color:%s; color:%s"
