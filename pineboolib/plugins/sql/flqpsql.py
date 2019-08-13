@@ -466,13 +466,10 @@ class FLQPSQL(object):
         if not self.isOpen():
             return False
 
-        t = PNSqlQuery()
-        t.setForwardOnly(True)
-        ok = t.exec_("select relname from pg_class where relname = '%s'" % name)
-        if ok:
-            ok = t.next()
-
-        del t
+        cur_ = self.conn_.cursor()
+        cur_.execute("select relname from pg_class where relname = '%s'" % name)
+        result_ = cur_.fetchone()
+        ok = False if result_ is None else True
         return ok
 
     def sqlCreateTable(self, tmd) -> Optional[str]:
@@ -1565,6 +1562,7 @@ class FLQPSQL(object):
             q = self.fix_query(q)
             cursor.execute(q)
         except Exception:
+            logger.warning("**", stack_info=True)
             self.setLastError("No se puedo ejecutar la siguiente query %s" % q, q)
             qWarning(
                 "PSQLDriver:: No se puedo ejecutar la siguiente query %s\n %s"
