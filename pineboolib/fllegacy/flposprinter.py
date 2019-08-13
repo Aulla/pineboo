@@ -1,3 +1,5 @@
+"""Flposprinter module."""
+
 # -*- coding: utf-8 -*-
 from pineboolib.core import decorators
 from typing import Any, List
@@ -7,45 +9,68 @@ P57_5MM = 57
 P69_5MM = 69
 
 
-class FLPosPrinter:
+class FLPosPrinter(object):
+    """FLPosPrinter Class."""
 
-    printerName_ = None
-    strBuffer: List[str] = []
-    escBuffer: List[str] = []
-    idxBuffer: List[str] = []
-    server_ = None
-    queueName_ = None
+    printerName_: str
+    strBuffer: List[str]
+    escBuffer: List[str]
+    idxBuffer: List[str]
+    PaperWidth: List[int]
+    paperWidth_: int
+    server_: str
+    queueName_: str
 
     def __init__(self) -> None:
+        """Inicialize."""
 
-        self.PaperWidth: List[int] = [P57_5MM, P69_5MM, P76MM]
-        self.paperWidth_: int = P76MM
+        self.strBuffer = []
+        self.escBuffer = []
+        self.idxBuffer = []
+
+        self.PaperWidth = [P57_5MM, P69_5MM, P76MM]
+        self.paperWidth_ = P76MM
 
     def __del__(self) -> None:
+        """Destroyer."""
+
         self.cleanup()
 
     def paperWidths(self) -> List[int]:
+        """Return page widths."""
+
         return self.PaperWidth
 
     def paperWidth(self) -> int:
+        """Return the current page width."""
+
         return self.paperWidth_
 
-    def setPaperWidth(self, pW) -> None:
+    def setPaperWidth(self, pW: int) -> None:
+        """Set the paper width."""
+
         self.paperWidth_ = pW
 
-    def printerName(self) -> Any:
+    def printerName(self) -> str:
+        """Return the name of the printer."""
+
         return self.printerName_
 
     @decorators.NotImplementedWarn
-    def metric(self, m):
+    def metric(self, m: Any):
+        """Not implemented."""
+
         pass
 
-    @decorators.NotImplementedWarn
-    def setPrinterName(self, name):
-        pass
+    def setPrinterName(self, name: str) -> None:
+        """Set the name of the printer."""
+
+        self.printerName_ = name
 
     @decorators.BetaImplementation
-    def cleanup(self):
+    def cleanup(self) -> None:
+        """Clean buffer values."""
+
         if self.strBuffer:
             self.strBuffer = []
 
@@ -56,27 +81,34 @@ class FLPosPrinter:
 
     @decorators.NotImplementedWarn
     def flush(self):
+        """Not implemented."""
         pass
 
     @decorators.NotImplementedWarn
-    def send(self, str_, col=-1, row=-1):
+    def send(self, str_: str, col: int = -1, row: int = -1):
+        """Not implemented."""
         pass
 
     @decorators.NotImplementedWarn
-    def sendStr(self, c, col, row):
+    def sendStr(self, c: str, col: int, row: int):
+        """Not implemented."""
         pass
 
     @decorators.NotImplementedWarn
-    def sendEsc(self, e, col, row):
+    def sendEsc(self, e: str, col: int, row: int):
+        """Not implemented."""
         pass
 
     @decorators.NotImplementedWarn
-    def cmd(self, c, paint, p):
+    def cmd(self, c: str, paint: Any, p: Any):
+        """Not implemented."""
         pass
 
     @decorators.BetaImplementation
-    def paperWidthToCols(self):
-        ret = None
+    def paperWidthToCols(self) -> int:
+        """Return the number of columns from the paper width."""
+
+        ret = -1
         if self.paperWidth_ is P76MM:
             ret = 80
         elif self.paperWidth_ is P69_5MM:
@@ -87,24 +119,30 @@ class FLPosPrinter:
 
     @decorators.NotImplementedWarn
     def initFile(self):
+        """Not implemented."""
         pass
 
     @decorators.BetaImplementation
-    def initStrBuffer(self):
+    def initStrBuffer(self) -> None:
+        """Initialize the strBuffer buffer."""
+
         if not self.strBuffer:
             self.strBuffer = []
         else:
             self.strBuffer.clear()
 
     @decorators.BetaImplementation
-    def initEscBuffer(self):
+    def initEscBuffer(self) -> None:
+        """Initialize the escBuffer buffer."""
         if not self.escBuffer:
             self.escBuffer = []
         else:
             self.escBuffer.clear()
 
     @decorators.BetaImplementation
-    def parsePrinterName(self):
+    def parsePrinterName(self) -> None:
+        """Resolve values ​​from the printer name."""
+
         posdots = self.printerName_.find(":")
         self.server_ = self.printerName_[:posdots]
         self.queueName_ = self.printerName_[posdots:]
