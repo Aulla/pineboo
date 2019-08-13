@@ -206,19 +206,28 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
 
         if hasattr(receiver, "iface"):
             iface = getattr(receiver, "iface")
-            if hasattr(iface, sl_name):
-                try:
-                    getattr(sender, sg_name).connect(getattr(iface, sl_name))
-                except Exception:
-                    logger.exception(
-                        "Error connecting: %s:%s %s.iface:%s",
-                        sender,
-                        signal_name,
-                        receiver,
-                        slot_name,
-                    )
-                continue
-        if hasattr(receiver, sl_name):
+            # try:
+            #    receiver.connect(
+            #        sender,
+            #        signal_name,
+            #        receiver,
+            #        "%s%s" % ("iface." if hasattr(iface, sl_name) else "", slot_name),
+            #    )
+            #     getattr(sender, sg_name).connect(getattr(iface, sl_name))
+            # except Exception:
+            #    logger.exception(
+            #        "Error connecting: %s:%s %s.iface:%s", sender, signal_name, receiver, slot_name
+            #    )
+            logger.warning(
+                "DEPRECATED: This type of connection must be made in the module init: %s %s %s %s",
+                sender_name,
+                signal_name,
+                receiv_name,
+                slot_name,
+            )
+            continue
+
+        elif hasattr(receiver, sl_name):
             try:
                 getattr(sender, sg_name).connect(getattr(receiver, sl_name))
             except Exception:
