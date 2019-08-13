@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from pineboolib.fllegacy.flformrecorddb import FLFormRecordDB
     from .moduleactions import ModuleActions  # noqa: F401
     from .database.pnsqlcursor import PNSqlCursor  # noqa: F401
+    from .projectmodule import Project
 
 
 class XMLAction(ActionStruct):
@@ -26,7 +27,7 @@ class XMLAction(ActionStruct):
     mod: Optional["ModuleActions"]
     alias: str
 
-    def __init__(self, *args, project, name=None, **kwargs) -> None:
+    def __init__(self, *args, project: "Project", name: Optional[str] = None, **kwargs) -> None:
         """
         Constructor.
         """
@@ -128,7 +129,7 @@ class XMLAction(ActionStruct):
 
         return self.mainform_widget
 
-    def execMainScript(self, name) -> None:
+    def execMainScript(self, name: str) -> None:
         """
         Execute function for main action.
         """

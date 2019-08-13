@@ -4,7 +4,7 @@ Collect information from the query, such as field tables, lines, etc ...
 
 from pineboolib.core.utils import logging
 import datetime
-from typing import Dict, Iterable, Tuple, Union, Any, List, Optional, TYPE_CHECKING
+from typing import Dict, Tuple, Union, Any, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401
@@ -44,7 +44,7 @@ class SqlInspector(object):
             # self.table_names()
             # self.field_names()
 
-    def mtd_fields(self) -> Dict[int, Any]:
+    def mtd_fields(self) -> Dict[int, "IFieldMetaData"]:
         """
         Return a dictionary with the fields of the query.
 
@@ -91,7 +91,7 @@ class SqlInspector(object):
 
         raise Exception("No se encuentra el campo %s el la query:\n%s" % (name, self._sql))
 
-    def posToFieldName(self, pos) -> str:
+    def posToFieldName(self, pos: int) -> str:
         """
         Return the name of a field, from the position.
 
@@ -100,12 +100,12 @@ class SqlInspector(object):
         """
 
         for k, v in self._field_names:
-            if v == pos:
+            if int(v) == pos:
                 return k
 
         raise Exception("fieldName not found!")
 
-    def _resolve_fields(self, sql) -> None:
+    def _resolve_fields(self, sql: str) -> None:
         """
         Break the query into the different data.
 
@@ -124,8 +124,8 @@ class SqlInspector(object):
             for field in fields_list:
                 field = field.replace(" ", "")
                 if field.find(",") > -1:
-                    field = field.split(",")
-                    fl = fl + field
+                    extra_fields: List[str] = field.split(",")
+                    fl = fl + extra_fields
                 else:
                     fl.append(field)
 
@@ -216,7 +216,7 @@ class SqlInspector(object):
 
             self._create_mtd_fields(fl_finish, tablas)
 
-    def resolve_empty_value(self, pos) -> Any:
+    def resolve_empty_value(self, pos: int) -> Any:
         """
         Return a data type according to field type and value None.
 
@@ -258,7 +258,9 @@ class SqlInspector(object):
 
         return ret_
 
-    def resolve_value(self, pos, value: Union[bytes, float, str, datetime.time], raw=False) -> Any:
+    def resolve_value(
+        self, pos: int, value: Union[bytes, float, str, datetime.time], raw: bool = False
+    ) -> Any:
         """
         Return a data type according to field type.
 
@@ -320,7 +322,7 @@ class SqlInspector(object):
 
         return ret_
 
-    def _create_mtd_fields(self, fields_list: Iterable, tables_list: Iterable) -> None:
+    def _create_mtd_fields(self, fields_list: list, tables_list: list) -> None:
         """
         Solve the fields that make up the query.
 
@@ -408,7 +410,7 @@ def resolve_query(table_name: str, params: Dict[str, str]) -> Tuple[str, str]:
     return where, order_by
 
 
-def resolve_order_params(key, valor: str) -> Any:
+def resolve_order_params(key: str, valor: str) -> Any:
     """
     Solve the order information of a DJANGO query.
     """
@@ -508,7 +510,7 @@ def resolve_pagination(query: Dict[str, Any]) -> Tuple[str, str]:
         return ("0", "50")
 
 
-def get_tipo_aqnext(tipo) -> int:
+def get_tipo_aqnext(tipo: str) -> int:
     """Solve the type of data used by DJANGO."""
 
     tipo_ = 3
