@@ -188,8 +188,9 @@ class SqlInspector(object):
                         self._alias[t] = prev_
                         last_was_table = False
                     else:
-                        tablas.append(t)
-                        last_was_table = True
+                        if t != "":
+                            tablas.append(t)
+                            last_was_table = True
                     prev_ = t
 
             temp_tl: List[str] = []
@@ -275,7 +276,6 @@ class SqlInspector(object):
         type_ = "double"
         if pos not in self._mtd_fields.keys():
             if pos not in self._field_names.values():
-                print(pos, self._field_names)
                 logger.warning("SQL_TOOLS : resolve_value : No se encuentra la posición %s", pos)
                 return None
         else:
@@ -340,10 +340,10 @@ class SqlInspector(object):
         self._mtd_fields = {}
         self._invalid_tables = []
         self._table_names = list(tables_list)
-        self._field_names = {k: n for n, k in enumerate(fields_list)}
+        # self._field_names = {k: n for n, k in enumerate(fields_list)}
 
         for number_, field_name_org in enumerate(list(fields_list)):
-            # self._field_names.append(field_name_org)
+            self._field_names[field_name_org] = number_
             field_name = field_name_org
             for table_name in list(tables_list):
                 mtd_table = project.conn.manager().metadata(table_name)
@@ -362,9 +362,9 @@ class SqlInspector(object):
                     if mtd_field is not None:
                         self._mtd_fields[number_] = mtd_field
                     # fields_list.remove(field_name_org)
-            else:
-                if table_name not in self._invalid_tables:
-                    self._invalid_tables.append(table_name)
+                else:
+                    if table_name not in self._invalid_tables:
+                        self._invalid_tables.append(table_name)
                     # tables_list.remove(table_name)
 
 
