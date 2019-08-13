@@ -205,7 +205,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
             continue
 
         if hasattr(receiver, "iface"):
-            iface = getattr(receiver, "iface")
+            # iface = getattr(receiver, "iface")
             # try:
             #    receiver.connect(
             #        sender,
