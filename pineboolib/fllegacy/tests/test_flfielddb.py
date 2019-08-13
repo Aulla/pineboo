@@ -38,6 +38,25 @@ class TestFLFieldDBString(unittest.TestCase):
 
         # module_.form.close()
 
+    def test_button_in_empty_buffer(self) -> None:
+        """Check that the button is displayed on a control that points to a non-existent field."""
+        from pineboolib.fllegacy import flfielddb
+        from pineboolib.qsa import dictmodules
+
+        module_ = dictmodules.from_project("formRecordflmodules")
+        parent = module_.form
+        new_field = flfielddb.FLFieldDB(parent)
+        new_field.setObjectName("fake_control")
+        new_field.setFieldName("tes_field")
+        new_field.load()
+        lay = parent.layout()
+        lay.addWidget(new_field)
+
+        field = module_.child("fake_control")
+        self.assertTrue(field)
+        field.showWidget()
+        self.assertEqual(field.pushButtonDB.isHidden(), False)
+
 
 if __name__ == "__main__":
     unittest.main()
