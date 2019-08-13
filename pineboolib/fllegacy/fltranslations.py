@@ -1,3 +1,5 @@
+"""Fltranslations mdoule."""
+
 # -*- coding: utf-8 -*-
 import os
 from pineboolib import logging
@@ -13,27 +15,28 @@ Esta clase gestiona las diferenetes trducciones de módulos y aplicación
 
 
 class FLTranslations(object):
-
-    TML = None
-    qmFileName = None
-
     """
-    Constructor
+    FLTranslations class manages the different module and application traductions.
     """
+
+    qmFileName: str
 
     def __init__(self) -> None:
+        """Initialize."""
+
         super(FLTranslations, self).__init__()
         self.logger = logging.getLogger("FLTranslations")
 
-    """
-    Si no existe el .qm convierte el .ts que le damos a .qm
-    @param tor. Objeto clase metatranslator. type: "FLTranslator"
-    @param tsFileName. Nombre del fichero .ts a convertir
-    @param verbose. Muestra verbose (True, False)
-    @return Boolean. Proceso realizado correctamente
-    """
-
     def loadTsFile(self, tor: Any, ts_file_name: Union[bytes, int, str], verbose) -> bool:
+        """
+        If the .qm does not exist, convert the .ts we give to .qm.
+
+        @param tor. Object metatranslator class. type: "FLTranslator".
+        @param tsFileName. Name of the .ts file to convert.
+        @param verbose. Sample verbose (True, False).
+        @return Boolean. Successful process.
+        """
+
         # qm_file_name = "%s.qm" % ts_file_name[:-3]
         ok = False
         if os.path.exists(ts_file_name):
@@ -43,15 +46,16 @@ class FLTranslations(object):
             self.logger.warning("For some reason, I cannot load '%s'", ts_file_name)
         return ok
 
-    """
-    Libera el fichero .ts
-    @param tsFileName. Nombre del fichero .ts
-    @param verbose. Muestra verbose (True, False)
-    @param stripped. no usado
-    """
-
     @decorators.Deprecated
     def releaseTsFile(self, ts_file_name: str, verbose: bool, stripped: bool) -> None:
+        """
+        Free the .ts file.
+
+        @param tsFileName. .Ts file name
+        @param verbose. Sample verbose (True, False)
+        @param stripped. not used
+        """
+
         pass
         # tor = None
 
@@ -62,14 +66,15 @@ class FLTranslations(object):
         # if not os.path.exists(qm_file_name):
         #     self.releaseMetaTranslator(tor, qm_file_name, verbose, stripped)
 
-    """
-    Convierte el fichero .ts en .qm
-    @param tsImputFile. Nombre del fichero .ts origen
-    @param qmOutputFile. Nombre del fichero .qm destino
-    @param stripped. No usado
-    """
-
     def lrelease(self, ts_input_file: str, qm_output_file: str, stripped: bool = True) -> None:
+        """
+        Convert the .ts file to .qm.
+
+        @param tsImputFile. Source .ts file name.
+        @param qmOutputFile. Destination .qm file name.
+        @param stripped. Not used.
+        """
+
         from pineboolib.application import project
 
         verbose = False
@@ -110,15 +115,7 @@ class FLTranslations(object):
                 )
 
 
-"""
-Esta clase llama al conversor  de fichero .qs
-"""
-
-
-"""
-Devuelve la traducción si existe
-"""
-
-
 def FLTranslate(group: str, context: str, translate: bool = True) -> str:
+    """Return the translation if it exists."""
+
     return Qt.qApp.translate(group.encode(), context.encode()) if translate else context
