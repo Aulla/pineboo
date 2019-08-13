@@ -43,7 +43,7 @@ class ProxySlot:
 
 def get_expected_args_num(inspected_function: Callable) -> int:
     """Inspect function to get how many arguments expects."""
-    expected_args = inspect.getargspec(inspected_function)[0]
+    expected_args = inspect.getfullargspec(inspected_function)[0]
     args_num = len(expected_args)
 
     if args_num and expected_args[0] == "self":
