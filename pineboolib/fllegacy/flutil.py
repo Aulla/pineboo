@@ -296,7 +296,7 @@ class FLUtil(QtCore.QObject):
 
     @classmethod
     @decorators.BetaImplementation
-    def enLetraMoneda(cls, n: int, m: str) -> str:
+    def enLetraMoneda(cls, n: Union[int, str, float], m: str) -> str:
         """
         Obtiene la expresión en texto de como se enuncia una cantidad monetaria, en castellano
         y en cualquier moneda indicada.
@@ -309,6 +309,9 @@ class FLUtil(QtCore.QObject):
         @param m Nombre de la moneda
         @return Cadena de texto con su expresión hablada
         """
+        if isinstance(n, str):
+            n = float(n)
+
         nTemp = n * -1.00 if n < 0.00 else n
         entero = cls.partInteger(nTemp)
         decimal = cls.partDecimal(nTemp)
