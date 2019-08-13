@@ -186,7 +186,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         self.FLWidgetFieldDBLayout.addWidget(self.textLabelDB)
 
-        self.pushButtonDB = QPushButton()
+        self.pushButtonDB = QPushButton(self)
         if project.DGI.localDesktop():
             self.setFocusProxy(self.pushButtonDB)
         # self.pushButtonDB.setFlat(True)
@@ -3419,6 +3419,12 @@ class FLFieldDB(QtWidgets.QWidget):
                                     self.setValue(value)
                                 if not tMD.inCache():
                                     del tMD
+                    else:
+                        if (
+                            self.cursor_.metadata().field(self.fieldName_) is None
+                            and not self.foreignField_
+                        ):
+                            self.initFakeEditor()
 
                 else:
                     self.initFakeEditor()
@@ -3438,7 +3444,6 @@ class FLFieldDB(QtWidgets.QWidget):
     """
 
     def initFakeEditor(self) -> None:
-
         hasPushButtonDB = None
         if not self.tableName_ and not self.foreignField_ and not self.fieldRelation_:
             hasPushButtonDB = True
@@ -3468,7 +3473,9 @@ class FLFieldDB(QtWidgets.QWidget):
         self.editor_.setFocusPolicy(Qt.StrongFocus)
         self.setFocusProxy(self.editor_)
 
-        self.editor_.show()
+        if not self.tableName():
+            self.showEditor_ = False
+            self.textLabelDB = None
 
         if self.textLabelDB:
             self.textLabelDB.setText(self.fieldAlias_)
@@ -3496,7 +3503,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if self.actionName_:
             prty += "aN:" + str(self.actionName_).upper() + ","
 
-        if prty:
+        if prty != "":
             self.editor_.setText(prty)
             self.setEnabled(False)
             self.editor_.home(False)
