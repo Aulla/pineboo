@@ -154,6 +154,7 @@ class FLDataTable(QtWidgets.QTableView):
         self.onlyTable_ = False
         self.function_get_color = None
         self.changingNumRows_ = False
+        self.cursor_ = None
 
         self._v_header = self.verticalHeader()
         self._v_header.setDefaultSectionSize(22)
