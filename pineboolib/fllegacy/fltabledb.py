@@ -1536,9 +1536,6 @@ class FLTableDB(QtWidgets.QWidget):
                     if type_ == "date":
                         from pineboolib.fllegacy.fldateedit import FLDateEdit
 
-                        if editor_ is None:
-                            raise Exception("editor_ is Empty!")
-
                         editor_ = FLDateEdit(self, _label)
                         if editor_ is None:
                             raise Exception("editor_ is Empty!")
