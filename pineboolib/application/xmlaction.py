@@ -300,7 +300,7 @@ class XMLAction(ActionStruct):
             except Exception:
                 self.logger.exception("ERROR al cargar script QS para la accion %s:", action_.name)
 
-        script_loaded.form = script_loaded.FormInternalObj(action_, self.project, parent_object)
+        script_loaded.form = script_loaded.FormInternalObj(action_, parent_object)
         if parent_object and parent:
             parent_object.widget = script_loaded.form
             if getattr(parent_object.widget, "iface", None):
