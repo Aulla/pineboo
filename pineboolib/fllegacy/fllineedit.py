@@ -164,7 +164,7 @@ class FLLineEdit(QtWidgets.QLineEdit):
                 if s_orig != "":
                     s = QtCore.QLocale.system().toString(float(s_orig), "f", self._part_decimal)
 
-                if QtCore.QLocale.system().toString(float(s_orig), "f", 1)[1] == ",":
+                if QtCore.QLocale.system().toString(1.1, "f", 1)[1] == ",":
                     s = s.replace(".", "")
                 else:
                     s = s.replace(",", "")
