@@ -10,7 +10,7 @@ import sys
 
 if TYPE_CHECKING:
     from pineboolib.application.database import pnsqlcursor  # type: ignore
-    from pineboolib.application import xmlaction
+    from pineboolib.application import xmlaction  # noqa: F401
 
 
 class FormDBWidget(QtWidgets.QWidget):
@@ -36,7 +36,7 @@ class FormDBWidget(QtWidgets.QWidget):
         self._module = sys.modules[self.__module__]
         self._action = action
         self.cursor_ = None
-        self.parent_ = parent
+        self.parent_ = parent or QtWidgets.QWidget()
 
         if parent and hasattr(parent, "parentWidget"):
             self.parent_ = parent.parentWidget()
@@ -102,9 +102,11 @@ class FormDBWidget(QtWidgets.QWidget):
     def closeEvent(self, event: QtCore.QEvent) -> None:
         """Close event."""
 
-        if not self._action:
+        if self._action is None:
             self._action = getattr(self.parent(), "_action")
-        self.logger.debug("closeEvent para accion %r", self._action.name)
+
+        if self._action is not None:
+            self.logger.debug("closeEvent para accion %r", self._action.name)
         self.closed.emit()
         event.accept()  # let the window close
         self.doCleanUp()
@@ -113,11 +115,12 @@ class FormDBWidget(QtWidgets.QWidget):
         """Cleanup gabange and connections."""
 
         self.clear_connections()
-        if getattr(self, "iface", None) is not None:
+        iface = getattr(self, "iface", None)
+        if iface is not None and self._action is not None:
             from pineboolib.core.garbage_collector import check_gc_referrers
 
             check_gc_referrers(
-                "FormDBWidget.iface:" + self.iface.__class__.__name__,
+                "FormDBWidget.iface:" + iface.__class__.__name__,
                 weakref.ref(self.iface),
                 self._action.name,
             )
@@ -187,6 +190,9 @@ class FormDBWidget(QtWidgets.QWidget):
             self.cursor_ = cursor
         else:
             if not self.cursor_:
+                if self._action is None:
+                    raise Exception("_action is empty!.")
+
                 from pineboolib.application import project
                 from pineboolib.application.database.pnsqlcursor import PNSqlCursor
 
