@@ -1,5 +1,5 @@
-from .messagebox import MessageBox
+from . import messagebox
 
 
-class QMessageBox(MessageBox):
+class QMessageBox(messagebox.MessageBox):
     pass

@@ -24,7 +24,11 @@ class FormDBWidget(QtWidgets.QWidget):
 
     logger = logging.getLogger("qt3_widgets.formdbwidget.FormDBWidget")
 
-    def __init__(self, action: "xmlaction.XMLAction", parent: QtWidgets.QWidget):
+    def __init__(
+        self,
+        action: Optional["xmlaction.XMLAction"] = None,
+        parent: Optional[QtWidgets.QWidget] = None,
+    ):
         """Inicialize."""
 
         super().__init__(parent)
@@ -37,8 +41,11 @@ class FormDBWidget(QtWidgets.QWidget):
         if parent and hasattr(parent, "parentWidget"):
             self.parent_ = parent.parentWidget()
 
-        if isinstance(self.parent(), QtWidgets.QDialog):
-            self.form = self.parent()
+        self.form = None
+        from pineboolib.fllegacy import flformdb
+
+        if isinstance(parent, flformdb.FLFormDB):
+            self.form = parent
 
         self._formconnections: Set[Tuple] = set([])
 
