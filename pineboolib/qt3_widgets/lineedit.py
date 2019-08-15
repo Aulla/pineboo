@@ -2,11 +2,11 @@
 
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets  # type: ignore
-from .qwidget import QWidget
+from . import qwidget
 from typing import Any
 
 
-class LineEdit(QWidget):
+class LineEdit(qwidget.QWidget):
     """LineEdit class."""
 
     _label: QtWidgets.QLabel

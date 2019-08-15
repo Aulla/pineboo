@@ -1,14 +1,21 @@
+"""Groupbox module."""
+
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtWidgets  # type: ignore
-from .qgroupbox import QGroupBox
+from PyQt5 import QtWidgets
+from . import qgroupbox
 
 
-class GroupBox(QGroupBox):
+class GroupBox(qgroupbox.QGroupBox):
+    """GroupBox class."""
+
     def __init__(self, *args) -> None:
-        super(GroupBox, self).__init__(*args)
-        self._layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._layout)
+        """Inicialize."""
 
-    def add(self, _object) -> None:
-        self._layout.addWidget(_object)
+        super().__init__(*args)
+        self.setLayout(QtWidgets.QVBoxLayout())
+
+    def add(self, widget: QtWidgets.QWidget) -> None:
+        """Add new widget."""
+
+        self.layout().addWidget(widget)

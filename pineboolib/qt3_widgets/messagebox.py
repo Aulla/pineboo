@@ -1,3 +1,5 @@
+"""Messagebox module."""
+
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMessageBox, QApplication  # type: ignore
@@ -8,16 +10,21 @@ logger = logging.getLogger("messageBox")
 
 
 class MessageBox(QMessageBox):
+    """MessageBox class."""
+
     @classmethod
     def msgbox(
         cls, typename, text, button0, button1=None, button2=None, title=None, form=None
     ) -> Any:
+        """Return a messageBox."""
+
         from pineboolib.application import project
 
         if project._splash:
             project._splash.hide()
 
         if not isinstance(text, str):
+            logger.warning("MessageBox help!", stack_info=True)
             # temp = text
             text = button1
             button1 = title
@@ -70,14 +77,18 @@ class MessageBox(QMessageBox):
 
     @classmethod
     def question(cls, *args) -> Any:
+        """Return an question messageBox."""
+
         return cls.msgbox("question", *args)
 
     @classmethod
     def information(cls, *args) -> Any:
+        """Return an information messageBox."""
         return cls.msgbox("question", *args)
 
     @classmethod
     def warning(cls, *args) -> Any:
+        """Return an warning messageBox."""
         clip_board = QApplication.clipboard()
         clip_board.clear()
         text_ = args[0] if isinstance(args[0], str) else args[2]
@@ -87,6 +98,7 @@ class MessageBox(QMessageBox):
 
     @classmethod
     def critical(cls, *args) -> Any:
+        """Return an critical messageBox."""
         clip_board = QApplication.clipboard()
         clip_board.clear()
         text_ = args[0] if isinstance(args[0], str) else args[2]
