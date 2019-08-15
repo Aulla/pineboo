@@ -228,6 +228,7 @@ class FLFormDB(QDialog):
         self.showed = False
         self.isClosing_ = False
         self.mainWidget_ = None
+        self.iface = None
 
         # if not self._scriptForm and self._action.scriptForm():
         #    self._scriptForm = self._action.scriptForm()
@@ -242,6 +243,7 @@ class FLFormDB(QDialog):
         self.logger.info("init: Action: %s", self._action)
         self.script = project.actions[self._action.name()].load_script(script_name, self)
         self.widget = self.script.form
+
         if hasattr(self.widget, "iface"):
             self.iface = self.widget.iface
 
