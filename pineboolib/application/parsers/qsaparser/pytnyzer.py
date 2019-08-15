@@ -329,7 +329,10 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
 
         if name in QSA_KNOWN_ATTRS:
             if not STRICT_MODE and name in DISALLOW_CONVERSION_FOR_NONSTRICT:
-                return name
+                if name in ["connect", "disconnect"]:  # self.module_connect
+                    return "self.module_%s" % name
+                else:
+                    return name
             return "qsa.%s" % name
 
         if transform is not None and name in transform:
