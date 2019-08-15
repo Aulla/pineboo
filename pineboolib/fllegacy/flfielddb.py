@@ -2338,9 +2338,10 @@ class FLFieldDB(QtWidgets.QWidget):
 
             self.editor_ = FLLineEdit(self, "editor")
             self.editor_.setFont(self.font())
-            if self.iconSize:
+            if self.iconSize and self.font().pointSize() < 10:
                 self.editor_.setMinimumSize(self.iconSize)
                 self.editor_.setMaximumHeight(self.iconSize.height())
+
             self.editor_._tipo = type_
             self.editor_._part_decimal = partDecimal
             if not self.cursor_.modeAccess() == FLSqlCursor.Browse:
