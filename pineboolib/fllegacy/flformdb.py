@@ -227,6 +227,7 @@ class FLFormDB(QDialog):
         self.initFocusWidget_ = None
         self.showed = False
         self.isClosing_ = False
+        self.accepted_ = False
         self.mainWidget_ = None
         self.iface = None
 
