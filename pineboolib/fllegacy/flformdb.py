@@ -230,6 +230,8 @@ class FLFormDB(QDialog):
         self.accepted_ = False
         self.mainWidget_ = None
         self.iface = None
+        self.oldFormObj = None
+        self.oldCursorCtxt = None
 
         # if not self._scriptForm and self._action.scriptForm():
         #    self._scriptForm = self._action.scriptForm()
@@ -303,13 +305,13 @@ class FLFormDB(QDialog):
                 try:
                     self.iface.init()
                 except Exception:
-                    # script_name = self.iface.__module__
                     from pineboolib.core.error_manager import error_manager
                     from pineboolib.application import project
 
                     flapplication.aqApp.msgBoxWarning(
                         error_manager(traceback.format_exc(limit=-6, chain=False)), project._DGI
                     )
+                    return False
 
             return True
 
@@ -538,7 +540,7 @@ class FLFormDB(QDialog):
     def callInitScript(self) -> None:
         """Call QS Script related to this control."""
         if not self.initScript():
-            return
+            raise Exception("Error initializing the module.")
 
         if not self.isClosing_:
             QtCore.QTimer.singleShot(0, self.emitFormReady)

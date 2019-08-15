@@ -869,14 +869,15 @@ class FLFormRecordDB(FLFormDB):
                 self.cursor().transaction()
                 self.initTransLevel = self.cursor().transactionLevel()
                 self.setCaptionWidget(caption)
-                self.cursor().setContext(self.iface)
+                iface = getattr(self.script, "iface", None)
+                if iface is not None:
+                    self.cursor().setContext(iface)
             if self.cursor().modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
                 self.showAcceptContinue_ = True
             else:
                 self.showAcceptContinue_ = False
 
             self.loadControls()
-
         super(FLFormRecordDB, self).show()
 
     def inicializeControls(self) -> None:
