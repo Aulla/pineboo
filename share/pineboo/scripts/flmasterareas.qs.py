@@ -9,7 +9,7 @@ class FormInternalObj(qsa.FormDBWidget):
         pass
 
     def init(self):
-        connect(self.cursor(), u"cursorUpdated()", self, u"actualizarAreas")
+        self.module_connect(self.cursor(), u"cursorUpdated()", self, u"actualizarAreas")
 
     def actualizarAreas(self):
         qsa.sys.updateAreas()

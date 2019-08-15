@@ -9,8 +9,8 @@ class FormInternalObj(qsa.FormDBWidget):
     def init(self):
         botonCargar = self.child(u"botonCargar")
         botonExportar = self.child(u"botonExportar")
-        connect(botonCargar, u"clicked()", self, u"botonCargar_clicked")
-        connect(botonExportar, u"clicked()", self, u"botonExportar_clicked")
+        self.module_connect(botonCargar, u"clicked()", self, u"botonCargar_clicked")
+        self.module_connect(botonExportar, u"clicked()", self, u"botonExportar_clicked")
         cursor = self.cursor()
         if cursor.modeAccess() == cursor.Browse:
             botonCargar.setEnabled(False)
