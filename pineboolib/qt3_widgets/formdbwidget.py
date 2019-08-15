@@ -1,66 +1,70 @@
+"""Formdbwidget module."""
 # # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtCore
-from typing import Set, Tuple, TYPE_CHECKING
 from pineboolib import logging
+
+
+from typing import Set, Tuple, Optional, Any, TYPE_CHECKING
 import weakref
 import sys
 
+if TYPE_CHECKING:
+    from pineboolib.application.database import pnsqlcursor  # type: ignore
+    from pineboolib.application import xmlaction
+
 
 class FormDBWidget(QtWidgets.QWidget):
+    """FormDBWidget class."""
+
     closed = QtCore.pyqtSignal()
-    cursor_ = None
-    parent_ = None
+    cursor_: Optional["pnsqlcursor.PNSqlCursor"]
+    parent_: QtWidgets.QWidget
     iface: object
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
 
     logger = logging.getLogger("qt3_widgets.formdbwidget.FormDBWidget")
 
-    def __init__(self, action=None, project=None, parent=None):
-        if project is not None:
+    def __init__(self, action: "xmlaction.XMLAction", parent: QtWidgets.QWidget):
+        """Inicialize."""
 
-            super().__init__(parent)
+        super().__init__(parent)
 
-            self._module = sys.modules[self.__module__]
-            self._module.connect = (
-                self._connect
-            )  # FIXME: Please don't write to the module. Fails flake8/mypy.
-            self._module.disconnect = self._disconnect
-            self._action = action
-            self.cursor_ = None
-            self.parent_ = (
-                parent or parent.parentWidget()
-                if parent and hasattr(parent, "parentWidget")
-                else parent
-            )
+        self._module = sys.modules[self.__module__]
+        self._action = action
+        self.cursor_ = None
+        self.parent_ = parent
 
-            if not TYPE_CHECKING:
-                # FIXME: qt3_widgets should not interact with fllegacy
-                from pineboolib.fllegacy.flformdb import FLFormDB
+        if parent and hasattr(parent, "parentWidget"):
+            self.parent_ = parent.parentWidget()
 
-                if isinstance(self.parent(), FLFormDB):
-                    self.form = self.parent()
+        if isinstance(self.parent(), QtWidgets.QDialog):
+            self.form = self.parent()
 
-            self._formconnections: Set[Tuple] = set([])
+        self._formconnections: Set[Tuple] = set([])
 
         self._class_init()
 
-    def _connect(self, sender, signal, receiver, slot):
+    def module_connect(self, sender: Any, signal: str, receiver: Any, slot: str) -> None:
+        """Connect two objects."""
+
         # print(" > > > connect:", sender, " signal ", str(signal))
         from pineboolib.application import connections
 
         signal_slot = connections.connect(sender, signal, receiver, slot, caller=self)
         if not signal_slot:
-            return False
+            return
 
         self._formconnections.add(signal_slot)
 
-    def _disconnect(self, sender, signal, receiver, slot):
+    def module_disconnect(self, sender: Any, signal: str, receiver: Any, slot: str) -> None:
+        """Disconnect two objects."""
+
         # print(" > > > disconnect:", self)
         from pineboolib.application import connections
 
         signal_slot = connections.disconnect(sender, signal, receiver, slot, caller=self)
         if not signal_slot:
-            return False
+            return
 
         for sl in self._formconnections:
             # PyQt5-Stubs misses signal.signal
@@ -71,21 +75,26 @@ class FormDBWidget(QtWidgets.QWidget):
                 self._formconnections.remove(sl)
                 break
 
-    def obj(self):
+    def obj(self) -> Any:
+        """Return self."""
         return self
 
-    def parent(self):
+    def parent(self) -> QtWidgets.QWidget:
+        """Return parent widget."""
+
         return self.parent_
 
-    def _class_init(self):
-        """Constructor de la clase QS (p.ej. interna(context))"""
-        pass
+    # def _class_init(self):
+    #    """Constructor de la clase QS (p.ej. interna(context))"""
+    #    pass
 
-    def init(self):
-        """Evento init del motor. Llama a interna_init en el QS"""
-        pass
+    # def init(self):
+    #    """Evento init del motor. Llama a interna_init en el QS"""
+    #    pass
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QtCore.QEvent) -> None:
+        """Close event."""
+
         if not self._action:
             self._action = getattr(self.parent(), "_action")
         self.logger.debug("closeEvent para accion %r", self._action.name)
@@ -93,7 +102,9 @@ class FormDBWidget(QtWidgets.QWidget):
         event.accept()  # let the window close
         self.doCleanUp()
 
-    def doCleanUp(self):
+    def doCleanUp(self) -> None:
+        """Cleanup gabange and connections."""
+
         self.clear_connections()
         if getattr(self, "iface", None) is not None:
             from pineboolib.core.garbage_collector import check_gc_referrers
@@ -103,15 +114,17 @@ class FormDBWidget(QtWidgets.QWidget):
                 weakref.ref(self.iface),
                 self._action.name,
             )
-            if hasattr(self.iface, "ctx"):
-                del self.iface.ctx
+
+            delattr(self.iface, "ctx")
 
             del self._action.formrecord_widget
 
             self.iface = None
             self._action.formrecord_widget = None
 
-    def clear_connections(self):
+    def clear_connections(self) -> None:
+        """Clear al conecctions established on the module."""
+
         # Limpiar todas las conexiones hechas en el script
         for signal, slot in self._formconnections:
             try:
@@ -122,7 +135,9 @@ class FormDBWidget(QtWidgets.QWidget):
                 pass
         self._formconnections.clear()
 
-    def child(self, child_name):
+    def child(self, child_name: str) -> Optional[QtWidgets.QWidget]:
+        """Return child from name."""
+
         try:
             ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
             if ret is None and self.parent():
@@ -149,7 +164,9 @@ class FormDBWidget(QtWidgets.QWidget):
             self.logger.exception("child: Error trying to get child of <%s>", child_name)
             return None
 
-    def cursor(self):
+    def cursor(self) -> "pnsqlcursor.PNSqlCursor":
+        """Return cursor associated."""
+
         # if self.cursor_:
         #    return self.cursor_
 
@@ -169,9 +186,12 @@ class FormDBWidget(QtWidgets.QWidget):
                 action = project.conn.manager().action(self._action.name)
                 self.cursor_ = PNSqlCursor(action.name())
 
+        if not self.cursor_:
+            raise Exception("cursor is empty!.")
+
         return self.cursor_
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Guess if attribute can be found in other related objects."""
         ret_ = getattr(self.cursor_, name, None)
         if ret_ is None and self.parent():
@@ -193,7 +213,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
         raise AttributeError("FormDBWidget: Attribute does not exist: %r" % name)
 
-    def __hasattr__(self, name):
+    def __hasattr__(self, name: str) -> bool:
         """Guess if attribute can be found in other related objects."""
         ret_ = (
             hasattr(self.cursor_, name)
@@ -202,12 +222,16 @@ class FormDBWidget(QtWidgets.QWidget):
         )
         return ret_
 
-    def __iter__(self):
-        self._iter_current = None
+    def __iter__(self) -> Any:
+        """Return iter."""
+
+        self._iter_current = -1
         return self
 
-    def __next__(self):
-        self._iter_current = 0 if self._iter_current is None else self._iter_current + 1
+    def __next__(self) -> Any:
+        """Return next."""
+
+        self._iter_current = 0 if self._iter_current == -1 else self._iter_current + 1
 
         list_ = [attr for attr in dir(self) if not attr[0] == "_"]
         if self._iter_current >= len(list_):
