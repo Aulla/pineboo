@@ -934,7 +934,7 @@ class FLFormDB(QDialog):
             self.show()
 
     def child(self, child_name: str) -> QtWidgets.QWidget:
-        """Get child by name. Not implemented."""
+        """Get child by name."""
         return self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
 
     # def __getattr__(self, name):

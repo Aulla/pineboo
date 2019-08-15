@@ -1,34 +1,38 @@
+"""FlformSearchdb module."""
+
 # -*- coding: utf-8 -*-
 from pineboolib import logging
 
-from PyQt5 import QtCore, QtWidgets  # type: ignore
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.Qt import QKeySequence  # type: ignore
+from PyQt5.QtGui import QIcon
+
 
 from pineboolib.core import decorators
 from pineboolib.core.settings import config
 from pineboolib.core.utils.utils_base import filedir
 
-from pineboolib.qt3_widgets.qtoolbutton import QToolButton  # type: ignore
-
 from .flformdb import FLFormDB
 from .flsqlcursor import FLSqlCursor
 from . import flapplication
 
-from typing import Any
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from . import flaction
 
 
 class FLFormSearchDB(FLFormDB):
     """
-    Subclase de la clase FLFormDB, pensada para buscar un registro
-    en una tabla.
+    Subclass of the FLFormDB class, designed to search for a record in a table.
 
-    El comportamiento de elegir un registro se modifica para solamente
-    cerrar el formulario y así el objeto que lo invoca pueda obtener
-    del cursor dicho registro.
+    The behavior of choosing a record is modified for only
+    close the form and so the object that invokes it can get
+    of the cursor said record.
 
-    También añade botones Aceptar y Cancelar. Aceptar indica que se ha
-    elegido el registro activo (igual que hacer doble clic sobre él o
-    pulsar la tecla Intro) y Cancelar aborta la operación.
+    It also adds OK and Cancel buttons. Accept indicates that it has been
+    chosen the active record (same as double clicking on it or
+    press the Enter key) and Cancel abort the operation.
 
     @author InfoSiAL S.L.
     """
@@ -36,19 +40,19 @@ class FLFormSearchDB(FLFormDB):
     """
     Boton Aceptar
     """
-    pushButtonAccept = None
+    pushButtonAccept: Optional[QtWidgets.QToolButton]
 
     """
     Almacena si se ha abierto el formulario con el método FLFormSearchDB::exec()
     """
 
-    acceptingRejecting_: bool = False
+    acceptingRejecting_: bool
 
     logger = logging.getLogger("FLFormSearchDB")
 
     def __init__(self, name_or_cursor, parent=None) -> None:
         """
-        constructor.
+        Initialize.
         """
 
         if not name_or_cursor:
@@ -76,19 +80,22 @@ class FLFormSearchDB(FLFormDB):
         self.accepted_ = False
         self.inExec_ = False
         self.loop = False
+        self.acceptingRejecting_ = False
+        self.pushButtonAccept = None
+
         self.load()
         self.initForm()
         self.setFocusPolicy(QtCore.Qt.NoFocus)
 
-    def setAction(self, a) -> None:
+    def setAction(self, a: "flaction.FLAction") -> None:
+        """Set a action."""
+
         if self.cursor_:
             self.cursor_.setAction(a)
 
-    """
-    destructor
-    """
-
     def __delattr__(self, *args, **kwargs) -> None:
+        """Delete attributes."""
+
         if self.cursor_:
             self.cursor_.restoreEditionFlag(self)
             self.cursor_.restoreBrowseFlag(self)
@@ -99,19 +106,20 @@ class FLFormSearchDB(FLFormDB):
     formReady = QtCore.pyqtSignal()
     """
 
-    def loadControls(self):
-        from PyQt5.QtGui import QIcon
+    def loadControls(self) -> None:
+        """Load form controls."""
 
         self.bottomToolbar = QtWidgets.QFrame()
-        self.bottomToolbar.setMaximumHeight(64)
-        self.bottomToolbar.setMinimumHeight(16)
-        self.bottomToolbar.widget_hlayout = QtWidgets.QHBoxLayout()
-        self.bottomToolbar.setLayout(self.bottomToolbar.widget_hlayout)
-        self.bottomToolbar.widget_hlayout.setContentsMargins(0, 0, 0, 0)
-        self.bottomToolbar.widget_hlayout.setSpacing(0)
-        self.bottomToolbar.widget_hlayout.addStretch()
-        self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.layout_.addWidget(self.bottomToolbar)
+        if self.bottomToolbar:
+            self.bottomToolbar.setMaximumHeight(64)
+            self.bottomToolbar.setMinimumHeight(16)
+            self.bottomToolbar.widget_hlayout = QtWidgets.QHBoxLayout()
+            self.bottomToolbar.setLayout(self.bottomToolbar.widget_hlayout)
+            self.bottomToolbar.widget_hlayout.setContentsMargins(0, 0, 0, 0)
+            self.bottomToolbar.widget_hlayout.setSpacing(0)
+            self.bottomToolbar.widget_hlayout.addStretch()
+            self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
+            self.layout_.addWidget(self.bottomToolbar)
 
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy(0), QtWidgets.QSizePolicy.Policy(0)
@@ -121,7 +129,7 @@ class FLFormSearchDB(FLFormDB):
         pbSize = self.iconSize
         if config.value("application/isDebuggerMode", False):
 
-            pushButtonExport = QToolButton(self)
+            pushButtonExport = QtWidgets.QToolButton(self)
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(sizePolicy)
             pushButtonExport.setMinimumSize(pbSize)
@@ -135,7 +143,7 @@ class FLFormSearchDB(FLFormDB):
             pushButtonExport.clicked.connect(self.exportToXml)
 
             if config.value("ebcomportamiento/show_snaptshop_button", False):
-                push_button_snapshot = QToolButton(self)
+                push_button_snapshot = QtWidgets.QToolButton(self)
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
                 push_button_snapshot.setSizePolicy(sizePolicy)
                 push_button_snapshot.setMinimumSize(pbSize)
@@ -154,7 +162,7 @@ class FLFormSearchDB(FLFormDB):
             self.bottomToolbar.widget_hlayout.addItem(spacer)
 
         if not self.pushButtonAccept:
-            self.pushButtonAccept = QToolButton(self)
+            self.pushButtonAccept = QtWidgets.QToolButton(self)
             self.pushButtonAccept.setObjectName("pushButtonAccept")
             self.pushButtonAccept.clicked.connect(self.accept)
 
@@ -171,7 +179,7 @@ class FLFormSearchDB(FLFormDB):
         self.pushButtonAccept.show()
 
         if not self.pushButtonCancel:
-            self.pushButtonCancel = QToolButton(self)
+            self.pushButtonCancel = QtWidgets.QToolButton(self)
             self.pushButtonCancel.setObjectName("pushButtonCancel")
             self.pushButtonCancel.clicked.connect(self.reject)
 
@@ -190,19 +198,18 @@ class FLFormSearchDB(FLFormDB):
         self.cursor_.setBrowse(False)
         self.cursor_.recordChoosed.connect(self.accept)
 
-    """
-    Muestra el formulario y entra en un nuevo bucle de eventos
-    para esperar, a seleccionar registro.
+    def exec_(self, valor: Optional[str] = None) -> bool:
+        """
+        Show the form and enter a new event loop to wait, to select record.
 
-    Se espera el nombre de un campo del cursor
-    devolviendo el valor de dicho campo si se acepta el formulario
-    y un QVariant::Invalid si se cancela.
+        The name of a cursor field is expected
+        returning the value of that field if the form is accepted
+        and a QVariant :: Invalid if canceled.
 
-    @param n Nombre del un campo del cursor del formulario
-    @return El valor del campo si se acepta, o QVariant::Invalid si se cancela
-    """
+        @param valor Name of a form cursor field
+        @return The value of the field if accepted, or False if canceled
+        """
 
-    def exec_(self, valor=None) -> bool:
         if not self.cursor_:
             return False
 
@@ -246,11 +253,8 @@ class FLFormSearchDB(FLFormDB):
             self.close()
             return False
 
-    """
-    Aplica un filtro al cursor
-    """
-
-    def setFilter(self, f) -> None:
+    def setFilter(self, f: str) -> None:
+        """Apply a filter to the cursor."""
 
         if not self.cursor_:
             return
@@ -264,25 +268,19 @@ class FLFormSearchDB(FLFormDB):
             newF = "%s AND %s" % (previousF, f)
         self.cursor_.setMainFilter(newF)
 
-    """
-    Devuelve el nombre de la clase del formulario en tiempo de ejecución
-    """
+    def formClassName(self) -> str:
+        """Return the class name of the form at runtime."""
 
-    def formClassName(self):
         return "FormSearchDB"
 
-    """
-    Nombre interno del formulario
-    """
+    def geoName(self) -> str:
+        """Return form name."""
 
-    def geoName(self):
         return "formSearch%s" % self.idMDI_
 
-    """
-    Captura evento cerrar
-    """
+    def closeEvent(self, e: QtCore.QEvent) -> None:
+        """Capture event close."""
 
-    def closeEvent(self, e):
         self.frameGeometry()
         # if self.focusWidget():
         #    fdb = self.focusWidget().parentWidget()
@@ -310,20 +308,16 @@ class FLFormSearchDB(FLFormDB):
         else:
             self.reject()
 
-    """
-    Invoca a la función "init" del script "masterprocess" asociado al formulario
-    """
-
     @decorators.pyqtSlot()
-    def callInitScript(self):
+    def callInitScript(self) -> None:
+        """Call the "init" function of the "masterprocess" script associated with the form."""
+
         pass
 
-    """
-    Redefinida por conveniencia
-    """
-
     @decorators.pyqtSlot()
-    def hide(self):
+    def hide(self) -> None:
+        """Redefined for convenience."""
+
         if self.loop:
             self.loop = False
             self.eventloop.exit()
@@ -333,12 +327,10 @@ class FLFormSearchDB(FLFormDB):
 
         super().hide()
 
-    """
-    Se activa al pulsar el boton aceptar
-    """
-
     @decorators.pyqtSlot()
-    def accept(self):
+    def accept(self) -> None:
+        """Activate pressing the accept button."""
+
         if self.acceptingRejecting_:
             return
         self.frameGeometry()
@@ -357,12 +349,10 @@ class FLFormSearchDB(FLFormDB):
         if isinstance(self.parent(), QMdiSubWindow):
             self.parent().hide()
 
-    """
-    Se activa al pulsar el botón cancelar
-    """
-
     @decorators.pyqtSlot()
-    def reject(self):
+    def reject(self) -> None:
+        """Activate pressing the accept button."""
+
         if self.acceptingRejecting_:
             return
         self.frameGeometry()
@@ -374,21 +364,15 @@ class FLFormSearchDB(FLFormDB):
         self.acceptingRejecting_ = True
         self.hide()
 
-    """
-    Redefinida por conveniencia
-    """
-
     @decorators.pyqtSlot()
-    def show(self):
+    def show(self) -> None:
+        """Redefined for convenience."""
         self.exec_()
 
-    def child(self, childName) -> Any:
-        return self.findChild(QtWidgets.QWidget, childName, QtCore.Qt.FindChildrenRecursively)
-
-    def accepted(self) -> bool:  # type: ignore   # FIXME: QDialog has a signal called "accepted"
-        return self.accepted_
-
-    def setMainWidget(self, w=None):
+    def setMainWidget(self, w: QtWidgets.QWidget = None) -> None:
+        """
+        Set widget as the main form.
+        """
 
         if not self.cursor_:
             return
