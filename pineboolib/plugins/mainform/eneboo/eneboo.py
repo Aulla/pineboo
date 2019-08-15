@@ -354,7 +354,7 @@ class MainForm(QtWidgets.QMainWindow):
     def exit(self) -> bool:
         """Process exit events."""
         res = QMessageBox.information(
-            self.w_, "Pineboo", "¿ Quiere salir de la aplicación ?", QMessageBox.Yes, QMessageBox.No
+            "¿ Quiere salir de la aplicación ?", QMessageBox.Yes, QMessageBox.No, None, "Pineboo"
         )
         doExit = True if res == QMessageBox.Yes else False
         if doExit:
