@@ -150,6 +150,11 @@ class FormDBWidget(QtWidgets.QWidget):
 
         try:
             ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
+            if ret is not None:
+                if hasattr(ret, "_loaded"):
+                    if ret._loaded is False:
+                        ret.load()
+
             if ret is None and self.parent():
                 ret = getattr(self.parent(), child_name, None)
 
@@ -157,15 +162,9 @@ class FormDBWidget(QtWidgets.QWidget):
                 if child_name == super().objectName() and self.form is not None:
                     ret = self.form
 
-            if ret is not None:
-                if not TYPE_CHECKING:
-                    # FIXME: qt3_widgets should not interact with fllegacy
-                    from pineboolib.fllegacy.flfielddb import FLFieldDB
-                    from pineboolib.fllegacy.fltabledb import FLTableDB
+            if ret is None and self.form is not None:
+                ret = getattr(self.form, child_name)
 
-                    if isinstance(ret, (FLFieldDB, FLTableDB)) and hasattr(ret, "_loaded"):
-                        if ret._loaded is False:
-                            ret.load()
             if ret is None:
                 self.logger.warning("WARN: No se encontro el control %s", child_name)
                 return None
