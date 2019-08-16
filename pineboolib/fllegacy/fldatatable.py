@@ -9,12 +9,12 @@ from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core.settings import config
 
-# type: ignore
 from .flsqlcursor import FLSqlCursor
 
 
 from pineboolib import logging
-from typing import Any, Optional, List, Dict, Tuple, TYPE_CHECKING
+from typing import Any, Optional, List, Dict, Tuple, cast, TYPE_CHECKING
+from PyQt5.QtCore import pyqtSignal
 
 if TYPE_CHECKING:
     from pineboolib.application.database.pncursortablemodel import PNCursorTableModel  # noqa: F401
@@ -100,7 +100,7 @@ class FLDataTable(QtWidgets.QTableView):
     """
     Indica el ancho de las columnas establecidas explícitamente con FLDataTable::setColumnWidth
     """
-    widthCols_: Dict[str, int] = {}
+    widthCols_: Dict[str, int]
 
     """
     Indica si se deben mostrar los campos tipo pixmap en todas las filas
@@ -118,7 +118,7 @@ class FLDataTable(QtWidgets.QTableView):
     onlyTable_: bool
     changingNumRows_: bool
     paintFieldName_: Optional[str]
-    paintFieldMtd_: Optional[Any]
+    paintFieldMtd_: Optional["PNFieldMetaData"]
 
     def __init__(
         self, parent: Optional[Any] = None, name: Optional[str] = None, popup: bool = False
@@ -144,6 +144,7 @@ class FLDataTable(QtWidgets.QTableView):
         self.colSelected = -1
         self.primarysKeysChecked_ = []
         self.persistentFilter_ = ""
+        self.widthCols_ = {}
 
         self.pixOk_ = filedir("../share/icons", "unlock.png")
         self.pixNo_ = filedir("../share/icons", "lock.png")
@@ -189,28 +190,32 @@ class FLDataTable(QtWidgets.QTableView):
         """Return cursor table model."""
         return super().model()
 
-    def setFLSqlCursor(self, c: FLSqlCursor) -> None:
+    def setFLSqlCursor(self, cursor: FLSqlCursor) -> None:
         """Set the cursor."""
 
-        if c and c.metadata():
+        if cursor and cursor.metadata():
             cur_chg = False
-            if self.cursor_ and not self.cursor_ == c:
+            if self.cursor_ and not self.cursor_ == cursor:
                 self.cursor_.restoreEditionFlag(self)
                 self.cursor_.restoreBrowseFlag(self)
-                self.cursor_.d._current_changed.disconnect(self.ensureRowSelectedVisible)
-                self.cursor_.cursorUpdated.disconnect(self.refresh)
+                cast(pyqtSignal, self.cursor_.d._current_changed).disconnect(
+                    self.ensureRowSelectedVisible
+                )
+                cast(pyqtSignal, self.cursor_.cursorUpdated).disconnect(self.refresh)
 
                 cur_chg = True
 
             if not self.cursor_ or cur_chg:
-                self.cursor_ = c
+                self.cursor_ = cursor
                 self.setFLReadOnly(self.readonly_)
                 self.setEditOnly(self.editonly_)
                 self.setInsertOnly(self.insertonly_)
                 self.setOnlyTable(self.onlyTable_)
 
-                self.cursor_.d._current_changed.connect(self.ensureRowSelectedVisible)
-                self.cursor_.cursorUpdated.connect(self.refresh)
+                cast(pyqtSignal, self.cursor_.d._current_changed).connect(
+                    self.ensureRowSelectedVisible
+                )
+                cast(pyqtSignal, self.cursor_.cursorUpdated).connect(self.refresh)
 
                 self.setModel(self.cursor_.model())
                 self.setSelectionModel(self.cursor_.selection())
@@ -230,17 +235,16 @@ class FLDataTable(QtWidgets.QTableView):
                 self.cur.move(pos)
                 # self.ensureRowSelectedVisible()
 
-    def setPersistentFilter(self, pFilter: str) -> None:
+    def setPersistentFilter(self, p_filter: Optional[str] = None) -> None:
         """Set the persistent filter for this control."""
 
-        pFilter_none: Optional[str] = pFilter
-        if pFilter_none is None:
+        if p_filter is None:
             raise Exception("Invalid use of setPersistentFilter with None")
-        self.persistentFilter_ = pFilter
+        self.persistentFilter_ = p_filter
 
-    def setFilter(self, f: str) -> None:
+    def setFilter(self, filter: str) -> None:
         """Set the filter for this control."""
-        self.filter_ = f
+        self.filter_ = filter
 
     def numCols(self) -> int:
         """
@@ -249,10 +253,10 @@ class FLDataTable(QtWidgets.QTableView):
 
         return self.horizontalHeader().count()
 
-    def setSort(self, s: str) -> None:
+    def setSort(self, sort: str) -> None:
         """Return the ascending / descending order of the first columns."""
 
-        self.sort_ = s
+        self.sort_ = sort
 
     # def cursor(self) -> Optional[FLSqlCursor]:
     #    """
@@ -634,7 +638,7 @@ class FLDataTable(QtWidgets.QTableView):
         self.setPrimaryKeyChecked(str(pK), model._checkColumn[pK].isChecked())
         # print("FIXME: falta un repaint para ver el color!!")
 
-    def focusOutEvent(self, e: Any) -> None:
+    def focusOutEvent(self, e: QtCore.QEvent) -> None:
         """
         Losing focus event.
         """
@@ -657,7 +661,7 @@ class FLDataTable(QtWidgets.QTableView):
             self.setNumRows(self.cursor_.size())
             self.changingNumRows_ = False
 
-    def paintFieldMtd(self, f: str, t: "PNTableMetaData") -> Any:
+    def paintFieldMtd(self, f: str, t: "PNTableMetaData") -> "PNFieldMetaData":
         """
         Return the metadata of a field.
         """
@@ -667,11 +671,15 @@ class FLDataTable(QtWidgets.QTableView):
 
         self.paintFieldName_ = f
         self.paintFieldMtd_ = t.field(f)
+
+        if self.paintFieldMtd_ is None:
+            raise Exception("paintFieldMtd_ is empty!.")
+
         return self.paintFieldMtd_
 
     timerViewRepaint_ = None
 
-    def focusInEvent(self, e: Any) -> None:
+    def focusInEvent(self, e: QtCore.QEvent) -> None:
         """
         Focus pickup event.
         """
@@ -866,7 +874,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         return self.cursor_.model().metadata().fieldIsIndex(name)
 
-    def mouseDoubleClickEvent(self, e: Any) -> None:
+    def mouseDoubleClickEvent(self, e: QtCore.QEvent) -> None:
         """Double click event."""
 
         if e.button() != QtCore.Qt.LeftButton:

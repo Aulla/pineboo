@@ -1,24 +1,39 @@
+"""Fldoublevalidator module."""
 # -*- coding: utf-8 -*-
-from typing import Tuple
 
-from PyQt5 import QtGui  # type: ignore
-from PyQt5.QtGui import QValidator  # type: ignore
+
+from PyQt5 import QtGui
+from PyQt5.QtGui import QValidator
+
+from typing import Tuple, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt5 import QtWidgets
 
 
 class FLDoubleValidator(QtGui.QDoubleValidator):
-    _formatting = None
+    """FLDoubleValiator class."""
 
-    def __init__(self, *args) -> None:
-        if len(args) == 4:
-            super().__init__(args[0], args[1], args[2], args[3])
-            # 1 inferior
-            # 2 superior
-            # 3 partDecimal
-            # 4 editor
+    _formatting: bool
+
+    def __init__(
+        self,
+        max_value: Union[int, float],
+        min_value: Union[int, float],
+        part_decimal: int,
+        parent: "QtWidgets.QWidget",
+    ) -> None:
+        """Inicialize."""
+        super().__init__(max_value, min_value, part_decimal, parent)
+        # 1 inferior
+        # 2 superior
+        # 3 partDecimal
+        # 4 editor
         self.setNotation(self.StandardNotation)
         self._formatting = False
 
     def validate(self, input_: str, pos_cursor: int) -> Tuple[QValidator.State, str, int]:
+        """Return if a value is valid."""
         value_in = input_
 
         if value_in is None or self._formatting:

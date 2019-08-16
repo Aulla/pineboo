@@ -1,16 +1,26 @@
+"""Flinvalidator module."""
+
 # -*- coding: utf-8 -*-
 from PyQt5 import QtGui  # type: ignore
-from typing import Any, Tuple
+from typing import Any, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt5 import QtWidgets
 
 
 class FLIntValidator(QtGui.QIntValidator):
-    _formatting = None
+    """FLIntValidator Class."""
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(args[0], args[1], args[2])
+    _formatting: bool
+
+    def __init__(self, minimum: int, maximum: int, parent: "QtWidgets.QWidget") -> None:
+        """Inicialize."""
+
+        super().__init__(minimum, maximum, parent)
         self._formatting = False
 
-    def validate(self, input_, pos_cursor) -> Tuple[Any, Any, Any]:
+    def validate(self, input_: str, pos_cursor: int) -> Tuple[Any, str, int]:
+        """Return validate result."""
 
         if not input_ or self._formatting:
             return (self.Acceptable, input_, pos_cursor)
@@ -34,5 +44,4 @@ class FLIntValidator(QtGui.QIntValidator):
         else:
             ret_0 = self.Acceptable
 
-        # FIXME:Salir formateado
         return (ret_0, ret_1, ret_2)

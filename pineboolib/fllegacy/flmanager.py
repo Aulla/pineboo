@@ -1,3 +1,5 @@
+"""Flmanager module."""
+
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore  # type: ignore
 from PyQt5.QtXml import QDomDocument  # type: ignore
@@ -14,7 +16,7 @@ from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
 from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData
 from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
 
-from pineboolib.fllegacy.flutil import FLUtil
+from .flutil import FLUtil
 
 from xml import etree  # type: ignore
 from pineboolib import logging
@@ -41,12 +43,12 @@ logger = logging.getLogger(__name__)
 
 class FLManager(QtCore.QObject, IManager):
     """
-    Esta clase sirve como administrador de la base de datos.
+    This class serves as the database administrator.
 
-    Encargada de abrir los formularios u obtener sus definiciones (ficheros .ui).
-    Tambien mantiene los metadatos de todas la tablas de la base de
-    datos, ofreciendo la posibilidad de recuperar los metadatos
-    mediante objetos PNTableMetaData de una tabla dada.
+    Responsible for opening the forms or obtaining their definitions (.ui files).
+    It also maintains the metadata of all tables in the database base.
+    data, offering the ability to retrieve metadata
+    using PNTableMetaData objects from a given table.
 
     @author InfoSiAL S.L.
     """
@@ -59,17 +61,18 @@ class FLManager(QtCore.QObject, IManager):
     ]  # Caché de definiciones de acciones, para optimizar lecturas
     # Caché de metadatos de talblas del sistema para optimizar lecturas
     cacheMetaDataSys_: Dict[str, PNTableMetaData]
-    db_ = None  # Base de datos a utilizar por el manejador
-    initCount_ = 0  # Indica el número de veces que se ha llamado a FLManager::init()
-    buffer_ = None
+    db_: "IConnection"  # Base de datos a utilizar por el manejador
+    initCount_: int  # Indica el número de veces que se ha llamado a FLManager::init()
+    buffer_: Any
     metadataCachedFails: List[str]
 
     def __init__(self, db: "IConnection") -> None:
         """
-        constructor
+        Inicialize.
         """
         super(FLManager, self).__init__()
         self.db_ = db
+        self.buffer_ = None
         self.listTables_ = []
         self.dictKeyMetaData_ = {}
         self.initCount_ = 0
@@ -81,7 +84,7 @@ class FLManager(QtCore.QObject, IManager):
 
     def init(self) -> None:
         """
-        Acciones de inicialización.
+        Initialization actions.
         """
         self.initCount_ = self.initCount_ + 1
         self.createSystemTable("flmetadata")
@@ -144,6 +147,8 @@ class FLManager(QtCore.QObject, IManager):
             self.cacheMetaDataSys_ = {}
 
     def finish(self) -> None:
+        """Apply close process."""
+
         self.dictKeyMetaData_ = {}
         self.listTables_ = []
         self.cacheMetaData_ = {}
@@ -155,23 +160,23 @@ class FLManager(QtCore.QObject, IManager):
         self, n: Union[str, QDomElement], quick: Optional[bool] = None
     ) -> Optional["PNTableMetaData"]:
         """
-        Para obtener definicion de una tabla de la base de datos, a partir de un fichero XML.
+        To obtain definition of a database table, from an XML file.
 
-        El nombre de la tabla corresponde con el nombre del fichero mas la extensión ".mtd"
-        que contiene en XML la descripción de la tablas. Este método escanea el fichero
-        y construye/devuelve el objeto PNTableMetaData correspondiente, además
-        realiza una copia de estos metadatos en una tabla de la misma base de datos
-        para poder determinar cuando ha sido modificados y así, si es necesario, reconstruir
-        la tabla para que se adapte a la nuevos metadatos. NO SE HACEN
-        CHEQUEOS DE ERRORES SINTÁCTICOS EN EL XML.
+        The name of the table corresponds to the name of the file plus the extension ".mtd"
+        which contains in XML the description of the tables. This method scans the file
+        and builds / returns the corresponding PNTableMetaData object, in addition
+        make a copy of these metadata in a table of the same database
+        to be able to determine when it has been modified and thus, if necessary, rebuild
+        the table so that it adapts to the new metadata. NOT MADE
+        CHECKS OF SYNTATIC ERRORS IN THE XML.
 
-        IMPORTANTE :Para que estos métodos funcionen correctamente, es estrictamente
-            necesario haber creado la base de datos en PostgreSQL con codificación
+        IMPORTANT: For these methods to work properly, it is strictly
+            it is necessary to have created the database in PostgreSQL with coding
             UNICODE; "createdb -E UNICODE abanq".
 
-        @param n Nombre de la tabla de la base de datos de la que obtener los metadatos
-        @param quick Si TRUE no realiza chequeos, usar con cuidado
-        @return Un objeto PNTableMetaData con los metadatos de la tabla solicitada
+        @param n Name of the database table from which to obtain the metadata
+        @param quick If TRUE does not check, use carefully
+        @return A PNTableMetaData object with the metadata of the requested table
         """
 
         util = FLUtil()
@@ -266,7 +271,7 @@ class FLManager(QtCore.QObject, IManager):
 
                     must_alter = self.db_.mismatchedTable(n, ret)
                     if must_alter:
-                        if not self.alterTable(stream, stream, None, True):
+                        if not self.alterTable(stream, stream, "", True):
                             logger.warning("La regeneración de la tabla %s ha fallado", n)
 
                 # throwMsgWarning(self.db_, msg)
@@ -385,7 +390,7 @@ class FLManager(QtCore.QObject, IManager):
                 aBy = None
 
             if q and not quick:
-                qry = self.query(q, tmd)
+                qry = self.query(q)
 
                 if qry:
                     fL = qry.fieldList()
@@ -451,25 +456,26 @@ class FLManager(QtCore.QObject, IManager):
             return tmd
 
     @decorators.NotImplementedWarn
-    def metadataDev(self, n, quick=None):
+    def metadataDev(self, n: str, quick: bool = False) -> bool:
+        """Deprecated."""
         return True
 
-    def query(self, n, parent=None) -> Optional["PNSqlQuery"]:
+    def query(self, name: str, parent: Optional[PNSqlQuery] = None) -> Optional["PNSqlQuery"]:
         """
-        Para obtener una consulta de la base de datos, a partir de un fichero XML.
+        To obtain a query of the database, from an XML file.
 
-        El nombre de la consulta corresponde con el nombre del fichero mas la extensión ".qry"
-        que contiene en XML la descripción de la consulta. Este método escanea el fichero
-        y construye/devuelve el objeto FLSqlQuery. NO SE HACEN
-        CHEQUEOS DE ERRORES SINTÁCTICOS EN EL XML.
+        The name of the query corresponds to the name of the file plus the extension ".qry"
+        which contains the description of the query in XML. This method scans the file
+        and build / return the FLSqlQuery object. NOT MADE
+        CHECKS OF SYNTATIC ERRORS IN THE XML.
 
-        @param n Nombre de la consulta de la base de datos que se quiere obtener
-        @return Un objeto FLSqlQuery que representa a la consulta que se quiere obtener
+        @param name Name of the database query you want to obtain
+        @return An FLSqlQuery object that represents the query you want to get
         """
         if self.db_ is None:
             raise Exception("query. self.db_ is empty!")
 
-        qryName = "%s.qry" % n
+        qryName = "%s.qry" % name
         qry_ = self.db_.managerModules().contentCached(qryName)
 
         if not qry_:
@@ -534,29 +540,29 @@ class FLManager(QtCore.QObject, IManager):
 
         return q
 
-    def action(self, n: str) -> "pineboolib.fllegacy.flaction.FLAction":
+    def action(self, action_name: str) -> "pineboolib.fllegacy.flaction.FLAction":
         """
-        Obtiene la definición de una acción a partir de su nombre.
+        Return the definition of an action from its name.
 
-        Este método busca en los [id_modulo].xml la acción que se le pasa
-        como nombre y construye y devuelve el objeto FLAction correspondiente.
-        NO SE HACEN CHEQUEOS DE ERRORES SINTÁCTICOS EN EL XML.
+        This method looks in the [id_modulo] .xml for the action that is passed
+        as a name and build and return the corresponding FLAction object.
+        NO SYMPATHIC ERROR CHECKS ARE MADE IN THE XML.
 
-        @param n Nombre de la accion
-        @return Un objeto FLAction con la descripcion de la accion
+        @param n Name of the action
+        @return A FLAction object with the description of the action
 
         """
         if not self.db_:
             raise Exception("action. self.db_ is empty!")
 
         # FIXME: This function is really inefficient. Pineboo already parses the actions much before.
-        if self.cacheAction_ and n in self.cacheAction_.keys():
-            return self.cacheAction_[n]
+        if self.cacheAction_ and action_name in self.cacheAction_.keys():
+            return self.cacheAction_[action_name]
 
         from pineboolib.fllegacy.flaction import FLAction
 
         util = FLUtil()
-        doc = QDomDocument(n)
+        doc = QDomDocument(action_name)
         list_modules = self.db_.managerModules().listAllIdModules()
         content_actions = ""
 
@@ -566,24 +572,24 @@ class FLManager(QtCore.QObject, IManager):
             if not content_actions:
                 continue
 
-            if content_actions.find("<name>%s</name>" % n) > -1:
+            if content_actions.find("<name>%s</name>" % action_name) > -1:
                 break
 
-        if n not in list_modules:
+        if action_name not in list_modules:
             if (
                 not util.domDocumentSetContent(doc, content_actions)
-                and n.find("alteredtable") == -1
+                and action_name.find("alteredtable") == -1
             ):
                 logger.warning(
                     "FLManager : "
                     + FLUtil().translate("application", "Error al cargar la accion ")
-                    + n
+                    + action_name
                 )
 
         doc_elem = doc.documentElement()
         no = doc_elem.firstChild()
 
-        a = FLAction(n)
+        a = FLAction(action_name)
         # a.setTable(n)
         while not no.isNull():
             e = no.toElement()
@@ -592,12 +598,14 @@ class FLManager(QtCore.QObject, IManager):
                 if e.tagName() == "action":
                     nl = e.elementsByTagName("name")
                     if nl.count() == 0:
-                        self.logger.warning("Debe indicar la etiqueta <name> en acción '%s'" % n)
+                        self.logger.warning(
+                            "Debe indicar la etiqueta <name> en acción '%s'" % action_name
+                        )
                         no = no.nextSibling()
                         continue
                     else:
                         it = nl.item(0).toElement()
-                        if it.text() != n:
+                        if it.text() != action_name:
                             no = no.nextSibling()
                             continue
 
@@ -610,7 +618,7 @@ class FLManager(QtCore.QObject, IManager):
                         e2 = no2.toElement()
                         if not e2.isNull():
                             if e2.tagName() == "name":
-                                is_valid_name = e2.text() == n
+                                is_valid_name = e2.text() == action_name
                                 break
                         no2 = no2.nextSibling()
 
@@ -621,10 +629,12 @@ class FLManager(QtCore.QObject, IManager):
                             if e2.tagName() != "name":
                                 logger.debug(
                                     "WARN: El primer tag de la acción '%s' no es name, se encontró '%s'."
-                                    % (n, e2.tagName())
+                                    % (action_name, e2.tagName())
                                 )
                         else:
-                            self.logger.debug("WARN: Se encontró una acción vacia para '%s'." % n)
+                            self.logger.debug(
+                                "WARN: Se encontró una acción vacia para '%s'." % action_name
+                            )
 
                     while is_valid_name and not no2.isNull():
                         e2 = no2.toElement()
@@ -682,19 +692,19 @@ class FLManager(QtCore.QObject, IManager):
                     continue
 
             no = no.nextSibling()
-        logger.trace("action: saving cache and finishing %s", n)
+        logger.trace("action: saving cache and finishing %s", action_name)
 
-        self.cacheAction_[n] = a
+        self.cacheAction_[action_name] = a
         return a
 
     def existsTable(self, n: str, cache: bool = True) -> bool:
         """
-        Comprueba si existe la tabla especificada en la base de datos.
+        Check if the table specified in the database exists.
 
-        @param n      Nombre de la tabla que se quiere comprobar si existe
-        @param cache  Si cierto consulta primero la cache de tablas, en caso contrario
-                    realiza una consulta a la base para obtener las tablas existentes
-        @return TRUE si existe la tabla, FALSE en caso contrario
+        @param n Name of the table to check if it exists
+        @param cache If a certain query first checks the table cache, otherwise
+                    make a query to the base to obtain the existing tables
+        @return TRUE if the table exists, FALSE otherwise.
         """
         if not self.db_ or n is None:
             return False
@@ -704,22 +714,23 @@ class FLManager(QtCore.QObject, IManager):
         else:
             return self.db_.existsTable(n)
 
-    def checkMetaData(self, mtd1, mtd2) -> Any:
+    def checkMetaData(self, mtd1: Union[str, PNTableMetaData], mtd2: PNTableMetaData) -> bool:
         """
-        Compara los metadatos de dos tablas,  la definición en XML de esas dos tablas se
-        pasan como dos cadenas de caracteres.
+        Compare the metadata of two tables.
 
-        @param mtd1 Cadena de caracteres con XML que describe la primera tabla
-        @param mtd2 Cadena de caracteres con XML que describe la segunda tabla
-        @return TRUE si las dos descripciones son iguales, y FALSE en caso contrario
+        The XML definition of those two tables is they pass as two strings of characters.
+
+        @param mtd1 Character string with XML describing the first table
+        @param mtd2 Character string with XML describing the second table
+        @return TRUE if the two descriptions are equal, and FALSE otherwise
         """
         if isinstance(mtd1, str):
-            if mtd1 == mtd2:
+            if mtd1 == mtd2.name():
                 return True
             return False
         else:
-            if not mtd1 or not mtd2:
-                return mtd1 == mtd2
+            if mtd1 is None or mtd2 is None:
+                return False
 
             field_list = mtd1.fieldList()
 
@@ -774,33 +785,34 @@ class FLManager(QtCore.QObject, IManager):
 
             return True
 
-    def alterTable(self, mtd1=None, mtd2=None, key=None, force=False) -> bool:
+    def alterTable(
+        self, mtd1: PNTableMetaData, mtd2: PNTableMetaData, key: str, force: bool = False
+    ) -> bool:
         """
-        Modifica la estructura o metadatos de una tabla, preservando los posibles datos
-        que pueda contener.
+        Modify the structure or metadata of a table. Preserving the possible data that can contain.
 
-        Según la definición existente en un momento dado de los metadatos en el fichero .mtd, este
-        método reconstruye la tabla con esos metadatos sin la pérdida de información o datos,
-        que pudieran existir en ese momento en la tabla.
+        According to the existing definition of metadata in the .mtd file at a given time, this
+        method reconstructs the table with those metadata without the loss of information or data,
+        that might exist at that time in the table.
 
-        @param n Nombre de la tabla a reconstruir
-        @param mtd1 Descripcion en XML de la vieja estructura
-        @param mtd2 Descripcion en XML de la nueva estructura
-        @param key Clave sha1 de la vieja estructura
-        @return TRUE si la modificación tuvo éxito
+        @param n Name of the table to rebuild
+        @param mtd1 XML description of the old structure
+        @param mtd2 XML description of the new structure
+        @param key Sha1 key of the old structure
+        @return TRUE if the modification was successful
         """
         if not self.db_:
             raise Exception("alterTable. self.db_ is empty!")
 
         return self.db_.dbAux().alterTable(mtd1, mtd2, key, force)
 
-    def createTable(self, n_or_tmd) -> Any:
+    def createTable(self, n_or_tmd: Union[str, PNTableMetaData, None]) -> Optional[PNTableMetaData]:
         """
-        Crea una tabla en la base de datos.
+        Create a table in the database.
 
-        @param n_tmd Nombre o metadatos de la tabla que se quiere crear
-        @return Un objeto PNTableMetaData con los metadatos de la tabla que se ha creado, o
-          0 si no se pudo crear la tabla o ya existía
+        @param n_tmd Name or metadata of the table you want to create
+        @return A PNTableMetaData object with the metadata of the table that was created, or
+          0 if the table could not be created or already existed
         """
         if not self.db_:
             raise Exception("createTable. self.db_ is empty!")
@@ -808,12 +820,12 @@ class FLManager(QtCore.QObject, IManager):
         util = FLUtil()
         if n_or_tmd is None:
             logger.debug("createTable: Called with no table.")
-            return False
+            return None
 
         if isinstance(n_or_tmd, str):
             tmd = self.metadata(n_or_tmd)
             if not tmd:
-                return False
+                return None
 
             if self.existsTable(tmd.name()):
                 self.listTables_.append(n_or_tmd)
@@ -831,50 +843,54 @@ class FLManager(QtCore.QObject, IManager):
                 logger.warning(
                     "createTable: %s", util.tr("No se ha podido crear la tabla ") + n_or_tmd.name()
                 )
-                return False
+                return None
             else:
                 logger.info("createTable: Created new table %r", n_or_tmd.name())
 
             return n_or_tmd
 
-    def formatValueLike(self, *args, **kwargs) -> str:
+    def formatValueLike(
+        self, fmd_or_type: Union[PNFieldMetaData, str], value: Any, upper: bool = False
+    ) -> str:
         """
-        Devuelve el contenido del valor de de un campo formateado para ser reconocido
-        por la base de datos actual en condiciones LIKE, dentro de la clausura WHERE de SQL.
+        Return the value content of a formatted field.
 
-        Este método toma como parametros los metadatos del campo definidos con
-        PNFieldMetaData. Además de TRUE y FALSE como posibles valores de un campo
-        lógico también acepta los valores Sí y No (o su traducción al idioma correspondiente).
-        Las fechas son adaptadas al forma AAAA-MM-DD, que es el formato reconocido por PostgreSQL .
+        Return the value content of a formatted field to be recognized by the current database in LIKE conditions.
+        within the SQL WHERE closing.
 
-        @param fMD Objeto PNFieldMetaData que describre los metadatos para el campo
-        @param v Valor que se quiere formatear para el campo indicado
-        @param upper Si TRUE convierte a mayúsculas el valor (si es de tipo cadena)
+        This method takes as parameters the field metadata defined with
+        PNFieldMetaData. In addition to TRUE and FALSE as possible values ​​of a field
+        logical also accepts the values ​​Yes and No (or its translation into the corresponding language).
+        The dates are adapted to the YYYY-MM-DD form, which is the format recognized by PostgreSQL.
+
+        @param fmd_or_type PNFieldMetaData object that describes the metadata for the field
+        @param value Value to be formatted for the indicated field
+        @param upper If TRUE converts the value to uppercase (if it is a string type)
         """
+
         if not self.db_:
             raise Exception("formatValueLike. self.db_ is empty!")
 
-        if not isinstance(args[0], str):
-            if args[0] is None:
+        if not isinstance(fmd_or_type, str):
+            if fmd_or_type is None:
                 return ""
 
-            return self.formatValueLike(args[0].type(), args[1], args[2])
+            return self.formatValueLike(fmd_or_type.type(), value, upper)
         else:
-            return self.db_.formatValueLike(args[0], args[1], args[2])
+            return self.db_.formatValueLike(fmd_or_type, value, upper)
 
     def formatAssignValueLike(self, *args, **kwargs) -> str:
         """
-        Devuelve el contenido del valor de de un campo formateado para ser reconocido
-        por la base de datos actual, dentro de la clausura WHERE de SQL.
+        Return the value content of a formatted field to be recognized by the current database, within the SQL WHERE closing.
 
-        Este método toma como parametros los metadatos del campo definidos con
-        PNFieldMetaData. Además de TRUE y FALSE como posibles valores de un campo
-        lógico también acepta los valores Sí y No (o su traducción al idioma correspondiente).
-        Las fechas son adaptadas al forma AAAA-MM-DD, que es el formato reconocido por PostgreSQL .
+        This method takes as parameters the field metadata defined with
+        PNFieldMetaData. In addition to TRUE and FALSE as possible values ​​of a field
+        logical also accepts the values ​​Yes and No (or its translation into the corresponding language).
+        The dates are adapted to the YYYY-MM-DD form, which is the format recognized by PostgreSQL.
 
-        @param fMD Objeto PNFieldMetaData que describre los metadatos para el campo
-        @param v Valor que se quiere formatear para el campo indicado
-        @param upper Si TRUE convierte a mayúsculas el valor (si es de tipo cadena)
+        @param fMD PNFieldMetaData object that describes the metadata for the field
+        @param v Value to be formatted for the indicated field
+        @param upper If TRUE converts the value to uppercase (if it is a string type)
         """
         if isinstance(args[0], PNFieldMetaData):
             # Tipo 1
@@ -944,7 +960,8 @@ class FLManager(QtCore.QObject, IManager):
             return "%s%s" % (field_name, format_value)
 
     def formatValue(self, fMD_or_type: str, v: Any, upper: bool = False) -> str:
-        # FIXME: This function sometimes returns integers!
+        """Return format value."""
+
         if not self.db_:
             raise Exception("formatValue. self.db_ is empty!")
 
@@ -954,9 +971,11 @@ class FLManager(QtCore.QObject, IManager):
         if not isinstance(fMD_or_type, str):
             return self.formatValue(fMD_or_type.type(), v, upper)
 
-        return self.db_.formatValue(fMD_or_type, v, upper)
+        return str(self.db_.formatValue(fMD_or_type, v, upper))
 
     def formatAssignValue(self, *args, **kwargs) -> str:
+        """Return format assign value."""
+
         if args[0] is None:
             # print("FLManager.formatAssignValue(). Primer argumento vacio %s" % args[0])
             return "1 = 1"
@@ -1038,19 +1057,19 @@ class FLManager(QtCore.QObject, IManager):
         self, field: QDomElement, v: bool = True, ed: bool = True
     ) -> "PNFieldMetaData":
         """
-        Crea un objeto PNFieldMetaData a partir de un elemento XML.
+        Create a PNFieldMetaData object from an XML element.
 
-        Dado un elemento XML, que contiene la descripción de un
-        campo de una tabla construye y agrega a una lista de descripciones
-        de campos el objeto PNFieldMetaData correspondiente, que contiene
-        dicha definición del campo. Tambien lo agrega a una lista de claves
-        compuesta, si el campo construido pertenece a una clave compuesta.
-        NO SE HACEN CHEQUEOS DE ERRORES SINTÁCTICOS EN EL XML.
+        Given an XML element, which contains the description of a
+        table field builds and adds to a list of descriptions
+        of fields the corresponding PNFieldMetaData object, which contains
+        said definition of the field. It also adds it to a list of keys
+        composite, if the constructed field belongs to a composite key.
+        NO SYMPATHIC ERROR CHECKS ARE MADE IN THE XML.
 
-        @param field Elemento XML con la descripción del campo
-        @param v Valor utilizado por defecto para la propiedad visible
-        @param ed Valor utilizado por defecto para la propiedad editable
-        @return Objeto PNFieldMetaData que contiene la descripción del campo
+        @param field XML element with field description
+        @param v Default value used for the visible property
+        @param ed Value used by default for editable property
+        @return PNFieldMetaData object that contains the description of the field
         """
         if not field:
             raise ValueError("field is required")
@@ -1306,15 +1325,15 @@ class FLManager(QtCore.QObject, IManager):
 
     def metadataRelation(self, relation: QDomElement) -> "PNRelationMetaData":
         """
-        Crea un objeto FLRelationMetaData a partir de un elemento XML.
+        Create a FLRelationMetaData object from an XML element.
 
-        Dado un elemento XML, que contiene la descripción de una
-        relación entre tablas, construye y devuelve el objeto FLRelationMetaData
-        correspondiente, que contiene dicha definición de la relación.
-        NO SE HACEN CHEQUEOS DE ERRORES SINTÁCTICOS EN EL XML.
+        Given an XML element, which contains the description of a
+        relationship between tables, builds and returns the FLRelationMetaData object
+        corresponding, which contains said definition of the relationship.
+        NO SYMPATHIC ERROR CHECKS ARE MADE IN THE XML.
 
-        @param relation Elemento XML con la descripción de la relación
-        @return Objeto FLRelationMetaData que contiene la descripción de la relación
+        @param relation XML element with the description of the relationship
+        @return FLRelationMetaData object that contains the description of the relationship
         """
         if not relation:
             raise ValueError("relation is required")
@@ -1369,45 +1388,45 @@ class FLManager(QtCore.QObject, IManager):
         return PNRelationMetaData(fT, fF, rC, dC, uC, cI)
 
     @decorators.NotImplementedWarn
-    def queryParameter(self, parameter):
+    def queryParameter(self, parameter: QDomElement) -> Any:
         """
-        Crea un objeto FLParameterQuery a partir de un elemento XML.
+        Create an FLParameterQuery object from an XML element.
 
-        Dado un elemento XML, que contiene la descripción de una
-        parámetro de una consulta, construye y devuelve el objeto FLParameterQuery
-        correspondiente.
-        NO SE HACEN CHEQUEOS DE ERRORES SINTÁCTICOS EN EL XML.
+        Given an XML element, which contains the description of a
+        parameter of a query, build and return the FLParameterQuery object
+        correspondent.
+        NO SYMPATHIC ERROR CHECKS ARE MADE IN THE XML.
 
-        @param parameter Elemento XML con la descripción del parámetro de una consulta
-        @return Objeto FLParameterQuery que contiene la descrición del parámetro
+        @param parameter XML element with the description of the parameter of a query
+        @return FLParameterQuery object that contains the parameter description.
         """
         return True
 
     @decorators.NotImplementedWarn
-    def queryGroup(self, group):
+    def queryGroup(self, group: QDomElement) -> Any:
         """
-        Crea un objeto FLGroupByQuery a partir de un elemento XML.
+        Create a FLGroupByQuery object from an XML element.
 
-        Dado un elemento XML, que contiene la descripción de un nivel de agrupamiento
-        de una consulta, construye y devuelve el objeto FLGroupByQuery correspondiente.
-        NO SE HACEN CHEQUEOS DE ERRORES SINTÁCTICOS EN EL XML.
+        Given an XML element, which contains the description of a grouping level
+        of a query, build and return the corresponding FLGroupByQuery object.
+        NO SYMPATHIC ERROR CHECKS ARE MADE IN THE XML.
 
-        @param group Elemento XML con la descripción del nivel de agrupamiento de una consulta.
-        @return Objeto FLGroupByQuery que contiene la descrición del nivel de agrupamiento
+        @param group XML element with the description of the grouping level of a query.
+        @return FLGroupByQuery object that contains the description of the grouping level
         """
         return True
 
     def createSystemTable(self, n: str) -> bool:
         """
-        Crea una tabla del sistema.
+        Create a system table.
 
-        Este método lee directamente de disco el fichero con la descripción de una tabla
-        del sistema y la crea en la base de datos. Su uso normal es para inicializar
-        el sistema con tablas iniciales.
+        This method reads directly from disk the file with the description of a table
+        of the system and creates it in the database. Its normal use is to initialize
+        The system with initial tables.
 
-        @param n Nombre de la tabla.
-        @return Un objeto PNTableMetaData con los metadatos de la tabla que se ha creado, o
-          False si no se pudo crear la tabla o ya existía
+        @param n Name of the table.
+        @return A PNTableMetaData object with the metadata of the table that was created, or
+          False if the table could not be created or already existed.
         """
         util = FLUtil()
         if not self.existsTable(n):
@@ -1446,7 +1465,7 @@ class FLManager(QtCore.QObject, IManager):
 
     def loadTables(self) -> None:
         """
-        Carga en la lista de tablas los nombres de las tablas de la base de datos
+        Load in the table list the names of the database tables.
         """
         if not self.db_:
             raise Exception("loadTables. self.db_ is empty!")
@@ -1460,8 +1479,8 @@ class FLManager(QtCore.QObject, IManager):
 
     def cleanupMetaData(self) -> None:
         """
-        Limpieza la tabla flmetadata, actualiza el cotenido xml con el de los fichero .mtd
-        actualmente cargados
+        Clean the flmetadata table, update the xml content with that of the .mtd file
+        currently loaded.
         """
         if not self.db_:
             raise Exception("cleanupMetaData. self.db_ is empty!")
@@ -1519,25 +1538,25 @@ class FLManager(QtCore.QObject, IManager):
                 c.update()
             self.dictKeyMetaData_[table] = q2.value(1)
 
-    def isSystemTable(self, n: str) -> bool:
+    def isSystemTable(self, table_name: str) -> bool:
         """
-        Para saber si la tabla dada es una tabla de sistema.
+        Return if the given table is a system table.
 
-        @param n Nombre de la tabla.
-        @return TRUE si es una tabla de sistema
+        @param n Name of the table.
+        @return TRUE if it is a system table
         """
         from pineboolib.application import project
 
-        if project._DGI and n in project.DGI.sys_mtds():
+        if project._DGI and table_name in project.DGI.sys_mtds():
             return True
 
-        if n[0:2] != "fl":
+        if table_name[0:2] != "fl":
             return False
 
-        if n.endswith(".mtd"):
-            n = n[:-4]
+        if table_name.endswith(".mtd"):
+            table_name = table_name[:-4]
 
-        if n in (
+        if table_name in (
             "flfiles",
             "flmetadata",
             "flmodules",
@@ -1552,28 +1571,28 @@ class FLManager(QtCore.QObject, IManager):
 
         return False
 
-    def storeLargeValue(self, mtd, largeValue: str) -> Optional[str]:
+    def storeLargeValue(self, mtd: PNFieldMetaData, largeValue: str) -> Optional[str]:
         """
-        Utilizado para almacenar valores grandes de campos en tablas separadas indexadas
-        por claves SHA del contenido del valor.
+        Store large field values ​​in separate indexed tables
+        by SHA keys of the value content.
 
-        Se utiliza para optimizar consultas que incluyen campos con valores grandes,
-        como por ejemplo imágenes, para manejar en las consulta SQL la referencia al valor
-        que es de tamaño constante en vez del valor en sí. Esto disminuye el tráfico al
-        reducir considerablemente el tamaño de los registros obtenidos.
+        It is used to optimize queries that include fields with large values,
+        such as images, to handle the reference to the value in the SQL queries
+        which is of constant size instead of the value itself. This decreases traffic by
+        considerably reduce the size of the records obtained.
 
-        Las consultas pueden utilizar una referencia y obtener su valor sólo cuando se
-        necesita mediante FLManager::fetchLargeValue().
+        Queries can use a reference and get its value only when
+        you need via FLManager :: fetchLargeValue ().
 
 
-        @param mtd Metadatos de la tabla que contiene el campo
-        @param largeValue Valor de gran tamaño del campo
-        @return Clave de referencia al valor
+        @param mtd Metadata of the table containing the field
+        @param largeValue Large field value
+        @return Value reference key
         """
         if not self.db_:
             raise Exception("storeLareValue. self.db_ is empty!")
 
-        if largeValue[0:3] == "RK@" or not mtd:
+        if largeValue[0:3] == "RK@" or mtd is None:
             return None
 
         tableName = mtd.name()
@@ -1596,7 +1615,7 @@ class FLManager(QtCore.QObject, IManager):
                 fieldLarge3 = PNFieldMetaData("contenido", "contenido", True, False, "stringlist")
                 mtdLarge.addFieldMD(fieldLarge3)
                 mtdAux = self.createTable(mtdLarge)
-                mtd.insertChild(mtdLarge)
+                mtd.insertChild(mtdLarge)  # type: ignore
                 if not mtdAux:
                     return None
 
@@ -1634,10 +1653,10 @@ class FLManager(QtCore.QObject, IManager):
 
     def fetchLargeValue(self, refKey: str) -> Optional[str]:
         """
-        Obtiene el valor de gran tamaño segun su clave de referencia.
+        Return the large value according to its reference key.
 
-        @param refKey Clave de referencia. Esta clave se suele obtener mediante FLManager::storeLargeValue
-        @return Valor de gran tamaño almacenado
+        @param refKey Reference key. This key is usually obtained through FLManager :: storeLargeValue
+        @return Large value stored
         """
         if refKey is None:
             return None
@@ -1668,6 +1687,6 @@ class FLManager(QtCore.QObject, IManager):
 
     def initCount(self) -> int:
         """
-        Uso interno. Indica el número de veces que se ha llamado a FLManager::init().
+        Internal use. Indicates the number of times FLManager :: init () has been called.
         """
         return self.initCount_

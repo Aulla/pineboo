@@ -1,3 +1,5 @@
+"""Flmanagermodules module."""
+
 # -*- coding: utf-8 -*-
 import os
 from pineboolib import logging
@@ -15,6 +17,7 @@ from typing import Union, List, Dict, Any, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.application.xmlaction import XMLAction  # noqa: F401
     from pineboolib.fllegacy import flaction  # noqa: F401
+    from pineboolib.interfaces.iconnection import IConnection
 
 """
 Gestor de módulos.
@@ -40,6 +43,8 @@ logger = logging.getLogger(__name__)
 
 
 class FLInfoMod(object):
+    """FLInfoMod class."""
+
     idModulo: str
     idArea: str
     descripcion: str
@@ -49,6 +54,7 @@ class FLInfoMod(object):
 
 
 class FLManagerModules(object):
+    """FLManagerModules class."""
 
     """
     Mantiene el identificador del area a la que pertenece el módulo activo.
@@ -69,27 +75,27 @@ class FLManagerModules(object):
     """
     Diccionario de claves de ficheros, para optimizar lecturas
     """
-    dictKeyFiles: Dict[str, str] = {}
+    dictKeyFiles: Dict[str, str]
 
     """
     Lista de todos los identificadores de módulos cargados, para optimizar lecturas
     """
-    listAllIdModules_: List[str] = []
+    listAllIdModules_: List[str]
 
     """
     Lista de todas los identificadores de areas cargadas, para optimizar lecturas
     """
-    listIdAreas_: List[str] = []
+    listIdAreas_: List[str]
 
     """
     Diccionario con información de los módulos
     """
-    dictInfoMods: Dict[str, FLInfoMod] = {}
+    dictInfoMods: Dict[str, FLInfoMod]
 
     """
     Diccionario de identificadores de modulo de ficheros, para optimizar lecturas
     """
-    dictModFiles: Dict[str, str] = {}
+    dictModFiles: Dict[str, str]
 
     """
     Uso interno.
@@ -104,12 +110,14 @@ class FLManagerModules(object):
     reports_dir_ = None
     queries_dir_ = None
     trans_dir_ = None
-    filesCached_: Dict[str, str] = {}
+    filesCached_: Dict[str, str]
     """
     constructor
     """
 
-    def __init__(self, db) -> None:
+    def __init__(self, db: "IConnection") -> None:
+        """Inicialize."""
+
         super(FLManagerModules, self).__init__()
         if db is None:
             raise ValueError("Database is required")
@@ -121,6 +129,11 @@ class FLManagerModules(object):
         self.activeIdArea_ = None
         self.shaLocal_ = ""
         self.filesCached_ = {}
+        self.dictKeyFiles = {}
+        self.listAllIdModules_ = []
+        self.listIdAreas_ = []
+        self.dictInfoMods = {}
+        self.dictModFiles = {}
 
     # """
     # Acciones de inicialización del sistema de módulos.
@@ -134,6 +147,8 @@ class FLManagerModules(object):
     """
 
     def finish(self) -> None:
+        """Final tasks when closing the module."""
+
         if self.listAllIdModules_:
             del self.listAllIdModules_
             self.listAllIdModules_ = []
@@ -161,20 +176,20 @@ class FLManagerModules(object):
 
         del self
 
-    """
-    Obtiene el contenido de un fichero almacenado la base de datos.
+    def content(self, file_name: str) -> str:
+        """
+        Gets the contents of a file stored in the database.
 
-    Este método busca el contenido del fichero solicitado en la
-    base de datos, exactamente en la tabla flfiles, si no lo encuentra
-    intenta obtenerlo del sistema de ficheros.
+        This method looks for the content of the requested file in the
+        database, exactly in the flfiles table, if you can't find it
+        Try to get it from the file system.
 
-    @param n Nombre del fichero.
-    @return QString con el contenido del fichero o vacía en caso de error.
-    """
+        @param file_name File name.
+        @return QString with the contents of the file or empty in case of error.
+        """
 
-    def content(self, n) -> Any:
         cursor = self.conn_.dbAux().execute_query(
-            "SELECT contenido FROM flfiles WHERE nombre='%s' AND NOT sha = ''" % n
+            "SELECT contenido FROM flfiles WHERE nombre='%s' AND NOT sha = ''" % file_name
         )
 
         for contenido in cursor:
@@ -192,53 +207,69 @@ class FLManagerModules(object):
     """
 
     @decorators.NotImplementedWarn
-    def byteCodeToStr(self, n):
-        return None
+    def byteCodeToStr(self, file_name: str) -> str:
+        """
+        Get the contents of a script file, processing it to change the connections it contains,
+        so that at the end of the execution of the connected function the test script resumes.
+        It also performs code formatting processes to optimize it.
+
+        @param file_name File name.
+        @return QString with the contents of the file or empty in case of error.
+        """
+        return ""
 
     @decorators.NotImplementedWarn
-    def contentCode(self, n):
-        return None
+    def contentCode(self, file_name: str) -> str:
+        """
+        Return the contents of a script file, processing it to change the connections it contains,
+        so that at the end of the execution of the connected function the test script resumes.
+        It also performs code formatting processes to optimize it.
 
-    """
-    Obtiene el contenido de un fichero almacenado en el sistema de ficheros.
+        @param file_name File name.
+        @return QString with the contents of the file or empty in case of error.
+        """
+        return ""
 
-    @param pN Ruta y nombre del fichero en el sistema de ficheros
-    @return QString con el contenido del fichero o vacía en caso de error.
-    """
+    def contentFS(self, path_name: str, utf8: bool = False) -> str:
+        """
+        Return the contents of a file stored in the file system.
 
-    def contentFS(self, pN, utf8=False) -> str:
+        @param path_name Path and file name in the file system
+        @return QString with the contents of the file or empty in case of error.
+        """
         encode_ = "UTF-8" if utf8 else "ISO-8859-15"
 
         try:
-            return str(open(pN, "rb").read(), encode_)
+            return str(open(path_name, "rb").read(), encode_)
         except Exception:
-            logger.warn("Error trying to read %r", pN, exc_info=True)
+            logger.warn("Error trying to read %r", path_name, exc_info=True)
             return ""
 
-    """
-    Obtiene el contenido de un fichero, utilizando la caché de memoria y disco.
+    def contentCached(self, file_name: str, shaKey=None) -> str:
+        """
+        Get the contents of a file, using the memory and disk cache.
 
-    Este método primero busca el contenido del fichero solicitado en la
-    caché interna, si no está lo obtiene con el método FLManagerModules::content().
+        This method first looks for the content of the requested file in the
+        Internal cache, if not, you get it with the FLManagerModules :: content () method.
 
-    @param n Nombre del fichero.
-    @return QString con el contenido del fichero o vacía en caso de error.
-    """
-
-    def contentCached(self, n: str, shaKey=None) -> str:
-        not_sys_table = n[0:3] != "sys" and not self.conn_.manager().isSystemTable(n)
+        @param file_name File name.
+        @return QString with the contents of the file or empty in case of error.
+        """
+        not_sys_table = file_name[0:3] != "sys" and not self.conn_.manager().isSystemTable(
+            file_name
+        )
         if not_sys_table and self.staticBdInfo_ and self.staticBdInfo_.enabled_:
-            str_ret = self.contentStatic(n)
+            str_ret = self.contentStatic(file_name)
             if str_ret:
                 return str_ret
 
-        if n in self.filesCached_.keys():
-            return self.filesCached_[n]
+        if file_name in self.filesCached_.keys():
+            return self.filesCached_[file_name]
 
         data = None
         modId = None
-        name_ = n[: n.index(".")]
-        ext_ = n[n.index(".") + 1 :]
+        name_ = file_name[: file_name.index(".")]
+        ext_ = file_name[file_name.index(".") + 1 :]
         type_ = None
         if ext_ == "kut":
             type_ = "reports/"
@@ -257,7 +288,9 @@ class FLManagerModules(object):
 
         if not shaKey and not self.conn_.manager().isSystemTable(name_):
 
-            cursor = self.conn_.execute_query("SELECT sha FROM flfiles WHERE nombre='%s'" % n)
+            cursor = self.conn_.execute_query(
+                "SELECT sha FROM flfiles WHERE nombre='%s'" % file_name
+            )
 
             for contenido in cursor:
                 shaKey = contenido[0]
@@ -265,7 +298,7 @@ class FLManagerModules(object):
         if self.conn_.manager().isSystemTable(name_):
             modId = "sys"
         else:
-            modId = self.conn_.managerModules().idModuleOfFile(n)
+            modId = self.conn_.managerModules().idModuleOfFile(file_name)
 
         from pineboolib.application import project
 
@@ -296,10 +329,10 @@ class FLManagerModules(object):
             if os.path.exists(filedir("../share/pineboo/%s%s.%s" % (type_, name_, ext_))):
                 data = self.contentFS(filedir("../share/pineboo/%s%s.%s" % (type_, name_, ext_)))
             else:
-                data = self.content(n)
+                data = self.content(file_name)
 
         if data:
-            self.filesCached_[n] = data
+            self.filesCached_[file_name] = data
         return data
 
     """

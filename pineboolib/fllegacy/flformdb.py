@@ -20,24 +20,6 @@ from typing import Any, Union, Dict, Optional, Tuple, Type, cast, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.application.database import pnsqlcursor
 
-"""
-Representa un formulario que enlaza con una tabla.
-
-Se utiliza como contenedor de componentes que quieran
-enlazar con la base de datos y acceder a los registros
-del cursor. Esta estructura simplifica en gran
-medida el acceso a los datos ya que muchas tareas son
-automáticamente gestionadas por este formulario contenedor.
-
-En un principio el formulario se crea vacío y debemos invocar
-el metodo FLFormDB::setMainWidget(), pasándole como parámetro
-otro widget (generalmente un formulario creado con QtDesigner),
-el cual contiene distintos componentes, este widget se visualizará
-dentro de este contenedor, autofonfigurándose todos los componentes
-que contiene, con los datos y metadatos del cursor. Generalmente los
-componentes serán plugins, como FLFieldDB o FLTableDB.
-"""
-
 
 class FLFormDB(QDialog):
     """

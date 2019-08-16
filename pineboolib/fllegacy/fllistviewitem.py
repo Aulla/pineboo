@@ -1,25 +1,33 @@
+"""Fllistview module."""
 # -*- coding: utf-8 -*-
 
 from PyQt5 import Qt  # type: ignore
 from pineboolib.core import decorators
 from pineboolib import logging
 from pineboolib.qt3_widgets import qlistview
-from typing import Any
+from typing import Any, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt5 import QtWidgets  # noqa: F401
 
 logger = logging.getLogger("FLListViewItem")
 
 
 class FLListViewItem(Qt.QStandardItem):
+    """FLListView class."""
 
-    _expandable: bool = False
-    _key = None
-    _open = None
-    _root = None
-    _index_child: int = 0
+    _expandable: bool
+    _key: str
+    _open: bool
+    _root: bool
+    _index_child: int
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Optional["QtWidgets.QWidget"] = None) -> None:
+        """Inicialize."""
+
         super().__init__()
         self._root = False
+        self.setOpen(False)
         self.setExpandable(False)
         self._parent = None
         self.setKey("")
@@ -47,20 +55,28 @@ class FLListViewItem(Qt.QStandardItem):
         #    self._rows = self._parent.model().item(0,0)._rowcount - 1
 
     def firstChild(self) -> Any:
+        """Return first child."""
+
         self._index_child = 0
         item = self.child(self._index_child)
         return item
 
     def nextSibling(self) -> Any:
+        """Return next child."""
+
         self._index_child += 1
         item = self.child(self._index_child)
         return item
 
     def isExpandable(self) -> bool:
+        """Return if is expandable."""
+
         return self._expandable
         # return True if self.child(0) is not None or not self.parent() else False
 
     def setText(self, *args) -> None:
+        """Set text."""
+
         # print("Seteando", args, self.parent())
         # logger.warning("Seteo texto %s" , args, stack_info = True )
         col = 0
@@ -82,7 +98,9 @@ class FLListViewItem(Qt.QStandardItem):
 
             item.setText(value)
 
-    def text(self, col) -> str:
+    def text(self, col: int) -> str:
+        """Return text from a column."""
+
         ret = ""
         if col == 0:
             ret = super().text()
@@ -91,21 +109,25 @@ class FLListViewItem(Qt.QStandardItem):
 
     @decorators.NotImplementedWarn
     def setPixmap(self, *args):
+        """Set pixmap."""
         pass
 
-    def setExpandable(self, b) -> None:
+    def setExpandable(self, b: bool) -> None:
+        """Set expandable."""
+
         self._expandable = b
 
-    def setKey(self, k) -> None:
+    def setKey(self, k: str) -> None:
+        """Set key."""
         self._key = str(k)
 
-    def key(self) -> Any:
+    def key(self) -> str:
+        """Return key."""
+
         if self.parent() and self.column() > 0:
             return self.parent().child(self.row(), 0).key()
         return self._key
 
-    def setOpen(self, o) -> None:
+    def setOpen(self, o: bool) -> None:
+        """Set Open."""
         self._open = o
-
-    def del_(self) -> None:
-        del self
