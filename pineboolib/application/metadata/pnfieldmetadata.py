@@ -439,7 +439,7 @@ class PNFieldMetaData(IFieldMetaData):
 
         return self.d.associatedFieldName_
 
-    def defaultValue(self) -> Optional[Union[str, bool]]:
+    def defaultValue(self) -> Optional[Union[Any]]:
         """
         Return the default value for the field.
 
