@@ -1,12 +1,20 @@
+"""Qdialog module."""
+
 # -*- coding: utf-8 -*-
 
 from PyQt5 import QtWidgets  # type: ignore
-from typing import Any
+from typing import Any, Optional
 from pineboolib.core import decorators
 
 
 class QDialog(QtWidgets.QDialog):
-    def __init__(self, parent=None, name=None, b=None) -> None:
+    """QDialog class."""
+
+    def __init__(
+        self, parent: Optional[QtWidgets.QWidget] = None, name: Optional[str] = None, b: Any = None
+    ) -> None:
+        """Inicialize."""
+
         if isinstance(parent, int):
             parent = None
 
@@ -15,32 +23,45 @@ class QDialog(QtWidgets.QDialog):
             self.setTitle(name)
         self.setModal(True)
 
-    def child(self, name) -> Any:
+    def child(self, name: str) -> QtWidgets.QWidget:
+        """Return an child specified by name."""
+
         return self.findChild(QtWidgets.QWidget, name)
 
-    def getTitle(self) -> Any:
+    def getTitle(self) -> str:
+        """Return dialog title."""
+
         return self.windowTitle()
 
-    def setTitle(self, title) -> None:
+    def setTitle(self, title: str) -> None:
+        """Set dialog title."""
+
         self.setWindowTitle(title)
 
-    def getEnabled(self) -> Any:
+    def getEnabled(self) -> bool:
+        """Return if dialog is enabled."""
+
         return self.isEnabled()
 
-    def setEnable_(self, enable_) -> None:
+    def setEnable_(self, enable_: bool) -> None:
+        """Set if dialog is enabled."""
+
         self.setEnabled(enable_)
 
     @decorators.pyqtSlot()
-    def accept(self):
+    def accept(self) -> None:
+        """Call accept."""
         super().accept()
 
     @decorators.pyqtSlot()
-    def reject(self):
+    def reject(self) -> None:
+        """Call reject."""
         super().reject()
 
     @decorators.pyqtSlot()
-    def close(self):
-        super().close()
+    def close(self) -> bool:
+        """Call close."""
+        return super().close()
 
     caption = property(getTitle, setTitle)
     enable = property(getEnabled, setEnable_)

@@ -1,3 +1,5 @@
+"""Qlabel module."""
+
 # -*- coding: utf-8 -*-
 
 from PyQt5 import QtWidgets, QtGui
@@ -7,34 +9,50 @@ from pineboolib.core import decorators
 
 
 class QLabel(QtWidgets.QLabel):
-    def get_text(self):
+    """QLabel class."""
+
+    def get_text(self) -> str:
+        """Return text label."""
+
         return super().text()
 
     def setText(self, text: Union[str, int]) -> None:
+        """Set text label."""
+
         if not isinstance(text, str):
             text = str(text)
         super().setText(text)
 
-    def setPixmap(self, pix) -> None:
+    def setPixmap(self, pix: Union[QtGui.QIcon, QtGui.QPixmap]) -> None:
+        """Set pixmap."""
 
         if isinstance(pix, QtGui.QIcon):
             pix = pix.pixmap(32, 32)
         super(QLabel, self).setPixmap(pix)
 
     @decorators.pyqtSlot(bool)
-    def setShown(self, b):
+    def setShown(self, b: bool):
+        """Set visible."""
+
         self.setVisible(b)
 
     def getAlign(self) -> Any:
+        """Return Alignment."""
+
         return super().alignment()
 
-    def setAlign(self, alignment_) -> None:
+    def setAlign(self, alignment_: Any) -> None:
+        """Set alignment."""
+
         self.setAlignment(alignment_)
 
-    def get_palette_fore_ground(self) -> Any:
+    def get_palette_fore_ground(self) -> QtGui.QColor:
+        """Return palette foreground color."""
+
         return self.palette().text().color()
 
-    def set_palette_fore_ground(self, color) -> None:
+    def set_palette_fore_ground(self, color: QtGui.QColor) -> None:
+        """Set palette foreground color."""
         pal = self.palette()
         pal.setColor(pal.WindowText, color)
         self.setPalette(pal)

@@ -1,26 +1,41 @@
+"""QLine module."""
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets  # type: ignore
-from typing import Any
+from typing import Optional
 
 
 class QLine(QtWidgets.QFrame):
-    object_name = None
-    orientation_ = 0
+    """QLine class."""
+
+    _object_name: Optional[str]
+    _orientation: int
 
     def __init__(self, parent) -> None:
+        """Inicialize."""
+
         super().__init__()
+        self._object_name = None
+        self._orientation = 0
 
-    def getObjectName(self) -> Any:
-        return self.object_name
+    def getObjectName(self) -> Optional[str]:
+        """Return object name."""
 
-    def setObjectName(self, name) -> None:
-        self.object_name = name
+        return self._object_name
 
-    def setOrientation(self, ori_=0) -> None:
-        self.orientation_ = ori_
+    def setObjectName(self, name: str) -> None:
+        """Set object name."""
+
+        self._object_name = name
+
+    def setOrientation(self, ori_: int = 0) -> None:
+        """Set orientation."""
+
+        self._orientation = ori_
         self.setFrameShape(self.HLine if ori_ == 1 else self.VLine)
 
     def getOrientation(self) -> int:
+        """Return orientation."""
+
         return self.orientation_
 
     orientation = property(getOrientation, setOrientation)

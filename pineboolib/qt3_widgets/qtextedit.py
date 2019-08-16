@@ -1,31 +1,42 @@
+"""Qtextedit module."""
+
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets  # type: ignore
 from pineboolib.core import decorators
-from typing import Any
+from typing import Any, Optional
 
 
 class QTextEdit(QtWidgets.QTextEdit):
-    LogText = 0
-    RichText = 1
+    """QTextEdit class."""
 
-    def __init__(self, parent=None) -> None:
-        super(QTextEdit, self).__init__(parent)
+    LogText: int = 0
+    RichText: int = 1
+
+    def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
+        """Injicialize."""
+        super().__init__(parent)
         self.LogText = 0
+        self.RichText = 1
 
-    def setText(self, text) -> None:
+    def setText(self, text: str) -> None:
+        """Set text."""
+
         super(QTextEdit, self).setText(text)
         # if not project.DGI.localDesktop():
         #    project.DGI._par.addQueque("%s_setText" % self._parent.objectName(), text)
 
-    def getText(self) -> Any:
-        return super(QTextEdit, self).toPlainText()
+    def getText(self) -> str:
+        """Return text."""
+        return super().toPlainText()
 
     @decorators.NotImplementedWarn
-    def textFormat(self):
-        return
+    def textFormat(self) -> int:
+        """Return text format."""
+        return -1
 
     @decorators.Incomplete
-    def setTextFormat(self, value):
+    def setTextFormat(self, value: int) -> None:
+        """Set text format."""
         if value == 0:  # LogText
             self.setReadOnly(True)
             self.setAcceptRichText(False)
@@ -33,18 +44,23 @@ class QTextEdit(QtWidgets.QTextEdit):
             self.setReadOnly(False)
             self.setAcceptRichText(True)
 
-    def setShown(self, value) -> None:
-        if value:
-            super().show()
-        else:
-            super().hide()
+    def setShown(self, value: bool) -> None:
+        """Set visible."""
+        self.setVisible(value)
+        # if value:
+        #    super().show()
+        # else:
+        #    super().hide()
 
-    def getPlainText(self) -> Any:
+    def getPlainText(self) -> str:
+        """Return text in plain text format."""
         return super(QTextEdit, self).toPlainText()
 
-    def setAutoFormatting(self, value) -> None:
-        value = QtWidgets.QTextEdit.AutoAll
-        super(QTextEdit, self).setAutoFormatting(value)
+    @decorators.NotImplementedWarn
+    def setAutoFormatting(self, value: Any = QtWidgets.QTextEdit.AutoAll) -> None:
+        """Set auto formating mode."""
+
+        super(QTextEdit, self).setAutoFormatting(QtWidgets.QTextEdit.AutoAll)
 
     text = property(getText, setText)
     PlainText = property(getPlainText, setText)

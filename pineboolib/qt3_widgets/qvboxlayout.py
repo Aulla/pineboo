@@ -1,9 +1,14 @@
+"""Qvboxlayout module."""
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets  # type: ignore
+from typing import Optional
 
 
 class QVBoxLayout(QtWidgets.QVBoxLayout):
-    def __init__(self, parent=None) -> None:
+    """QVBoxLayout class."""
+
+    def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
+        """Inicialize."""
         if isinstance(parent, QtWidgets.QWidget):
             super().__init__(parent)
         else:

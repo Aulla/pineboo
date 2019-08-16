@@ -1,3 +1,4 @@
+"""Qtoolbutton module."""
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets  # type: ignore
 from pineboolib.core import decorators
@@ -6,41 +7,53 @@ from pineboolib.core import decorators
 from .qframe import QFrame
 from .qgroupbox import QGroupBox
 from .qwidget import QWidget
-from typing import Union, Any
+from typing import Union, Optional
 
 
 class QToolButton(QtWidgets.QToolButton):
+    """QToolButton class."""
 
-    groupId = None
+    groupId: Optional[int]
 
     def __init__(self, parent: Union[QWidget, QGroupBox, QFrame]) -> None:
+        """Inicialize."""
         super(QToolButton, self).__init__(parent)
         self.groupId = None
 
-    def setToggleButton(self, value) -> None:
+    def setToggleButton(self, value: bool) -> None:
+        """Set toggled button."""
+
         self.setDown(value)
 
     @decorators.Deprecated
-    def setUsesBigPixmap(self, value):
+    def setUsesBigPixmap(self, value: bool):
+        """Set uses big pixmap."""
+
         pass
 
-    def toggleButton(self) -> Any:
+    def toggleButton(self) -> bool:
+        """Return button is toggled."""
         return self.isDown()
 
-    def getOn(self) -> Any:
+    def getOn(self) -> bool:
+        """Return button is checked."""
         return self.isChecked()
 
-    def setOn(self, value) -> None:
+    def setOn(self, value: bool) -> None:
+        """Set checked."""
         self.setChecked(value)
 
-    on = property(getOn, setOn)
-
     @decorators.Deprecated
-    def setUsesTextLabel(self, value):
+    def setUsesTextLabel(self, value: bool):
+        """Set uses text label."""
         pass
 
-    def buttonGroupId(self) -> Any:
+    def buttonGroupId(self) -> Optional[int]:
+        """Return button group id."""
         return self.groupId
 
-    def setButtonGroupId(self, id) -> None:
+    def setButtonGroupId(self, id: int) -> None:
+        """Set button group id."""
         self.groupId = id
+
+    on = property(getOn, setOn)

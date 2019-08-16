@@ -76,18 +76,18 @@ class MessageBox(QMessageBox):
         return msg.exec_()
 
     @classmethod
-    def question(cls, *args) -> Any:
+    def question(cls, *args) -> QMessageBox.StandardButton:
         """Return an question messageBox."""
 
         return cls.msgbox("question", *args)
 
     @classmethod
-    def information(cls, *args) -> Any:
+    def information(cls, *args) -> QMessageBox.StandardButton:
         """Return an information messageBox."""
         return cls.msgbox("question", *args)
 
     @classmethod
-    def warning(cls, *args) -> Any:
+    def warning(cls, *args) -> QMessageBox.StandardButton:
         """Return an warning messageBox."""
         clip_board = QApplication.clipboard()
         clip_board.clear()
@@ -97,7 +97,7 @@ class MessageBox(QMessageBox):
         return cls.msgbox("warning", *args)
 
     @classmethod
-    def critical(cls, *args) -> Any:
+    def critical(cls, *args) -> QMessageBox.StandardButton:
         """Return an critical messageBox."""
         clip_board = QApplication.clipboard()
         clip_board.clear()

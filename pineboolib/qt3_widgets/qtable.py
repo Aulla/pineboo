@@ -1,6 +1,8 @@
+"""Qtable module."""
+
 # -*- coding: utf-8 -*-
 from typing import Optional, Any, List, Union, cast
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAbstractItemView
@@ -13,10 +15,11 @@ class Q3TableWidget(QtWidgets.QTableWidget):
     Remove problematic properties from PyQt5-Stubs that we need to redefine.
     """
 
-    currentChanged: Any = None
+    currentChanged: Any
 
 
 class QTable(Q3TableWidget):
+    """QTable class."""
 
     lineaActual = None
     currentChanged = QtCore.pyqtSignal(
@@ -25,18 +28,19 @@ class QTable(Q3TableWidget):
     doubleClicked = QtCore.pyqtSignal(int, int)
     clicked = QtCore.pyqtSignal(int, int)  # need overload
     valueChanged = QtCore.pyqtSignal(int, int)
-    read_only_cols: List[str]
-    read_only_rows: List[str]
+    read_only_cols: List[int]
+    read_only_rows: List[int]
     cols_list: List[str]
-    resize_policy = None
+    resize_policy: int
 
     Default = 0
     Manual = 1
     AutoOne = 2
     AutoOneFit = 3
-    sort_column_ = None
+    sort_column_: int
 
     def __init__(self, parent: Optional[QtWidgets.QGroupBox] = None, name: str = None) -> None:
+        """Inicialize."""
         super(QTable, self).__init__(parent)
         if not parent:
             self.setParent(self.parentWidget())
@@ -53,25 +57,31 @@ class QTable(Q3TableWidget):
         self.read_only_cols = []
         self.read_only_rows = []
         self.resize_policy = 0  # Default
-        self.sort_column_ = None
+        self.sort_column_ = -1
 
     def currentChanged_(
         self, current_row: int, current_column: int, previous_row: int, previous_column: int
     ) -> None:
+        """Emit current changed signal."""
         if current_row > -1 and current_column > -1:
             cast(pyqtSignal, self.currentChanged).emit(current_row, current_column)
 
     def doubleClicked_(self, f, c) -> None:
-        self.doubleClicked.emit(f, c)
+        """Emit double clicked signal."""
+        cast(pyqtSignal, self.doubleClicked).emit(f, c)
 
     def simpleClicked_(self, f, c) -> None:
-        self.clicked.emit(f, c)
+        """Emit simple clicked signal."""
+        cast(pyqtSignal, self.clicked).emit(f, c)
 
     @decorators.NotImplementedWarn
-    def setResizePolicy(self, pol):
+    def setResizePolicy(self, pol: QtWidgets.QSizePolicy) -> None:
+        """Set resize polizy."""
         self.resize_policy = pol
 
     def __getattr__(self, name: str) -> Any:
+        """Return an attribute specified by name."""
+
         if name == "Multi":
             return self.MultiSelection
         elif name == "SpreadSheet":
@@ -81,42 +91,55 @@ class QTable(Q3TableWidget):
             return getattr(QtCore.Qt, name, None)
 
     def valueChanged_(self, item=None) -> None:
+        """Emit valueChanged signal."""
 
         if item and self.text(item.row(), item.column()) != "":
-            self.valueChanged.emit(item.row(), item.column())
+            cast(pyqtSignal, self.valueChanged).emit(item.row(), item.column())
 
-    def numRows(self) -> Any:
+    def numRows(self) -> int:
+        """Return num rows."""
+
         return self.rowCount()
 
-    def numCols(self) -> Any:
+    def numCols(self) -> int:
+        """Return num cols."""
         return self.columnCount()
 
-    def setCellAlignment(self, row, col, alig_) -> None:
+    def setCellAlignment(self, row: int, col: int, alig_: int) -> None:
+        """Set cell alignment."""
         self.item(row, col).setTextAlignment(alig_)
 
     def setNumCols(self, n: int) -> None:
+        """Set num cols."""
         self.setColumnCount(n)
         self.setColumnLabels(",", ",".join(self.cols_list))
 
     def setNumRows(self, n: int) -> None:
+        """Set num rows."""
         self.setRowCount(n)
 
-    def setReadOnly(self, b) -> None:
+    def setReadOnly(self, b: bool) -> None:
+        """Set read only."""
         if b:
             self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         else:
             self.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
 
-    def selectionMode(self) -> Any:
+    def selectionMode(self) -> "QAbstractItemView.SelectionMode":
+        """Return selection mode."""
         return super(QTable, self).selectionMode()
 
     def setFocusStyle(self, m: Union[str, int]) -> None:
+        """Set focus style."""
+
         if isinstance(m, int):
             return
         else:
             self.setStyleSheet(m)
 
     def setColumnLabels(self, separador: str, lista: str) -> None:
+        """Set column labels."""
+
         array_ = lista.split(separador)
         self.cols_list = []
         for i in range(self.columnCount()):
@@ -124,11 +147,15 @@ class QTable(Q3TableWidget):
                 self.cols_list.append(array_[i])
         self.setHorizontalHeaderLabels(self.cols_list)
 
-    def setRowLabels(self, separator, lista) -> None:
+    def setRowLabels(self, separator: str, lista: str) -> None:
+        """Set row labels."""
+
         array_ = lista.split(separator)
         self.setVerticalHeaderLabels(array_)
 
     def clear(self) -> None:
+        """Clear values."""
+
         super().clear()
         for i in range(self.rowCount()):
             self.removeRow(i)
@@ -136,12 +163,14 @@ class QTable(Q3TableWidget):
         self.setRowCount(0)
 
     def setSelectionMode(self, mode: "QAbstractItemView.SelectionMode") -> None:
+        """Set selection mode."""
         if mode == 999:
             self.setAlternatingRowColors(True)
         else:
             super().setSelectionMode(mode)
 
     def setColumnStrechable(self, col: int, b: bool) -> None:
+        """Set column strechable."""
         if b:
             self.horizontalHeader().setSectionResizeMode(
                 col, QtWidgets.QHeaderView.ResizeMode(QtWidgets.QHeaderView.Stretch)
@@ -151,20 +180,26 @@ class QTable(Q3TableWidget):
                 col, QtWidgets.QHeaderView.ResizeMode(QtWidgets.QHeaderView.AdjustToContents)
             )
 
-    def setHeaderLabel(self, l) -> None:
+    def setHeaderLabel(self, l: str) -> None:
+        """Set header label."""
+
         self.cols_list.append(l)
         self.setColumnLabels(",", ",".join(self.cols_list))
 
     def insertRows(self, numero, n: int = 1) -> None:
+        """Insert Rows."""
         for r in range(n):
             self.insertRow(numero)
 
-    def text(self, row, col) -> Any:
+    def text(self, row: int, col: int) -> Optional[str]:
+        """Return text from a index."""
         if row is None:
             return
         return self.item(row, col).text() if self.item(row, col) else None
 
-    def setText(self, row, col, value) -> None:
+    def setText(self, row: int, col: int, value: Any) -> None:
+        """Set text to a index."""
+
         prev_item = self.item(row, col)
         if prev_item:
             bg_color = prev_item.background()
@@ -201,7 +236,9 @@ class QTable(Q3TableWidget):
                     )
                 )
 
-    def setCellWidget(self, row, col, obj) -> None:
+    def setCellWidget(self, row: int, col: int, obj: QtWidgets.QWidget) -> None:
+        """Set cell widget."""
+
         super().setCellWidget(row, col, obj)
 
         widget = self.cellWidget(row, col)
@@ -209,10 +246,14 @@ class QTable(Q3TableWidget):
             if row in self.read_only_rows or col in self.read_only_cols:
                 widget.setEnabled(False)
 
-    def adjustColumn(self, k) -> None:
+    def adjustColumn(self, k: int) -> None:
+        """Adjust a column specified by name."""
+
         self.horizontalHeader().setSectionResizeMode(k, QtWidgets.QHeaderView.ResizeToContents)
 
-    def setRowReadOnly(self, row, b) -> None:
+    def setRowReadOnly(self, row: int, b: bool) -> None:
+        """Set row read only specified by a number."""
+
         if b:
             if row in self.read_only_rows:
                 return
@@ -241,7 +282,9 @@ class QTable(Q3TableWidget):
                         )
                     )
 
-    def setColumnReadOnly(self, col, b) -> None:
+    def setColumnReadOnly(self, col: int, b: bool) -> None:
+        """Set column read only."""
+
         if b:
             if col in self.read_only_cols:
                 return
@@ -271,19 +314,25 @@ class QTable(Q3TableWidget):
                     )
 
     @decorators.NotImplementedWarn
-    def setLeftMargin(self, n):
+    def setLeftMargin(self, n: int):
+        """Set left margin."""
         pass
 
-    def setCellBackgroundColor(self, row, col, color) -> None:
+    def setCellBackgroundColor(self, row: int, col: int, color: QtGui.QColor) -> None:
+        """Set cell backgroun color."""
         item = self.item(row, col)
 
         if item is not None and color:
             item.setBackground(color)
 
-    def getSorting(self) -> Any:
+    def getSorting(self) -> int:
+        """Return sorting column."""
+
         return self.sort_column_
 
-    def setSorting(self, col) -> None:
+    def setSorting(self, col: int) -> None:
+        """Set sorting column."""
+
         if not super().isSortingEnabled():
             super().setSortingEnabled(True)
         super().sortByColumn(col, QtCore.Qt.AscendingOrder)
@@ -291,5 +340,6 @@ class QTable(Q3TableWidget):
 
     sorting = property(getSorting, setSorting)
 
-    def editCell(self, row, col) -> None:
+    def editCell(self, row: int, col: int) -> None:
+        """Edit a cell."""
         self.editItem(self.item(row, col))

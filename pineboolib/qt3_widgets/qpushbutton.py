@@ -1,76 +1,101 @@
+"""Qpushbutton module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt5 import QtWidgets, QtCore  # type: ignore
 from pineboolib.core import decorators
 
+from typing import Union, Optional, TYPE_CHECKING
 
-from PyQt5.QtGui import QIcon  # type: ignore
-from typing import Any
+if TYPE_CHECKING:
+    from PyQt5 import QtGui
 
 
 class QPushButton(QtWidgets.QPushButton):
+    """QPushButton class."""
+
     def __init__(self, *args, **kwargs) -> None:
+        """Inicialize."""
+
         super(QPushButton, self).__init__(*args, **kwargs)
         self.setTextLabel = self.setText
 
     @decorators.NotImplementedWarn
-    def setTextPosition(self, pos):
+    def setTextPosition(self, pos: int) -> None:
+        """Set text position."""
         pass
 
     @decorators.NotImplementedWarn
-    def setUsesBigPixmap(self, b):
+    def setUsesBigPixmap(self, b: bool) -> None:
+        """Set use big pixmap."""
+
         pass
 
     @decorators.NotImplementedWarn
-    def setUsesTextLabel(self, b):
+    def setUsesTextLabel(self, b: bool) -> None:
+        """Set use text label."""
         pass
 
     @property
-    def pixmap(self):
+    def pixmap(self) -> "QtGui.QIcon":
+        """Return pixmap."""
+
         return self.icon()
 
     @pixmap.setter
-    def pixmap(self, value):
+    def pixmap(self, value: "QtGui.QIcon") -> None:
+        """Set pixmap."""
         return self.setIcon(value)
 
-    def setPixmap(self, value: QIcon) -> None:
+    def setPixmap(self, value: "QtGui.QIcon") -> None:
+        """Set pixmap."""
         return self.setIcon(value)
 
-    def getToggleButton(self) -> Any:
+    def getToggleButton(self) -> bool:
+        """Return if is checkable."""
+
         return self.isCheckable()
 
     def setToggleButton(self, v: bool) -> None:
-        return self.setCheckable(v)
+        """Set if is checkable."""
 
-    def getOn(self) -> Any:
+        self.setCheckable(v)
+
+    def getOn(self) -> bool:
+        """Return if is checked."""
         return self.isChecked()
 
-    def setOn(self, value) -> None:
+    def setOn(self, value: bool) -> None:
+        """Set if is checked."""
+
         self.setChecked(value)
 
-    def getText(self) -> Any:
+    def getText(self) -> str:
+        """Return text."""
+
         return super().text()
 
     def setText(self, val: str) -> None:
+        """Set text."""
+
         if self.maximumWidth() < 33 and len(val) > 4:
             val = ""
         super().setText(val)
 
-    def setMaximumSize(self, *args) -> None:
-        w = 30
-        h = 30
+    def setMaximumSize(self, w: Union[int, QtCore.QSize] = 30, h: Optional[int] = None) -> None:
+        """Set Maximun size."""
 
-        if len(args) == 1:
-            w = args[0].width()
-            h = args[0].height()
+        if isinstance(w, int):
+            if h is None:
+                h = w
+
             super().setMaximumSize(w, h)
-
         else:
-            super().setMaximumSize(args[0], args[1])
+            super().setMaximumSize(w)
 
     toggleButton = property(getToggleButton, setToggleButton)
     on = property(getOn, setOn)
     text = property(getText, setText)  # type: ignore
 
     @decorators.NotImplementedWarn
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
+        """Return a attribute specified by name."""
         pass

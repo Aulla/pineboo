@@ -1,3 +1,5 @@
+"""Qbuttongroup module."""
+
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtCore  # type: ignore
 from .qgroupbox import QGroupBox
@@ -8,23 +10,30 @@ from typing import Callable
 
 
 class QButtonGroup(QGroupBox):
+    """QButtonGroup class."""
 
-    selectedId = None
+    selectedId: int
     pressed = QtCore.pyqtSignal(int)
 
     def __init__(self, *args) -> None:
+        """Inicialize."""
+
         super(QButtonGroup, self).__init__(*args)
         self.bg_ = QtWidgets.QButtonGroup(self)
-        self.selectedId = None
+        self.selectedId = -1
 
     @decorators.NotImplementedWarn
-    def setLineWidth(self, w):
+    def setLineWidth(self, w: int):
+        """Set line width."""
         pass
 
-    def setSelectedId(self, id) -> None:
+    def setSelectedId(self, id: int) -> None:
+        """Set selected id."""
+
         self.selectedId = id
 
     def __getattr__(self, name: str) -> Callable:
+        """Return an attribute."""
 
         ret_ = getattr(self.bg_, name, None)
         return ret_
