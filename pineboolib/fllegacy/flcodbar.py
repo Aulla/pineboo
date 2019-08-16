@@ -1,3 +1,5 @@
+"""Flcodbar module."""
+
 # # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, Qt  # type: ignore
 from PyQt5.Qt import QRectF  # type: ignore
@@ -12,27 +14,28 @@ from typing import Dict, Any, Union, cast, Optional
 
 logger = logging.getLogger(__name__)
 
-BARCODE_ANY = 0
-BARCODE_EAN = 1
-BARCODE_EAN_8 = 2
-BARCODE_EAN_13 = 3
-BARCODE_EAN_14 = 4
-BARCODE_UPC = 5
-BARCODE_UPC_A = 6
-BARCODE_JAN = 7
-BARCODE_ISBN = 8
-BARCODE_ISBN_10 = 9
-BARCODE_ISBN_13 = 10
-BARCODE_ISSN = 11
-BARCODE_39 = 12
-BARCODE_128 = 13
-BARCODE_PZN = 14
-BARCODE_ITF = 15
-BARCODE_GS1 = 16
-BARCODE_GTIN = 17
+BARCODE_ANY: int = 0
+BARCODE_EAN: int = 1
+BARCODE_EAN_8: int = 2
+BARCODE_EAN_13: int = 3
+BARCODE_EAN_14: int = 4
+BARCODE_UPC: int = 5
+BARCODE_UPC_A: int = 6
+BARCODE_JAN: int = 7
+BARCODE_ISBN: int = 8
+BARCODE_ISBN_10: int = 9
+BARCODE_ISBN_13: int = 10
+BARCODE_ISSN: int = 11
+BARCODE_39: int = 12
+BARCODE_128: int = 13
+BARCODE_PZN: int = 14
+BARCODE_ITF: int = 15
+BARCODE_GS1: int = 16
+BARCODE_GTIN: int = 17
 
 
 class FLCodBar(object):
+    """FLCodBar class."""
 
     barcode: Dict[str, Any]
     p: Optional[QPixmap]
@@ -41,16 +44,18 @@ class FLCodBar(object):
     def __init__(
         self,
         value: Union[None, int, str, Dict[str, Any]] = None,
-        type_=BARCODE_128,
-        margin=10,
-        scale=1.0,
-        cut=1.0,
-        rotation=0,
-        text_flag=False,
+        type_: int = BARCODE_128,
+        margin: int = 10,
+        scale: float = 1.0,
+        cut: float = 1.0,
+        rotation: int = 0,
+        text_flag: bool = False,
         fg: QColor = cast(QColor, QtCore.Qt.black),
         bg: QColor = cast(QColor, QtCore.Qt.white),
-        res=72,
+        res: int = 72,
     ) -> None:
+        """Inicialize."""
+
         dict_ = {"barcode": "python-barcode"}
         from pineboolib.application.utils.check_dependencies import check_dependencies
 
@@ -85,6 +90,8 @@ class FLCodBar(object):
                 self._copyBarCode(value, self.barcode)
 
     def pixmap(self) -> QPixmap:
+        """Return pixmap barcode."""
+
         self._createBarcode()
 
         if not self.p:
@@ -94,81 +101,121 @@ class FLCodBar(object):
         return self.p
 
     def pixmapError(self) -> QPixmap:
+        """Return empy pixmap barcode."""
+
         return self.pError
 
     def value(self) -> Any:
+        """Return value."""
         return self.barcode["value"]
 
-    def type_(self) -> Any:
+    def type_(self) -> int:
+        """Return type."""
+
         return self.barcode["type"]
 
-    def margin(self) -> Any:
+    def margin(self) -> int:
+        """Return margin."""
+
         return self.barcode["margin"]
 
-    def scale(self) -> Any:
+    def scale(self) -> float:
+        """Return scale."""
+
         return self.barcode["scale"]
 
-    def cut(self) -> Any:
+    def cut(self) -> float:
+        """Return cut."""
         return self.barcode["cut"]
 
-    def text(self) -> Any:
+    def text(self) -> str:
+        """Return text."""
+
         return self.barcode["text"]
 
-    def rotation(self) -> Any:
+    def rotation(self) -> int:
+        """Return rotation."""
+
         return self.barcode["rotation"]
 
-    def fg(self) -> Any:
+    def fg(self) -> QColor:
+        """Return fore ground color."""
+
         return self.barcode["fg"]
 
-    def bg(self) -> Any:
+    def bg(self) -> QColor:
+        """Return back ground color."""
         return self.barcode["bg"]
 
     def setData(self, d: Dict[str, Any]) -> None:
+        """Set barcode data."""
+
         self.barcode = d
 
-    def validBarcode(self) -> Any:
+    def validBarcode(self) -> bool:
+        """Return if is a valid barcode."""
+
         return self.barcode["valid"]
 
-    def setCaption(self, caption) -> None:
+    def setCaption(self, caption: str) -> None:
+        """Set caption barcode."""
+
         self.barcode["caption"] = caption
 
-    def caption(self) -> Any:
+    def caption(self) -> str:
+        """Return caption barcode."""
+
         return self.barcode["caption"]
 
-    def setValue(self, value) -> None:
+    def setValue(self, value: Any) -> None:
+        """Set value."""
+
         self.barcode["value"] = value
 
-    def setType(self, type_) -> None:
+    def setType(self, type_: int) -> None:
+        """Set type."""
         self.barcode["type"] = type_
 
-    def setMargin(self, margin) -> None:
+    def setMargin(self, margin: int) -> None:
+        """Set margin size."""
         self.barcode["margin"] = margin
 
-    def setScale(self, scale) -> None:
+    def setScale(self, scale: float) -> None:
+        """Set scale."""
         self.barcode["scale"] = scale
 
-    def setCut(self, cut) -> None:
+    def setCut(self, cut: float) -> None:
+        """Set cut size."""
         self.barcode["cut"] = cut
 
-    def setText(self, text) -> None:
+    def setText(self, text: str) -> None:
+        """Set text size."""
         self.barcode["text"] = text
 
-    def setRotation(self, rotation) -> None:
+    def setRotation(self, rotation: int) -> None:
+        """Set rotation size."""
         self.barcode["rotation"] = rotation
 
     def setFg(self, fg) -> None:
+        """Set fore ground color."""
         self.barcode["fg"] = fg
 
-    def setBg(self, bg) -> None:
+    def setBg(self, bg: QColor) -> None:
+        """Set back ground color."""
         self.barcode["bg"] = bg
 
-    def setRes(self, res) -> None:
+    def setRes(self, res: int) -> None:
+        """Set resolution."""
+
         self.barcode["res"] = res
 
     def data(self) -> Dict[str, Any]:
+        """Return barcode data."""
         return self.barcode
 
-    def fillDefault(self, data) -> None:
+    def fillDefault(self, data: Dict[str, Any]) -> None:
+        """Fill with default values."""
+
         data["bg"] = "white"
         data["fg"] = "black"
         data["margin"] = 10
@@ -183,11 +230,14 @@ class FLCodBar(object):
         data["res"] = 72
 
     def cleanUp(self) -> None:
+        """Clean barcode data."""
+
         if self.p:
             self.p.resize(0, 0)
         self.pError.resize(0, 0)
 
     def nameToType(self, name: str) -> int:
+        """Return barcode  name from type."""
         n = name.lower()
         if n == "any":
             return BARCODE_ANY
@@ -231,7 +281,8 @@ class FLCodBar(object):
             )
             return BARCODE_ANY
 
-    def typeToName(self, type_) -> str:
+    def typeToName(self, type_: int) -> str:
+        """Return barcode type from barcode name."""
         if type_ == BARCODE_ANY:
             return "ANY"
         elif type_ == BARCODE_EAN:
@@ -272,6 +323,7 @@ class FLCodBar(object):
             return "ANY"
 
     def _createBarcode(self) -> None:
+        """Create barcode."""
         if self.barcode["value"] == "":
             return
         if self.barcode["type"] == BARCODE_ANY:
@@ -340,7 +392,9 @@ class FLCodBar(object):
 
             self.barcode["valid"] = True
 
-    def _copyBarCode(self, source: Dict[str, Any], dest) -> None:
+    def _copyBarCode(self, source: Dict[str, Any], dest: Dict[str, Any]) -> None:
+        """Copy a new barcode from another."""
+
         dest["value"] = source["value"]
         dest["type"] = source["type"]
         dest["margin"] = source["margin"]
