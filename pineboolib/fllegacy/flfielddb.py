@@ -383,7 +383,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if isinstance(ted, QTextEdit):
             ted.setTextFormat(self.textFormat_)
 
-    def textFormat(self) -> Qt.TextFormat:
+    def textFormat(self) -> int:
         """@return El formato del texto."""
         ted = self.editor_
         if isinstance(ted, QTextEdit):

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import datetime
-from typing import Union
+from typing import Union, Optional
 
-from PyQt5 import QtCore  # type: ignore
+from PyQt5 import QtCore, QtWidgets  # type: ignore
 from pineboolib.qt3_widgets.qdateedit import QDateEdit
 from pineboolib.application.utils.date_conversion import convert_to_qdate
 from pineboolib.application.types import Date
@@ -12,7 +12,7 @@ class FLDateEdit(QDateEdit):
 
     valueChanged = QtCore.pyqtSignal()
     DMY = "dd-MM-yyyy"
-    _parent = None
+    _parent: QtWidgets.QWidget
 
     def __init__(self, parent, name) -> None:
         super().__init__(parent, name)
@@ -23,7 +23,7 @@ class FLDateEdit(QDateEdit):
     def setOrder(self, order: str) -> None:
         self.setDisplayFormat(order)
 
-    def getDate(self) -> str:
+    def getDate(self) -> Optional[str]:
         return super().getDate()
 
     def setDate(self, d: Union[str, datetime.date, Date] = None) -> None:  # type: ignore
