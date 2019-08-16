@@ -585,7 +585,7 @@ class PNConnection(QtCore.QObject, IConnection):
         if self.transaction_ == 0 and self.canTransaction():
             if config.value("application/isDebuggerMode", False):
                 project.message_manager().send(
-                    "status_help_msg", "send", ["Terminando transacción... %s" % self.transaction_]
+                    "status_help_msg", "send", ["Terminando Transacción... %s" % self.transaction_]
                 )
             try:
                 if self.commit():
