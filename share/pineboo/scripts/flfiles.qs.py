@@ -15,13 +15,13 @@ class FormInternalObj(qsa.FormDBWidget):
             botonEditar.setEnabled(False)
             pbXMLEditor.setEnabled(False)
         else:
-            connect(botonEditar, u"clicked()", self, u"editarFichero")
+            self.module_connect(botonEditar, u"clicked()", self, u"editarFichero")
             nombre = cursor.valueBuffer(u"nombre")
             tipo = self.tipoDeFichero(nombre)
             if tipo == u".ui" or tipo == u".ts" or tipo == u".qs":
                 pbXMLEditor.setEnabled(False)
             else:
-                connect(pbXMLEditor, u"clicked()", self, u"editarFicheroXML")
+                self.module_connect(pbXMLEditor, u"clicked()", self, u"editarFicheroXML")
 
     def acceptedForm(self):
         self.cursor().setValueBuffer(u"contenido", self.child(u"contenido").text)
