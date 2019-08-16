@@ -94,8 +94,3 @@ class QPushButton(QtWidgets.QPushButton):
     toggleButton = property(getToggleButton, setToggleButton)
     on = property(getOn, setOn)
     text = property(getText, setText)  # type: ignore
-
-    @decorators.NotImplementedWarn
-    def __getattr__(self, name: str):
-        """Return a attribute specified by name."""
-        pass
