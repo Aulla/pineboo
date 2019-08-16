@@ -1,10 +1,12 @@
 """
 IManager Module.
 """
-from typing import Any, Callable, Dict, Optional, TYPE_CHECKING
+from typing import Any, Callable, Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.database import pnsqlquery  # noqa: F401
+    from pineboolib.application.metadata import pntablemetadata  # noqa: F401
+    from pineboolib.application.metadata import pnfieldmetadata  # noqa: F401
 #     import pineboolib.application.database.pnconnection
 #     import pineboolib.application.metadata.pnfieldmetadata
 #     import pineboolib.application.metadata.pntablemetadata
@@ -39,9 +41,15 @@ class IManager(object):
         """Retrieve action object by name."""
         raise Exception("must be implemented")
 
-    def alterTable(self, mtd1=..., mtd2=..., key=..., force=...) -> Any:
+    def alterTable(
+        self,
+        mtd1: "pntablemetadata.PNTableMetaData",
+        mtd2: "pntablemetadata.PNTableMetaData",
+        key: str,
+        force: bool = False,
+    ) -> bool:
         """Issue an alter table to db."""
-        return None
+        return False
 
     def checkMetaData(self, mtd1, mtd2) -> Any:
         """Validate MTD against DB."""
@@ -83,7 +91,12 @@ class IManager(object):
         """Format value for DB."""
         return ""
 
-    def formatValueLike(self, *args, **kwargs) -> str:
+    def formatValueLike(
+        self,
+        fmd_or_type: Union["pnfieldmetadata.PNFieldMetaData", str],
+        value: Any,
+        upper: bool = False,
+    ) -> str:
         """Format value for DB LIKE."""
         return ""
 
