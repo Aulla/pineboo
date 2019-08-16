@@ -22,7 +22,7 @@ from .dictmodules import Application, from_project  # noqa: F401
 from .pncontrolsfactory import QComboBox, QTable, QLayoutWidget, QToolButton  # noqa: F401
 from .pncontrolsfactory import QTabWidget, QLabel, QGroupBox, QListView, QImage  # noqa: F401
 from .pncontrolsfactory import QTextEdit, QLineEdit, QDateEdit, QTimeEdit  # noqa: F401
-from .pncontrolsfactory import QCheckBox, QWidget, QMessageBox, QDialog  # noqa: F401
+from .pncontrolsfactory import QCheckBox, QWidget, QMessageBox, QDialog, QDateTime  # noqa: F401
 from .pncontrolsfactory import QVBoxLayout, QHBoxLayout, QFrame, QMainWindow  # noqa: F401
 from .pncontrolsfactory import QMenu, QToolBar, QAction, QDataView, QByteArray  # noqa: F401
 from .pncontrolsfactory import QMdiArea, QEventLoop, QActionGroup, QInputDialog  # noqa: F401

@@ -41,6 +41,7 @@ from pineboolib.qt3_widgets.qspinbox import QSpinBox  # noqa: F401
 from pineboolib.qt3_widgets.qmdiarea import QMdiArea  # noqa: F401
 from pineboolib.qt3_widgets.qeventloop import QEventLoop  # noqa: F401
 from pineboolib.qt3_widgets.qlistviewwidget import QListViewWidget  # noqa: F401
+from pineboolib.qt3_widgets.qdatetime import QDateTime  # noqa: F401
 
 from PyQt5.QtWidgets import QActionGroup  # noqa: F401
 from PyQt5.QtWidgets import QInputDialog  # noqa: F401
