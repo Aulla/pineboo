@@ -365,7 +365,9 @@ class FLManagerModules(object):
 
     @staticmethod
     def createUI(
-        file_name: str, parent: Optional["QtWidgets.QWidget"] = None
+        file_name: str,
+        connection: Optional["PNConnection"],
+        parent: Optional["QtWidgets.QWidget"] = None,
     ) -> "QtWidgets.QWidget":
         """
         Create a form from its description file.
