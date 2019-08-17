@@ -11,11 +11,12 @@ from typing import Any, Optional, Dict
 class FLReportEngine(object):
 
     report_ = None
-    rt: str = ""  # KUGAR *.kut template data as a string
+    rt: Optional[str]
 
     def __init__(self, parent) -> None:
         self.d_ = FLReportEngine.FLReportEnginePrivate(self)
         self.relDpi_ = 78.0
+        self.rt = ""
         self.rd: Optional[QtXml.QDomDocument] = None
         self.logger = logging.getLogger("FLReportEngine")
         from pineboolib.application.parsers.kugarparser.kut2fpdf import Kut2FPDF
@@ -112,7 +113,7 @@ class FLReportEngine(object):
     def rptXmlData(self) -> Any:
         return self.rd
 
-    def rptXmlTemplate(self) -> str:
+    def rptXmlTemplate(self) -> Optional[str]:
         return self.rt
 
     def relDpi(self) -> float:
