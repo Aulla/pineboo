@@ -32,7 +32,7 @@ test_flake8_pydocstyle:
         - flake8 pineboolib/
         # PyDocStyle lacks "exclude":
         - rm pineboolib/application/parsers/qsaparser/lextab.py || /bin/true
-        - pydocstyle pineboolib/application pineboolib/core pineboolib/interfaces pineboolib/loader pineboolib/qsa pineboolib/qt3_widgets
+        - pydocstyle pineboolib/application pineboolib/core pineboolib/interfaces pineboolib/loader pineboolib/qsa pineboolib/qt3_widgets pineboolib/fllegacy
 
 test_mypy_pyroma_black_pytest:
     cache:
