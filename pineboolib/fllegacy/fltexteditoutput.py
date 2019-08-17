@@ -12,6 +12,7 @@ class FLTextEditOutput(QtWidgets.QPlainTextEdit):
     oldStderr: Any
 
     def __init__(self, parent: QtWidgets.QWidget) -> None:
+        """Inicialize."""
         super(FLTextEditOutput, self).__init__(parent)
 
         self.oldStdout = sys.stdout
