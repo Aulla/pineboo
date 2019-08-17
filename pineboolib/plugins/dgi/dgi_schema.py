@@ -124,7 +124,7 @@ class dgi_schema(object):
 
         return size
 
-    def alternative_content_cached(self):
+    def alternative_content_cached(self) -> bool:
         # FIXME: This is not needed. Use "content_cached" to return an exception or None, to signal
         # ... the module is unaware on how to perform the task
         # ... also the naming is bad. It conveys having done a cache in the past.

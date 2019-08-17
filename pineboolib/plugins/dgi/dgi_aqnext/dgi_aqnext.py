@@ -3,7 +3,7 @@ import collections
 import traceback
 import inspect
 import os
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Optional
 from PyQt5 import QtCore  # type: ignore
 
 from pineboolib.core.utils import logging
@@ -74,7 +74,9 @@ class dgi_aqnext(dgi_schema):
     def alternative_content_cached(self):
         return True
 
-    def content_cached(self, tmp_folder, db_name, module_id, file_ext, file_name, sha_key):
+    def content_cached(
+        self, tmp_folder, db_name, module_id, file_ext, file_name, sha_key
+    ) -> Optional[str]:
         from pineboolib.core.utils.utils_base import filedir
 
         data_ = None
