@@ -1,12 +1,15 @@
 """Flmanagermodules module."""
 
 # -*- coding: utf-8 -*-
+from PyQt5 import QtWidgets
+
 import os
 from pineboolib import logging
 
 from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import filedir
 
+from . import flaction
 
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
 
@@ -14,10 +17,13 @@ from pineboolib.fllegacy.flmodulesstaticloader import FLStaticLoader
 
 from typing import Union, List, Dict, Any, Optional, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from pineboolib.application.xmlaction import XMLAction  # noqa: F401
-    from pineboolib.fllegacy import flaction  # noqa: F401
-    from pineboolib.interfaces.iconnection import IConnection
+    from pineboolib.application.database.pnconnection import PNConnection  # noqa: F401
+    from pineboolib.application.database.pnsqlcursor import PNSqlCursor  # noqa: F401
+    from PyQt5.QtGui import QPixmap  # noqa: F401
+
 
 """
 Gestor de módulos.
@@ -111,11 +117,8 @@ class FLManagerModules(object):
     queries_dir_ = None
     trans_dir_ = None
     filesCached_: Dict[str, str]
-    """
-    constructor
-    """
 
-    def __init__(self, db: "IConnection") -> None:
+    def __init__(self, db: "PNConnection") -> None:
         """Inicialize."""
 
         super(FLManagerModules, self).__init__()
@@ -142,12 +145,8 @@ class FLManagerModules(object):
     # def init(self):
     #    pass
 
-    """
-     Acciones de finalización del sistema de módulos.
-    """
-
     def finish(self) -> None:
-        """Final tasks when closing the module."""
+        """Run tasks when closing the module."""
 
         if self.listAllIdModules_:
             del self.listAllIdModules_
@@ -176,9 +175,9 @@ class FLManagerModules(object):
 
         del self
 
-    def content(self, file_name: str) -> str:
+    def content(self, file_name: str) -> Optional[str]:
         """
-        Gets the contents of a file stored in the database.
+        Get the contents of a file stored in the database.
 
         This method looks for the content of the requested file in the
         database, exactly in the flfiles table, if you can't find it
@@ -197,18 +196,11 @@ class FLManagerModules(object):
 
         return None
 
-    """
-    Obtiene el contenido de un fichero de script, procesándolo para cambiar las conexiones que contenga,
-    de forma que al acabar la ejecución de la función conectada se reanude el guión de pruebas.
-    Tambien realiza procesos de formateo del código para optimizarlo.
-
-    @param n Nombre del fichero.
-    @return QString con el contenido del fichero o vacía en caso de error.
-    """
-
     @decorators.NotImplementedWarn
     def byteCodeToStr(self, file_name: str) -> str:
         """
+        Get the contents of a script file.
+        
         Get the contents of a script file, processing it to change the connections it contains,
         so that at the end of the execution of the connected function the test script resumes.
         It also performs code formatting processes to optimize it.
@@ -221,7 +213,9 @@ class FLManagerModules(object):
     @decorators.NotImplementedWarn
     def contentCode(self, file_name: str) -> str:
         """
-        Return the contents of a script file, processing it to change the connections it contains,
+        Return the contents of a script file.
+        
+        Return the contents of a script file processing it to change the connections it contains,
         so that at the end of the execution of the connected function the test script resumes.
         It also performs code formatting processes to optimize it.
 
@@ -245,7 +239,7 @@ class FLManagerModules(object):
             logger.warn("Error trying to read %r", path_name, exc_info=True)
             return ""
 
-    def contentCached(self, file_name: str, shaKey=None) -> str:
+    def contentCached(self, file_name: str, shaKey=None) -> Optional[str]:
         """
         Get the contents of a file, using the memory and disk cache.
 
@@ -253,7 +247,7 @@ class FLManagerModules(object):
         Internal cache, if not, you get it with the FLManagerModules :: content () method.
 
         @param file_name File name.
-        @return QString with the contents of the file or empty in case of error.
+        @return QString with the contents of the file or None in case of error.
         """
         not_sys_table = file_name[0:3] != "sys" and not self.conn_.manager().isSystemTable(
             file_name
@@ -335,20 +329,20 @@ class FLManagerModules(object):
             self.filesCached_[file_name] = data
         return data
 
-    """
-    Almacena el contenido de un fichero en un módulo dado.
+    def setContent(self, file_name: str, id_module: str, content: str) -> None:
+        """
+        Store the contents of a file in a given module.
 
-    @param n Nombre del fichero.
-    @param idM Identificador del módulo al que se asociará el fichero
-    @param content Contenido del fichero.
-    """
+        @param file_name File name.
+        @param id_module Identifier of the module to which the file will be associated
+        @param content File content.
+        """
 
-    def setContent(self, n, idM, content) -> None:
         if not self.conn_.dbAux():
             return
 
-        format_val = self.conn_.manager().formatAssignValue("nombre", "string", n, True)
-        format_val2 = self.conn_.managere().formatAssignValue("idmodulo", "string", idM, True)
+        format_val = self.conn_.manager().formatAssignValue("nombre", "string", file_name, True)
+        format_val2 = self.conn_.managere().formatAssignValue("idmodulo", "string", id_module, True)
 
         from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
         from pineboolib.fllegacy.flutil import FLUtil
@@ -362,139 +356,199 @@ class FLManagerModules(object):
         else:
             cursor.setModeAccess(cursor.Insert)
             cursor.refreshBufer()
-            cursor.setValueBuffer("nombre", n)
-            cursor.setValueBuffer("idmodulo", idM)
+            cursor.setValueBuffer("nombre", file_name)
+            cursor.setValueBuffer("idmodulo", id_module)
 
         cursor.setValueBuffer("contenido", content)
         cursor.setValueBuffer("sha", FLUtil().sha1(content))
         cursor.commitBuffer()
 
-    """
-    Crea un formulario a partir de su fichero de descripción.
-
-    Utiliza el método FLManagerModules::contentCached() para obtener el texto XML que describe
-    el formulario.
-
-    @param n Nombre del fichero que contiene la descricpción del formulario.
-    @return QWidget correspondiente al formulario construido.
-    """
-
     @staticmethod
-    def createUI(n, connector=None, parent=None, name=None) -> Any:
-        from pineboolib.application import project
+    def createUI(
+        file_name: str, parent: Optional["QtWidgets.QWidget"] = None
+    ) -> "QtWidgets.QWidget":
+        """
+        Create a form from its description file.
 
-        if not project._DGI:
-            raise Exception("DGI not loaded")
-        return project.DGI.createUI(n, connector, parent, name)
+        Use the FLManagerModules :: contentCached () method to get the XML text it describes the formula.
 
-    """
-    Crea el formulario maestro de una acción a partir de su fichero de descripción.
+        @param file_name Name of the file that contains the description of the form.
+        @param parent. Parent widget
+        @return QWidget corresponding to the built form.
+        """
 
-    Utiliza el método FLManagerModules::createUI() para obtener el formulario construido.
+        from pineboolib.application.utils.path import _path
+        from pineboolib.application.parsers.qt3uiparser import dgi_qt3ui
 
-    @param a Objeto FLAction.
-    @return QWidget correspondiente al formulario construido.
-    """
+        from pineboolib.core.utils.utils_base import filedir, load2xml
+
+        from pineboolib import qt3_widgets
+
+        if ".ui" not in file_name:
+            file_name += ".ui"
+
+        form_path = file_name if os.path.exists(file_name) else _path(file_name)
+
+        if form_path is None:
+            # raise AttributeError("File %r not found in project" % n)
+            logger.debug("createUI: No se encuentra el fichero %s", file_name)
+
+            return QtWidgets.QWidget()
+
+        tree = load2xml(form_path)
+
+        if not tree:
+            return parent or QtWidgets.QWidget()
+
+        root_ = tree.getroot()
+
+        UIVersion = root_.get("version")
+        if UIVersion is None:
+            UIVersion = "1.0"
+        if parent is None:
+            wid = root_.find("widget")
+            if wid is None:
+                raise Exception("No parent provided and also no <widget> found")
+            xclass = wid.get("class")
+            if xclass is None:
+                raise Exception("class was expected")
+            parent = None
+            if xclass == "QMainWindow":
+                parent = qt3_widgets.qmainwindow.QMainWindow()
+            if xclass == "QDialog":
+                parent = qt3_widgets.qdialog.QDialog()
+
+            if parent is None:
+                raise Exception("xclass not found %s" % xclass)
+
+        if hasattr(parent, "widget"):
+            w_ = parent.widget
+        else:
+            w_ = parent
+
+        logger.info("Procesando %s (v%s)", file_name, UIVersion)
+        if UIVersion < "4.0":
+            dgi_qt3ui.loadUi(form_path, w_)
+        else:
+            from PyQt5 import uic  # type: ignore
+
+            qtWidgetPlugings = filedir("../qtdesigner-plugins")
+            if qtWidgetPlugings not in uic.widgetPluginPath:
+                logger.info("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
+                uic.widgetPluginPath.append(qtWidgetPlugings)
+            uic.loadUi(form_path, w_)
+
+        return w_
 
     def createForm(
         self,
         action: Union["flaction.FLAction", "XMLAction"],
-        connector=None,
-        parent=None,
-        name=None,
-    ):
-        from pineboolib.fllegacy.flformdb import FLFormDB
-        from pineboolib.fllegacy.flaction import FLAction
+        connector: Optional["PNConnection"] = None,
+        parent: Optional["QtWidgets.QWidget"] = None,
+        name: Optional[str] = None,
+    ) -> "QtWidgets.QWidget":
+        """
+        Create the master form of an action from its description file.
 
-        if not isinstance(action, FLAction):
+        Use the FLManagerModules :: createUI () method to get the built form.
+
+        @param to FLAction Object.
+        @return QWidget corresponding to the built form.
+        """
+        from . import flformdb
+
+        if not isinstance(action, flaction.FLAction):
             from pineboolib.application.utils.convert_flaction import convert2FLAction
 
             action = convert2FLAction(action)
 
-        if not action:
-            raise Exception
-        return FLFormDB(parent, action, load=True)
+        if action is None:
+            raise Exception("action is empty!.")
 
-    """
-    Esta función es igual a la anterior, sólo se diferencia en que carga
-    la descripción de interfaz del formulario de edición de registros.
-    @param a. Action
-    @param connector. Conector usado
-    @param parent_or_cursor. Cursor o parent del form
-    @param name. Nombre del formRecord
-    """
+        if parent is None:
+            raise Exception("parent is empty!.")
+
+        return flformdb.FLFormDB(parent, action, load=True)
 
     def createFormRecord(
         self,
-        a: Union["flaction.FLAction", "XMLAction"],
-        connector=None,
-        parent_or_cursor=None,
-        name=None,
-    ) -> Any:
+        action: Union["flaction.FLAction", "XMLAction"],
+        connector: Optional["PNConnection"] = None,
+        parent_or_cursor: Optional[Union["PNSqlCursor", "QtWidgets.QWidget"]] = None,
+        name: Optional[str] = None,
+    ) -> "QtWidgets.QWidget":
+        """
+        Create the record editing form of an action from its description file.
+
+        @param action. Action
+        @param connector. Connector used
+        @param parent_or_cursor. Cursor or parent of the form
+        @param name. FormRecord name
+        """
+
         logger.trace("createFormRecord: init")
-        from pineboolib.fllegacy.flformrecorddb import FLFormRecordDB
-        from pineboolib.fllegacy.flaction import FLAction
+        from . import flformrecorddb
 
         # Falta implementar conector y name
-        if not isinstance(a, FLAction):
+        if not isinstance(action, flaction.FLAction):
             logger.trace("createFormRecord: convert2FLAction")
             from pineboolib.application.utils.convert_flaction import convert2FLAction
 
-            action = convert2FLAction(a)
-        else:
-            action = a
+            action = convert2FLAction(action)
 
-        if not action:
-            return None
+        if action is None:
+            raise Exception("action is empty!")
+
+        if parent_or_cursor is None:
+            raise Exception("parent_or_cursor is empty!.")
 
         logger.trace("createFormRecord: load FormRecordDB")
-        return FLFormRecordDB(parent_or_cursor, action, load=False)
+        return flformrecorddb.FLFormRecordDB(parent_or_cursor, action, load=False)
 
-    """
-    Para establecer el módulo activo.
+    def setActiveIdModule(self, id_module: Optional[str] = None) -> None:
+        """
+        Set the active module.
 
-    Automáticamente también establece cual es el área correspondiente al módulo,
-    ya que un módulo sólo puede pertenecer a una sola área.
+        It also automatically establishes the area corresponding to the module,
+        since a module can only belong to a single area.
 
-    @param id Identificador del módulo
-    """
+        @param id_module Module identifier
+        """
 
-    def setActiveIdModule(self, _id: Optional[str] = None) -> None:
-        if _id is None or not self.dictInfoMods:
+        if id_module is None or not self.dictInfoMods:
             self.activeIdArea_ = None
             self.activeIdModule_ = None
             return
 
-        if _id.upper() in self.dictInfoMods.keys():
-            im = self.dictInfoMods[_id.upper()]
+        if id_module.upper() in self.dictInfoMods.keys():
+            im = self.dictInfoMods[id_module.upper()]
             self.activeIdArea_ = im.idArea
-            self.activeIdModule_ = _id
+            self.activeIdModule_ = id_module
 
-    """
-    Para obtener el area del módulo activo.
+    def activeIdArea(self) -> Optional[str]:
+        """
+        Return the area of ​​the active module.
 
-    @return Identificador del area
-    """
-
-    def activeIdArea(self) -> Any:
+        @return Area identifier
+        """
         return self.activeIdArea_
 
-    """
-    Para obtener el módulo activo.
+    def activeIdModule(self) -> Optional[str]:
+        """
+        Return the active module.
 
-    @return Identificador del módulo
-    """
+        @return Module identifier
+        """
 
-    def activeIdModule(self) -> Any:
         return self.activeIdModule_
 
-    """
-    Obtiene la lista de identificadores de area cargadas en el sistema.
-
-    @return Lista de identificadores de areas
-    """
-
     def listIdAreas(self) -> List[str]:
+        """
+        Return the list of area identifiers loaded in the system.
+
+        @return List of area identifiers
+        """
+
         if self.listIdAreas_:
             return self.listIdAreas_
 
@@ -512,30 +566,28 @@ class FLManagerModules(object):
 
         return ret
 
-    """
-    Obtiene la lista de identificadores de módulos cargados en el sistema de una area dada.
+    def listIdModules(self, id_area: str) -> List[str]:
+        """
+        Return the list of module identifiers loaded into the system of a given area.
 
-    @param idA Identificador del área de la que se quiere obtener la lista módulos
-    @return Lista de identificadores de módulos
-    """
+        @param id_area Identifier of the area from which you want to get the modules list
+        @return List of module identifiers
+        """
 
-    def listIdModules(self, idA) -> List[str]:
         list_: List[str] = []
         for mod in self.dictInfoMods.keys():
-            if self.dictInfoMods[mod].idArea == idA:
-                idModulo = self.dictInfoMods[mod].idModulo
-                if idModulo:
-                    list_.append(idModulo)
+            if self.dictInfoMods[mod].idArea == id_area:
+                list_.append(self.dictInfoMods[mod].idModulo)
 
         return list_
 
-    """
-    Obtiene la lista de identificadores de todos los módulos cargados en el sistema.
-
-    @return Lista de identificadores de módulos
-    """
-
     def listAllIdModules(self) -> List[str]:
+        """
+        Return the list of identifiers of all modules loaded in the system.
+
+        @return List of module identifiers
+        """
+
         if self.listAllIdModules_:
             return self.listAllIdModules_
 
@@ -552,88 +604,87 @@ class FLManagerModules(object):
 
         return ret
 
-    """
-    Obtiene la descripción de un área a partir de su identificador.
+    def idAreaToDescription(self, id_area: Optional[str] = None) -> str:
+        """
+        Return the description of an area from its identifier.
 
-    @param idA Identificador del área.
-    @return Texto de descripción del área, si lo encuentra o idA si no lo encuentra.
-    """
+        @param id_area Area identifier.
+        @return Area description text, if found or idA if not found.
+        """
 
-    def idAreaToDescription(self, idA: str = None) -> str:
-        if not idA:
+        if id_area is None:
             return ""
+
         for areaObj in self.dictInfoMods.values():
-            if areaObj.idArea and areaObj.idArea.upper() == idA.upper():
+            if areaObj.idArea and areaObj.idArea.upper() == id_area.upper():
                 return areaObj.areaDescripcion
+
         return ""
 
-    """
-    Obtiene la descripción de un módulo a partir de su identificador.
+    def idModuleToDescription(self, id_module: str) -> str:
+        """
+        Return the description of a module from its identifier.
 
-    @param idM Identificador del módulo.
-    @return Texto de descripción del módulo, si lo encuentra o idM si no lo encuentra.
-    """
+        @param id_module Module identifier.
+        @return Module description text, if found or idM if not found.
+        """
 
-    def idModuleToDescription(self, idM: str) -> str:
-        modObj = self.dictInfoMods.get(idM.upper(), None)
-        if modObj and modObj.descripcion:
-            return modObj.descripcion
+        mod_obj = self.dictInfoMods[id_module.upper()]
 
-        return idM
+        return getattr(mod_obj, "descripcion", id_module)
 
-    """
-    Para obtener el icono asociado a un módulo.
+    def iconModule(self, id_module: str) -> "QPixmap":
+        """
+        To obtain the icon associated with a module.
 
-    @param idM Identificador del módulo del que obtener el icono
-    @return QPixmap con el icono
-    """
-
-    def iconModule(self, idM: str) -> Any:
+        @param id_moule Identifier of the module from which to obtain the icon
+        @return QPixmap with the icon
+        """
         from PyQt5.QtGui import QPixmap
 
-        pix = None
-        modObj = self.dictInfoMods.get(idM.upper(), None)
-        if modObj and modObj.icono:
-            from pineboolib.application.utils.xpm import cacheXPM
+        pix = QPixmap()
+        mod_obj = self.dictInfoMods.get(id_module.upper(), None)
+        mod_icono = getattr(mod_obj, "icono", None)
+        if mod_icono is not None:
+            from pineboolib.application.utils import xpm
 
-            icono = cacheXPM(modObj.icono)
-            pix = QPixmap(icono)
+            pix = QPixmap(xpm.cacheXPM(mod_icono))
 
-        return pix or QPixmap()
+        return pix
 
-    """
-    Para obtener la versión de un módulo.
+    def versionModule(self, id_module: str) -> str:
+        """
+        Return the version of a module.
 
-    @param idM Identificador del módulo del que se quiere saber su versión
-    @return Cadena con la versión
-    """
+        @param id_module Identifier of the module whose version you want to know
+        @return Chain with version
+        """
 
-    def versionModule(self, idM: str) -> str:
-        return idM
-        # FIXME: This code will not work
-        # if not self.dictInfoMods:
-        #     return idM
-        #
-        # im = idM.upper()
-        #
-        # return im.version if im else idM
+        if not self.dictInfoMods:
+            return id_module
 
-    """
-    Para obtener la clave sha local.
+        info_module = self.dictInfoMods[id_module.upper()]
 
-    @return Clave sha de la versión de los módulos cargados localmente
-    """
+        if info_module is not None:
+            return info_module.version
+        else:
+            return id_module
 
-    def shaLocal(self) -> Any:
+    def shaLocal(self) -> Optional[str]:
+        """
+        To obtain the local sha key.
+
+        @return Sha key of the locally loaded modules version
+        """
+
         return self.shaLocal_
 
-    """
-    Para obtener la clave sha global.
-
-    @return Clave sha de la versión de los módulos cargados globalmente
-    """
-
     def shaGlobal(self) -> str:
+        """
+        To get the global sha key.
+
+        @return Sha key of the globally loaded modules version
+        """
 
         if not self.conn_.dbAux():
             return ""
@@ -649,23 +700,23 @@ class FLManagerModules(object):
         else:
             return ""
 
-    """
-    Establece el valor de la clave sha local con el del global.
-    """
-
     def setShaLocalFromGlobal(self) -> None:
+        """
+        Set the value of the local sha key with that of the global one.
+        """
+
         self.shaLocal_ = self.shaGlobal()
 
-    """
-    Obtiene la clave sha asociada a un fichero almacenado.
+    def shaOfFile(self, file_name: str) -> Optional[str]:
+        """
+        Get the sha key associated with a stored file.
 
-    @param n Nombre del fichero
-    @return Clave sh asociada al ficheros
-    """
+        @param file_name File name
+        @return Key sh associated with the files
+        """
 
-    def shaOfFile(self, n: str) -> Optional[str]:
-        if not n[:3] == "sys" and not self.conn_.manager().isSystemTable(n):
-            formatVal = self.conn_.manager().formatAssignValue("nombre", "string", n, True)
+        if not file_name[:3] == "sys" and not self.conn_.manager().isSystemTable(file_name):
+            formatVal = self.conn_.manager().formatAssignValue("nombre", "string", file_name, True)
             q = PNSqlQuery(None, self.conn_.dbAux())
             # q.setForwardOnly(True)
             q.exec_("SELECT sha FROM flfiles WHERE %s" % formatVal)
@@ -674,11 +725,10 @@ class FLManagerModules(object):
 
         return None
 
-    """
-    Carga en el diccionario de claves las claves sha1 de los ficheros
-    """
-
     def loadKeyFiles(self) -> None:
+        """
+        Load the sha1 keys of the files into the key dictionary.
+        """
 
         self.dictKeyFiles = {}
         self.dictModFiles = {}
@@ -691,11 +741,10 @@ class FLManagerModules(object):
             self.dictKeyFiles[name] = str(q.value(1))
             self.dictModFiles[name.upper()] = str(q.value(2))
 
-    """
-    Carga la lista de todos los identificadores de módulos
-    """
-
     def loadAllIdModules(self) -> None:
+        """
+        Load the list of all module identifiers.
+        """
 
         self.listAllIdModules_ = []
         self.listAllIdModules_.append("sys")
@@ -739,11 +788,10 @@ class FLManagerModules(object):
             infoMod.areaDescripcion = "Sistema"
             self.dictInfoMods[infoMod.idModulo.upper()] = infoMod
 
-    """
-    Carga la lista de todos los identificadores de areas
-    """
-
     def loadIdAreas(self) -> None:
+        """
+        Load the list of all area identifiers.
+        """
 
         self.listIdAreas_ = []
         q = PNSqlQuery(None, self.conn_.dbAux())
@@ -755,22 +803,22 @@ class FLManagerModules(object):
         if "sys" not in self.listIdAreas_:
             self.listIdAreas_.append("sys")
 
-    """
-    Comprueba las firmas para un modulo dado
-    """
-
     @decorators.NotImplementedWarn
     def checkSignatures(self):
+        """
+        Check the signatures for a given module.
+        """
+
         pass
 
-    """
-    Para obtener el identificador del módulo al que pertenece un fichero dado.
-
-    @param n Nombre del fichero incluida la extensión
-    @return Identificador del módulo al que pertenece el fichero
-    """
-
     def idModuleOfFile(self, name: Union[str]) -> Any:
+        """
+        Return the identifier of the module to which a given file belongs.
+
+        @param n File name including extension
+        @return Identifier of the module to which the file belongs
+        """
+
         if not isinstance(name, str):
             n = str(name.toString())
         else:
@@ -787,11 +835,11 @@ class FLManagerModules(object):
         for idmodulo in cursor:
             return idmodulo[0]
 
-    """
-    Guarda el estado del sistema de módulos
-    """
-
     def writeState(self) -> None:
+        """
+        Save the status of the module system.
+        """
+
         idDB = "noDB"
         if self.conn_.dbAux():
             db_aux = self.conn_.dbAux()
@@ -818,11 +866,10 @@ class FLManagerModules(object):
         settings.setValue("Modules/activeIdArea/%s" % idDB, self.activeIdArea_)
         settings.setValue("Modules/shaLocal/%s" % idDB, self.shaLocal_)
 
-    """
-    Lee el estado del sistema de módulos
-    """
-
     def readState(self) -> None:
+        """
+        Read the module system status.
+        """
         if not self.conn_.dbAux():
             return
 
@@ -845,54 +892,52 @@ class FLManagerModules(object):
         if self.activeIdModule_ is None or self.activeIdModule_ not in self.listAllIdModules():
             self.setActiveIdModule(None)
 
-    """
-    Uso interno.
-    Obtiene el contenido de un fichero mediante la carga estatica desde el disco local
+    def contentStatic(self, file_name: str) -> Optional[str]:
+        """
+        Return the contents of a file by static loading from the local disk.
 
-    @param n Nombre del fichero.
-    @return QString con el contenido del fichero o vacía en caso de error.
-    """
+        @param file_name File name.
+        @return String with the contents of the file or None in case of error.
+        """
 
-    def contentStatic(self, n) -> Any:
-
-        str_ret = FLStaticLoader.content(n, self.staticBdInfo_)
-        if str_ret:
+        str_ret = FLStaticLoader.content(file_name, self.staticBdInfo_)
+        if str_ret is not None:
             from pineboolib.fllegacy.flutil import FLUtil
 
+            s = ""
             util = FLUtil()
             sha = util.sha1(str_ret)
-            if n in self.dictKeyFiles.keys():
-                s = self.dictKeyFiles[n]
+            if file_name in self.dictKeyFiles.keys():
+                s = self.dictKeyFiles[file_name]
 
-            if self.dictKeyFiles and s == sha:
+            if s == sha:
                 return None
-            elif self.dictKeyFiles and n.find(".qs") > -1:
-                self.dictKeyFiles[n] = sha
 
-                if n.endswith(".mtd"):
-                    from PyQt5.QtXml import QDomDocument  # type: ignore
+            elif self.dictKeyFiles and file_name.find(".qs") > -1:
+                self.dictKeyFiles[file_name] = sha
 
-                    doc = QDomDocument(n)
-                    if util.domDocumentSetContent(doc, str_ret):
-                        mng = self.conn_.manager()
-                        docElem = doc.documentElement()
-                        mtd = mng.metadata(docElem, True)
+            if file_name.endswith(".mtd"):
+                from PyQt5.QtXml import QDomDocument  # type: ignore
 
-                        if not mtd or mtd.isQuery():
-                            return str_ret
+                doc = QDomDocument(file_name)
+                if util.domDocumentSetContent(doc, str_ret):
+                    mng = self.conn_.manager()
+                    docElem = doc.documentElement()
+                    mtd = mng.metadata(docElem, True)
 
-                        if not mng.existTable(mtd.name()):
-                            mng.createTable(mng)
-                        elif self.conn_.canRegenTables():
-                            self.conn_.regenTable(mtd.name(), mtd)
+                    if not mtd or mtd.isQuery():
+                        return str_ret
+
+                    if not mng.existsTable(mtd.name()):
+                        mng.createTable(mng)
+                    elif self.conn_.canRegenTables():
+                        self.conn_.regenTable(mtd.name(), mtd)
 
         return str_ret
 
-    """
-    Uso interno.
-    Muestra cuadro de dialogo para configurar la carga estatica desde el disco local
-    """
-
     def staticLoaderSetup(self) -> None:
+        """
+        Display dialog box to configure static load from local disk.
+        """
         ui = self.createUI(filedir("../share/pineboo/forms/FLStaticLoaderUI.ui"))
         FLStaticLoader.setup(self.staticBdInfo_, ui)
