@@ -1,3 +1,4 @@
+"""Flsmtpclient module."""
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, Qt  # type: ignore
 from os.path import basename
@@ -11,80 +12,87 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.mime.image import MIMEImage
 
-from typing import List
+from typing import List, Optional, Any, Dict
 
 logger = logging.getLogger(__name__)
 
 
 class State(object):
-    Init = 0
-    Mail = 1
-    Rcpt = 2
-    Data = 3
-    Body = 4
-    Quit = 5
-    Close = 6
-    SmtpError = 7
-    Connecting = 8
-    Connected = 9
-    MxDnsError = 10
-    SendOk = 11
-    SockedError = 12
-    Composing = 13
-    Attach = 14
-    AttachError = 15
-    ServerError = 16
-    ClientError = 17
-    StartTTLS = 18
-    WaitingForSTARTTLS = 19
-    SendAuthPlain = 20
-    SendAuthLogin = 21
-    WaitingForAuthPlain = 22
-    WaitingForAuthLogin = 23
-    WaitingForUser = 24
-    WaitingForPass = 25
+    """State class."""
+
+    Init: int = 0
+    Mail: int = 1
+    Rcpt: int = 2
+    Data: int = 3
+    Body: int = 4
+    Quit: int = 5
+    Close: int = 6
+    SmtpError: int = 7
+    Connecting: int = 8
+    Connected: int = 9
+    MxDnsError: int = 10
+    SendOk: int = 11
+    SockedError: int = 12
+    Composing: int = 13
+    Attach: int = 14
+    AttachError: int = 15
+    ServerError: int = 16
+    ClientError: int = 17
+    StartTTLS: int = 18
+    WaitingForSTARTTLS: int = 19
+    SendAuthPlain: int = 20
+    SendAuthLogin: int = 21
+    WaitingForAuthPlain: int = 22
+    WaitingForAuthLogin: int = 23
+    WaitingForUser: int = 24
+    WaitingForPass: int = 25
 
 
 class AuthMethod(object):
-    NoAuth = 0
-    AuthPlain = 1
-    AuthLogin = 2
+    """AuthMethod class."""
+
+    NoAuth: int = 0
+    AuthPlain: int = 1
+    AuthLogin: int = 2
 
 
 class ConnectionType(object):
-    TcpConnection = 0
-    SslConnection = 1
-    TlsConnection = 2
+    """ConnectionType class."""
+
+    TcpConnection: int = 0
+    SslConnection: int = 1
+    TlsConnection: int = 2
 
 
 class FLSmtpClient(QtCore.QObject):
+    """FLSmtpClient class."""
 
-    from_value_ = None
-    reply_to_ = None
-    to_ = None
-    cc_ = None
-    bcc_ = None
-    organization_ = None
-    priority_ = None
-    subject_ = None
-    body_ = None
+    from_value_: Optional[str]
+    reply_to_: Optional[str]
+    to_: Optional[str]
+    cc_: Optional[str]
+    bcc_: Optional[str]
+    organization_: Optional[str]
+    priority_: int
+    subject_: Optional[str]
+    body_: Optional[str]
 
-    attachments_: List[str] = []  # List with file paths
+    attachments_: List[str]
 
-    mail_server_ = None
-    mime_type_ = None
-    port_ = None
+    mail_server_: Optional[str]
+    mime_type_: Optional[str]
+    port_: Optional[int]
 
-    text_parts_: List[str] = []
-    map_attach_cid_: dict = {}  # FIXME: unused
+    text_parts_: List[str]
+    map_attach_cid_: Dict[str, Any]
 
-    status_msg_ = None
-    state_code_ = None
+    status_msg_: Optional[str]
+    state_code_: int
 
-    user_ = None
-    password_ = None
-    connection_type_ = None
-    auth_method_ = None
+    user_: Optional[str]
+    password_: Optional[str]
+    connection_type_: int
+    auth_method_: int
 
     status = QtCore.pyqtSignal(str)
     sendStarted = QtCore.pyqtSignal()
@@ -93,69 +101,118 @@ class FLSmtpClient(QtCore.QObject):
     sendStepNumber = QtCore.pyqtSignal(int)
     statusChanged = QtCore.pyqtSignal(str, int)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional[QtCore.QObject] = None) -> None:
+        """Inicialize."""
         super(FLSmtpClient, self).__init__(parent)
         self.state_code_ = State.Init
+        self.status_msg_ = None
         self.priority_ = 0
         self.port_ = 25
         self.connection_type_ = ConnectionType.TcpConnection
         self.auth_method_ = AuthMethod.NoAuth
+        self.from_value_ = None
+        self.reply_to_ = None
+        self.to_ = None
+        self.cc_ = None
+        self.bcc_ = None
+        self.organization_ = None
+        self.priority_ = 0
+        self.subject_ = None
+        self.body_ = None
+        self.attachments_ = []
+        self.mail_server_ = None
+        self.mime_type_ = None
+        self.port_ = None
+        self.text_parts_ = []
+        self.map_attach_cid_ = {}
+        self.user_ = None
+        self.password_ = None
+        self.connection_type_ = 0
+        self.auth_method_ = 0
 
-    def setFrom(self, from_):
+    def setFrom(self, from_: str) -> None:
+        """Set from."""
         self.from_value_ = from_
 
-    def from_(self):
+    def from_(self) -> Optional[str]:
+        """Return from."""
+
         return self.from_value_
 
-    def setReplyTo(self, reply_to):
+    def setReplyTo(self, reply_to: str) -> None:
+        """Set reply to."""
+
         self.reply_to_ = reply_to
 
-    def replyTo(self):
-        return self.replyTo()
+    def replyTo(self) -> Optional[str]:
+        """Return reply to."""
 
-    def setTo(self, to):
+        return self.reply_to_
+
+    def setTo(self, to: str) -> None:
+        """Set to."""
         self.to_ = to
 
-    def to(self):
+    def to(self) -> Optional[str]:
+        """Return to."""
         return self.to_
 
-    def setCC(self, cc):
+    def setCC(self, cc: str) -> None:
+        """Set cc."""
         self.cc_ = cc
 
-    def CC(self):
+    def CC(self) -> Optional[str]:
+        """Return cc."""
         return self.cc_
 
-    def setBCC(self, cc):
+    def setBCC(self, cc: str) -> None:
+        """Set bcc."""
+
         self.bcc_ = cc
 
-    def BCC(self):
+    def BCC(self) -> Optional[str]:
+        """Return bcc."""
+
         return self.bcc_
 
-    def setOrganization(self, org):
+    def setOrganization(self, org: str) -> None:
+        """Set organization."""
+
         self.organization_ = org
 
-    def organization(self):
+    def organization(self) -> Optional[str]:
+        """Return organization."""
+
         return self.organization_
 
-    def setPriority(self, prio):
+    def setPriority(self, prio: int) -> None:
+        """Set priority."""
+
         self.priority_ = prio
 
-    def priority(self):
+    def priority(self) -> int:
+        """Return priority."""
         return self.priority_
 
-    def setSubject(self, subject):
+    def setSubject(self, subject: str) -> None:
+        """Set subject."""
         self.subject_ = subject
 
-    def subject(self):
+    def subject(self) -> Optional[str]:
+        """Return subject."""
+
         return self.subject_
 
-    def setBody(self, body):
+    def setBody(self, body: str) -> None:
+        """Set body."""
         self.body_ = body
 
-    def body(self):
+    def body(self) -> Optional[str]:
+        """Return body."""
         return self.body_
 
-    def addAttachment(self, attach, cid=None):
+    def addAttachment(self, attach: str, cid: Optional[Any] = None) -> None:
+        """Add attachment file to mail."""
         if QtCore.QFile.exists(attach) and QtCore.QFileInfo(attach).isReadable():
             if attach and attach not in self.attachments_:
                 self.attachments_.append(attach)
@@ -166,63 +223,85 @@ class FLSmtpClient(QtCore.QObject):
             logger.warning(err_msg_)
             self.changeStatus(err_msg_, State.AttachError)
 
-    def addTextPart(self, text: str, mime_type="text/plain"):
-        if text:
+    def addTextPart(self, text: Optional[str], mime_type: str = "text/plain") -> None:
+        """Add text part to mail."""
+        if text is not None:
             self.text_parts_.append(text)
             self.text_parts_.append(mime_type)
 
-    def setMailServer(self, mail_server):
+    def setMailServer(self, mail_server: str) -> None:
+        """Set mail server."""
         self.mail_server_ = mail_server
 
-    def mailServer(self):
+    def mailServer(self) -> Optional[str]:
+        """Return mail server."""
         return self.mail_server_
 
-    def setMimeType(self, mine_type):
+    def setMimeType(self, mine_type: str) -> None:
+        """Set mine type."""
         self.mime_type_ = mine_type
 
-    def mimeType(self):
+    def mimeType(self) -> Optional[str]:
+        """Return mine type."""
+
         return self.mime_type_
 
-    def setPort(self, port):
+    def setPort(self, port: int) -> None:
+        """Set port."""
         self.port_ = port
 
-    def port(self):
+    def port(self) -> Optional[int]:
+        """Return port."""
         return self.port_
 
-    def lastStatusMsg(self):
+    def lastStatusMsg(self) -> Optional[str]:
+        """Return last status message."""
+
         return self.status_msg_
 
-    def lastStateCode(self):
+    def lastStateCode(self) -> int:
+        """Return last state code."""
         return self.state_code_
 
-    def setUser(self, user):
+    def setUser(self, user: str) -> None:
+        """Set user name."""
         self.user_ = user
 
-    def user(self):
+    def user(self) -> Optional[str]:
+        """Return user name."""
         return self.user_
 
-    def setPassword(self, password):
+    def setPassword(self, password: str) -> None:
+        """Set password."""
         self.password_ = password
 
-    def password(self):
+    def password(self) -> Optional[str]:
+        """Return password."""
         return self.password_
 
-    def setConnectionType(self, c):
+    def setConnectionType(self, c: int) -> None:
+        """Set connection type."""
         self.connection_type_ = c
 
-    def connectionType(self):
+    def connectionType(self) -> int:
+        """Return connection type."""
+
         return self.connection_type_
 
-    def setAuthMethod(self, method):
+    def setAuthMethod(self, method: int) -> None:
+        """Set authentication method."""
         self.auth_method_ = method
 
-    def authMethod(self):
+    def authMethod(self) -> int:
+        """Return authentication method."""
         return self.auth_method_
 
-    def startSend(self):
+    def startSend(self) -> bool:
+        """Start send mail."""
+
         from pineboolib.core.utils.utils_base import pixmap_fromMimeSource
         from pineboolib.core.settings import settings
-        from pineboolib.application import project
+        from pineboolib import application
 
         self.sendStarted.emit()
         self.sendTotalSteps.emit(len(self.attachments_) + 3)
@@ -232,29 +311,34 @@ class FLSmtpClient(QtCore.QObject):
         self.changeStatus(self.tr("Componiendo mensaje"), State.Composing)
 
         outer = MIMEMultipart()
-        outer["From"] = self.from_value_
-        outer["To"] = self.to_
-        if self.cc_:
+        outer["From"] = self.from_value_ or ""
+        outer["To"] = self.to_ or ""
+        if self.cc_ is not None:
             outer["Cc"] = self.cc_
-        if self.bcc_:
+        if self.bcc_ is not None:
             outer["Bcc"] = self.bcc_
-        if self.organization_:
+        if self.organization_ is not None:
             outer["Organization"] = self.organization_
         if self.priority_ > 0:
-            outer["Priority"] = self.priority_
-        outer["Subject"] = self.subject_
+            outer["Priority"] = str(self.priority_)
+        outer["Subject"] = self.subject_ or ""
         outer.preamble = "You will not see this in a MIME-aware mail reader.\n"
-        outer.add_header("Content-Type", self.mime_type_)
+        mime_type_ = "text/plain"
 
-        outer.attach(MIMEText(self.body_, self.mime_type_.split("/")[1], "utf-8"))
+        if self.mime_type_ is not None:
+            mime_type_ = self.mime_type_
+
+        outer.add_header("Content-Type", mime_type_)
+
+        outer.attach(MIMEText(self.body_ or "", mime_type_.split("/")[1], "utf-8"))
 
         step += 1
         self.sendStepNumber.emit(step)
         # Adjuntar logo
         if settings.value("email/sendMailLogo", True):
-            logo = settings.value("email/mailLogo", "%s/logo_mail.png" % project.tmpdir)
+            logo = settings.value("email/mailLogo", "%s/logo_mail.png" % application.project.tmpdir)
             if not QtCore.QFile.exists(logo):
-                logo = "%s/logo.png" % project.tmpdir
+                logo = "%s/logo.png" % application.project.tmpdir
                 Qt.QPixmap(pixmap_fromMimeSource("pineboo-logo.png")).save(logo, "PNG")
 
             fp = open(logo, "rb")
@@ -282,7 +366,7 @@ class FLSmtpClient(QtCore.QObject):
         self.sendStepNumber.emit(step)
 
         try:
-            s = smtplib.SMTP(self.mail_server_, self.port_)
+            s = smtplib.SMTP(self.mail_server_ or "", self.port_ or 25)
             if self.connection_type_ == ConnectionType.TlsConnection:
                 s.starttls()
 
@@ -302,7 +386,7 @@ class FLSmtpClient(QtCore.QObject):
                     else State.WaitingForAuthPlain,
                 )
 
-            s.sendmail(self.from_value_, self.to_, composed)
+            s.sendmail(self.from_value_ or "", self.to_ or "", composed)
             self.changeStatus("Correo enviado", State.SendOk)
             s.quit()
             return True
@@ -349,7 +433,8 @@ class FLSmtpClient(QtCore.QObject):
             status_msg = "Error sending mail %s." % e
             return False
 
-    def changeStatus(self, status_msg, state_code):
+    def changeStatus(self, status_msg: str, state_code: int) -> None:
+        """Change send mail status."""
         self.status_msg_ = status_msg
         self.state_code_ = state_code
         self.statusChanged.emit(self.status_msg_, self.state_code_)
