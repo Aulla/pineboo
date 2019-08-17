@@ -1,21 +1,25 @@
+"""Flreportengine module."""
 from typing import List
-from PyQt5 import QtXml  # type: ignore
+from PyQt5 import QtXml, QtWidgets  # type: ignore
 from PyQt5.QtXml import QDomNode as FLDomNodeInterface  # type: ignore # FIXME
 
 from pineboolib.core import decorators
 from pineboolib import logging
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, Union
 
 
 class FLReportEngine(object):
+    """FLReportEngine class."""
 
-    report_ = None
+    report_: Any
     rt: Optional[str]
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QtWidgets.QWidget) -> None:
+        """Inicialize."""
         self.d_ = FLReportEngine.FLReportEnginePrivate(self)
         self.relDpi_ = 78.0
+        self.report_ = None
         self.rt = ""
         self.rd: Optional[QtXml.QDomDocument] = None
         self.logger = logging.getLogger("FLReportEngine")
@@ -24,22 +28,32 @@ class FLReportEngine(object):
         self.parser_: Kut2FPDF = Kut2FPDF()
 
     class FLReportEnginePrivate(object):
-        rows_: Optional[Any]
+        """FLReportEnginePrivate."""
 
-        def __init__(self, q):
-            self.qry_: Optional[PNSqlQuery] = None
-            self.qFieldMtdList_ = None
-            self.qGroupDict_: Dict[int, str] = {}
+        rows_: Any
+        qFieldMtdList_: Dict[str, Any]
+        qFieldList_: List[str]
+        qDoubleFieldList_: List[str]
+        qGroupDict_: Dict[int, str]
+        qImgFields_: List[int]
+        qry_: Optional[PNSqlQuery]
+
+        def __init__(self, q: "FLReportEngine") -> None:
+            """Inicialize."""
+            self.qry_ = None
+            self.qFieldMtdList_ = {}
+            self.qGroupDict_ = {}
             self.q_ = q
             self.template_ = ""
-
-            self.qFieldList_: List[str] = []
-            self.qDoubleFieldList_: List[str] = []
-            self.qImgFields_: List[str] = []
+            self.rows_ = []
+            self.qFieldList_ = []
+            self.qDoubleFieldList_ = []
+            self.qImgFields_ = []
             self.report_ = None
 
-        def addRowToReportData(self, l):
-            if not self.qry_.isValid():
+        def addRowToReportData(self, l: int) -> None:
+            """Add row to report data."""
+            if not self.qry_ or not self.qry_.isValid():
                 return
 
             row = self.q_.rptXmlData().createElement("Row")
@@ -63,8 +77,9 @@ class FLReportEngine(object):
 
             self.rows_.appendChild(row)
 
-        def groupBy(self, levelMax, vA):
-            if not self.qry_.isValid():
+        def groupBy(self, levelMax: int, vA: List[Any]) -> None:
+            """Add a group by."""
+            if not self.qry_ or not self.qry_.isValid():
                 return
 
             # self.qGroupDict_
@@ -79,7 +94,8 @@ class FLReportEngine(object):
 
             self.addRowToReportData(levelMax)
 
-        def setQuery(self, qry):
+        def setQuery(self, qry: Optional[PNSqlQuery]) -> None:
+            """Set query to the report."""
             self.qry_ = qry
 
             if self.qry_:
@@ -107,19 +123,26 @@ class FLReportEngine(object):
                 self.qFieldList_.clear()
                 self.qDoubleFieldList_.clear()
                 self.qImgFields_.clear()
-                self.qFieldMtdList_ = []
+                self.qFieldMtdList_ = {}
                 self.qGroupDict_ = {}
 
     def rptXmlData(self) -> Any:
+        """Return report Xml Data."""
         return self.rd
 
     def rptXmlTemplate(self) -> Optional[str]:
+        """Return report Xml Template."""
         return self.rt
 
     def relDpi(self) -> float:
+        """Return dpi size."""
         return self.relDpi_
 
-    def setReportData(self, q=None) -> Optional[bool]:
+    def setReportData(
+        self, q: Optional[Union[FLDomNodeInterface, PNSqlQuery]] = None
+    ) -> Optional[bool]:
+        """Set data source to report."""
+
         if isinstance(q, FLDomNodeInterface):
             return self.setFLReportData(q)
         if q is None:
@@ -158,15 +181,17 @@ class FLReportEngine(object):
         self.initData()
         return True
 
-    def setFLReportData(self, n) -> bool:
-        self.d_.setQuery(0)
+    def setFLReportData(self, n: Any) -> bool:
+        """Set data to report."""
+        self.d_.setQuery(None)
         tmp_doc = QtXml.QDomDocument("KugarData")
         tmp_doc.appendChild(n)
         self.rd = tmp_doc
         return True
         # return super(FLReportEngine, self).setReportData(n)
 
-    def setFLReportTemplate(self, t) -> bool:
+    def setFLReportTemplate(self, t: Any) -> bool:
+        """Set template to report."""
         # buscamos el .kut o el .rlab
 
         self.d_.template_ = t
@@ -190,37 +215,48 @@ class FLReportEngine(object):
         return True
 
     def rptQueryData(self) -> Optional[PNSqlQuery]:
+        """Return report query data."""
         return self.d_.qry_
 
     def rptNameTemplate(self) -> str:
+        """Return report template name."""
         return self.d_.template_
 
     @decorators.BetaImplementation
-    def setReportTemplate(self, t):
+    def setReportTemplate(self, t: Any):
+        """Set template to report."""
+
         if isinstance(t, FLDomNodeInterface):
             return self.setFLReportData(t.obj())
 
         return self.setFLReportData(t)
 
     def reportData(self) -> Any:
+        """Return report data."""
         return self.rd if self.rd else QtXml.QDomDocument()
 
     def reportTemplate(self) -> Any:
+        """Return report template."""
         return self.rt if self.rt else QtXml.QDomDocument()
 
     @decorators.NotImplementedWarn
     def csvData(self) -> str:
+        """Return csv data."""
         # FIXME: Should return the report converted to CSV
         return ""
 
     @decorators.NotImplementedWarn
-    def exportToOds(self, pages):
+    def exportToOds(self, pages: Any):
+        """Return report exported to odf."""
         if not pages or not pages.pageCollection():
             return
         # FIXME: exportToOds not defined in superclass
         # super(FLReportEngine, self).exportToOds(pages.pageCollection())
 
-    def renderReport(self, init_row=0, init_col=0, flags=False, pages=None) -> bool:
+    def renderReport(
+        self, init_row: int = 0, init_col: int = 0, flags: List[int] = [], pages: Any = None
+    ) -> bool:
+        """Render report."""
         if self.rd and self.rt and self.rt.find("KugarTemplate") > -1:
             data = self.rd.toString(1)
             self.report_ = self.parser_.parse(self.d_.template_, self.rt, data, self.report_, flags)
@@ -272,6 +308,7 @@ class FLReportEngine(object):
         # """
 
     def initData(self) -> None:
+        """Inialize data."""
         if not self.rd:
             raise Exception("RD is missing. Initialize properly before calling initData")
         n = self.rd.firstChild()
@@ -287,5 +324,6 @@ class FLReportEngine(object):
                     break
             n = n.nextSibling()
 
-    def number_pages(self) -> Any:
+    def number_pages(self) -> int:
+        """Return page numbers."""
         return self.parser_.number_pages() if self.parser_ else 0

@@ -1,3 +1,4 @@
+"""Flreportviewer module."""
 from PyQt5 import QtWidgets, QtCore, QtXml
 from PyQt5.QtCore import Qt
 
@@ -9,54 +10,69 @@ from PyQt5.QtWidgets import QFileDialog
 from pineboolib.qt3_widgets.messagebox import MessageBox
 
 # from pineboolib.fllegacy.flpicture import FLPicture
-from pineboolib.fllegacy.flsqlquery import FLSqlQuery
-from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
+from .flsqlquery import FLSqlQuery
+from .flsqlcursor import FLSqlCursor
 
-from pineboolib.fllegacy.flreportengine import FLReportEngine
+from .flreportengine import FLReportEngine
 from pineboolib import logging
 
-from typing import Any, List, Mapping, Sized, Union, Dict, Optional
+from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable
+from PyQt5.QtGui import QColor
 
 
 AQ_USRHOME = "."  # FIXME
 
 
 class internalReportViewer(QtWidgets.QWidget):
+    """internalReportViewer class."""
 
-    rptEngine_: Optional[Any] = None
-    dpi_ = 0
+    rptEngine_: Optional[FLReportEngine]
+    dpi_: int
     report_: List[Any]
-    num_copies = 1
+    num_copies: int
 
     def __init__(self, parent: QtWidgets.QWidget) -> None:
+        """Inicialize."""
         super().__init__(parent)
+        self.rptEngine_ = None
         self.dpi_ = 300
         self.report_ = []
         self.num_copies = 1
 
     def setReportEngine(self, rptEngine: FLReportEngine) -> None:
+        """Set report engine."""
+
         self.rptEngine_ = rptEngine
 
     def resolution(self) -> int:
+        """Return resolution."""
+
         return self.dpi_
 
     def reportPages(self) -> List[Any]:
+        """Return report pages."""
+
         return self.report_
 
     def renderReport(self, init_row: int, init_col: int, flags: List[int]) -> Any:
+        """Render report."""
+
         if self.rptEngine_ is None:
             raise Exception("renderReport. self.rptEngine_ is empty!")
 
         return self.rptEngine_.renderReport(init_row, init_col, flags)
 
     def setNumCopies(self, num_copies: int) -> None:
+        """Set number of copies."""
         self.num_copies = num_copies
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name: str) -> Callable:
+        """Return attributes from report engine."""
         return getattr(self.rptEngine_, name, None)
 
 
 class FLReportViewer(QtWidgets.QWidget):
+    """FLReportViewer class."""
 
     pdfFile: str
     Append: int
@@ -77,6 +93,7 @@ class FLReportViewer(QtWidgets.QWidget):
         embedInParent: bool = False,
         rptEngine: Optional[FLReportEngine] = None,
     ) -> None:
+        """Inicialize."""
         # pParam = 0 if parent and embedInParent else 0
         # pParam = pParam | Qt.WindowMaximizeButtonHint | Qt.WindowTitleHint
         # pParam = pParam | 0 | Qt.Dialog | Qt.WindowModal
@@ -162,14 +179,19 @@ class FLReportViewer(QtWidgets.QWidget):
         self.report_ = self.rptViewer_.reportPages()
 
     def rptViewer(self) -> internalReportViewer:
+        """Return report viewer."""
         return self.rptViewer_
 
     def rptEngine(self) -> FLReportEngine:
+        """Return report engine."""
+
         if self.rptEngine_ is None:
             raise Exception("rptEngine_ is not defined!")
         return self.rptEngine_
 
     def setReportEngine(self, r: Optional[FLReportEngine] = None) -> None:
+        """Set report engine."""
+
         if self.rptEngine_ == r:
             return
 
@@ -200,6 +222,7 @@ class FLReportViewer(QtWidgets.QWidget):
                 self.rptViewer_.setReportEngine(self.rptEngine_)
 
     def exec_(self) -> None:
+        """Show report."""
         # if self.loop_:
         #    print("FLReportViewer::exec(): Se ha detectado una llamada recursiva")
         #    return
@@ -217,10 +240,13 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def csvData(self) -> str:
+        """Return csv data."""
+
         return self.rptEngine_.csvData() if self.rptEngine_ else ""
 
     @decorators.BetaImplementation
-    def closeEvent(self, e: Any):
+    def closeEvent(self, e: QtCore.QEvent) -> None:
+        """Close event."""
         from pineboolib.application.utils.geometry import saveGeometryForm
 
         if self.printing_:
@@ -243,7 +269,9 @@ class FLReportViewer(QtWidgets.QWidget):
         self.deleteLater()
 
     @decorators.BetaImplementation
-    def showEvent(self, e: Any):
+    def showEvent(self, e: QtCore.QEvent) -> None:
+        """Show event."""
+
         super(FLReportViewer, self).showEvent(e)
 
         if not self.embedInParent_:
@@ -262,8 +290,8 @@ class FLReportViewer(QtWidgets.QWidget):
         init_col: int = 0,
         append_or_flags: Union[bool, Sized, Mapping[int, Any]] = None,
         display_report: bool = False,
-    ) -> Any:
-
+    ) -> bool:
+        """Render report."""
         if not self.rptEngine_:
             return False
 
@@ -288,30 +316,37 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def slotFirstPage(self) -> None:
+        """Move to the first page."""
         self.rptViewer_.slotFirstPage()
 
     @decorators.BetaImplementation
     def slotLastPage(self) -> None:
+        """Move to the last page."""
         self.rptViewer_.slotLastPage()
 
     @decorators.BetaImplementation
     def slotNextPage(self) -> None:
+        """Move to the next page."""
         self.rptViewer_.slotNextPage()
 
     @decorators.BetaImplementation
     def slotPrevPage(self) -> None:
+        """Move to the prev page."""
         self.rptViewer_.slotPrevPage()
 
     @decorators.BetaImplementation
     def slotZoomUp(self) -> None:
+        """Zoom up."""
         self.rptViewer_.slotZoomUp()
 
     @decorators.BetaImplementation
     def slotZoomDown(self) -> None:
+        """Zoom down."""
         self.rptViewer_.slotZoomDown()
 
     @decorators.BetaImplementation
     def exportFileCSVData(self) -> None:
+        """Export to csv data."""
         if self.slotsExportedDisabled_:
             return
 
@@ -363,6 +398,7 @@ class FLReportViewer(QtWidgets.QWidget):
     @decorators.BetaImplementation
     @decorators.pyqtSlot()
     def exportToPDF(self) -> None:
+        """Export to pdf file."""
         if self.slotsExportedDisabled_:
             return
 
@@ -402,6 +438,7 @@ class FLReportViewer(QtWidgets.QWidget):
     @decorators.BetaImplementation
     @decorators.pyqtSlot()
     def sendEMailPDF(self) -> None:
+        """Send pdf via email."""
         t = self.ui_["leDocumento"].text()
         util = FLUtil()
         name = "informe.pdf" if not t or t == "" else t
@@ -462,6 +499,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def showInitCentralWidget(self, show: bool) -> None:
+        """Show init central widget."""
         wrv = self.ui_["FLWidgetReportViewer"]
         if show:
             self.rptViewer_.hide()
@@ -479,6 +517,8 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def saveSVGStyle(self) -> None:
+        """Save svg style."""
+
         util = FLUtil()
         if self.report_:
             fileName = QFileDialog.getSaveFileName(
@@ -531,6 +571,8 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def saveSimpleSVGStyle(self) -> None:
+        """Save simple svg style."""
+
         backStyleName = self.styleName_
         self.styleName_ = "_simple"
         self.saveSVGStyle()
@@ -539,6 +581,8 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def loadSVGStyle(self) -> None:
+        """Load svg style."""
+
         util = FLUtil()
         fileName = QFileDialog.getOpenFileName(
             "",
@@ -556,10 +600,12 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def slotExit(self) -> None:
+        """Close the object."""
         self.close()
 
     @decorators.BetaImplementation
     def slotPrintReportToPs(self, outPsFile: str) -> None:
+        """Print report to pS file."""
         if self.slotsPrintDisabled_:
             return
 
@@ -573,6 +619,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def slotPrintReportToPdf(self, outPdfFile: str) -> None:
+        """Print report to pdf."""
         if self.slotsPrintDisabled_:
             return
 
@@ -586,6 +633,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def slotPrintReport(self) -> None:
+        """Print report."""
         if self.slotsPrintDisabled_:
             return
 
@@ -598,6 +646,7 @@ class FLReportViewer(QtWidgets.QWidget):
         self.setDisabled(False)
 
     def setReportData(self, d: Union[FLSqlCursor, FLSqlQuery, QtXml.QDomNode]) -> bool:
+        """Set data to report."""
         if isinstance(d, FLSqlQuery):
             self.qry_ = d
             if self.rptEngine_ and self.rptEngine_.setReportData(d):
@@ -617,6 +666,7 @@ class FLReportViewer(QtWidgets.QWidget):
         return False
 
     def setReportTemplate(self, t: QtXml.QDomNode, style: Optional[str] = None) -> bool:
+        """Set template to report."""
         if isinstance(t, QtXml.QDomNode):
             self.xmlTemplate_ = t
             self.template_ = ""
@@ -642,26 +692,32 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def sizeHint(self) -> QtCore.QSize:
+        """Return sizeHint."""
         return self.rptViewer_.sizeHint()
 
     @decorators.BetaImplementation
     def setNumCopies(self, numCopies: int) -> None:
+        """Set number of copies."""
         self.rptViewer_.setNumCopies(numCopies)
 
     @decorators.BetaImplementation
     def setPrintToPos(self, ptp: bool) -> None:
+        """Set print to Pos."""
         self.rptViewer_.setPrintToPos(ptp)
 
     @decorators.BetaImplementation
     def setPrinterName(self, pName: str) -> None:
+        """Set printer name."""
         self.rptViewer_.setPrinterName(pName)
 
     @decorators.BetaImplementation
     def reportPrinted(self) -> bool:
+        """Return if report was printed."""
         return self.reportPrinted_
 
     @decorators.BetaImplementation
     def setAutoClose(self, b: bool) -> None:
+        """Set auto close option."""
         if self.embedInParent_:
             self.autoClose_ = False
         else:
@@ -670,6 +726,7 @@ class FLReportViewer(QtWidgets.QWidget):
     @decorators.pyqtSlot(int)
     @decorators.BetaImplementation
     def setResolution(self, dpi: int) -> None:
+        """Set resolution."""
         util = FLUtil()
         util.writeSettingEntry("rptViewer/dpi", str(dpi))
         self.rptViewer_.setResolution(dpi)
@@ -677,6 +734,7 @@ class FLReportViewer(QtWidgets.QWidget):
     @decorators.pyqtSlot(int)
     @decorators.BetaImplementation
     def setPixel(self, relDpi: int) -> None:
+        """Set pixel size."""
         util = FLUtil()
         util.writeSettingEntry("rptViewer/pixel", str(float(relDpi / 10.0)))
         if self.rptEngine_:
@@ -684,6 +742,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def setDefaults(self) -> None:
+        """Set default values."""
         import platform
 
         self.spnResolution_ = 300
@@ -699,6 +758,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def updateReport(self) -> None:
+        """Update report."""
         self.requestUpdateReport.emit()
 
         if self.qry_ or (self.xmlData_ and self.xmlData_ != ""):
@@ -724,6 +784,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def getCurrentPage(self) -> Any:
+        """Return curent page."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     return FLPicture(self.report_.getCurrentPage(), self)
@@ -731,6 +792,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def getFirstPage(self) -> Any:
+        """Return first page."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     return FLPicture(self.report_.getFirstPage(), self)
@@ -738,6 +800,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def getPreviousPage(self) -> Any:
+        """Return previous page."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     return FLPicture(self.report_.getPreviousPage(), self)
@@ -745,6 +808,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def getNextPage(self) -> Any:
+        """Return next page."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     return FLPicture(self.report_.getNextPage(), self)
@@ -752,6 +816,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def getLastPage(self) -> Any:
+        """Return last page."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     return FLPicture(self.report_.getLastPage(), self)
@@ -759,6 +824,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def getPageAt(self, i: int) -> Any:
+        """Return actual page."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     return FLPicture(self.report_.getPageAt(i), self)
@@ -766,10 +832,12 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def updateDisplay(self) -> None:
+        """Update display."""
         self.rptViewer_.slotUpdateDisplay()
 
     @decorators.BetaImplementation
     def clearPages(self) -> None:
+        """Clear report pages."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     self.report_.clear()
@@ -777,6 +845,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def appendPage(self) -> None:
+        """Add a new page."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     self.report_.appendPage()
@@ -784,6 +853,8 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def getCurrentIndex(self) -> int:
+        """Return current index position."""
+
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     return self.report_.getCurrentIndex()
@@ -791,62 +862,72 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def setCurrentPage(self, idx: int) -> None:
+        """Set current page index."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     self.report_.setCurrentPage(idx)
         pass
 
     @decorators.BetaImplementation
-    def setPageSize(self, s: Any) -> None:
+    def setPageSize(self, s: QtCore.QSize) -> None:
+        """Set page size."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     self.report_.setPageSize(s)
         pass
 
     @decorators.BetaImplementation
-    def setPageOrientation(self, o: Any) -> None:
+    def setPageOrientation(self, o: int) -> None:
+        """Set page orientation."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     self.report_.setPageOrientation(o)
         pass
 
     @decorators.BetaImplementation
-    def setPageDimensions(self, dim: Any) -> None:
+    def setPageDimensions(self, dim: QtCore.QSize) -> None:
+        """Set page dimensions."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     self.report_.setPageDimensions(dim)
         pass
 
     @decorators.BetaImplementation
-    def pageSize(self) -> Any:
+    def pageSize(self) -> QtCore.QSize:
+        """Return page size."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     return self.report_.pageSize()
         return -1
 
     @decorators.BetaImplementation
-    def pageOrientation(self) -> Any:
+    def pageOrientation(self) -> int:
+        """Return page orientation."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
         #     return self.report_.pageOrientation()
         return -1
 
-    def pageDimensions(self) -> Any:
+    def pageDimensions(self) -> QtCore.QSize:
+        """Return page dimensions."""
         if self.rptViewer_.rptEngine_ and hasattr(self.rptViewer_.rptEngine_, "parser_"):
             return self.rptViewer_.rptEngine_.parser_._page_size
         return -1
 
-    def pageCount(self) -> Any:
+    def pageCount(self) -> int:
+        """Return number of pages."""
         if self.rptViewer_.rptEngine_:
             return self.rptViewer_.rptEngine_.number_pages()
         return -1
 
     @decorators.BetaImplementation
     def setStyleName(self, style: str) -> None:
+        """Set style name."""
         self.styleName_ = style
 
     @decorators.BetaImplementation
-    def rptViewerEmbedInParent(self, parentFrame: Any) -> None:
+    def rptViewerEmbedInParent(self, parentFrame: QtWidgets.QFrame) -> None:
+        """Set report viewer embebed parent."""
         if not parentFrame:
             return
 
@@ -862,7 +943,8 @@ class FLReportViewer(QtWidgets.QWidget):
         self.rptViewer_.show()
 
     @decorators.BetaImplementation
-    def rptViewerReparent(self, parentFrame: Any) -> None:
+    def rptViewerReparent(self, parentFrame: QtWidgets.QFrame) -> None:
+        """Set report viewer embebed parent again."""
         if not parentFrame:
             return
 
@@ -882,6 +964,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def setReportPages(self, pgs: Any) -> None:
+        """Add pages to actual report."""
         self.setReportEngine(None)
         self.qry_ = None
         self.xmlData_ = QtXml.QDomNode()
@@ -889,20 +972,25 @@ class FLReportViewer(QtWidgets.QWidget):
         self.report_ = self.rptViewer_.reportPages()
 
     @decorators.BetaImplementation
-    def setColorMode(self, c: Any) -> None:
+    def setColorMode(self, c: QColor) -> None:
+        """Set color mode."""
+
         self.rptViewer_.setColorMode(c)
 
     @decorators.BetaImplementation
-    def colorMode(self) -> Any:
+    def colorMode(self) -> QColor:
+        """Return color mode."""
         return self.rptViewer_.colorMode()
 
     @decorators.BetaImplementation
-    def disableSlotsPrintExports(self, dPrints=True, dExports=True):
+    def disableSlotsPrintExports(self, dPrints: bool = True, dExports: bool = True):
+        """Disable print exports slots."""
         self.slotsPrintDisabled_ = dPrints
         self.slotsExportedDisabled_ = dExports
 
     @decorators.BetaImplementation
     def exportToOds(self) -> None:
+        """Export the report to odf."""
         if self.slotsExportedDisabled_:
             return
 
@@ -910,11 +998,14 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.BetaImplementation
     def setName(self, n: str) -> None:
+        """Set report name."""
         self.name_ = n
 
     @decorators.BetaImplementation
     def name(self) -> str:
+        """Return report name."""
         return self.name_
 
     def __getattr__(self, name: str) -> Any:
+        """Return attribute from inernal object."""
         return getattr(self.rptViewer_, name, None)
