@@ -11,7 +11,7 @@ from pineboolib import logging
 from typing import Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets
+    from PyQt5 import QtWidgets  # noqa: F401
 
 
 class FLTranslator(Qt.QTranslator):

@@ -89,7 +89,7 @@ class FLFieldDB(QtWidgets.QWidget):
     pbAux4_: Optional[QPushButton]
     fieldAlias_: Optional[str]
     showEditor_: bool
-    fieldMapValue_: QtWidgets.QWidget
+    fieldMapValue_: Optional[QtWidgets.QWidget]
     autoCompMode_: str  # NeverAuto, OnDemandF4, AlwaysAuto
     timerAutoComp_: QtCore.QTimer
     textFormat_: QtCore.Qt.TextFormat
