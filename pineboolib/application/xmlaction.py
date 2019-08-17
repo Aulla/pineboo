@@ -66,7 +66,7 @@ class XMLAction(ActionStruct):
             if self.project.DGI.useDesktop():
                 # FIXME: looks like code duplication. Bet both sides of the IF do the same.
                 self.formrecord_widget = self.project.conn.managerModules().createFormRecord(
-                    self, None, cursor, None
+                    action=self, parent_or_cursor=cursor
                 )
             else:
                 # self.script = getattr(self, "script", None)
