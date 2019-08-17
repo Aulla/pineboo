@@ -1,3 +1,4 @@
+"""Fltranslator module."""
 # -*- coding: utf-8 -*-
 
 import os
@@ -5,58 +6,74 @@ from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core.settings import config
 from pineboolib.application import project
 
-from PyQt5.Qt import QTranslator  # type: ignore
+from PyQt5 import Qt
 from pineboolib import logging
-from typing import Any, Dict
+from typing import Dict, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt5 import QtWidgets
 
 
-class FLTranslator(QTranslator):
+class FLTranslator(Qt.QTranslator):
+    """FLTranspator class."""
 
-    mulTiLang_ = False
-    sysTrans_ = False
-    AQ_DISKCACHE_FILEPATH = None  # FIXME
-    AQ_DISKCACHE_DIRPATH = None  # FIXME
-    idM_ = None
-    lang_ = None
-    translation_from_ = None
-    ts_translation_contexts: Dict[str, Dict[str, str]] = {}
+    _multi_lang: bool
+    _sys_trans: bool
+    _id_module: str
+    _lang: str
+    _translation_from_qm: bool
+    _ts_translation_contexts: Dict[str, Dict[str, str]]
 
-    def __init__(self, parent=None, name: str = None, multiLang=False, sysTrans=False) -> None:
+    def __init__(
+        self,
+        parent: Optional[QtWidgets.QWidget] = None,
+        name: Optional[str] = None,
+        multiLang: bool = False,
+        sysTrans: bool = False,
+    ) -> None:
+        """Inicialize."""
         super(FLTranslator, self).__init__()
         self.logger = logging.getLogger("FLTranslator")
         self._prj = parent
         if not name:
             raise Exception("Name is mandatory")
-        self.idM_ = name[: name.rfind("_")]
-        self.lang_ = name[name.rfind("_") + 1 :]
-        self.mulTiLang_ = multiLang
-        self.sysTrans_ = sysTrans
-        self.translation_from_qm = config.value("ebcomportamiento/translations_from_qm", False)
+        self._id_module = name[: name.rfind("_")]
+        self._lang = name[name.rfind("_") + 1 :]
+        self._multi_lang = multiLang
+        self._sys_trans = sysTrans
+        self._ts_translation_contexts = {}
+        self._translation_from_qm = config.value("ebcomportamiento/translations_from_qm", False)
 
-    """
-    Carga en el traductor el contenido de un fichero de traducciones existente en la caché de disco
+    def loadTsContent(self, key: str) -> bool:
+        """
+        Load the contents of an existing translation file into the disk cache into the translator.
 
-    El fichero debe introducirse en la caché de disco antes de llamar a este método, en
-    caso contrario no se hará nada.
+        The file must be entered in the disk cache before calling this method, in
+        Otherwise, nothing will be done.
 
-    @param key Clave sha1 que identifica al fichero en la caché de disco
-    @return  TRUE si la operación tuvo éxito
-    """
-
-    def loadTsContent(self, key) -> Any:
+        @param key Sha1 key that identifies the file in the disk cache
+        @return TRUE if the operation was successful
+        """
         if project.conn is None:
             raise Exception("Project is not connected yet")
-        if self.idM_ == "sys":
-            ts_file = filedir("../share/pineboo/translations/%s.%s" % (self.idM_, self.lang_))
+        if self._id_module == "sys":
+            ts_file = filedir("../share/pineboo/translations/%s.%s" % (self._id_module, self._lang))
         else:
             ts_file = filedir(
                 "%s/cache/%s/%s/file.ts/%s.%s/%s"
-                % (project.tmpdir, project.conn.DBName(), self.idM_, self.idM_, self.lang_, key)
+                % (
+                    project.tmpdir,
+                    project.conn.DBName(),
+                    self._id_module,
+                    self._id_module,
+                    self._lang,
+                    key,
+                )
             )
         # qmFile = self.AQ_DISKCACHE_DIRPATH + "/" + key + ".qm"
 
-        ret_ = None
-        if not self.translation_from_qm:
+        ret_ = False
+        if not self._translation_from_qm:
             ret_ = self.load_ts("%s.ts" % ts_file)
             if not ret_:
                 self.logger.warning("For some reason, i cannot load '%s.ts'", ts_file)
@@ -71,7 +88,7 @@ class FLTranslator(QTranslator):
                 from pineboolib.fllegacy.fltranslations import FLTranslations
 
                 trans = FLTranslations()
-                trans.lrelease("%s.ts" % ts_file, qm_file, not self.mulTiLang_)
+                trans.lrelease("%s.ts" % ts_file, qm_file, not self._multi_lang)
 
             ret_ = self.load(qm_file)
             if not ret_:
@@ -79,24 +96,26 @@ class FLTranslator(QTranslator):
 
         return ret_
 
-    def translate(self, *args) -> Any:
-        context = args[0]
+    def translate(self, context: str, source_text: str) -> Optional[str]:
+        """Return a translated text."""
+
         if context.endswith("PlatformTheme"):
             context = "QMessageBox"
-        source_text = args[1]
         ret_ = None
-        if self.translation_from_qm:
-            ret_ = super(FLTranslator, self).translate(*args)
+        if self._translation_from_qm:
+            ret_ = super(FLTranslator, self).translate(context, source_text)
             if ret_ == "":
                 ret_ = None
         else:
-            if context in self.ts_translation_contexts.keys():
-                if source_text in self.ts_translation_contexts[context]:
-                    ret_ = self.ts_translation_contexts[context][source_text]
+            if context in self._ts_translation_contexts.keys():
+                if source_text in self._ts_translation_contexts[context]:
+                    ret_ = self._ts_translation_contexts[context][source_text]
 
         return ret_
 
     def load_ts(self, file_name: str) -> bool:
+        """Load a translation file from a path."""
+
         try:
             from pineboolib.core.utils.utils_base import load2xml
 
@@ -109,8 +128,8 @@ class FLTranslator(QTranslator):
                 context_dict_key = name_elem.text
                 if not context_dict_key:
                     continue
-                if context_dict_key not in self.ts_translation_contexts.keys():
-                    self.ts_translation_contexts[context_dict_key] = {}
+                if context_dict_key not in self._ts_translation_contexts.keys():
+                    self._ts_translation_contexts[context_dict_key] = {}
                 for message in context.findall("message"):
                     translation_elem, source_elem = (
                         message.find("translation"),
@@ -119,7 +138,7 @@ class FLTranslator(QTranslator):
                     translation_text = translation_elem is not None and translation_elem.text
                     source_text = source_elem is not None and source_elem.text
                     if translation_text and source_text:
-                        self.ts_translation_contexts[context_dict_key][
+                        self._ts_translation_contexts[context_dict_key][
                             source_text
                         ] = translation_text
 
