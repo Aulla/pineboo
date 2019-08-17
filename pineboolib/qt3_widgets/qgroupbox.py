@@ -17,6 +17,7 @@ class QGroupBox(QtWidgets.QGroupBox):
     style_str = None
     _line_width = 0
     presset = Qt.pyqtSignal(int)
+    selectedId: int
 
     def __init__(self, *args, **kwargs) -> None:
         """Inicialize."""
@@ -53,11 +54,6 @@ class QGroupBox(QtWidgets.QGroupBox):
         self.style_str += " }"
         self.setStyleSheet(self.style_str)
 
-    @property
-    def selectedId(self) -> int:
-        """Return selected id."""
-        return 0
-
     def get_enabled(self) -> bool:
         """Return if enabled."""
         return self.isEnabled()
@@ -71,14 +67,6 @@ class QGroupBox(QtWidgets.QGroupBox):
     def setShown(self, b: bool) -> None:
         """Set shown."""
         self.setVisible(b)
-
-    def __setattr__(self, name: str, value: Any) -> None:
-        """Set an attribute especified by name."""
-
-        if name == "title":
-            self.setTitle(str(value))
-        else:
-            super().__setattr__(name, value)
 
     @decorators.NotImplementedWarn
     def setFrameShadow(self, fs: None) -> None:

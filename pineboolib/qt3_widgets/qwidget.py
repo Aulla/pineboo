@@ -12,3 +12,13 @@ class QWidget(QtWidgets.QWidget):
         """Return an QWidget especified by name."""
 
         return self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
+
+    def get_title(self) -> str:
+        """Return widget title."""
+        return self.windowTitle()
+
+    def set_title(self, title: str) -> None:
+        """Set title."""
+        self.setWindowTitle(title)
+
+    title = property(get_title, set_title)

@@ -2,17 +2,16 @@
 
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtCore  # type: ignore
-from .qgroupbox import QGroupBox
+from . import qgroupbox
 from pineboolib.core import decorators
 
 
 from typing import Callable
 
 
-class QButtonGroup(QGroupBox):
+class QButtonGroup(qgroupbox.QGroupBox):
     """QButtonGroup class."""
 
-    selectedId: int
     pressed = QtCore.pyqtSignal(int)
 
     def __init__(self, *args) -> None:

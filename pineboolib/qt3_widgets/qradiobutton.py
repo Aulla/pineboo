@@ -1,7 +1,7 @@
 """Qradiobutton module."""
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtWidgets, QtCore  # type: ignore
+from PyQt5 import QtWidgets  # type: ignore
 from pineboolib import logging
 
 from .qbuttongroup import QButtonGroup
@@ -21,7 +21,7 @@ class QRadioButton(QtWidgets.QRadioButton):
         """Inicialize."""
 
         super().__init__(parent)
-        self.setChecked(False)
+        super().setChecked(False)
         self.dg_id = None
 
         cast(pyqtSignal, self.clicked).connect(self.send_clicked)
@@ -40,26 +40,25 @@ class QRadioButton(QtWidgets.QRadioButton):
         if self.parent() and hasattr(self.parent(), "selectedId"):
             self.parent().presset.emit(self.dg_id)
 
-    @QtCore.pyqtProperty(bool)  # type: ignore
-    def checked(self) -> bool:
+    def get_checked(self) -> bool:
         """Return is checked."""
 
         return super().isChecked()
 
-    @checked.setter  # type: ignore
-    def setChecked(self, b: bool) -> None:
+    def set_checked(self, b: bool) -> None:
         """Set checked."""
 
         super().setChecked(b)
 
-    @QtCore.pyqtProperty(str)  # type: ignore
-    def text(self) -> str:
+    def get_text(self) -> str:
         """Return text."""
 
         return super().getText()
 
-    @text.setter  # type: ignore
-    def setText(self, t: str) -> None:
+    def set_text(self, t: str) -> None:
         """Set text."""
 
         super().setText(t)
+
+    checked = property(get_checked, set_checked)
+    text = property(get_text, set_text)  # type: ignore
