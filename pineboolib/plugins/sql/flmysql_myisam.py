@@ -262,6 +262,9 @@ class FLMYSQL_MYISAM(object):
     def canOverPartition(self) -> bool:
         return True
 
+    def canRegenTables(self) -> bool:
+        return True
+
     def tables(self, type_name=None) -> list:
         tl: List[str] = []
         if not self.isOpen():

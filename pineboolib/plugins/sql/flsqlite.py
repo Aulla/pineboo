@@ -107,6 +107,9 @@ class FLSQLITE(object):
     def canDetectLocks(self) -> bool:
         return True
 
+    def canRegenTables(self) -> bool:
+        return True
+
     def desktopFile(self) -> bool:
         return True
 

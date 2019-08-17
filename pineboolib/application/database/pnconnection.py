@@ -833,6 +833,19 @@ class PNConnection(QtCore.QObject, IConnection):
 
         return self.dbAux().driver().alterTable(mtd_1, mtd_2, key, force)
 
+    def canRegenTables(self) -> bool:
+        """Return if can regenerate tables."""
+
+        if not self.db():
+            return False
+        return self.driver().canRegenTables()
+
+    @decorators.NotImplementedWarn
+    def regenTable(self, table_name: str, mtd: "PNTableMetaData") -> None:
+        """Regenerate a table."""
+
+        return None
+
     def __str__(self):
         """Return the name of the database in text format."""
 

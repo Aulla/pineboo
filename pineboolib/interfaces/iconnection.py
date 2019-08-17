@@ -270,6 +270,16 @@ class IConnection:
 
         return True
 
+    def canRegenTables(self) -> bool:
+        """Return True if the database can regenerate tables."""
+
+        return True
+
+    def regenTable(self, table_name: str, mtd: "PNTableMetaData") -> None:
+        """Regenerate a table."""
+
+        return None
+
     def savePoint(self, save_point: int) -> bool:
         """Create a save point."""
 
@@ -335,10 +345,10 @@ class IConnection:
 
         return ""
 
-    def execute_query(self, q: str) -> None:
+    def execute_query(self, q: str) -> Any:
         """Execute a query in a database cursor."""
 
-        return
+        return ""
 
     def alterTable(
         self, mtd_1: "PNTableMetaData", mtd_2: "PNTableMetaData", key: str, force: bool = False

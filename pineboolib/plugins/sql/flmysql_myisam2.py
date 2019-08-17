@@ -298,6 +298,9 @@ class FLMYSQL_MYISAM2(object):
     def canOverPartition(self) -> bool:
         return True
 
+    def canRegenTables(self) -> bool:
+        return True
+
     def tables(self, type_name=None) -> list:
         """Introspect tables in database."""
         tl: List[str] = []

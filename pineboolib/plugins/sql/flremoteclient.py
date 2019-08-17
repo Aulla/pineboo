@@ -63,6 +63,9 @@ class FLREMOTECLIENT(object):
     def desktopFile(self) -> bool:
         return False
 
+    def canRegenTables(self) -> bool:
+        return True
+
     def version(self) -> str:
         return self.version_
 

@@ -18,7 +18,10 @@ from pineboolib.application import project
 from pineboolib import logging
 
 
-from typing import Iterable, Optional, Union, List, Dict, Any, cast
+from typing import Iterable, Optional, Union, List, Dict, Any, cast, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.application.metadata.pntablemetadata import PNTableMetaData  # noqa: F401
 
 
 logger = logging.getLogger(__name__)
@@ -285,6 +288,9 @@ class FLQPSQL(object):
         return s
 
     def canOverPartition(self) -> bool:
+        return True
+
+    def canRegenTables(self) -> bool:
         return True
 
     def nextSerialVal(self, table: str, field: str) -> Any:
@@ -574,7 +580,9 @@ class FLQPSQL(object):
 
         return sql
 
-    def mismatchedTable(self, table1: str, tmd_or_table2: str, db_=None) -> bool:
+    def mismatchedTable(
+        self, table1: str, tmd_or_table2: Union[str, "PNTableMetaData"], db_=None
+    ) -> bool:
         if db_ is None:
             db_ = self.db_
 
