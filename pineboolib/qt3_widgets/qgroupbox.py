@@ -14,8 +14,8 @@ logger = logging.getLogger("QGroupBox")
 class QGroupBox(QtWidgets.QGroupBox):
     """QGroupBox class."""
 
-    style_str = None
-    _line_width = 0
+    style_str: str
+    _line_width: int
     presset = Qt.pyqtSignal(int)
     selectedId: int
 
@@ -25,6 +25,7 @@ class QGroupBox(QtWidgets.QGroupBox):
         super(QGroupBox, self).__init__(*args, **kwargs)
         from pineboolib.core.settings import config
 
+        self.style_str = ""
         self._line_width = 0
         # self._do_style()
         self.setFlat(True)
@@ -67,6 +68,14 @@ class QGroupBox(QtWidgets.QGroupBox):
     def setShown(self, b: bool) -> None:
         """Set shown."""
         self.setVisible(b)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Set an attribute especified by name."""
+
+        if name == "title":
+            self.setTitle(str(value))
+        else:
+            super().__setattr__(name, value)
 
     @decorators.NotImplementedWarn
     def setFrameShadow(self, fs: None) -> None:
