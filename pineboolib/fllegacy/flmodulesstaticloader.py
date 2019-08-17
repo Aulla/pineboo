@@ -32,6 +32,7 @@ class AQStaticDirInfo(object):
     path_: str
 
     def __init__(self, *args) -> None:
+        """Inicialize."""
 
         if len(args) == 1:
             self.active_ = args[0]
@@ -46,7 +47,7 @@ class AQStaticBdInfo(object):
 
     enabled_: bool
     dirs_: List[AQStaticDirInfo]
-    key_ = None
+    key_: str
 
     def __init__(self, database: "PNConnection") -> None:
         """Create new AQStaticBdInfo."""
@@ -121,7 +122,7 @@ class FLStaticLoaderWarning(QtCore.QObject):
         flapplication.aqApp.popupWarn(msg)
 
     @decorators.NotImplementedWarn
-    def scriptBaseFileName(self, name: str):
+    def scriptBaseFileName(self, name: str) -> Any:
         """Return script object given a basename "name"."""
         scripts = flapplication.aqApp.project().scripts()
         for it in scripts:
@@ -165,14 +166,17 @@ warn_: Optional[FLStaticLoaderWarning] = None
 class FLStaticLoader(QtCore.QObject):
     """Perform static loading of scripts from filesystem."""
 
-    def __init__(self, b, ui) -> None:
+    def __init__(self, b: "AQStaticBdInfo", ui: QtWidgets.QWidget) -> None:
         """Create a new FLStaticLoader."""
 
         super(FLStaticLoader, self).__init__()
 
         self.ui_ = ui
         self.b_ = b
+        if self.pixOn is None:
+            raise Exception("pixOn not found!.")
         self.pixOn.setVisible(False)
+
         self.tblDirs.verticalHeader().setVisible(False)
         self.tblDirs.setLeftMargin(0)
         self.tblDirs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
@@ -212,7 +216,7 @@ class FLStaticLoader(QtCore.QObject):
                 self.tblDirs.setText(row, 0, info.path_)
 
                 chk = FLCheckBox(self.tblDirs, row)
-                chk.setChecked(info.active_ == "True")
+                chk.setChecked(info.active_ == True)
                 chk.toggled.connect(self.setChecked)
                 self.tblDirs.setCellWidget(row, 1, chk)
                 row += 1
@@ -293,6 +297,8 @@ class FLStaticLoader(QtCore.QObject):
 
     @decorators.pyqtSlot(bool)
     def setChecked(self, on: bool) -> None:
+        """Set checked this object."""
+
         chk = self.sender()
         if not chk:
             return
@@ -308,14 +314,14 @@ class FLStaticLoader(QtCore.QObject):
             info.active_ = on
 
     @staticmethod
-    def setup(b, ui: Any) -> None:
+    def setup(b: "AQStaticBdInfo", ui: QtWidgets.QWidget) -> None:
         """Configure user interface from given widget."""
         diag_setup = FLStaticLoader(b, ui)
         if QtWidgets.QDialog.Accepted == diag_setup.ui_.exec_():
             b.writeSettings()
 
     @staticmethod
-    def content(n, b: Any, only_path=False) -> Any:
+    def content(n: str, b: "AQStaticBdInfo", only_path: bool = False) -> Any:
         """Get content from given path."""
         global warn_
         b.readSettings()
@@ -354,6 +360,6 @@ class FLStaticLoader(QtCore.QObject):
 
         return None
 
-    def __getattr__(self, name) -> Any:
+    def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Emulate child properties as if they were inserted into the object."""
         return self.ui_.findChild(QtWidgets.QWidget, name)

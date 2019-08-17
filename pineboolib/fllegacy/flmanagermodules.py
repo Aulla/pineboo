@@ -10,10 +10,10 @@ from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import filedir
 
 from . import flaction
+from . import flmodulesstaticloader
 
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
 
-from pineboolib.fllegacy.flmodulesstaticloader import FLStaticLoader
 
 from typing import Union, List, Dict, Any, Optional, TYPE_CHECKING
 
@@ -107,15 +107,15 @@ class FLManagerModules(object):
     Uso interno.
     Informacion para la carga estatica desde el disco local
     """
-    staticBdInfo_ = None
+    staticBdInfo_: flmodulesstaticloader.AQStaticBdInfo
 
-    root_dir_ = None
-    scripts_dir_ = None
-    tables_dir_ = None
-    forms_dir_ = None
-    reports_dir_ = None
-    queries_dir_ = None
-    trans_dir_ = None
+    root_dir_: str
+    scripts_dir_: str
+    tables_dir_: str
+    forms_dir_: str
+    reports_dir_: str
+    queries_dir_: str
+    trans_dir_: str
     filesCached_: Dict[str, str]
 
     def __init__(self, db: "PNConnection") -> None:
@@ -125,9 +125,8 @@ class FLManagerModules(object):
         if db is None:
             raise ValueError("Database is required")
         self.conn_ = db
-        from pineboolib.fllegacy.flmodulesstaticloader import AQStaticBdInfo
 
-        self.staticBdInfo_ = AQStaticBdInfo(self.conn_)
+        self.staticBdInfo_ = flmodulesstaticloader.AQStaticBdInfo(self.conn_)
         self.activeIdModule_ = None
         self.activeIdArea_ = None
         self.shaLocal_ = ""
@@ -166,7 +165,6 @@ class FLManagerModules(object):
 
         if self.staticBdInfo_:
             del self.staticBdInfo_
-            self.staticBdInfo_ = None
 
         if self.dictKeyFiles:
             self.writeState()
@@ -200,7 +198,7 @@ class FLManagerModules(object):
     def byteCodeToStr(self, file_name: str) -> str:
         """
         Get the contents of a script file.
-        
+
         Get the contents of a script file, processing it to change the connections it contains,
         so that at the end of the execution of the connected function the test script resumes.
         It also performs code formatting processes to optimize it.
@@ -214,7 +212,7 @@ class FLManagerModules(object):
     def contentCode(self, file_name: str) -> str:
         """
         Return the contents of a script file.
-        
+
         Return the contents of a script file processing it to change the connections it contains,
         so that at the end of the execution of the connected function the test script resumes.
         It also performs code formatting processes to optimize it.
@@ -366,7 +364,7 @@ class FLManagerModules(object):
     @staticmethod
     def createUI(
         file_name: str,
-        connection: Optional["PNConnection"],
+        connection: Optional["PNConnection"] = None,
         parent: Optional["QtWidgets.QWidget"] = None,
     ) -> "QtWidgets.QWidget":
         """
@@ -902,7 +900,7 @@ class FLManagerModules(object):
         @return String with the contents of the file or None in case of error.
         """
 
-        str_ret = FLStaticLoader.content(file_name, self.staticBdInfo_)
+        str_ret = flmodulesstaticloader.FLStaticLoader.content(file_name, self.staticBdInfo_)
         if str_ret is not None:
             from pineboolib.fllegacy.flutil import FLUtil
 
@@ -942,4 +940,4 @@ class FLManagerModules(object):
         Display dialog box to configure static load from local disk.
         """
         ui = self.createUI(filedir("../share/pineboo/forms/FLStaticLoaderUI.ui"))
-        FLStaticLoader.setup(self.staticBdInfo_, ui)
+        flmodulesstaticloader.FLStaticLoader.setup(self.staticBdInfo_, ui)
