@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 class FLManager(QtCore.QObject, IManager):
     """
-    This class serves as the database administrator.
+    Serve as the database administrator.
 
     Responsible for opening the forms or obtaining their definitions (.ui files).
     It also maintains the metadata of all tables in the database base.
@@ -84,7 +84,7 @@ class FLManager(QtCore.QObject, IManager):
 
     def init(self) -> None:
         """
-        Initialization actions.
+        Initialize.
         """
         self.initCount_ = self.initCount_ + 1
         self.createSystemTable("flmetadata")
@@ -1479,8 +1479,7 @@ class FLManager(QtCore.QObject, IManager):
 
     def cleanupMetaData(self) -> None:
         """
-        Clean the flmetadata table, update the xml content with that of the .mtd file
-        currently loaded.
+        Clean the flmetadata table, update the xml content with that of the .mtd file currently loaded.
         """
         if not self.db_:
             raise Exception("cleanupMetaData. self.db_ is empty!")
@@ -1573,8 +1572,7 @@ class FLManager(QtCore.QObject, IManager):
 
     def storeLargeValue(self, mtd: PNFieldMetaData, largeValue: str) -> Optional[str]:
         """
-        Store large field values ​​in separate indexed tables
-        by SHA keys of the value content.
+        Store large field values ​​in separate indexed tables by SHA keys of the value content.
 
         It is used to optimize queries that include fields with large values,
         such as images, to handle the reference to the value in the SQL queries
@@ -1687,6 +1685,6 @@ class FLManager(QtCore.QObject, IManager):
 
     def initCount(self) -> int:
         """
-        Internal use. Indicates the number of times FLManager :: init () has been called.
+        Indicate the number of times FLManager :: init () has been called.
         """
         return self.initCount_

@@ -150,6 +150,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self.FLWidgetFieldDBLayout = None
         self.firstRefresh = False
         self.default_style = None
+        self.fieldMapValue_ = None
 
         self.maxPixImages_ = config.value("ebcomportamiento/maxPixImages", None)
         self.autoCompMode_ = config.value("ebcomportamiento/autoComp", "OnDemandF4")

@@ -96,7 +96,9 @@ class FLTranslator(Qt.QTranslator):
 
         return ret_
 
-    def translate(self, context: str, source_text: str) -> Optional[str]:
+    def translate(
+        self, context: str, source_text: str, disambiguation: str = None, n: int = -1
+    ) -> Optional[str]:
         """Return a translated text."""
 
         if context.endswith("PlatformTheme"):
