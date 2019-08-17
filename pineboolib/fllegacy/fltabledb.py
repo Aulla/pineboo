@@ -1,3 +1,5 @@
+"""Fltabledb module."""
+
 # -*- coding: utf-8 -*-
 
 from PyQt5 import QtCore, QtGui, QtWidgets  # type: ignore
@@ -20,7 +22,10 @@ from pineboolib.core.settings import config
 from . import flapplication
 
 
-from typing import Any, Optional, List, Union
+from typing import Any, Optional, List, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 
 logger = logging.getLogger(__name__)
@@ -30,14 +35,14 @@ DEBUG = False
 class FLTableDB(QtWidgets.QWidget):
 
     """
-    PLUGIN que contiene una tabla de la base de datos.
+    PLUGIN that contains a database table.
 
-    Este objeto contiene todo lo necesario para manejar
-    los datos de una tabla. Además de la funcionalidad de
-    busqueda en la tabla por un campo, mediante filtros.
+    This object contains everything needed to handle
+    the data in a table. In addition to the functionality of
+    Search the table by a field, using filters.
 
-    Este plugin para que sea funcional debe tener como uno
-    de sus padres o antecesor a un objeto FLFormDB.
+    This plugin to be functional must have as one
+    from your parents or predecessor to an FLFormDB object.
 
     @author InfoSiAL S.L.
     """
@@ -45,95 +50,93 @@ class FLTableDB(QtWidgets.QWidget):
     """
     Tipos de condiciones para el filtro
     """
-    All = 0
-    Contains = 1
-    Starts = 2
-    End = 3
-    Equal = 4
-    Dist = 5
-    Greater = 6
-    Less = 7
-    FromTo = 8
-    Null = 9
-    NotNull = 10
+    All: int = 0
+    Contains: int = 1
+    Starts: int = 2
+    End: int = 3
+    Equal: int = 4
+    Dist: int = 5
+    Greater: int = 6
+    Less: int = 7
+    FromTo: int = 8
+    Null: int = 9
+    NotNull: int = 10
 
-    _parent = None
+    _parent: QtWidgets.QWidget
     _name: str
-    loadLater_ = None
+    loadLater_: bool
 
-    tdbFilter: Optional[Any] = None
+    tdbFilter: Optional[Any]
 
-    pbData = None
-    pbFilter = None
-    pbOdf = None
+    pbData: QtWidgets.QPushButton
+    pbFilter: QtWidgets.QPushButton
+    pbOdf: QtWidgets.QPushButton
 
     comboBoxFieldToSearch: QtWidgets.QComboBox
     comboBoxFieldToSearch2: QtWidgets.QComboBox
     lineEditSearch: QtWidgets.QLineEdit
 
-    tabDataLayout = None
-    tabControlLayout = None
+    tabDataLayout: QtWidgets.QVBoxLayout
+    tabControlLayout: QtWidgets.QHBoxLayout
 
-    dataLayout = None
-    tabData = None
-    tabFilter = None
-    buttonsLayout = None
-    masterLayout = None
+    dataLayout: QtWidgets.QHBoxLayout
+    tabData: QtWidgets.QFrame
+    tabFilter: QtWidgets.QFrame
+    buttonsLayout: QtWidgets.QVBoxLayout
+    masterLayout: QtWidgets.QVBoxLayout
     tabFilterLoaded: bool
-
-    _controlsInit = None
 
     _loaded: bool
     """
     Tamaño de icono por defecto
     """
-    iconSize: Optional[Any] = None
+    iconSize: Optional[Any]
 
     """
     Componente para visualizar los registros
     """
-    tableRecords_: Optional[FLDataTable] = None
+    tableRecords_: Optional[FLDataTable]
 
     """
     Nombre de la tabla a la que esta asociado este componente.
     """
-    tableName_: Optional[str] = None
+    tableName_: Optional[str]
 
     """
     Nombre del campo foráneo
     """
-    foreignField_: Optional[str] = None
+    foreignField_: Optional[str]
 
     """
     Nombre del campo de la relación
     """
-    fieldRelation_: Optional[str] = None
+    fieldRelation_: Optional[str]
 
     """
     Cursor con los datos de origen para el componente
     """
-    cursor_: Any = None
+    cursor_: "pnsqlcursor.PNSqlCursor"
 
     """
     Cursor auxiliar de uso interno para almacenar los registros de la tabla
     relacionada con la de origen
     """
-    cursorAux: Any = None
+    cursorAux: Optional["pnsqlcursor.PNSqlCursor"]
 
     """
     Matiene la ventana padre
     """
-    topWidget: Any = None
+    topWidget: Optional[QtWidgets.QWidget]
 
     """
     Indica que la ventana ya ha sido mostrada una vez
     """
-    showed = False
+    showed: bool
 
     """
     Mantiene el filtro de la tabla
     """
-    filter_: str = ""
+    filter_: str
 
     """
     Almacena si el componente está en modo sólo lectura
@@ -198,7 +201,7 @@ class FLTableDB(QtWidgets.QWidget):
     """
     Indica el número de columna por la que ordenar los registros
     """
-    sortColumn_: int = 0
+    sortColumn_: int
 
     """
     Indica el número de columna por la que ordenar los registros
@@ -241,7 +244,7 @@ class FLTableDB(QtWidgets.QWidget):
     """
     Almacena la última claúsula de filtro aplicada en el refresco
     """
-    tdbFilterLastWhere_: Optional[str] = None
+    tdbFilterLastWhere_: Optional[str]
 
     """
     Diccionario que relaciona literales descriptivos de una condición de filtro
@@ -327,13 +330,20 @@ class FLTableDB(QtWidgets.QWidget):
         self, parent: Optional["QtWidgets.QWidget"] = None, name: Optional[str] = None
     ) -> None:
         """
-        constructor
+        Inicialize.
         """
         if parent is None:
             return
         super(FLTableDB, self).__init__(parent)
         self.topWidget = parent
+        self.tableRecords_ = None
+        self.tableName_ = None
+        self.foreignField_ = None
+        self.fieldRelation_ = None
+        self.cursorAux = None
         self.showAllPixmaps_ = True
+        self.showed = False
+        self.filter_ = ""
         self.sortColumn_ = 0
         self.sortColumn2_ = 1
         self.sortColumn3_ = 2
@@ -357,10 +367,11 @@ class FLTableDB(QtWidgets.QWidget):
             self.setObjectName(name)
         self.checkColumnVisible_ = False
         self.checkColumnEnabled_ = False
-        self.tdbFilterLastWhere_: Optional[str] = None
+        self.tdbFilterLastWhere_ = None
         self.filter_ = ""
         from pineboolib.application import project
 
+        self.iconSize = []
         if project._DGI is not None:
             self.iconSize = project.DGI.iconSize()
 
@@ -430,7 +441,7 @@ class FLTableDB(QtWidgets.QWidget):
         Inicia el cursor segun este campo sea de la tabla origen o de
         una tabla relacionada
         """
-        if not self.topWidget or not self.cursor():
+        if not self.topWidget or not hasattr(self, "cursor_"):
             return
 
         if not self.cursor().metadata():
@@ -600,7 +611,7 @@ class FLTableDB(QtWidgets.QWidget):
         if ownTMD or tMD and not tMD.inCache():
             del tMD
 
-    def cursor(self) -> FLSqlCursor:
+    def cursor(self) -> "pnsqlcursor.PNSqlCursor":
         """
         Para obtener el cursor utilizado por el componente.
 
@@ -1151,18 +1162,17 @@ class FLTableDB(QtWidgets.QWidget):
         self.buttonsLayout = QtWidgets.QVBoxLayout()
         self.masterLayout = QtWidgets.QVBoxLayout()  # Contiene todos los layouts
 
-        if self.pbData is None:
-            self.pbData = QtWidgets.QPushButton(self)
-            self.pbData.setSizePolicy(sizePolicy)
-            if self.iconSize is not None:
-                self.pbData.setMinimumSize(self.iconSize)
-            self.pbData.setFocusPolicy(QtCore.Qt.NoFocus)
-            self.pbData.setIcon(QtGui.QIcon(filedir("../share/icons", "fltable-data.png")))
-            self.pbData.setText("")
-            self.pbData.setToolTip("Mostrar registros")
-            self.pbData.setWhatsThis("Mostrar registros")
-            self.buttonsLayout.addWidget(self.pbData)
-            self.pbData.clicked.connect(self.activeTabData)
+        self.pbData = QtWidgets.QPushButton(self)
+        self.pbData.setSizePolicy(sizePolicy)
+        if self.iconSize is not None:
+            self.pbData.setMinimumSize(self.iconSize)
+        self.pbData.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.pbData.setIcon(QtGui.QIcon(filedir("../share/icons", "fltable-data.png")))
+        self.pbData.setText("")
+        self.pbData.setToolTip("Mostrar registros")
+        self.pbData.setWhatsThis("Mostrar registros")
+        self.buttonsLayout.addWidget(self.pbData)
+        self.pbData.clicked.connect(self.activeTabData)
 
         self.pbFilter = QtWidgets.QPushButton(self)
         self.pbFilter.setSizePolicy(sizePolicy)

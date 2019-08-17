@@ -499,9 +499,6 @@ class FLManagerModules(object):
         if action is None:
             raise Exception("action is empty!")
 
-        # if parent_or_cursor is None:
-        #    raise Exception("parent_or_cursor is empty!.")
-
         logger.trace("createFormRecord: load FormRecordDB")
         return flformrecorddb.FLFormRecordDB(parent_or_cursor, action, load=False)
 
