@@ -1,27 +1,31 @@
+"""Flpixmapview module."""
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtWidgets, QtGui  # type: ignore
-from PyQt5.QtWidgets import QLabel  # type: ignore
-from typing import Any, cast
+from typing import cast
 
 
 class FLPixmapView(QtWidgets.QScrollArea):
-    frame_ = None
-    scrollView = None
-    autoScaled_ = None
-    path_ = None
-    pixmap_ = None
-    pixmapView_ = None
-    lay_ = None
-    gB_ = None
-    _parent = None
+    """FLPixmapView class."""
 
-    def __init__(self, parent) -> None:
+    # frame_ = None
+    # scrollView = None
+    autoScaled_: bool
+    path_: str
+    pixmap_: QtGui.QPixmap
+    pixmapView_: QtWidgets.QLabel
+    lay_: QtWidgets.QHBoxLayout
+    # gB_ = None
+    _parent: QtWidgets.QWidget
+
+    def __init__(self, parent: QtWidgets.QWidget) -> None:
+        """Inicialize."""
+
         super(FLPixmapView, self).__init__(parent)
         self.autoScaled_ = False
         self.lay_ = QtWidgets.QHBoxLayout(self)
         self.lay_.setContentsMargins(0, 2, 0, 2)
         self.pixmap_ = QtGui.QPixmap()
-        self.pixmapView_ = QLabel(self)
+        self.pixmapView_ = QtWidgets.QLabel(self)
         self.lay_.addWidget(self.pixmapView_)
         self.pixmapView_.setAlignment(
             cast(QtCore.Qt.AlignmentFlag, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignCenter)
@@ -31,6 +35,7 @@ class FLPixmapView(QtWidgets.QScrollArea):
         self._parent = parent
 
     def setPixmap(self, pix: QtGui.QPixmap) -> None:
+        """Set pixmap to object."""
         # if not project.DGI.localDesktop():
         #    project.DGI._par.addQueque("%s_setPixmap" % self._parent.objectName(
         #    ), self._parent.cursor_.valueBuffer(self._parent.fieldName_))
@@ -44,14 +49,16 @@ class FLPixmapView(QtWidgets.QScrollArea):
         self.repaint()
         QtWidgets.QApplication.restoreOverrideCursor()
 
-    def eventFilter(self, obj, ev) -> Any:
+    def eventFilter(self, obj: QtWidgets.QWidget, ev: QtCore.QEvent) -> bool:
+        """Event filter process."""
 
-        if isinstance(obj, QLabel) and isinstance(ev, QtGui.QResizeEvent):
+        if isinstance(obj, QtWidgets.QLabel) and isinstance(ev, QtGui.QResizeEvent):
             self.resizeContents()
 
         return super(FLPixmapView, self).eventFilter(obj, ev)
 
     def resizeContents(self) -> None:
+        """Resize contents to actual control size."""
 
         if self.pixmap_ is None or self.pixmap_.isNull():
             return
@@ -78,7 +85,9 @@ class FLPixmapView(QtWidgets.QScrollArea):
             self.pixmapView_.clear()
             self.pixmapView_.setPixmap(new_pix)
 
-    def previewUrl(self, url) -> None:
+    def previewUrl(self, url: str) -> None:
+        """Set image from url."""
+
         u = QtCore.QUrl(url)
         if u.isLocalFile():
             path = u.path()
@@ -99,11 +108,17 @@ class FLPixmapView(QtWidgets.QScrollArea):
                 self.setPixmap(pix)
 
     def clear(self) -> None:
+        """Clear image into object."""
+
         if self.pixmapView_ is not None:
             self.pixmapView_.clear()
 
-    def pixmap(self) -> Any:
+    def pixmap(self) -> QtGui.QPixmap:
+        """Return pixmap stored."""
+
         return self.pixmap_
 
-    def setAutoScaled(self, autoScaled) -> None:
+    def setAutoScaled(self, autoScaled: bool) -> None:
+        """Set auto sclate to the control."""
+
         self.autoScaled_ = autoScaled

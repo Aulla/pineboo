@@ -1,21 +1,26 @@
+"""Fluintvalidator module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtGui  # type: ignore
+from PyQt5 import QtGui
+from typing import Tuple, Optional, TYPE_CHECKING
 
-
-from PyQt5.QtGui import QValidator  # type: ignore
-from typing import Tuple
+if TYPE_CHECKING:
+    from PyQt5 import QtWidgets  # noqa: F401
 
 
 class FLUIntValidator(QtGui.QIntValidator):
-    _formatting = None
+    """FLUItValidator class."""
 
-    def __init__(self, *args, **kwargs) -> None:
-        if len(args) == 3:
-            super().__init__(args[0], args[1], args[2])
+    _formatting: bool
+
+    def __init__(self, minimum: int, maximum: int, parent: Optional["QtWidgets.QWidget"]) -> None:
+        """Inicialize."""
+
+        super().__init__(minimum, maximum, parent)
 
         self._formatting = False
 
-    def validate(self, input_: str, pos_cursor: int) -> Tuple[QValidator.State, str, int]:
+    def validate(self, input_: str, pos_cursor: int) -> Tuple[QtGui.QValidator.State, str, int]:
+        """Valiate a Value."""
 
         if not input_ or self._formatting:
             return (self.Acceptable, input_, pos_cursor)
@@ -27,5 +32,4 @@ class FLUIntValidator(QtGui.QIntValidator):
         ret_1 = state[1]
         ret_2 = state[2]
 
-        # FIXME: Salir formateado
         return (ret_0, ret_1, ret_2)

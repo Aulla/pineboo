@@ -216,7 +216,7 @@ class FLStaticLoader(QtCore.QObject):
                 self.tblDirs.setText(row, 0, info.path_)
 
                 chk = FLCheckBox(self.tblDirs, row)
-                chk.setChecked(info.active_ == True)
+                chk.setChecked(info.active_)
                 chk.toggled.connect(self.setChecked)
                 self.tblDirs.setCellWidget(row, 1, chk)
                 row += 1

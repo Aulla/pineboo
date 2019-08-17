@@ -11,7 +11,7 @@ from pineboolib.qt3_widgets.messagebox import MessageBox
 # from pineboolib.fllegacy.flpicture import FLPicture
 from pineboolib.fllegacy.flsqlquery import FLSqlQuery
 from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
-from pineboolib.fllegacy.flstylepainter import FLStylePainter
+
 from pineboolib.fllegacy.flreportengine import FLReportEngine
 from pineboolib import logging
 
@@ -98,7 +98,7 @@ class FLReportViewer(QtWidgets.QWidget):
         self.Display = 1
         self.Append = 1
         self.PageBreak = 1
-        self.stylepainter: FLStylePainter = FLStylePainter()
+        # self.stylepainter: FLStylePainter = FLStylePainter()
         # from pineboolib.plugins.dgi.dgi_qt.dgi_qt3ui import loadUi
         # from pineboolib.core.utils.utils_base import filedir
 

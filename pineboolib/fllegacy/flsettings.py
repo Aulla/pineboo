@@ -1,3 +1,4 @@
+"""Flsettings module."""
 # -*- coding: utf-8 -*-
 from pineboolib.core.settings import settings
 
@@ -7,9 +8,12 @@ from typing import SupportsFloat
 
 
 class FLSettings(object):
+    """FLSettings class."""
+
     s = settings
 
     def readListEntry(self, key: str) -> List[str]:
+        """Return a value list."""
         ret = self.s.value(key)
         if ret is None:
             return []
@@ -21,6 +25,8 @@ class FLSettings(object):
         raise ValueError("Configuration key %s does not contain a list" % key)
 
     def readEntry(self, _key: str, _def: Optional[Union[str, bool]] = None) -> Any:
+        """Return a value."""
+
         ret = self.s.value(_key, None)  # devuelve un QVariant !!!!
 
         if "geo" in _key:
@@ -37,6 +43,8 @@ class FLSettings(object):
         return ret
 
     def readNumEntry(self, key: str, _def: int = 0) -> int:
+        """Return a int value."""
+
         ret = self.s.value(key)
         if ret is not None:
             if isinstance(ret, (int, float, str)):
@@ -47,12 +55,16 @@ class FLSettings(object):
             return _def
 
     def readDoubleEntry(self, key: str, _def: Union[bytes, str, SupportsFloat] = 0) -> float:
+        """Return a float value."""
+
         ret = self.s.value(key)
         if ret is None:
             ret = _def
         return float(ret)
 
     def readBoolEntry(self, key: str, _def: bool = False) -> bool:
+        """Return a bool value."""
+
         ret = self.s.value(key)
         if ret is None:
             return _def
@@ -65,9 +77,12 @@ class FLSettings(object):
         raise ValueError("Configuration key %s cannot be converted to boolean" % key)
 
     def writeEntry(self, key: str, value: Union[int, str, bool]) -> None:
+        """Set a value."""
+
         self.s.setValue(key, value)
 
     def writeEntryList(self, key: str, value: List[str]) -> None:
+        """Set a value list."""
         # FIXME: This function flattens the array when saving in some cases. Should always save an array.
         val: Union[str, List[str]]
         if len(value) == 1:

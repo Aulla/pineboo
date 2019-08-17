@@ -26,7 +26,7 @@ class FLTranslator(Qt.QTranslator):
 
     def __init__(
         self,
-        parent: Optional[QtWidgets.QWidget] = None,
+        parent: Optional["QtWidgets.QWidget"] = None,
         name: Optional[str] = None,
         multiLang: bool = False,
         sysTrans: bool = False,
@@ -85,9 +85,9 @@ class FLTranslator(Qt.QTranslator):
                     return False
 
             else:
-                from pineboolib.fllegacy.fltranslations import FLTranslations
+                from . import fltranslations
 
-                trans = FLTranslations()
+                trans = fltranslations.FLTranslations()
                 trans.lrelease("%s.ts" % ts_file, qm_file, not self._multi_lang)
 
             ret_ = self.load(qm_file)
@@ -103,7 +103,7 @@ class FLTranslator(Qt.QTranslator):
             context = "QMessageBox"
         ret_ = None
         if self._translation_from_qm:
-            ret_ = super(FLTranslator, self).translate(context, source_text)
+            ret_ = super().translate(context, source_text)
             if ret_ == "":
                 ret_ = None
         else:

@@ -1,14 +1,17 @@
+"""Fltexteditoutput module."""
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets  # type: ignore
 import sys
-from typing import Union
+from typing import Union, Any
 
 
 class FLTextEditOutput(QtWidgets.QPlainTextEdit):
-    oldStdout = None
-    oldStderr = None
+    """FLTextEditOutput class."""
 
-    def __init__(self, parent) -> None:
+    oldStdout: Any
+    oldStderr: Any
+
+    def __init__(self, parent: QtWidgets.QWidget) -> None:
         super(FLTextEditOutput, self).__init__(parent)
 
         self.oldStdout = sys.stdout
@@ -17,12 +20,14 @@ class FLTextEditOutput(QtWidgets.QPlainTextEdit):
         sys.stderr = self
 
     def write(self, txt: Union[bytearray, bytes, str]) -> None:
+        """Set text."""
         txt = str(txt)
         if self.oldStdout:
             self.oldStdout.write(txt)
         self.appendPlainText(txt)
 
     def close(self) -> bool:
+        """Control close."""
         if self.oldStdout:
             sys.stdout = self.oldStdout
         if self.oldStderr:
