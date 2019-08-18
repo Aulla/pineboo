@@ -5,7 +5,7 @@ Defines the IConnection class.
 from .imanager import IManager
 from .iapicursor import IApiCursor
 
-from typing import Any, List, Dict, Optional, TYPE_CHECKING
+from typing import Any, List, Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
@@ -59,7 +59,7 @@ class IConnection:
         """Indicate if a connection is open."""
         return False
 
-    def tables(self, t_: Optional[str] = None) -> List[str]:
+    def tables(self, t_: Optional[Union[str, int]] = None) -> List[str]:
         """Return a list of available tables in the database, according to a given filter."""
         return []
 
