@@ -1,3 +1,7 @@
+"""
+Module for MYISAM driver.
+"""
+
 import traceback
 
 from PyQt5.Qt import qWarning, QApplication, QRegExp  # type: ignore
@@ -16,12 +20,16 @@ from pineboolib.fllegacy.flutil import FLUtil
 from pineboolib.application import project
 from pineboolib import logging
 
-from typing import Any, Iterable, Optional, Union, List, Dict, cast
+from typing import Any, Iterable, Optional, Union, List, Dict, cast, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.application.metadata import pntablemetadata  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
 
 class FLMYSQL_MYISAM(object):
+    """MYISAM Driver class."""
 
     version_: str
     conn_ = None
@@ -30,16 +38,18 @@ class FLMYSQL_MYISAM(object):
     lastError_: Optional[str]
     cursorsArray_: Dict[str, Any]
     noInnoDB: bool
-    mobile_ = False
-    pure_python_ = False
+    mobile_: bool
+    pure_python_: bool
     defaultPort_: int
     cursor_ = None
     db_ = None
     engine_ = None
     session_ = None
     declarative_base_ = None
+    _dbname: str
 
     def __init__(self):
+        """Create empty driver."""
         self.version_ = "0.8"
         self.conn_ = None
         self.name_ = "FLMYSQL_MyISAM"
@@ -47,7 +57,6 @@ class FLMYSQL_MYISAM(object):
         self.alias_ = "MySQL MyISAM (MYSQLDB)"
         self.cursorsArray_ = {}
         self.noInnoDB = True
-        self._dbname = None
         self.mobile_ = False
         self.pure_python_ = False
         self.defaultPort_ = 3306
@@ -60,27 +69,37 @@ class FLMYSQL_MYISAM(object):
         self.lastError_ = None
 
     def version(self) -> str:
+        """Get driver version."""
         return self.version_
 
     def driverName(self) -> str:
+        """Get driver name."""
         return self.name_
 
     def pure_python(self) -> bool:
+        """Return if this driver is pure python."""
         return self.pure_python_
 
     def safe_load(self) -> Any:
+        """Check dependencies for this driver."""
         return check_dependencies({"MySQLdb": "mysqlclient", "sqlalchemy": "sqlAlchemy"}, False)
 
     def mobile(self) -> bool:
+        """Check if is suitable for mobile platform."""
         return self.mobile_
 
     def isOpen(self) -> bool:
+        """Return if driver has an open connection."""
         return self.open_
 
-    def DBName(self) -> Any:
+    def DBName(self) -> str:
+        """Return database name."""
         return self._dbname
 
-    def connect(self, db_name, db_host, db_port, db_userName, db_password) -> Any:
+    def connect(
+        self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
+    ) -> Any:
+        """Connect to a database."""
         self._dbname = db_name
         check_dependencies({"MySQLdb": "mysqlclient", "sqlalchemy": "sqlAlchemy"})
         from sqlalchemy import create_engine  # type: ignore
@@ -141,6 +160,7 @@ class FLMYSQL_MYISAM(object):
         return self.conn_
 
     def cursor(self) -> Any:
+        """Get current cursor for db."""
         if not self.cursor_:
             if not self.conn_:
                 raise Exception("Must be connected")
@@ -151,9 +171,11 @@ class FLMYSQL_MYISAM(object):
         return self.cursor_
 
     def engine(self) -> Any:
+        """Get current driver engine."""
         return self.engine_
 
     def session(self) -> None:
+        """Get sqlAlchemy session."""
         if self.session_ is None:
             from sqlalchemy.orm import sessionmaker  # type: ignore
 
@@ -165,6 +187,7 @@ class FLMYSQL_MYISAM(object):
             # event.listen(Session, 'after_commit', after_commit, self.session_)
 
     def declarative_base(self) -> Any:
+        """Get sqlAlchemy declarative base."""
         if self.declarative_base_ is None:
             from sqlalchemy.ext.declarative import declarative_base  # type: ignore
 
@@ -172,7 +195,8 @@ class FLMYSQL_MYISAM(object):
 
         return self.declarative_base_
 
-    def formatValueLike(self, type_, v: Any, upper) -> str:
+    def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
+        """Format value for database LIKE expression."""
         res = "IS NULL"
 
         if v:
@@ -205,7 +229,8 @@ class FLMYSQL_MYISAM(object):
 
         return res
 
-    def formatValue(self, type_, v: str, upper) -> Union[bool, str, None]:
+    def formatValue(self, type_: str, v: Any, upper: bool) -> Union[bool, str, None]:
+        """Format value for database WHERE comparison."""
 
         # util = FLUtil()
 
@@ -260,12 +285,15 @@ class FLMYSQL_MYISAM(object):
         return s
 
     def canOverPartition(self) -> bool:
+        """Return if can override."""
         return True
 
     def canRegenTables(self) -> bool:
+        """Return if can regenerate tables."""
         return True
 
-    def tables(self, type_name=None) -> list:
+    def tables(self, type_name: Optional[str] = None) -> list:
+        """Introspect tables in database."""
         tl: List[str] = []
         if not self.isOpen():
             return tl
@@ -277,7 +305,8 @@ class FLMYSQL_MYISAM(object):
 
         return tl
 
-    def nextSerialVal(self, table, field) -> Any:
+    def nextSerialVal(self, table: str, field: str) -> Any:
+        """Get next serial value for given table and field."""
         if not self.isOpen():
             logger.warning("%s::beginTransaction: Database not open", self.name_)
             return None
@@ -363,11 +392,13 @@ class FLMYSQL_MYISAM(object):
 
         return ret
 
-    def queryUpdate(self, name, update, filter) -> str:
+    def queryUpdate(self, name: str, update: str, filter: str) -> str:
+        """Return a templates UPDATE sql."""
         sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
         return sql
 
-    def savePoint(self, n) -> bool:
+    def savePoint(self, n: int) -> bool:
+        """Perform a transaction savepoint."""
         if n == 0:
             return True
 
@@ -390,12 +421,15 @@ class FLMYSQL_MYISAM(object):
         return True
 
     def canSavePoint(self) -> bool:
-        return False
+        """Retrieve if this driver can perform savepoints."""
+        return True
 
     def canTransaction(self) -> bool:
-        return False
+        """Retrieve if this driver can perform transactions."""
+        return True
 
-    def rollbackSavePoint(self, n) -> bool:
+    def rollbackSavePoint(self, n: int) -> bool:
+        """Rollback transaction to last savepoint."""
         if n == 0:
             return True
 
@@ -420,13 +454,16 @@ class FLMYSQL_MYISAM(object):
 
         return True
 
-    def setLastError(self, text, command) -> None:
+    def setLastError(self, text: str, command: str) -> None:
+        """Set last error from database."""
         self.lastError_ = "%s (%s)" % (text, command)
 
     def lastError(self) -> Optional[str]:
+        """Get last error happened on database."""
         return self.lastError_
 
     def commitTransaction(self) -> bool:
+        """Commit database transaction."""
         if not self.isOpen():
             logger.warning("%s::commitTransaction: Database not open", self.name_)
 
@@ -445,6 +482,7 @@ class FLMYSQL_MYISAM(object):
         return True
 
     def rollbackTransaction(self) -> bool:
+        """Rollback database transaction."""
         if not self.isOpen():
             logger.warning("%s::rollbackTransaction: Database not open", self.name_)
 
@@ -463,6 +501,7 @@ class FLMYSQL_MYISAM(object):
         return True
 
     def transaction(self) -> bool:
+        """Start new database transaction."""
         if not self.isOpen():
             logger.warning("%s::transaction: Database not open", self.name_)
 
@@ -480,7 +519,8 @@ class FLMYSQL_MYISAM(object):
 
         return True
 
-    def releaseSavePoint(self, n) -> bool:
+    def releaseSavePoint(self, n: int) -> bool:
+        """Remove named savepoint from database."""
         if n == 0:
             return True
 
@@ -504,13 +544,17 @@ class FLMYSQL_MYISAM(object):
 
         return True
 
-    def setType(self, type_, leng=None) -> str:
+    def setType(self, type_: str, leng: int = 0) -> str:
+        """Template a SQL data type."""
         if leng:
             return "::%s(%s)" % (type_, leng)
         else:
             return "::%s" % type_
 
-    def refreshQuery(self, curname, fields, table, where, cursor, conn) -> None:
+    def refreshQuery(
+        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
+    ) -> None:
+        """Perform a query."""
         if curname not in self.cursorsArray_.keys():
             self.cursorsArray_[curname] = cursor
 
@@ -521,7 +565,8 @@ class FLMYSQL_MYISAM(object):
         except Exception:
             qWarning("CursorTableModel.Refresh\n %s" % traceback.format_exc())
 
-    def fix_query(self, val: str) -> Any:
+    def fix_query(self, val: str) -> str:
+        """Fix values on SQL."""
         ret_ = val.replace("'true'", "1")
         ret_ = ret_.replace("'false'", "0")
         ret_ = ret_.replace("'0'", "0")
@@ -529,19 +574,28 @@ class FLMYSQL_MYISAM(object):
         # ret_ = ret_.replace(";", "")
         return ret_
 
-    def refreshFetch(self, number, curname, table, cursor, fields, where_filter) -> None:
-        try:
-            self.cursorsArray_[curname].fetchmany(number)
-        except Exception:
-            qWarning("%s.refreshFetch\n %s" % (self.name_, traceback.format_exc()))
+    def refreshFetch(
+        self, number: int, curname: str, table: str, cursor: Any, fields: str, where_filter: str
+    ) -> None:
+        """Return data fetched."""
+        pass
+        # try:
+        #    self.cursorsArray_[curname].fetchmany(number)
+        # except Exception:
+        #    qWarning("%s.refreshFetch\n %s" %(self.name_, traceback.format_exc()))
 
     def useThreads(self) -> bool:
+        """Return if this driver supports threads."""
         return False
 
     def useTimer(self) -> bool:
+        """Return if this driver supports timer."""
         return True
 
-    def fetchAll(self, cursor, tablename, where_filter, fields, curname) -> List[Any]:
+    def fetchAll(
+        self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
+    ) -> List[Any]:
+        """Fetch all pending rows on cursor."""
         if curname not in self.rowsFetched.keys():
             self.rowsFetched[curname] = 0
 
@@ -561,7 +615,8 @@ class FLMYSQL_MYISAM(object):
 
         return rowsF
 
-    def existsTable(self, name) -> bool:
+    def existsTable(self, name: str) -> bool:
+        """Return if table exists."""
         if not self.isOpen():
             return False
 
@@ -573,7 +628,8 @@ class FLMYSQL_MYISAM(object):
 
         return ok
 
-    def sqlCreateTable(self, tmd) -> Optional[str]:
+    def sqlCreateTable(self, tmd: "pntablemetadata.PNTableMetaData") -> Optional[str]:
+        """Create a table from given MTD."""
         # util = FLUtil()
         if not tmd:
             return None
@@ -670,6 +726,7 @@ class FLMYSQL_MYISAM(object):
         return sql
 
     def Mr_Proper(self) -> None:
+        """Cleanup database like mr.proper."""
         if not self.db_:
             raise Exception("must be connected")
         util = FLUtil()
@@ -820,10 +877,18 @@ class FLMYSQL_MYISAM(object):
         self.active_create_index = False
         util.destroyProgressDialog()
 
-    def alterTable(self, mtd1, mtd2, key: Optional[str], force=False) -> bool:
+    def alterTable(
+        self,
+        mtd1: Any,
+        mtd2: "pntablemetadata.PNTableMetaData",
+        key: Optional[str],
+        force: bool = False,
+    ) -> bool:
+        """Alter a table following mtd instructions."""
         return self.alterTable2(mtd1, mtd2, key, force)
 
-    def hasCheckColumn(self, mtd) -> bool:
+    def hasCheckColumn(self, mtd: "pntablemetadata.PNTableMetaData") -> bool:
+        """Retrieve if MTD has a check column."""
         field_list = mtd.fieldList()
         if not field_list:
             return False
@@ -834,7 +899,14 @@ class FLMYSQL_MYISAM(object):
 
         return False
 
-    def alterTable2(self, mtd1, mtd2, key: Optional[str], force=False) -> bool:
+    def alterTable2(
+        self,
+        mtd1: Any,
+        mtd2: "pntablemetadata.PNTableMetaData",
+        key: Optional[str],
+        force: bool = False,
+    ) -> bool:
+        """Alter a table following mtd instructions."""
         if not self.db_:
             raise Exception("must be connected")
 
@@ -1170,7 +1242,8 @@ class FLMYSQL_MYISAM(object):
 
         return True
 
-    def insertMulti(self, table_name, records: Iterable) -> bool:
+    def insertMulti(self, table_name: str, records: Iterable) -> bool:
+        """Insert several rows at once."""
 
         if not records:
             return False
@@ -1209,6 +1282,7 @@ class FLMYSQL_MYISAM(object):
         return True
 
     def mismatchedTable(self, table1, tmd_or_table2: str, db_=None) -> bool:
+        """Check if table does not match MTD with database schema."""
         if db_ is None:
             db_ = self.db_
 
@@ -1257,7 +1331,8 @@ class FLMYSQL_MYISAM(object):
         else:
             return self.mismatchedTable(table1, tmd_or_table2.name(), db_)
 
-    def recordInfo2(self, tablename) -> List[list]:
+    def recordInfo2(self, tablename: str) -> List[list]:
+        """Obtain current cursor information on columns."""
         if not self.isOpen():
             raise Exception("Connection not open")
         if not self.conn_:
@@ -1313,6 +1388,7 @@ class FLMYSQL_MYISAM(object):
         return info
 
     def decodeSqlType(self, t: str) -> str:
+        """Translate types."""
 
         ret = t
 
@@ -1339,6 +1415,7 @@ class FLMYSQL_MYISAM(object):
         return ret
 
     def recordInfo(self, tablename_or_query: str) -> Optional[List[list]]:
+        """Obtain current cursor information on columns."""
         if not self.isOpen():
             return None
 
@@ -1388,6 +1465,7 @@ class FLMYSQL_MYISAM(object):
         return info
 
     def notEqualsFields(self, field1: List[Any], field2: List[Any]) -> bool:
+        """Check if two field definitions are equal."""
         # print("comparando", field1, field1[1], field2, field2[1])
         ret = False
         try:
@@ -1416,7 +1494,8 @@ class FLMYSQL_MYISAM(object):
 
         return ret
 
-    def normalizeValue(self, text) -> str:
+    def normalizeValue(self, text: str) -> Optional[str]:
+        """Escape values, suitable to prevent sql injection."""
 
         import MySQLdb
 
@@ -1429,15 +1508,19 @@ class FLMYSQL_MYISAM(object):
         # return text
 
     def cascadeSupport(self) -> bool:
+        """Check if database supports CASCADE."""
         return True
 
     def canDetectLocks(self) -> bool:
+        """Check if driver can detect locks."""
         return True
 
     def desktopFile(self) -> bool:
+        """Return if this database is a file."""
         return False
 
     def execute_query(self, q: str) -> Any:
+        """Execute a SQL query."""
         if not self.isOpen():
             logger.warning("MySQLDriver::execute_query. DB is closed")
             return False
