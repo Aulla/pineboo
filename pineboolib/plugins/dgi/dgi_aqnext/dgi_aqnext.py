@@ -1,3 +1,4 @@
+"""Dgi_aqnext module."""
 # # -*- coding: utf-8 -*-
 import collections
 import traceback
@@ -15,7 +16,12 @@ logger = logging.getLogger(__name__)
 
 
 class dgi_aqnext(dgi_schema):
+    """Dgi_aqnext class."""
+
+    _listenSocket: str
+
     def __init__(self):
+        """Inicialize."""
         # desktopEnabled y mlDefault a True
         super().__init__()
         self._name = "aqnext"
@@ -31,20 +37,25 @@ class dgi_aqnext(dgi_schema):
         self._alternative_content_cached = False
 
     def extraProjectInit(self):
+        """Return extra project init."""
         pass
 
-    def setParameter(self, param):
+    def setParameter(self, param: str):
+        """Set parameters."""
         self._listenSocket = param
 
     def mainForm(self):
+        """Return mainForm."""
         if not self._mainForm:
             self._mainForm = mainForm()  # FIXME
         return self._mainForm
 
     def __getattr__(self, name):
+        """Return a specific DGI object."""
         return super().resolveObject(self._name, name)
 
     def exec_(self):
+        """Set a inicialize status log."""
         from pineboolib.fllegacy.systype import SysType
 
         qsa_sys = SysType()
@@ -54,29 +65,42 @@ class dgi_aqnext(dgi_schema):
             logger.warning("Usuario DB: %s", qsa_sys.nameUser())
             logger.warning("Nombre  DB: %s", qsa_sys.nameBD())
 
-    def processEvents(self):
+    def processEvents(self) -> bool:
+        """Process events."""
         return QtCore.QCoreApplication.processEvents()
 
-    def interactiveGUI(self):
+    def interactiveGUI(self) -> str:
+        """Return interactive GUI name."""
         return "Django"
 
-    def authenticate(self, **kwargs):
+    def authenticate(self, **kwargs) -> None:
+        """Alternative authentication method."""
         # user = kwargs["username"]  # FIXME
         # password = kwargs["password"]
         pass
 
     def use_authentication(self):
+        """Return if use alternative authenticaion."""
         return self._use_authentication
 
     def use_model(self):
+        """Return if used model."""
         return True
 
     def alternative_content_cached(self):
+        """Return if used alternative content cached."""
         return True
 
     def content_cached(
-        self, tmp_folder, db_name, module_id, file_ext, file_name, sha_key
+        self,
+        tmp_folder: str,
+        db_name: str,
+        module_id: str,
+        file_ext: str,
+        file_name: str,
+        sha_key: str,
     ) -> Optional[str]:
+        """Return content cahced from a specific file."""
         from pineboolib.core.utils.utils_base import filedir
 
         data_ = None
@@ -90,21 +114,27 @@ class dgi_aqnext(dgi_schema):
         return data_
 
     def use_alternative_credentials(self):
+        """Return if used alternative credentials."""
         return True
 
     def get_nameuser(self):
+        """Return AQNext user name."""
         return ""
         # FIXME
         # from YBUTILS.viewREST.cacheController import getUser
         # return str(getUser())
 
     def sys_mtds(self):
+        """Return specific DGI tables list."""
         return ["sis_acl", "sis_user_notifications", "sis_gridfilter"]
 
     # def interactiveGUI(self):
     # return "Django"
 
-    def __content_cached__old__(self, tmp_dir, db_name, module_id, ext_, name_, sha_key):
+    def __content_cached__old__(
+        self, tmp_dir: str, db_name: str, module_id: str, ext_: str, name_: str, sha_key: str
+    ) -> Optional[str]:
+        """Return content cached files."""
         data = None
         utf8_ = False
         if not project.conn:
@@ -131,7 +161,8 @@ class dgi_aqnext(dgi_schema):
 
         return data
 
-    def alternative_script_path(self, script_name, app=None):
+    def alternative_script_path(self, script_name: str, app: Optional[str] = None) -> Optional[str]:
+        """Return alternative script path."""
         from django.conf import settings
         import glob
 
@@ -150,7 +181,8 @@ class dgi_aqnext(dgi_schema):
 
         return ret_
 
-    def register_script(self, app, module_name, script_name, prefix):
+    def register_script(self, app: str, module_name: str, script_name: str, prefix: str) -> None:
+        """Register a optional script."""
 
         ret_ = self.alternative_script_path("%s.py" % script_name, app)
         if ret_ is None:
@@ -229,7 +261,8 @@ class dgi_aqnext(dgi_schema):
             setattr(qsa_dict_modules, "formRecord" + action_xml.name, delayed_action)
             # print("Creando **** ", getattr(qsa_dict_modules, "formRecord" + module_name))
 
-    def load_meta_model(self, action_name, opt=None):
+    def load_meta_model(self, action_name: str, opt: str = None) -> Optional[Callable]:
+        """Return optional meta model."""
         import importlib
 
         module_name = project.conn.managerModules().idModuleOfFile("%s.mtd" % action_name)
@@ -249,7 +282,8 @@ class dgi_aqnext(dgi_schema):
 
         return ret_
 
-    def get_master_cursor(self, prefix, template="master"):
+    def get_master_cursor(self, prefix: str, template: str = "master") -> "pnsqlcursor.PNSqlcursor":
+        """Return master cursor."""
         from pineboolib import qsa as qsa_tree
 
         module_name = prefix
@@ -291,7 +325,10 @@ class dgi_aqnext(dgi_schema):
 
         return cursor
 
-    def init_cursor(self, cursor, params, template):
+    def init_cursor(
+        self, cursor: "pnsqlcursor.PNSqlCursor", params: Dict[str, Any], template: str
+    ) -> None:
+        """Inicialize curosr."""
         from pineboolib import qsa as qsa_tree
 
         prefix = cursor.curName()
@@ -315,14 +352,20 @@ class dgi_aqnext(dgi_schema):
                 # print("Inicializando cursor qsa", prefix)
                 fun_qsa(cursor)
 
-    def populate_with_params(self, cursor, params):
+    def populate_with_params(
+        self, cursor: "pnsqlcursor.PNSqlCursor", params: Dict[str, Any]
+    ) -> None:
+        """Populate cursor with params."""
         for k in params.keys():
             if k.startswith("p_"):
                 cursor.setValueBuffer(k[2:], params[k])
             else:
                 print("FIXME:: populate_with_params", k, params[k])
 
-    def cursor2json(self, cursor, template=None):
+    def cursor2json(
+        self, cursor: "pnsqlcursor.PNSqlCursor", template: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Return json data from PNSqlCursor."""
         ret_: List[Dict[str, Any]] = []
         if not cursor.modeAccess() == cursor.Insert:
             if not cursor.isValid():
@@ -391,8 +434,10 @@ class dgi_aqnext(dgi_schema):
         else:
             return ret_
 
-    def getYBschema(self, cursor, template=None):
-        """Permite obtener definicion de schema de uso interno de YEBOYEBO"""
+    def getYBschema(
+        self, cursor: "pnsqlcursor.PNSqlCursor", template: Optional[str] = None
+    ) -> [Dict, Dict]:
+        """Allow to obtain schema definition of internal use of YEBOYEBO."""
 
         mtd = cursor.metadata()
 
@@ -481,16 +526,19 @@ class dgi_aqnext(dgi_schema):
 
         return dict, meta
 
-    def get_foreign_fields(self, meta_model, template=None):
+    def get_foreign_fields(self, meta_model: Any, template: Optional[str] = None):
+        """Return foreign fields."""
         foreign_field_function = getattr(meta_model, "getForeignFields")
         expected_args = inspect.getargspec(foreign_field_function)[0]
         new_args = [meta_model, template]
         return foreign_field_function(*new_args[: len(expected_args)])
 
-    def pagination(self, data_, query):
+    def pagination(self, data_: List[Any], query: Dict[str, Any]) -> pagination_class:
+        """Return a pagination class object."""
         return pagination_class(data_, query)  # FIXME
 
-    def get_queryset(self, prefix, params):
+    def get_queryset(self, prefix: str, params: Dict[str, Any]) -> List[str]:
+        """Return query set."""
 
         # retorna una lista con objetos del modelo
         cursor_master = self.get_master_cursor(prefix)
@@ -522,7 +570,10 @@ class dgi_aqnext(dgi_schema):
         return query_set
     """
 
-    def get_paginated_response(self, data, params, size=None):
+    def get_paginated_response(
+        self, data: Dict[str, Any], params: Dict[str, Any], size: Optional[int] = None
+    ):
+        """Return paginated response."""
 
         response = paginated_object()
         response.data = {}
@@ -540,7 +591,8 @@ class dgi_aqnext(dgi_schema):
 
         return response
 
-    def carga_datos_custom_filter(self, table, usuario):
+    def carga_datos_custom_filter(self, table: str, usuario: str) -> Dict[str, Dict[str, Any]]:
+        """Return custom filter data."""
         from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
 
         ret: Dict[str, Dict[str, Any]] = {}
@@ -555,7 +607,10 @@ class dgi_aqnext(dgi_schema):
             ret[cursor.valueBuffer("descripcion")]["default"] = cursor.valueBuffer("inicial")
         return ret
 
-    def _convert_to_ordered_dict(self, data: Union[List[Dict[str, Any]], Dict[str, Any]]):
+    def _convert_to_ordered_dict(
+        self, data: Union[List[Dict[str, Any]], Dict[str, Any]]
+    ) -> List[Any]:
+        """Return a ordered list."""
         ret_ = []
 
         if isinstance(data, list):
@@ -570,23 +625,28 @@ class dgi_aqnext(dgi_schema):
 
 
 class paginated_object(object):
+    """Paginated_object class."""
+
     data: Dict
 
 
 class pagination_class(object):
+    """Pagination_class class."""
 
-    count = None
-    _limit = None
-    _page = None
+    count: int
+    _limit: int
+    _page: int
 
-    def __init__(self, data_, query={}):
+    def __init__(self, data_, query={}) -> None:
+        """Inicialize."""
         self.count = len(data_)
         self._limit = (
             50 if "p_l" not in query.keys() or query["p_l"] == "true" else int(query["p_l"])
         )
         self._page = 0 if "p_c" not in query.keys() or query["p_c"] == "true" else int(query["p_c"])
 
-    def get_next_offset(self):
+    def get_next_offset(self) -> int:
+        """Return next offset."""
         ret_ = None
         actual = 0
         i = 0
@@ -597,7 +657,8 @@ class pagination_class(object):
 
         return ret_
 
-    def get_previous_offset(self):
+    def get_previous_offset(self) -> int:
+        """Return previous offset."""
         ret_ = None
         i = 0
         while i < self._page:
@@ -611,5 +672,7 @@ class pagination_class(object):
 
 
 class mainForm(object):
+    """MainForm class."""
+
     mainWindow = None
     MainForm = None

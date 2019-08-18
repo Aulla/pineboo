@@ -1,15 +1,19 @@
+"""Flsqlcursormoc module."""
 import traceback
 from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
 
 
 class FLSqlCursorMock:
+    """FLSqlCursorMok class."""
 
-    maxValue = None
+    maxValue: int
 
     def __init__(self):
+        """inicialize."""
         self.maxValue = 50
 
     def run(self):
+        """Call test."""
         value = 0
         cursor = FLSqlCursor("paises")
 

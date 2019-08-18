@@ -5,7 +5,10 @@ Replacement for FLSqlCursor.
 from pineboolib import logging
 from PyQt5 import QtCore  # type: ignore
 from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData
-from typing import Any, Dict
+from typing import Any, Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.appilcation.database import pnsqlcursor  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -33,9 +36,9 @@ class DelayedObjectProxyLoader(object):
 
     def __load(self):
         """
-        Carga un objeto nuevo.
-
-        @return objeto nuevo o si ya existe, cacheado
+        Load a new object.
+        
+        @return new object or if it already exists, cached.
         """
         from pineboolib.fllegacy.flsqlcursor import FLSqlCursor as FLSqlCursor_original
 
@@ -91,64 +94,83 @@ class DelayedObjectProxyLoader(object):
 
     def __getattr__(self, name: str) -> Any:  # Solo se lanza si no existe la propiedad.
         """
-        Retorna una función buscada.
+        Return a sought function.
 
-        @param name. Nombre del la función buscada
-        @return el objecto del XMLAction afectado
+        @param name. Name of the function sought
+        @return the object of the affected XMLAction
         """
         obj_ = self.__load()
         ret = getattr(obj_, name, obj_) if obj_ is not None else None
         return ret
 
     def __le__(self, other) -> Any:
+        """Call __Le__."""
         obj_ = self.__load()
         return obj_ <= other
 
     def __lt__(self, other) -> Any:
+        """Call __Lt__."""
         obj_ = self.__load()
         return obj_ < other
 
     def __ne__(self, other) -> Any:
+        """Call __Ne__."""
         obj_ = self.__load()
         return obj_ != other
 
     def __eq__(self, other) -> Any:
+        """Call __Eq__."""
         obj_ = self.__load()
         return obj_ == other
 
     def __gt__(self, other) -> Any:
+        """Call __Gt__."""
         obj_ = self.__load()
         return obj_ > other
 
     def __ge__(self, other) -> Any:
+        """Call __Ge__."""
         obj_ = self.__load()
         return obj_ >= other
 
     def __str__(self):
+        """Call __str__."""
         obj_ = self.__load()
         return "%s" % obj_
 
     def resolve_expression(self, *args, **kwargs) -> Any:
+        """Return value from object specified by name."""
         return getattr(self, self._field.name())
 
 
 class FLSqlCursor(QtCore.QObject):
+    """FLSqlCursor class."""
 
-    parent_cursor = None
-    _buffer_changed = None
-    _before_commit = None
-    _after_commit = None
-    _buffer_commited = None
-    _inicia_valores_cursor = None
-    _buffer_changed_label = None
-    _validate_cursor = None
-    _validate_transaction = None
-    _cursor_accepted = None
+    parent_cursor: "pnsqlcursor.PNSqlCusor"
+    _buffer_changed: Optional[Callable]
+    _before_commit: Optional[Callable]
+    _after_commit: Optional[Callable]
+    _buffer_commited: Optional[Callable]
+    _inicia_valores_cursor: Optional[Callable]
+    _buffer_changed_label: Optional[Callable]
+    _validate_cursor: Optional[Callable]
+    _validate_transaction: Optional[Callable]
+    _cursor_accepted: Optional[Callable]
 
     show_debug = None
 
     def __init__(self, cursor, stabla) -> None:
+        """inicialize."""
         super().__init__()
+        self._buffer_changed = None
+        self._before_commit = None
+        self._after_commit = None
+        self._buffer_commited = None
+        self._inicia_valores_cursor = None
+        self._buffer_changed_label = None
+        self._validate_cursor = None
+        self._validate_transaction = None
+        self._cursor_accepted = None
         self.parent_cursor = cursor
         # self.parent_cursor.setActivatedBufferChanged(False)
         # self.parent_cursor.setActivatedBufferCommited(False)
@@ -175,13 +197,16 @@ class FLSqlCursor(QtCore.QObject):
         #         ) = self.obtener_modelo(stabla)
         #         self._stabla = self._model._meta.db_table
 
-    def buffer_changed_signal(self, scampo) -> Any:
+    def buffer_changed_signal(self, scampo: str) -> bool:
+        """Call buffer changed signal."""
         if self._buffer_changed is None:
             return True
 
         return self._buffer_changed(scampo, self.parent_cursor)
 
-    def buffer_commited_signal(self) -> Any:
+    def buffer_commited_signal(self) -> bool:
+        """Call bufer commited signal."""
+
         if not self._activatedBufferCommited:
             return True
 
@@ -193,7 +218,8 @@ class FLSqlCursor(QtCore.QObject):
         except Exception as exc:
             print("Error inesperado", exc)
 
-    def before_commit_signal(self) -> Any:
+    def before_commit_signal(self) -> bool:
+        """Call before commit signal."""
         if not self._activatedCommitActions:
             return True
 
@@ -202,7 +228,8 @@ class FLSqlCursor(QtCore.QObject):
 
         return self._before_commit(self.parent_cursor)
 
-    def after_commit_signal(self) -> Any:
+    def after_commit_signal(self) -> bool:
+        """Call after commit signal."""
         if not self._activatedCommitActions:
             return True
 
@@ -211,13 +238,15 @@ class FLSqlCursor(QtCore.QObject):
 
         return self._after_commit(self.parent_cursor)
 
-    def inicia_valores_cursor_signal(self) -> Any:
+    def inicia_valores_cursor_signal(self) -> bool:
+        """Inicialize cusor signal values."""
         if self._inicia_valores_cursor is None:
             return True
 
         return self._inicia_valores_cursor(self.parent_cursor)
 
-    def buffer_changed_label_signal(self, scampo) -> Any:
+    def buffer_changed_label_signal(self, scampo: str) -> bool:
+        """Call buffer changed label signal."""
         if self._buffer_changed_label is None:
             return {}
 
@@ -229,19 +258,23 @@ class FLSqlCursor(QtCore.QObject):
         else:
             return self._buffer_changed_label(scampo, self.parent_cursor)
 
-    def validate_cursor_signal(self) -> Any:
+    def validate_cursor_signal(self) -> bool:
+        """Call valiate cursor signal."""
+
         if self._validate_cursor is None:
             return True
 
         return self._validate_cursor(self.parent_cursor)
 
-    def validate_transaction_signal(self) -> Any:
+    def validate_transaction_signal(self) -> bool:
+        """Call validate transaction function."""
         if self._validate_transaction is None:
             return True
 
         return self._validate_transaction(self.parent_cursor)
 
-    def cursor_accepted_signal(self) -> Any:
+    def cursor_accepted_signal(self) -> bool:
+        """Call cursor accepted function."""
         if self._cursor_accepted is None:
             return True
 
@@ -253,7 +286,8 @@ class FLSqlCursor(QtCore.QObject):
     #
     #     return FLAux.obtener_modelo(stabla)
 
-    def assoc_model(self, module_name=None) -> None:
+    def assoc_model(self, module_name: Optional[str] = None) -> None:
+        """Associate a model to cursor."""
         from pineboolib.application import project
 
         cursor = self.parent_cursor
@@ -276,17 +310,20 @@ class FLSqlCursor(QtCore.QObject):
 
 
 class meta_model(object):
+    """Meta_model class."""
 
-    _model = None
-    _cursor = None
+    _model: Any
+    _cursor: "pnsqlcursor.PNSqlCusor"
     cursor_tree_dict: Dict[str, Any]
 
-    def __init__(self, model, cursor) -> None:
+    def __init__(self, model: Any, cursor: "pnsqlcursor.PNSqlCursor") -> None:
+        """Inicialize."""
         self._model = model
         self._cursor = cursor
         self.cursor_tree_dict = {}
 
     def __getattr__(self, name: str) -> Any:
+        """Return a attribute specifiedby name from moel."""
         from pineboolib.fllegacy.flsqlcursor import FLSqlCursor as FLSqlCursor_original
 
         if self._cursor is None:

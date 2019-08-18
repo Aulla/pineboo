@@ -1,3 +1,4 @@
+"""Dgi_schema module."""
 # -*- coding: utf-8 -*-
 from importlib import import_module
 from typing import List, cast, Optional
@@ -10,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class dgi_schema(object):
+    """dgi_schema class."""
 
     _desktopEnabled: bool
     _mLDefault: bool
@@ -23,6 +25,8 @@ class dgi_schema(object):
     _alternative_content_cached: bool
 
     def __init__(self) -> None:
+        """Inicialize."""
+
         # FIXME: This init is intended to be called only on certain conditions.
         # ... Worse than it seems: looks like this class is prepared to be constructed without
         # ... calling __init__, on purpose, to have different behavior than calling it.
@@ -39,48 +43,65 @@ class dgi_schema(object):
         self._mobile = is_mobile_mode()
 
     def name(self) -> str:
+        """Return DGI name."""
         return self._name
 
     def alias(self) -> str:
+        """Return DGI alias."""
         return self._alias
 
     def create_app(self) -> QtCore.QCoreApplication:
+        """Create an alternative Core.Application."""
         from pineboolib.application import project
 
         return project.app
 
     # Establece un lanzador alternativo al de la aplicación
-    def alternativeMain(self, options):
+    def alternativeMain(self, options: List) -> Any:
+        """Return alternative main."""
         return 0
 
-    def accept_file(self, name):
+    def accept_file(self, name: str) -> None:
+        """Return True if file is accepted .False elsewhere."""
         return True
 
-    def useDesktop(self):
+    def useDesktop(self) -> None:
+        """Return if desktop UI is used."""
         return self._desktopEnabled
 
-    def setUseDesktop(self, val):
+    def setUseDesktop(self, val: bool) -> None:
+        """Set if desktop UI is used."""
         self._desktopEnabled = val
 
-    def localDesktop(self):  # Indica si son ventanas locales o remotas a traves de algún parser
+    def localDesktop(
+        self
+    ) -> None:  # Indica si son ventanas locales o remotas a traves de algún parser
+        """Return if is local desktop."""
         return self._localDesktop
 
-    def setLocalDesktop(self, val):
+    def setLocalDesktop(self, val: bool) -> None:
+        """Set local desktop variable."""
         self._localDesktop = val
 
-    def setUseMLDefault(self, val):
+    def setUseMLDefault(self, val: bool) -> None:
+        """Set if defaul main loader is used."""
         self._mLDefault = val
 
-    def useMLDefault(self):
+    def useMLDefault(self) -> None:
+        """Return if main loaded is used."""
         return self._mLDefault
 
-    def setParameter(self, param):  # Se puede pasar un parametro al dgi
+    def setParameter(self, param: List[str]) -> None:  # Se puede pasar un parametro al dgi
+        """Set parameters to DGI."""
         pass
 
-    def extraProjectInit(self):
+    def extraProjectInit(self) -> None:
+        """Launch extra project init."""
         pass
 
-    def showInitBanner(self):
+    def showInitBanner(self) -> None:
+        """Show init banner string."""
+
         print("")
         print("=============================================")
         print("                GDI_%s MODE               " % self._alias)
@@ -88,34 +109,41 @@ class dgi_schema(object):
         print("")
         print("")
 
-    def mainForm(self):
+    def mainForm(self) -> None:
+        """Return mainForm."""
         pass
 
-    def interactiveGUI(self):
+    def interactiveGUI(self) -> None:
+        """Return interactiveGUI name."""
         return "Pineboo"
 
-    def processEvents(self):
+    def processEvents(self) -> None:
+        """Run Process events."""
         from PyQt5 import QtWidgets  # type: ignore
 
         QtWidgets.qApp.processEvents()
 
-    def show_object_not_found_warnings(self):
+    def show_object_not_found_warnings(self) -> bool:
+        """Return if show warnings when objects not found."""
         return self._show_object_not_found_warnings
 
-    def loadReferences(self):
+    def loadReferences(self) -> None:
+        """Load specific DGI references."""
         return
 
-    def mobilePlatform(self):
+    def mobilePlatform(self) -> bool:
+        """Return if run into a mobile platform."""
         return self._mobile
 
-    def isDeployed(self):
-        """Returns True only if the code is running inside a PyInstaller bundle"""
+    def isDeployed(self) -> bool:
+        """Return True only if the code is running inside a PyInstaller bundle."""
         # FIXME: Delete me. This functionality DOES NOT DEPEND on which interface is being used.
         # .... a bundle is a bundle regardless of wether is running as jsonrpc or Qt.
         # .... A copy of this function has been moved to pineboolib.core.utils.utils_base.is_deployed() for convenience
         raise Exception("Please DELETE ME. DEPRECATED")
 
-    def iconSize(self):
+    def iconSize(self) -> QtCore.QSize:
+        """Return default icon size."""
         from PyQt5 import QtCore  # type: ignore
 
         size = QtCore.QSize(22, 22)
@@ -125,22 +153,27 @@ class dgi_schema(object):
         return size
 
     def alternative_content_cached(self) -> bool:
+        """Return alternative content cached."""
         # FIXME: This is not needed. Use "content_cached" to return an exception or None, to signal
         # ... the module is unaware on how to perform the task
         # ... also the naming is bad. It conveys having done a cache in the past.
         return self._alternative_content_cached
 
-    def alternative_script_path(self, script_name):
+    def alternative_script_path(self, script_name: str) -> Optional[str]:
+        """Return alternative script path."""
         # FIXME: Probably the same. Not needed.
         return None
 
     def use_model(self):
+        """Return if this DGI use models."""
         return False
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Optional[QtCore.QObject]:
+        """Return and object specified by name."""
         return self.resolveObject(self._name, name)
 
-    def resolveObject(self, module_name, name) -> Optional[QtCore.QObject]:
+    def resolveObject(self, module_name: str, name: str) -> Optional[QtCore.QObject]:
+        """Return a DGI specific object."""
         cls = None
         mod_name_full = "pineboolib.plugins.dgi.dgi_%s.dgi_objects.%s" % (module_name, name.lower())
         try:
@@ -155,10 +188,13 @@ class dgi_schema(object):
         return cast(Optional[QtCore.QObject], cls)
 
     def sys_mtds(self) -> List[str]:
+        """Return optional system mtds tables list."""
         return []
 
     def use_alternative_credentials(self) -> bool:
+        """Return True if use alternative authentication , False elsewhere."""
         return False
 
-    def debug(self, txt):
+    def debug(self, txt: str):
+        """Show debug message."""
         logger.warning("---> %s" % txt)

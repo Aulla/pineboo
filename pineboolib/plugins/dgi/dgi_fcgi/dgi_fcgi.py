@@ -1,3 +1,4 @@
+"""Dgi_fcgi module."""
 # # -*- coding: utf-8 -*-
 from pineboolib import logging
 from pineboolib.plugins.dgi.dgi_schema import dgi_schema
@@ -12,11 +13,13 @@ logger = logging.getLogger(__name__)
 
 
 class dgi_fcgi(dgi_schema):
+    """Dgi_fcgi class."""
 
-    _fcgiCall = None
-    _fcgiSocket = None
+    _fcgiCall: str
+    _fcgiSocket: str
 
     def __init__(self) -> None:
+        """Inicialize."""
         super(dgi_fcgi, self).__init__()  # desktopEnabled y mlDefault a True
         self._name = "fcgi"
         self._alias = "FastCGI"
@@ -28,6 +31,7 @@ class dgi_fcgi(dgi_schema):
         check_dependencies({"flup": "flup-py3"})
 
     def alternativeMain(self, main_) -> None:
+        """Process alternative main."""
         from flup.server.fcgi import WSGIServer  # type: ignore
 
         logger.info("=============================================")
@@ -37,6 +41,7 @@ class dgi_fcgi(dgi_schema):
         WSGIServer(par_.call, bindAddress=self._fcgiSocket).run()
 
     def setParameter(self, param: str) -> None:
+        """Set parameters."""
         if param.find(":") > -1:
             p = param.split(":")
             self._fcgiCall = p[0]
@@ -51,14 +56,18 @@ Esta clase lanza contra el arbol qsa la consulta recibida y retorna la respuesta
 
 
 class parser(object):
-    _prj = None
-    _callScript: str = ""
+    """Parser class."""
 
-    def __init__(self, prj, callScript) -> None:
+    _prj = None
+    _callScript: str
+
+    def __init__(self, prj: Any, callScript: str) -> None:
+        """Inicialize."""
         self._prj = prj
         self._callScript = callScript
 
     def call(self, environ: Mapping[str, Any], start_response) -> Any:
+        """Return value from called function."""
         start_response("200 OK", [("Content-Type", "text/html")])
         aList = environ["QUERY_STRING"]
         try:

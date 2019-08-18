@@ -1,3 +1,5 @@
+"""Eneboo_mdi module."""
+
 # -*- coding: utf-8 -*-
 from PyQt5.QtWidgets import QMainWindow  # type: ignore
 
@@ -7,23 +9,27 @@ logger = logging.getLogger("mainForm_%s" % __name__)
 
 
 class MainForm(QMainWindow):
+    """MainForm class."""
 
-    is_closing_ = False
-    mdi_enable_ = True
+    is_closing_: bool
+    mdi_enable_: bool
 
     def __init__(self) -> None:
+        """Inicialize."""
         super().__init__()
-        from pineboolib.fllegacy.flapplication import aqApp
+        from pineboolib import application
 
-        aqApp.main_widget_ = self
+        application.aqApp.main_widget_ = self
         self.is_closing_ = False
         self.mdi_enable_ = True
 
     @classmethod
-    def setDebugLevel(self, q) -> None:
+    def setDebugLevel(self, q: int) -> None:
+        """Set a new debug level."""
         MainForm.debugLevel = q
 
     def initScript(self) -> None:
+        """Inicialize main script."""
         from pineboolib.core.utils.utils_base import filedir
 
         mw = self
@@ -33,7 +39,8 @@ class MainForm(QMainWindow):
         aqApp.container_ = mw
         aqApp.init()
 
-    def createUi(self, ui_file) -> None:
+    def createUi(self, ui_file: str) -> None:
+        """Create UI from a file."""
         from pineboolib.application import project
 
         mng = project.conn.managerModules()

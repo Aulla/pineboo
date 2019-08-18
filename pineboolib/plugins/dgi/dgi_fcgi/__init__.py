@@ -1,0 +1,1 @@
+"""Dgi_fcgi package."""

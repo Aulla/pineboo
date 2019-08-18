@@ -1,13 +1,18 @@
+"""Progressdialogmanager module."""
 from typing import Any, List
 
 
 class ProgressDialogManager(object):
-    progress_dialog_stack: List[Any] = []
+    """ProgressDailogManager class."""
+
+    progress_dialog_stack: List[Any]
 
     def __init__(self):
+        """Inicialize."""
         self.progress_dialog_stack = []
 
-    def create(self, title, steps, id_) -> Any:
+    def create(self, title: str, steps: int, id_: str) -> Any:
+        """Create new ProgressDialog."""
 
         from pineboolib.application import project
         from PyQt5 import QtCore  # type: ignore
@@ -27,7 +32,8 @@ class ProgressDialogManager(object):
 
         return None
 
-    def destroy(self, id_) -> None:
+    def destroy(self, id_: str) -> None:
+        """Destroy a specific progress dialog."""
         pd_widget = self.progress_dialog_stack[-1]
 
         if id_ != "default":
@@ -39,7 +45,8 @@ class ProgressDialogManager(object):
         pd_widget.close()
         self.progress_dialog_stack.remove(pd_widget)
 
-    def setProgress(self, step_number, id_) -> None:
+    def setProgress(self, step_number: int, id_: str) -> None:
+        """Set progress into a specific prores dialog."""
         pd_widget = self.progress_dialog_stack[-1]
 
         if id_ != "default":
@@ -50,7 +57,8 @@ class ProgressDialogManager(object):
 
         pd_widget.setValue(step_number)
 
-    def setLabelText(self, l, id_) -> None:
+    def setLabelText(self, l: str, id_: str) -> None:
+        """Set label text to a specific progres dialog."""
         pd_widget = self.progress_dialog_stack[-1]
 
         if id_ != "default":
@@ -61,7 +69,8 @@ class ProgressDialogManager(object):
 
         pd_widget.setLabelText(str(l))
 
-    def setTotalSteps(self, tS, id_) -> None:
+    def setTotalSteps(self, tS: int, id_: str) -> None:
+        """Set total steps to a specific proress dialog."""
         pd_widget = self.progress_dialog_stack[-1]
 
         if id_ != "default":

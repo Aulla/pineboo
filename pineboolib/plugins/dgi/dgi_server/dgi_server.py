@@ -1,3 +1,4 @@
+"""Dgi_server module."""
 # # -*- coding: utf-8 -*-
 import traceback
 import inspect
@@ -23,23 +24,30 @@ logger = logging.getLogger(__name__)
 cursor_dict: Dict[str, Any] = {}
 
 
-class parser_options(object):
+class Parser_options(object):
+    """Parser_options class."""
+
     def hello(self, *args) -> str:
+        """Return hello msg."""
+
         return "Welcome to pineboo server"
 
-    def db_name(self, *args) -> Any:
+    def db_name(self, *args) -> str:
+        """Return database name."""
         from pineboolib.fllegacy.flapplication import aqApp
 
         return aqApp.db().DBName()
 
     def __getattr__(self, name) -> None:
-        print("** parser_options no contiene", name)
+        """Return fail attribute location message."""
+        print("** Parser_options no contiene", name)
 
 
-parser_server = parser_options()
+Parser_server = Parser_options()
 
 
 def normalize_data(data: _T0) -> Union[list, _T0]:
+    """Normalize value before send to client."""
     if isinstance(data, (list, tuple)):
         new_data: List[Union[str, Any]] = []
         for line in data:
@@ -53,9 +61,12 @@ def normalize_data(data: _T0) -> Union[list, _T0]:
     return new_data
 
 
-class parser(object):
+class Parser(object):
+    """Parser class."""
+
     @Request.application
-    def receive(self, request):
+    def receive(self, request: Any) -> Any:
+        """Process a clinet request."""
         response = None
         # print("**", request.data)
         try:
@@ -66,7 +77,8 @@ class parser(object):
         return Response(response.json, mimetype="application/json")
 
     @dispatcher.add_method
-    def call_function(*args):
+    def call_function(*args) -> str:
+        """Return result from a called function."""
         dict_ = args[0]
         func_name = dict_["function"]
         arguments = dict_["arguments"]
@@ -77,7 +89,8 @@ class parser(object):
         return result
 
     @dispatcher.add_method
-    def dbdata(*args):
+    def dbdata(*args) -> str:
+        """Return data from database."""
         dict_ = args[0]
         from pineboolib.application import project
 
@@ -205,7 +218,7 @@ class parser(object):
             fun = getattr(conn.driver(), fun_name, None)
 
             if fun is None:
-                fun = getattr(parser_server, fun_name, None)
+                fun = getattr(Parser_server, fun_name, None)
 
             if fun is not None:
                 expected_args = inspect.getargspec(fun)[0]
@@ -217,11 +230,15 @@ class parser(object):
 
 
 class dgi_server(dgi_schema):
-    _par = None
+    """di_server class."""
+
+    _par: Optional[Parser]
 
     def __init__(self) -> None:
+        """Inicialize."""
         # desktopEnabled y mlDefault a True
         super().__init__()
+        self._par = None
         self._name = "server"
         self._alias = "SERVER"
         self._listenSocket = 4000
@@ -232,24 +249,30 @@ class dgi_server(dgi_schema):
         self._mainForm = None
         self._show_object_not_found_warnings = False
         self.qApp = QtCore.QCoreApplication
-        # self.parserDGI = parserJson()
+        # self.ParserDGI = ParserJson()
 
-    def alternativeMain(self, options) -> None:
+    def alternativeMain(self, options: Any) -> None:
+        """Load alternative main."""
         if options.dgi_parameter:
             self._listenSocket = int(options.dgi_parameter)
 
     def exec_(self) -> None:
-        self._par = parser()
+        """Execute DGI."""
+        self._par = Parser()
         self.launchServer()
 
     def launchServer(self) -> None:
+        """Launch server."""
         # run_simple('localhost', self._listenSocket, self._par.receive, ssl_context="adhoc")
         if self._par is None:
-            raise Exception("parser not found")
+            raise Exception("Parser not found")
         run_simple("0.0.0.0", self._listenSocket, self._par.receive)
 
-    def __getattr__(self, name) -> Any:
+    def __getattr__(self, name: str) -> Optional[QtCore.QObject]:
+        """Return a attribute from specific object."""
         return super().resolveObject(self._name, name)
 
     def accept_file(self, name: str) -> bool:
+        """Return files accepted by client."""
+
         return False if name.endswith((".ui")) else True

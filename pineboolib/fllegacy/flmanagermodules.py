@@ -165,6 +165,7 @@ class FLManagerModules(object):
 
         if self.staticBdInfo_:
             del self.staticBdInfo_
+            self.staticBdInfo_ = flmodulesstaticloader.AQStaticBdInfo(self.conn_)
 
         if self.dictKeyFiles:
             self.writeState()
