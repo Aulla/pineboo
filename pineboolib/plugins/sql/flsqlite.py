@@ -40,6 +40,7 @@ class FLSQLITE(object):
     rowsFetched: Dict[Any, Any]
     db_: Any
     mobile_: bool
+    _dbname: str
     pure_python_: bool
     # True por defecto, convierte los datos de entrada y salida a UTF-8 desde
     # Latin1
@@ -142,7 +143,7 @@ class FLSQLITE(object):
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
     ) -> Any:
-        """Connecto to database."""
+        """Connec to to database."""
         from pineboolib import application
 
         check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"})
@@ -179,7 +180,7 @@ class FLSQLITE(object):
 
         return self.engine_
 
-    def session(self) -> None:
+    def session(self) -> Any:
         """Create a sqlAlchemy session."""
         if self.session_ is None:
             from sqlalchemy.orm import sessionmaker  # type: ignore
@@ -190,6 +191,7 @@ class FLSQLITE(object):
             self.session_ = Session()
             # event.listen(Session, 'before_commit', before_commit, self.session_)
             # event.listen(Session, 'after_commit', after_commit, self.session_)
+            return self.session_
 
     def declarative_base(self) -> Any:
         """Return sqlAlchemy declarative base."""
@@ -476,7 +478,7 @@ class FLSQLITE(object):
         self.sql = "SELECT %s FROM %s WHERE %s" % (fields, table, where)
 
     def refreshFetch(
-        self, number: str, curname: str, table: str, cursor: Any, fields: str, where: str
+        self, number: str, curname: str, table: str, cursor: Any, fields: str, where_filter: str
     ) -> Any:
         """Return data fetched."""
         try:
@@ -709,7 +711,7 @@ class FLSQLITE(object):
             self.logger.error("notEqualsFields %s %s", field1, field2)
         return ret
 
-    def recordInfo2(self, tablename: str) -> List[Any]:
+    def recordInfo2(self, tablename: str) -> List[List[Any]]:
         """Return info from a database table."""
         if not self.isOpen():
             raise Exception("recordInfo2: Cannot proceed: SQLLITE not open")
@@ -723,7 +725,7 @@ class FLSQLITE(object):
         res = cursor.fetchall()
         return self.recordInfo(res)
 
-    def recordInfo(self, tablename_or_query: Any) -> List[Any]:
+    def recordInfo(self, tablename_or_query: Any) -> List[list]:
         """Return info from  a record fields."""
         if not self.isOpen():
             return []
@@ -809,8 +811,8 @@ class FLSQLITE(object):
     def alterTable(
         self,
         mtd1: "pntablemetadata.PNTableMetaData",
-        mtd2: "pntablemetadata.PNTableMetaData",
-        key: str,
+        mtd2: Optional["pntablemetadata.PNTableMetaData"] = None,
+        key: Optional[str] = None,
         force: bool = False,
     ) -> bool:
         """Modify a table structure."""
@@ -840,6 +842,9 @@ class FLSQLITE(object):
     #     else:
     #         docElem = doc.documentElement()
     #         newMTD = self.db_.manager().metadata(docElem, True)
+
+    #    if self.hasCheckColumn(newMTD):
+    #        return False
     #
     #     if not oldMTD:
     #         oldMTD = newMTD
@@ -1056,10 +1061,22 @@ class FLSQLITE(object):
 
         return tl
 
-    def normalizeValue(self, text: str) -> Optional[str]:
+    def hasCheckColumn(self, mtd: "pntablemetadata.PNTableMetaData") -> bool:
+        """Return if column has checked."""
+        fieldList = mtd.fieldList()
+        if not fieldList:
+            return False
+
+        for field in fieldList:
+            if field.isCheck() or field.name().endswith("_check_column"):
+                return True
+
+        return False
+
+    def normalizeValue(self, text: str) -> str:
         """Return a database friendly text."""
 
-        return None if text is None else str(text).replace("'", "''")
+        return str(text).replace("'", "''")
 
     def queryUpdate(self, name: str, update: str, filter: str) -> str:
         """Return a database friendly update query."""

@@ -1,97 +1,110 @@
+"""Flremoteclient module."""
+
 import json
 
-# from PyQt5.QtCore import QTime, QDate, QDateTime  # type: ignore
-# from PyQt5.Qt import qWarning, QDomDocument, QRegExp  # type: ignore
-# from PyQt5.QtWidgets import QMessageBox, QProgressDialog  # type: ignore
-
 from pineboolib.application.utils.check_dependencies import check_dependencies
-
-# from pineboolib.core import decorators
-# from pineboolib.fllegacy.flutil import FLUtil
-# from pineboolib.fllegacy.flsqlquery import FLSqlQuery
-# from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
-
 from pineboolib import logging
-from typing import Any, Callable, Dict, List, Union, Optional
+
+from typing import Any, Callable, Dict, List, Union, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.application.metadata import pntablemetadata  # noqa: F401
 
 
 logger = logging.getLogger(__name__)
 
 
 def base_create_dict(
-    method: str, fun: str, id: int, arguments: List[Any] = []
+    method: str, fun: str, id: str, arguments: List[Any] = []
 ) -> Dict[str, Union[str, int, List[Any], Dict[str, Any]]]:
+    """Return a formated query dict."""
     data = [{"function": fun, "arguments": arguments, "id": id}]
     return {"method": method, "params": data, "jsonrpc": "2.0", "id": id}
 
 
 class FLREMOTECLIENT(object):
+    """FLREMOTECLIENT class."""
 
     version_: str
-    conn_ = None
+    conn_: Any
     name_: str
     alias_: str
     errorList: List[str]
     lastError_: Optional[str]
-    db_ = None
+    db_: Any
     mobile_: bool
+    _dbname: str
     pure_python_: bool
     defaultPort_: int
+    id_: str
 
     def __init__(self) -> None:
+        """Inicialize."""
         self.version_ = "0.6"
         self.conn_ = None
         self.name_ = "REMOTECLIENT"
         self.open_ = False
         self.errorList = []
         self.alias_ = "Pineboo Server"
-        self._dbname = None
         self.mobile_ = False
         self.pure_python_ = False
         self.defaultPort_ = 4000
-        self.id_ = 0
+        self.id_ = "0"
         self.url: Optional[str] = None
         check_dependencies({"requests": "requests"}, False)
         self.lastError_ = None
 
     def useThreads(self) -> bool:
+        """Return True if the driver use threads."""
         return False
 
     def useTimer(self) -> bool:
+        """Return True if the driver use Timer."""
         return True
 
     def desktopFile(self) -> bool:
+        """Return if use a file like database."""
         return False
 
     def canRegenTables(self) -> bool:
+        """Return if can regenerate tables."""
         return True
 
     def version(self) -> str:
+        """Return version number."""
         return self.version_
 
     def driverName(self) -> str:
+        """Return driver name."""
         return self.name_
 
     def isOpen(self) -> bool:
+        """Return if the connection is open."""
         return self.open_
 
     def pure_python(self) -> bool:
+        """Return if the driver is python only."""
         return self.pure_python_
 
     def safe_load(self) -> bool:
+        """Return if the driver can loads dependencies safely."""
         return True
 
     def mobile(self) -> bool:
+        """Return if the driver is mobile ready."""
         return self.mobile_
 
-    def DBName(self) -> Any:
+    def DBName(self) -> str:
+        """Return database name."""
         return self._dbname
 
     def create_dict(self, fun, data: Any = []) -> Dict[str, Any]:
+        """Return a formated dict."""
         fun = "%s__%s" % (self.id_, fun)
-        return base_create_dict("dbdata", fun, self.id_, data)
+        return base_create_dict("dbdata", fun, str(self.id_), data)
 
     def send_to_server(self, js) -> Any:
+        """Send data to server and retur result."""
         import requests
 
         headers = {"content-type": "application/json"}
@@ -106,7 +119,10 @@ class FLREMOTECLIENT(object):
             print("%s -> %s\nresult: %s" % (js, self.url, res_))
         return res_
 
-    def connect(self, db_name, db_host, db_port, db_user_name, db_password) -> Any:
+    def connect(
+        self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str
+    ) -> Any:
+        """Connec to to database."""
         self._dbname = db_name
         self.id_ = db_user_name
         self.url = "http://%s:%s/jsonrpc" % (db_host, db_port)
@@ -123,7 +139,7 @@ class FLREMOTECLIENT(object):
             server_found = True
 
         if server_found:
-            self.conn_ = conn_class(db_name, self)
+            self.conn_ = Connection(db_name, self)
 
             if not self.conn_.is_valid():
                 return False
@@ -131,15 +147,26 @@ class FLREMOTECLIENT(object):
         return self.conn_
 
     def existsTable(self, name) -> bool:  # Siempre True
+        """Return if exists a table specified by name."""
         return True
 
-    def mismatchedTable(self, *args) -> bool:
+    def mismatchedTable(
+        self,
+        table1: str,
+        tmd_or_table2: Union["pntablemetadata.PNTableMetaData", str],
+        db_: Optional[Any] = None,
+    ) -> bool:
+        """Return if a table is mismatched."""
         return False
 
     def __getattr__(self, name) -> Callable:
-        return virtual_function(name, self).virtual
+        """Return attribute from server."""
+        return VirtualFunction(name, self).virtual
 
-    def refreshQuery(self, curname, fields, table, where, cursor, conn) -> None:
+    def refreshQuery(
+        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
+    ) -> None:
+        """Set a refresh query for database."""
         self.send_to_server(
             self.create_dict(
                 "refreshQuery",
@@ -153,7 +180,10 @@ class FLREMOTECLIENT(object):
             )
         )
 
-    def refreshFetch(self, number, curname, table, cursor, fields, where_filter) -> None:
+    def refreshFetch(
+        self, number: str, curname: str, table: str, cursor: Any, fields: str, where_filter: str
+    ) -> None:
+        """Return data fetched."""
         self.send_to_server(
             self.create_dict(
                 "refreshFetch",
@@ -168,7 +198,10 @@ class FLREMOTECLIENT(object):
             )
         )
 
-    def fetchAll(self, cursor, tablename, where_filter, fields, curname) -> Any:
+    def fetchAll(
+        self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
+    ) -> List:
+        """Return all fetched data from a query."""
         return self.send_to_server(
             self.create_dict(
                 "fetchAll",
@@ -183,25 +216,32 @@ class FLREMOTECLIENT(object):
         )
 
 
-class cursor_class(object):
-    driver_: FLREMOTECLIENT
-    id_ = None
-    data_ = None
-    current_ = None
-    last_sql = None
+class Cursor(object):
+    """Cursor class."""
 
-    def __init__(self, driver, n) -> None:
+    driver_: FLREMOTECLIENT
+    id_: int
+    data_: Any
+    current_: Optional[int]
+    last_sql: Optional[str]
+    description: Optional[str]
+
+    def __init__(self, driver: FLREMOTECLIENT, n: int) -> None:
+        """Inicialize."""
         self.driver_ = driver
         self.id_ = n
         self.current_ = None
         self.last_sql = None
         self.description = None
 
-    def __getattr__(self, name) -> None:
-        logger.info("cursor_class: cursor(%s).%s !!", self.id_, name)
+    def __getattr__(self, name: str) -> None:
+        """Capture orphaned attributes."""
+
+        logger.info("Cursor: cursor(%s).%s !!", self.id_, name)
         logger.trace("Detalle:", stack_info=True)
 
-    def execute(self, sql) -> None:
+    def execute(self, sql: str) -> None:
+        """Exceute a query on the server an return the value."""
         self.last_sql = sql
         self.data_ = self.driver_.send_to_server(
             self.driver_.create_dict("execute", {"cursor_id": self.id_, "sql": sql})
@@ -209,9 +249,11 @@ class cursor_class(object):
         self.current_ = 0
 
     def close(self) -> None:
+        """Close connection."""
         self.driver_.send_to_server(self.driver_.create_dict("close", {"cursor_id": self.id_}))
 
     def fetchone(self) -> Any:
+        """Return a Dict with a data fetched."""
         ret_ = self.driver_.send_to_server(
             self.driver_.create_dict("fetchone", {"cursor_id": self.id_})
         )
@@ -219,16 +261,20 @@ class cursor_class(object):
         return ret_
 
     def fetchall(self) -> Any:
+        """Fetch All data from a server cursor."""
         ret_ = self.driver_.send_to_server(
             self.driver_.create_dict("fetchall", {"cursor_id": self.id_})
         )
         # print(self.id_, "**", self.last_sql, ret_)
         return ret_
 
-    def __iter__(self) -> "cursor_class":
+    def __iter__(self) -> "Cursor":
+        """Iterate function."""
         return self
 
     def __next__(self) -> Any:
+        """Next iterator function."""
+
         ret = self.driver_.send_to_server(
             self.driver_.create_dict("fetchone", {"cursor_id": self.id_})
         )
@@ -237,35 +283,43 @@ class cursor_class(object):
         return ret
 
 
-class conn_class(object):
+class Connection(object):
+    """Connection class."""
 
-    db_name_ = None
+    db_name_: str
     driver_: FLREMOTECLIENT
-    list_cursor: List[cursor_class]
+    list_cursor: List[Cursor]
 
-    def __init__(self, db_name, driver) -> None:
+    def __init__(self, db_name: str, driver: FLREMOTECLIENT) -> None:
+        """Inicialize."""
         self.db_name_ = db_name
         self.driver_ = driver
         self.list_cursor = []
 
-    def is_valid(self) -> Any:
+    def is_valid(self) -> bool:
+        """Return if the connection is valid."""
         db_name_server = self.driver_.send_to_server(self.driver_.create_dict("db_name"))
         return self.db_name_ == db_name_server
 
-    def cursor(self) -> cursor_class:
-        cur = cursor_class(self.driver_, len(self.list_cursor))
+    def cursor(self) -> Cursor:
+        """Return a Cursor."""
+        cur = Cursor(self.driver_, len(self.list_cursor))
         self.list_cursor.append(cur)
         return cur
 
 
-class virtual_function(object):
+class VirtualFunction(object):
+    """VirtualFunction class."""
+
     name_: str
     driver_: FLREMOTECLIENT
 
     def __init__(self, name: str, driver: FLREMOTECLIENT) -> None:
+        """Inicialize."""
         self.name_ = name
         self.driver_ = driver
 
     def virtual(self, *args) -> Any:
+        """Return values from a server function."""
         # return self.driver_.send_to_server(self.driver_.create_dict("%s_%s" % (self.driver_.conn_.user_name_, self.name_), args))
         return self.driver_.send_to_server(self.driver_.create_dict(self.name_, args))

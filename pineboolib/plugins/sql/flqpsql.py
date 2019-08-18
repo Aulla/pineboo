@@ -1,49 +1,51 @@
+"""Flqpsql module."""
 from PyQt5.QtCore import QTime, QDate, QDateTime, Qt  # type: ignore
 from PyQt5.Qt import qWarning, QDomDocument, QRegExp  # type: ignore
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QWidget  # type: ignore
 
 from pineboolib.core.utils.utils_base import text2bool, auto_qt_translate_text
+
 from pineboolib.application.utils.check_dependencies import check_dependencies
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
 from pineboolib.application.database.pnsqlcursor import PNSqlCursor
 from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
+from pineboolib.application import project
 
 from pineboolib.fllegacy.flutil import FLUtil
 
-
-from sqlalchemy import create_engine  # type: ignore
-
-import traceback
-from pineboolib.application import project
 from pineboolib import logging
 
-
+from sqlalchemy import create_engine  # type: ignore
+import traceback
 from typing import Iterable, Optional, Union, List, Dict, Any, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata.pntablemetadata import PNTableMetaData  # noqa: F401
+    from pineboolib.application.metadata import pntablemetadata  # noqa: F401
 
 
 logger = logging.getLogger(__name__)
 
 
 class FLQPSQL(object):
+    """FLQPSQL class."""
 
     version_: str
-    conn_: Any = None
+    conn_: Any
     name_: str
     alias_: str
-    errorList = None
+    errorList: List[str]
     lastError_: Optional[str]
-    db_ = None
-    mobile_: bool = False
-    pure_python_: bool = False
+    db_: Any
+    _dbname: str
+    mobile_: bool
+    pure_python_: bool
     defaultPort_: int
-    engine_ = None
-    session_ = None
-    declarative_base_ = None
+    engine_: Any
+    session_: Any
+    declarative_base_: Any
 
     def __init__(self):
+        """Inicialize."""
         self.version_ = "0.8"
         self.name_ = "FLQPSQL"
         self.open_ = False
@@ -59,35 +61,47 @@ class FLQPSQL(object):
         self.lastError_ = None
 
     def useThreads(self) -> bool:
-        return True
-
-    def useTimer(self) -> bool:
+        """Return True if the driver use threads."""
         return False
 
+    def useTimer(self) -> bool:
+        """Return True if the driver use Timer."""
+        return True
+
     def version(self) -> str:
+        """Return version number."""
         return self.version_
 
     def driverName(self) -> str:
+        """Return driver name."""
         return self.name_
 
     def isOpen(self) -> bool:
+        """Return if the connection is open."""
         return self.open_
 
     def pure_python(self) -> bool:
+        """Return if the driver is python only."""
         return self.pure_python_
 
-    def safe_load(self) -> Any:
+    def safe_load(self) -> bool:
+        """Return if the driver can loads dependencies safely."""
         return check_dependencies(
             {"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"}, False
         )
 
     def mobile(self) -> bool:
+        """Return if the driver is mobile ready."""
         return self.mobile_
 
-    def DBName(self) -> Any:
+    def DBName(self) -> str:
+        """Return database name."""
         return self._dbname
 
-    def connect(self, db_name, db_host, db_port, db_userName, db_password) -> Any:
+    def connect(
+        self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
+    ) -> Any:
+        """Connecto to database."""
         self._dbname = db_name
         check_dependencies({"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"})
         import psycopg2  # type: ignore
@@ -178,9 +192,11 @@ class FLQPSQL(object):
         return self.conn_
 
     def engine(self) -> Any:
+        """Return sqlAlchemy ORM engine."""
         return self.engine_
 
     def session(self) -> Any:
+        """Create a sqlAlchemy session."""
         if self.session_ is None:
             from sqlalchemy.orm import sessionmaker  # type: ignore
 
@@ -195,6 +211,7 @@ class FLQPSQL(object):
         return self.session_
 
     def declarative_base(self) -> Any:
+        """Return sqlAlchemy declarative base."""
         if self.declarative_base_ is None:
             from sqlalchemy.ext.declarative import declarative_base  # type: ignore
 
@@ -202,7 +219,8 @@ class FLQPSQL(object):
 
         return self.declarative_base_
 
-    def formatValueLike(self, type_, v: Any, upper) -> str:
+    def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
+        """Return a string with the format value like."""
         util = FLUtil()
         res = "IS NULL"
 
@@ -232,7 +250,8 @@ class FLQPSQL(object):
 
         return res
 
-    def formatValue(self, type_, v: Any, upper) -> Union[bool, str, None]:
+    def formatValue(self, type_: str, v: Any, upper: bool) -> Optional[Union[int, str, bool]]:
+        """Return a string with the format value."""
 
         util = FLUtil()
 
@@ -288,12 +307,15 @@ class FLQPSQL(object):
         return s
 
     def canOverPartition(self) -> bool:
+        """Return can override partition option ready."""
         return True
 
     def canRegenTables(self) -> bool:
+        """Return if can regenerate tables."""
         return True
 
     def nextSerialVal(self, table: str, field: str) -> Any:
+        """Return next serial value."""
         q = PNSqlQuery()
         q.setSelect(u"nextval('" + table + "_" + field + "_seq')")
         q.setFrom("")
@@ -306,7 +328,8 @@ class FLQPSQL(object):
         else:
             return None
 
-    def savePoint(self, n) -> bool:
+    def savePoint(self, n: int) -> bool:
+        """Set a savepoint."""
         if not self.isOpen():
             qWarning("PSQLDriver::savePoint: Database not open")
             return False
@@ -325,12 +348,15 @@ class FLQPSQL(object):
         return True
 
     def canSavePoint(self) -> bool:
+        """Return if can do save point."""
         return True
 
     def canTransaction(self) -> bool:
+        """Return if can do transaction."""
         return True
 
-    def rollbackSavePoint(self, n) -> bool:
+    def rollbackSavePoint(self, n: int) -> bool:
+        """Set rollback savepoint."""
         if not self.isOpen():
             qWarning("PSQLDriver::rollbackSavePoint: Database not open")
             return False
@@ -350,13 +376,16 @@ class FLQPSQL(object):
 
         return True
 
-    def setLastError(self, text, command) -> None:
+    def setLastError(self, text: str, command: str) -> None:
+        """Set last error."""
         self.lastError_ = "%s (%s)" % (text, command)
 
     def lastError(self) -> Optional[str]:
+        """Return last error."""
         return self.lastError_
 
     def commitTransaction(self) -> bool:
+        """Set commit transaction."""
         if not self.isOpen():
             qWarning("PSQLDriver::commitTransaction: Database not open")
 
@@ -374,6 +403,7 @@ class FLQPSQL(object):
         return True
 
     def rollbackTransaction(self) -> bool:
+        """Set a rollback transaction."""
         if not self.isOpen():
             qWarning("PSQLDriver::rollbackTransaction: Database not open")
 
@@ -391,6 +421,7 @@ class FLQPSQL(object):
         return True
 
     def transaction(self) -> bool:
+        """Set a new transaction."""
         if not self.isOpen():
             qWarning("PSQLDriver::transaction: Database not open")
 
@@ -406,7 +437,8 @@ class FLQPSQL(object):
 
         return True
 
-    def releaseSavePoint(self, n) -> bool:
+    def releaseSavePoint(self, n: int) -> bool:
+        """Set release savepoint."""
 
         if not self.isOpen():
             qWarning("PSQLDriver::releaseSavePoint: Database not open")
@@ -428,13 +460,17 @@ class FLQPSQL(object):
 
         return True
 
-    def setType(self, type_, leng=None) -> str:
+    def setType(self, type_: str, leng: Optional[Union[str, int]] = None) -> str:
+        """Return type definition."""
         if leng:
             return "::%s(%s)" % (type_, leng)
         else:
             return "::%s" % type_
 
-    def refreshQuery(self, curname, fields, table, where, cursor, conn) -> None:
+    def refreshQuery(
+        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
+    ) -> None:
+        """Set a refresh query for database."""
         sql = "DECLARE %s NO SCROLL CURSOR WITH HOLD FOR SELECT %s FROM %s WHERE %s " % (
             curname,
             fields,
@@ -448,7 +484,10 @@ class FLQPSQL(object):
             logger.info("SQL: %s", sql)
             logger.trace("Detalle:", stack_info=True)
 
-    def refreshFetch(self, number, curname, table, cursor, fields, where_filter) -> None:
+    def refreshFetch(
+        self, number: int, curname: str, table: str, cursor: Any, fields: str, where_filter: str
+    ) -> None:
+        """Return data fetched."""
         sql = "FETCH %d FROM %s" % (number, curname)
         try:
             cursor.execute(sql)
@@ -457,7 +496,10 @@ class FLQPSQL(object):
             logger.info("SQL: %s", sql)
             logger.trace("Detalle:", stack_info=True)
 
-    def fetchAll(self, cursor, tablename, where_filter, fields, curname) -> Any:
+    def fetchAll(
+        self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
+    ) -> List:
+        """Return all fetched data from a query."""
         ret_: List[str] = []
         try:
             ret_ = cursor.fetchall()
@@ -468,7 +510,8 @@ class FLQPSQL(object):
 
         return ret_
 
-    def existsTable(self, name) -> bool:
+    def existsTable(self, name: str) -> bool:
+        """Return if exists a table specified by name."""
         if not self.isOpen():
             return False
 
@@ -478,7 +521,8 @@ class FLQPSQL(object):
         ok = False if result_ is None else True
         return ok
 
-    def sqlCreateTable(self, tmd) -> Optional[str]:
+    def sqlCreateTable(self, tmd: "pntablemetadata.PNTableMetaData") -> Optional[str]:
+        """Return a create table query."""
         util = FLUtil()
         if not tmd:
             return None
@@ -581,8 +625,13 @@ class FLQPSQL(object):
         return sql
 
     def mismatchedTable(
-        self, table1: str, tmd_or_table2: Union[str, "PNTableMetaData"], db_=None
+        self,
+        table1: str,
+        tmd_or_table2: Union["pntablemetadata.PNTableMetaData", str],
+        db_: Optional[Any] = None,
     ) -> bool:
+        """Return if a table is mismatched."""
+
         if db_ is None:
             db_ = self.db_
 
@@ -629,7 +678,8 @@ class FLQPSQL(object):
         else:
             return self.mismatchedTable(table1, tmd_or_table2.name(), db_)
 
-    def recordInfo2(self, tablename) -> List[List[Any]]:
+    def recordInfo2(self, tablename: str) -> List[List[Any]]:
+        """Return info from a database table."""
         if not self.isOpen():
             raise Exception("PSQL is not open")
         info = []
@@ -675,6 +725,7 @@ class FLQPSQL(object):
         return info
 
     def decodeSqlType(self, type_: int) -> str:
+        """Return the specific field type."""
         ret = str(type_)
 
         if type_ == 16:
@@ -694,11 +745,12 @@ class FLQPSQL(object):
 
         return ret
 
-    def recordInfo(self, tablename_or_query: str) -> Optional[List[list]]:
-        if not self.isOpen():
-            return None
-
+    def recordInfo(self, tablename_or_query: Any) -> List[list]:
+        """Return info from  a record fields."""
         info: List[list] = []
+        if not self.isOpen():
+            return info
+
         if isinstance(tablename_or_query, str):
             tablename = tablename_or_query
 
@@ -745,6 +797,7 @@ class FLQPSQL(object):
         return info
 
     def notEqualsFields(self, field1: List[Any], field2: List[Any]) -> bool:
+        """Return if a field has canged."""
         ret = False
         try:
             if not field1[2] == field2[2] and not field2[6]:
@@ -769,7 +822,8 @@ class FLQPSQL(object):
 
         return ret
 
-    def tables(self, typeName=None) -> List[str]:
+    def tables(self, typeName: Optional[str] = None) -> List[str]:
+        """Return a tables list specified by type."""
         tl: List[str] = []
         if not self.isOpen():
             return tl
@@ -800,10 +854,13 @@ class FLQPSQL(object):
         del t
         return tl
 
-    def normalizeValue(self, text) -> Optional[str]:
-        return None if text is None else str(text).replace("'", "''")
+    def normalizeValue(self, text: str) -> str:
+        """Return a database friendly text."""
+        return str(text).replace("'", "''")
 
-    def hasCheckColumn(self, mtd) -> bool:
+    def hasCheckColumn(self, mtd: "pntablemetadata.PNTableMetaData") -> bool:
+        """Return if column has checked."""
+
         fieldList = mtd.fieldList()
         if not fieldList:
             return False
@@ -814,7 +871,9 @@ class FLQPSQL(object):
 
         return False
 
-    def constraintExists(self, name) -> bool:
+    def constraintExists(self, name: str) -> bool:
+        """Return if constraint exists specified by name."""
+
         sql = (
             "SELECT constraint_name FROM information_schema.table_constraints where constraint_name='%s'"
             % name
@@ -827,17 +886,26 @@ class FLQPSQL(object):
 
         return q.exec_(sql) and q.size() > 0
 
-    def queryUpdate(self, name, update, filter) -> str:
+    def queryUpdate(self, name: str, update: str, filter: str) -> str:
+        """Return a database friendly update query."""
         return """UPDATE %s SET %s WHERE %s RETURNING *""" % (name, update, filter)
 
-    def alterTable(self, mtd1, mtd2=None, key: Optional[str] = None, force=False) -> Any:
+    def alterTable(
+        self,
+        mtd1: "pntablemetadata.PNTableMetaData",
+        mtd2: Optional["pntablemetadata.PNTableMetaData"] = None,
+        key: Optional[str] = None,
+        force: bool = False,
+    ) -> bool:
+        """Modify a table structure."""
 
         if mtd2 is None:
             return self.alterTable3(mtd1)
         else:
             return self.alterTable2(mtd1, mtd2, key, force)
 
-    def alterTable3(self, newMTD) -> bool:
+    def alterTable3(self, newMTD: "pntablemetadata.PNTableMetaData") -> bool:
+        """Modify a table structure."""
         if self.hasCheckColumn(newMTD):
             return False
 
@@ -898,9 +966,8 @@ class FLQPSQL(object):
         oldCursor.select()
         totalSteps = oldCursor.size()
         progress = QProgressDialog(
-            util.translate("application", "Reestructurando registros para %1...").arg(
-                newMTD.alias()
-            ),
+            util.translate("application", "Reestructurando registros para %s...")
+            % (newMTD.alias()),
             util.translate("application", "Cancelar"),
             0,
             totalSteps,
@@ -1006,7 +1073,14 @@ class FLQPSQL(object):
             q.exec_("DROP TABLE %s CASCADE" % renameOld)
         return True
 
-    def alterTable2(self, mtd1, mtd2, key: Optional[str], force=False) -> bool:
+    def alterTable2(
+        self,
+        mtd1: Any,
+        mtd2: Optional["pntablemetadata.PNTableMetaData"] = None,
+        key: Optional[str] = None,
+        force: bool = False,
+    ) -> bool:
+        """Modify a table structure."""
         # logger.warning("alterTable2 FIXME::Me quedo colgado al hacer createTable --> existTable")
         util = FLUtil()
 
@@ -1083,8 +1157,9 @@ class FLQPSQL(object):
             logger.warning(
                 "FLManager::alterTable : "
                 + util.translate(
-                    "application", "La tabla %1 antigua de donde importar los registros no existe."
-                ).arg(oldMTD.name())
+                    "application", "La tabla %s antigua de donde importar los registros no existe."
+                )
+                % (oldMTD.name())
             )
             if oldMTD and not oldMTD == newMTD:
                 del oldMTD
@@ -1129,11 +1204,13 @@ class FLQPSQL(object):
             c.setFilter("nombre = '%s.mtd'" % renameOld)
             c.select()
             if not c.next():
-                buffer = c.primeInsert()
-                buffer.setValue("nombre", "%s.mtd" % renameOld)
-                buffer.setValue("contenido", mtd1)
-                buffer.setValue("sha", key)
-                c.insert()
+                c.primeInsert()
+                buffer = c.buffer()
+                if buffer is not None:
+                    buffer.setValue("nombre", "%s.mtd" % renameOld)
+                    buffer.setValue("contenido", mtd1)
+                    buffer.setValue("sha", key)
+                    c.insert()
 
         q = PNSqlQuery(None, self.db_.dbAux())
         constraintName = "%s_pkey" % oldMTD.name()
@@ -1171,8 +1248,9 @@ class FLQPSQL(object):
                         "FLManager : "
                         + util.translate(
                             "application",
-                            "En método alterTable, no se ha podido borrar el índice %1_%2_key de la tabla antigua.",
-                        ).arg(oldMTD.name(), oldField)
+                            "En método alterTable, no se ha podido borrar el índice %s_%s_key de la tabla antigua.",
+                        )
+                        % (oldMTD.name(), oldField)
                     )
                     self.db_.dbAux().rollbackTransaction()
                     if oldMTD and not oldMTD == newMTD:
@@ -1318,16 +1396,16 @@ class FLQPSQL(object):
                             v = "NULL"[: newField.length()]
 
                     # new_b = []
-                    for buffer in newBuffer:
-                        if buffer[0] == newField.name():
+                    for buffer_ in newBuffer:
+                        if buffer_[0] == newField.name():
                             new_buffer = []
-                            new_buffer.append(buffer[0])
-                            new_buffer.append(buffer[1])
+                            new_buffer.append(buffer_[0])
+                            new_buffer.append(buffer_[1])
                             new_buffer.append(newField.allowNull())
-                            new_buffer.append(buffer[3])
-                            new_buffer.append(buffer[4])
+                            new_buffer.append(buffer_[3])
+                            new_buffer.append(buffer_[4])
                             new_buffer.append(v)
-                            new_buffer.append(buffer[6])
+                            new_buffer.append(buffer_[6])
                             listRecords.append(new_buffer)
                             break
                     # newBuffer.setValue(newField.name(), v)
@@ -1364,7 +1442,8 @@ class FLQPSQL(object):
 
         return True
 
-    def insertMulti(self, table_name, records: Iterable) -> bool:
+    def insertMulti(self, table_name: str, records: Iterable) -> bool:
+        """Insert multiple registers into a table."""
 
         if not records:
             return False
@@ -1406,6 +1485,7 @@ class FLQPSQL(object):
         return True
 
     def Mr_Proper(self) -> None:
+        """Clear all garbage data."""
         util = FLUtil()
 
         if self.db_ is None:
@@ -1547,19 +1627,24 @@ class FLQPSQL(object):
         util.destroyProgressDialog()
 
     def cascadeSupport(self) -> bool:
+        """Return True if the driver support cascade."""
         return True
 
     def canDetectLocks(self) -> bool:
+        """Return if can detect locks."""
         return True
 
     def fix_query(self, query: str) -> str:
+        """Fix string."""
         # ret_ = query.replace(";", "")
         return query
 
     def desktopFile(self) -> bool:
+        """Return if use a file like database."""
         return False
 
-    def execute_query(self, q) -> Any:
+    def execute_query(self, q: str) -> Any:
+        """Excecute a query and return result."""
 
         if not self.isOpen():
             qWarning("PSQLDriver::execute_query. DB is closed")

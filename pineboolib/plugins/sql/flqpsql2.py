@@ -1,3 +1,4 @@
+"""Flqpsql2 module."""
 from pineboolib import logging
 from pineboolib.application.utils.check_dependencies import check_dependencies
 from sqlalchemy import create_engine  # type: ignore
@@ -6,31 +7,38 @@ from PyQt5.Qt import qWarning  # type: ignore
 from PyQt5.QtWidgets import QMessageBox, QWidget  # type: ignore
 
 from pineboolib.plugins.sql.flqpsql import FLQPSQL
-from typing import Any, SupportsInt, Union, cast
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
 
 class FLQPSQL2(FLQPSQL):
-    def __init__(self):
+    """FLQPSQL2 class."""
+
+    def __init__(self) -> None:
+        """Inicialize."""
         super().__init__()
         self.name_ = "FLQPSQL2"
         self.alias_ = "PostgreSQL"
         self.mobile_ = True
         self.pure_python_ = True
 
-    def useThreads(self):
+    def useThreads(self) -> bool:
+        """Return True if the driver use threads."""
         return False
 
-    def useTimer(self):
+    def useTimer(self) -> bool:
+        """Return True if the driver use Timer."""
         return True
 
-    def safe_load(self):
+    def safe_load(self) -> bool:
+        """Return if the driver can loads dependencies safely."""
         return check_dependencies({"pg8000": "pg8000", "sqlalchemy": "sqlAlchemy"}, False)
 
     def connect(
-        self, db_name, db_host, db_port: Union[bytes, str, SupportsInt], db_userName, db_password
+        self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
     ) -> Any:
+        """Connecto to database."""
         self._dbname = db_name
         check_dependencies({"pg8000": "pg8000", "sqlalchemy": "sqlAlchemy"})
         import pg8000  # type: ignore
