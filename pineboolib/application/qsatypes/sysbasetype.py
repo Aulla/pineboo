@@ -38,6 +38,8 @@ class SysBaseType(object):
     @classmethod
     def nameUser(self) -> str:
         """Get current database user."""
+        ret_ = None
+
         if project.DGI.use_alternative_credentials():
             ret_ = project.DGI.get_nameuser()
         else:
@@ -476,13 +478,9 @@ class SysBaseType(object):
         c = self.testObj(container, component)
         if not c:
             return False
-        clase = (
-            "FLFieldDB"
-            if isinstance(c, project.DGI.FLFieldDB)
-            else "FLTableDB"
-            if isinstance(c, project.DGI.FLTableDB)
-            else c.className()
-        )
+
+        clase = c.className()
+
         if clase in ["QToolButton", "QPushButton"]:
             self.runObjMethod(container, component, u"setEnabled", False)
         elif clase == u"FLFieldDB":

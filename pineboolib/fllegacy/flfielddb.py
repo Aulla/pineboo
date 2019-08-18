@@ -2335,8 +2335,6 @@ class FLFieldDB(QtWidgets.QWidget):
             for olN in olNoTranslated:
                 olTranslated.append(olN)
             self.editor_.addItems(olTranslated)
-            if project._DGI and not project.DGI.localDesktop():
-                project.DGI._par.addQueque("%s_setOptionsList" % self.objectName(), olTranslated)
             self.editor_.installEventFilter(self)
             if self.showed:
                 try:
@@ -2424,8 +2422,6 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.textChanged.connect(self.emitTextChanged)
 
             if hasPushButtonDB and self.pushButtonDB:
-                if project._DGI and not project.DGI.localDesktop():
-                    project.DGI._par.addQueque("%s_setHasPushButton" % self.objectName(), True)
                 if self.showed:
                     try:
                         self.KeyF2Pressed.disconnect(self.pushButtonDB.animateClick)

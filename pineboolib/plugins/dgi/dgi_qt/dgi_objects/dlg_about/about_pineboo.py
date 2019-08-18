@@ -23,9 +23,7 @@ class AboutPineboo(QtWidgets.QWidget):
 
         dlg_ = filedir("plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui")
         version_ = application.project.version
-        self.ui = None
-        if application.project._DGI:
-            self.ui = application.project.DGI.createUI(dlg_, None, self)
+        self.ui = application.project.conn.managerModules().createUI(dlg_, None, self)
         if self.ui is None:
             raise Exception("Error creating UI About Dialog")
         self.ui.lbl_version.setText("Pineboo %s" % str(version_))

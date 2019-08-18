@@ -10,7 +10,7 @@ from pineboolib.application.parsers.qt3uiparser import dgi_qt3ui
 from .dgi_objects.splash_screen import splashscreen
 from .dgi_objects.progress_dialog_manager import ProgressDialogManager
 from .dgi_objects.status_help_msg import StatusHelpMsg
-
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 class dgi_qt(dgi_schema):
     """dgi_qt class."""
 
-    pnqt3ui: dgi_qt3ui
-    splash: splashscreen
-    progress_dialog_manager: ProgressDialogManager
+    pnqt3ui: Any
+    splash: Any
+    progress_dialog_manager: Any
 
     def __init__(self):
         """Inicialize."""

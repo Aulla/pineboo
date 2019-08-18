@@ -5,10 +5,10 @@ Replacement for FLSqlCursor.
 from pineboolib import logging
 from PyQt5 import QtCore  # type: ignore
 from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict, Optional, Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.appilcation.database import pnsqlcursor  # noqa: F401
+    from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class DelayedObjectProxyLoader(object):
     def __load(self):
         """
         Load a new object.
-        
+
         @return new object or if it already exists, cached.
         """
         from pineboolib.fllegacy.flsqlcursor import FLSqlCursor as FLSqlCursor_original
@@ -146,7 +146,7 @@ class DelayedObjectProxyLoader(object):
 class FLSqlCursor(QtCore.QObject):
     """FLSqlCursor class."""
 
-    parent_cursor: "pnsqlcursor.PNSqlCusor"
+    parent_cursor: "pnsqlcursor.PNSqlCursor"
     _buffer_changed: Optional[Callable]
     _before_commit: Optional[Callable]
     _after_commit: Optional[Callable]
@@ -217,6 +217,7 @@ class FLSqlCursor(QtCore.QObject):
             return self._buffer_commited(self.parent_cursor)
         except Exception as exc:
             print("Error inesperado", exc)
+            return False
 
     def before_commit_signal(self) -> bool:
         """Call before commit signal."""
@@ -248,7 +249,7 @@ class FLSqlCursor(QtCore.QObject):
     def buffer_changed_label_signal(self, scampo: str) -> bool:
         """Call buffer changed label signal."""
         if self._buffer_changed_label is None:
-            return {}
+            return True
 
         import inspect
 
@@ -313,7 +314,7 @@ class meta_model(object):
     """Meta_model class."""
 
     _model: Any
-    _cursor: "pnsqlcursor.PNSqlCusor"
+    _cursor: "pnsqlcursor.PNSqlCursor"
     cursor_tree_dict: Dict[str, Any]
 
     def __init__(self, model: Any, cursor: "pnsqlcursor.PNSqlCursor") -> None:
@@ -330,10 +331,11 @@ class meta_model(object):
             return
         # print("Buscando", name)
         ret = None
+        field_name: str = name
         if name == "pk":
-            name = self._cursor.primaryKey()
+            field_name = self._cursor.primaryKey() or ""
 
-        field = self._cursor.metadata().field(name)
+        field = self._cursor.metadata().field(field_name)
         if field is not None:
             field_relation = field.relationM1()
             # value = self._cursor.valueBuffer(field.name())
@@ -376,7 +378,7 @@ class meta_model(object):
 
         else:
             if self._model is not None:
-                ret = getattr(self._model, name, None)
+                ret = getattr(self._model, field_name, None)
 
                 # if ret is None:
                 #    logger.warning("No se encuentra %s en el model (%s) del cursor %s" , name, self._model, self._cursor.curName())

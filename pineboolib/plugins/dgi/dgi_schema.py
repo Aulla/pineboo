@@ -1,7 +1,7 @@
 """Dgi_schema module."""
 # -*- coding: utf-8 -*-
 from importlib import import_module
-from typing import List, cast, Optional
+from typing import List, cast, Optional, Any
 from PyQt5 import QtCore
 
 from pineboolib.application.utils.mobilemode import is_mobile_mode
@@ -57,15 +57,15 @@ class dgi_schema(object):
         return project.app
 
     # Establece un lanzador alternativo al de la aplicación
-    def alternativeMain(self, options: List) -> Any:
+    def alternativeMain(self, options: Any) -> Any:
         """Return alternative main."""
-        return 0
+        return None
 
-    def accept_file(self, name: str) -> None:
+    def accept_file(self, name: str) -> bool:
         """Return True if file is accepted .False elsewhere."""
         return True
 
-    def useDesktop(self) -> None:
+    def useDesktop(self) -> bool:
         """Return if desktop UI is used."""
         return self._desktopEnabled
 
@@ -75,7 +75,7 @@ class dgi_schema(object):
 
     def localDesktop(
         self
-    ) -> None:  # Indica si son ventanas locales o remotas a traves de algún parser
+    ) -> bool:  # Indica si son ventanas locales o remotas a traves de algún parser
         """Return if is local desktop."""
         return self._localDesktop
 
@@ -87,11 +87,11 @@ class dgi_schema(object):
         """Set if defaul main loader is used."""
         self._mLDefault = val
 
-    def useMLDefault(self) -> None:
+    def useMLDefault(self) -> bool:
         """Return if main loaded is used."""
         return self._mLDefault
 
-    def setParameter(self, param: List[str]) -> None:  # Se puede pasar un parametro al dgi
+    def setParameter(self, param: str) -> None:  # Se puede pasar un parametro al dgi
         """Set parameters to DGI."""
         pass
 
@@ -109,11 +109,11 @@ class dgi_schema(object):
         print("")
         print("")
 
-    def mainForm(self) -> None:
+    def mainForm(self) -> Any:
         """Return mainForm."""
-        pass
+        return QtCore.QObject()
 
-    def interactiveGUI(self) -> None:
+    def interactiveGUI(self) -> str:
         """Return interactiveGUI name."""
         return "Pineboo"
 
@@ -195,6 +195,27 @@ class dgi_schema(object):
         """Return True if use alternative authentication , False elsewhere."""
         return False
 
+    def get_nameuser(self) -> str:
+        """Return alternative user name."""
+        return ""
+
     def debug(self, txt: str):
         """Show debug message."""
         logger.warning("---> %s" % txt)
+
+    def content_cached(
+        self,
+        tmp_folder: str,
+        db_name: str,
+        module_id: str,
+        file_ext: str,
+        file_name: str,
+        sha_key: str,
+    ) -> Optional[str]:
+        """Return content cahced from a specific file."""
+
+        return ""
+
+    def load_meta_model(self, module_nae: str) -> Any:
+        """Load meta model process."""
+        return ""

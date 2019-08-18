@@ -259,10 +259,11 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
         # toolbar = widget.addToolBar(nameTB_)
         loadToolBar(xmltoolbar, widget)
 
-    if project._DGI and not project.DGI.localDesktop():
-        project.DGI.showWidget(widget)
-    else:
-        widget.show()
+    # if project._DGI and not project.DGI.localDesktop():
+    #    project.DGI.showWidget(widget)
+    # else:
+    #    widget.show()
+    widget.show()
 
 
 def loadToolBar(xml: ET.Element, widget: QWidget) -> None:

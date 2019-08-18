@@ -14,21 +14,19 @@ class ProgressDialogManager(object):
     def create(self, title: str, steps: int, id_: str) -> Any:
         """Create new ProgressDialog."""
 
-        from pineboolib.application import project
-        from PyQt5 import QtCore  # type: ignore
+        from PyQt5 import QtCore, QtWidgets  # type: ignore
 
-        if project._DGI:
-            pd_widget = project.DGI.QProgressDialog(
-                str(title), str(project.DGI.QApplication.translate("scripts", "Cancelar")), 0, steps
-            )
-            if pd_widget is not None:
-                pd_widget.setObjectName(id_)
-                pd_widget.setWindowModality(QtCore.Qt.WindowModal)
-                pd_widget.setWindowTitle(str(title))
-                self.progress_dialog_stack.append(pd_widget)
-                pd_widget.setMinimumDuration(100)
+        pd_widget = QtWidgets.QProgressDialog(
+            str(title), str(QtWidgets.QApplication.translate("scripts", "Cancelar")), 0, steps
+        )
+        if pd_widget is not None:
+            pd_widget.setObjectName(id_)
+            pd_widget.setWindowModality(QtCore.Qt.WindowModal)
+            pd_widget.setWindowTitle(str(title))
+            self.progress_dialog_stack.append(pd_widget)
+            pd_widget.setMinimumDuration(100)
 
-                return pd_widget
+            return pd_widget
 
         return None
 

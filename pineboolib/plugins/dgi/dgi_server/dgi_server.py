@@ -15,7 +15,7 @@ from pineboolib import logging
 from pineboolib.plugins.dgi.dgi_schema import dgi_schema
 
 
-from typing import Any, TypeVar, Union, Dict, List
+from typing import Any, TypeVar, Union, Dict, List, Optional
 
 _T0 = TypeVar("_T0")
 
@@ -64,7 +64,7 @@ def normalize_data(data: _T0) -> Union[list, _T0]:
 class Parser(object):
     """Parser class."""
 
-    @Request.application
+    @Request.application  # type: ignore
     def receive(self, request: Any) -> Any:
         """Process a clinet request."""
         response = None
@@ -76,10 +76,10 @@ class Parser(object):
 
         return Response(response.json, mimetype="application/json")
 
-    @dispatcher.add_method
-    def call_function(*args) -> str:
+    @dispatcher.add_method  # type: ignore
+    def call_function(*args) -> Optional[Any]:
         """Return result from a called function."""
-        dict_ = args[0]
+        dict_: Dict[str, Any] = args[0]  # type: ignore
         func_name = dict_["function"]
         arguments = dict_["arguments"]
         from pineboolib.application import project
@@ -88,13 +88,13 @@ class Parser(object):
         print("Llamada remota: %s(%s) --> %s" % (func_name, ", ".join(arguments), result))
         return result
 
-    @dispatcher.add_method
-    def dbdata(*args) -> str:
+    @dispatcher.add_method  # type: ignore
+    def dbdata(*args) -> Union[List[Any], str]:
         """Return data from database."""
-        dict_ = args[0]
+        dict_: Dict[str, Any] = args[0]  # type: ignore
         from pineboolib.application import project
 
-        list_fun = dict_["function"].split("__")
+        list_fun: List[str] = dict_["function"].split("__")  # type: ignore
         fun_name = list_fun[1]
         id_conn = list_fun[0]
         cursor = None
@@ -133,7 +133,7 @@ class Parser(object):
                 )
 
         elif fun_name == "fetchone":
-            ret = None
+            ret: List[Any] = []
             try:
                 if cursor is None:
                     raise Exception("No cursor")
@@ -227,6 +227,8 @@ class Parser(object):
                 return normalize_data(fun(*dict_["arguments"][:args_num]))
 
             return "Desconocido"
+
+        return []
 
 
 class dgi_server(dgi_schema):

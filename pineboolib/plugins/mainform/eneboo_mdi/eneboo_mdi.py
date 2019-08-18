@@ -17,9 +17,9 @@ class MainForm(QMainWindow):
     def __init__(self) -> None:
         """Inicialize."""
         super().__init__()
-        from pineboolib import application
+        from pineboolib.fllegacy import flapplication
 
-        application.aqApp.main_widget_ = self
+        flapplication.aqApp.main_widget_ = self
         self.is_closing_ = False
         self.mdi_enable_ = True
 

@@ -5,7 +5,7 @@ Module for PNSqlCursor class.
 import weakref
 import importlib
 import traceback
-from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
+from typing import Any, Optional, List, Union, cast, Callable, TYPE_CHECKING
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMessageBox, QApplication, QDialog
@@ -891,11 +891,11 @@ class PNSqlCursor(QtCore.QObject):
         if i:
             self.d.browse_states_.erase(i)
 
-    def meta_model(self) -> bool:
+    def meta_model(self) -> Callable:
         """
         Check if DGI requires models (SqlAlchemy?).
         """
-        return self._meta_model if project.DGI.use_model() else False
+        return self._meta_model if project.DGI.use_model() else None
 
     def setContext(self, c: Any = None) -> None:
         """

@@ -4,7 +4,7 @@ import collections
 import traceback
 import inspect
 import os
-from typing import List, Dict, Any, Union, Optional
+
 from PyQt5 import QtCore  # type: ignore
 
 from pineboolib.core.utils import logging
@@ -12,7 +12,54 @@ from pineboolib.plugins.dgi.dgi_schema import dgi_schema
 from pineboolib.application.utils import sql_tools
 from pineboolib.application import project
 
+from typing import List, Dict, Any, Union, Optional, Callable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.application.database import pnsqlcursor  # noqa: F401
+
+
 logger = logging.getLogger(__name__)
+
+
+class pagination_class(object):
+    """Pagination_class class."""
+
+    count: int
+    _limit: int
+    _page: int
+
+    def __init__(self, data_, query={}) -> None:
+        """Inicialize."""
+        self.count = len(data_)
+        self._limit = (
+            50 if "p_l" not in query.keys() or query["p_l"] == "true" else int(query["p_l"])
+        )
+        self._page = 0 if "p_c" not in query.keys() or query["p_c"] == "true" else int(query["p_c"])
+
+    def get_next_offset(self) -> Optional[int]:
+        """Return next offset."""
+        ret_ = None
+        actual = 0
+        i = 0
+        while i < self._page:
+            actual += self._limit
+            ret_ = actual
+            i += 1
+
+        return ret_
+
+    def get_previous_offset(self) -> Optional[int]:
+        """Return previous offset."""
+        ret_ = None
+        i = 0
+        while i < self._page:
+            if ret_ is None:
+                ret_ = 0
+            else:
+                ret_ += self._limit
+            i += 1
+
+        return ret_
 
 
 class dgi_aqnext(dgi_schema):
@@ -65,9 +112,9 @@ class dgi_aqnext(dgi_schema):
             logger.warning("Usuario DB: %s", qsa_sys.nameUser())
             logger.warning("Nombre  DB: %s", qsa_sys.nameBD())
 
-    def processEvents(self) -> bool:
+    def processEvents(self) -> None:
         """Process events."""
-        return QtCore.QCoreApplication.processEvents()
+        QtCore.QCoreApplication.processEvents()
 
     def interactiveGUI(self) -> str:
         """Return interactive GUI name."""
@@ -117,7 +164,7 @@ class dgi_aqnext(dgi_schema):
         """Return if used alternative credentials."""
         return True
 
-    def get_nameuser(self):
+    def get_nameuser(self) -> str:
         """Return AQNext user name."""
         return ""
         # FIXME
@@ -282,7 +329,7 @@ class dgi_aqnext(dgi_schema):
 
         return ret_
 
-    def get_master_cursor(self, prefix: str, template: str = "master") -> "pnsqlcursor.PNSqlcursor":
+    def get_master_cursor(self, prefix: str, template: str = "master") -> "pnsqlcursor.PNSqlCursor":
         """Return master cursor."""
         from pineboolib import qsa as qsa_tree
 
@@ -364,7 +411,7 @@ class dgi_aqnext(dgi_schema):
 
     def cursor2json(
         self, cursor: "pnsqlcursor.PNSqlCursor", template: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+    ) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
         """Return json data from PNSqlCursor."""
         ret_: List[Dict[str, Any]] = []
         if not cursor.modeAccess() == cursor.Insert:
@@ -436,7 +483,7 @@ class dgi_aqnext(dgi_schema):
 
     def getYBschema(
         self, cursor: "pnsqlcursor.PNSqlCursor", template: Optional[str] = None
-    ) -> [Dict, Dict]:
+    ) -> List[Dict]:
         """Allow to obtain schema definition of internal use of YEBOYEBO."""
 
         mtd = cursor.metadata()
@@ -509,22 +556,25 @@ class dgi_aqnext(dgi_schema):
                     desc = desc_function(*new_args[: len(expected_args)])
 
                 if not desc or desc is None:
-                    desc = cursor.db().manager().metadata(table_name).primaryKey()
+                    mtd_table = cursor.db().manager().metadata(table_name)
+                    if mtd_table is not None:
+                        desc = mtd_table.primaryKey()
 
                 dict[key]["desc"] = desc
 
         if meta_model:
             calculateFields = self.get_foreign_fields(meta_model, template)
-            for field in calculateFields:
-                dict[field["verbose_name"]] = collections.OrderedDict()
-                dict[field["verbose_name"]]["verbose_name"] = field["verbose_name"]
-                dict[field["verbose_name"]]["help_text"] = None
-                dict[field["verbose_name"]]["locked"] = True
-                dict[field["verbose_name"]]["field"] = False
-                dict[field["verbose_name"]]["visible"] = True
-                dict[field["verbose_name"]]["tipo"] = 3
+            for field_ in calculateFields:
+                key_value = field_["verbose_name"]
+                dict[key_value] = collections.OrderedDict()
+                dict[key_value]["verbose_name"] = key_value
+                dict[key_value]["help_text"] = None
+                dict[key_value]["locked"] = True
+                dict[key_value]["field"] = False
+                dict[key_value]["visible"] = True
+                dict[key_value]["tipo"] = 3
 
-        return dict, meta
+        return [dict, meta]
 
     def get_foreign_fields(self, meta_model: Any, template: Optional[str] = None):
         """Return foreign fields."""
@@ -628,47 +678,6 @@ class paginated_object(object):
     """Paginated_object class."""
 
     data: Dict
-
-
-class pagination_class(object):
-    """Pagination_class class."""
-
-    count: int
-    _limit: int
-    _page: int
-
-    def __init__(self, data_, query={}) -> None:
-        """Inicialize."""
-        self.count = len(data_)
-        self._limit = (
-            50 if "p_l" not in query.keys() or query["p_l"] == "true" else int(query["p_l"])
-        )
-        self._page = 0 if "p_c" not in query.keys() or query["p_c"] == "true" else int(query["p_c"])
-
-    def get_next_offset(self) -> int:
-        """Return next offset."""
-        ret_ = None
-        actual = 0
-        i = 0
-        while i < self._page:
-            actual += self._limit
-            ret_ = actual
-            i += 1
-
-        return ret_
-
-    def get_previous_offset(self) -> int:
-        """Return previous offset."""
-        ret_ = None
-        i = 0
-        while i < self._page:
-            if ret_ is None:
-                ret_ = 0
-            else:
-                ret_ += self._limit
-            i += 1
-
-        return ret_
 
 
 class mainForm(object):

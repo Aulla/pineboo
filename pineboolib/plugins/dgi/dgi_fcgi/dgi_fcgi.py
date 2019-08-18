@@ -30,7 +30,7 @@ class dgi_fcgi(dgi_schema):
         self.showInitBanner()
         check_dependencies({"flup": "flup-py3"})
 
-    def alternativeMain(self, main_) -> None:
+    def alternativeMain(self, main_) -> Any:
         """Process alternative main."""
         from flup.server.fcgi import WSGIServer  # type: ignore
 

@@ -9,7 +9,8 @@ if TYPE_CHECKING:
     from pineboolib.plugins.dgi.dgi_qt.dgi_qt import dgi_qt
     from pineboolib.plugins.dgi.dgi_aqnext.dgi_aqnext import dgi_aqnext
     from pineboolib.plugins.dgi.dgi_fcgi.dgi_fcgi import dgi_fcgi
-    from pineboolib.plugins.dgi.dgi_jsonrpc.dgi_jsonrpc import dgi_jsonrpc
+
+    # from pineboolib.plugins.dgi.dgi_jsonrpc.dgi_jsonrpc import dgi_jsonrpc
     from pineboolib.plugins.dgi.dgi_server.dgi_server import dgi_server
 
 
@@ -62,13 +63,13 @@ class DGILoader(object):
 
         return dgi.dgi_fcgi()
 
-    @staticmethod
-    def load_dgi_jsonrpc() -> "dgi_jsonrpc":
-        """Load dgi jsonrpc."""
+    # @staticmethod
+    # def load_dgi_jsonrpc() -> "dgi_jsonrpc":
+    #    """Load dgi jsonrpc."""
 
-        from pineboolib.plugins.dgi.dgi_jsonrpc import dgi_jsonrpc as dgi
+    #    from pineboolib.plugins.dgi.dgi_jsonrpc import dgi_jsonrpc as dgi
 
-        return dgi.dgi_jsonrpc()
+    #    return dgi.dgi_jsonrpc()
 
     @staticmethod
     def load_dgi_server() -> "dgi_server":

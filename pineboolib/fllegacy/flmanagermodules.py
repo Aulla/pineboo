@@ -260,10 +260,10 @@ class FLManagerModules(object):
             return self.filesCached_[file_name]
 
         data = None
-        modId = None
-        name_ = file_name[: file_name.index(".")]
-        ext_ = file_name[file_name.index(".") + 1 :]
-        type_ = None
+        modId: str
+        name_: str = file_name[: file_name.index(".")]
+        ext_: str = file_name[file_name.index(".") + 1 :]
+        type_: Optional[str] = None
         if ext_ == "kut":
             type_ = "reports/"
         elif ext_ == "qs":
