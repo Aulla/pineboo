@@ -4,11 +4,11 @@ import traceback
 import os
 import os.path
 import sys
-from typing import cast, Optional, List, Any, Dict, Callable
+
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtXml import QDomDocument
-from PyQt5.QtCore import QProcess, QFile, QTextStream
+from PyQt5.QtCore import QFile, QTextStream
 from PyQt5.QtCore import Qt, QDir, pyqtSignal
 from PyQt5.QtWidgets import QFileDialog, QApplication, QGroupBox, QCheckBox
 from PyQt5.QtWidgets import QFrame
@@ -21,7 +21,7 @@ from pineboolib.core.utils import logging
 from pineboolib.core.error_manager import error_manager
 
 from pineboolib.application import project
-from pineboolib.application.types import Array, Date, File, Dir, Object, FileStatic
+from pineboolib.application.types import Array, Date, File, Dir, FileStatic
 from pineboolib.application.packager.aqunpacker import AQUnpacker
 from pineboolib.application import connections
 from pineboolib.application.qsatypes.sysbasetype import SysBaseType
@@ -46,6 +46,12 @@ from pineboolib.qt3_widgets.qdialog import QDialog
 from pineboolib.qt3_widgets.qvboxlayout import QVBoxLayout
 from pineboolib.qt3_widgets.qhboxlayout import QHBoxLayout
 from pineboolib.qt3_widgets.qpushbutton import QPushButton
+from pineboolib.qt3_widgets.filedialog import FileDialog
+
+from typing import cast, Optional, List, Any, Dict, Callable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
 
 
 logger = logging.getLogger("fllegacy.systype")
@@ -267,7 +273,7 @@ class SysType(SysBaseType):
         return docRet
 
     @classmethod
-    def mvProjectModules(self) -> Dict:
+    def mvProjectModules(self) -> Array:
         """Return modules defitions Dict."""
         ret = Array()
         doc = self.mvProjectXml()
@@ -295,7 +301,7 @@ class SysType(SysBaseType):
         return ret
 
     @classmethod
-    def mvProjectExtensions(self) -> Dict:
+    def mvProjectExtensions(self) -> Array:
         """Return project extensions Dict."""
 
         ret = Array()
@@ -324,7 +330,7 @@ class SysType(SysBaseType):
         return ret
 
     @classmethod
-    def calculateShaGlobal(self) -> src:
+    def calculateShaGlobal(self) -> str:
         """Return sha global value."""
 
         v = u""
@@ -384,7 +390,7 @@ class SysType(SysBaseType):
         )
 
     @classmethod
-    def warnLocalChanges(self, changes: Optional[str] = None) -> None:
+    def warnLocalChanges(self, changes: Optional[Dict[str, Any]] = None) -> bool:
         """Show local changes warning."""
 
         if changes is None:
@@ -636,7 +642,7 @@ class SysType(SysBaseType):
                 tmpVar.set(u"mrproper", u"dirty")
 
     @classmethod
-    def loadFilesDef(self, un: Any = None) -> QDomDocument:
+    def loadFilesDef(self, un: Any) -> bool:
         """Load files definition from a package to a QDomDocument."""
 
         filesDef = self.toUnicode(un.getText(), u"utf8")
@@ -689,7 +695,7 @@ class SysType(SysBaseType):
         return ok
 
     @classmethod
-    def registerFile(self, fil: Dict[str, Any], un: Any = None) -> bool:
+    def registerFile(self, fil: Dict[str, Any], un: Any) -> bool:
         """Register a file in the database."""
 
         if fil["id"].endswith(u".xpm"):
@@ -756,7 +762,7 @@ class SysType(SysBaseType):
         )
 
     @classmethod
-    def loadModulesDef(self, un: Any) -> QDomDocument:
+    def loadModulesDef(self, un: Any) -> bool:
         """Return QDomDocument with modules definition."""
 
         modulesDef = self.toUnicode(un.getText(), u"utf8")
@@ -840,7 +846,7 @@ class SysType(SysBaseType):
         keyRemember: str,
         txtRemember: str,
         forceShow: bool,
-        txtCaption: sr,
+        txtCaption: str,
         txtYes: str,
         txtNo: str,
     ) -> Any:
@@ -900,7 +906,6 @@ class SysType(SysBaseType):
     @classmethod
     def exportModules(self) -> None:
         """Export modules."""
-        from pineboolib.qt3_widgets.filedialog import FileDialog
 
         dirBasePath = FileDialog.getExistingDirectory(Dir.home)
         if not dirBasePath:
@@ -972,9 +977,10 @@ class SysType(SysBaseType):
         qry.setSelect(u"descripcion,idarea,version")
         qry.setFrom(u"flmodules")
         qry.setWhere(ustr(u"idmodulo='", idMod, u"'"))
-        if not qry.exec_() or not qry.next():
-            return
         doc = QDomDocument(u"MODULE")
+        if not qry.exec_() or not qry.next():
+            return doc
+
         tagMod = doc.createElement(u"MODULE")
         doc.appendChild(tagMod)
         tag = doc.createElement(u"name")
@@ -1142,7 +1148,6 @@ class SysType(SysBaseType):
 
         key = ustr(u"scripts/sys/modLastDirModules_", SysBaseType.nameBD())
         dirAnt = settings.value(key)
-        from pineboolib.qt3_widgets.filedialog import FileDialog
 
         dirMods = FileDialog.getExistingDirectory(
             str(dirAnt) if dirAnt else None, self.translate(u"Directorio de Módulos")
@@ -1181,7 +1186,7 @@ class SysType(SysBaseType):
         AQTimer.singleShot(0, self.reinit)
 
     @classmethod
-    def selectModsDialog(self, listFilesMod: List = []) -> Dict[int, str]:
+    def selectModsDialog(self, listFilesMod: List = []) -> Array:
         """Select modules dialog."""
 
         dialog = Dialog()
@@ -1407,8 +1412,9 @@ class SysType(SysBaseType):
             if not localEnc:
                 localEnc = u"ISO-8859-15"
             content = self.fromUnicode(content, localEnc)
+            f = FileStatic()
             try:
-                File.write(filePath, content)
+                f.write(filePath, content)
             except Exception:
                 e = traceback.format_exc()
                 self.errorMsgBox(ustr(self.translate(u"Error escribiendo fichero."), u"\n", e))
@@ -1420,7 +1426,7 @@ class SysType(SysBaseType):
 
     @classmethod
     @decorators.WorkingOnThis
-    def runTransaction(self, f: callable, oParam: List[Any]) -> Any:
+    def runTransaction(self, f: Callable, oParam: Dict[str, Any]) -> Any:
         """Run a Transaction."""
 
         curT = PNSqlCursor(u"flfiles")
@@ -1546,7 +1552,7 @@ class SysType(SysBaseType):
         # return ahora
 
     @classmethod
-    def localChanges(self) -> QDomDocument:
+    def localChanges(self) -> Dict[str, Any]:
         """Return xml with local changes."""
         ret = {}
         ret[u"size"] = 0
@@ -1571,39 +1577,42 @@ class SysType(SysBaseType):
         return aqApp.db().interactiveGUI()
 
 
-class AbanQDbDumper(object):
+class AbanQDbDumper(QtCore.QObject):
     """AbanqDbDumper class."""
 
     SEP_CSV = u"\u00b6"
-    db_ = None
-    showGui_ = None
-    dirBase_ = None
-    fileName_ = None
-    w_ = None
-    lblDirBase_ = None
-    pbChangeDir_ = None
-    tedLog_ = None
-    pbInitDump_ = None
-    state_ = Object()
-    funLog_ = None
-    proc_ = None
+    db_: "IConnection"
+    showGui_: bool
+    dirBase_: str
+    fileName_: str
+    w_: QDialog
+    lblDirBase_: QLabel
+    pbChangeDir_: QPushButton
+    tedLog_: QTextEdit
+    pbInitDump_: QPushButton
+    state_: Array
+    funLog_: Callable
+    proc_: Process
 
     def __init__(
         self,
         db: Optional["IConnection"] = None,
         dirBase: Optional[str] = None,
         showGui: bool = False,
-        funLog: Optional[Callable] = None,
+        fun_log: Optional[Callable] = None,
     ):
         """Inicialize."""
         from pineboolib.fllegacy.flapplication import aqApp
 
+        self.funLog_ = self.addLog if fun_log is None else fun_log  # type: ignore
+
         self.db_ = aqApp.db() if db is None else db
         self.showGui_ = showGui
         self.dirBase_ = Dir.home if dirBase is None else dirBase
-        self.funLog_ = self.addLog if funLog is None else funLog
+
         self.fileName_ = self.genFileName()
         self.encoding = sys.getdefaultencoding()
+        self.state_ = Array()
 
     def init(self) -> None:
         """Inicialize dump dialog."""
@@ -1699,7 +1708,7 @@ class AbanQDbDumper(object):
         for rE in regExp:
             timeStamp = timeStamp.replace(rE, u"")
 
-        fileName = ustr(self.dirBase_, u"/dump_", self.db_.database(), u"_", timeStamp)
+        fileName = ustr(self.dirBase_, u"/dump_", str(self.db_.database()), u"_", timeStamp)
         fileName = Dir.cleanDirPath(fileName)
         fileName = Dir.convertSeparators(fileName)
         return fileName
@@ -1708,13 +1717,13 @@ class AbanQDbDumper(object):
         """Change base dir."""
         dirBasePath = dir_
         if not dirBasePath:
-            dirBasePath = QFileDialog.getExistingDirectory(self.dirBase_)
+            dirBasePath = FileDialog.getExistingDirectory(self.dirBase_)
             if not dirBasePath:
                 return
         self.dirBase_ = dirBasePath
         if self.showGui_ and self.lblDirBase_ is not None:
-            self.lblDirBase_.text = SysType.translate(u"Directorio Destino: %s") % (
-                str(self.dirBase_)
+            self.lblDirBase_.setText(
+                SysType.translate(u"Directorio Destino: %s") % (str(self.dirBase_))
             )
         self.fileName_ = self.genFileName()
 
@@ -1732,14 +1741,14 @@ class AbanQDbDumper(object):
         self.state_.ok = ok
         self.state_.msg = msg
 
-    def state(self) -> int:
+    def state(self) -> Array:
         """Return state."""
 
         return self.state_
 
     def launchProc(self, command: List[str]) -> str:
         """Return the result from a Launched command."""
-        self.proc_ = QProcess()
+        self.proc_ = Process()
         self.proc_.setProgram(command[0])
         self.proc_.setArguments(command[1:])
         # FIXME: Mejorar lectura linea a linea
@@ -1755,14 +1764,14 @@ class AbanQDbDumper(object):
     def readFromStdout(self) -> None:
         """Read data from stdOutput."""
 
-        t = self.proc_.readLine().data().decode(self.encoding)
+        t = self.proc_.readLine().decode(self.encoding)
         if t not in (None, ""):
             self.funLog_(t)
 
     def readFromStderr(self) -> None:
         """Read data from stdError."""
 
-        t = self.proc_.readLine().data().decode(self.encoding)
+        t = self.proc_.readLine().decode(self.encoding)
         if t not in (None, ""):
             self.funLog_(t)
 
@@ -1823,39 +1832,39 @@ class AbanQDbDumper(object):
     def dumpPostgreSQL(self) -> bool:
         """Dump database to PostgreSql file."""
 
-        pgDump = u"pg_dump"
-        command = None
-        fileName = ustr(self.fileName_, u".sql")
+        pgDump: str = u"pg_dump"
+        command: List[str]
+        fileName = "%s.sql" % self.fileName_
         db = self.db_
         if SysType.osName() == u"WIN32":
             pgDump += u".exe"
-            System.setenv(u"PGPASSWORD", db.password())
+            System.setenv(u"PGPASSWORD", db.returnword())
             command = [
                 pgDump,
                 u"-f",
                 fileName,
                 u"-h",
-                db.host(),
+                db.host() or "",
                 u"-p",
-                db.port(),
+                str(db.port() or 0),
                 u"-U",
-                db.user(),
-                db.database(),
+                db.user() or "",
+                str(db.database()),
             ]
         else:
-            System.setenv(u"PGPASSWORD", db.password())
+            System.setenv(u"PGPASSWORD", db.returnword())
             command = [
                 pgDump,
                 u"-v",
                 u"-f",
                 fileName,
                 u"-h",
-                db.host(),
+                db.host() or "",
                 u"-p",
-                db.port(),
+                str(db.port() or 0),
                 u"-U",
-                db.user(),
-                db.database(),
+                db.user() or "",
+                str(db.database()),
             ]
 
         if not self.launchProc(command):
@@ -1873,8 +1882,8 @@ class AbanQDbDumper(object):
     def dumpMySQL(self) -> bool:
         """Dump database to MySql file."""
 
-        myDump = u"mysqldump"
-        command = None
+        myDump: str = u"mysqldump"
+        command: List[str]
         fileName = ustr(self.fileName_, u".sql")
         db = self.db_
         if SysType.osName() == u"WIN32":
@@ -1885,9 +1894,9 @@ class AbanQDbDumper(object):
                 ustr(u"--result-file=", fileName),
                 ustr(u"--host=", db.host()),
                 ustr(u"--port=", db.port()),
-                ustr(u"--password=", db.password()),
+                ustr(u"--password=", db.returnword()),
                 ustr(u"--user=", db.user()),
-                db.database(),
+                str(db.database()),
             ]
         else:
             command = [
@@ -1896,9 +1905,9 @@ class AbanQDbDumper(object):
                 ustr(u"--result-file=", fileName),
                 ustr(u"--host=", db.host()),
                 ustr(u"--port=", db.port()),
-                ustr(u"--password=", db.password()),
+                ustr(u"--password=", db.returnword()),
                 ustr(u"--user=", db.user()),
-                db.database(),
+                str(db.database()),
             ]
 
         if not self.launchProc(command):
@@ -1983,8 +1992,7 @@ class AbanQDbDumper(object):
     def dumpAllTablesToCsv(self) -> bool:
         """Dump all tables to a csv files."""
         fileName = self.fileName_
-        db = self.db_
-        tables = db.tables(AQSql.TableType.Tables)
+        tables = self.db_.tables(AQSql.TableType.Tables)
         dir_ = Dir(fileName)
         dir_.mkdir()
         dirBase = Dir.convertSeparators(ustr(fileName, u"/"))
@@ -2001,7 +2009,7 @@ class AQTimer(QtCore.QTimer):
     pass
 
 
-class AQGlobalFunctions(object):
+class AQGlobalFunctions(QtCore.QObject):
     """AQSGlobalFunction class."""
 
     functions_ = Array()
@@ -2017,10 +2025,10 @@ class AQGlobalFunctions(object):
 
         return self.functions_[function_name]
 
-    def exec_(self, function_mame: str) -> None:
+    def exec_(self, function_name: str) -> None:
         """Execute a function specified by name."""
 
-        fn = self.functions_[functionName]
+        fn = self.functions_[function_name]
         if fn is not None:
             fn()
 
@@ -2035,5 +2043,5 @@ class AQGlobalFunctions(object):
             self.mappers_[c] = None
 
         connections.connect(sigMap, u"mapped(QString)", self, u"exec()")
-        sigMap.setMapping(obj, functionName)
+        sigMap.setMapping(obj, function_name)
         connections.connect(obj, signal, sigMap, u"map()")
