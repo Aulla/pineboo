@@ -4,7 +4,7 @@ AQSql Module.
 
 Provide queries to DB.
 """
-from enum import IntEnum, unique
+from enum import IntEnum, unique, Enum
 from pineboolib.application import project
 from pineboolib import logging
 
@@ -15,6 +15,15 @@ if TYPE_CHECKING:
     from pineboolib.interfaces.iconnection import IConnection
 
 logger = logging.getLogger(__name__)
+
+
+class TableType(Enum):
+    """TableType class."""
+
+    Tables: int = 1
+    SystemTables: int = 2
+    Views: int = 3
+    AllTables: int = 0
 
 
 class AQSql(object):
@@ -181,6 +190,7 @@ class AQSql(object):
 
 
 """
+FIXME!!: crear todos los emun...
 Código C++ original
 class AQSql : public QObject
 {
@@ -218,13 +228,6 @@ public:
   enum Cardinality {
     RELATION_1M = 0,
     RELATION_M1 = 1
-  };
-
-  enum TableType {
-    Tables = 0x01,
-    SystemTables = 0x02,
-    Views = 0x04,
-    AllTables = 0xff
   };
 
   enum SqlErrorType {
