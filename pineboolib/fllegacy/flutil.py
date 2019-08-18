@@ -964,7 +964,7 @@ class FLUtil(QtCore.QObject):
         project.message_manager().send("progress_dialog_manager", "setTotalSteps", [tS, id_])
 
     @classmethod
-    def domDocumentSetContent(cls, doc: "QDomDocument", content: str) -> bool:
+    def domDocumentSetContent(cls, doc: "QDomDocument", content: Any) -> bool:
         """
         Return the content of an XML document.
 
