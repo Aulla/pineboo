@@ -3,8 +3,18 @@ Tests for application.types module.
 """
 
 import unittest
+import os
 from pineboolib.loader.main import init_cli
-from pineboolib.application.types import Boolean, QString, Function, Object, Array, Date
+from pineboolib.application.types import (
+    Boolean,
+    QString,
+    Function,
+    Object,
+    Array,
+    Date,
+    File,
+    FileStatic,
+)
 
 init_cli()  # FIXME: This should be avoided
 
@@ -127,6 +137,32 @@ class TestDate(unittest.TestCase):
         self.assertEqual(d.getDay(), 25)
         self.assertEqual(d.getMonth(), 2)
         self.assertEqual(d.getYear(), 2001)
+
+
+class TestFile(unittest.TestCase):
+    """Test File class."""
+
+    def test_write_read_values_1(self) -> None:
+        """Check that you read the same as you write."""
+        from pineboolib.fllegacy.systype import SysType
+
+        temporal = "%s%s" % (SysType().installPrefix(), u"/tempdata/test_types_file.txt")
+        contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
+        File(temporal).write(contenido)
+        contenido_2 = File(temporal).read()
+        self.assertEqual(contenido, contenido_2)
+        os.remove(temporal)
+
+    def test_write_read_values_2(self) -> None:
+        """Check that you read the same as you write."""
+        from pineboolib.fllegacy.systype import SysType
+
+        temporal = "%s%s" % (SysType().installPrefix(), u"/tempdata/test_types_file_static.txt")
+        contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
+        FileStatic.write(temporal, contenido)
+        contenido_2 = FileStatic.read(temporal)
+        self.assertEqual(contenido, contenido_2)
+        os.remove(temporal)
 
 
 if __name__ == "__main__":
