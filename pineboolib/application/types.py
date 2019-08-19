@@ -472,10 +472,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         self._encode = "iso-8859-15"
         self._last_seek = 0
-        self._q_file = QtCore.QFile(file_path)
         self._file_name = None
 
         if file_path is not None:
+            self._q_file = QtCore.QFile(file_path)
             self._file_name = str(file_path)
             self._path = os.path.dirname(os.path.abspath(file_path))
 
@@ -596,7 +596,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
             raise ValueError("self._file_name is empty!")
 
         f = codecs.open(self._file_name, "r", encoding=self._encode)
-        ret = f.readline(self.last_seek)
+        ret = f.readline(self._last_seek)
         self._last_seek += 1
         f.close()
         return ret
@@ -607,12 +607,16 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         @return array con las lineas del _file_name.
         """
+
+        if self._file_name is None:
+            raise ValueError("self._file_name is empty!")
+
         ret: List[str]
         import codecs
 
         f = codecs.open(self._file_name, encoding=self._encode, mode="a")
         if self._last_seek is not None:
-            f.seek(self.last_seek)
+            f.seek(self._last_seek)
         ret = f.readlines()
         f.close()
         return ret
@@ -635,6 +639,8 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         @param data_b. Datos a añadir en el _file_name
         """
+        if self._file_name is None:
+            raise ValueError("self._file_name is empty!")
 
         f = open(self._file_name, "wb")
         f.write(data_b)
