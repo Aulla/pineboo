@@ -59,6 +59,7 @@ from .pncontrolsfactory import GroupBox, SpinBox, NumberEdit, DateEdit, TimeEdit
 from .pncontrolsfactory import AQS, AQUnpacker, AQSettings, AQSqlQuery  # noqa: F401
 from .pncontrolsfactory import AQSqlCursor, AQUtil, AQSql, AQSmtpClient  # noqa: F401
 
+
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 
 if not __is_deployed():
@@ -71,7 +72,7 @@ from .pncontrolsfactory import AQBoolFlagState, AQBoolFlagStateList  # noqa: F40
 
 from .pncontrolsfactory import FormDBWidget  # noqa: F401
 from pineboolib.application.process import Process, ProcessStatic  # noqa: F401
-from .pncontrolsfactory import SysType, sys  # noqa: F401
+from .pncontrolsfactory import SysType, sys, System  # noqa: F401
 
 QFile = File
 util = FLUtil
