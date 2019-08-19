@@ -160,15 +160,28 @@ class XMLAction(ActionStruct):
 
         @param cursor. Cursor a usar por el FLFormRecordDB
         """
+        if self.formrecord_widget is not None:
+            if getattr(self.formrecord_widget, "_loaded", False):
+                if self.formrecord_widget.showed:
+                    from PyQt5 import QtWidgets
+
+                    QtWidgets.QMessageBox.information(
+                        QtWidgets.QApplication.activeWindow(),
+                        "Aviso",
+                        "Ya hay abierto un formulario de edición de resgistro para esta tabla.\n"
+                        "No se abrirán mas para evitar ciclos repetitivos de edición de registros.",
+                        QtWidgets.QMessageBox.Yes,
+                    )
+                    return
+
         self.logger.info("Opening default formRecord for Action %s", self.name)
         w = self.loadRecord(cursor)
         # w.init()
         if w:
-            if self.project.DGI.localDesktop():
-                if wait:
-                    w.show_and_wait()
-                else:
-                    w.show()
+            if wait:
+                w.show_and_wait()
+            else:
+                w.show()
 
     def openDefaultForm(self) -> None:
         """

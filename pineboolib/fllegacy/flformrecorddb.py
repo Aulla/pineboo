@@ -844,40 +844,30 @@ class FLFormRecordDB(FLFormDB):
     def show(self) -> None:
         """Show this widget."""
 
-        if self.showed:
-            QtWidgets.QMessageBox.information(
-                QtWidgets.QApplication.activeWindow(),
-                "Aviso",
-                "Ya hay abierto un formulario de edición de resgistro para esta tabla.\n"
-                "No se abrirán mas para evitar ciclos repetitivos de edición de registros.",
-                QtWidgets.QMessageBox.Yes,
-            )
-            return
+        caption = self._action.caption()
+        if not caption:
+            caption = self.cursor().metadata().alias()
+
+        if not self.cursor().isValid():
+            self.cursor().model().refresh()
+
+        if self.cursor().modeAccess() in (
+            self.cursor().Insert,
+            self.cursor().Edit,
+            self.cursor().Browse,
+        ):
+            self.cursor().transaction()
+            self.initTransLevel = self.cursor().transactionLevel()
+            self.setCaptionWidget(caption)
+            iface = getattr(self.script, "iface", None)
+            if iface is not None:
+                self.cursor().setContext(iface)
+        if self.cursor().modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
+            self.showAcceptContinue_ = True
         else:
-            caption = self._action.caption()
-            if not caption:
-                caption = self.cursor().metadata().alias()
+            self.showAcceptContinue_ = False
 
-            if not self.cursor().isValid():
-                self.cursor().model().refresh()
-
-            if self.cursor().modeAccess() in (
-                self.cursor().Insert,
-                self.cursor().Edit,
-                self.cursor().Browse,
-            ):
-                self.cursor().transaction()
-                self.initTransLevel = self.cursor().transactionLevel()
-                self.setCaptionWidget(caption)
-                iface = getattr(self.script, "iface", None)
-                if iface is not None:
-                    self.cursor().setContext(iface)
-            if self.cursor().modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
-                self.showAcceptContinue_ = True
-            else:
-                self.showAcceptContinue_ = False
-
-            self.loadControls()
+        self.loadControls()
         super(FLFormRecordDB, self).show()
 
     def inicializeControls(self) -> None:
