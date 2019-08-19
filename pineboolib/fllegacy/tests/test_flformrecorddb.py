@@ -12,7 +12,7 @@ class TestFLFormrecordCursor(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
-    def test_basic(self) -> None:
+    def test_cursor_asignment(self) -> None:
         """Test flformrecord cursor assignment"""
 
         from pineboolib.qsa import dictmodules
@@ -32,6 +32,19 @@ class TestFLFormrecordCursor(unittest.TestCase):
 
         self.assertNotEqual(cursor_1, cursor_3)
         self.assertEqual(cursor_1, cursor_2)
+
+    def test_flformrecord_show_again(self) -> None:
+        """Check if a FLformRecordDB is shown again"""
+        from pineboolib.qsa import dictmodules
+        from pineboolib.application.database import pnsqlcursor
+
+        module_ = dictmodules.from_project("formRecordflusers")
+        cursor = module_.widget.cursor()
+        self.assertFalse(module_.form.showed)
+        cursor.insertRecord(False)
+        self.assertTrue(module_.form.showed)
+        module_.form.close()
+        self.assertFalse(module_.form.showed)
 
 
 if __name__ == "__main__":
