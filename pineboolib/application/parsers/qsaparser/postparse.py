@@ -821,7 +821,7 @@ def main() -> None:
     execute(options, args)
 
 
-def pythonify(filelist: List[str], arguments: Optional[List[str]] = []) -> None:
+def pythonify(filelist: List[str], arguments: List[str] = []) -> None:
     """Convert to python the files included in the list."""
     if not isinstance(filelist, list):
         raise ValueError("First argument must be a list")
