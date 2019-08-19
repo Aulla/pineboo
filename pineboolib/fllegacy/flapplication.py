@@ -903,9 +903,9 @@ class FLApplication(QtCore.QObject):
     def aboutPineboo(self) -> None:
         """Show about Pineboo."""
         if project.DGI.localDesktop():
-            fun_about = getattr(project.DGI, "aobut_pineboo", None)
+            fun_about = getattr(project.DGI, "about_pineboo", None)
             if fun_about is not None:
-                fun_about.about_pineboo()
+                fun_about()
 
     def statusHelpMsg(self, text) -> None:
         """Show help message."""
