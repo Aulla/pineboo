@@ -821,11 +821,11 @@ def main() -> None:
     execute(options, args)
 
 
-def pythonify(filelist: List[str]) -> None:
+def pythonify(filelist: List[str], arguments: Optional[List[str]] = []) -> None:
     """Convert to python the files included in the list."""
     if not isinstance(filelist, list):
         raise ValueError("First argument must be a list")
-    options, args = parseArgs([])
+    options, args = parseArgs(arguments)
     options.full = True
     execute(options, filelist)
 

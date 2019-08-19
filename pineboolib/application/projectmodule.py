@@ -484,7 +484,7 @@ class Project(object):
             from pineboolib.application.parsers.qsaparser import postparse
 
             try:
-                postparse.pythonify([scriptname])
+                postparse.pythonify([scriptname], ["--strict"])
             except Exception:
                 self.logger.exception("El fichero %s no se ha podido convertir", scriptname)
 
