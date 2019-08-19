@@ -68,6 +68,10 @@ class TestParser(unittest.TestCase):
 
         self.assertEqual(flfacturac_qs_py, flfacturac_py)
 
+    def test_form(self) -> None:
+        """Test converting form"""
+        self.assertEqual(qs2py("form = this;"), "form = self\n")
+
 
 if __name__ == "__main__":
     unittest.main()
