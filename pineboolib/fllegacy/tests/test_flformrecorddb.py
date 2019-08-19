@@ -36,7 +36,6 @@ class TestFLFormrecordCursor(unittest.TestCase):
     def test_flformrecord_show_again(self) -> None:
         """Check if a FLformRecordDB is shown again"""
         from pineboolib.qsa import dictmodules
-        from pineboolib.application.database import pnsqlcursor
 
         module_ = dictmodules.from_project("formRecordflusers")
         cursor = module_.widget.cursor()
