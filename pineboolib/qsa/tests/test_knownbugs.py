@@ -32,6 +32,13 @@ class TestIsLoadedModule(unittest.TestCase):
         value_2 = 'var cadena:String = "abcdefg";\ncadena.mid(5);'
         self.assertEqual(qs2py(value_2), 'cadena = "abcdefg"\ncadena[0 + 5 :]\n')
 
+    def test_system_get_env(self) -> None:
+        """Check that qsa.System.getenv () works correctly."""
+
+        from pineboolib.qsa import qsa
+
+        self.assertNotEqual(qsa.System.getenv("HOME"), "")
+
 
 if __name__ == "__main__":
     unittest.main()
