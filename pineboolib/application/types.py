@@ -458,36 +458,35 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
     Manage a file.
     """
 
-    fichero: str
-    mode_: QIODevice
-    path = None
+    _file_name: Optional[str]
+    _mode: QIODevice
+    _path: Optional[str]
 
-    encode_: str
-    last_seek = None
-    qfile: QtCore.QFile
+    _encode: str
+    _last_seek: int
+    _q_file: QtCore.QFile
     eof = False
 
-    def __init__(self, rutaFichero: Optional[str] = None, encode: Optional[str] = None):
+    def __init__(self, file_path: Optional[str] = None, encode: Optional[str] = None):
         """Create a new File Object. This does not create a file on disk."""
-        self.encode_ = "iso-8859-15"
-        if rutaFichero:
-            # if isinstance(rutaFichero, tuple):
-            #     rutaFichero = rutaFichero[0]
-            self.fichero = str(rutaFichero)
-            self.qfile = QtCore.QFile(rutaFichero)
 
-            self.path = os.path.dirname(os.path.abspath(self.fichero))
-        else:
-            self.qfile = QtCore.QFile()
+        self._encode = "iso-8859-15"
+        self._last_seek = 0
+        self._q_file = QtCore.QFile(file_path)
+        self._file_name = None
+
+        if file_path is not None:
+            self._file_name = str(file_path)
+            self._path = os.path.dirname(os.path.abspath(file_path))
 
         if encode is not None:
-            self.encode_ = encode
+            self._encode = encode
 
-        self.mode_ = self.ReadWrite
+        self._mode = self.ReadWrite
 
     def open(self, m: QIODevice) -> bool:
         """Open file."""
-        self.mode_ = m
+        self._mode = m
         self.eof = False
         return True
 
@@ -505,11 +504,11 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         file_: str
         encode: str
 
-        if self.fichero is None:
-            raise ValueError("self.fichero is not defined!")
+        if self._file_name is None:
+            raise ValueError("self._file_name is not defined!")
 
-        file_ = self.fichero
-        encode = self.encode_
+        file_ = self._file_name
+        encode = self._encode
         import codecs
 
         if file_ is None:
@@ -531,17 +530,17 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         @param data. Valores a guardar en el fichero
         @param length. Tamaño de data. (No se usa)
         """
-        if self.fichero is None:
-            raise ValueError("self.fichero is empty!")
-        file_: str = self.fichero
-        encode: str = self.encode_
+        if self._file_name is None:
+            raise ValueError("self._file_name is empty!")
+        file_: str = self._file_name
+        encode: str = self._encode
 
         if isinstance(data, str):
             bytes_ = data.encode(encode)
         else:
             bytes_ = data
 
-        mode = "ab" if self.mode_ == self.Append else "wb"
+        mode = "ab" if self._mode == self.Append else "wb"
         with open(file_, mode) as file:
             file.write(bytes_)
 
@@ -549,10 +548,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
     def writeBlock(self, bytes_array: bytes) -> None:
         """Write a block of data to the file."""
-        if self.fichero is None:
-            raise ValueError("self.fichero is empty!")
+        if self._file_name is None:
+            raise ValueError("self._file_name is empty!")
 
-        with open(self.fichero, "wb") as file:
+        with open(self._file_name, "wb") as file:
             file.write(bytes_array)
 
         file.close()
@@ -561,26 +560,26 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """
         Get file name.
 
-        @return Nombre del fichero
+        @return Nombre del _file_name
         """
-        if self.fichero is None:
-            raise ValueError("self.fichero is empty!")
+        if self._file_name is None:
+            raise ValueError("self._file_name is empty!")
 
-        path_, file_name = os.path.split(self.fichero)
+        _path, file_name = os.path.split(self._file_name)
         return file_name
 
     def writeLine(self, data: str) -> None:
         """
         Write a new line with "data" contents into the file.
 
-        @param data. Datos a añadir en el fichero
+        @param data. Datos a añadir en el _file_name
         """
         import codecs
 
-        if self.fichero is None:
-            raise ValueError("self.fichero is empty!")
+        if self._file_name is None:
+            raise ValueError("self._file_name is empty!")
 
-        f = codecs.open(self.fichero, encoding=self.encode_, mode="a")
+        f = codecs.open(self._file_name, encoding=self._encode, mode="a")
         f.write("%s\n" % data)
         f.close()
 
@@ -590,17 +589,15 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         @return cadena de texto con los datos de la linea actual
         """
-        if self.last_seek is None:
-            self.last_seek = 0
 
         import codecs
 
-        if self.fichero is None:
-            raise ValueError("self.fichero is empty!")
+        if self._file_name is None:
+            raise ValueError("self._file_name is empty!")
 
-        f = codecs.open(self.fichero, "r", encoding=self.encode_)
+        f = codecs.open(self._file_name, "r", encoding=self._encode)
         ret = f.readline(self.last_seek)
-        self.last_seek += 1
+        self._last_seek += 1
         f.close()
         return ret
 
@@ -608,13 +605,13 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """
         Read all lines from a file and return it as array.
 
-        @return array con las lineas del fichero.
+        @return array con las lineas del _file_name.
         """
         ret: List[str]
         import codecs
 
-        f = codecs.open(self.fichero, encoding=self.encode_, mode="a")
-        if self.last_seek is not None:
+        f = codecs.open(self._file_name, encoding=self._encode, mode="a")
+        if self._last_seek is not None:
             f.seek(self.last_seek)
         ret = f.readlines()
         f.close()
@@ -636,10 +633,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """
         Write file as binary.
 
-        @param data_b. Datos a añadir en el fichero
+        @param data_b. Datos a añadir en el _file_name
         """
 
-        f = open(self.fichero, "wb")
+        f = open(self._file_name, "wb")
         f.write(data_b)
         f.close()
 
@@ -647,9 +644,9 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """
         Delete file from filesystem.
 
-        @return Boolean . True si se ha borrado el fichero, si no False.
+        @return Boolean . True si se ha borrado el _file_name, si no False.
         """
-        return self.qfile.remove()
+        return self._q_file.remove()
 
     name = property(getName)
 
@@ -678,7 +675,7 @@ class FileStatic(FileBaseClass):
         @return contenido del fichero
         """
 
-        with codecs.open(file_, "r" if not bytes else "rb", encoding="iso-8859-15") as f:
+        with codecs.open(file_, "r" if not bytes else "rb", encoding="ISO-8859-15") as f:
             ret = f.read()
         return ret
 
@@ -691,7 +688,7 @@ class FileStatic(FileBaseClass):
         @param length. Tamaño de data. (No se usa)
         """
         if isinstance(data, str):
-            bytes_ = data.encode("utf-8")
+            bytes_ = data.encode("ISO-8859-15")
         else:
             bytes_ = data
 
