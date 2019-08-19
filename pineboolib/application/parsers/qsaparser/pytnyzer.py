@@ -201,6 +201,7 @@ QSA_KNOWN_ATTRS = {
     "debug",
     "decorators",
     "filedir",
+    "form",
     "input",
     "inspect",
     "isNaN",
@@ -229,7 +230,7 @@ QSA_KNOWN_ATTRS = {
     "weakref",
 }
 
-DISALLOW_CONVERSION_FOR_NONSTRICT = {"connect", "disconnect"}
+DISALLOW_CONVERSION_FOR_NONSTRICT = {"connect", "disconnect", "form"}
 classesDefined: List[str] = []
 
 
@@ -328,7 +329,7 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
             return name
 
         if name in QSA_KNOWN_ATTRS:
-            if not STRICT_MODE and name in DISALLOW_CONVERSION_FOR_NONSTRICT:
+            if name in DISALLOW_CONVERSION_FOR_NONSTRICT:
                 if name in ["connect", "disconnect"]:  # self.module_connect
                     return "self.module_%s" % name
                 else:
