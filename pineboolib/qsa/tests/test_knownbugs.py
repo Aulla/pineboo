@@ -37,7 +37,9 @@ class TestIsLoadedModule(unittest.TestCase):
 
         from pineboolib.qsa import qsa
 
-        self.assertNotEqual(qsa.System.getenv("HOME"), "")
+        qsa.System.setenv("TEST_PINEBOO", "¡hola!")
+
+        self.assertEqual(qsa.System.getenv("TEST_PINEBOO"), "¡hola!")
 
 
 if __name__ == "__main__":
