@@ -138,20 +138,20 @@ class FormInternalObj(qsa.FormDBWidget):
             if temporal == "":
                 temporal = qsa.System.getenv(u"HOME")
             if temporal == "":
-                temporal = qsa.ustr(qsa.sys.installPrefix(), u"/share/facturalux/tmp")
+                temporal = qsa.ustr(qsa.sys.installPrefix(), u"/tempdata/tmp")
             temporal = qsa.ustr(temporal, u"/", cursor.valueBuffer(u"nombre"))
             comando = ""
             contenido = self.child(u"contenido").text
             if util.getOS() == u"MACX":
-                qsa.File.write(temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n"))
+                qsa.FileStatic.write(temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n"))
                 comando = qsa.ustr(qsa.sys.installPrefix(), u"/bin/teddy.app/Contents/MacOS/teddy")
             else:
-                qsa.File.write(temporal, contenido)
-                comando = ustr(qsa.sys.installPrefix(), u"/bin/teddy")
+                qsa.FileStatic.write(temporal, contenido)
+                comando = qsa.ustr(qsa.sys.installPrefix(), u"/bin/teddy")
 
             self.setDisabled(True)
-            qsa.Process.execute([comando, temporal])
-            self.child(u"contenido").text = qsa.File.read(temporal)
+            qsa.ProcessStatic.execute([comando, temporal])
+            self.child(u"contenido").text = qsa.FileStatic.read(temporal)
             self.setDisabled(False)
 
     def calculateField(self, fN=None):
