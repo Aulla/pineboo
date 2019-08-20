@@ -40,8 +40,8 @@ class PNConnection(QtCore.QObject, IConnection):
     _manager = None
     driverName_: str
     currentSavePoint_: Optional[PNSqlSavePoint]
-    stackSavePoints_: List[PNSqlSavePoint]
-    queueSavePoints_: List[PNSqlSavePoint]
+    # stackSavePoints_: List[PNSqlSavePoint]
+    # queueSavePoints_: List[PNSqlSavePoint]
     interactiveGUI_: bool
     _dbAux = None
     _isOpen: bool
@@ -74,8 +74,8 @@ class PNConnection(QtCore.QObject, IConnection):
         self.driverName_ = self.driverSql.aliasToName(driverAlias)
 
         self.transaction_ = 0
-        self.stackSavePoints_ = []
-        self.queueSavePoints_ = []
+        # self.stackSavePoints_ = []
+        # self.queueSavePoints_ = []
         self.interactiveGUI_ = True
         self._last_active_cursor = None
 
@@ -391,13 +391,13 @@ class PNConnection(QtCore.QObject, IConnection):
                 self._last_active_cursor = cursor
                 db_signals.emitTransactionBegin(cursor)
 
-                if not self.canSavePoint():
-                    if self.currentSavePoint_:
-                        del self.currentSavePoint_
-                        self.currentSavePoint_ = None
+                # if not self.canSavePoint():
+                #    if self.currentSavePoint_:
+                #        del self.currentSavePoint_
+                #        self.currentSavePoint_ = None
 
-                    self.stackSavePoints_.clear()
-                    self.queueSavePoints_.clear()
+                #    self.stackSavePoints_.clear()
+                #    self.queueSavePoints_.clear()
 
                 self.transaction_ = self.transaction_ + 1
                 cursor.d.transactionsOpened_.insert(0, self.transaction_)
@@ -413,24 +413,24 @@ class PNConnection(QtCore.QObject, IConnection):
                     "send",
                     ["Creando punto de salvaguarda %s:%s" % (self.name, self.transaction_)],
                 )
-            if not self.canSavePoint():
-                if self.transaction_ == 0:
-                    if self.currentSavePoint_:
-                        del self.currentSavePoint_
-                        self.currentSavePoint_ = None
+            # if not self.canSavePoint():
+            #    if self.transaction_ == 0:
+            #        if self.currentSavePoint_:
+            #            del self.currentSavePoint_
+            #            self.currentSavePoint_ = None
 
-                    self.stackSavePoints_.clear()
-                    self.queueSavePoints_.clear()
+            #        self.stackSavePoints_.clear()
+            #        self.queueSavePoints_.clear()
 
-                if self.currentSavePoint_:
-                    if self.stackSavePoints_:
-                        self.stackSavePoints_.insert(0, self.currentSavePoint_)
-                    else:
-                        self.stackSavePoints_.append(self.currentSavePoint_)
+            #    if self.currentSavePoint_:
+            #        if self.stackSavePoints_:
+            #            self.stackSavePoints_.insert(0, self.currentSavePoint_)
+            #        else:
+            #            self.stackSavePoints_.append(self.currentSavePoint_)
 
-                self.currentSavePoint_ = PNSqlSavePoint(self.transaction_)
-            else:
-                self.savePoint(self.transaction_)
+            #    self.currentSavePoint_ = PNSqlSavePoint(self.transaction_)
+            # else:
+            self.savePoint(self.transaction_)
 
             self.transaction_ = self.transaction_ + 1
             if cursor.d.transactionsOpened_:
@@ -500,13 +500,13 @@ class PNConnection(QtCore.QObject, IConnection):
             if self.rollbackTransaction():
                 self._last_active_cursor = None
 
-                if not self.canSavePoint():
-                    if self.currentSavePoint_:
-                        del self.currentSavePoint_
-                        self.currentSavePoint_ = None
+                # if not self.canSavePoint():
+                #    if self.currentSavePoint_:
+                #        del self.currentSavePoint_
+                #        self.currentSavePoint_ = None
 
-                    self.stackSavePoints_.clear()
-                    self.queueSavePoints_.clear()
+                #    self.stackSavePoints_.clear()
+                #    self.queueSavePoints_.clear()
 
                 cur.d.modeAccess_ = CursorAccessMode.Browse
                 if cancel:
@@ -525,34 +525,34 @@ class PNConnection(QtCore.QObject, IConnection):
                 "send",
                 ["Restaurando punto de salvaguarda %s:%s..." % (self.name, self.transaction_)],
             )
-            if not self.canSavePoint():
-                tam_queue = len(self.queueSavePoints_)
-                for i in range(tam_queue):
-                    temp_save_point = self.queueSavePoints_.pop()
-                    temp_id = temp_save_point.id()
+            # if not self.canSavePoint():
+            #    tam_queue = len(self.queueSavePoints_)
+            #    for i in range(tam_queue):
+            #        temp_save_point = self.queueSavePoints_.pop()
+            #        temp_id = temp_save_point.id()
 
-                    if temp_id > self.transaction_ or self.transaction_ == 0:
-                        temp_save_point.undo()
-                        del temp_save_point
-                    else:
-                        self.queueSavePoints_.append(temp_save_point)
+            #        if temp_id > self.transaction_ or self.transaction_ == 0:
+            #            temp_save_point.undo()
+            #            del temp_save_point
+            #        else:
+            #            self.queueSavePoints_.append(temp_save_point)
 
-                if self.currentSavePoint_ is not None:
-                    self.currentSavePoint_.undo()
-                    self.currentSavePoint_ = None
-                    if self.stackSavePoints_:
-                        self.currentSavePoint_ = self.stackSavePoints_.pop()
+            #    if self.currentSavePoint_ is not None:
+            #        self.currentSavePoint_.undo()
+            #        self.currentSavePoint_ = None
+            #        if self.stackSavePoints_:
+            #            self.currentSavePoint_ = self.stackSavePoints_.pop()
 
-                if self.transaction_ == 0:
-                    if self.currentSavePoint_:
-                        del self.currentSavePoint_
-                        self.currentSavePoint_ = None
+            #    if self.transaction_ == 0:
+            #        if self.currentSavePoint_:
+            #            del self.currentSavePoint_
+            #            self.currentSavePoint_ = None
 
-                    self.stackSavePoints_.clear()
-                    self.queueSavePoints_.clear()
+            #        self.stackSavePoints_.clear()
+            #        self.queueSavePoints_.clear()
 
-            else:
-                self.rollbackSavePoint(self.transaction_)
+            # else:
+            self.rollbackSavePoint(self.transaction_)
 
             cur.d.modeAccess_ = CursorAccessMode.Browse
             return True
@@ -602,13 +602,13 @@ class PNConnection(QtCore.QObject, IConnection):
                 if self.commit():
                     self._last_active_cursor = None
 
-                    if not self.canSavePoint():
-                        if self.currentSavePoint_:
-                            del self.currentSavePoint_
-                            self.currentSavePoint_ = None
+                    # if not self.canSavePoint():
+                    #    if self.currentSavePoint_:
+                    #        del self.currentSavePoint_
+                    #        self.currentSavePoint_ = None
 
-                        self.stackSavePoints_.clear()
-                        self.queueSavePoints_.clear()
+                    #    self.stackSavePoints_.clear()
+                    #    self.queueSavePoints_.clear()
 
                     if notify:
                         cur.d.modeAccess_ = CursorAccessMode.Browse
@@ -634,33 +634,33 @@ class PNConnection(QtCore.QObject, IConnection):
             if (self.transaction_ == 1 and self.canTransaction()) or (
                 self.transaction_ == 0 and not self.canTransaction()
             ):
-                if not self.canSavePoint():
-                    if self.currentSavePoint_:
-                        del self.currentSavePoint_
-                        self.currentSavePoint_ = None
+                # if not self.canSavePoint():
+                #    if self.currentSavePoint_:
+                #        del self.currentSavePoint_
+                #        self.currentSavePoint_ = None
 
-                    self.stackSavePoints_.clear()
-                    self.queueSavePoints_.clear()
-                else:
-                    self.releaseSavePoint(self.transaction_)
+                #    self.stackSavePoints_.clear()
+                #    self.queueSavePoints_.clear()
+                # else:
+                self.releaseSavePoint(self.transaction_)
                 if notify:
                     cur.d.modeAccess_ = CursorAccessMode.Browse
 
                 return True
-            if not self.canSavePoint():
-                tam_queue = len(self.queueSavePoints_)
-                for i in range(tam_queue):
-                    temp_save_point = self.queueSavePoints_.pop()
-                    temp_save_point.setId(self.transaction_ - 1)
-                    self.queueSavePoints_.append(temp_save_point)
+            # if not self.canSavePoint():
+            #    tam_queue = len(self.queueSavePoints_)
+            #    for i in range(tam_queue):
+            #        temp_save_point = self.queueSavePoints_.pop()
+            #        temp_save_point.setId(self.transaction_ - 1)
+            #        self.queueSavePoints_.append(temp_save_point)
 
-                if self.currentSavePoint_:
-                    self.queueSavePoints_.append(self.currentSavePoint_)
-                    self.currentSavePoint_ = None
-                    if self.stackSavePoints_:
-                        self.currentSavePoint_ = self.stackSavePoints_.pop()
-            else:
-                self.releaseSavePoint(self.transaction_)
+            #    if self.currentSavePoint_:
+            #        self.queueSavePoints_.append(self.currentSavePoint_)
+            #        self.currentSavePoint_ = None
+            #        if self.stackSavePoints_:
+            #            self.currentSavePoint_ = self.stackSavePoints_.pop()
+            # else:
+            self.releaseSavePoint(self.transaction_)
 
             if notify:
                 cur.d.modeAccess_ = CursorAccessMode.Browse

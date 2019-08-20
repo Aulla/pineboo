@@ -2903,9 +2903,9 @@ class PNSqlCursor(QtCore.QObject):
             if db is None:
                 raise Exception("db is not defined!")
 
-            if not db.canSavePoint():
-                if db.currentSavePoint_:
-                    db.currentSavePoint_.saveEdit(pKN, self.bufferCopy(), self)
+            # if not db.canSavePoint():
+            #    if db.currentSavePoint_:
+            #        db.currentSavePoint_.saveEdit(pKN, self.bufferCopy(), self)
 
             if functionAfter and self.d.activatedCommitActions_:
                 if not savePoint:
