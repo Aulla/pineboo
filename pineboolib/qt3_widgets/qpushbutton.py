@@ -14,9 +14,11 @@ class QPushButton(QtWidgets.QPushButton):
 
     def __init__(self, *args, **kwargs) -> None:
         """Inicialize."""
-
         super(QPushButton, self).__init__(*args, **kwargs)
-        self.setTextLabel = self.setText
+
+    def setTextLabel(self, text: str) -> None:
+        """Set text label."""
+        self.setText(text)
 
     @decorators.NotImplementedWarn
     def setTextPosition(self, pos: int) -> None:
@@ -91,6 +93,15 @@ class QPushButton(QtWidgets.QPushButton):
         else:
             super().setMaximumSize(w)
 
+    def isEnabled(self) -> bool:
+        """Return if the button is enabled. Overloaded by property assign."""
+        return super().isEnabled()
+
+    def setEnabled(self, enabled: bool) -> None:
+        """Set if the button is enabled. Overloaded by property assign."""
+        super().setEnabled(enabled)
+
     toggleButton = property(getToggleButton, setToggleButton)
     on = property(getOn, setOn)
     text = property(getText, setText)  # type: ignore
+    enabled = property(isEnabled, setEnabled)
