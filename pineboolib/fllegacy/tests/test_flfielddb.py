@@ -64,8 +64,6 @@ class TestFLFieldDBString(unittest.TestCase):
         from pineboolib.qsa import dictmodules
         from pineboolib import application
 
-        from PyQt5 import QtCore
-
         module_ = dictmodules.from_project("formRecordflmodules")
         parent = module_.form
         table_mtd = application.project.conn.manager().metadata("flmodules")
