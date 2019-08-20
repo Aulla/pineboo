@@ -57,6 +57,60 @@ class TestFLFieldDBString(unittest.TestCase):
         field.showWidget()
         self.assertEqual(field.pushButtonDB.isHidden(), False)
 
+    def test_fldateedit_empty_value(self) -> None:
+        """Check if the empty value is 00-00-0000."""
+        from pineboolib.fllegacy import flfielddb
+        from pineboolib.application.metadata import pnfieldmetadata
+        from pineboolib.qsa import dictmodules
+        from pineboolib import application
+
+        from PyQt5 import QtCore
+
+        module_ = dictmodules.from_project("formRecordflmodules")
+        parent = module_.form
+        table_mtd = application.project.conn.manager().metadata("flmodules")
+        field_mtd = pnfieldmetadata.PNFieldMetaData(
+            "date_control",
+            "Date",
+            True,
+            False,
+            "date",
+            0,
+            False,
+            True,
+            False,
+            0,
+            0,
+            False,
+            False,
+            False,
+            None,
+            False,
+            None,
+            True,
+            False,
+            False,
+        )
+        table_mtd.addFieldMD(field_mtd)
+
+        new_field = flfielddb.FLFieldDB(parent)
+        new_field.setObjectName("date_control")
+        new_field.setFieldName(field_mtd.name())
+        new_field.load()
+        cursor = new_field.cursor()
+        self.assertEqual(module_.form.cursor(), cursor)
+        field_mtd_2 = cursor.metadata().field("date_control")
+        self.assertEqual(field_mtd, field_mtd_2)
+        self.assertEqual(field_mtd_2.type(), "date")
+        self.assertTrue(new_field.editor_)
+        self.assertEqual(new_field.editor_.DMY, "dd-MM-yyyy")
+        new_field.editor_.date = "01-02-2001"
+        self.assertEqual(new_field.editor_.date, "2001-02-01")
+        new_field.editor_.date = None
+        self.assertEqual(new_field.editor_.date, None)
+        # lay = parent.layout()
+        # lay.addWidget(new_field)
+
 
 if __name__ == "__main__":
     unittest.main()
