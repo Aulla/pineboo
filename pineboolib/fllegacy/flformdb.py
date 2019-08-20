@@ -161,7 +161,9 @@ class FLFormDB(QDialog):
 
     logger = logging.getLogger("FLFormDB")
 
-    def __init__(self, parent: QtWidgets.QWidget, action: "FLAction", load: bool = False) -> None:
+    def __init__(
+        self, parent: Optional[QtWidgets.QWidget], action: "FLAction", load: bool = False
+    ) -> None:
         """Create a new FLFormDB for given action."""
         # self.tiempo_ini = time.time()
         from pineboolib.application import project
@@ -460,12 +462,12 @@ class FLFormDB(QDialog):
         """
         Close the form.
         """
-
-        if self.isClosing_:
+        if self.isClosing_ or not self._loaded:
             return True
 
         self.isClosing_ = True
-        super(FLFormDB, self).close()
+
+        super().close()
         self.isClosing_ = False
         return True
 
