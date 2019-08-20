@@ -2870,7 +2870,7 @@ class PNSqlCursor(QtCore.QObject):
                     if v and not isinstance(v, bool) or v is False:
                         return False
 
-        pKN = self.d.metadata_.primaryKey()
+        # pKN = self.d.metadata_.primaryKey()
         updated = False
         # savePoint = None
 
