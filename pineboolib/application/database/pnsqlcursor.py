@@ -2872,7 +2872,7 @@ class PNSqlCursor(QtCore.QObject):
 
         pKN = self.d.metadata_.primaryKey()
         updated = False
-        savePoint = None
+        # savePoint = None
 
         if self.modeAccess() == self.Insert:
             if self.d.cursorRelation_ and self.d.relation_:
@@ -2907,12 +2907,12 @@ class PNSqlCursor(QtCore.QObject):
             #    if db.currentSavePoint_:
             #        db.currentSavePoint_.saveEdit(pKN, self.bufferCopy(), self)
 
-            if functionAfter and self.d.activatedCommitActions_:
-                if not savePoint:
-                    from . import pnsqlsavepoint
+            # if functionAfter and self.d.activatedCommitActions_:
+            #    if not savePoint:
+            #        from . import pnsqlsavepoint
 
-                    savePoint = pnsqlsavepoint.PNSqlSavePoint(None)
-                savePoint.saveEdit(pKN, self.bufferCopy(), self)
+            #        savePoint = pnsqlsavepoint.PNSqlSavePoint(None)
+            #    savePoint.saveEdit(pKN, self.bufferCopy(), self)
 
             if self.d.cursorRelation_ and self.d.relation_:
                 if self.d.cursorRelation_.metadata():

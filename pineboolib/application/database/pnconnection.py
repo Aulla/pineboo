@@ -10,7 +10,7 @@ from pineboolib.core import decorators
 from pineboolib.interfaces.iconnection import IConnection
 from pineboolib.interfaces.cursoraccessmode import CursorAccessMode
 
-from .pnsqlsavepoint import PNSqlSavePoint
+# from .pnsqlsavepoint import PNSqlSavePoint
 from . import db_signals
 from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
@@ -39,7 +39,7 @@ class PNConnection(QtCore.QObject, IConnection):
     _managerModules = None
     _manager = None
     driverName_: str
-    currentSavePoint_: Optional[PNSqlSavePoint]
+    # currentSavePoint_: Optional[PNSqlSavePoint]
     # stackSavePoints_: List[PNSqlSavePoint]
     # queueSavePoints_: List[PNSqlSavePoint]
     interactiveGUI_: bool
@@ -63,7 +63,7 @@ class PNConnection(QtCore.QObject, IConnection):
         from .pnsqldrivers import PNSqlDrivers
 
         super(PNConnection, self).__init__()
-        self.currentSavePoint_ = None
+        # self.currentSavePoint_ = None
         self.driverSql = PNSqlDrivers()
         self.connAux: Dict[str, "IConnection"] = {}
         if name is None:
