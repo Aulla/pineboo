@@ -67,6 +67,8 @@ class TestFLFieldDBString(unittest.TestCase):
         module_ = dictmodules.from_project("formRecordflmodules")
         parent = module_.form
         table_mtd = application.project.conn.manager().metadata("flmodules")
+        if table_mtd is None:
+            raise Exception("table_mtd is empty!.")
         field_mtd = pnfieldmetadata.PNFieldMetaData(
             "date_control",
             "Date",
@@ -98,6 +100,9 @@ class TestFLFieldDBString(unittest.TestCase):
         cursor = new_field.cursor()
         self.assertEqual(module_.form.cursor(), cursor)
         field_mtd_2 = cursor.metadata().field("date_control")
+        if field_mtd_2 is None:
+            raise Exception("field_mtd_2 is empty!")
+
         self.assertEqual(field_mtd, field_mtd_2)
         self.assertEqual(field_mtd_2.type(), "date")
         self.assertTrue(new_field.editor_)
