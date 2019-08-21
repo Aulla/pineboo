@@ -73,8 +73,10 @@ class PinebooSettings(QSettings):
             if curtime - cachedVal[0] > self.CACHE_TIME_SEC:
                 del self.cache[key]
             else:
-                return cachedVal[1]
+                if cachedVal[1] is not None:
+                    return cachedVal[1]
         val = self._value(key, defaultValue)
+
         self.cache[key] = (curtime, val)
         return val
 
