@@ -82,7 +82,7 @@ class FormInternalObj(qsa.FormDBWidget):
             if ruta is False:
                 ruta = "https://github.com/Aulla/pineboo.git"
             w.child("le_git_ruta").text = ruta
-            connect(w.child("pb_git_test"), u"clicked()", self, "search_git_updates")
+            self.module_connect(w.child("pb_git_test"), u"clicked()", self, "search_git_updates")
         else:
             w.child("tbwLocales").setTabEnabled("tab_updates", False)
 
