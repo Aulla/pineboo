@@ -45,7 +45,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     rowsLoaded = 0
     where_filter: str
     where_filters: Dict[str, str] = {}
-    _metadata = None
+    _metadata: "PNTableMetaData"
     _sortOrder = ""
     _disable_refresh = None
     color_function_ = None
@@ -55,6 +55,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     parent_view: Optional[QtWidgets.QTableView]  # type is FLDatatable
     sql_str = ""
     canFetchMoreRows: bool
+    _curname: str
+    _parent: "PNSqlCursor"
     _initialized: Optional[
         bool
     ] = None  # Usa 3 estado None, True y False para hacer un primer refresh retardado si pertenece a un fldatatable
@@ -70,12 +72,15 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if parent is None:
             raise ValueError("Parent is mandatory")
         self._cursorConn = conn
-        self._parent: "PNSqlCursor" = parent
+        self._parent = parent
         self.parent_view = None
 
-        # self._metadata = self._parent.metadata()
-        if not self.metadata():
+        metadata = self._parent.d.metadata_
+
+        if not metadata:
             return
+
+        self._metadata = metadata
 
         self._driver_sql = self.db().driver()
         self.USE_THREADS = self.driver_sql().useThreads()
@@ -1289,9 +1294,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @return Objeto FLTableMetaData
         """
-        if self._parent.d.metadata_ is None:
-            raise Exception("Metadata not set")
-        return self._parent.d.metadata_
+        return self._metadata
 
     def driver_sql(self) -> Any:
         """Get SQL Driver used."""
