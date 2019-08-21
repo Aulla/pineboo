@@ -2302,10 +2302,14 @@ class DeclarationBlock(ASTPython):
             if is_constructor:
                 expr[0] = "self." + expr[0]
             if is_definition:
+                if expr[0] == "form" and expr[2] == "self":
+                    expr[1] = ":"
+                    expr[2] = "qsa.FormDBWidget"
                 # Transform: ['iface', '=', 'ifaceCtx(self)']
                 # To: ['iface', ':', 'ifaceCtx']
-                expr[1] = ":"
-                expr[2] = expr[2].replace("(self)", "")
+                else:
+                    expr[1] = ":"
+                    expr[2] = expr[2].replace("(self)", "")
             yield "line", " ".join(expr)
 
 
