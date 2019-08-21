@@ -1077,8 +1077,8 @@ class FLManager(QtCore.QObject, IManager):
         util = FLUtil()
 
         ck = False
-        n: str
-        a: str
+        n: str = ""
+        a: str = ""
         ol: Optional[str] = None
         rX = None
         assocBy = None
