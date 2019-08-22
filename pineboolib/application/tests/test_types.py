@@ -149,7 +149,7 @@ class TestString(unittest.TestCase):
     def test_fromCharCode(self) -> None:
         """Test fromCharCode."""
         temp: str = String.fromCharCode(13, 10)
-        self.assertEqual(temp, "\n")
+        self.assertEqual(temp, "\r\n")
 
 
 class TestFile(unittest.TestCase):
