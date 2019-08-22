@@ -16,6 +16,7 @@ from pineboolib.application.types import (
     FileStatic,
     Dir,
     DirStatic,
+    String,
 )
 
 init_cli()  # FIXME: This should be avoided
@@ -139,6 +140,16 @@ class TestDate(unittest.TestCase):
         self.assertEqual(d.getDay(), 25)
         self.assertEqual(d.getMonth(), 2)
         self.assertEqual(d.getYear(), 2001)
+
+
+class TestString(unittest.TestCase):
+    """TestString class."""
+
+    # FIXME: Complete unit tests
+    def test_fromCharCode(self) -> None:
+        """Test fromCharCode."""
+        temp: str = String.fromCharCode(13, 10)
+        self.assertEqual(temp, "\n")
 
 
 class TestFile(unittest.TestCase):

@@ -62,6 +62,15 @@ class QString(str):
         else:
             return self[start : start + length]
 
+    @staticmethod
+    def fromCharCode(*args: int) -> str:
+        """Return a char list values."""
+        ret: str = ""
+        for i in args:
+            ret += chr(i)
+
+        return ret
+
 
 def Function(*args: str) -> Any:
     """
@@ -132,14 +141,7 @@ def Object(x: Optional[Dict[str, Any]] = None) -> StructMyDict:
     return StructMyDict(x)
 
 
-def String(value: str) -> str:
-    """
-    Convert something into string.
-
-    @param value. Valor a convertir
-    @return cadena de texto.
-    """
-    return str(value)
+String = QString
 
 
 class Array(object):
