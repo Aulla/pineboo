@@ -14,6 +14,8 @@ from pineboolib.application.types import (
     Date,
     File,
     FileStatic,
+    Dir,
+    DirStatic,
 )
 
 init_cli()  # FIXME: This should be avoided
@@ -163,6 +165,27 @@ class TestFile(unittest.TestCase):
         contenido_2 = FileStatic.read(temporal)
         self.assertEqual(contenido, contenido_2)
         os.remove(temporal)
+
+    def test_full_name_and_readable(self) -> None:
+        """Check fullName"""
+        from pineboolib.fllegacy.systype import SysType
+
+        temporal = "%s%s" % (SysType().installPrefix(), u"/tempdata/test_types_file_full_name.txt")
+        contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
+        file_ = File(temporal)
+        file_.write(contenido)
+        self.assertEqual(file_.fullName(), temporal)
+        self.assertTrue(file_.readable())
+
+
+class TestDir(unittest.TestCase):
+    """TestDir class."""
+
+    def test_current(self) -> None:
+        """Check Dir."""
+
+        self.assertEqual(os.curdir, Dir().current)
+        self.assertEqual(os.curdir, DirStatic.current)
 
 
 if __name__ == "__main__":

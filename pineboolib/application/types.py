@@ -394,6 +394,14 @@ class Dir(object):
         """
         os.chdir(val or filedir("."))
 
+    def getCurrent(self) -> str:
+        """Return current folder."""
+        return os.curdir
+
+    def set_current(self, new_path: str) -> None:
+        """Set new patch."""
+        os.chdir(new_path or filedir("."))
+
     def mkdir(self, name: Optional[str] = None) -> None:
         """
         Create a new folder.
@@ -409,6 +417,11 @@ class Dir(object):
             os.stat(name)
         except Exception:
             os.mkdir(name)
+
+    current = property(getCurrent, set_current)
+
+
+DirStatic = Dir()
 
 
 class FileBaseClass(object):
@@ -460,7 +473,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
     _file_name: Optional[str]
     _mode: QIODevice
-    _path: Optional[str]
+    path: Optional[str]
 
     _encode: str
     _last_seek: int
@@ -477,7 +490,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if file_path is not None:
             self._q_file = QtCore.QFile(file_path)
             self._file_name = str(file_path)
-            self._path = os.path.dirname(os.path.abspath(file_path))
+            self.path = os.path.dirname(os.path.abspath(file_path))
 
         if encode is not None:
             self._encode = encode
@@ -653,6 +666,15 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         @return Boolean . True si se ha borrado el _file_name, si no False.
         """
         return self._q_file.remove()
+
+    def fullName(self) -> str:
+        """Reurn full name."""
+        return self._file_name or ""
+
+    def readable(self) -> bool:
+        """Return if file is readable."""
+
+        return os.access(self._file_name or "", os.R_OK)
 
     name = property(getName)
 
