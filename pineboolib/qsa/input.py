@@ -1,7 +1,7 @@
 """Input module."""
 
 from PyQt5.QtWidgets import QInputDialog, QLineEdit, QWidget  # type: ignore
-from typing import Any, Optional, Union, List
+from typing import Any, Optional, Union, Iterable
 
 
 class Input(object):
@@ -28,24 +28,18 @@ class Input(object):
     @classmethod
     def getNumber(
         cls, question: str, value: Union[str, float], part_decimal: int, title: str = "Pineboo"
-    ) -> Optional[float]:
+    ) -> float:
         """Return number."""
 
         parent = QWidget()  # FIXME: Should be the mainWindow or similar
         text, ok = QInputDialog.getText(
             parent, title, question, QLineEdit.Normal, str(round(float(value), part_decimal))
         )
-        if not ok:
-            return None
-        return float(text)
+        return float(text) if ok else 0.00
 
     @classmethod
     def getItem(
-        cls,
-        question: str,
-        items_list: List[str] = [],
-        title: str = "Pineboo",
-        editable: bool = True,
+        cls, question: str, items_list: Iterable = [], title: str = "Pineboo", editable: bool = True
     ) -> Any:
         """
         Return Item.
