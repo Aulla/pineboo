@@ -256,7 +256,7 @@ def killTimer(t: Optional["QtCore.QTimer"] = None) -> None:
         t.stop()
 
 
-def debug(txt: str) -> None:
+def debug(txt: Union[bool, str, int, float]) -> None:
     """
     Debug for QSA messages.
 
