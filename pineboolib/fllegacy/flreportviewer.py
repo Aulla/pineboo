@@ -665,7 +665,7 @@ class FLReportViewer(QtWidgets.QWidget):
             return self.rptEngine_.setReportData(d)
         return False
 
-    def setReportTemplate(self, t: QtXml.QDomNode, style: Optional[str] = None) -> bool:
+    def setReportTemplate(self, t: Union[QtXml.QDomNode, str], style: Optional[str] = None) -> bool:
         """Set template to report."""
         if isinstance(t, QtXml.QDomNode):
             self.xmlTemplate_ = t
