@@ -904,7 +904,9 @@ class FLUtil(QtCore.QObject):
         return execSql(sql, connName)
 
     @classmethod
-    def createProgressDialog(cls, title: str, steps: int, id_: str = "default") -> Any:
+    def createProgressDialog(
+        cls, title: str, steps: Union[int, float], id_: str = "default"
+    ) -> Any:
         """
         Create a progress dialog.
 
@@ -928,7 +930,7 @@ class FLUtil(QtCore.QObject):
         project.message_manager().send("progress_dialog_manager", "destroy", [id_])
 
     @classmethod
-    def setProgress(cls, step_number: int, id_: str = "default") -> None:
+    def setProgress(cls, step_number: Union[int, float], id_: str = "default") -> None:
         """
         Set the degree of progress of the dialogue.
 
