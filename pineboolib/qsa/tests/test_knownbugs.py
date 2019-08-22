@@ -8,8 +8,8 @@ from pineboolib.application.types import Function
 from pineboolib.application.parsers.qsaparser.postparse import pythonify_string as qs2py
 
 
-class TestIsLoadedModule(unittest.TestCase):
-    """Test qsa.isLoadedModule."""
+class TestKnownBugs(unittest.TestCase):
+    """Test known bugs."""
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -40,6 +40,133 @@ class TestIsLoadedModule(unittest.TestCase):
         qsa.System.setenv("TEST_PINEBOO", "¡hola!")
 
         self.assertEqual(qsa.System.getenv("TEST_PINEBOO"), "¡hola!")
+
+    def test_multiples_if(self) -> None:
+        """Check stackoverflow when parsing."""
+
+        cadena = """var fN : String ="uno0";
+                    if (fN == "uno0") {
+                        debug(fN);
+                        }
+                    else if (fN == "dos0") {
+                        debug(fN)
+                        }
+                    else if (fN == "tres0") {
+                        debug(fN);
+                        }
+                    else if (fN == "cuatro0") {
+                        debug(fN);
+                        }
+                    else if (fN == "cinco0") {
+                        debug(fN);
+                        }
+                    else if (fN == "seis0") {
+                        debug(fN);
+                        }
+                    else if (fN == "siete0") {
+                        debug(fN);
+                        }
+                    else if (fN == "ocho0") {
+                            debug(fN);
+                            }
+                    else if (fN == "nueve0") {
+                        debug(fN);
+                        }
+                    else if (fN == "diez0") {
+                        debug(fN);
+                        }
+                    else if (fN == "uno0") {
+                        debug(fN);
+                        }
+                    else if (fN == "dos0") {
+                        debug(fN);
+                        }
+                    else if (fN == "tres0") {
+                        debug(fN);
+                        }
+                    else if (fN == "cuatro0") {
+                        debug(fN);
+                        }
+                    else if (fN == "cinco0") {
+                        debug(fN);
+                        }
+                    else if (fN == "seis0") {
+                        debug(fN);
+                        }
+                    else if (fN == "siete0") {
+                        debug(fN);
+                        }
+                    else if (fN == "ocho0") {
+                            debug(fN);
+                            }
+                    else if (fN == "nueve0") {
+                        debug(fN);
+                        }
+                    else if (fN == "diez0") {
+                        debug(fN);
+                        }
+                    else if (fN == "dos0") {
+                        debug(fN);
+                        }
+                    else if (fN == "tres0") {
+                        debug(fN);
+                        }
+                    else if (fN == "cuatro0") {
+                        debug(fN);
+                        }
+                    else if (fN == "cinco0") {
+                        debug(fN);
+                        }
+                    else if (fN == "seis0") {
+                        debug(fN);
+                        }
+                    else if (fN == "siete0") {
+                        debug(fN);
+                        }
+                    else if (fN == "ocho0") {
+                            debug(fN);
+                            }
+                    else if (fN == "nueve0") {
+                        debug(fN);
+                        }
+                    else if (fN == "diez0") {
+                        debug(fN);
+                        }
+                    else if (fN == "uno0") {
+                        debug(fN);
+                        }
+                    else if (fN == "dos0") {
+                        debug(fN);
+                        }
+                    else if (fN == "tres0") {
+                        debug(fN);
+                        }
+                    else if (fN == "cuatro0") {
+                        debug(fN);
+                        }
+                    else if (fN == "cinco0") {
+                        debug(fN);
+                        }
+                    else if (fN == "seis0") {
+                        debug(fN);
+                        }
+                    else if (fN == "siete0") {
+                        debug(fN);
+                        }
+                    else if (fN == "ocho0" || fN == "once0") {
+                            debug(fN);
+                            }
+                    else if (fN == "nueve0") {
+                        debug(fN);
+                        }
+                    else if (fN == "diez0") {
+                        debug(fN);
+                        }
+
+                    return fN;"""
+
+        cadena_result = qs2py(cadena)
+        self.assertFalse(cadena_result.find("not-known-seq") > -1)
 
 
 if __name__ == "__main__":

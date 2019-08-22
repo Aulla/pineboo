@@ -679,7 +679,7 @@ def calctree(
         if type(value) is dict:
             # print "*"
             # FIXME: Esto o no parsea todos los elementos o hace stackoverflow. problematico para programas largos
-            if depth < 150:
+            if depth < 300:
                 try:
                     tree_obj = calctree(
                         value, depth + 1, num + [str(n)], ctype, alias_mode=alias_mode
