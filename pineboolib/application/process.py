@@ -136,7 +136,7 @@ class Process(ProcessBaseClass):
 
         self._std_error = value
 
-    def get_working_directory(self) -> Any:
+    def get_working_directory(self) -> str:
         """Return working directory."""
 
         return super().workingDirectory()
