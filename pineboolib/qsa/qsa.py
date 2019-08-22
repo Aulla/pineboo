@@ -10,7 +10,7 @@ from pineboolib.fllegacy import flapplication
 from pineboolib.core.utils.utils_base import ustr, filedir  # noqa: F401
 from pineboolib.application.types import Boolean, QString, String, Function, Object  # noqa: F401
 from pineboolib.application.types import File, Dir, Array, Date, AttributeDict  # noqa: F401
-from pineboolib.application.types import FileStatic  # noqa: F401
+from pineboolib.application.types import FileStatic, DirStatic  # noqa: F401
 
 from .input import Input  # noqa: F401
 from .utils import switch, qsaRegExp, RegExp, Math, parseFloat, parseString, parseInt  # noqa: F401
@@ -44,7 +44,7 @@ from .pncontrolsfactory import FLTextEditOutput, FLSpinBox, FLTableDB, FLFieldDB
 from .pncontrolsfactory import FLFormDB, FLFormRecordDB, FLFormSearchDB  # noqa: F401
 from .pncontrolsfactory import FLDoubleValidator, FLIntValidator, FLUIntValidator  # noqa: F401
 from .pncontrolsfactory import FLCodBar, FLWidget, FLWorkSpace, FLPosPrinter  # noqa: F401
-from .pncontrolsfactory import FLSqlQuery, FLSqlCursor, FLNetwork  # noqa: F401
+from .pncontrolsfactory import FLSqlQuery, FLSqlCursor, FLNetwork, FLSerialPort  # noqa: F401
 from .pncontrolsfactory import FLApplication, FLVar, FLSmtpClient, FLTable  # noqa: F401
 from .pncontrolsfactory import FLListViewItem, FLReportViewer, FLUtil, FLSettings  # noqa: F401
 
@@ -53,6 +53,7 @@ from .pncontrolsfactory import FLListViewItem, FLReportViewer, FLUtil, FLSetting
 from .pncontrolsfactory import FileDialog, Color, Label, Line, CheckBox, Dialog  # noqa: F401
 from .pncontrolsfactory import ComboBox, TextEdit, LineEdit, MessageBox, RadioButton  # noqa: F401
 from .pncontrolsfactory import GroupBox, SpinBox, NumberEdit, DateEdit, TimeEdit  # noqa: F401
+from .pncontrolsfactory import Picture, Rect, Size, Pixmap  # noqa: F401
 
 
 # AQS

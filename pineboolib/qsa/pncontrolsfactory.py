@@ -111,6 +111,7 @@ from pineboolib.fllegacy.flutil import FLUtil  # noqa: F401
 from pineboolib.fllegacy.flsettings import FLSettings  # noqa: F401
 from pineboolib.fllegacy.flposprinter import FLPosPrinter  # noqa: F401
 from pineboolib.fllegacy.flsqlquery import FLSqlQuery  # noqa: F401
+from pineboolib.fllegacy.flserialport import FLSerialPort  # noqa: F401
 from pineboolib.fllegacy.flsqlcursor import FLSqlCursor  # noqa: F401
 from pineboolib.fllegacy.flnetwork import FLNetwork  # noqa: F401
 from pineboolib.fllegacy.flreportviewer import FLReportViewer  # noqa: F401
@@ -140,6 +141,10 @@ from pineboolib.qt3_widgets.groupbox import GroupBox  # noqa: F401
 from pineboolib.qt3_widgets.numberedit import NumberEdit  # noqa: F401
 from pineboolib.qt3_widgets.dateedit import DateEdit  # noqa: F401
 from pineboolib.qt3_widgets.timeedit import TimeEdit  # noqa: F401
+from pineboolib.qt3_widgets.picture import Picture  # noqa: F401
+from pineboolib.qt3_widgets.rect import Rect  # noqa: F401
+from pineboolib.qt3_widgets.size import Size  # noqa: F401
+from pineboolib.qt3_widgets.pixmap import Pixmap  # noqa: F401
 
 from pineboolib.fllegacy.aqsobjects.aqsettings import AQSettings  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsqlquery import AQSqlQuery  # noqa: F401

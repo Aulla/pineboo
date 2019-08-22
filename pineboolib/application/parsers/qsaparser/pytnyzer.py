@@ -88,6 +88,7 @@ QSA_KNOWN_ATTRS = {
     "FLPixmapView",
     "FLPosPrinter",
     "FLReportViewer",
+    "FLSerialPort",
     "FLSpinBox",
     "FLSqlCursor",
     "FLSqlQuery",
@@ -119,6 +120,8 @@ QSA_KNOWN_ATTRS = {
     "ObjectNotFoundInCurrentDGI",
     "Optional",
     "Process",
+    "Picture",
+    "Pixmap",
     "ProxySlot",
     "QAction",
     "QActionGroup",
@@ -184,12 +187,14 @@ QSA_KNOWN_ATTRS = {
     "QtWidgets",
     "RadioButton",
     "RegExp",
+    "Rect",
     "RichText",
     "SpinBox",
     "String",
     "SysType",
     "System",
     "System_class",
+    "Size",
     "TextEdit",
     "TimeEdit",
     "Tuple",
@@ -1592,6 +1597,8 @@ class Member(ASTPython):
                 ]
         if arguments[0] == "qsa.File":
             arguments[0] = "qsa.FileStatic"
+        if arguments[0] == "qsa.Dir":
+            arguments[0] = "qsa.DirStatic"
         if arguments[0] == "qsa.Process":
             arguments[0] = "qsa.ProcessStatic"
         replace_members = [
