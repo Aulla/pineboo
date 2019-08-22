@@ -241,8 +241,6 @@ class Project(object):
             """ SELECT idmodulo, nombre, sha FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
         )
 
-        size_ = cursor_.rowcount
-
         f1 = open(_dir("project.txt"), "w")
         self.files = {}
         if self._DGI.useDesktop() and self._DGI.localDesktop():
@@ -251,6 +249,8 @@ class Project(object):
             raise AssertionError
         p = 0
         from pineboolib.application.file import File
+
+        list_files: List[str] = []
 
         for idmodulo, nombre, sha in cursor_:
             if not self._DGI.accept_file(nombre):
@@ -325,12 +325,12 @@ class Project(object):
                 and nombre.endswith(".qs")
                 and config.value("application/isDebuggerMode", False)
             ):
-                self.message_manager().send(
-                    "splash", "showMessage", ["Convirtiendo %s ( %d/ %d) ..." % (nombre, p, size_)]
-                )
                 if os.path.exists(file_name):
+                    list_files.append(file_name)
+                    # self.parseScript(file_name, "(%d de %d)" % (p, size_))
 
-                    self.parseScript(file_name, "(%d de %d)" % (p, size_))
+        self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
+        self.parse_script_list(list_files)
 
         tiempo_fin = time.time()
         self.logger.info(
@@ -340,13 +340,17 @@ class Project(object):
         # Cargar el núcleo común del proyecto
         idmodulo = "sys"
         for root, dirs, files in os.walk(filedir("..", "share", "pineboo")):
+            # list_files = []
             for nombre in files:
                 if root.find("modulos") == -1:
                     fileobj = File(idmodulo, nombre, basedir=root, db_name=self.conn.DBName())
                     self.files[nombre] = fileobj
                     self.modules[idmodulo].add_project_file(fileobj)
-                    if self.parseProject and nombre.endswith(".qs"):
-                        self.parseScript(_dir(root, nombre))
+                    # if self.parseProject and nombre.endswith(".qs"):
+                    # self.parseScript(_dir(root, nombre))
+                    #    list_files.append(_dir(root, nombre))
+
+            # self.parse_script_lists(list_files)
 
         if not config.value("ebcomportamiento/orm_load_disabled", False):
             self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
@@ -461,7 +465,7 @@ class Project(object):
 
         return None
 
-    def parseScript(self, scriptname: str, txt_: str = "") -> None:
+    def parse_script(self, scriptname: str, txt_: str = "") -> None:
         """
         Convert QS script into Python and stores it in the same folder.
 
@@ -487,6 +491,35 @@ class Project(object):
                 postparse.pythonify([scriptname], ["--strict"])
             except Exception:
                 self.logger.exception("El fichero %s no se ha podido convertir", scriptname)
+
+    def parse_script_list(self, path_list: List[str]) -> None:
+        """Convert QS scripts list into Python and stores it in the same folders."""
+        from .parsers.qsaparser import pyconvert, pytnyzer
+        from multiprocessing import Pool
+
+        if not path_list:
+            return
+
+        for file_path in path_list:
+            if not os.path.isfile(file_path):
+                raise IOError
+
+        pytnyzer.STRICT_MODE = True
+
+        itemlist = [
+            pyconvert.PythonifyItem(
+                src=path_file, dst="%s.py" % path_file, n=n, len=len(path_list), known={}
+            )
+            for n, path_file in enumerate(path_list)
+        ]
+        msg = "Convirtiendo a Python . . ."
+        self.logger.info(msg)
+
+        with Pool(pyconvert.CPU_COUNT) as p:
+            # TODO: Add proper signatures to Python files to avoid reparsing
+            pycode_list: List[bool] = p.map(pyconvert.pythonify_item, itemlist, chunksize=2)
+            if not all(pycode_list):
+                raise Exception("Conversion failed for some files")
 
     def test(self, name=None):
         """
