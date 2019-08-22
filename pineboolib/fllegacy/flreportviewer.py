@@ -869,7 +869,7 @@ class FLReportViewer(QtWidgets.QWidget):
         pass
 
     @decorators.BetaImplementation
-    def setPageSize(self, s: QtCore.QSize) -> None:
+    def setPageSize(self, w: Union[QtCore.QSize, int], h: Optional[int] = None) -> None:
         """Set page size."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
