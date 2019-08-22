@@ -5,7 +5,6 @@ Module for PNSqlQuery class.
 
 from pineboolib.core.utils import logging
 from pineboolib.core import decorators
-from pineboolib.core.settings import config
 from pineboolib.application.utils import sql_tools
 from pineboolib.application import project
 from pineboolib.interfaces.ifieldmetadata import IFieldMetaData
