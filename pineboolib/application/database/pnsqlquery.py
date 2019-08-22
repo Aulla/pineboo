@@ -567,23 +567,20 @@ class PNSqlQuery(object):
 
         logger.warning(linea)
 
-    def _value_quick(self, n: Union[str, int], raw: bool = False) -> Any:
-        """Quick mode."""
-        # Fast version of self.value
-        if self._fieldNameToPosDict is None:
-            self._fieldNameToPosDict = {v: n for n, v in enumerate(self.d.fieldList_)}
-        try:
-            if isinstance(n, int):
-                ret = self._row[n]
-            else:
-                ret = self._row[self._fieldNameToPosDict[n]]
-        except Exception as e:
-            logger.debug("_value_quick: Error %s, falling back to default implementation", e)
-            ret = self._value_std(n, raw)
-        return ret
+    def value(self, n: Union[str, int, None], raw: bool = False) -> Any:
+        """
+        Get the value of a query field.
 
-    def _value_std(self, n: Union[str, int, None], raw: bool = False) -> Any:
-        """Standart mode."""
+        Given a name of a query field, this method returns a QVariant object
+        with the value of that field. The name must correspond to the one placed in
+        the SELECT part of the SQL statement of the query.
+
+        @param n Name of the query field
+        @param raw If TRUE and the value of the field is a reference to a large value
+             (see FLManager :: storeLargeValue ()) returns the value of that reference,
+             instead of content to which that reference points
+
+        """
 
         if n is None:
             logger.trace("value::invalid use with n=None.", stack_info=True)
@@ -605,26 +602,6 @@ class PNSqlQuery(object):
                 logger.exception("value::error retrieving row position %s", pos)
 
         return ret
-
-    def value(self, n: Union[str, int], raw: bool = False) -> Any:
-        """
-        Get the value of a query field.
-
-        Given a name of a query field, this method returns a QVariant object
-        with the value of that field. The name must correspond to the one placed in
-        the SELECT part of the SQL statement of the query.
-
-        @param n Name of the query field
-        @param raw If TRUE and the value of the field is a reference to a large value
-             (see FLManager :: storeLargeValue ()) returns the value of that reference,
-             instead of content to which that reference points
-
-        """
-        _value = self._value_std
-
-        if config.value("ebcomportamiento/std_query", False):
-            _value = self._value_std
-        return _value(n, raw)
 
     def isNull(self, n: str) -> bool:
         """
