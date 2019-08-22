@@ -335,10 +335,10 @@ def text2bool(text: str) -> bool:
     raise ValueError("Valor booleano no comprendido '%s'" % text)
 
 
-def ustr(*t1: Union[bytes, str, int, "Date", None]) -> str:
+def ustr(*t1: Union[bytes, str, int, "Date", None, float]) -> str:
     """Convert and concatenate types to text."""
 
-    def ustr1(t: Union[bytes, str, int, "Date", None]) -> str:
+    def ustr1(t: Union[bytes, str, int, "Date", None, float]) -> str:
 
         if isinstance(t, str):
             return t
