@@ -1,15 +1,32 @@
+"""Flfiles module."""
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
+from typing import Any
 
 
 class FormInternalObj(qsa.FormDBWidget):
-    def _class_init(self):
+    """FormInternalObj class."""
+
+    def _class_init(self) -> None:
+        """Inicialize."""
         pass
 
-    def init(self):
-        self.child(u"contenido").text = self.cursor().valueBuffer(u"contenido")
+    def init(self) -> None:
+        """Init function."""
+        fdb_contenido = self.child(u"contenido")
+        if fdb_contenido is None:
+            raise Exception("contenido control not found!.")
+
+        fdb_contenido.text = self.cursor().valueBuffer(u"contenido")
         botonEditar = self.child(u"botonEditar")
         pbXMLEditor = self.child(u"pbXMLEditor")
+
+        if botonEditar is None:
+            raise Exception("botonEditar control not found!.")
+
+        if pbXMLEditor is None:
+            raise Exception("pbXMLEditor control not found!.")
+
         cursor = self.cursor()
         if cursor.modeAccess() == cursor.Browse:
             botonEditar.setEnabled(False)
@@ -23,14 +40,17 @@ class FormInternalObj(qsa.FormDBWidget):
             else:
                 self.module_connect(pbXMLEditor, u"clicked()", self, u"editarFicheroXML")
 
-    def acceptedForm(self):
+    def acceptedForm(self) -> None:
+        """Accept form fuction."""
         self.cursor().setValueBuffer(u"contenido", self.child(u"contenido").text)
 
-    def tipoDeFichero(self, nombre=None):
+    def tipoDeFichero(self, nombre: str) -> str:
+        """Return file type."""
         posPunto = nombre.rfind(u".")
         return nombre[(len(nombre) - (len(nombre) - posPunto)) :]
 
-    def editarFichero(self):
+    def editarFichero(self) -> None:
+        """Edit a file."""
         cursor = self.cursor()
         util = qsa.FLUtil()
         if cursor.checkIntegrity():
@@ -43,7 +63,7 @@ class FormInternalObj(qsa.FormDBWidget):
             if temporal == "":
                 temporal = qsa.System.getenv(u"HOME")
             if temporal == "":
-                temporal = qsa.ustr(qsa.sys.installPrefix(), u"/share/facturalux/tmp")
+                temporal = qsa.ustr(qsa.sys.installPrefix(), "/tempdata")
             temporal = qsa.ustr(temporal, u"/", cursor.valueBuffer(u"nombre"))
             contenido = self.child(u"contenido").text
             comando = ""
@@ -53,17 +73,19 @@ class FormInternalObj(qsa.FormDBWidget):
                 s01_do_work, s01_work_done = True, True
             if s01_do_work:
                 if util.getOS() == u"MACX":
-                    qsa.File.write(temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n"))
+                    qsa.FileStatic.write(
+                        temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+                    )
                     comando = qsa.ustr(
                         qsa.sys.installPrefix(), u"/bin/designer.app/Contents/MacOS/designer"
                     )
                 else:
-                    qsa.File.write(temporal, contenido)
+                    qsa.FileStatic.write(temporal, contenido)
                     comando = qsa.ustr(qsa.sys.installPrefix(), u"/bin/designer")
 
                 self.setDisabled(True)
-                qsa.Process.execute(qsa.Array([comando, temporal]))
-                self.child(u"contenido").text = qsa.File.read(temporal)
+                qsa.ProcessStatic.execute(qsa.Array([comando, temporal]))
+                self.child(u"contenido").text = qsa.FileStatic.read(temporal)
                 self.setDisabled(False)
                 s01_do_work = False  # BREAK
 
@@ -71,17 +93,19 @@ class FormInternalObj(qsa.FormDBWidget):
                 s01_do_work, s01_work_done = True, True
             if s01_do_work:
                 if util.getOS() == u"MACX":
-                    qsa.File.write(temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n"))
+                    qsa.FileStatic.write(
+                        temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+                    )
                     comando = qsa.ustr(
                         qsa.sys.installPrefix(), u"/bin/linguist.app/Contents/MacOS/linguist"
                     )
                 else:
-                    qsa.File.write(temporal, contenido)
+                    qsa.FileStatic.write(temporal, contenido)
                     comando = qsa.ustr(qsa.sys.installPrefix(), u"/bin/linguist")
 
                 self.setDisabled(True)
-                qsa.Process.execute(qsa.Array([comando, temporal]))
-                self.child(u"contenido").text = qsa.File.read(temporal)
+                qsa.ProcessStatic.execute(qsa.Array([comando, temporal]))
+                self.child(u"contenido").text = qsa.FileStatic.read(temporal)
                 self.setDisabled(False)
                 s01_do_work = False  # BREAK
 
@@ -89,17 +113,19 @@ class FormInternalObj(qsa.FormDBWidget):
                 s01_do_work, s01_work_done = True, True
             if s01_do_work:
                 if util.getOS() == u"MACX":
-                    qsa.File.write(temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n"))
-                    comando = ustr(
+                    qsa.FileStatic.write(
+                        temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+                    )
+                    comando = qsa.ustr(
                         qsa.sys.installPrefix(), u"/bin/kudesigner.app/Contents/MacOS/kudesigner"
                     )
                 else:
-                    qsa.File.write(temporal, contenido)
+                    qsa.FileStatic.write(temporal, contenido)
                     comando = qsa.ustr(qsa.sys.installPrefix(), u"/bin/kudesigner")
 
                 self.setDisabled(True)
-                qsa.Process.execute(qsa.Array([comando, temporal]))
-                self.child(u"contenido").text = qsa.File.read(temporal)
+                qsa.ProcessStatic.execute(qsa.Array([comando, temporal]))
+                self.child(u"contenido").text = qsa.FileStatic.read(temporal)
                 self.setDisabled(False)
                 s01_do_work = False  # BREAK
 
@@ -118,9 +144,11 @@ class FormInternalObj(qsa.FormDBWidget):
             if s01_do_work:
                 self.setDisabled(True)
                 dialog = qsa.Dialog()
-                dialog.width = 600
+                dialog.setWidth(600)
                 dialog.cancelButtonText = u""
                 editor = qsa.TextEdit()
+                if editor is None:
+                    raise Exception("editor is empty!")
                 editor.textFormat = editor.PlainText
                 editor.text = contenido
                 dialog.add(editor)
@@ -128,7 +156,8 @@ class FormInternalObj(qsa.FormDBWidget):
                 self.child(u"contenido").text = editor.text
                 self.setDisabled(False)
 
-    def editarFicheroXML(self):
+    def editarFicheroXML(self) -> None:
+        """Edit xml file."""
         cursor = self.cursor()
         util = qsa.FLUtil()
         if cursor.checkIntegrity():
@@ -154,7 +183,8 @@ class FormInternalObj(qsa.FormDBWidget):
             self.child(u"contenido").text = qsa.FileStatic.read(temporal)
             self.setDisabled(False)
 
-    def calculateField(self, fN=None):
+    def calculateField(self, fN: str) -> Any:
+        """Return a value."""
         if fN == u"sha":
             util = qsa.FLUtil()
             return util.sha1(self.cursor().valueBuffer(u"contenido"))

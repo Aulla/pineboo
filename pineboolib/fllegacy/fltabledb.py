@@ -1179,7 +1179,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self.iconSize is not None:
             self.pbData.setMinimumSize(self.iconSize)
         self.pbData.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.pbData.setIcon(QtGui.QIcon(filedir("../share/icons", "fltable-data.png")))
+        self.pbData.setIcon(QtGui.QIcon(filedir("./core/images/icons", "fltable-data.png")))
         self.pbData.setText("")
         self.pbData.setToolTip("Mostrar registros")
         self.pbData.setWhatsThis("Mostrar registros")
@@ -1191,7 +1191,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self.iconSize is not None:
             self.pbFilter.setMinimumSize(self.iconSize)
         self.pbFilter.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.pbFilter.setIcon(QtGui.QIcon(filedir("../share/icons", "fltable-filter.png")))
+        self.pbFilter.setIcon(QtGui.QIcon(filedir("./core/images/icons", "fltable-filter.png")))
         self.pbFilter.setText("")
         self.pbFilter.setToolTip("Mostrar filtros")
         self.pbFilter.setWhatsThis("Mostrar filtros")
@@ -1203,7 +1203,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self.iconSize is not None:
             self.pbOdf.setMinimumSize(self.iconSize)
         self.pbOdf.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.pbOdf.setIcon(QtGui.QIcon(filedir("../share/icons", "fltable-odf.png")))
+        self.pbOdf.setIcon(QtGui.QIcon(filedir("./core/images/icons", "fltable-odf.png")))
         self.pbOdf.setText("")
         self.pbOdf.setToolTip("Exportar a hoja de cálculo")
         self.pbOdf.setWhatsThis("Exportar a hoja de cálculo")
@@ -1217,7 +1217,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self.iconSize is not None:
             self.pbClean.setMinimumSize(self.iconSize)
         self.pbClean.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.pbClean.setIcon(QtGui.QIcon(filedir("../share/icons", "fltable-clean.png")))
+        self.pbClean.setIcon(QtGui.QIcon(filedir("./core/images/icons", "fltable-clean.png")))
         self.pbClean.setText("")
         self.pbClean.setToolTip("Limpiar filtros")
         self.pbClean.setWhatsThis("Limpiar filtros")

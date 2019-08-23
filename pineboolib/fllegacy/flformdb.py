@@ -654,7 +654,9 @@ class FLFormDB(QDialog):
             pushButtonExport.setSizePolicy(sizePolicy)
             pushButtonExport.setMinimumSize(pbSize)
             pushButtonExport.setMaximumSize(pbSize)
-            pushButtonExport.setIcon(QtGui.QIcon(filedir("../share/icons", "gtk-properties.png")))
+            pushButtonExport.setIcon(
+                QtGui.QIcon(filedir("./core/images/icons", "gtk-properties.png"))
+            )
             pushButtonExport.setShortcut(QKeySequence(self.tr("F3")))
             pushButtonExport.setWhatsThis("Exportar a XML(F3)")
             pushButtonExport.setToolTip("Exportar a XML(F3)")
@@ -669,7 +671,7 @@ class FLFormDB(QDialog):
                 push_button_snapshot.setMinimumSize(pbSize)
                 push_button_snapshot.setMaximumSize(pbSize)
                 push_button_snapshot.setIcon(
-                    QtGui.QIcon(filedir("../share/icons", "gtk-paste.png"))
+                    QtGui.QIcon(filedir("./core/images/icons", "gtk-paste.png"))
                 )
                 push_button_snapshot.setShortcut(QKeySequence(self.tr("F8")))
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
@@ -691,7 +693,7 @@ class FLFormDB(QDialog):
         self.pushButtonCancel.setSizePolicy(sizePolicy)
         self.pushButtonCancel.setMaximumSize(pbSize)
         self.pushButtonCancel.setMinimumSize(pbSize)
-        self.pushButtonCancel.setIcon(QtGui.QIcon(filedir("../share/icons", "gtk-stop.png")))
+        self.pushButtonCancel.setIcon(QtGui.QIcon(filedir("./core/images/icons", "gtk-stop.png")))
         # self.pushButtonCancel.setFocusPolicy(QtCore.Qt.StrongFocus)
         # self.pushButtonCancel.setFocus()
         self.pushButtonCancel.setShortcut(QKeySequence(self.tr("Esc")))

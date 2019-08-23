@@ -57,7 +57,7 @@ class FLTranslator(Qt.QTranslator):
         if project.conn is None:
             raise Exception("Project is not connected yet")
         if self._id_module == "sys":
-            ts_file = filedir("../share/pineboo/translations/%s.%s" % (self._id_module, self._lang))
+            ts_file = filedir("./system_module/translations/%s.%s" % (self._id_module, self._lang))
         else:
             ts_file = filedir(
                 "%s/cache/%s/%s/file.ts/%s.%s/%s"

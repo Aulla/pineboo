@@ -174,7 +174,7 @@ def setup_gui(app: QtCore.QCoreApplication, options: Values) -> None:
         "NotoSans-Regular.ttf",
     ]
     for fontfile in noto_fonts:
-        QtGui.QFontDatabase.addApplicationFont(filedir("../share/fonts/Noto_Sans", fontfile))
+        QtGui.QFontDatabase.addApplicationFont(filedir("./core/fonts/Noto_Sans", fontfile))
 
     styleA = config.value("application/style", None)
     if styleA is None:

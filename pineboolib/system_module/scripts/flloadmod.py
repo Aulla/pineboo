@@ -1,18 +1,24 @@
+"""Flloadmod module."""
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
 import os
-import traceback
+from typing import Any
 
 
 class FormInternalObj(qsa.FormDBWidget):
-    def _class_init(self):
+    """FormInternalObj class."""
+
+    def _class_init(self) -> None:
+        """Inicialize."""
         self.util = qsa.FLUtil()
 
-    def main(self):
+    def main(self) -> None:
+        """Entry function."""
         continuar = qsa.MessageBox.warning(
-            util.translate(
+            qsa.util.translate(
                 u"scripts",
-                u"Antes de cargar un módulo asegúrese de tener una copia de seguridad de todos los datos,\ny de que no hay ningun otro usuario conectado a la base de datos mientras se realiza la carga.\n\n¿Desea continuar?",
+                u"Antes de cargar un módulo asegúrese de tener una copia de seguridad de todos los datos,\n"
+                + "y de que no hay ningun otro usuario conectado a la base de datos mientras se realiza la carga.\n\n¿Desea continuar?",
             ),
             qsa.MessageBox.Yes,
             qsa.MessageBox.No,
@@ -20,7 +26,7 @@ class FormInternalObj(qsa.FormDBWidget):
         if continuar == qsa.MessageBox.No:
             return
         nombreFichero = qsa.FileDialog.getOpenFileName(
-            u"modfiles(*.mod)", util.translate(u"scripts", u"Elegir Fichero")
+            u"modfiles(*.mod)", qsa.util.translate(u"scripts", u"Elegir Fichero")
         )
         if nombreFichero:
             fichero = qsa.File(nombreFichero)
@@ -28,7 +34,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 qsa.ustr(fichero.path, u"/")
             ):
                 qsa.MessageBox.critical(
-                    util.translate(
+                    qsa.util.translate(
                         u"scripts", u"Imposible cargar el módulo.\nLicencia del módulo no aceptada."
                     ),
                     qsa.MessageBox.Ok,
@@ -40,7 +46,7 @@ class FormInternalObj(qsa.FormDBWidget):
             desArea = None
             version = None
             nombreIcono = None
-            versionMinimaFL = None
+            # versionMinimaFL = None
             dependencias = qsa.Array()
             fichero.open(qsa.File.ReadOnly)
             f = fichero.read()
@@ -49,18 +55,18 @@ class FormInternalObj(qsa.FormDBWidget):
                 nodeModule = xmlModule.namedItem(u"MODULE")
                 if not nodeModule:
                     qsa.MessageBox.critical(
-                        util.translate(u"scripts", u"Error en la carga del fichero xml .mod"),
+                        qsa.util.translate(u"scripts", u"Error en la carga del fichero xml .mod"),
                         qsa.MessageBox.Ok,
                         qsa.MessageBox.NoButton,
                     )
-                modulo = nodeModule.namedItem(u"name").toElement().text()
+                modulo = nodeModule.namedItem(u"name").toElement().text() or ""
                 descripcion = nodeModule.namedItem(u"alias").toElement().text()
-                area = nodeModule.namedItem(u"area").toElement().text()
+                area = nodeModule.namedItem(u"area").toElement().text() or ""
                 desArea = nodeModule.namedItem(u"areaname").toElement().text()
                 version = nodeModule.namedItem(u"version").toElement().text()
                 nombreIcono = nodeModule.namedItem(u"icon").toElement().text()
-                if nodeModule.namedItem(u"flversion"):
-                    versionMinimaFL = nodeModule.namedItem(u"flversion").toElement().text()
+                # if nodeModule.namedItem(u"flversion"):
+                #    versionMinimaFL = nodeModule.namedItem(u"flversion").toElement().text()
                 if nodeModule.namedItem(u"dependencies"):
                     nodeDepend = xmlModule.elementsByTagName(u"dependency")
                     i = 0
@@ -80,55 +86,44 @@ class FormInternalObj(qsa.FormDBWidget):
                             break
 
             else:
+                if not isinstance(f, str):
+                    raise Exception("f must be sting not bytes!")
                 aF = f.split(u"\n")
-                modulo = dameValor(aF[0])
-                descripcion = dameValor(aF[1])
-                area = dameValor(aF[2])
-                desArea = dameValor(aF[3])
-                version = dameValor(aF[4])
-                nombreIcono = dameValor(aF[5])
-                if len(aF) > 6:
-                    versionMinimaFL = dameValor(aF[6])
-                if len(aF) > 7:
-                    # DEBUG:: Argument 0 not understood
-                    # DEBUG:: <Value><Constant><regexbody><regexchar
-                    # arg00="LBRACKET"/><regexchar arg00="COMMA"/><regexchar
-                    # arg00="SEMI"/><regexchar
-                    # arg00="RBRACKET"/></regexbody></Constant></Value>
-                    dependencias = dameValor(aF[7]).split(unknownarg)
+                modulo = self.dameValor(aF[0]) or ""
+                descripcion = self.dameValor(aF[1])
+                area = self.dameValor(aF[2]) or ""
+                desArea = self.dameValor(aF[3])
+                version = self.dameValor(aF[4])
+                nombreIcono = self.dameValor(aF[5])
 
-            descripcion = traducirCadena(descripcion, fichero.path, modulo)
-            desArea = traducirCadena(desArea, fichero.path, modulo)
+            descripcion = traducirCadena(descripcion or "", fichero.path or "", modulo)
+            desArea = traducirCadena(desArea or "", fichero.path or "", modulo)
             fichIcono = qsa.File(qsa.ustr(fichero.path, u"/", nombreIcono))
             fichIcono.open(qsa.File.ReadOnly)
             icono = fichIcono.read()
 
-            # versionSys = sys.version().match("/ [ 0 - 9 ] + .[ 0 - 9 ] + /")
-            # if compararVersiones(versionSys, versionMinimaFL) == 2:
-            #    contVersion = MessageBox.warning(util.translate(u"scripts", u"Este módulo necesita la versión ") + versionMinimaFL + util.translate(u"scripts", u" o superior de la aplicación base,\nactualmente la versión instalada es la ") +
-            #                                     sys.version() + util.translate(u"scripts", u".\nFacturaLUX puede fallar por esta causa.\n¿Desea continuar la carga?"), MessageBox.Yes, MessageBox.No)
-            #    if contVersion == MessageBox.No:
-            #        return
-            if evaluarDependencias(dependencias) == False:
+            if not evaluarDependencias(dependencias):
                 return
-            if not valorPorClave(u"flareas", u"idarea", ustr(u"idarea = '", area, u"'")):
+            if not valorPorClave(u"flareas", u"idarea", qsa.ustr(u"idarea = '", area, u"'")):
                 crearArea = qsa.MessageBox.warning(
-                    util.translate(u"scripts", u"El área con el identificador ")
+                    qsa.util.translate(u"scripts", u"El área con el identificador ")
                     + area
-                    + util.translate(u"scripts", u" no existe. ¿Desea crearla?"),
+                    + qsa.util.translate(u"scripts", u" no existe. ¿Desea crearla?"),
                     qsa.MessageBox.Yes,
                     qsa.MessageBox.No,
                 )
                 if crearArea == qsa.MessageBox.No:
                     return
                 dialogo = qsa.Dialog()
-                dialogo.width = 400
-                dialogo.caption = qsa.ustr(util.translate(u"scripts", u"Crear área "), area, u":")
-                dialogo.okButtonText = util.translate(u"scripts", u"Aceptar")
-                dialogo.cancelButtonText = util.translate(u"scripts", u"Cancelar")
+                dialogo.setWidth(400)
+                dialogo.caption = qsa.ustr(
+                    qsa.util.translate(u"scripts", u"Crear área "), area, u":"
+                )
+                dialogo.okButtonText = qsa.util.translate(u"scripts", u"Aceptar")
+                dialogo.cancelButtonText = qsa.util.translate(u"scripts", u"Cancelar")
                 leDesArea = qsa.LineEdit()
                 leDesArea.text = desArea
-                leDesArea.label = util.translate(u"scripts", u"Descripción: ")
+                leDesArea.label = qsa.util.translate(u"scripts", u"Descripción: ")
                 dialogo.add(leDesArea)
                 if dialogo.exec_():
                     curArea = qsa.FLSqlCursor(u"flareas")
@@ -142,11 +137,11 @@ class FormInternalObj(qsa.FormDBWidget):
                     return
 
             recargar = None
-            if valorPorClave(u"flmodules", u"idmodulo", ustr(u"idmodulo = '", modulo, u"'")):
+            if valorPorClave(u"flmodules", u"idmodulo", qsa.ustr(u"idmodulo = '", modulo, u"'")):
                 recargar = qsa.MessageBox.warning(
-                    util.translate(u"scripts", u"El módulo ")
+                    qsa.util.translate(u"scripts", u"El módulo ")
                     + modulo
-                    + util.translate(u"scripts", u" ya existe. ¿Desea recargarlo?"),
+                    + qsa.util.translate(u"scripts", u" ya existe. ¿Desea recargarlo?"),
                     qsa.MessageBox.Yes,
                     qsa.MessageBox.No,
                 )
@@ -155,7 +150,7 @@ class FormInternalObj(qsa.FormDBWidget):
             curModulo = qsa.FLSqlCursor(u"flmodules")
             if recargar == qsa.MessageBox.Yes:
                 # WITH_START
-                curModulo.select(ustr(u"idmodulo = '", modulo, u"'"))
+                curModulo.select(qsa.ustr(u"idmodulo = '", modulo, u"'"))
                 curModulo.first()
                 curModulo.setModeAccess(curModulo.Edit)
                 # WITH_END
@@ -172,37 +167,43 @@ class FormInternalObj(qsa.FormDBWidget):
             curModulo.setValueBuffer(u"icono", icono)
             curModulo.commitBuffer()
             # WITH_END
-            curSeleccion = qsa.FLSqlCursor(u"flmodules")
-            curModulo.setMainFilter(ustr(u"idmodulo = '", modulo, u"'"))
+            # curSeleccion = qsa.FLSqlCursor(u"flmodules")
+            curModulo.setMainFilter(qsa.ustr(u"idmodulo = '", modulo, u"'"))
             curModulo.editRecord(False)
             qsa.from_project("formRecordflmodules").cargarDeDisco(
                 qsa.ustr(fichero.path, u"/"), False
             )
-            formRecordflmodules.accept()
+            self.from_module("formRecordflmodules").accept()
             setting = "scripts/sys/modLastModule_%s" % qsa.sys.nameBD()
             nombreFichero = "%s" % os.path.abspath(nombreFichero)
-            util.writeSettingEntry(setting, nombreFichero)
-            qsa.aqApp.reinit()
+            qsa.util.writeSettingEntry(setting, nombreFichero)
+            app_ = qsa.aqApp
+            if app_ is None:
+                return
+            app_.reinit()
 
 
-def dameValor(self, linea=None):
+def dameValor(self, linea: str) -> str:
+    """Return value."""
     return linea
 
 
-def valorPorClave(tabla=None, campo=None, where=None):
+def valorPorClave(tabla: str, campo: str, where: str) -> Any:
+    """Return a value from database."""
     valor = None
     query = qsa.FLSqlQuery()
     query.setTablesList(tabla)
     query.setSelect(campo)
     query.setFrom(tabla)
-    query.setWhere(ustr(where, u";"))
+    query.setWhere(qsa.ustr(where, u";"))
     query.exec_()
     if query.next():
         valor = query.value(0)
     return valor
 
 
-def compararVersiones(v1=None, v2=None):
+def compararVersiones(v1: str, v2: str) -> int:
+    """Compare two versions and return the hightest."""
     a1 = None
     a2 = None
     if v1 and v2:
@@ -230,7 +231,8 @@ def compararVersiones(v1=None, v2=None):
     return 0
 
 
-def evaluarDependencias(dependencias=None):
+def evaluarDependencias(dependencias: qsa.Array) -> bool:
+    """Evaluate dependencies."""
     res = None
     if not dependencias:
         return True
@@ -244,11 +246,11 @@ def evaluarDependencias(dependencias=None):
         while_pass = False
         if dependencias[i] == "":
             continue
-        if qsa.sys.isLoadedModule(dependencias[i]) == False:
+        if not qsa.sys.isLoadedModule(dependencias[i]):
             res = qsa.MessageBox.warning(
-                util.translate(u"scripts", u"Este módulo depende del módulo ")
+                qsa.util.translate(u"scripts", u"Este módulo depende del módulo ")
                 + dependencias[i]
-                + util.translate(
+                + qsa.util.translate(
                     u"scripts",
                     u", que no está instalado.\nFacturaLUX puede fallar por esta causa.\n¿Desea continuar la carga?",
                 ),
@@ -267,15 +269,18 @@ def evaluarDependencias(dependencias=None):
     return True
 
 
-def traducirCadena(cadena=None, path=None, modulo=None):
+def traducirCadena(cadena: str, path: str, modulo: str) -> str:
+    """Translate string."""
     if cadena.find(u"QT_TRANSLATE_NOOP") == -1:
         return cadena
     cadena = qsa.QString(cadena).mid(41, len(cadena) - 43)
     nombreFichero = None
     try:
-        nombreFichero = qsa.ustr(path, u"/translations/", modulo, u".", util.getIdioma(), u".ts")
+        nombreFichero = qsa.ustr(
+            path, u"/translations/", modulo, u".", qsa.util.getIdioma(), u".ts"
+        )
     except Exception as e:
-        e = traceback.format_exc()
+        qsa.debug(str(e))
         return cadena
 
     if not qsa.File.exists(nombreFichero):

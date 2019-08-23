@@ -1431,7 +1431,7 @@ class FLManager(QtCore.QObject, IManager):
         util = FLUtil()
         if not self.existsTable(n):
             doc = QDomDocument()
-            _path = filedir("..", "share", "pineboo", "tables")
+            _path = filedir(".", "system_module", "tables")
             from pineboolib.application.types import Dir
 
             dir = Dir(_path)

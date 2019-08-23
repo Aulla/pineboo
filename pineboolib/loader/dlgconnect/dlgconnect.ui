@@ -74,7 +74,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>../../../share/icons/gtk-cancel.png</normaloff>../../../share/icons/gtk-cancel.png</iconset>
+         <normaloff>../../core/images/icons/gtk-cancel.png</normaloff>../../core/images/icons/gtk-cancel.png</iconset>
        </property>
       </widget>
      </item>
@@ -91,7 +91,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>../../../share/icons/gtk-properties.png</normaloff>../../../share/icons/gtk-properties.png</iconset>
+         <normaloff>../../core/images/icons/gtk-properties.png</normaloff>../../core/images/icons/gtk-properties.png</iconset>
        </property>
       </widget>
      </item>
@@ -206,7 +206,7 @@
          <enum>QTabWidget::South</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <property name="iconSize">
          <size>
@@ -683,7 +683,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</stri
         <widget class="QWidget" name="tab">
          <attribute name="icon">
           <iconset>
-           <normaloff>../../share/icons/folder.png</normaloff>../../share/icons/folder.png</iconset>
+           <normaloff>../../core/images/icons/folder.png</normaloff>../../core/images/icons/folder.png</iconset>
          </attribute>
          <attribute name="title">
           <string/>

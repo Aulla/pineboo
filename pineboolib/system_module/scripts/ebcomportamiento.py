@@ -1,16 +1,26 @@
+"""Ebcomportamiento module."""
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
+from typing import Any, Union
+from PyQt5 import QtWidgets, QtCore
 
 
 class FormInternalObj(qsa.FormDBWidget):
-    def _class_init(self):
+    """FormInternalObj class."""
+
+    def _class_init(self) -> None:
+        """Inicialize."""
         pass
 
-    def main(self):
+    def main(self) -> None:
+        """Entry function."""
         from PyQt5 import QtCore  # type: ignore
 
-        mng = qsa.aqApp.db().managerModules()
-        self.w_ = qsa.QWidget(qsa.aqApp.mainWidget(), QtCore.Qt.Dialog)
+        app_ = qsa.aqApp
+        if app_ is None:
+            return
+        mng = app_.db().managerModules()
+        self.w_ = qsa.QWidget(app_.mainWidget(), QtCore.Qt.Dialog)
         self.w_ = mng.createUI(u"ebcomportamiento.ui", None, self.w_)
         w = self.w_
         botonAceptar = w.child(u"pbnAceptar")
@@ -18,16 +28,16 @@ class FormInternalObj(qsa.FormDBWidget):
         botonCancelar = w.child(u"pbnCancelar")
         botonCambiarColor = w.child(u"pbnCO")
         self.module_connect(botonAceptar, u"clicked()", self, u"guardar_clicked")
-        self.module_connect(boton_aceptar_kugar, u"clicked()", self, u"cambiar_kugar_clicked")
         self.module_connect(botonCancelar, u"clicked()", self, u"cerrar_clicked")
         self.module_connect(botonCambiarColor, u"clicked()", self, u"seleccionarColor_clicked")
+        self.module_connect(boton_aceptar_kugar, u"clicked()", self, u"cambiar_kugar_clicked")
         self.cargarConfiguracion()
         self.initEventFilter()
         w.show()
 
-    def cargarConfiguracion(self):
+    def cargarConfiguracion(self) -> None:
+        """Load configuration."""
         w = self.w_
-
         w.child(u"cbFLTableDC").checked = self.leerValorLocal("FLTableDoubleClick")
         w.child(u"cbFLTableSC").checked = self.leerValorLocal("FLTableShortCut")
         w.child(u"cbFLTableCalc").checked = self.leerValorLocal("FLTableExport2Calc")
@@ -87,11 +97,13 @@ class FormInternalObj(qsa.FormDBWidget):
 
         w.child(u"leCO").show()
 
-    def search_git_updates(self):
+    def search_git_updates(self) -> None:
+        """Searh for pineboo updates."""
         url = self.w_.child("le_git_ruta").text
         qsa.sys.search_git_updates(url)
 
-    def leerValorGlobal(self, valor_name=None):
+    def leerValorGlobal(self, valor_name: str = None) -> Any:
+        """Return global value."""
         util = qsa.FLUtil()
         value = util.sqlSelect("flsettings", "valor", "flkey='%s'" % valor_name)
 
@@ -100,14 +112,16 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return value
 
-    def grabarValorGlobal(self, valor_name=None, value=None):
+    def grabarValorGlobal(self, valor_name: str, value: Union[str, bool]) -> None:
+        """Set global value."""
         util = qsa.FLUtil()
         if not util.sqlSelect("flsettings", "flkey", "flkey='%s'" % valor_name):
             util.sqlInsert("flsettings", "flkey,valor", "%s,%s" % (valor_name, value))
         else:
-            util.sqlUpdate("flsettings", u"valor", value, "flkey = '%s'" % valor_name)
+            util.sqlUpdate("flsettings", u"valor", str(value), "flkey = '%s'" % valor_name)
 
-    def leerValorLocal(self, valor_name):
+    def leerValorLocal(self, valor_name: str) -> Any:
+        """Return local value."""
         from pineboolib.core.settings import config
 
         if valor_name in ("isDebuggerMode", "dbadmin_enabled"):
@@ -123,15 +137,18 @@ class FormInternalObj(qsa.FormDBWidget):
             ):
                 valor = config.value("ebcomportamiento/%s" % valor_name, "")
                 if valor_name == "kugar_temp_dir" and valor == "":
-                    from pineboolib.application import project
+                    app_ = qsa.aqApp
+                    if app_ is None:
+                        return ""
 
-                    valor = qsa.aqApp.tmp_dir()
+                    valor = app_.tmp_dir()
 
             else:
                 valor = config.value("ebcomportamiento/%s" % valor_name, False)
         return valor
 
-    def grabarValorLocal(self, valor_name=None, value=None):
+    def grabarValorLocal(self, valor_name: str, value: Union[str, bool]) -> None:
+        """Set local value."""
         from pineboolib.core.settings import config
 
         if valor_name in ("isDebuggerMode", "dbadmin_enabled"):
@@ -141,20 +158,26 @@ class FormInternalObj(qsa.FormDBWidget):
                 value = 600
             config.set_value("ebcomportamiento/%s" % valor_name, value)
 
-    def initEventFilter(self):
+    def initEventFilter(self) -> None:
+        """Inicialize event filter."""
         w = self.w_
-        w.eventFilterFunction = qsa.ustr(w.objectName, u".eventFilter")
+        w.eventFilterFunction = qsa.ustr(w.objectName(), u".eventFilter")
         w.allowedEvents = qsa.Array([qsa.AQS.Close])
         w.installEventFilter(w)
 
-    def eventFilter(self, o=None, e=None):
-        if e.type == qsa.AQS.Close:
+    def eventFilter(self, o: QtWidgets.QWidget, e: QtCore.QEvent) -> bool:
+        """Event filter."""
+        if type(e) == qsa.AQS.Close:
             self.cerrar_clicked()
 
-    def cerrar_clicked(self):
+        return True
+
+    def cerrar_clicked(self) -> None:
+        """Close the widget."""
         self.w_.close()
 
-    def guardar_clicked(self):
+    def guardar_clicked(self) -> None:
+        """Save actual configuration."""
         w = self.w_
         self.grabarValorGlobal("verticalName", w.child(u"leNombreVertical").text)
         self.grabarValorLocal("FLTableDoubleClick", w.child(u"cbFLTableDC").checked)
@@ -197,19 +220,13 @@ class FormInternalObj(qsa.FormDBWidget):
         self.grabarValorLocal("autoComp", autoComp)
         self.cerrar_clicked()
 
-    def seleccionarColor_clicked(self):
+    def seleccionarColor_clicked(self) -> None:
+        """Set mandatory color."""
         self.colorActual_ = qsa.AQS.ColorDialog_getColor(self.colorActual_, self.w_).name()
         self.w_.child(u"leCO").setStyleSheet("background-color:" + self.colorActual_)
 
-    def cambiar_kugar_clicked(self):
-        old_dir = self.w_.child("le_kut_temporales").text
-        old_dir = self.fixPath(old_dir)
-        new_dir = qsa.FileDialog.getExistingDirectory(old_dir)
-        if new_dir and new_dir is not old_dir:
-            self.w_.child("le_kut_temporales").text = new_dir
-            project.tmpdir = new_dir
-
-    def fixPath(self, ruta=None):
+    def fixPath(self, ruta: str) -> str:
+        """Return a fixed path."""
         rutaFixed = ""
         if qsa.sys.osName() == u"WIN32":
             barra = u"\\"
@@ -223,6 +240,17 @@ class FormInternalObj(qsa.FormDBWidget):
             rutaFixed = ruta
 
         return rutaFixed
+
+    def cambiar_kugar_clicked(self) -> None:
+        """Change kugar temp files folder."""
+        old_dir = self.w_.child("le_kut_temporales").text
+        old_dir = self.fixPath(old_dir)
+        new_dir = qsa.FileDialog.getExistingDirectory(old_dir)
+        if new_dir and new_dir is not old_dir:
+            self.w_.child("le_kut_temporales").text = new_dir
+            from pineboolib import application
+
+            application.project.tmpdir = new_dir
 
 
 form = None

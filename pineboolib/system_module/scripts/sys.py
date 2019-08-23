@@ -1,19 +1,31 @@
+"""Sys module."""
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
 import traceback
 from pineboolib import logging
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.application.database import pnsqlcursor
+
 logger = logging.getLogger(__name__)
 
 
 class FormInternalObj(qsa.FormDBWidget):
-    def _class_init(self):
+    """FormInternalObj class."""
+
+    def _class_init(self) -> None:
+        """Inicialize."""
         self.form = self
         self.iface = self
 
-    def init(self):
-
+    def init(self) -> None:
+        """Init function."""
         settings = qsa.AQSettings()
+        app_ = qsa.aqApp
+        if not app_:
+            return
         flfactppal = qsa.SysType().isLoadedModule("flfactppal")
         if flfactppal is True:
             try:
@@ -35,22 +47,22 @@ class FormInternalObj(qsa.FormDBWidget):
                 if qsa.AQUtil.sqlSelect(u"flsettings", u"valor", u"flkey='PosInfo'") == "True":
                     texto = ""
                     if nombreEjercicio:
-                        texto = ustr(u"[ ", nombreEjercicio, u" ]")
-                    texto = ustr(
+                        texto = qsa.ustr(u"[ ", nombreEjercicio, u" ]")
+                    texto = qsa.ustr(
                         texto,
                         u" [ ",
-                        qsa.aqApp.db().driverNameToDriverAlias(qsa.aqApp.db().driverName()),
+                        app_.db().driverNameToDriverAlias(app_.db().driverName()),
                         u" ] * [ ",
                         qsa.SysType().nameBD(),
                         u" ] * [ ",
                         qsa.SysType().nameUser(),
                         u" ] ",
                     )
-                    qsa.aqApp.setCaptionMainWidget(texto)
+                    app_.setCaptionMainWidget(texto)
 
                 else:
                     if nombreEjercicio:
-                        qsa.aqApp.setCaptionMainWidget(nombreEjercicio)
+                        app_.setCaptionMainWidget(nombreEjercicio)
 
                 oldApi = settings.readBoolEntry(u"application/oldApi")
                 if not oldApi:
@@ -60,13 +72,14 @@ class FormInternalObj(qsa.FormDBWidget):
                         try:
                             funcion()
                         except Exception:
-                            debug(traceback.format_exc())
+                            qsa.debug(traceback.format_exc())
 
         if settings.readBoolEntry("ebcomportamiento/git_updates_enabled", False):
-            qsa.SysType.AQTimer.singleShot(2000, SysType.search_git_updates)
+            qsa.sys.AQTimer().singleShot(2000, qsa.SysType.search_git_updates)
 
 
-def afterCommit_flfiles(curFiles=None):
+def afterCommit_flfiles(curFiles: "pnsqlcursor.PNSqlCursor") -> bool:
+    """Afet commit flfiles."""
     if curFiles.modeAccess() != curFiles.Browse:
         qry = qsa.FLSqlQuery()
         qry.setTablesList(u"flserial")

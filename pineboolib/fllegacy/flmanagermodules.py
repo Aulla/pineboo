@@ -319,8 +319,8 @@ class FLManagerModules(object):
                 )
 
         if data is None:
-            if os.path.exists(filedir("../share/pineboo/%s%s.%s" % (type_, name_, ext_))):
-                data = self.contentFS(filedir("../share/pineboo/%s%s.%s" % (type_, name_, ext_)))
+            if os.path.exists(filedir("./system_module/%s%s.%s" % (type_, name_, ext_))):
+                data = self.contentFS(filedir("./system_module/%s%s.%s" % (type_, name_, ext_)))
             else:
                 data = self.content(file_name)
 
@@ -782,7 +782,7 @@ class FLManagerModules(object):
             infoMod.idArea = "sys"
             infoMod.descripcion = "Administracion"
             infoMod.version = "0.0"
-            infoMod.icono = self.contentFS("%s/%s" % (filedir("../share/pineboo"), "/sys.xpm"))
+            infoMod.icono = self.contentFS("%s/%s" % (filedir("./system_module"), "/sys.xpm"))
             infoMod.areaDescripcion = "Sistema"
             self.dictInfoMods[infoMod.idModulo.upper()] = infoMod
 
@@ -937,5 +937,5 @@ class FLManagerModules(object):
         """
         Display dialog box to configure static load from local disk.
         """
-        ui = self.createUI(filedir("../share/pineboo/forms/FLStaticLoaderUI.ui"))
+        ui = self.createUI(filedir("./system_module/forms/FLStaticLoaderUI.ui"))
         flmodulesstaticloader.FLStaticLoader.setup(self.staticBdInfo_, ui)

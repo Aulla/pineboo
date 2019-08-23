@@ -66,9 +66,9 @@ def base_model(name: str) -> Any:
     path = _path("%s.mtd" % name, False)
     if path is None:
         raise Exception("File %s.mtd not found" % name)
-    if path.find("share/pineboo/tables") > -1:
+    if path.find("system_module/tables") > -1:
         path = path.replace(
-            "share/pineboo/tables", "tempdata/cache/%s/sys/file.mtd" % project.conn.DBName()
+            "system_module/tables", "tempdata/cache/%s/sys/file.mtd" % project.conn.DBName()
         )
     if path:
         path = "%s_model.py" % path[:-4]

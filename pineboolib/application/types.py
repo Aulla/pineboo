@@ -513,7 +513,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """
         Read file completely.
 
-        @param bytes. Especifica si se lee en modo texto o en bytess
+        @param bytes. Especifica si se lee en modo texto o en bytes
         @retunr contenido del fichero
         """
         file_: str

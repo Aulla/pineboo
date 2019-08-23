@@ -656,14 +656,14 @@ def download_files() -> None:
         os.mkdir(filedir("../pineboolib"))
 
     copy_dir_recursive(":/pineboolib", filedir("../pineboolib"))
-    copy_dir_recursive(":/share", filedir("../share"))
+
     if not os.path.exists(filedir("../tempdata")):
         os.mkdir(filedir("../tempdata"))
 
 
 def pixmap_fromMimeSource(name: str) -> Any:
     """Convert mime source into a pixmap."""
-    file_name = filedir("../share/icons", name)
+    file_name = filedir("./core/images/icons", name)
     return QPixmap(file_name) if os.path.exists(file_name) else None
 
 

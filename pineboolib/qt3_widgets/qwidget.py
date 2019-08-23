@@ -2,16 +2,19 @@
 
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtCore  # type: ignore
-from typing import Optional
 
 
 class QWidget(QtWidgets.QWidget):
     """QWidget class."""
 
-    def child(self, child_name: str) -> Optional[QtWidgets.QWidget]:
+    def child(self, child_name: str) -> QtWidgets.QWidget:
         """Return an QWidget especified by name."""
 
-        return self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
+        ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
+        if ret is None:
+            raise Exception("child %s not found!." % child_name)
+
+        return ret
 
     def get_title(self) -> str:
         """Return widget title."""

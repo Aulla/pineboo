@@ -118,7 +118,7 @@ from pineboolib.fllegacy.flreportviewer import FLReportViewer  # noqa: F401
 from pineboolib.fllegacy.flapplication import FLApplication  # noqa: F401
 from pineboolib.fllegacy.flvar import FLVar  # noqa: F401
 from pineboolib.fllegacy.flsmtpclient import FLSmtpClient  # noqa: F401
-
+from pineboolib.fllegacy.flscripteditor import FLScriptEditor  # noqa: F401
 
 # Clases QSA
 

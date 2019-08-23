@@ -230,7 +230,7 @@ class Project(object):
             icono = cacheXPM(icono)
             self.modules[idmodulo] = Module(idarea, idmodulo, descripcion, icono)
 
-        file_object = open(filedir("..", "share", "pineboo", "sys.xpm"), "r")
+        file_object = open(filedir(".", "system_module", "sys.xpm"), "r")
         icono = file_object.read()
         file_object.close()
         # icono = clearXPM(icono)
@@ -339,7 +339,7 @@ class Project(object):
 
         # Cargar el núcleo común del proyecto
         idmodulo = "sys"
-        for root, dirs, files in os.walk(filedir("..", "share", "pineboo")):
+        for root, dirs, files in os.walk(filedir(".", "system_module")):
             # list_files = []
             for nombre in files:
                 if root.find("modulos") == -1:

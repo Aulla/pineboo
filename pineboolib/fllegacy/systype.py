@@ -57,10 +57,17 @@ if TYPE_CHECKING:
 logger = logging.getLogger("fllegacy.systype")
 
 
+class AQTimer(QtCore.QTimer):
+    """AQTimer class."""
+
+    pass
+
+
 class SysType(SysBaseType):
     """SysType class."""
 
     time_user_ = QtCore.QDateTime.currentDateTime()
+    AQTimer = AQTimer()
 
     @classmethod
     def translate(self, *args) -> str:
@@ -126,13 +133,13 @@ class SysType(SysBaseType):
             return
 
     @staticmethod
-    def dumpDatabase(self) -> None:
+    def dumpDatabase() -> None:
         """Launch dump database."""
         aqDumper = AbanQDbDumper()
         aqDumper.init()
 
     @staticmethod
-    def terminateChecksLocks(self, sqlCursor: "PNSqlCursor" = None) -> None:
+    def terminateChecksLocks(sqlCursor: "PNSqlCursor" = None) -> None:
         """Set check risk locks to False in a cursor."""
         if sqlCursor is not None:
             sqlCursor.checkRisksLocks(True)
@@ -563,7 +570,7 @@ class SysType(SysBaseType):
         """Load modules from a package."""
 
         if input_ is None:
-            dir_ = Dir(ustr(self.installPrefix(), u"/share/eneboo/packages"))
+            dir_ = Dir(self.installPrefix())
             dir_.setCurrent()
             input_ = QFileDialog.getOpenFileName(
                 QApplication.focusWidget(),
@@ -2001,12 +2008,6 @@ class AbanQDbDumper(QtCore.QObject):
         for table_ in tables:
             self.dumpTableToCsv(table_, dirBase)
         return True
-
-
-class AQTimer(QtCore.QTimer):
-    """AQTimer class."""
-
-    pass
 
 
 class AQGlobalFunctions(QtCore.QObject):

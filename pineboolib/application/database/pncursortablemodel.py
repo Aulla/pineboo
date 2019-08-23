@@ -385,9 +385,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
                 if _type == "unlock":
                     if d in (True, "1"):
-                        pixmap = QtGui.QPixmap(filedir("../share/icons", "unlock.png"))
+                        pixmap = QtGui.QPixmap(filedir("./core/images/icons", "unlock.png"))
                     else:
-                        pixmap = QtGui.QPixmap(filedir("../share/icons", "lock.png"))
+                        pixmap = QtGui.QPixmap(filedir("./core/images/icons", "lock.png"))
                     if self.parent_view is not None:
                         if (
                             self.parent_view.showAllPixmap()

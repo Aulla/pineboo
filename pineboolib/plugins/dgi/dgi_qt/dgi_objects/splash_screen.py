@@ -12,7 +12,7 @@ class splashscreen(object):
     def __init__(self):
         """Inicialize."""
         splash_path = filedir(
-            "../share/splashscreen/%s240.png"
+            "./core/images/splashscreen/%s240.png"
             % ("dbadmin" if config.value("application/dbadmin_enabled") else "quick")
         )
 

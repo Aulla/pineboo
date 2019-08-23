@@ -1,57 +1,21 @@
+"""Flreloadlast module."""
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
-import traceback
-
-
-class interna(object):
-    ctx = qsa.Object()
-
-    def __init__(self, context=None):
-        self.ctx = context
-
-    def main(self):
-        self.ctx.interna_main()
-
-    def init(self):
-        self.ctx.interna_init()
-
-
-class oficial(interna):
-    pathLocal = ""
-    idFuncional = ""
-    bloqueo = qsa.Boolean()
-
-    def __init__(self, context=None):
-        super(oficial, self).__init__(context)
-
-    def cargarModulo(self, nombreFichero=None):
-        return self.ctx.oficial_cargarModulo(nombreFichero)
-
-    def compararVersiones(self, v1=None, v2=None):
-        return self.ctx.oficial_compararVersiones(v1, v2)
-
-    def traducirCadena(self, cadena=None, path=None, modulo=None):
-        return self.ctx.oficial_traducirCadena(cadena, path, modulo)
-
-
-class head(oficial):
-    def __init__(self, context=None):
-        super(head, self).__init__(context)
-
-
-class ifaceCtx(head):
-    def __init__(self, context=None):
-        super(ifaceCtx, self).__init__(context)
 
 
 class FormInternalObj(qsa.FormDBWidget):
-    def _class_init(self):
-        self.iface = ifaceCtx(self)
+    """FormInternalObj class."""
 
-    def interna_init(self):
+    def _class_init(self) -> None:
+        """Inicialize."""
+        self = self
+
+    def init(self) -> None:
+        """Init function."""
         pass
 
-    def interna_main(self):
+    def main(self) -> None:
+        """Entry function."""
         util = qsa.FLUtil()
         setting = "scripts/sys/modLastModule_%s" % qsa.sys.nameBD()
         fichMod = util.readSettingEntry(setting)
@@ -65,10 +29,11 @@ class FormInternalObj(qsa.FormDBWidget):
             util.writeSettingEntry(setting, fichMod)
 
         qsa.sys.processEvents()
-        self.iface.cargarModulo(fichMod)
+        self.cargarModulo(fichMod)
         qsa.sys.reinit()
 
-    def oficial_cargarModulo(self, nombreFichero=None):
+    def cargarModulo(self, nombreFichero: str) -> bool:
+        """Load modules."""
         util = qsa.FLUtil()
         fichero = qsa.File(nombreFichero)
         modulo = None
@@ -77,7 +42,7 @@ class FormInternalObj(qsa.FormDBWidget):
         desArea = None
         version = None
         nombreIcono = None
-        versionMinimaFL = None
+        # versionMinimaFL = None
         dependencias = qsa.Array()
         fichero.open(qsa.File.ReadOnly)
         f = fichero.read()
@@ -96,8 +61,8 @@ class FormInternalObj(qsa.FormDBWidget):
             desArea = nodeModule.namedItem(u"areaname").toElement().text()
             version = nodeModule.namedItem(u"version").toElement().text()
             nombreIcono = nodeModule.namedItem(u"icon").toElement().text()
-            if nodeModule.namedItem(u"flversion"):
-                versionMinimaFL = nodeModule.namedItem(u"flversion").toElement().text()
+            # if nodeModule.namedItem(u"flversion"):
+            #    versionMinimaFL = nodeModule.namedItem(u"flversion").toElement().text()
             if nodeModule.namedItem(u"dependencies"):
                 nodeDepend = xmlModule.elementsByTagName(u"dependency")
                 i = 0
@@ -117,56 +82,37 @@ class FormInternalObj(qsa.FormDBWidget):
                         break
 
         else:
+            if not isinstance(f, str):
+                raise Exception("data are bytes, not string!!")
             aF = f.split(u"\n")
-            modulo = dameValor(aF[0])
-            descripcion = dameValor(aF[1])
-            area = dameValor(aF[2])
-            desArea = dameValor(aF[3])
-            version = dameValor(aF[4])
-            nombreIcono = dameValor(aF[5])
-            if len(aF) > 6:
-                versionMinimaFL = dameValor(aF[6])
-            if len(aF) > 7:
-                # DEBUG:: Argument 0 not understood
-                # DEBUG:: <Value><Constant><regexbody><regexchar
-                # arg00="LBRACKET"/><regexchar arg00="COMMA"/><regexchar
-                # arg00="SEMI"/><regexchar
-                # arg00="RBRACKET"/></regexbody></Constant></Value>
-                dependencias = dameValor(aF[7]).split(unknownarg)
+            modulo = self.from_module("formflloadmod").dameValor(aF[0])
+            descripcion = self.from_module("formflloadmod").dameValor(aF[1])
+            area = self.from_module("formflloadmod").dameValor(aF[2]) or ""
+            desArea = self.from_module("formflloadmod").dameValor(aF[3])
+            version = self.from_module("formflloadmod").dameValor(aF[4])
+            nombreIcono = self.from_module("formflloadmod").dameValor(aF[5])
 
-        descripcion = self.iface.traducirCadena(descripcion, fichero.path, modulo)
-        desArea = self.iface.traducirCadena(desArea, fichero.path, modulo)
-        fichIcono = qsa.File(ustr(fichero.path, u"/", nombreIcono))
+        descripcion = self.traducirCadena(descripcion or "", fichero.path or "", modulo or "")
+        desArea = self.traducirCadena(desArea or "", fichero.path or "", modulo or "")
+        fichIcono = qsa.File(qsa.ustr(fichero.path, u"/", nombreIcono))
         fichIcono.open(qsa.File.ReadOnly)
         icono = fichIcono.read()
-        # DEBUG:: Argument 0 not understood
-        # DEBUG:: <Value><Constant><regexbody><regexchar
-        # arg00="LBRACKET"/><regexchar arg00="ICONST:'0'"/><regexchar
-        # arg00="MINUS"/><regexchar arg00="ICONST:'9'"/><regexchar
-        # arg00="RBRACKET"/><regexchar arg00="PLUS"/><regexchar
-        # arg00="PERIOD"/><regexchar arg00="LBRACKET"/><regexchar
-        # arg00="ICONST:'0'"/><regexchar arg00="MINUS"/><regexchar
-        # arg00="ICONST:'9'"/><regexchar arg00="RBRACKET"/><regexchar
-        # arg00="PLUS"/></regexbody></Constant></Value>
-        # versionSys = sys.version().match(unknownarg)
-        # if self.iface.compararVersiones(versionSys, versionMinimaFL) == 2:
-        #    contVersion = MessageBox.warning(util.translate(u"scripts", u"Este módulo necesita la versión ") + versionMinimaFL + util.translate(u"scripts", u" o superior de la aplicación base,\nactualmente la versión instalada es la ") +
-        #                                     sys.version() + util.translate(u"scripts", u".\nFacturaLUX puede fallar por esta causa.\n¿Desea continuar la carga?"), MessageBox.Yes, MessageBox.No)
-        #    if contVersion == MessageBox.No:
-        #        return
-        if not util.sqlSelect(u"flareas", u"idarea", ustr(u"idarea = '", area, u"'")):
-            if not util.sqlInsert(u"flareas", u"idarea,descripcion", ustr(area, u",", desArea)):
+
+        if not util.sqlSelect(u"flareas", u"idarea", qsa.ustr(u"idarea = '", area, u"'")):
+            if not util.sqlInsert(u"flareas", u"idarea,descripcion", qsa.ustr(area, u",", desArea)):
                 qsa.MessageBox.warning(
                     util.translate(u"scripts", u"Error al crear el área:\n") + area,
                     qsa.MessageBox.Ok,
                     qsa.MessageBox.NoButton,
                 )
                 return False
-        recargar = util.sqlSelect(u"flmodules", u"idmodulo", ustr(u"idmodulo = '", modulo, u"'"))
+        recargar = util.sqlSelect(
+            u"flmodules", u"idmodulo", qsa.ustr(u"idmodulo = '", modulo, u"'")
+        )
         curModulo = qsa.FLSqlCursor(u"flmodules")
         if recargar:
             # WITH_START
-            curModulo.select(ustr(u"idmodulo = '", modulo, u"'"))
+            curModulo.select(qsa.ustr(u"idmodulo = '", modulo, u"'"))
             curModulo.first()
             curModulo.setModeAccess(curModulo.Edit)
             # WITH_END
@@ -183,14 +129,15 @@ class FormInternalObj(qsa.FormDBWidget):
         curModulo.setValueBuffer(u"icono", icono)
         curModulo.commitBuffer()
         # WITH_END
-        curSeleccion = qsa.FLSqlCursor(u"flmodules")
-        curModulo.setMainFilter(ustr(u"idmodulo = '", modulo, u"'"))
+        # curSeleccion = qsa.FLSqlCursor(u"flmodules")
+        curModulo.setMainFilter(qsa.ustr(u"idmodulo = '", modulo, u"'"))
         curModulo.editRecord(False)
-        qsa.from_project("formRecordflmodules").cargarDeDisco(ustr(fichero.path, u"/"), False)
+        qsa.from_project("formRecordflmodules").cargarDeDisco(qsa.ustr(fichero.path, u"/"), False)
         qsa.from_project("formRecordflmodules").accept()
         return True
 
-    def oficial_compararVersiones(self, v1=None, v2=None):
+    def compararVersiones(self, v1: str, v2: str) -> int:
+        """Compare versions."""
         a1 = None
         a2 = None
         if v1 and v2:
@@ -217,7 +164,8 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return 0
 
-    def oficial_traducirCadena(self, cadena=None, path=None, modulo=None):
+    def traducirCadena(self, cadena: str, path: str, modulo: str) -> str:
+        """Translate string."""
         util = qsa.FLUtil()
         if cadena.find(u"QT_TRANSLATE_NOOP") == -1:
             return cadena
@@ -228,7 +176,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 path, u"/translations/", modulo, u".", util.getIdioma(), u".ts"
             )
         except Exception as e:
-            e = traceback.format_exc()
+            qsa.debug(str(e))
             return cadena
 
         if not qsa.File.exists(nombreFichero):

@@ -145,7 +145,7 @@ class FormDBWidget(QtWidgets.QWidget):
                 pass
         self._formconnections.clear()
 
-    def child(self, child_name: str) -> Optional[QtWidgets.QWidget]:
+    def child(self, child_name: str) -> QtWidgets.QWidget:
         """Return child from name."""
 
         try:
@@ -167,11 +167,11 @@ class FormDBWidget(QtWidgets.QWidget):
 
             if ret is None:
                 self.logger.warning("WARN: No se encontro el control %s", child_name)
-                return None
+                return QtWidgets.QWidget()
             return ret
         except Exception:
             self.logger.exception("child: Error trying to get child of <%s>", child_name)
-            return None
+            return QtWidgets.QWidget()
 
     def cursor(self) -> "pnsqlcursor.PNSqlCursor":
         """Return cursor associated."""
