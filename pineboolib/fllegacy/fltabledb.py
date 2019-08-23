@@ -1010,10 +1010,7 @@ class FLTableDB(QtWidgets.QWidget):
                 return True
 
         if ev.type() == QtCore.QEvent.WindowUnblocked and isinstance(obj, FLDataTable):
-            row = self.currentRow()
-            self.tableRecords_.refresh()
-            if row > -1:
-                self.setCurrentRow(row)
+            self.refreshDelayed(500, True)  # We leave enough time in case it is a rollback
             return True
 
         if ev.type() == QtCore.QEvent.KeyPress and isinstance(obj, QtWidgets.QLineEdit):
@@ -2133,9 +2130,11 @@ class FLTableDB(QtWidgets.QWidget):
 
     def refreshDelayed2(self) -> None:
         """Refresh the data when the time ends."""
-
+        row = self.currentRow()
         self.refresh(False, self._refreshData)
         self._refreshData = False
+        if row > -1:
+            self.setCurrentRow(row)
 
     @decorators.pyqtSlot(bool)
     def insertRecord(self, wait: bool = True) -> None:
