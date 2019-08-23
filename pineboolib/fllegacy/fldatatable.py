@@ -198,9 +198,9 @@ class FLDataTable(QtWidgets.QTableView):
             if self.cursor_ and not self.cursor_ == cursor:
                 self.cursor_.restoreEditionFlag(self)
                 self.cursor_.restoreBrowseFlag(self)
-                cast(pyqtSignal, self.cursor_.d._current_changed).disconnect(
-                    self.ensureRowSelectedVisible
-                )
+                # cast(pyqtSignal, self.cursor_.d._current_changed).disconnect(
+                #    self.ensureRowSelectedVisible
+                # )
                 cast(pyqtSignal, self.cursor_.cursorUpdated).disconnect(self.refresh)
 
                 cur_chg = True
@@ -212,9 +212,9 @@ class FLDataTable(QtWidgets.QTableView):
                 self.setInsertOnly(self.insertonly_)
                 self.setOnlyTable(self.onlyTable_)
 
-                cast(pyqtSignal, self.cursor_.d._current_changed).connect(
-                    self.ensureRowSelectedVisible
-                )
+                # cast(pyqtSignal, self.cursor_.d._current_changed).connect(
+                #    self.ensureRowSelectedVisible
+                # )
                 cast(pyqtSignal, self.cursor_.cursorUpdated).connect(self.refresh)
 
                 self.setModel(self.cursor_.model())
@@ -701,7 +701,6 @@ class FLDataTable(QtWidgets.QTableView):
         """
         Refresh the cursor.
         """
-
         if not self.cursor_:
             return
 
@@ -742,22 +741,23 @@ class FLDataTable(QtWidgets.QTableView):
             self.show()
             self.refreshing_ = False
 
-    @decorators.pyqtSlot()
-    @decorators.pyqtSlot(int)
-    def ensureRowSelectedVisible(self, position: Optional[int] = None) -> None:
-        """
-        Make the selected row visible.
-        """
+    # @decorators.pyqtSlot()
+    # @decorators.pyqtSlot(int)
+    # def ensureRowSelectedVisible(self, position: Optional[int] = None) -> None:
+    #    """
+    #    Make the selected row visible.
+    #    """
+    #    print("****", position, self.cur.at(), self.cur.isValid())
 
-        if position is None:
-            if self.cursor():
-                position = self.cur.at()
-            else:
-                return
+    #    if position is None:
+    #        if self.cursor():
+    #            position = self.cur.at()
+    #        else:
+    #            return
 
-        # index = self.cur.model().index(position, 0)
-        # if index is not None:
-        #    self.scrollTo(index)
+    # index = self.cur.model().index(position, 0)
+    # if index is not None:
+    #    self.scrollTo(index)
 
     def setQuickFocus(self) -> None:
         """

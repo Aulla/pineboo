@@ -1086,8 +1086,8 @@ class FLTableDB(QtWidgets.QWidget):
         if not self.cursorAux:
             if not self.initSearch_:
                 self.refresh(True, True)
-                if self.tableRecords_:
-                    QtCore.QTimer.singleShot(0, self.tableRecords_.ensureRowSelectedVisible)
+                # if self.tableRecords_:
+                #    QtCore.QTimer.singleShot(0, self.tableRecords_.ensureRowSelectedVisible)
             else:
                 self.refresh(True)
                 if self.tableRecords_ and self.tableRecords_.numRows() <= 0:
@@ -1348,7 +1348,7 @@ class FLTableDB(QtWidgets.QWidget):
     @decorators.pyqtSlot()
     def recordChoosedSlot(self) -> None:
         """Perform operations when selecting a record."""
-
+        print("**")
         if isinstance(self.topWidget, FLFormSearchDB) and self.topWidget.inExec_:
             self.topWidget.accept()
         else:
