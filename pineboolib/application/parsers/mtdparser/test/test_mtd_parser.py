@@ -19,6 +19,7 @@ class TestMtdParserGeneral(unittest.TestCase):
         import os
 
         file = filedir("../tempdata/cache/:memory:/sys/file.mtd/flmodules_model.py")
-        os.remove(file)
+        if os.path.exists(file):
+            os.remove(file)
         pnmtdparser.mtd_parse("flmodules")
         self.assertTrue(os.path.exists(file))
