@@ -284,7 +284,11 @@ class FLSQLITE(object):
 
     def DBName(self) -> str:
         """Return database name."""
-        return self.db_filename[self.db_filename.rfind("/") + 1 : -8]
+        ret = self.db_filename
+        if self.db_filename.rfind("/") > -1:
+            ret = self.db_filename[self.db_filename.rfind("/") + 1 : -8]
+
+        return ret
 
     def canOverPartition(self) -> bool:
         """Return can override partition option ready."""
