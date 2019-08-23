@@ -692,7 +692,7 @@
                                                 </widget>
                                                 <widget class="QLineEdit">
                                                     <property name="name">
-                                                        <cstring>le_kut_temporales</cstring>
+                                                        <cstring>le_temporales</cstring>
                                                     </property>
                                                     <property name="enabled">
                                                         <bool>false</bool>
@@ -700,7 +700,7 @@
                                                 </widget>
                                                 <widget class="QPushButton">
                                                     <property name="name">
-                                                        <cstring>pbn_kut</cstring>
+                                                        <cstring>pbn_temporales</cstring>
                                                     </property>
                                                     <property name="text">
                                                         <string>Cam&amp;biar</string>

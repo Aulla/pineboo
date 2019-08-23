@@ -98,7 +98,7 @@ class Project(object):
         """Initialize project with a connection."""
         self._conn = connection
         self.apppath = filedir("..")
-        self.tmpdir = config.value("ebcomportamiento/kugar_temp_dir", filedir("../tempdata"))
+        self.tmpdir = config.value("ebcomportamiento/temp_dir", filedir("../tempdata"))
         if not os.path.exists(self.tmpdir):
             os.mkdir(self.tmpdir)
 

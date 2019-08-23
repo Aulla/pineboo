@@ -24,13 +24,13 @@ class FormInternalObj(qsa.FormDBWidget):
         self.w_ = mng.createUI(u"ebcomportamiento.ui", None, self.w_)
         w = self.w_
         botonAceptar = w.child(u"pbnAceptar")
-        boton_aceptar_kugar = w.child(u"pbn_kut")
+        boton_aceptar_tmp = w.child(u"pbn_temporales")
         botonCancelar = w.child(u"pbnCancelar")
         botonCambiarColor = w.child(u"pbnCO")
         self.module_connect(botonAceptar, u"clicked()", self, u"guardar_clicked")
         self.module_connect(botonCancelar, u"clicked()", self, u"cerrar_clicked")
         self.module_connect(botonCambiarColor, u"clicked()", self, u"seleccionarColor_clicked")
-        self.module_connect(boton_aceptar_kugar, u"clicked()", self, u"cambiar_kugar_clicked")
+        self.module_connect(boton_aceptar_tmp, u"clicked()", self, u"cambiar_temporales_clicked")
         self.cargarConfiguracion()
         self.initEventFilter()
         w.show()
@@ -56,7 +56,7 @@ class FormInternalObj(qsa.FormDBWidget):
         w.child(u"cbSpacerLegacy").checked = self.leerValorLocal("spacerLegacy")
         w.child(u"cbParseModulesOnLoad").checked = self.leerValorLocal("parseModulesOnLoad")
         w.child(u"cb_traducciones").checked = self.leerValorLocal("translations_from_qm")
-        w.child("le_kut_temporales").text = self.leerValorLocal("kugar_temp_dir")
+        w.child("le_temporales").text = self.leerValorLocal("temp_dir")
         w.child("cb_kut_debug").checked = self.leerValorLocal("kugar_debug_mode")
         w.child("cb_no_borrar_cache").checked = self.leerValorLocal("keep_general_cache")
         w.child("cb_snapshot").checked = self.leerValorLocal("show_snaptshop_button")
@@ -132,11 +132,11 @@ class FormInternalObj(qsa.FormDBWidget):
                 "maxPixImages",
                 "kugarParser",
                 "colorObligatorio",
-                "kugar_temp_dir",
+                "temp_dir",
                 "git_updates_repo",
             ):
                 valor = config.value("ebcomportamiento/%s" % valor_name, "")
-                if valor_name == "kugar_temp_dir" and valor == "":
+                if valor_name == "temp_dir" and valor == "":
                     app_ = qsa.aqApp
                     if app_ is None:
                         return ""
@@ -198,7 +198,7 @@ class FormInternalObj(qsa.FormDBWidget):
         self.grabarValorLocal("spacerLegacy", w.child(u"cbSpacerLegacy").checked)
         self.grabarValorLocal("parseModulesOnLoad", w.child(u"cbParseModulesOnLoad").checked)
         self.grabarValorLocal("translations_from_qm", w.child(u"cb_traducciones").checked)
-        self.grabarValorLocal("kugar_temp_dir", w.child("le_kut_temporales").text)
+        self.grabarValorLocal("temp_dir", w.child("le_temporales").text)
         self.grabarValorLocal("kugar_debug_mode", w.child("cb_kut_debug").checked)
         self.grabarValorLocal("keep_general_cache", w.child("cb_no_borrar_cache").checked)
         self.grabarValorLocal("git_updates_enabled", w.child("cb_git_activar").checked)
@@ -241,8 +241,8 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return rutaFixed
 
-    def cambiar_kugar_clicked(self) -> None:
-        """Change kugar temp files folder."""
+    def cambiar_temporales_clicked(self) -> None:
+        """Change temp folder."""
         old_dir = self.w_.child("le_kut_temporales").text
         old_dir = self.fixPath(old_dir)
         new_dir = qsa.FileDialog.getExistingDirectory(old_dir)
