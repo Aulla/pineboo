@@ -45,7 +45,7 @@ def mtd_parse(table_name: str) -> None:
     dest_file = "%s_model.py" % mtd_file[: len(mtd_file) - 4]
     if dest_file.find("system_module/tables") > -1:
         dest_file = dest_file.replace(
-            "system_module/tables", "tempdata/cache/%s/sys/file.mtd" % project.conn.DBName()
+            "system_module/tables", "../tempdata/cache/%s/sys/file.mtd" % project.conn.DBName()
         )
         sys_dir = dest_file[: dest_file.find("/file.mtd")]
         if not os.path.exists(sys_dir):
