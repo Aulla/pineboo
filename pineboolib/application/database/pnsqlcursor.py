@@ -1907,6 +1907,7 @@ class PNSqlCursor(QtCore.QObject):
 
         self.d._currentregister = current.row()
         self.d._current_changed.emit(self.at())
+        self.refreshBuffer()
 
         self.d.doAcl()
         if self._action:
