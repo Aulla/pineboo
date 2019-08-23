@@ -14,7 +14,7 @@ class FLDateEdit(qdateedit.QDateEdit):
     """FLDateEdit class."""
 
     valueChanged: QtCore.pyqtSignal = QtCore.pyqtSignal()
-    DMY: str
+    DMY: str = "dd-MM-yyyy"
     _parent: QtWidgets.QWidget
 
     def __init__(self, parent: QtWidgets.QWidget, name: str) -> None:
