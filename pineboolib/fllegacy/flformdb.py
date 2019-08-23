@@ -757,7 +757,7 @@ class FLFormDB(QDialog):
         # self.closed.emit()
         self.hide()
         self.emitFormClosed()
-        super().closeEvent(e)
+        # super().closeEvent(e)
         # self._action.mainform_widget = None
         self.deleteLater()
         self._loaded = False
