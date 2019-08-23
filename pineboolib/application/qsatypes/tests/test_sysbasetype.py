@@ -32,7 +32,7 @@ class TestSysBaseClassGeneral(unittest.TestCase):
             os_name = "MACX"
 
         self.assertEqual(base_type.osName(), os_name)
-        self.assertEqual(base_type.nameBD(), "")
+        self.assertEqual(base_type.nameBD(), ":memory:")
         self.assertEqual(base_type.installPrefix(), filedir(".."))
         self.assertEqual(base_type.version(), str(application.project.version))
         file_path = "%s/test_sysbasetype.txt" % application.project.tmpdir
