@@ -243,11 +243,11 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def cambiar_temporales_clicked(self) -> None:
         """Change temp folder."""
-        old_dir = self.w_.child("le_kut_temporales").text
+        old_dir = self.w_.child("le_temporales").text
         old_dir = self.fixPath(old_dir)
         new_dir = qsa.FileDialog.getExistingDirectory(old_dir)
         if new_dir and new_dir is not old_dir:
-            self.w_.child("le_kut_temporales").text = new_dir
+            self.w_.child("le_temporales").text = new_dir
             from pineboolib import application
 
             application.project.tmpdir = new_dir

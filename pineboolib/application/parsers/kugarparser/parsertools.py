@@ -12,7 +12,7 @@ from typing import Any, Iterable, Optional, SupportsInt, Union, List
 from pineboolib import logging
 from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.utils.xpm import cacheXPM
-from pineboolib.application import project
+from pineboolib.core.settings import config
 
 
 class KParserTools(object):
@@ -164,7 +164,7 @@ class KParserTools(object):
             from PyQt5.QtGui import QPixmap
 
             value = None
-            tmp_dir = project.tmpdir
+            tmp_dir = config.value("ebcomportamiento/temp_dir")
             img_file = "%s/%s.png" % (tmp_dir, ref_key)
 
             if not os.path.exists(img_file) and ref_key[0:3] == "RK@":

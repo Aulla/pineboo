@@ -9,7 +9,7 @@ from pineboolib.qsa import *
 cli = Clientes() <- Este es un modelo disponible, nombre del mtd existente y comenzando en Mayuscula.
 
 También es posible recargar estos modelos creados a raiz de los mtds. Se puede crear por ejemplo
-tempdata/cache/nombre_de_bd/models/Clientes_model.py. Esta librería sobrecargará en el arbol qsa la previa por defecto.
+(tempdata)/cache/nombre_de_bd/models/Clientes_model.py. Esta librería sobrecargará en el arbol qsa la previa por defecto.
 
 Un ejemplo sería:
 
@@ -38,6 +38,7 @@ Ejemplo de uso:
 """
 from pineboolib.application.utils.path import _path
 from pineboolib.core.utils.utils_base import filedir
+from pineboolib.core.settings import config
 from importlib import machinery
 
 from sqlalchemy import String  # type: ignore
@@ -68,7 +69,9 @@ def base_model(name: str) -> Any:
         raise Exception("File %s.mtd not found" % name)
     if path.find("system_module/tables") > -1:
         path = path.replace(
-            "system_module/tables", "tempdata/cache/%s/sys/file.mtd" % project.conn.DBName()
+            "system_module/tables",
+            "%s/cache/%s/sys/file.mtd"
+            % (config.value("ebcomportamiento/temp_dir"), project.conn.DBName()),
         )
     if path:
         path = "%s_model.py" % path[:-4]
@@ -108,32 +111,41 @@ def load_model(nombre):
 
     db_name = project.conn.DBName()
 
-    mod = None
-    file_path = filedir("..", "tempdata", "cache", db_name, "models", "%s_model.py" % nombre)
-
+    module = None
+    file_path = filedir(
+        config.value("ebcomportamiento/temp_dir"),
+        "cache",
+        db_name,
+        "models",
+        "%s_model.py" % nombre,
+    )
     if os.path.exists(file_path):
-        module_path = "tempdata.cache.%s.models.%s_model" % (db_name, nombre)
-        if module_path in sys.modules:
-            # print("Recargando", module_path)
-            try:
-                mod = importlib.reload(sys.modules[module_path])
-            except Exception as exc:
-                logger.warning("Error recargando módulo:\n%s\n%s", exc, traceback.format_exc())
-                pass
-        else:
-            # print("Cargando", module_path)
-            try:
-                mod = importlib.import_module(module_path)
-            except Exception as exc:
-                logger.warning("Error cargando módulo:\n%s\n%s", exc, traceback.format_exc())
-                pass
+
+        module_path = "%s_model" % (nombre)
+        # if module_path in sys.modules:
+        #    # print("Recargando", module_path)
+        #    try:
+        #        module = importlib.reload(sys.modules[module_path])
+        #    except Exception as exc:
+        #        logger.warning("Error recargando módulo:\n%s\n%s", exc, traceback.format_exc())
+        #        pass
+        # else:
+        # print("Cargando", module_path)
+        try:
+            spec = importlib.util.spec_from_file_location(module_path, file_path)  # type: ignore
+            module = importlib.util.module_from_spec(spec)  # type: ignore
+            sys.modules[spec.name] = module
+            spec.loader.exec_module(module)
+        except Exception as exc:
+            logger.warning("Error cargando módulo:\n%s\n%s", exc, traceback.format_exc())
+            pass
             # models_[nombre] = mod
 
     # if mod:
     #    setattr(qsa_dict_modules, model_name, mod)
 
     # print(3, nombre, mod)
-    return mod
+    return module
 
     # if mod is not None:
     #    setattr(qsa_dict_modules,  model_name, mod)
@@ -179,7 +191,9 @@ def load_models() -> None:
             if class_ is not None:
                 QSADictModules.save_other(model_name, class_)
 
-    for root, dirs, files in os.walk(filedir("..", "tempdata", "cache", db_name, "models")):
+    for root, dirs, files in os.walk(
+        filedir(config.value("ebcomportamiento/temp_dir"), "cache", db_name, "models")
+    ):
         for nombre in files:  # Buscamos los presonalizados
             if nombre.endswith("pyc"):
                 continue

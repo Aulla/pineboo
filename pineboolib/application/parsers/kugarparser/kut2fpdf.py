@@ -10,7 +10,7 @@ import os
 from xml.etree.ElementTree import Element
 from pineboolib.application import project
 from pineboolib import logging
-from pineboolib.core.utils.utils_base import filedir, load2xml
+from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.utils.check_dependencies import check_dependencies
 from pineboolib.application.parsers.kugarparser.parsertools import KParserTools
 from pineboolib.core.settings import config
@@ -626,7 +626,10 @@ class Kut2FPDF(object):
                 return
 
         if text is not None:
-            if text.startswith(filedir("../tempdata")):
+            from pineboolib.core.settings import config
+
+            temporal = config.value("ebcomportamiento/temp_dir")
+            if text.startswith(temporal):
                 is_image = True
 
         # negValueColor = xml.get("NegValueColor")

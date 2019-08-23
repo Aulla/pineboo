@@ -13,6 +13,8 @@ from pineboolib.application.utils.path import _path
 from pineboolib.application import project
 from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
 from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
+from pineboolib.core.settings import config
+
 import os
 
 logger = logging.getLogger(__name__)
@@ -44,10 +46,12 @@ def mtd_parse(table_name: str) -> None:
 
     dest_file = "%s_model.py" % mtd_file[: len(mtd_file) - 4]
     if dest_file.find("system_module/tables") > -1:
-        dest_file = dest_file.replace(
-            "system_module/tables", "../tempdata/cache/%s/sys/file.mtd" % project.conn.DBName()
+        sys_dir = "%s/cache/%s/sys" % (
+            config.value("ebcomportamiento/temp_dir"),
+            project.conn.DBName(),
         )
-        sys_dir = dest_file[: dest_file.find("/file.mtd")]
+        dest_file = "%s/file.mtd/%s_model.py" % (sys_dir, table_name)
+
         if not os.path.exists(sys_dir):
             os.mkdir(sys_dir)
         if not os.path.exists("%s/file.mtd" % sys_dir):

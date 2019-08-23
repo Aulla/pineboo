@@ -20,6 +20,7 @@ from types import FrameType
 from xml.etree.ElementTree import ElementTree, Element
 from pineboolib.core.utils import logging
 from pineboolib.core import decorators
+from pineboolib.core.settings import config
 
 if TYPE_CHECKING:
     from pineboolib.application.qsatypes.date import Date  # noqa: F401
@@ -657,8 +658,10 @@ def download_files() -> None:
 
     copy_dir_recursive(":/pineboolib", filedir("../pineboolib"))
 
-    if not os.path.exists(filedir("../tempdata")):
-        os.mkdir(filedir("../tempdata"))
+    tmp_dir = config.value("ebcomportamiento/temp_dir")
+
+    if not os.path.exists(tmp_dir):
+        os.mkdir(tmp_dir)
 
 
 def pixmap_fromMimeSource(name: str) -> Any:

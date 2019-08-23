@@ -95,10 +95,8 @@ class FLTranslations(object):
         else:
             if project.conn is None:
                 raise Exception("Project has no connection yet")
-            # modId = self.db_.managerModules().idModuleOfFile(tsInputFile)
+
             key = project.conn.managerModules().shaOfFile(ts_input_file)
-            # dir = filedir("../tempdata/cache/%s/%s/file.ts/%s" %
-            #               (self._prj.conn.db_name, modId, key))
             tagMap = full_text
             # TODO: hay que cargar todo el contenido del fichero en un diccionario
             for key, value in tagMap:

@@ -6,6 +6,7 @@ import os.path
 
 from pineboolib.core.utils.struct import ActionStruct
 from .utils.path import _path, coalesce_path
+from pineboolib.core.settings import config
 
 from typing import Optional, Any, Union, TYPE_CHECKING
 
@@ -290,7 +291,7 @@ class XMLAction(ActionStruct):
                 self.logger.debug(
                     "Cargando %s : %s ",
                     scriptname,
-                    script_path.replace(self.project.tmpdir, "tempdata"),
+                    script_path.replace(config.value("ebcomportamiento/temp_dir"), "tempdata"),
                 )
                 loader = machinery.SourceFileLoader(scriptname, script_path)
                 script_loaded = loader.load_module()  # type: ignore
@@ -308,7 +309,9 @@ class XMLAction(ActionStruct):
                 self.logger.debug(
                     "Cargando %s : %s ",
                     scriptname,
-                    python_script_path.replace(self.project.tmpdir, "tempdata"),
+                    python_script_path.replace(
+                        config.value("ebcomportamiento/temp_dir"), "tempdata"
+                    ),
                 )
                 loader = machinery.SourceFileLoader(scriptname, python_script_path)
                 script_loaded = loader.load_module()  # type: ignore

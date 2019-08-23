@@ -2,6 +2,7 @@
 
 import unittest
 from pineboolib.loader.main import init_testing
+from pineboolib.core.settings import config
 
 
 class TestMtdParserGeneral(unittest.TestCase):
@@ -18,7 +19,10 @@ class TestMtdParserGeneral(unittest.TestCase):
         from pineboolib.core.utils.utils_base import filedir
         import os
 
-        file = filedir("../tempdata/cache/:memory:/sys/file.mtd/flmodules_model.py")
+        file = filedir(
+            "%s/cache/:memory:/sys/file.mtd/flmodules_model.py"
+            % config.value("ebcomportamiento/temp_dir")
+        )
         if os.path.exists(file):
             os.remove(file)
         pnmtdparser.mtd_parse("flmodules")

@@ -14,6 +14,7 @@ from PyQt5.Qt import QIODevice  # type: ignore
 from pineboolib.core import decorators
 
 from pineboolib.core.utils import logging
+from pineboolib.core.settings import config
 from pineboolib.core.utils.utils_base import StructMyDict, filedir
 
 from pineboolib.application.qsatypes.date import Date  # noqa: F401
@@ -79,8 +80,8 @@ def Function(*args: str) -> Any:
     Parses it to Python and return the pointer to the function.
     """
 
-    import importlib
     import sys as python_sys
+    import importlib
 
     # Leer código QS embebido en Source
     # asumir que es una funcion anónima, tal que:
@@ -102,15 +103,12 @@ function anon(%s) {
     from .parsers.qsaparser import postparse
     from .parsers.qsaparser.pytnyzer import write_python_file
 
-    from . import project
-
     prog = flscriptparse.parse(qs_source)
     if prog is None:
         raise ValueError("Failed to convert to Python")
     tree_data = flscriptparse.calctree(prog, alias_mode=0)
     ast = postparse.post_parse(tree_data)
-
-    dest_filename = "%s/anon.py" % project.tmpdir
+    dest_filename = "%s/anon.py" % config.value("ebcomportamiento/temp_dir")
     # f1 = io.StringIO()
     if os.path.exists(dest_filename):
         os.remove(dest_filename)
@@ -119,14 +117,20 @@ function anon(%s) {
 
     write_python_file(f1, ast)
     f1.close()
-    mod = None
+    module = None
     module_path = "tempdata.anon"
 
-    if module_path in python_sys.modules:
-        mod = importlib.reload(python_sys.modules[module_path])
-    else:
-        mod = importlib.import_module(module_path)
-    forminternalobj = getattr(mod, "FormInternalObj", None)
+    # if module_path in python_sys.modules:
+    #    print("**", module_path)
+    #    module = importlib.reload(python_sys.modules[module_path])
+    # else:
+    spec = importlib.util.spec_from_file_location(module_path, dest_filename)  # type: ignore
+    module = importlib.util.module_from_spec(spec)  # type: ignore
+
+    python_sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+
+    forminternalobj = getattr(module, "FormInternalObj", None)
     # os.remove(dest_filename)
     return getattr(forminternalobj(), "anon", None)
 

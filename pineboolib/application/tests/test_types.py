@@ -5,6 +5,7 @@ Tests for application.types module.
 import unittest
 import os
 from pineboolib.loader.main import init_cli
+from pineboolib.core.settings import config
 from pineboolib.application.types import (
     Boolean,
     QString,
@@ -157,9 +158,8 @@ class TestFile(unittest.TestCase):
 
     def test_write_read_values_1(self) -> None:
         """Check that you read the same as you write."""
-        from pineboolib.fllegacy.systype import SysType
 
-        temporal = "%s%s" % (SysType().installPrefix(), u"/tempdata/test_types_file.txt")
+        temporal = "%s%s" % (config.value("ebcomportamiento/temp_dir"), u"/test_types_file.txt")
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         File(temporal).write(contenido)
         contenido_2 = File(temporal).read()
@@ -168,9 +168,11 @@ class TestFile(unittest.TestCase):
 
     def test_write_read_values_2(self) -> None:
         """Check that you read the same as you write."""
-        from pineboolib.fllegacy.systype import SysType
 
-        temporal = "%s%s" % (SysType().installPrefix(), u"/tempdata/test_types_file_static.txt")
+        temporal = "%s%s" % (
+            config.value("ebcomportamiento/temp_dir"),
+            u"/test_types_file_static.txt",
+        )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         FileStatic.write(temporal, contenido)
         contenido_2 = FileStatic.read(temporal)
@@ -179,9 +181,11 @@ class TestFile(unittest.TestCase):
 
     def test_full_name_and_readable(self) -> None:
         """Check fullName"""
-        from pineboolib.fllegacy.systype import SysType
 
-        temporal = "%s%s" % (SysType().installPrefix(), u"/tempdata/test_types_file_full_name.txt")
+        temporal = "%s%s" % (
+            config.value("ebcomportamiento/temp_dir"),
+            u"/test_types_file_full_name.txt",
+        )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         file_ = File(temporal)
         file_.write(contenido)

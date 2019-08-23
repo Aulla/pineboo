@@ -20,9 +20,9 @@ def translate(mod: str, txt: str) -> str:
 
 def error_manager(e: str) -> str:
     """Process an error text and return a better version for GUI."""
-    from .utils.utils_base import filedir
+    from pineboolib.core.settings import config
 
-    tmpdir = filedir("../tempdata")
+    tmpdir = config.value("ebcomportamiento/temp_dir")
     e = e.replace(tmpdir, "...")
     e = re.sub(r"/[0-9a-f]{35,60}\.qs\.py", ".qs.py", e)
 

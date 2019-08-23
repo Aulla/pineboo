@@ -58,7 +58,9 @@ class Project(object):
         self.tree = None
         self.root = None
         self.apppath = ""
-        self.tmpdir = filedir("../tempdata")
+        self.tmpdir = config.value(
+            "ebcomportamiento/temp_dir", filedir("../tempdata")
+        )  # Aquí inicializa temp_dir
         self.parser = None
         self.main_form_name: Optional[str] = None
         self.deleteCache = False
@@ -98,7 +100,7 @@ class Project(object):
         """Initialize project with a connection."""
         self._conn = connection
         self.apppath = filedir("..")
-        self.tmpdir = config.value("ebcomportamiento/temp_dir", filedir("../tempdata"))
+        self.tmpdir = config.value("ebcomportamiento/temp_dir")
         if not os.path.exists(self.tmpdir):
             os.mkdir(self.tmpdir)
 
@@ -277,7 +279,7 @@ class Project(object):
                         continue
 
                 elif file_name.endswith(".mtd"):
-                    if not config.value("ebcomportamiento/orm_parser_disabled", False):
+                    if not config.value("ebcomportamiento/orm_parser_disabled", True):
                         if os.path.exists("%s_model.py" % _dir("cache", fileobj.filekey[:-4])):
                             continue
                 else:
