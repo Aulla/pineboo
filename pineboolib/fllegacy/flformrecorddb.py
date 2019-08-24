@@ -589,7 +589,7 @@ class FLFormRecordDB(FLFormDB):
                         error_manager(traceback.format_exc(limit=-6, chain=False)), project._DGI
                     )
 
-            return ret_ if isinstance(ret_, bool) else False
+            return ret_ if isinstance(ret_, bool) else True
         return True
 
     def acceptedForm(self) -> None:
