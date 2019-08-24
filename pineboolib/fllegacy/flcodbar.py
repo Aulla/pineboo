@@ -1,11 +1,9 @@
 """Flcodbar module."""
 
 # # -*- coding: utf-8 -*-
-from PyQt5 import QtCore, Qt  # type: ignore
-from PyQt5.Qt import QRectF  # type: ignore
-from PyQt5.QtGui import QPixmap, QColor  # type: ignore
+from PyQt5 import QtCore, Qt, QtGui, QtSvg  # type: ignore
+
 from pineboolib.core.utils.utils_base import load2xml
-from PyQt5.QtSvg import QSvgRenderer  # type: ignore
 
 from pineboolib import logging
 
@@ -38,8 +36,8 @@ class FLCodBar(object):
     """FLCodBar class."""
 
     barcode: Dict[str, Any]
-    p: Optional[QPixmap]
-    pError: QPixmap
+    p: Optional[QtGui.QPixmap]
+    pError: QtGui.QPixmap
 
     def __init__(
         self,
@@ -50,8 +48,8 @@ class FLCodBar(object):
         cut: float = 1.0,
         rotation: int = 0,
         text_flag: bool = False,
-        fg: QColor = cast(QColor, QtCore.Qt.black),
-        bg: QColor = cast(QColor, QtCore.Qt.white),
+        fg: QtGui.QColor = cast(QtGui.QColor, QtCore.Qt.black),
+        bg: QtGui.QColor = cast(QtGui.QColor, QtCore.Qt.white),
         res: int = 72,
     ) -> None:
         """Inicialize."""
@@ -60,7 +58,7 @@ class FLCodBar(object):
         from pineboolib.application.utils.check_dependencies import check_dependencies
 
         check_dependencies(dict_)
-        self.pError = QPixmap()
+        self.pError = QtGui.QPixmap()
         self.barcode = {}
         self.barcode["value"] = ""
         self.p = None
@@ -89,7 +87,7 @@ class FLCodBar(object):
             elif isinstance(value, dict):
                 self._copyBarCode(value, self.barcode)
 
-    def pixmap(self) -> QPixmap:
+    def pixmap(self) -> QtGui.QPixmap:
         """Return pixmap barcode."""
 
         self._createBarcode()
@@ -100,7 +98,7 @@ class FLCodBar(object):
 
         return self.p
 
-    def pixmapError(self) -> QPixmap:
+    def pixmapError(self) -> QtGui.QPixmap:
         """Return empy pixmap barcode."""
 
         return self.pError
@@ -138,12 +136,12 @@ class FLCodBar(object):
 
         return self.barcode["rotation"]
 
-    def fg(self) -> QColor:
+    def fg(self) -> QtGui.QColor:
         """Return fore ground color."""
 
         return self.barcode["fg"]
 
-    def bg(self) -> QColor:
+    def bg(self) -> QtGui.QColor:
         """Return back ground color."""
         return self.barcode["bg"]
 
@@ -196,11 +194,11 @@ class FLCodBar(object):
         """Set rotation size."""
         self.barcode["rotation"] = rotation
 
-    def setFg(self, fg) -> None:
+    def setFg(self, fg: QtGui.QColor) -> None:
         """Set fore ground color."""
         self.barcode["fg"] = fg
 
-    def setBg(self, bg: QColor) -> None:
+    def setBg(self, bg: QtGui.QColor) -> None:
         """Set back ground color."""
         self.barcode["bg"] = bg
 
@@ -335,10 +333,10 @@ class FLCodBar(object):
         bg_ = self.barcode["bg"]
         fg_ = self.barcode["fg"]
         if not isinstance(self.barcode["bg"], str):
-            bg_ = QColor(self.barcode["bg"]).name()
+            bg_ = QtGui.QColor(self.barcode["bg"]).name()
 
         if not isinstance(self.barcode["fg"], str):
-            fg_ = QColor(self.barcode["fg"]).name()
+            fg_ = QtGui.QColor(self.barcode["fg"]).name()
 
         margin_ = self.barcode["margin"] / 10
 
@@ -372,11 +370,11 @@ class FLCodBar(object):
             logger.warning("width or height missing")
             svg_w = 0.0
             svg_h = 0.0
-        self.p = QPixmap(int(svg_w), int(svg_h))
-        render = QSvgRenderer(svg)
+        self.p = QtGui.QPixmap(int(svg_w), int(svg_h))
+        render = QtSvg.QSvgRenderer(svg)
         self.p.fill(QtCore.Qt.transparent)
         painter = Qt.QPainter(self.p)
-        render.render(painter, QRectF(0, 0, svg_w * 3.4, svg_h * 3.4))
+        render.render(painter, Qt.QRectF(0, 0, svg_w * 3.4, svg_h * 3.4))
 
         if self.p.isNull():
             self.barcode["valid"] = False

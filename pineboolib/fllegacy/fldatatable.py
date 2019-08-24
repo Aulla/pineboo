@@ -2,7 +2,6 @@
 
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtWidgets, Qt
-from PyQt5.QtWidgets import QCheckBox
 
 
 from pineboolib.core import decorators
@@ -14,7 +13,7 @@ from .flsqlcursor import FLSqlCursor
 
 from pineboolib import logging
 from typing import Any, Optional, List, Dict, Tuple, cast, TYPE_CHECKING
-from PyQt5.QtCore import pyqtSignal
+
 
 if TYPE_CHECKING:
     from pineboolib.application.database.pncursortablemodel import PNCursorTableModel  # noqa: F401
@@ -198,10 +197,7 @@ class FLDataTable(QtWidgets.QTableView):
             if self.cursor_ and not self.cursor_ == cursor:
                 self.cursor_.restoreEditionFlag(self)
                 self.cursor_.restoreBrowseFlag(self)
-                # cast(pyqtSignal, self.cursor_.d._current_changed).disconnect(
-                #    self.ensureRowSelectedVisible
-                # )
-                cast(pyqtSignal, self.cursor_.cursorUpdated).disconnect(self.refresh)
+                cast(QtCore.pyqtSignal, self.cursor_.cursorUpdated).disconnect(self.refresh)
 
                 cur_chg = True
 
@@ -212,10 +208,7 @@ class FLDataTable(QtWidgets.QTableView):
                 self.setInsertOnly(self.insertonly_)
                 self.setOnlyTable(self.onlyTable_)
 
-                # cast(pyqtSignal, self.cursor_.d._current_changed).connect(
-                #    self.ensureRowSelectedVisible
-                # )
-                cast(pyqtSignal, self.cursor_.cursorUpdated).connect(self.refresh)
+                cast(QtCore.pyqtSignal, self.cursor_.cursorUpdated).connect(self.refresh)
 
                 self.setModel(self.cursor_.model())
                 self.setSelectionModel(self.cursor_.selection())
@@ -361,7 +354,7 @@ class FLDataTable(QtWidgets.QTableView):
                 self.primaryKeyToggled.emit(primaryKeyValue, False)
 
         if primaryKeyValue not in model._checkColumn.keys():
-            model._checkColumn[primaryKeyValue] = QCheckBox()
+            model._checkColumn[primaryKeyValue] = QtWidgets.QCheckBox()
 
         model._checkColumn[primaryKeyValue].setChecked(on)
 

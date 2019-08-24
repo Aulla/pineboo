@@ -1,30 +1,27 @@
 # -*- coding: utf-8 -*-
 """FLApplication Module."""
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import QTimer, QEvent, QRect, QObject, pyqtSignal
-from PyQt5.QtGui import QCursor, QIcon, QKeySequence
-from PyQt5.QtWidgets import QWidget, QMenu, QActionGroup, QAction, QStyleFactory, QApplication
-from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QSizePolicy, QToolBox, QMainWindow
-from PyQt5.QtWidgets import QToolBar, QFontDialog, QLabel, QMdiArea, QDockWidget
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from pineboolib import logging
+
 from pineboolib.core import decorators
 from pineboolib.core.settings import config, settings
 
 from pineboolib.application import project
 from pineboolib.application.database import db_signals
 from pineboolib.application.qsatypes.sysbasetype import SysBaseType
-from pineboolib.qt3_widgets.qmessagebox import QMessageBox
-from pineboolib.fllegacy.fltranslator import FLTranslator
-from pineboolib.fllegacy.flworkspace import FLWorkSpace
-from pineboolib.fllegacy.fltexteditoutput import FLTextEditOutput
+
+
+from .fltranslator import FLTranslator
+from .flworkspace import FLWorkSpace
+from .fltexteditoutput import FLTextEditOutput
 
 from typing import cast, Any, Optional, Union, Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.database.pnsqlcursor import PNSqlCursor
-    from pineboolib.fllegacy.flaccesscontrollists import FLAccessControlLists  # noqa: F401
+    from .flaccesscontrollists import FLAccessControlLists  # noqa: F401
 
 
 logger = logging.getLogger("FLApplication")
@@ -71,7 +68,7 @@ class FLApplication(QtCore.QObject):
     time_user_: QtCore.QTimer
     script_entry_function_: Optional[str]
     _event_loop: Optional[QtCore.QEventLoop]
-    window_menu: Optional[QMenu] = None
+    window_menu: Optional[QtWidgets.QMenu] = None
     last_text_caption_: Optional[str]
     modules_menu: Any
 
@@ -183,7 +180,7 @@ class FLApplication(QtCore.QObject):
         if self._inicializing or self._destroying:
             return super().eventFilter(obj, ev)
 
-        if QApplication.activeModalWidget() or QApplication.activePopupWidget():
+        if QtWidgets.QApplication.activeModalWidget() or QtWidgets.QApplication.activePopupWidget():
             return super().eventFilter(obj, ev)
 
         evt = ev.type()
@@ -192,7 +189,7 @@ class FLApplication(QtCore.QObject):
 
         # aw = None
         # if self._p_work_space is not None:
-        #    aw = QApplication.setActiveWindow(self._p_work_space)
+        #    aw = QtWidgets.QApplication.setActiveWindow(self._p_work_space)
         # if aw is not None and aw != obj and evt not in (QEvent.Resize, QEvent.Close):
         #     obj.removeEventFilter(self)
         #     if evt == QEvent.WindowActivate:
@@ -207,7 +204,7 @@ class FLApplication(QtCore.QObject):
         #
         #     obj.installEventFilter(self)
 
-        if evt == QEvent.KeyPress:
+        if evt == QtCore.QEvent.KeyPress:
             if obj == self.container_:
                 ke = ev
 
@@ -228,7 +225,7 @@ class FLApplication(QtCore.QObject):
                     obj.hide()
                     return True
 
-        elif evt == QEvent.Close:
+        elif evt == QtCore.QEvent.Close:
             if obj == self.container_:
                 ret = self.generalExit()
                 if not ret:
@@ -238,7 +235,7 @@ class FLApplication(QtCore.QObject):
             else:
                 obj.hide()
                 return True
-        elif evt == QEvent.WindowActivate:
+        elif evt == QtCore.QEvent.WindowActivate:
             if obj == self.container_:
                 self.activateModule(None)
                 return True
@@ -246,18 +243,18 @@ class FLApplication(QtCore.QObject):
                 self.activateModule(obj.objectName())
                 return True
 
-        elif evt == QEvent.MouseButtonPress:
+        elif evt == QtCore.QEvent.MouseButtonPress:
             if self.modules_menu:
                 me = ev
                 if me.button() == QtCore.Qt.RightButton:
-                    self.modules_menu.pop(QCursor.pos())
+                    self.modules_menu.pop(QtGui.QCursor.pos())
                     return True
                 else:
                     return False
             else:
                 return False
 
-        elif evt == QEvent.Resize and isinstance(obj, project.main_form.MainForm):
+        elif evt == QtCore.QEvent.Resize and isinstance(obj, project.main_form.MainForm):
             for bt in self.mdi_toolbuttons:
                 bt.setMinimumWidth(obj.width() - 10)
 
@@ -267,9 +264,7 @@ class FLApplication(QtCore.QObject):
 
     def eventLoop(self) -> "QtCore.QEventLoop":
         """Create main event loop."""
-        from pineboolib.qt3_widgets.qeventloop import QEventLoop
-
-        return QEventLoop()
+        return QtCore.QEventLoop()
 
     @decorators.NotImplementedWarn
     def checkForUpdate(self):
@@ -288,8 +283,8 @@ class FLApplication(QtCore.QObject):
 
     def init(self) -> None:
         """Initialize FLApplication."""
-        from pineboolib.fllegacy.flaccesscontrollists import FLAccessControlLists  # noqa: F811
-        from pineboolib.fllegacy.aqsobjects.aqs import AQS
+        from .flaccesscontrollists import FLAccessControlLists  # noqa: F811
+        from .aqsobjects.aqs import AQS
 
         self._dict_main_widgets = {}
 
@@ -297,7 +292,7 @@ class FLApplication(QtCore.QObject):
             raise Exception("init. self.container_ is empty")
 
         self.container_.setObjectName("container")
-        self.container_.setWindowIcon(QIcon(AQS.pixmap_fromMimeSource("pineboo.png")))
+        self.container_.setWindowIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("pineboo.png")))
         if self.db() is not None:
             self.container_.setWindowTitle(self.db().DBName())
         else:
@@ -305,44 +300,50 @@ class FLApplication(QtCore.QObject):
 
         # FLDiskCache.init(self)
 
-        self.window_menu = QMenu(self.container_)
+        self.window_menu = QtWidgets.QMenu(self.container_)
         self.window_menu.setObjectName("windowMenu")
 
-        self.window_cascade_action = QAction(
-            QIcon(AQS.pixmap_fromMimeSource("cascada.png")), self.tr("Cascada"), self.container_
+        self.window_cascade_action = QtWidgets.QAction(
+            QtGui.QIcon(AQS.pixmap_fromMimeSource("cascada.png")),
+            self.tr("Cascada"),
+            self.container_,
         )
         self.window_menu.addAction(self.window_cascade_action)
 
-        self.window_tile_action = QAction(
-            QIcon(AQS.pixmap_fromMimeSource("mosaico.png")), self.tr("Mosaico"), self.container_
+        self.window_tile_action = QtWidgets.QAction(
+            QtGui.QIcon(AQS.pixmap_fromMimeSource("mosaico.png")),
+            self.tr("Mosaico"),
+            self.container_,
         )
         self.window_menu.addAction(self.window_tile_action)
 
-        self.window_close_action = QAction(
-            QIcon(AQS.pixmap_fromMimeSource("cerrar.png")), self.tr("Cerrar"), self.container_
+        self.window_close_action = QtWidgets.QAction(
+            QtGui.QIcon(AQS.pixmap_fromMimeSource("cerrar.png")), self.tr("Cerrar"), self.container_
         )
         self.window_menu.addAction(self.window_close_action)
 
-        self.modules_menu = QMenu(self.container_)
+        self.modules_menu = QtWidgets.QMenu(self.container_)
         self.modules_menu.setObjectName("modulesMenu")
         # self.modules_menu.setCheckable(False)
 
-        w = QWidget(self.container_)
+        w = QtWidgets.QWidget(self.container_)
         w.setObjectName("widgetContainer")
-        vl = QVBoxLayout(w)
+        vl = QtWidgets.QVBoxLayout(w)
 
-        self.exit_button = QPushButton(
-            QIcon(AQS.pixmap_fromMimeSource("exit.png")), self.tr("Salir"), w
+        self.exit_button = QtWidgets.QPushButton(
+            QtGui.QIcon(AQS.pixmap_fromMimeSource("exit.png")), self.tr("Salir"), w
         )
         self.exit_button.setObjectName("pbSalir")
-        self.exit_button.setShortcut(QKeySequence(self.tr("Ctrl+Q")))
-        self.exit_button.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
+        self.exit_button.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+Q")))
+        self.exit_button.setSizePolicy(
+            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        )
         self.exit_button.setFocusPolicy(QtCore.Qt.NoFocus)
         self.exit_button.setToolTip(self.tr("Salir de la aplicación (Ctrl+Q)"))
         self.exit_button.setWhatsThis(self.tr("Salir de la aplicación (Ctrl+Q)"))
         self.exit_button.clicked.connect(self.exit_button_clicked)
 
-        self.tool_box_ = QToolBox(w)
+        self.tool_box_ = QtWidgets.QToolBox(w)
         self.tool_box_.setObjectName("toolBox")
 
         vl.addWidget(self.exit_button)
@@ -427,7 +428,7 @@ class FLApplication(QtCore.QObject):
                 w.show()
             return
 
-        focus_w = QApplication.focusWidget()
+        focus_w = QtWidgets.QApplication.focusWidget()
         if w is self.container_ or not w:
             if self.container_.isMinimized():
                 self.container_.showNormal()
@@ -435,12 +436,16 @@ class FLApplication(QtCore.QObject):
                 self.container_.setFont(self.font())
                 self.container_.show()
 
-            if focus_w and isinstance(focus_w, QMainWindow) and focus_w != self.container_:
+            if (
+                focus_w
+                and isinstance(focus_w, QtWidgets.QMainWindow)
+                and focus_w != self.container_
+            ):
                 self.container_.setFocus()
 
             if not self.container_.isActiveWindow():
                 self.container_.raise_()
-                QApplication.setActiveWindow(self.container_)
+                QtWidgets.QApplication.setActiveWindow(self.container_)
 
             if self.db() is not None:
                 self.container_.setWindowTitle(self.db().database())
@@ -453,13 +458,13 @@ class FLApplication(QtCore.QObject):
             w.showNormal()
         elif not w.isVisible():
             w.show()
-            w.setFont(QApplication.font())
+            w.setFont(QtWidgets.QApplication.font())
 
-        if focus_w and isinstance(focus_w, QMainWindow) and focus_w != w:
+        if focus_w and isinstance(focus_w, QtWidgets.QMainWindow) and focus_w != w:
             w.setFocus()
         if not w.isActiveWindow():
             w.raise_()
-            QApplication.setActiveWindow(w)
+            QtWidgets.QApplication.setActiveWindow(w)
 
         if w:
             view_back = w.centralWidget()
@@ -473,9 +478,9 @@ class FLApplication(QtCore.QObject):
             .managerModules()
             .idAreaToDescription(self.db().managerModules().activeIdArea())
         )
-        w.setWindowIcon(QIcon(self.db().managerModules().iconModule(w.objectName())))
+        w.setWindowIcon(QtGui.QIcon(self.db().managerModules().iconModule(w.objectName())))
         self.tool_box_.setCurrentIndex(
-            self.tool_box_.indexOf(self.tool_box_.findChild(QToolBar, descript_area))
+            self.tool_box_.indexOf(self.tool_box_.findChild(QtWidgets.QToolBar, descript_area))
         )
 
     def setMainWidget(self, w) -> None:
@@ -484,20 +489,20 @@ class FLApplication(QtCore.QObject):
             return
 
         if w == self.container_ or w is None:
-            QApplication.setActiveWindow(self.container_)
+            QtWidgets.QApplication.setActiveWindow(self.container_)
             self.main_widget_ = None
             return
 
-        QApplication.setActiveWindow(w)
+        QtWidgets.QApplication.setActiveWindow(w)
         self.main_widget_ = w
 
-        # mw = self.main_widget_ if isinstance(self.main_widget_, QMainWindow) else None
+        # mw = self.main_widget_ if isinstance(self.main_widget_, QtWidgets.QMainWindow) else None
         mw = self.main_widget_
         if mw is None:
             return
 
         if self.toogle_bars_:
-            tool_bar = mw.findChild(QToolBar)
+            tool_bar = mw.findChild(QtWidgets.QToolBar)
             for ac in self.toogle_bars_.actions():
                 if ac.objectName() == "Herramientas":
                     a = ac
@@ -517,9 +522,9 @@ class FLApplication(QtCore.QObject):
     def chooseFont(self) -> None:
         """Open font selector."""
 
-        font_ = QFontDialog().getFont()
+        font_ = QtWidgets.QFontDialog().getFont()
         if font_:
-            QApplication.setFont(font_[0])
+            QtWidgets.QApplication.setFont(font_[0])
             save_ = [font_[0].family(), font_[0].pointSize(), font_[0].weight(), font_[0].italic()]
 
             config.set_value("application/font", save_)
@@ -543,8 +548,8 @@ class FLApplication(QtCore.QObject):
         if self.main_widget_ is None:
             raise Exception("self.main_widget_ is empty!")
 
-        self.tool_box_ = self.main_widget_.findChild(QToolBox, "toolBox")
-        self.modules_menu = self.main_widget_.findChild(QMenu, "modulesMenu")
+        self.tool_box_ = self.main_widget_.findChild(QtWidgets.QToolBox, "toolBox")
+        self.modules_menu = self.main_widget_.findChild(QtWidgets.QMenu, "modulesMenu")
 
         if self.tool_box_ is None or self.modules_menu is None:
             return
@@ -552,7 +557,7 @@ class FLApplication(QtCore.QObject):
         self.modules_menu.clear()
         for n in reversed(range(self.tool_box_.count())):
             item = self.tool_box_widget(n)
-            if isinstance(item, QToolBar):
+            if isinstance(item, QtWidgets.QToolBar):
                 item.clear()
 
             self.tool_box_.removeItem(item)
@@ -569,15 +574,15 @@ class FLApplication(QtCore.QObject):
             if it == "sys" and not config.value("application/dbadmin_enabled", False):
                 continue
             descript_area = self.db().managerModules().idAreaToDescription(it)
-            new_area_bar = QToolBar(self.tr(descript_area), self.container_)
+            new_area_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
             new_area_bar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
             # new_area_bar.setFrameStyle(QFrame.NoFrame)
             new_area_bar.setOrientation(QtCore.Qt.Vertical)
             new_area_bar.layout().setSpacing(3)
             self.tool_box_.addItem(new_area_bar, self.tr(descript_area))
-            ag = QActionGroup(new_area_bar)
+            ag = QtWidgets.QActionGroup(new_area_bar)
             ag.setObjectName(descript_area)
-            # ac = QAction(ag)
+            # ac = QtWidgets.QAction(ag)
             # ac.setText(descript_area)
             # ac.setUsesDropDown(True)
 
@@ -596,12 +601,12 @@ class FLApplication(QtCore.QObject):
                             str(chr(c)),
                             self.tr("Carga Estática desde Disco Duro"),
                         )
-                        new_module_action = QAction(new_area_bar)
+                        new_module_action = QtWidgets.QAction(new_area_bar)
                         new_module_action.setObjectName("StaticLoadAction")
                         new_module_action.setText(self.tr(descript_module))
                         new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
                         new_module_action.setIcon(
-                            QIcon(AQS.pixmap_fromMimeSource("folder_update.png"))
+                            QtGui.QIcon(AQS.pixmap_fromMimeSource("folder_update.png"))
                         )
                         new_area_bar.addAction(new_module_action)
                         new_module_action.triggered.connect(self.staticLoaderSetup)
@@ -609,11 +614,13 @@ class FLApplication(QtCore.QObject):
                         c += 1
 
                         descript_module = "%s: %s" % (str(chr(c)), self.tr("Reiniciar Script"))
-                        new_module_action = QAction(new_area_bar)
+                        new_module_action = QtWidgets.QAction(new_area_bar)
                         new_module_action.setObjectName("reinitScriptAction")
                         new_module_action.setText(self.tr(descript_module))
                         new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-                        new_module_action.setIcon(QIcon(AQS.pixmap_fromMimeSource("reload.png")))
+                        new_module_action.setIcon(
+                            QtGui.QIcon(AQS.pixmap_fromMimeSource("reload.png"))
+                        )
                         new_area_bar.addAction(new_module_action)
                         new_module_action.triggered.connect(self.reinit)
                         ag.addAction(new_module_action)
@@ -623,11 +630,13 @@ class FLApplication(QtCore.QObject):
                             str(chr(c)),
                             self.tr("Mostrar Consola de mensajes"),
                         )
-                        new_module_action = QAction(new_area_bar)
+                        new_module_action = QtWidgets.QAction(new_area_bar)
                         new_module_action.setObjectName("shConsoleAction")
                         new_module_action.setText(self.tr(descript_module))
                         new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-                        new_module_action.setIcon(QIcon(AQS.pixmap_fromMimeSource("consola.png")))
+                        new_module_action.setIcon(
+                            QtGui.QIcon(AQS.pixmap_fromMimeSource("consola.png"))
+                        )
                         new_area_bar.addAction(new_module_action)
                         new_module_action.triggered.connect(self.showConsole)
                         ag.addAction(new_module_action)
@@ -637,11 +646,11 @@ class FLApplication(QtCore.QObject):
                     str(chr(c)),
                     self.db().managerModules().idModuleToDescription(mod),
                 )
-                new_module_action = QAction(new_area_bar)
+                new_module_action = QtWidgets.QAction(new_area_bar)
                 new_module_action.setObjectName(mod)
                 new_module_action.setText(self.tr(descript_module))
                 new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-                new_module_action.setIcon(QIcon(self.db().managerModules().iconModule(mod)))
+                new_module_action.setIcon(QtGui.QIcon(self.db().managerModules().iconModule(mod)))
                 new_area_bar.addAction(new_module_action)
                 new_module_action.triggered.connect(self.activateModule)
                 ag.addAction(new_module_action)
@@ -660,7 +669,7 @@ class FLApplication(QtCore.QObject):
                 a_menu.addAction(a)
 
         descript_area = "Configuración"
-        config_tool_bar = QToolBar(self.tr(descript_area), self.container_)
+        config_tool_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
         config_tool_bar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         # config_tool_bar.setFrameStyle(QFrame.NoFrame)
         config_tool_bar.setOrientation(QtCore.Qt.Vertical)
@@ -668,61 +677,61 @@ class FLApplication(QtCore.QObject):
         self.tool_box_.addItem(config_tool_bar, self.tr(descript_area))
 
         descript_module = self.tr("Fuente")
-        font_action = QAction(new_area_bar)
+        font_action = QtWidgets.QAction(new_area_bar)
         font_action.setObjectName("fontAction")
         font_action.setText(self.tr(descript_module))
         # font_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        font_action.setIcon(QIcon(AQS.pixmap_fromMimeSource("font.png")))
+        font_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("font.png")))
         config_tool_bar.addAction(font_action)
         font_action.triggered.connect(self.chooseFont)
         ag.addAction(font_action)
 
         descript_module = self.tr("Estilo")
-        style_action = QAction(new_area_bar)
+        style_action = QtWidgets.QAction(new_area_bar)
         style_action.setObjectName("styleAction")
         style_action.setText(self.tr(descript_module))
         # style_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        style_action.setIcon(QIcon(AQS.pixmap_fromMimeSource("estilo.png")))
+        style_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("estilo.png")))
         config_tool_bar.addAction(style_action)
         style_action.triggered.connect(self.showStyles)
         ag.addAction(style_action)
 
         descript_module = self.tr("Indice")
-        help_action = QAction(new_area_bar)
+        help_action = QtWidgets.QAction(new_area_bar)
         help_action.setObjectName("helpAction")
         help_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        help_action.setIcon(QIcon(AQS.pixmap_fromMimeSource("help_index.png")))
+        help_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("help_index.png")))
         config_tool_bar.addAction(help_action)
         help_action.triggered.connect(self.helpIndex)
         ag.addAction(help_action)
 
         descript_module = self.tr("Acerca de Pineboo")
-        about_pineboo_action = QAction(new_area_bar)
+        about_pineboo_action = QtWidgets.QAction(new_area_bar)
         about_pineboo_action.setObjectName("aboutPinebooAction")
         about_pineboo_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        about_pineboo_action.setIcon(QIcon(AQS.pixmap_fromMimeSource("about.png")))
+        about_pineboo_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("about.png")))
         config_tool_bar.addAction(about_pineboo_action)
         about_pineboo_action.triggered.connect(self.aboutPineboo)
         ag.addAction(about_pineboo_action)
 
         descript_module = self.tr("Visita Eneboo.org")
-        visit_pineboo_action = QAction(new_area_bar)
+        visit_pineboo_action = QtWidgets.QAction(new_area_bar)
         visit_pineboo_action.setObjectName("visitPinebooAction")
         visit_pineboo_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        visit_pineboo_action.setIcon(QIcon(AQS.pixmap_fromMimeSource("about.png")))
+        visit_pineboo_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("about.png")))
         config_tool_bar.addAction(visit_pineboo_action)
         visit_pineboo_action.triggered.connect(self.urlPineboo)
         ag.addAction(visit_pineboo_action)
 
         descript_module = self.tr("Acerca de Qt")
-        about_qt_action = QAction(new_area_bar)
+        about_qt_action = QtWidgets.QAction(new_area_bar)
         about_qt_action.setObjectName("aboutQtAction")
         about_qt_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        about_qt_action.setIcon(QIcon(AQS.pixmap_fromMimeSource("aboutqt.png")))
+        about_qt_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("aboutqt.png")))
         config_tool_bar.addAction(about_qt_action)
         about_qt_action.triggered.connect(self.aboutQt)
         ag.addAction(about_qt_action)
@@ -752,7 +761,7 @@ class FLApplication(QtCore.QObject):
         if self.window_menu is None:
             raise Exception("initMenuBar. self.window_menu is empty!")
 
-        cast(pyqtSignal, self.window_menu.aboutToShow).connect(self.windowMenuAboutToShow)
+        cast(QtCore.pyqtSignal, self.window_menu.aboutToShow).connect(self.windowMenuAboutToShow)
 
     def initToolBar(self) -> None:
         """Initialize toolbar."""
@@ -772,21 +781,21 @@ class FLApplication(QtCore.QObject):
         # what_this_button = QWhatsThis(tb)
 
         if not self.toogle_bars_:
-            self.toogle_bars_ = QMenu(self.container_)
+            self.toogle_bars_ = QtWidgets.QMenu(self.container_)
             self.toogle_bars_.setObjectName("toggleBars")
             # self.toogle_bars_.setCheckable(True)
 
-            # ag = QActionGroup(self.container_)
+            # ag = QtWidgets.QActionGroup(self.container_)
             # ag.setObjectName("agToggleBars")
 
-            a = QAction(self.tr("Barra de Herramientas"), self.container_)
+            a = QtWidgets.QAction(self.tr("Barra de Herramientas"), self.container_)
             a.setObjectName("Herramientas")
             a.setCheckable(True)
             a.setChecked(True)
             a.triggered.connect(self.toggleToolBar)
             self.toogle_bars_.addAction(a)
 
-            b = QAction(self.tr("Barra de Estado"), self.container_)
+            b = QtWidgets.QAction(self.tr("Barra de Estado"), self.container_)
             b.setObjectName("Estado")
             b.setCheckable(True)
             b.setChecked(True)
@@ -809,7 +818,7 @@ class FLApplication(QtCore.QObject):
         self.statusHelpMsg(self.tr("Listo."))
         self.main_widget_.statusBar().setSizeGripEnabled(False)
 
-        conexion = QLabel(self.main_widget_.statusBar())
+        conexion = QtWidgets.QLabel(self.main_widget_.statusBar())
         conexion.setText("%s@%s" % (self.db().user(), self.db().database()))
         self.main_widget_.statusBar().addWidget(conexion)
 
@@ -823,7 +832,7 @@ class FLApplication(QtCore.QObject):
         view_back = mw.centralWidget()
         if view_back is None:
 
-            view_back = QMdiArea()
+            view_back = QtWidgets.QMdiArea()
             view_back.setObjectName("mdi_area")
             self._p_work_space = FLWorkSpace(view_back, self.db().managerModules().activeIdModule())
             self._p_work_space.setAttribute(QtCore.Qt.WA_NoSystemBackground)
@@ -839,7 +848,7 @@ class FLApplication(QtCore.QObject):
             style: Any = style_
             config.set_value("application/style", style)
 
-            QApplication.setStyle(style)
+            QtWidgets.QApplication.setStyle(style)
 
     def initStyles(self) -> None:
         """Initialize styles."""
@@ -851,11 +860,11 @@ class FLApplication(QtCore.QObject):
         if not style_read:
             style_read = "Fusion"
 
-        style_menu = self.mainWidget().findChild(QMenu, "style")
+        style_menu = self.mainWidget().findChild(QtWidgets.QMenu, "style")
 
         if style_menu:
-            ag = QActionGroup(style_menu)
-            for style_ in QStyleFactory.keys():
+            ag = QtWidgets.QActionGroup(style_menu)
+            for style_ in QtWidgets.QStyleFactory.keys():
                 action_ = style_menu.addAction(style_)
                 action_.setObjectName("style_%s" % style_)
                 action_.setCheckable(True)
@@ -882,7 +891,7 @@ class FLApplication(QtCore.QObject):
         if not self.main_widget_:
             return
 
-        tb = self.main_widget_.findChild(QToolBar)
+        tb = self.main_widget_.findChild(QtWidgets.QToolBar)
         if not tb:
             return
 
@@ -898,7 +907,7 @@ class FLApplication(QtCore.QObject):
     def aboutQt(self) -> None:
         """Show About QT."""
 
-        QMessageBox.aboutQt(self.mainWidget())
+        QtWidgets.QMessageBox.aboutQt(self.mainWidget())
 
     def aboutPineboo(self) -> None:
         """Show about Pineboo."""
@@ -1213,13 +1222,15 @@ class FLApplication(QtCore.QObject):
 
         if script_calls:
             if not mw:
-                self.container_ = QMainWindow(QApplication.desktop())
+                self.container_ = QtWidgets.QMainWindow(QtWidgets.QApplication.desktop())
 
             if not self.popup_warn_:
                 self.popup_warn_ = FLPopupWarn(mw)  # FIXME: Empty class yet!
 
             self.popup_warn_.script_calls_ = script_calls
-            wi.showText(QApplication.desktop().mapToGlobal(QtCore.QPoint(5, 5)), msg_warn, mw)
+            wi.showText(
+                QtWidgets.QApplication.desktop().mapToGlobal(QtCore.QPoint(5, 5)), msg_warn, mw
+            )
 
         else:
 
@@ -1266,7 +1277,7 @@ class FLApplication(QtCore.QObject):
             if self._ted_output:
                 self._ted_output.parentWidget().close()
 
-            dw = QDockWidget("tedOutputDock", mw)
+            dw = QtWidgets.QDockWidget("tedOutputDock", mw)
             self._ted_output = FLTextEditOutput(dw)
             dw.setWidget(self._ted_output)
             dw.setWindowTitle(self.tr("Mensajes de Eneboo"))
@@ -1319,8 +1330,8 @@ class FLApplication(QtCore.QObject):
 
             if (
                 # not self.project_ or
-                QApplication.activeModalWidget()
-                or QApplication.activePopupWidget()
+                QtWidgets.QApplication.activeModalWidget()
+                or QtWidgets.QApplication.activePopupWidget()
             ):
                 return
 
@@ -1333,7 +1344,7 @@ class FLApplication(QtCore.QObject):
     def startTimerIdle(self) -> None:
         """Start timer."""
         if not self.timer_idle_:
-            self.timer_idle_ = QTimer()
+            self.timer_idle_ = QtCore.QTimer()
             self.timer_idle_.timeout.connect(self.aqAppIdle)
         else:
             self.timer_idle_.stop()
@@ -1467,14 +1478,14 @@ class FLApplication(QtCore.QObject):
         if not SysBaseType.interactiveGUI():
             return True
 
-        ret = QMessageBox.information(
+        ret = QtWidgets.QMessageBox.information(
             self.mainWidget(),
             self.tr("Salir ..."),
             self.tr("¿ Quiere salir de la aplicación ?"),
-            QMessageBox.Yes,
-            QMessageBox.No,
+            QtWidgets.QMessageBox.Yes,
+            QtWidgets.QMessageBox.No,
         )
-        return ret == QMessageBox.Yes
+        return ret == QtWidgets.QMessageBox.Yes
 
     def writeState(self) -> None:
         """Write settings back to disk."""
@@ -1484,7 +1495,7 @@ class FLApplication(QtCore.QObject):
 
         if self.container_ is not None:
             windows_opened = []
-            _list = QApplication.topLevelWidgets()
+            _list = QtWidgets.QApplication.topLevelWidgets()
 
             if self._inicializing:
                 for it in _list:
@@ -1565,7 +1576,7 @@ class FLApplication(QtCore.QObject):
                 r.setWidth(settings.value("Geometry/MainWindowWidth", r.width()))
                 r.setHeight(settings.value("Geometry/MainWindowHeight", r.height()))
 
-                desk = QApplication.desktop().availableGeometry(self.container_)
+                desk = QtWidgets.QApplication.desktop().availableGeometry(self.container_)
                 inter = desk.intersected(r)
                 self.container_.resize(r.size())
                 if inter.width() * inter.height() > (r.width() * r.height() / 20):
@@ -1573,7 +1584,7 @@ class FLApplication(QtCore.QObject):
 
             else:
                 self.container_.resize(
-                    QApplication.desktop().availableGeometry(self.container_).size()
+                    QtWidgets.QApplication.desktop().availableGeometry(self.container_).size()
                 )
 
             active_id_module = self.db().managerModules().activeIdModule()
@@ -1608,13 +1619,13 @@ class FLApplication(QtCore.QObject):
                 if w.objectName() != active_id_module:
                     w.installEventFilter(self)
                     w.show()
-                    w.setFont(QApplication.font())
-                    if not isinstance(w, QMainWindow):
+                    w.setFont(QtWidgets.QApplication.font())
+                    if not isinstance(w, QtWidgets.QMainWindow):
                         continue
 
                     view_back = w.centralWidget()
                     if view_back is not None:
-                        self._p_work_space = view_back.findChild(QWidget, w.objectName())
+                        self._p_work_space = view_back.findChild(QtWidgets.QWidget, w.objectName())
 
             if active_id_module:
                 self.container_.show()
@@ -1635,36 +1646,36 @@ class FLApplication(QtCore.QObject):
         windows_opened = settings.value("windowsOpened/%s" % idm, None)
         if windows_opened:
             for it in windows_opened:
-                act = self.main_widget_.findChild(QObject, it)
+                act = self.main_widget_.findChild(QtCore.QObject, it)
                 if act and act.isVisible():
                     self.openMasterForm(it, act.icon())
 
-        r = QRect(self.main_widget_.pos(), self.main_widget_.size())
+        r = QtCore.QRect(self.main_widget_.pos(), self.main_widget_.size())
         k = "Geometry/%s" % idm
         if not settings.value("%s/Maximized" % k, False):
             r.setX(settings.value("%s/X" % k, r.x()))
             r.setY(settings.value("%s/Y" % k, r.y()))
             r.setWidth(settings.value("%s/Width" % k, r.width()))
             r.setHeight(settings.value("%s/Height" % k, r.height()))
-            desk = QApplication.desktop().availableGeometry(self.main_widget_)
+            desk = QtWidgets.QApplication.desktop().availableGeometry(self.main_widget_)
             inter = desk.intersected(r)
             self.main_widget_.resize(r.size())
             if (inter.width() * inter.height()) > (r.width() * r.height() / 20):
                 self.main_widget_.move(r.topLeft())
             else:
                 self.main_widget_.resize(
-                    QApplication.desktop().availableGeometry(self.main_widget_).size()
+                    QtWidgets.QApplication.desktop().availableGeometry(self.main_widget_).size()
                 )
 
     def loadScripts(self) -> None:
         """Load scripts for all modules."""
 
-        QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         list_modules = self.db().managerModules().listAllIdModules()
         for it in list_modules:
             self.loadScriptsFromModule(it)
 
-        QApplication.restoreOverrideCursor()
+        QtWidgets.QApplication.restoreOverrideCursor()
 
     def urlPineboo(self) -> None:
         """Open Eneboo URI."""
@@ -1677,7 +1688,7 @@ class FLApplication(QtCore.QObject):
     def tr(self, sourceText: str, disambiguation: Optional[str] = None, n: int = 0) -> Any:
         """Open translations."""
 
-        return QApplication.translate("system", sourceText)
+        return QtWidgets.QApplication.translate("system", sourceText)
 
     def loadTranslations(self) -> None:
         """
