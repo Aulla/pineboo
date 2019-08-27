@@ -777,6 +777,8 @@ class PNConnection(QtCore.QObject, IConnection):
     def createTable(self, tmd: "PNTableMetaData") -> bool:
         """Create a table in the database, from a PNTableMetaData."""
 
+        do_transaction = False
+
         if not self.db():
             return False
 
@@ -784,6 +786,9 @@ class PNConnection(QtCore.QObject, IConnection):
         if not sql:
             return False
         if self.transaction_ == 0:
+            do_transaction = True
+
+        if do_transaction:
             self.transaction()
             self.transaction_ += 1
 
@@ -794,7 +799,8 @@ class PNConnection(QtCore.QObject, IConnection):
                 logger.exception("createTable: Error happened executing sql: %s...", singleSql[:80])
                 self.rollbackTransaction()
                 return False
-        if self.transaction_ > 0:
+
+        if do_transaction:
             self.commitTransaction()
             self.transaction_ -= 1
 
