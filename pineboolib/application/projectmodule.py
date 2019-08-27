@@ -305,8 +305,8 @@ class Project(object):
                     "cache",
                     "/".join(fileobj.filekey.split("/")[: len(fileobj.filekey.split("/")) - 1]),
                 )
-                if (
-                    os.path.exists(folder) and not file_name
+                if os.path.exists(folder) and not os.path.exists(
+                    file_name
                 ):  # Borra la carpeta si no existe el fichero destino
                     for root, dirs, files in os.walk(folder):
                         for f in files:
