@@ -153,7 +153,10 @@ class FormInternalObj(qsa.FormDBWidget):
 
                     self.cargarFicheroEnBD("%s.py" % ficheros[i], value_py, log, directorio)
 
-            value = qsa.File(path_).read()
+            encode = "ISO-8859-1"
+            if path_.endswith("ts"):
+                encode = "UTF-8"
+            value = qsa.File(path_, encode).read()
             if not isinstance(value, str):
                 raise Exception("value must be string not bytes.")
 
@@ -255,8 +258,9 @@ class FormInternalObj(qsa.FormDBWidget):
                 self.cargarFicheros(qsa.ustr(directorio, u"/reports/"), u"*.kut")
                 self.cargarFicheros(qsa.ustr(directorio, u"/reports/"), u"*.ar")
                 self.cargarFicheros(qsa.ustr(directorio, u"/translations/"), u"*.ts")
-                self.setDisabled(False)
+
                 log.append(qsa.util.translate(u"scripts", u"* Carga finalizada."))
+                self.setDisabled(False)
                 tdb_lineas = self.child(u"lineas")
                 if tdb_lineas is not None:
                     tdb_lineas.refresh()
@@ -450,7 +454,7 @@ class FormInternalObj(qsa.FormDBWidget):
                             s01_do_work, s01_work_done = True, True
                         if s01_do_work:
                             qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/reports/", file), contenido
+                                u"UTF-8", qsa.ustr(directorio, u"/reports/", file), contenido
                             )
                             log.append(
                                 qsa.util.translate(
@@ -462,9 +466,7 @@ class FormInternalObj(qsa.FormDBWidget):
                             s01_do_work, s01_work_done = True, True
                         if s01_do_work:
                             qsa.sys.write(
-                                u"ISO-8859-1",
-                                qsa.ustr(directorio, u"/translations/", file),
-                                contenido,
+                                u"UTF-8", qsa.ustr(directorio, u"/translations/", file), contenido
                             )
                             log.append(
                                 qsa.util.translate(
@@ -552,6 +554,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
                 self.setDisabled(False)
                 log.append(qsa.util.translate(u"scripts", u"* Exportación finalizada."))
+                qsa.from_project("formRecordflmodules").accept()
 
 
 form = None

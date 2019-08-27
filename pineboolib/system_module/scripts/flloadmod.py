@@ -173,7 +173,7 @@ class FormInternalObj(qsa.FormDBWidget):
             qsa.from_project("formRecordflmodules").cargarDeDisco(
                 qsa.ustr(fichero.path, u"/"), False
             )
-            self.from_module("formRecordflmodules").accept()
+            qsa.from_project("formRecordflmodules").accept()
             setting = "scripts/sys/modLastModule_%s" % qsa.sys.nameBD()
             nombreFichero = "%s" % os.path.abspath(nombreFichero)
             qsa.util.writeSettingEntry(setting, nombreFichero)
