@@ -669,10 +669,14 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
     @decorators.NotImplementedWarn
     def readByte(self) -> bytes:
+        """Read a byte from file."""
+
         return b""
 
     @decorators.NotImplementedWarn
     def writeByte(self, b: bytes) -> None:
+        """Write a byte to file."""
+
         return None
 
     def remove(self) -> bool:
