@@ -38,6 +38,7 @@ class QTextEdit(QtWidgets.QTextEdit):
     def setTextFormat(self, value: int) -> None:
         """Set text format."""
         if value == 0:  # LogText
+            self.setStyleSheet("QTextEdit { background-color : black; color : white; }")
             self.setReadOnly(True)
             self.setAcceptRichText(False)
         elif value == 1:
