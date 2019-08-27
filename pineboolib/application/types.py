@@ -477,9 +477,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
     Manage a file.
     """
 
-    _file_name: Optional[str]
+    _file_name: str
     _mode: QIODevice
     path: Optional[str]
+    extension: str
 
     _encode: str
     _last_seek: int
@@ -491,13 +492,14 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         self._encode = "iso-8859-15"
         self._last_seek = 0
-        self._file_name = None
+        self._file_name = ""
+        self.extension = ""
 
         if file_path is not None:
             self._q_file = QtCore.QFile(file_path)
-            self._file_name = str(file_path)
+            self._file_name, self.extension = os.path.splitext(file_path)
+            self._file_name = "%s%s" % (self._file_name, self.extension)
             self.path = os.path.dirname(os.path.abspath(file_path))
-
         if encode is not None:
             self._encode = encode
 
@@ -664,6 +666,14 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         f = open(self._file_name, "wb")
         f.write(data_b)
         f.close()
+
+    @decorators.NotImplementedWarn
+    def readByte(self) -> bytes:
+        return b""
+
+    @decorators.NotImplementedWarn
+    def writeByte(self, b: bytes) -> None:
+        return None
 
     def remove(self) -> bool:
         """
