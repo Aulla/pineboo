@@ -554,7 +554,6 @@ class FormInternalObj(qsa.FormDBWidget):
 
                 self.setDisabled(False)
                 log.append(qsa.util.translate(u"scripts", u"* Exportación finalizada."))
-                qsa.from_project("formRecordflmodules").accept()
 
 
 form = None
