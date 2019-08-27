@@ -75,6 +75,8 @@ from .pncontrolsfactory import FormDBWidget  # noqa: F401
 from pineboolib.application.process import Process, ProcessStatic  # noqa: F401
 from .pncontrolsfactory import SysType, sys, System  # noqa: F401
 
+import re
+
 QFile = File
 util = FLUtil
 print_ = print

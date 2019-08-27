@@ -2379,7 +2379,6 @@ def file_template(
     if not STRICT_MODE:
         yield "line", "from pineboolib.qsa.qsa import *  # noqa: F403"
     yield "line", "from pineboolib.qsa import qsa"
-    yield "line", "import re"
     # yield "line", "from pineboolib.qsaglobals import *"
     for alias, (path, name) in import_refs.items():
         yield "line", "from %s import %s as %s" % (path, name, alias)
