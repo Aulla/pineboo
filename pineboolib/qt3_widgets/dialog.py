@@ -6,7 +6,7 @@ from .qdialog import QDialog
 from .qpushbutton import QPushButton
 from .qtabwidget import QTabWidget
 
-from typing import Optional
+from typing import Optional, Union
 
 
 class Dialog(QDialog):
@@ -23,13 +23,13 @@ class Dialog(QDialog):
     def __init__(
         self,
         title: Optional[str] = None,
-        f: Optional[QtCore.Qt.WindowFlags] = None,
+        f: Union[Optional[QtCore.Qt.WindowFlags], int] = None,
         desc: Optional[str] = None,
     ) -> None:
         """Inicialize."""
 
         # FIXME: f no lo uso , es qt.windowsflg
-        super(Dialog, self).__init__()
+        super(Dialog, self).__init__(None, f if not isinstance(f, int) else None)
         if title:
             self.setWindowTitle(str(title))
 
