@@ -865,7 +865,11 @@ class FLUtil(QtCore.QObject):
 
     @classmethod
     def sqlInsert(
-        cls, t: str, fL: Union[str, List], vL: Union[str, List], connName: str = "default"
+        cls,
+        t: str,
+        fL: Union[str, List],
+        vL: Union[str, List, bool, int, float],
+        connName: str = "default",
     ) -> Any:
         """Insert values to a table."""
         from pineboolib.application.database.utils import sqlInsert
@@ -874,7 +878,12 @@ class FLUtil(QtCore.QObject):
 
     @classmethod
     def sqlUpdate(
-        cls, t: str, fL: Union[str, List], vL: Union[str, List], w: str, connName: str = "default"
+        cls,
+        t: str,
+        fL: Union[str, List],
+        vL: Union[str, List, bool, int, float],
+        w: str,
+        connName: str = "default",
     ) -> Any:
         """Update values to a table."""
         from pineboolib.application.database.utils import sqlUpdate
