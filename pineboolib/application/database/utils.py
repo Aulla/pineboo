@@ -259,7 +259,10 @@ def quickSqlSelect(f: str, s: str, w: str, connName: str = "default") -> Any:
 
 
 def sqlInsert(
-    t: str, fL_: Union[str, List[str]], vL_: Union[str, List[str]], connName: str = "default"
+    t: str,
+    fL_: Union[str, List[str]],
+    vL_: Union[str, List, bool, int, float],
+    connName: str = "default",
 ) -> bool:
     """
     Perform the insertion of a record in a table using an FLSqlCursor object.
@@ -272,7 +275,9 @@ def sqlInsert(
     """
 
     fL: List[str] = fL_.split(",") if isinstance(fL_, str) else fL_
-    vL: List[str] = vL_.split(",") if isinstance(vL_, str) else vL_
+    vL: List[str] = vL_.split(",") if isinstance(vL_, str) else vL_ if isinstance(vL_, list) else [
+        vL_
+    ]
 
     if not len(fL) == len(vL):
         return False
@@ -296,7 +301,11 @@ def sqlInsert(
 
 
 def sqlUpdate(
-    t: str, fL: Union[str, List[str]], vL: Union[str, List[str]], w: str, connName: str = "default"
+    t: str,
+    fL: Union[str, List[str]],
+    vL: Union[str, List, bool, int, float],
+    w: str,
+    connName: str = "default",
 ) -> bool:
     """
     Modify one or more records in a table using an FLSqlCursor object.
@@ -321,7 +330,7 @@ def sqlUpdate(
         if isinstance(fL, list):
             i = 0
             for f in fL:
-                c.setValueBuffer(f, vL[i])
+                c.setValueBuffer(f, vL[i] if isinstance(vL, list) else vL)
                 i = i + 1
         else:
             c.setValueBuffer(fL, vL)
