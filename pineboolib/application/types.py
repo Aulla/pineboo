@@ -485,7 +485,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
     _encode: str
     _last_seek: int
     _q_file: QtCore.QFile
-    eof = False
+    eof: bool
 
     def __init__(self, file_path: Optional[str] = None, encode: Optional[str] = None):
         """Create a new File Object. This does not create a file on disk."""
@@ -494,6 +494,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         self._last_seek = 0
         self._file_name = ""
         self.extension = ""
+        self.eof = False
 
         if file_path is not None:
             self._q_file = QtCore.QFile(file_path)
@@ -509,13 +510,14 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """Open file."""
         self._mode = m
         self.eof = False
+
         return True
 
     def close(self) -> None:
         """Close file."""
         pass
 
-    def read(self, bytes: bool = False) -> Union[str, bytes]:
+    def read(self, bytes: bool = False) -> str:
         """
         Read file completely.
 
@@ -617,9 +619,13 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
             raise ValueError("self._file_name is empty!")
 
         f = codecs.open(self._file_name, "r", encoding=self._encode)
+        f.seek(self._last_seek)
         ret = f.readline(self._last_seek)
-        self._last_seek += 1
+        self._last_seek += len(ret)
+        self.eof = True if ret else False
+
         f.close()
+
         return ret
 
     def readLines(self) -> List[str]:
@@ -636,8 +642,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         import codecs
 
         f = codecs.open(self._file_name, encoding=self._encode, mode="a")
-        if self._last_seek is not None:
-            f.seek(self._last_seek)
+        f.seek(self._last_seek)
         ret = f.readlines()
         f.close()
         return ret
@@ -649,10 +654,8 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         @return bytess con los datos de la linea actual
         """
         ret_ = self.read(True)
-        if isinstance(ret_, str):
-            raise ValueError("expected bytes")
 
-        return ret_
+        return ret_.encode(self._encode)
 
     def writebytes(self, data_b: bytes) -> None:
         """
@@ -667,17 +670,24 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         f.write(data_b)
         f.close()
 
-    @decorators.NotImplementedWarn
     def readByte(self) -> bytes:
         """Read a byte from file."""
+        if not self.eof:
+            with open(self._file_name, "rb") as f:
+                f.seek(self._last_seek)
+                self._last_seek += 1
+                ret = f.read(1)
+                self.eof = True if not ret else False
+                return ret
 
         return b""
 
-    @decorators.NotImplementedWarn
     def writeByte(self, b: bytes) -> None:
         """Write a byte to file."""
-
-        return None
+        with open(self._file_name, "wb") as f:
+            f.seek(self._last_seek)
+            self._last_seek += 1
+            f.write(b)
 
     def remove(self) -> bool:
         """

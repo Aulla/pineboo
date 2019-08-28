@@ -179,6 +179,49 @@ class TestFile(unittest.TestCase):
         self.assertEqual(contenido, contenido_2)
         os.remove(temporal)
 
+    def test_write_read_bytes_1(self) -> None:
+        """Check that you read the same as you write."""
+
+        temporal = "%s%s" % (
+            config.value("ebcomportamiento/temp_dir"),
+            u"/test_types_file_bytes.txt",
+        )
+        contenido = "Texto escrito en bytes\n".encode("utf-8")
+        File(temporal).write(contenido)
+        contenido_2 = File(temporal).read(True)
+        self.assertEqual(contenido, contenido_2.encode("utf-8"))
+        os.remove(temporal)
+
+    def test_write_read_byte_1(self) -> None:
+        """Check that you read the same as you write."""
+
+        temporal = "%s%s" % (
+            config.value("ebcomportamiento/temp_dir"),
+            u"/test_types_file_bytes.txt",
+        )
+        contenido = "Texto\n".encode("utf-8")
+        File(temporal).write(contenido)
+        contenido_2 = File(temporal).read(True)
+        self.assertEqual(contenido, contenido_2.encode("utf-8"))
+        os.remove(temporal)
+
+    def test_write_read_line_1(self) -> None:
+        """Check that you read the same as you write."""
+
+        temporal = "%s%s" % (
+            config.value("ebcomportamiento/temp_dir"),
+            u"/test_types_file_lines.txt",
+        )
+        contenido = "Esta es la linea"
+        File(temporal).writeLine("%s 1" % contenido)
+        File(temporal).writeLine("%s 2" % contenido)
+        file_read = File(temporal)
+        linea_1 = file_read.readLine()
+        self.assertEqual("%s 1\n" % contenido, linea_1)
+        linea_2 = file_read.readLine()
+        self.assertEqual("%s 2\n" % contenido, linea_2)
+        os.remove(temporal)
+
     def test_full_name_and_readable(self) -> None:
         """Check fullName"""
 

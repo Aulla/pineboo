@@ -1276,7 +1276,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             str(self.metadata().indexFieldObject(i).alias()) for i in range(self.cols)
         ]
 
-    def fieldMetadata(self, fieldName: str) -> "PNFieldMetaData":
+    def field_metadata(self, fieldName: str) -> "PNFieldMetaData":
         """
         Retrieve FLFieldMetadata for given fieldName.
 

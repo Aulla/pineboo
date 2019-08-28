@@ -118,6 +118,10 @@ class TestPNConnection(unittest.TestCase):
         cursor.setValueBuffer("descripcion", "test area")
         cursor.commitBuffer()
         conn_.doCommit(cursor, False)
+        conn_.canRegenTables()
+
+    def test_fails(self) -> None:
+        """Test fails."""
 
 
 if __name__ == "__main__":

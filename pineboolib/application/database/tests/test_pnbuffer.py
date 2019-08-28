@@ -13,6 +13,8 @@ class TestPNBuffer(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
+    def test_basic(self) -> None:
+        """Basic test."""
         cursor = pnsqlcursor.PNSqlCursor("fltest")
         cursor.setModeAccess(cursor.Insert)
         cursor.refreshBuffer()

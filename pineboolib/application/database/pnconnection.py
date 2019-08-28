@@ -377,9 +377,6 @@ class PNConnection(QtCore.QObject, IConnection):
     def doTransaction(self, cursor: "PNSqlCursor") -> bool:
         """Make a transaction or savePoint according to transaction level."""
 
-        if not cursor or not self.db():
-            return False
-
         from pineboolib.application import project
 
         if self.transaction_ == 0 and self.canTransaction():
@@ -446,9 +443,6 @@ class PNConnection(QtCore.QObject, IConnection):
 
     def doRollback(self, cur: "PNSqlCursor") -> bool:
         """Drop a transaction or savepoint depending on the transaction level."""
-
-        if not cur or not self.conn:
-            return False
 
         from pineboolib.application import project
 
@@ -565,9 +559,6 @@ class PNConnection(QtCore.QObject, IConnection):
     def doCommit(self, cur: "PNSqlCursor", notify: bool = True) -> bool:
         """Approve changes to a transaction or a save point based on your transaction level."""
 
-        if not cur and not self.db():
-            return False
-
         if not notify:
             cur.autoCommit.emit()
 
@@ -670,16 +661,10 @@ class PNConnection(QtCore.QObject, IConnection):
     def canDetectLocks(self) -> bool:
         """Indicate if the connection detects locks in the database."""
 
-        if not self.db():
-            return False
-
         return self.driver().canDetectLocks()
 
     def commit(self) -> bool:
         """Send the commit order to the database."""
-
-        if not self.db():
-            return False
 
         return self.driver().commitTransaction()
 
@@ -699,78 +684,51 @@ class PNConnection(QtCore.QObject, IConnection):
 
     def canOverPartition(self) -> bool:
         """Return True if the database supports the OVER statement."""
-        if not self.db():
-            return False
 
         return self.dbAux().driver().canOverPartition()
 
     def savePoint(self, save_point: int) -> bool:
         """Create a save point."""
 
-        if not self.db():
-            return False
-
         return self.driver().savePoint(save_point)
 
     def releaseSavePoint(self, save_point: int) -> bool:
         """Release a save point."""
-        if not self.db():
-            return False
 
         return self.driver().releaseSavePoint(save_point)
 
     def Mr_Proper(self):
         """Clean the database of unnecessary tables and records."""
 
-        if not self.db():
-            return
-
         self.dbAux().driver().Mr_Proper()
 
     def rollbackSavePoint(self, save_point: int) -> bool:
         """Roll back a save point."""
-        if not self.db():
-            return False
 
         return self.driver().rollbackSavePoint(save_point)
 
     def transaction(self) -> bool:
         """Create a transaction."""
 
-        if not self.db():
-            return False
-
         return self.driver().transaction()
 
     def commitTransaction(self) -> bool:
         """Release a transaction."""
-
-        if not self.db():
-            return False
 
         return self.driver().commitTransaction()
 
     def rollbackTransaction(self) -> bool:
         """Roll back a transaction."""
 
-        if not self.db():
-            return False
-
         return self.driver().rollbackTransaction()
 
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Indicate next available value of a serial type field."""
 
-        if not self.db():
-            return False
-
         return self.dbAux().driver().nextSerialVal(table, field)
 
     def existsTable(self, name: str) -> bool:
         """Indicate the existence of a table in the database."""
-
-        if not self.db():
-            return False
 
         return self.dbAux().driver().existsTable(name)
 
@@ -778,9 +736,6 @@ class PNConnection(QtCore.QObject, IConnection):
         """Create a table in the database, from a PNTableMetaData."""
 
         do_transaction = False
-
-        if not self.db():
-            return False
 
         sql = self.dbAux().driver().sqlCreateTable(tmd)
         if not sql:
@@ -809,9 +764,6 @@ class PNConnection(QtCore.QObject, IConnection):
     def mismatchedTable(self, tablename: str, tmd: "PNTableMetaData") -> bool:
         """Compare an existing table with a PNTableMetaData and return if there are differences."""
 
-        if not self.db():
-            return False
-
         return self.dbAux().driver().mismatchedTable(tablename, tmd, self)
 
     def normalizeValue(self, text: str) -> Optional[str]:
@@ -828,16 +780,11 @@ class PNConnection(QtCore.QObject, IConnection):
     def queryUpdate(self, name: str, update: str, filter: str) -> Optional[str]:
         """Return a correct UPDATE query for the database type."""
 
-        if not self.db():
-            return None
-
         return self.driver().queryUpdate(name, update, filter)
 
     def execute_query(self, q) -> Any:
         """Execute a query in a database cursor."""
 
-        if not self.db():
-            return None
         return self.driver().execute_query(q)
 
     def alterTable(
@@ -845,16 +792,11 @@ class PNConnection(QtCore.QObject, IConnection):
     ) -> bool:
         """Modify the fields of a table in the database based on the differences of two PNTableMetaData."""
 
-        if not self.db():
-            return False
-
         return self.dbAux().driver().alterTable(mtd_1, mtd_2, key, force)
 
     def canRegenTables(self) -> bool:
         """Return if can regenerate tables."""
 
-        if not self.db():
-            return False
         return self.driver().canRegenTables()
 
     @decorators.NotImplementedWarn
