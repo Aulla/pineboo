@@ -1548,7 +1548,7 @@ class PNSqlCursor(QtCore.QObject):
         if not self.d.activatedCheckIntegrity_:
             return True
         msg = self.msgCheckIntegrity()
-        if msg:
+        if msg != "":
             if showError:
                 if self.d.modeAccess_ == self.Insert or self.d.modeAccess_ == self.Edit:
                     self.d.msgBoxWarning("No se puede validad el registro actual:\n" + msg)
@@ -2488,9 +2488,6 @@ class PNSqlCursor(QtCore.QObject):
 
         @param str. new sort order.
         """
-        if not sortO:
-            return
-
         self.d._model.setSortOrder(sortO)
 
     @pyqtSlot()

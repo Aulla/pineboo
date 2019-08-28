@@ -275,5 +275,123 @@ class Test_emits(unittest.TestCase):
         self._transaction_roll_back = True
 
 
+class TestGeneral(unittest.TestCase):
+    """Test General class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_basic_1(self) -> None:
+        """Basic tests 1."""
+        from pineboolib import application
+        from pineboolib.application.database import pnsqlcursor
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest", "default")
+        cursor2 = pnsqlcursor.PNSqlCursor("flareas", True, application.project.conn)
+        self.assertEqual(cursor.table(), "fltest")
+        action = cursor.action()
+        action2 = cursor2.action()
+        self.assertTrue(action)
+        if action is None:
+            raise Exception("action is None!")
+
+        if action2 is None:
+            raise Exception("action2 is None!")
+
+        self.assertEqual(cursor.actionName(), "fltest")
+        self.assertTrue(cursor.setAction(action))
+        self.assertTrue(cursor.setAction(action2))
+
+        cursor3 = pnsqlcursor.PNSqlCursor("fltest")
+        cursor3.setMainFilter("id > 1")
+        cursor3.select()
+        cursor3.refresh()
+        self.assertEqual(cursor3.mainFilter(), "id > 1")
+        cursor3.refreshBuffer()
+        self.assertEqual(cursor3.valueBuffer("id"), cursor3.valueBufferCopy("id"))
+        self.assertEqual(cursor3.baseFilter(), "id > 1")
+
+        self.assertFalse(cursor3.meta_model())
+        self.assertFalse(cursor3.inTransaction())
+        self.assertTrue(cursor3.commit())
+
+        cursor3.refreshBuffer()
+
+        cursor4 = pnsqlcursor.PNSqlCursor("flareas", "default")
+        cursor4.select()
+        cursor4.first()
+        cursor4.setModeAccess(cursor4.Edit)
+        cursor4.refreshBuffer()
+        self.assertFalse(cursor4.isNull("idarea"))
+        self.assertFalse(cursor4.isCopyNull("idarea"))
+
+    def test_basic_2(self) -> None:
+        """Basic tests 2."""
+        from pineboolib.application.database import pnsqlcursor
+
+        cursor = pnsqlcursor.PNSqlCursor("flareas", "default")
+        cursor.select()
+        cursor.first()
+        cursor.setModeAccess(cursor.Edit)
+
+        self.assertFalse(cursor.isModifiedBuffer())
+        cursor.setValueBuffer("descripcion", "Descripcion de prueba para a")
+        self.assertTrue(cursor.isModifiedBuffer())
+
+        cursor2 = pnsqlcursor.PNSqlCursor("flmodules", "default")
+        cursor2.setAskForCancelChanges(False)
+        cursor2.setActivatedCheckIntegrity(False)
+        cursor2.setActivatedCommitActions(False)
+
+        self.assertFalse(cursor2.activatedCommitActions())
+        cursor2.setModeAccess(cursor2.Insert)
+        cursor2.refreshBuffer()
+        cursor2.setValueBuffer("idmodulo", "Z")
+        cursor2.setValueBuffer("descripcion", "Esta es la descripción")
+        cursor2.setValueBuffer("version", "0.0")
+        cursor2.commitBuffer()
+
+        cursor2.select('idmodulo = "Z"')
+        cursor2.first()
+        cursor2.setModeAccess(cursor2.Del)
+        cursor2.refreshBuffer()
+        cursor2.commitBuffer()
+
+    def test_basic_3(self) -> None:
+        """Basic tests 3."""
+
+        from pineboolib.application.database import pnsqlcursor
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest", "default")
+
+        self.assertEqual(cursor.msgCheckIntegrity(), "\nBuffer vacío o no hay metadatos")
+        self.assertFalse(cursor.checkIntegrity(False))
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertEqual(cursor.msgCheckIntegrity(), "")
+        self.assertTrue(cursor.checkIntegrity(False))
+
+        self.assertFalse(cursor.cursorRelation())
+
+        cursor2 = pnsqlcursor.PNSqlCursor("flareas")
+        cursor2.select()
+        self.assertTrue(cursor2.first())
+        cursor2.setUnLock("bloqueo", False)
+        self.assertTrue(cursor2.isLocked())
+        cursor2.setUnLock("bloqueo", True)
+        self.assertFalse(cursor2.isLocked())
+        cursor2.setModeAccess(cursor2.Del)
+        cursor2.refreshBuffer()
+        self.assertFalse(cursor2.commitBuffer())
+
+        self.assertEqual(cursor2.curFilter(), "")
+        cursor2.setFilter("bloqueo = true")
+        self.assertEqual(cursor2.curFilter(), "bloqueo = true")
+
+        cursor2.setSort("bloqueo ASC")
+
+
 if __name__ == "__main__":
     unittest.main()
