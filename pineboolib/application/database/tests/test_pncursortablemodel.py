@@ -61,6 +61,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         )
 
     def test_basic_3(self) -> None:
+        from PyQt5 import QtCore
 
         cursor = pnsqlcursor.PNSqlCursor("fltest")
         cursor.setSort("string_field DESC")
@@ -71,7 +72,9 @@ class TestPNCursorTableModel(unittest.TestCase):
         self.assertEqual(model.data(model.index(0, 1)), "zzz")
         self.assertEqual(model.data(model.index(0, 0)), 5)
         self.assertEqual(model.data(model.index(0, 2)), None)
-        self.assertEqual(model.data(model.index(0, 4)), "0,01")
+        self.assertEqual(
+            model.data(model.index(0, 4)), QtCore.QLocale.system().toString(float(0.01), "f", 2)
+        )
         self.assertEqual(model.data(model.index(0, 5)), "No")
         self.assertEqual(model.data(model.index(1, 1)), "yyy")
         self.assertEqual(model.data(model.index(1, 0)), 6)
