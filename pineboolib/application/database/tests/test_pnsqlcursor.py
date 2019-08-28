@@ -80,6 +80,8 @@ class TestDeleteData(unittest.TestCase):
 
 
 class TestMove(unittest.TestCase):
+    """Test Move class."""
+
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
@@ -149,6 +151,8 @@ class TestMove(unittest.TestCase):
 
 
 class TestBuffer(unittest.TestCase):
+    """Test buffer class."""
+
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
@@ -187,6 +191,8 @@ class TestBuffer(unittest.TestCase):
 
 
 class TestValues(unittest.TestCase):
+    """Test Values class."""
+
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
@@ -212,6 +218,61 @@ class TestValues(unittest.TestCase):
         self.assertEqual(str(cursor.valueBuffer("fecha"))[0:8], str(date_)[0:8])
         self.assertEqual(cursor.valueBuffer("hora"), "00:00:01")
         self.assertEqual(cursor.valueBuffer("nombre"), "nombre de prueba")
+
+
+class Test_emits(unittest.TestCase):
+    """Test Emits class."""
+
+    _transaction_begin: bool
+    _transaction_end: bool
+    _transaction_roll_back: bool
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_full(self) -> None:
+        """Test full."""
+        self._transaction_begin = False
+        self._transaction_end = False
+        self._transaction_roll_back = False
+
+        from pineboolib.application.database import pnsignals
+        from pineboolib.application.database import pnsqlcursor
+
+        signals = pnsignals.PNSignals()
+        signals.notify_begin_transaction_ = True
+        signals.notify_end_transaction_ = True
+        signals.notify_roll_back_transaction_ = True
+
+        cursor = pnsqlcursor.PNSqlCursor("test")
+
+        cursor.transactionBegin.connect(self.mark_transaction_begin)
+        cursor.transactionEnd.connect(self.mark_transaction_end)
+        cursor.transactionRollBack.connect(self.mark_transaction_roll_back)
+
+        signals.emitTransactionBegin(cursor)
+        signals.emitTransactionEnd(cursor)
+        signals.emitTransactionRollback(cursor)
+
+        self.assertTrue(self._transaction_begin)
+        self.assertTrue(self._transaction_end)
+        self.assertTrue(self._transaction_roll_back)
+
+    def mark_transaction_begin(self) -> None:
+        """Mark transaction begin."""
+
+        self._transaction_begin = True
+
+    def mark_transaction_end(self) -> None:
+        """Mark transaction end."""
+
+        self._transaction_end = True
+
+    def mark_transaction_roll_back(self) -> None:
+        """Mark transaction roll back."""
+        self._transaction_roll_back = True
 
 
 if __name__ == "__main__":

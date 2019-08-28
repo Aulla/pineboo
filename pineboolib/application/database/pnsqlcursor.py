@@ -105,6 +105,10 @@ class PNSqlCursor(QtCore.QObject):
     _activatedBufferCommited: bool
     _meta_model: Any
 
+    transactionBegin: QtCore.pyqtSignal = QtCore.pyqtSignal()
+    transactionEnd: QtCore.pyqtSignal = QtCore.pyqtSignal()
+    transactionRollBack: QtCore.pyqtSignal = QtCore.pyqtSignal()
+
     def __init__(
         self,
         name: Union[str, TableStruct] = None,

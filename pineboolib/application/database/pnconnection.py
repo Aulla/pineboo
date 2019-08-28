@@ -102,7 +102,7 @@ class PNConnection(QtCore.QObject, IConnection):
     @decorators.NotImplementedWarn
     def finish(self) -> None:
         """Set the connection as terminated."""
-        pass
+        del self
 
     def connectionName(self) -> Any:
         """Get the current connection name for this cursor."""

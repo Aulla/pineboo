@@ -6,7 +6,7 @@ from pineboolib.application.database import pnsqlcursor
 
 
 class TestPNCursorTableModel(unittest.TestCase):
-    """TestPNConnection Class."""
+    """TestPNCursorTableModel Class."""
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -37,6 +37,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         cursor.refresh()
         cursor.last()
         self.assertEqual(cursor.valueBuffer("string_field"), "zzz")
+        self.assertEqual(cursor.valueBuffer("double_field"), 0.01)
         cursor.prev()
         self.assertEqual(cursor.valueBuffer("string_field"), "yyy")
 
@@ -58,3 +59,19 @@ class TestPNCursorTableModel(unittest.TestCase):
         self.assertEqual(
             model.field_metadata("string_field"), cursor.metadata().field("string_field")
         )
+
+    def test_basic_3(self) -> None:
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
+        cursor.setSort("string_field DESC")
+        cursor.select()
+
+        model = cursor.model()
+
+        self.assertEqual(model.data(model.index(0, 1)), "zzz")
+        self.assertEqual(model.data(model.index(0, 0)), 5)
+        self.assertEqual(model.data(model.index(0, 2)), None)
+        self.assertEqual(model.data(model.index(0, 4)), "0,01")
+        self.assertEqual(model.data(model.index(0, 5)), "No")
+        self.assertEqual(model.data(model.index(1, 1)), "yyy")
+        self.assertEqual(model.data(model.index(1, 0)), 6)

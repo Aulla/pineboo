@@ -44,4 +44,4 @@ class PNSignals(object):
     def emitTransactionRollback(self, o: "PNSqlCursor") -> None:
         """Emit transaction begin rollback."""
         if self.notify_roll_back_transaction_:
-            o.transsactionRollBack.emit()
+            o.transactionRollBack.emit()
