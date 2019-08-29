@@ -626,10 +626,13 @@ class FLManagerModules(object):
         @param id_module Module identifier.
         @return Module description text, if found or idM if not found.
         """
+        ret_ = id_module
 
-        mod_obj = self.dictInfoMods[id_module.upper()]
+        if id_module.upper() in self.dictInfoMods:
+            mod_obj = self.dictInfoMods[id_module.upper()]
+            ret_ = getattr(mod_obj, "descripcion", id_module)
 
-        return getattr(mod_obj, "descripcion", id_module)
+        return ret_
 
     def iconModule(self, id_module: str) -> "QPixmap":
         """

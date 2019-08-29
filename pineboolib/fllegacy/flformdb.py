@@ -880,8 +880,7 @@ class FLFormDB(QDialog):
         by default the current main widget.
         """
 
-        from pineboolib.qt3_widgets.qmdiarea import QMdiArea
-        from PyQt5.QtWidgets import QMdiSubWindow
+        from PyQt5 import QtWidgets
         from pineboolib.application import project
 
         module_name = getattr(project.actions[self._action.name()].mod, "module_name", None)
@@ -891,8 +890,8 @@ class FLFormDB(QDialog):
                 module_window = flapplication.aqApp._dict_main_widgets[module_name]
                 mdi_area = module_window.centralWidget()
 
-                if isinstance(mdi_area, QMdiArea) and type(self).__name__ == "FLFormDB":
-                    if not isinstance(self.parent(), QMdiSubWindow):
+                if isinstance(mdi_area, QtWidgets.QMdiArea) and type(self).__name__ == "FLFormDB":
+                    if not isinstance(self.parent(), QtWidgets.QMdiSubWindow):
                         # size = self.size()
                         mdi_area.addSubWindow(self)
 

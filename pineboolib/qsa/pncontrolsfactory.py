@@ -124,8 +124,8 @@ from pineboolib.fllegacy.flscripteditor import FLScriptEditor  # noqa: F401
 
 from PyQt5.QtGui import QColor as Color  # noqa: F401
 from PyQt5.QtWidgets import QLabel as Label  # noqa: F401
-from PyQt5.QtCore import QLine as Line  # noqa: F401
 
+from pineboolib.qt3_widgets.line import Line  # noqa: F401
 from pineboolib.qt3_widgets.checkbox import CheckBox  # noqa: F401
 from pineboolib.qt3_widgets.combobox import ComboBox  # noqa: F401
 from pineboolib.qt3_widgets.textedit import TextEdit  # noqa: F401

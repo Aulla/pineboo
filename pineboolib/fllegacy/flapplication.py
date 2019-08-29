@@ -1030,14 +1030,13 @@ class FLApplication(QtCore.QObject):
         if idm in self.db().managerModules().listAllIdModules():
             w = self._dict_main_widgets[idm] if idm in self._dict_main_widgets.keys() else None
             if not w:
-                w = self.db().managerModules().createUI("%s.ui" % idm, self, None, idm)
-
+                w = self.db().managerModules().createUI(file_name="%s.ui" % idm)
                 if not w:
                     return
 
+                w.setWindowModality(QtCore.Qt.WindowModal)
                 self._dict_main_widgets[idm] = w
                 w.setObjectName(idm)
-
                 if self.acl_:
                     self.acl_.process(w)
 
@@ -1472,7 +1471,7 @@ class FLApplication(QtCore.QObject):
 
     def queryExit(self) -> Any:
         """Ask user if really wants to quit."""
-        if self.not_exit_:
+        if self._not_exit:
             return False
 
         if not SysBaseType.interactiveGUI():
@@ -1710,7 +1709,7 @@ class FLApplication(QtCore.QObject):
             self.loadTranslationFromModule(module, lang)
 
         for it in translatorsCopy:
-            if it.sysTrans_:
+            if it._sys_trans:
                 self.installTranslator(it)
             else:
                 del it
