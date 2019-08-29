@@ -26,6 +26,7 @@ class AQS(object):
     Box = None
     Plain = None
     translate = ["DockLeft", "ContextMenu"]
+    RefreshData = [False, True]
     InDock: str = "InDock"
     OutSideDock: str = "OutSideDock"
     SmtpSslConnection: int = 1

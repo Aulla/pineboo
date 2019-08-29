@@ -926,7 +926,13 @@ class FLFormDB(QDialog):
 
     def child(self, child_name: str) -> QtWidgets.QWidget:
         """Get child by name."""
-        return self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
+        ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
+        if ret is not None:
+            if hasattr(ret, "_loaded"):
+                if ret._loaded is False:
+                    ret.load()
+
+        return ret
 
     # def __getattr__(self, name):
     # if getattr(self.script, "form", None):

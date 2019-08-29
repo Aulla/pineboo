@@ -1881,10 +1881,24 @@ class FLTableDB(QtWidgets.QWidget):
     @decorators.pyqtSlot()
     @decorators.pyqtSlot(bool)
     @decorators.pyqtSlot(bool, bool)
-    def refresh(self, refreshHead: bool = False, refreshData: bool = True) -> None:
+    def refresh(self, *args) -> None:
         """
         Update the recordset.
         """
+        refreshHead: bool = False
+        refreshData: bool = True
+
+        if len(args) == 1:
+            if isinstance(args[0], list):
+                refreshHead = args[0][0]
+                refreshData = args[0][1]
+            else:
+                refreshHead = args[0]
+
+        elif len(args) == 2:
+            refreshHead = args[0]
+            refreshData = args[1]
+
         if not self.cursor() or not self.tableRecords_:
             return
 
