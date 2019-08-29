@@ -120,6 +120,36 @@ class TestPNConnection(unittest.TestCase):
         conn_.doCommit(cursor, False)
         conn_.canRegenTables()
 
+        self.assertEqual(
+            conn_.tables(1),
+            [
+                "flareas",
+                "flmodules",
+                "flfiles",
+                "flgroups",
+                "fllarge",
+                "flserial",
+                "flusers",
+                "flvar",
+                "flmetadata",
+                "fltest",
+                "flseqs",
+            ],
+        )
+
+        self.assertEqual(conn_.tables(2), ["sqlite_master"])
+        self.assertEqual(conn_.tables(3), [])
+
+        self.assertTrue(conn_.session())
+        self.assertTrue(conn_.engine())
+        self.assertTrue(conn_.declarative_base())
+        self.assertFalse(conn_.port())
+        self.assertFalse(conn_.password())
+
+        self.assertFalse(conn_.lastActiveCursor())
+
+        # conn_.Mr_Proper() #FIXME
+
 
 if __name__ == "__main__":
     unittest.main()

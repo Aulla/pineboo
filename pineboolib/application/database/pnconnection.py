@@ -316,25 +316,25 @@ class PNConnection(QtCore.QObject, IConnection):
 
         return self._manager
 
-    @decorators.NotImplementedWarn
-    def md5TuplesStateTable(self, curname: str) -> bool:
-        """
-        Return the sum md5 with the total records inserted, deleted and modified in the database so far.
+    # @decorators.NotImplementedWarn
+    # def md5TuplesStateTable(self, curname: str) -> bool:
+    #    """
+    #    Return the sum md5 with the total records inserted, deleted and modified in the database so far.
 
-        Useful to know if the database has been modified from a given moment.
-        """
+    #    Useful to know if the database has been modified from a given moment.
+    #    """
 
-        return True
+    #    return True
 
     def setInteractiveGUI(self, b):
         """Set if it is an interactive GUI."""
 
         self.interactiveGUI_ = b
 
-    @decorators.NotImplementedWarn
-    def setQsaExceptions(self, b: bool) -> None:
-        """See properties of the qsa exceptions."""
-        pass
+    # @decorators.NotImplementedWarn
+    # def setQsaExceptions(self, b: bool) -> None:
+    #    """See properties of the qsa exceptions."""
+    #    pass
 
     def db(self) -> "IConnection":
         """Return the connection itself."""
