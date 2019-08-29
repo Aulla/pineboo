@@ -57,7 +57,7 @@ class TestPNBuffer(unittest.TestCase):
 
         self.assertEqual(buffer_.value(2), "2019-01-01")
         self.assertEqual(buffer_.value("date_field"), "2019-01-01")
-        self.assertEqual(buffer_.count(), 7)
+        self.assertEqual(buffer_.count(), 8)
         buffer_.clear_buffer()
         buffer_.primeUpdate(0)
         buffer_.primeDelete()

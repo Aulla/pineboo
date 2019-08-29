@@ -66,6 +66,14 @@
 		<pk>false</pk>
 		<type>uint</type>
 		<default>0</default>
-	</field>
+	</field>	
 	
+	<field>
+		<name>bloqueo</name>
+		<alias>QT_TRANSLATE_NOOP("MetaData","Bloqueo")</alias>
+		<null>false</null>
+		<pk>false</pk>
+		<type>unlock</type>
+		<default>true</default>
+	</field>
 </TMD>

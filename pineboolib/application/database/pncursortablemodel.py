@@ -18,7 +18,7 @@ from PyQt5 import (
 from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core.utils import logging
 from pineboolib.application.utils.date_conversion import date_amd_to_dma
-from typing import Any, Iterable, Optional, Union, List, Dict, Tuple, cast, TYPE_CHECKING
+from typing import Any, Iterable, Optional, List, Dict, Tuple, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData  # noqa: F401
@@ -213,16 +213,16 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         return self._sortOrder
 
-    def setSortOrder(self, sort_order: Union[List[str], str]) -> None:
+    def setSortOrder(self, sort_order: str) -> None:
         """
         Set current ORDER BY.
         """
         self._sortOrder = ""
-        if isinstance(sort_order, list):
-            self._sortOrder = ",".join(sort_order)
+        # if isinstance(sort_order, list):
+        #    self._sortOrder = ",".join(sort_order)
 
-        else:
-            self._sortOrder = sort_order
+        # else:
+        self._sortOrder = sort_order
 
     # def setColorFunction(self, f):
     #    self.color_function_ = f
@@ -1117,7 +1117,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             self.indexes_valid = True
 
         pklist = tuple(pklist)
-        if pklist[0] is None:
+        if not pklist or pklist[0] is None:
             raise ValueError("Primary Key can't be null")
         parent = QtCore.QModelIndex()
         while self.canFetchMoreRows and pklist not in self.pkidx:
