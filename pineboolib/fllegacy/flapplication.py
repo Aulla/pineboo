@@ -17,7 +17,7 @@ from .fltranslator import FLTranslator
 from .flworkspace import FLWorkSpace
 from .fltexteditoutput import FLTextEditOutput
 
-from typing import cast, Any, Optional, Union, Dict, List, TYPE_CHECKING
+from typing import cast, Any, Optional, Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.database.pnsqlcursor import PNSqlCursor
@@ -61,7 +61,7 @@ class FLApplication(QtCore.QObject):
     popup_warn_: Any
     fl_factory_: Any
     op_check_update_: bool
-    style = None
+    style: bool
     timer_idle_: Optional[QtCore.QTimer] = None
     init_single_fl_large: bool
     show_debug_: bool
@@ -99,7 +99,7 @@ class FLApplication(QtCore.QObject):
         db_signals.notify_end_transaction_ = False
         db_signals.notify_roll_back_transaction_ = False
         self._ted_output = None
-        self.style = None
+        self.style = False
         self.timer_idle_ = None
         self.init_single_fl_large = False
         self.show_debug_ = True  # FIXME
@@ -840,22 +840,17 @@ class FLApplication(QtCore.QObject):
             # FIXME: setScrollBarsEnabled
             mw.setCentralWidget(view_back)
 
-    def setStyle(self, style_: Optional[Union[int, str]]) -> None:
+    def setStyle(self, style_: str) -> None:
         """Change application style."""
-
-        if style_:
-            # FIXME: style can be Int, referring to a enum style. We should work with strings only.
-            style: Any = style_
-            config.set_value("application/style", style)
-
-            QtWidgets.QApplication.setStyle(style)
+        config.set_value("application/style", style_)
+        QtWidgets.QApplication.setStyle(style_)
 
     def initStyles(self) -> None:
         """Initialize styles."""
         from pineboolib.core.settings import config
 
         self.style_mapper = QtCore.QSignalMapper()
-        self.style_mapper.mapped.connect(self.setStyle)  # FIXME: was mapped[str].connect
+        self.style_mapper.mapped[str].connect(self.setStyle)  # type: ignore
         style_read = config.value("application/style", None)
         if not style_read:
             style_read = "Fusion"
@@ -875,6 +870,8 @@ class FLApplication(QtCore.QObject):
                 self.style_mapper.setMapping(action_, style_)
                 ag.addAction(action_)
             ag.setExclusive(True)
+
+        self.style = True
 
     @decorators.NotImplementedWarn
     def getTabWidgetPages(self, wn, n):
