@@ -466,7 +466,9 @@ class MainForm(QtWidgets.QMainWindow):
                 action = self.ag_menu_.findChild(QtWidgets.QAction, open_action)
                 if not action:
                     continue
-                module_name = project.conn.managerModules().idModuleOfFile("%s.ui" % action.name)
+                module_name = project.conn.managerModules().idModuleOfFile(
+                    "%s.ui" % action.objectName()
+                )
                 if module_name:
                     self.initModule(module_name)
 

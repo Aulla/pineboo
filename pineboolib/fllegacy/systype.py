@@ -1605,7 +1605,7 @@ class AbanQDbDumper(QtCore.QObject):
         self,
         db: Optional["IConnection"] = None,
         dirBase: Optional[str] = None,
-        showGui: bool = False,
+        showGui: bool = True,
         fun_log: Optional[Callable] = None,
     ):
         """Inicialize."""
@@ -1636,9 +1636,9 @@ class AbanQDbDumper(QtCore.QObject):
         # lay = QVBoxLayout(self.w_, 6, 6)
         lay = QVBoxLayout(self.w_)
         frm = QFrame(self.w_)
-        frm.setFrameShape(Qt.Box)
+        frm.setFrameShape(QFrame.Box)
         frm.setLineWidth(1)
-        frm.setFrameShadow(Qt.Plain)
+        frm.setFrameShadow(QFrame.Plain)
 
         # layFrm = QVBoxLayout(frm, 6, 6)
         layFrm = QVBoxLayout(frm)
@@ -1674,7 +1674,9 @@ class AbanQDbDumper(QtCore.QObject):
         self.lblDirBase_.setAlignment(Qt.AlignVCenter)
         layAux.addWidget(self.lblDirBase_)
         self.pbChangeDir_ = QPushButton(SysType.translate(u"Cambiar"), frm)
-        self.pbChangeDir_.setSizePolicy(Qt.Maximum, Qt.Preferred)
+        self.pbChangeDir_.setSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred
+        )
         connections.connect(self.pbChangeDir_, u"clicked()", self, u"changeDirBase()")
         layAux.addWidget(self.pbChangeDir_)
         lay.addWidget(frm)
@@ -1715,7 +1717,7 @@ class AbanQDbDumper(QtCore.QObject):
         for rE in regExp:
             timeStamp = timeStamp.replace(rE, u"")
 
-        fileName = ustr(self.dirBase_, u"/dump_", str(self.db_.database()), u"_", timeStamp)
+        fileName = "%s/dump_%s_%s" % (self.dirBase_, self.db_.database(), timeStamp)
         fileName = Dir.cleanDirPath(fileName)
         fileName = Dir.convertSeparators(fileName)
         return fileName
@@ -1829,7 +1831,7 @@ class AbanQDbDumper(QtCore.QObject):
         else:
             self.setState(
                 True,
-                SysType.translate(u"Copia de seguridad realizada con éxito en:\n%s")
+                SysType.translate(u"Copia de seguridad realizada con éxito en:\n%s.sql")
                 % (str(self.fileName_)),
             )
             self.funLog_(self.state_.msg)
