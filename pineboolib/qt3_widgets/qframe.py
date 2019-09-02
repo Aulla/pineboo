@@ -19,13 +19,14 @@ class QFrame(QtWidgets.QFrame):
 
         super().__init__(parent)
         self.setContentsMargins(0, 0, 0, 0)
-        self._line_width = 1
-        self._do_style()
+        # self.setStyleSheet("QFrame{background-color: transparent}")
+        self.setLineWidth(1)
+        # self._do_style()
 
-    def _do_style(self) -> None:
-        """Set style."""
+    # def _do_style(self) -> None:
+    #    """Set style."""
 
-        self.style_str = "QFrame{ background-color: transparent;"
-        self.style_str += " border-width: %spx;" % self._line_width
-        self.style_str += " }"
-        self.setStyleSheet(self.style_str)
+    #    self.style_str = "QFrame{ background-color: transparent;"
+    #    self.style_str += " border-width: %spx;" % self._line_width
+    #    self.style_str += " }"
+    #    self.setStyleSheet(self.style_str)
