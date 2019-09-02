@@ -809,7 +809,8 @@ class FLQPSQL(object):
             elif field1[1] == "string" and (
                 not field2[1] in ("string", "time", "date") or not field1[3] == field2[3]
             ):
-                ret = True
+                if field1[1] == "string" and field2[3] != 0:
+                    ret = True
             elif field1[1] == "uint" and not field2[1] in ("int", "uint", "serial"):
                 ret = True
             elif field1[1] == "bool" and not field2[1] in ("bool", "unlock"):
