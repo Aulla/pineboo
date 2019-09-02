@@ -69,15 +69,20 @@ class PinebooSettings(QSettings):
         """Get a value from INI for the specified key."""
         curtime = time.time()
         cachedVal = self.cache.get(key, None)
+
         if cachedVal:
             if curtime - cachedVal[0] > self.CACHE_TIME_SEC:
                 del self.cache[key]
             else:
                 if cachedVal[1] is not None:
                     return cachedVal[1]
-        val = self._value(key, defaultValue)
 
-        self.cache[key] = (curtime, val)
+        val = self._value(key)
+
+        if val is not None:
+            self.cache[key] = (curtime, val)
+        else:
+            val = defaultValue
         return val
 
     def _value(self, key: str, default: Any = None) -> Any:
