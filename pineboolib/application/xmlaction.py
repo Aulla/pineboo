@@ -281,7 +281,7 @@ class XMLAction(ActionStruct):
                 )  # Con True solo devuelve el path
                 if ret_qs:
                     script_path_qs = ret_qs
-        tmp_dir = config.value("ebcomportamiento/temp_dir")
+
         if script_path_py is not None:
             script_path = script_path_py
             self.logger.info("Loading script PY %s . . . ", scriptname)
@@ -289,7 +289,9 @@ class XMLAction(ActionStruct):
                 raise IOError
             try:
                 self.logger.debug(
-                    "Cargando %s : %s ", scriptname, script_path.replace(tmp_dir, "tempdata")
+                    "Cargando %s : %s ",
+                    scriptname,
+                    script_path.replace(self.project.tmpdir, "tempdata"),
                 )
                 loader = machinery.SourceFileLoader(scriptname, script_path)
                 script_loaded = loader.load_module()  # type: ignore
@@ -305,14 +307,16 @@ class XMLAction(ActionStruct):
             python_script_path = "%s.py" % script_path_qs
             try:
                 self.logger.debug(
-                    "Cargando %s : %s ", scriptname, python_script_path.replace(tmp_dir, "tempdata")
+                    "Cargando %s : %s ",
+                    scriptname,
+                    python_script_path.replace(self.project.tmpdir, "tempdata"),
                 )
                 loader = machinery.SourceFileLoader(scriptname, python_script_path)
                 script_loaded = loader.load_module()  # type: ignore
             except Exception:
                 self.logger.exception("ERROR al cargar script QS para la accion %s:", action_.name)
                 if os.path.exists(script_path_py):
-                    os.remove(script_path_py)
+                    os.rmdir(script_path_py)
 
         script_loaded.form = script_loaded.FormInternalObj(action_, parent_object)
         if parent_object and parent:
