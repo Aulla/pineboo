@@ -1427,16 +1427,17 @@ class FLQPSQL(object):
             util.setProgress(totalSteps)
 
         util.destroyProgressDialog()
+        c_drop = self.db_.dbAux().cursor()
         if ok:
             self.db_.dbAux().commit()
 
             if force:
-                q.exec_("DROP TABLE %s CASCADE" % renameOld)
+                c_drop.execute("DROP TABLE %s CASCADE" % renameOld)
         else:
             self.db_.dbAux().rollbackTransaction()
 
-            q.exec_("DROP TABLE %s CASCADE" % oldMTD.name())
-            q.exec_("ALTER TABLE %s RENAME TO %s" % (renameOld, oldMTD.name()))
+            c_drop.execute("DROP TABLE %s CASCADE" % oldMTD.name())
+            c_drop.execute("ALTER TABLE %s RENAME TO %s" % (renameOld, oldMTD.name()))
 
             if oldMTD and oldMTD != newMTD:
                 del oldMTD
