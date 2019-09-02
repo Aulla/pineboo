@@ -6,13 +6,13 @@ Loads old Qt3 UI files and creates a Qt5 UI.
 """
 from importlib import import_module
 
-from PyQt5 import QtCore, QtGui, QtWidgets  # type: ignore
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget
 from xml.etree import ElementTree as ET
 from binascii import unhexlify
 from pineboolib import logging
 import zlib
-from PyQt5.QtCore import QObject  # type: ignore
+
 from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application import project
 from pineboolib.application import connections
@@ -129,7 +129,9 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
         if sender_name == formname:
             sender = widget
         else:
-            sender = widget.findChild(QObject, sender_name, QtCore.Qt.FindChildrenRecursively)
+            sender = widget.findChild(
+                QtCore.QObject, sender_name, QtCore.Qt.FindChildrenRecursively
+            )
 
         # if not project.DGI.localDesktop():
         #    wui = hasattr(widget, "ui_") and sender_name in widget.ui_
@@ -185,7 +187,9 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
                 continue
 
         if receiver is None:
-            receiver = widget.findChild(QObject, receiv_name, QtCore.Qt.FindChildrenRecursively)
+            receiver = widget.findChild(
+                QtCore.QObject, receiv_name, QtCore.Qt.FindChildrenRecursively
+            )
 
         if receiver is None:
             from pineboolib.application.safeqsa import SafeQSA
@@ -799,10 +803,18 @@ class loadWidget:
             value = QtCore.QMargins(value, value, value, value)
 
         elif pname == "paletteBackgroundColor":
-            value = "background-color:" + loadVariant(xmlprop).name()
+            fg_color = widget.palette().color(QtGui.QPalette.Window).name()
+            bg_color = loadVariant(xmlprop).name()
+            value = "color: %s; background-color: %s" % (fg_color, bg_color)
 
         elif pname == "paletteForegroundColor":
-            value = "color:" + loadVariant(xmlprop).name()
+            bg_color = widget.palette().color(QtGui.QPalette.WindowText).name()
+            fg_color = loadVariant(xmlprop).name()
+
+            if bg_color != fg_color:  # Evitamos todo negro
+                value = "color: %s; background-color: %s" % (fg_color, bg_color)
+            else:
+                value = "color: %s" % fg_color
 
         elif pname in ["windowIcon", "icon"]:
             value1 = loadVariant(xmlprop, widget)
