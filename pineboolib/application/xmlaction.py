@@ -2,11 +2,11 @@
 XMLAction module.
 """
 from pineboolib.core.utils import logging
-import os.path
+import os
 
 from pineboolib.core.utils.struct import ActionStruct
 from .utils.path import _path, coalesce_path
-from pineboolib.core.settings import config
+
 
 from typing import Optional, Any, Union, TYPE_CHECKING
 

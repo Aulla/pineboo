@@ -786,6 +786,9 @@ class loadWidget:
         if set_fn is None:
             logger.warning("qt3ui: Missing property %s for %r", pname, widget.__class__)
             return
+
+        value: Any
+
         if pname == "contentsMargins" or pname == "layoutSpacing":
             try:
                 value = int(xmlprop.get("stdset", "0"))
