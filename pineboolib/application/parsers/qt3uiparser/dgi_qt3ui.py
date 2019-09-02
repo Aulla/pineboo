@@ -200,11 +200,11 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
             if sender_name in project.actions.keys():
                 receiver = project.actions[sender_name]
             else:
-                logger.warning("Sender action %s not found. Connection skiped", sender_name)
+                logger.debug("Sender action %s not found. Connection skiped", sender_name)
                 continue
 
         if receiver is None:
-            logger.warning("Connection receiver not found:%s", receiv_name)
+            logger.debug("Connection receiver not found:%s", receiv_name)
         if sender is None or receiver is None:
             continue
 
@@ -222,7 +222,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
             #    logger.exception(
             #        "Error connecting: %s:%s %s.iface:%s", sender, signal_name, receiver, slot_name
             #    )
-            logger.warning(
+            logger.debug(
                 "DEPRECATED: This type of connection must be made in the module init: %s %s %s %s",
                 sender_name,
                 signal_name,
