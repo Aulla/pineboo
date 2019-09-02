@@ -248,7 +248,6 @@ def exec_main(options: Values) -> int:
 
     pytnyzer.STRICT_MODE = False
 
-    project.load_version()
     project.setDebugLevel(options.debug_level)
 
     project.options = options
@@ -275,6 +274,8 @@ def exec_main(options: Values) -> int:
 
     if options.enable_quick:
         config.set_value("application/dbadmin_enabled", False)
+
+    project.load_version()
 
     if is_deployed():
         logging.basicConfig(stream=sys.stdout, level=logging.INFO)
