@@ -1883,7 +1883,7 @@ class AbanQDbDumper(QtCore.QObject):
                 + SysType.translate(u"Es posible que no tenga instalada la herramienta ")
                 + pgDump,
             )
-            self.funLog_(self.state_["msg"])
+            self.funLog_(self.state_.msg)
             return False
         self.setState(True, u"")
         return True
