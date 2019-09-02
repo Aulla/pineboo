@@ -671,12 +671,7 @@ class PNSqlCursor(QtCore.QObject):
 
         field = self.d.metadata_.field(fN)
         if field is None:
-            logger.warning(
-                "valueBuffer(): No existe el campo %s:%s en la tabla %s",
-                self.curName(),
-                fN,
-                self.d.metadata_.name(),
-            )
+            logger.warning("valueBuffer(): No existe el campo %s:%s", self.curName(), fN)
             return None
 
         type_ = field.type()
