@@ -1010,7 +1010,7 @@ class FLTableDB(QtWidgets.QWidget):
                 return True
 
         if ev.type() == QtCore.QEvent.WindowUnblocked and isinstance(obj, FLDataTable):
-            self.refreshDelayed(500, True)  # We leave enough time in case it is a rollback
+            self.refreshDelayed(50, True)
             return True
 
         if ev.type() == QtCore.QEvent.KeyPress and isinstance(obj, QtWidgets.QLineEdit):
@@ -1152,7 +1152,8 @@ class FLTableDB(QtWidgets.QWidget):
 
         self.tabDataLayout = QtWidgets.QVBoxLayout()
         filterL = QtWidgets.QVBoxLayout()
-
+        filterL.setSpacing(2)
+        filterL.setContentsMargins(1, 2, 1, 2)
         if self.tabData:
             self.tabData.setSizePolicy(sizePolicyGB)
             self.tabData.setLayout(self.tabDataLayout)
@@ -1164,7 +1165,7 @@ class FLTableDB(QtWidgets.QWidget):
         # Fix para acercar el lineEdit con el fltable
         # self.tabData.setContentsMargins(0, 0, 0, 0)
         # self.tabFilter.setContentsMargins(0, 0, 0, 0)
-        # self.tabDataLayout.setContentsMargins(0, 0, 0, 0)
+        self.tabDataLayout.setContentsMargins(0, 0, 0, 0)
         # filterL.setContentsMargins(0, 0, 0, 0)
 
         # Contiene botones lateral (datos, filtros, odf)
@@ -1237,19 +1238,32 @@ class FLTableDB(QtWidgets.QWidget):
         self.lineEditSearch.textChanged.connect(self.filterRecords)
         label1 = QtWidgets.QLabel()
         label2 = QtWidgets.QLabel()
+        label1.setStyleSheet("border: 0px")
+        label2.setStyleSheet("border: 0px")
 
         label1.setText("Buscar")
         label2.setText("en")
 
         if self.tabControlLayout is not None:
-            self.tabControlLayout.addWidget(label1)
-            self.tabControlLayout.addWidget(self.lineEditSearch)
-            self.tabControlLayout.addWidget(label2)
-            self.tabControlLayout.addWidget(self.comboBoxFieldToSearch)
-            self.tabControlLayout.addWidget(self.comboBoxFieldToSearch2)
+            control_frame = QtWidgets.QFrame()
+            lay = QtWidgets.QHBoxLayout()
+            control_frame.setFrameStyle(QtWidgets.QFrame.Raised)
+            control_frame.setStyleSheet("QFrame { border: 1px solid black; }")
+            lay.setContentsMargins(2, 2, 2, 2)
+            lay.setSpacing(2)
+            lay.addWidget(label1)
+            lay.addWidget(self.lineEditSearch)
+            lay.addWidget(label2)
+            lay.addWidget(self.comboBoxFieldToSearch)
+            lay.addWidget(self.comboBoxFieldToSearch2)
+            control_frame.setLayout(lay)
 
+            self.tabControlLayout.addWidget(control_frame)
             self.masterLayout.addLayout(self.tabControlLayout)
+
         self.masterLayout.addLayout(self.dataLayout)
+        self.masterLayout.setSpacing(2)
+        self.masterLayout.setContentsMargins(1, 2, 1, 2)
         self.setLayout(self.masterLayout)
 
         # Se añade data, filtros y botonera
