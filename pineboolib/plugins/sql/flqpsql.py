@@ -1503,10 +1503,11 @@ class FLQPSQL(object):
         self.db_.dbAux().transaction()
 
         qry = PNSqlQuery(None, "dbAux")
-        qry2 = PNSqlQuery(None, "dbAux")
+        # qry2 = PNSqlQuery(None, "dbAux")
         qry3 = PNSqlQuery(None, "dbAux")
         qry4 = PNSqlQuery(None, "dbAux")
         qry5 = PNSqlQuery(None, "dbAux")
+        cur = self.db_.dbAux().cursor()
         steps = 0
 
         rx = QRegExp("^.*\\d{6,9}$")
@@ -1528,11 +1529,12 @@ class FLQPSQL(object):
         while qry.next():
             item = qry.value(0)
             util.setLabelText(util.translate("application", "Borrando registro %s") % item)
-            qry2.exec_("DELETE FROM flfiles WHERE nombre ='%s'" % item)
+
+            cur.execute("DELETE FROM flfiles WHERE nombre ='%s'" % item)
             if item.find("alteredtable") > -1:
                 if self.existsTable(item.replace(".mtd", "")):
                     util.setLabelText(util.translate("application", "Borrando tabla %s" % item))
-                    qry2.exec_("DROP TABLE %s CASCADE" % item.replace(".mtd", ""))
+                    cur.execute("DROP TABLE %s CASCADE" % item.replace(".mtd", ""))
 
             steps = steps + 1
             util.setProgress(steps)
@@ -1540,7 +1542,7 @@ class FLQPSQL(object):
         for item in listOldBks:
             if self.existsTable(item):
                 util.setLabelText(util.translate("application", "Borrando tabla %s" % item))
-                qry2.exec_("DROP TABLE %s CASCADE" % item)
+                cur.execute("DROP TABLE %s CASCADE" % item)
 
             steps = steps + 1
             util.setProgress(steps)
@@ -1548,8 +1550,8 @@ class FLQPSQL(object):
         util.setLabelText(util.translate("application", "Inicializando cachés"))
         steps = steps + 1
         util.setProgress(steps)
-        qry.exec_("DELETE FROM flmetadata")
-        qry.exec_("DELETE FROM flvar")
+        cur.execute("DELETE FROM flmetadata")
+        cur.execute("DELETE FROM flvar")
         self.db_.manager().cleanupMetaData()
         # self.db_.driver().commit()
         util.destroyProgressDialog()
@@ -1620,7 +1622,7 @@ class FLQPSQL(object):
                 # sqlCursor.setName(item, True)
 
         # self.db_.dbAux().driver().commit()
-
+        util.destroyProgressDialog()
         steps = 0
         qry4.exec_("select tablename from pg_tables where schemaname='public'")
         util.createProgressDialog(
