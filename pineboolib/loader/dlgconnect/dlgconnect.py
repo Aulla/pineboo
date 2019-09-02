@@ -279,7 +279,7 @@ class DlgConnect(QtWidgets.QWidget):
             try:
                 pconf.load_projectxml()
             except PasswordMismatchError:
-                QMessageBox.information(self.ui, "Pineboo", "Contraseña Incorrecta")
+                QtWidgets.QMessageBox.information(self.ui, "Pineboo", "Contraseña Incorrecta")
                 return None
         return pconf
 
@@ -375,14 +375,15 @@ class DlgConnect(QtWidgets.QWidget):
             ProjectConfig.profile_dir = new_dir
             self.loadProfiles()
 
-    def eventFilter(self, o, e):
+    def eventFilter(self, o: QtCore.QObject, e: QtCore.QEvent) -> bool:
+        """Event Filter."""
 
         if isinstance(e, QtGui.QKeyEvent):
             if e.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
                 self.open()
                 return True
 
-            if e.key() == QtCore.Qt.Key_Escape:
+            elif e.key() == QtCore.Qt.Key_Escape:
                 self.close()
                 return True
 
