@@ -643,31 +643,32 @@ class FLQPSQL(object):
             mismatch = False
             processed_fields = []
             try:
-                recMtd = self.recordInfo(tmd_or_table2)
-                recBd = self.recordInfo2(table1)
+                rec_mtd = self.recordInfo(tmd_or_table2)
+                rec_db = self.recordInfo2(table1)
                 # fieldBd = None
-                if recMtd is None:
+                if rec_mtd is None:
                     raise ValueError("recordInfo no ha retornado valor")
 
-                for fieldMtd in recMtd:
+                for field_mtd in rec_mtd:
                     # fieldBd = None
                     found = False
-                    for field in recBd:
-                        if field[0] == fieldMtd[0]:
-                            processed_fields.append(field[0])
+                    for field_db in rec_db:
+                        if field_db[0] == field_mtd[0]:
+                            processed_fields.append(field_db[0])
                             found = True
-                            if self.notEqualsFields(field, fieldMtd):
+                            if self.notEqualsFields(field_db, field_mtd):
+
                                 mismatch = True
 
-                            recBd.remove(field)
+                            rec_db.remove(field_db)
                             break
 
                     if not found:
-                        if fieldMtd[0] not in processed_fields:
+                        if field_mtd[0] not in processed_fields:
                             mismatch = True
                             break
 
-                if len(recBd) > 0:
+                if len(rec_db) > 0:
                     mismatch = True
 
             except Exception:
@@ -1213,12 +1214,13 @@ class FLQPSQL(object):
                     buffer.setValue("sha", key)
                     c.insert()
 
-        q = PNSqlQuery(None, self.db_.dbAux())
+        # q = PNSqlQuery(None, self.db_.dbAux())
         constraintName = "%s_pkey" % oldMTD.name()
+        c1 = self.db_.dbAux().cursor()
+        c1.execute("ALTER TABLE %s DROP CONSTRAINT %s" % (oldMTD.name(), constraintName))
 
-        if self.constraintExists(constraintName) and not q.exec_(
-            "ALTER TABLE %s DROP CONSTRAINT %s" % (oldMTD.name(), constraintName)
-        ):
+        if self.constraintExists(constraintName):
+
             logger.warning(
                 "FLManager : "
                 + util.translate(
@@ -1236,15 +1238,20 @@ class FLQPSQL(object):
             return False
 
         fieldNamesOld = []
+        record_info = self.recordInfo2(oldMTD.name())
+        for f in record_info:
+            fieldNamesOld.append(f[0])
+
         for it in fieldList:
-            if newMTD.field(it.name()):
-                fieldNamesOld.append(it.name())
+            # if newMTD.field(it.name()) is not None:
+            #    fieldNamesOld.append(it.name())
 
             if it.isUnique():
                 constraintName = "%s_%s_key" % (oldMTD.name(), it.name())
-                if self.constraintExists(constraintName) and not q.exec_(
-                    "ALTER TABLE %s DROP CONSTRAINT %s" % (oldMTD.name(), constraintName)
-                ):
+                c2 = self.db_.dbAux().cursor()
+                c2.execute("ALTER TABLE %s DROP CONSTRAINT %s" % (oldMTD.name(), constraintName))
+
+                if self.constraintExists(constraintName):
                     logger.warning(
                         "FLManager : "
                         + util.translate(
@@ -1261,20 +1268,21 @@ class FLQPSQL(object):
 
                     return False
 
-        if not q.exec_("ALTER TABLE %s RENAME TO %s" % (oldMTD.name(), renameOld)):
-            logger.warning(
-                "FLManager::alterTable : "
-                + util.translate("application", "No se ha podido renombrar la tabla antigua.")
-            )
+        # if not q.exec_("ALTER TABLE %s RENAME TO %s" % (oldMTD.name(), renameOld)):
+        #    logger.warning(
+        #        "FLManager::alterTable : "
+        #        + util.translate("application", "No se ha podido renombrar la tabla antigua.")
+        #    )
 
-            self.db_.dbAux().rollbackTransaction()
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+        #    self.db_.dbAux().rollbackTransaction()
+        #    if oldMTD and not oldMTD == newMTD:
+        #        del oldMTD
+        #    if newMTD:
+        #        del newMTD
 
-            return False
-
+        #    return False
+        c3 = self.db_.dbAux().cursor()
+        c3.execute("ALTER TABLE %s RENAME TO %s" % (oldMTD.name(), renameOld))
         if not self.db_.manager().createTable(newMTD):
             self.db_.dbAux().rollbackTransaction()
             if oldMTD and not oldMTD == newMTD:
@@ -1297,11 +1305,11 @@ class FLQPSQL(object):
             return self.alterTable2(mtd1, mtd2, key, True)
 
         if not ok:
-            oldCursor = self.db_.dbAux().cursor()
-            oldCursor.execute(
+            old_cursor = self.db_.dbAux().cursor()
+            old_cursor.execute(
                 "SELECT %s FROM %s WHERE 1 = 1" % (", ".join(fieldNamesOld), renameOld)
             )
-            result_set = oldCursor.fetchall()
+            result_set = old_cursor.fetchall()
             totalSteps = len(result_set)
             util.createProgressDialog(
                 util.tr("application", "Reestructurando registros para %s..." % newMTD.alias()),
