@@ -3,15 +3,14 @@
 
 import os
 
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import QSize
+from PyQt5 import QtWidgets, QtGui, QtCore
 
 from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core.settings import config, settings
 from pineboolib.core.utils import logging
 from pineboolib.core.decorators import pyqtSlot
 from pineboolib.loader.projectconfig import ProjectConfig, PasswordMismatchError
+
 from typing import Optional, cast, Dict
 
 logger = logging.getLogger(__name__)
@@ -25,8 +24,8 @@ class DlgConnect(QtWidgets.QWidget):
     """
 
     optionsShowed: bool
-    minSize: QSize
-    maxSize: QSize
+    minSize: QtCore.QSize
+    maxSize: QtCore.QSize
     edit_mode: bool
 
     profiles: Dict[str, ProjectConfig]  #: Index of loaded profiles. Keyed by description.
@@ -40,8 +39,8 @@ class DlgConnect(QtWidgets.QWidget):
 
         super(DlgConnect, self).__init__()
         self.optionsShowed = False
-        self.minSize = QSize(350, 140)
-        self.maxSize = QSize(350, 495)
+        self.minSize = QtCore.QSize(350, 140)
+        self.maxSize = QtCore.QSize(350, 495)
         self.profile_dir: str = ProjectConfig.profile_dir
         self.sql_drivers = PNSqlDrivers()
         self.edit_mode = False
@@ -82,6 +81,7 @@ class DlgConnect(QtWidgets.QWidget):
         self.showOptions(False)
         self.loadProfiles()
         self.ui.leDescription.textChanged.connect(self.updateDBName)
+        self.ui.installEventFilter(self)
 
     def cleanProfileForm(self) -> None:
         """
@@ -189,20 +189,24 @@ class DlgConnect(QtWidgets.QWidget):
         Save the connection.
         """
         if self.ui.leDescription.text() == "":
-            QMessageBox.information(
+            QtWidgets.QMessageBox.information(
                 self.ui, "Pineboo", "La descripción no se puede dejar en blanco"
             )
             self.ui.leDescription.setFocus()
             return
 
         if self.ui.leDBPassword.text() != self.ui.leDBPassword2.text():
-            QMessageBox.information(self.ui, "Pineboo", "La contraseña de la BD no coincide")
+            QtWidgets.QMessageBox.information(
+                self.ui, "Pineboo", "La contraseña de la BD no coincide"
+            )
             self.ui.leDBPassword.setText("")
             self.ui.leDBPassword2.setText("")
             return
 
         if self.ui.leProfilePassword.text() != self.ui.leProfilePassword2.text():
-            QMessageBox.information(self.ui, "Pineboo", "La contraseña del perfil no coincide")
+            QtWidgets.QMessageBox.information(
+                self.ui, "Pineboo", "La contraseña del perfil no coincide"
+            )
             self.ui.leProfilePassword.setText("")
             self.ui.leProfilePassword2.setText("")
             return
@@ -221,7 +225,7 @@ class DlgConnect(QtWidgets.QWidget):
             os.mkdir(filedir(self.profile_dir))
 
         if os.path.exists(pconf.filename) and not self.edit_mode:
-            QMessageBox.information(self.ui, "Pineboo", "El perfil ya existe")
+            QtWidgets.QMessageBox.information(self.ui, "Pineboo", "El perfil ya existe")
             return
 
         pconf.type = self.ui.cbDBType.currentText()
@@ -248,7 +252,7 @@ class DlgConnect(QtWidgets.QWidget):
         Delete the selected connection.
         """
         if self.ui.cbProfiles.count() > 0:
-            res = QMessageBox.warning(
+            res = QtWidgets.QMessageBox.warning(
                 self.ui,
                 "Pineboo",
                 "¿Desea borrar el perfil %s?" % self.ui.cbProfiles.currentText(),
@@ -370,3 +374,16 @@ class DlgConnect(QtWidgets.QWidget):
             self.profile_dir = new_dir
             ProjectConfig.profile_dir = new_dir
             self.loadProfiles()
+
+    def eventFilter(self, o, e):
+
+        if isinstance(e, QtGui.QKeyEvent):
+            if e.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
+                self.open()
+                return True
+
+            if e.key() == QtCore.Qt.Key_Escape:
+                self.close()
+                return True
+
+        return super().eventFilter(o, e)
