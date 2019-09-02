@@ -58,9 +58,7 @@ class Project(object):
         self.tree = None
         self.root = None
         self.apppath = ""
-        self.tmpdir = config.value(
-            "ebcomportamiento/temp_dir", filedir("../tempdata")
-        )  # Aquí inicializa temp_dir
+        self.tmpdir = config.value("ebcomportamiento/temp_dir")
         self.parser = None
         self.main_form_name: Optional[str] = None
         self.deleteCache = False
@@ -70,6 +68,9 @@ class Project(object):
         self.tables: Dict[Any, Any] = {}  # FIXME: Add proper type
         self.files: Dict[Any, Any] = {}  # FIXME: Add proper type
         self.options = Values()
+        if self.tmpdir is None:
+            self.tmpdir = filedir("../tempdata")
+            config.set_value("ebcomportamiento/temp_dir", self.tmpdir)
 
     @property
     def app(self) -> QtCore.QCoreApplication:
@@ -100,7 +101,7 @@ class Project(object):
         """Initialize project with a connection."""
         self._conn = connection
         self.apppath = filedir("..")
-        self.tmpdir = config.value("ebcomportamiento/temp_dir")
+        # self.tmpdir = config.value("ebcomportamiento/temp_dir")
         if not os.path.exists(self.tmpdir):
             os.mkdir(self.tmpdir)
 
