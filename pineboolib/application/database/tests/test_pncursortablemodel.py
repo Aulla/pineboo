@@ -145,4 +145,4 @@ class TestPNCursorTableModel(unittest.TestCase):
         model.updateRows()
         cursor.select()
         model.updateColumnsCount()
-        self.assertEqual(model.size(), 0)
+        self.assertEqual(model.size(), 6)

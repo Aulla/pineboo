@@ -17,6 +17,7 @@ class PNParameterQuery(object):
         self.name_ = n
         self.alias_ = a
         self.type_ = t
+        self.value_ = None
 
     def name(self) -> str:
         """Return parameter name."""

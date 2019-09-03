@@ -87,7 +87,20 @@ class SqlInspector(object):
                 field_name = name[name.find(".") + 1 :]
                 if table_name in self._alias.keys():
                     table_name = self._alias[table_name]
-                    return self.fieldNameToPos("%s.%s" % (table_name, field_name))
+
+                field_name = "%s.%s" % (table_name, name)
+                if field_name in self._field_names.keys():
+                    return self._field_names[field_name]
+
+            else:
+                print("*", self.table_names(), self._field_names)
+                for table_name in self.table_names():
+                    if table_name in self._alias.keys():
+                        table_name = self._alias[table_name]
+
+                    field_name = "%s.%s" % (table_name, name)
+                    if field_name in self._field_names.keys():
+                        return self._field_names[field_name]
 
         raise Exception("No se encuentra el campo %s el la query:\n%s" % (name, self._sql))
 
@@ -98,11 +111,9 @@ class SqlInspector(object):
         @param name. field name.
         @return field name.
         """
-
-        for k, v in self._field_names:
-            if int(v) == pos:
+        for k in self._field_names.keys():
+            if int(self._field_names[k]) == pos:
                 return k
-
         raise Exception("fieldName not found!")
 
     def _resolve_fields(self, sql: str) -> None:

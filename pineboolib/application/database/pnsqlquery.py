@@ -131,12 +131,12 @@ class PNSqlQuery(object):
         self._is_active = False
         self._cursor = None
 
-        retornoQry = None
+        retorno_qry = None
         if cx:
-            retornoQry = project.conn.manager().query(cx, self)
+            retorno_qry = project.conn.manager().query(cx, self)
 
-        if retornoQry:
-            self.d = retornoQry.d
+        if retorno_qry:
+            self.d = retorno_qry.d
 
     def __del__(self) -> None:
         """
@@ -436,9 +436,9 @@ class PNSqlQuery(object):
 
         if self.d.parameterDict_:
             for pD in self.d.parameterDict_.keys():
-                v = self.d.parameterDict_[pD]
+                v = self.d.parameterDict_[pD].value()
 
-                if not v:
+                if v is None:
                     if not project._DGI:
                         raise Exception("project._DGI is empty!")
                     dialog = project.DGI.QInputDialog
@@ -448,7 +448,9 @@ class PNSqlQuery(object):
                         if v:
                             v = v[0]
 
-                res = res.replace("[%s]" % pD, "'%s'" % v)
+                res = res.replace(
+                    "[%s]" % pD, "'%s'" % v
+                )  # FIXME: ajustar al tipo de dato pnparameterquery.setValue!!
 
         return res
 

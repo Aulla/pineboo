@@ -26,8 +26,12 @@
 	</select>
 
 	<from>
-		fletest
+		fltest
 	</from>
+	
+	<order>
+		fltest.id
+	</order>
 
 	<where>
 		id&gt;=[from] AND id&lt;=[to] 
