@@ -392,6 +392,40 @@ class TestGeneral(unittest.TestCase):
 
         cursor2.setSort("bloqueo ASC")
 
+    def test_basic_4(self) -> None:
+        from pineboolib.application.database import pnsqlcursor
+
+        cursor_fake = pnsqlcursor.PNSqlCursor("fake")
+        self.assertFalse(cursor_fake._valid)
+        self.assertFalse(cursor_fake.isModifiedBuffer())
+        self.assertTrue(cursor_fake.activatedCheckIntegrity())
+        self.assertEqual(cursor_fake.checkIntegrity(False), False)
+        self.assertEqual(cursor_fake.table(), "")
+        self.assertEqual(cursor_fake.mainFilter(), "")
+        cursor_fake.setValueBuffer("no_field", "XXX")
+        self.assertFalse(cursor_fake.valueBuffer("no_field"))
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
+        self.assertTrue(cursor._valid)
+        cursor_2 = pnsqlcursor.PNSqlCursor("flareas")
+        cursor_2.select()
+        cursor_2.first()
+        cursor_2.setModeAccess(cursor_2.Insert)
+        self.assertFalse(cursor_2.fieldDisabled("descripcion"))
+        cursor_2.refreshBuffer()
+        self.assertEqual(
+            cursor_2.msgCheckIntegrity(),
+            "\nflareas:Área : No puede ser nulo\nflareas:Descripción : No puede ser nulo",
+        )
+        self.assertEqual(
+            cursor_2.valueBuffer("descripcion"), cursor_2.valueBufferCopy("descripcion")
+        )
+        cursor_2.setEdition(True, "prueba")
+        self.assertTrue(cursor_2.d.edition_states_)
+        cursor_2.restoreEditionFlag("prueba")
+        cursor_2.setBrowse(True, "prueba2")
+        self.assertTrue(cursor_2.d.browse_states_)
+        cursor_2.restoreBrowseFlag("prueba2")
+
 
 if __name__ == "__main__":
     unittest.main()

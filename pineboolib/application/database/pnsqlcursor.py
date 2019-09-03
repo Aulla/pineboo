@@ -120,6 +120,7 @@ class PNSqlCursor(QtCore.QObject):
     ) -> None:
         """Create a new cursor."""
         super().__init__()
+        self._valid = False
         if name is None:
             logger.warning(
                 "Se está iniciando un cursor Huerfano (%s). Posiblemente sea una declaración en un qsa parseado",
@@ -154,7 +155,6 @@ class PNSqlCursor(QtCore.QObject):
         # else:
         # self.actionName_ = name
 
-        self._valid = False
         self.d = PNCursorPrivate()
         self.d.cursor_ = self
         self.d.nameCursor_ = "%s_%s" % (
@@ -265,6 +265,7 @@ class PNSqlCursor(QtCore.QObject):
         if self.d.timer_:
             del self.d.timer_
 
+        self._valid = True
         self.d.timer_ = QtCore.QTimer(self)
         self.d.timer_.timeout.connect(self.refreshDelayed)
 
@@ -329,7 +330,11 @@ class PNSqlCursor(QtCore.QObject):
         """
         ret_ = None
         if hasattr(self.d._model, "where_filters"):
-            ret_ = self.d._model.where_filters["main-filter"]
+            ret_ = (
+                self.d._model.where_filters["main-filter"]
+                if "main-filter" in self.d._model.where_filters.keys()
+                else None
+            )
 
         if ret_ is None:
             ret_ = ""
@@ -1968,7 +1973,7 @@ class PNSqlCursor(QtCore.QObject):
         @return True if ok else False.
         """
 
-        if self.at() >= 0:
+        if self.at() >= 0 and self._valid:
             return True
         else:
             return False

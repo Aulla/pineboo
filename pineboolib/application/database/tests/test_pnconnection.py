@@ -166,6 +166,7 @@ class TestPNConnection(unittest.TestCase):
         )
         self.assertTrue(conn_test.removeConn("test"))
         self.assertTrue(conn_.doTransaction(cursor))
+        self.assertTrue(cursor.inTransaction())
         self.assertTrue(conn_.doCommit(cursor, False))
         self.assertTrue(conn_.doTransaction(cursor))
         self.assertTrue(conn_.doRollback(cursor))
