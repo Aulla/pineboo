@@ -151,6 +151,25 @@ class TestPNConnection(unittest.TestCase):
 
         # conn_.Mr_Proper() #FIXME
 
+    def test_basic6(self) -> None:
+        """Test basic 6."""
+        from pineboolib.application.database import pnsqlcursor
+
+        conn_ = application.project.conn
+        conn_test = conn_.useConn("test")
+        cursor = pnsqlcursor.PNSqlCursor("flsettings")
+        cursor.setAskForCancelChanges(False)
+        conn_.Mr_Proper()
+        self.assertEqual(
+            conn_.queryUpdate("test", "field1, 'val_1'", "1=1"),
+            "UPDATE test SET field1, 'val_1' WHERE 1=1",
+        )
+        self.assertTrue(conn_test.removeConn("test"))
+        self.assertTrue(conn_.doTransaction(cursor))
+        self.assertTrue(conn_.doCommit(cursor, False))
+        self.assertTrue(conn_.doTransaction(cursor))
+        self.assertTrue(conn_.doRollback(cursor))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -190,12 +190,7 @@ class PNConnection(QtCore.QObject, IConnection):
 
     def DBName(self) -> str:
         """Return the database name."""
-
-        try:
-            return self.driver().DBName()
-        except Exception as e:
-            logger.error("DBName: %s", e)
-            return self.db_name
+        return self.driver().DBName()
 
     def driver(self) -> Any:
         """Return the instance of the driver that is using the connection."""

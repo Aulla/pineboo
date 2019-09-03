@@ -129,3 +129,20 @@ class TestPNCursorTableModel(unittest.TestCase):
         self.assertFalse(model.findCKRow([2, 2]))
         self.assertFalse(model.findPKRow([21]))
         self.assertEqual(model.findPKRow([3]), 3)
+
+    def test_basic_5(self) -> None:
+        """Test basic 5."""
+        from PyQt5 import QtCore
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest2")
+
+        model = cursor.model()
+        model.disable_refresh(True)
+        model.sort(1, QtCore.Qt.DescendingOrder)
+        self.assertTrue(model._disable_refresh)
+        model.disable_refresh(False)
+        model.threadFetch()
+        model.updateRows()
+        cursor.select()
+        model.updateColumnsCount()
+        self.assertEqual(model.size(), 0)

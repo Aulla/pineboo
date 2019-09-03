@@ -2982,7 +2982,7 @@ class PNSqlCursor(QtCore.QObject):
                                 if not c.commitBuffer(False):
                                     return False
 
-            self.d._model.Delete(self)
+            self.d._model.delete(self)
 
             recordDelAfter = "recordDelAfter%s" % self.d.metadata_.name()
             v = project.call(recordDelAfter, [self], self.context(), False)

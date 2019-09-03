@@ -106,7 +106,7 @@ class PNSqlQuery(object):
     _row: List[Any]
     _datos: List[Any]
     _posicion: int
-    _cursor: "IApiCursor"
+    _cursor: Optional["IApiCursor"]
 
     def __init__(self, cx=None, connection_name: Union[str, "IConnection"] = "default") -> None:
         """
@@ -129,6 +129,7 @@ class PNSqlQuery(object):
         self.invalidTablesList = False
         self.d.fieldList_ = []
         self._is_active = False
+        self._cursor = None
 
         retornoQry = None
         if cx:

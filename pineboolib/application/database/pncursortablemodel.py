@@ -1075,7 +1075,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return True
         return False
 
-    def Delete(self, cursor: "PNSqlCursor") -> None:  # FIXME: Should be "delete" in lowercase.
+    def delete(self, cursor: "PNSqlCursor") -> None:
         """
         Delete a row from tableModel.
 
