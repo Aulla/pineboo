@@ -1050,11 +1050,13 @@ class FLSQLITE(object):
         t.setForwardOnly(True)
 
         if type_name is None:
-            t.exec_("SELECT name FROM sqlite_master WHERE type='table' OR type='view'")
+            t.exec_(
+                "SELECT name FROM sqlite_master WHERE type='table' OR type='view' ORDER BY name ASC"
+            )
         elif type_name == "Tables":
-            t.exec_("SELECT name FROM sqlite_master WHERE type='table'")
+            t.exec_("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC")
         elif type_name == "Views":
-            t.exec_("SELECT name FROM sqlite_master WHERE type='view'")
+            t.exec_("SELECT name FROM sqlite_master WHERE type='view' ORDER BY name ASC")
 
         if type_name != "SystemTables":
             while t.next():
