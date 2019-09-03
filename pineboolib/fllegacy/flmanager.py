@@ -488,8 +488,8 @@ class FLManager(QtCore.QObject, IManager):
         # )
         from pineboolib.application.database.pnsqlquery import PNSqlQuery
 
-        q = PNSqlQuery(parent, self.db_.connectionName())
-
+        q = PNSqlQuery("", self.db_.connectionName())
+        q.setName(name)
         root_ = etree.ElementTree.fromstring(qry_)
         elem_select = root_.find("select")
         elem_from = root_.find("from")
