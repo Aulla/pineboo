@@ -393,6 +393,7 @@ class TestGeneral(unittest.TestCase):
         cursor2.setSort("bloqueo ASC")
 
     def test_basic_4(self) -> None:
+        """Basic tests 4."""
         from pineboolib.application.database import pnsqlcursor
 
         cursor_fake = pnsqlcursor.PNSqlCursor("fake")
@@ -419,12 +420,58 @@ class TestGeneral(unittest.TestCase):
         self.assertEqual(
             cursor_2.valueBuffer("descripcion"), cursor_2.valueBufferCopy("descripcion")
         )
+
+        self.assertTrue(cursor_2.field("idarea"))
+        self.assertTrue(cursor_2.buffer().isGenerated("idarea"))
         cursor_2.setEdition(True, "prueba")
         self.assertTrue(cursor_2.d.edition_states_)
         cursor_2.restoreEditionFlag("prueba")
         cursor_2.setBrowse(True, "prueba2")
         self.assertTrue(cursor_2.d.browse_states_)
         cursor_2.restoreBrowseFlag("prueba2")
+
+    def test_basic_5(self) -> None:
+        """Basic tests 5."""
+        from pineboolib.application.database import pnsqlcursor
+        from pineboolib.qsa import qsa
+
+        cursor_qry = pnsqlcursor.PNSqlCursor("fltest2")
+        self.assertTrue(cursor_qry)
+        self.assertFalse(cursor_qry.d.needUpdate())
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
+        self.assertFalse(cursor.d.needUpdate())
+        self.assertEqual(cursor.primaryKey(), "id")
+        self.assertEqual(cursor.fieldType("id"), 100)
+        cursor_qry.setNotGenerateds()
+        cursor.sort()
+
+        self.assertFalse(cursor.fieldType("id2"))
+        for f in cursor:
+            self.assertTrue(f)
+
+        cursor_2 = pnsqlcursor.PNSqlCursor("flareas")
+        cursor_2.update(False)
+
+        cursor.changeConnection("dbAux")
+        self.assertEqual(cursor.transactionsOpened(), [])
+        cursor.db().doTransaction(cursor)
+        self.assertEqual(cursor.transactionsOpened(), ["1"])
+        cursor.db().doRollback(cursor)
+        cursor.setForwardOnly(True)
+
+        cursor_3 = pnsqlcursor.PNSqlCursor("flareas")
+        cursor_3.select()
+        self.assertTrue(cursor_3.first())
+        cursor_3.chooseRecord(False)
+        qsa.from_project("formRecordflareas").form.reject()
+        cursor_3.select()
+        cursor_3.first()
+        cursor_3.browseRecord(False)
+        qsa.from_project("formRecordflareas").form.reject()
+        cursor_3.select()
+        cursor_3.first()
+        cursor_3.editRecord(False)
+        qsa.from_project("formRecordflareas").form.reject()
 
 
 if __name__ == "__main__":

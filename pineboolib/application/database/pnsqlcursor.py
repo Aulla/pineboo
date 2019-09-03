@@ -2712,7 +2712,7 @@ class PNSqlCursor(QtCore.QObject):
             self.newBuffer.emit()
 
     @pyqtSlot()
-    def chooseRecord(self) -> None:
+    def chooseRecord(self, wait: bool = True) -> None:
         """
         Perform the action associated with choosing a cursor record.
 
@@ -2724,13 +2724,13 @@ class PNSqlCursor(QtCore.QObject):
 
         if not config.value("ebcomportamiento/FLTableDoubleClick", False):
             if self.d.edition_:
-                self.editRecord()
+                self.editRecord(wait)
             else:
                 if self.d.browse_:
-                    self.browseRecord()
+                    self.browseRecord(wait)
         else:
             if self.d.browse_:
-                self.browseRecord()
+                self.browseRecord(wait)
 
         self.recordChoosed.emit()
 
