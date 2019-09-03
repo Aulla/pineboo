@@ -1108,7 +1108,7 @@ class FLSQLITE(object):
 
         rx3 = QRegExp("^.*\\d{6,9}$")
         # listOldBks = self.tables("").grep(rx3)
-        listOldBks_prev = self.tables(1)
+        listOldBks_prev = self.tables("Tables")
 
         listOldBks = []
 
