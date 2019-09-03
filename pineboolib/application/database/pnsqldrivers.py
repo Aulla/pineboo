@@ -100,14 +100,14 @@ class PNSqlDrivers(object, metaclass=Singleton):
 
         raise Exception("No driver found matching name!")
 
-    def aliasToName(self, alias: str) -> str:
+    def aliasToName(self, alias: str = "") -> str:
         """
         Return the alias of a controller from its name.
 
         @param alias =  Alias ​​with which the controller is known.
         @return Driver name or None.
         """
-        if not alias:
+        if alias == "":
             return self._defautl_driver_name
 
         for key, value in self._drivers_dict.items():
@@ -169,7 +169,7 @@ class PNSqlDrivers(object, metaclass=Singleton):
     @return Nombre del controlador
     """
 
-    def driverName(self) -> None:
+    def driverName(self) -> str:
         """
         Indicate the name of the activated driver.
         """
@@ -177,15 +177,15 @@ class PNSqlDrivers(object, metaclass=Singleton):
         if self._driver is None:
             raise Exception("No sql driver selected!")
 
-        return self._driver.name()
+        return self._driver.name_
 
-    def __getattr__(self, attr_name):
-        """
-        Return an attribute of the sql driver, if it is not found.
+    # def __getattr__(self, attr_name):
+    #    """
+    #    Return an attribute of the sql driver, if it is not found.
 
-        @param attr_name: Attribute name.
-        """
-        return getattr(self._driver, attr_name)
+    #    @param attr_name: Attribute name.
+    #    """
+    #    return getattr(self._driver, attr_name)
 
     def defaultDriverName(self) -> str:
         """
