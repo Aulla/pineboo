@@ -1,0 +1,35 @@
+<!DOCTYPE QRY>
+<QRY>
+	<name>fltest2</name>
+
+	<tables>fltest</tables>
+
+	<param>
+		<name>from</name>
+		<alias>QT_TRANSLATE_NOOP("Queries","Desde Test:")</alias>
+		<type>string</type>
+	</param>
+
+	<param>
+		<name>to</name>
+		<alias>QT_TRANSLATE_NOOP("Queries","Hasta Test:")</alias>
+		<type>string</type>
+	</param>
+
+	<group>
+		<level>0</level>
+		<field>fltest.id</field>
+	</group>
+
+	<select>
+		id, string_field, date_field, time_field, double_field, bool_field, uint_field, bloqueo
+	</select>
+
+	<from>
+		fletest
+	</from>
+
+	<where>
+		id&gt;=[from] AND id&lt;=[to] 
+	</where>
+</QRY> 
