@@ -422,7 +422,9 @@ class TestGeneral(unittest.TestCase):
         )
 
         self.assertTrue(cursor_2.field("idarea"))
-        self.assertTrue(cursor_2.buffer().isGenerated("idarea"))
+        buffer = cursor_2.buffer()
+        if buffer:
+            self.assertTrue(buffer.isGenerated("idarea"))
         cursor_2.setEdition(True, "prueba")
         self.assertTrue(cursor_2.d.edition_states_)
         cursor_2.restoreEditionFlag("prueba")
