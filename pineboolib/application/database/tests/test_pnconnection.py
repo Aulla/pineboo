@@ -124,16 +124,17 @@ class TestPNConnection(unittest.TestCase):
             conn_.tables(1),
             [
                 "flareas",
-                "flmodules",
                 "flfiles",
                 "flgroups",
                 "fllarge",
+                "flmetadata",
+                "flmodules",
+                "flseqs",
                 "flserial",
+                "flsettings",
+                "fltest",
                 "flusers",
                 "flvar",
-                "flmetadata",
-                "fltest",
-                "flseqs",
             ],
         )
 

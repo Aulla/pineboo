@@ -209,6 +209,7 @@ class Project(object):
             "flusers",
             "flvar",
             "flmetadata",
+            "flsettings",
         ):
             self.conn.manager().createSystemTable(table)
 
