@@ -29,7 +29,8 @@ class PNRelationMetaData:
         update_cascade: bool = False,
         check_integrity: bool = True,
     ) -> None:
-        """Initialize the relation.
+        """
+        Initialize the relation.
 
         @param other_or_relation.  Related foreign table or other PNRelationMetaData.
         @param foreign_field Related foreign field.
