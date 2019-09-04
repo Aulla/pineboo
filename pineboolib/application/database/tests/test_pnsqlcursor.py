@@ -505,7 +505,7 @@ class TestRelations(unittest.TestCase):
         cur_rel = cur_modulos.cursorRelation()
         if cur_rel:
             self.assertEqual(cur_rel.valueBuffer("idarea"), "B")
-        self.assertEqual(cur_areas.valueBuffer("bloqueo"), not cur_areas.isLocked())
+        self.assertTrue(cur_areas.isLocked())
         self.assertFalse(cur_modulos.fieldDisabled("icono"))
         self.assertEqual(cur_modulos.msgCheckIntegrity(), "\nBuffer vacío o no hay metadatos")
         self.assertTrue(cur_modulos.isLocked())
