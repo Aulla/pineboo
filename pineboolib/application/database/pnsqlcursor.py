@@ -1599,7 +1599,7 @@ class PNSqlCursor(QtCore.QObject):
             raise Exception("Unexpected null buffer")
 
         self.setModeAccess(self.Edit)
-        self.d.buffer_.setValue(fN, not v)
+        self.d.buffer_.setValue(fN, v)
         self.update()
         self.refreshBuffer()
 

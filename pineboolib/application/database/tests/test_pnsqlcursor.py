@@ -379,7 +379,7 @@ class TestGeneral(unittest.TestCase):
         cursor2.select()
         self.assertTrue(cursor2.first())
         cursor2.setUnLock("bloqueo", True)
-        self.assertTrue(cursor2.isLocked())
+        self.assertFalse(cursor2.isLocked())
         cursor2.setUnLock("bloqueo", False)
         self.assertFalse(cursor2.isLocked())
         cursor2.setModeAccess(cursor2.Del)
