@@ -1599,7 +1599,7 @@ class PNSqlCursor(QtCore.QObject):
             raise Exception("Unexpected null buffer")
 
         self.setModeAccess(self.Edit)
-        self.d.buffer_.setValue(fN, v)
+        self.d.buffer_.setValue(fN, not v)
         self.update()
         self.refreshBuffer()
 
@@ -1618,7 +1618,7 @@ class PNSqlCursor(QtCore.QObject):
 
             for field in self.d.metadata_.fieldNamesUnlock():
                 if row > -1:
-                    if self.d._model.value(row, field) not in ("True", True, 1, "1"):
+                    if self.d._model.value(row, field) in ("True", True, 1, "1"):
                         ret_ = True
                         break
 

@@ -3,6 +3,8 @@
 
 from pineboolib.core import decorators
 
+from typing import Union
+
 
 class PNRelationMetaData:
     """PNRelationMetaData Class."""
@@ -18,20 +20,41 @@ class PNRelationMetaData:
 
     d: "PNRelationMetaDataPrivate"
 
-    def __init__(self, *args, **kwargs) -> None:
-        """Initialize the relation."""
+    def __init__(
+        self,
+        other_or_foreign_table: Union["PNRelationMetaData", str],
+        foreign_field: str = "",
+        cardinality: str = "",
+        delete_cascade: bool = False,
+        update_cascade: bool = False,
+        check_integrity: bool = True,
+    ) -> None:
+        """Initialize the relation.
 
-        if len(args) == 1:
-            self.inicializeFromFLRelationMetaData(args[0])
-        else:
+        @param other_or_relation.  Related foreign table or other PNRelationMetaData.
+        @param foreign_field Related foreign field.
+        @param cardinality Cardinality of the relation.
+        @param delete_cascade Deleted in cascade, only taken into account in M1 cardinalities. Defaul False
+        @param update_cascade Cascade updates, only taken into account in M1 cardinalities. Default False
+        @param check_integrity Integrity checks on the relation. Default True
+        """
+        if isinstance(other_or_foreign_table, str):
+            foreign_table: str = other_or_foreign_table
             self.inicializeNewFLRelationMetaData(
-                args[0], args[1], args[2], args[3], args[4], args[5]
+                foreign_table,
+                foreign_field,
+                cardinality,
+                delete_cascade,
+                update_cascade,
+                check_integrity,
             )
+        else:
+            self.inicializeFromFLRelationMetaData(other_or_foreign_table)
 
         ++self.count_
 
     def inicializeNewFLRelationMetaData(
-        self, fT: str, fF: str, rC: str, dC: bool = False, uC: bool = False, cI: bool = True
+        self, fT: str, fF: str, rC: str, dC: bool, uC: bool, cI: bool
     ) -> None:
         """
         Fill in the relation data.

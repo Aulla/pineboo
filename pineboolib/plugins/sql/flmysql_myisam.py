@@ -405,7 +405,7 @@ class FLMYSQL_MYISAM(object):
         if not self.isOpen():
             logger.warning("%s::savePoint: Database not open", self.name_)
             return False
-
+        self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("SAVEPOINT sv_%s" % n)
@@ -436,7 +436,7 @@ class FLMYSQL_MYISAM(object):
         if not self.isOpen():
             logger.warning("%s::rollbackSavePoint: Database not open", self.name_)
             return False
-
+        self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("ROLLBACK TO SAVEPOINT sv_%s" % n)
@@ -454,6 +454,11 @@ class FLMYSQL_MYISAM(object):
 
         return True
 
+    def set_last_error_null(self) -> None:
+        """Set lastError flag Null."""
+
+        self.lastError_ = None
+
     def setLastError(self, text: str, command: str) -> None:
         """Set last error from database."""
         self.lastError_ = "%s (%s)" % (text, command)
@@ -466,7 +471,7 @@ class FLMYSQL_MYISAM(object):
         """Commit database transaction."""
         if not self.isOpen():
             logger.warning("%s::commitTransaction: Database not open", self.name_)
-
+        self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("COMMIT")
@@ -485,7 +490,7 @@ class FLMYSQL_MYISAM(object):
         """Rollback database transaction."""
         if not self.isOpen():
             logger.warning("%s::rollbackTransaction: Database not open", self.name_)
-
+        self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("ROLLBACK")
@@ -504,7 +509,7 @@ class FLMYSQL_MYISAM(object):
         """Start new database transaction."""
         if not self.isOpen():
             logger.warning("%s::transaction: Database not open", self.name_)
-
+        self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("START TRANSACTION")
@@ -527,7 +532,7 @@ class FLMYSQL_MYISAM(object):
         if not self.isOpen():
             qWarning("%s::releaseSavePoint: Database not open" % self.name_)
             return False
-
+        self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("RELEASE SAVEPOINT sv_%s" % n)
@@ -1524,6 +1529,7 @@ class FLMYSQL_MYISAM(object):
         if not self.isOpen():
             logger.warning("MySQLDriver::execute_query. DB is closed")
             return False
+        self.set_last_error_null()
         cursor = self.cursor()
 
         try:

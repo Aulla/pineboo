@@ -19,7 +19,7 @@ class TestInsertData(unittest.TestCase):
         cursor = pnsqlcursor.PNSqlCursor("flareas")
         cursor.setModeAccess(cursor.Insert)
         cursor.refreshBuffer()
-        cursor.setValueBuffer("boqueo", False)
+        cursor.setValueBuffer("bloqueo", False)
         cursor.setValueBuffer("idarea", "T")
         cursor.setValueBuffer("descripcion", "Área de prueba T")
         self.assertTrue(cursor.commitBuffer())
@@ -384,7 +384,7 @@ class TestGeneral(unittest.TestCase):
         self.assertFalse(cursor2.isLocked())
         cursor2.setModeAccess(cursor2.Del)
         cursor2.refreshBuffer()
-        self.assertFalse(cursor2.commitBuffer())
+        self.assertTrue(cursor2.commitBuffer())
 
         self.assertEqual(cursor2.curFilter(), "")
         cursor2.setFilter("bloqueo = true")
@@ -474,6 +474,51 @@ class TestGeneral(unittest.TestCase):
         cursor_3.first()
         cursor_3.editRecord(False)
         qsa.from_project("formRecordflareas").form.reject()
+
+
+class TestRelations(unittest.TestCase):
+    """Test Relations class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_full(self) -> None:
+        """Test full relations feauture"""
+        from pineboolib.application.database import pnsqlcursor
+        from pineboolib.application.metadata import pnrelationmetadata
+
+        cur_areas = pnsqlcursor.PNSqlCursor("flareas")
+        rel = pnrelationmetadata.PNRelationMetaData(
+            "flareas", "idarea", pnrelationmetadata.PNRelationMetaData.RELATION_1M
+        )
+        rel.setField("idarea")
+        cur_areas.select()
+        cur_areas.first()
+        self.assertEqual(cur_areas.valueBuffer("idarea"), "B")
+        cur_areas.setModeAccess(cur_areas.Edit)
+        cur_areas.refreshBuffer()
+        cur_modulos = pnsqlcursor.PNSqlCursor("flmodules", True, "default", cur_areas, rel)
+        cur_modulos.select()
+        cur_modulos.refreshBuffer()
+        cur_rel = cur_modulos.cursorRelation()
+        if cur_rel:
+            self.assertEqual(cur_rel.valueBuffer("idarea"), "B")
+        self.assertEqual(cur_areas.valueBuffer("bloqueo"), cur_areas.isLocked())
+        self.assertFalse(cur_modulos.fieldDisabled("icono"))
+        self.assertEqual(cur_modulos.msgCheckIntegrity(), "\nBuffer vacío o no hay metadatos")
+        self.assertFalse(cur_modulos.isLocked())
+        cur_modulos.bufferSetNull("icono")
+        cur_modulos.bufferCopySetNull("icono")
+        self.assertTrue(cur_modulos.bufferCopyIsNull("icono"))
+        cur_modulos.setModeAccess(cur_modulos.Insert)
+        cur_modulos.refreshBuffer()
+        cur_modulos.setValueBuffer("idmodulo", "TM")
+        cur_modulos.setValueBuffer("descripcion", "Desc")
+        self.assertEqual(cur_modulos.checkIntegrity(False), True)
+        self.assertTrue(cur_modulos.commitBuffer())
+        self.assertTrue(cur_areas.rollback())
 
 
 if __name__ == "__main__":

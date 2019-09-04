@@ -317,6 +317,8 @@ class FLSQLITE(object):
             self.logger.warning("%s::savePoint: Database not open", __name__)
             return False
 
+        self.set_last_error_null()
+
         cursor = self.cursor()
         try:
             self.logger.debug("Creando savepoint sv_%s" % n)
@@ -347,6 +349,8 @@ class FLSQLITE(object):
             self.logger.warning("%s::rollbackSavePoint: Database not open", __name__)
             return False
 
+        self.set_last_error_null()
+
         cursor = self.cursor()
         try:
             cursor.execute("ROLLBACK TRANSACTION TO SAVEPOINT sv_%s" % n)
@@ -367,6 +371,10 @@ class FLSQLITE(object):
         """Set last error."""
         self.lastError_ = "%s (%s)" % (text, command)
 
+    def set_last_error_null(self) -> None:
+        """Set lastError flag Null."""
+        self.lastError_ = None
+
     def lastError(self) -> Optional[str]:
         """Return last error."""
         return self.lastError_
@@ -375,7 +383,7 @@ class FLSQLITE(object):
         """Set commit transaction."""
         if not self.isOpen():
             self.logger.warning("%s::commitTransaction: Database not open", __name__)
-
+        self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("END TRANSACTION")
@@ -406,6 +414,7 @@ class FLSQLITE(object):
         if not self.isOpen():
             self.logger.warning("%s::execute_query: Database not open", __name__)
 
+        self.set_last_error_null()
         cursor = self.cursor()
         try:
             q = self.fix_query(q)
@@ -421,6 +430,7 @@ class FLSQLITE(object):
         if not self.isOpen():
             self.logger.warning("SQL3Driver::rollbackTransaction: Database not open")
 
+        self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("ROLLBACK TRANSACTION")
@@ -436,6 +446,8 @@ class FLSQLITE(object):
         if not self.isOpen():
             self.logger.warning("SQL3Driver::transaction: Database not open")
         cursor = self.cursor()
+        self.set_last_error_null()
+
         try:
             cursor.execute("BEGIN TRANSACTION")
         except Exception:
@@ -453,6 +465,7 @@ class FLSQLITE(object):
         if not self.isOpen():
             self.logger.debug("SQL3Driver::releaseSavePoint: Database not open")
             return False
+        self.set_last_error_null()
 
         cursor = self.cursor()
         try:

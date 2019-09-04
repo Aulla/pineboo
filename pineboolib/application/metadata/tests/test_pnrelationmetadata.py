@@ -45,6 +45,8 @@ class TestCreatePNRelationMetaData(unittest.TestCase):
         if mtd is None:
             raise Exception
         rel_1 = mtd.relation("idgroup", "idgroup", "flusers")
+        if rel_1 is None:
+            raise Exception("Relation is empty!.")
         rel_2 = PNRelationMetaData(rel_1)
         rel_3 = PNRelationMetaData("flgroups", "idgroup", "M1", True, True, False)
 

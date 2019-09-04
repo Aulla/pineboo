@@ -333,7 +333,7 @@ class FLQPSQL(object):
         if not self.isOpen():
             qWarning("PSQLDriver::savePoint: Database not open")
             return False
-
+        self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("SAVEPOINT sv_%s" % n)
@@ -360,7 +360,7 @@ class FLQPSQL(object):
         if not self.isOpen():
             qWarning("PSQLDriver::rollbackSavePoint: Database not open")
             return False
-
+        self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("ROLLBACK TO SAVEPOINT sv_%s" % n)
@@ -376,6 +376,11 @@ class FLQPSQL(object):
 
         return True
 
+    def set_last_error_null(self) -> None:
+        """Set lastError flag Null."""
+
+        self.lastError_ = None
+
     def setLastError(self, text: str, command: str) -> None:
         """Set last error."""
         self.lastError_ = "%s (%s)" % (text, command)
@@ -388,7 +393,7 @@ class FLQPSQL(object):
         """Set commit transaction."""
         if not self.isOpen():
             qWarning("PSQLDriver::commitTransaction: Database not open")
-
+        self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("COMMIT TRANSACTION")
@@ -406,7 +411,7 @@ class FLQPSQL(object):
         """Set a rollback transaction."""
         if not self.isOpen():
             qWarning("PSQLDriver::rollbackTransaction: Database not open")
-
+        self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("ROLLBACK TRANSACTION")
@@ -424,7 +429,7 @@ class FLQPSQL(object):
         """Set a new transaction."""
         if not self.isOpen():
             qWarning("PSQLDriver::transaction: Database not open")
-
+        self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("BEGIN TRANSACTION")
@@ -443,7 +448,7 @@ class FLQPSQL(object):
         if not self.isOpen():
             qWarning("PSQLDriver::releaseSavePoint: Database not open")
             return False
-
+        self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("RELEASE SAVEPOINT sv_%s" % n)
@@ -1661,7 +1666,7 @@ class FLQPSQL(object):
         if not self.isOpen():
             qWarning("PSQLDriver::execute_query. DB is closed")
             return False
-
+        self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             q = self.fix_query(q)
