@@ -10,7 +10,7 @@ from pineboolib.application.parsers.qt3uiparser import dgi_qt3ui
 from .dgi_objects.splash_screen import splashscreen
 from .dgi_objects.progress_dialog_manager import ProgressDialogManager
 from .dgi_objects.status_help_msg import StatusHelpMsg
-from typing import Any
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -51,19 +51,24 @@ class dgi_qt(dgi_schema):
 
         return cls
 
-    def msgBoxWarning(self, t: str) -> None:
+    def msgBoxWarning(self, t: str, parent: Optional[Any] = None) -> None:
         """Show a message box warning."""
         from PyQt5.QtWidgets import qApp  # type: ignore
         from pineboolib.qt3_widgets.messagebox import MessageBox
 
-        parent = (
-            qApp.focusWidget().parent()
-            if hasattr(qApp.focusWidget(), "parent")
-            else qApp.focusWidget()
-        )
-        MessageBox.warning(
-            t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
-        )
+        if parent is None:
+            parent = (
+                qApp.focusWidget().parent()
+                if hasattr(qApp.focusWidget(), "parent")
+                else qApp.focusWidget()
+            )
+
+        logger.warning("%s", t)
+
+        if parent is not None:
+            MessageBox.warning(
+                t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
+            )
 
     def about_pineboo(self) -> None:
         """Show about pineboo dialog."""

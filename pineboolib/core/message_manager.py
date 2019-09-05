@@ -18,7 +18,7 @@ class Manager(object):
         """Create a Manager with specified DGI."""
         self._dgi = dgi
 
-    def send(self, type_: str, function_: str = None, data_: Iterable[Any] = None) -> Any:
+    def send(self, type_: str, function_: Optional[str] = None, data_: Iterable[Any] = None) -> Any:
         """Send a progress event to the manager."""
         if self._dgi is None:
             return None

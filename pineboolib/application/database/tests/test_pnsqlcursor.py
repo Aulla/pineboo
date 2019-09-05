@@ -475,6 +475,19 @@ class TestGeneral(unittest.TestCase):
         cursor_3.editRecord(False)
         qsa.from_project("formRecordflareas").form.reject()
 
+        cursor_4 = pnsqlcursor.PNSqlCursor("flareas")
+        cursor_4.select()
+        cursor_4.first()
+        self.assertTrue(cursor_4.selection_pk("B"))
+        cursor_4.last()
+        self.assertTrue(cursor_4.selection_pk("B"))
+        cursor_4.last()
+        self.assertFalse(cursor_4.selection_pk("J"))
+        cursor_4.setNull("idarea")
+        cursor_4.setModeAccess(cursor_4.Insert)
+        cursor_4.refreshBuffer()
+        self.assertFalse(cursor_4.checkIntegrity())
+
 
 class TestRelations(unittest.TestCase):
     """Test Relations class."""
@@ -484,8 +497,8 @@ class TestRelations(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
-    def test_full(self) -> None:
-        """Test full relations feauture"""
+    def test_basic_relatins_1(self) -> None:
+        """Test basic relations 1."""
         from pineboolib.application.database import pnsqlcursor
         from pineboolib.application.metadata import pnrelationmetadata
 
@@ -519,6 +532,61 @@ class TestRelations(unittest.TestCase):
         self.assertEqual(cur_modulos.checkIntegrity(False), True)
         self.assertTrue(cur_modulos.commitBuffer())
         self.assertTrue(cur_areas.rollback())
+
+    def test_basic_relatins_2(self) -> None:
+        """Test basic relations 2."""
+        from pineboolib.application.database import pnsqlcursor
+        from pineboolib.application.metadata import pnrelationmetadata
+
+        cur_areas = pnsqlcursor.PNSqlCursor("flareas")
+        rel = pnrelationmetadata.PNRelationMetaData(
+            "flareas", "idarea", pnrelationmetadata.PNRelationMetaData.RELATION_1M
+        )
+        rel.setField("idarea")
+        cur_areas.select()
+        cur_areas.first()
+        self.assertEqual(cur_areas.valueBuffer("idarea"), "B")
+        cur_areas.setModeAccess(cur_areas.Edit)
+        cur_areas.refreshBuffer()
+        cur_areas.transaction()
+        cur_modulos = pnsqlcursor.PNSqlCursor("flmodules", True, "default", cur_areas, rel)
+        cur_modulos.setModeAccess(cur_modulos.Insert)
+        self.assertEqual(cur_areas.transactionsOpened(), ["1"])
+        cur_modulos.refreshBuffer()
+        cur_modulos.transaction()
+        cur_modulos.rollbackOpened(-1, "Mensage de prueba 1º")
+
+        cur_areas.setModeAccess(cur_areas.Edit)
+        cur_areas.refreshBuffer()
+        cur_areas.transaction()
+        cur_modulos = pnsqlcursor.PNSqlCursor("flmodules", True, "default", cur_areas, rel)
+        cur_modulos.setModeAccess(cur_modulos.Insert)
+        self.assertEqual(cur_areas.transactionsOpened(), ["2", "1"])
+        cur_modulos.refreshBuffer()
+        cur_modulos.transaction()
+        cur_modulos.commitOpened(-1, "Mensage de prueba 2º")
+
+        cur_areas.setModeAccess(cur_areas.Edit)
+        cur_areas.refreshBuffer()
+        cur_areas.transaction()
+        cur_modulos = pnsqlcursor.PNSqlCursor("flmodules", True, "default", cur_areas, rel)
+        cur_modulos.setModeAccess(cur_modulos.Insert)
+        self.assertEqual(cur_areas.transactionsOpened(), ["3", "2", "1"])
+        cur_modulos.refreshBuffer()
+        cur_modulos.transaction()
+        self.assertTrue(cur_modulos.commitBufferCursorRelation())
+
+        cur_areas.setModeAccess(cur_areas.Edit)
+        cur_areas.refreshBuffer()
+        cur_areas.transaction()
+        self.assertTrue(cur_areas.commitBuffer())
+        cur_areas.setEditMode()
+        cur_areas.setModeAccess(cur_areas.Insert)
+        cur_areas.setEditMode()
+        cur_areas.primeInsert()
+        cur_modulos.setModeAccess(cur_modulos.Insert)
+        cur_modulos.refreshDelayed()
+        self.assertTrue(cur_modulos.fieldDisabled("idarea"))
 
 
 if __name__ == "__main__":

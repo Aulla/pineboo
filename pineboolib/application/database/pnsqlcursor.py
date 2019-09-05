@@ -1930,19 +1930,16 @@ class PNSqlCursor(QtCore.QObject):
         # if value is None:
         #     return False
 
-        i = 0
-
         if not self.d.buffer_:
             raise Exception("Buffer not set")
-        while i <= self.d._model.rowCount():
+
+        for i in range(self.d._model.rowCount()):
             pk_value = self.d.buffer_.pK()
             if pk_value is None:
                 raise ValueError("pk_value is empty!")
 
             if self.d._model.value(i, pk_value) == value:
-                return self.move(i)
-
-            i = i + 1
+                return self.move(i) if self.at() != i else True
 
         return False
 
@@ -2566,17 +2563,13 @@ class PNSqlCursor(QtCore.QObject):
                     return "%s AND %s" % (bFilter, f)
 
     @pyqtSlot()
-    def setFilter(self, _filter: str) -> None:
+    def setFilter(self, _filter: str = "") -> None:
         """
         Specify the cursor filter.
 
         @param _filter. Text string with the filter to apply.
         """
 
-        _filter_none: Optional[str] = _filter
-        if _filter_none is None:
-            logger.warning("setFilter: None is not allowed, use empty string", stack_info=True)
-            _filter = ""
         # self.d.filter_ = None
 
         finalFilter = _filter
@@ -2668,15 +2661,8 @@ class PNSqlCursor(QtCore.QObject):
         if not self.d.metadata_ or not self.d.buffer_:
             return
 
-        from PyQt5.QtWidgets import QMessageBox, QApplication
-
         if not self.isValid() or self.size() <= 0:
-            QMessageBox.warning(
-                QApplication.focusWidget(),
-                self.tr("Aviso"),
-                self.tr("No hay ningún registro seleccionado"),
-                QMessageBox.Ok,
-            )
+            self.msgBoxWarning(self.tr("No hay ningún registro seleccionado"))
             return
 
         field_list = self.d.metadata_.fieldList()
@@ -3150,7 +3136,7 @@ class PNSqlCursor(QtCore.QObject):
 
     @pyqtSlot()
     @decorators.BetaImplementation
-    def rollbackOpened(self, count: int = -1, msg: str = None) -> None:
+    def rollbackOpened(self, count: int = -1, msg: str = "") -> None:
         """
         Undo transactions opened by this cursor.
 
@@ -3160,7 +3146,7 @@ class PNSqlCursor(QtCore.QObject):
 
         ct: int = len(self.d.transactionsOpened_) if count < 0 else count
 
-        if ct > 0 and msg:
+        if ct > 0 and msg != "":
             t: str = self.d.metadata_.name() if self.d.metadata_ else self.curName()
             m = "%sSqLCursor::rollbackOpened: %s %s" % (msg, count, t)
             self.d.msgBoxWarning(m, False)
@@ -3943,7 +3929,5 @@ class PNCursorPrivate(QtCore.QObject):
         @param msg.Error message.
         @param throwException. No used.
         """
-        logger.warning(msg)
-        if project._DGI and project.DGI.localDesktop():
-            if not throwException:
-                QMessageBox.warning(QApplication.activeWindow(), "Pineboo", msg)
+
+        project.message_manager().send("msgBoxWarning", None, [msg])
