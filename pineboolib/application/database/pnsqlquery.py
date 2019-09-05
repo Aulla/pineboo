@@ -97,7 +97,7 @@ class PNSqlQuery(object):
     invalidTablesList = False
     _is_active: bool
     _fieldNameToPosDict: Optional[Dict[str, int]]
-    _sql_inspector: Optional[sql_tools.SqlInspector]
+    _sql_inspector: sql_tools.SqlInspector
     _row: List[Any]
     _datos: List[Any]
     _posicion: int
@@ -110,7 +110,6 @@ class PNSqlQuery(object):
 
         if project.conn is None:
             raise Exception("Project is not connected yet")
-        self._sql_inspector = None
         self._fieldNameToPosDict = None
         self.d = PNSqlQueryPrivate(cx)
         self._sql_inspector = sql_tools.SqlInspector()
