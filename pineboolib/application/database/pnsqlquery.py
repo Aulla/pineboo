@@ -4,7 +4,7 @@ Module for PNSqlQuery class.
 """
 
 from pineboolib.core.utils import logging
-from pineboolib.core import decorators
+
 from pineboolib.application.utils import sql_tools
 from pineboolib.application import project
 
@@ -33,12 +33,12 @@ class PNSqlQueryPrivate(object):
     """
     Parte FROM de la consulta
     """
-    from_: str
+    from_: Optional[str]
 
     """
     Parte WHERE de la consulta
     """
-    where_: str
+    where_: Optional[str]
 
     """
     Parte ORDER BY de la consulta
@@ -63,15 +63,16 @@ class PNSqlQueryPrivate(object):
     """
     Lista de nombres de los campos
     """
-    fieldList_: List[str]
+    _field_list: List[str]
 
     """
     Lista de nombres de las tablas que entran a formar
     parte en la consulta
     """
-    tablesList_: List[str]
+    _tables_list: List[str]
 
     _last_query: Union[bool, str]
+    _forward_only: bool
 
     def __init__(self, name: Optional[str] = None) -> None:
         """Create a new instance of PNSqlQueryPrivate."""
@@ -80,9 +81,13 @@ class PNSqlQueryPrivate(object):
             self.name_ = name
         self.parameterDict_ = {}
         self.groupDict_ = {}
+        self._tables_list = []
+        self._field_list = []
         self.orderBy_ = None
-        self.where_ = ""
+        self.where_ = None
+        self.from_ = None
         self._last_query = False
+        self._forward_only = False
 
 
 class PNSqlQuery(object):
@@ -94,7 +99,7 @@ class PNSqlQuery(object):
     """
 
     countRefQuery: int = 0
-    invalidTablesList = False
+    _invalid_tables_list = False
     _is_active: bool
     _fieldNameToPosDict: Optional[Dict[str, int]]
     _sql_inspector: sql_tools.SqlInspector
@@ -112,7 +117,6 @@ class PNSqlQuery(object):
             raise Exception("Project is not connected yet")
         self._fieldNameToPosDict = None
         self.d = PNSqlQueryPrivate(cx)
-        self._sql_inspector = sql_tools.SqlInspector()
         if isinstance(connection_name, str):
             self.d.db_ = project.conn.useConn(connection_name)
         else:
@@ -121,8 +125,8 @@ class PNSqlQuery(object):
         self.countRefQuery = self.countRefQuery + 1
         self._row = []
         self._datos = []
-        self.invalidTablesList = False
-        self.d.fieldList_ = []
+        self._invalid_tables_list = False
+        self.d._field_list = []
         self._is_active = False
         self._cursor = None
 
@@ -141,6 +145,7 @@ class PNSqlQuery(object):
         try:
             if self._cursor is not None:
                 self._cursor.close()
+            del self._sql_inspector
         except Exception:
             pass
 
@@ -153,14 +158,8 @@ class PNSqlQuery(object):
         @return sql_inspector
         """
 
-        # if self._sql_inspector is None:
-        #    logger.warning("sql_inspector: Query has not executed yet")
-        #    sql = self.sql()
-        #    self._sql_inspector = sql_tools.SqlInspector(sql.lower())
-
-        if self._sql_inspector.sql() == "":
-            self._sql_inspector.set_sql(self.sql())
-            self._sql_inspector.resolve()
+        if not getattr(self, "_sql_inspector", None):
+            self._sql_inspector = sql_tools.SqlInspector()
 
         return self._sql_inspector
 
@@ -172,20 +171,20 @@ class PNSqlQuery(object):
         @param sql. query text.
         @return True or False return if the execution is successful.
         """
-
-        if self.invalidTablesList:
-            logger.error("exec_: invalid tables list found")
-            return False
-
         if not sql:
             sql = self.sql()
         if not sql:
             logger.warning("exec_: no sql provided and PNSqlQuery.sql() also returned empty")
             return False
 
+        self.sql_inspector.set_sql(sql)
+        self.sql_inspector.resolve()
+
+        if self._invalid_tables_list:
+            logger.error("exec_: invalid tables list found")
+            return False
+
         # self._sql_inspector = sql_tools.SqlInspector(sql.lower())
-        self._sql_inspector.set_sql(sql)
-        self._sql_inspector.resolve()
 
         sql = self.db().driver().fix_query(sql)
         if sql is None:
@@ -256,8 +255,26 @@ class PNSqlQuery(object):
 
         @return text string with the query SELECT.
         """
+        ret_: List[str]
 
-        return ",".join(self.d.fieldList_)
+        if self.d._field_list:
+            ret_ = self.d._field_list
+        else:
+            field_names = self.sql_inspector.field_list()
+            size_dict: int = len(field_names.keys())
+            list_: List[str] = []
+            if size_dict > 0:
+                i = -1
+                while len(list_) != size_dict:
+                    i += 1
+                    for k in field_names.keys():
+                        if int(field_names[k]) == i:
+                            list_.append(k)
+                            break
+
+            ret_ = list_
+
+        return ",".join(ret_)
 
     def from_(self) -> str:
         """
@@ -266,7 +283,7 @@ class PNSqlQuery(object):
         @return text string with the query FROM.
         """
 
-        return self.d.from_
+        return self.d.from_ if self.d.from_ else self.sql_inspector.get_from()
 
     def where(self) -> str:
         """
@@ -275,7 +292,7 @@ class PNSqlQuery(object):
         @return text string with the query WHERE.
         """
 
-        return self.d.where_
+        return self.d.where_ if self.d.where_ else self.sql_inspector.get_where()
 
     def orderBy(self) -> Optional[str]:
         """
@@ -284,7 +301,7 @@ class PNSqlQuery(object):
         @return text string with the query ORDERBY.
         """
 
-        return self.d.orderBy_
+        return self.d.orderBy_ if self.d.orderBy_ else self.sql_inspector.get_order_by()
 
     def setSelect(self, select: Union[str, List, "Array"], sep: str = ",") -> None:
         """
@@ -297,7 +314,6 @@ class PNSqlQuery(object):
             indicated in the parameter 'sep'
         @param sep String used as a separator in the field list. Default the comma is used.
         """
-
         list_fields = []
 
         if isinstance(select, str):
@@ -324,41 +340,40 @@ class PNSqlQuery(object):
 
         # self.d.select_ = s.strip_whitespace()
         # self.d.select_ = self.d.select_.simplifyWhiteSpace()
+        self.d._field_list.clear()
 
         if not list_fields and isinstance(select, str) and not "*" == select:
-            self.d.fieldList_.clear()
-            self.d.fieldList_.append(select)
-            return
+            self.d._field_list.append(select)
+        else:
 
-        # fieldListAux = s.split(sep)
-        # for f in s:
-        #    f = str(f).strip()
+            # fieldListAux = s.split(sep)
+            # for f in s:
+            #    f = str(f).strip()
 
-        table: Optional[str]
-        field: Optional[str]
-        self.d.fieldList_.clear()
+            table: Optional[str]
+            field: Optional[str]
 
-        for f in list_fields:
-            table = field = None
-            try:
-                if f.startswith(" "):
-                    f = f[1:]
-                table = f[: f.index(".")]
-                field = f[f.index(".") + 1 :]
-            except Exception:
-                pass
+            for f in list_fields:
+                table = field = None
+                try:
+                    if f.startswith(" "):
+                        f = f[1:]
+                    table = f[: f.index(".")]
+                    field = f[f.index(".") + 1 :]
+                except Exception:
+                    pass
 
-            if field == "*" and not table:
-                mtd = self.db().manager().metadata(table, True)
-                if mtd is not None:
-                    self.d.fieldList_ = mtd.fieldNames()
-                    if not mtd.inCache():
-                        del mtd
+                if field == "*" and not table:
+                    mtd = self.db().manager().metadata(table, True)
+                    if mtd is not None:
+                        self.d._field_list = mtd.fieldNames()
+                        if not mtd.inCache():
+                            del mtd
 
-            else:
-                self.d.fieldList_.append(f)
+                else:
+                    self.d._field_list.append(f)
 
-            # self.d.select_ = ",".join(self.d.fieldList_)
+                # self.d.select_ = ",".join(self.d._field_list)
 
     def setFrom(self, f: str) -> None:
         """
@@ -406,11 +421,11 @@ class PNSqlQuery(object):
 
         res = None
 
-        if not self.d.fieldList_:
+        if not self.d._field_list:
             logger.warning("sql(): No select yet. Returning empty")
             return ""
 
-        select = ",".join(self.d.fieldList_)
+        select = ",".join(self.d._field_list)
 
         if not self.d.from_:
             res = "SELECT %s" % select
@@ -479,7 +494,7 @@ class PNSqlQuery(object):
 
         @return List of text strings with the names of the fields in the query.
         """
-        return self.sql_inspector.field_names()
+        return self.d._field_list if self.d._field_list else self.sql_inspector.field_names()
 
     def setGroupDict(self, gd: Dict[int, Any]) -> None:
         """
@@ -550,19 +565,19 @@ class PNSqlQuery(object):
 
         logger.warning("DEBUG : Sentencia SQL")
         logger.warning("%s", self.sql())
-        if not self.d.fieldList_:
+        if not self.d._field_list:
             logger.warning("DEBUG ERROR : No hay campos en la consulta")
             return
 
         logger.warning("DEBUG: Campos de la consulta : ")
-        for f in self.d.fieldList_:
+        for f in self.d._field_list:
             logger.warning("**%s", f)
 
         logger.warning("DEBUG : Contenido de la consulta : ")
 
         linea = ""
 
-        for it in self.d.fieldList_:
+        for it in self.d._field_list:
             linea += "__%s" % self.value(it)
 
         logger.warning(linea)
@@ -633,12 +648,16 @@ class PNSqlQuery(object):
         @param p Position of the field in the query, start at zero and left to right.
         @return Name of the corresponding field. If the field does not exist, it returns None.
         """
+        if self.sql_inspector.sql() == "":
+            self.sql_inspector.set_sql(self.sql())
+            self.sql_inspector.resolve()
+
         return self.sql_inspector.posToFieldName(p)
-        # if p < 0 or p >= len(self.d.fieldList_):
+        # if p < 0 or p >= len(self.d._field_list):
         #    return None
         # ret_ = None
         # try:
-        #    ret_ = self.d.fieldList_[p]
+        #    ret_ = self.d._field_list[p]
         # except Exception:
         #    pass
 
@@ -651,15 +670,18 @@ class PNSqlQuery(object):
         @param n Field Name.
         @return Position of the field in the query. If the field does not exist, return -1.
         """
+        if self.sql_inspector.sql() == "":
+            self.sql_inspector.set_sql(self.sql())
+            self.sql_inspector.resolve()
 
         return self.sql_inspector.fieldNameToPos(name.lower())
         # i = 0
-        # for field in self.d.fieldList_:
+        # for field in self.d._field_list:
         #    if field.lower() == n.lower():
         #        return i
         #    i = i + 1
-        # if n in self.d.fieldList_:
-        #    return self.d.fieldList_.index(n)
+        # if n in self.d._field_list:
+        #    return self.d._field_list.index(n)
         # else:
         #    return False
 
@@ -670,7 +692,7 @@ class PNSqlQuery(object):
         @return List of names of the tables that become part of the query.
         """
 
-        return self.sql_inspector.table_names()
+        return self.d._tables_list if self.d._tables_list else self.sql_inspector.table_names()
 
     def setTablesList(self, tl: Union[str, List]) -> None:
         """
@@ -678,7 +700,7 @@ class PNSqlQuery(object):
 
         @param tl Text list (or a list) with the names of the tables separated by commas, e.g. "table1, table2, table3"
         """
-        l_ = []
+        self.d._tables_list = []
         if isinstance(tl, list):
             table_list = ",".join(tl)
         else:
@@ -687,12 +709,10 @@ class PNSqlQuery(object):
         table_list = table_list.replace(" ", "")
         for tabla in table_list.split(","):
             if not self.db().manager().existsTable(tabla) and len(table_list.split(",")) >= 1:
-                self.invalidTablesList = True
+                self._invalid_tables_list = True
                 logger.warning("setTablesList: table not found %r. Query will not execute.", tabla)
 
-            l_.append(tabla)
-
-        self._sql_inspector.set_table_names(l_)
+            self.d._tables_list.append(tabla)
 
     def setValueParam(self, name: str, v: Any) -> None:
         """
@@ -754,7 +774,7 @@ class PNSqlQuery(object):
         @return True or False.
         """
 
-        return False if self.invalidTablesList else True
+        return False if self._invalid_tables_list else True
 
     def isActive(self) -> bool:
         """
@@ -790,45 +810,23 @@ class PNSqlQuery(object):
         """
         return len(self._datos)
 
-    @decorators.NotImplementedWarn
-    def lastError(self):
-        """Not Implemented."""
-        pass
+    def lastError(self) -> str:
+        """Return last error if exists , empty elsewhere."""
 
-    @decorators.NotImplementedWarn
-    def isSelect(self):
-        """Not Implemented."""
-        pass
+        return self.db().lastError()
 
-    @decorators.NotImplementedWarn
-    def QSqlQuery_size(self):
-        """Not Implemented."""
-        pass
+    def driver(self) -> Any:
+        """Return sql driver."""
 
-    @decorators.NotImplementedWarn
-    def driver(self):
-        """Not Implemented."""
-        pass
+        return self.db().driver()
 
-    @decorators.NotImplementedWarn
-    def result(self):
-        """Not Implemented."""
-        pass
+    def isForwardOnly(self) -> bool:
+        """Return if is forward only enabled."""
+        return self._forward_only
 
-    @decorators.NotImplementedWarn
-    def isForwardOnly(self):
-        """Not Implemented."""
-        pass
-
-    def setForwardOnly(self, forward) -> None:
-        """Deprecated."""
-        # No sirve para nada , por ahora
-        pass
-
-    @decorators.NotImplementedWarn
-    def QSqlQuery_value(self, i):
-        """Not Implemented."""
-        pass
+    def setForwardOnly(self, forward: bool) -> None:
+        """Set forward only option value."""
+        self._forward_only = forward
 
     def seek(self, i: int, relative=False) -> bool:
         """
@@ -919,33 +917,3 @@ class PNSqlQuery(object):
             return True
 
         return False
-
-    @decorators.NotImplementedWarn
-    def prepare(self, query):
-        """Not Implemented."""
-        pass
-
-    @decorators.NotImplementedWarn
-    def bindValue(self, *args):
-        """Not Implemented."""
-        pass
-
-    @decorators.NotImplementedWarn
-    def addBindValue(self, *args):
-        """Not Implemented."""
-        pass
-
-    @decorators.NotImplementedWarn
-    def boundValue(self, *args):
-        """Not Implemented."""
-        pass
-
-    @decorators.NotImplementedWarn
-    def boundValues(self):
-        """Not Implemented."""
-        pass
-
-    @decorators.NotImplementedWarn
-    def executedQuery(self):
-        """Not Implemented."""
-        pass

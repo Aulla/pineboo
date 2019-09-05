@@ -18,12 +18,21 @@ class SqlInspector(object):
     _sql_list: List[str]
     _sql: str
     _invalid_tables: List[str]
+    _mtd_fields: Dict[int, "IFieldMetaData"]
+    _field_list: Dict[str, int]
+    _table_names: List[str]
+    _alias: Dict[str, str]
+    _posible_float: bool
+    _list_sql: List[str]
 
     def __init__(self) -> None:
         """
         Initialize the class.
         """
         self._sql = ""
+        self._list_sql = []
+        self._field_list = {}
+        self._table_names = []
         # self.set_sql(sql_text)
         # self.resolve()
 
@@ -33,10 +42,11 @@ class SqlInspector(object):
     def resolve(self) -> None:
         """Resolve query."""
         self._invalid_tables = []
-        self._mtd_fields: Dict[int, "IFieldMetaData"] = {}
-        self._field_names: Dict[str, int] = {}
-        self._table_names: List[str] = []
-        self._alias: Dict[str, str] = {}
+        self._mtd_fields = {}
+        self._field_list = {}
+        self._table_names = []
+        self._alias = {}
+        self._list_sql = []
         self._posible_float = False
         if self._sql.startswith("show"):
             return
@@ -51,6 +61,43 @@ class SqlInspector(object):
         """
 
         return self._mtd_fields
+
+    def get_from(self) -> str:
+        """Return from clausule."""
+        ret_ = ""
+        if "from" in self._list_sql:
+            index_from = self._list_sql.index("from")
+            if "where" in self._list_sql:
+                index_where = self._list_sql.index("where")
+                ret_ = " ".join(self._list_sql[index_from + 1 : index_where])
+            else:
+                ret_ = " ".join(self._list_sql[index_from + 1 :])
+
+        return ret_
+
+    def get_where(self) -> str:
+        """Return where clausule."""
+
+        ret_ = ""
+        if "where" in self._list_sql:
+            index_where = self._list_sql.index("where")
+            if "group" in self._list_sql:
+                ret_ = " ".join(self._list_sql[index_where + 1 : self._list_sql.index("group")])
+            elif "order" in self._list_sql:
+                ret_ = " ".join(self._list_sql[index_where + 1 : self._list_sql.index("order")])
+            else:
+                ret_ = " ".join(self._list_sql[index_where + 1 :])
+
+        return ret_
+
+    def get_order_by(self) -> str:
+        """Return order by clausule."""
+        ret_ = ""
+        if "order" in self._list_sql:
+            index_order = self._list_sql.index("order")
+            ret_ = " ".join(self._list_sql[index_order + 2 :])
+
+        return ret_
 
     def table_names(self) -> List[str]:
         """
@@ -74,6 +121,7 @@ class SqlInspector(object):
         """
         Return sql string.
         """
+
         return self._sql
 
     def set_sql(self, sql: str) -> None:
@@ -92,7 +140,16 @@ class SqlInspector(object):
         @return fields list.
         """
 
-        return list(self._field_names.keys())
+        return list(self._field_list.keys())
+
+    def field_list(self) -> Dict[str, int]:
+        """
+        Return a Dict with name and position.
+
+        @return fields list.
+        """
+
+        return self._field_list
 
     def fieldNameToPos(self, name: str) -> int:
         """
@@ -102,8 +159,8 @@ class SqlInspector(object):
         @return index position.
         """
 
-        if name in self._field_names.keys():
-            return self._field_names[name]
+        if name in self._field_list.keys():
+            return self._field_list[name]
         else:
             if name.find(".") > -1:
                 table_name = name[0 : name.find(".")]
@@ -111,18 +168,28 @@ class SqlInspector(object):
                 if table_name in self._alias.keys():
                     table_name = self._alias[table_name]
 
-                field_name = "%s.%s" % (table_name, name)
-                if field_name in self._field_names.keys():
-                    return self._field_names[field_name]
+                    field_name = "%s.%s" % (table_name, field_name)
+                    if field_name in self._field_list.keys():
+                        return self._field_list[field_name]
+                else:
+                    # probando a cambiar tabla por alias
+                    for a in self._alias.keys():
+                        if self._alias[a] == table_name:
+                            field_name = "%s.%s" % (a, field_name)
+                            if field_name in self._field_list.keys():
+                                return self._field_list[field_name]
 
             else:
                 for table_name in self.table_names():
-                    if table_name in self._alias.keys():
-                        table_name = self._alias[table_name]
-
                     field_name = "%s.%s" % (table_name, name)
-                    if field_name in self._field_names.keys():
-                        return self._field_names[field_name]
+                    if field_name in self._field_list.keys():
+                        return self._field_list[field_name]
+
+                    for a in self._alias.keys():
+                        if self._alias[a] == table_name:
+                            field_name = "%s.%s" % (a, name)
+                            if field_name in self._field_list.keys():
+                                return self._field_list[field_name]
 
         raise Exception("No se encuentra el campo %s el la query:\n%s" % (name, self._sql))
 
@@ -133,8 +200,8 @@ class SqlInspector(object):
         @param name. field name.
         @return field name.
         """
-        for k in self._field_names.keys():
-            if int(self._field_names[k]) == pos:
+        for k in self._field_list.keys():
+            if int(self._field_list[k]) == pos:
                 return k
         raise Exception("fieldName not found!")
 
@@ -144,6 +211,7 @@ class SqlInspector(object):
         """
 
         list_sql = self._sql.split(" ")
+        self._list_sql = list_sql
 
         if list_sql[0] == "select":
             if "from" not in list_sql:
@@ -172,8 +240,7 @@ class SqlInspector(object):
                 tl = list_sql[index_from + 1 : index_where]
             else:
                 tl = list_sql[index_from + 1 :]
-
-            tablas = []
+            tablas: List[str] = []
             self._alias = {}
             jump = 0
             # next_is_alias = None
@@ -211,16 +278,18 @@ class SqlInspector(object):
                 # jump = 3
                 #    prev_ = t
                 #    continue
-                # elif t == "as":
-                #    next_is_alias = True
-                #    continue
+                elif t == "as":
+                    #    next_is_alias = True
+                    last_was_table = True
+                    continue
                 else:
                     if last_was_table:
                         self._alias[t] = prev_
                         last_was_table = False
                     else:
                         if t != "":
-                            tablas.append(t)
+                            if t not in tablas:
+                                tablas.append(t)
                             last_was_table = True
                     prev_ = t
 
@@ -233,16 +302,16 @@ class SqlInspector(object):
             fl_finish = []
             for f in fl:
                 field_name = f
-                if field_name.find(".") > -1:
-                    a_ = field_name[0 : field_name.find(".")]
-                    f_ = field_name[field_name.find(".") + 1 :]
-                    if a_.find("(") > -1:
-                        a = a_[a_.find("(") + 1 :]
-                    else:
-                        a = a_
+                # if field_name.find(".") > -1:
+                #    a_ = field_name[0 : field_name.find(".")]
+                # f_ = field_name[field_name.find(".") + 1 :]
+                #    if a_.find("(") > -1:
+                #        a = a_[a_.find("(") + 1 :]
+                #    else:
+                #        a = a_
 
-                    if a in self._alias.keys():
-                        field_name = "%s.%s" % (a_.replace(a, self._alias[a]), f_)
+                # if a in self._alias.keys():
+                #    field_name = "%s.%s" % (a_.replace(a, self._alias[a]), f_)
 
                 fl_finish.append(field_name)
 
@@ -262,7 +331,7 @@ class SqlInspector(object):
 
         type_ = "double"
         if pos not in self._mtd_fields.keys():
-            if pos not in self._field_names.values():
+            if pos not in self._field_list.values():
                 logger.warning(
                     "SQL_TOOLS : resolve_empty_value : No se encuentra la posición %s", pos
                 )
@@ -304,7 +373,7 @@ class SqlInspector(object):
 
         type_ = "double"
         if pos not in self._mtd_fields.keys():
-            if pos not in self._field_names.values():
+            if pos not in self._field_list.values():
                 logger.warning("SQL_TOOLS : resolve_value : No se encuentra la posición %s", pos)
                 return None
         else:
@@ -369,10 +438,10 @@ class SqlInspector(object):
         self._mtd_fields = {}
         self._invalid_tables = []
         self._table_names = list(tables_list)
-        # self._field_names = {k: n for n, k in enumerate(fields_list)}
+        # self._field_list = {k: n for n, k in enumerate(fields_list)}
 
         for number_, field_name_org in enumerate(list(fields_list)):
-            self._field_names[field_name_org] = number_
+            self._field_list[field_name_org] = number_
             field_name = field_name_org
             for table_name in list(tables_list):
                 mtd_table = project.conn.manager().metadata(table_name)

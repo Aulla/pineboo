@@ -68,8 +68,8 @@ class TestPNCursorTableModel(unittest.TestCase):
 
         cursor = pnsqlcursor.PNSqlCursor("fltest")
         cursor.setSort("string_field DESC")
-        cursor.select()
 
+        cursor.select()
         model = cursor.model()
 
         self.assertEqual(model.data(model.index(0, 1)), "zzz")

@@ -391,7 +391,6 @@ class FLManager(QtCore.QObject, IManager):
 
             if q and not quick:
                 qry = self.query(q)
-
                 if qry:
                     fL = qry.fieldList()
                     table = None

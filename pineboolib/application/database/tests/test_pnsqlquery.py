@@ -64,3 +64,30 @@ class TestPNSqlQuery(unittest.TestCase):
         self.assertFalse(qry.isValid())
         self.assertTrue(qry.isNull("field_01"))
         self.assertEqual(qry.value("field_01"), None)
+
+    def test_only_inspector(self) -> None:
+        """Test basic_3."""
+
+        qry = pnsqlquery.PNSqlQuery("fake")
+        qry.exec_(
+            "SELECT SUM(munitos), dia, noche FROM dias WHERE astro = 'sol' GROUP BY dias.minutos ORDER BY dia ASC, noche DESC"
+        )
+        self.assertEqual(qry.tablesList(), ["dias"])
+        self.assertEqual(qry.from_(), "dias")
+        self.assertEqual(qry.fieldList(), ["sum(munitos)", "dia", "noche"])
+        self.assertEqual(qry.select(), "sum(munitos),dia,noche")
+        self.assertEqual(qry.orderBy(), "dia asc, noche desc")
+        self.assertEqual(qry.where(), "astro = 'sol'")
+
+        qry_2 = pnsqlquery.PNSqlQuery("fake")
+        qry_2.exec_(
+            "SELECT SUM(munitos), dia, noche, p.nombre FROM dias INNER JOIN planetas AS "
+            + "p ON p.id = dias.id WHERE astro = 'sol' GROUP BY dias.minutos ORDER BY dia ASC, noche DESC"
+        )
+        self.assertEqual(qry_2.tablesList(), ["dias", "planetas"])
+        self.assertEqual(qry_2.fieldNameToPos("planetas.nombre"), 3)
+        self.assertEqual(qry_2.fieldList(), ["sum(munitos)", "dia", "noche", "p.nombre"])
+        self.assertEqual(qry_2.fieldNameToPos("nombre"), 3)
+        self.assertEqual(qry_2.fieldNameToPos("p.nombre"), 3)
+        self.assertEqual(qry_2.posToFieldName(3), "p.nombre")
+        self.assertEqual(qry_2.posToFieldName(2), "noche")
