@@ -113,6 +113,7 @@ class PNSqlQuery(object):
         self._sql_inspector = None
         self._fieldNameToPosDict = None
         self.d = PNSqlQueryPrivate(cx)
+        self._sql_inspector = sql_tools.SqlInspector()
         if isinstance(connection_name, str):
             self.d.db_ = project.conn.useConn(connection_name)
         else:
@@ -153,12 +154,12 @@ class PNSqlQuery(object):
         @return sql_inspector
         """
 
-        if self._sql_inspector is None:
-            logger.warning("sql_inspector: Query has not executed yet", stack_info=True)
-            sql = self.sql()
-            self._sql_inspector = sql_tools.SqlInspector(sql.lower())
+        # if self._sql_inspector is None:
+        #    logger.warning("sql_inspector: Query has not executed yet")
+        #    sql = self.sql()
+        #    self._sql_inspector = sql_tools.SqlInspector(sql.lower())
 
-        if not self._sql_inspector.sql():
+        if self._sql_inspector.sql() == "":
             self._sql_inspector.set_sql(self.sql())
             self._sql_inspector.resolve()
 
@@ -184,8 +185,8 @@ class PNSqlQuery(object):
             return False
 
         # self._sql_inspector = sql_tools.SqlInspector(sql.lower())
-        self.sql_inspector.set_sql(sql)
-        self.sql_inspector.resolve()
+        self._sql_inspector.set_sql(sql)
+        self._sql_inspector.resolve()
 
         sql = self.db().driver().fix_query(sql)
         if sql is None:
@@ -220,7 +221,7 @@ class PNSqlQuery(object):
         """
 
         if p:
-            self.d.parameterDict_[p.name()] = p
+            self.d.parameterDict_[p.name()] = p.value()
 
     def addGroup(self, g: Optional["PNGroupByQuery"]) -> None:
         """
@@ -438,7 +439,7 @@ class PNSqlQuery(object):
 
         if self.d.parameterDict_:
             for pD in self.d.parameterDict_.keys():
-                v = self.d.parameterDict_[pD].value()
+                v = self.d.parameterDict_[pD]
 
                 if v is None:
                     if not project._DGI:
@@ -692,7 +693,7 @@ class PNSqlQuery(object):
 
             l_.append(tabla)
 
-        self.sql_inspector.set_table_names(l_)
+        self._sql_inspector.set_table_names(l_)
 
     def setValueParam(self, name: str, v: Any) -> None:
         """
@@ -712,7 +713,7 @@ class PNSqlQuery(object):
         """
 
         if name in self.d.parameterDict_.keys():
-            return self.d.parameterDict_[name].value()
+            return self.d.parameterDict_[name]
         else:
             return None
 

@@ -19,21 +19,16 @@ class SqlInspector(object):
     _sql: str
     _invalid_tables: List[str]
 
-    def __init__(self, sql_text: str) -> None:
+    def __init__(self) -> None:
         """
         Initialize the class.
-
-        @param sql_text . query string.
         """
+        self._sql = ""
+        # self.set_sql(sql_text)
+        # self.resolve()
 
-        self.set_sql(sql_text)
-        if sql_text.startswith("show"):
-            return
-        else:
-            self.resolve()
-
-            # self.table_names()
-            # self.field_names()
+        # self.table_names()
+        # self.field_names()
 
     def resolve(self) -> None:
         """Resolve query."""
@@ -43,7 +38,10 @@ class SqlInspector(object):
         self._table_names: List[str] = []
         self._alias: Dict[str, str] = {}
         self._posible_float = False
-        self._resolve_fields(self._sql)
+        if self._sql.startswith("show"):
+            return
+
+        self._resolve_fields()
 
     def mtd_fields(self) -> Dict[int, "IFieldMetaData"]:
         """
@@ -140,14 +138,12 @@ class SqlInspector(object):
                 return k
         raise Exception("fieldName not found!")
 
-    def _resolve_fields(self, sql: str) -> None:
+    def _resolve_fields(self) -> None:
         """
         Break the query into the different data.
-
-        @param sql. Quey string.
         """
 
-        list_sql = sql.split(" ")
+        list_sql = self._sql.split(" ")
 
         if list_sql[0] == "select":
             if "from" not in list_sql:
