@@ -4,7 +4,7 @@ Collect information from the query, such as field tables, lines, etc ...
 
 from pineboolib.core.utils import logging
 import datetime
-from typing import Dict, Tuple, Union, Any, List, Optional, TYPE_CHECKING
+from typing import Dict, Tuple, Any, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401
@@ -26,23 +26,24 @@ class SqlInspector(object):
         @param sql_text . query string.
         """
 
+        self.set_sql(sql_text)
+        if sql_text.startswith("show"):
+            return
+        else:
+            self.resolve()
+
+            # self.table_names()
+            # self.field_names()
+
+    def resolve(self) -> None:
+        """Resolve query."""
         self._invalid_tables = []
         self._mtd_fields: Dict[int, "IFieldMetaData"] = {}
         self._field_names: Dict[str, int] = {}
         self._table_names: List[str] = []
         self._alias: Dict[str, str] = {}
         self._posible_float = False
-        sql_text = sql_text.replace("\n", " ")
-        sql_text = sql_text.replace("\t", " ")
-        sql_text = sql_text.strip()
-        self._sql = sql_text
-        if sql_text.startswith("show"):
-            return
-        else:
-            self._resolve_fields(sql_text)
-
-            # self.table_names()
-            # self.field_names()
+        self._resolve_fields(self._sql)
 
     def mtd_fields(self) -> Dict[int, "IFieldMetaData"]:
         """
@@ -61,6 +62,30 @@ class SqlInspector(object):
         """
 
         return self._table_names
+
+    def set_table_names(self, l_: List[str]) -> None:
+        """
+        Set a list with the tables of the query.
+
+        @return tables list.
+        """
+
+        self._table_names = l_
+
+    def sql(self) -> str:
+        """
+        Return sql string.
+        """
+        return self._sql
+
+    def set_sql(self, sql: str) -> None:
+        """Set sql query."""
+        sql = sql.lower()
+        sql = sql.replace("\n", " ")
+        sql = sql.replace("\t", " ")
+        sql = sql.strip()
+
+        self._sql = sql
 
     def field_names(self) -> List[str]:  # FIXME: This does NOT preserve order!
         """
@@ -93,7 +118,6 @@ class SqlInspector(object):
                     return self._field_names[field_name]
 
             else:
-                print("*", self.table_names(), self._field_names)
                 for table_name in self.table_names():
                     if table_name in self._alias.keys():
                         table_name = self._alias[table_name]
@@ -270,9 +294,7 @@ class SqlInspector(object):
 
         return ret_
 
-    def resolve_value(
-        self, pos: int, value: Union[bytes, float, str, datetime.time], raw: bool = False
-    ) -> Any:
+    def resolve_value(self, pos: int, value: Any, raw: bool = False) -> Any:
         """
         Return a data type according to field type.
 

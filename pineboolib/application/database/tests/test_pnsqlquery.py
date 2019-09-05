@@ -25,6 +25,7 @@ class TestPNSqlQuery(unittest.TestCase):
         to_param.setValue(1)
         qry.addParameter(from_param)
         qry.addParameter(to_param)
+        self.assertEqual(qry.valueParam("to"), 1)
         self.assertEqual(
             qry.sql(),
             "SELECT id,string_field,date_field,time_field,double_field,bool_field,uint_field,bloqueo FROM fltest"
@@ -44,3 +45,22 @@ class TestPNSqlQuery(unittest.TestCase):
         qry.setName("fltest2_dos")
 
         self.assertEqual(qry.name(), "fltest2_dos")
+        self.assertEqual(len(qry.fieldMetaDataList()), 2)
+
+    def test_basic_2(self) -> None:
+        """Test basic_2."""
+
+        qry = pnsqlquery.PNSqlQuery("fake")
+        qry.setTablesList("fake_table")
+        qry.setSelect("field_01")
+        qry.setFrom("fake_table")
+        qry.setWhere("1=1")
+        qry.setOrderBy("field_01 ASC")
+        self.assertEqual(
+            qry.sql(), "SELECT field_01 FROM fake_table WHERE 1=1 ORDER BY field_01 ASC"
+        )
+        self.assertFalse(qry.exec_())
+        self.assertEqual(qry.fieldList(), ["field_01"])
+        self.assertFalse(qry.isValid())
+        self.assertTrue(qry.isNull("field_01"))
+        self.assertEqual(qry.value("field_01"), None)

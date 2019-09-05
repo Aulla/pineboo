@@ -7,10 +7,11 @@ from pineboolib.core.utils import logging
 from pineboolib.core import decorators
 from pineboolib.application.utils import sql_tools
 from pineboolib.application import project
-from pineboolib.interfaces.ifieldmetadata import IFieldMetaData
+
 from typing import Any, Union, List, Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401
     from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
     from pineboolib.interfaces.iapicursor import IApiCursor  # noqa: F401
     from pineboolib.application.types import Array  # noqa: F401
@@ -70,11 +71,6 @@ class PNSqlQueryPrivate(object):
     """
     tablesList_: List[str]
 
-    """
-    Lista de con los metadatos de los campos de la consulta
-    """
-    fieldMetaDataList_: Dict[str, IFieldMetaData]
-
     _last_query: Union[bool, str]
 
     def __init__(self, name: Optional[str] = None) -> None:
@@ -84,7 +80,6 @@ class PNSqlQueryPrivate(object):
             self.name_ = name
         self.parameterDict_ = {}
         self.groupDict_ = {}
-        self.fieldMetaDataList_ = {}
         self.orderBy_ = None
         self.where_ = ""
         self._last_query = False
@@ -162,6 +157,11 @@ class PNSqlQuery(object):
             logger.warning("sql_inspector: Query has not executed yet", stack_info=True)
             sql = self.sql()
             self._sql_inspector = sql_tools.SqlInspector(sql.lower())
+
+        if not self._sql_inspector.sql():
+            self._sql_inspector.set_sql(self.sql())
+            self._sql_inspector.resolve()
+
         return self._sql_inspector
 
     def exec_(self, sql: Optional[str] = None) -> bool:
@@ -183,7 +183,9 @@ class PNSqlQuery(object):
             logger.warning("exec_: no sql provided and PNSqlQuery.sql() also returned empty")
             return False
 
-        self._sql_inspector = sql_tools.SqlInspector(sql.lower())
+        # self._sql_inspector = sql_tools.SqlInspector(sql.lower())
+        self.sql_inspector.set_sql(sql)
+        self.sql_inspector.resolve()
 
         sql = self.db().driver().fix_query(sql)
         if sql is None:
@@ -477,11 +479,7 @@ class PNSqlQuery(object):
 
         @return List of text strings with the names of the fields in the query.
         """
-
-        if self.d.fieldList_:
-            return self.d.fieldList_
-        else:
-            return self.sql_inspector.field_names()
+        return self.sql_inspector.field_names()
 
     def setGroupDict(self, gd: Dict[int, Any]) -> None:
         """
@@ -584,6 +582,8 @@ class PNSqlQuery(object):
 
         """
 
+        ret = None
+
         if n is None:
             logger.trace("value::invalid use with n=None.", stack_info=True)
             return None
@@ -593,7 +593,8 @@ class PNSqlQuery(object):
         if isinstance(n, int):
             pos = n
 
-        ret = self._row[pos]
+        if self._row:
+            ret = self._row[pos]
 
         if ret in (None, "None"):
             ret = self.sql_inspector.resolve_empty_value(pos)
@@ -615,6 +616,8 @@ class PNSqlQuery(object):
 
         @param n Name of the query field
         """
+        if not self._row:
+            return True
 
         if isinstance(n, str):
             pos_ = self.fieldNameToPos(n)
@@ -667,10 +670,7 @@ class PNSqlQuery(object):
         @return List of names of the tables that become part of the query.
         """
 
-        if self.d.tablesList_:
-            return self.d.tablesList_
-        else:
-            return self.sql_inspector.table_names()
+        return self.sql_inspector.table_names()
 
     def setTablesList(self, tl: Union[str, List]) -> None:
         """
@@ -678,7 +678,7 @@ class PNSqlQuery(object):
 
         @param tl Text list (or a list) with the names of the tables separated by commas, e.g. "table1, table2, table3"
         """
-        self.d.tablesList_ = []
+        l_ = []
         if isinstance(tl, list):
             table_list = ",".join(tl)
         else:
@@ -690,7 +690,9 @@ class PNSqlQuery(object):
                 self.invalidTablesList = True
                 logger.warning("setTablesList: table not found %r. Query will not execute.", tabla)
 
-            self.d.tablesList_.append(tabla)
+            l_.append(tabla)
+
+        self.sql_inspector.set_table_names(l_)
 
     def setValueParam(self, name: str, v: Any) -> None:
         """
@@ -710,7 +712,7 @@ class PNSqlQuery(object):
         """
 
         if name in self.d.parameterDict_.keys():
-            return self.d.parameterDict_[name]
+            return self.d.parameterDict_[name].value()
         else:
             return None
 
@@ -722,31 +724,18 @@ class PNSqlQuery(object):
         """
         return len(self._datos)
 
-    def fieldMetaDataList(self) -> Any:
+    def fieldMetaDataList(self) -> List["IFieldMetaData"]:
         """
         To get the list of query field definitions.
 
         @return Object with the list of deficiencies in the query fields.
         """
+        list_: List["IFieldMetaData"] = []
+        dictado_ = self.sql_inspector.mtd_fields()
+        for k in dictado_.keys():
+            list_.append(dictado_[k])
 
-        if not self.d.fieldMetaDataList_:
-            self.d.fieldMetaDataList_ = {}
-        table = None
-        field = None
-        for f in self.d.fieldList_:
-            table = f[: f.index(".")]
-            field = f[f.index(".") + 1 :]
-            mtd = self.db().manager().metadata(table, True)
-            if not mtd:
-                continue
-            fd = mtd.field(field)
-            if fd:
-                self.d.fieldMetaDataList_[field.lower()] = fd
-
-            if not mtd.inCache():
-                del mtd
-
-        return self.d.fieldMetaDataList_
+        return list_
 
     countRefQuery = 0
 

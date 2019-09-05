@@ -31,7 +31,7 @@ class FLReportEngine(object):
         """FLReportEnginePrivate."""
 
         rows_: Any
-        qFieldMtdList_: Dict[str, Any]
+        qFieldMtdList_: List[Any]
         qFieldList_: List[str]
         qDoubleFieldList_: List[str]
         qGroupDict_: Dict[int, str]
@@ -41,7 +41,7 @@ class FLReportEngine(object):
         def __init__(self, q: "FLReportEngine") -> None:
             """Inicialize."""
             self.qry_ = None
-            self.qFieldMtdList_ = {}
+            self.qFieldMtdList_ = []
             self.qGroupDict_ = {}
             self.q_ = q
             self.template_ = ""
@@ -112,18 +112,20 @@ class FLReportEngine(object):
                 while i >= 0:
                     it = self.qFieldList_[i]
                     key = it[it.find(".") + 1 :].lower()
-                    if key in self.qFieldMtdList_.keys():
-                        fmtd = self.qFieldMtdList_[key]
-                        if fmtd.type() == "pixmap":
-                            self.qImgFields_.append(i)
-                        elif fmtd.type() == "double":
-                            self.qDoubleFieldList_.append(it)
+                    for f in self.qFieldMtdList_:
+                        if f.name() == key:
+                            fmtd = f
+                            if fmtd.type() == "pixmap":
+                                self.qImgFields_.append(i)
+                            elif fmtd.type() == "double":
+                                self.qDoubleFieldList_.append(it)
+                            break
                     i -= 1
             else:
                 self.qFieldList_.clear()
                 self.qDoubleFieldList_.clear()
                 self.qImgFields_.clear()
-                self.qFieldMtdList_ = {}
+                self.qFieldMtdList_ = []
                 self.qGroupDict_ = {}
 
     def rptXmlData(self) -> Any:
