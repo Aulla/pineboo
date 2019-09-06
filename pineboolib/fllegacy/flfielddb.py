@@ -58,6 +58,7 @@ class FLFieldDB(QtWidgets.QWidget):
     autoSelect: bool
 
     editor_: QtWidgets.QWidget  # Editor para el contenido del campo que representa el componente
+    editorImg_: "FLPixmapView"
     fieldName_: str  # Nombre del campo de la tabla al que esta asociado este componente
     tableName_: Optional[str]  # Nombre de la tabla fóranea
     actionName_: Optional[str]  # Nombre de la accion
@@ -82,7 +83,7 @@ class FLFieldDB(QtWidgets.QWidget):
     autoComFieldRelation_: Optional[str]
     accel_: Any
     keepDisabled_: bool
-    editorImg_: Optional["FLPixmapView"]
+
     pbAux_: Optional[QPushButton]
     pbAux2_: Optional[QPushButton]
     pbAux3_: Optional[QPushButton]
@@ -121,8 +122,8 @@ class FLFieldDB(QtWidgets.QWidget):
         super(FLFieldDB, self).__init__(parent)
         self._loaded = False
         self.DEBUG = False  # FIXME: debe recoger DEBUG de pineboolib.project
-        self.editor_ = QtWidgets.QWidget(parent)
-        self.editor_.hide()
+        # self.editor_ = QtWidgets.QWidget(parent)
+        # self.editor_.hide()
         self.cursor_ = None
         self.cursorBackup_ = None
         self.cursorInit_ = False
@@ -157,7 +158,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if self.maxPixImages_ in (None, ""):
             self.maxPixImages_ = 600
         self.maxPixImages_ = int(self.maxPixImages_)
-        self.editorImg_ = None
+        # self.editorImg_ = None
         self.topWidget_ = parent
 
         self.iconSize = project.DGI.iconSize()
@@ -1089,10 +1090,10 @@ class FLFieldDB(QtWidgets.QWidget):
         """
 
         self.showEditor_ = show
-        ed = QtWidgets.QWidget()
-        if self.editor_:
+        ed = None
+        if hasattr(self, "editor_"):
             ed = self.editor_
-        elif self.editorImg_:
+        elif hasattr(self, "editorImg_"):
             ed = self.editorImg_
 
         if ed:
@@ -1367,7 +1368,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.textChanged.connect(self.updateValue)
 
         elif type_ == "pixmap":
-            if not self.editorImg_:
+            if not hasattr(self, "editorImg_"):
 
                 self.editorImg_ = FLPixmapView(self)
                 self.editorImg_.setFocusPolicy(Qt.NoFocus)
@@ -1974,7 +1975,7 @@ class FLFieldDB(QtWidgets.QWidget):
         elif type_ == "pixmap":
             # if not self.cursor_.modeAccess() == FLSqlCursor.Browse:
             if not self.tableName():
-                if not self.editorImg_ and self.FLWidgetFieldDBLayout:
+                if not hasattr(self, "editorImg_") and self.FLWidgetFieldDBLayout:
                     self.FLWidgetFieldDBLayout.setDirection(QtWidgets.QBoxLayout.Down)
                     self.editorImg_ = FLPixmapView(self)
                     self.editorImg_.setFocusPolicy(Qt.NoFocus)
@@ -2267,7 +2268,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self.logger.exception("Error al desconectar señal")
             self.editor_.toggled.connect(self.updateValue)
 
-        if self.editor_:
+        if hasattr(self, "editor_"):
             self.editor_.setFocusPolicy(Qt.StrongFocus)
             self.setFocusProxy(self.editor_)
 
@@ -2278,7 +2279,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.editor_.setToolTip("Para buscar un valor en la tabla relacionada pulsar F2")
                 self.editor_.setWhatsThis("Para buscar un valor en la tabla relacionada pulsar F2")
 
-        elif self.editorImg_:
+        elif hasattr(self, "editorImg_"):
             self.editorImg_.setFocusPolicy(Qt.NoFocus)
             if hasPushButtonDB:
                 if self.pushButtonDB:
@@ -3245,7 +3246,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         # print("FLFieldDB: %r setEnabled: %r" % (self.fieldName_, enable))
 
-        if self.editor_:
+        if hasattr(self, "editor_"):
             if self.cursor_ is None:
                 self.default_style = self.editor_.styleSheet()
                 self.editor_.setDisabled(True)
