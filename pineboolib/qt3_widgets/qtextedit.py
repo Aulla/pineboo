@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets  # type: ignore
 from pineboolib.core import decorators
-from typing import Any, Optional
+from typing import Optional
 
 
 class QTextEdit(QtWidgets.QTextEdit):
@@ -56,11 +56,10 @@ class QTextEdit(QtWidgets.QTextEdit):
         """Return text in plain text format."""
         return super(QTextEdit, self).toPlainText()
 
-    @decorators.NotImplementedWarn
-    def setAutoFormatting(self, value: Any = QtWidgets.QTextEdit.AutoAll) -> None:
+    def setAutoFormatting(self, value: int = QtWidgets.QTextEdit.AutoAll) -> None:
         """Set auto formating mode."""
 
-        super(QTextEdit, self).setAutoFormatting(QtWidgets.QTextEdit.AutoAll)
+        super().setAutoFormatting(QtWidgets.QTextEdit.AutoAll)
 
     text = property(getText, setText)
     PlainText = property(getPlainText, setText)

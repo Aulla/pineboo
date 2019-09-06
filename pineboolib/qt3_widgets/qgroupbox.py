@@ -28,7 +28,7 @@ class QGroupBox(QtWidgets.QGroupBox):
         self.style_str = ""
         self._line_width = 0
         # self._do_style()
-        self.setFlat(True)
+        # self.setFlat(True)
         if not config.value("ebcomportamiento/spacerLegacy", False):
             self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 
@@ -36,24 +36,24 @@ class QGroupBox(QtWidgets.QGroupBox):
         """Set line width."""
 
         self._line_width = width
-        self._do_style()
+        # self._do_style()
 
     def setTitle(self, t: str) -> None:
         """Set title."""
 
         super().setTitle(t)
-        self._do_style()
+        # self._do_style()
 
-    def _do_style(self) -> None:
-        """Apply style."""
+    # def _do_style(self) -> None:
+    #    """Apply style."""
 
-        self.style_str = "QGroupBox { font-weight: bold; background-color: transparent;"
-        if self._line_width == 0 and not self.title():
-            self.style_str += " border: none;"
-        else:
-            self.style_str += " border-width: %spx transarent" % self._line_width
-        self.style_str += " }"
-        self.setStyleSheet(self.style_str)
+    #    self.style_str = "QGroupBox { font-weight: bold; background-color: transparent;"
+    #    if self._line_width == 0 and not self.title():
+    #        self.style_str += " border: none;"
+    #    else:
+    #        self.style_str += " border-width: %spx transarent" % self._line_width
+    #    self.style_str += " }"
+    #    self.setStyleSheet(self.style_str)
 
     def get_enabled(self) -> bool:
         """Return if enabled."""
