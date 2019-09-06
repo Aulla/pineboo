@@ -777,10 +777,10 @@ class PNConnection(QtCore.QObject, IConnection):
 
         return self.driver().queryUpdate(name, update, filter)
 
-    def execute_query(self, q) -> Any:
+    def execute_query(self, q, cursor: Any = None) -> Any:
         """Execute a query in a database cursor."""
 
-        return self.driver().execute_query(q)
+        return self.driver().execute_query(q, cursor)
 
     def alterTable(
         self, mtd_1: "PNTableMetaData", mtd_2: "PNTableMetaData", key: str, force: bool = False

@@ -21,6 +21,7 @@ from typing import Iterable, Optional, Union, List, Dict, Any, cast, TYPE_CHECKI
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
+    from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 
 logger = logging.getLogger(__name__)
@@ -1660,23 +1661,28 @@ class FLQPSQL(object):
         """Return if use a file like database."""
         return False
 
-    def execute_query(self, q: str) -> Any:
+    def execute_query(self, q: str, cursor: Optional["pnsqlcursor.PNSqlCursor"] = None) -> Any:
         """Excecute a query and return result."""
 
         if not self.isOpen():
             qWarning("PSQLDriver::execute_query. DB is closed")
             return False
         self.set_last_error_null()
-        cursor = self.conn_.cursor()
+
+        if cursor is None:
+            cursor = self.conn_.cursor()
+
         try:
             q = self.fix_query(q)
             cursor.execute(q)
         except Exception:
-            logger.warning("**", stack_info=True)
-            self.setLastError("No se puedo ejecutar la siguiente query %s" % q, q)
-            qWarning(
-                "PSQLDriver:: No se puedo ejecutar la siguiente query %s\n %s"
-                % (q, traceback.format_exc())
+            self.setLastError(
+                "%s::No se pudo ejecutar la query %s.\n%s" % (__name__, q, traceback.format_exc()),
+                q,
             )
+            # qWarning(
+            #    "PSQLDriver:: No se puedo ejecutar la siguiente query %s\n %s"
+            #    % (q, traceback.format_exc())
+            # )
 
         return cursor

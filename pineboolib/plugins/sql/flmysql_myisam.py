@@ -24,6 +24,7 @@ from typing import Any, Iterable, Optional, Union, List, Dict, cast, TYPE_CHECKI
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
+    from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -1524,23 +1525,27 @@ class FLMYSQL_MYISAM(object):
         """Return if this database is a file."""
         return False
 
-    def execute_query(self, q: str) -> Any:
+    def execute_query(self, q: str, cursor: Optional["pnsqlcursor.PNSqlCursor"] = None) -> Any:
         """Execute a SQL query."""
         if not self.isOpen():
             logger.warning("MySQLDriver::execute_query. DB is closed")
             return False
         self.set_last_error_null()
-        cursor = self.cursor()
+        if cursor is None:
+            cursor = self.cursor()
 
         try:
             q = self.fix_query(q)
             cursor.execute(q)
         except Exception:
-            self.setLastError("No se puedo ejecutar la siguiente query %s" % q, q)
-            logger.warning(
-                "MySQLDriver:: No se puedo ejecutar la siguiente query %s\n %s",
+            self.setLastError(
+                "%s::No se pudo ejecutar la query %s.\n%s" % (__name__, q, traceback.format_exc()),
                 q,
-                traceback.format_exc(),
             )
+            # logger.warning(
+            #    "MySQLDriver:: No se puedo ejecutar la siguiente query %s\n %s",
+            #    q,
+            #    traceback.format_exc(),
+            # )
 
         return cursor

@@ -171,8 +171,12 @@ class PNSqlQuery(object):
         @param sql. query text.
         @return True or False return if the execution is successful.
         """
+        self._is_active = False
         if not sql:
             sql = self.sql()
+        else:
+            self._invalid_tables_list = False
+
         if not sql:
             logger.warning("exec_: no sql provided and PNSqlQuery.sql() also returned empty")
             return False
@@ -186,26 +190,31 @@ class PNSqlQuery(object):
 
         # self._sql_inspector = sql_tools.SqlInspector(sql.lower())
 
-        sql = self.db().driver().fix_query(sql)
+        # sql = self.db().driver().fix_query(sql)
         if sql is None:
             raise Exception("The query is empty!")
 
         self._last_query = sql
-        try:
+        # try:
 
-            self._cursor = self.db().cursor()
-            if self._cursor is None:
-                raise Exception("self._cursor is empty!")
-            logger.trace("exec_: Ejecutando consulta: <%s> en <%s>", sql, self._cursor)
-            self._cursor.execute(sql)
-            self._datos = self._cursor.fetchall()
-            self._posicion = -1
-            self._is_active = True
-        except Exception as exc:
-            logger.error(exc)
-            logger.info("Error ejecutando consulta: <%s>", sql)
+        self._cursor = self.db().cursor()
+        if self._cursor is None:
+            raise Exception("self._cursor is empty!")
+        logger.trace("exec_: Ejecutando consulta: <%s> en <%s>", sql, self._cursor)
+        self.db().execute_query(sql, self._cursor)
+        self._datos = self._cursor.fetchall()
+        self._posicion = -1
+        # except Exception as exc:
+        #    logger.error(exc)
+        #    logger.info("Error ejecutando consulta: <%s>", sql)
+        #    logger.trace("Detalle:", stack_info=True)
+        if self.db().lastError():
+            logger.warning("Error ejecutando consulta: <%s>\n%s", sql, self.db().lastError())
+            self._invalid_tables_list = True
             logger.trace("Detalle:", stack_info=True)
             return False
+
+        self._is_active = True
         # conn.commit()
         logger.trace("_exec: Rows: %s SQL: <%s>", len(self._datos), sql)
 
@@ -822,11 +831,11 @@ class PNSqlQuery(object):
 
     def isForwardOnly(self) -> bool:
         """Return if is forward only enabled."""
-        return self._forward_only
+        return self.d._forward_only
 
     def setForwardOnly(self, forward: bool) -> None:
         """Set forward only option value."""
-        self._forward_only = forward
+        self.d._forward_only = forward
 
     def seek(self, i: int, relative=False) -> bool:
         """
@@ -845,7 +854,7 @@ class PNSqlQuery(object):
             pos = i + self._posicion
 
         if self._datos:
-            if pos > 0 and pos < len(self._datos) - 1:
+            if pos >= 0 and pos <= len(self._datos) - 1:
                 self._posicion = pos
                 self._row = self._datos[self._posicion]
                 return True

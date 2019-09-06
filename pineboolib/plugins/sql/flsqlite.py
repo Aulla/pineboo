@@ -22,6 +22,7 @@ from typing import Optional, Union, Any, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
+    from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 
 class FLSQLITE(object):
@@ -409,19 +410,23 @@ class FLSQLITE(object):
         # ret_ = query.replace(";", "")
         return query
 
-    def execute_query(self, q: str) -> Any:
+    def execute_query(self, q: str, cursor: Optional["pnsqlcursor.PNSqlCursor"] = None) -> Any:
         """Excecute a query and return result."""
         if not self.isOpen():
             self.logger.warning("%s::execute_query: Database not open", __name__)
 
         self.set_last_error_null()
-        cursor = self.cursor()
+        if cursor is None:
+            cursor = self.cursor()
         try:
             q = self.fix_query(q)
             cursor.execute(q)
         except Exception:
-            self.logger.error("SQL3Driver:: No se pudo ejecutar la query %s" % q, q)
-            self.setLastError("%s::No se pudo ejecutar la query.\n%s" % (__name__, q), q)
+            # self.logger.error("SQL3Driver:: No se pudo ejecutar la query %s" % q, q)
+            self.setLastError(
+                "%s::No se pudo ejecutar la query %s.\n%s" % (__name__, q, traceback.format_exc()),
+                q,
+            )
 
         return cursor
 

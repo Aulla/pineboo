@@ -345,7 +345,7 @@ class IConnection:
 
         return ""
 
-    def execute_query(self, q: str) -> Any:
+    def execute_query(self, q: str, cursor: Any = None) -> Any:
         """Execute a query in a database cursor."""
 
         return ""

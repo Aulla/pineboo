@@ -587,6 +587,8 @@ class TestRelations(unittest.TestCase):
         cur_modulos.setModeAccess(cur_modulos.Insert)
         cur_modulos.refreshDelayed()
         self.assertTrue(cur_modulos.fieldDisabled("idarea"))
+        cur_modulos.commitBuffer()
+        self.assertTrue(cur_areas.rollback())
 
 
 if __name__ == "__main__":
