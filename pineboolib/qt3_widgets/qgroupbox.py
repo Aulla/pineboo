@@ -1,9 +1,9 @@
 """Qgroupbox module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt5 import QtWidgets, QtCore  # type: ignore
 from pineboolib.core import decorators
-from PyQt5 import Qt  # type: ignore
+
 from pineboolib import logging
 
 from typing import Any
@@ -14,9 +14,9 @@ logger = logging.getLogger("QGroupBox")
 class QGroupBox(QtWidgets.QGroupBox):
     """QGroupBox class."""
 
-    style_str: str
-    _line_width: int
-    presset = Qt.pyqtSignal(int)
+    # style_str: str
+    # _line_width: int
+    presset = QtCore.pyqtSignal(int)
     selectedId: int
 
     def __init__(self, *args, **kwargs) -> None:
@@ -25,35 +25,18 @@ class QGroupBox(QtWidgets.QGroupBox):
         super(QGroupBox, self).__init__(*args, **kwargs)
         from pineboolib.core.settings import config
 
-        self.style_str = ""
-        self._line_width = 0
-        # self._do_style()
-        # self.setFlat(True)
         if not config.value("ebcomportamiento/spacerLegacy", False):
             self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 
-    def setLineWidth(self, width: int) -> None:
-        """Set line width."""
-
-        self._line_width = width
-        # self._do_style()
+    def setLayout(self, layout: QtWidgets.QLayout) -> None:
+        """Set layout to QGroupBox."""
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        super().setLayout(layout)
 
     def setTitle(self, t: str) -> None:
         """Set title."""
-
         super().setTitle(t)
-        # self._do_style()
-
-    # def _do_style(self) -> None:
-    #    """Apply style."""
-
-    #    self.style_str = "QGroupBox { font-weight: bold; background-color: transparent;"
-    #    if self._line_width == 0 and not self.title():
-    #        self.style_str += " border: none;"
-    #    else:
-    #        self.style_str += " border-width: %spx transarent" % self._line_width
-    #    self.style_str += " }"
-    #    self.setStyleSheet(self.style_str)
 
     def get_enabled(self) -> bool:
         """Return if enabled."""

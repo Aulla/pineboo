@@ -2198,8 +2198,8 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_ = QTextEdit(self)
             self.editor_.setFont(self.font())
             self.editor_.setTabChangesFocus(True)
-            self.editor_.setMinimumHeight(100)
-            self.editor_.setMaximumHeight(120)
+            # self.editor_.setMinimumHeight(100)
+            # self.editor_.setMaximumHeight(120)
             sizePolicy = QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding
             )
@@ -2212,13 +2212,13 @@ class FLFieldDB(QtWidgets.QWidget):
             # textEditTab_ = AQTextEditBar(self, "extEditTab_", self.textLabelDB) #FIXME
             # textEditTab_.doConnections(ted)
             # self.FLWidgetFieldDBLayout.addWidget(textEditTab_)
-            self.setMinimumHeight(130)
+            # self.setMinimumHeight(120)
             if self.FLWidgetFieldDBLayout:
                 self.FLWidgetFieldDBLayout.addWidget(self.editor_)
-            verticalSpacer = QtWidgets.QSpacerItem(
-                20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
-            )
-            self.FLLayoutH.addItem(verticalSpacer)
+            # verticalSpacer = QtWidgets.QSpacerItem(
+            #    20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+            # )
+            # self.FLLayoutH.addItem(verticalSpacer)
             self.editor_.installEventFilter(self)
 
             if self.showed:
