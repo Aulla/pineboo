@@ -1,0 +1,27 @@
+<!DOCTYPE TMD>
+<TMD>
+	<name>fltest3</name>
+	<alias>QT_TRANSLATE_NOOP("MetaData","Test table")</alias>
+
+	<field>
+		<name>counter</name>
+		<!--Identificador interno-->
+		<alias>QT_TRANSLATE_NOOP("MetaData","Contador")</alias>
+		<null>false</null>
+		<pk>true</pk>
+		<type>string</type>
+        <length>6</length>
+        <counter>true</counter>
+		<visiblegrid>false</visiblegrid>
+		<editable>false</editable>
+	</field>
+	
+	<field>
+		<name>string_field</name>
+		<alias>QT_TRANSLATE_NOOP("MetaData","String field")</alias>
+		<null>true</null>
+		<pk>false</pk>
+		<type>string</type>
+		<default></default>
+	</field>
+</TMD>

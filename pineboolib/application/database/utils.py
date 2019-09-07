@@ -75,12 +75,12 @@ def _nextCounter_2(name: str, cursor_: "PNSqlCursor") -> Optional[Union[str, int
     if not cursor_:
         return None
 
-    tMD = cursor_.metadata()
-    if not tMD:
+    tmd = cursor_.metadata()
+    if tmd is None:
         return None
 
-    field = tMD.field(name)
-    if not field:
+    field = tmd.field(name)
+    if field is None:
         return None
 
     type_ = field.type()
@@ -93,9 +93,9 @@ def _nextCounter_2(name: str, cursor_: "PNSqlCursor") -> Optional[Union[str, int
 
     q = PNSqlQuery(None, cursor_.db().connectionName())
     q.setForwardOnly(True)
-    q.setTablesList(tMD.name())
+    q.setTablesList(tmd.name())
     q.setSelect(name)
-    q.setFrom(tMD.name())
+    q.setFrom(tmd.name())
     q.setWhere("LENGTH(%s)=%s" % (name, _len))
     q.setOrderBy(name + " DESC")
 
@@ -135,15 +135,16 @@ def _nextCounter_2(name: str, cursor_: "PNSqlCursor") -> Optional[Union[str, int
 def _nextCounter_3(serie: str, name: str, cursor_: "PNSqlCursor") -> Optional[str]:
     from .pnsqlquery import PNSqlQuery
 
+    print("*", serie, name, cursor_)
     if not cursor_:
         return None
 
-    tMD = cursor_.metadata()
-    if not tMD:
+    tmd = cursor_.metadata()
+    if tmd is None:
         return None
 
-    field = tMD.field(name)
-    if not field:
+    field = tmd.field(name)
+    if field is None:
         return None
 
     type_ = field.type()
@@ -162,9 +163,9 @@ def _nextCounter_3(serie: str, name: str, cursor_: "PNSqlCursor") -> Optional[st
     select = "substring(%s FROM %d) as %s" % (name, len(serie) + 1, name)
     q = PNSqlQuery(None, cursor_.db().connectionName())
     q.setForwardOnly(True)
-    q.setTablesList(tMD.name())
+    q.setTablesList(tmd.name())
     q.setSelect(select)
-    q.setFrom(tMD.name())
+    q.setFrom(tmd.name())
     q.setWhere(where)
     q.setOrderBy(name + " DESC")
 
@@ -240,18 +241,18 @@ def sqlSelect(
     return False
 
 
-def quickSqlSelect(f: str, s: str, w: str, connName: str = "default") -> Any:
+def quickSqlSelect(from_: str, select_: str, where_: str, conn_name: str = "default") -> Any:
     """
     Quick version of sqlSelect. Run the query directly without checking.Use with caution.
     """
     from .pnsqlquery import PNSqlQuery
 
-    if not w:
-        sql = "select " + s + " from " + f
-    else:
-        sql = "select " + s + " from " + f + " where " + w
+    if where_ is None:
+        where_ = "1 = 1"
 
-    q = PNSqlQuery(None, connName)
+    sql = "SELECT %s FROM %s WHERE %s " % (select_, from_, where_)
+
+    q = PNSqlQuery(None, conn_name)
     if not q.exec_(sql):
         return False
 
@@ -305,7 +306,7 @@ def sqlUpdate(
     fL: Union[str, List[str]],
     vL: Union[str, List, bool, int, float],
     w: str,
-    connName: str = "default",
+    conn_name: str = "default",
 ) -> bool:
     """
     Modify one or more records in a table using an FLSqlCursor object.
@@ -319,7 +320,7 @@ def sqlUpdate(
     """
     from .pnsqlcursor import PNSqlCursor
 
-    c = PNSqlCursor(t, True, connName)
+    c = PNSqlCursor(t, True, conn_name)
     c.select(w)
     c.setForwardOnly(True)
     while c.next():
@@ -341,7 +342,7 @@ def sqlUpdate(
     return True
 
 
-def sqlDelete(t: str, w: str, connName: str = "default") -> bool:
+def sqlDelete(t: str, w: str, conn_name: str = "default") -> bool:
     """
     Delete one or more records in a table using an FLSqlCursor object.
 
@@ -352,7 +353,7 @@ def sqlDelete(t: str, w: str, connName: str = "default") -> bool:
     """
     from .pnsqlcursor import PNSqlCursor
 
-    c = PNSqlCursor(t, True, connName)
+    c = PNSqlCursor(t, True, conn_name)
 
     # if not c.select(w):
     #     return False
@@ -368,14 +369,14 @@ def sqlDelete(t: str, w: str, connName: str = "default") -> bool:
     return True
 
 
-def quickSqlDelete(t: str, w: str, connName: str = "default") -> None:
+def quickSqlDelete(t: str, w: str, conn_name: str = "default") -> None:
     """
     Quick version of sqlDelete. Execute the query directly without checking and without committing signals.Use with caution.
     """
-    execSql("DELETE FROM %s WHERE %s" % (t, w))
+    execSql("DELETE FROM %s WHERE %s" % (t, w), conn_name)
 
 
-def execSql(sql: str, connName: str = "default") -> bool:
+def execSql(sql: str, conn_name: str = "default") -> bool:
     """
     Run a query.
     """
@@ -384,7 +385,7 @@ def execSql(sql: str, connName: str = "default") -> bool:
     if project.conn is None:
         raise Exception("Project is not connected yet")
 
-    conn_ = project.conn.useConn(connName)
+    conn_ = project.conn.useConn(conn_name)
     cur = conn_.cursor()
     try:
         logger.warning("execSql: Ejecutando la consulta : %s", sql)
