@@ -111,6 +111,7 @@ class TestFLFieldDBString(unittest.TestCase):
         self.assertEqual(new_field.editor_.date, "2001-02-01")
         new_field.editor_.date = None
         self.assertEqual(new_field.editor_.date, None)
+        table_mtd.removeFieldMD(field_mtd.name())
         # lay = parent.layout()
         # lay.addWidget(new_field)
 

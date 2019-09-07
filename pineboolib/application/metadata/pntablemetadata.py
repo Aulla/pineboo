@@ -59,7 +59,6 @@ class PNTableMetaData(ITableMetaData):
         """
 
         self.d = PNTableMetaDataPrivate()
-        self.d.fieldNames_ = []
         self.copy(other)
 
     def inicializeNewFLTableMetaData(self, n, a, q: str = None) -> None:
@@ -72,7 +71,6 @@ class PNTableMetaData(ITableMetaData):
 
         """
         self.d = PNTableMetaDataPrivate(n, a, q)
-        self.d.fieldNames_ = []
 
     def inicializeFLTableMetaDataP(self, name: str) -> None:
         """
@@ -82,7 +80,6 @@ class PNTableMetaData(ITableMetaData):
         self.d = PNTableMetaDataPrivate(name)
 
         self.d.compoundKey_ = PNCompoundKeyMetaData()
-        self.d.fieldNames_ = []
 
         """
         try:
@@ -97,7 +94,7 @@ class PNTableMetaData(ITableMetaData):
             if field.isPrimaryKey():
                 self.d.primaryKey_ = field.name()
 
-            self.d.fieldList_.append(field)
+            self.d.field_list_.append(field)
             self.d.fieldNames_.append(field.name())
 
             if field.type() == FLFieldMetaData.Unlock:
@@ -180,7 +177,7 @@ class PNTableMetaData(ITableMetaData):
         #     return
         if not f.metadata():
             f.setMetadata(self)
-        self.d.fieldList_.append(f)
+        self.d.field_list_.append(f)
         self.d.addFieldName(f.name())
         self.d.formatAlias(f)
 
@@ -189,20 +186,18 @@ class PNTableMetaData(ITableMetaData):
         if f.d.isPrimaryKey_:
             self.d.primaryKey_ = f.name().lower()
 
-    def removeFieldMD(self, fN: str) -> None:
+    def removeFieldMD(self, field_name: str) -> None:
         """
         Remove the description of a field from the list of field descriptions.
 
         @param fN Name of the field to be deleted
         """
+        for _field in self.d.field_list_:
+            if _field.name().lower() == field_name.lower():
+                self.d.field_list_.remove(_field)
+                break
 
-        # if fN is None:
-        #     return
-        # FIXME: FLFieldMetaData does not have .clear()
-        # for key in self.d.fieldList_:
-        #     if key.name().lower() == fN.lower():
-        #         key.clear()
-        self.d.removeFieldName(fN)
+        self.d.removeFieldName(field_name)
 
     def setCompoundKey(self, cK: Optional[PNCompoundKeyMetaData]) -> None:
         """
@@ -241,7 +236,7 @@ class PNTableMetaData(ITableMetaData):
         if not fN:
             return fN
 
-        for key in self.d.fieldList_:
+        for key in self.d.field_list_:
             if key.name().lower() == fN.lower():
                 return key.alias()
 
@@ -257,7 +252,7 @@ class PNTableMetaData(ITableMetaData):
         if not aN:
             return aN
 
-        for key in self.d.fieldList_:
+        for key in self.d.field_list_:
             if key.alias().lower() == aN.lower():
                 return key.name()
 
@@ -274,7 +269,7 @@ class PNTableMetaData(ITableMetaData):
             return None
         fN = str(fN)
         type_ = None
-        for f in self.d.fieldList_:
+        for f in self.d.field_list_:
             if f.name() == fN.lower():
                 type_ = f.type()
                 break
@@ -319,7 +314,7 @@ class PNTableMetaData(ITableMetaData):
         if not fN:
             return None
         fN = str(fN)
-        for f in self.d.fieldList_:
+        for f in self.d.field_list_:
             if f.name() == fN.lower():
                 return f.isPrimaryKey()
 
@@ -351,7 +346,7 @@ class PNTableMetaData(ITableMetaData):
 
         field = None
 
-        for f in self.d.fieldList_:
+        for f in self.d.field_list_:
             if f.name() == fN.lower():
                 field = f
                 break
@@ -371,7 +366,7 @@ class PNTableMetaData(ITableMetaData):
         if not fN:
             return False
 
-        for f in self.d.fieldList_:
+        for f in self.d.field_list_:
             if f.name() == fN.lower():
                 return f.allowNull()
 
@@ -387,7 +382,7 @@ class PNTableMetaData(ITableMetaData):
         if not fN:
             return False
 
-        for f in self.d.fieldList_:
+        for f in self.d.field_list_:
             if f.name() == fN.lower():
                 return f.isUnique()
 
@@ -577,7 +572,7 @@ class PNTableMetaData(ITableMetaData):
         if not fN:
             return None
 
-        for f in self.d.fieldList_:
+        for f in self.d.field_list_:
             if f.name() == fN.lower():
                 return f
 
@@ -590,7 +585,7 @@ class PNTableMetaData(ITableMetaData):
         @return Object with the table field deficits list
         """
 
-        return self.d.fieldList_
+        return self.d.field_list_
 
     def fieldListArray(self, prefix_table: bool = False) -> List[str]:
         """
@@ -603,14 +598,14 @@ class PNTableMetaData(ITableMetaData):
         listado = []
         cadena = "%s." % self.name() if prefix_table else ""
 
-        for field in self.d.fieldList_:
+        for field in self.d.field_list_:
             listado.append("%s%s" % (cadena, field.name()))
 
         return listado
 
     # def fieldListObject(self):
-    #    #print("FiledList count", len(self.d.fieldList_))
-    #    return self.d.fieldList_
+    #    #print("FiledList count", len(self.d.field_list_))
+    #    return self.d.field_list_
 
     def indexPos(self, field_name: str) -> int:
         """
@@ -751,7 +746,7 @@ class PNTableMetaData(ITableMetaData):
         @return PNfieldMetadata.
         """
 
-        return self.d.fieldList_[position]
+        return self.d.field_list_[position]
 
 
 class PNTableMetaDataPrivate:
@@ -771,7 +766,7 @@ class PNTableMetaDataPrivate:
     """
     Lista de campos que tiene esta tabla
     """
-    fieldList_: List["PNFieldMetaData"]
+    field_list_: List["PNFieldMetaData"]
 
     """
     Clave compuesta que tiene esta tabla
@@ -846,12 +841,13 @@ class PNTableMetaDataPrivate:
         @param q query string.
         """
 
-        self.fieldList_ = []
+        self.field_list_ = []
+        self.fieldNames_ = []
         self.fieldNamesUnlock_ = []
         self.aliasFieldMap_ = {}
         self.fieldAliasMap_ = {}
         self.query_ = ""
-        # print("Vaciando field list ahora",  len(self.fieldList_))
+        # print("Vaciando field list ahora",  len(self.field_list_))
         if n is None:
             self.inicializeFLTableMetaDataPrivate()
         elif n and not a and not q:
@@ -905,15 +901,20 @@ class PNTableMetaDataPrivate:
 
         self.fieldNames_.append(n.lower())
 
-    def removeFieldName(self, n: str) -> None:
+    def removeFieldName(self, name_: str) -> None:
         """
         Remove the name of a field from the field name string, see fieldNames().
 
         @param n Field Name
         """
 
-        if self.fieldNames_:
-            self.fieldNames_.remove(n)
+        if name_ in self.fieldNames_:
+            self.fieldNames_.remove(name_)
+
+        if name_ in self.fieldNamesUnlock_:
+            self.fieldNamesUnlock_.remove(name_)
+        if self.primaryKey_ == name_:
+            self.primaryKey_ = None
 
     def formatAlias(self, f=None) -> None:
         """
@@ -943,5 +944,5 @@ class PNTableMetaDataPrivate:
         Clear the list of field definitions.
         """
 
-        self.fieldList_ = []
+        self.field_list_ = []
         self.fieldNames_ = []

@@ -524,6 +524,7 @@ class FLSQLITE(object):
             self.rowsFetched[curname] = 0
 
         rowsF = []
+
         try:
             cursor.execute(self.sql)
             rows = cursor.fetchall()

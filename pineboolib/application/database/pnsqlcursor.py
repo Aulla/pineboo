@@ -2996,6 +2996,7 @@ class PNSqlCursor(QtCore.QObject):
 
             if functionAfter:
                 fn = getattr(module_script.iface, functionAfter, None)
+
                 if fn is not None:
                     v = None
                     try:

@@ -77,46 +77,37 @@ class FormInternalObj(qsa.FormDBWidget):
         if settings.readBoolEntry("ebcomportamiento/git_updates_enabled", False):
             qsa.sys.AQTimer().singleShot(2000, qsa.SysType.search_git_updates)
 
+    def afterCommit_flfiles(self, cur_files_: "pnsqlcursor.PNSqlCursor") -> bool:
+        """After commit flfiles."""
 
-def afterCommit_flfiles(curFiles: "pnsqlcursor.PNSqlCursor") -> bool:
-    """Afet commit flfiles."""
-    if curFiles.modeAccess() != curFiles.Browse:
-        qry = qsa.FLSqlQuery()
-        qry.setTablesList(u"flserial")
-        qry.setSelect(u"sha")
-        qry.setFrom(u"flfiles")
-        qry.setForwardOnly(True)
-        if qry.exec_():
-            if qry.first():
-                util = qsa.FLUtil()
-                v = util.sha1(qry.value(0))
-                while qry.next():
-                    if qry.value(0) is not None:
-                        v = util.sha1(v + qry.value(0))
-                curSerial = qsa.FLSqlCursor(u"flserial")
-                curSerial.select()
-                if not curSerial.first():
-                    curSerial.setModeAccess(curSerial.Insert)
-                else:
-                    curSerial.setModeAccess(curSerial.Edit)
+        if cur_files_.modeAccess() != cur_files_.Browse:
+            _qry = qsa.FLSqlQuery()
+            _qry.setTablesList(u"flserial")
+            _qry.setSelect(u"sha")
+            _qry.setFrom(u"flfiles")
+            _qry.setForwardOnly(True)
+            _serial_value = cur_files_.valueBuffer(u"sha")
+            if _qry.exec_():
+                if _qry.first():
+                    util = qsa.FLUtil()
+                    _v = util.sha1(_qry.value(0))
+                    while _qry.next():
+                        if _qry.value(0) is not None:
+                            _v = util.sha1(_v + _qry.value(0))
 
-                curSerial.refreshBuffer()
-                curSerial.setValueBuffer(u"sha", v)
-                curSerial.commitBuffer()
+                    _serial_value = _v
 
-        else:
-            curSerial = qsa.FLSqlCursor(u"flserial")
-            curSerial.select()
-            if not curSerial.first():
-                curSerial.setModeAccess(curSerial.Insert)
+            _cur_serial = qsa.FLSqlCursor(u"flserial")
+            _cur_serial.select()
+            if _cur_serial.first():
+                _cur_serial.setModeAccess(_cur_serial.Edit)
             else:
-                curSerial.setModeAccess(curSerial.Edit)
+                _cur_serial.setModeAccess(_cur_serial.Insert)
+            _cur_serial.refreshBuffer()
+            _cur_serial.setValueBuffer(u"sha", _serial_value)
+            _cur_serial.commitBuffer()
 
-            curSerial.refreshBuffer()
-            curSerial.setValueBuffer(u"sha", curFiles.valueBuffer(u"sha"))
-            curSerial.commitBuffer()
-
-    return True
+        return True
 
 
 form = None
