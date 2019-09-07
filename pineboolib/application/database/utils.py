@@ -76,8 +76,6 @@ def _nextCounter_2(name: str, cursor_: "PNSqlCursor") -> Optional[Union[str, int
         return None
 
     tmd = cursor_.metadata()
-    if tmd is None:
-        return None
 
     field = tmd.field(name)
     if field is None:
@@ -135,13 +133,10 @@ def _nextCounter_2(name: str, cursor_: "PNSqlCursor") -> Optional[Union[str, int
 def _nextCounter_3(serie: str, name: str, cursor_: "PNSqlCursor") -> Optional[str]:
     from .pnsqlquery import PNSqlQuery
 
-    print("*", serie, name, cursor_)
     if not cursor_:
         return None
 
     tmd = cursor_.metadata()
-    if tmd is None:
-        return None
 
     field = tmd.field(name)
     if field is None:
@@ -241,7 +236,9 @@ def sqlSelect(
     return False
 
 
-def quickSqlSelect(from_: str, select_: str, where_: str, conn_name: str = "default") -> Any:
+def quickSqlSelect(
+    from_: str, select_: str, where_: Optional[str] = None, conn_name: str = "default"
+) -> Any:
     """
     Quick version of sqlSelect. Run the query directly without checking.Use with caution.
     """

@@ -38,13 +38,13 @@ class TestUtils(unittest.TestCase):
         )
         self.assertEqual(
             utils.sqlSelect(
-                "fltest3", "string_field", "counter = '%s'" % val_3, "fltest3", None, "default"
+                "fltest3", "string_field", "counter = '%s'" % val_3, "fltest3", 0, "default"
             ),
             "Campo de prueba 2",
         )
         self.assertEqual(
             utils.sqlSelect(
-                "fltest3", "string_field", "counter = '%s'" % val_3, ["fltest3"], None, "default"
+                "fltest3", "string_field", "counter = '%s'" % val_3, ["fltest3"], 0, "default"
             ),
             "Campo de prueba 2",
         )
