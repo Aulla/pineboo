@@ -956,7 +956,7 @@ class FLManager(QtCore.QObject, IManager):
                 if args[3]:
                     field_name = "upper(%s)" % args[0]
 
-            return "%s%s" % (field_name, format_value)
+            return "%s %s" % (field_name, format_value)
 
     def formatValue(self, fMD_or_type: str, v: Any, upper: bool = False) -> str:
         """Return format value."""

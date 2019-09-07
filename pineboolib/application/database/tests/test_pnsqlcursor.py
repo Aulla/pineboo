@@ -219,6 +219,18 @@ class TestValues(unittest.TestCase):
         self.assertEqual(cursor.valueBuffer("hora"), "00:00:01")
         self.assertEqual(cursor.valueBuffer("nombre"), "nombre de prueba")
 
+        cursor_2 = pnsqlcursor.PNSqlCursor("fltest3")
+        cursor_2.setModeAccess(cursor_2.Insert)
+        cursor_2.refreshBuffer()
+        cursor_2.setValueBuffer("string_field", "Campo de prueba test_pnsqlcursor_test_basic")
+        self.assertTrue(cursor_2.commitBuffer())
+        cursor_2.select()
+        self.assertTrue(cursor_2.first())
+        self.assertTrue(cursor_2.valueBuffer("counter"), "000001")
+        cursor_2.setModeAccess(cursor_2.Del)
+        cursor_2.refreshBuffer()
+        self.assertTrue(cursor_2.commitBuffer())
+
 
 class Test_emits(unittest.TestCase):
     """Test Emits class."""

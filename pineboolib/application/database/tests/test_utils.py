@@ -24,13 +24,23 @@ class TestUtils(unittest.TestCase):
         utils.sqlInsert("fltest3", "counter,string_field", "%s,%s" % (val_1, "Campo de prueba 1"))
 
         self.assertEqual(val_1, "000001")
-        # self.assertEqual(val_2, "B00001")
-        # val_2 = utils.nextCounter("B", "counter", cur_1)
+
+        val_2 = utils.nextCounter("b", "counter", cur_1)
+        self.assertEqual(val_2, "00001")
 
         val_3 = utils.nextCounter("counter", cur_1)
         self.assertEqual(val_3, "000002")
 
+        val_4 = utils.nextCounter("ABCD", "counter", cur_1)
+        self.assertEqual(val_4, "01")
+
         utils.sqlInsert("fltest3", "counter,string_field", "%s,%s" % (val_3, "Campo de prueba 2"))
+        utils.sqlInsert(
+            "fltest3", "counter,string_field", "ABCD%s,%s" % (val_4, "Campo de prueba 4")
+        )
+
+        val_5 = utils.nextCounter("ABCD", "counter", cur_1)
+        self.assertEqual(val_5, "02")
 
         self.assertEqual(
             utils.sqlSelect("fltest3", "string_field", "counter = '%s'" % val_1),
