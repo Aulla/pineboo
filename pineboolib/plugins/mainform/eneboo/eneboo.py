@@ -1167,7 +1167,6 @@ class MainForm(QtWidgets.QMainWindow):
         mw.updateMenuAndDocks()
         mw.initModule("sys")
         mw.show()
-
         mw.readState()
 
     def reinitSript(self) -> None:

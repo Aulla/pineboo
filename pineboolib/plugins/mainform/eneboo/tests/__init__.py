@@ -1,0 +1,3 @@
+"""
+Eneboo GUI package.
+"""
