@@ -272,7 +272,7 @@ class PNAccessControlFactory(object):
 
         ret_ = ""
 
-        if isinstance(obj, QtWidget.QMainWindow):
+        if isinstance(obj, QtWidgets.QMainWindow):
             ret_ = "mainwindow"
         elif isinstance(obj, PNTableMetaData):
             ret_ = "table"

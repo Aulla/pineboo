@@ -4,6 +4,9 @@ import os
 import os.path
 
 from pineboolib.core.settings import config
+from pineboolib import logging
+
+logger = logging.getLogger("xpm")
 
 
 def cacheXPM(value: str) -> str:
@@ -15,7 +18,9 @@ def cacheXPM(value: str) -> str:
     """
 
     if not value:
-        raise ValueError("Expected a value")
+        logger.warning("the value is empty!")
+        return ""
+
     xpm_name = value[: value.find("[]")]
     xpm_name = xpm_name[xpm_name.rfind(" ") + 1 :]
     from pineboolib.application import project

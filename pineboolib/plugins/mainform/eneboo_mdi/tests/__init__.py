@@ -1,0 +1,3 @@
+"""
+Eneboo mdi GUI package.
+"""

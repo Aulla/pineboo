@@ -21,7 +21,9 @@ class TestEnebooGUI(unittest.TestCase):
         """Test GUI initialize."""
 
         project = application.project
-        project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
+        project.main_form = importlib.import_module(
+            "pineboolib.plugins.mainform.eneboo_mdi.eneboo_mdi"
+        )
         project.main_window = getattr(project.main_form, "mainWindow", None)
         main_form_ = getattr(project.main_form, "MainForm", None)
         self.assertTrue(main_form_)
@@ -29,6 +31,7 @@ class TestEnebooGUI(unittest.TestCase):
         self.main_w.initScript()
         self.main_w.show()
         self.assertTrue(self.main_w)
+        self.main_w.stopTimerIdle()
 
     @classmethod
     def tearDownClass(cls) -> None:
