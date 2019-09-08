@@ -388,6 +388,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         @param text_format Text field format
         """
+        # FIXME: apply to control!
         self.textFormat_ = text_format
         # ted = self.editor_
         # if isinstance(ted, QTextEdit):
