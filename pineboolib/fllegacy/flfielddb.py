@@ -389,9 +389,9 @@ class FLFieldDB(QtWidgets.QWidget):
         @param text_format Text field format
         """
         self.textFormat_ = text_format
-        ted = self.editor_
-        if isinstance(ted, QTextEdit):
-            ted.setTextFormat(self.textFormat_)
+        # ted = self.editor_
+        # if isinstance(ted, QTextEdit):
+        #    ted.setTextFormat(self.textFormat_)
 
     def textFormat(self) -> int:
         """
@@ -400,9 +400,9 @@ class FLFieldDB(QtWidgets.QWidget):
         @return The format of the text.
         """
 
-        ted = self.editor_
-        if isinstance(ted, QTextEdit):
-            return ted.textFormat()
+        # ted = self.editor_
+        # if isinstance(ted, QTextEdit):
+        #    return ted.textFormat()
         return self.textFormat_
 
     def setEchoMode(self, m: QLineEdit.EchoMode) -> None:
