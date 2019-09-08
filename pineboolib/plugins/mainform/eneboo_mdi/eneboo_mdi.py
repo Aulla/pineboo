@@ -806,7 +806,7 @@ class MainForm(QtWidgets.QMainWindow):
             for it in windows_opened:
                 act = main_widget.findChild(QtCore.QObject, it)
                 if act and act.isVisible():
-                    self.openMasterForm(it, act.icon())
+                    flapplication.aqApp.openMasterForm(it, act.icon())
 
         r = QtCore.QRect(main_widget.pos(), main_widget.size())
         k = "Geometry/%s" % idm
@@ -961,13 +961,14 @@ class MainForm(QtWidgets.QMainWindow):
         if not self.container_:
             return
 
-        if w == self.container_ or w is None:
-            QtWidgets.QApplication.setActiveWindow(self.container_)
-            flapplication.aqApp.main_widget_ = None
-            return
+        # if w == self.container_ or w is None:
+        #    QtWidgets.QApplication.setActiveWindow(self.container_)
+        #    flapplication.aqApp.main_widget_ = None
+        #    return
 
-        QtWidgets.QApplication.setActiveWindow(w)
-        flapplication.aqApp.main_widget_ = w
+        flapplication.aqApp.setMainWidget(w)
+        # QtWidgets.QApplication.setActiveWindow(w)
+        # flapplication.aqApp.main_widget_ = w
 
         mw = (
             flapplication.aqApp.main_widget_
@@ -1116,10 +1117,10 @@ class MainForm(QtWidgets.QMainWindow):
 
     def toggleToolBar(self, toggle) -> None:
         """Show or hide toolbar."""
-        if not self.main_widget_:
+        if not flapplication.aqApp.main_widget_:
             return
 
-        tb = self.main_widget_.findChild(QtWidgets.QToolBar)
+        tb = flapplication.aqApp.main_widget_.findChild(QtWidgets.QToolBar)
         if not tb:
             return
 
@@ -1127,10 +1128,10 @@ class MainForm(QtWidgets.QMainWindow):
 
     def toggleStatusBar(self, toggle) -> None:
         """Toggle status bar."""
-        if not self.main_widget_:
+        if not flapplication.aqApp.main_widget_:
             return
 
-        self.main_widget_.statusBar().show() if toggle else self.main_widget_.statusBar().hide()
+        flapplication.aqApp.main_widget_.statusBar().show() if toggle else flapplication.aqApp.main_widget_.statusBar().hide()
 
     def generalExit(self, ask_exit=True) -> bool:
         """Perform before close checks."""
