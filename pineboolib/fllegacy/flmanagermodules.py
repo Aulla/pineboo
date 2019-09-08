@@ -467,7 +467,9 @@ class FLManagerModules(object):
             raise Exception("action is empty!.")
 
         if parent is None:
-            raise Exception("parent is empty!.")
+            from pineboolib.fllegacy import flapplication
+
+            parent = flapplication.aqApp.mainWidget()
 
         return flformdb.FLFormDB(parent, action, load=True)
 
