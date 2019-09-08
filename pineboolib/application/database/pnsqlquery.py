@@ -195,19 +195,19 @@ class PNSqlQuery(object):
             raise Exception("The query is empty!")
 
         self._last_query = sql
-        # try:
+        try:
 
-        self._cursor = self.db().cursor()
-        if self._cursor is None:
-            raise Exception("self._cursor is empty!")
-        logger.trace("exec_: Ejecutando consulta: <%s> en <%s>", sql, self._cursor)
-        self.db().execute_query(sql, self._cursor)
-        self._datos = self._cursor.fetchall()
-        self._posicion = -1
-        # except Exception as exc:
-        #    logger.error(exc)
-        #    logger.info("Error ejecutando consulta: <%s>", sql)
-        #    logger.trace("Detalle:", stack_info=True)
+            self._cursor = self.db().cursor()
+            if self._cursor is None:
+                raise Exception("self._cursor is empty!")
+            logger.trace("exec_: Ejecutando consulta: <%s> en <%s>", sql, self._cursor)
+            self.db().execute_query(sql, self._cursor)
+            self._datos = self._cursor.fetchall()
+            self._posicion = -1
+        except Exception as exc:
+            logger.error(exc)
+            logger.info("Error ejecutando consulta: <%s>", sql)
+            logger.trace("Detalle:", stack_info=True)
         if self.db().lastError():
             logger.warning("Error ejecutando consulta: <%s>\n%s", sql, self.db().lastError())
             self._invalid_tables_list = True
