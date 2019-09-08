@@ -67,7 +67,6 @@ class FLApplication(QtCore.QObject):
     script_entry_function_: Optional[str]
     _event_loop: Optional[QtCore.QEventLoop]
     window_menu: Optional[QtWidgets.QMenu] = None
-    last_text_caption_: Optional[str]
     modules_menu: Any
 
     def __init__(self) -> None:
@@ -98,7 +97,6 @@ class FLApplication(QtCore.QObject):
         self.init_single_fl_large = False
         self.show_debug_ = True  # FIXME
         self.script_entry_function_ = None
-        self.last_text_caption_ = None
 
         # self.fl_factory_ = FLObjectFactory() # FIXME para un futuro
         # self.time_user_ = QtCore.QDateTime.currentDateTime() # Moved to pncontrolsfacotry.SysType
@@ -381,35 +379,6 @@ class FLApplication(QtCore.QObject):
         """Call a QS project function."""
         return project.call(function, argument_list, object_content, show_exceptions)
 
-    def setCaptionMainWidget(self, value) -> None:
-        """Set application title."""
-        if value:
-            self.last_text_caption_ = value
-
-        # FIXME: main_form_name Belongs to loader.main; will be removed
-        if project.main_form_name != "eneboo_mdi":
-            self.mainWidget().setWindowTitle(
-                "Pineboo %s - %s" % (project.version, self.last_text_caption_)
-            )
-
-        else:
-            if self.main_widget_ is None:
-                raise Exception("self.main_widget_ is empty!")
-
-            descript_area = (
-                self.db()
-                .managerModules()
-                .idAreaToDescription(self.db().managerModules().activeIdArea())
-            )
-            descript_module = (
-                self.db().managerModules().idModuleToDescription(self.main_widget_.objectName())
-            )
-
-            if descript_area:
-                self.main_widget_.setWindowTitle(
-                    "%s - %s - %s" % (self.last_text_caption_, descript_area, descript_module)
-                )
-
     @decorators.NotImplementedWarn
     def setNotExit(self, b):
         """Protect against window close."""
@@ -424,6 +393,11 @@ class FLApplication(QtCore.QObject):
     def setPrintProgram(self, print_program_):
         """Not implemented."""
         pass
+
+    def setCaptionMainWidget(self, text: str) -> None:
+        """Set caption main widget."""
+        if self.main_widget_:
+            self.main_widget_.setCaptionMainWidget(text)
 
     @decorators.NotImplementedWarn
     def addSysCode(self, code, scritp_entry_function):

@@ -37,6 +37,7 @@ class MainForm(QtWidgets.QMainWindow):
     timer_idle_: Optional[QtCore.QTimer]
     tool_box_: Any
     toogle_bars_: Any
+    last_text_caption_: str
     _map_geometry_form: List[Any]
 
     def __init__(self) -> None:
@@ -52,6 +53,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.tool_box_ = None
         self.toogle_bars_ = None
         self._map_geometry_form = []
+        self.last_text_caption_ = ""
 
     def reinitScript(self):
         """Reinit script."""
@@ -240,7 +242,6 @@ class MainForm(QtWidgets.QMainWindow):
 
     def windowMenuAboutToShow(self) -> None:
         """Signal called before window menu is shown."""
-        "****"
         if not self._p_work_space:
             return
         if self.window_menu is None:
@@ -568,10 +569,9 @@ class MainForm(QtWidgets.QMainWindow):
                 if not ret:
                     obj.setDisabled(False)
                     ev.ignore()
+
                 return True
-            else:
-                obj.hide()
-                return True
+
         elif evt == QtCore.QEvent.WindowActivate:
             if obj == self.container_:
                 self.activateModule(None)
@@ -757,7 +757,7 @@ class MainForm(QtWidgets.QMainWindow):
                         if not act or not act.isVisible():
                             continue
 
-                        w = self.db().managerModules().createUI("%s.ui" % it, self, None, it)
+                        w = self.db().managerModules().createUI("%s.ui" % it)
                         self._dict_main_widgets[it] = w
                         w.setObjectName(it)
                         if self.acl_:
@@ -765,7 +765,7 @@ class MainForm(QtWidgets.QMainWindow):
 
                         self.setCaptionMainWidget(None)
                         self.setMainWidget(w)
-                        self.call("%s.init()" % it, [])
+                        flapplication.aqApp.call("%s.init()" % it, [])
                         self.db().managerModules().setActiveIdModule(it)
                         self.setMainWidget(w)
                         self.initMainWidget()
@@ -1043,7 +1043,7 @@ class MainForm(QtWidgets.QMainWindow):
                 self._p_work_space = view_back.findChild(flworkspace.FLWorkSpace, w.objectName())
                 view_back.show()
 
-        flapplication.aqApp.setCaptionMainWidget(None)
+        self.setCaptionMainWidget(None)
         descript_area = (
             self.db()
             .managerModules()
@@ -1070,6 +1070,26 @@ class MainForm(QtWidgets.QMainWindow):
         self.initStatusBar()
 
         self.readStateModule()
+
+    def setCaptionMainWidget(self, value) -> None:
+        """Set application title."""
+        if value:
+            self.last_text_caption_ = value
+
+        main_widget = flapplication.aqApp.main_widget_
+
+        if main_widget:
+            descript_area = (
+                self.db()
+                .managerModules()
+                .idAreaToDescription(self.db().managerModules().activeIdArea())
+            )
+            descript_module = self.db().managerModules().idModuleToDescription(self.objectName())
+
+            if descript_area:
+                main_widget.setWindowTitle(
+                    "%s - %s - %s" % (self.last_text_caption_, descript_area, descript_module)
+                )
 
     def initActions(self) -> None:
         """Initialize actions."""
@@ -1130,13 +1150,14 @@ class MainForm(QtWidgets.QMainWindow):
             if self.db().driverName():
                 self.db().managerModules().finish()
                 self.db().manager().finish()
-                QtCore.QTimer.singleShot(0, flapplication.aqApp.quit)
+                # QtCore.QTimer.singleShot(0, flapplication.aqApp.quit)
 
             for mw in self._dict_main_widgets.values():
                 mw.close()
 
             return True
         else:
+
             return False
 
 

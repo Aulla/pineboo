@@ -60,7 +60,7 @@ class Project(object):
         self.apppath = ""
         self.tmpdir = config.value("ebcomportamiento/temp_dir")
         self.parser = None
-        self.main_form_name: Optional[str] = None
+        # self.main_form_name: Optional[str] = None
         self.deleteCache = False
         self.parseProject = False
         self.translator_: List[Any] = []  # FIXME: Add proper type
@@ -116,10 +116,6 @@ class Project(object):
         self._DGI = DGI
 
         self._msg_mng = Manager(DGI)
-
-        self.main_form_name = "eneboo"  # FIXME: Belongs to loader.main .. or dgi-qt5
-        if config.value("ebcomportamiento/mdi_mode"):
-            self.main_form_name = "eneboo_mdi"  # FIXME: Belongs to loader.main .. or dgi-qt5
 
         self._DGI.extraProjectInit()
 

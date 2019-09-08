@@ -15,7 +15,7 @@ from pineboolib.loader.options import parse_options
 from pineboolib.loader.dgi import load_dgi
 from pineboolib.loader.connection import config_dbconn, connect_to_db
 from pineboolib.loader.connection import DEFAULT_SQLITE_CONN, IN_MEMORY_SQLITE_CONN
-
+from pineboolib import plugins
 from pineboolib.application import project  # FIXME: next time, proper singleton
 from pineboolib.application.parsers.qsaparser import pytnyzer
 
@@ -275,6 +275,9 @@ def exec_main(options: Values) -> int:
     if options.enable_quick:
         config.set_value("application/dbadmin_enabled", False)
 
+    if options.main_form:
+        config.set_value("ebcomportamiento/main_form_name", options.main_form)
+
     project.load_version()
 
     if is_deployed():
@@ -330,22 +333,34 @@ def exec_main(options: Values) -> int:
     if options.test:
         return 0 if project.test() else 1
 
-    if _DGI.useDesktop():
-        # FIXME: What is happening here? Why dynamic load?
-        import importlib  # FIXME: Delete dynamic import and move this code between Project and DGI plugins
+    # if _DGI.useDesktop():
+    # FIXME: What is happening here? Why dynamic load?
+    # import importlib  # FIXME: Delete dynamic import and move this code between Project and DGI plugins
 
-        project.main_form = (
-            importlib.import_module(
-                "pineboolib.plugins.mainform.%s.%s"
-                % (project.main_form_name, project.main_form_name)
-            )
-            if _DGI.localDesktop()
-            else _DGI.mainForm()
+    # project.main_form = (
+    #    importlib.import_module(
+    #        "pineboolib.plugins.mainform.%s.%s"
+    #        % (project.main_form_name, project.main_form_name)
+    #    )
+    #    if _DGI.localDesktop()
+    #    else _DGI.mainForm()
+    # )
+    main_form_name = config.value("ebcomportamiento/main_form_name", "eneboo")
+
+    main_form = getattr(plugins.mainform, main_form_name, None)
+    if main_form is None:
+        config.set_value("ebcomportamiento/main_form_name", "eneboo")
+        raise Exception(
+            "mainForm %s does not exits!!.Use 'pineboo --main_form eneboo' to restore default mainForm"
+            % main_form_name
         )
-        project.main_window = getattr(project.main_form, "mainWindow", None)
-        main_form_ = getattr(project.main_form, "MainForm", None)
-        if main_form_ is not None:
-            main_form_.setDebugLevel(options.debug_level)
+    else:
+        project.main_form = getattr(main_form, main_form_name)
+
+    project.main_window = getattr(project.main_form, "mainWindow", None)
+    main_form_ = getattr(project.main_form, "MainForm", None)
+    if main_form_ is not None:
+        main_form_.setDebugLevel(options.debug_level)
 
     project.message_manager().send("splash", "show")
 

@@ -855,10 +855,10 @@ class FLManagerModules(object):
         from pineboolib.core.settings import settings
 
         if self.activeIdArea_ is None:
-            raise ValueError("activeIdArea_ is empty!")
+            self.activeIdArea_ = ""
 
         if self.activeIdModule_ is None:
-            raise ValueError("activeIdModule_ is empty!")
+            self.activeIdModule_ = ""
 
         if self.shaLocal_ is None:
             raise ValueError("shaLocal_ is empty!")

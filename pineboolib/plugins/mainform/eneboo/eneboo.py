@@ -1267,6 +1267,12 @@ class MainForm(QtWidgets.QMainWindow):
 
         return self.w_.findChild(QtWidgets.QWidget, name)
 
+    def setCaptionMainWidget(self, value) -> None:
+        """Set application title."""
+        from pineboolib import application
+
+        self.setWindowTitle("Pineboo %s - %s" % (application.project.version, value))
+
 
 mainWindow: MainForm
 # mainWindow = MainForm()

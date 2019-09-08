@@ -116,6 +116,9 @@ def parse_options(custom_argv: Optional[List] = None) -> Values:
         default=True,
         help="Disables graphical interface",
     )
+    parser.add_option(
+        "--main_form", dest="main_form", help="Change the main form", metavar="MAINFORMPARAMETER"
+    )
 
     if custom_argv is None:
         (options, args) = parser.parse_args()

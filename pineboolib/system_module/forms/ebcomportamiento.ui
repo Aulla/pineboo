@@ -268,27 +268,6 @@
                                 </widget>
                                 <widget class="QGroupBox">
                                     <property name="name">
-                                        <cstring>groupBox12</cstring>
-                                    </property>
-                                    <property name="title">
-                                        <string>Pantalla Tradicional</string>
-                                    </property>
-                                    <vbox>
-                                        <property name="name">
-                                            <cstring>unnamed</cstring>
-                                        </property>
-                                        <widget class="QCheckBox">
-                                            <property name="name">
-                                                <cstring>cb_mdi</cstring>
-                                            </property>
-                                            <property name="text">
-                                                <string>Usar la pantalla tradicional (MDI) al iniciar.</string>
-                                            </property>
-                                        </widget>
-                                    </vbox>
-                                </widget>
-                                <widget class="QGroupBox">
-                                    <property name="name">
                                         <cstring>groupBox31</cstring>
                                     </property>
                                     <property name="title">
