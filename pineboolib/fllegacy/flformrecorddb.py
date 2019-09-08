@@ -112,14 +112,15 @@ class FLFormRecordDB(FLFormDB):
             "__init__: parent_or_cursor=%s, action=%s, load=%s", parent_or_cursor, action, load
         )
 
-        cursor: Optional[pnsqlcursor.PNSqlCursor]
+        cursor: Optional[pnsqlcursor.PNSqlCursor] = None
+        parent: Optional[QtWidgets.QWidget] = None
         # if isinstance(action, str):
         #    flapplication.aqApp.db().manager().action(action)
 
         if isinstance(parent_or_cursor, pnsqlcursor.PNSqlCursor):
-            parent = flapplication.aqApp.mainWidget()
+            parent = QtWidgets.QApplication.activeWindow()
             cursor = parent_or_cursor
-        else:
+        elif isinstance(parent_or_cursor, QtWidgets.QWidget):
             parent = parent_or_cursor
             cursor = None
 
