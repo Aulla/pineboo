@@ -104,9 +104,7 @@ class XMLAction(ActionStruct):
                 self.mainform_widget.widget.doCleanUp()
             if self.project.DGI.useDesktop() and hasattr(self.project.main_window, "w_"):
                 self.logger.info("Loading action %s (createForm). . . ", self.name)
-                self.mainform_widget = self.project.conn.managerModules().createForm(
-                    action=self, parent=self.project.main_window.w_
-                )
+                self.mainform_widget = self.project.conn.managerModules().createForm(action=self)
             else:
                 self.logger.info(
                     "Loading action %s (load_script %s). . . ", self.name, self.scriptform
