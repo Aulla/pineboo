@@ -879,21 +879,25 @@ class FLFormDB(QDialog):
         @param w Widget to initialize. If not set use
         by default the current main widget.
         """
+        from pineboolib import application
+        from PyQt5 import QtWidgets
 
-        # from PyQt5 import QtWidgets
-        # from pineboolib.application import project
+        if hasattr(application.project.main_window, "_dict_main_widgets"):
+            module_name = getattr(
+                application.project.actions[self._action.name()].mod, "module_name", None
+            )
 
-        # module_name = getattr(project.actions[self._action.name()].mod, "module_name", None)
-        # if module_name:
+            if (
+                module_name is not None
+                and module_name in application.project.main_window._dict_main_widgets.keys()
+            ):
+                module_window = application.project.main_window._dict_main_widgets[module_name]
+                mdi_area = module_window.centralWidget()
 
-        #    if module_name in flapplication.aqApp._dict_main_widgets.keys():
-        #        module_window = flapplication.aqApp._dict_main_widgets[module_name]
-        #        mdi_area = module_window.centralWidget()
-
-        #        if isinstance(mdi_area, QtWidgets.QMdiArea) and type(self).__name__ == "FLFormDB":
-        #            if not isinstance(self.parent(), QtWidgets.QMdiSubWindow):
-        #                # size = self.size()
-        #                mdi_area.addSubWindow(self)
+                if isinstance(mdi_area, QtWidgets.QMdiArea) and type(self).__name__ == "FLFormDB":
+                    # if not isinstance(self.parent(), QtWidgets.QMdiSubWindow):
+                    # size = self.size()
+                    mdi_area.addSubWindow(self)
 
         if self.initFocusWidget_ is None:
             self.initFocusWidget_ = self.focusWidget()
