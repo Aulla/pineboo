@@ -167,8 +167,8 @@ class MainForm(QtWidgets.QMainWindow):
         self.db().managerModules().loadAllIdModules()
         self.db().managerModules().loadIdAreas()
 
-        self.acl_ = pnaccesscontrollists.PNAccessControlLists()
-        self.acl_.init()
+        # self.acl_ = pnaccesscontrollists.PNAccessControlLists()
+        # self.acl_.init()
 
         # self.loadScripts()
         self.db().managerModules().setShaLocalFromGlobal()
@@ -509,8 +509,8 @@ class MainForm(QtWidgets.QMainWindow):
                 self.mdi_toolbuttons.append(child)
                 lay.setAlignment(child, QtCore.Qt.AlignCenter)
 
-        if self.acl_:
-            self.acl_.process(self.container_)
+        if flapplication.aqApp.acl_:
+            flapplication.aqApp.acl_.process(self.container_)
 
     def eventFilter(self, obj, ev) -> Any:
         """React to user events."""
@@ -621,8 +621,8 @@ class MainForm(QtWidgets.QMainWindow):
                 w.setWindowModality(QtCore.Qt.WindowModal)
                 self._dict_main_widgets[idm] = w
                 w.setObjectName(idm)
-                if self.acl_:
-                    self.acl_.process(w)
+                if flapplication.aqApp.acl_:
+                    flapplication.aqApp.acl_.process(w)
 
                 self.setMainWidget(w)
                 flapplication.aqApp.call("%s.init()" % idm, [])
@@ -760,8 +760,8 @@ class MainForm(QtWidgets.QMainWindow):
                         w = self.db().managerModules().createUI("%s.ui" % it)
                         self._dict_main_widgets[it] = w
                         w.setObjectName(it)
-                        if self.acl_:
-                            self.acl_.process(w)
+                        if flapplication.aqApp.acl_:
+                            flapplication.aqApp.acl_.process(w)
 
                         self.setCaptionMainWidget(None)
                         self.setMainWidget(w)
