@@ -30,7 +30,7 @@ from pineboolib.application.database.pnsqlquery import PNSqlQuery
 from pineboolib.application.database.utils import sqlSelect
 from pineboolib.application.process import Process
 
-# from pineboolib.fllegacy.flapplication import aqApp  # avoid importing at root.
+
 from .aqsobjects.aqs import AQS
 from .aqsobjects.aqsql import AQSql
 from .aqsobjects.aqsettings import AQSettings
@@ -89,12 +89,10 @@ class SysType(SysBaseType):
     def installACL(self, idacl) -> None:
         """Install a acl."""
 
-        # FIXME: Add ACL later
-        # acl_ = project.acl()
-        # acl_ = None
-        # if acl_:
-        #     acl_.installACL(idacl)
-        pass
+        acl_ = project.acl()
+        acl_ = None
+        if acl_:
+            acl_.installACL(idacl)
 
     @classmethod
     def updateAreas(self) -> None:

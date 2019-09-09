@@ -3847,54 +3847,61 @@ class PNCursorPrivate(QtCore.QObject):
         """
         Create restrictions according to access control list.
         """
-        # from pineboolib.fllegacy.flaccesscontrolfactory import FLAccessControlFactory  # FIXME: Remove dependency
+        from pineboolib.application.acls.pnaccesscontrolfactory import PNAccessControlFactory
 
-        # if not self.acTable_:
-        #     self.acTable_ = FLAccessControlFactory().create("table")
-        #     self.acTable_.setFromObject(self.metadata_)
-        #     self.acosBackupTable_ = self.acTable_.getAcos()
-        #     self.acPermBackupTable_ = self.acTable_.perm()
-        #     self.acTable_.clear()
-        # cursor = self.cursor_
-        # if cursor is None:
-        #     raise Exception("Cursor not created yet")
-        # if self.modeAccess_ == PNSqlCursor.Insert or (not self.lastAt_ == -1 and self.lastAt_ == cursor.at()):
-        #     return
-        #
-        # if self.acosCondName_ is not None:
-        #     condTrue_ = False
-        #
-        #     if self.acosCond_ == PNSqlCursor.Value:
-        #         condTrue_ = cursor.valueBuffer(self.acosCondName_) == self.acosCondVal_
-        #     elif self.acosCond_ == PNSqlCursor.RegExp:
-        #         from PyQt5.Qt import QRegExp  # type: ignore
-        #
-        #         # FIXME: What is happenning here? bool(str(Regexp)) ??
-        #         condTrue_ = bool(str(QRegExp(str(self.acosCondVal_)).exactMatch(str(cursor.value(self.acosCondName_)))))
-        #     elif self.acosCond_ == PNSqlCursor.Function:
-        #         condTrue_ = project.call(self.acosCondName_, [self.cursor_]) == self.acosCondVal_
-        #
-        #     if condTrue_:
-        #         if self.acTable_.name() != self.id_:
-        #             self.acTable_.clear()
-        #             self.acTable_.setName(self.id_)
-        #             self.acTable_.setPerm(self.acPermTable_)
-        #             self.acTable_.setAcos(self.acosTable_)
-        #             self.acTable_.processObject(self.metadata_)
-        #             self.aclDone_ = True
-        #
-        #         return
-        #
-        # elif cursor.isLocked() or (self.cursorRelation_ and self.cursorRelation_.isLocked()):
-        #
-        #     if not self.acTable_.name() == self.id_:
-        #         self.acTable_.clear()
-        #         self.acTable_.setName(self.id_)
-        #         self.acTable_.setPerm("r-")
-        #         self.acTable_.processObject(self.metadata_)
-        #         self.aclDone_ = True
-        #
-        #     return
+        if not self.acTable_:
+            self.acTable_ = PNAccessControlFactory().create("table")
+            self.acTable_.setFromObject(self.metadata_)
+            self.acosBackupTable_ = self.acTable_.getAcos()
+            self.acPermBackupTable_ = self.acTable_.perm()
+            self.acTable_.clear()
+        cursor = self.cursor_
+        if cursor is None:
+            raise Exception("Cursor not created yet")
+        if self.modeAccess_ == PNSqlCursor.Insert or (
+            not self.lastAt_ == -1 and self.lastAt_ == cursor.at()
+        ):
+            return
+
+        if self.acosCondName_ is not None:
+            condTrue_ = False
+
+            if self.acosCond_ == PNSqlCursor.Value:
+                condTrue_ = cursor.valueBuffer(self.acosCondName_) == self.acosCondVal_
+            elif self.acosCond_ == PNSqlCursor.RegExp:
+
+                # FIXME: What is happenning here? bool(str(Regexp)) ??
+                condTrue_ = bool(
+                    str(
+                        QtCore.QRegExp(str(self.acosCondVal_)).exactMatch(
+                            str(cursor.value(self.acosCondName_))
+                        )
+                    )
+                )
+            elif self.acosCond_ == PNSqlCursor.Function:
+                condTrue_ = project.call(self.acosCondName_, [self.cursor_]) == self.acosCondVal_
+
+            if condTrue_:
+                if self.acTable_.name() != self.id_:
+                    self.acTable_.clear()
+                    self.acTable_.setName(self.id_)
+                    self.acTable_.setPerm(self.acPermTable_)
+                    self.acTable_.setAcos(self.acosTable_)
+                    self.acTable_.processObject(self.metadata_)
+                    self.aclDone_ = True
+
+                return
+
+        elif cursor.isLocked() or (self.cursorRelation_ and self.cursorRelation_.isLocked()):
+
+            if not self.acTable_.name() == self.id_:
+                self.acTable_.clear()
+                self.acTable_.setName(self.id_)
+                self.acTable_.setPerm("r-")
+                self.acTable_.processObject(self.metadata_)
+                self.aclDone_ = True
+
+            return
 
         self.undoAcl()
 

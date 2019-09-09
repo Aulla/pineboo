@@ -196,7 +196,7 @@ class FLManager(QtCore.QObject, IManager):
                 return None
 
             ret: Any = False
-            acl: Any = False
+            acl: Any = None
             key = n.strip()
             stream = None
             isSysTable = n[0:3] == "sys" or self.isSystemTable(n)
@@ -241,8 +241,9 @@ class FLManager(QtCore.QObject, IManager):
                 if not ret.isQuery() and not self.existsTable(n):
                     self.createTable(ret)
 
-                # acl = project.acl()
-                acl = None  # FIXME: Add ACL later
+                from pineboolib.fllegacy import flapplication
+
+                acl = flapplication.aqApp.acl()
 
                 # if ret.fieldNamesUnlock():
                 #    ret = PNTableMetaData(ret)
@@ -447,8 +448,9 @@ class FLManager(QtCore.QObject, IManager):
 
                     del qry
 
-            # acl = project.acl()
-            acl = None  # FIXME: Add ACL later
+            from pineboolib.fllegacy import flapplication
+
+            acl = flapplication.aqApp.acl()
             if acl:
                 acl.process(tmd)
 

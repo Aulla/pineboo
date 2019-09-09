@@ -11,7 +11,7 @@ from pineboolib.core.settings import config
 from pineboolib.application import project
 from pineboolib.application.database import db_signals
 from pineboolib.application.qsatypes.sysbasetype import SysBaseType
-
+from pineboolib.application.acls import pnaccesscontrollists
 
 from .fltranslator import FLTranslator
 
@@ -20,8 +20,7 @@ from .fltexteditoutput import FLTextEditOutput
 from typing import Any, Optional, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.database.pnsqlcursor import PNSqlCursor
-    from .flaccesscontrollists import FLAccessControlLists  # noqa: F401
+    from pineboolib.application.database.pnsqlcursor import PNSqlCursor  # noqa: F401
 
 
 logger = logging.getLogger("FLApplication")
@@ -55,7 +54,7 @@ class FLApplication(QtCore.QObject):
     # project_ = None
 
     form_alone_: bool
-    acl_: Optional["FLAccessControlLists"]
+    acl_: Optional[pnaccesscontrollists.PNAccessControlLists]
     popup_warn_: Any
     fl_factory_: Any
     op_check_update_: bool
@@ -81,7 +80,6 @@ class FLApplication(QtCore.QObject):
 
         self.form_alone_ = False
         self._not_exit = False
-        self.acl_ = None
 
         self.popup_warn_ = None
         self._inicializing = False
@@ -98,6 +96,7 @@ class FLApplication(QtCore.QObject):
         self.show_debug_ = True  # FIXME
         self.script_entry_function_ = None
 
+        self.acl_ = pnaccesscontrollists.PNAccessControlLists()
         # self.fl_factory_ = FLObjectFactory() # FIXME para un futuro
         # self.time_user_ = QtCore.QDateTime.currentDateTime() # Moved to pncontrolsfacotry.SysType
         self._multi_lang_enabled = False
@@ -312,6 +311,10 @@ class FLApplication(QtCore.QObject):
         project.areas = {}
         project.modules = {}
         project.tables = {}
+
+    def acl(self) -> Optional[pnaccesscontrollists.PNAccessControlLists]:
+        """Return acl."""
+        return self.acl_
 
     def reinitP(self) -> None:
         """Reinitialize project."""

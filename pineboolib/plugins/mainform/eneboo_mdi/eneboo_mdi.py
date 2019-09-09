@@ -168,7 +168,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.db().managerModules().loadIdAreas()
 
         self.acl_ = pnaccesscontrollists.PNAccessControlLists()
-        # self.acl_.init()
+        self.acl_.init()
 
         # self.loadScripts()
         self.db().managerModules().setShaLocalFromGlobal()

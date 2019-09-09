@@ -197,8 +197,10 @@ class FLFormRecordDB(FLFormDB):
 
         else:
             self.setCaptionWidget("No hay metadatos")
-        # acl = project.acl()
-        acl = None  # FIXME: Add ACL later
+
+        from pineboolib.fllegacy import flapplication
+
+        acl = flapplication.aqApp.acl()
         if acl:
             acl.process(self)
 

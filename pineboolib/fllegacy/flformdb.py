@@ -565,9 +565,10 @@ class FLFormDB(QDialog):
         """
         Initialize the associated script.
         """
+        from pineboolib.fllegacy import flapplication
 
-        # acl = project.acl()
-        acl = None  # FIXME: Add ACL later
+        acl = flapplication.aqApp.acl()
+
         if acl:
             acl.process(self)
 
