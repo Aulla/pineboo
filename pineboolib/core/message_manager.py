@@ -32,6 +32,7 @@ class Manager(object):
             if not data_:
                 ret_ = attr_()
             else:
+                print(data_)
                 ret_ = attr_(*data_)
             self._dgi.processEvents()
 

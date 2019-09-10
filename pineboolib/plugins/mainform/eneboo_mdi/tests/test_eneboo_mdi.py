@@ -19,6 +19,7 @@ class TestEnebooGUI(unittest.TestCase):
 
     def test_initialize(self) -> None:
         """Test GUI initialize."""
+        from pineboolib.fllegacy import flapplication
 
         project = application.project
         project.main_form = importlib.import_module(
@@ -31,7 +32,7 @@ class TestEnebooGUI(unittest.TestCase):
         self.main_w.initScript()
         self.main_w.show()
         self.assertTrue(self.main_w)
-        self.main_w.stopTimerIdle()
+        flapplication.aqApp.stopTimerIdle()
 
     @classmethod
     def tearDownClass(cls) -> None:

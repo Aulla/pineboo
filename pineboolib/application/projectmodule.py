@@ -310,11 +310,10 @@ class Project(object):
                         for f in files:
                             os.remove(os.path.join(root, f))
 
-                self.message_manager().send(
-                    "splash", "showMessage", ["Volcando a caché %s..." % nombre]
-                )
-
                 if contenido and not os.path.exists(file_name):
+                    self.message_manager().send(
+                        "splash", "showMessage", ["Volcando a caché %s..." % nombre]
+                    )
                     f2 = open(file_name, "wb")
                     txt = contenido.encode(encode_, "replace")
                     f2.write(txt)

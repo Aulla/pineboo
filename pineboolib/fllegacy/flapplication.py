@@ -62,6 +62,7 @@ class FLApplication(QtCore.QObject):
 
     init_single_fl_large: bool
     show_debug_: bool
+    timer_idle_: Optional[QtCore.QTimer]
     time_user_: QtCore.QTimer
     script_entry_function_: Optional[str]
     _event_loop: Optional[QtCore.QEventLoop]
@@ -71,7 +72,6 @@ class FLApplication(QtCore.QObject):
     def __init__(self) -> None:
         """Create new FLApplication."""
         super(FLApplication, self).__init__()
-        self._p_work_space = None
         self.main_widget_ = None
         # self.project_ = None
         self.wb_ = None
@@ -80,7 +80,7 @@ class FLApplication(QtCore.QObject):
 
         self.form_alone_ = False
         self._not_exit = False
-
+        self.timer_idle_ = None
         self.popup_warn_ = None
         self._inicializing = False
         self._destroying = False
@@ -295,15 +295,80 @@ class FLApplication(QtCore.QObject):
         self.stopTimerIdle()
         # self.apAppIdle()
         self._inicializing = True
-        self.writeState()
-        self.writeStateModule()
 
-        self._p_work_space = None
+        mw = project.main_form.mainWindow
+
+        if mw is not None:
+            mw.writeState()
+            mw.writeStateModule()
+            if hasattr(mw, "_p_work_space"):
+                mw._p_work_space = None
 
         QtCore.QTimer.singleShot(0, self.reinitP)
         from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import empty_base
 
         empty_base()
+
+    def startTimerIdle(self) -> None:
+        """Start timer."""
+        if not self.timer_idle_:
+            self.timer_idle_ = QtCore.QTimer()
+            self.timer_idle_.timeout.connect(self.aqAppIdle)
+        else:
+            self.timer_idle_.stop()
+
+        self.timer_idle_.start(1000)
+
+    def stopTimerIdle(self) -> None:
+        """Stop timer."""
+        if self.timer_idle_ and self.timer_idle_.isActive():
+            self.timer_idle_.stop()
+
+    def aqAppIdle(self) -> None:
+        """Check and fix transaction level."""
+        if QtWidgets.QApplication.activeModalWidget() or QtWidgets.QApplication.activePopupWidget():
+            return
+
+        self.checkAndFixTransactionLevel("Application::aqAppIdle()")
+
+    def checkAndFixTransactionLevel(self, ctx=None) -> None:
+        """Fix transaction."""
+        dict_db = self.db().dictDatabases()
+        if not dict_db:
+            return
+
+        roll_back_done = False
+        for it in dict_db.values():
+            if it.transactionLevel() <= 0:
+                continue
+            roll_back_done = True
+            last_active_cursor = it.lastActiveCursor()
+            if last_active_cursor is not None:
+                last_active_cursor.rollbackOpened(-1)
+            if it.transactionLevel() <= 0:
+                continue
+
+        if not roll_back_done:
+            return
+
+        msg = self.tr(
+            "Se han detectado transacciones abiertas en estado inconsistente.\n"
+            "Esto puede suceder por un error en la conexión o en la ejecución\n"
+            "de algún proceso de la aplicación.\n"
+            "Para mantener la consistencia de los datos se han deshecho las\n"
+            "últimas operaciones sobre la base de datos.\n"
+            "Los últimos datos introducidos no han sido guardados, por favor\n"
+            "revise sus últimas acciones y repita las operaciones que no\n"
+            "se han guardado.\n"
+        )
+
+        if ctx is not None:
+
+            msg += self.tr("Contexto: %s\n" % ctx)
+
+        # FIXME: Missing _gui parameter
+        # self.msgBoxWarning(msg)
+        logger.warning("%s\n", msg)
 
     def clearProject(self) -> None:
         """Cleanup."""
@@ -326,9 +391,9 @@ class FLApplication(QtCore.QObject):
         self.db().managerModules().setActiveIdModule("")
 
         self.clearProject()
-
+        mw = project.main_form.mainWindow
         if self.main_widget_ is None:
-            self.main_widget_ = project.main_form.mainWindow
+            self.main_widget_ = mw
 
         if project.main_window is None:
             raise Exception("project.main_window is empty!")
@@ -353,12 +418,13 @@ class FLApplication(QtCore.QObject):
         self.loadScripts()
         # self.db().managerModules().setShaFromGlobal()
         self.call("sys.init()", [])
-        self.initToolBox()
-        self.readState()
+        if hasattr(mw, "initToolBox"):
+            mw.initToolBox()
 
-        if self.container_:
+        mw.readState()
 
-            self.container_.installEventFilter(self)
+        if hasattr(mw, "container_"):
+            mw.container_.installEventFilter(self)
             # self.container_.setDisable(False)
 
         self.callScriptEntryFunction()
@@ -399,8 +465,7 @@ class FLApplication(QtCore.QObject):
 
     def setCaptionMainWidget(self, text: str) -> None:
         """Set caption main widget."""
-        if self.main_widget_:
-            self.main_widget_.setCaptionMainWidget(text)
+        project.main_form.mainWindow.setCaptionMainWidget(text)
 
     @decorators.NotImplementedWarn
     def addSysCode(self, code, scritp_entry_function):
@@ -581,6 +646,7 @@ class FLApplication(QtCore.QObject):
 
     def queryExit(self) -> Any:
         """Ask user if really wants to quit."""
+
         if self._not_exit:
             return False
 
@@ -588,7 +654,7 @@ class FLApplication(QtCore.QObject):
             return True
 
         ret = QtWidgets.QMessageBox.information(
-            self.mainWidget(),
+            project.main_form.mainWindow,
             self.tr("Salir ..."),
             self.tr("¿ Quiere salir de la aplicación ?"),
             QtWidgets.QMessageBox.Yes,

@@ -34,7 +34,7 @@ class MainForm(QtWidgets.QMainWindow):
     _p_work_space: Any
     mdi_toolbuttons: List[QtWidgets.QToolButton]
     _dict_main_widgets: Dict[str, QtWidgets.QWidget]
-    timer_idle_: Optional[QtCore.QTimer]
+
     tool_box_: Any
     toogle_bars_: Any
     last_text_caption_: str
@@ -48,7 +48,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.is_closing_ = False
         self.mdi_toolbuttons = []
         self._dict_main_widgets = {}
-        self.timer_idle_ = None
+
         self.container_ = None
         self.tool_box_ = None
         self.toogle_bars_ = None
@@ -58,7 +58,7 @@ class MainForm(QtWidgets.QMainWindow):
     def reinitScript(self):
         """Reinit script."""
 
-        self.startTimerIdle()
+        flapplication.aqApp.startTimerIdle()
 
         if self._dict_main_widgets:
             self._dict_main_widgets = {}
@@ -179,12 +179,14 @@ class MainForm(QtWidgets.QMainWindow):
         self.readState()
 
         self.container_.installEventFilter(self)
-        self.startTimerIdle()
+        flapplication.aqApp.startTimerIdle()
 
     def exit_button_clicked(self):
         """Event when exit button is clicked. Closes the container."""
-        if self.container_ is not None:
-            self.container_.close()
+        ret = self.generalExit(True)
+        if ret:
+            self.is_closing_ = True
+            self.close()
 
     def initMenuBar(self) -> None:
         """Initialize menus."""
@@ -323,11 +325,11 @@ class MainForm(QtWidgets.QMainWindow):
 
         self.modules_menu.clear()
         for n in reversed(range(self.tool_box_.count())):
-            item = self.tool_box_widget(n)
+            item = self.tool_box_.widget(n)
             if isinstance(item, QtWidgets.QToolBar):
                 item.clear()
 
-            self.tool_box_.removeItem(item)
+            self.tool_box_.removeItem(n)
 
         for tb in self.mdi_toolbuttons:
             self.mdi_toolbuttons.remove(tb)
@@ -564,13 +566,13 @@ class MainForm(QtWidgets.QMainWindow):
                     return True
 
         elif evt == QtCore.QEvent.Close:
-            if obj == self.container_:
+            if obj is self and not self.is_closing_:
                 ret = self.generalExit()
                 if not ret:
                     obj.setDisabled(False)
                     ev.ignore()
 
-                return True
+            return True
 
         elif evt == QtCore.QEvent.WindowActivate:
             if obj == self.container_:
@@ -818,78 +820,19 @@ class MainForm(QtWidgets.QMainWindow):
             desk = QtWidgets.QApplication.desktop().availableGeometry(main_widget)
             inter = desk.intersected(r)
             main_widget.resize(r.size())
-            if (inter.width() * inter.height()) > (r.width() * r.height() / 20):
+            if (inter.width() * inter.height()) - 100 > (r.width() * r.height()):
                 main_widget.move(r.topLeft())
             else:
+                main_widget.hide()
                 main_widget.resize(
                     QtWidgets.QApplication.desktop().availableGeometry(main_widget).size()
                 )
-
-    def aqAppIdle(self) -> None:
-        """Check and fix transaction level."""
-        if QtWidgets.QApplication.activeModalWidget() or QtWidgets.QApplication.activePopupWidget():
-            return
-
-        self.checkAndFixTransactionLevel("Application::aqAppIdle()")
-
-    def checkAndFixTransactionLevel(self, ctx=None) -> None:
-        """Fix transaction."""
-        dict_db = self.db().dictDatabases()
-        if not dict_db:
-            return
-
-        roll_back_done = False
-        for it in dict_db.values():
-            if it.transactionLevel() <= 0:
-                continue
-            roll_back_done = True
-            last_active_cursor = it.lastActiveCursor()
-            if last_active_cursor is not None:
-                last_active_cursor.rollbackOpened(-1)
-            if it.transactionLevel() <= 0:
-                continue
-
-        if not roll_back_done:
-            return
-
-        msg = self.tr(
-            "Se han detectado transacciones abiertas en estado inconsistente.\n"
-            "Esto puede suceder por un error en la conexión o en la ejecución\n"
-            "de algún proceso de la aplicación.\n"
-            "Para mantener la consistencia de los datos se han deshecho las\n"
-            "últimas operaciones sobre la base de datos.\n"
-            "Los últimos datos introducidos no han sido guardados, por favor\n"
-            "revise sus últimas acciones y repita las operaciones que no\n"
-            "se han guardado.\n"
-        )
-
-        if ctx is not None:
-
-            msg += self.tr("Contexto: %s\n" % ctx)
-
-        # FIXME: Missing _gui parameter
-        # self.msgBoxWarning(msg)
-        logger.warning("%s\n", msg)
-
-    def startTimerIdle(self) -> None:
-        """Start timer."""
-        if not self.timer_idle_:
-            self.timer_idle_ = QtCore.QTimer()
-            self.timer_idle_.timeout.connect(self.aqAppIdle)
-        else:
-            self.timer_idle_.stop()
-
-        self.timer_idle_.start(1000)
-
-    def stopTimerIdle(self) -> None:
-        """Stop timer."""
-        if self.timer_idle_ and self.timer_idle_.isActive():
-            self.timer_idle_.stop()
+                main_widget.show()
 
     def __del__(self) -> None:
         """Cleanup."""
         self._destroying = True
-        self.stopTimerIdle()
+        flapplication.aqApp.stopTimerIdle()
         # self.checkAndFixTransactionLAvel("%s:%s" % (__name__, __class__))
         # app_db = self.db()
         # if app_db:

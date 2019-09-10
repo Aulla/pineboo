@@ -351,6 +351,11 @@ class MainForm(QtWidgets.QMainWindow):
 
         return doExit
 
+    def writeStateModule(self) -> None:
+        """Write settings for modules."""
+
+        pass
+
     def writeState(self) -> None:
         """Save settings."""
         from pineboolib.application import project
