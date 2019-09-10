@@ -2793,6 +2793,10 @@ class FLTableDB(QtWidgets.QWidget):
 
         return self.orderAsc_
 
+    def setActionName(self, name: str):
+        """Set action Name to the cursor (Deprecated)."""
+        pass
+
     def activeTabData(self, b: bool) -> None:
         """
         Activate the data table.
