@@ -14,13 +14,6 @@ class QFrame(QtWidgets.QFrame):
 
     _line_width: int
 
-    NoFrame = 0
-    Box = 1
-    Panel = 2
-    WinPanel = 3
-    HLine = 4
-    VLine = 5
-    StyledPanel = 6
     PopupPanel = 7
     MenuBarPanel = 8
     ToolBarPanel = 9
