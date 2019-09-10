@@ -884,17 +884,14 @@ class FLFormDB(QDialog):
         from PyQt5 import QtWidgets
 
         if hasattr(application.project.main_window, "_dict_main_widgets"):
-            module_name = getattr(
-                application.project.actions[self._action.name()].mod, "module_name", None
-            )
-
+            module_name = application.project.conn.managerModules().activeIdModule()
             if (
-                module_name is not None
+                module_name
                 and module_name in application.project.main_window._dict_main_widgets.keys()
             ):
                 module_window = application.project.main_window._dict_main_widgets[module_name]
-                mdi_area = module_window.centralWidget()
 
+                mdi_area = module_window.centralWidget()
                 if isinstance(mdi_area, QtWidgets.QMdiArea) and type(self).__name__ == "FLFormDB":
                     # if not isinstance(self.parent(), QtWidgets.QMdiSubWindow):
                     # size = self.size()
