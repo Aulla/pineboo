@@ -376,7 +376,7 @@ class MainForm(QtWidgets.QMainWindow):
                             QtGui.QIcon(AQS.pixmap_fromMimeSource("folder_update.png"))
                         )
                         new_area_bar.addAction(new_module_action)
-                        new_module_action.triggered.connect(self.staticLoaderSetup)
+                        new_module_action.triggered.connect(flapplication.aqApp.staticLoaderSetup)
                         ag.addAction(new_module_action)
                         c += 1
 
@@ -389,7 +389,7 @@ class MainForm(QtWidgets.QMainWindow):
                             QtGui.QIcon(AQS.pixmap_fromMimeSource("reload.png"))
                         )
                         new_area_bar.addAction(new_module_action)
-                        new_module_action.triggered.connect(self.reinit)
+                        new_module_action.triggered.connect(flapplication.aqApp.reinit)
                         ag.addAction(new_module_action)
                         c += 1
 
