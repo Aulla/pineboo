@@ -32,6 +32,8 @@ class FLTextEditOutput(QtWidgets.QPlainTextEdit):
         self.appendPlainText(txt)
 
     def flush(self):
+        """Flush data."""
+
         pass
 
     def close(self) -> bool:
