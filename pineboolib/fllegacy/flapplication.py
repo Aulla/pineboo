@@ -541,7 +541,7 @@ class FLApplication(QtCore.QObject):
 
     def showConsole(self) -> None:
         """Show application console on GUI."""
-        mw = self.mainWidget()
+        mw = project.main_form.mainWindow
         if mw:
             if self._ted_output:
                 self._ted_output.parentWidget().close()

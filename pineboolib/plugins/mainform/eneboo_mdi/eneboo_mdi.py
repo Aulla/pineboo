@@ -340,8 +340,6 @@ class MainForm(QtWidgets.QMainWindow):
         c = 65
 
         for it in self.db().managerModules().listIdAreas():
-            if it == "sys" and not config.value("application/dbadmin_enabled", False):
-                continue
             descript_area = self.db().managerModules().idAreaToDescription(it)
             new_area_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
             new_area_bar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
@@ -395,21 +393,19 @@ class MainForm(QtWidgets.QMainWindow):
                         ag.addAction(new_module_action)
                         c += 1
 
-                        descript_module = "%s: %s" % (
-                            str(chr(c)),
-                            self.tr("Mostrar Consola de mensajes"),
-                        )
-                        new_module_action = QtWidgets.QAction(new_area_bar)
-                        new_module_action.setObjectName("shConsoleAction")
-                        new_module_action.setText(self.tr(descript_module))
-                        new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-                        new_module_action.setIcon(
-                            QtGui.QIcon(AQS.pixmap_fromMimeSource("consola.png"))
-                        )
-                        new_area_bar.addAction(new_module_action)
-                        new_module_action.triggered.connect(self.showConsole)
-                        ag.addAction(new_module_action)
-                        c += 1
+                    descript_module = "%s: %s" % (
+                        str(chr(c)),
+                        self.tr("Mostrar Consola de mensajes"),
+                    )
+                    new_module_action = QtWidgets.QAction(new_area_bar)
+                    new_module_action.setObjectName("shConsoleAction")
+                    new_module_action.setText(self.tr(descript_module))
+                    new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
+                    new_module_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("consola.png")))
+                    new_area_bar.addAction(new_module_action)
+                    new_module_action.triggered.connect(flapplication.aqApp.showConsole)
+                    ag.addAction(new_module_action)
+                    c += 1
 
                 descript_module = "%s: %s" % (
                     str(chr(c)),

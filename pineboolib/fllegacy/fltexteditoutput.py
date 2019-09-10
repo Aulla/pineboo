@@ -4,6 +4,10 @@ from PyQt5 import QtWidgets  # type: ignore
 import sys
 from typing import Union, Any
 
+from pineboolib import logging
+
+logger = logging.getLogger("FLTextEditOputput")
+
 
 class FLTextEditOutput(QtWidgets.QPlainTextEdit):
     """FLTextEditOutput class."""
@@ -26,6 +30,9 @@ class FLTextEditOutput(QtWidgets.QPlainTextEdit):
         if self.oldStdout:
             self.oldStdout.write(txt)
         self.appendPlainText(txt)
+
+    def flush(self):
+        pass
 
     def close(self) -> bool:
         """Control close."""
