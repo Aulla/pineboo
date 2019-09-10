@@ -206,8 +206,8 @@ def generate_model(dest_file: str, mtd_table: PNTableMetaData) -> List[str]:
 
         if config.value("application/isDebuggerMode", False):
             logger.warning(
-                "La tabla %s no tiene definida una clave primaria. No se generará el model %s\n"
-                % (mtd_table.name(), mtd_table.primaryKey())
+                "La tabla %s no tiene definida una clave primaria. No se generará el model.\n"
+                % (mtd_table.name())
             )
         data = []
 
