@@ -19,7 +19,7 @@ class FormDBWidget(QtWidgets.QWidget):
     closed = QtCore.pyqtSignal()
     cursor_: Optional["pnsqlcursor.PNSqlCursor"]
     parent_: QtWidgets.QWidget
-    iface: object
+    iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
 
     logger = logging.getLogger("qt3_widgets.formdbwidget.FormDBWidget")
@@ -35,6 +35,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
         self._module = sys.modules[self.__module__]
         self._action = action
+        self.iface = None
         self.cursor_ = None
         self.parent_ = parent or QtWidgets.QWidget()
 
