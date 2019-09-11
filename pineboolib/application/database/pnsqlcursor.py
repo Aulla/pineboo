@@ -2662,7 +2662,7 @@ class PNSqlCursor(QtCore.QObject):
             return
 
         if not self.isValid() or self.size() <= 0:
-            self.msgBoxWarning(self.tr("No hay ningún registro seleccionado"))
+            self.d.msgBoxWarning(self.tr("No hay ningún registro seleccionado"))
             return
 
         field_list = self.d.metadata_.fieldList()
