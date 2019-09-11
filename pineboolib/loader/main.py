@@ -366,6 +366,15 @@ def exec_main(options: Values) -> int:
 
     project.run()
 
+    from pineboolib.fllegacy.flapplication import aqApp
+    from pineboolib.application.acls import pnaccesscontrollists
+
+    acl = pnaccesscontrollists.PNAccessControlLists()
+    acl.init()
+
+    if acl._access_control_list:
+        aqApp.set_acl(acl)
+
     if not project.conn.conn:
         logger.warning("No connection was provided. Aborting Pineboo load.")
         return -99
@@ -383,7 +392,6 @@ def exec_main(options: Values) -> int:
     project.load_modules()
 
     # FIXME: move this code to pineboo.application
-    from pineboolib.fllegacy.flapplication import aqApp
 
     aqApp.loadTranslations()
 

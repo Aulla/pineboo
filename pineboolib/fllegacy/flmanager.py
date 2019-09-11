@@ -247,8 +247,7 @@ class FLManager(QtCore.QObject, IManager):
 
                 # if ret.fieldNamesUnlock():
                 #    ret = PNTableMetaData(ret)
-
-                if acl is not None:
+                if acl:
                     acl.process(ret)
 
                 if not isSysTable:

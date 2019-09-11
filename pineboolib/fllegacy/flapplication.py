@@ -96,7 +96,7 @@ class FLApplication(QtCore.QObject):
         self.show_debug_ = True  # FIXME
         self.script_entry_function_ = None
 
-        self.acl_ = pnaccesscontrollists.PNAccessControlLists()
+        self.acl_ = None
         # self.fl_factory_ = FLObjectFactory() # FIXME para un futuro
         # self.time_user_ = QtCore.QDateTime.currentDateTime() # Moved to pncontrolsfacotry.SysType
         self._multi_lang_enabled = False
@@ -380,6 +380,10 @@ class FLApplication(QtCore.QObject):
     def acl(self) -> Optional[pnaccesscontrollists.PNAccessControlLists]:
         """Return acl."""
         return self.acl_
+
+    def set_acl(self, acl: pnaccesscontrollists.PNAccessControlLists) -> None:
+        """Set acl to pineboo."""
+        self.acl_ = acl
 
     def reinitP(self) -> None:
         """Reinitialize project."""
