@@ -691,7 +691,7 @@ class MainForm(QtWidgets.QMainWindow):
         res = popMenu.exec_()
         if res and self.ag_menu_ is not None:
             ac = self.ag_menu_.findChild(QtWidgets.QAction, item.text(1))
-            if ac:
+            if ac and not ac.objectName().endswith("actiongroup_name"):
                 self.addMark(ac)
 
         return True
