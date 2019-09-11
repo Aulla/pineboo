@@ -341,7 +341,7 @@ class FLManagerModules(object):
             return
 
         format_val = self.conn_.manager().formatAssignValue("nombre", "string", file_name, True)
-        format_val2 = self.conn_.managere().formatAssignValue("idmodulo", "string", id_module, True)
+        format_val2 = self.conn_.manager().formatAssignValue("idmodulo", "string", id_module, True)
 
         from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
         from pineboolib.fllegacy.flutil import FLUtil
@@ -351,10 +351,10 @@ class FLManagerModules(object):
 
         if cursor.first():
             cursor.setModeAccess(cursor.Edit)
-            cursor.refreshBufer()
+            cursor.refreshBuffer()
         else:
             cursor.setModeAccess(cursor.Insert)
-            cursor.refreshBufer()
+            cursor.refreshBuffer()
             cursor.setValueBuffer("nombre", file_name)
             cursor.setValueBuffer("idmodulo", id_module)
 
