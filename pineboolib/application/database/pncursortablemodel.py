@@ -382,6 +382,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return d
 
         elif role == QtCore.Qt.DecorationRole:
+            pixmap = None
             if _type in ("unlock", "pixmap"):
 
                 if _type == "unlock":

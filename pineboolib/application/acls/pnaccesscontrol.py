@@ -202,20 +202,19 @@ class PNAccessControl(object):
         no = e.firstChild()
 
         while not no.isNull():
-            e = no.toElement()
-            if not e.isNull():
-                if e.tagName() == "name":
-                    self._name = e.text()
+            if not no.toElement().isNull():
+                if no.toElement().tagName() == "name":
+                    self._name = no.toElement().text()
                     no = no.nextSibling()
                     continue
 
-                elif e.tagName() == "user":
-                    self._user = e.text()
+                elif no.toElement().tagName() == "user":
+                    self._user = no.toElement().text()
                     no = no.nextSibling()
                     continue
 
-                elif e.tagName() == "aco":
-                    self._acos_perms[e.text()] = e.attribute("perm")
+                elif no.toElement().tagName() == "aco":
+                    self._acos_perms[no.toElement().text()] = no.toElement().attribute("perm")
                     no = no.nextSibling()
                     continue
 

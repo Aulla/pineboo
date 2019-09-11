@@ -109,7 +109,6 @@ class FLFieldDB(QtWidgets.QWidget):
     keyF2Pressed: QtCore.pyqtSignal = QtCore.pyqtSignal()
 
     firstRefresh: bool
-    default_style: Any
 
     """
     Tamaño de icono por defecto
@@ -150,7 +149,6 @@ class FLFieldDB(QtWidgets.QWidget):
         self.textLabelDB = None
         self.FLWidgetFieldDBLayout = None
         self.firstRefresh = False
-        self.default_style = None
         self.fieldMapValue_ = None
 
         self.maxPixImages_ = config.value("ebcomportamiento/maxPixImages", None)
@@ -3249,16 +3247,15 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if hasattr(self, "editor_"):
             if self.cursor_ is None:
-                self.default_style = self.editor_.styleSheet()
                 self.editor_.setDisabled(True)
                 self.editor_.setStyleSheet("background-color: #f0f0f0")
             else:
 
-                read_only = False
-                if hasattr(self.editor_, "isReadOnly"):
-                    read_only = self.editor_.isReadOnly()
+                read_only = None
+                if hasattr(self.editor_, "setReadOnly"):
+                    read_only = self.editor_.setReadOnly
 
-                if read_only:
+                if read_only is not None:
                     tMD = self.cursor_.metadata()
                     field = tMD.field(self.fieldName_)
 
@@ -3271,15 +3268,16 @@ class FLFieldDB(QtWidgets.QWidget):
                     else:
                         if (
                             not field.allowNull()
-                            and not (field.type() == "time" or field.type() == "date")
+                            and not (field.type() in ["date", "time"])
                             and (self.cursor_ and self.cursor_.modeAccess() != self.cursor_.Browse)
                         ):
+
                             self.editor_.setStyleSheet(
                                 "background-color:%s; color:%s"
                                 % (self.notNullColor(), QtGui.QColor(Qt.black).name())
                             )
-                        elif self.default_style:
-                            self.editor_.setStyleSheet(self.default_style)
+                        else:
+                            self.editor_.setStyleSheet(self.styleSheet())
 
                 else:
                     self.editor_.setEnabled(enable)
