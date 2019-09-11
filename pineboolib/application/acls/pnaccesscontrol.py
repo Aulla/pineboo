@@ -57,7 +57,10 @@ as the module selector, or each of the main windows of the modules.
 """
 
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt5 import QtXml
 
 
 class PNAccessControl(object):
@@ -178,7 +181,7 @@ class PNAccessControl(object):
 
         return ""
 
-    def set(self, e: Any) -> None:
+    def set(self, e: "QtXml.QDomDocument") -> None:
         """
         Define the access control rule from the information of a DOM node of a given DOM / XML document.
 
@@ -230,19 +233,19 @@ class PNAccessControl(object):
         if not self.type() or d is None:
             return
 
-        root = d.fisrtChild().toElement()
+        root = d.firstChild().toElement()
         e = d.createElement(self.type())
         e.setAttribute("perm", self._perm)
         root.appendChild(e)
 
         name = d.createElement("name")
         e.appendChild(name)
-        n = d.createTextNone(self._name)
+        n = d.createTextNode(self._name)
         name.appendChild(n)
 
         user = d.createElement("user")
         e.appendChild(user)
-        u = d.createTextNone(self._user)
+        u = d.createTextNode(self._user)
         user.appendChild(u)
 
         if self._acos_perms:
@@ -250,7 +253,7 @@ class PNAccessControl(object):
                 aco = d.createElement("aco")
                 aco.setAttribute("perm", self._acos_perms[key])
                 e.appendChild(aco)
-                t = d.createTextNone(key)
+                t = d.createTextNode(key)
                 aco.appendChild(t)
 
     def setAcos(self, acos: List[str]) -> None:

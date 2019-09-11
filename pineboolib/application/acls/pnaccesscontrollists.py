@@ -128,7 +128,11 @@ class PNAccessControlLists(object):
             return
 
         type = PNAccessControlFactory().type(obj)
-        name = obj.objectName() if hasattr(obj, "objectName") else ""
+        name = ""
+        if hasattr(obj, "objectName"):
+            name = obj.objectName()
+        elif hasattr(obj, "name"):
+            name = obj.name()
 
         from pineboolib.application import project
 
@@ -139,9 +143,10 @@ class PNAccessControlLists(object):
         if type == "" or name == "" or user == "":
             return
 
-        ac = self._access_control_list["%s::%s::%s" % (type, name, user)]
-        if ac:
-            ac.processObject(obj)
+        key = "%s::%s::%s" % (type, name, user)
+
+        if key in self._access_control_list.keys():
+            self._access_control_list[key].processObject(obj)
 
     def installACL(self, idacl: str) -> None:
         """
@@ -185,7 +190,7 @@ class PNAccessControlLists(object):
 
             project.conn.managerModules().setContent("acl.xml", "sys", doc.toString())
 
-    def makeRule(self, q: PNSqlQuery, d: Any) -> None:
+    def makeRule(self, q: PNSqlQuery, d: QDomDocument) -> None:
         """
         Create the corresponding DOM node (s) to a record in the "flacs" table.
 
@@ -200,12 +205,12 @@ class PNAccessControlLists(object):
         if not q or not d:
             return
 
-        if q.value(5) in ("True", True, "true"):
+        if q.value(5):
             self.makeRuleGroup(q, d, str(q.value(4)))
         else:
             self.makeRuleUser(q, d, str(q.value(3)))
 
-    def makeRuleUser(self, q: PNSqlQuery, d: Any, iduser: str) -> None:
+    def makeRuleUser(self, q: PNSqlQuery, d: QDomDocument, iduser: str) -> None:
         """
         Create a DOM node corresponding to a record in the "flacs" table and for a given user.
 
@@ -239,8 +244,6 @@ class PNAccessControlLists(object):
 
             ac.setAcos(acos)
             ac.get(d)
-
-            del ac
 
     def makeRuleGroup(self, q: PNSqlQuery, d: Any, idgroup: str = "") -> None:
         """
