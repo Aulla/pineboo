@@ -162,7 +162,7 @@ class PNAccessControlLists(object):
         q = PNSqlQuery()
 
         q.setTablesList("flacs")
-        q.setSelect("idac,tipo,nombre,iduser,idgroup,degroup,permiso")
+        q.setSelect("idac,tipo,nombre,iduser,idgroup,degrupo,permiso")
         q.setFrom("flacs")
         q.setWhere("idacl='%s'" % idacl)
         q.setOrderBy("prioridad DESC, tipo")
@@ -261,7 +261,7 @@ class PNAccessControlLists(object):
         qU.setTablesList("flusers")
         qU.setSelect("iduser")
         qU.setFrom("flusers")
-        qU.setWhere("'idgroup='%s'" % idgroup)
+        qU.setWhere("idgroup='%s'" % idgroup)
         qU.setForwardOnly(True)
 
         if qU.exec_():
