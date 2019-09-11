@@ -60,7 +60,7 @@ class dgi_qt(dgi_schema):
             parent = (
                 qApp.focusWidget().parent()
                 if hasattr(qApp.focusWidget(), "parent")
-                else qApp.focusWidget()
+                else qApp.activeWindow()
             )
 
         logger.warning("%s", t)
