@@ -88,33 +88,34 @@ class SysType(SysBaseType):
     @classmethod
     def installACL(self, idacl) -> None:
         """Install a acl."""
+        from pineboolib.fllegacy import flapplication
 
-        acl_ = project.acl()
-        acl_ = None
+        acl_ = flapplication.aqApp.acl()
+
         if acl_:
             acl_.installACL(idacl)
 
     @classmethod
     def updateAreas(self) -> None:
         """Update areas in mdi."""
-        from pineboolib.fllegacy.flapplication import aqApp
+        from pineboolib.fllegacy import flapplication
 
-        aqApp.initToolBox()
+        flapplication.aqApp.initToolBox()
 
     @classmethod
     def reinit(self) -> None:
         """Call reinit script."""
-        from pineboolib.fllegacy.flapplication import aqApp
+        from pineboolib.fllegacy import flapplication
 
-        aqApp.reinit()
+        flapplication.aqApp.reinit()
 
     @classmethod
     def setCaptionMainWidget(self, title: str) -> None:
         """Set caption in the main widget."""
 
-        from pineboolib.fllegacy.flapplication import aqApp
+        from pineboolib.fllegacy import flapplication
 
-        aqApp.setCaptionMainWidget(title)
+        flapplication.aqApp.setCaptionMainWidget(title)
 
     @staticmethod
     def execQSA(fileQSA=None, args=None) -> None:
