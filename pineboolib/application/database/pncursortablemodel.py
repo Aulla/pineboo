@@ -322,8 +322,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return d
 
         elif role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
+            if not field.visible():
+                d = None
             # r = self._vdata[row]
-            if _type == "bool":
+            elif _type == "bool":
                 if d in (True, "1"):
                     d = "Sí"
                 else:
@@ -380,7 +382,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return d
 
         elif role == QtCore.Qt.DecorationRole:
-            pixmap = None
             if _type in ("unlock", "pixmap"):
 
                 if _type == "unlock":
