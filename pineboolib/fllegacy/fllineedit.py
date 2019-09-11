@@ -160,6 +160,7 @@ class FLLineEdit(QtWidgets.QLineEdit):
         if self._tipo in ("double", "int", "uint"):
             self.blockSignals(True)
             s_orig = self.text()
+            s = s_orig
             if self._tipo == "double":
                 if s_orig != "":
                     s = QtCore.QLocale.system().toString(float(s_orig), "f", self._part_decimal)
