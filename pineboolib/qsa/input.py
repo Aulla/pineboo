@@ -1,6 +1,6 @@
 """Input module."""
 
-from PyQt5.QtWidgets import QInputDialog, QLineEdit, QWidget  # type: ignore
+from PyQt5 import QtWidgets
 from typing import Any, Optional, Union, Iterable
 
 
@@ -19,8 +19,10 @@ class Input(object):
         @param title. Title of the dialogue.
         @return string of collected text.
         """
-        parent = QWidget()  # FIXME: Should be the mainWindow or similar
-        text, ok = QInputDialog.getText(parent, title, question, QLineEdit.Normal, prevtxt)
+        parent = QtWidgets.QApplication.activeWindow()
+        text, ok = QtWidgets.QInputDialog.getText(
+            parent, title, question, QtWidgets.QLineEdit.Normal, prevtxt
+        )
         if not ok:
             return None
         return text
@@ -31,15 +33,19 @@ class Input(object):
     ) -> float:
         """Return number."""
 
-        parent = QWidget()  # FIXME: Should be the mainWindow or similar
-        text, ok = QInputDialog.getText(
-            parent, title, question, QLineEdit.Normal, str(round(float(value), part_decimal))
+        parent = QtWidgets.QApplication.activeWindow()
+        text, ok = QtWidgets.QInputDialog.getText(
+            parent,
+            title,
+            question,
+            QtWidgets.QLineEdit.Normal,
+            str(round(float(value), part_decimal)),
         )
         return float(text) if ok else 0.00
 
     @classmethod
     def getItem(
-        cls, question: str, items_list: Iterable = [], title: str = "Pineboo", editable: bool = True
+        cls, question: str, items_list: Iterable = [], editable: bool = True, title: str = "Pineboo"
     ) -> Any:
         """
         Return Item.
@@ -49,9 +55,12 @@ class Input(object):
         @param title. Title of the dialogue.
         @return item, Selected item.
         """
+        parent = QtWidgets.QApplication.activeWindow()
+        items = []
+        for i in items_list:
+            items.append(i)
 
-        parent = QWidget()  # FIXME: Should be the mainWindow or similar
-        text, ok = QInputDialog.getItem(parent, title, question, items_list, 0, editable)
+        text, ok = QtWidgets.QInputDialog.getItem(parent, title, question, items, 0, editable)
         if not ok:
             return None
         return text
