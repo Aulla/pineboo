@@ -420,7 +420,7 @@ class FLManagerModules(object):
 
             if xclass == "QMainWindow":
                 parent = qt3_widgets.qmainwindow.QMainWindow()
-            elif xclass in ["QDialog", "Qwidget"]:
+            elif xclass in ["QDialog", "QWidget"]:
                 parent = qt3_widgets.qdialog.QDialog()
 
             if parent is None:
