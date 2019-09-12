@@ -123,6 +123,9 @@ class TestPNConnection(unittest.TestCase):
         self.assertEqual(
             conn_.tables(1),
             [
+                "flacls",
+                "flacos",
+                "flacs",
                 "flareas",
                 "flfiles",
                 "flgroups",
