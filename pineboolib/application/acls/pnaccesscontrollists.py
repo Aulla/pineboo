@@ -60,25 +60,22 @@ class PNAccessControlLists(object):
         """
         return self._name
 
-    def init(self, aclXml: str = None) -> None:
+    def init(self, _acl_xml: str = None) -> None:
         """
         Read the file "acl.xml" and establish a new access control list.
 
         If the file "acl.xml" cannot be read, the access control list is empty and
         no access control will be processed on any object.
 
-        @param aclXml XML content with the definition of the access control list.
+        @param _acl_xml XML content with the definition of the access control list.
         """
-        from pineboolib.fllegacy.flutil import FLUtil
-
-        util = FLUtil()
-        if aclXml is None:
+        if _acl_xml is None:
             from pineboolib.application import project
 
             if project.conn is None:
                 raise Exception("Project is not connected yet")
 
-            aclXml = project.conn.managerModules().content("acl.xml")
+            _acl_xml = project.conn.managerModules().content("acl.xml")
 
         doc = QDomDocument("ACL")
         if self._access_control_list:
@@ -86,9 +83,9 @@ class PNAccessControlLists(object):
             del self._access_control_list
             self._access_control_list = {}
 
-        if aclXml and not util.domDocumentSetContent(doc, aclXml):
+        if _acl_xml and not doc.setContent(_acl_xml):
             QtCore.qWarning(
-                "PNAccessControlList : " + FLUtil().tr("Lista de control de acceso errónea")
+                "PNAccessControlList : " + QtCore.tr("Lista de control de acceso errónea")
             )
             return
 
@@ -140,6 +137,7 @@ class PNAccessControlLists(object):
             raise Exception("Project is not connected yet")
 
         user = project.conn.user()
+
         if type == "" or name == "" or user == "":
             return
 
@@ -148,7 +146,7 @@ class PNAccessControlLists(object):
         if key in self._access_control_list.keys():
             self._access_control_list[key].processObject(obj)
 
-    def installACL(self, idacl: str) -> None:
+    def install_acl(self, idacl: str) -> None:
         """
         Create a new file "acl.xml" and store it replacing the previous one, if it exists.
 
@@ -180,7 +178,7 @@ class PNAccessControlLists(object):
             # progress.setMinimumDuration(0)
             # progress.setProgress(++step)
             while q.next():
-                self.makeRule(q, doc)
+                self.make_rule(q, doc)
                 # progress.setProgress(++step)
 
             from pineboolib.application import project
@@ -190,7 +188,7 @@ class PNAccessControlLists(object):
 
             project.conn.managerModules().setContent("acl.xml", "sys", doc.toString())
 
-    def makeRule(self, q: PNSqlQuery, d: QDomDocument) -> None:
+    def make_rule(self, q: PNSqlQuery, d: QDomDocument) -> None:
         """
         Create the corresponding DOM node (s) to a record in the "flacs" table.
 
@@ -206,11 +204,11 @@ class PNAccessControlLists(object):
             return
 
         if q.value(5):
-            self.makeRuleGroup(q, d, str(q.value(4)))
+            self.make_rule_group(q, d, str(q.value(4)))
         else:
-            self.makeRuleUser(q, d, str(q.value(3)))
+            self.make_rule_user(q, d, str(q.value(3)))
 
-    def makeRuleUser(self, q: PNSqlQuery, d: QDomDocument, iduser: str) -> None:
+    def make_rule_user(self, q: PNSqlQuery, d: QDomDocument, iduser: str) -> None:
         """
         Create a DOM node corresponding to a record in the "flacs" table and for a given user.
 
@@ -245,7 +243,7 @@ class PNAccessControlLists(object):
             ac.setAcos(acos)
             ac.get(d)
 
-    def makeRuleGroup(self, q: PNSqlQuery, d: Any, idgroup: str = "") -> None:
+    def make_rule_group(self, q: PNSqlQuery, d: Any, idgroup: str = "") -> None:
         """
         Create several DOM nodes corresponding to a record in the "flacs" table and for a specific user group.
 
@@ -269,4 +267,4 @@ class PNAccessControlLists(object):
 
         if qU.exec_():
             while qU.next():
-                self.makeRuleUser(q, d, str(qU.value(0)))
+                self.make_rule_user(q, d, str(qU.value(0)))
