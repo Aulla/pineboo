@@ -56,23 +56,44 @@ class TestACLS(unittest.TestCase):
         cursor_flacs.setValueBuffer("idmodule", "sys")
         cursor_flacs.setValueBuffer("tipoform", "Maestro")
         cursor_flacs.commitBuffer()
+        id_acs_1 = cursor_flacs.valueBuffer("idac")
 
-        id_acs = cursor_flacs.valueBuffer("idac")
+        cursor_flacs.setModeAccess(cursor_flacs.Insert)
+        cursor_flacs.setActivatedCheckIntegrity(False)
+        cursor_flacs.refreshBuffer()
+        cursor_flacs.setValueBuffer("prioridad", 2)
+        cursor_flacs.setValueBuffer("tipo", "table")
+        cursor_flacs.setValueBuffer("nombre", "flmodules")
+        cursor_flacs.setValueBuffer("idgroup", "usuarios")
+        cursor_flacs.setValueBuffer("idacl", "primera")
+        cursor_flacs.setValueBuffer("descripcion", "Sistema:Administración:table:Maestro:flmodules")
+        cursor_flacs.setValueBuffer("degrupo", True)
+        cursor_flacs.setValueBuffer("idarea", "sys")
+        cursor_flacs.setValueBuffer("idmodule", "sys")
+        cursor_flacs.setValueBuffer("tipoform", "Maestro")
+        cursor_flacs.commitBuffer()
+        id_acs_2 = cursor_flacs.valueBuffer("idac")
 
         cursor_flacos = pnsqlcursor.PNSqlCursor("flacos")
         cursor_flacos.setModeAccess(cursor_flacos.Insert)
         cursor_flacos.refreshBuffer()
         cursor_flacos.setValueBuffer("nombre", "descripcion")  # field_name
         cursor_flacos.setValueBuffer("permiso", "r-")  # No visible
-        cursor_flacos.setValueBuffer("idac", id_acs)
+        cursor_flacos.setValueBuffer("idac", id_acs_1)
         cursor_flacos.setValueBuffer("tipocontrol", "Tabla")
         cursor_flacos.commitBuffer()
         cursor_flacos.setModeAccess(cursor_flacos.Insert)
         cursor_flacos.refreshBuffer()
         cursor_flacos.setValueBuffer("nombre", "idgroup")  # field_name
         cursor_flacos.setValueBuffer("permiso", "--")  # No visible
-        cursor_flacos.setValueBuffer("idac", id_acs)
+        cursor_flacos.setValueBuffer("idac", id_acs_1)
         cursor_flacos.setValueBuffer("tipocontrol", "Tabla")
+        cursor_flacos.commitBuffer()
+        cursor_flacos.setModeAccess(cursor_flacos.Insert)
+        cursor_flacos.refreshBuffer()
+        cursor_flacos.setValueBuffer("nombre", "descripcion")  # field_name
+        cursor_flacos.setValueBuffer("permiso", "rw")  # No visible
+        cursor_flacos.setValueBuffer("idac", id_acs_2)
         cursor_flacos.commitBuffer()
 
     def test_tables(self) -> None:
@@ -90,14 +111,21 @@ class TestACLS(unittest.TestCase):
 
         mtd_flgroups = flapplication.aqApp.db().manager().metadata("flgroups")
         self.assertTrue(mtd_flgroups)
-        # "descripcion = r-"
+        # "descripcion = --"
         field_descripcion = mtd_flgroups.field("descripcion")
         self.assertFalse(field_descripcion.editable())
         self.assertTrue(field_descripcion.visible())
 
-        # "descripcion = --"
+        # "idgroup = r-"
         field_idgroup = mtd_flgroups.field("idgroup")
         self.assertFalse(field_idgroup.visible())
+
+        mtd_flmodules = flapplication.aqApp.db().manager().metadata("flmodules")
+        field_descripcion = mtd_flmodules.field("descripcion")
+
+        # "descripcion = rw"
+        self.assertTrue(field_descripcion.editable())
+        self.assertTrue(field_descripcion.visible())
 
     @classmethod
     def tearDown(cls) -> None:
