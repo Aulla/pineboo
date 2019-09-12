@@ -408,16 +408,20 @@ class FLManagerModules(object):
         if UIVersion is None:
             UIVersion = "1.0"
         if parent is None:
+            from PyQt5 import QtCore
+
             wid = root_.find("widget")
             if wid is None:
                 raise Exception("No parent provided and also no <widget> found")
             xclass = wid.get("class")
             if xclass is None:
                 raise Exception("class was expected")
+
             parent = None
+
             if xclass == "QMainWindow":
                 parent = qt3_widgets.qmainwindow.QMainWindow()
-            if xclass == "QDialog":
+            elif xclass in ["QDialog", "Qwidget"]:
                 parent = qt3_widgets.qdialog.QDialog()
 
             if parent is None:
