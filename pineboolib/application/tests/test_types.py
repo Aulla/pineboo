@@ -161,9 +161,14 @@ class TestFile(unittest.TestCase):
 
         temporal = "%s%s" % (config.value("ebcomportamiento/temp_dir"), u"/test_types_file.txt")
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
+        contenido_3 = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         File(temporal).write(contenido)
         contenido_2 = File(temporal).read()
         self.assertEqual(contenido, contenido_2)
+        os.remove(temporal)
+        File(temporal).write(contenido_3)
+        contenido_4 = File(temporal).read()
+        self.assertEqual(contenido_3, contenido_4)
         os.remove(temporal)
 
     def test_write_read_values_2(self) -> None:

@@ -546,6 +546,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         self.eof = True
         return ret
 
+    def readAll(self) -> str:
+        """Read file completely."""
+        return self.read()
+
     def write(self, data: Union[str, bytes], length: int = -1) -> None:
         """
         Write data back to the file.
