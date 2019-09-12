@@ -347,6 +347,7 @@ class FLManagerModules(object):
         from pineboolib.fllegacy.flutil import FLUtil
 
         cursor = FLSqlCursor("flfiles", True, self.conn_.dbAux())
+        cursor.setActivatedCheckIntegrity(False)
         cursor.select("%s AND %s" % (format_val, format_val2))
 
         if cursor.first():
