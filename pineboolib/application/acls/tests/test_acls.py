@@ -96,8 +96,8 @@ class TestACLS(unittest.TestCase):
         cursor_flacos.setValueBuffer("idac", id_acs_2)
         cursor_flacos.commitBuffer()
 
-    def test_tables(self) -> None:
-        """Test table acls."""
+    def test_tables_flacos(self) -> None:
+        """Test table acls from flacos."""
 
         sys_type = systype.SysType()
         sys_type.installACL("primera")
@@ -111,19 +111,19 @@ class TestACLS(unittest.TestCase):
 
         mtd_flgroups = flapplication.aqApp.db().manager().metadata("flgroups")
         self.assertTrue(mtd_flgroups)
-        # "descripcion = --"
+        # descripcion = '--'
         field_descripcion = mtd_flgroups.field("descripcion")
         self.assertFalse(field_descripcion.editable())
         self.assertTrue(field_descripcion.visible())
 
-        # "idgroup = r-"
+        # idgroup = 'r-'
         field_idgroup = mtd_flgroups.field("idgroup")
         self.assertFalse(field_idgroup.visible())
 
         mtd_flmodules = flapplication.aqApp.db().manager().metadata("flmodules")
         field_descripcion = mtd_flmodules.field("descripcion")
 
-        # "descripcion = rw"
+        # descripcion = 'rw'
         self.assertTrue(field_descripcion.editable())
         self.assertTrue(field_descripcion.visible())
 
