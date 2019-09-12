@@ -20,8 +20,7 @@ class FormInternalObj(qsa.FormDBWidget):
         if app_ is None:
             return
         mng = app_.db().managerModules()
-        self.w_ = qsa.QWidget(app_.mainWidget(), QtCore.Qt.Dialog)
-        self.w_ = mng.createUI(u"ebcomportamiento.ui", None, self.w_)
+        self.w_ = mng.createUI(u"ebcomportamiento.ui")
         w = self.w_
         botonAceptar = w.child(u"pbnAceptar")
         boton_aceptar_tmp = w.child(u"pbn_temporales")
