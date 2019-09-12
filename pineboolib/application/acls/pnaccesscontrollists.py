@@ -80,8 +80,6 @@ class PNAccessControlLists(object):
         doc = QDomDocument("ACL")
         if self._access_control_list:
             self._access_control_list.clear()
-            del self._access_control_list
-            self._access_control_list = {}
 
         if _acl_xml and not doc.setContent(_acl_xml):
             QtCore.qWarning(
@@ -118,13 +116,13 @@ class PNAccessControlLists(object):
 
         @param obj High-level object to which access control is applied. It must be or inherit from the QObject class.
         """
+
         if obj is None or not self._access_control_list:
             return
 
         if not self._access_control_list:
             return
-
-        type = PNAccessControlFactory().type(obj)
+        type_ = PNAccessControlFactory().type(obj)
         name = ""
         if hasattr(obj, "objectName"):
             name = obj.objectName()
@@ -138,11 +136,10 @@ class PNAccessControlLists(object):
 
         user = project.conn.user()
 
-        if type == "" or name == "" or user == "":
+        if type_ == "" or name == "" or user == "":
             return
 
-        key = "%s::%s::%s" % (type, name, user)
-
+        key = "%s::%s::%s" % (type_, name, user)
         if key in self._access_control_list.keys():
             self._access_control_list[key].processObject(obj)
 
@@ -220,7 +217,6 @@ class PNAccessControlLists(object):
             return
 
         ac = PNAccessControlFactory().create(str(q.value(1)))
-
         if ac:
             ac.setName(str(q.value(2)))
             ac.setUser(iduser)

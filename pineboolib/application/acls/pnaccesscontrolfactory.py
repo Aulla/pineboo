@@ -6,19 +6,18 @@ Manage ACLs between different application objects.
 """
 from PyQt5 import QtWidgets  # type: ignore
 
-from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
-from pineboolib.application import project
-from .pnaccesscontrol import PNAccessControl
+from pineboolib.application.metadata import pntablemetadata
+from . import pnaccesscontrol
 
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 import logging
 
 logger = logging.getLogger("PNAccessControlFactory")
 
 
-class PNAccessControlMainWindow(PNAccessControl):
+class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
     """PNAccessControlMainWindow Class."""
 
     def __init__(self) -> None:
@@ -31,15 +30,13 @@ class PNAccessControlMainWindow(PNAccessControl):
 
         return "mainwindow"
 
-    def processObject(self, obj: QtWidgets.QWidget) -> None:
+    def processObject(self, main_window: Optional[QtWidgets.QMainWindow]) -> None:
         """Process the object."""
 
-        mw = QtWidgets.QMainWindow(obj)
-        if not mw or not self._acos_perms:
+        if main_window is None or not self._acos_perms:
             return
+        list1 = main_window.queryList("QAction")
 
-        a: QtWidgets.QAction
-        list1 = mw.queryList("QAction")
         actions_idx = {a.name(): a for a in list1}
         if not self._perm:
             for a in list1:
@@ -59,33 +56,30 @@ class PNAccessControlMainWindow(PNAccessControl):
         logger.warning("PNAccessControlMainWindow::setFromObject %s", "No implementado todavía.")
 
 
-class PNAccessControlForm(PNAccessControl):
+class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
     """PNAccessControlForm Class."""
 
     def __init__(self) -> None:
         """Inicialize."""
 
         super().__init__()
-        if project.DGI.localDesktop():
-            from PyQt5.Qt import qApp  # type: ignore
-            from PyQt5 import QtGui  # type: ignore
+        from PyQt5 import QtGui, QtWidgets
 
-            self.pal = QtGui.QPalette()
-            bg = QtGui.QColor(
-                qApp.palette().color(QtGui.QPalette.Active, QtGui.QPalette.Background)
-            )
-
-            self.pal.setColor(QtGui.QPalette.Foreground, bg)
-            self.pal.setColor(QtGui.QPalette.Text, bg)
-            self.pal.setColor(QtGui.QPalette.ButtonText, bg)
-            self.pal.setColor(QtGui.QPalette.Base, bg)
-            self.pal.setColor(QtGui.QPalette.Background, bg)
+        self.pal = QtGui.QPalette()
+        bg = QtGui.QColor(
+            QtWidgets.qApp.palette().color(QtGui.QPalette.Active, QtGui.QPalette.Background)
+        )
+        self.pal.setColor(QtGui.QPalette.Foreground, bg)
+        self.pal.setColor(QtGui.QPalette.Text, bg)
+        self.pal.setColor(QtGui.QPalette.ButtonText, bg)
+        self.pal.setColor(QtGui.QPalette.Base, bg)
+        self.pal.setColor(QtGui.QPalette.Background, bg)
 
     def type(self) -> str:
         """Return target type."""
         return "form"
 
-    def processObject(self, obj) -> None:
+    def processObject(self, widget: Optional[QtWidgets.QWidget]) -> None:
         """
         Process objects that are of the FLFormDB class.
 
@@ -101,55 +95,48 @@ class PNAccessControlForm(PNAccessControl):
         This allows any component of an AbanQ form (FLFormDB,
         FLFormRecordDB and FLFormSearchDB) can be made not visible or not editable for convenience.
         """
-
-        fm = obj
-        if not fm or not self._acos_perms:
+        if widget is None or not self._acos_perms:
             return
 
         if self._perm:
-            list_ = fm.children()
-
-            for w in list_:
-                if self._acos_perms[w.name()]:
+            for child in widget.children():
+                if self._acos_perms[child.objectName()]:
                     continue
 
                 if self._perm in ("-w", "--"):
-                    w.setPalette(self.pal)
-                    w.setDisabled(True)
-                    w.hide()
+                    child.setPalette(self.pal)
+                    child.setDisabled(True)
+                    child.hide()
                     continue
 
-                if self._perm == "r-":
-                    w.setDisabled(True)
+                elif self._perm == "r-":
+                    child.setDisabled(True)
 
-        for it in self._acos_perms.keys():
-            from pineboolib.qt3_widgets.qwidget import QWidget
-
-            w = fm.findChild(QWidget, it)
-            if w:
-                perm = self._acos_perms[it]
+        for object_name in self._acos_perms.keys():
+            child = widget.findChild(QtWidgets.QWidget, object_name)
+            if child:
+                perm = self._acos_perms[object_name]
                 if perm in ("-w", "--"):
-                    if project.DGI.localDesktop():
-                        w.setPalette(self.pal)
-                    w.setDisabled(True)
-                    w.hide()
+                    child.setPalette(self.pal)
+                    child.setDisabled(True)
+                    child.hide()
                     continue
 
                 if perm == "r-":
-                    w.setDisabled(True)
+                    child.setDisabled(True)
 
             else:
-                print(
-                    "WARN: PNAccessControlFactory: No se encuentra el control %s para procesar ACLS."
-                    % it
+                logger.warning(
+                    "PNAccessControlFactory: No se encuentra el control %s para procesar ACLS.",
+                    object_name,
                 )
 
     def setFromObject(self, object) -> None:
         """Not implemented jet."""
-        logger.warning("PNAccessControlForm::setFromObject %s", "No implementado todavía.")
+        logger.warning("PNAccessControlForm::setFromObject %s No implementado todavía.", object)
 
 
-class PNAccessControlTable(PNAccessControl):
+class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
     """PNAccessControlTable Class."""
 
     def __init__(self) -> None:
@@ -163,8 +150,8 @@ class PNAccessControlTable(PNAccessControl):
 
         return "table"
 
-    def processObject(self, table_metadata: "PNTableMetaData") -> None:
-        """Process PNTableMetaData belonging to a table."""
+    def processObject(self, table_metadata: "pntablemetadata.PNTableMetaData") -> None:
+        """Process pntablemetadata.PNTableMetaData belonging to a table."""
 
         mask_perm = 0
         has_acos = True if self._acos_perms else False
@@ -208,40 +195,31 @@ class PNAccessControlTable(PNAccessControl):
                 field.setVisible(True)
                 field.setEditable(True)
 
-    def setFromObject(self, obj: "PNTableMetaData") -> None:
-        """Apply permissions from a PNTableMetaData."""
+    def setFromObject(self, table_mtd: Optional["pntablemetadata.PNTableMetaData"]) -> None:
+        """Apply permissions from a pntablemetadata.PNTableMetaData."""
 
-        tm = obj
-        if not tm:
+        if table_mtd is None:
             return
 
         if self._acos_perms:
             self._acos_perms.clear()
-            del self._acos_perms
 
         self._acos_perms = {}
-        # self._acos_perms.setAutoDelete(True)
 
-        fL = tm.fieldList()
-        if not fL:
-            return
-
-        permW = ""
-        permR = ""
-        for it in fL:
-            permR = "-"
-            permW = "-"
-            if it.visible():
-                permR = "r"
-            if it.editable():
-                permW = "w"
-            self._acos_perms[it.name()] = "%s%s" % (permR, permW)
+        for field in table_mtd.fieldList():
+            perm_read = "-"
+            perm_write = "-"
+            if field.visible():
+                perm_read = "r"
+            if field.editable():
+                perm_write = "w"
+            self._acos_perms[field.name()] = "%s%s" % (perm_read, perm_write)
 
 
 class PNAccessControlFactory(object):
     """PNAccessControlFactory Class."""
 
-    def create(self, type_: str) -> "PNAccessControl":
+    def create(self, type_: str) -> pnaccesscontrol.PNAccessControl:
         """Create a control instance according to the type that we pass."""
 
         if type_ is None:
@@ -266,7 +244,7 @@ class PNAccessControlFactory(object):
 
         if isinstance(obj, QtWidgets.QMainWindow):
             ret_ = "mainwindow"
-        elif isinstance(obj, PNTableMetaData):
+        elif isinstance(obj, pntablemetadata.PNTableMetaData):
             ret_ = "table"
         elif isinstance(obj, QtWidgets.QDialog):
             ret_ = "form"

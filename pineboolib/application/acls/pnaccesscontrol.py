@@ -57,7 +57,7 @@ as the module selector, or each of the main windows of the modules.
 """
 
 
-from typing import List, Dict, Any, TYPE_CHECKING
+from typing import List, Dict, Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PyQt5 import QtXml
@@ -169,7 +169,7 @@ class PNAccessControl(object):
             del self._acos_perms
             self._acos_perms = {}
 
-    def type(self) -> str:
+    def type(self) -> Optional[str]:
         """
         Return a text constant that identifies the type.
 
@@ -179,7 +179,7 @@ class PNAccessControl(object):
         @return A text string that identifies the general object type of the rule, eg "table".
         """
 
-        return ""
+        return None
 
     def set(self, e: "QtXml.QDomDocument") -> None:
         """
@@ -228,8 +228,7 @@ class PNAccessControl(object):
 
         @param d DOM / XML document where the node built from the access control rule will be inserted.
         """
-
-        if not self.type() or d is None:
+        if self.type() is None or d is None:
             return
 
         root = d.firstChild().toElement()
@@ -247,13 +246,12 @@ class PNAccessControl(object):
         u = d.createTextNode(self._user)
         user.appendChild(u)
 
-        if self._acos_perms:
-            for key in self._acos_perms.keys():
-                aco = d.createElement("aco")
-                aco.setAttribute("perm", self._acos_perms[key])
-                e.appendChild(aco)
-                t = d.createTextNode(key)
-                aco.appendChild(t)
+        for key in self._acos_perms.keys():
+            aco = d.createElement("aco")
+            aco.setAttribute("perm", self._acos_perms[key])
+            e.appendChild(aco)
+            t = d.createTextNode(key)
+            aco.appendChild(t)
 
     def setAcos(self, acos: List[str]) -> None:
         """
@@ -266,7 +264,6 @@ class PNAccessControl(object):
         """
 
         self._acos_perms.clear()
-
         i = 0
         while i < len(acos):
             self._acos_perms[acos[i]] = acos[i + 1]
@@ -284,11 +281,9 @@ class PNAccessControl(object):
 
         acos = []
 
-        if self._acos_perms:
-
-            for key in self._acos_perms.keys():
-                acos.append(key)
-                acos.append(self._acos_perms[key])
+        for key in self._acos_perms.keys():
+            acos.append(key)
+            acos.append(self._acos_perms[key])
 
         return acos
 

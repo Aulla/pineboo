@@ -5,8 +5,8 @@ AQSql Module.
 Provide queries to DB.
 """
 from enum import IntEnum, unique, Enum
-from pineboolib.application import project
-from pineboolib.application import types
+
+from pineboolib.application import project, types
 
 from pineboolib import logging
 
