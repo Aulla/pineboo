@@ -128,7 +128,7 @@ class TestACLS(unittest.TestCase):
         self.assertTrue(field_descripcion.visible())
 
     @classmethod
-    def tearDown(cls) -> None:
+    def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         from pineboolib.application.database import utils
 
