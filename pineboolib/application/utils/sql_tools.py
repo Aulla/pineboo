@@ -411,7 +411,9 @@ class SqlInspector(object):
                 ret_ = ret_[0 : ret_.find("+")]
 
         elif type_ in ("unlock", "bool"):
-            pass
+            from pineboolib.application import types
+
+            ret_ = types.Boolean(ret_)
         elif type_ == "bytearray":
             ret_ = bytearray(ret_)
         else:
