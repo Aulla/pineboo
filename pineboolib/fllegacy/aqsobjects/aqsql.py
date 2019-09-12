@@ -6,9 +6,12 @@ Provide queries to DB.
 """
 from enum import IntEnum, unique, Enum
 from pineboolib.application import project
+from pineboolib.application import types
+
 from pineboolib import logging
 
 from typing import Union, Any, List, TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flsqlcursor import FLSqlCursor  # noqa: F401
@@ -55,8 +58,8 @@ class AQSql(object):
     def update(
         self,
         table_or_cursor: Union[str, "FLSqlCursor"],
-        fields: List[str],
-        values: List[Any],
+        fields: Union[List[str], types.Array],
+        values: Union[List[Any], types.Array],
         where: str = "",
         conn: str = "default",
     ):
