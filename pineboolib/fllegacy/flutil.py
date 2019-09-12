@@ -1007,19 +1007,22 @@ class FLUtil(QtCore.QObject):
         return True
 
     @classmethod
-    def sha1(cls, str_: Optional[str]) -> str:
+    def sha1(cls, value: Union[str, bytes, None]) -> str:
         """
         Return the SHA1 key of a text string.
 
         @param str String from which to obtain the SHA1 key.
         @return Corresponding key in hexadecimal digits.
         """
-        if str_ is None:
-            str_ = ""
-        sha_ = hashlib.new("sha1", str_.encode())
+        if value is None:
+            value = ""
+
+        if isinstance(value, str):
+            value = value.encode()
+
+        sha_ = hashlib.new("sha1", value)
         st = "%s" % sha_.hexdigest()
-        st = st.upper()
-        return st
+        return st.upper()
 
     @classmethod
     @decorators.NotImplementedWarn
