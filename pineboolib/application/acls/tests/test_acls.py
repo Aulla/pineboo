@@ -70,7 +70,6 @@ class TestACLS(unittest.TestCase):
 
     def test_tables(self) -> None:
         """Test table acls."""
-        from pineboolib.application.database import utils
 
         sys_type = systype.SysType()
         sys_type.installACL("primera")
@@ -100,4 +99,4 @@ class TestACLS(unittest.TestCase):
         utils.sqlDelete("flfiles", "nombre='acl.xml'")
         flapplication.aqApp.db().manager().cacheMetaDataSys_ = {}
         flapplication.aqApp.db().manager().cacheMetaData_ = {}
-        flapplication.aqApp.set_acl(None)
+        flapplication.aqApp.acl_ = None

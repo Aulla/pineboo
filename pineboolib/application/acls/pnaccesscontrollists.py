@@ -85,7 +85,7 @@ class PNAccessControlLists(object):
 
         if _acl_xml and not doc.setContent(_acl_xml):
             QtCore.qWarning(
-                "PNAccessControlList : " + QtCore.tr("Lista de control de acceso errónea")
+                "PNAccessControlList : " + QtCore.QObject().tr("Lista de control de acceso errónea")
             )
             return
 
