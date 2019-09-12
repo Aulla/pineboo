@@ -7,7 +7,6 @@ This file should be imported at top of QS converted files.
 
 import re  # noqa: F401
 
-from typing import Optional
 from pineboolib.fllegacy import flapplication
 
 from pineboolib.core.utils.utils_base import ustr, filedir  # noqa: F401
@@ -86,4 +85,4 @@ print_ = print
 undefined = None
 LogText = 0
 RichText = 1
-aqApp: Optional[flapplication.FLApplication] = None
+aqApp: flapplication.FLApplication
