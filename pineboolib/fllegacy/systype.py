@@ -88,12 +88,12 @@ class SysType(SysBaseType):
     @classmethod
     def installACL(self, idacl) -> None:
         """Install a acl."""
-        from pineboolib.fllegacy import flapplication
+        from pineboolib.application.acls import pnaccesscontrollists
 
-        acl_ = flapplication.aqApp.acl()
+        acl_ = pnaccesscontrollists.PNAccessControlLists()
 
         if acl_:
-            acl_.installACL(idacl)
+            acl_.install_acl(idacl)
 
     @classmethod
     def updateAreas(self) -> None:
