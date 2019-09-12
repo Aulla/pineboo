@@ -107,8 +107,8 @@ class AQSql(object):
     def insert(
         self,
         table_or_cursor: Union[str, "FLSqlCursor"],
-        fields: List[str],
-        values: List[Any],
+        fields: Union[List[str], types.Array],
+        values: Union[List[Any], types.Array],
         where: str = "",
         conn: str = "default",
     ):
