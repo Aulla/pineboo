@@ -7,13 +7,10 @@ Will be inherited at fllegacy.
 import platform
 import traceback
 import ast
-from PyQt5.QtXml import QDomNode
 
 from typing import Any, Dict, Optional, List, Union
 
-from PyQt5 import QtCore
-
-from PyQt5.QtWidgets import QMessageBox, QApplication, QWidget
+from PyQt5 import QtCore, QtWidgets, QtXml
 
 from pineboolib.core.settings import config
 from pineboolib.core import decorators
@@ -245,7 +242,7 @@ class SysBaseType(object):
         return ret
 
     @classmethod
-    def diffXmlFilesDef(self, xmlOld: QDomNode, xmlNew: QDomNode) -> Dict[str, Any]:
+    def diffXmlFilesDef(self, xmlOld: QtXml.QDomNode, xmlNew: QtXml.QDomNode) -> Dict[str, Any]:
         """Create a Diff for XML."""
         arrOld = self.filesDefToArray(xmlOld)
         arrNew = self.filesDefToArray(xmlNew)
@@ -284,7 +281,7 @@ class SysBaseType(object):
         return ret
 
     @classmethod
-    def filesDefToArray(self, xml: QDomNode) -> Dict[str, Dict[str, str]]:
+    def filesDefToArray(self, xml: QtXml.QDomNode) -> Dict[str, Dict[str, str]]:
         """Convert Module MOD xml to array."""
         root = xml.firstChild()
         files = root.childNodes()
@@ -347,7 +344,9 @@ class SysBaseType(object):
         msg = ustr(msg)
         msg += u"\n"
         if self.interactiveGUI():
-            QMessageBox.information(QApplication.focusWidget(), "Eneboo", msg, QMessageBox.Ok)
+            QtWidgets.QMessageBox.information(
+                QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
+            )
         else:
             logger.warning(ustr(u"INFO: ", msg))
 
@@ -357,7 +356,9 @@ class SysBaseType(object):
         msg = ustr(msg)
         msg += u"\n"
         if self.interactiveGUI():
-            QMessageBox.warning(QApplication.focusWidget(), "Eneboo", msg, QMessageBox.Ok)
+            QtWidgets.QMessageBox.warning(
+                QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
+            )
         else:
             logger.warning(ustr(u"WARN: ", msg))
 
@@ -367,7 +368,9 @@ class SysBaseType(object):
         msg = ustr(msg)
         msg += u"\n"
         if self.interactiveGUI():
-            QMessageBox.critical(QApplication.focusWidget(), "Eneboo", msg, QMessageBox.Ok)
+            QtWidgets.QMessageBox.critical(
+                QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
+            )
         else:
             logger.warning(ustr(u"ERROR: ", msg))
 
@@ -444,16 +447,16 @@ class SysBaseType(object):
     @classmethod
     def updatePineboo(self) -> None:
         """Execute auto-updater."""
-        QMessageBox.warning(
-            QApplication.focusWidget(),
+        QtWidgets.QMessageBox.warning(
+            QtWidgets.QApplication.focusWidget(),
             "Pineboo",
             self.translate(u"Funcionalidad no soportada aún en Pineboo."),
-            QMessageBox.Ok,
+            QtWidgets.QMessageBox.Ok,
         )
         return
 
     @classmethod
-    def setObjText(self, container: QWidget, component: QWidget, value: str = "") -> bool:
+    def setObjText(self, container: QtWidgets.QWidget, component: str, value: str = "") -> bool:
         """Set text to random widget."""
         c = self.testObj(container, component)
         if c is None:
@@ -473,7 +476,7 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def disableObj(self, container: QWidget, component: QWidget) -> bool:
+    def disableObj(self, container: QtWidgets.QWidget, component: str) -> bool:
         """Disable random widget."""
         c = self.testObj(container, component)
         if not c:
@@ -491,7 +494,7 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def enableObj(self, container: QWidget, component: QWidget) -> bool:
+    def enableObj(self, container: QtWidgets.QWidget, component: str) -> bool:
         """Enable random widget."""
         c = self.testObj(container, component)
         if not c:
@@ -512,7 +515,7 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def filterObj(self, container: QWidget, component: QWidget, filter: str = "") -> bool:
+    def filterObj(self, container: QtWidgets.QWidget, component: str, filter: str = "") -> bool:
         """Apply filter to random widget."""
         c = self.testObj(container, component)
         if not c:
@@ -531,11 +534,13 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def testObj(self, container: QWidget = None, component: QWidget = None) -> Optional[QWidget]:
+    def testObj(
+        self, container: QtWidgets.QWidget = None, component: str = None
+    ) -> Optional[QtWidgets.QWidget]:
         """Test if object does exist."""
         if not container or container is None:
             return None
-        c = container.child(component)
+        c = container.child(component, QtWidgets.QWidget)
         if not c:
             logger.warning(ustr(component, u" no existe"))
             return None
@@ -543,7 +548,11 @@ class SysBaseType(object):
 
     @classmethod
     def testAndRun(
-        self, container: QWidget, component: QWidget, method: str = "", param: Any = None
+        self,
+        container: QtWidgets.QWidget,
+        component: QtWidgets.QWidget,
+        method: str = "",
+        param: Any = None,
     ) -> bool:
         """Test and execute object."""
         c = self.testObj(container, component)
@@ -555,10 +564,10 @@ class SysBaseType(object):
 
     @classmethod
     def runObjMethod(
-        self, container: QWidget, component: QWidget, method: str, param: Any = None
+        self, container: QtWidgets.QWidget, component: str, method: str, param: Any = None
     ) -> bool:
         """Execute method from object."""
-        c = container.child(component)
+        c = container.child(component, QtWidgets.QWidget)
         m = getattr(c, method, None)
         if m is not None:
             m(param)
@@ -568,7 +577,9 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def connectSS(self, ssSender: QWidget, ssSignal: str, ssReceiver: QWidget, ssSlot: str) -> bool:
+    def connectSS(
+        self, ssSender: QtWidgets.QWidget, ssSignal: str, ssReceiver: QtWidgets.QWidget, ssSlot: str
+    ) -> bool:
         """Connect signal to slot."""
         if not ssSender:
             return False
