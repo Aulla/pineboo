@@ -63,6 +63,13 @@ class TestACLS(unittest.TestCase):
         cursor_flacos.setModeAccess(cursor_flacos.Insert)
         cursor_flacos.refreshBuffer()
         cursor_flacos.setValueBuffer("nombre", "descripcion")  # field_name
+        cursor_flacos.setValueBuffer("permiso", "r-")  # No visible
+        cursor_flacos.setValueBuffer("idac", id_acs)
+        cursor_flacos.setValueBuffer("tipocontrol", "Tabla")
+        cursor_flacos.commitBuffer()
+        cursor_flacos.setModeAccess(cursor_flacos.Insert)
+        cursor_flacos.refreshBuffer()
+        cursor_flacos.setValueBuffer("nombre", "idgroup")  # field_name
         cursor_flacos.setValueBuffer("permiso", "--")  # No visible
         cursor_flacos.setValueBuffer("idac", id_acs)
         cursor_flacos.setValueBuffer("tipocontrol", "Tabla")
@@ -83,8 +90,14 @@ class TestACLS(unittest.TestCase):
 
         mtd_flgroups = flapplication.aqApp.db().manager().metadata("flgroups")
         self.assertTrue(mtd_flgroups)
+        # "descripcion = r-"
         field_descripcion = mtd_flgroups.field("descripcion")
-        self.assertFalse(field_descripcion.visible())
+        self.assertFalse(field_descripcion.editable())
+        self.assertTrue(field_descripcion.visible())
+
+        # "descripcion = --"
+        field_idgroup = mtd_flgroups.field("idgroup")
+        self.assertFalse(field_idgroup.visible())
 
     @classmethod
     def tearDown(cls) -> None:

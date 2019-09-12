@@ -163,22 +163,17 @@ class PNAccessControlTable(PNAccessControl):
 
         return "table"
 
-    def processObject(self, obj: "PNTableMetaData") -> None:
+    def processObject(self, table_metadata: "PNTableMetaData") -> None:
         """Process PNTableMetaData belonging to a table."""
-
-        if not obj:
-            return
-
-        tm = obj
 
         mask_perm = 0
         has_acos = True if self._acos_perms else False
 
         if self._perm:
             if self._perm[0] == "r":
-                mask_perm = mask_perm + 2
+                mask_perm += 2
             if self._perm[1] == "w":
-                mask_perm = mask_perm + 1
+                mask_perm += 1
         elif has_acos:
             mask_perm = 3
         else:
@@ -187,21 +182,18 @@ class PNAccessControlTable(PNAccessControl):
         field_perm = ""
         mask_field_perm = 0
 
-        fL = tm.fieldList()
-        if not fL:
-            return
+        fields_list = table_metadata.fieldList()
 
-        for it in fL:
-            field = it
+        for field in fields_list:
             mask_field_perm = mask_perm
             if has_acos and (field.name() in self._acos_perms.keys()):
                 field_perm = self._acos_perms[field.name()]
                 mask_field_perm = 0
                 if field_perm[0] == "r":
-                    mask_field_perm = mask_field_perm + 2
+                    mask_field_perm += 2
 
                 if field_perm[1] == "w":
-                    mask_field_perm = mask_field_perm + 1
+                    mask_field_perm += 1
 
             if mask_field_perm == 0:
                 field.setVisible(False)
