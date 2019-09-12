@@ -408,7 +408,6 @@ class FLManagerModules(object):
         if UIVersion is None:
             UIVersion = "1.0"
         if parent is None:
-            from PyQt5 import QtCore
 
             wid = root_.find("widget")
             if wid is None:

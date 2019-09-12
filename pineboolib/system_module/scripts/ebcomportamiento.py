@@ -14,7 +14,6 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def main(self) -> None:
         """Entry function."""
-        from PyQt5 import QtCore  # type: ignore
 
         app_ = qsa.aqApp
         if app_ is None:
