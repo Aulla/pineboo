@@ -72,6 +72,16 @@ class TestParser(unittest.TestCase):
         """Test converting form"""
         self.assertEqual(qs2py("form = this;"), "form = self\n")
 
+    def test_parse_int(self) -> None:
+        """Test parseInt function."""
+        self.assertEqual(qs2py('var value = parseInt("21");'), 'value = qsa.parseInt("21")\n')
+        self.assertEqual(
+            qs2py("var value = parseInt(2000.21 , 10);"), "value = qsa.parseInt(2000.21, 10)\n"
+        )
+        self.assertEqual(
+            qs2py('var value = parseInt("0xA0", 16);'), 'value = qsa.parseInt("0xA0", 16)\n'
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

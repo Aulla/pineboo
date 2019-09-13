@@ -191,20 +191,26 @@ def parseString(obj: Any) -> str:
     return obj.toString() if hasattr(obj, "toString") else str(obj)
 
 
-def parseInt(x: Union[float, int, str]) -> int:
+def parseInt(x: Union[float, int, str], base: int = 10) -> int:
     """
     Convert to int almost any value.
 
-    @param x. Valor a convertir
-    @return Valor convertido
+    @param x. Value to cenvert
+    @return integer value
     """
     ret_ = 0
-    if isinstance(x, str) and x.find(",") > -1:
-        x = x.replace(",", ".")
+
+    tmp_value = str(x)
+    if tmp_value.find(".") > -1:
+        tmp_value = tmp_value[0 : tmp_value.find(".")]
+
+    if tmp_value.find(",") > -1:
+        tmp_value = tmp_value[0 : tmp_value.find(",")]
 
     if x is not None:
-        x = float(x)
-        ret_ = int(x)
+        # x = float(x)
+        ret_ = int(tmp_value, base)
+        # ret_ = int(str(x), base)
 
     return ret_
 
