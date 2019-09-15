@@ -132,9 +132,9 @@ class Math(object):
         return math.floor(x)
 
     @staticmethod
-    def pow(x: float, y: float) -> float:
-        """Raise x to the power of y."""
-        return math.pow(x, y)
+    def pow(base: float, exp: float) -> float:
+        """Raise base to the power of exp."""
+        return math.pow(base, exp)
 
     @staticmethod
     def round(x: float, y: int = 2) -> float:

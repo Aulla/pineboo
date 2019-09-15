@@ -8,6 +8,50 @@ from pineboolib.qsa import utils
 class TestUtils(unittest.TestCase):
     """Test Utils module."""
 
+    def test_switch(self) -> None:
+        """Test switch function."""
+
+        for i in range(4):
+            result = None
+            for case in utils.switch(i):
+                if case(0):
+                    result = 0
+                    break
+                if case(1):
+                    result = 1
+                    break
+                if case(2):
+                    result = 2
+                    break
+                if case():
+                    result = 4
+            if i < 3:
+                self.assertEqual(i, result)
+            else:
+                self.assertFalse(i == result)
+
+    def test_math(self) -> None:
+        """Test Math class."""
+        math_ = utils.Math
+        self.assertEqual(math_.abs(-1), 1)
+        self.assertEqual(math_.abs(-2), 2)
+        self.assertEqual(math_.abs(0), 0)
+
+        self.assertEqual(math_.ceil(8.001), 9)
+        self.assertEqual(math_.ceil(8.51), 9)
+        self.assertEqual(math_.ceil(8.99), 9)
+
+        self.assertEqual(math_.floor(8.001), 8)
+        self.assertEqual(math_.floor(8.51), 8)
+        self.assertEqual(math_.floor(8.99), 8)
+
+        self.assertEqual(math_.pow(2, 1), 2)
+        self.assertEqual(math_.pow(3, 2), 9)
+
+        self.assertEqual(math_.round(10.1234, 2), 10.12)
+        self.assertEqual(math_.round(0.9698, 2), 0.97)
+        self.assertEqual(math_.round(123.969899, 4), 123.9699)
+
     def test_parse_int(self) -> None:
         """Test parse_int function."""
 
@@ -41,3 +85,33 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(val_5, 12)
         val_6 = utils.parseFloat("12:59:00")
         self.assertTrue(val_6 > 12.98 and val_6 < 12.99)
+
+    def test_parse_string(self) -> None:
+        """Test parse_string function."""
+
+        val_1 = utils.parseString(100)
+        self.assertEqual(val_1, "100")
+
+    def test_length(self) -> None:
+        """Test length."""
+
+        from pineboolib.application.types import Array
+
+        list_ = ["uno", "dos", "tres"]
+        dict_ = {"uno": 1, "dos": 2, "tres": 3, "cuatro": 4}
+        array_1 = Array([1, 2, 3, 4, 5])
+        array_2 = Array({"uno": 1, "dos": 2})
+
+        self.assertEqual(utils.length(list_), 3)
+        self.assertEqual(utils.length(dict_), 4)
+        self.assertEqual(utils.length(array_1), 5)
+        self.assertEqual(utils.length(array_2), 2)
+
+    def test_is_nan(self) -> None:
+        """Test isNaN."""
+
+        self.assertTrue(utils.isnan("hola"))
+        self.assertTrue(utils.isnan("0ct"))
+        self.assertFalse(utils.isnan("0"))
+        self.assertFalse(utils.isnan(11.21))
+        self.assertFalse(utils.isnan("16.01"))
