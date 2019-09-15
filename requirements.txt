@@ -1,4 +1,5 @@
 black
+fernet
 flake8
 fpdf
 mccabe
@@ -36,4 +37,3 @@ wheel
 lxml
 flup
 xmljson
-cryptography
