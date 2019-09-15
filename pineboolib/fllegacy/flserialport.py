@@ -1,6 +1,6 @@
 """Flserial por module."""
 
-from PyQt5 import QtCore, QtSerialPort  # type:ignore
+from PyQt5 import QtCore, QtSerialPort
 from pineboolib.core import decorators
 
 

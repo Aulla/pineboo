@@ -7,7 +7,7 @@ import os.path
 from xml.etree import ElementTree as ET
 from typing import Tuple, Optional, Any
 
-from fernet import Fernet  # type: ignore
+from fernet import Fernet
 
 from pineboolib import logging
 from pineboolib.core.utils.version import VersionNumber
