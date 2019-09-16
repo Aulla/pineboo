@@ -313,7 +313,7 @@ class XMLAction(ActionStruct):
             except Exception:
                 self.logger.exception("ERROR al cargar script QS para la accion %s:", action_.name)
                 if os.path.exists(script_path_py):
-                    os.rmdir(script_path_py)
+                    os.remove(script_path_py)
 
         script_loaded.form = script_loaded.FormInternalObj(action_, parent_object)
         if parent_object and parent:
