@@ -110,7 +110,7 @@ def pythonify_item(o: PythonifyItem) -> bool:
     except Exception:
         logger.exception("El fichero %s no se ha podido convertir", o.src_path)
         return False
-    with open(o.dst_path, "w") as f1:
+    with open(o.dst_path, "w", encoding="UTF-8") as f1:
         f1.write(pycode)
 
     return True
