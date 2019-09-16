@@ -318,6 +318,7 @@ def exec_main(options: Values) -> int:
             if configdb is None:
                 return 2
         else:
+            config.set_value("application/dbadmin_enabled", True)
             configdb = DEFAULT_SQLITE_CONN
 
     if not configdb:
