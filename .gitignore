@@ -40,3 +40,4 @@ docs/source/code/old.pineboolib
 mypy_report
 venv
 public/
+*.py.src
