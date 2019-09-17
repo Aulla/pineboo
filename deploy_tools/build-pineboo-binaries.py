@@ -141,7 +141,7 @@ if build_sysroot:
                 "%s/include/sqlite3.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../../src/sqlite3-android/obj/local/armeabi/libsqlite3.so"
+                "%s/../../src/sqlite3-android/obj/local/armeabi-v7a/libsqlite3.so"
                 % os.path.abspath(os.path.join(sysroot_dir)),
                 "%s/lib/libsqlite3.so" % sysroot_dir,
             )

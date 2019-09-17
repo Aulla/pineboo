@@ -3,7 +3,7 @@
 
     "android|macos|win#openssl": {
         "android#source":   "openssl-1.0.*.tar.gz",
-	"macos|win#source": "openssl-1.1.*.tar.gz"
+	      "macos|win#source": "openssl-1.1.*.tar.gz"
     },
 
   "win|ios#zlib": {
@@ -13,9 +13,9 @@
 
     "qt5": {
         "android#qt_dir":           "/opt/Qt5.12.3/5.12.3/android_armv7",
-	"linux#qt_dir":             "/opt/Qt5.12.3/5.12.3/gcc_64",
+	      "linux#qt_dir":             "/opt/Qt5.12.3/5.12.3/gcc_64",
         "ios#qt_dir":               "Qt/*/ios",
-	"win#qt_dir":		    "/opt/Qt5.11.3-WIN-64",
+	      "win#qt_dir":		           "c:/Qt/5.12.3",
 
         "macos#source":   "qt-everywhere-src-5.*.tar.xz",
 
@@ -26,12 +26,13 @@
         "static_msvc_runtime":      true
     },
 
-    "python": {
-        "build_host_from_source":   true,
-        "build_target_from_source": true,
-	"dynamic_loading": 	    true,
-        "source":                   "Python-3.*.*.tar.xz"
-    },
+  "python": {
+    "android|macos|linux|ios#build_host_from_source" :  true,
+    "win#build_host_from_source": false,
+    "build_target_from_source": true,
+    "dynamic_loading": true,
+    "source": "Python-3.*.*.tar.xz"
+  },
 
     "sip": {
 	"module_name":  "PyQt5.sip",

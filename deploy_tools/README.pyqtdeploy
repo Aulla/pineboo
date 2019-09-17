@@ -45,37 +45,23 @@ Ejecutar:
 build_binaries_android.sh
 
 
-Compilación windows-64 (nativa)
+Compilación windows-32 (nativa)
 ============================================
 
-* Visual Studio Build Tools 2019 Community (Instalar VC2017)
-* qt-unified-windows-x86-3.1.0-online.exe
+* Visual Studio Build Tools 2015 Community (Custom, programming languages)
+* qt-unified-windows-x86-3.1.0-online.exe (5.12.3)
+* Instalar perl (www.perl.org) 5.28
+* Instalar NASM 2.14.0.2 y meterla en el path de windows
+* Copiar en src:
+	- openssl-1.1.*.tar.gz
+	- zlib-1.*.*.tar.gz
+	- Python-3.7.2.tar.gz
+	- Sip 4.*.tar.gz
+	- PyQt5_gpl 5.12.x.tar.gz
+
+* Usar Consola "Developer command prompt for VS2015" como Administrador.
 
 
-
-
-Compilación cruzada windows-64
-============================================
-
-sudo apt-get install autoconf
-
-./configure -xplatform win32-g++ -prefix /opt/qt5win32 -device-option CROSS_COMPILE=x86_64-w64-mingw32- -nomake examples -nomake tools -continue -opensource -confirm-license -static
-
-
-
-Compilar qt cruzado para qmake:
-* Descomprimir qt-everywhere-opensource-src-5.9.3.tar.xz
-* ./configure -platform linux-arm-gnueabi-g++ -prefix /home/joserepos/github/pineboo/src/Qt -opensource -confirm-license -static -release -nomake examples -nomake tools -ssl -openssl-runtime -qt-xcb
-
-
-
-    export ANDROID_SDK_ROOT=/path/to/android_sdk
-    export ANDROID_NDK_ROOT=/path/to/android_ndk
-    export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
-    export PATH=$PATH:$ANDROID_SDK_ROOT/tools
-    export PATH=$PATH:$ANDROID_NDK
-    export ANDROID_NDK_PLATFORM=android-21
-    export ANDROID_NDK_TOOLCHAIN_VERSION=4.9
     
 
 Compilación cruzada ios (en desarrollo)
