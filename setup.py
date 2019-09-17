@@ -7,7 +7,7 @@ with open("README.rst", "r") as fh:
 
 setuptools.setup(
     name="pineboo",
-    version="0.12",
+    version="0.20.3",
     author="David Martínez Martí",  # FIXME: How do we add more authors here?
     author_email="deavidsedice@gmail.com",
     description="ERP replacement for Eneboo written in Python",
@@ -15,7 +15,22 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/deavid/pineboo",
     packages=setuptools.find_packages(),
-    package_data={"pineboolib": ["py.typed"]},
+    package_data={
+        "pineboolib": ["py.typed"],
+        "pineboolib.core.fonts.Noto_Sans": ["*"],
+        "pineboolib.core.images.icono_pi": ["*"],
+        "pineboolib.core.images.icons": ["*"],
+        "pineboolib.core.images.splashscreen": ["*"],
+        "pineboolib.system_module": ["*"],
+        "pineboolib.system_module.forms": ["*.ui"],
+        "pineboolib.system_module.queries": ["*.qry"],
+        "pineboolib.system_module.tables": ["*.mtd"],
+        "pineboolib.system_module.translations": ["*.ts"],
+        "pineboolib.loader.dlgconnect": ["*.ui"],
+        "pineboolib.plugins.dgi.dgi_qt.dgi_objects.dlg_about": ["*.ui"],
+        "pineboolib.plugins.mainform.eneboo": ["*.ui"],
+        "pineboolib.plugins.mainform.eneboo_mdi": ["*.ui"],
+    },
     keywords="erp pineboo eneboo accounting sales warehouse",
     python_requires="~=3.6",
     entry_points={

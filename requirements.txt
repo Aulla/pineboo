@@ -18,10 +18,12 @@ python-dateutil
 pytz
 PyYAML
 reportlab
+setuptools
 SQLAlchemy
 sqlparse
 sphinx
 sphinx-autodoc-typehints
+testresources
 pydocstyle
 sphinx-rtd-theme
 pyroma
@@ -37,3 +39,4 @@ wheel
 lxml
 flup
 xmljson
+twine

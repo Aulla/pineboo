@@ -1,0 +1,1 @@
+"""Splashsreen package."""
