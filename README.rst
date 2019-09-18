@@ -100,8 +100,9 @@ sudo -H pip3 install -i https://test.pypi.org/simple/ pyfpdf==1.7.3
 4) Descargamos pineboo
 
 git clone https://github.com/Aulla/pineboo.git
+sudo -H pip3 install -i https://test.pypi.org/simple/ pyfpdf==1.7.3
 
-Al llamar al programa Pineboo éste crea el subdirectorio "/projects".
+Al llamar al programa Pineboo éste crea el subdirectorio "/profiles".
 
 Desde ese formulario se configura el acceso a la empresa elegida
 
@@ -111,15 +112,6 @@ Con esto, pineboo debería iniciarse así::
 
     ./pineboo -l proyecto1
 
-Pineboo en Windows
-----------------------
-Sí se ha programado Pineboo pensando en que sea ejecutado en Windows. Se ejecuta con "python pineboo.py"
-
-Para poner flscriptparser2 en el PATH a lo mejor
-es más conveniente cambiar el PATH de windows.
-
-Por otra parte todos los paquetes necesarios tienen que ser instalados uno a uno
-en windows. Mira el listado de dependencias.
 
 Pineboo y Eclipse
 ---------------------
@@ -150,25 +142,6 @@ una acción determinada. (Abre el formulario master de esa acción)
 Otra opción interesante es --no-python-cache que fuerza a regenerar los ficheros
 de python transformados aunque ya existan. Útil si estamos jugando con flscriptparser.
 
-Se puede probar a abrir el master de artículos y pulsar el botón de copiar artículo.
-No copia el artículo pero sí pregunta la nueva referencia y hace el bucle de copia.
-
-Si el master de artículos (u otro master) tiene checkboxes u otro método de filtrado
-rápido, también funcionarán y la tabla se verá correctamente filtrada.
-
-Si el master realiza comprobaciones sobre la fila seleccionada, también funcionan.
-Por ejemplo al albaranar un pedido puede advertirnos de que ya está servido.
-
-Hay que tener en cuenta que la API de FLSqlCursor está implementada parcialmente.
-La mayoría de señales no se envían aún y muchas de las funciones aún no tienen
-implementación.
-
-FLTableDB tiene una implementación a medio completar. Sólo se enlaza con el cursor por defecto
-y más. Esto es suficiente para ejecutar muchos de los ejemplos.
-
-El resto de objetos de Eneboo no existen o tienen una implementación "hueca", es
-decir, los métodos llegan a existir, pero no hacen nada.
-
 Los formularios con convertidos al vuelo, y aún requiere este proceso de muchos
 retoques. Las características más usadas funcionan, pero muchas de las cosas
 que se pueden hacer en un formulario de Eneboo aún no son intepretadas correctamente.
@@ -180,6 +153,5 @@ Los ficheros son convertidos a python y guardados junto al fichero QS de cache.
 Por ejemplo, las conversiones de masterarticulos.qs se pueden ver en la ruta
 `tempdata/cache/nombre_bd/flfactalma/file.qs/masterarticulos/`.
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8851ebbd29a64616904500cc0aa30096)](https://www.codacy.com/app/Aulla/pineboo?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Aulla/pineboo&amp;utm_campaign=Badge_Grade)
 [![pipeline status](https://gitlab.com/deavidsedice/pineboo/badges/master/pipeline.svg)](https://gitlab.com/deavidsedice/pineboo/commits/master)
 [![coverage report](https://gitlab.com/deavidsedice/pineboo/badges/master/coverage.svg)](https://gitlab.com/deavidsedice/pineboo/commits/master)
