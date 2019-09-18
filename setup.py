@@ -6,7 +6,7 @@ from pineboolib import application
 
 prj_ = application.project
 prj_.load_version()
-version_ = prj_.version
+version_ = prj_.version[prj_.version.find(" v") + 2 :]
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
