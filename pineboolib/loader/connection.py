@@ -20,15 +20,15 @@ def config_dbconn(options: Values) -> Optional[ProjectConfig]:
     if options.project:  # FIXME: --project debería ser capaz de sobreescribir algunas opciones
         if not options.project.endswith(".xml"):
             options.project += ".xml"
-        prjpath = filedir("../profiles", options.project)
+        prj_name = options.project
         try:
-            return ProjectConfig(load_xml=prjpath)
+            return ProjectConfig(load_xml=prj_name)
         except PasswordMismatchError:
             # If fails without password, ignore the exception so the stack is cleaned.
             # This avoids seeing two exceptions if password is wrong.
             pass
         password = getpass.getpass()
-        return ProjectConfig(load_xml=prjpath, project_password=password)
+        return ProjectConfig(load_xml=prj_name, project_password=password)
 
     if options.connection:
         return ProjectConfig(connstring=options.connection)

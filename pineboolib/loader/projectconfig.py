@@ -4,6 +4,7 @@ import re
 import base64
 import hashlib
 import os.path
+from pathlib import Path
 from xml.etree import ElementTree as ET
 from typing import Tuple, Optional, Any
 
@@ -29,7 +30,9 @@ class ProjectConfig:
     logger = logging.getLogger("loader.projectConfig")
 
     #: Folder where to read/write project configs.
-    profile_dir: str = filedir(config.value("ebcomportamiento/profiles_folder", "../profiles"))
+    profile_dir: str = filedir(
+        config.value("ebcomportamiento/profiles_folder", "%s/Pineboo/profiles" % Path.home())
+    )
 
     version: VersionNumber  #: Version number for the profile read.
     fernet: Optional[Fernet]  #: Cipher used, if any.
@@ -68,7 +71,7 @@ class ProjectConfig:
         if connstring:
             username, password, type, host, port, database = self.translate_connstring(connstring)
         elif load_xml:
-            self.filename = load_xml
+            self.filename = os.path.join(self.profile_dir, "%s.xml" % load_xml)
             self.load_projectxml()
             return
         if database is None:

@@ -2,7 +2,7 @@
 """dlgconnect module."""
 
 import os
-
+from pathlib import Path
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 from pineboolib.core.utils.utils_base import filedir
@@ -222,7 +222,7 @@ class DlgConnect(QtWidgets.QWidget):
             )
 
         if not os.path.exists(self.profile_dir):
-            os.mkdir(filedir(self.profile_dir))
+            Path(self.profile_dir).mkdir(parents=True, exist_ok=True)
 
         if os.path.exists(pconf.filename) and not self.edit_mode:
             QtWidgets.QMessageBox.information(self.ui, "Pineboo", "El perfil ya existe")
