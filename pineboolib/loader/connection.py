@@ -3,7 +3,6 @@ import getpass
 from optparse import Values
 from typing import Optional
 
-from pineboolib.core.utils.utils_base import filedir
 from pineboolib.application.database.pnconnection import PNConnection
 from .projectconfig import ProjectConfig, PasswordMismatchError
 
