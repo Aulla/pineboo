@@ -2,12 +2,18 @@
 
 import setuptools  # type: ignore
 
+from pineboolib import application
+
+prj_ = application.project
+prj_.load_version()
+version_ = prj_.version
+
 with open("README.rst", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="pineboo",
-    version="0.20.3",
+    version=version_,
     author="David Martínez Martí",  # FIXME: How do we add more authors here?
     author_email="deavidsedice@gmail.com",
     description="ERP replacement for Eneboo written in Python",
