@@ -270,6 +270,9 @@ class DlgConnect(QtWidgets.QWidget):
         """
         Get a profile by name and ensure its fully loaded.
         """
+        if name not in self.profiles.keys():
+            return None
+
         pconf: ProjectConfig = self.profiles[name]
 
         if pconf.password_required:
