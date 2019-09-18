@@ -4,7 +4,7 @@
 from PyQt5 import QtWidgets
 
 
-class AboutPineboo(QtWidgets.QWidget):
+class AboutPineboo(QtWidgets.QDialog):
     """AboutPineboo class."""
 
     ui = None
