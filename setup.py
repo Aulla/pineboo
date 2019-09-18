@@ -14,8 +14,8 @@ with open("README.rst", "r") as fh:
 setuptools.setup(
     name="pineboo",
     version=version_,
-    author="David Martínez Martí",  # FIXME: How do we add more authors here?
-    author_email="deavidsedice@gmail.com",
+    author="David Martínez Martí, José A. Fernández Fernández",
+    author_email="deavidsedice@gmail.com, aullasistemas@gmail.com",
     description="ERP replacement for Eneboo written in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
