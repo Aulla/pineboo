@@ -71,7 +71,9 @@ class ProjectConfig:
         if connstring:
             username, password, type, host, port, database = self.translate_connstring(connstring)
         elif load_xml:
-            self.filename = os.path.join(self.profile_dir, "%s.xml" % load_xml)
+            self.filename = os.path.join(
+                self.profile_dir, load_xml if load_xml.endswith("xml") else "%s.xml" % load_xml
+            )
             self.load_projectxml()
             return
         if database is None:
