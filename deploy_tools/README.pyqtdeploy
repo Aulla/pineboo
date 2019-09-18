@@ -45,10 +45,10 @@ Ejecutar:
 build_binaries_android.sh
 
 
-Compilación windows-32 (nativa)
+Compilación windows-64 (nativa)
 ============================================
-
-* Visual Studio Build Tools 2015 Community (Custom, programming languages)
+* Python 3.7.2 64 bits.
+* Visual Studio Build Tools 2017 Community (Custom, programming languages)
 * qt-unified-windows-x86-3.1.0-online.exe (5.12.3)
 * Instalar perl (www.perl.org) 5.28
 * Instalar NASM 2.14.0.2 y meterla en el path de windows
@@ -58,8 +58,10 @@ Compilación windows-32 (nativa)
 	- Python-3.7.2.tar.gz
 	- Sip 4.*.tar.gz
 	- PyQt5_gpl 5.12.x.tar.gz
+	- https://www.sqlite.org/2019/sqlite-autoconf-3290000.tar.gz 
+	(se extrae ficheros en src/sqlite-win32/sqlite-autoconf-3290000) + cl sqlite3.c -link -dll -out:sqlite3.dll
 
-* Usar Consola "Developer command prompt for VS2015" como Administrador.
+* Usar Consola "Simbolo de sistema de las herramientas nativas x64 de VS 2017".
 
 
     

@@ -148,7 +148,7 @@ if build_sysroot:
         except Exception:
             print(traceback.format_exc())
 
-    if target == "linux-64":
+    elif target == "linux-64":
         try:
             os.symlink(
                 "%s/../../src/sqlite3-linux-64/sqlite-autoconf-3260000/sqlite3ext.h"
@@ -167,11 +167,36 @@ if build_sysroot:
             )
         except Exception:
             print(traceback.format_exc())
+
+    elif target == "win-32":
+        try:
+            os.symlink(
+                "%s/../../src/sqlite3-win32/sqlite-autoconf-3290000/sqlite3ext.h"
+                % os.path.abspath(os.path.join(sysroot_dir)),
+                "%s/include/sqlite3ext.h" % sysroot_dir,
+            )
+            os.symlink(
+                "%s/../../src/sqlite3-win32/sqlite-autoconf-3290000/sqlite3.h"
+                % os.path.abspath(os.path.join(sysroot_dir)),
+                "%s/include/sqlite3.h" % sysroot_dir,
+            )
+            os.symlink(
+                "%s/../../src/sqlite3-win32/sqlite-autoconf-3290000/sqlite3.dll"
+                % os.path.abspath(os.path.join(sysroot_dir)),
+                "%s/lib/sqlite3.dll" % sysroot_dir,
+            )
+        except Exception:
+            print(traceback.format_exc())
 else:
     print("INFO::sysroot-%s ya existe, omitiendo ..." % target)
 # Build the demo.
 if not os.path.exists("builds"):
     os.mkdir("builds")
+
+pdi = "pyqt-pineboo.pdy"
+if target in ["win-32", "win-64"]:
+    pdi = "pyqt-pineboo_win.pdy"
+
 run(
     [
         "pyqtdeploy-build",
@@ -181,7 +206,7 @@ run(
         sysroot_dir,
         "--build-dir",
         build_dir,
-        "pyqt-pineboo.pdy",
+        pdi,
     ]
 )
 

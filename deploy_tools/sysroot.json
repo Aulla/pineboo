@@ -69,7 +69,7 @@
         "win#disabled_features":        ["PyQt_Desktop_OpenGL"],
         "win#modules":                  [
                 "QtCore", "QtGui", "QtXml","QtNetwork", "QtPrintSupport", "QtWidgets",
-                "QtWinExtras", "QtSerialPort"
+                "QtWinExtras", "QtSerialPort", "QtSvg"
         ],
 
         "source":                   "PyQt5_*-5.*.tar.gz"
