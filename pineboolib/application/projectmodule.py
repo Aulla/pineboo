@@ -5,6 +5,7 @@ import os
 import time
 from typing import List, Optional, Any, Dict, TYPE_CHECKING
 from optparse import Values
+from pathlib import Path
 
 # from pineboolib.fllegacy.flaccesscontrollists import FLAccessControlLists # FIXME: Not allowed yet
 from PyQt5 import QtCore  # type: ignore
@@ -69,7 +70,7 @@ class Project(object):
         self.files: Dict[Any, Any] = {}  # FIXME: Add proper type
         self.options = Values()
         if self.tmpdir is None:
-            self.tmpdir = filedir("../tempdata")
+            self.tmpdir = filedir("%s/Pineboo/tempdata" % Path.home())
             config.set_value("ebcomportamiento/temp_dir", self.tmpdir)
 
     @property
@@ -103,7 +104,7 @@ class Project(object):
         self.apppath = filedir("..")
         # self.tmpdir = config.value("ebcomportamiento/temp_dir")
         if not os.path.exists(self.tmpdir):
-            os.mkdir(self.tmpdir)
+            Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
 
         self.deleteCache = config.value("ebcomportamiento/deleteCache", False)
         self.parseProject = config.value("ebcomportamiento/parseProject", False)
