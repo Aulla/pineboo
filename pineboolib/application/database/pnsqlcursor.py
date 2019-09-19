@@ -361,10 +361,8 @@ class PNSqlCursor(QtCore.QObject):
         @return True if success, otherwise False.
         """
         action = None
-
         if isinstance(a, str):
             action = self.db().manager().action(a.lower())
-
             if action.table() == "":
                 action.setTable(a)
         else:
@@ -2390,7 +2388,7 @@ class PNSqlCursor(QtCore.QObject):
     def __del__(self, invalidate: bool = True) -> None:
         """
         Check if it is deleted in cascade, if so, also delete related records in 1M cardinality.
-
+    
         @param invalidate. Not used.
         """
         # logger.trace("FLSqlCursor(%s). Eliminando cursor" % self.curName(), self)
@@ -2403,8 +2401,8 @@ class PNSqlCursor(QtCore.QObject):
         mtd = self.d.metadata_
 
         # FIXME: Pongo que tiene que haber mas de una trasaccion abierta
-        if len(self.d.transactionsOpened_) > 0:
-            logger.notice(
+        if self.d.transactionsOpened_:
+            logger.warning(
                 "FLSqlCursor(%s).Transacciones abiertas!! %s",
                 self.curName(),
                 self.d.transactionsOpened_,
@@ -2412,6 +2410,7 @@ class PNSqlCursor(QtCore.QObject):
             t = self.curName()
             if mtd:
                 t = mtd.name()
+
             msg = (
                 "Se han detectado transacciones no finalizadas en la última operación.\n"
                 "Se van a cancelar las transacciones pendientes.\n"
@@ -2420,8 +2419,9 @@ class PNSqlCursor(QtCore.QObject):
                 "se han guardado.\nSqlCursor::~SqlCursor: %s\n" % t
             )
             self.rollbackOpened(-1, msg)
-        # self.destroyed.emit()
-        # self.d.countRefCursor = self.d.countRefCursor - 1     FIXME
+
+    #    # self.destroyed.emit()
+    #    # self.d.countRefCursor = self.d.countRefCursor - 1     FIXME
 
     @pyqtSlot()
     def select(
@@ -3146,13 +3146,12 @@ class PNSqlCursor(QtCore.QObject):
         """
 
         ct: int = len(self.d.transactionsOpened_) if count < 0 else count
-
         if ct > 0 and msg != "":
             t: str = self.d.metadata_.name() if self.d.metadata_ else self.curName()
-            m = "%sSqLCursor::rollbackOpened: %s %s" % (msg, count, t)
+            m = "%sSqlCursor::rollbackOpened: %s %s" % (msg, ct, t)
             self.d.msgBoxWarning(m, False)
         elif ct > 0:
-            logger.trace("rollbackOpened: %s %s", count, self.curName())
+            logger.trace("rollbackOpened: %s %s", ct, self.curName())
 
         i = 0
         while i < ct:
@@ -3168,7 +3167,6 @@ class PNSqlCursor(QtCore.QObject):
         @param count Number of transactions to finish, -1 all.
         @param msg A text string that is displayed in a dialog box before completing transactions. If it is empty it shows nothing.
         """
-
         ct: int = len(self.d.transactionsOpened_) if count < 0 else count
         t: str = self.d.metadata_.name() if self.d.metadata_ else self.curName()
 
