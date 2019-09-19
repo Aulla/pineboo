@@ -124,10 +124,11 @@ class PNAccessControlLists(object):
             return
         type_ = PNAccessControlFactory().type(obj)
         name = ""
-        if hasattr(obj, "objectName"):
-            name = obj.objectName()
-        elif hasattr(obj, "name"):
+
+        if hasattr(obj, "name"):
             name = obj.name()
+        elif hasattr(obj, "objectName"):
+            name = obj.objectName()
 
         from pineboolib.application import project
 
@@ -135,7 +136,6 @@ class PNAccessControlLists(object):
             raise Exception("Project is not connected yet")
 
         user = project.conn.user()
-
         if type_ == "" or name == "" or user == "":
             return
 
