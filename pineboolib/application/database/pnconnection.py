@@ -466,13 +466,13 @@ class PNConnection(QtCore.QObject, IConnection):
             if cur.d.transactionsOpened_:
                 trans = cur.d.transactionsOpened_.pop()
                 if not trans == self.transaction_:
-                    logger.info(
+                    logger.warning(
                         "FLSqlDatabase: El cursor va a deshacer la transacción %s pero la última que inició es la %s",
                         self.transaction_,
                         trans,
                     )
             else:
-                logger.info(
+                logger.warning(
                     "FLSqlDatabaser : El cursor va a deshacer la transacción %s pero no ha iniciado ninguna",
                     self.transaction_,
                 )
