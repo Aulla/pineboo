@@ -1583,7 +1583,7 @@ class SysType(SysBaseType):
         return aqApp.db().interactiveGUI()
 
     @classmethod
-    def getWidgetList(self, container: str, control_name: str) -> bool:
+    def getWidgetList(self, container: str, control_name: str) -> str:
         """Get widget list from a widget."""
 
         from pineboolib import application
@@ -1607,10 +1607,13 @@ class SysType(SysBaseType):
         if w is None:
             return ""
 
-        object_list = w.findChildren(QtWidgets.QWidget, "", QtCore.Qt.FindChildrenRecursively)
+        object_list = w.findChildren(QtWidgets.QWidget)
         retorno_: str = ""
         for obj in object_list:
             name_ = obj.objectName()
+            if name_ == "":
+                continue
+
             if control_name == "FLFieldDB":
                 field_table_ = obj.tableName()
                 if field_table_ != a.table():
@@ -1641,7 +1644,6 @@ class SysType(SysBaseType):
                 else:
                     retorno_ += "%s/*" % (name_)
 
-        print("*", retorno_)
         return retorno_
 
 
