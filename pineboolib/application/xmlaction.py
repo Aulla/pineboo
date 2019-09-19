@@ -40,6 +40,8 @@ class XMLAction(ActionStruct):
         self.form = self._v("form")
         self.name = name or self._rv("name")  # Mandatory
         self.description = self._v("description")
+        self.caption = self._v("caption")
+        self.alias = self._v("alias")
         self.scriptform = self._v("scriptform")
         self.table = self._v("table")
         self.mainform = self._v("mainform")
