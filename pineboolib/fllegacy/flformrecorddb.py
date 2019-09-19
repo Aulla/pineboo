@@ -22,7 +22,7 @@ from typing import cast, Union, Optional, TYPE_CHECKING
 import traceback
 
 if TYPE_CHECKING:
-    from . import flaction
+    from pineboolib.application.metadata import pnaction
 
 
 DEBUG = False
@@ -102,7 +102,7 @@ class FLFormRecordDB(FLFormDB):
     def __init__(
         self,
         parent_or_cursor: Union[QtWidgets.QWidget, pnsqlcursor.PNSqlCursor, None],
-        action: "flaction.FLAction",
+        action: "pnaction.FLAction",
         load: bool = False,
     ) -> None:
         """
