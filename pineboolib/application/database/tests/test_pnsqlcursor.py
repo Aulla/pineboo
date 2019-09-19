@@ -2,6 +2,9 @@
 
 import unittest
 from pineboolib.loader.main import init_testing
+from pineboolib.core.utils import logging
+
+logger = logging.getLogger("test")
 
 
 class TestInsertData(unittest.TestCase):
@@ -509,7 +512,7 @@ class TestRelations(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
-    def test_basic_relatins_1(self) -> None:
+    def test_basic_relations_1(self) -> None:
         """Test basic relations 1."""
         from pineboolib.application.database import pnsqlcursor
         from pineboolib.application.metadata import pnrelationmetadata
@@ -545,7 +548,7 @@ class TestRelations(unittest.TestCase):
         self.assertTrue(cur_modulos.commitBuffer())
         self.assertTrue(cur_areas.rollback())
 
-    def test_basic_relatins_2(self) -> None:
+    def test_basic_relations_2(self) -> None:
         """Test basic relations 2."""
         from pineboolib.application.database import pnsqlcursor
         from pineboolib.application.metadata import pnrelationmetadata
@@ -593,13 +596,16 @@ class TestRelations(unittest.TestCase):
         cur_areas.transaction()
         self.assertTrue(cur_areas.commitBuffer())
         cur_areas.setEditMode()
-        cur_areas.setModeAccess(cur_areas.Insert)
+        cur_areas.setModeAccess(cur_areas.Edit)
         cur_areas.setEditMode()
         cur_areas.primeInsert()
         cur_modulos.setModeAccess(cur_modulos.Insert)
         cur_modulos.refreshDelayed()
         self.assertTrue(cur_modulos.fieldDisabled("idarea"))
-        cur_modulos.commitBuffer()
+        self.assertFalse(cur_modulos.commitBuffer())
+        self.assertEqual(cur_modulos.transactionsOpened(), ["4"])
+        self.assertTrue(cur_modulos.rollback())
+        self.assertEqual(cur_modulos.transactionsOpened(), [])
         self.assertTrue(cur_areas.rollback())
 
 
