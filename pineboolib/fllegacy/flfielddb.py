@@ -185,6 +185,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self.fieldRelation_ = None
 
         self.textLabelDB = QtWidgets.QLabel()
+        self.textLabelDB.setObjectName("textLabelDB")
         if self.textLabelDB is not None:
             self.textLabelDB.setMinimumHeight(16)  # No inicia originalmente aqui
             self.textLabelDB.setAlignment(
@@ -202,6 +203,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self.FLWidgetFieldDBLayout.addWidget(self.textLabelDB)
 
         self.pushButtonDB = QPushButton(self)
+        self.pushButtonDB.setObjectName("pushButtonDB")
         if project.DGI.localDesktop():
             self.setFocusProxy(self.pushButtonDB)
         # self.pushButtonDB.setFlat(True)
@@ -2319,7 +2321,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.setParent(self)
 
             self.editor_.name = "editor"
-            self.editor_.setEditable(False)
+            # self.editor_.setEditable(False)
             # self.editor_.setAutoCompletion(True)
             self.editor_.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
             self.editor_.setMinimumSize(self.iconSize)
@@ -2328,13 +2330,13 @@ class FLFieldDB(QtWidgets.QWidget):
             # if not field.allowNull():
             # self.editor_.palette().setColor(self.editor_.backgroundRole(), self.notNullColor())
             # self.editor_.setStyleSheet('background-color:' + self.notNullColor().name())
-            if not field.allowNull() and field.editable():
-                self.editor_.setStyleSheet(
-                    "background-color:%s; color:%s"
-                    % (self.notNullColor(), QtGui.QColor(Qt.black).name())
-                )
-            else:
-                self.editor_.setStyleSheet(style_)
+            # if not field.allowNull() and field.editable():
+            #    self.editor_.setStyleSheet(
+            #        "background-color:%s; color:%s"
+            #        % (self.notNullColor(), QtGui.QColor(Qt.black).name())
+            #    )
+            # else:
+            #    self.editor_.setStyleSheet(style_)
 
             olTranslated = []
             olNoTranslated = field.optionsList()
@@ -3271,11 +3273,14 @@ class FLFieldDB(QtWidgets.QWidget):
                             and not (field.type() in ["date", "time"])
                             and (self.cursor_ and self.cursor_.modeAccess() != self.cursor_.Browse)
                         ):
-
-                            self.editor_.setStyleSheet(
-                                "background-color:%s; color:%s"
-                                % (self.notNullColor(), QtGui.QColor(Qt.black).name())
-                            )
+                            if not isinstance(self.editor_, QComboBox):
+                                self.editor_.setStyleSheet(
+                                    "background-color:%s; color:%s"
+                                    % (self.notNullColor(), QtGui.QColor(Qt.black).name())
+                                )
+                            else:
+                                self.editor_.setEditable(False)
+                                self.editor_.setStyleSheet(self.styleSheet())
                         else:
                             self.editor_.setStyleSheet(self.styleSheet())
 
