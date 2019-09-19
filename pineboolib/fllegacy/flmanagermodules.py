@@ -9,7 +9,7 @@ from pineboolib import logging
 from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import filedir
 
-from . import flaction
+from pineboolib.application.metadata import pnaction
 from . import flmodulesstaticloader
 
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
@@ -447,7 +447,7 @@ class FLManagerModules(object):
 
     def createForm(
         self,
-        action: Union["flaction.FLAction", "XMLAction"],
+        action: Union["pnaction.PNAction", "XMLAction"],
         connector: Optional["PNConnection"] = None,
         parent: Optional["QtWidgets.QWidget"] = None,
         name: Optional[str] = None,
@@ -462,7 +462,7 @@ class FLManagerModules(object):
         """
         from . import flformdb
 
-        if not isinstance(action, flaction.FLAction):
+        if not isinstance(action, pnaction.PNAction):
             from pineboolib.application.utils.convert_flaction import convert2FLAction
 
             action = convert2FLAction(action)
@@ -479,7 +479,7 @@ class FLManagerModules(object):
 
     def createFormRecord(
         self,
-        action: Union["flaction.FLAction", "XMLAction"],
+        action: Union["pnaction.PNAction", "XMLAction"],
         connector: Optional["PNConnection"] = None,
         parent_or_cursor: Optional[Union["PNSqlCursor", "QtWidgets.QWidget"]] = None,
         name: Optional[str] = None,
@@ -497,7 +497,7 @@ class FLManagerModules(object):
         from . import flformrecorddb
 
         # Falta implementar conector y name
-        if not isinstance(action, flaction.FLAction):
+        if not isinstance(action, pnaction.PNAction):
             logger.trace("createFormRecord: convert2FLAction")
             from pineboolib.application.utils.convert_flaction import convert2FLAction
 
