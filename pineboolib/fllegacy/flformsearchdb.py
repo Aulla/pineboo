@@ -278,6 +278,13 @@ class FLFormSearchDB(FLFormDB):
 
         return "formSearch%s" % self.idMDI_
 
+    def formName(self) -> str:
+        """
+        Return internal form name.
+        """
+
+        return "formSearch%s" % self.idMDI_
+
     def closeEvent(self, e: QtCore.QEvent) -> None:
         """Capture event close."""
 
