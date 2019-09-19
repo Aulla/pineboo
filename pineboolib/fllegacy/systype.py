@@ -1585,29 +1585,49 @@ class SysType(SysBaseType):
     @classmethod
     def getWidgetList(self, container: str, control_name: str) -> str:
         """Get widget list from a widget."""
-
         from pineboolib import application
 
-        print("Buscando controles tipo", control_name, "en", container)
+        obj_class = None
+        if control_name == "FLFieldDB":
+            from .flfielddb import FLFieldDB
+
+            obj_class = FLFieldDB
+        elif control_name == "FLTableDB":
+            from .fltabledb import FLTableDB
+
+            obj_class = FLTableDB
+        elif control_name == "Button":
+            control_name = "QPushButton"
+
+        if obj_class is None:
+            obj_class = getattr(QtWidgets, control_name, None)
+
+        if obj_class is None:
+            raise Exception("obj_class is empty!")
+
         w = None
         a = None
+        conn = application.project._conn
+        if conn is None:
+            raise Exception("conn is empty!")
+
         if container[0:10] == "formRecord":
             action_ = container[10:]
-            a = application.project._conn.manager().action(action_)
-            w = application.project._conn.managerModules().createFormRecord(a)
+            a = conn.manager().action(action_)
+            w = conn.managerModules().createFormRecord(a)
         elif container[0:10] == "formSearch":
             action_ = container[10:]
-            a = application.project._conn.manager().action(action_)
-            w = application.project._conn.managerModules().createForm(a)
+            a = conn.manager().action(action_)
+            w = conn.managerModules().createForm(a)
         else:
             action_ = container[4:]
-            a = application.project._conn.manager().action(action_)
-            w = application.project._conn.managerModules().createForm(a)
+            a = conn.manager().action(action_)
+            w = conn.managerModules().createForm(a)
 
         if w is None:
             return ""
 
-        object_list = w.findChildren(QtWidgets.QWidget)
+        object_list = w.findChildren(obj_class)
         retorno_: str = ""
         for obj in object_list:
             name_ = obj.objectName()
@@ -1616,12 +1636,12 @@ class SysType(SysBaseType):
 
             if control_name == "FLFieldDB":
                 field_table_ = obj.tableName()
-                if field_table_ != a.table():
+                if field_table_ and field_table_ != a.table():
                     continue
                 retorno_ += "%s/%s*" % (name_, obj.fieldName())
             elif control_name == "FLTableDB":
                 retorno_ += "%s/%s*" % (name_, obj.tableName())
-            elif control_name in ["QButton", "Button"]:
+            elif control_name in ["QPushButton", "Button"]:
                 if name_ in ["pushButtonDB", "pbAux", "qt_left_btn", "qt_right_btn"]:
                     continue
                 retorno_ += "%s/%s*" % (name_, obj.objectName())
