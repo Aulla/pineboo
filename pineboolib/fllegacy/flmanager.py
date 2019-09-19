@@ -33,7 +33,7 @@ from typing import Optional, Union, Any, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.iconnection import IConnection
-    import pineboolib.fllegacy.flaction
+    from pineboolib.application.metadata import pnaction
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class FLManager(QtCore.QObject, IManager):
     dictKeyMetaData_: Dict[str, str]  # Diccionario de claves de metadatos, para optimizar lecturas
     cacheMetaData_: Dict[str, PNTableMetaData]  # Caché de metadatos, para optimizar lecturas
     cacheAction_: Dict[
-        str, "pineboolib.fllegacy.flaction.FLAction"
+        str, "pnaction.PNAction"
     ]  # Caché de definiciones de acciones, para optimizar lecturas
     # Caché de metadatos de talblas del sistema para optimizar lecturas
     cacheMetaDataSys_: Dict[str, PNTableMetaData]
@@ -541,7 +541,7 @@ class FLManager(QtCore.QObject, IManager):
 
         return q
 
-    def action(self, action_name: str) -> "pineboolib.fllegacy.flaction.FLAction":
+    def action(self, action_name: str) -> "pnaction.PNAction":
         """
         Return the definition of an action from its name.
 
@@ -553,13 +553,22 @@ class FLManager(QtCore.QObject, IManager):
         @return A FLAction object with the description of the action
 
         """
+
         if not self.db_:
             raise Exception("action. self.db_ is empty!")
 
         # FIXME: This function is really inefficient. Pineboo already parses the actions much before.
-        if self.cacheAction_ and action_name in self.cacheAction_.keys():
-            return self.cacheAction_[action_name]
+        if action_name in self.cacheAction_.keys():
+            pnaction_ = self.cacheAction_[action_name]
+        else:
+            from pineboolib.application.utils.convert_flaction import convert2FLAction
 
+            pnaction_ = convert2FLAction(action_name)
+            self.cacheAction_[action_name] = pnaction_
+
+        return pnaction_
+
+        """
         from pineboolib.fllegacy.flaction import FLAction
 
         util = FLUtil()
@@ -697,6 +706,7 @@ class FLManager(QtCore.QObject, IManager):
 
         self.cacheAction_[action_name] = a
         return a
+        """
 
     def existsTable(self, n: str, cache: bool = True) -> bool:
         """
