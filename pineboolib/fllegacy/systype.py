@@ -1582,6 +1582,68 @@ class SysType(SysBaseType):
 
         return aqApp.db().interactiveGUI()
 
+    @classmethod
+    def getWidgetList(self, container: str, control_name: str) -> bool:
+        """Get widget list from a widget."""
+
+        from pineboolib import application
+
+        print("Buscando controles tipo", control_name, "en", container)
+        w = None
+        a = None
+        if container[0:10] == "formRecord":
+            action_ = container[10:]
+            a = application.project._conn.manager().action(action_)
+            w = application.project._conn.managerModules().createFormRecord(a)
+        elif container[0:10] == "formSearch":
+            action_ = container[10:]
+            a = application.project._conn.manager().action(action_)
+            w = application.project._conn.managerModules().createForm(a)
+        else:
+            action_ = container[4:]
+            a = application.project._conn.manager().action(action_)
+            w = application.project._conn.managerModules().createForm(a)
+
+        if w is None:
+            return ""
+
+        object_list = w.findChildren(QtWidgets.QWidget, "", QtCore.Qt.FindChildrenRecursively)
+        retorno_: str = ""
+        for obj in object_list:
+            name_ = obj.objectName()
+            if control_name == "FLFieldDB":
+                field_table_ = obj.tableName()
+                if field_table_ != a.table():
+                    continue
+                retorno_ += "%s/%s*" % (name_, obj.fieldName())
+            elif control_name == "FLTableDB":
+                retorno_ += "%s/%s*" % (name_, obj.tableName())
+            elif control_name in ["QButton", "Button"]:
+                if name_ in ["pushButtonDB", "pbAux", "qt_left_btn", "qt_right_btn"]:
+                    continue
+                retorno_ += "%s/%s*" % (name_, obj.objectName())
+            else:
+                if name_ in [
+                    "textLabelDB",
+                    "componentDB",
+                    "tab_pages",
+                    "editor",
+                    "FrameFind",
+                    "TextLabelSearch",
+                    "TextLabelIn",
+                    "lineEditSearch",
+                    "in-combo",
+                    "voidTable",
+                ]:
+                    continue
+                if isinstance(obj, QtWidgets.QGroupBox):
+                    retorno_ += "%s/%s*" % (name_, obj.title())
+                else:
+                    retorno_ += "%s/*" % (name_)
+
+        print("*", retorno_)
+        return retorno_
+
 
 class AbanQDbDumper(QtCore.QObject):
     """AbanqDbDumper class."""
