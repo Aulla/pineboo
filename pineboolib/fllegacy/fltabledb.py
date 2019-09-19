@@ -376,7 +376,9 @@ class FLTableDB(QtWidgets.QWidget):
 
         self.tabControlLayout = QtWidgets.QHBoxLayout()
         self.tabFilter = QtWidgets.QFrame()  # contiene filtros
+        self.tabFilter.setObjectName("tdbFilter")
         self.tabData = QtWidgets.QFrame()  # contiene data
+        self.tabData.setObjectName("tabTable")
         self.functionGetColor_ = None
 
         from .flformdb import FLFormDB
@@ -1278,6 +1280,7 @@ class FLTableDB(QtWidgets.QWidget):
         self.comboBoxFieldToSearch2.currentIndexChanged.connect(self.putSecondCol)
 
         self.tdbFilter = QTable()
+
         filterL.addWidget(self.tdbFilter)
 
     def tableRecords(self) -> "FLDataTable":
