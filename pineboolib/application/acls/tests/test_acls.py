@@ -158,8 +158,16 @@ class TestACLS(unittest.TestCase):
         cursor_flacos.setValueBuffer("idac", id_acs_2)
         cursor_flacos.commitBuffer()
 
+    def test_form_flacos(self) -> None:
+        """Test form acls from flacos."""
+        sys_type = systype.SysType()
+        sys_type.installACL("tercera")
+        acl = pnaccesscontrollists.PNAccessControlLists()
+        acl.init()
+        flapplication.aqApp.set_acl(acl)
+
     def test_tables_flacos(self) -> None:
-        """Test table acls from flacos especifics."""
+        """Test table acls from flacos."""
 
         sys_type = systype.SysType()
         sys_type.installACL("primera")

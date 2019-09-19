@@ -102,7 +102,7 @@ class FLFormRecordDB(FLFormDB):
     def __init__(
         self,
         parent_or_cursor: Union[QtWidgets.QWidget, pnsqlcursor.PNSqlCursor, None],
-        action: "pnaction.FLAction",
+        action: "pnaction.PNAction",
         load: bool = False,
     ) -> None:
         """

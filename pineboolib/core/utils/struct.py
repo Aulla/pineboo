@@ -110,6 +110,7 @@ class ActionStruct(XMLStruct):
     form: Optional[str] = None
     name: str = ""
     description: Optional[str] = None
+    caption: Optional[str] = None
     scriptform: Optional[str] = None
     table: Optional[str] = None
     mainform: Optional[str] = None

@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata.pntablemetadata import PNTableMetaData  # noqa: F401
     from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData  # noqa: F401
     from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
-    from pineboolib.fllegacy.flaction import FLAction  # noqa: F401
+    from pineboolib.application.metadata import pnaction  # noqa: F401
     from pineboolib.application.database.pnbuffer import FieldStruct  # noqa: F401
 
 
@@ -98,7 +98,7 @@ class PNSqlCursor(QtCore.QObject):
 
     _iter_current: Optional[int]
 
-    _action: Optional["FLAction"] = None
+    _action: Optional["pnaction.PNAction"] = None
 
     ext_cursor = None
     _activatedBufferChanged: bool
@@ -341,23 +341,23 @@ class PNSqlCursor(QtCore.QObject):
 
         return ret_
 
-    def action(self) -> Optional["FLAction"]:
+    def action(self) -> Optional["pnaction.PNAction"]:
         """
-        Get FLAction related to this cursor.
+        Get PNAction related to this cursor.
 
-        @return FLAction object.
+        @return PNAction object.
         """
         return self._action if self._action else None
 
     def actionName(self) -> str:
-        """Get action name from FLAction related to the cursor. Returns empty string if none is set."""
+        """Get action name from pnaction.PNAction related to the cursor. Returns empty string if none is set."""
         return self._action.name() if self._action else ""
 
-    def setAction(self, a: Union[str, "FLAction"]) -> bool:
+    def setAction(self, a: Union[str, "pnaction.PNAction"]) -> bool:
         """
         Set action to be related to this cursor.
 
-        @param FLAction object
+        @param PNAction object
         @return True if success, otherwise False.
         """
         action = None
@@ -2388,7 +2388,7 @@ class PNSqlCursor(QtCore.QObject):
     def __del__(self, invalidate: bool = True) -> None:
         """
         Check if it is deleted in cascade, if so, also delete related records in 1M cardinality.
-    
+
         @param invalidate. Not used.
         """
         # logger.trace("FLSqlCursor(%s). Eliminando cursor" % self.curName(), self)
@@ -3656,7 +3656,7 @@ class PNCursorPrivate(QtCore.QObject):
     Accion asociada al cursor, esta accion pasa a ser propiedad de FLSqlCursor, que será el
     encargado de destruirla
     """
-    action_: "FLAction"
+    action_: "pnaction.PNAction"
 
     """
     Cuando esta propiedad es TRUE siempre se pregunta al usuario si quiere cancelar

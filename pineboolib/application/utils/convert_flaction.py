@@ -72,7 +72,7 @@ def convert2FLAction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
                 action_.setDescription(xml_action.description)
             if xml_action.alias:
                 action_.setCaption(xml_action.alias)
-            else:
+            elif xml_action.caption:
                 action_.setCaption(xml_action.caption)
 
         cached_actions[action_name] = action_
