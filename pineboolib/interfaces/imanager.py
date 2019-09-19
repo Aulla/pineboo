@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 #     import pineboolib.application.metadata.pnfieldmetadata
 #     import pineboolib.application.metadata.pntablemetadata
 #     import pineboolib.application.metadata.pnrelationmetadata
-#     import pineboolib.fllegacy.flaction
+#     import pineboolib.application.metadata.pnaction
 
 
 class IManager(object):
@@ -21,7 +21,7 @@ class IManager(object):
 
     __doc__: str
     buffer_: None
-    cacheAction_: Optional[Dict[str, Any]]  # "pineboolib.fllegacy.flaction.FLAction"
+    cacheAction_: Optional[Dict[str, Any]]  # "pnaction.PNAction"
     cacheMetaDataSys_: Optional[dict]
     cacheMetaData_: Optional[dict]
     db_: Optional[Any]  # "pineboolib.application.database.pnconnection.PNConnection"
@@ -37,7 +37,7 @@ class IManager(object):
         """Create manager."""
         return None
 
-    def action(self, n: str) -> Any:  # "pineboolib.fllegacy.flaction.FLAction"
+    def action(self, n: str) -> Any:  # "pnaction.PNAction"
         """Retrieve action object by name."""
         raise Exception("must be implemented")
 
