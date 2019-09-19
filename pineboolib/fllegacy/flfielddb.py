@@ -2317,7 +2317,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if has_option_list:
             self.editor_ = QComboBox()
-            style_ = self.editor_.styleSheet()
+            # style_ = self.editor_.styleSheet()
             self.editor_.setParent(self)
 
             self.editor_.name = "editor"
