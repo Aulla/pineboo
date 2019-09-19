@@ -19,7 +19,7 @@ from . import flapplication
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from . import flaction
+    from pineboolib.application.metadata import pnaction
 
 
 class FLFormSearchDB(FLFormDB):
@@ -87,7 +87,7 @@ class FLFormSearchDB(FLFormDB):
         self.initForm()
         self.setFocusPolicy(QtCore.Qt.NoFocus)
 
-    def setAction(self, a: "flaction.FLAction") -> None:
+    def setAction(self, a: "pnaction.PNAction") -> None:
         """Set a action."""
 
         if self.cursor_:

@@ -11,7 +11,7 @@ from pineboolib import logging
 from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import filedir
 from pineboolib.application.utils.geometry import loadGeometryForm, saveGeometryForm
-from pineboolib.fllegacy.flaction import FLAction
+from pineboolib.application.metadata import pnaction
 from pineboolib.core.settings import config
 from pineboolib.fllegacy import flapplication
 from typing import Any, Union, Dict, Optional, Tuple, Type, cast, TYPE_CHECKING
@@ -162,7 +162,7 @@ class FLFormDB(QDialog):
     logger = logging.getLogger("FLFormDB")
 
     def __init__(
-        self, parent: Optional[QtWidgets.QWidget], action: "FLAction", load: bool = False
+        self, parent: Optional[QtWidgets.QWidget], action: "pnaction.PNAction", load: bool = False
     ) -> None:
         """Create a new FLFormDB for given action."""
         # self.tiempo_ini = time.time()
@@ -178,7 +178,7 @@ class FLFormDB(QDialog):
         self._loaded = False
         self.known_instances[(self.__class__, action.name())] = self
 
-        self._action: "FLAction" = action
+        self._action: "pnaction.PNAction" = action
         if type(self).__name__ == "FLFormRecordDB":
             self.actionName_ = "formRecord" + self._action.name()
             script_name = self._action.scriptFormRecord()
@@ -557,8 +557,8 @@ class FLFormDB(QDialog):
         if self.widget:
             self.widget.closed.emit()
 
-    def action(self) -> "FLAction":
-        """Get form FLAction."""
+    def action(self) -> "pnaction.PNAction":
+        """Get form PNAction."""
         return self._action
 
     def initForm(self) -> None:
