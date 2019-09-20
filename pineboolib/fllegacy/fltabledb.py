@@ -791,7 +791,7 @@ class FLTableDB(QtWidgets.QWidget):
             self.lineEditSearch.setText(textSearch)
             self.lineEditSearch.textChanged.connect(self.filterRecords)
             self.lineEditSearch.selectAll()
-            self.seekCursor()
+            # self.seekCursor()
             QtCore.QTimer.singleShot(0, self.tableRecords_.ensureRowSelectedVisible)
         else:
             self.refreshDelayed()
@@ -1012,7 +1012,7 @@ class FLTableDB(QtWidgets.QWidget):
                 return True
 
         if ev.type() == QtCore.QEvent.WindowUnblocked and isinstance(obj, FLDataTable):
-            self.refreshDelayed(50, True)
+            self.refreshDelayed()
             return True
 
         if ev.type() == QtCore.QEvent.KeyPress and isinstance(obj, QtWidgets.QLineEdit):
@@ -2145,7 +2145,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         QtCore.QTimer.singleShot(50, self.setSortOrder)
 
-    def refreshDelayed(self, msec: int = 50, refreshData: bool = True) -> None:
+    def refreshDelayed(self, msec: int = 5, refreshData: bool = True) -> None:
         """
         Update the recordset with a delay.
 
@@ -2157,7 +2157,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         self._refreshData = True if refreshData else False
         QtCore.QTimer.singleShot(msec, self.refreshDelayed2)
-        self.seekCursor()
+        # self.seekCursor()
 
     def refreshDelayed2(self) -> None:
         """Refresh the data when the time ends."""
@@ -2439,35 +2439,35 @@ class FLTableDB(QtWidgets.QWidget):
 
         self.refresh(True, False)
 
-    @decorators.BetaImplementation
-    def seekCursor(self) -> None:
-        """
-        Position the cursor on a valid record.
-        """
-        return
-        # textSearch = self.lineEditSearch.text()
-        # if not textSearch:
-        #     return
-        #
-        # if not self.cursor():
-        #     return
-        #
-        # # fN = self.sortField_.name()
-        # textSearch.replace("%", "")
+    # @decorators.BetaImplementation
+    # def seekCursor(self) -> None:
+    #    """
+    #    Position the cursor on a valid record.
+    #    """
+    #    return
+    # textSearch = self.lineEditSearch.text()
+    # if not textSearch:
+    #     return
+    #
+    # if not self.cursor():
+    #     return
+    #
+    # # fN = self.sortField_.name()
+    # textSearch.replace("%", "")
 
-        # if "'" not in textSearch and "\\" not in textSearch:
-        #     sql = self.cursor().executedQuery() + " LIMIT 1"
-        #   """
-        #       #QSqlQuery qry(sql, cursor_->db()->db()); #FIXME
-        #       if (qry.first()) {
-        # QString v(qry.value(0).toString());
-        # int pos = -1;
-        # if (!v.upper().startsWith(textSearch.upper()))
-        #   pos = cursor_->atFromBinarySearch(fN, textSearch, orderAsc_);
-        # if (pos == -1)
-        #   pos = cursor_->atFromBinarySearch(fN, v, orderAsc_);
-        # cursor_->seek(pos, false, true);
-        # """
+    # if "'" not in textSearch and "\\" not in textSearch:
+    #     sql = self.cursor().executedQuery() + " LIMIT 1"
+    #   """
+    #       #QSqlQuery qry(sql, cursor_->db()->db()); #FIXME
+    #       if (qry.first()) {
+    # QString v(qry.value(0).toString());
+    # int pos = -1;
+    # if (!v.upper().startsWith(textSearch.upper()))
+    #   pos = cursor_->atFromBinarySearch(fN, textSearch, orderAsc_);
+    # if (pos == -1)
+    #   pos = cursor_->atFromBinarySearch(fN, v, orderAsc_);
+    # cursor_->seek(pos, false, true);
+    # """
 
     def setEnabled(self, b: bool) -> None:
         """
@@ -2493,7 +2493,7 @@ class FLTableDB(QtWidgets.QWidget):
         @param r Index of the row to select
         """
         t = self.tableRecords_
-        if not t:
+        if t is None:
             return
 
         t.selectRow(r)
