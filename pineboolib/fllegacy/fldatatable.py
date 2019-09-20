@@ -224,9 +224,9 @@ class FLDataTable(QtWidgets.QTableView):
         """
         if id_pk is not None:
             pos = self.model().findPKRow((id_pk,))
-            if pos is not None:
-                self.cur.move(pos)
-                # self.ensureRowSelectedVisible()
+            if pos is not None and pos != self.cur.currentRegister():
+                ret = self.cur.move(pos)
+            # self.ensureRowSelectedVisible()
 
     def setPersistentFilter(self, p_filter: Optional[str] = None) -> None:
         """Set the persistent filter for this control."""
