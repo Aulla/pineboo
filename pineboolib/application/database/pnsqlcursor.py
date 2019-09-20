@@ -375,7 +375,6 @@ class PNSqlCursor(QtCore.QObject):
             if (
                 self._action.table() == action.table()
             ):  # Esto es para evitar que se setee en un FLTableDB con metadata inválido un action sobre un cursor del parentWidget.
-                from pineboolib.core.settings import config
 
                 logger.debug(
                     "Se hace setAction sobre un cursor con la misma table %s\nAction anterior: %s\nAction nueva: %s",
