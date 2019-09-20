@@ -1614,15 +1614,18 @@ class SysType(SysBaseType):
         if container[0:10] == "formRecord":
             action_ = container[10:]
             a = conn.manager().action(action_)
-            w = conn.managerModules().createFormRecord(a)
+            if a.formRecord():
+                w = conn.managerModules().createFormRecord(a)
         elif container[0:10] == "formSearch":
             action_ = container[10:]
             a = conn.manager().action(action_)
-            w = conn.managerModules().createForm(a)
+            if a.form():
+                w = conn.managerModules().createForm(a)
         else:
             action_ = container[4:]
             a = conn.manager().action(action_)
-            w = conn.managerModules().createForm(a)
+            if a.form():
+                w = conn.managerModules().createForm(a)
 
         if w is None:
             return ""
