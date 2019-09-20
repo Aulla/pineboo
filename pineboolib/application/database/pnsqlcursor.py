@@ -377,13 +377,12 @@ class PNSqlCursor(QtCore.QObject):
             ):  # Esto es para evitar que se setee en un FLTableDB con metadata inválido un action sobre un cursor del parentWidget.
                 from pineboolib.core.settings import config
 
-                if config.value("application/isDebuggerMode", False):
-                    logger.warning(
-                        "Se hace setAction sobre un cursor con la misma table %s\nAction anterior: %s\nAction nueva: %s",
-                        action.table(),
-                        self._action.name(),
-                        action.name(),
-                    )
+                logger.debug(
+                    "Se hace setAction sobre un cursor con la misma table %s\nAction anterior: %s\nAction nueva: %s",
+                    action.table(),
+                    self._action.name(),
+                    action.name(),
+                )
                 self._action = action
                 return True
 
@@ -1223,7 +1222,6 @@ class PNSqlCursor(QtCore.QObject):
                 return msg
 
             for field in fieldList:
-
                 fiName = field.name()
                 if not self.d.buffer_.isGenerated(fiName):
                     continue
@@ -2019,7 +2017,7 @@ class PNSqlCursor(QtCore.QObject):
                 self.newBuffer.emit()
 
     @pyqtSlot()
-    def refreshDelayed(self, msec: int = 20) -> None:
+    def refreshDelayed(self, msec: int = 50) -> None:  # keep > 50ms
         """
         Update the recordset with a delay.
 
