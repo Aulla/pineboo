@@ -15,7 +15,6 @@ from pineboolib.application.metadata import pnaction
 from pineboolib.core.settings import config
 from pineboolib.fllegacy import flapplication
 from typing import Any, Union, Dict, Optional, Tuple, Type, cast, TYPE_CHECKING
-from _operator import sub
 
 
 if TYPE_CHECKING:
