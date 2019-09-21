@@ -41,7 +41,7 @@ from pineboolib.qt3_widgets.qdataview import QDataView  # noqa: F401
 from pineboolib.qt3_widgets.qbytearray import QByteArray  # noqa: F401
 from pineboolib.qt3_widgets.qradiobutton import QRadioButton  # noqa: F401
 from pineboolib.qt3_widgets.qspinbox import QSpinBox  # noqa: F401
-from pineboolib.qt3_widgets.qmdiarea import QMdiArea  # noqa: F401
+
 from pineboolib.qt3_widgets.qeventloop import QEventLoop  # noqa: F401
 from pineboolib.qt3_widgets.qlistviewwidget import QListViewWidget  # noqa: F401
 from pineboolib.qt3_widgets.qdatetime import QDateTime  # noqa: F401
@@ -62,6 +62,7 @@ from PyQt5.QtWidgets import QTreeWidget  # noqa: F401
 from PyQt5.QtWidgets import QTreeWidgetItem  # noqa: F401
 from PyQt5.QtWidgets import QTreeWidgetItemIterator  # noqa: F401
 from PyQt5.QtWidgets import QListWidgetItem  # noqa: F401
+from PyQt5.QtWidgets import QMdiArea  # noqa: F401
 
 
 from PyQt5.QtCore import QSignalMapper  # noqa: F401
