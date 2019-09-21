@@ -12,7 +12,7 @@ from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
 from pineboolib.application import project
 
 from pineboolib.fllegacy.flutil import FLUtil
-
+from . import pnsqlschema
 from pineboolib import logging
 
 from sqlalchemy import create_engine  # type: ignore
@@ -27,23 +27,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class FLQPSQL(object):
+class FLQPSQL(pnsqlschema.PNSqlSchema):
     """FLQPSQL class."""
-
-    version_: str
-    conn_: Any
-    name_: str
-    alias_: str
-    errorList: List[str]
-    lastError_: Optional[str]
-    db_: Any
-    _dbname: str
-    mobile_: bool
-    pure_python_: bool
-    defaultPort_: int
-    engine_: Any
-    session_: Any
-    declarative_base_: Any
 
     def __init__(self):
         """Inicialize."""
@@ -61,43 +46,15 @@ class FLQPSQL(object):
         self.declarative_base_ = None
         self.lastError_ = None
 
-    def useThreads(self) -> bool:
-        """Return True if the driver use threads."""
-        return False
-
-    def useTimer(self) -> bool:
-        """Return True if the driver use Timer."""
-        return True
-
-    def version(self) -> str:
-        """Return version number."""
-        return self.version_
-
-    def driverName(self) -> str:
-        """Return driver name."""
-        return self.name_
-
-    def isOpen(self) -> bool:
-        """Return if the connection is open."""
-        return self.open_
-
-    def pure_python(self) -> bool:
-        """Return if the driver is python only."""
-        return self.pure_python_
-
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
         return check_dependencies(
             {"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"}, False
         )
 
-    def mobile(self) -> bool:
-        """Return if the driver is mobile ready."""
-        return self.mobile_
-
-    def DBName(self) -> str:
-        """Return database name."""
-        return self._dbname
+    def cursor(self):
+        """Get current cursor for db."""
+        return self.conn_.cursor()
 
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
@@ -192,34 +149,6 @@ class FLQPSQL(object):
 
         return self.conn_
 
-    def engine(self) -> Any:
-        """Return sqlAlchemy ORM engine."""
-        return self.engine_
-
-    def session(self) -> Any:
-        """Create a sqlAlchemy session."""
-        if self.session_ is None:
-            from sqlalchemy.orm import sessionmaker  # type: ignore
-
-            # from sqlalchemy import event
-            # from pineboolib.pnobjectsfactory import before_commit, after_commit, after_flush
-            Session = sessionmaker(bind=self.engine())
-            self.session_ = Session()
-            # event.listen(Session, 'before_commit', before_commit, self.session_)
-            # event.listen(Session, 'after_commit', after_commit, self.session_)
-            # event.listen(Session, 'after_flush', after_flush)
-
-        return self.session_
-
-    def declarative_base(self) -> Any:
-        """Return sqlAlchemy declarative base."""
-        if self.declarative_base_ is None:
-            from sqlalchemy.ext.declarative import declarative_base  # type: ignore
-
-            self.declarative_base_ = declarative_base()
-
-        return self.declarative_base_
-
     def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
         """Return a string with the format value like."""
         util = FLUtil()
@@ -307,14 +236,6 @@ class FLQPSQL(object):
         # print ("PNSqlDriver(%s).formatValue(%s, %s) = %s" % (self.name_, type_, v, s))
         return s
 
-    def canOverPartition(self) -> bool:
-        """Return can override partition option ready."""
-        return True
-
-    def canRegenTables(self) -> bool:
-        """Return if can regenerate tables."""
-        return True
-
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Return next serial value."""
         q = PNSqlQuery()
@@ -348,14 +269,6 @@ class FLQPSQL(object):
 
         return True
 
-    def canSavePoint(self) -> bool:
-        """Return if can do save point."""
-        return True
-
-    def canTransaction(self) -> bool:
-        """Return if can do transaction."""
-        return True
-
     def rollbackSavePoint(self, n: int) -> bool:
         """Set rollback savepoint."""
         if not self.isOpen():
@@ -376,19 +289,6 @@ class FLQPSQL(object):
             return False
 
         return True
-
-    def set_last_error_null(self) -> None:
-        """Set lastError flag Null."""
-
-        self.lastError_ = None
-
-    def setLastError(self, text: str, command: str) -> None:
-        """Set last error."""
-        self.lastError_ = "%s (%s)" % (text, command)
-
-    def lastError(self) -> Optional[str]:
-        """Return last error."""
-        return self.lastError_
 
     def commitTransaction(self) -> bool:
         """Set commit transaction."""
@@ -731,7 +631,7 @@ class FLQPSQL(object):
 
         return info
 
-    def decodeSqlType(self, type_: int) -> str:
+    def decodeSqlType(self, type_: Union[int, str]) -> str:
         """Return the specific field type."""
         ret = str(type_)
 
@@ -865,19 +765,6 @@ class FLQPSQL(object):
     def normalizeValue(self, text: str) -> str:
         """Return a database friendly text."""
         return str(text).replace("'", "''")
-
-    def hasCheckColumn(self, mtd: "pntablemetadata.PNTableMetaData") -> bool:
-        """Return if column has checked."""
-
-        fieldList = mtd.fieldList()
-        if not fieldList:
-            return False
-
-        for field in fieldList:
-            if field.isCheck() or field.name().endswith("_check_column"):
-                return True
-
-        return False
 
     def constraintExists(self, name: str) -> bool:
         """Return if constraint exists specified by name."""
@@ -1644,45 +1531,7 @@ class FLQPSQL(object):
 
         util.destroyProgressDialog()
 
-    def cascadeSupport(self) -> bool:
-        """Return True if the driver support cascade."""
-        return True
-
-    def canDetectLocks(self) -> bool:
-        """Return if can detect locks."""
-        return True
-
     def fix_query(self, query: str) -> str:
         """Fix string."""
         # ret_ = query.replace(";", "")
         return query
-
-    def desktopFile(self) -> bool:
-        """Return if use a file like database."""
-        return False
-
-    def execute_query(self, q: str, cursor: Optional["pnsqlcursor.PNSqlCursor"] = None) -> Any:
-        """Excecute a query and return result."""
-
-        if not self.isOpen():
-            qWarning("PSQLDriver::execute_query. DB is closed")
-            return False
-        self.set_last_error_null()
-
-        if cursor is None:
-            cursor = self.conn_.cursor()
-
-        try:
-            q = self.fix_query(q)
-            cursor.execute(q)
-        except Exception:
-            self.setLastError(
-                "%s::No se pudo ejecutar la query %s.\n%s" % (__name__, q, traceback.format_exc()),
-                q,
-            )
-            # qWarning(
-            #    "PSQLDriver:: No se puedo ejecutar la siguiente query %s\n %s"
-            #    % (q, traceback.format_exc())
-            # )
-
-        return cursor

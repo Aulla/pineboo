@@ -4,6 +4,7 @@ import json
 
 from pineboolib.application.utils.check_dependencies import check_dependencies
 from pineboolib import logging
+from . import pnsqlschema
 
 from typing import Any, Callable, Dict, List, Union, Optional, TYPE_CHECKING
 
@@ -22,7 +23,7 @@ def base_create_dict(
     return {"method": method, "params": data, "jsonrpc": "2.0", "id": id}
 
 
-class FLREMOTECLIENT(object):
+class FLREMOTECLIENT(pnsqlschema.PNSqlSchema):
     """FLREMOTECLIENT class."""
 
     version_: str
@@ -54,49 +55,9 @@ class FLREMOTECLIENT(object):
         check_dependencies({"requests": "requests"}, False)
         self.lastError_ = None
 
-    def useThreads(self) -> bool:
-        """Return True if the driver use threads."""
-        return False
-
-    def useTimer(self) -> bool:
-        """Return True if the driver use Timer."""
-        return True
-
-    def desktopFile(self) -> bool:
-        """Return if use a file like database."""
-        return False
-
-    def canRegenTables(self) -> bool:
-        """Return if can regenerate tables."""
-        return True
-
-    def version(self) -> str:
-        """Return version number."""
-        return self.version_
-
-    def driverName(self) -> str:
-        """Return driver name."""
-        return self.name_
-
-    def isOpen(self) -> bool:
-        """Return if the connection is open."""
-        return self.open_
-
-    def pure_python(self) -> bool:
-        """Return if the driver is python only."""
-        return self.pure_python_
-
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
         return True
-
-    def mobile(self) -> bool:
-        """Return if the driver is mobile ready."""
-        return self.mobile_
-
-    def DBName(self) -> str:
-        """Return database name."""
-        return self._dbname
 
     def create_dict(self, fun, data: Any = []) -> Dict[str, Any]:
         """Return a formated dict."""
@@ -146,19 +107,6 @@ class FLREMOTECLIENT(object):
 
         return self.conn_
 
-    def existsTable(self, name) -> bool:  # Siempre True
-        """Return if exists a table specified by name."""
-        return True
-
-    def mismatchedTable(
-        self,
-        table1: str,
-        tmd_or_table2: Union["pntablemetadata.PNTableMetaData", str],
-        db_: Optional[Any] = None,
-    ) -> bool:
-        """Return if a table is mismatched."""
-        return False
-
     def __getattr__(self, name) -> Callable:
         """Return attribute from server."""
         return VirtualFunction(name, self).virtual
@@ -181,7 +129,7 @@ class FLREMOTECLIENT(object):
         )
 
     def refreshFetch(
-        self, number: str, curname: str, table: str, cursor: Any, fields: str, where_filter: str
+        self, number: int, curname: str, table: str, cursor: Any, fields: str, where_filter: str
     ) -> None:
         """Return data fetched."""
         self.send_to_server(

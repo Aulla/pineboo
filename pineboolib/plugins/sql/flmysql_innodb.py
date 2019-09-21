@@ -1,5 +1,5 @@
 """Flmysql_innodb module."""
-from pineboolib.plugins.sql.flmysql_myisam import FLMYSQL_MYISAM
+from .flmysql_myisam import FLMYSQL_MYISAM
 
 
 class FLMYSQL_INNODB(FLMYSQL_MYISAM):

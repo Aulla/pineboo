@@ -12,42 +12,27 @@ from PyQt5.QtWidgets import QMessageBox, QWidget  # type: ignore
 from pineboolib.core.utils.utils_base import auto_qt_translate_text
 from pineboolib.core.utils.utils_base import text2bool
 from pineboolib.application.utils.check_dependencies import check_dependencies
-from pineboolib.fllegacy.flsqlquery import FLSqlQuery
-from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
+from pineboolib.application.database import pnsqlcursor, pnsqlquery
 from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
 
 from pineboolib.fllegacy.flutil import FLUtil
 from pineboolib.application import project
 from pineboolib import logging
+from . import pnsqlschema
 
 from typing import Any, Iterable, Optional, Union, List, Dict, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
 
-class FLMYSQL_MYISAM(object):
+class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     """MYISAM Driver class."""
 
-    version_: str
-    conn_ = None
-    name_: str
-    alias_: str
-    lastError_: Optional[str]
-    cursorsArray_: Dict[str, Any]
-    noInnoDB: bool
-    mobile_: bool
-    pure_python_: bool
-    defaultPort_: int
-    cursor_ = None
-    db_ = None
-    engine_ = None
-    session_ = None
-    declarative_base_ = None
-    _dbname: str
+    cursorsArray_: Dict[str, Any]  # IApiCursor
+    cursor_: Any
 
     def __init__(self):
         """Create empty driver."""
@@ -69,33 +54,9 @@ class FLMYSQL_MYISAM(object):
         self.declarative_base_ = None
         self.lastError_ = None
 
-    def version(self) -> str:
-        """Get driver version."""
-        return self.version_
-
-    def driverName(self) -> str:
-        """Get driver name."""
-        return self.name_
-
-    def pure_python(self) -> bool:
-        """Return if this driver is pure python."""
-        return self.pure_python_
-
-    def safe_load(self) -> Any:
-        """Check dependencies for this driver."""
+    def safe_load(self) -> bool:
+        """Return if the driver can loads dependencies safely."""
         return check_dependencies({"MySQLdb": "mysqlclient", "sqlalchemy": "sqlAlchemy"}, False)
-
-    def mobile(self) -> bool:
-        """Check if is suitable for mobile platform."""
-        return self.mobile_
-
-    def isOpen(self) -> bool:
-        """Return if driver has an open connection."""
-        return self.open_
-
-    def DBName(self) -> str:
-        """Return database name."""
-        return self._dbname
 
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
@@ -116,6 +77,9 @@ class FLMYSQL_MYISAM(object):
             if project._splash:
                 project._splash.hide()
             if "Unknown database" in str(e):
+                if project._DGI and not project.DGI.localDesktop():
+                    return False
+
                 ret = QMessageBox.warning(
                     QWidget(),
                     "Pineboo",
@@ -162,39 +126,11 @@ class FLMYSQL_MYISAM(object):
 
     def cursor(self) -> Any:
         """Get current cursor for db."""
+        if not self.conn_:
+            raise Exception("Not connected")
         if not self.cursor_:
-            if not self.conn_:
-                raise Exception("Must be connected")
             self.cursor_ = self.conn_.cursor()
-            # self.cursor_.execute('SET NAMES utf8;')
-            # self.cursor_.execute('SET CHARACTER SET utf8;')
-            # self.cursor_.execute('SET character_set_connection=utf8;')
         return self.cursor_
-
-    def engine(self) -> Any:
-        """Get current driver engine."""
-        return self.engine_
-
-    def session(self) -> None:
-        """Get sqlAlchemy session."""
-        if self.session_ is None:
-            from sqlalchemy.orm import sessionmaker  # type: ignore
-
-            # from sqlalchemy import event
-            # from pineboolib.pnobjectsfactory import before_commit, after_commit
-            Session = sessionmaker(bind=self.engine())
-            self.session_ = Session()
-            # event.listen(Session, 'before_commit', before_commit, self.session_)
-            # event.listen(Session, 'after_commit', after_commit, self.session_)
-
-    def declarative_base(self) -> Any:
-        """Get sqlAlchemy declarative base."""
-        if self.declarative_base_ is None:
-            from sqlalchemy.ext.declarative import declarative_base  # type: ignore
-
-            self.declarative_base_ = declarative_base()
-
-        return self.declarative_base_
 
     def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
         """Format value for database LIKE expression."""
@@ -285,21 +221,15 @@ class FLMYSQL_MYISAM(object):
         # print ("PNSqlDriver(%s).formatValue(%s, %s) = %s" % (self.name_, type_, v, s))
         return s
 
-    def canOverPartition(self) -> bool:
-        """Return if can override."""
-        return True
-
-    def canRegenTables(self) -> bool:
-        """Return if can regenerate tables."""
-        return True
-
     def tables(self, type_name: Optional[str] = None) -> list:
         """Introspect tables in database."""
+
+        # FIXME type_name.
         tl: List[str] = []
         if not self.isOpen():
             return tl
 
-        q_tables = FLSqlQuery()
+        q_tables = pnsqlquery.PNSqlQuery()
         q_tables.exec_("show tables")
         while q_tables.next():
             tl.append(q_tables.value(0))
@@ -321,7 +251,7 @@ class FLMYSQL_MYISAM(object):
         updateQry = False
         ret = None
 
-        q = FLSqlQuery()
+        q = pnsqlquery.PNSqlQuery()
         q.setSelect("max(%s)" % field)
         q.setFrom(table)
         q.setWhere("1 = 1")
@@ -330,9 +260,8 @@ class FLMYSQL_MYISAM(object):
             return None
         if q.first() and q.value(0) is not None:
             max = q.value(0)
-
         if not self.conn_:
-            raise Exception("Must be connected")
+            raise Exception("must be connected")
         cursor = self.conn_.cursor()
 
         strQry: Optional[str] = "SELECT seq FROM flseqs WHERE tabla = '%s' AND campo ='%s'" % (
@@ -406,6 +335,7 @@ class FLMYSQL_MYISAM(object):
         if not self.isOpen():
             logger.warning("%s::savePoint: Database not open", self.name_)
             return False
+
         self.set_last_error_null()
         cursor = self.cursor()
         try:
@@ -419,14 +349,6 @@ class FLMYSQL_MYISAM(object):
             )
             return False
 
-        return True
-
-    def canSavePoint(self) -> bool:
-        """Retrieve if this driver can perform savepoints."""
-        return True
-
-    def canTransaction(self) -> bool:
-        """Retrieve if this driver can perform transactions."""
         return True
 
     def rollbackSavePoint(self, n: int) -> bool:
@@ -455,19 +377,6 @@ class FLMYSQL_MYISAM(object):
 
         return True
 
-    def set_last_error_null(self) -> None:
-        """Set lastError flag Null."""
-
-        self.lastError_ = None
-
-    def setLastError(self, text: str, command: str) -> None:
-        """Set last error from database."""
-        self.lastError_ = "%s (%s)" % (text, command)
-
-    def lastError(self) -> Optional[str]:
-        """Get last error happened on database."""
-        return self.lastError_
-
     def commitTransaction(self) -> bool:
         """Commit database transaction."""
         if not self.isOpen():
@@ -493,16 +402,22 @@ class FLMYSQL_MYISAM(object):
             logger.warning("%s::rollbackTransaction: Database not open", self.name_)
         self.set_last_error_null()
         cursor = self.cursor()
-        try:
-            cursor.execute("ROLLBACK")
-        except Exception:
-            self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-            logger.warning(
-                "%s:: No se pudo deshacer la transacción ROLLBACK\n %s",
-                self.name_,
-                traceback.format_exc(),
+        if self.canSavePoint():
+            try:
+                cursor.execute("ROLLBACK")
+            except Exception:
+                self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
+                logger.warning(
+                    "%s:: No se pudo deshacer la transacción ROLLBACK\n %s",
+                    self.name_,
+                    traceback.format_exc(),
+                )
+                return False
+        else:
+            qWarning(
+                "%s:: No se pudo deshacer la transacción ROLLBACK\n %s"
+                % (self.name_, traceback.format_exc())
             )
-            return False
 
         return True
 
@@ -550,13 +465,6 @@ class FLMYSQL_MYISAM(object):
 
         return True
 
-    def setType(self, type_: str, leng: int = 0) -> str:
-        """Template a SQL data type."""
-        if leng:
-            return "::%s(%s)" % (type_, leng)
-        else:
-            return "::%s" % type_
-
     def refreshQuery(
         self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
     ) -> None:
@@ -569,6 +477,7 @@ class FLMYSQL_MYISAM(object):
         try:
             self.cursorsArray_[curname].execute(sql)
         except Exception:
+            print("*", sql)
             qWarning("CursorTableModel.Refresh\n %s" % traceback.format_exc())
 
     def fix_query(self, val: str) -> str:
@@ -589,14 +498,6 @@ class FLMYSQL_MYISAM(object):
         #    self.cursorsArray_[curname].fetchmany(number)
         # except Exception:
         #    qWarning("%s.refreshFetch\n %s" %(self.name_, traceback.format_exc()))
-
-    def useThreads(self) -> bool:
-        """Return if this driver supports threads."""
-        return False
-
-    def useTimer(self) -> bool:
-        """Return if this driver supports timer."""
-        return True
 
     def fetchAll(
         self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
@@ -626,7 +527,7 @@ class FLMYSQL_MYISAM(object):
         if not self.isOpen():
             return False
 
-        t = FLSqlQuery()
+        t = pnsqlquery.PNSqlQuery()
         t.setForwardOnly(True)
         ok = t.exec_("SHOW TABLES LIKE '%s'" % name)
         if ok:
@@ -733,16 +634,16 @@ class FLMYSQL_MYISAM(object):
 
     def Mr_Proper(self) -> None:
         """Cleanup database like mr.proper."""
+        util = FLUtil()
         if not self.db_:
             raise Exception("must be connected")
-        util = FLUtil()
         self.db_.dbAux().transaction()
 
-        qry = FLSqlQuery(None, "dbAux")
-        qry2 = FLSqlQuery(None, "dbAux")
-        qry3 = FLSqlQuery(None, "dbAux")
-        # qry4 = FLSqlQuery(None, "dbAux")
-        # qry5 = FLSqlQuery(None, "dbAux")
+        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry2 = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry3 = pnsqlquery.PNSqlQuery(None, "dbAux")
+        # qry4 = pnsqlquery.PNSqlQuery(None, "dbAux")
+        # qry5 = pnsqlquery.PNSqlQuery(None, "dbAux")
         steps = 0
         self.active_create_index = False
 
@@ -816,13 +717,13 @@ class FLMYSQL_MYISAM(object):
         self.db_.dbAux().driver().transaction()
         self.active_create_index = True
         steps = 0
-        # sqlCursor = FLSqlCursor(None, True, self.db_.dbAux())
+        # sqlCursor = pnsqlcursor.PNSqlCursor(None, True, self.db_.dbAux())
         engine = "MyISAM" if self.noInnoDB else "INNODB"
         convert_engine = False
         do_ques = True
 
-        sqlQuery = FLSqlQuery(None, self.db_.dbAux())
-        sql_query2 = FLSqlQuery(None, self.db_.dbAux())
+        sqlQuery = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
+        sql_query2 = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
         if sqlQuery.exec_("SHOW TABLES"):
             util.setTotalSteps(sqlQuery.size())
             while sqlQuery.next():
@@ -839,7 +740,7 @@ class FLMYSQL_MYISAM(object):
                 for it in fL:
                     if not it or not it.type() == "pixmap":
                         continue
-                    cur = FLSqlCursor(item, True, self.db_.dbAux())
+                    cur = pnsqlcursor.PNSqlCursor(item, True, self.db_.dbAux())
                     cur.select(it.name() + " not like 'RK@%'")
                     while cur.next():
                         v = cur.value(it.name())
@@ -861,7 +762,7 @@ class FLMYSQL_MYISAM(object):
                 if not sql_query2.next():
                     if do_ques:
                         res = QMessageBox.question(
-                            None,
+                            QWidget(),
                             util.tr("Mr. Proper"),
                             util.tr(
                                 "Existen tablas que no son del tipo %s utilizado por el driver de la conexión actual.\n"
@@ -885,33 +786,15 @@ class FLMYSQL_MYISAM(object):
 
     def alterTable(
         self,
-        mtd1: Any,
-        mtd2: "pntablemetadata.PNTableMetaData",
-        key: Optional[str],
+        mtd1: "pntablemetadata.PNTableMetaData",
+        mtd2: Optional["pntablemetadata.PNTableMetaData"] = None,
+        key: Optional[str] = None,
         force: bool = False,
     ) -> bool:
         """Alter a table following mtd instructions."""
         return self.alterTable2(mtd1, mtd2, key, force)
 
-    def hasCheckColumn(self, mtd: "pntablemetadata.PNTableMetaData") -> bool:
-        """Retrieve if MTD has a check column."""
-        field_list = mtd.fieldList()
-        if not field_list:
-            return False
-
-        for field in field_list:
-            if field.isCheck() or field.name().endswith("_check_column"):
-                return True
-
-        return False
-
-    def alterTable2(
-        self,
-        mtd1: Any,
-        mtd2: "pntablemetadata.PNTableMetaData",
-        key: Optional[str],
-        force: bool = False,
-    ) -> bool:
+    def alterTable2(self, mtd1, mtd2, key: Optional[str], force: bool = False) -> bool:
         """Alter a table following mtd instructions."""
         if not self.db_:
             raise Exception("must be connected")
@@ -982,8 +865,8 @@ class FLMYSQL_MYISAM(object):
         if not self.db_.manager().existsTable(oldMTD.name()):
             print(
                 "FLManager::alterTable : "
-                + util.tr("La tabla %1 antigua de donde importar los registros no existe.").arg(
-                    oldMTD.name()
+                + util.tr(
+                    "La tabla %s antigua de donde importar los registros no existe." % oldMTD.name()
                 )
             )
             if oldMTD and oldMTD != newMTD:
@@ -1037,7 +920,7 @@ class FLMYSQL_MYISAM(object):
 
             return False
 
-        q = FLSqlQuery(None, "dbAux")
+        q = pnsqlquery.PNSqlQuery(None, "dbAux")
         in_sql = "ALTER TABLE %s RENAME TO %s" % (oldMTD.name(), renameOld)
         logger.warning(in_sql)
         if not q.exec_(in_sql):
@@ -1064,7 +947,7 @@ class FLMYSQL_MYISAM(object):
         self.db_.dbAux().transaction()
 
         if not force and key and len(key) == 40:
-            c = FLSqlCursor("flfiles", True, self.db_.dbAux())
+            c = pnsqlcursor.PNSqlCursor("flfiles", True, self.db_.dbAux())
             # oldCursor.setModeAccess(oldCursor.Browse)
             c.setForwardOnly(True)
             c.setFilter("nombre='%s.mtd'" % renameOld)
@@ -1105,18 +988,19 @@ class FLMYSQL_MYISAM(object):
             return self.alterTable2(mtd1, mtd2, key, True)
 
         if not ok:
-            import MySQLdb
+            from pymysql.cursors import DictCursor
 
-            oldCursor = self.conn_.cursor(MySQLdb.cursors.DictCursor)
+            oldCursor = self.conn_.cursor(DictCursor)
             # print("Lanzando!!", "SELECT * FROM %s WHERE 1 = 1" % (renameOld))
             oldCursor.execute("SELECT * FROM %s WHERE 1 = 1" % (renameOld))
             result_set = oldCursor.fetchall()
             totalSteps = len(result_set)
-            # oldCursor = FLSqlCursor(renameOld, True, "dbAux")
+            # oldCursor = pnsqlcursor.PNSqlCursor(renameOld, True, "dbAux")
             # oldCursor.setModeAccess(oldCursor.Browse)
             # oldCursor.setForwardOnly(True)
             # oldCursor.select()
             # totalSteps = oldCursor.size()
+
             util.createProgressDialog(
                 util.tr("Reestructurando registros para %s...") % newMTD.alias(), totalSteps
             )
@@ -1287,7 +1171,9 @@ class FLMYSQL_MYISAM(object):
 
         return True
 
-    def mismatchedTable(self, table1, tmd_or_table2: str, db_=None) -> bool:
+    def mismatchedTable(
+        self, table1, tmd_or_table2: Union["pntablemetadata.PNTableMetaData", str], db_=None
+    ) -> bool:
         """Check if table does not match MTD with database schema."""
         if db_ is None:
             db_ = self.db_
@@ -1301,17 +1187,14 @@ class FLMYSQL_MYISAM(object):
             processed_fields = []
             try:
                 recMtd = self.recordInfo(tmd_or_table2)
-                if not recMtd:
-                    raise Exception(
-                        "Unexpected error trying to get recordInfo for %r" % tmd_or_table2
-                    )
                 recBd = self.recordInfo2(table1)
+                if recMtd is None:
+                    raise Exception("Error obtaining recordInfo for %s" % tmd_or_table2)
                 # fieldBd = None
                 for fieldMtd in recMtd:
                     # fieldBd = None
                     found = False
                     for field in recBd:
-
                         if field[0] == fieldMtd[0]:
                             processed_fields.append(field[0])
                             found = True
@@ -1330,7 +1213,7 @@ class FLMYSQL_MYISAM(object):
                     mismatch = True
 
             except Exception:
-                logger.exception("mismatchedTable: Unexpected exception")
+                logger.exception("mismatchedTable: Unexpected error")
 
             return mismatch
 
@@ -1340,9 +1223,9 @@ class FLMYSQL_MYISAM(object):
     def recordInfo2(self, tablename: str) -> List[list]:
         """Obtain current cursor information on columns."""
         if not self.isOpen():
-            raise Exception("Connection not open")
+            raise Exception("%s: conn not opened" % __name__)
         if not self.conn_:
-            raise Exception("Must be connected")
+            raise Exception("must be connected")
         info = []
         cursor = self.conn_.cursor()
 
@@ -1395,7 +1278,6 @@ class FLMYSQL_MYISAM(object):
 
     def decodeSqlType(self, t: str) -> str:
         """Translate types."""
-
         ret = t
 
         if t in ["char", "varchar", "text"]:
@@ -1420,13 +1302,12 @@ class FLMYSQL_MYISAM(object):
 
         return ret
 
-    def recordInfo(self, tablename_or_query: str) -> Optional[List[list]]:
+    def recordInfo(self, tablename_or_query: str) -> List[list]:
         """Obtain current cursor information on columns."""
         if not self.isOpen():
-            return None
-
+            raise Exception("MYISAM2: conn not opened")
         if not self.db_:
-            raise Exception("must be connected")
+            raise Exception("Must be connected")
         info = []
 
         if isinstance(tablename_or_query, str):
@@ -1450,6 +1331,7 @@ class FLMYSQL_MYISAM(object):
                 return self.recordInfo2(tablename)
             fL = mtd.fieldList()
             if not fL:
+                del mtd
                 return self.recordInfo2(tablename)
 
             for f in mtd.fieldNames():
@@ -1500,52 +1382,9 @@ class FLMYSQL_MYISAM(object):
 
         return ret
 
-    def normalizeValue(self, text: str) -> Optional[str]:
+    def normalizeValue(self, text: str) -> str:
         """Escape values, suitable to prevent sql injection."""
 
         import MySQLdb
 
         return MySQLdb.escape_string(text).decode("utf-8")
-        # text = text.replace("'", "''")
-        # text = text.replace('\\"', '\\\\"')
-        # text = text.replace("\\n", "\\\\n")
-        # text = text.replace("\\r", "\\\\r")
-
-        # return text
-
-    def cascadeSupport(self) -> bool:
-        """Check if database supports CASCADE."""
-        return True
-
-    def canDetectLocks(self) -> bool:
-        """Check if driver can detect locks."""
-        return True
-
-    def desktopFile(self) -> bool:
-        """Return if this database is a file."""
-        return False
-
-    def execute_query(self, q: str, cursor: Optional["pnsqlcursor.PNSqlCursor"] = None) -> Any:
-        """Execute a SQL query."""
-        if not self.isOpen():
-            logger.warning("MySQLDriver::execute_query. DB is closed")
-            return False
-        self.set_last_error_null()
-        if cursor is None:
-            cursor = self.cursor()
-
-        try:
-            q = self.fix_query(q)
-            cursor.execute(q)
-        except Exception:
-            self.setLastError(
-                "%s::No se pudo ejecutar la query %s.\n%s" % (__name__, q, traceback.format_exc()),
-                q,
-            )
-            # logger.warning(
-            #    "MySQLDriver:: No se puedo ejecutar la siguiente query %s\n %s",
-            #    q,
-            #    traceback.format_exc(),
-            # )
-
-        return cursor

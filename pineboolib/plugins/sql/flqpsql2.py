@@ -23,14 +23,6 @@ class FLQPSQL2(FLQPSQL):
         self.mobile_ = True
         self.pure_python_ = True
 
-    def useThreads(self) -> bool:
-        """Return True if the driver use threads."""
-        return False
-
-    def useTimer(self) -> bool:
-        """Return True if the driver use Timer."""
-        return True
-
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
         return check_dependencies({"pg8000": "pg8000", "sqlalchemy": "sqlAlchemy"}, False)

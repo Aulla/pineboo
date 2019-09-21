@@ -11,7 +11,7 @@ from pineboolib.application.utils.check_dependencies import check_dependencies
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
 
 from pineboolib.fllegacy.flutil import FLUtil
-
+from . import pnsqlschema
 from sqlalchemy import create_engine  # type: ignore
 
 import traceback
@@ -25,31 +25,13 @@ if TYPE_CHECKING:
     from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 
-class FLSQLITE(object):
+class FLSQLITE(pnsqlschema.PNSqlSchema):
     """FLSQLITE class."""
 
-    version_: str
-    conn_: Any
-    name_: str
-    cursor_: Any
-    alias_: str
-    errorList: List[str]
-    lastError_: Optional[str]
     declare: List[Any]
-    db_filename: str
-    sql: str
     rowsFetched: Dict[Any, Any]
-    db_: Any
-    mobile_: bool
-    _dbname: str
-    pure_python_: bool
-    # True por defecto, convierte los datos de entrada y salida a UTF-8 desde
-    # Latin1
-    parseFromLatin: bool
-    defaultPort_: int
-    engine_: Any
-    session_: Any
-    declarative_base_: Any
+    db_filename: Optional[str]
+    sql: str
 
     def __init__(self):
         """Inicialize."""
@@ -63,7 +45,7 @@ class FLSQLITE(object):
         self.alias_ = "SQLite3 (SQLITE3)"
         self.declare = []
         self.db_filename = None
-        self.sql = None
+        self.sql = ""
         self.rowsFetched = {}
         self.db_ = None
         self.parseFromLatin = False
@@ -76,32 +58,9 @@ class FLSQLITE(object):
         self.declarative_base_ = None
         self.lastError_ = None
 
-    def pure_python(self) -> bool:
-        """Return if the driver is python only."""
-
-        return self.pure_python_
-
-    def mobile(self) -> bool:
-        """Return if the driver is mobile ready."""
-        return self.mobile_
-
-    def version(self) -> str:
-        """Return version number."""
-
-        return self.version_
-
-    def driverName(self) -> str:
-        """Return driver name."""
-
-        return self.name_
-
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
         return check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"}, False)
-
-    def isOpen(self) -> bool:
-        """Return if the connection is open."""
-        return self.open_
 
     def cursor(self) -> Any:
         """Return a cursor connection."""
@@ -113,28 +72,6 @@ class FLSQLITE(object):
             # self.cursor_.execute("PRAGMA journal_mode = WAL")
             # self.cursor_.execute("PRAGMA synchronous = NORMAL")
         return self.cursor_
-
-    def useThreads(self) -> bool:
-        """Return True if the driver use threads."""
-
-        return False
-
-    def useTimer(self) -> bool:
-        """Return True if the driver use Timer."""
-        return True
-
-    def cascadeSupport(self) -> bool:
-        """Return True if the driver support cascade."""
-        return False
-
-    def canDetectLocks(self) -> bool:
-        """Return if can detect locks."""
-
-        return True
-
-    def canRegenTables(self) -> bool:
-        """Return if can regenerate tables."""
-        return True
 
     def desktopFile(self) -> bool:
         """Return if use a file like database."""
@@ -175,34 +112,6 @@ class FLSQLITE(object):
             self.conn_.text_factory = lambda x: str(x, "latin1")
 
         return self.conn_
-
-    def engine(self) -> Any:
-        """Return sqlAlchemy ORM engine."""
-
-        return self.engine_
-
-    def session(self) -> Any:
-        """Create a sqlAlchemy session."""
-        if self.session_ is None:
-            from sqlalchemy.orm import sessionmaker  # type: ignore
-
-            # from sqlalchemy import event
-            # from pineboolib.pnobjectsfactory import before_commit, after_commit
-            Session = sessionmaker(bind=self.engine())
-            self.session_ = Session()
-            # event.listen(Session, 'before_commit', before_commit, self.session_)
-            # event.listen(Session, 'after_commit', after_commit, self.session_)
-            return self.session_
-
-    def declarative_base(self) -> Any:
-        """Return sqlAlchemy declarative base."""
-
-        if self.declarative_base_ is None:
-            from sqlalchemy.ext.declarative import declarative_base  # type: ignore
-
-            self.declarative_base_ = declarative_base()
-
-        return self.declarative_base_
 
     def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
         """Return a string with the format value like."""
@@ -285,15 +194,11 @@ class FLSQLITE(object):
 
     def DBName(self) -> str:
         """Return database name."""
-        ret = self.db_filename
-        if self.db_filename.rfind("/") > -1:
-            ret = self.db_filename[self.db_filename.rfind("/") + 1 : -8]
+        ret = self.db_filename or ""
+        if ret.rfind("/") > -1:
+            ret = ret[ret.rfind("/") + 1 : -8]
 
         return ret
-
-    def canOverPartition(self) -> bool:
-        """Return can override partition option ready."""
-        return True
 
     def nextSerialVal(self, table: str, field: str) -> Optional[int]:
         """Return next serial value."""
@@ -333,14 +238,6 @@ class FLSQLITE(object):
 
         return True
 
-    def canSavePoint(self) -> bool:
-        """Return if can do save point."""
-        return True
-
-    def canTransaction(self) -> bool:
-        """Return if can do transaction."""
-        return True
-
     def rollbackSavePoint(self, n: int) -> bool:
         """Set rollback savepoint."""
         if n == 0:
@@ -368,18 +265,6 @@ class FLSQLITE(object):
 
         return True
 
-    def setLastError(self, text: str, command: str) -> None:
-        """Set last error."""
-        self.lastError_ = "%s (%s)" % (text, command)
-
-    def set_last_error_null(self) -> None:
-        """Set lastError flag Null."""
-        self.lastError_ = None
-
-    def lastError(self) -> Optional[str]:
-        """Return last error."""
-        return self.lastError_
-
     def commitTransaction(self) -> bool:
         """Set commit transaction."""
         if not self.isOpen():
@@ -399,11 +284,11 @@ class FLSQLITE(object):
 
         return True
 
-    def inTransaction(self) -> bool:
-        """Return if the conn is on transaction."""
-        if self.conn_ is None:
-            raise Exception("inTransaction. self.conn_ is None")
-        return self.conn_.in_transaction
+    # def inTransaction(self) -> bool:
+    #    """Return if the conn is on transaction."""
+    #    if self.conn_ is None:
+    #        raise Exception("inTransaction. self.conn_ is None")
+    #    return self.conn_.in_transaction
 
     def fix_query(self, query: str) -> str:
         """Fix string."""
@@ -498,9 +383,10 @@ class FLSQLITE(object):
 
         where = self.process_booleans(where)
         self.sql = "SELECT %s FROM %s WHERE %s" % (fields, table, where)
+        # FIXME: revisar esto!!.self.sql??
 
     def refreshFetch(
-        self, number: str, curname: str, table: str, cursor: Any, fields: str, where_filter: str
+        self, number: int, curname: str, table: str, cursor: Any, fields: str, where_filter: str
     ) -> Any:
         """Return data fetched."""
         try:
@@ -813,19 +699,19 @@ class FLSQLITE(object):
 
             return info
 
-    def decodeSqlType(self, type: str) -> Optional[str]:
+    def decodeSqlType(self, type_: str) -> str:
         """Return the specific field type."""
 
-        ret = None
-        if type == "BOOLEAN":  # y unlock
+        ret = str(type_)
+        if type_ == "BOOLEAN":  # y unlock
             ret = "bool"
-        elif type == "FLOAT":
+        elif type_ == "FLOAT":
             ret = "double"
-        elif type.find("VARCHAR") > -1:  # Aqui también puede ser time y date
+        elif type_.find("VARCHAR") > -1:  # Aqui también puede ser time y date
             ret = "string"
-        elif type == "TEXT":  # Aquí también puede ser pixmap
+        elif type_ == "TEXT":  # Aquí también puede ser pixmap
             ret = "stringlist"
-        elif type == "INTEGER":  # serial
+        elif type_ == "INTEGER":  # serial
             ret = "uint"
 
         return ret
@@ -1085,18 +971,6 @@ class FLSQLITE(object):
             tl.append("sqlite_master")
 
         return tl
-
-    def hasCheckColumn(self, mtd: "pntablemetadata.PNTableMetaData") -> bool:
-        """Return if column has checked."""
-        fieldList = mtd.fieldList()
-        if not fieldList:
-            return False
-
-        for field in fieldList:
-            if field.isCheck() or field.name().endswith("_check_column"):
-                return True
-
-        return False
 
     def normalizeValue(self, text: str) -> str:
         """Return a database friendly text."""
