@@ -15,6 +15,7 @@ from pineboolib.application.metadata import pnaction
 from pineboolib.core.settings import config
 from pineboolib.fllegacy import flapplication
 from typing import Any, Union, Dict, Optional, Tuple, Type, cast, TYPE_CHECKING
+from _operator import sub
 
 
 if TYPE_CHECKING:
@@ -892,6 +893,11 @@ class FLFormDB(QDialog):
                 module_window = application.project.main_window._dict_main_widgets[module_name]
 
                 mdi_area = module_window.centralWidget()
+                for sub_window in mdi_area.subWindowList():
+                    if sub_window.widget().formName() == self.formName():
+                        mdi_area.setActiveSubWindow(sub_window)
+                        return
+
                 if isinstance(mdi_area, QtWidgets.QMdiArea) and type(self).__name__ == "FLFormDB":
                     # if not isinstance(self.parent(), QtWidgets.QMdiSubWindow):
                     # size = self.size()
