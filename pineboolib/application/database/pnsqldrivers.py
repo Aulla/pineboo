@@ -55,6 +55,10 @@ class PNSqlDrivers(object, metaclass=Singleton):
             except Exception:
                 logger.exception("Unexpected error loading driver %s", file_name)
                 continue
+
+            if getattr(mod_, file_name.upper(), None) is None:
+                continue
+
             _driver = getattr(mod_, file_name.upper())()
             if _driver.pure_python() or _driver.safe_load():
                 self._drivers_dict[file_name] = _driver.alias_
