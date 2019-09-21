@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from pineboolib.core.utils.utils_base import filedir
+from pineboolib.core.utils.utils_base import filedir, pixmap_fromMimeSource
 from pineboolib.core.settings import config, settings
 
 from pineboolib.application.acls import pnaccesscontrollists
@@ -887,6 +887,11 @@ class MainForm(QtWidgets.QMainWindow):
 
             view_back = QtWidgets.QMdiArea()
             view_back.setObjectName("mdi_area")
+            view_back.setBackground(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
+            view_back.logo = pixmap_fromMimeSource("pineboo-logo.png")
+            # view_back.logo = AQS.pixmap_fromMimeSource("pineboo-logo.png")
+            view_back.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+            view_back.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
             self._p_work_space = flworkspace.FLWorkSpace(
                 view_back, self.db().managerModules().activeIdModule()
             )
