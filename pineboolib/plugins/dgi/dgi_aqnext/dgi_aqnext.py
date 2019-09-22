@@ -208,26 +208,6 @@ class dgi_aqnext(dgi_schema):
 
         return data
 
-    def alternative_script_path(self, script_name: str, app: Optional[str] = None) -> Optional[str]:
-        """Return alternative script path."""
-        from django.conf import settings
-        import glob
-
-        ret_ = None
-
-        folder_ = settings.PROJECT_ROOT
-        if app is None:
-            app = "**"
-
-        for file_name in glob.iglob(
-            "%s/legacy/%s/%s" % (folder_, app, script_name), recursive=True
-        ):
-            if file_name.endswith(script_name):
-                ret_ = file_name
-                break
-
-        return ret_
-
     def register_script(self, app: str, module_name: str, script_name: str, prefix: str) -> None:
         """Register a optional script."""
 

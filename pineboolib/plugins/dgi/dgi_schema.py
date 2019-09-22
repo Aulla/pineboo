@@ -159,11 +159,6 @@ class dgi_schema(object):
         # ... also the naming is bad. It conveys having done a cache in the past.
         return self._alternative_content_cached
 
-    def alternative_script_path(self, script_name: str) -> Optional[str]:
-        """Return alternative script path."""
-        # FIXME: Probably the same. Not needed.
-        return None
-
     def use_model(self):
         """Return if this DGI use models."""
         return False

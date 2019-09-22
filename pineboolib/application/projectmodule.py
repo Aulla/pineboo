@@ -51,6 +51,7 @@ class Project(object):
     timer_ = None
     no_python_cache = False  # TODO: Fill this one instead
     _msg_mng = None
+    alternative_folder_: Optional[str]
 
     def __init__(self) -> None:
         """Constructor."""
@@ -58,6 +59,7 @@ class Project(object):
         self._DGI = None
         self.tree = None
         self.root = None
+        self.alternative_folder_ = None
         self.apppath = ""
         self.tmpdir = config.value("ebcomportamiento/temp_dir")
         self.parser = None
@@ -83,6 +85,10 @@ class Project(object):
     def set_app(self, app: QtCore.QCoreApplication):
         """Set Qt Application."""
         self._app = app
+
+    def set_alternative_folder(self, folder: str) -> None:
+        """Set alternative folder for overload scripts."""
+        self.alternative_folder_ = folder
 
     @property
     def conn(self) -> "PNConnection":
