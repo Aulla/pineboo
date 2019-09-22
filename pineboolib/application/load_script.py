@@ -31,19 +31,21 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
         logger.info("No script to load for action %s", action_.name)
 
     python_script_path = None
+
     from pineboolib.qsa import emptyscript  # type: ignore
 
     script_loaded: Any = emptyscript
+
     script_path_py: Optional[str] = None
     if scriptname is not None:
 
         from importlib import machinery
 
-        if project.alternative_folder_:
+        if project.alternative_folder:
             import glob
 
             for file_name in glob.iglob(
-                "%s/legacy/**/%s" % (project.alternative_folder_, scriptname), recursive=True
+                "%s/legacy/**/%s" % (project.alternative_folder, scriptname), recursive=True
             ):
                 if file_name.endswith(scriptname):
                     script_path_py = file_name
