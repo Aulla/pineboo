@@ -18,35 +18,31 @@ class FormDBWidget(QtWidgets.QWidget):
 
     closed = QtCore.pyqtSignal()
     cursor_: Optional["pnsqlcursor.PNSqlCursor"]
-    parent_: QtWidgets.QWidget
+    form: Any
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
 
     logger = logging.getLogger("qt3_widgets.formdbwidget.FormDBWidget")
 
-    def __init__(
-        self,
-        action: Optional["xmlaction.XMLAction"] = None,
-        parent: Optional[QtWidgets.QWidget] = None,
-    ):
+    def __init__(self, action: Optional["xmlaction.XMLAction"] = None):
         """Inicialize."""
 
-        super().__init__(parent)
+        super().__init__()
 
         self._module = sys.modules[self.__module__]
         self._action = action
         self.iface = None
         self.cursor_ = None
-        self.parent_ = parent or QtWidgets.QWidget()
+        # self.parent_ = parent or QtWidgets.QWidget()
 
-        if parent and hasattr(parent, "parentWidget"):
-            self.parent_ = parent.parentWidget()
+        # if parent and hasattr(parent, "parentWidget"):
+        #    self.parent_ = parent.parentWidget()
 
         self.form = None
-        from pineboolib.fllegacy import flformdb
+        # from pineboolib.fllegacy import flformdb
 
-        if isinstance(parent, flformdb.FLFormDB):
-            self.form = parent
+        # if isinstance(parent, flformdb.FLFormDB):
+        #    self.form = parent
 
         self._formconnections: Set[Tuple] = set([])
 
@@ -90,7 +86,7 @@ class FormDBWidget(QtWidgets.QWidget):
     def parent(self) -> QtWidgets.QWidget:
         """Return parent widget."""
 
-        return self.parent_
+        return self.parentWidget()
 
     # def _class_init(self):
     #    """Constructor de la clase QS (p.ej. interna(context))"""

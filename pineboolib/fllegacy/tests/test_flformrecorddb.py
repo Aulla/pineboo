@@ -39,11 +39,11 @@ class TestFLFormrecordCursor(unittest.TestCase):
 
         module_ = dictmodules.from_project("formRecordflusers")
         cursor = module_.widget.cursor()
-        self.assertFalse(module_.form.showed)
+        self.assertFalse(module_.showed)
         cursor.insertRecord(False)
-        self.assertTrue(module_.form.showed)
-        module_.form.close()
-        self.assertFalse(module_.form.showed)
+        self.assertTrue(module_.showed)
+        module_.close()
+        self.assertFalse(module_.showed)
 
 
 if __name__ == "__main__":

@@ -216,15 +216,15 @@ class FLFieldDB(QtWidgets.QWidget):
         self.pushButtonDB.setMaximumSize(self.iconSize)
         self.pushButtonDB.setFocusPolicy(Qt.NoFocus)
         self.pushButtonDB.setIcon(QtGui.QIcon(filedir("./core/images/icons", "flfielddb.png")))
-        # self.FLWidgetFieldDBLayout.addWidget(self.pushButtonDB)
         self.pushButtonDB.clicked.connect(self.searchValue)
 
         self.timer_1 = QtCore.QTimer(self)
-        # self.timer_1.singleShot(120, self.loaded)
+
         self.cursorAux = None
 
         while not isinstance(self.topWidget_, FLFormDB):
             self.topWidget_ = self.topWidget_.parentWidget()
+
             if not self.topWidget_:
                 break
 

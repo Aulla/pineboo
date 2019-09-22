@@ -2,13 +2,13 @@
 XMLAction module.
 """
 from pineboolib.core.utils import logging
-import os
+
 
 from pineboolib.core.utils.struct import ActionStruct
-from .utils.path import _path, coalesce_path
+from . import load_script
 
 
-from typing import Optional, Any, Union, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flaction import FLAction  # noqa: F401
@@ -76,7 +76,7 @@ class XMLAction(ActionStruct):
             else:
                 # self.script = getattr(self, "script", None)
                 # if isinstance(self.script, str) or self.script is None:
-                script = self.load_script(self.scriptformrecord, None)
+                script = load_script.load_script(self.scriptformrecord, self)
                 self.formrecord_widget = script.form
                 if self.formrecord_widget is None:
                     raise Exception("After loading script, no form was loaded")
@@ -113,7 +113,7 @@ class XMLAction(ActionStruct):
                 self.logger.info(
                     "Loading action %s (load_script %s). . . ", self.name, self.scriptform
                 )
-                script = self.load_script(self.scriptform, None)
+                script = load_script.load_script(self.scriptform, self)
                 self.mainform_widget = script.form  # FormDBWidget FIXME: Add interface for types
                 if self.mainform_widget is None:
                     raise Exception("After loading script, no form was loaded")
@@ -202,7 +202,7 @@ class XMLAction(ActionStruct):
         Execute script specified on default.
         """
         self.logger.info("Executing default script for Action %s", self.name)
-        script = self.load_script(self.scriptform, None)
+        script = load_script.load_script(self.scriptform, self)
 
         self.mainform_widget = script.form
         if self.mainform_widget is None:
@@ -212,120 +212,6 @@ class XMLAction(ActionStruct):
             self.mainform_widget.iface.main()
         else:
             self.mainform_widget.main()
-
-    def load_script(
-        self, scriptname: Optional[str], parent: Optional["FLFormDB"] = None
-    ) -> Any:  # returns loaded script
-        """
-        Transform QS script into Python and starts it up.
-
-        @param scriptname. Nombre del script a convertir
-        @param parent. Objecto al que carga el script, si no se especifica es a self.script
-        """
-        # FIXME: Parent logic is broken. We're loading scripts to two completely different objects.
-        from importlib import machinery
-
-        if scriptname:
-            scriptname = scriptname.replace(".qs", "")
-            self.logger.debug(
-                "Loading script %s of %s for action %s", scriptname, parent, self.name
-            )
-        else:
-            self.logger.info("No script to load on %s for action %s", parent, self.name)
-
-        parent_object = parent
-        action_: Union[XMLAction, "FLAction"]  # XMLAction / FLAction
-        if parent is None:
-            action_ = self
-        else:
-            possible_flaction_ = getattr(parent, "_action", None)
-            if not isinstance(possible_flaction_, XMLAction):
-                from .utils.convert_flaction import convertFLAction  # type: ignore
-
-                action_ = convertFLAction(possible_flaction_)
-            elif possible_flaction_ is not None:
-                action_ = possible_flaction_
-
-        python_script_path = None
-        # primero default, luego sobreescribimos
-        from pineboolib.qsa import emptyscript  # type: ignore
-
-        script_loaded: Any = emptyscript
-
-        if scriptname is None:
-            script_loaded.form = script_loaded.FormInternalObj(
-                action=action_, project=self.project, parent=parent_object
-            )
-            if parent:
-                parent.widget = script_loaded.form
-                parent.iface = parent.widget.iface
-            return script_loaded
-
-        script_path_py = self.project.DGI.alternative_script_path("%s.py" % scriptname)
-
-        if script_path_py is None:
-            script_path_qs = _path("%s.qs" % scriptname, False)
-            script_path_py = coalesce_path("%s.py" % scriptname, "%s.qs.py" % scriptname, None)
-
-        mng_modules = self.project.conn.managerModules()
-        if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
-            from pineboolib.fllegacy.flmodulesstaticloader import FLStaticLoader  # FIXME
-
-            ret_py = FLStaticLoader.content(
-                "%s.qs.py" % scriptname, mng_modules.staticBdInfo_, True
-            )  # Con True solo devuelve el path
-            if ret_py:
-                script_path_py = ret_py
-            else:
-                ret_qs = FLStaticLoader.content(
-                    "%s.qs" % scriptname, mng_modules.staticBdInfo_, True
-                )  # Con True solo devuelve el path
-                if ret_qs:
-                    script_path_qs = ret_qs
-
-        if script_path_py is not None:
-            script_path = script_path_py
-            self.logger.info("Loading script PY %s . . . ", scriptname)
-            if not os.path.isfile(script_path):
-                raise IOError
-            try:
-                self.logger.debug(
-                    "Cargando %s : %s ",
-                    scriptname,
-                    script_path.replace(self.project.tmpdir, "tempdata"),
-                )
-                loader = machinery.SourceFileLoader(scriptname, script_path)
-                script_loaded = loader.load_module()  # type: ignore
-            except Exception:
-                self.logger.exception("ERROR al cargar script PY para la accion %s:", action_.name)
-
-        elif script_path_qs:
-            script_path_py = "%s.py" % script_path_qs
-            if not os.path.exists(script_path_py):
-                self.project.parse_script_list([script_path_qs])
-
-            self.logger.info("Loading script QS %s . . . ", scriptname)
-            python_script_path = "%s.py" % script_path_qs
-            try:
-                self.logger.debug(
-                    "Cargando %s : %s ",
-                    scriptname,
-                    python_script_path.replace(self.project.tmpdir, "tempdata"),
-                )
-                loader = machinery.SourceFileLoader(scriptname, python_script_path)
-                script_loaded = loader.load_module()  # type: ignore
-            except Exception:
-                self.logger.exception("ERROR al cargar script QS para la accion %s:", action_.name)
-                if os.path.exists(script_path_py):
-                    os.remove(script_path_py)
-
-        script_loaded.form = script_loaded.FormInternalObj(action_, parent_object)
-        if parent_object and parent:
-            parent_object.widget = script_loaded.form
-            if getattr(parent_object.widget, "iface", None):
-                parent_object.iface = parent.widget.iface
-
-        return script_loaded
 
     def unknownSlot(self) -> None:
         """Log error for actions with unknown slots or scripts."""

@@ -8,12 +8,17 @@ from PyQt5.QtWidgets import QDialog, QFileDialog, QApplication
 from PyQt5.QtCore import pyqtSignal
 
 from pineboolib import logging
+
 from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import filedir
+from pineboolib.core.settings import config
+
 from pineboolib.application.utils.geometry import loadGeometryForm, saveGeometryForm
 from pineboolib.application.metadata import pnaction
-from pineboolib.core.settings import config
-from pineboolib.fllegacy import flapplication
+from pineboolib.application import load_script
+
+from . import flapplication
+
 from typing import Any, Union, Dict, Optional, Tuple, Type, cast, TYPE_CHECKING
 
 
@@ -217,18 +222,11 @@ class FLFormDB(QDialog):
         self.oldFormObj = None
         self.oldCursorCtxt = None
 
-        # if not self._scriptForm and self._action.scriptForm():
-        #    self._scriptForm = self._action.scriptForm()
-
-        # if not getattr(self._action, "alias", None):
-        #    qWarning("FLFormDB::Cargando un action XML")
-        # elif project.DGI.localDesktop():
-        # self.setWindowTitle(self._action.alias)
-
         self.idMDI_ = self._action.name()
 
         self.logger.info("init: Action: %s", self._action)
-        self.script = project.actions[self._action.name()].load_script(script_name, self)
+
+        self.script = load_script.load_script(script_name, project.actions[self._action.name()])
         self.widget = self.script.form
 
         if hasattr(self.widget, "iface"):
