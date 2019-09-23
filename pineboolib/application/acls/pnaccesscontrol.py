@@ -198,7 +198,6 @@ class PNAccessControl(object):
         self._acos_perms = {}
 
         self._perm = e.attribute("perm")
-
         no = e.firstChild()
 
         while not no.isNull():

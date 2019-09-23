@@ -48,6 +48,14 @@ class TestACLS(unittest.TestCase):
         cursor_flacls.setValueBuffer("prioridadgrupointro", 2)
         cursor_flacls.setValueBuffer("prioridadusuariointro", 1)
         cursor_flacls.commitBuffer()
+        cursor_flacls.setModeAccess(cursor_flacls.Insert)
+        cursor_flacls.setActivatedCheckIntegrity(False)
+        cursor_flacls.refreshBuffer()
+        cursor_flacls.setValueBuffer("idacl", "tercera")
+        cursor_flacls.setValueBuffer("descripcion", "third acl")
+        cursor_flacls.setValueBuffer("prioridadgrupointro", 2)
+        cursor_flacls.setValueBuffer("prioridadusuariointro", 1)
+        cursor_flacls.commitBuffer()
 
         cursor_flacs = pnsqlcursor.PNSqlCursor("flacs")
         cursor_flacs.setModeAccess(cursor_flacs.Insert)
@@ -133,10 +141,29 @@ class TestACLS(unittest.TestCase):
         cursor_flacs.setValueBuffer("permiso", "rw")
         cursor_flacs.commitBuffer()
 
+        cursor_flacs.setModeAccess(cursor_flacs.Insert)
+        cursor_flacs.setActivatedCheckIntegrity(False)
+        cursor_flacs.refreshBuffer()
+        cursor_flacs.setValueBuffer("prioridad", 6)
+        cursor_flacs.setValueBuffer("tipo", "form")
+        cursor_flacs.setValueBuffer("nombre", "formRecordflmodules")
+        cursor_flacs.setValueBuffer("idgroup", "usuarios")
+        cursor_flacs.setValueBuffer("idacl", "tercera")
+        cursor_flacs.setValueBuffer(
+            "descripcion", "Sistema:Administración:form:Edición:formRecordflmodules"
+        )
+        cursor_flacs.setValueBuffer("degrupo", True)
+        cursor_flacs.setValueBuffer("idarea", "sys")
+        cursor_flacs.setValueBuffer("idmodule", "sys")
+        cursor_flacs.setValueBuffer("tipoform", "Edición")
+        cursor_flacs.commitBuffer()
+
+        id_acs_3 = cursor_flacs.valueBuffer("idac")
+
         cursor_flacos = pnsqlcursor.PNSqlCursor("flacos")
         cursor_flacos.setModeAccess(cursor_flacos.Insert)
         cursor_flacos.refreshBuffer()
-        # single 'r-'
+        # single table 'r-'
         cursor_flacos.setValueBuffer("nombre", "descripcion")
         cursor_flacos.setValueBuffer("permiso", "r-")
         cursor_flacos.setValueBuffer("idac", id_acs_1)
@@ -144,7 +171,7 @@ class TestACLS(unittest.TestCase):
         cursor_flacos.commitBuffer()
         cursor_flacos.setModeAccess(cursor_flacos.Insert)
         cursor_flacos.refreshBuffer()
-        # single '--'
+        # single table '--'
         cursor_flacos.setValueBuffer("nombre", "idgroup")
         cursor_flacos.setValueBuffer("permiso", "--")
         cursor_flacos.setValueBuffer("idac", id_acs_1)
@@ -152,19 +179,47 @@ class TestACLS(unittest.TestCase):
         cursor_flacos.commitBuffer()
         cursor_flacos.setModeAccess(cursor_flacos.Insert)
         cursor_flacos.refreshBuffer()
-        # single 'rw'
+        # single table 'rw'
         cursor_flacos.setValueBuffer("nombre", "descripcion")
         cursor_flacos.setValueBuffer("permiso", "rw")
         cursor_flacos.setValueBuffer("idac", id_acs_2)
         cursor_flacos.commitBuffer()
 
+        # single form 'r-'
+        cursor_flacos.setModeAccess(cursor_flacos.Insert)
+        cursor_flacos.refreshBuffer()
+        cursor_flacos.setValueBuffer("nombre", "botonExportar")
+        cursor_flacos.setValueBuffer("descripcion", "Botón:botonExportar")
+        cursor_flacos.setValueBuffer("tipocontrol", "Botón")
+        cursor_flacos.setValueBuffer("permiso", "r-")
+        cursor_flacos.setValueBuffer("idac", id_acs_3)
+        cursor_flacos.commitBuffer()
+
+        # single form '--'
+        cursor_flacos.setModeAccess(cursor_flacos.Insert)
+        cursor_flacos.refreshBuffer()
+        cursor_flacos.setValueBuffer("nombre", "botonCargar")
+        cursor_flacos.setValueBuffer("descripcion", "Botón:botonCargar")
+        cursor_flacos.setValueBuffer("tipocontrol", "Botón")
+        cursor_flacos.setValueBuffer("permiso", "--")
+        cursor_flacos.setValueBuffer("idac", id_acs_3)
+        cursor_flacos.commitBuffer()
+
     def test_form_flacos(self) -> None:
         """Test form acls from flacos."""
+        from pineboolib.qsa import qsa
+
         sys_type = systype.SysType()
         sys_type.installACL("tercera")
         acl = pnaccesscontrollists.PNAccessControlLists()
         acl.init()
         flapplication.aqApp.set_acl(acl)
+        button_1 = qsa.from_project("formRecordflmodules").child("botonExportar")  # r-
+        button_2 = qsa.from_project("formRecordflmodules").child("botonCargar")  # --
+        self.assertTrue(button_2.isHidden())  # not visible
+        self.assertFalse(button_2.isEnabled())  # not enabled
+        self.assertFalse(button_1.isHidden())  # visible
+        self.assertFalse(button_1.isEnabled())  # not enabled
 
     def test_tables_flacos(self) -> None:
         """Test table acls from flacos."""
