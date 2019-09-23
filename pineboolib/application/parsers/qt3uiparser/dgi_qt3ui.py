@@ -557,11 +557,11 @@ class loadWidget:
                 self.widget.setLayout(lay_)
                 continue
 
-            if c.tag == "property":
+            elif c.tag == "property":
                 properties.append(c)
                 continue
 
-            if c.tag in ("vbox", "hbox", "grid"):
+            elif c.tag in ("vbox", "hbox", "grid"):
                 if (
                     has_layout_defined
                 ):  # nos saltamos una nueva definición del layout ( mezclas de ui incorrectas)
@@ -620,7 +620,7 @@ class loadWidget:
                 has_layout_defined = True
                 continue
 
-            if c.tag == "item":
+            elif c.tag == "item":
                 if isinstance(self.widget, qmenu.QMenu):
                     continue
                 else:
@@ -632,7 +632,7 @@ class loadWidget:
                     self.widget.addItem(prop1["text"])
                 continue
 
-            if c.tag == "attribute":
+            elif c.tag == "attribute":
                 k = c.get("name")
                 v = loadVariant(c)
                 attrs = getattr(self.widget, "_attrs", None)
@@ -645,7 +645,7 @@ class loadWidget:
                         repr(c.tag),
                     )
                 continue
-            if c.tag == "widget":
+            elif c.tag == "widget":
                 # Si dentro del widget hay otro significa
                 # que estamos dentro de un contenedor.
                 # Según el tipo de contenedor, los widgets
@@ -659,8 +659,6 @@ class loadWidget:
                 loadWidget(c, new_widget, self.parent, self.origWidget)
                 prop_name = c.find("./property[@name='name']/cstring")
                 path = prop_name.text if prop_name is not None else ""
-                if project._DGI and not project.DGI.localDesktop():
-                    self.origWidget.ui_[path] = new_widget
                 new_widget.setContentsMargins(0, 0, 0, 0)
                 new_widget.show()
 
@@ -692,7 +690,7 @@ class loadWidget:
                 unbold_fonts.append(new_widget)
                 continue
 
-            if c.tag == "action":
+            elif c.tag == "action":
                 acName = c.get("name")
                 if root is None:
                     raise Exception("No se encuentra root")
@@ -705,11 +703,11 @@ class loadWidget:
 
                 continue
 
-            if c.tag == "separator":
+            elif c.tag == "separator":
                 self.widget.addSeparator()
                 continue
 
-            if c.tag == "column":
+            elif c.tag == "column":
                 for p in c.findall("property"):
                     k, v = loadProperty(p)
                     if k == "text":
