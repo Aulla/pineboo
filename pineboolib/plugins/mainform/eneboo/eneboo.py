@@ -197,7 +197,8 @@ class DockListView(QtCore.QObject):
                 continue
             class_name = node.attribute("class")
             if class_name.startswith("QAction"):
-                if node.attribute("visible") == "false":
+                act_ = ag.findChild(QtWidgets.QAction, node.attribute("objectName"))
+                if act_ and not act_.isVisible():
                     node = (
                         node.previousSibling().toElement()
                         if reverse
@@ -469,7 +470,7 @@ class MainForm(QtWidgets.QMainWindow):
 
             for open_action in open_actions:
                 action = self.ag_menu_.findChild(QtWidgets.QAction, open_action)
-                if not action:
+                if not action or not action.isVisible():
                     continue
                 module_name = project.conn.managerModules().idModuleOfFile(
                     "%s.ui" % action.objectName()
@@ -629,14 +630,14 @@ class MainForm(QtWidgets.QMainWindow):
         new_ag_rec_ = QtWidgets.QActionGroup(self.w_)
         new_ag_rec_.setObjectName("pinebooAgRec")
 
+        self.cloneAction(action, new_ag_rec_)
+
         for ac in self.ag_rec_.actions():
             if ac.objectName() == action.objectName():
                 check_max = False
                 continue
 
             self.cloneAction(ac, new_ag_rec_)
-
-        self.cloneAction(action, new_ag_rec_)
 
         self.ag_rec_ = new_ag_rec_
         if self.dck_rec_ is None:
@@ -1060,7 +1061,12 @@ class MainForm(QtWidgets.QMainWindow):
             return None
 
         w.setObjectName(parent.objectName())
-        flapplication.aqApp.setMainWidget(w)
+
+        if flapplication.aqApp.acl_:
+            flapplication.aqApp.acl_.process(w)
+
+        # flapplication.aqApp.setMainWidget(w)
+
         # if (self.qsa_sys.isNebulaBuild()):
         #    w.show()
 
@@ -1134,7 +1140,7 @@ class MainForm(QtWidgets.QMainWindow):
 
             i += 1
 
-        flapplication.aqApp.setMainWidget(None)
+        # flapplication.aqApp.setMainWidget(None)
         w.close()
         return ag
 
