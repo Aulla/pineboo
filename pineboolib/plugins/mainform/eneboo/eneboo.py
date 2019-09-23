@@ -239,7 +239,6 @@ class DockListView(QtCore.QObject):
                     action_group = ag.findChild(
                         QtWidgets.QActionGroup, parent_element.attribute("objectName")
                     )
-
                     if action_group is not None:  # ¢heck if is visible
                         ac_orig = action_group.findChild(QtWidgets.QAction, action_name)
                         if ac_orig and not ac_orig.isVisible():
@@ -1111,22 +1110,19 @@ class MainForm(QtWidgets.QMainWindow):
                 menu_ag_name.setObjectName("%s_actiongroup_name" % ag.objectName())
                 menu_ag_name.setText(self.qsa_sys.translate("Más"))
                 menu_ag_name.setIcon(QtGui.QIcon(self.AQS.pixmap_fromMimeSource("plus.png")))
+            else:
+                menu_ag = QtWidgets.QActionGroup(ag)
+                menu_ag.setObjectName(ag.objectName())
 
             for i in range(len(items)):
                 itn = items.at(i).toElement()
                 if itn.parentNode().toElement().tagName() == "item":
                     continue
 
+                sub_menu_ag = QtWidgets.QActionGroup(menu_ag)
                 if not reduced:
-                    sub_menu_ag = QtWidgets.QActionGroup(menu_ag)
                     sub_menu_ag.setObjectName("%sActions" % menu_ag.objectName())
                 else:
-                    sub_menu = ag.findChild(QtWidgets.QActionGroup, ag.objectName())
-                    if sub_menu is None:
-                        sub_menu = QtWidgets.QActionGroup(ag)
-                        sub_menu.setObjectName(ag.objectName())
-
-                    sub_menu_ag = QtWidgets.QActionGroup(sub_menu)
                     sub_menu_ag.setObjectName(itn.attribute("text"))
 
                 sub_menu_ag_name = QtWidgets.QAction(sub_menu_ag)
