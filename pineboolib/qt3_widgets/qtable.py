@@ -81,7 +81,6 @@ class QTable(Q3TableWidget):
 
     def __getattr__(self, name: str) -> Any:
         """Return an attribute specified by name."""
-
         if name == "Multi":
             return self.MultiSelection
         elif name == "SpreadSheet":
@@ -139,19 +138,15 @@ class QTable(Q3TableWidget):
 
     def setColumnLabels(self, separador: str, lista: str) -> None:
         """Set column labels."""
-
         array_ = lista.split(separador)
-        self.cols_list = []
-        for i in range(self.columnCount()):
-            if len(array_) > i:
-                self.cols_list.append(array_[i])
-        self.setHorizontalHeaderLabels(self.cols_list)
+        if array_:
+            self.setHorizontalHeaderLabels(array_[0 : self.columnCount()])
 
     def setRowLabels(self, separator: str, lista: str) -> None:
         """Set row labels."""
-
         array_ = lista.split(separator)
-        self.setVerticalHeaderLabels(array_)
+        if array_:
+            self.setVerticalHeaderLabels(array_[0 : self.rowCount()])
 
     def clear(self) -> None:
         """Clear values."""
