@@ -236,7 +236,7 @@ class DockListView(QtCore.QObject):
                     action_name = node.attribute("objectName")
                     ac = ag.findChild(QtWidgets.QAction, action_name)
 
-                    action_group = self.parent().findChild(
+                    action_group = ag.findChild(
                         QtWidgets.QActionGroup, parent_element.attribute("objectName")
                     )
 
@@ -1121,14 +1121,20 @@ class MainForm(QtWidgets.QMainWindow):
                     sub_menu_ag = QtWidgets.QActionGroup(menu_ag)
                     sub_menu_ag.setObjectName("%sActions" % menu_ag.objectName())
                 else:
-                    sub_menu_ag = QtWidgets.QActionGroup(ag)
-                    sub_menu_ag.setObjectName(ag.objectName())
+                    sub_menu = ag.findChild(QtWidgets.QActionGroup, ag.objectName())
+                    if sub_menu is None:
+                        sub_menu = QtWidgets.QActionGroup(ag)
+                        sub_menu.setObjectName(ag.objectName())
+
+                    sub_menu_ag = QtWidgets.QActionGroup(sub_menu)
+                    sub_menu_ag.setObjectName(itn.attribute("text"))
 
                 sub_menu_ag_name = QtWidgets.QAction(sub_menu_ag)
                 sub_menu_ag_name.setObjectName("%s_actiongroup_name" % sub_menu_ag.objectName())
                 sub_menu_ag_name.setText(
                     self.qsa_sys.toUnicode(itn.attribute("text"), "iso-8859-1")
                 )
+
                 self.addWidgetActions(itn, sub_menu_ag, w)
 
         conns = root.namedItem("connections").toElement()
