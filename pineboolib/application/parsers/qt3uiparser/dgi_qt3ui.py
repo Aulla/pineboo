@@ -658,7 +658,6 @@ class loadWidget:
                 new_widget._attrs = {}
                 loadWidget(c, new_widget, self.parent, self.origWidget)
                 prop_name = c.find("./property[@name='name']/cstring")
-                path = prop_name.text if prop_name is not None else ""
                 new_widget.setContentsMargins(0, 0, 0, 0)
                 new_widget.show()
 
