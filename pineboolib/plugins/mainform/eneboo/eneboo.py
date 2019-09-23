@@ -197,16 +197,16 @@ class DockListView(QtCore.QObject):
                 continue
             class_name = node.attribute("class")
             if class_name.startswith("QAction"):
-                act_ = ag.findChild(QtWidgets.QAction, node.attribute("objectName"))
-                if act_ and not act_.isVisible():
-                    node = (
-                        node.previousSibling().toElement()
-                        if reverse
-                        else node.nextSibling().toElement()
-                    )
-                    continue
-
                 if class_name == "QActionGroup":
+                    act_group = ag.findChild(QtWidgets.QActionGroup, node.attribute("objectName"))
+                    if act_group and not act_group.isVisible():
+                        node = (
+                            node.previousSibling().toElement()
+                            if reverse
+                            else node.nextSibling().toElement()
+                        )
+                        continue
+
                     group_name = node.attribute("objectName")
                     if (
                         group_name not in ("pinebooActionGroup")
@@ -234,22 +234,28 @@ class DockListView(QtCore.QObject):
                 ):
 
                     action_name = node.attribute("objectName")
-
                     ac = ag.findChild(QtWidgets.QAction, action_name)
+
+                    action_group = self.parent().findChild(
+                        QtWidgets.QActionGroup, parent_element.attribute("objectName")
+                    )
+
+                    if action_group is not None:  # ¢heck if is visible
+                        ac_orig = action_group.findChild(QtWidgets.QAction, action_name)
+                        if ac_orig and not ac_orig.isVisible():
+                            ac = None
+
                     if ac is not None:
 
                         if action_name.endswith("actiongroup_name"):
-                            # action_name = action_name.replace("_actiongroup_name", "")
                             this_item = parent_item
                         else:
                             this_item = QtWidgets.QTreeWidgetItem(parent_item)
+
                         if this_item is not None:
-                            this_item.setIcon(0, ac.icon())  # Code el icono mal!!
-                            if class_name == "QAction":
-                                this_item.setText(1, action_name)
+                            this_item.setIcon(0, ac.icon())
+                            this_item.setText(1, action_name)
                             this_item.setText(0, node.attribute("text").replace("&", ""))
-                    if this_item is not None and node.attribute("enabled") == "false":
-                        this_item.setEnabled(False)
 
                 self.buildListView(this_item, node, ag, reverse)
 
@@ -724,14 +730,16 @@ class MainForm(QtWidgets.QMainWindow):
         object_list = action_group.children()
         for obj_ in object_list:
             o_name = obj_.objectName()
+            if not obj_.isVisible():
+                continue
             if isinstance(obj_, QtWidgets.QActionGroup):
                 new_parent = parent
 
-                ac_name = obj_.findChild(QtWidgets.QAction, "%s_actiongroup_name" % o_name)
-                if ac_name:
+                ac_obj = obj_.findChild(QtWidgets.QAction, "%s_actiongroup_name" % o_name)
+                if ac_obj:
                     if not o_name.endswith("Actions") or o_name.endswith("MoreActions"):
-                        new_parent = parent.addMenu(ac_name.icon(), ac_name.text())
-                        new_parent.triggered.connect(ac_name.trigger)
+                        new_parent = parent.addMenu(ac_obj.icon(), ac_obj.text())
+                        new_parent.triggered.connect(ac_obj.trigger)
 
                 self.updateMenu(obj_, new_parent)
                 continue
@@ -1025,11 +1033,15 @@ class MainForm(QtWidgets.QMainWindow):
     def addWidgetActions(self, node, action_group, wi) -> None:
         """Add actions belonging to a widget."""
         actions = node.elementsByTagName("action")
+        hide_group = True
         for i in range(len(actions)):
             item = actions.at(i).toElement()
             action_widget = wi.findChild(QtWidgets.QAction, item.attribute("name"))
             if action_widget is None:
                 continue
+
+            if action_widget.isVisible():
+                hide_group = False
 
             prev = item.previousSibling().toElement()
             if not prev.isNull() and prev.tagName() == "separator":
@@ -1039,6 +1051,9 @@ class MainForm(QtWidgets.QMainWindow):
                 # actGroup.addSeparator()
 
             self.cloneAction(action_widget, action_group)
+
+        if hide_group:
+            action_group.setVisible(False)
 
     def widgetActions(self, ui_file: str, parent: Any) -> Any:
         """Collect the actions provided by a widget."""
