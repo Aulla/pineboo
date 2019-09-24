@@ -20,7 +20,7 @@ from pineboolib.application import project  # FIXME: next time, proper singleton
 from pineboolib.application.parsers.qsaparser import pytnyzer
 
 if TYPE_CHECKING:
-    from pineboolib.loader import projectconfig
+    from pineboolib.loader import projectconfig  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ def startup_no_X() -> None:
 
 
 def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> None:
-    """Start Pineboo project like framework"""
+    """Start Pineboo project like framework."""
     if conn is None:
         raise Exception("conn is empty!")
 
