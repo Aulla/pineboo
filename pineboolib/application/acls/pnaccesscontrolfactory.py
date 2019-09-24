@@ -41,7 +41,7 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
             for a in list1:
                 if a.objectName() in self._acos_perms.keys():
                     continue
-                if self._perm == "-w" or self._perm == "--":
+                if self._perm in ["-w", "--"]:
                     a.setVisible(False)
 
         for a_name, perm in self._acos_perms.items():
