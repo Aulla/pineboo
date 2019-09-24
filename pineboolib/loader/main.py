@@ -2,7 +2,7 @@
 import gc
 import sys
 from optparse import Values
-from typing import List, Type
+from typing import List, Type, Optional, TYPE_CHECKING
 from types import TracebackType
 
 from PyQt5 import QtCore, QtWidgets
@@ -19,12 +19,38 @@ from pineboolib import plugins
 from pineboolib.application import project  # FIXME: next time, proper singleton
 from pineboolib.application.parsers.qsaparser import pytnyzer
 
+if TYPE_CHECKING:
+    from pineboolib.loader import projectconfig
+
 logger = logging.getLogger(__name__)
 
 
 def startup_no_X() -> None:
     """Start Pineboo with no GUI."""
     startup(enable_gui=False)
+
+
+def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> bool:
+    """Start Pineboo project like framework"""
+    if conn is None:
+        raise Exception("conn is empty!")
+
+    qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
+    init_logging()
+    init_cli(catch_ctrl_c=False)
+    pytnyzer.STRICT_MODE = False
+    project.load_version()
+    project.setDebugLevel(1000)
+    project.set_app(qapp)
+    _DGI = load_dgi("qt", None)
+    project.init_dgi(_DGI)
+    conn = connect_to_db(conn)
+    project.init_conn(connection=conn)
+    project.no_python_cache = True
+    project.run()
+    project.conn.managerModules().loadIdAreas()
+    project.conn.managerModules().loadAllIdModules()
+    project.load_modules()
 
 
 def startup(enable_gui: bool = None) -> None:
