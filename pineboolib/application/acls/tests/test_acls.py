@@ -56,6 +56,14 @@ class TestACLS(unittest.TestCase):
         cursor_flacls.setValueBuffer("prioridadgrupointro", 2)
         cursor_flacls.setValueBuffer("prioridadusuariointro", 1)
         cursor_flacls.commitBuffer()
+        cursor_flacls.setModeAccess(cursor_flacls.Insert)
+        cursor_flacls.setActivatedCheckIntegrity(False)
+        cursor_flacls.refreshBuffer()
+        cursor_flacls.setValueBuffer("idacl", "cuarta")
+        cursor_flacls.setValueBuffer("descripcion", "fourth acl")
+        cursor_flacls.setValueBuffer("prioridadgrupointro", 2)
+        cursor_flacls.setValueBuffer("prioridadusuariointro", 1)
+        cursor_flacls.commitBuffer()
 
         cursor_flacs = pnsqlcursor.PNSqlCursor("flacs")
         cursor_flacs.setModeAccess(cursor_flacs.Insert)
@@ -160,6 +168,23 @@ class TestACLS(unittest.TestCase):
 
         id_acs_3 = cursor_flacs.valueBuffer("idac")
 
+        cursor_flacs.setModeAccess(cursor_flacs.Insert)
+        cursor_flacs.setActivatedCheckIntegrity(False)
+        cursor_flacs.refreshBuffer()
+        cursor_flacs.setValueBuffer("prioridad", 7)
+        cursor_flacs.setValueBuffer("tipo", "mainwindow")
+        cursor_flacs.setValueBuffer("nombre", "sys")
+        cursor_flacs.setValueBuffer("idgroup", "usuarios")
+        cursor_flacs.setValueBuffer("idacl", "cuarta")
+        cursor_flacs.setValueBuffer("descripcion", "Sistema:Administración:mainwindow:Maestro:sys")
+        cursor_flacs.setValueBuffer("degrupo", True)
+        cursor_flacs.setValueBuffer("idarea", "sys")
+        cursor_flacs.setValueBuffer("idmodule", "sys")
+        cursor_flacs.setValueBuffer("tipoform", "Maestro")
+        cursor_flacs.commitBuffer()
+
+        id_acs_4 = cursor_flacs.valueBuffer("idac")
+
         cursor_flacos = pnsqlcursor.PNSqlCursor("flacos")
         cursor_flacos.setModeAccess(cursor_flacos.Insert)
         cursor_flacos.refreshBuffer()
@@ -205,6 +230,26 @@ class TestACLS(unittest.TestCase):
         cursor_flacos.setValueBuffer("idac", id_acs_3)
         cursor_flacos.commitBuffer()
 
+        # single mainwindow '--'
+        cursor_flacos.setModeAccess(cursor_flacos.Insert)
+        cursor_flacos.refreshBuffer()
+        cursor_flacos.setValueBuffer("nombre", "ebcomportamiento")
+        cursor_flacos.setValueBuffer("descripcion", "Todos:ebcomportamiento")
+        cursor_flacos.setValueBuffer("tipocontrol", "Todos")
+        cursor_flacos.setValueBuffer("permiso", "--")
+        cursor_flacos.setValueBuffer("idac", id_acs_4)
+        cursor_flacos.commitBuffer()
+
+        # single mainwindow '-w'
+        cursor_flacos.setModeAccess(cursor_flacos.Insert)
+        cursor_flacos.refreshBuffer()
+        cursor_flacos.setValueBuffer("nombre", "flgroups")
+        cursor_flacos.setValueBuffer("descripcion", "Todos:flgroups")
+        cursor_flacos.setValueBuffer("tipocontrol", "Todos")
+        cursor_flacos.setValueBuffer("permiso", "-w")
+        cursor_flacos.setValueBuffer("idac", id_acs_4)
+        cursor_flacos.commitBuffer()
+
     def test_form_flacos(self) -> None:
         """Test form acls from flacos."""
         from pineboolib.qsa import qsa
@@ -220,6 +265,41 @@ class TestACLS(unittest.TestCase):
         self.assertFalse(button_2.isEnabled())  # not enabled
         self.assertFalse(button_1.isHidden())  # visible
         self.assertFalse(button_1.isEnabled())  # not enabled
+
+    def test_mainwindow_flacos(self) -> None:
+
+        from PyQt5 import QtWidgets
+
+        from pineboolib import application
+        import importlib
+
+        sys_type = systype.SysType()
+        sys_type.installACL("cuarta")
+        acl = pnaccesscontrollists.PNAccessControlLists()
+        acl.init()
+        flapplication.aqApp.set_acl(acl)
+
+        project = application.project
+        project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
+        project.main_window = getattr(project.main_form, "mainWindow", None)
+        main_form_ = getattr(project.main_form, "MainForm", None)
+        self.assertTrue(main_form_)
+        self.main_w = main_form_()
+        self.main_w.initScript()
+        self.main_w.show()
+        self.assertTrue(self.main_w)
+
+        action_1 = self.main_w.findChild(QtWidgets.QAction, "ebcomportamiento")
+        self.assertTrue(action_1)
+        self.assertFalse(action_1.isVisible())
+
+        action_2 = self.main_w.findChild(QtWidgets.QAction, "flgroups")
+        self.assertTrue(action_2)
+        self.assertFalse(action_2.isVisible())
+
+        action_3 = self.main_w.findChild(QtWidgets.QAction, "flareas")
+        self.assertTrue(action_3)
+        self.assertTrue(action_3.isVisible())
 
     def test_tables_flacos(self) -> None:
         """Test table acls from flacos."""
