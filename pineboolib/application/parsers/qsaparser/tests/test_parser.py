@@ -82,6 +82,14 @@ class TestParser(unittest.TestCase):
             qs2py('var value = parseInt("0xA0", 16);'), 'value = qsa.parseInt("0xA0", 16)\n'
         )
 
+    def test_qdir(self) -> None:
+        self.assertEqual(
+            qs2py(
+                'var rutaImp:String = "."; var impDir = new QDir(rutaImp, "c*.csv C*.csv c*.CSV C*.CSV");'
+            ),
+            'rutaImp = "."\nimpDir = qsa.QDir(rutaImp, "c*.csv C*.csv c*.CSV C*.CSV")\n',
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

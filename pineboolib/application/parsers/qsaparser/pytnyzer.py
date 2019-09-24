@@ -135,6 +135,7 @@ QSA_KNOWN_ATTRS = {
     "QDataView",
     "QDateEdit",
     "QDialog",
+    "QDir",
     "QDockWidget",
     "QDomDocument",
     "QEventLoop",

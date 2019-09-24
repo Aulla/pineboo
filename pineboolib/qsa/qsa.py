@@ -35,7 +35,7 @@ from .pncontrolsfactory import QTreeWidgetItemIterator, QListWidgetItem  # noqa:
 from .pncontrolsfactory import QListViewWidget, QSignalMapper, QPainter, QBrush  # noqa: F401
 from .pncontrolsfactory import QKeySequence, QIcon, QColor, QDomDocument  # noqa: F401
 from .pncontrolsfactory import QPushButton, QSpinBox, QRadioButton, QPixmap  # noqa: F401
-from .pncontrolsfactory import QButtonGroup, QToolBox, QSize, QDockWidget  # noqa: F401
+from .pncontrolsfactory import QButtonGroup, QToolBox, QSize, QDockWidget, QDir  # noqa: F401
 
 
 # FL
