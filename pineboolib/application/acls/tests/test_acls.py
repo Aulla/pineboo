@@ -3,11 +3,14 @@
 import unittest
 from pineboolib.loader.main import init_testing
 from pineboolib.fllegacy import flapplication, systype
+from pineboolib.core.settings import config
 from pineboolib.application.acls import pnaccesscontrollists
 
 
 class TestACLS(unittest.TestCase):
     """TestPNBuffer Class."""
+
+    db_admin: bool
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -15,6 +18,8 @@ class TestACLS(unittest.TestCase):
         init_testing()
         # install acls
         from pineboolib.application.database import pnsqlcursor
+
+        cls.db_admin = config.value("application/dbadmin_enabled", False)
 
         cursor_flgroups = pnsqlcursor.PNSqlCursor("flgroups")
         cursor_flgroups.setModeAccess(cursor_flgroups.Insert)
@@ -299,6 +304,8 @@ class TestACLS(unittest.TestCase):
         acl.init()
         flapplication.aqApp.set_acl(acl)
 
+        config.set_value("application/dbadmin_enabled", True)
+
         project = application.project
         project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
         project.main_window = getattr(project.main_form, "mainWindow", None)
@@ -427,3 +434,5 @@ class TestACLS(unittest.TestCase):
         flapplication.aqApp.db().manager().cacheMetaDataSys_ = {}
         flapplication.aqApp.db().manager().cacheMetaData_ = {}
         flapplication.aqApp.acl_ = None
+
+        config.set_value("application/dbadmin_enabled", cls.db_admin)
