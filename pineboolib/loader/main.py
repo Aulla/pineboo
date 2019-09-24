@@ -30,7 +30,7 @@ def startup_no_X() -> None:
     startup(enable_gui=False)
 
 
-def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> bool:
+def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> None:
     """Start Pineboo project like framework"""
     if conn is None:
         raise Exception("conn is empty!")
