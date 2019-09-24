@@ -106,7 +106,8 @@ class XMLAction(ActionStruct):
         if not self._loaded:
             if self.mainform_widget is not None and getattr(self.mainform_widget, "widget", None):
                 self.mainform_widget.widget.doCleanUp()
-            if self.project.DGI.useDesktop() and hasattr(self.project.main_window, "w_"):
+
+            if self.project.DGI.useDesktop():
                 self.logger.info("Loading action %s (createForm). . . ", self.name)
                 self.mainform_widget = self.project.conn.managerModules().createForm(action=self)
             else:

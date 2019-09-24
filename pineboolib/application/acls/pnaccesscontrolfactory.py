@@ -94,12 +94,12 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         This allows any component of an AbanQ form (FLFormDB,
         FLFormRecordDB and FLFormSearchDB) can be made not visible or not editable for convenience.
         """
-        if widget is None or not self._acos_perms:
+        if widget is None:
             return
 
-        if self._perm:
-            for child in widget.children():
-                if self._acos_perms[child.objectName()]:
+        if self._perm != "":
+            for child in widget.findChildren(QtWidgets.QWidget):
+                if child.objectName() in self._acos_perms.keys():
                     continue
 
                 if self._perm in ("-w", "--"):

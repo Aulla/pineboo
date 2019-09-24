@@ -185,6 +185,26 @@ class TestACLS(unittest.TestCase):
 
         id_acs_4 = cursor_flacs.valueBuffer("idac")
 
+        # global form 'r-'
+        cursor_flacs.setModeAccess(cursor_flacs.Insert)
+        cursor_flacs.setActivatedCheckIntegrity(False)
+        cursor_flacs.refreshBuffer()
+        cursor_flacs.setValueBuffer("prioridad", 8)
+        cursor_flacs.setValueBuffer("tipo", "form")
+        cursor_flacs.setValueBuffer("nombre", "formflmodules")
+        cursor_flacs.setValueBuffer("idgroup", "usuarios")
+        cursor_flacs.setValueBuffer("permiso", "r-")
+        cursor_flacs.setValueBuffer("idacl", "tercera")
+        cursor_flacs.setValueBuffer(
+            "descripcion", "Sistema:Administración:form:Maestro:formflmodules"
+        )
+        cursor_flacs.setValueBuffer("degrupo", True)
+        cursor_flacs.setValueBuffer("idarea", "sys")
+        cursor_flacs.setValueBuffer("idmodule", "sys")
+        cursor_flacs.setValueBuffer("tipoform", "Maestro")
+
+        cursor_flacs.commitBuffer()
+
         cursor_flacos = pnsqlcursor.PNSqlCursor("flacos")
         cursor_flacos.setModeAccess(cursor_flacos.Insert)
         cursor_flacos.refreshBuffer()
@@ -300,6 +320,33 @@ class TestACLS(unittest.TestCase):
         action_3 = self.main_w.findChild(QtWidgets.QAction, "flareas")
         self.assertTrue(action_3)
         self.assertTrue(action_3.isVisible())
+
+    def test_form_globals(self) -> None:
+        """Test form acls globals."""
+        from pineboolib.qsa import qsa
+        from pineboolib import application
+        import importlib
+
+        sys_type = systype.SysType()
+        sys_type.installACL("tercera")
+        acl = pnaccesscontrollists.PNAccessControlLists()
+        acl.init()
+        flapplication.aqApp.set_acl(acl)
+
+        project = application.project
+        project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
+        project.main_window = getattr(project.main_form, "mainWindow", None)
+        main_form_ = getattr(project.main_form, "MainForm", None)
+        self.assertTrue(main_form_)
+        self.main_w = main_form_()
+        self.main_w.initScript()
+        self.main_w.show()
+        self.assertTrue(self.main_w)
+
+        form = qsa.from_project("formflmodules")
+        control_1 = form.child("tableDBRecords")
+        self.assertTrue(control_1)
+        self.assertFalse(control_1.isEnabled())
 
     def test_tables_flacos(self) -> None:
         """Test table acls from flacos."""
