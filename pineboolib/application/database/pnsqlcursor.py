@@ -3793,7 +3793,7 @@ class PNCursorPrivate(QtCore.QObject):
                 condTrue_ = self.cursor_.valueBuffer(self.acosCondName_) == self.acosCondVal_
             elif self.acosCond_ == AcosConditionEval.REGEXP:
                 condTrue_ = QtCore.QRegExp(str(self.acosCondVal_)).exactMatch(
-                    cursor.value(self.acosCondName_)
+                    self.cursor_.value(self.acosCondName_)
                 )
             elif self.acosCond_ == AcosConditionEval.FUNCTION:
                 condTrue_ = project.call(self.acosCondName_, [self.cursor_]) == self.acosCondVal_
