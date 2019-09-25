@@ -48,28 +48,12 @@ class DGILoader(object):
         return dgi.dgi_qt()
 
     @staticmethod
-    def load_dgi_aqnext() -> "dgi_aqnext":
-        """Load dgi aqnext."""
-
-        from pineboolib.plugins.dgi.dgi_aqnext import dgi_aqnext as dgi
-
-        return dgi.dgi_aqnext()
-
-    @staticmethod
     def load_dgi_fcgi() -> "dgi_fcgi":
         """Load dgi fcgi."""
 
         from pineboolib.plugins.dgi.dgi_fcgi import dgi_fcgi as dgi
 
         return dgi.dgi_fcgi()
-
-    # @staticmethod
-    # def load_dgi_jsonrpc() -> "dgi_jsonrpc":
-    #    """Load dgi jsonrpc."""
-
-    #    from pineboolib.plugins.dgi.dgi_jsonrpc import dgi_jsonrpc as dgi
-
-    #    return dgi.dgi_jsonrpc()
 
     @staticmethod
     def load_dgi_server() -> "dgi_server":
