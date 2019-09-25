@@ -1,1 +1,0 @@
-"""Dgi_aqnext package."""

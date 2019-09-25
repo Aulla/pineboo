@@ -100,9 +100,6 @@ class PNSqlCursor(QtCore.QObject):
 
     _action: Optional["pnaction.PNAction"] = None
 
-    ext_cursor = None
-    _activatedBufferChanged: bool
-    _activatedBufferCommited: bool
     _meta_model: Any
 
     transactionBegin: QtCore.pyqtSignal = QtCore.pyqtSignal()
@@ -133,15 +130,7 @@ class PNSqlCursor(QtCore.QObject):
             autopopulate = True
         elif isinstance(conn_or_autopopulate, bool):
             autopopulate = conn_or_autopopulate
-        self._meta_model = None
         name_action = None
-        self.setActivatedBufferChanged(True)
-        self.setActivatedBufferCommited(True)
-        ext_cursor = getattr(project.DGI, "FLSqlCursor", None)
-        if ext_cursor is not None:
-            self.ext_cursor = ext_cursor(self, name)
-        else:
-            self.ext_cursor = None
 
         if isinstance(name, TableStruct):
             logger.trace("FIXME::__init__ TableStruct %s", name.name, stack_info=True)
@@ -518,23 +507,9 @@ class PNSqlCursor(QtCore.QObject):
             )
 
         self.d.buffer_.setValue(fN, v)
-        if self.activatedBufferChanged():
-            if project.DGI.use_model() and self.meta_model():
-                bch_model = getattr(self.meta_model(), "bChCursor", None)
-                if bch_model and bch_model(fN, self) is False:
-                    return
+        self.bufferChanged.emit(fN)
 
-                from pineboolib.application.safeqsa import SafeQSA
-
-                script = SafeQSA.get_formrecord("formRecord%s" % self.action())
-                if script is not None:
-                    bChCursor = getattr(script.iface, "bChCursor", None)
-                    if bChCursor:
-                        bChCursor(fN, self)
-
-            self.bufferChanged.emit(fN)
-
-            project.app.processEvents()
+        project.app.processEvents()
 
     def setValueBuffer(self, fN: str, v: Any) -> None:
         """
@@ -620,22 +595,7 @@ class PNSqlCursor(QtCore.QObject):
             self.d.buffer_.setValue(fN, vv)
 
         # logger.trace("(%s)bufferChanged.emit(%s)" % (self.curName(),fN))
-        if self.activatedBufferChanged():
-
-            if project.DGI.use_model() and self.meta_model():
-                bch_model = getattr(self.meta_model(), "bChCursor", None)
-                if bch_model and bch_model(fN, self) is False:
-                    return
-
-                from pineboolib.application.safeqsa import SafeQSA
-
-                script = SafeQSA.get_formrecord("formRecord%s" % self.action())
-                if script is not None:
-                    bChCursor = getattr(script.iface, "bChCursor", None)
-                    if bChCursor:
-                        bChCursor(fN, self)
-
-            self.bufferChanged.emit(fN)
+        self.bufferChanged.emit(fN)
         project.app.processEvents()
 
     def valueBuffer(self, fN: str) -> Any:
@@ -1164,36 +1124,6 @@ class PNSqlCursor(QtCore.QObject):
     def activatedCheckIntegrity(self) -> bool:
         """Retrieve if integrity checks are enabled."""
         return self.d.activatedCheckIntegrity_
-
-    def setActivatedCommitActions(self, a: bool) -> None:
-        """
-        Enable or disable before/after commit actions.
-
-        @param a True to enable, False to disable.
-        """
-        self.d.activatedCommitActions_ = a
-
-    def activatedCommitActions(self) -> bool:
-        """
-        Retrieve wether before/after commits are enabled.
-        """
-        return self.d.activatedCommitActions_
-
-    def setActivatedBufferChanged(self, activated_bufferchanged: bool) -> None:
-        """Enable or disable bufferChanged signals."""
-        self._activatedBufferChanged = activated_bufferchanged
-
-    def activatedBufferChanged(self) -> bool:
-        """Retrieve if bufferChanged signals are enabled."""
-        return self._activatedBufferChanged
-
-    def setActivatedBufferCommited(self, activated_buffercommited: bool) -> None:
-        """Enable or disable bufferCommited signals."""
-        self._activatedBufferCommited = activated_buffercommited
-
-    def activatedBufferCommited(self) -> bool:
-        """Retrieve wether bufferCommited signals are enabled."""
-        return self._activatedBufferCommited
 
     def msgCheckIntegrity(self) -> str:
         """
@@ -2753,9 +2683,6 @@ class PNSqlCursor(QtCore.QObject):
         if not self.d.buffer_ or not self.d.metadata_:
             return False
 
-        if not self.activatedBufferCommited():
-            return True
-
         if (
             self.db().interactiveGUI()
             and self.db().canDetectLocks()
@@ -3506,20 +3433,6 @@ class PNSqlCursor(QtCore.QObject):
             return self.d.metadata_.fieldType(field_name)
         else:
             return None
-
-    def __getattr__(self, name: str) -> Any:
-        """
-        Return the attribute of the associated DGI.
-
-        @param name. attribute name to search.
-        @return atribute or None.
-        """
-
-        _attr = None
-        if self.ext_cursor:
-            _attr = getattr(self.ext_cursor, name)
-
-        return _attr
 
     """
     signals:
