@@ -4,7 +4,7 @@ Collect information from the query, such as field tables, lines, etc ...
 
 from pineboolib.core.utils import logging
 import datetime
-from typing import Dict, Tuple, Any, List, Optional, TYPE_CHECKING
+from typing import Dict, Any, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401
