@@ -51,6 +51,12 @@ logger = logging.getLogger(__name__)
 # ######
 # ###############################################################################
 # ###############################################################################
+class AcosConditionEval(enumerate):
+    """Class AcosConditionEval."""
+
+    VALUE = 0
+    REGEXP = 1
+    FUNCTION = 2
 
 
 class PNSqlCursor(QtCore.QObject):
@@ -1841,7 +1847,6 @@ class PNSqlCursor(QtCore.QObject):
         @param current. new item selected.
         @param previous. old item selected.
         """
-
         if self.currentRegister() == current.row():
             self.d.doAcl()
             return None
@@ -2123,12 +2128,12 @@ class PNSqlCursor(QtCore.QObject):
                 return False
 
             self.primeUpdate()
-
             if self.isLocked() and not self.d.acosCondName_:
                 self.d.modeAccess_ = self.Browse
 
             self.setNotGenerateds()
             self.updateBufferCopy()
+            self.d.doAcl()
             self.newBuffer.emit()
 
         elif self.d.modeAccess_ == self.Del:
@@ -2143,16 +2148,13 @@ class PNSqlCursor(QtCore.QObject):
             self.updateBufferCopy()
 
         elif self.d.modeAccess_ == self.Browse:
-
             self.primeUpdate()
             self.setNotGenerateds()
             self.newBuffer.emit()
+            self.d.doAcl()
 
         else:
             logger.error("refreshBuffer(). No hay definido modeAccess()")
-
-        # if project.DGI.use_model() and self.meta_model():
-        #    self.populate_meta_model()
 
         return True
 
@@ -2266,6 +2268,7 @@ class PNSqlCursor(QtCore.QObject):
             row = self.d._model.rows
         if self.currentRegister() == row:
             return False
+
         topLeft = self.d._model.index(row, 0)
         bottomRight = self.d._model.index(row, self.d._model.cols - 1)
         new_selection = QtCore.QItemSelection(topLeft, bottomRight)
@@ -3143,7 +3146,7 @@ class PNSqlCursor(QtCore.QObject):
         @param ac Global permission; eg: "r-", "-w"
         """
 
-        self.d.idAc_ = self.d.idAc_ + 1
+        self.d.idAc_ += 1
         self.d.id_ = "%s%s%s" % (self.d.idAc_, self.d.idAcos_, self.d.idCond_)
         self.d.acPermTable_ = ac
 
@@ -3161,12 +3164,12 @@ class PNSqlCursor(QtCore.QObject):
         @param acos List of text strings with the names of fields and permissions.
         """
 
-        self.d.idAcos_ = self.d.idAcos_ + 1
+        self.d.idAcos_ += 1
         self.d.id_ = "%s%s%s" % (self.d.idAc_, self.d.idAcos_, self.d.idCond_)
         self.d.acosTable_ = acos
 
     @pyqtSlot()
-    def setAcosCondition(self, condName, cond, condVal):
+    def setAcosCondition(self, condName: str, cond: AcosConditionEval, condVal: Any):
         """
         Set the condition that must be met to apply access control.
 
@@ -3192,7 +3195,7 @@ class PNSqlCursor(QtCore.QObject):
         @param condVal Value that makes the condition true
         """
 
-        self.d.idCond_ = self.d.idCond_ + 1
+        self.d.idCond_ += 1
         self.d.id_ = "%s%s%s" % (self.d.idAc_, self.d.idAcos_, self.d.idCond_)
         self.d.acosCondName_ = condName
         self.d.acosCond_ = cond
@@ -3671,7 +3674,7 @@ class PNCursorPrivate(QtCore.QObject):
     acTable_: Any
     acPermTable_ = None
     acPermBackupTable_ = None
-    acosTable_ = None
+    acosTable_ = []
     acosBackupTable_ = None
     acosCondName_: Optional[str] = None
     acosCond_ = None
@@ -3767,38 +3770,32 @@ class PNCursorPrivate(QtCore.QObject):
         """
         Create restrictions according to access control list.
         """
-        from pineboolib.application.acls.pnaccesscontrolfactory import PNAccessControlFactory
+        from pineboolib.application.acls import pnaccesscontrolfactory
 
         if not self.acTable_:
-            self.acTable_ = PNAccessControlFactory().create("table")
+            self.acTable_ = pnaccesscontrolfactory.PNAccessControlFactory().create("table")
             self.acTable_.setFromObject(self.metadata_)
             self.acosBackupTable_ = self.acTable_.getAcos()
             self.acPermBackupTable_ = self.acTable_.perm()
             self.acTable_.clear()
-        cursor = self.cursor_
-        if cursor is None:
+        if self.cursor_ is None:
             raise Exception("Cursor not created yet")
         if self.modeAccess_ == PNSqlCursor.Insert or (
-            not self.lastAt_ == -1 and self.lastAt_ == cursor.at()
+            not self.lastAt_ == -1 and self.lastAt_ == self.cursor_.at()
         ):
             return
 
         if self.acosCondName_ is not None:
             condTrue_ = False
 
-            if self.acosCond_ == PNSqlCursor.Value:
-                condTrue_ = cursor.valueBuffer(self.acosCondName_) == self.acosCondVal_
-            elif self.acosCond_ == PNSqlCursor.RegExp:
+            if self.acosCond_ == AcosConditionEval.VALUE:
 
-                # FIXME: What is happenning here? bool(str(Regexp)) ??
-                condTrue_ = bool(
-                    str(
-                        QtCore.QRegExp(str(self.acosCondVal_)).exactMatch(
-                            str(cursor.value(self.acosCondName_))
-                        )
-                    )
+                condTrue_ = self.cursor_.valueBuffer(self.acosCondName_) == self.acosCondVal_
+            elif self.acosCond_ == AcosConditionEval.REGEXP:
+                condTrue_ = QtCore.QRegExp(str(self.acosCondVal_)).exactMatch(
+                    cursor.value(self.acosCondName_)
                 )
-            elif self.acosCond_ == PNSqlCursor.Function:
+            elif self.acosCond_ == AcosConditionEval.FUNCTION:
                 condTrue_ = project.call(self.acosCondName_, [self.cursor_]) == self.acosCondVal_
 
             if condTrue_:
@@ -3812,7 +3809,7 @@ class PNCursorPrivate(QtCore.QObject):
 
                 return
 
-        elif cursor.isLocked() or (self.cursorRelation_ and self.cursorRelation_.isLocked()):
+        elif self.cursor_.isLocked() or (self.cursorRelation_ and self.cursorRelation_.isLocked()):
 
             if not self.acTable_.name() == self.id_:
                 self.acTable_.clear()

@@ -69,6 +69,14 @@ class TestACLS(unittest.TestCase):
         cursor_flacls.setValueBuffer("prioridadgrupointro", 2)
         cursor_flacls.setValueBuffer("prioridadusuariointro", 1)
         cursor_flacls.commitBuffer()
+        cursor_flacls.setModeAccess(cursor_flacls.Insert)
+        cursor_flacls.setActivatedCheckIntegrity(False)
+        cursor_flacls.refreshBuffer()
+        cursor_flacls.setValueBuffer("idacl", "final")
+        cursor_flacls.setValueBuffer("descripcion", "clear")
+        cursor_flacls.setValueBuffer("prioridadgrupointro", 2)
+        cursor_flacls.setValueBuffer("prioridadusuariointro", 1)
+        cursor_flacls.commitBuffer()
 
         cursor_flacs = pnsqlcursor.PNSqlCursor("flacs")
         cursor_flacs.setModeAccess(cursor_flacs.Insert)
@@ -464,6 +472,12 @@ class TestACLS(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         from pineboolib.application.database import utils
+
+        sys_type = systype.SysType()
+        sys_type.installACL("final")
+        acl = pnaccesscontrollists.PNAccessControlLists()
+        acl.init()
+        flapplication.aqApp.set_acl(acl)
 
         utils.sqlDelete("flacls", "1=1")
         utils.sqlDelete("flacs", "1=1")

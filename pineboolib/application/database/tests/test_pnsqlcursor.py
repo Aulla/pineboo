@@ -609,5 +609,55 @@ class TestRelations(unittest.TestCase):
         self.assertTrue(cur_areas.rollback())
 
 
+class TestAcos(unittest.TestCase):
+    """Test Acos class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def testSetAcosCondition(self) -> None:
+        """Test setAcosCondition."""
+
+        from pineboolib.application.database import pnsqlcursor
+
+        cur_grupos = pnsqlcursor.PNSqlCursor("flgroups")
+        cur_grupos.setModeAccess(cur_grupos.Insert)
+        cur_grupos.refreshBuffer()
+        cur_grupos.setValueBuffer("idgroup", "a")
+        cur_grupos.setValueBuffer("descripcion", "desc a")
+        cur_grupos.commitBuffer()
+        cur_grupos.setModeAccess(cur_grupos.Insert)
+        cur_grupos.refreshBuffer()
+        cur_grupos.setValueBuffer("idgroup", "b")
+        cur_grupos.setValueBuffer("descripcion", "desc b")
+        cur_grupos.commitBuffer()
+        cur_grupos.setModeAccess(cur_grupos.Insert)
+        cur_grupos.refreshBuffer()
+        cur_grupos.setValueBuffer("idgroup", "c")
+        cur_grupos.setValueBuffer("descripcion", "desc c")
+        cur_grupos.commitBuffer()
+        cur_grupos.setModeAccess(cur_grupos.Insert)
+        cur_grupos.refreshBuffer()
+        cur_grupos.setValueBuffer("idgroup", "d")
+        cur_grupos.setValueBuffer("descripcion", "desc d")
+        cur_grupos.commitBuffer()
+
+        cur_grupos.select()
+        while cur_grupos.next():
+            self.assertTrue(cur_grupos.metadata().field("descripcion").editable())
+
+        cur_grupos.setAcTable("r-")
+        cur_grupos.setAcosCondition("descripcion", pnsqlcursor.AcosConditionEval.VALUE, "desc c")
+
+        cur_grupos.select()
+        while cur_grupos.next():
+            if cur_grupos.valueBuffer("descripcion") == "desc c":
+                self.assertFalse(cur_grupos.metadata().field("descripcion").editable())
+            else:
+                self.assertTrue(cur_grupos.metadata().field("descripcion").editable())
+
+
 if __name__ == "__main__":
     unittest.main()

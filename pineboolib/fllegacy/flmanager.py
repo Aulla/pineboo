@@ -241,16 +241,6 @@ class FLManager(QtCore.QObject, IManager):
                 if not ret.isQuery() and not self.existsTable(n):
                     self.createTable(ret)
 
-                from pineboolib.fllegacy import flapplication
-
-                acl = flapplication.aqApp.acl()
-
-                # if ret.fieldNamesUnlock():
-                #    ret = PNTableMetaData(ret)
-
-                if acl:
-                    acl.process(ret)
-
                 if not isSysTable:
                     self.cacheMetaData_[key] = ret
                 else:
@@ -276,6 +266,11 @@ class FLManager(QtCore.QObject, IManager):
                             logger.warning("La regeneración de la tabla %s ha fallado", n)
 
                 # throwMsgWarning(self.db_, msg)
+            from pineboolib.fllegacy import flapplication
+
+            acl = flapplication.aqApp.acl()
+            if acl:
+                acl.process(ret)
 
             return ret
 
