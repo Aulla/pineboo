@@ -186,6 +186,7 @@ class TestACLS(unittest.TestCase):
         cursor_flacs.setValueBuffer("idarea", "sys")
         cursor_flacs.setValueBuffer("idmodule", "sys")
         cursor_flacs.setValueBuffer("tipoform", "Maestro")
+        cursor_flacs.setValueBuffer("permiso", "--")
         cursor_flacs.commitBuffer()
 
         id_acs_4 = cursor_flacs.valueBuffer("idac")
@@ -275,6 +276,15 @@ class TestACLS(unittest.TestCase):
         cursor_flacos.setValueBuffer("idac", id_acs_4)
         cursor_flacos.commitBuffer()
 
+        cursor_flacos.setModeAccess(cursor_flacos.Insert)
+        cursor_flacos.refreshBuffer()
+        cursor_flacos.setValueBuffer("nombre", "flareas")
+        cursor_flacos.setValueBuffer("descripcion", "Todos:flareas")
+        cursor_flacos.setValueBuffer("tipocontrol", "Todos")
+        cursor_flacos.setValueBuffer("permiso", "rw")
+        cursor_flacos.setValueBuffer("idac", id_acs_4)
+        cursor_flacos.commitBuffer()
+
     def test_form_flacos(self) -> None:
         """Test form acls from flacos."""
         from pineboolib.qsa import qsa
@@ -292,7 +302,7 @@ class TestACLS(unittest.TestCase):
         self.assertFalse(button_1.isEnabled())  # not enabled
 
     def test_mainwindow_flacos(self) -> None:
-
+        """Test mainwindow flacos."""
         from PyQt5 import QtWidgets
 
         from pineboolib import application
@@ -327,6 +337,36 @@ class TestACLS(unittest.TestCase):
         action_3 = self.main_w.findChild(QtWidgets.QAction, "flareas")
         self.assertTrue(action_3)
         self.assertTrue(action_3.isVisible())
+
+    def test_mainwindow_global(self) -> None:
+        """Test mainwindow global."""
+
+        from PyQt5 import QtWidgets
+
+        from pineboolib import application
+        import importlib
+
+        sys_type = systype.SysType()
+        sys_type.installACL("cuarta")
+        acl = pnaccesscontrollists.PNAccessControlLists()
+        acl.init()
+        flapplication.aqApp.set_acl(acl)
+
+        config.set_value("application/dbadmin_enabled", True)
+
+        project = application.project
+        project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
+        project.main_window = getattr(project.main_form, "mainWindow", None)
+        main_form_ = getattr(project.main_form, "MainForm", None)
+        self.assertTrue(main_form_)
+        self.main_w = main_form_()
+        self.main_w.initScript()
+        self.main_w.show()
+        self.assertTrue(self.main_w)
+
+        action_1 = self.main_w.findChild(QtWidgets.QAction, "flusers")
+        self.assertTrue(action_1)
+        self.assertFalse(action_1.isVisible())
 
     def test_form_globals(self) -> None:
         """Test form acls globals."""
