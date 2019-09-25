@@ -100,8 +100,6 @@ class PNSqlCursor(QtCore.QObject):
 
     _action: Optional["pnaction.PNAction"] = None
 
-    _meta_model: Any
-
     transactionBegin: QtCore.pyqtSignal = QtCore.pyqtSignal()
     transactionEnd: QtCore.pyqtSignal = QtCore.pyqtSignal()
     transactionRollBack: QtCore.pyqtSignal = QtCore.pyqtSignal()
@@ -508,7 +506,6 @@ class PNSqlCursor(QtCore.QObject):
 
         self.d.buffer_.setValue(fN, v)
         self.bufferChanged.emit(fN)
-
         project.app.processEvents()
 
     def setValueBuffer(self, fN: str, v: Any) -> None:
@@ -595,6 +592,7 @@ class PNSqlCursor(QtCore.QObject):
             self.d.buffer_.setValue(fN, vv)
 
         # logger.trace("(%s)bufferChanged.emit(%s)" % (self.curName(),fN))
+
         self.bufferChanged.emit(fN)
         project.app.processEvents()
 
@@ -1124,6 +1122,20 @@ class PNSqlCursor(QtCore.QObject):
     def activatedCheckIntegrity(self) -> bool:
         """Retrieve if integrity checks are enabled."""
         return self.d.activatedCheckIntegrity_
+
+    def setActivatedCommitActions(self, a: bool) -> None:
+        """
+        Enable or disable before/after commit actions.
+
+        @param a True to enable, False to disable.
+        """
+        self.d.activatedCommitActions_ = a
+
+    def activatedCommitActions(self) -> bool:
+        """
+        Retrieve wether before/after commits are enabled.
+        """
+        return self.d.activatedCommitActions_
 
     def msgCheckIntegrity(self) -> str:
         """
