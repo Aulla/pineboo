@@ -3169,7 +3169,7 @@ class PNSqlCursor(QtCore.QObject):
         self.d.acosTable_ = acos
 
     @pyqtSlot()
-    def setAcosCondition(self, condName: str, cond: AcosConditionEval, condVal: Any):
+    def setAcosCondition(self, condName: str, cond: int, condVal: Any):
         """
         Set the condition that must be met to apply access control.
 
@@ -3674,10 +3674,10 @@ class PNCursorPrivate(QtCore.QObject):
     acTable_: Any
     acPermTable_ = None
     acPermBackupTable_ = None
-    acosTable_ = []
+    acosTable_: List[str] = []
     acosBackupTable_ = None
     acosCondName_: Optional[str] = None
-    acosCond_ = None
+    acosCond_: int
     acosCondVal_ = None
     lastAt_ = None
     aclDone_ = False

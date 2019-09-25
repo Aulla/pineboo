@@ -645,18 +645,27 @@ class TestAcos(unittest.TestCase):
         cur_grupos.commitBuffer()
 
         cur_grupos.select()
+        field = cur_grupos.metadata().field("descripcion")
+        if field is None:
+            raise Exception("field is None!")
+
         while cur_grupos.next():
-            self.assertTrue(cur_grupos.metadata().field("descripcion").editable())
+            self.assertTrue(field.editable())
 
         cur_grupos.setAcTable("r-")
         cur_grupos.setAcosCondition("descripcion", pnsqlcursor.AcosConditionEval.VALUE, "desc c")
 
         cur_grupos.select()
         while cur_grupos.next():
+            field_2 = cur_grupos.metadata().field("descripcion")
+
+            if field_2 is None:
+                raise Exception("field is None!")
+
             if cur_grupos.valueBuffer("descripcion") == "desc c":
-                self.assertFalse(cur_grupos.metadata().field("descripcion").editable())
+                self.assertFalse(field_2.editable())
             else:
-                self.assertTrue(cur_grupos.metadata().field("descripcion").editable())
+                self.assertTrue(field_2.editable())
 
 
 if __name__ == "__main__":
