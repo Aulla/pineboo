@@ -118,22 +118,7 @@ class TestPNConnection(unittest.TestCase):
         conn_.doCommit(cursor, False)
         conn_.canRegenTables()
 
-        self.assertEqual(
-            conn_.tables(1),
-            [
-                "flareas",
-                "flfiles",
-                "flgroups",
-                "fllarge",
-                "flmetadata",
-                "flmodules",
-                "flseqs",
-                "flserial",
-                "flsettings",
-                "flusers",
-                "flvar",
-            ],
-        )
+        self.assertEqual(conn_.tables(1)[0:3], ["flareas", "flfiles", "flgroups"])
 
         self.assertEqual(conn_.tables(2), ["sqlite_master"])
         self.assertEqual(conn_.tables(3), [])
