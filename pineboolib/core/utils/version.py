@@ -123,4 +123,4 @@ class VersionNumber:
     @classmethod
     def normalize(cls, v: str) -> List[int]:
         """Normalize version string numbers like 3.10.1 so they can be compared."""
-        return [int(x) for x in re.sub(r"(\.0+)*$", "", v).split(".")]
+        return [int(x) for x in re.sub(r"[^\d\.]", "", v).split(".")]
