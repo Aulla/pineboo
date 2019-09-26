@@ -275,7 +275,7 @@ def finish_testing() -> None:
     project.conn.driver_ = None
     project.conn.conn.close()
     project.conn.conn = None
-
+    time.sleep(1)
     from pineboolib.application import qsadictmodules
     import shutil
     import time
@@ -284,7 +284,7 @@ def finish_testing() -> None:
     shutil.rmtree(project.tmpdir)
     qsadictmodules.QSADictModules.clean_all()
     os.mkdir(project.tmpdir)
-    time.sleep(1)  # needed for delete older virtual database.
+    # needed for delete older virtual database.
 
     # conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
     # project.init_conn(connection=conn)
