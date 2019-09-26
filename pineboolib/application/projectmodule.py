@@ -75,6 +75,9 @@ class Project(object):
             self.tmpdir = filedir("%s/Pineboo/tempdata" % Path.home())
             config.set_value("ebcomportamiento/temp_dir", self.tmpdir)
 
+        if not os.path.exists(self.tmpdir):
+            Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
+
     @property
     def app(self) -> QtCore.QCoreApplication:
         """Retrieve current Qt Application or throw error."""
@@ -108,9 +111,6 @@ class Project(object):
 
         self._conn = connection
         self.apppath = filedir("..")
-        # self.tmpdir = config.value("ebcomportamiento/temp_dir")
-        if not os.path.exists(self.tmpdir):
-            Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
 
         self.deleteCache = config.value("ebcomportamiento/deleteCache", False)
         self.parseProject = config.value("ebcomportamiento/parseProject", False)
