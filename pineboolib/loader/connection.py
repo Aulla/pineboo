@@ -9,7 +9,7 @@ from .projectconfig import ProjectConfig, PasswordMismatchError
 
 db_name = ":memory:"
 if os.name == "nt":
-    db_name == "temp_db"
+    db_name = "temp_db"
 
 DEFAULT_SQLITE_CONN = ProjectConfig(database="pineboo.sqlite3", type="SQLite3 (SQLITE3)")
 IN_MEMORY_SQLITE_CONN = ProjectConfig(

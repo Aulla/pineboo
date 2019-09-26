@@ -90,7 +90,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"})
         self.db_name = db_name
         if db_name != ":memory:":
-            self.db_filename = path._dir(db_name)
+            self.db_filename = path._dir("%s.sqlite3" % db_name)
         else:
             self.db_filename = db_name
 

@@ -195,7 +195,7 @@ class Project(object):
             keep_images = config.value("ebcomportamiento/keep_general_cache", False)
             if keep_images is False:
                 for f in os.listdir(self.tmpdir):
-                    if f.find(".") > -1:
+                    if f.find(".") > -1 and not f.endswith("sqlite3"):
                         pt_ = os.path.join(self.tmpdir, f)
                         os.remove(pt_)
 
