@@ -275,12 +275,13 @@ def finish_testing() -> None:
     project.conn.driver_ = None
     project.conn.conn.close()
     project.conn.conn = None
-    time.sleep(1)
+
     from pineboolib.application import qsadictmodules
     import shutil
     import time
     import os
 
+    time.sleep(1)
     shutil.rmtree(project.tmpdir)
     qsadictmodules.QSADictModules.clean_all()
     os.mkdir(project.tmpdir)
