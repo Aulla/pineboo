@@ -8,7 +8,7 @@ from pineboolib.core.utils.utils_base import auto_qt_translate_text
 from pineboolib.core import decorators
 
 from pineboolib.application.utils.check_dependencies import check_dependencies
-from pineboolib.application.utils import path
+from pineboolib.application.utils.path import _dir
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
 
 from pineboolib.fllegacy.flutil import FLUtil
@@ -32,8 +32,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     declare: List[Any]
     rowsFetched: Dict[Any, Any]
     db_filename: Optional[str]
-    db_name: Optional[str]
     sql: str
+    db_name: str
 
     def __init__(self):
         """Inicialize."""
@@ -47,7 +47,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.alias_ = "SQLite3 (SQLITE3)"
         self.declare = []
         self.db_filename = None
-        self.db_name = None
         self.sql = ""
         self.rowsFetched = {}
         self.db_ = None
@@ -88,24 +87,20 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         from pineboolib import application
 
         check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"})
-        self.db_name = db_name
+        self.db_filename = db_name
         if db_name != ":memory:":
-            self.db_filename = path._dir("%s.sqlite3" % db_name)
-        else:
-            self.db_filename = db_name
-
-        db_is_new = not os.path.exists(self.db_filename)
-
+            self.db_filename = _dir("%s.sqlite3" % db_name)
+        db_is_new = not os.path.exists("%s" % self.db_filename)
+        self.db_name = db_name
         import sqlite3
 
         if (
             application.project._conn is not None
+            and self.db_filename == getattr(application.project._conn, "db_name", None)
             and application.project.conn.conn
-            and not db_is_new
         ):
             self.conn_ = application.project.conn.conn
         else:
-            self.logger.warning("Abriendo %s", self.db_filename)
             self.conn_ = sqlite3.connect("%s" % self.db_filename)
             sqlalchemy_uri = "sqlite:///%s" % self.db_filename
             if self.db_filename == ":memory:":
@@ -205,9 +200,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def DBName(self) -> str:
         """Return database name."""
-        ret = self.db_name or ""
-
-        return ret
+        return self.db_name or ""
 
     def nextSerialVal(self, table: str, field: str) -> Optional[int]:
         """Return next serial value."""
