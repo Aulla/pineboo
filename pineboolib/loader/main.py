@@ -269,7 +269,7 @@ def finish_testing() -> None:
     if project.main_window:
         project.main_window.initialized_mods_ = []
 
-    project.conn.execute_query("DROP DATABASE %s" % IN_MEMORY_SQLITE_CONN.database)
+    # project.conn.execute_query("DROP DATABASE %s" % IN_MEMORY_SQLITE_CONN.database)
 
     project.conn.finish()
     project.conn.driver_ = None
@@ -277,8 +277,13 @@ def finish_testing() -> None:
     project.conn.conn = None
 
     from pineboolib.application import qsadictmodules
+    import shutil, time, os
 
+    shutil.rmtree(project.tmpdir)
     qsadictmodules.QSADictModules.clean_all()
+    os.mkdir(project.tmpdir)
+    time.sleep(1)  # needed for delete older virtual database.
+
     # conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
     # project.init_conn(connection=conn)
     # project.run()

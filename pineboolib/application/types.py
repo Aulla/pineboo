@@ -102,6 +102,7 @@ function anon(%s) {
     from .parsers.qsaparser import flscriptparse
     from .parsers.qsaparser import postparse
     from .parsers.qsaparser.pytnyzer import write_python_file
+    from pineboolib import application
 
     prog = flscriptparse.parse(qs_source)
     if prog is None:
