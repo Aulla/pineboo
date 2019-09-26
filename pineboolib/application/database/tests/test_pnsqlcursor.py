@@ -1,8 +1,9 @@
 """Test_pnsqlcursor module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core.utils import logging
+from pineboolib.application.database import pnsqlcursor
 
 logger = logging.getLogger("test")
 
@@ -17,7 +18,6 @@ class TestInsertData(unittest.TestCase):
 
     def test_basic(self) -> None:
         """Insert data into a database."""
-        from pineboolib.application.database import pnsqlcursor
 
         cursor = pnsqlcursor.PNSqlCursor("flareas")
         cursor.setModeAccess(cursor.Insert)
@@ -28,6 +28,11 @@ class TestInsertData(unittest.TestCase):
         self.assertTrue(cursor.commitBuffer())
         mode_access = cursor.modeAccess()
         self.assertEqual(mode_access, cursor.Edit)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 class TestEditData(unittest.TestCase):
@@ -40,9 +45,14 @@ class TestEditData(unittest.TestCase):
 
     def test_basic(self) -> None:
         """Edit data from a database."""
-        from pineboolib.application.database import pnsqlcursor
-
         cursor = pnsqlcursor.PNSqlCursor("flareas")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "T")
+        cursor.setValueBuffer("descripcion", "Área de prueba T")
+        self.assertTrue(cursor.commitBuffer())
+
         cursor.select("idarea ='T'")
         first_result = cursor.first()
         self.assertEqual(first_result, True)
@@ -51,6 +61,11 @@ class TestEditData(unittest.TestCase):
 
         value_idarea = cursor.valueBuffer("idarea")
         self.assertEqual(value_idarea, "T")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 class TestDeleteData(unittest.TestCase):
@@ -63,9 +78,14 @@ class TestDeleteData(unittest.TestCase):
 
     def test_basic(self) -> None:
         """Delete data from a database."""
-        from pineboolib.application.database import pnsqlcursor
-
         cursor = pnsqlcursor.PNSqlCursor("flareas")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "T")
+        cursor.setValueBuffer("descripcion", "Área de prueba T")
+        self.assertTrue(cursor.commitBuffer())
+
         cursor.select("idarea ='T'")
         first_result = cursor.first()
         self.assertEqual(first_result, True)
@@ -80,6 +100,11 @@ class TestDeleteData(unittest.TestCase):
 
         size_2 = cursor.size()
         self.assertEqual(size_2, 0)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 class TestMove(unittest.TestCase):
@@ -152,6 +177,11 @@ class TestMove(unittest.TestCase):
         self.assertEqual(cursor.valueBuffer("idarea"), "C")
         self.assertEqual(cursor.size(), 5)
 
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
+
 
 class TestBuffer(unittest.TestCase):
     """Test buffer class."""
@@ -166,11 +196,24 @@ class TestBuffer(unittest.TestCase):
         from pineboolib.application.database import pnsqlcursor
 
         cursor = pnsqlcursor.PNSqlCursor("flareas")
-        self.assertEqual(cursor.size(), 5)
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "T")
+        cursor.setValueBuffer("descripcion", "Área de prueba T")
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "V")
+        cursor.setValueBuffer("descripcion", "Área de prueba V")
+        self.assertTrue(cursor.commitBuffer())
+
+        self.assertEqual(cursor.size(), 2)
         cursor.select("1=1 ORDER BY idarea ASC")
         cursor.setModeAccess(cursor.Edit)
-        self.assertEqual(cursor.size(), 5)
-        self.assertEqual(cursor.first(), True)
+        self.assertEqual(cursor.size(), 2)
+        self.assertTrue(cursor.first())
         cursor.refreshBuffer()
         buffer_copy = cursor.bufferCopy()
         buffer = cursor.buffer()
@@ -181,16 +224,21 @@ class TestBuffer(unittest.TestCase):
             raise Exception("buffer is empty!")
 
         self.assertNotEqual(buffer, None)
-        self.assertEqual(cursor.valueBuffer("idarea"), "A")
+        self.assertEqual(cursor.valueBuffer("idarea"), "T")
 
-        self.assertEqual(buffer.value("idarea"), "A")
-        self.assertEqual(buffer_copy.value("idarea"), "A")
+        self.assertEqual(buffer.value("idarea"), "T")
+        self.assertEqual(buffer_copy.value("idarea"), "T")
         cursor.next()
         buffer = cursor.buffer()
         if not buffer:
             raise Exception("buffer is empty!")
-        self.assertEqual(buffer.value("idarea"), "B")
-        self.assertEqual(buffer_copy.value("idarea"), "A")
+        self.assertEqual(buffer.value("idarea"), "V")
+        self.assertEqual(buffer_copy.value("idarea"), "T")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 class TestValues(unittest.TestCase):
@@ -233,6 +281,11 @@ class TestValues(unittest.TestCase):
         cursor_2.setModeAccess(cursor_2.Del)
         cursor_2.refreshBuffer()
         self.assertTrue(cursor_2.commitBuffer())
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 class Test_emits(unittest.TestCase):
@@ -289,12 +342,17 @@ class Test_emits(unittest.TestCase):
         """Mark transaction roll back."""
         self._transaction_roll_back = True
 
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
+
 
 class TestGeneral(unittest.TestCase):
     """Test General class."""
 
     @classmethod
-    def setUpClass(cls) -> None:
+    def setUp(cls) -> None:
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
@@ -303,7 +361,7 @@ class TestGeneral(unittest.TestCase):
         from pineboolib import application
         from pineboolib.application.database import pnsqlcursor
 
-        cursor = pnsqlcursor.PNSqlCursor("fltest", "default")
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
         cursor2 = pnsqlcursor.PNSqlCursor("flareas", True, application.project.conn)
         self.assertEqual(cursor.table(), "fltest")
         action = cursor.action()
@@ -335,6 +393,15 @@ class TestGeneral(unittest.TestCase):
         cursor3.refreshBuffer()
 
         cursor4 = pnsqlcursor.PNSqlCursor("flareas", "default")
+
+        cursor = pnsqlcursor.PNSqlCursor("flareas")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "T")
+        cursor.setValueBuffer("descripcion", "Área de prueba T")
+        self.assertTrue(cursor.commitBuffer())
+
         cursor4.select()
         cursor4.first()
         cursor4.setModeAccess(cursor4.Edit)
@@ -345,6 +412,14 @@ class TestGeneral(unittest.TestCase):
     def test_basic_2(self) -> None:
         """Basic tests 2."""
         from pineboolib.application.database import pnsqlcursor
+
+        cursor = pnsqlcursor.PNSqlCursor("flareas")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "X")
+        cursor.setValueBuffer("descripcion", "Área de prueba X")
+        self.assertTrue(cursor.commitBuffer())
 
         cursor = pnsqlcursor.PNSqlCursor("flareas", "default")
         cursor.select()
@@ -389,6 +464,14 @@ class TestGeneral(unittest.TestCase):
         self.assertTrue(cursor.checkIntegrity(False))
 
         self.assertFalse(cursor.cursorRelation())
+
+        cursor3 = pnsqlcursor.PNSqlCursor("flareas")
+        cursor3.setModeAccess(cursor.Insert)
+        cursor3.refreshBuffer()
+        cursor3.setValueBuffer("bloqueo", True)
+        cursor3.setValueBuffer("idarea", "T")
+        cursor3.setValueBuffer("descripcion", "Área de prueba T")
+        self.assertTrue(cursor3.commitBuffer())
 
         cursor2 = pnsqlcursor.PNSqlCursor("flareas")
         cursor2.select()
@@ -452,6 +535,14 @@ class TestGeneral(unittest.TestCase):
         from pineboolib.application.database import pnsqlcursor
         from pineboolib.qsa import qsa
 
+        cursor_6 = pnsqlcursor.PNSqlCursor("flareas")
+        cursor_6.setModeAccess(cursor_6.Insert)
+        cursor_6.refreshBuffer()
+        cursor_6.setValueBuffer("bloqueo", True)
+        cursor_6.setValueBuffer("idarea", "T")
+        cursor_6.setValueBuffer("descripcion", "Área de prueba T")
+        self.assertTrue(cursor_6.commitBuffer())
+
         cursor_qry = pnsqlcursor.PNSqlCursor("fltest2")
         self.assertTrue(cursor_qry)
         self.assertFalse(cursor_qry.d.needUpdate())
@@ -483,6 +574,7 @@ class TestGeneral(unittest.TestCase):
         qsa.from_project("formRecordflareas").reject()
         cursor_3.select()
         cursor_3.first()
+
         cursor_3.browseRecord(False)
         qsa.from_project("formRecordflareas").reject()
         cursor_3.select()
@@ -493,15 +585,20 @@ class TestGeneral(unittest.TestCase):
         cursor_4 = pnsqlcursor.PNSqlCursor("flareas")
         cursor_4.select()
         cursor_4.first()
-        self.assertTrue(cursor_4.selection_pk("B"))
+        self.assertTrue(cursor_4.selection_pk("T"))
         cursor_4.last()
-        self.assertTrue(cursor_4.selection_pk("B"))
+        self.assertTrue(cursor_4.selection_pk("T"))
         cursor_4.last()
         self.assertFalse(cursor_4.selection_pk("J"))
         cursor_4.setNull("idarea")
         cursor_4.setModeAccess(cursor_4.Insert)
         cursor_4.refreshBuffer()
         self.assertFalse(cursor_4.checkIntegrity())
+
+    @classmethod
+    def tearDown(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 class TestRelations(unittest.TestCase):
@@ -518,13 +615,21 @@ class TestRelations(unittest.TestCase):
         from pineboolib.application.metadata import pnrelationmetadata
 
         cur_areas = pnsqlcursor.PNSqlCursor("flareas")
+
+        cursor_6 = pnsqlcursor.PNSqlCursor("flareas")
+        cursor_6.setModeAccess(cursor_6.Insert)
+        cursor_6.refreshBuffer()
+        cursor_6.setValueBuffer("bloqueo", True)
+        cursor_6.setValueBuffer("idarea", "O")
+        cursor_6.setValueBuffer("descripcion", "Área de prueba T")
+        self.assertTrue(cursor_6.commitBuffer())
         rel = pnrelationmetadata.PNRelationMetaData(
             "flareas", "idarea", pnrelationmetadata.PNRelationMetaData.RELATION_1M
         )
         rel.setField("idarea")
         cur_areas.select()
         cur_areas.first()
-        self.assertEqual(cur_areas.valueBuffer("idarea"), "B")
+        self.assertEqual(cur_areas.valueBuffer("idarea"), "O")
         cur_areas.setModeAccess(cur_areas.Edit)
         cur_areas.refreshBuffer()
         cur_modulos = pnsqlcursor.PNSqlCursor("flmodules", True, "default", cur_areas, rel)
@@ -532,8 +637,8 @@ class TestRelations(unittest.TestCase):
         cur_modulos.refreshBuffer()
         cur_rel = cur_modulos.cursorRelation()
         if cur_rel:
-            self.assertEqual(cur_rel.valueBuffer("idarea"), "B")
-        self.assertTrue(cur_areas.isLocked())
+            self.assertEqual(cur_rel.valueBuffer("idarea"), "O")
+        self.assertFalse(cur_areas.isLocked())
         self.assertFalse(cur_modulos.fieldDisabled("icono"))
         self.assertEqual(cur_modulos.msgCheckIntegrity(), "\nBuffer vacío o no hay metadatos")
         self.assertTrue(cur_modulos.isLocked())
@@ -560,15 +665,19 @@ class TestRelations(unittest.TestCase):
         rel.setField("idarea")
         cur_areas.select()
         cur_areas.first()
-        self.assertEqual(cur_areas.valueBuffer("idarea"), "B")
+        self.assertEqual(cur_areas.valueBuffer("idarea"), "O")
         cur_areas.setModeAccess(cur_areas.Edit)
+
         cur_areas.refreshBuffer()
         cur_areas.transaction()
         cur_modulos = pnsqlcursor.PNSqlCursor("flmodules", True, "default", cur_areas, rel)
+
         cur_modulos.setModeAccess(cur_modulos.Insert)
         self.assertEqual(cur_areas.transactionsOpened(), ["1"])
+
         cur_modulos.refreshBuffer()
-        cur_modulos.transaction()
+        # cur_modulos.transaction()
+
         cur_modulos.rollbackOpened(-1, "Mensage de prueba 1º")
 
         cur_areas.setModeAccess(cur_areas.Edit)
@@ -607,6 +716,11 @@ class TestRelations(unittest.TestCase):
         self.assertTrue(cur_modulos.rollback())
         self.assertEqual(cur_modulos.transactionsOpened(), [])
         self.assertTrue(cur_areas.rollback())
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 class TestAcos(unittest.TestCase):
@@ -666,6 +780,11 @@ class TestAcos(unittest.TestCase):
                 self.assertFalse(field_2.editable())
             else:
                 self.assertTrue(field_2.editable())
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 if __name__ == "__main__":

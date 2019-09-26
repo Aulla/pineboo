@@ -69,6 +69,7 @@ class ModuleActions(object):
                 continue
 
             if QSADictModules.save_action_for_mainform(action_xml):
+
                 self.project.actions[
                     name
                 ] = action_xml  # FIXME: Actions should be loaded to their parent, not the singleton

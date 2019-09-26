@@ -1,8 +1,8 @@
 """Test_pnsqlquery module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
-from pineboolib.application.database import pnsqlquery
+from pineboolib.loader.main import init_testing, finish_testing
+from pineboolib.application.database import pnsqlquery, pnsqlcursor
 
 
 class TestPNSqlQuery(unittest.TestCase):
@@ -129,6 +129,21 @@ class TestPNSqlQuery(unittest.TestCase):
 
     def test_move(self) -> None:
         """Test move functions."""
+
+        cursor_6 = pnsqlcursor.PNSqlCursor("flareas")
+        cursor_6.setModeAccess(cursor_6.Insert)
+        cursor_6.refreshBuffer()
+        cursor_6.setValueBuffer("bloqueo", True)
+        cursor_6.setValueBuffer("idarea", "O")
+        cursor_6.setValueBuffer("descripcion", "Área de prueba T")
+        self.assertTrue(cursor_6.commitBuffer())
+        cursor_6.setModeAccess(cursor_6.Insert)
+        cursor_6.refreshBuffer()
+        cursor_6.setValueBuffer("bloqueo", True)
+        cursor_6.setValueBuffer("idarea", "P")
+        cursor_6.setValueBuffer("descripcion", "Área de prueba T")
+        self.assertTrue(cursor_6.commitBuffer())
+
         qry = pnsqlquery.PNSqlQuery("")
         qry.setTablesList("flareas")
         qry.setSelect("idarea")
@@ -180,3 +195,8 @@ class TestPNSqlQuery(unittest.TestCase):
         self.assertEqual(qry_2.posToFieldName(2), "noche")
         self.assertEqual(qry_2.where(), "astro = 'sol'")
         self.assertEqual(qry_2.from_(), "dias inner join planetas as p on p.id = dias.id")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()

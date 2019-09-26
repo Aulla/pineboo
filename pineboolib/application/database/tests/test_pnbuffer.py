@@ -1,7 +1,7 @@
 """Test_pnbuffer module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.database import pnsqlcursor
 
 
@@ -181,6 +181,11 @@ class TestPNBuffer(unittest.TestCase):
         self.assertTrue(cursor_2)
 
         self.assertFalse(buffer_.field("new_field"))
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 if __name__ == "__main__":

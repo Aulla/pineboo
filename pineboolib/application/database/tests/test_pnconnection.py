@@ -1,7 +1,7 @@
 """Test_pnconnection module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
 from pineboolib.application.database import pnsqlcursor
 
@@ -10,7 +10,7 @@ class TestPNConnection(unittest.TestCase):
     """TestPNConnection Class."""
 
     @classmethod
-    def setUpClass(cls) -> None:
+    def setUp(cls) -> None:
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
@@ -71,7 +71,6 @@ class TestPNConnection(unittest.TestCase):
         """Basic test 4."""
 
         conn_ = application.project.conn
-
         self.assertTrue(conn_.interactiveGUI_)
         conn_.setInteractiveGUI(False)
         self.assertFalse(conn_.interactiveGUI())
@@ -93,7 +92,7 @@ class TestPNConnection(unittest.TestCase):
         if mtd_seqs is None:
             raise Exception("mtd_seqs is empty!.")
 
-        self.assertTrue(conn_.existsTable("fltest"))
+        self.assertFalse(conn_.existsTable("fltest"))
         self.assertTrue(conn_.existsTable("flseqs"))
         self.assertFalse(conn_.mismatchedTable("flseqs", mtd_seqs))
         self.assertEqual(conn_.normalizeValue("holá, 'avión'"), "holá, ''avión''")
@@ -102,7 +101,6 @@ class TestPNConnection(unittest.TestCase):
         """Basic test 5."""
 
         conn_ = application.project.conn
-
         cursor = pnsqlcursor.PNSqlCursor("flareas")
         conn_.doTransaction(cursor)
         cursor.setModeAccess(cursor.Insert)
@@ -123,9 +121,6 @@ class TestPNConnection(unittest.TestCase):
         self.assertEqual(
             conn_.tables(1),
             [
-                "flacls",
-                "flacos",
-                "flacs",
                 "flareas",
                 "flfiles",
                 "flgroups",
@@ -135,7 +130,6 @@ class TestPNConnection(unittest.TestCase):
                 "flseqs",
                 "flserial",
                 "flsettings",
-                "fltest",
                 "flusers",
                 "flvar",
             ],
@@ -173,6 +167,11 @@ class TestPNConnection(unittest.TestCase):
         self.assertTrue(conn_.doCommit(cursor, False))
         self.assertTrue(conn_.doTransaction(cursor))
         self.assertTrue(conn_.doRollback(cursor))
+
+    @classmethod
+    def tearDown(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 if __name__ == "__main__":

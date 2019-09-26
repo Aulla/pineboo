@@ -102,6 +102,10 @@ class Project(object):
 
     def init_conn(self, connection: "PNConnection") -> None:
         """Initialize project with a connection."""
+        if self._conn is not None:
+            del self._conn
+            self._conn = None
+
         self._conn = connection
         self.apppath = filedir("..")
         # self.tmpdir = config.value("ebcomportamiento/temp_dir")

@@ -1,7 +1,7 @@
 """Test_process module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 
 
 class TestProcess(unittest.TestCase):
@@ -45,3 +45,8 @@ class TestProcess(unittest.TestCase):
             salida = proc.stdout
 
         self.assertTrue(salida.find("Python") > -1)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()

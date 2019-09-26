@@ -225,24 +225,29 @@ def setup_gui(app: QtCore.QCoreApplication, options: Values) -> None:
 
 def init_testing() -> None:
     """Initialize Pineboo for testing purposes."""
-
+    config.set_value("application/dbadmin_enabled", True)
     if project._conn is not None:
         # Assume already initialized, return without doing anything
         # Tests may call this several times, so we have to take it into account.
-        return
-    qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
+        pass
 
-    init_logging()  # NOTE: Use pytest --log-level=0 for debug
-    init_cli(catch_ctrl_c=False)
+    else:
+        qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
 
-    pytnyzer.STRICT_MODE = False
-    project.load_version()
-    project.setDebugLevel(1000)
-    project.set_app(qapp)
-    _DGI = load_dgi("qt", None)
-    project.init_dgi(_DGI)
+        init_logging()  # NOTE: Use pytest --log-level=0 for debug
+        init_cli(catch_ctrl_c=False)
+
+        pytnyzer.STRICT_MODE = False
+        project.load_version()
+        project.setDebugLevel(1000)
+        project.set_app(qapp)
+        _DGI = load_dgi("qt", None)
+
+        project.init_dgi(_DGI)
+
     conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
     project.init_conn(connection=conn)
+
     project.no_python_cache = True
     project.run()
 
@@ -251,6 +256,32 @@ def init_testing() -> None:
     project.conn.managerModules().loadAllIdModules()
 
     project.load_modules()
+
+
+def finish_testing() -> None:
+    """Clear data from pineboo project."""
+
+    project.conn.manager().cleanupMetaData()
+    project.actions = {}
+    project.areas = {}
+    project.modules = {}
+    project.tables = {}
+    if project.main_window:
+        project.main_window.initialized_mods_ = []
+
+    project.conn.execute_query("DROP DATABASE %s" % IN_MEMORY_SQLITE_CONN.database)
+
+    project.conn.finish()
+    project.conn.driver_ = None
+    project.conn.conn.close()
+    project.conn.conn = None
+
+    from pineboolib.application import qsadictmodules
+
+    qsadictmodules.QSADictModules.clean_all()
+    # conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
+    # project.init_conn(connection=conn)
+    # project.run()
 
 
 def exec_main(options: Values) -> int:

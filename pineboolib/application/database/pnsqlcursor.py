@@ -2340,6 +2340,10 @@ class PNSqlCursor(QtCore.QObject):
         #         delMtd = True
 
         msg = None
+
+        if not hasattr(self, "d"):
+            return
+
         mtd = self.d.metadata_
 
         # FIXME: Pongo que tiene que haber mas de una trasaccion abierta

@@ -1,7 +1,7 @@
 """Test_aqs module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 
 
 class TestAQS(unittest.TestCase):
@@ -29,3 +29,8 @@ class TestAQS(unittest.TestCase):
         self.assertTrue(isinstance(child, fltabledb.FLTableDB))
         child.refresh(qsa.AQS.RefreshData)
         # FIXME : saber que ha funcionado
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()

@@ -1,7 +1,7 @@
 """Test_sysbasetype module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 
 
 class TestSysBaseClassGeneral(unittest.TestCase):
@@ -45,6 +45,11 @@ class TestSysBaseClassGeneral(unittest.TestCase):
         self.assertEqual(base_type.nameDriver(), "FLsqlite")
         self.assertEqual(base_type.nameHost(), None)
 
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
+
 
 class TestSysBaseClassDataBase(unittest.TestCase):
     """TestSysBaseClassDataBase Class."""
@@ -74,6 +79,11 @@ class TestSysBaseClassDataBase(unittest.TestCase):
         self.assertEqual(prueba_conn_2.isOpen(), True)
         self.assertEqual(base_type.removeDatabase("prueba"), True)
         self.assertEqual(prueba_conn_1.isOpen(), False)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 if __name__ == "__main__":

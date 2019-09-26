@@ -1,7 +1,7 @@
 """Test_systype module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 
 
 class TestFileWrite(unittest.TestCase):
@@ -42,6 +42,11 @@ class TestFileWrite(unittest.TestCase):
 
         self.assertEqual(result_1, txt)
         self.assertEqual(result_2, txt)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 if __name__ == "__main__":

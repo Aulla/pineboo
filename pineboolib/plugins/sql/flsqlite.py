@@ -90,8 +90,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         import sqlite3
 
-        if application.project._conn is not None and self.db_filename == getattr(
-            application.project._conn, "db_name", None
+        if (
+            application.project._conn is not None
+            and self.db_filename == getattr(application.project._conn, "db_name", None)
+            and application.project.conn.conn
         ):
             self.conn_ = application.project.conn.conn
         else:

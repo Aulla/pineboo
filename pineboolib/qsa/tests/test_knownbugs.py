@@ -3,7 +3,7 @@ Tests for known bugs on qsa.
 """
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.types import Function
 from pineboolib.application.parsers.qsaparser.postparse import pythonify_string as qs2py
 
@@ -167,6 +167,11 @@ class TestKnownBugs(unittest.TestCase):
 
         cadena_result = qs2py(cadena)
         self.assertFalse(cadena_result.find("not-known-seq") > -1)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 if __name__ == "__main__":

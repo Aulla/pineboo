@@ -1,6 +1,6 @@
 """Test_flformrecorddb module."""
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 
 
 class TestFLFormDB(unittest.TestCase):
@@ -25,6 +25,11 @@ class TestFLFormDB(unittest.TestCase):
         self.assertFalse(form._loaded)
         form.close()
         self.assertFalse(form._loaded)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 if __name__ == "__main__":

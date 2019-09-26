@@ -1,16 +1,10 @@
 """Test_date module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
 
 
 class TestDate(unittest.TestCase):
     """TestDate Class."""
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        """Ensure pineboo is initialized for testing."""
-        init_testing()
 
     def test_basic(self) -> None:
         """Test Date class."""

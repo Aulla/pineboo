@@ -1,7 +1,7 @@
 """Test_flfieldDB module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 
 
 class TestFLFieldDBString(unittest.TestCase):
@@ -114,6 +114,11 @@ class TestFLFieldDBString(unittest.TestCase):
         table_mtd.removeFieldMD(field_mtd.name())
         # lay = parent.layout()
         # lay.addWidget(new_field)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 if __name__ == "__main__":

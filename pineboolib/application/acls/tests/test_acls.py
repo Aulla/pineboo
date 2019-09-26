@@ -1,7 +1,7 @@
 """Test_acls module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.fllegacy import flapplication, systype
 from pineboolib.core.settings import config
 from pineboolib.application.acls import pnaccesscontrollists
@@ -10,16 +10,12 @@ from pineboolib.application.acls import pnaccesscontrollists
 class TestACLS(unittest.TestCase):
     """TestPNBuffer Class."""
 
-    db_admin: bool
-
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
         init_testing()
         # install acls
         from pineboolib.application.database import pnsqlcursor
-
-        cls.db_admin = config.value("application/dbadmin_enabled", False)
 
         cursor_flgroups = pnsqlcursor.PNSqlCursor("flgroups")
         cursor_flgroups.setModeAccess(cursor_flgroups.Insert)
@@ -471,6 +467,9 @@ class TestACLS(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
+        finish_testing()
+
+        """
         from pineboolib.application.database import utils
 
         sys_type = systype.SysType()
@@ -490,3 +489,4 @@ class TestACLS(unittest.TestCase):
         flapplication.aqApp.acl_ = None
 
         config.set_value("application/dbadmin_enabled", cls.db_admin)
+        """

@@ -2,7 +2,7 @@
 
 import unittest
 import importlib
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
 from PyQt5 import QtWidgets
 
@@ -35,3 +35,4 @@ class TestEnebooGUI(unittest.TestCase):
         """Ensure this class is finished correctly."""
         del application.project.main_form
         del application.project.main_window
+        finish_testing()

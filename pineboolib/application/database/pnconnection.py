@@ -63,6 +63,7 @@ class PNConnection(QtCore.QObject, IConnection):
         from .pnsqldrivers import PNSqlDrivers
 
         super(PNConnection, self).__init__()
+        self.conn = None
         # self.currentSavePoint_ = None
         self.driverSql = PNSqlDrivers()
         self.connAux: Dict[str, "IConnection"] = {}
@@ -78,7 +79,6 @@ class PNConnection(QtCore.QObject, IConnection):
         # self.queueSavePoints_ = []
         self.interactiveGUI_ = True
         self._last_active_cursor = None
-
         if name and name not in ("dbAux", "Aux"):
             self._isOpen = False
             return

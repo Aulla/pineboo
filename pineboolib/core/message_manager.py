@@ -29,11 +29,15 @@ class Manager(object):
                 attr_ = getattr(obj_, function_, None)
             else:
                 attr_ = obj_
-            if not data_:
-                ret_ = attr_()
+
+            if attr_ is None:
+                return
             else:
-                ret_ = attr_(*data_)
-            self._dgi.processEvents()
+                if not data_:
+                    ret_ = attr_()
+                else:
+                    ret_ = attr_(*data_)
+                self._dgi.processEvents()
 
         if ret_ is not None:
             return ret_

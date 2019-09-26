@@ -1,7 +1,7 @@
 """Test_pncursortablemodel module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.database import pnsqlcursor
 
 
@@ -21,6 +21,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         cursor.refreshBuffer()
         cursor.setValueBuffer("string_field", "xxx")
         cursor.setValueBuffer("double_field", 0.02)
+        cursor.setValueBuffer("date_field", "2019-01-01")
         cursor.commitBuffer()
         cursor.setModeAccess(cursor.Insert)
         cursor.refreshBuffer()
@@ -31,6 +32,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         cursor.refreshBuffer()
         cursor.setValueBuffer("string_field", "yyy")
         cursor.setValueBuffer("double_field", 0.03)
+
         # cursor.setValueBuffer("check_field", True)
         cursor.commitBuffer()
 
@@ -73,14 +75,14 @@ class TestPNCursorTableModel(unittest.TestCase):
         model = cursor.model()
 
         self.assertEqual(model.data(model.index(0, 1)), "zzz")
-        self.assertEqual(model.data(model.index(0, 0)), 5)
+        self.assertEqual(model.data(model.index(0, 0)), 2)
         self.assertEqual(model.data(model.index(0, 2)), None)
         self.assertEqual(
             model.data(model.index(0, 4)), QtCore.QLocale.system().toString(float(0.01), "f", 2)
         )
         self.assertEqual(model.data(model.index(0, 5)), "No")
         self.assertEqual(model.data(model.index(1, 1)), "yyy")
-        self.assertEqual(model.data(model.index(1, 0)), 6)
+        self.assertEqual(model.data(model.index(1, 0)), 3)
 
         cursor.setSort("string_field DESC, double_field DESC")
         model.sort(0, QtCore.Qt.AscendingOrder)
@@ -100,8 +102,8 @@ class TestPNCursorTableModel(unittest.TestCase):
 
         self.assertEqual(model.data(model.index(0, 2), QtCore.Qt.DisplayRole), date_)
         self.assertEqual(
-            model.data(model.index(0, 4), QtCore.Qt.DisplayRole),
-            QtCore.QLocale.system().toString(float(1.01), "f", 2),
+            model.data(model.index(1, 4), QtCore.Qt.DisplayRole),
+            QtCore.QLocale.system().toString(float(0.01), "f", 2),
         )
 
         self.assertTrue(
@@ -128,7 +130,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         self.assertFalse(model.findCKRow([]))
         self.assertFalse(model.findCKRow([2, 2]))
         self.assertFalse(model.findPKRow([21]))
-        self.assertEqual(model.findPKRow([3]), 3)
+        self.assertEqual(model.findPKRow([1]), 2)
 
     def test_basic_5(self) -> None:
         """Test basic 5."""
@@ -145,4 +147,9 @@ class TestPNCursorTableModel(unittest.TestCase):
         model.updateRows()
         cursor.select()
         model.updateColumnsCount()
-        self.assertEqual(model.size(), 6)
+        self.assertEqual(model.size(), 3)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
