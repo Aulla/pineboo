@@ -32,6 +32,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     declare: List[Any]
     rowsFetched: Dict[Any, Any]
     db_filename: Optional[str]
+    db_name: Optional[str]
     sql: str
 
     def __init__(self):
@@ -46,6 +47,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.alias_ = "SQLite3 (SQLITE3)"
         self.declare = []
         self.db_filename = None
+        self.db_name = None
         self.sql = ""
         self.rowsFetched = {}
         self.db_ = None
@@ -86,6 +88,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         from pineboolib import application
 
         check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"})
+        self.db_name = db_name
         if db_name != ":memory:":
             self.db_filename = path._dir(db_name)
         else:
@@ -202,9 +205,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def DBName(self) -> str:
         """Return database name."""
-        ret = self.db_filename or ""
-        if ret.rfind("/") > -1:
-            ret = ret[ret.rfind("/") + 1 : -8]
+        ret = self.db_name or ""
 
         return ret
 
