@@ -102,7 +102,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         ):
             self.conn_ = application.project.conn.conn
         else:
-
+            self.logger.warning("Abriendo %s", self.db_filename)
             self.conn_ = sqlite3.connect("%s" % self.db_filename)
             sqlalchemy_uri = "sqlite:///%s" % self.db_filename
             if self.db_filename == ":memory:":
