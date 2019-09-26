@@ -3,7 +3,7 @@ To resolve file and folder paths.
 """
 
 from pineboolib import logging
-import os.path
+import os
 from typing import Optional
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,15 @@ def _dir(*x) -> str:
     """
     from pineboolib.application import project  # type: ignore
 
-    return os.path.join(project.tmpdir, *x)
+    list_ = x
+    if os.name == "nt":
+        new_list = []
+        for arg in list_:
+            new_list.append(arg.replace("/", "\\"))
+
+        list_ = new_list
+
+    return os.path.join(project.tmpdir, *list_)
 
 
 def coalesce_path(*filenames) -> Optional[str]:
