@@ -4,7 +4,7 @@ To resolve file and folder paths.
 
 from pineboolib import logging
 import os
-from typing import Optional
+from typing import Optional, List
 
 logger = logging.getLogger(__name__)
 
@@ -18,13 +18,13 @@ def _dir(*x) -> str:
     """
     from pineboolib.application import project  # type: ignore
 
-    list_ = x
+    list_: List[str] = list(x)
     if os.name == "nt":
         new_list = []
         for arg in list_:
             new_list.append(arg.replace("/", "\\"))
 
-        list_ = new_list
+        list_ = list(new_list)
 
     return os.path.join(project.tmpdir, *list_)
 

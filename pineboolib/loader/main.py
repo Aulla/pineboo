@@ -277,7 +277,9 @@ def finish_testing() -> None:
     project.conn.conn = None
 
     from pineboolib.application import qsadictmodules
-    import shutil, time, os
+    import shutil
+    import time
+    import os
 
     shutil.rmtree(project.tmpdir)
     qsadictmodules.QSADictModules.clean_all()
