@@ -8,6 +8,7 @@ from pineboolib.core.utils.utils_base import auto_qt_translate_text
 from pineboolib.core import decorators
 
 from pineboolib.application.utils.check_dependencies import check_dependencies
+from pineboolib.application.utils import path
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
 
 from pineboolib.fllegacy.flutil import FLUtil
@@ -85,18 +86,23 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         from pineboolib import application
 
         check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"})
-        self.db_filename = db_name
-        db_is_new = not os.path.exists("%s" % self.db_filename)
+        if db_name != ":memory:":
+            self.db_filename = path._dir(db_name)
+        else:
+            self.db_filename = db_name
+
+        db_is_new = not os.path.exists(self.db_filename)
 
         import sqlite3
 
         if (
             application.project._conn is not None
-            and self.db_filename == getattr(application.project._conn, "db_name", None)
             and application.project.conn.conn
+            and not db_is_new
         ):
             self.conn_ = application.project.conn.conn
         else:
+
             self.conn_ = sqlite3.connect("%s" % self.db_filename)
             sqlalchemy_uri = "sqlite:///%s" % self.db_filename
             if self.db_filename == ":memory:":
@@ -104,7 +110,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             self.engine_ = create_engine(sqlalchemy_uri)
             self.conn_.isolation_level = None
 
-            if db_is_new and self.db_filename != ":memory:":
+            if db_is_new and self.db_filename not in [":memory:", "temp_db"]:
                 self.logger.warning("La base de datos %s no existe", self.db_filename)
 
         if self.conn_:
