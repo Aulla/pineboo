@@ -285,7 +285,7 @@ def finish_testing() -> None:
             try:
                 os.remove(file_name)
                 break
-            except OSError as err:
+            except OSError:
                 pass
 
     shutil.rmtree(project.tmpdir)
