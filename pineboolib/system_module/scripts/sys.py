@@ -75,7 +75,7 @@ class FormInternalObj(qsa.FormDBWidget):
                             qsa.debug(traceback.format_exc())
 
         if settings.readBoolEntry("ebcomportamiento/git_updates_enabled", False):
-            qsa.sys.AQTimer().singleShot(2000, qsa.SysType.search_git_updates)
+            qsa.sys.AQTimer.singleShot(2000, qsa.SysType.search_git_updates)
 
     def afterCommit_flfiles(self, cur_files_: "pnsqlcursor.PNSqlCursor") -> bool:
         """After commit flfiles."""
