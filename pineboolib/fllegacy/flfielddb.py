@@ -79,7 +79,7 @@ class FLFieldDB(QtWidgets.QWidget):
     showAlias_: bool
     autoComPopup_: Optional[FLDataTable]
     autoComFrame_: Optional[QtWidgets.QWidget]
-    autoComFieldName_: Optional[str]
+    autoComFieldName_: str
     autoComFieldRelation_: Optional[str]
     accel_: Any
     keepDisabled_: bool
@@ -132,7 +132,6 @@ class FLFieldDB(QtWidgets.QWidget):
         self.autoCompMode_ = "OnDemandF4"
         self.autoComPopup_ = None
         self.autoComFrame_ = None
-        self.autoComFieldName_ = None
         self.autoComFieldRelation_ = None
         self.setObjectName("FLFieldDB")
         self.showed = False

@@ -14,7 +14,7 @@ from pineboolib import logging
 
 from pineboolib.core import settings
 
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, cast
 
 
 qsa_sys = systype.SysType()
@@ -321,7 +321,7 @@ class MainForm(QtWidgets.QMainWindow):
                 return True
 
             elif isinstance(o, QtWidgets.QDockWidget):
-                o.topLevelChanged.emit(False)
+                cast(QtCore.pyqtSignal, o.topLevelChanged).emit(False)
 
         elif isinstance(e, self.AQS.WindowStateChange):
             if self.qsa_sys.isNebulaBuild() and o == self.w_:

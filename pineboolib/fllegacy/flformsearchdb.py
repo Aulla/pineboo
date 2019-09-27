@@ -193,7 +193,8 @@ class FLFormSearchDB(FLFormDB):
         self.pushButtonCancel.setToolTip("Cerrar formulario sin seleccionar registro (Esc)")
         self.bottomToolbar.widget_hlayout.addWidget(self.pushButtonCancel)
         self.pushButtonCancel.show()
-
+        if self.cursor_ is None:
+            raise Exception("Cursor is empty!.")
         self.cursor_.setEdition(False)
         self.cursor_.setBrowse(False)
         self.cursor_.recordChoosed.connect(self.accept)

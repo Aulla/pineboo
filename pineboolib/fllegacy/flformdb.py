@@ -5,7 +5,7 @@ import traceback
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QDialog, QFileDialog, QApplication
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 from pineboolib import logging
 
@@ -19,7 +19,7 @@ from pineboolib.application import load_script
 
 from . import flapplication
 
-from typing import Any, Union, Dict, Optional, Tuple, Type, cast, TYPE_CHECKING
+from typing import Any, Union, Dict, Optional, Tuple, Type, cast, Callable, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -687,7 +687,7 @@ class FLFormDB(QDialog):
         if not self.pushButtonCancel:
             self.pushButtonCancel = QtWidgets.QToolButton()
             self.pushButtonCancel.setObjectName("pushButtonCancel")
-            cast(pyqtSignal, self.pushButtonCancel.clicked).connect(self.close)
+            cast(pyqtSignal, self.pushButtonCancel.clicked).connect(cast(Callable, self.close))
 
         self.pushButtonCancel.setSizePolicy(sizePolicy)
         self.pushButtonCancel.setMaximumSize(pbSize)

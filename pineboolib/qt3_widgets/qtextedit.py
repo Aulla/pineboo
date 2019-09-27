@@ -30,7 +30,7 @@ class QTextEdit(QtWidgets.QTextEdit):
         return super().toPlainText()
 
     @decorators.NotImplementedWarn
-    def textFormat(self) -> int:
+    def getTextFormat(self) -> int:
         """Return text format."""
         return -1
 
@@ -61,5 +61,6 @@ class QTextEdit(QtWidgets.QTextEdit):
 
         super().setAutoFormatting(QtWidgets.QTextEdit.AutoAll)
 
+    textFormat = property(getTextFormat, setTextFormat)
     text = property(getText, setText)
     PlainText = property(getPlainText, setText)
