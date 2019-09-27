@@ -97,7 +97,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         d = date(2019, 1, 1)
         locale.setlocale(locale.LC_TIME, "")
         if os.name == "nt":
-            date_format = locale.D_FMT
+            date_format = "%%d/%%m/%%y"
         else:
             date_format = locale.nl_langinfo(locale.D_FMT)
 

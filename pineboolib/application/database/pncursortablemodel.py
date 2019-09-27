@@ -357,7 +357,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     try:
                         locale.setlocale(locale.LC_TIME, "")
                         if os.name == "nt":
-                            date_format = locale.D_FMT
+                            date_format = "%%d/%%m/%%y"
                         else:
                             date_format = locale.nl_langinfo(locale.D_FMT)
                         date_format = date_format.replace("y", "Y")  # Año con 4 dígitos
