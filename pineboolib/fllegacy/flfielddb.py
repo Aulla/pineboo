@@ -14,13 +14,13 @@ from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
 from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData
 from pineboolib.application import project
 
-from pineboolib.qt3_widgets.qpushbutton import QPushButton
-from pineboolib.qt3_widgets.qtextedit import QTextEdit
-from pineboolib.qt3_widgets.qlineedit import QLineEdit
-from pineboolib.qt3_widgets.qcheckbox import QCheckBox
-from pineboolib.qt3_widgets.qcombobox import QComboBox
-from pineboolib.qt3_widgets.qwidget import QWidget
-from pineboolib.qt3_widgets.qvboxlayout import QVBoxLayout
+from pineboolib.q3widgets.qpushbutton import QPushButton
+from pineboolib.q3widgets.qtextedit import QTextEdit
+from pineboolib.q3widgets.qlineedit import QLineEdit
+from pineboolib.q3widgets.qcheckbox import QCheckBox
+from pineboolib.q3widgets.qcombobox import QComboBox
+from pineboolib.q3widgets.qwidget import QWidget
+from pineboolib.q3widgets.qvboxlayout import QVBoxLayout
 
 from .flsqlcursor import FLSqlCursor
 from .fllineedit import FLLineEdit
@@ -2241,7 +2241,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.editor_.setWhatsThis("Completado automático desactivado")
 
         elif type_ == "bool":
-            from pineboolib.qt3_widgets.qcheckbox import QCheckBox
+            from pineboolib.q3widgets.qcheckbox import QCheckBox
 
             self.editor_ = QCheckBox(self)
             # self.editor_.setName("editor")

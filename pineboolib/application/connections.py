@@ -6,9 +6,9 @@ import weakref
 import re
 import types
 
-from pineboolib.qt3_widgets.qdateedit import QDateEdit
-from pineboolib.qt3_widgets.qtable import QTable
-from pineboolib.qt3_widgets.formdbwidget import FormDBWidget
+from pineboolib.q3widgets.qdateedit import QDateEdit
+from pineboolib.q3widgets.qtable import QTable
+from pineboolib.q3widgets.formdbwidget import FormDBWidget
 
 from pineboolib.core.utils import logging
 
@@ -140,7 +140,7 @@ def connect(
 
     # Parameters example:
     # caller: <clientes.FormInternalObj object at 0x7f78b5c230f0>
-    # sender: <pineboolib.qt3_widgets.qpushbutton.QPushButton object at 0x7f78b4de1af0>
+    # sender: <pineboolib.q3widgets.qpushbutton.QPushButton object at 0x7f78b4de1af0>
     # signal: 'clicked()'
     # receiver: <clientes.FormInternalObj object at 0x7f78b5c230f0>
     # slot: 'iface.buscarContacto()'

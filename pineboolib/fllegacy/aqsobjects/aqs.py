@@ -192,7 +192,7 @@ class AQS(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment):
         @return sha1 string
         """
 
-        from pineboolib.qt3_widgets.qbytearray import QByteArray
+        from pineboolib.q3widgets.qbytearray import QByteArray
 
         ba = QByteArray(byte_array)
         return ba.sha1()

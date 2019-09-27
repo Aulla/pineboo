@@ -37,16 +37,16 @@ from .aqsobjects.aqsettings import AQSettings
 from .flvar import FLVar
 from .flutil import FLUtil
 
-from pineboolib.qt3_widgets.dialog import Dialog
-from pineboolib.qt3_widgets.qbytearray import QByteArray
-from pineboolib.qt3_widgets.messagebox import MessageBox
-from pineboolib.qt3_widgets.qtextedit import QTextEdit
-from pineboolib.qt3_widgets.qlabel import QLabel
-from pineboolib.qt3_widgets.qdialog import QDialog
-from pineboolib.qt3_widgets.qvboxlayout import QVBoxLayout
-from pineboolib.qt3_widgets.qhboxlayout import QHBoxLayout
-from pineboolib.qt3_widgets.qpushbutton import QPushButton
-from pineboolib.qt3_widgets.filedialog import FileDialog
+from pineboolib.q3widgets.dialog import Dialog
+from pineboolib.q3widgets.qbytearray import QByteArray
+from pineboolib.q3widgets.messagebox import MessageBox
+from pineboolib.q3widgets.qtextedit import QTextEdit
+from pineboolib.q3widgets.qlabel import QLabel
+from pineboolib.q3widgets.qdialog import QDialog
+from pineboolib.q3widgets.qvboxlayout import QVBoxLayout
+from pineboolib.q3widgets.qhboxlayout import QHBoxLayout
+from pineboolib.q3widgets.qpushbutton import QPushButton
+from pineboolib.q3widgets.filedialog import FileDialog
 
 from typing import cast, Optional, List, Any, Dict, Callable, TYPE_CHECKING
 
@@ -899,7 +899,7 @@ class SysType(SysBaseType):
         connections.connect(pbNo, u"clicked()", diag, u"reject()")
         chkRemember = None
         if keyRemember and txtRemember:
-            # from pineboolib.qt3_widgets.qcheckbox import QCheckBox
+            # from pineboolib.q3widgets.qcheckbox import QCheckBox
 
             chkRemember = QCheckBox(txtRemember, diag)
             chkRemember.setChecked(valRemember)

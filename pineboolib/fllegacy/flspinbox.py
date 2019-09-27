@@ -1,7 +1,7 @@
 """Flspinbox module."""
 # -*- coding: utf-8 -*-
 
-from pineboolib.qt3_widgets import qspinbox
+from pineboolib.q3widgets import qspinbox
 
 from typing import Any, Optional, TYPE_CHECKING
 

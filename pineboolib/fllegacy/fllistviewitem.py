@@ -4,7 +4,7 @@
 from PyQt5 import Qt  # type: ignore
 from pineboolib.core import decorators
 from pineboolib import logging
-from pineboolib.qt3_widgets import qlistview
+from pineboolib.q3widgets import qlistview
 from typing import Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:

@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-from pineboolib.qt3_widgets import qtable
+from pineboolib.q3widgets import qtable
 from pineboolib.core import decorators
 from typing import Any
 

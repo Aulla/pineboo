@@ -384,7 +384,7 @@ class FLManagerModules(object):
 
         from pineboolib.core.utils.utils_base import filedir, load2xml
 
-        from pineboolib import qt3_widgets
+        from pineboolib import q3widgets
 
         if ".ui" not in file_name:
             file_name += ".ui"
@@ -419,9 +419,9 @@ class FLManagerModules(object):
             parent = None
 
             if xclass == "QMainWindow":
-                parent = qt3_widgets.qmainwindow.QMainWindow()
+                parent = q3widgets.qmainwindow.QMainWindow()
             elif xclass in ["QDialog", "QWidget"]:
-                parent = qt3_widgets.qdialog.QDialog()
+                parent = q3widgets.qdialog.QDialog()
 
             if parent is None:
                 raise Exception("xclass not found %s" % xclass)

@@ -22,7 +22,7 @@ class FormDBWidget(QtWidgets.QWidget):
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
 
-    logger = logging.getLogger("qt3_widgets.formdbwidget.FormDBWidget")
+    logger = logging.getLogger("q3widgets.formdbwidget.FormDBWidget")
 
     def __init__(self, action: Optional["xmlaction.XMLAction"] = None):
         """Inicialize."""
@@ -214,7 +214,7 @@ class FormDBWidget(QtWidgets.QWidget):
             return ret_
 
         if not TYPE_CHECKING:
-            # FIXME: qt3_widgets should not interact with fllegacy
+            # FIXME: q3widgets should not interact with fllegacy
             from pineboolib.fllegacy.flapplication import aqApp
 
             ret_ = getattr(aqApp, name, None)

@@ -553,9 +553,9 @@ class FLDataTable(QtWidgets.QTableView):
         db = self.cursor_.db()
         pri_key_val = self.cursor_.valueBuffer(pri_key)
 
-        from pineboolib.qt3_widgets.qmenu import QMenu
-        from pineboolib.qt3_widgets.qwidget import QWidget
-        from pineboolib.qt3_widgets.qvboxlayout import QVBoxLayout
+        from pineboolib.q3widgets.qmenu import QMenu
+        from pineboolib.q3widgets.qwidget import QWidget
+        from pineboolib.q3widgets.qvboxlayout import QVBoxLayout
 
         from .fldatatable import FLDataTable
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """emptyscript module."""
 
-from pineboolib.qt3_widgets import formdbwidget
+from pineboolib.q3widgets import formdbwidget
 
 
 class interna(object):

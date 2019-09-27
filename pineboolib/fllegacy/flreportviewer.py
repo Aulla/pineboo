@@ -7,7 +7,7 @@ from pineboolib.application.qsatypes.sysbasetype import SysBaseType
 from pineboolib.fllegacy.flutil import FLUtil
 
 from PyQt5.QtWidgets import QFileDialog
-from pineboolib.qt3_widgets.messagebox import MessageBox
+from pineboolib.q3widgets.messagebox import MessageBox
 
 # from pineboolib.fllegacy.flpicture import FLPicture
 from .flsqlquery import FLSqlQuery

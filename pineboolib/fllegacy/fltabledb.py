@@ -1229,8 +1229,8 @@ class FLTableDB(QtWidgets.QWidget):
         )
         self.buttonsLayout.addItem(spacer)
 
-        from pineboolib.qt3_widgets.qcombobox import QComboBox
-        from pineboolib.qt3_widgets.qtable import QTable
+        from pineboolib.q3widgets.qcombobox import QComboBox
+        from pineboolib.q3widgets.qtable import QTable
 
         self.comboBoxFieldToSearch = QComboBox()
         self.comboBoxFieldToSearch2 = QComboBox()
@@ -1469,7 +1469,7 @@ class FLTableDB(QtWidgets.QWidget):
                 partDecimal = field.partDecimal()
                 rX = field.regExpValidator()
                 ol = field.hasOptionsList()
-                from pineboolib.qt3_widgets.qcombobox import QComboBox
+                from pineboolib.q3widgets.qcombobox import QComboBox
 
                 cond = QComboBox(self)
                 if not type_ == "pixmap":
@@ -2537,7 +2537,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self.cursor().sort():
             filter_ += " ORDER BY %s" % self.cursor().sort()
         cursor.select(filter_)
-        from pineboolib.qt3_widgets.messagebox import MessageBox as QMessageBox
+        from pineboolib.q3widgets.messagebox import MessageBox as QMessageBox
 
         if config.value("ebcomportamiento/FLTableExport2Calc", False):
             QMessageBox.information(

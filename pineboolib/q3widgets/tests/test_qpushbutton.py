@@ -9,7 +9,7 @@ class TestQPushButton(unittest.TestCase):
     def test_enabled(self) -> None:
         """Test if the control enabled/disabled."""
 
-        from pineboolib.qt3_widgets import qpushbutton
+        from pineboolib.q3widgets import qpushbutton
 
         button = qpushbutton.QPushButton()
         self.assertTrue(button.enabled)
@@ -19,7 +19,7 @@ class TestQPushButton(unittest.TestCase):
     def test_label(self) -> None:
         """Test label."""
 
-        from pineboolib.qt3_widgets import qpushbutton
+        from pineboolib.q3widgets import qpushbutton
 
         button = qpushbutton.QPushButton()
         button.setTextLabel("etiqueta")

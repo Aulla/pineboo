@@ -33,7 +33,7 @@ def check_dependencies(dict_: DependencyCheck, exit: bool = True) -> bool:
 
     if exit:
         if project.DGI.useDesktop() and project.DGI.localDesktop():
-            from pineboolib.qt3_widgets.messagebox import MessageBox
+            from pineboolib.q3widgets.messagebox import MessageBox
 
             MessageBox.warning(None, "Pineboo - Dependencias Incumplidas -", msg, MessageBox.Ok)
 

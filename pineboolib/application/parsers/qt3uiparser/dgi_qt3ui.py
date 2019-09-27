@@ -17,11 +17,11 @@ from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application import project
 from pineboolib.application import connections
 
-from pineboolib.qt3_widgets import qmainwindow
-from pineboolib.qt3_widgets import qtoolbar
-from pineboolib.qt3_widgets import qmenu
-from pineboolib.qt3_widgets import qaction
-from pineboolib.qt3_widgets import qspinbox
+from pineboolib.q3widgets import qmainwindow
+from pineboolib.q3widgets import qtoolbar
+from pineboolib.q3widgets import qmenu
+from pineboolib.q3widgets import qaction
+from pineboolib.q3widgets import qspinbox
 
 from pineboolib.core.settings import config
 
@@ -438,7 +438,7 @@ class WidgetResolver:
             return resolver_cls.KNOWN_WIDGETS[classname]
 
         cls: Optional[Type[QtWidgets.QWidget]] = None
-        mod_name_full = "pineboolib.qt3_widgets.%s" % classname.lower()
+        mod_name_full = "pineboolib.q3widgets.%s" % classname.lower()
         try:
             mod_ = import_module(mod_name_full)
             cls = getattr(mod_, classname, None)
@@ -872,7 +872,7 @@ class loadWidget:
             elif c.tag == "widget":
                 new_widget = createWidget(c.get("class"), parent=widget)
                 # FIXME: Should check interfaces.
-                from pineboolib.qt3_widgets import qbuttongroup, qtoolbutton
+                from pineboolib.q3widgets import qbuttongroup, qtoolbutton
 
                 if isinstance(widget, qbuttongroup.QButtonGroup):
                     if isinstance(new_widget, qtoolbutton.QToolButton):

@@ -4,7 +4,7 @@ Main Eneboo-alike UI.
 """
 from PyQt5 import QtWidgets, QtCore, QtGui, QtXml
 
-from pineboolib.qt3_widgets.qmessagebox import QMessageBox
+from pineboolib.q3widgets.qmessagebox import QMessageBox
 
 from pineboolib.fllegacy.aqsobjects import aqsobjectfactory
 from pineboolib.fllegacy import flformdb

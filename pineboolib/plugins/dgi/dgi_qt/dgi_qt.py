@@ -54,7 +54,7 @@ class dgi_qt(dgi_schema):
     def msgBoxWarning(self, t: str, parent: Optional[Any] = None) -> None:
         """Show a message box warning."""
         from PyQt5.QtWidgets import qApp  # type: ignore
-        from pineboolib.qt3_widgets.messagebox import MessageBox
+        from pineboolib.q3widgets.messagebox import MessageBox
 
         if parent is None:
             parent = (
