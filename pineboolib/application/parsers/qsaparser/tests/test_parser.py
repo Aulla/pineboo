@@ -96,6 +96,11 @@ class TestParser(unittest.TestCase):
 
         self.assertEqual(qs2py("var prueba = new QObject;"), "prueba = qsa.QObject()\n")
 
+    def test_inicialize_float(self) -> None:
+        """Test float inicialization."""
+
+        self.assertEqual(qs2py("var num:Number = 0.0;"), "num = 0.0\n")
+
 
 if __name__ == "__main__":
     unittest.main()
