@@ -613,7 +613,7 @@ class Function(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 if len(expr) == 1:
                     expr += ["=", "None"]
@@ -661,7 +661,7 @@ class FunctionCall(ASTPython):
             if len(expr) == 0:
                 name = "unknownFn"
                 yield "debug", "Function name not understood"
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             elif len(expr) > 1:
                 name = "unknownFn"
                 yield "debug", "Multiple function names"
@@ -702,7 +702,7 @@ class FunctionCall(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arg1 = " ".join(expr)
                 arg1 = arg1.replace("( ", "(")
@@ -748,7 +748,7 @@ class If(ASTPython):
             if len(expr) == 0:
                 main_expr.append("False")
                 yield "debug", "Expression %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 if len(expr) == 3:
                     # FIXME: This works if the pattern is alone in the IF. But if it has AND/Or does not work
@@ -846,7 +846,7 @@ class While(ASTPython):
             if len(expr) == 0:
                 main_expr.append("False")
                 yield "debug", "Expression %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
 
@@ -877,7 +877,7 @@ class DoWhile(ASTPython):
             if len(expr) == 0:
                 main_expr.append("False")
                 yield "debug", "Expression %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
         # TODO .....
@@ -1038,7 +1038,7 @@ class OldSwitch(ASTPython):
             if len(expr) == 0:
                 main_expr.append("False")
                 yield "debug", "Expression %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
         yield "line", "%s = %s" % (name, " ".join(main_expr))
@@ -1057,7 +1057,7 @@ class OldSwitch(ASTPython):
                 if len(expr) == 0:
                     value_expr.append("False")
                     yield "debug", "Expression %d not understood" % n
-                    yield "debug", ElementTree.tostring(arg)
+                    yield "debug", ElementTree.tostring(arg)  # type: ignore
                 else:
                     value_expr.append(" ".join(expr))
 
@@ -1141,7 +1141,7 @@ class Switch(ASTPython):
             if len(expr) == 0:
                 main_expr.append("False")
                 yield "debug", "Expression %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
         yield "line", "for case in qsa.switch(%s):" % (" ".join(main_expr))
@@ -1160,7 +1160,7 @@ class Switch(ASTPython):
                 if len(expr) == 0:
                     value_expr.append("False")
                     yield "debug", "Expression %d not understood" % n
-                    yield "debug", ElementTree.tostring(arg)
+                    yield "debug", ElementTree.tostring(arg)  # type: ignore
                 else:
                     value_expr.append(" ".join(expr))
 
@@ -1353,7 +1353,7 @@ class InstructionUpdate(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 if n == 0 and len(expr) == 1:
                     identifier = expr[0]
@@ -1382,7 +1382,7 @@ class InlineUpdate(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
         ctype = self.elem.get("type")
@@ -1419,7 +1419,7 @@ class InstructionCall(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
         yield "line", " ".join(arguments)
@@ -1443,7 +1443,7 @@ class Instruction(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
         if arguments:
@@ -1469,7 +1469,7 @@ class InstructionFlow(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
 
@@ -1516,7 +1516,7 @@ class Member(ASTPython):
             if len(expr) == 0:
                 txtarg = "unknownarg"
                 yield "debug", "Argument %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 txtarg = " ".join(expr)
             arguments.append(txtarg)
@@ -1803,7 +1803,7 @@ class ArrayMember(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % n
-                yield "debug", ElementTree.tostring(arg)
+                yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
 
@@ -2071,7 +2071,7 @@ class Constant(ASTPython):
                         if len(expr) == 0:
                             arguments.append("unknownarg")
                             yield "debug", "Argument %d not understood" % n
-                            yield "debug", ElementTree.tostring(arg)
+                            yield "debug", ElementTree.tostring(arg)  # type: ignore
                         else:
                             arguments.append(" ".join(expr))
 
