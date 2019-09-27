@@ -95,7 +95,11 @@ class TestPNCursorTableModel(unittest.TestCase):
         )
         d = date(2019, 1, 1)
         locale.setlocale(locale.LC_TIME, "")
-        date_format = locale.nl_langinfo(locale.D_FMT)
+        try:
+            date_format = locale.nl_langinfo(locale.D_FMT)
+        except AttributeError as error:
+            date_format = locale.D_FMT
+
         date_format = date_format.replace("y", "Y")  # Año con 4 dígitos
         date_format = date_format.replace("/", "-")  # Separadores
         date_ = d.strftime(date_format)
