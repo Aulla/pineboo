@@ -270,7 +270,7 @@ def finish_testing() -> None:
         project.main_window.initialized_mods_ = []
 
     # project.conn.execute_query("DROP DATABASE %s" % IN_MEMORY_SQLITE_CONN.database)
-
+    file_name = project.conn.driver().db_filename
     project.conn.finish()
     project.conn.driver_ = None
     project.conn.conn.close()
@@ -278,10 +278,16 @@ def finish_testing() -> None:
 
     from pineboolib.application import qsadictmodules
     import shutil
-    import time
     import os
 
-    time.sleep(1)
+    if os.path.exists(file_name):
+        while True:
+            try:
+                os.remove(file_name)
+                break
+            except OSError as err:
+                pass
+
     shutil.rmtree(project.tmpdir)
     qsadictmodules.QSADictModules.clean_all()
     os.mkdir(project.tmpdir)
