@@ -19,7 +19,7 @@ class TestProcess(unittest.TestCase):
 
         proc = process.Process()
 
-        proc.execute("python3 --version")
+        proc.execute("python --version")
 
         salida = None
         if proc.stderr != "":
@@ -36,7 +36,7 @@ class TestProcess(unittest.TestCase):
 
         proc = qsa.ProcessStatic
 
-        proc.execute("python3 --version")
+        proc.execute("python --version")
 
         salida = None
         if proc.stderr != "":
