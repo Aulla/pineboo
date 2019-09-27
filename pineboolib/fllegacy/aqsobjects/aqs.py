@@ -20,15 +20,16 @@ from typing import Any, Optional, Union
 logger = logging.getLogger("AQS")
 
 
-class AQS(object):
-    """AQS Class."""
+class SortOrder(object):
+    """Sort Order enumerate class."""
 
-    Box = None
-    Plain = None
-    translate = ["DockLeft", "ContextMenu"]
-    RefreshData = [False, True]
-    InDock: str = "InDock"
-    OutSideDock: str = "OutSideDock"
+    Ascending: QtCore.Qt.SortOrder = QtCore.Qt.AscendingOrder
+    Descending: QtCore.Qt.SortOrder = QtCore.Qt.DescendingOrder
+
+
+class SMTP(object):
+    """Smtp enumerate class."""
+
     SmtpSslConnection: int = 1
     SmtpTlsConnection: int = 2
     SmtpAuthPlain: int = 1
@@ -40,15 +41,45 @@ class AQS(object):
     SmtpAttachError: int = 15
     SmtpServerError: int = 16
     SmtpClientError: int = 17
-    StFailed = None
+
+
+class Events(object):
+    """Event enumerate class."""
+
+    Close = QtGui.QCloseEvent
+    Show = QtGui.QShowEvent
+    WindowStateChange = QtGui.QWindowStateChangeEvent
+    ContextMenu = QtGui.QContextMenuEvent
+
+
+class Docker(object):
+    """Docker enumerate class."""
+
+    LeftDockWidgetArea: int = 1
+    InDock: str = "InDock"
+    OutSideDock: str = "OutSideDock"
+    translate = ["DockLeft", "ContextMenu"]
+
+
+class FLTableDB(object):
+    """Fltabledb enumerate class."""
+
+    RefreshData = [False, True]
+
+
+class Alignment(object):
+    """Alignment enumerate class."""
+
     AlignTop = QtCore.Qt.AlignTop
     WordBreak = QtCore.Qt.TextWordWrap
 
-    WindowStateChange = QtGui.QWindowStateChangeEvent
-    ContextMenu = QtGui.QContextMenuEvent
-    Close = QtGui.QCloseEvent
-    Show = QtGui.QShowEvent
-    LeftDockWidgetArea: int = 1
+
+class AQS(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment):
+    """AQS Class."""
+
+    Box = None
+    Plain = None
+    StFailed = None
 
     @staticmethod
     def ColorDialog_getColor(
