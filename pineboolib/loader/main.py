@@ -270,7 +270,6 @@ def finish_testing() -> None:
         project.main_window.initialized_mods_ = []
 
     # project.conn.execute_query("DROP DATABASE %s" % IN_MEMORY_SQLITE_CONN.database)
-    file_name = project.conn.driver().db_filename
     project.conn.finish()
     project.conn.driver_ = None
     project.conn.conn.close()
