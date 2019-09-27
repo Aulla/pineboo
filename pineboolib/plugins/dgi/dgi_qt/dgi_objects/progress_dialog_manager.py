@@ -1,5 +1,6 @@
 """Progressdialogmanager module."""
 from typing import Any, List
+from PyQt5 import QtCore, QtWidgets  # type: ignore
 
 
 class ProgressDialogManager(object):
@@ -14,8 +15,6 @@ class ProgressDialogManager(object):
     def create(self, title: str, steps: int, id_: str) -> Any:
         """Create new ProgressDialog."""
 
-        from PyQt5 import QtCore, QtWidgets  # type: ignore
-
         pd_widget = QtWidgets.QProgressDialog(
             str(title), str(QtWidgets.QApplication.translate("scripts", "Cancelar")), 0, steps
         )
@@ -24,6 +23,7 @@ class ProgressDialogManager(object):
             pd_widget.setWindowModality(QtCore.Qt.WindowModal)
             pd_widget.setWindowTitle(str(title))
             self.progress_dialog_stack.append(pd_widget)
+            pd_widget.show()
             pd_widget.setMinimumDuration(100)
 
             return pd_widget
