@@ -67,7 +67,7 @@ class SysType(SysBaseType):
     """SysType class."""
 
     time_user_ = QtCore.QDateTime.currentDateTime()
-    AQTimer = AQTimer()
+    AQTimer = AQTimer
 
     @classmethod
     def translate(self, *args) -> str:
