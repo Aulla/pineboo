@@ -88,12 +88,13 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"})
 
+        self.db_name = db_name
         if db_name == ":memory:":
             self.db_name = "temp_db"
+            self.db_filename = db_name
         else:
-            self.db_name = db_name
+            self.db_filename = _dir("%s.sqlite3" % self.db_name)
 
-        self.db_filename = _dir("%s.sqlite3" % self.db_name)
         db_is_new = not os.path.exists("%s" % self.db_filename)
 
         import sqlite3

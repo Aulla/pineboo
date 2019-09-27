@@ -278,17 +278,9 @@ def finish_testing() -> None:
 
     from pineboolib.application import qsadictmodules
     import shutil
-    import time
     import os
 
-    while True:
-        try:
-            shutil.rmtree(project.tmpdir)
-            break
-        except OSError:
-            time.sleep(1)
-            continue
-
+    shutil.rmtree(project.tmpdir)
     qsadictmodules.QSADictModules.clean_all()
     os.mkdir(project.tmpdir)
     # needed for delete older virtual database.
