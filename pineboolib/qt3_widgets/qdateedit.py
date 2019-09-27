@@ -48,7 +48,7 @@ class QDateEdit(QtWidgets.QDateEdit):
         # if not project.DGI.localDesktop():
         #    project.DGI._par.addQueque("%s_setDate" % self._parent.objectName(), "QDateEdit")
 
-    date = property(getDate, setDate)  # type: ignore[assignment]
+    date = property(getDate, setDate)  # type: ignore[assignment] # noqa : F821
 
     @decorators.NotImplementedWarn
     def setAutoAdvance(self, b: bool) -> None:
