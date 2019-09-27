@@ -17,6 +17,6 @@ def fixture_read(*path: str) -> str:
     """
     Read fixture from this test folder.
     """
-    with open(fixture_path(*path), "r") as file:
+    with open(fixture_path(*path), "r", encoding="utf-8") as file:
         contents = file.read()
     return contents
