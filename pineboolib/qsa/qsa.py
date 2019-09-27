@@ -31,7 +31,7 @@ from .pncontrolsfactory import QMdiArea, QEventLoop, QActionGroup, QInputDialog 
 from .pncontrolsfactory import QApplication, QStyleFactory, QFontDialog  # noqa: F401
 from .pncontrolsfactory import QMdiSubWindow, QSizePolicy, QProgressDialog  # noqa: F401
 from .pncontrolsfactory import QFileDialog, QTreeWidget, QTreeWidgetItem  # noqa: F401
-from .pncontrolsfactory import QTreeWidgetItemIterator, QListWidgetItem  # noqa: F401
+from .pncontrolsfactory import QTreeWidgetItemIterator, QListWidgetItem, QObject  # noqa: F401
 from .pncontrolsfactory import QListViewWidget, QSignalMapper, QPainter, QBrush  # noqa: F401
 from .pncontrolsfactory import QKeySequence, QIcon, QColor, QDomDocument  # noqa: F401
 from .pncontrolsfactory import QPushButton, QSpinBox, QRadioButton, QPixmap  # noqa: F401

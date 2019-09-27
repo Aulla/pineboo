@@ -83,12 +83,18 @@ class TestParser(unittest.TestCase):
         )
 
     def test_qdir(self) -> None:
+        """Test QDir translation."""
         self.assertEqual(
             qs2py(
                 'var rutaImp:String = "."; var impDir = new QDir(rutaImp, "c*.csv C*.csv c*.CSV C*.CSV");'
             ),
             'rutaImp = "."\nimpDir = qsa.QDir(rutaImp, "c*.csv C*.csv c*.CSV C*.CSV")\n',
         )
+
+    def test_qobject(self) -> None:
+        """Test QObject translation."""
+
+        self.assertEqual(qs2py("var prueba = new QObject;"), "prueba = qsa.QObject()\n")
 
 
 if __name__ == "__main__":

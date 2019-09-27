@@ -160,6 +160,7 @@ QSA_KNOWN_ATTRS = {
     "QMdiSubWindow",
     "QMenu",
     "QMessageBox",
+    "QObject",
     "QPainter",
     "QPixmap",
     "QProcess",

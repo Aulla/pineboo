@@ -68,7 +68,7 @@ from PyQt5.QtWidgets import QMdiArea  # noqa: F401
 
 from PyQt5.QtCore import QSignalMapper  # noqa: F401
 from PyQt5.QtCore import QSize  # noqa: F401
-
+from PyQt5.QtCore import QObject  # noqa: F401
 
 from PyQt5.QtGui import QPainter  # noqa: F401
 from PyQt5.QtGui import QBrush  # noqa: F401
