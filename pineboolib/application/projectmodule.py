@@ -334,7 +334,7 @@ class Project(object):
                 if os.path.exists(file_name):
                     list_files.append(file_name)
                     # self.parseScript(file_name, "(%d de %d)" % (p, size_))
-
+        f1.close()
         self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
         self.parse_script_list(list_files)
 
