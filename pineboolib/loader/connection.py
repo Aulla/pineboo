@@ -7,13 +7,10 @@ import os
 from pineboolib.application.database.pnconnection import PNConnection
 from .projectconfig import ProjectConfig, PasswordMismatchError
 
-db_name = ":memory:"
-if os.name == "nt":
-    db_name = "temp_db"
 
 DEFAULT_SQLITE_CONN = ProjectConfig(database="pineboo.sqlite3", type="SQLite3 (SQLITE3)")
 IN_MEMORY_SQLITE_CONN = ProjectConfig(
-    database=db_name, type="SQLite3 (SQLITE3)", username="memory_user"
+    database=":memory:", type="SQLite3 (SQLITE3)", username="memory_user"
 )
 
 

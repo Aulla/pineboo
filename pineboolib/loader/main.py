@@ -280,14 +280,6 @@ def finish_testing() -> None:
     import shutil
     import os
 
-    if os.path.exists(file_name):
-        while True:
-            try:
-                os.remove(file_name)
-                break
-            except OSError:
-                pass
-
     shutil.rmtree(project.tmpdir)
     qsadictmodules.QSADictModules.clean_all()
     os.mkdir(project.tmpdir)
