@@ -20,7 +20,7 @@ class TestMtdParserGeneral(unittest.TestCase):
         import os
 
         file = filedir(
-            "%s/cache/:memory:/sys/file.mtd/flmodules_model.py"
+            "%s/cache/temp_db/sys/file.mtd/flmodules_model.py"
             % config.value("ebcomportamiento/temp_dir")
         )
         if os.path.exists(file):
