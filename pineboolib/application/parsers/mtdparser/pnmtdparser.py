@@ -45,7 +45,7 @@ def mtd_parse(table_name: str) -> None:
         return
 
     dest_file = "%s_model.py" % mtd_file[: len(mtd_file) - 4]
-    if dest_file.find("system_module/tables") > -1:
+    if dest_file.find("system_module") > -1:
         sys_dir = "%s/cache/%s/sys" % (
             config.value("ebcomportamiento/temp_dir"),
             project.conn.DBName(),
