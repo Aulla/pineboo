@@ -22,13 +22,13 @@ class QDateEdit(QtWidgets.QDateEdit):
             self.setObjectName(name)
         self.setSeparator("-")
         self._parent = parent
-        self.date_ = super(QDateEdit, self).date().toString(QtCore.Qt.ISODate)
+        self.date_ = super().date().toString(QtCore.Qt.ISODate)
         # if not project.DGI.localDesktop():
         #    project.DGI._par.addQueque("%s_CreateWidget" % self._parent.objectName(), "QDateEdit")
 
     def getDate(self) -> Optional[str]:
         """Return string date."""
-        ret = super(QDateEdit, self).date().toString(QtCore.Qt.ISODate)
+        ret = super().date().toString(QtCore.Qt.ISODate)
         if ret != "2000-01-01":
             return ret
         else:
@@ -44,11 +44,11 @@ class QDateEdit(QtWidgets.QDateEdit):
                 v = str(v)
 
         date = QtCore.QDate.fromString(v[:10], "yyyy-MM-dd")
-        super(QDateEdit, self).setDate(date)
+        super().setDate(date)
         # if not project.DGI.localDesktop():
         #    project.DGI._par.addQueque("%s_setDate" % self._parent.objectName(), "QDateEdit")
 
-    date = property(getDate, setDate)  # type: ignore
+    date = property(getDate, setDate)  # type: ignore[assignment]
 
     @decorators.NotImplementedWarn
     def setAutoAdvance(self, b: bool) -> None:
@@ -66,8 +66,8 @@ class QDateEdit(QtWidgets.QDateEdit):
 
         return self.separator_
 
-    def __getattr__(self, name) -> Any:
-        """Return attribute."""
-
-        if name == "date":
-            return super(QDateEdit, self).date().toString(QtCore.Qt.ISODate)
+    # def __getattr__(self, name) -> Any:
+    #    """Return attribute."""
+    #
+    #    if name == "date":
+    #        return super(QDateEdit, self).date().toString(QtCore.Qt.ISODate)
