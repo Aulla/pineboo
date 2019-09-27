@@ -595,7 +595,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         _path, file_name = os.path.split(self._file_name)
         return file_name
 
-    def writeLine(self, data: str) -> None:
+    def writeLine(self, data: str, len: Optional[int] = None) -> None:
         """
         Write a new line with "data" contents into the file.
 
@@ -607,7 +607,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
             raise ValueError("self._file_name is empty!")
 
         f = codecs.open(self._file_name, encoding=self._encode, mode="a")
-        f.write("%s\n" % data)
+        f.write("%s\n" % data if len is None else data[0:len])
         f.close()
 
     def readLine(self) -> str:

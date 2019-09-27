@@ -219,12 +219,12 @@ class TestFile(unittest.TestCase):
         )
         contenido = "Esta es la linea"
         File(temporal).writeLine("%s 1" % contenido)
-        File(temporal).writeLine("%s 2" % contenido)
+        File(temporal).writeLine("%s 2" % contenido, 4)
         file_read = File(temporal)
         linea_1 = file_read.readLine()
         self.assertEqual("%s 1\n" % contenido, linea_1)
         linea_2 = file_read.readLine()
-        self.assertEqual("%s 2\n" % contenido, linea_2)
+        self.assertEqual("%s" % contenido[0:4], linea_2)
         os.remove(temporal)
 
     def test_full_name_and_readable(self) -> None:
