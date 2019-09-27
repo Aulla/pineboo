@@ -16,4 +16,4 @@ class TestClasses(unittest.TestCase):
         path_ = os.path.abspath(dir_.path())
         self.assertTrue(dir_.exists())
         self.assertTrue(dir_.isReadable())
-        self.assertEqual(dir_.absPath(), path_)
+        self.assertEqual(dir_.absPath(), qsa.QDir(path_))
