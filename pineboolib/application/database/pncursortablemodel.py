@@ -7,6 +7,7 @@ import threading
 import time
 import itertools
 import locale
+import os
 from datetime import date
 
 from PyQt5 import QtCore, QtGui, Qt  # type: ignore
@@ -355,10 +356,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     # Cogemos el locale para presentar lo mejor posible la fecha
                     try:
                         locale.setlocale(locale.LC_TIME, "")
-                        try:
-                            date_format = locale.nl_langinfo(locale.D_FMT)
-                        except AttributeError as error:
+                        if os.name == "nt":
                             date_format = locale.D_FMT
+                        else:
+                            date_format = locale.nl_langinfo(locale.D_FMT)
                         date_format = date_format.replace("y", "Y")  # Año con 4 dígitos
                         date_format = date_format.replace("/", "-")  # Separadores
                         d = d.strftime(date_format)
