@@ -247,7 +247,11 @@ class DockListView(QtCore.QObject):
                     if ac is not None:
 
                         if action_name.endswith("actiongroup_name"):
-                            this_item = parent_item
+                            this_item = (
+                                parent_item
+                                if isinstance(parent_item, QtWidgets.QTreeWidgetItem)
+                                else None
+                            )
                         else:
                             this_item = QtWidgets.QTreeWidgetItem(parent_item)
 
