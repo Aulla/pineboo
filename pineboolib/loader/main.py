@@ -278,6 +278,7 @@ def finish_testing() -> None:
 
     from pineboolib.application import qsadictmodules
     import shutil
+    import time
     import os
 
     while True:
@@ -285,6 +286,7 @@ def finish_testing() -> None:
             shutil.rmtree(project.tmpdir)
             break
         except OSError:
+            time.sleep(1)
             continue
 
     qsadictmodules.QSADictModules.clean_all()
