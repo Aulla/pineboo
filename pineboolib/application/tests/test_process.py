@@ -19,7 +19,7 @@ class TestProcess(unittest.TestCase):
 
         proc = process.Process()
 
-        proc.execute("python --version")
+        proc.execute("python3 --version")
 
         salida = None
         if proc.stderr != "":
@@ -27,7 +27,19 @@ class TestProcess(unittest.TestCase):
         else:
             salida = proc.stdout
 
-        self.assertTrue(salida.find("Python") > -1)
+        if salida.find("Python") > -1:
+            self.assertTrue(salida.find("Python") > -1)
+        else:
+            proc.execute("python --version")
+
+            salida = None
+            if proc.stderr != "":
+                salida = proc.stderr
+            else:
+                salida = proc.stdout
+
+            if salida.find("Python") > -1:
+                self.assertTrue(salida.find("Python") > -1)
 
     def test_ProcessStatic(self) -> None:
         """Test ProcessStatic."""
@@ -36,7 +48,7 @@ class TestProcess(unittest.TestCase):
 
         proc = qsa.ProcessStatic
 
-        proc.execute("python --version")
+        proc.execute("python3 --version")
 
         salida = None
         if proc.stderr != "":
@@ -44,7 +56,19 @@ class TestProcess(unittest.TestCase):
         else:
             salida = proc.stdout
 
-        self.assertTrue(salida.find("Python") > -1)
+        if salida.find("Python") > -1:
+            self.assertTrue(salida.find("Python") > -1)
+        else:
+            proc.execute("python --version")
+
+            salida = None
+            if proc.stderr != "":
+                salida = proc.stderr
+            else:
+                salida = proc.stdout
+
+            if salida.find("Python") > -1:
+                self.assertTrue(salida.find("Python") > -1)
 
     @classmethod
     def tearDownClass(cls) -> None:
