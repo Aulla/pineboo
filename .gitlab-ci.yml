@@ -51,7 +51,7 @@ test_mypy_pyroma_black_pytest:
 deploy_build:
     stage: deploy
     script:
-        - python3 install twine
+        - python3 pip3 install twine
         - python3 setup.py bdist_wheel
         # an alternative approach is to install and run:
         #- pip3 install dist/*
