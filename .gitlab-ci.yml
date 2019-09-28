@@ -51,11 +51,11 @@ test_mypy_pyroma_black_pytest:
 deploy_build:
     stage: deploy
     script:
-        - python3 install -U twine
+        - python3 install twine
         - python3 setup.py bdist_wheel
         # an alternative approach is to install and run:
         #- pip3 install dist/*
-        - python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/* -u $TWINE_USER -p $TWINE_PASSWORD
+        - python3 -m twine upload --repository-url $TWINE_URL dist/* -u $TWINE_USER -p $TWINE_PASSWORD
         # run the command here
         # pineboo --help
     artifacts:
