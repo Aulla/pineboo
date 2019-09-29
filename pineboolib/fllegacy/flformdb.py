@@ -401,7 +401,7 @@ class FLFormDB(QDialog):
         if path_file:
             fi = QtCore.QFile(path_file)
             if not fi.OpenMode(QtCore.QIODevice.WriteOnly):
-                print("FLFormDB : Error I/O al intentar escribir el fichero", path_file)
+                self.tr("Error I/O al intentar escribir el fichero %s" % path_file)
                 return
 
             self.snapShot().save(fi, "PNG")
@@ -608,7 +608,7 @@ class FLFormDB(QDialog):
                 caption = self.cursor_.metadata().alias()
 
             if caption in ("", None):
-                caption = "No hay metadatos"
+                caption = QtWidgets.QApplication.translate("FLFormDB", "No hay metadatos")
             self.setCaptionWidget(caption)
 
     def loadControls(self) -> None:
@@ -657,8 +657,12 @@ class FLFormDB(QDialog):
                 QtGui.QIcon(filedir("./core/images/icons", "gtk-properties.png"))
             )
             pushButtonExport.setShortcut(QKeySequence(self.tr("F3")))
-            pushButtonExport.setWhatsThis("Exportar a XML(F3)")
-            pushButtonExport.setToolTip("Exportar a XML(F3)")
+            pushButtonExport.setWhatsThis(
+                QtWidgets.QApplication.translate("FLFormDB", "Exportar a XML(F3)")
+            )
+            pushButtonExport.setToolTip(
+                QtWidgets.QApplication.translate("FLFormDB", "Exportar a XML(F3)")
+            )
             pushButtonExport.setFocusPolicy(QtCore.Qt.NoFocus)
             self.bottomToolbar.layout().addWidget(pushButtonExport)
             pushButtonExport.clicked.connect(self.exportToXml)
