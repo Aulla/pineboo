@@ -55,7 +55,7 @@ deploy_build:
         - python3 setup.py bdist_wheel
         # an alternative approach is to install and run:
         #- pip3 install dist/*
-        - python3 -m twine upload --repository-url $TWINE_URL dist/* -u $TWINE_USER -p $TWINE_PASSWORD
+        - python3 -m twine upload --repository-url $TWINE_URL dist/* -u $TWINE_USER -p $TWINE_PASSWORD --skip-existing
         # run the command here
         # pineboo --help
     artifacts:
