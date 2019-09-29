@@ -13,13 +13,14 @@ version_ = prj_.version[prj_.version.find(" v") + 2 :]
 languages = ["es", "en", "ca", "de", "fr", "gl", "it", "pt"]
 lang_path = pathlib.Path("pineboolib")
 py_files = lang_path.glob("**/*.py")
+ui_files = lang_path.glob("**/*.ui")
 ts_files = []
 for lang in languages:
     ts_files.append(
         pathlib.Path("pineboolib/system_module/translations/sys.%s.ts" % lang).absolute()
     )
 
-ret = subprocess.call(["pylupdate5", *py_files, "-ts", *ts_files])
+ret = subprocess.call(["pylupdate5", *py_files, *ui_files, "-ts", *ts_files])
 if ret != 0:
     raise Exception("Error updating .ts files!")
 
