@@ -1,12 +1,27 @@
 """Main setup script."""
 
 import setuptools  # type: ignore
-
+import pathlib
+import subprocess
 from pineboolib import application
 
 prj_ = application.project
 prj_.load_version()
 version_ = prj_.version[prj_.version.find(" v") + 2 :]
+# Create/Update translations
+
+languages = ["es", "en"]
+lang_path = pathlib.Path("pineboolib")
+py_files = lang_path.glob("**/*.py")
+ts_files = []
+for lang in languages:
+    ts_files.append(
+        pathlib.Path("pineboolib/system_module/translations/sys.%s.ts" % lang).absolute()
+    )
+
+ret = subprocess.call(["pylupdate5", *py_files, "-ts", *ts_files])
+if ret != 0:
+    raise Exception("Error updating .ts files!")
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
