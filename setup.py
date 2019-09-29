@@ -10,7 +10,7 @@ prj_.load_version()
 version_ = prj_.version[prj_.version.find(" v") + 2 :]
 # Create/Update translations
 
-languages = ["es", "en"]
+languages = ["es", "en", "ca", "de", "eu", "fr", "gl", "it", "pt"]
 lang_path = pathlib.Path("pineboolib")
 py_files = lang_path.glob("**/*.py")
 ts_files = []
