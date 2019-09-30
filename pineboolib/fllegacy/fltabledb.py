@@ -2430,7 +2430,7 @@ class FLTableDB(QtWidgets.QWidget):
             self.lineEditSearch.setText(str(textSearch))
             self.lineEditSearch.textChanged.connect(self.filterRecords)
             self.lineEditSearch.selectAll()
-            self.seekCursor()
+            # self.seekCursor()
             QtCore.QTimer.singleShot(0, self.tableRecords_.ensureRowSelectedVisible)
         else:
             self.refreshDelayed()
