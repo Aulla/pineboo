@@ -437,7 +437,7 @@ class FLManagerModules(object):
         else:
             from PyQt5 import uic  # type: ignore
 
-            qtWidgetPlugings = filedir("./plugins/qtwidgets-plugins")
+            qtWidgetPlugings = filedir("./plugins/qtwidgets_plugins")
             if qtWidgetPlugings not in uic.widgetPluginPath:
                 logger.warning("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
                 uic.widgetPluginPath.append(qtWidgetPlugings)

@@ -5,6 +5,7 @@
 # type: ignore
 from typing import Tuple
 
+MODULE = None
 
 pluginType = (
     MODULE
