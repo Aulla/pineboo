@@ -33,6 +33,7 @@ class SqlInspector(object):
         self._list_sql = []
         self._field_list = {}
         self._table_names = []
+        self._mtd_fields = {}
         # self.set_sql(sql_text)
         # self.resolve()
 
