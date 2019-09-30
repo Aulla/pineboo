@@ -3,9 +3,9 @@
 # -*- coding: utf-8 -*-
 # pytype: skip-file
 # type: ignore
-from typing import Tuple
+from typing import Tuple, Any
 
-MODULE = None
+MODULE: Any
 
 pluginType = (
     MODULE
