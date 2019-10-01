@@ -28,7 +28,7 @@ class TestFLFieldDBString(unittest.TestCase):
         self.assertTrue(module_)
 
         cursor_2 = module_.cursor()
-        field = module_.child("fLFieldDB2")
+        field = module_.child("flfielddb_5")
         self.assertNotEqual(field, None)
         field.setValue("hola")
 
