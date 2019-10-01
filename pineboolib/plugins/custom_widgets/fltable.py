@@ -17,4 +17,4 @@ except Exception:
 def moduleInformation() -> Tuple[str, str]:
     """Return module inormation."""
 
-    return "pineboolib.pncontrolsfactory", ("FLTable")
+    return "pineboolib.fllegacy.fltable", ("FLTable")

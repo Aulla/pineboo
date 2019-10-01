@@ -17,4 +17,4 @@ except Exception:
 def moduleInformation() -> Tuple[str, str]:
     """Return module inormation."""
 
-    return "pineboolib.plugins.dgi.dgi_qt.dgi_objects.flfielddb", ("FLFieldDB")
+    return "pineboolib.fllegacy.flfielddb", ("FLFieldDB")

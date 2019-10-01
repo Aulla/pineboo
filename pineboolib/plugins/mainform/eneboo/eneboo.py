@@ -818,7 +818,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.w_.findChild(QtWidgets.QAction, "helpIndexAction").triggered.connect(
             flapplication.aqApp.helpIndex
         )
-        self.w_.findChild(QtWidgets.QAction, "urlEnebooAction").triggered.connect(
+        self.w_.findChild(QtWidgets.QAction, "urlPinebooAction").triggered.connect(
             flapplication.aqApp.urlPineboo
         )
 
@@ -959,7 +959,7 @@ class MainForm(QtWidgets.QMainWindow):
         helpIndex.setIcon(self.iconSet16x16(self.AQS.pixmap_fromMimeSource("help_index.png")))
         # helpIndex.triggered.connect(flapplication.aqApp.helpIndex)
 
-        urlPineboo = self.w_.findChild(QtWidgets.QAction, "urlEnebooAction")
+        urlPineboo = self.w_.findChild(QtWidgets.QAction, "urlPinebooAction")
         urlPineboo.setIcon(self.iconSet16x16(self.AQS.pixmap_fromMimeSource("pineboo-logo-32.png")))
         # urlPineboo.triggered.connect(flapplication.aqApp.urlPineboo)
 
@@ -978,18 +978,18 @@ class MainForm(QtWidgets.QMainWindow):
     def initTextLabels(self) -> None:
         """Initialize the tags in the mainForm base."""
 
-        tL = self.w_.findChild(QtWidgets.QLabel, "tLabel")
-        tL2 = self.w_.findChild(QtWidgets.QLabel, "tLabel2")
+        text_label = self.w_.findChild(QtWidgets.QLabel, "tLabel")
+        text_label2 = self.w_.findChild(QtWidgets.QLabel, "tLabel2")
         texto = aqsobjectfactory.AQUtil.sqlSelect("flsettings", "valor", "flkey='verticalName'")
         if texto and texto != "False":
-            tL.setText(texto)
+            text_label.setText(texto)
 
         if aqsobjectfactory.AQUtil.sqlSelect("flsettings", "valor", "flkey='PosInfo'") == "True":
             text_ = "%s@%s" % (self.qsa_sys.nameUser(), self.qsa_sys.nameBD())
             if self.qsa_sys.osName() == "MACX":
                 text_ += "     "
 
-            tL2.setText(text_)
+            text_label2.setText(text_)
 
     def initDocks(self) -> None:
         """Initialize the 3 available docks."""

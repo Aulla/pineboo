@@ -178,14 +178,14 @@ class FLStaticLoader(QtCore.QObject):
         self.pixOn.setVisible(False)
 
         self.tblDirs.verticalHeader().setVisible(False)
-        self.tblDirs.setLeftMargin(0)
-        self.tblDirs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
-        self.tblDirs.horizontalHeader().setSectionsClickable(False)
-        self.tblDirs.setColumnStrechable(0, True)
-        self.tblDirs.adjustColumn(1)
-        self.tblDirs.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        # self.tblDirs.setLeftMargin(0)
+        # self.tblDirs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+        # self.tblDirs.horizontalHeader().setSectionsClickable(False)
+        # self.tblDirs.setColumnStrechable(0, True)
+        # self.tblDirs.adjustColumn(1)
+        # self.tblDirs.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
-        self.load()
+        # self.load()
 
         self.pbAddDir.clicked.connect(self.addDir)
         self.pbModDir.clicked.connect(self.modDir)
