@@ -93,6 +93,9 @@
    <addaction name="ebcomportamiento"/>
   </widget>
   <action name="ebcomportamiento">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../core/images/icons/sys_ebcomportamiento.png</normaloff>../../core/images/icons/sys_ebcomportamiento.png</iconset>
@@ -108,6 +111,9 @@
    </property>
   </action>
   <action name="flloadmodpkg">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../core/images/icons/sys_flloadmodpkg.png</normaloff>../../core/images/icons/sys_flloadmodpkg.png</iconset>
@@ -123,6 +129,9 @@
    </property>
   </action>
   <action name="flloadmod">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../core/images/icons/sys_flloadmod.png</normaloff>../../core/images/icons/sys_flloadmod.png</iconset>
@@ -138,6 +147,9 @@
    </property>
   </action>
   <action name="flreloadbatch">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../core/images/icons/sys_flreloadbatch.png</normaloff>../../core/images/icons/sys_flreloadbatch.png</iconset>

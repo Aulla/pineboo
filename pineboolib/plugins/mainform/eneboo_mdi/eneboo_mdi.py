@@ -616,6 +616,41 @@ class MainForm(QtWidgets.QMainWindow):
                 if not w:
                     return
 
+                from pineboolib.application import pncore
+                from pineboolib import application
+                from PyQt5 import QtXml
+
+                if w.findChild(pncore.PNCore):
+                    doc = QtXml.QDomDocument()
+                    cc = self.db().managerModules().contentCached("%s.ui" % idm)
+                    if not cc or not doc.setContent(cc):
+                        if cc:
+                            logger.warning("No se ha podido cargar %s" % (ui_file))
+                            return None
+
+                    root = doc.documentElement().toElement()
+                    conns = root.namedItem("connections").toElement()
+                    connections = conns.elementsByTagName("connection")
+                    for i in range(connections.length()):
+                        itn = connections.at(i).toElement()
+                        sender = itn.namedItem("sender").toElement().text()
+                        signal = itn.namedItem("signal").toElement().text()
+                        if signal in ["activated()", "triggered()"]:
+                            signal = "triggered()"
+                        receiver = itn.namedItem("receiver").toElement().text()
+                        slot = itn.namedItem("slot").toElement().text()
+                        if receiver == "pncore" and signal == "triggered()":
+                            ac = w.findChild(QtWidgets.QAction, sender)
+                            if ac is not None and sender in application.project.actions.keys():
+                                sl = getattr(
+                                    application.project.actions[sender],
+                                    slot[0 : slot.find("(")],
+                                    None,
+                                )
+                                ac.triggered.connect(sl)
+                            else:
+                                logger.warning("Action %s not found", sender)
+
                 w.setWindowModality(QtCore.Qt.WindowModal)
                 self._dict_main_widgets[idm] = w
                 w.setObjectName(idm)

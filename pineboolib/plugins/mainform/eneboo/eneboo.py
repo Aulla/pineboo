@@ -1156,8 +1156,7 @@ class MainForm(QtWidgets.QMainWindow):
 
         conns = root.namedItem("connections").toElement()
         connections = conns.elementsByTagName("connection")
-        i = 0
-        while i < connections.length():
+        for i in range(connections.length()):
             itn = connections.at(i).toElement()
             sender = itn.namedItem("sender").toElement().text()
             ac = ag.findChild(QtWidgets.QAction, sender)
@@ -1176,8 +1175,6 @@ class MainForm(QtWidgets.QMainWindow):
                 # ac.triggered.connect(self.triggerAction)
 
                 # print("Guardando señales  %s:%s:%s de %s" % (signal, slot, ac.name, ac))
-
-            i += 1
 
         # flapplication.aqApp.setMainWidget(None)
         w.close()
