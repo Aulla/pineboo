@@ -1359,6 +1359,30 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
 </context>
 <context>
+    <name>master_copy</name>
+    <message>
+        <location filename="../forms/master_copy.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>master_print</name>
+    <message>
+        <location filename="../forms/master_print.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>master_print_copy</name>
+    <message>
+        <location filename="../forms/master_print_copy.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>pineboo</name>
     <message>
         <location filename="../../fllegacy/flfielddb.py" line="2932"/>
