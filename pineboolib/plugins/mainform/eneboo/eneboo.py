@@ -1036,6 +1036,8 @@ class MainForm(QtWidgets.QMainWindow):
     def addWidgetActions(self, node, action_group, wi) -> None:
         """Add actions belonging to a widget."""
         actions = node.elementsByTagName("action")
+        if len(actions) == 0:
+            actions = node.elementsByTagName("addaction")
         hide_group = True
         for i in range(len(actions)):
             item = actions.at(i).toElement()
@@ -1092,16 +1094,26 @@ class MainForm(QtWidgets.QMainWindow):
 
         reduced = settings.config.value("ebcomportamiento/ActionsMenuRed", False)
         root = doc.documentElement().toElement()
-
         ag = QtWidgets.QActionGroup(parent)
         ag.setObjectName("%sActions" % parent.objectName())
-        # ag.menuText = ag.text = self.qsa_sys.translate("Acciones")
-        if not reduced:
+
+        if root.attribute("version") == "3.3":
             bars = root.namedItem("toolbars").toElement()
+            menu = root.namedItem("menubar").toElement()
+            items = menu.elementsByTagName("item")
+
+        else:
+            widgets = root.elementsByTagName("widget")
+            for widget in range(widgets.size()):
+                if widgets.item(widget).toElement().attribute("class") == "QToolBar":
+                    bars = widgets.item(widget).toElement()
+                elif widgets.item(widget).toElement().attribute("class") == "QMenuBar":
+                    menu = widgets.item(widget)
+                    items = menu.toElement().elementsByTagName("widget")
+
+        if not reduced:
             self.addWidgetActions(bars, ag, w)
 
-        menu = root.namedItem("menubar").toElement()
-        items = menu.elementsByTagName("item")
         if len(items) > 0:
             if not reduced:
                 sep_ = ag.addAction("separator")
@@ -1124,16 +1136,21 @@ class MainForm(QtWidgets.QMainWindow):
                     continue
 
                 sub_menu_ag = QtWidgets.QActionGroup(menu_ag)
+
+                if root.attribute("version") == "3.3":
+                    text = itn.attribute("text")
+                else:
+                    text = itn.text()
+
                 if not reduced:
                     sub_menu_ag.setObjectName("%sActions" % menu_ag.objectName())
+
                 else:
-                    sub_menu_ag.setObjectName(itn.attribute("text"))
+                    sub_menu_ag.setObjectName(text)
 
                 sub_menu_ag_name = QtWidgets.QAction(sub_menu_ag)
                 sub_menu_ag_name.setObjectName("%s_actiongroup_name" % sub_menu_ag.objectName())
-                sub_menu_ag_name.setText(
-                    self.qsa_sys.toUnicode(itn.attribute("text"), "iso-8859-1")
-                )
+                sub_menu_ag_name.setText(self.qsa_sys.toUnicode(text, "iso-8859-1"))
 
                 self.addWidgetActions(itn, sub_menu_ag, w)
 
@@ -1147,9 +1164,10 @@ class MainForm(QtWidgets.QMainWindow):
             if ac:
 
                 signal = itn.namedItem("signal").toElement().text()
-                if signal == "activated()":
+                if signal in ["activated()", "triggered()"]:
                     signal_fix = "triggered"
                     signal = "triggered()"
+
                 slot = itn.namedItem("slot").toElement().text()
                 if self.act_sig_map_ is not None:
                     getattr(ac, signal_fix).connect(self.act_sig_map_.map)
