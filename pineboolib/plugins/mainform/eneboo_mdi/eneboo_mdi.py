@@ -622,7 +622,8 @@ class MainForm(QtWidgets.QMainWindow):
 
                 if w.findChild(pncore.PNCore):
                     doc = QtXml.QDomDocument()
-                    cc = self.db().managerModules().contentCached("%s.ui" % idm)
+                    ui_file = "%s.ui" % idm
+                    cc = self.db().managerModules().contentCached(ui_file)
                     if not cc or not doc.setContent(cc):
                         if cc:
                             logger.warning("No se ha podido cargar %s" % (ui_file))
