@@ -28,11 +28,14 @@ echo $PACKAGES | xargs -n1 -P8 $0 pylint
 # ----
 echo "Running MyPy . . ."
 (cd .. && mypy -p pineboolib --html-report=docs/source/_static/linters/mypy)
+echo "Step 1 . . ."
 cp source/_static/linters/mypy-html-tpl.css source/_static/linters/mypy/mypy-html.css
 # ----
 echo "Running Coverage . . ."
 (cd .. && pytest -q --cov=pineboolib --cov-report= pineboolib/)
+echo "Step 1 . . ."
 (cd .. && coverage html -d docs/source/_static/linters/pytest-coverage/)
+echo "Step 2 . . ."
 cp source/_static/linters/pytest-coverage-style-tpl.css source/_static/linters/pytest-coverage/style.css
 # ----
 echo "Running Bandit . . ."
