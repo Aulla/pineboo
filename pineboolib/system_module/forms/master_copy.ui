@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>master</class>
+ <class>master_copy</class>
  <widget class="QWidget" name="master">
   <property name="geometry">
    <rect>
