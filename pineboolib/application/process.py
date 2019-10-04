@@ -22,7 +22,7 @@ class ProcessStatic(ProcessBaseClass):
     """Process static class."""
 
     @classmethod
-    def executeNoSplit(cls, comando: list, stdin_buffer: str) -> int:
+    def executeNoSplit(cls, comando: Union[list, "types.Array"], stdin_buffer: str = "") -> int:
         """Execute command no splitted."""
 
         comando_ = []
@@ -156,7 +156,7 @@ class Process(ProcessBaseClass):
 
         return self.exitCode()
 
-    def executeNoSplit(self, comando: list, stdin_buffer: str) -> int:
+    def executeNoSplit(self, comando: Union[list, "types.Array"], stdin_buffer: str = "") -> int:
         """Execute command no splitted."""
 
         comando_ = []

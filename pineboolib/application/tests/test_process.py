@@ -46,6 +46,7 @@ class TestProcess(unittest.TestCase):
 
         from pineboolib.qsa import qsa
 
+        comando_py = ""
         proc = qsa.ProcessStatic
 
         proc.execute("python3 --version")
@@ -57,8 +58,10 @@ class TestProcess(unittest.TestCase):
             salida = proc.stdout
 
         if salida.find("Python") > -1:
+            comando_py = "python3"
             self.assertTrue(salida.find("Python") > -1)
         else:
+            comando_py = "python"
             proc.execute("python --version")
 
             salida = None
@@ -69,6 +72,12 @@ class TestProcess(unittest.TestCase):
 
             if salida.find("Python") > -1:
                 self.assertTrue(salida.find("Python") > -1)
+
+        comando = qsa.Array(comando_py, "--version")
+
+        proc_2 = qsa.ProcessStatic
+        proc_2.executeNoSplit(comando)
+        self.assertTrue(salida in [proc_2.stderr, proc_2.stdout])
 
     @classmethod
     def tearDownClass(cls) -> None:
