@@ -6,6 +6,7 @@ import pprint
 import sys
 import math
 import hashlib
+import tempfile
 import re
 from typing import Any, Dict, List, Tuple, Optional, TextIO
 
@@ -16,7 +17,7 @@ from . import flex
 
 TreeData = Dict[str, Any]
 
-tempDir = "/tmp"
+tempDir = tempfile.gettempdir()
 
 # Get the token map
 tokens = flex.tokens
