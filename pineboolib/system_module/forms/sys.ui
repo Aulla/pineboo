@@ -470,5 +470,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ebcomportamiento</sender>
+   <signal>triggered()</signal>
+   <receiver>pncore</receiver>
+   <slot>execDefaultScript()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>407</x>
+     <y>538</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
