@@ -396,8 +396,8 @@ def exec_main(options: Values) -> int:
 
     project.no_python_cache = options.no_python_cache
 
-    if options.test:
-        return 0 if project.test() else 1
+    # if options.test:
+    #    return 0 if project.test() else 1
 
     # if _DGI.useDesktop():
     # FIXME: What is happening here? Why dynamic load?

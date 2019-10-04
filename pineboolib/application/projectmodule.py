@@ -527,50 +527,6 @@ class Project(object):
             if not all(pycode_list):
                 raise Exception("Conversion failed for some files")
 
-    def test(self, name=None):
-        """
-        Start GUI tests.
-
-        @param name, Nombre del test específico. Si no se especifica se lanzan todos los tests disponibles
-        @return Texto con la valoración de los test aplicados
-        """
-        from importlib import import_module
-
-        dirlist = os.listdir(filedir("../pineboolib/plugins/test"))
-        testDict = {}
-        for f in dirlist:
-            if not f[0:2] == "__":
-                f = f[: f.find(".py")]
-                mod_ = import_module("pineboolib.plugins.test.%s" % f)
-                test_ = getattr(mod_, f)
-                testDict[f] = test_
-
-        maxValue = 0
-        value = 0
-        resultValue = 0
-        if name:
-            try:
-                t = testDict[name]()
-                maxValue = t.maxValue()
-                value = t.run()
-            except Exception:
-                self.logger.exception("While running tests")
-        else:
-
-            for test in testDict.keys():
-                print("test", test)
-                t = testDict[test]()
-                maxValue = maxValue + t.maxValue
-                v = t.run()
-                print("result", test, v, "/", t.maxValue)
-                value = value + v
-
-        resultValue = value
-
-        self.logger.warning("%s/%s", resultValue, maxValue)
-
-        return True
-
     def get_temp_dir(self) -> str:
         """
         Return temporary folder defined for pineboo.
