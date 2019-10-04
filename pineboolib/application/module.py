@@ -65,11 +65,12 @@ class Module(object):
 
         path_xml = _path("%s.xml" % self.name)
 
-        ret_xml = mng_modules.contentStatic(
-            "%s.xml" % self.name, True
-        )  # Con True solo devuelve el path
-        if ret_xml:
-            path_xml = ret_xml
+        if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
+            ret_xml = mng_modules.contentStatic(
+                "%s.xml" % self.name, True
+            )  # Con True solo devuelve el path
+            if ret_xml:
+                path_xml = ret_xml
 
         # pathui = _path("%s.ui" % self.name)
         if path_xml is None:
