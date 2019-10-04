@@ -295,15 +295,15 @@ class FLManagerModules(object):
 
         from pineboolib.application import project
 
-        if not project._DGI:
-            raise Exception("DGI not loaded")
+        # if not project._DGI:
+        #    raise Exception("DGI not loaded")
 
-        if project.DGI.alternative_content_cached():
-            data = project.DGI.content_cached(
-                project.tmpdir, self.conn_.DBName(), modId, ext_, name_, shaKey
-            )
-            if data is not None:
-                return data
+        # if project.DGI.alternative_content_cached():
+        #    data = project.DGI.content_cached(
+        #        project.tmpdir, self.conn_.DBName(), modId, ext_, name_, shaKey
+        #    )
+        #    if data is not None:
+        #        return data
 
         if data is None:
             """Ruta por defecto"""
@@ -324,7 +324,7 @@ class FLManagerModules(object):
             else:
                 data = self.content(file_name)
 
-        if data:
+        if data is not None:
             self.filesCached_[file_name] = data
         return data
 
