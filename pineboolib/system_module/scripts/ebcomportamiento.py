@@ -159,7 +159,7 @@ class FormInternalObj(qsa.FormDBWidget):
         util = qsa.FLUtil()
         value = util.sqlSelect("flsettings", "valor", "flkey='%s'" % valor_name)
 
-        if value is None:
+        if value is None or valor_name == "verticalName" and isinstance(value, bool):
             value = ""
 
         return value
