@@ -1571,6 +1571,11 @@ class FLManager(QtCore.QObject, IManager):
             "flsettings",
             "flseqs",
             "flupdates",
+            "flacls",
+            "flacos",
+            "flacs",
+            "flgroups",
+            "flusers",
         ):
             return True
 

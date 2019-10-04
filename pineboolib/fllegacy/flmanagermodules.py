@@ -253,7 +253,7 @@ class FLManagerModules(object):
         )
         if not_sys_table and self.staticBdInfo_ and self.staticBdInfo_.enabled_:
             str_ret = self.contentStatic(file_name)
-            if str_ret:
+            if str_ret is not None:
                 return str_ret
 
         if file_name in self.filesCached_.keys():
@@ -384,12 +384,20 @@ class FLManagerModules(object):
 
         from pineboolib.core.utils.utils_base import filedir, load2xml
 
-        from pineboolib import q3widgets
+        from pineboolib.fllegacy import flapplication
 
         if ".ui" not in file_name:
             file_name += ".ui"
 
         form_path = file_name if os.path.exists(file_name) else _path(file_name)
+
+        if flapplication.aqApp.db() is not None:
+            mng_modules = flapplication.aqApp.db().managerModules()
+            if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
+                ret_ui = mng_modules.contentStatic(file_name, True)
+
+                if ret_ui is not None:
+                    form_path = ret_ui
 
         if form_path is None:
             # raise AttributeError("File %r not found in project" % n)
@@ -418,6 +426,8 @@ class FLManagerModules(object):
 
             parent = None
             if UIVersion < "4.0":
+                from pineboolib import q3widgets
+
                 if xclass == "QMainWindow":
                     parent = q3widgets.qmainwindow.QMainWindow()
                 elif xclass in ["QDialog", "QWidget"]:
@@ -838,8 +848,8 @@ class FLManagerModules(object):
 
         from pineboolib.application import project
 
-        if n.endswith(".mtd") and project._DGI:
-            if n[: n.find(".mtd")] in project.DGI.sys_mtds() or n == "flfiles.mtd":
+        if n.endswith(".mtd"):
+            if project.conn.manager().isSystemTable(n):
                 return "sys"
 
         cursor = self.conn_.execute_query("SELECT idmodulo FROM flfiles WHERE nombre='%s'" % n)
@@ -904,7 +914,7 @@ class FLManagerModules(object):
         if self.activeIdModule_ is None or self.activeIdModule_ not in self.listAllIdModules():
             self.setActiveIdModule(None)
 
-    def contentStatic(self, file_name: str) -> Optional[str]:
+    def contentStatic(self, file_name: str, only_path: bool = False) -> Optional[str]:
         """
         Return the contents of a file by static loading from the local disk.
 
@@ -912,7 +922,9 @@ class FLManagerModules(object):
         @return String with the contents of the file or None in case of error.
         """
 
-        str_ret = pnmodulesstaticloader.PNStaticLoader.content(file_name, self.staticBdInfo_)
+        str_ret = pnmodulesstaticloader.PNStaticLoader.content(
+            file_name, self.staticBdInfo_, only_path
+        )
         if str_ret is not None:
             from pineboolib.fllegacy.flutil import FLUtil
 

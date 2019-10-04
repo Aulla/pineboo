@@ -65,14 +65,11 @@ class Module(object):
 
         path_xml = _path("%s.xml" % self.name)
 
-        if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
-            from pineboolib.application.staticloader.pnmodulesstaticloader import PNStaticLoader
-
-            ret_xml = PNStaticLoader.content(
-                "%s.xml" % self.name, mng_modules.staticBdInfo_, True
-            )  # Con True solo devuelve el path
-            if ret_xml:
-                path_xml = ret_xml
+        ret_xml = mng_modules.contentStatic(
+            "%s.xml" % self.name, True
+        )  # Con True solo devuelve el path
+        if ret_xml:
+            path_xml = ret_xml
 
         # pathui = _path("%s.ui" % self.name)
         if path_xml is None:

@@ -2743,7 +2743,7 @@ class FLTableDB(QtWidgets.QWidget):
             self.cursor()
             .db()
             .managerModules()
-            .idModuleOfFile(self.cursor().metadata().name() + ".mtd")
+            .idModuleOfFile("%s.mtd" % self.cursor().metadata().name())
         )
         functionQSA = idMod + ".tableDB_filterRecords_" + self.cursor().metadata().name()
 
