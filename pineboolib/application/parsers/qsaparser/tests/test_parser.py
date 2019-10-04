@@ -101,6 +101,13 @@ class TestParser(unittest.TestCase):
 
         self.assertEqual(qs2py("var num:Number = 0.0;"), "num = 0.0\n")
 
+    def test_aqsignalmapper(self) -> None:
+        """Test AQSignalmapper."""
+
+        self.assertEqual(
+            qs2py("var sigMap = new AQSignalMapper(this);"), "sigMap = qsa.AQSignalMapper(self)\n"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

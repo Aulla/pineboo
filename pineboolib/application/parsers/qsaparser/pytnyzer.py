@@ -48,6 +48,7 @@ QSA_KNOWN_ATTRS = {
     "AQOdsStyle",
     "AQS",
     "AQSettings",
+    "AQSignalMapper",
     "AQSmtpClient",
     "AQSql",
     "AQSqlCursor",

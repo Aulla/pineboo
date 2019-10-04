@@ -61,7 +61,7 @@ from .pncontrolsfactory import Picture, Rect, Size, Pixmap  # noqa: F401
 # AQS
 from .pncontrolsfactory import AQS, AQUnpacker, AQSettings, AQSqlQuery  # noqa: F401
 from .pncontrolsfactory import AQSqlCursor, AQUtil, AQSql, AQSmtpClient  # noqa: F401
-
+from .pncontrolsfactory import AQSignalMapper  # noqa: F401
 
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 
