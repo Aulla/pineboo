@@ -444,7 +444,7 @@ class FLManagerModules(object):
 
             qtWidgetPlugings = filedir("plugins/custom_widgets")
             if qtWidgetPlugings not in uic.widgetPluginPath:
-                logger.warning("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
+                logger.info("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
                 uic.widgetPluginPath.append(qtWidgetPlugings)
             uic.loadUi(form_path, w_)
 
