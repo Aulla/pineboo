@@ -41,6 +41,11 @@ class TestKnownBugs(unittest.TestCase):
 
         self.assertEqual(qsa.System.getenv("TEST_PINEBOO"), "¡hola!")
 
+    def test_single_shot(self) -> None:
+        """Test single shot."""
+        value = 'qsa.sys.AQTimer.singleShot(0, qsa.from_project("formescarrosproveedor").reject)\n'
+        self.assertEqual(qs2py("sys.AQTimer.singleShot(0, formescarrosproveedor.reject);"), value)
+
     def test_multiples_if(self) -> None:
         """Check stackoverflow when parsing."""
 

@@ -347,11 +347,13 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
         if transform is not None and name in transform:
             return transform[name]
 
-        if STRICT_MODE and name.startswith("formRecord"):
+        if name.startswith("form") and len(name) > 4:
             return 'qsa.from_project("%s")' % name
+
         if STRICT_MODE:
             return "__undef__" + name
         else:
+
             return name
     else:
         if transform is not None and name in transform:
