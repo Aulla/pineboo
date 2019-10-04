@@ -294,7 +294,7 @@ class FormInternalObj(qsa.FormDBWidget):
             "git_updates_enabled", w.findChild(QtWidgets.QWidget, "cb_git_activar").isChecked()
         )
         self.grabarValorLocal(
-            "git_updates_repo", w.findChild(QtWidgets.QWidget, "le_git_ruta").text
+            "git_updates_repo", w.findChild(QtWidgets.QWidget, "le_git_ruta").text()
         )
         self.grabarValorLocal(
             "show_snaptshop_button", w.findChild(QtWidgets.QWidget, "cb_snapshot").isChecked()
