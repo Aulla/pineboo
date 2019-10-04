@@ -86,6 +86,9 @@ class FLReportViewer(QtWidgets.QWidget):
     autoClose_: bool
     styleName_: str
 
+    PrintGrayScale = 0
+    PrintColor = 1
+
     def __init__(
         self,
         parent: Optional[QtWidgets.QWidget] = None,

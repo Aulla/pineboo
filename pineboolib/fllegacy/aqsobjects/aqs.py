@@ -67,6 +67,11 @@ class FLTableDB(object):
     RefreshData = [False, True]
 
 
+class PrinterColorMode(object):
+    PrintGrayScale = 0
+    PrintColor = 1
+
+
 class Alignment(object):
     """Alignment enumerate class."""
 
@@ -74,7 +79,7 @@ class Alignment(object):
     WordBreak = QtCore.Qt.TextWordWrap
 
 
-class AQS(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment):
+class AQS(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment, PrinterColorMode):
     """AQS Class."""
 
     Box = None
