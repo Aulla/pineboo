@@ -68,6 +68,8 @@ class FLTableDB(object):
 
 
 class PrinterColorMode(object):
+    """PrintColorMode enumerate class."""
+
     PrintGrayScale = 0
     PrintColor = 1
 
