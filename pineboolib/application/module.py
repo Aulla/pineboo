@@ -105,6 +105,8 @@ class Module(object):
             #    #    self.logger.error("Error al leer el fichero %s %s", tablefile, e)
             #    #    continue
             try:
+                if contenido is None:
+                    continue
                 tableObj = parseTable(name, contenido)
             except ValueError as e:
                 self.logger.warning(

@@ -133,7 +133,7 @@ class PNStaticLoader(QtCore.QObject):
     def __init__(self, b: "AQStaticBdInfo", ui: QtWidgets.QWidget) -> None:
         """Create a new FLStaticLoader."""
 
-        super(FLStaticLoader, self).__init__()
+        super(PNStaticLoader, self).__init__()
 
         self.ui_ = ui
         self.b_ = b
@@ -282,7 +282,7 @@ class PNStaticLoader(QtCore.QObject):
     @staticmethod
     def setup(b: "AQStaticBdInfo", ui: QtWidgets.QWidget) -> None:
         """Configure user interface from given widget."""
-        diag_setup = FLStaticLoader(b, ui)
+        diag_setup = PNStaticLoader(b, ui)
         if QtWidgets.QDialog.Accepted == diag_setup.ui_.exec_():
             b.writeSettings()
 
