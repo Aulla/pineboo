@@ -93,28 +93,25 @@ class Module(object):
         for tablefile in self.files:
             if not tablefile.endswith(".mtd") or tablefile.find("alteredtable") > -1:
                 continue
-            else:
-                name, ext = os.path.splitext(tablefile)
-                application.project.conn.manager().metadata(name)
 
-        #    contenido = mng_modules.contentCached(tablefile)
-        #    name, ext = os.path.splitext(tablefile)
-        #    # path = _path(tablefile)
-        #    # if path is None:
-        #    #    raise Exception("Cannot find %s" % tablefile)
-        #    # try:
-        #    #    contenido = str(open(path, "rb").read(), "ISO-8859-15")
-        #    # except UnicodeDecodeError as e:
-        #    #    self.logger.error("Error al leer el fichero %s %s", tablefile, e)
-        #    #    continue
-        #    try:
-        #        tableObj = parseTable(name, contenido)
-        #    except ValueError as e:
-        #        self.logger.warning(
-        #            "No se pudo procesar. Se ignora tabla %s/%s (%s) ", self.name, name, e
-        #        )
+            contenido = mng_modules.contentCached(tablefile)
+            name, ext = os.path.splitext(tablefile)
+            #    # path = _path(tablefile)
+            #    # if path is None:
+            #    #    raise Exception("Cannot find %s" % tablefile)
+            #    # try:
+            #    #    contenido = str(open(path, "rb").read(), "ISO-8859-15")
+            #    # except UnicodeDecodeError as e:
+            #    #    self.logger.error("Error al leer el fichero %s %s", tablefile, e)
+            #    #    continue
+            try:
+                tableObj = parseTable(name, contenido)
+            except ValueError as e:
+                self.logger.warning(
+                    "No se pudo procesar. Se ignora tabla %s/%s (%s) ", self.name, name, e
+                )
 
-        #    self.tables[name] = tableObj
+            self.tables[name] = tableObj
 
         self.loaded = True
         return True
