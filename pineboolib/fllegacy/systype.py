@@ -1808,7 +1808,7 @@ class AbanQDbDumper(QtCore.QObject):
         fileName = Dir.convertSeparators(fileName)
         return fileName
 
-    def changeDirBase(self, dir_: Optional[str]) -> None:
+    def changeDirBase(self, dir_: Optional[str] = None) -> None:
         """Change base dir."""
         dirBasePath = dir_
         if not dirBasePath:
