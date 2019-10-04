@@ -260,6 +260,7 @@ def init_testing() -> None:
 
 def finish_testing() -> None:
     """Clear data from pineboo project."""
+    import time
 
     project.conn.manager().cleanupMetaData()
     project.actions = {}
@@ -274,6 +275,8 @@ def finish_testing() -> None:
     project.conn.driver_ = None
     project.conn.conn.close()
     project.conn.conn = None
+
+    time.sleep(0.5)  # Wait until database close ends
 
     from pineboolib.application import qsadictmodules
     import shutil
