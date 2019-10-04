@@ -10,7 +10,7 @@ from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import filedir
 
 from pineboolib.application.metadata import pnaction
-from . import flmodulesstaticloader
+from pineboolib.application.staticloader import pnmodulesstaticloader
 
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
 
@@ -107,7 +107,7 @@ class FLManagerModules(object):
     Uso interno.
     Informacion para la carga estatica desde el disco local
     """
-    staticBdInfo_: flmodulesstaticloader.AQStaticBdInfo
+    staticBdInfo_: pnmodulesstaticloader.AQStaticBdInfo
 
     root_dir_: str
     scripts_dir_: str
@@ -126,7 +126,7 @@ class FLManagerModules(object):
             raise ValueError("Database is required")
         self.conn_ = db
 
-        self.staticBdInfo_ = flmodulesstaticloader.AQStaticBdInfo(self.conn_)
+        self.staticBdInfo_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
         self.activeIdModule_ = None
         self.activeIdArea_ = None
         self.shaLocal_ = ""
@@ -165,7 +165,7 @@ class FLManagerModules(object):
 
         if self.staticBdInfo_:
             del self.staticBdInfo_
-            self.staticBdInfo_ = flmodulesstaticloader.AQStaticBdInfo(self.conn_)
+            self.staticBdInfo_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
 
         if self.dictKeyFiles:
             self.writeState()
@@ -912,7 +912,7 @@ class FLManagerModules(object):
         @return String with the contents of the file or None in case of error.
         """
 
-        str_ret = flmodulesstaticloader.FLStaticLoader.content(file_name, self.staticBdInfo_)
+        str_ret = pnmodulesstaticloader.PNStaticLoader.content(file_name, self.staticBdInfo_)
         if str_ret is not None:
             from pineboolib.fllegacy.flutil import FLUtil
 
@@ -952,4 +952,4 @@ class FLManagerModules(object):
         Display dialog box to configure static load from local disk.
         """
         ui = self.createUI(filedir("./system_module/forms/FLStaticLoaderUI.ui"))
-        flmodulesstaticloader.FLStaticLoader.setup(self.staticBdInfo_, ui)
+        pnmodulesstaticloader.PNStaticLoader.setup(self.staticBdInfo_, ui)

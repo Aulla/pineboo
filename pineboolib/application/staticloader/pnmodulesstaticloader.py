@@ -13,9 +13,11 @@ from pineboolib.core import decorators
 
 
 from pineboolib.core.settings import config
-from pineboolib.fllegacy.flutil import FLUtil
-from pineboolib.fllegacy import flapplication
-from pineboolib.fllegacy.flcheckbox import FLCheckBox
+from pineboolib.application.qsatypes.sysbasetype import SysBaseType
+
+# from pineboolib.fllegacy.flutil import FLUtil
+# from pineboolib.fllegacy import flapplication
+# from pineboolib.fllegacy.flcheckbox import FLCheckBox
 
 from typing import Any, List, Optional, cast, TYPE_CHECKING
 
@@ -119,51 +121,13 @@ class FLStaticLoaderWarning(QtCore.QObject):
         msg += "</font><br></p>"
         self.warns_.clear()
 
-        flapplication.aqApp.popupWarn(msg)
-
-    @decorators.NotImplementedWarn
-    def scriptBaseFileName(self, name: str) -> Any:
-        """Return script object given a basename "name"."""
-        scripts = flapplication.aqApp.project().scripts()
-        for it in scripts:
-            if it.baseFileName() == name:
-                return it
-
-        return None
-
-    def updateScripts(self) -> None:
-        """Read disk and update any scripts."""
-        if not self.paths_:
-            return
-
-        suf_mn = "::Main"
-        suf_fm = "::Form"
-        suf_fr = "::FormRecod"
-
-        for it in self.paths_:
-            n = it.section(":", 0, 0)
-            if not n.endswith(".qs") or not n.endswith(".qs.py"):
-                continue
-
-            src = self.scriptBaseFileName(n + suf_mn)
-            if src:
-                src.__setFilename(it.section(":", 1, 1) + n)
-
-            src = self.scriptBaseFileName(n + suf_fm)
-            if src:
-                src.__setFilename(it.section(":", 1, 1) + n)
-
-            src = self.scriptBaseFileName(n + suf_fr)
-            if src:
-                src.__setFilename(it.section(":", 1, 1) + n)
-
-        self.paths_.clear()
+        # flapplication.aqApp.popupWarn(msg) #FIXME
 
 
 warn_: Optional[FLStaticLoaderWarning] = None
 
 
-class FLStaticLoader(QtCore.QObject):
+class PNStaticLoader(QtCore.QObject):
     """Perform static loading of scripts from filesystem."""
 
     def __init__(self, b: "AQStaticBdInfo", ui: QtWidgets.QWidget) -> None:
@@ -215,7 +179,8 @@ class FLStaticLoader(QtCore.QObject):
             for info in self.b_.dirs_:
                 self.tblDirs.setText(row, 0, info.path_)
 
-                chk = FLCheckBox(self.tblDirs, row)
+                # chk = QtWidgets.QCheckBox(self.tblDirs, row)
+                chk = QtWidgets.QCheckBox(self.tblDirs)
                 chk.setChecked(info.active_)
                 chk.toggled.connect(self.setChecked)
                 self.tblDirs.setCellWidget(row, 1, chk)
@@ -239,7 +204,8 @@ class FLStaticLoader(QtCore.QObject):
             self.tblDirs.setNumRows(n_rows + 1)
             self.tblDirs.setText(n_rows, 0, dir)
 
-            chk = FLCheckBox(self.tblDirs, n_rows)
+            # chk = QtWidgets.QCheckBox(self.tblDirs, n_rows)
+            chk = QtWidgets.QCheckBox(self.tblDirs)
             chk.setChecked(True)
             chk.toggled.connect(self.setChecked)
 
@@ -325,8 +291,7 @@ class FLStaticLoader(QtCore.QObject):
         """Get content from given path."""
         global warn_
         b.readSettings()
-        util = FLUtil()
-        separator = "\\" if util.getOS().find("WIN") > -1 else "/"
+        separator = "\\" if SysBaseType.osName().find("WIN") > -1 else "/"
         for info in b.dirs_:
             content_path = info.path_ + separator + n
             if info.active_ and os.path.exists(content_path):

@@ -57,15 +57,15 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
 
         mng_modules = project.conn.managerModules()
         if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
-            from pineboolib.fllegacy.flmodulesstaticloader import FLStaticLoader  # FIXME
+            from pineboolib.application.staticloader.pnmodulesstaticloader import PNStaticLoader
 
-            ret_py = FLStaticLoader.content(
+            ret_py = PNStaticLoader.content(
                 "%s.qs.py" % scriptname, mng_modules.staticBdInfo_, True
             )  # Con True solo devuelve el path
             if ret_py:
                 script_path_py = ret_py
             else:
-                ret_qs = FLStaticLoader.content(
+                ret_qs = PNStaticLoader.content(
                     "%s.qs" % scriptname, mng_modules.staticBdInfo_, True
                 )  # Con True solo devuelve el path
                 if ret_qs:
