@@ -1340,7 +1340,7 @@ class FLFieldDB(QtWidgets.QWidget):
             except Exception:
                 self.logger.exception("Error al desconectar señal textChanged")
 
-            if nulo and v in (None, 0):
+            if nulo and not v:
                 dv = field.defaultValue()
                 if field.allowNull():
                     if dv is None:
@@ -1350,9 +1350,10 @@ class FLFieldDB(QtWidgets.QWidget):
                 else:
                     if dv is not None:
                         self.editor_.setText(dv)
+
             else:
-                if v in (None, 0):
-                    self.editor_.setText("")
+                if not v:
+                    self.editor_.setText(0)
                 else:
                     self.editor_.setText(v)
 
