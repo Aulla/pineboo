@@ -60,7 +60,7 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
             from pineboolib.application.staticloader.pnmodulesstaticloader import PNStaticLoader
 
             ret_py = PNStaticLoader.content(
-                "%s.qs.py" % scriptname, mng_modules.staticBdInfo_, True
+                "%s.py" % scriptname, mng_modules.staticBdInfo_, True
             )  # Con True solo devuelve el path
             if ret_py:
                 script_path_py = ret_py
