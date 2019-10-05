@@ -1528,11 +1528,10 @@ class Member(ASTPython):
 
         # Deteccion de llamada a modulo externo
         if (
-            STRICT_MODE
-            and len(arguments) >= 3
+            len(arguments) >= 3
             and arguments[1] == "iface"
             and arguments[0] != "self"
-            and arguments[0].startswith("__undef__")
+            and not arguments[0].startswith("qsa.from_project")
         ):
             arguments[0] = 'qsa.from_project("%s")' % arguments[0].replace("__undef__", "")
         # Lectura del self.iface.__init

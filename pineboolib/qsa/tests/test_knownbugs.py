@@ -41,6 +41,11 @@ class TestKnownBugs(unittest.TestCase):
 
         self.assertEqual(qsa.System.getenv("TEST_PINEBOO"), "¡hola!")
 
+    def test_reg_exp(self) -> None:
+        """Test regExp parser."""
+        value = """var reg_exp:RegExp = new RegExp( "''" );\nreg_exp.global = true;"""
+        self.assertEqual(qs2py(value), """reg_exp = qsa.RegExp("''")\nreg_exp.global_ = True\n""")
+
     def test_from_project(self) -> None:
         """Test from_project parser."""
         value_1 = (

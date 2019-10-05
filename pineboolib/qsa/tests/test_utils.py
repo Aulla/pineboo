@@ -115,3 +115,10 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(utils.isnan("0"))
         self.assertFalse(utils.isnan(11.21))
         self.assertFalse(utils.isnan("16.01"))
+
+    def test_regexp(self) -> None:
+        """Test regexp."""
+        regexp = utils.RegExp("''")
+        self.assertFalse(regexp.global_)
+        regexp.global_ = True
+        self.assertTrue(regexp.global_)
