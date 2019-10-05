@@ -298,7 +298,7 @@ class PNStaticLoader(QtCore.QObject):
                 if not warn_:
                     warn_ = FLStaticLoaderWarning()
 
-                timer = QtCore.QTimer
+                # timer = QtCore.QTimer
                 # if not warn_.warns_ and config.value("ebcomportamiento/SLInterface", True):
                 #    timer.singleShot(500, warn_.popupWarnings)
 
