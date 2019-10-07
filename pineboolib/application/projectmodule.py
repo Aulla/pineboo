@@ -280,7 +280,7 @@ class Project(object):
 
             if os.path.exists(file_name):
                 if file_name.endswith(".qs"):
-                    if os.path.exists("%s.py" % file_name):
+                    if os.path.exists("%s.py" % file_name[:-3]):
                         continue
 
                 elif file_name.endswith(".mtd"):
@@ -514,7 +514,7 @@ class Project(object):
 
         itemlist = [
             pyconvert.PythonifyItem(
-                src=path_file, dst="%s.py" % path_file, n=n, len=len(path_list), known={}
+                src=path_file, dst="%s.py" % path_file[:-3], n=n, len=len(path_list), known={}
             )
             for n, path_file in enumerate(path_list)
         ]

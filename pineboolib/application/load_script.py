@@ -1,7 +1,7 @@
 """Load_script module."""
 
 from pineboolib.core.utils import logging
-from .utils.path import _path, coalesce_path
+from .utils.path import _path
 
 
 from typing import Optional, Any
@@ -30,8 +30,6 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
     else:
         logger.info("No script to load for action %s", action_.name)
 
-    python_script_path = None
-
     from pineboolib.qsa import emptyscript  # type: ignore
 
     script_loaded: Any = emptyscript
@@ -53,7 +51,7 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
 
         if script_path_py is None:
             script_path_qs = _path("%s.qs" % scriptname, False)
-            script_path_py = coalesce_path("%s.py" % scriptname, "%s.qs.py" % scriptname, None)
+            script_path_py = _path("%s.py" % scriptname, False)
 
         mng_modules = project.conn.managerModules()
         if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
@@ -86,19 +84,19 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
                 logger.exception("ERROR al cargar script PY para la accion %s:", action_.name)
 
         elif script_path_qs:
-            script_path_py = "%s.py" % script_path_qs
+            script_path_py = "%s.py" % script_path_qs[:-3]
             if not os.path.exists(script_path_py):
                 project.parse_script_list([script_path_qs])
 
             logger.info("Loading script QS %s . . . ", scriptname)
-            python_script_path = "%s.py" % script_path_qs
+            # python_script_path = "%s.py" % script_path_qs[:-3]
             try:
                 logger.debug(
                     "Cargando %s : %s ",
                     scriptname,
-                    python_script_path.replace(project.tmpdir, "tempdata"),
+                    script_path_py.replace(project.tmpdir, "tempdata"),
                 )
-                loader = machinery.SourceFileLoader(scriptname, python_script_path)
+                loader = machinery.SourceFileLoader(scriptname, script_path_py)
                 script_loaded = loader.load_module()  # type: ignore
             except Exception:
                 logger.exception("ERROR al cargar script QS para la accion %s:", action_.name)
