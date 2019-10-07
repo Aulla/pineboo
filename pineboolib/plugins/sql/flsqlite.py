@@ -37,7 +37,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def __init__(self):
         """Inicialize."""
-
+        super().__init__()
         self.logger = logging.getLogger("FLSqLite")
         self.version_ = "0.6"
         self.conn_ = None

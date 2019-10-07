@@ -32,10 +32,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     """MYISAM Driver class."""
 
     cursorsArray_: Dict[str, Any]  # IApiCursor
-    cursor_: Any
 
     def __init__(self):
         """Create empty driver."""
+        super().__init__()
         self.version_ = "0.8"
         self.conn_ = None
         self.name_ = "FLMYSQL_MyISAM"

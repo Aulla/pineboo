@@ -41,6 +41,7 @@ class FLREMOTECLIENT(pnsqlschema.PNSqlSchema):
 
     def __init__(self) -> None:
         """Inicialize."""
+        super().__init__()
         self.version_ = "0.6"
         self.conn_ = None
         self.name_ = "REMOTECLIENT"

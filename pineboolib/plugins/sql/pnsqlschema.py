@@ -30,6 +30,7 @@ class PNSqlSchema(object):
     engine_: Any
     session_: Any
     declarative_base_: Any
+    cursor_: Any
 
     def __init__(self):
         """Inicialize."""
@@ -46,6 +47,7 @@ class PNSqlSchema(object):
         self.session_ = None
         self.declarative_base_ = None
         self.lastError_ = None
+        self.cursor_ = None
 
     def useThreads(self) -> bool:
         """Return True if the driver use threads."""

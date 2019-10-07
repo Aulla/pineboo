@@ -24,10 +24,10 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
     """MYISAM2 Driver class."""
 
     cursorsArray_: Dict[str, Any]  # IApiCursor
-    cursor_: Any
 
     def __init__(self):
         """Create empty driver."""
+        super().__init__()
         self.version_ = "0.8"
         self.conn_ = None
         self.name_ = "FLMYSQL_MyISAM2"
@@ -69,7 +69,7 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
                 autocommit=True,
             )
             self.engine_ = create_engine(
-                "mysql+mysqldb://%s:%s@%s:%s/%s"
+                "mysql+pymysql://%s:%s@%s:%s/%s"
                 % (db_userName, db_password, db_host, db_port, db_name)
             )
         except pymysql.Error as e:

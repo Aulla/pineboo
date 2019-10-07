@@ -395,6 +395,12 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     ) -> None:
         """Return data fetched."""
         sql = "FETCH %d FROM %s" % (number, curname)
+
+        sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % curname
+        cursor.execute(sql_exists)
+        if cursor.fetchone() is None:
+            return
+
         try:
             cursor.execute(sql)
         except Exception as e:
