@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>frmLogin</class>
+ <class>DlgConnect</class>
  <widget class="QWidget" name="frmLogin">
   <property name="geometry">
    <rect>
