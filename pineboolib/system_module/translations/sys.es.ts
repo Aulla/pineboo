@@ -16,6 +16,155 @@
         <source>Carpeta profiles</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="32"/>
+        <source>Acceso</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="50"/>
+        <source>Perfil :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="67"/>
+        <source>Borra el perfil seleccionado</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="84"/>
+        <source>Edita el perfil seleccionado</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="490"/>
+        <source>Contraseña :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="147"/>
+        <source>Entrar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="717"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="231"/>
+        <source>Nuevo Perfil</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="239"/>
+        <source>Descripción :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="266"/>
+        <source>Base de Datos :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="293"/>
+        <source>Tipo Servidor :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="320"/>
+        <source>Url Servidor :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="347"/>
+        <source>Puerto Servidor :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="387"/>
+        <source>Usuario BD :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="414"/>
+        <source>Contraseña BD :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="457"/>
+        <source>Rep. Contraseña BD :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="520"/>
+        <source>Rep. Contraseña :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="576"/>
+        <source>Acceso sin contraseña</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="591"/>
+        <source>Guardar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="602"/>
+        <source>Acerca de</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="608"/>
+        <source>Pico Eneboo Core. 2018</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="615"/>
+        <source>Desarrollado por la comunidad Eneboo
+ basandose en el proyecto pineboo de:
+ David Martínez Martí</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="624"/>
+        <source>https://github.com/deavid/pineboo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="637"/>
+        <source>Licencia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="644"/>
+        <source>Copyright © 2012-2019 David Martínez Martí
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the “Software”), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="695"/>
+        <source>Ruta profiles :</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FLApplication</name>
@@ -354,6 +503,29 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Form1</name>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="16"/>
+        <source>Form1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="27"/>
+        <source>GRUPO</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="38"/>
+        <source>field_01</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="73"/>
+        <source>Botón uno</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -850,142 +1022,142 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="366"/>
+        <location filename="../forms/ebcomportamiento.ui" line="359"/>
         <source>QSA</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="387"/>
+        <location filename="../forms/ebcomportamiento.ui" line="380"/>
         <source>Parsear todo el QSA al iniciar.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="404"/>
+        <location filename="../forms/ebcomportamiento.ui" line="397"/>
         <source>QT3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="425"/>
+        <location filename="../forms/ebcomportamiento.ui" line="418"/>
         <source>No usar el spacer en modo legacy (Abanq/Eneboo).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="435"/>
+        <location filename="../forms/ebcomportamiento.ui" line="428"/>
         <source>ORM sqlAlchemy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="456"/>
+        <location filename="../forms/ebcomportamiento.ui" line="449"/>
         <source>Desactivar conversor de ficheros MTD a model ORM.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="463"/>
+        <location filename="../forms/ebcomportamiento.ui" line="456"/>
         <source>Desactivar carga de models ORM en QSA.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="473"/>
+        <location filename="../forms/ebcomportamiento.ui" line="466"/>
         <source>KUGAR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="494"/>
+        <location filename="../forms/ebcomportamiento.ui" line="487"/>
         <source>Habilitar modo debug.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="504"/>
+        <location filename="../forms/ebcomportamiento.ui" line="497"/>
         <source>Otros</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="532"/>
+        <location filename="../forms/ebcomportamiento.ui" line="525"/>
         <source>Forzar modo Mobile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="542"/>
+        <location filename="../forms/ebcomportamiento.ui" line="535"/>
         <source>Snapshot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="580"/>
+        <location filename="../forms/ebcomportamiento.ui" line="573"/>
         <source>Traducciones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="601"/>
+        <location filename="../forms/ebcomportamiento.ui" line="594"/>
         <source>Usar traducciones QM.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="631"/>
+        <location filename="../forms/ebcomportamiento.ui" line="624"/>
         <source>Ficheros</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="654"/>
+        <location filename="../forms/ebcomportamiento.ui" line="647"/>
         <source>Carpeta temporales:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="668"/>
+        <location filename="../forms/ebcomportamiento.ui" line="661"/>
         <source>Cam&amp;biar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="671"/>
+        <location filename="../forms/ebcomportamiento.ui" line="664"/>
         <source>Alt+B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="741"/>
+        <location filename="../forms/ebcomportamiento.ui" line="734"/>
         <source>Actualizaciones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="762"/>
+        <location filename="../forms/ebcomportamiento.ui" line="755"/>
         <source>Activar actualizaciones.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="771"/>
+        <location filename="../forms/ebcomportamiento.ui" line="764"/>
         <source>Repositorio GIT :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="811"/>
+        <location filename="../forms/ebcomportamiento.ui" line="804"/>
         <source>Buscar Actualizaciones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="828"/>
+        <location filename="../forms/ebcomportamiento.ui" line="821"/>
         <source>Globales</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="838"/>
+        <location filename="../forms/ebcomportamiento.ui" line="831"/>
         <source>Datos Vertical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="945"/>
+        <location filename="../forms/ebcomportamiento.ui" line="938"/>
         <source>&amp;Guardar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="948"/>
+        <location filename="../forms/ebcomportamiento.ui" line="941"/>
         <source>Alt+G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="955"/>
+        <location filename="../forms/ebcomportamiento.ui" line="948"/>
         <source>&amp;Cancelar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="958"/>
+        <location filename="../forms/ebcomportamiento.ui" line="951"/>
         <source>Alt+C</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1035,57 +1207,52 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="356"/>
-        <source>Mostrar carga estática y parser en interface gráfico.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../forms/ebcomportamiento.ui" line="394"/>
+        <location filename="../forms/ebcomportamiento.ui" line="387"/>
         <source>Convertir a Python los script QSA al cargar un módulo en la BD.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="525"/>
+        <location filename="../forms/ebcomportamiento.ui" line="518"/>
         <source>Eliminar carpeta caché al iniciar.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="563"/>
+        <location filename="../forms/ebcomportamiento.ui" line="556"/>
         <source>Mostrar botón para capturar pantalla en formularios.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="625"/>
+        <location filename="../forms/ebcomportamiento.ui" line="618"/>
         <source>Caché</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="680"/>
+        <location filename="../forms/ebcomportamiento.ui" line="673"/>
         <source>No borrar caché común al iniciar.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="896"/>
+        <location filename="../forms/ebcomportamiento.ui" line="889"/>
         <source>Imágenes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="711"/>
+        <location filename="../forms/ebcomportamiento.ui" line="704"/>
         <source>No cachear Imágenes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="846"/>
+        <location filename="../forms/ebcomportamiento.ui" line="839"/>
         <source>Descripción (acepta HTML)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="860"/>
+        <location filename="../forms/ebcomportamiento.ui" line="853"/>
         <source>Mostrar información de conexión en la barra de tareas.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/ebcomportamiento.ui" line="902"/>
+        <location filename="../forms/ebcomportamiento.ui" line="895"/>
         <source>Usar múltiples tablas FLLarge (modo AbanQ).</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1133,158 +1300,6 @@ registros de esta tabla : %s</source>
     <message>
         <location filename="../forms/flgroups.ui" line="214"/>
         <source>flusers</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>frmLogin</name>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="32"/>
-        <source>Acceso</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="50"/>
-        <source>Perfil :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="67"/>
-        <source>Borra el perfil seleccionado</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="84"/>
-        <source>Edita el perfil seleccionado</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="147"/>
-        <source>Entrar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="717"/>
-        <source>...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="231"/>
-        <source>Nuevo Perfil</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="266"/>
-        <source>Base de Datos :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="293"/>
-        <source>Tipo Servidor :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="320"/>
-        <source>Url Servidor :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="347"/>
-        <source>Puerto Servidor :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="387"/>
-        <source>Usuario BD :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="591"/>
-        <source>Guardar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="602"/>
-        <source>Acerca de</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="608"/>
-        <source>Pico Eneboo Core. 2018</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="624"/>
-        <source>https://github.com/deavid/pineboo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="637"/>
-        <source>Licencia</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="695"/>
-        <source>Ruta profiles :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="490"/>
-        <source>Contraseña :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="239"/>
-        <source>Descripción :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="414"/>
-        <source>Contraseña BD :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="457"/>
-        <source>Rep. Contraseña BD :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="520"/>
-        <source>Rep. Contraseña :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="576"/>
-        <source>Acceso sin contraseña</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="615"/>
-        <source>Desarrollado por la comunidad Eneboo
- basandose en el proyecto pineboo de:
- David Martínez Martí</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="644"/>
-        <source>Copyright © 2012-2019 David Martínez Martí
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the “Software”), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1499,6 +1514,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../fllegacy/tests/test_translations.py" line="15"/>
+        <source>multiple variable %s , %s</source>
+        <translation>Test %s y %s</translation>
+    </message>
+    <message>
         <location filename="../../core/error_manager.py" line="58"/>
         <source>No se ha traducido el script o el script está vacio.</source>
         <translation type="unfinished"></translation>
@@ -1517,12 +1537,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <location filename="../../core/error_manager.py" line="82"/>
         <source>Información no disponible.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/tests/test_translations.py" line="15"/>
-        <source>multiple variable %s , %s</source>
-        <translatorcomment>test Translations</translatorcomment>
-        <translation>Test %s y %s</translation>
     </message>
     <message>
         <location filename="../scripts/flmodules.py" line="118"/>
@@ -1627,12 +1641,12 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="39"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="27"/>
         <source>&amp;Principal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="58"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="43"/>
         <source>&amp;Usuarios</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1642,32 +1656,32 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="107"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="300"/>
         <source>Opciones de comportamiento</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="254"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="309"/>
         <source>Ctrl+P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="128"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="272"/>
         <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="146"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="144"/>
         <source>Ctrl+C</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="164"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="235"/>
         <source>Ctrl+B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="179"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="161"/>
         <source>Ctrl+L</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1682,12 +1696,12 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="194"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="121"/>
         <source>Ctrl+R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="209"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="98"/>
         <source>Ctrl+M</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1702,17 +1716,17 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="224"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="249"/>
         <source>Ctrl+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="236"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="175"/>
         <source>Reiniciar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="239"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="178"/>
         <source>Ctrl+H</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1722,37 +1736,37 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="251"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="283"/>
         <source>Copia de Seguridad</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="263"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="192"/>
         <source>U&amp;suarios</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="266"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="189"/>
         <source>Usuarios</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="269"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="198"/>
         <source>Ctrl+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="278"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="212"/>
         <source>&amp;Grupos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="281"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="209"/>
         <source>Grupos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="284"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="221"/>
         <source>Ctrl+G</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1767,7 +1781,7 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="140"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="135"/>
         <source>&amp;Cargar Módulo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1777,7 +1791,7 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="161"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="232"/>
         <source>Cargar Directorio de Módulos</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1792,13 +1806,118 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../forms/sys.ui" line="203"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="86"/>
         <source>&amp;Módulos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../forms/sys.ui" line="206"/>
         <source>Módulos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="16"/>
+        <source>Administración</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="19"/>
+        <source>Administración del sistema</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="53"/>
+        <source>Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="92"/>
+        <source>Módulos (Ctrl+M)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="95"/>
+        <source>Administración de los módulos de aplicación (Ctrl+M)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="112"/>
+        <source>Á&amp;reas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="115"/>
+        <source>Áreas (Ctrl+R)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="118"/>
+        <source>Áreas de negocio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="138"/>
+        <source>Cargar Módulo (Ctrl+C)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="141"/>
+        <source>Carga un módulo desde disco</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="158"/>
+        <source>Recargar último módulo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="195"/>
+        <source>Usuarios del sistema</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="218"/>
+        <source>Grupos de usuarios</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="246"/>
+        <source>Regenerar base de datos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="260"/>
+        <source>Cargar Paquete de Módulos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="263"/>
+        <source>Cargar Pa&amp;quete de Módulos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="266"/>
+        <source>Cargar Paquete de Módulos (CTRL + Q)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="269"/>
+        <source>Carga Paquetes de Módulos .eneboopkg o .abanq2.4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="286"/>
+        <source>Copia de Seguridad (Ctrl + P)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="303"/>
+        <source>Opciones de comportamiento (Ctrl + P)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="306"/>
+        <source>Opciones de comportamiento del ejecutable</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
