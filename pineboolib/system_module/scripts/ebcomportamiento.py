@@ -49,9 +49,6 @@ class FormInternalObj(qsa.FormDBWidget):
             self.leerValorLocal("isDebuggerMode")
         )
         w.findChild(QtWidgets.QWidget, u"cbSLConsola").setChecked(self.leerValorLocal("SLConsola"))
-        w.findChild(QtWidgets.QWidget, u"cbSLInterface").setChecked(
-            self.leerValorLocal("SLInterface")
-        )
         w.findChild(QtWidgets.QWidget, u"leCallFunction").setText(
             self.leerValorLocal("ebCallFunction")
         )
@@ -248,9 +245,6 @@ class FormInternalObj(qsa.FormDBWidget):
         )
         self.grabarValorLocal(
             "SLConsola", w.findChild(QtWidgets.QWidget, u"cbSLConsola").isChecked()
-        )
-        self.grabarValorLocal(
-            "SLInterface", w.findChild(QtWidgets.QWidget, u"cbSLInterface").isChecked()
         )
         self.grabarValorLocal(
             "ebCallFunction", w.findChild(QtWidgets.QWidget, u"leCallFunction").text()

@@ -27,7 +27,7 @@
        <item>
         <widget class="QTabWidget" name="tbwLocales">
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tabControles">
           <attribute name="title">
@@ -347,13 +347,6 @@
                <widget class="QCheckBox" name="cbSLConsola">
                 <property name="text">
                  <string>Mostrar carga estática en consola.</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="cbSLInterface">
-                <property name="text">
-                 <string>Mostrar carga estática y parser en interface gráfico.</string>
                 </property>
                </widget>
               </item>
