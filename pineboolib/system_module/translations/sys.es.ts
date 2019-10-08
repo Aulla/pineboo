@@ -37,11 +37,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="490"/>
-        <source>Contraseña :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="147"/>
         <source>Entrar</source>
         <translation type="unfinished"></translation>
@@ -54,11 +49,6 @@
     <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="231"/>
         <source>Nuevo Perfil</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="239"/>
-        <source>Descripción :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -87,6 +77,46 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="591"/>
+        <source>Guardar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="602"/>
+        <source>Acerca de</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="608"/>
+        <source>Pico Eneboo Core. 2018</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="624"/>
+        <source>https://github.com/deavid/pineboo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="637"/>
+        <source>Licencia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="695"/>
+        <source>Ruta profiles :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="490"/>
+        <source>Contraseña :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="239"/>
+        <source>Descripción :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="414"/>
         <source>Contraseña BD :</source>
         <translation type="unfinished"></translation>
@@ -107,35 +137,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="591"/>
-        <source>Guardar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="602"/>
-        <source>Acerca de</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="608"/>
-        <source>Pico Eneboo Core. 2018</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="615"/>
         <source>Desarrollado por la comunidad Eneboo
  basandose en el proyecto pineboo de:
  David Martínez Martí</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="624"/>
-        <source>https://github.com/deavid/pineboo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="637"/>
-        <source>Licencia</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -158,11 +163,6 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="695"/>
-        <source>Ruta profiles :</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -514,17 +514,42 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="27"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="73"/>
         <source>GRUPO</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="38"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="84"/>
         <source>field_01</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="73"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="119"/>
+        <source>JEJE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="146"/>
+        <source>groupBox2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="161"/>
+        <source>Tab 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="169"/>
+        <source>Tab 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="182"/>
+        <source>checkBox1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="41"/>
         <source>Botón uno</source>
         <translation type="unfinished"></translation>
     </message>
@@ -592,7 +617,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="396"/>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="912"/>
         <source>Mostrar Consola de mensajes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -634,6 +659,61 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <message>
         <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="1089"/>
         <source>Listo.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="700"/>
+        <source>AÃ±adir Marcadores</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="720"/>
+        <source>Eliminar Marcador</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="842"/>
+        <source>MenÃº</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="891"/>
+        <source>Configurar carga estÃ¡tica</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="903"/>
+        <source>Recargar scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="921"/>
+        <source>&amp;Salir</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="997"/>
+        <source>Marcadores</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="999"/>
+        <source>Recientes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1001"/>
+        <source>MÃ³dulos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1005"/>
+        <source>&amp;Vistas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1127"/>
+        <source>MÃ¡s</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1407,6 +1487,14 @@ registros de esta tabla : %s</source>
     </message>
 </context>
 <context>
+    <name>python</name>
+    <message>
+        <location filename="../../fllegacy/tests/test_systype.py" line="54"/>
+        <source>hola python sin group</source>
+        <translation>Hola de nuevo!</translation>
+    </message>
+</context>
+<context>
     <name>scripts</name>
     <message>
         <location filename="../scripts/flreloadbatch.py" line="293"/>
@@ -1429,27 +1517,27 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/systype.py" line="152"/>
+        <location filename="../../fllegacy/systype.py" line="144"/>
         <source>Bloqueos de la base de datos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/systype.py" line="179"/>
+        <location filename="../../fllegacy/systype.py" line="171"/>
         <source>Registro bloqueado</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/systype.py" line="574"/>
+        <location filename="../../fllegacy/systype.py" line="566"/>
         <source>Seleccionar Fichero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/tests/test_translations.py" line="13"/>
+        <location filename="../../fllegacy/tests/test_flutil.py" line="13"/>
         <source>single</source>
         <translation>simple!</translation>
     </message>
     <message>
-        <location filename="../../fllegacy/tests/test_translations.py" line="14"/>
+        <location filename="../../fllegacy/tests/test_flutil.py" line="14"/>
         <source>variable %s</source>
         <translation>con variable %s!</translation>
     </message>
@@ -1514,9 +1602,14 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/tests/test_translations.py" line="15"/>
+        <location filename="../../fllegacy/tests/test_flutil.py" line="15"/>
         <source>multiple variable %s , %s</source>
         <translation>Test %s y %s</translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/tests/test_systype.py" line="53"/>
+        <source>hola python</source>
+        <translation>Holaaaaa</translation>
     </message>
     <message>
         <location filename="../../core/error_manager.py" line="58"/>
@@ -1771,6 +1864,41 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="53"/>
+        <source>Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="195"/>
+        <source>Usuarios del sistema</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="218"/>
+        <source>Grupos de usuarios</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="246"/>
+        <source>Regenerar base de datos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="286"/>
+        <source>Copia de Seguridad (Ctrl + P)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="303"/>
+        <source>Opciones de comportamiento (Ctrl + P)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="306"/>
+        <source>Opciones de comportamiento del ejecutable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../forms/sys.ui" line="122"/>
         <source>Cargar pa&amp;quete de módulos</source>
         <translation type="unfinished"></translation>
@@ -1826,11 +1954,6 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="53"/>
-        <source>Toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="92"/>
         <source>Módulos (Ctrl+M)</source>
         <translation type="unfinished"></translation>
@@ -1871,21 +1994,6 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="195"/>
-        <source>Usuarios del sistema</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="218"/>
-        <source>Grupos de usuarios</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="246"/>
-        <source>Regenerar base de datos</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="260"/>
         <source>Cargar Paquete de Módulos</source>
         <translation type="unfinished"></translation>
@@ -1903,21 +2011,6 @@ Licencia del módulo no aceptada.</source>
     <message>
         <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="269"/>
         <source>Carga Paquetes de Módulos .eneboopkg o .abanq2.4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="286"/>
-        <source>Copia de Seguridad (Ctrl + P)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="303"/>
-        <source>Opciones de comportamiento (Ctrl + P)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui" line="306"/>
-        <source>Opciones de comportamiento del ejecutable</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

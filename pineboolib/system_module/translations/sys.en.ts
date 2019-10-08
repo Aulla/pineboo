@@ -513,18 +513,43 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="27"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="73"/>
         <source>GRUPO</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="38"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="84"/>
         <source>field_01</source>
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
-        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="73"/>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="41"/>
         <source>Botón uno</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="119"/>
+        <source>JEJE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="146"/>
+        <source>groupBox2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="161"/>
+        <source>Tab 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="169"/>
+        <source>Tab 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui" line="182"/>
+        <source>checkBox1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -591,7 +616,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="396"/>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="912"/>
         <source>Mostrar Consola de mensajes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -633,6 +658,61 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <message>
         <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="1089"/>
         <source>Listo.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="700"/>
+        <source>A&#xc3;&#xb1;adir Marcadores</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="720"/>
+        <source>Eliminar Marcador</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="842"/>
+        <source>Men&#xc3;&#xba;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="891"/>
+        <source>Configurar carga est&#xc3;&#xa1;tica</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="903"/>
+        <source>Recargar scripts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="921"/>
+        <source>&amp;Salir</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="997"/>
+        <source>Marcadores</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="999"/>
+        <source>Recientes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1001"/>
+        <source>M&#xc3;&#xb3;dulos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1005"/>
+        <source>&amp;Vistas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1127"/>
+        <source>M&#xc3;&#xa1;s</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1302,9 +1382,6 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
-<context>
-    <name>frmLogin</name>
-</context>
 <context encoding="UTF-8">
     <name>mainwindow</name>
     <message>
@@ -1408,6 +1485,14 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>python</name>
+    <message>
+        <location filename="../../fllegacy/tests/test_systype.py" line="54"/>
+        <source>hola python sin group</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 <context encoding="UTF-8">
     <name>scripts</name>
     <message>
@@ -1451,27 +1536,27 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/systype.py" line="152"/>
+        <location filename="../../fllegacy/systype.py" line="144"/>
         <source>Bloqueos de la base de datos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/systype.py" line="179"/>
+        <location filename="../../fllegacy/systype.py" line="171"/>
         <source>Registro bloqueado</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/systype.py" line="574"/>
+        <location filename="../../fllegacy/systype.py" line="566"/>
         <source>Seleccionar Fichero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/tests/test_translations.py" line="13"/>
+        <location filename="../../fllegacy/tests/test_flutil.py" line="13"/>
         <source>single</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/tests/test_translations.py" line="14"/>
+        <location filename="../../fllegacy/tests/test_flutil.py" line="14"/>
         <source>variable %s</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1630,8 +1715,13 @@ Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/tests/test_translations.py" line="15"/>
+        <location filename="../../fllegacy/tests/test_flutil.py" line="15"/>
         <source>multiple variable %s , %s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/tests/test_systype.py" line="53"/>
+        <source>hola python</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
