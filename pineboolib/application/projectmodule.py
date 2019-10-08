@@ -364,8 +364,6 @@ class Project(object):
             # from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import load_models
             # load_models()
 
-        self.message_manager().send("splash", "showMessage", ["Cargando traducciones ..."])
-
         # FIXME: ACLs needed at this level?
         # self.acl_ = FLAccessControlLists()
         # self.acl_.init()

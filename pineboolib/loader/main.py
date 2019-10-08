@@ -458,7 +458,7 @@ def exec_main(options: Values) -> int:
     project.load_modules()
 
     # FIXME: move this code to pineboo.application
-
+    project.message_manager().send("splash", "showMessage", ["Cargando traducciones ..."])
     aqApp.loadTranslations()
 
     from .init_project import init_project
