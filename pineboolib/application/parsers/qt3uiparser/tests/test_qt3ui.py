@@ -3,6 +3,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
+from PyQt5 import QtWidgets, QtCore
 
 
 class TestQT3UIParser(unittest.TestCase):
@@ -15,9 +16,28 @@ class TestQT3UIParser(unittest.TestCase):
 
     def test_mainForm(self) -> None:
         """Test mainForm widget."""
-        act_sys = application.project.actions["sys"]
-        self.assertTrue(act_sys)
-        act_sys.load()
+
+        mng_modules = application.project.conn.managerModules()
+        from pineboolib.core.utils.utils_base import filedir
+
+        file_1 = filedir("./application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui")
+        widget = mng_modules.createUI(file_1)
+        self.assertTrue(widget)
+
+        ac = widget.findChild(QtWidgets.QAction, "ebcomportamiento")
+        self.assertTrue(ac)
+
+    def test_formRecord(self) -> None:
+        """Test formRecord widget."""
+
+        mng_modules = application.project.conn.managerModules()
+        from pineboolib.core.utils.utils_base import filedir
+
+        file_1 = filedir("./application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui")
+        widget = mng_modules.createUI(file_1)
+        self.assertTrue(widget)
+        bt_01 = widget.findChild(QtWidgets.QWidget, "pb_uno", QtCore.Qt.FindChildrenRecursively)
+        self.assertTrue(bt_01)
 
     @classmethod
     def tearDownClass(cls) -> None:
