@@ -8,18 +8,64 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>600</width>
-            <height>480</height>
+            <width>1089</width>
+            <height>668</height>
         </rect>
     </property>
     <property name="caption">
         <string>Form1</string>
     </property>
-    <vbox>
+    <property name="mouseTracking">
+        <bool>true</bool>
+    </property>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QGroupBox">
+        <property name="spacing">
+            <number>2</number>
+        </property>
+        <widget class="QLayoutWidget" row="1" column="0">
+            <property name="name">
+                <cstring>layout1</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>pb_uno</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Botón uno</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>411</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </hbox>
+        </widget>
+        <widget class="FLTableDB" row="2" column="0">
+            <property name="name">
+                <cstring>fLTableDB1</cstring>
+            </property>
+        </widget>
+        <widget class="QGroupBox" row="0" column="0">
             <property name="name">
                 <cstring>groupBox1</cstring>
             </property>
@@ -57,51 +103,102 @@
                 </spacer>
             </vbox>
         </widget>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="0" column="1" rowspan="2" colspan="1">
             <property name="name">
-                <cstring>layout1</cstring>
+                <cstring>layout4</cstring>
             </property>
-            <hbox>
+            <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QPushButton">
+                <widget class="QLabel">
                     <property name="name">
-                        <cstring>pb_uno</cstring>
+                        <cstring>textLabel1</cstring>
                     </property>
                     <property name="text">
-                        <string>Botón uno</string>
+                        <string>JEJE</string>
                     </property>
                 </widget>
-                <spacer>
+                <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>spacer2</cstring>
+                        <cstring>layout3</cstring>
                     </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QFrame">
+                            <property name="name">
+                                <cstring>frame3</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>StyledPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Raised</enum>
+                            </property>
+                        </widget>
+                        <widget class="QGroupBox">
+                            <property name="name">
+                                <cstring>groupBox2</cstring>
+                            </property>
+                            <property name="title">
+                                <string>groupBox2</string>
+                            </property>
+                            <grid>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QTabWidget" row="0" column="0">
+                                    <property name="name">
+                                        <cstring>tabWidget2</cstring>
+                                    </property>
+                                    <widget class="QWidget">
+                                        <property name="name">
+                                            <cstring>tab</cstring>
+                                        </property>
+                                        <attribute name="title">
+                                            <string>Tab 1</string>
+                                        </attribute>
+                                    </widget>
+                                    <widget class="QWidget">
+                                        <property name="name">
+                                            <cstring>tab</cstring>
+                                        </property>
+                                        <attribute name="title">
+                                            <string>Tab 2</string>
+                                        </attribute>
+                                    </widget>
+                                </widget>
+                            </grid>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QListBox">
+                    <item>
+                        <property name="text">
+                            <string>New Item</string>
+                        </property>
+                    </item>
+                    <property name="name">
+                        <cstring>listBox1</cstring>
                     </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>checkBox1</cstring>
                     </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>411</width>
-                            <height>20</height>
-                        </size>
+                    <property name="text">
+                        <string>checkBox1</string>
                     </property>
-                </spacer>
-            </hbox>
+                </widget>
+            </vbox>
         </widget>
-        <widget class="FLTableDB">
-            <property name="name">
-                <cstring>fLTableDB1</cstring>
-            </property>
-        </widget>
-    </vbox>
+    </grid>
 </widget>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
-    <includehint>flfielddb.h</includehint>
     <includehint>fltabledb.h</includehint>
+    <includehint>flfielddb.h</includehint>
 </includehints>
 </UI>
