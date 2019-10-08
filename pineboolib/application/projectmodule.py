@@ -336,7 +336,8 @@ class Project(object):
                     # self.parseScript(file_name, "(%d de %d)" % (p, size_))
         f1.close()
         self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
-        self.parse_script_list(list_files)
+        if list_files:
+            self.parse_script_list(list_files)
 
         tiempo_fin = time.time()
         self.logger.info(
