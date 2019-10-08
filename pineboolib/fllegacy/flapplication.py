@@ -809,7 +809,7 @@ class FLApplication(QtCore.QObject):
         if key or idM == "sys":
             tor = FLTranslator(self, "%s_%s" % (idM, lang), lang == "multilang")
 
-            if tor.loadTsContent(key):
+            if key and tor.loadTsContent(key):
                 return tor
 
         return self.createModTranslator(idM, "es") if loadDefault else None
