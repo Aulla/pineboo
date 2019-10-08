@@ -54,11 +54,11 @@ class FLTranslator(Qt.QTranslator):
         @param key Sha1 key that identifies the file in the disk cache
         @return TRUE if the operation was successful
         """
-        if project.conn is None:
-            raise Exception("Project is not connected yet")
         if self._id_module == "sys":
             ts_file = filedir("./system_module/translations/%s.%s" % (self._id_module, self._lang))
         else:
+            if project.conn is None:
+                raise Exception("Project is not connected yet")
             ts_file = filedir(
                 "%s/cache/%s/%s/file.ts/%s.%s/%s"
                 % (

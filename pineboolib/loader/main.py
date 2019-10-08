@@ -376,6 +376,13 @@ def exec_main(options: Values) -> int:
     logger.debug(configdb)
     project.init_dgi(_DGI)
 
+    from pineboolib.fllegacy.flapplication import aqApp
+
+    lang = QtCore.QLocale().name()[:2]
+    if lang == "C":
+        lang = "es"
+    aqApp.loadTranslationFromModule("sys", lang)
+
     if not configdb and _DGI.useDesktop() and _DGI.localDesktop():
         if not _DGI.mobilePlatform():
 
@@ -432,7 +439,6 @@ def exec_main(options: Values) -> int:
 
     project.run()
 
-    from pineboolib.fllegacy.flapplication import aqApp
     from pineboolib.application.acls import pnaccesscontrollists
 
     acl = pnaccesscontrollists.PNAccessControlLists()
