@@ -61,7 +61,7 @@ se han guardado.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="3488"/>
+        <location filename="../../fllegacy/flfielddb.py" line="3489"/>
         <source>Error: fieldName vacio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -175,29 +175,6 @@ se han guardado.
     <message>
         <location filename="../../fllegacy/flsmtpclient.py" line="311"/>
         <source>Componiendo mensaje</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>FLStaticLoader</name>
-    <message>
-        <location filename="../../fllegacy/flmodulesstaticloader.py" line="232"/>
-        <source>Selecciones el directorio a insertar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/flmodulesstaticloader.py" line="261"/>
-        <source>Selecciones el directorio a modificar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/flmodulesstaticloader.py" line="279"/>
-        <source>Borrar registro</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/flmodulesstaticloader.py" line="279"/>
-        <source>El registro activo ser&#xc3;&#xa1; borrado. &#xc2;&#xbf; Est&#xc3;&#xa1; seguro ?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -512,19 +489,42 @@ registros de esta tabla : %s</source>
     </message>
 </context>
 <context>
+    <name>PNStaticLoader</name>
+    <message>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="197"/>
+        <source>Selecciones el directorio a insertar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="227"/>
+        <source>Selecciones el directorio a modificar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="245"/>
+        <source>Borrar registro</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="245"/>
+        <source>El registro activo ser&#xc3;&#xa1; borrado. &#xc2;&#xbf; Est&#xc3;&#xa1; seguro ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Pineboo</name>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2485"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2486"/>
         <source>Guardar imagen como</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2493"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2494"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2493"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2494"/>
         <source>Error guardando fichero</source>
         <translation type="unfinished"></translation>
     </message>
@@ -575,77 +575,77 @@ registros de esta tabla : %s</source>
 <context>
     <name>app</name>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="354"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="357"/>
         <source>Exportar a CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="354"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="357"/>
         <source>Fichero CSV (*.csv *.txt)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="538"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="541"/>
         <source>Sobreescribir {}</source>
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
-        <location filename="../../fllegacy/flreportviewer.py" line="538"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="541"/>
         <source>Ya existe un fichero llamado {}. ¿Desea sobreescribirlo?</source>
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
-        <location filename="../../fllegacy/flreportviewer.py" line="538"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="541"/>
         <source>&amp;Sí</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="538"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="541"/>
         <source>&amp;No</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="390"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="393"/>
         <source>Error abriendo fichero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="390"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="393"/>
         <source>No se pudo abrir el fichero {} para escribir: {}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="406"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="409"/>
         <source>Exportar a PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="406"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="409"/>
         <source>Fichero PDF (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="445"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="448"/>
         <source>Fichero PDF a enviar (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="445"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="448"/>
         <source>Exportar a PDF para enviar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="587"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="590"/>
         <source>Fichero SVG (*.svg)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="524"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="527"/>
         <source>Guardar en SVG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="587"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="590"/>
         <source>Cargar estilo SVG</source>
         <translation type="unfinished"></translation>
     </message>
@@ -663,82 +663,82 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="500"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="506"/>
         <source>FLManager : Tabla-&gt; </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="500"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="506"/>
         <source> , pero el campo </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="671"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="677"/>
         <source>Error al cargar los metadatos para la tabla</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="863"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="869"/>
         <source>Reestructurando registros para %s...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="863"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="869"/>
         <source>Cancelar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="870"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="876"/>
         <source>Tabla modificada</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1004"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1010"/>
         <source>Error al cargar los metadatos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1017"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1023"/>
         <source>Los nombres de las tablas nueva y vieja difieren.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1032"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1038"/>
         <source>Los nombres de las claves primarias difieren.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1052"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1058"/>
         <source>La tabla %s antigua de donde importar los registros no existe.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1070"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1076"/>
         <source>Los antiguos metadatos no tienen campos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1419"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1425"/>
         <source>Borrando backups</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1425"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1431"/>
         <source>Borrando registro %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
-        <location filename="../../plugins/sql/flqpsql.py" line="1444"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1450"/>
         <source>Inicializando cachés</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1455"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1461"/>
         <source>Comprobando base de datos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1522"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1528"/>
         <source>Analizando base de datos</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1385,7 +1385,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
 <context>
     <name>pineboo</name>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2932"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2933"/>
         <source>Elegir archivo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1445,6 +1445,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <message>
         <location filename="../../fllegacy/systype.py" line="574"/>
         <source>Seleccionar Fichero</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/tests/test_translations.py" line="13"/>
+        <source>single</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/tests/test_translations.py" line="14"/>
+        <source>variable %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1599,6 +1609,11 @@ Licencia del módulo no aceptada.</source>
     <message encoding="UTF-8">
         <location filename="../scripts/flreloadbatch.py" line="295"/>
         <source>Seleccione módulos a cargar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/tests/test_translations.py" line="15"/>
+        <source>multiple variable %s , %s</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1788,13 +1803,13 @@ Licencia del módulo no aceptada.</source>
 <context>
     <name>util</name>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1207"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1213"/>
         <source>application</source>
         <comment>Reestructurando registros para %s...</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1211"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1217"/>
         <source>application</source>
         <comment>Tabla modificada</comment>
         <translation type="unfinished"></translation>

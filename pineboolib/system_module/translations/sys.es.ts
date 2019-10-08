@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0">
+<!DOCTYPE TS>
+<TS version="2.1" language="es_ES">
 <context>
     <name>@default</name>
     <message>
         <location filename="../../application/acls/pnaccesscontrollists.py" line="85"/>
-        <source>Lista de control de acceso err&#xc3;&#xb3;nea</source>
+        <source>Lista de control de acceso errÃ³nea</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -21,12 +22,12 @@
     <message>
         <location filename="../../fllegacy/flapplication.py" line="354"/>
         <source>Se han detectado transacciones abiertas en estado inconsistente.
-Esto puede suceder por un error en la conexi&#xc3;&#xb3;n o en la ejecuci&#xc3;&#xb3;n
-de alg&#xc3;&#xba;n proceso de la aplicaci&#xc3;&#xb3;n.
+Esto puede suceder por un error en la conexiÃ³n o en la ejecuciÃ³n
+de algÃºn proceso de la aplicaciÃ³n.
 Para mantener la consistencia de los datos se han deshecho las
-&#xc3;&#xba;ltimas operaciones sobre la base de datos.
-Los &#xc3;&#xba;ltimos datos introducidos no han sido guardados, por favor
-revise sus &#xc3;&#xba;ltimas acciones y repita las operaciones que no
+Ãºltimas operaciones sobre la base de datos.
+Los Ãºltimos datos introducidos no han sido guardados, por favor
+revise sus Ãºltimas acciones y repita las operaciones que no
 se han guardado.
 </source>
         <translation type="unfinished"></translation>
@@ -49,7 +50,7 @@ se han guardado.
     </message>
     <message>
         <location filename="../../fllegacy/flapplication.py" line="660"/>
-        <source>&#xc2;&#xbf; Quiere salir de la aplicaci&#xc3;&#xb3;n ?</source>
+        <source>Â¿ Quiere salir de la aplicaciÃ³n ?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -61,7 +62,7 @@ se han guardado.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="3488"/>
+        <location filename="../../fllegacy/flfielddb.py" line="3489"/>
         <source>Error: fieldName vacio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -179,38 +180,10 @@ se han guardado.
     </message>
 </context>
 <context>
-    <name>FLStaticLoader</name>
-    <message>
-        <location filename="../../fllegacy/flmodulesstaticloader.py" line="232"/>
-        <source>Selecciones el directorio a insertar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/flmodulesstaticloader.py" line="261"/>
-        <source>Selecciones el directorio a modificar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/flmodulesstaticloader.py" line="279"/>
-        <source>Borrar registro</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../fllegacy/flmodulesstaticloader.py" line="279"/>
-        <source>El registro activo ser&#xc3;&#xa1; borrado. &#xc2;&#xbf; Est&#xc3;&#xa1; seguro ?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context encoding="UTF-8">
     <name>FLStaticLoaderUI</name>
     <message>
         <location filename="../forms/FLStaticLoaderUI.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/FLStaticLoaderUI.ui" line="37"/>
-        <source>Directorios de búsqueda</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -218,22 +191,27 @@ se han guardado.
         <source>NO DATABASE</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../forms/FLStaticLoaderUI.ui" line="37"/>
+        <source>Directorios de búsqueda</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FLTableDB</name>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="2543"/>
-        <source>Opci&#xc3;&#xb3;n deshabilitada</source>
+        <source>OpciÃ³n deshabilitada</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="2543"/>
-        <source>Esta opci&#xc3;&#xb3;n ha sido deshabilitada por el administrador</source>
+        <source>Esta opciÃ³n ha sido deshabilitada por el administrador</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="2631"/>
-        <source>S&#xc3;&#xad;</source>
+        <source>SÃ­</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -254,36 +232,14 @@ se han guardado.
         <source>Principal</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="40"/>
-        <source>Pineboo es un port del motor AbanQ/Eneboo a PyQt5, mantenido por la comunidad Eneboo basandose en el proyecto pineboo de: David Martínez Martí
-
-https://github.com/deavid/pineboo</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="109"/>
         <source>Empresas colaboradoras:</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="148"/>
-        <source>José A. Fdez Fdez (aullasistemas@gmail.com)</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="155"/>
         <source>YeboYebo S.L. (mail@yeboyebo.es)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="162"/>
-        <source>Miguel J. (miguelajsmaps@gmail.com) *Documentación</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="187"/>
-        <source>Librerías</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -294,28 +250,6 @@ https://github.com/deavid/pineboo</source>
     <message>
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="241"/>
         <source>Licencia</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="247"/>
-        <source>Copyright © 2012 David Martínez Martí
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of 
-this software and associated documentation files (the “Software”), to deal in 
-the Software without restriction, including without limitation the rights to 
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
-of the Software, and to permit persons to whom the Software is furnished to do 
-so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all 
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS 
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -378,6 +312,50 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>idgroup</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="40"/>
+        <source>Pineboo es un port del motor AbanQ/Eneboo a PyQt5, mantenido por la comunidad Eneboo basandose en el proyecto pineboo de: David Martínez Martí
+
+https://github.com/deavid/pineboo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="148"/>
+        <source>José A. Fdez Fdez (aullasistemas@gmail.com)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="162"/>
+        <source>Miguel J. (miguelajsmaps@gmail.com) *Documentación</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="187"/>
+        <source>Librerías</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="247"/>
+        <source>Copyright © 2012 David Martínez Martí
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the “Software”), to deal in 
+the Software without restriction, including without limitation the rights to 
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+of the Software, and to permit persons to whom the Software is furnished to do 
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS 
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainForm</name>
@@ -408,7 +386,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="150"/>
-        <source>Salir de la aplicaci&#xc3;&#xb3;n (Ctrl+Q)</source>
+        <source>Salir de la aplicaciÃ³n (Ctrl+Q)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -428,12 +406,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="243"/>
-        <source>&amp;M&#xc3;&#xb3;dulos</source>
+        <source>&amp;MÃ³dulos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="367"/>
-        <source>Carga Est&#xc3;&#xa1;tica desde Disco Duro</source>
+        <source>Carga EstÃ¡tica desde Disco Duro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -496,35 +474,58 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../application/database/pnsqlcursor.py" line="2611"/>
-        <source>No hay ning&#xc3;&#xba;n registro seleccionado</source>
+        <source>No hay ningÃºn registro seleccionado</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../application/database/pnsqlcursor.py" line="1003"/>
-        <source>El registro activo ser&#xc3;&#xa1; borrado. &#xc2;&#xbf; Est&#xc3;&#xa1; seguro ?</source>
+        <source>El registro activo serÃ¡ borrado. Â¿ EstÃ¡ seguro ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../application/database/pnsqlcursor.py" line="1041"/>
-        <source>No hay definido ning&#xc3;&#xba;n formulario para manejar
+        <source>No hay definido ningÃºn formulario para manejar
 registros de esta tabla : %s</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PNStaticLoader</name>
+    <message>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="197"/>
+        <source>Selecciones el directorio a insertar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="227"/>
+        <source>Selecciones el directorio a modificar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="245"/>
+        <source>Borrar registro</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="245"/>
+        <source>El registro activo serÃ¡ borrado. Â¿ EstÃ¡ seguro ?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Pineboo</name>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2485"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2486"/>
         <source>Guardar imagen como</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2493"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2494"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2493"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2494"/>
         <source>Error guardando fichero</source>
         <translation type="unfinished"></translation>
     </message>
@@ -548,7 +549,7 @@ registros de esta tabla : %s</source>
     </message>
     <message>
         <location filename="../../plugins/sql/flsqlite.py" line="508"/>
-        <source> ya es clave primaria. S&#xc3;&#xb3;lo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.</source>
+        <source> ya es clave primaria. SÃ³lo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -558,7 +559,7 @@ registros de esta tabla : %s</source>
     </message>
     <message>
         <location filename="../../plugins/sql/flsqlite.py" line="133"/>
-        <source>S&#xc3;&#xad;</source>
+        <source>SÃ­</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -575,170 +576,160 @@ registros de esta tabla : %s</source>
 <context>
     <name>app</name>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="354"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="357"/>
         <source>Exportar a CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="354"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="357"/>
         <source>Fichero CSV (*.csv *.txt)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="538"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="541"/>
         <source>Sobreescribir {}</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../../fllegacy/flreportviewer.py" line="538"/>
-        <source>Ya existe un fichero llamado {}. ¿Desea sobreescribirlo?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../fllegacy/flreportviewer.py" line="538"/>
-        <source>&amp;Sí</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="538"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="541"/>
         <source>&amp;No</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="390"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="393"/>
         <source>Error abriendo fichero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="390"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="393"/>
         <source>No se pudo abrir el fichero {} para escribir: {}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="406"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="409"/>
         <source>Exportar a PDF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="406"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="409"/>
         <source>Fichero PDF (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="445"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="448"/>
         <source>Fichero PDF a enviar (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="445"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="448"/>
         <source>Exportar a PDF para enviar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="587"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="590"/>
         <source>Fichero SVG (*.svg)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="524"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="527"/>
         <source>Guardar en SVG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../fllegacy/flreportviewer.py" line="587"/>
+        <location filename="../../fllegacy/flreportviewer.py" line="590"/>
         <source>Cargar estilo SVG</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/flreportviewer.py" line="541"/>
+        <source>Ya existe un fichero llamado {}. ¿Desea sobreescribirlo?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/flreportviewer.py" line="541"/>
+        <source>&amp;Sí</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>application</name>
-    <message encoding="UTF-8">
-        <location filename="../../plugins/sql/flqpsql.py" line="159"/>
-        <source>Sí</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../../plugins/sql/flqpsql.py" line="161"/>
         <source>No</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="500"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="506"/>
         <source>FLManager : Tabla-&gt; </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="500"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="506"/>
         <source> , pero el campo </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="671"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="677"/>
         <source>Error al cargar los metadatos para la tabla</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="863"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="869"/>
         <source>Reestructurando registros para %s...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="863"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="869"/>
         <source>Cancelar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="870"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="876"/>
         <source>Tabla modificada</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1004"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1010"/>
         <source>Error al cargar los metadatos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1017"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1023"/>
         <source>Los nombres de las tablas nueva y vieja difieren.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1032"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1038"/>
         <source>Los nombres de las claves primarias difieren.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1052"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1058"/>
         <source>La tabla %s antigua de donde importar los registros no existe.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1070"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1076"/>
         <source>Los antiguos metadatos no tienen campos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1419"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1425"/>
         <source>Borrando backups</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1425"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1431"/>
         <source>Borrando registro %s</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../../plugins/sql/flqpsql.py" line="1444"/>
-        <source>Inicializando cachés</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1455"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1461"/>
         <source>Comprobando base de datos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1522"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1528"/>
         <source>Analizando base de datos</source>
         <translation type="unfinished"></translation>
     </message>
@@ -747,12 +738,22 @@ registros de esta tabla : %s</source>
         <source>No se ha podido crear los metadatatos para la tabla %s</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../plugins/sql/flqpsql.py" line="159"/>
+        <source>Sí</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/sql/flqpsql.py" line="1450"/>
+        <source>Inicializando cachés</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>aqApp</name>
     <message>
         <location filename="../../plugins/sql/flmysql_myisam.py" line="144"/>
-        <source>S&#xc3;&#xad;</source>
+        <source>SÃ­</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -783,34 +784,14 @@ registros de esta tabla : %s</source>
         <source>FLTable</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="61"/>
-        <source>Estas opciones permiten modificar el comportamiento del control FLTableDB. Es muy aconsejable para que el módulo de control de acceso no tenga vulnerabilidaddes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="74"/>
-        <source>Desactivar edición con doble click.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="81"/>
         <source>Desactivar atajos de teclado.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="88"/>
-        <source>Desactivar exportar a hoja de cálculo.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="98"/>
         <source>FLField</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="121"/>
-        <source>Resolución máxima de imágenes(default 600)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -843,24 +824,9 @@ registros de esta tabla : %s</source>
         <source>Siempre</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="213"/>
-        <source>Menú de acciones</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="234"/>
-        <source>Mostrar menú de acciones reducido (sin acciones de la barra de herramientas).</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="244"/>
         <source>Modo de trabajo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="265"/>
-        <source>Usar en modo DBAdmin. Habilita menú de sistema y funciones en la gestión de tablas.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -883,21 +849,6 @@ registros de esta tabla : %s</source>
         <source>Activar modo desarrollo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="328"/>
-        <source>Carga Estática</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="349"/>
-        <source>Mostrar carga estática en consola.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="356"/>
-        <source>Mostrar carga estática y parser en interface gráfico.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="366"/>
         <source>QSA</source>
@@ -906,11 +857,6 @@ registros de esta tabla : %s</source>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="387"/>
         <source>Parsear todo el QSA al iniciar.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="394"/>
-        <source>Convertir a Python los script QSA al cargar un módulo en la BD.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -953,11 +899,6 @@ registros de esta tabla : %s</source>
         <source>Otros</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="525"/>
-        <source>Eliminar carpeta caché al iniciar.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="532"/>
         <source>Forzar modo Mobile.</source>
@@ -968,11 +909,6 @@ registros de esta tabla : %s</source>
         <source>Snapshot</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="563"/>
-        <source>Mostrar botón para capturar pantalla en formularios.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="580"/>
         <source>Traducciones</source>
@@ -981,11 +917,6 @@ registros de esta tabla : %s</source>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="601"/>
         <source>Usar traducciones QM.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="625"/>
-        <source>Caché</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1006,21 +937,6 @@ registros de esta tabla : %s</source>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="671"/>
         <source>Alt+B</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="680"/>
-        <source>No borrar caché común al iniciar.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="896"/>
-        <source>Imágenes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="711"/>
-        <source>No cachear Imágenes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1053,21 +969,6 @@ registros de esta tabla : %s</source>
         <source>Datos Vertical</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="846"/>
-        <source>Descripción (acepta HTML)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="860"/>
-        <source>Mostrar información de conexión en la barra de tareas.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/ebcomportamiento.ui" line="902"/>
-        <source>Usar múltiples tablas FLLarge (modo AbanQ).</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="945"/>
         <source>&amp;Guardar</source>
@@ -1086,6 +987,106 @@ registros de esta tabla : %s</source>
     <message>
         <location filename="../forms/ebcomportamiento.ui" line="958"/>
         <source>Alt+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="61"/>
+        <source>Estas opciones permiten modificar el comportamiento del control FLTableDB. Es muy aconsejable para que el módulo de control de acceso no tenga vulnerabilidaddes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="74"/>
+        <source>Desactivar edición con doble click.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="88"/>
+        <source>Desactivar exportar a hoja de cálculo.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="121"/>
+        <source>Resolución máxima de imágenes(default 600)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="213"/>
+        <source>Menú de acciones</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="234"/>
+        <source>Mostrar menú de acciones reducido (sin acciones de la barra de herramientas).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="265"/>
+        <source>Usar en modo DBAdmin. Habilita menú de sistema y funciones en la gestión de tablas.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="328"/>
+        <source>Carga Estática</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="349"/>
+        <source>Mostrar carga estática en consola.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="356"/>
+        <source>Mostrar carga estática y parser en interface gráfico.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="394"/>
+        <source>Convertir a Python los script QSA al cargar un módulo en la BD.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="525"/>
+        <source>Eliminar carpeta caché al iniciar.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="563"/>
+        <source>Mostrar botón para capturar pantalla en formularios.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="625"/>
+        <source>Caché</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="680"/>
+        <source>No borrar caché común al iniciar.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="896"/>
+        <source>Imágenes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="711"/>
+        <source>No cachear Imágenes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="846"/>
+        <source>Descripción (acepta HTML)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="860"/>
+        <source>Mostrar información de conexión en la barra de tareas.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/ebcomportamiento.ui" line="902"/>
+        <source>Usar múltiples tablas FLLarge (modo AbanQ).</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1157,11 +1158,6 @@ registros de esta tabla : %s</source>
         <source>Edita el perfil seleccionado</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="490"/>
-        <source>Contraseña :</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="147"/>
         <source>Entrar</source>
@@ -1175,11 +1171,6 @@ registros de esta tabla : %s</source>
     <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="231"/>
         <source>Nuevo Perfil</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="239"/>
-        <source>Descripción :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1207,26 +1198,6 @@ registros de esta tabla : %s</source>
         <source>Usuario BD :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="414"/>
-        <source>Contraseña BD :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="457"/>
-        <source>Rep. Contraseña BD :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="520"/>
-        <source>Rep. Contraseña :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="576"/>
-        <source>Acceso sin contraseña</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="591"/>
         <source>Guardar</source>
@@ -1242,13 +1213,6 @@ registros de esta tabla : %s</source>
         <source>Pico Eneboo Core. 2018</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="615"/>
-        <source>Desarrollado por la comunidad Eneboo
- basandose en el proyecto pineboo de:
- David Martínez Martí</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="624"/>
         <source>https://github.com/deavid/pineboo</source>
@@ -1259,7 +1223,49 @@ registros de esta tabla : %s</source>
         <source>Licencia</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="695"/>
+        <source>Ruta profiles :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="490"/>
+        <source>Contraseña :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="239"/>
+        <source>Descripción :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="414"/>
+        <source>Contraseña BD :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="457"/>
+        <source>Rep. Contraseña BD :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="520"/>
+        <source>Rep. Contraseña :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="576"/>
+        <source>Acceso sin contraseña</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="615"/>
+        <source>Desarrollado por la comunidad Eneboo
+ basandose en el proyecto pineboo de:
+ David Martínez Martí</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="644"/>
         <source>Copyright © 2012-2019 David Martínez Martí
 
@@ -1281,13 +1287,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../../loader/dlgconnect/dlgconnect.ui" line="695"/>
-        <source>Ruta profiles :</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>mainwindow</name>
     <message>
         <location filename="../../plugins/mainform/eneboo/mainform.ui" line="89"/>
@@ -1329,11 +1330,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>Tab 1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../../plugins/mainform/eneboo/mainform.ui" line="94"/>
-        <source>&amp;Configuración</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../../plugins/mainform/eneboo/mainform.ui" line="98"/>
         <source>&amp;Estilo</source>
@@ -1347,6 +1343,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <message>
         <location filename="../../plugins/mainform/eneboo/mainform.ui" line="111"/>
         <source>A&amp;yuda</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/mainform.ui" line="94"/>
+        <source>&amp;Configuración</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1385,12 +1386,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
 <context>
     <name>pineboo</name>
     <message>
-        <location filename="../../fllegacy/flfielddb.py" line="2932"/>
+        <location filename="../../fllegacy/flfielddb.py" line="2933"/>
         <source>Elegir archivo</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>scripts</name>
     <message>
         <location filename="../scripts/flreloadbatch.py" line="293"/>
@@ -1412,26 +1413,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>La forma correcta de acceder a .%s es ().%s.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../../core/error_manager.py" line="58"/>
-        <source>No se ha traducido el script o el script está vacio.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../core/error_manager.py" line="74"/>
-        <source>toString() ya no está disponible , usa otro método</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../core/error_manager.py" line="77"/>
-        <source>Estas intentado añadir a una cadena de texto un tipo de dato no str.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../../core/error_manager.py" line="82"/>
-        <source>Información no disponible.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../../fllegacy/systype.py" line="152"/>
         <source>Bloqueos de la base de datos</source>
@@ -1446,6 +1427,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <location filename="../../fllegacy/systype.py" line="574"/>
         <source>Seleccionar Fichero</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/tests/test_translations.py" line="13"/>
+        <source>single</source>
+        <translation>simple!</translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/tests/test_translations.py" line="14"/>
+        <source>variable %s</source>
+        <translation>con variable %s!</translation>
     </message>
     <message>
         <location filename="../scripts/flmodules.py" line="58"/>
@@ -1472,11 +1463,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>Volcando a disco </source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../scripts/flmodules.py" line="118"/>
-        <source>Error de conversión</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../scripts/flmodules.py" line="181"/>
         <source>Elegir Directorio</source>
@@ -1485,11 +1471,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <message>
         <location filename="../scripts/flmodules.py" line="206"/>
         <source>Acuerdo de Licencia.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../scripts/flmodules.py" line="210"/>
-        <source>Sí, acepto este acuerdo de licencia.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1502,30 +1483,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>* Carga finalizada.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../scripts/flmodules.py" line="556"/>
-        <source>* Exportación finalizada.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../scripts/flreloadlast.py" line="23"/>
-        <source>Módulo a cargar (*.mod)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../scripts/flreloadlast.py" line="23"/>
-        <source>Módulo a cargar</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../scripts/flreloadbatch.py" line="127"/>
         <source>Error en la carga del fichero xml .mod</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../scripts/flreloadbatch.py" line="175"/>
-        <source>Error al crear el área:
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1533,76 +1493,133 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>Elegir Fichero</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../scripts/flloadmod.py" line="36"/>
-        <source>Imposible cargar el módulo.
-Licencia del módulo no aceptada.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../scripts/flloadmod.py" line="108"/>
-        <source>El área con el identificador </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../scripts/flloadmod.py" line="108"/>
-        <source> no existe. ¿Desea crearla?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../scripts/flloadmod.py" line="119"/>
-        <source>Crear área </source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../scripts/flreloadbatch.py" line="292"/>
         <source>Aceptar</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
+        <location filename="../../core/error_manager.py" line="58"/>
+        <source>No se ha traducido el script o el script está vacio.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../core/error_manager.py" line="74"/>
+        <source>toString() ya no está disponible , usa otro método</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../core/error_manager.py" line="77"/>
+        <source>Estas intentado añadir a una cadena de texto un tipo de dato no str.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../core/error_manager.py" line="82"/>
+        <source>Información no disponible.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../fllegacy/tests/test_translations.py" line="15"/>
+        <source>multiple variable %s , %s</source>
+        <translatorcomment>test Translations</translatorcomment>
+        <translation>Test %s y %s</translation>
+    </message>
+    <message>
+        <location filename="../scripts/flmodules.py" line="118"/>
+        <source>Error de conversión</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../scripts/flmodules.py" line="210"/>
+        <source>Sí, acepto este acuerdo de licencia.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../scripts/flmodules.py" line="556"/>
+        <source>* Exportación finalizada.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../scripts/flreloadlast.py" line="23"/>
+        <source>Módulo a cargar (*.mod)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../scripts/flreloadlast.py" line="23"/>
+        <source>Módulo a cargar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../scripts/flreloadbatch.py" line="175"/>
+        <source>Error al crear el área:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../scripts/flloadmod.py" line="36"/>
+        <source>Imposible cargar el módulo.
+Licencia del módulo no aceptada.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../scripts/flloadmod.py" line="108"/>
+        <source>El área con el identificador </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../scripts/flloadmod.py" line="108"/>
+        <source> no existe. ¿Desea crearla?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../scripts/flloadmod.py" line="119"/>
+        <source>Crear área </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../scripts/flloadmod.py" line="126"/>
         <source>Descripción: </source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flloadmod.py" line="141"/>
         <source>El módulo </source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flloadmod.py" line="141"/>
         <source> ya existe. ¿Desea recargarlo?</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flloadmod.py" line="250"/>
         <source>Este módulo depende del módulo </source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadbatch.py" line="22"/>
         <source>Directorio de Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadbatch.py" line="37"/>
         <source>Error al buscar los módulos en el directorio:
 </source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadbatch.py" line="61"/>
         <source>Error al cargar el módulo:
 </source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadbatch.py" line="295"/>
         <source>Seleccione módulos a cargar</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>sys</name>
     <message>
         <location filename="../forms/sys.ui" line="14"/>
@@ -1634,29 +1651,9 @@ Licencia del módulo no aceptada.</source>
         <source>Ctrl+P</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/sys.ui" line="122"/>
-        <source>Cargar pa&amp;quete de módulos</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/sys.ui" line="125"/>
-        <source>Cargar paquete de módulos</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../forms/sys.ui" line="128"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/sys.ui" line="140"/>
-        <source>&amp;Cargar Módulo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/sys.ui" line="143"/>
-        <source>Cargar Módulo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1664,24 +1661,9 @@ Licencia del módulo no aceptada.</source>
         <source>Ctrl+C</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/sys.ui" line="161"/>
-        <source>Cargar Directorio de Módulos</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <location filename="../forms/sys.ui" line="164"/>
         <source>Ctrl+B</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/sys.ui" line="173"/>
-        <source>Recargar Ú&amp;ltimo Módulo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/sys.ui" line="176"/>
-        <source>Recargar Último Módulo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1702,16 +1684,6 @@ Licencia del módulo no aceptada.</source>
     <message>
         <location filename="../forms/sys.ui" line="194"/>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/sys.ui" line="203"/>
-        <source>&amp;Módulos</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../forms/sys.ui" line="206"/>
-        <source>Módulos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1784,17 +1756,62 @@ Licencia del módulo no aceptada.</source>
         <source>Ctrl+G</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../forms/sys.ui" line="122"/>
+        <source>Cargar pa&amp;quete de módulos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/sys.ui" line="125"/>
+        <source>Cargar paquete de módulos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/sys.ui" line="140"/>
+        <source>&amp;Cargar Módulo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/sys.ui" line="143"/>
+        <source>Cargar Módulo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/sys.ui" line="161"/>
+        <source>Cargar Directorio de Módulos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/sys.ui" line="173"/>
+        <source>Recargar Ú&amp;ltimo Módulo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/sys.ui" line="176"/>
+        <source>Recargar Último Módulo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/sys.ui" line="203"/>
+        <source>&amp;Módulos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../forms/sys.ui" line="206"/>
+        <source>Módulos</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>util</name>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1207"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1213"/>
         <source>application</source>
         <comment>Reestructurando registros para %s...</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../plugins/sql/flqpsql.py" line="1211"/>
+        <location filename="../../plugins/sql/flqpsql.py" line="1217"/>
         <source>application</source>
         <comment>Tabla modificada</comment>
         <translation type="unfinished"></translation>
@@ -1816,7 +1833,7 @@ Licencia del módulo no aceptada.</source>
     </message>
     <message>
         <location filename="../../plugins/sql/flsqlite.py" line="1043"/>
-        <source>Inicializando cach&#xc3;&#xa9;s</source>
+        <source>Inicializando cachÃ©s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1831,7 +1848,7 @@ Licencia del módulo no aceptada.</source>
     </message>
     <message>
         <location filename="../../plugins/sql/flmysql_myisam.py" line="733"/>
-        <source>Creando &#xc3;&#xad;ndices para %s</source>
+        <source>Creando Ã­ndices para %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1841,11 +1858,11 @@ Licencia del módulo no aceptada.</source>
     </message>
     <message>
         <location filename="../../plugins/sql/flmysql_myisam.py" line="764"/>
-        <source>Existen tablas que no son del tipo %s utilizado por el driver de la conexi&#xc3;&#xb3;n actual.
-Ahora es posible convertirlas, pero asegur&#xc3;&#xa9;se de tener una COPIA DE SEGURIDAD,
-se pueden peder datos en la conversi&#xc3;&#xb3;n de forma definitiva.
+        <source>Existen tablas que no son del tipo %s utilizado por el driver de la conexiÃ³n actual.
+Ahora es posible convertirlas, pero asegurÃ©se de tener una COPIA DE SEGURIDAD,
+se pueden peder datos en la conversiÃ³n de forma definitiva.
 
-&#xc2;&#xbf; Quiere convertirlas ?</source>
+Â¿ Quiere convertirlas ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1915,7 +1932,7 @@ se pueden peder datos en la conversi&#xc3;&#xb3;n de forma definitiva.
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="1427"/>
-        <source>Campo,Condici&#xc3;&#xb3;n,Valor,Desde,Hasta</source>
+        <source>Campo,CondiciÃ³n,Valor,Desde,Hasta</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1965,12 +1982,12 @@ se pueden peder datos en la conversi&#xc3;&#xb3;n de forma definitiva.
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="1488"/>
-        <source>Vac&#xc3;&#xad;o</source>
+        <source>VacÃ­o</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="1489"/>
-        <source>No Vac&#xc3;&#xad;o</source>
+        <source>No VacÃ­o</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
