@@ -1,4 +1,4 @@
-"""Test_translations module."""
+"""Test_flutil module."""
 
 import unittest
 

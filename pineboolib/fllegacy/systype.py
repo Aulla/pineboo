@@ -70,20 +70,12 @@ class SysType(SysBaseType):
     AQTimer = AQTimer
 
     @classmethod
-    def translate(self, *args) -> str:
+    def translate(self, group: str, context: str) -> str:
         """Translate a text."""
 
-        from pineboolib.fllegacy.fltranslations import FLTranslate
+        from pineboolib.core import translate
 
-        group = args[0] if len(args) == 2 else "scripts"
-        text = args[1] if len(args) == 2 else args[0]
-
-        if text == "MetaData":
-            group, text = text, group
-
-        text = text.replace(" % ", " %% ")
-
-        return str(FLTranslate(group, text))
+        return translate.translate(group, context)
 
     @classmethod
     def installACL(self, idacl) -> None:

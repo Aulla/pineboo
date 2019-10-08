@@ -2,20 +2,20 @@
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
+from pineboolib.fllegacy import systype
 
 
-class TestFileWrite(unittest.TestCase):
-    """TestCompoundKeyPNTableMetaData Class."""
+class TestSysType(unittest.TestCase):
+    """TestSysType Class."""
 
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
-    def test_basic(self) -> None:
+    def test_file_write(self) -> None:
         """Test FileWrite attributes."""
 
-        from pineboolib.fllegacy import systype
         from pineboolib.application import types
         from pineboolib import application
         import os
@@ -42,6 +42,16 @@ class TestFileWrite(unittest.TestCase):
 
         self.assertEqual(result_1, txt)
         self.assertEqual(result_2, txt)
+
+    def test_translation(self) -> None:
+        """Test translation function."""
+        from pineboolib.qsa import qsa
+
+        qsa_sys = systype.SysType()
+
+        qsa.aqApp.loadTranslationFromModule("sys", "es")
+        self.assertEqual(qsa_sys.translate("scripts", "hola python"), "Holaaaaa")
+        self.assertEqual(qsa_sys.translate("python", "hola python sin group"), "Hola de nuevo!")
 
     @classmethod
     def tearDownClass(cls) -> None:

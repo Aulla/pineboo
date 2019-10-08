@@ -5,7 +5,7 @@ import os
 from pineboolib import logging
 from pineboolib.core import decorators
 
-from PyQt5 import QtCore, Qt  # type: ignore
+from PyQt5 import QtCore
 from typing import Any, Union
 
 
@@ -111,9 +111,3 @@ class FLTranslations(object):
                 self.logger.warning(
                     "Met no 'TRANSLATIONS' entry in project file '%s'", ts_input_file
                 )
-
-
-def FLTranslate(group: str, context: str, translate: bool = True) -> str:
-    """Return the translation if it exists."""
-
-    return Qt.qApp.translate(group.encode(), context.encode()) if translate else context

@@ -505,14 +505,14 @@ class FLUtil(QtCore.QObject):
         @return Returns the string translated into the local language
         """
 
-        from pineboolib.fllegacy.fltranslations import FLTranslate
+        from pineboolib.core import translate
 
         if text_ == "MetaData":
             group, text_ = text_, group
 
         text_ = text_.replace(" % ", " %% ")
 
-        return str(FLTranslate(group, text_))
+        return translate.translate(group, text_)
 
     @classmethod
     def numCreditCard(cls, num: str) -> bool:
