@@ -110,6 +110,8 @@ class FormInternalObj(qsa.FormDBWidget):
         return True
 
     def saluda(self):
+        """Test overload function."""
+
         return "Hola!"
 
 
