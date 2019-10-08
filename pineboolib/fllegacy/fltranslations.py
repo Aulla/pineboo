@@ -5,7 +5,7 @@ import os
 from pineboolib import logging
 from pineboolib.core import decorators
 
-from PyQt5 import QtCore
+from PyQt5 import QtCore, Qt
 from typing import Any, Union
 
 

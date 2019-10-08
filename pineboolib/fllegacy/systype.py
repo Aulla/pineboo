@@ -70,12 +70,20 @@ class SysType(SysBaseType):
     AQTimer = AQTimer
 
     @classmethod
-    def translate(self, group: str, context: str) -> str:
+    def translate(self, *args) -> str:
         """Translate a text."""
 
         from pineboolib.core import translate
 
-        return translate.translate(group, context)
+        group = args[0] if len(args) == 2 else "scripts"
+        text = args[1] if len(args) == 2 else args[0]
+
+        if text == "MetaData":
+            group, text = text, group
+
+        text = text.replace(" % ", " %% ")
+
+        return translate.translate(group, text)
 
     @classmethod
     def installACL(self, idacl) -> None:
