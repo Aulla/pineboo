@@ -174,16 +174,6 @@
                         </widget>
                     </vbox>
                 </widget>
-                <widget class="QListBox">
-                    <item>
-                        <property name="text">
-                            <string>New Item</string>
-                        </property>
-                    </item>
-                    <property name="name">
-                        <cstring>listBox1</cstring>
-                    </property>
-                </widget>
                 <widget class="QCheckBox">
                     <property name="name">
                         <cstring>checkBox1</cstring>

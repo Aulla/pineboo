@@ -806,9 +806,12 @@ class FLApplication(QtCore.QObject):
         if self.db():
             key = self.db().managerModules().shaOfFile(fileTs)
 
-        if key or idM == "sys":
-            tor = FLTranslator(self, "%s_%s" % (idM, lang), lang == "multilang")
+        if idM == "sys":
+            if not key:
+                key = " "
 
+        if key:
+            tor = FLTranslator(self, "%s_%s" % (idM, lang), lang == "multilang")
             if key and tor.loadTsContent(key):
                 return tor
 
