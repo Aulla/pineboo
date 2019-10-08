@@ -1124,7 +1124,7 @@ class MainForm(QtWidgets.QMainWindow):
                 menu_ag.setObjectName("%sMore" % ag.objectName())
                 menu_ag_name = QtWidgets.QAction(menu_ag)
                 menu_ag_name.setObjectName("%s_actiongroup_name" % ag.objectName())
-                menu_ag_name.setText(self.tr("Más"))
+                menu_ag_name.setText(self.tr("Mas"))
                 menu_ag_name.setIcon(QtGui.QIcon(self.AQS.pixmap_fromMimeSource("plus.png")))
             else:
                 menu_ag = QtWidgets.QActionGroup(ag)

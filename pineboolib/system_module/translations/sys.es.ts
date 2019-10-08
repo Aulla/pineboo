@@ -714,7 +714,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <message>
         <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1127"/>
         <source>MÃ¡s</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Mais!</translation>
+    </message>
+    <message>
+        <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1127"/>
+        <source>Mas</source>
+        <translation type="unfinished">Más</translation>
     </message>
 </context>
 <context>
