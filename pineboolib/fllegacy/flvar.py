@@ -37,7 +37,7 @@ class FLVar(object):
             return sqlUpdate("flvar", "valor", str(v), "id='%s'" % str(q.value(0)))
 
         values = "%s,%s,%s" % (n, id_sesion, str(v))
-        return sqlInsert("flvar", "idvar,idsesion,idvalor", values)
+        return sqlInsert("flvar", "idvar,idsesion,valor", values)
 
     def get(self, n: str) -> Any:
         """Get variable from database."""
