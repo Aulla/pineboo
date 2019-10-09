@@ -991,11 +991,12 @@ class PNSqlCursor(QtCore.QObject):
 
         if (not self.isValid() or self.size() <= 0) and not m == self.Insert:
             if not self.size():
-                QMessageBox.warning(
-                    QApplication.focusWidget(),
-                    self.tr("Aviso"),
-                    self.tr("No hay ningún registro seleccionado"),
-                )
+                self.d.msgBoxWarning(self.tr("No hay ningún registro seleccionado"))
+                # QMessageBox.warning(
+                #    QApplication.focusWidget(),
+                #    self.tr("Aviso"),
+                #    self.tr("No hay ningún registro seleccionado"),
+                # )
                 return
             self.first()
 
