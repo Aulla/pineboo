@@ -37,7 +37,9 @@ class QSADictModules:
         """
         Return project object for given name.
         """
-        return getattr(cls.qsa_dict_modules(), scriptname, None)
+        module_name = scriptname if scriptname != "sys" else "sys_module"
+
+        return getattr(cls.qsa_dict_modules(), module_name, None)
 
     @classmethod
     def action_exists(cls, scriptname: str) -> bool:
@@ -64,15 +66,16 @@ class QSADictModules:
     def save_action_for_root_module(cls, action: XMLAction) -> bool:
         """Save a new module as an action."""
 
-        if cls.action_exists(action.name):
-            if action.name != "sys":
-                logger.warning("Module found twice, will not be overriden: %s", action.name)
+        module_name = action.name if action.name != "sys" else "sys_module"
+        if cls.action_exists(module_name):
+            if module_name != "sys_module":
+                logger.warning("Module found twice, will not be overriden: %s", module_name)
             return False
 
         # Se crea la action del módulo
-        proxy = DelayedObjectProxyLoader(action.load, name="QSA.Module.%s" % action.name)
-        cls.save_action(action.name, proxy)
-        SafeQSA.save_root_module(action.name, proxy)
+        proxy = DelayedObjectProxyLoader(action.load, name="QSA.Module.%s" % module_name)
+        cls.save_action(module_name, proxy)
+        SafeQSA.save_root_module(module_name, proxy)
         return True
 
     @classmethod

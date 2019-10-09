@@ -188,6 +188,12 @@ class TestKnownBugs(unittest.TestCase):
         cadena_result = qs2py(cadena)
         self.assertFalse(cadena_result.find("not-known-seq") > -1)
 
+    def test_from_project(self) -> None:
+        """Test from_project('sys')."""
+        from pineboolib.qsa import qsa
+
+        self.assertTrue(hasattr(qsa.from_project("sys"), "iface"))
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
