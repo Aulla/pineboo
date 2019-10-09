@@ -71,6 +71,46 @@ class dgi_qt(dgi_schema):
                     t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
                 )
 
+    def msgBoxError(self, t: str, parent: Optional[Any] = None) -> None:
+        """Show a message box warning."""
+        from pineboolib.q3widgets.messagebox import MessageBox
+
+        if parent is None:
+            parent = (
+                QtWidgets.qApp.focusWidget().parent()
+                if hasattr(QtWidgets.qApp.focusWidget(), "parent")
+                else QtWidgets.qApp.activeWindow()
+            )
+
+        logger.warning("%s", t)
+
+        if QtWidgets.QApplication.platformName() != "offscreen":
+
+            if parent is not None:
+                MessageBox.critical(
+                    t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
+                )
+
+    def msgBoxInfo(self, t: str, parent: Optional[Any] = None) -> None:
+        """Show a message box warning."""
+        from pineboolib.q3widgets.messagebox import MessageBox
+
+        if parent is None:
+            parent = (
+                QtWidgets.qApp.focusWidget().parent()
+                if hasattr(QtWidgets.qApp.focusWidget(), "parent")
+                else QtWidgets.qApp.activeWindow()
+            )
+
+        logger.warning("%s", t)
+
+        if QtWidgets.QApplication.platformName() != "offscreen":
+
+            if parent is not None:
+                MessageBox.information(
+                    t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
+                )
+
     def about_pineboo(self) -> None:
         """Show about pineboo dialog."""
         from .dgi_objects.dlg_about.about_pineboo import AboutPineboo
