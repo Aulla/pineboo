@@ -129,7 +129,7 @@ class AQSql(object):
         cur.setModeAccess(cur.Insert)
         cur.refreshBuffer()
 
-        for i in range(0, fieldsCount - 1):
+        for i in range(fieldsCount):
             cur.setValueBuffer(fields[i], values[i])
 
         msgCheck = cur.msgCheckIntegrity()
