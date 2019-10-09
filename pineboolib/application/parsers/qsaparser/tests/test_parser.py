@@ -5,6 +5,7 @@ import unittest
 from pineboolib.application.parsers.qsaparser.postparse import pythonify_string as qs2py
 from pineboolib.application.parsers.qsaparser import pytnyzer
 from . import fixture_read, fixture_path
+from pineboolib.loader.main import init_testing, finish_testing
 
 
 class TestParser(unittest.TestCase):
@@ -14,6 +15,7 @@ class TestParser(unittest.TestCase):
     def setUpClass(cls) -> None:
         """Enable strict parsing."""
         pytnyzer.STRICT_MODE = True
+        init_testing()
 
     def test_basic(self) -> None:
         """Test basic stuff."""
@@ -107,6 +109,37 @@ class TestParser(unittest.TestCase):
         self.assertEqual(
             qs2py("var sigMap = new AQSignalMapper(this);"), "sigMap = qsa.AQSignalMapper(self)\n"
         )
+
+    def test_pyconvert(self) -> None:
+        """Test pyconvert."""
+        from pineboolib import application
+        import os
+        import shutil
+
+        path = fixture_path("flfacturac.qs")
+        tmp_path = "%s/%s" % (application.project.tmpdir, "temp_qs.qs")
+        path_py = "%s.py" % tmp_path[:-3]
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+        if os.path.exists(path_py):
+            os.remove(path_py)
+
+        shutil.copy(path, tmp_path)
+        application.project.parse_script_list([tmp_path])
+
+        self.assertTrue(os.path.exists(path_py))
+
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+        if os.path.exists(path_py):
+            os.remove(path_py)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 if __name__ == "__main__":
