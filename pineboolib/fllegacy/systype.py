@@ -120,11 +120,11 @@ class SysType(SysBaseType):
     @staticmethod
     def execQSA(fileQSA=None, args=None) -> None:
         """Execute a QS file."""
-        from pineboolib.application.types import Function
+        from pineboolib.application import types
 
         try:
             with open(fileQSA, "r") as file:
-                fn = Function(file.read())
+                fn = types.Function(file.read())
                 fn(args)
         except Exception:
             e = traceback.format_exc()
@@ -339,7 +339,7 @@ class SysType(SysBaseType):
     def calculateShaGlobal(self) -> str:
         """Return sha global value."""
 
-        v = u""
+        v = ""
         qry = PNSqlQuery()
         qry.setSelect(u"sha")
         qry.setFrom(u"flfiles")
@@ -347,6 +347,7 @@ class SysType(SysBaseType):
             v = sha1(str(qry.value(0)))
             while qry.next():
                 v = sha1(v + str(qry.value(0)))
+
         return v
 
     @classmethod
@@ -415,11 +416,11 @@ class SysType(SysBaseType):
         txt += u"\n\n"
         txt += self.translate(u"Registro de cambios")
         lay = QVBoxLayout(diag)
-        lay.setMargin(6)
-        lay.setSpacing(6)
+        # lay.setMargin(6)
+        # lay.setSpacing(6)
         lbl = QLabel(diag)
         lbl.setText(txt)
-        lbl.setAlignment(cast(Qt.Alignment, Qt.AlignTop | Qt.WordBreak))
+        lbl.setAlignment(cast(Qt.Alignment, Qt.AlignTop))
         lay.addWidget(lbl)
         ted = QTextEdit(diag)
         ted.setTextFormat(QTextEdit.LogText)
@@ -428,11 +429,11 @@ class SysType(SysBaseType):
         lay.addWidget(ted)
         lbl2 = QLabel(diag)
         lbl2.setText(self.translate("¿Que desea hacer?"))
-        lbl2.setAlignment(cast(Qt.Alignment, Qt.AlignTop | Qt.WordBreak))
+        lbl2.setAlignment(cast(Qt.Alignment, Qt.AlignTop))
         lay.addWidget(lbl2)
         lay2 = QHBoxLayout()
-        lay2.setMargin(6)
-        lay2.setSpacing(6)
+        # lay2.setMargin(6)
+        # lay2.setSpacing(6)
         lay.addLayout(lay2)
         pbCancel = QPushButton(diag)
         pbCancel.setText(self.translate(u"Cancelar"))
@@ -493,27 +494,27 @@ class SysType(SysBaseType):
                 ba.string = shaSumTxt + sha
                 shaSumTxt = ba.sha1()
 
-            try:
-                if self.binaryPacking(fName):
-                    ne = doc.createElement(u"binary")
-                    nf.appendChild(ne)
-                    nt = doc.createTextNode(ustr(fName, u".qso"))
-                    ne.appendChild(nt)
-                    sha = AQS.sha1(qry.value(3))
-                    ne = doc.createElement(u"shabinary")
-                    nf.appendChild(ne)
-                    nt = doc.createTextNode(sha)
-                    ne.appendChild(nt)
-                    ba = QByteArray()
-                    ba.string = shaSum + sha
-                    shaSum = ba.sha1()
-                    ba = QByteArray()
-                    ba.string = shaSumBin + sha
-                    shaSumBin = ba.sha1()
+            # try:
+            #    if self.binaryPacking(fName):
+            #        ne = doc.createElement(u"binary")
+            #        nf.appendChild(ne)
+            #        nt = doc.createTextNode(ustr(fName, u".qso"))
+            #        ne.appendChild(nt)
+            #        sha = AQS.sha1(qry.value(3))
+            #        ne = doc.createElement(u"shabinary")
+            #        nf.appendChild(ne)
+            #        nt = doc.createTextNode(sha)
+            #        ne.appendChild(nt)
+            #        ba = QByteArray()
+            #        ba.string = shaSum + sha
+            #        shaSum = ba.sha1()
+            #        ba = QByteArray()
+            #        ba.string = shaSumBin + sha
+            #        shaSumBin = ba.sha1()
 
-            except Exception:
-                e = traceback.format_exc()
-                logger.error(e)
+            # except Exception:
+            #    e = traceback.format_exc()
+            #    logger.error(e)
 
         qry = PNSqlQuery()
         qry.setSelect(u"idmodulo,icono")
@@ -571,18 +572,19 @@ class SysType(SysBaseType):
         if input_ is None:
             dir_ = Dir(self.installPrefix())
             dir_.setCurrent()
-            input_ = QFileDialog.getOpenFileName(
+            path_tuple = QFileDialog.getOpenFileName(
                 QApplication.focusWidget(),
                 u"Eneboo/AbanQ Packages",
                 self.translate(u"scripts", u"Seleccionar Fichero"),
                 "*.eneboopkg",
             )
+            input_ = path_tuple[0]
 
         if input_:
             self.loadAbanQPackage(input_, warnBackup)
 
     @classmethod
-    def loadAbanQPackage(self, input_: Optional[Any] = None, warnBackup: bool = True):
+    def loadAbanQPackage(self, input_: str, warnBackup: bool = True):
         """Load and process a Abanq/Eneboo package."""
 
         if warnBackup and self.interactiveGUI():
