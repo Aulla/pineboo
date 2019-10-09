@@ -344,9 +344,10 @@ class SysBaseType(object):
         msg = ustr(msg)
         msg += u"\n"
         if self.interactiveGUI():
-            QtWidgets.QMessageBox.information(
-                QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
-            )
+            # QtWidgets.QMessageBox.information(
+            #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
+            # )
+            project.message_manager().send("msgBoxInfo", None, [msg])
         else:
             logger.warning(ustr(u"INFO: ", msg))
 
@@ -356,9 +357,10 @@ class SysBaseType(object):
         msg = ustr(msg)
         msg += u"\n"
         if self.interactiveGUI():
-            QtWidgets.QMessageBox.warning(
-                QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
-            )
+            # QtWidgets.QMessageBox.warning(
+            #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
+            # )
+            project.message_manager().send("msgBoxWarning", None, [msg])
         else:
             logger.warning(ustr(u"WARN: ", msg))
 
@@ -368,9 +370,10 @@ class SysBaseType(object):
         msg = ustr(msg)
         msg += u"\n"
         if self.interactiveGUI():
-            QtWidgets.QMessageBox.critical(
-                QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
-            )
+            # QtWidgets.QMessageBox.critical(
+            #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
+            # )
+            project.message_manager().send("msgBoxError", None, [msg])
         else:
             logger.warning(ustr(u"ERROR: ", msg))
 
