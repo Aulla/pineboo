@@ -215,8 +215,11 @@ def main() -> None:
         PythonifyItem(src=src, dst=dst, n=n, len=len(qs_files), known=known_modules)
         for n, (src, dst) in enumerate(qs_files)
     ]
-    with Pool(CPU_COUNT) as p:
-        # TODO: Add proper signatures to Python files to avoid reparsing
-        pycode_list: List[bool] = p.map(pythonify_item, itemlist, chunksize=2)
-        if not all(pycode_list):
-            raise Exception("Conversion failed for some files")
+    try:
+        with Pool(CPU_COUNT) as p:
+            # TODO: Add proper signatures to Python files to avoid reparsing
+            pycode_list: List[bool] = p.map(pythonify_item, itemlist, chunksize=2)
+            if not all(pycode_list):
+                raise Exception("Conversion failed for some files")
+    except Exception:
+        logger.warning("Pool raise a exception killing threads")
