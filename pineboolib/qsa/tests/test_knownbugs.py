@@ -188,7 +188,7 @@ class TestKnownBugs(unittest.TestCase):
         cadena_result = qs2py(cadena)
         self.assertFalse(cadena_result.find("not-known-seq") > -1)
 
-    def test_from_project(self) -> None:
+    def test_from_project_2(self) -> None:
         """Test from_project('sys')."""
         from pineboolib.qsa import qsa
 
