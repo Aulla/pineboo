@@ -21,8 +21,10 @@ class TestStaticLoader(unittest.TestCase):
 
     def test_script_overload(self) -> None:
         """Test script overload loader."""
+        from pineboolib.qsa import qsa
         from pineboolib import application
 
+        self.assertEqual(qsa.from_project("sys").saluda(), "Hola!")
         action = application.project.actions["sys"]
         script = application.load_script.load_script("sys.qs", action)
         self.assertEqual(script.FormInternalObj().saluda(), "Hola!")
