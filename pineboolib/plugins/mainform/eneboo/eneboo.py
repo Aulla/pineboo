@@ -1266,8 +1266,8 @@ class MainForm(QtWidgets.QMainWindow):
             mw.addRecent(ac)
 
         elif fn_ == "execDefaultScript()":
-            flapplication.aqApp.execMainScript(ac.objectName())
             mw.addRecent(ac)
+            flapplication.aqApp.execMainScript(ac.objectName())
 
         elif fn_ == "loadModules()":
             self.qsa_sys.loadModules()
