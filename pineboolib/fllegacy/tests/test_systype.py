@@ -3,6 +3,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.fllegacy import systype
+from . import fixture_path
 
 
 class TestSysType(unittest.TestCase):
@@ -52,6 +53,25 @@ class TestSysType(unittest.TestCase):
         qsa.aqApp.loadTranslationFromModule("sys", "es")
         self.assertEqual(qsa_sys.translate("scripts", "hola python"), "Holaaaaa")
         self.assertEqual(qsa_sys.translate("python", "hola python sin group"), "Hola de nuevo!")
+
+    def test_eneboopkg(self) -> None:
+        """Test eneboopkgs load."""
+        from pineboolib.qsa import qsa
+        import os
+
+        qsa_sys = systype.SysType()
+        path = fixture_path("principal.eneboopkg")
+        self.assertTrue(os.path.exists(path))
+        qsa_sys.loadModules(path, False)
+
+        qry = qsa.FLSqlQuery()
+        qry.setTablesList("flfiles")
+        qry.setSelect("count(nombre)")
+        qry.setFrom("flfiles")
+        qry.setWhere("1=1")
+        self.assertTrue(qry.exec_())
+        self.assertTrue(qry.first())
+        self.assertEqual(qry.value(0), 147)
 
     @classmethod
     def tearDownClass(cls) -> None:
