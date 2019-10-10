@@ -621,7 +621,7 @@ class TestRelations(unittest.TestCase):
         cursor_6.refreshBuffer()
         cursor_6.setValueBuffer("bloqueo", True)
         cursor_6.setValueBuffer("idarea", "O")
-        cursor_6.setValueBuffer("descripcion", "Área de prueba T")
+        cursor_6.setValueBuffer("descripcion", "Área de prueba O")
         self.assertTrue(cursor_6.commitBuffer())
         rel = pnrelationmetadata.PNRelationMetaData(
             "flareas", "idarea", pnrelationmetadata.PNRelationMetaData.RELATION_1M
