@@ -87,6 +87,8 @@ class SysType(SysBaseType):
 
     @classmethod
     def transactionLevel(self) -> int:
+        """Return transaction level."""
+
         from pineboolib import application
 
         return application.project.conn.transactionLevel()

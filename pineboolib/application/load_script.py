@@ -73,14 +73,15 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
             if script_path_py_static:
                 script_path_py = script_path_py_static
 
-            logger.info("Loading script PY %s . . . ", scriptname)
-            if not os.path.isfile(script_path_py):
-                raise IOError
-            try:
-                loader = machinery.SourceFileLoader(scriptname, script_path_py)
-                script_loaded = loader.load_module()  # type: ignore
-            except Exception:
-                logger.exception("ERROR al cargar script PY para la accion %s:", action_.name)
+            if script_path_py:
+                logger.info("Loading script PY %s . . . ", scriptname)
+                if not os.path.isfile(script_path_py):
+                    raise IOError
+                try:
+                    loader = machinery.SourceFileLoader(scriptname, script_path_py)
+                    script_loaded = loader.load_module()  # type: ignore
+                except Exception:
+                    logger.exception("ERROR al cargar script PY para la accion %s:", action_.name)
 
         elif script_path_qs:
             script_path_py = "%s.py" % script_path_qs[:-3]
