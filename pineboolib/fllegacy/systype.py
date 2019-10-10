@@ -86,6 +86,12 @@ class SysType(SysBaseType):
         return translate.translate(group, text)
 
     @classmethod
+    def transactionLevel(self) -> int:
+        from pineboolib import application
+
+        return application.project.conn.transactionLevel()
+
+    @classmethod
     def installACL(self, idacl) -> None:
         """Install a acl."""
         from pineboolib.application.acls import pnaccesscontrollists

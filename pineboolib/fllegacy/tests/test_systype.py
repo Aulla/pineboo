@@ -73,6 +73,45 @@ class TestSysType(unittest.TestCase):
         self.assertTrue(qry.first())
         self.assertEqual(qry.value(0), 147)
 
+    def test_transaction_level(self) -> None:
+        from pineboolib.qsa import qsa
+        from pineboolib.application.metadata import pnrelationmetadata
+
+        sys_1 = systype.SysType()
+        sys_2 = qsa.sys
+
+        self.assertEqual(sys_1.transactionLevel(), 0)
+        self.assertEqual(sys_2.transactionLevel(), 0)
+
+        cur_areas = qsa.FLSqlCursor("flareas")
+
+        cursor = qsa.FLSqlCursor("flareas")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "H")
+        cursor.setValueBuffer("descripcion", "Área de prueba H")
+        self.assertTrue(cursor.commitBuffer())
+        rel = pnrelationmetadata.PNRelationMetaData(
+            "flareas", "idarea", pnrelationmetadata.PNRelationMetaData.RELATION_1M
+        )
+        rel.setField("idarea")
+        cur_areas.select("idarea ='H'")
+        cur_areas.first()
+        self.assertEqual(cur_areas.valueBuffer("idarea"), "H")
+        cur_areas.setModeAccess(cur_areas.Edit)
+        cur_areas.refreshBuffer()
+        cur_modulos = qsa.FLSqlCursor("flmodules", True, "default", cur_areas, rel)
+        cur_modulos.select()
+        cur_modulos.refreshBuffer()
+        self.assertEqual(sys_1.transactionLevel(), 0)
+        self.assertEqual(sys_2.transactionLevel(), 0)
+
+        cur_modulos.setModeAccess(cur_modulos.Insert)
+        cur_modulos.transaction()
+        self.assertEqual(sys_1.transactionLevel(), 1)
+        self.assertEqual(sys_2.transactionLevel(), 1)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
