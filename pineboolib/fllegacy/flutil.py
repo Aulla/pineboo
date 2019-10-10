@@ -848,20 +848,24 @@ class FLUtil(QtCore.QObject):
         s: str,
         w: str,
         tL: Optional[Union[str, List]] = None,
-        size: int = 0,
-        connName: str = "default",
+        size_or_conn_name: Any = 0,
+        conn_name: str = "default",
     ) -> Any:
         """Return a value from a query."""
         from pineboolib.application.database.utils import sqlSelect
 
-        return sqlSelect(f, s, w, tL, size, connName)
+        if not isinstance(size_or_conn_name, int):
+            size = 0
+            conn_name = size_or_conn_name
+
+        return sqlSelect(f, s, w, tL, size, conn_name)
 
     @classmethod
-    def quickSqlSelect(cls, f: str, s: str, w: str, connName: str = "default") -> Any:
+    def quickSqlSelect(cls, f: str, s: str, w: str, conn_name: str = "default") -> Any:
         """Return a value from a quick query."""
         from pineboolib.application.database.utils import quickSqlSelect
 
-        return quickSqlSelect(f, s, w, connName)
+        return quickSqlSelect(f, s, w, conn_name)
 
     @classmethod
     def sqlInsert(
@@ -869,12 +873,12 @@ class FLUtil(QtCore.QObject):
         t: str,
         fL: Union[str, List],
         vL: Union[str, List, bool, int, float],
-        connName: str = "default",
+        conn_name: str = "default",
     ) -> Any:
         """Insert values to a table."""
         from pineboolib.application.database.utils import sqlInsert
 
-        return sqlInsert(t, fL, vL, connName)
+        return sqlInsert(t, fL, vL, conn_name)
 
     @classmethod
     def sqlUpdate(
@@ -883,34 +887,34 @@ class FLUtil(QtCore.QObject):
         fL: Union[str, List],
         vL: Union[str, List, bool, int, float],
         w: str,
-        connName: str = "default",
+        conn_name: str = "default",
     ) -> Any:
         """Update values to a table."""
         from pineboolib.application.database.utils import sqlUpdate
 
-        return sqlUpdate(t, fL, vL, w, connName)
+        return sqlUpdate(t, fL, vL, w, conn_name)
 
     @classmethod
-    def sqlDelete(cls, t: str, w: str, connName: str = "default"):
+    def sqlDelete(cls, t: str, w: str, conn_name: str = "default"):
         """Delete a value from a table."""
         from pineboolib.application.database.utils import sqlDelete
 
-        return sqlDelete(t, w, connName)
+        return sqlDelete(t, w, conn_name)
 
     @classmethod
-    def quickSqlDelete(cls, t: str, w: str, connName: str = "default"):
+    def quickSqlDelete(cls, t: str, w: str, conn_name: str = "default"):
         """Quick delete a value from a table."""
 
         from pineboolib.application.database.utils import quickSqlDelete
 
-        return quickSqlDelete(t, w, connName)
+        return quickSqlDelete(t, w, conn_name)
 
     @classmethod
-    def execSql(cls, sql: str, connName: str = "default"):
+    def execSql(cls, sql: str, conn_name: str = "default"):
         """Set a query to a database."""
         from pineboolib.application.database.utils import execSql
 
-        return execSql(sql, connName)
+        return execSql(sql, conn_name)
 
     @classmethod
     def createProgressDialog(

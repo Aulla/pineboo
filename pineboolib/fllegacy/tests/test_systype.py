@@ -111,6 +111,7 @@ class TestSysType(unittest.TestCase):
         cur_modulos.transaction()
         self.assertEqual(sys_1.transactionLevel(), 1)
         self.assertEqual(sys_2.transactionLevel(), 1)
+        self.assertTrue(cur_modulos.rollback())
 
     @classmethod
     def tearDownClass(cls) -> None:
