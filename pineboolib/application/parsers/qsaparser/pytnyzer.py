@@ -2394,7 +2394,7 @@ def file_template(
     sourceclasses = ElementTree.Element("Source")
     for cls in ast.findall("Class"):
         cls.set("parent_", cast(str, ast))  # FIXME: AST is an XML Element, not a string.
-        sourceclasses.append(cls)
+        sourceclasses.append(cast(ElementTree.Element, cls))
 
     mainclass = ElementTree.SubElement(
         sourceclasses, "Class", name="FormInternalObj", extends="qsa.FormDBWidget"
@@ -2411,10 +2411,10 @@ def file_template(
                 def_iface = copy.deepcopy(child)
                 def_iface.set("definition", "1")
                 child.set("constructor", "1")
-                csource.append(child)
+                csource.append(cast(ElementTree.Element, child))
                 mainsource.insert(0, def_iface)
         else:
-            mainsource.append(child)
+            mainsource.append(cast(ElementTree.Element, child))
 
     for dtype, data in parse_ast(sourceclasses).generate():
         yield dtype, data
