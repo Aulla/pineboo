@@ -23,7 +23,7 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
     from pineboolib import application
 
     project = application.project
-
+    print("Cargando", scriptname)
     if scriptname:
         scriptname = scriptname.replace(".qs", "")
         logger.debug("Loading script %s for action %s", scriptname, action_.name)
@@ -39,15 +39,15 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
 
         from importlib import machinery
 
-        if project.alternative_folder:
-            import glob
+        # if project.alternative_folder:
+        #    import glob
 
-            for file_name in glob.iglob(
-                "%s/legacy/**/%s" % (project.alternative_folder, scriptname), recursive=True
-            ):
-                if file_name.endswith(scriptname):
-                    script_path_py = file_name
-                    break
+        #    for file_name in glob.iglob(
+        #        "%s/legacy/**/%s" % (project.alternative_folder, scriptname), recursive=True
+        #    ):
+        #        if file_name.endswith(scriptname):
+        #            script_path_py = file_name
+        #            break
 
         if script_path_py is None:
             script_path_qs = _path("%s.qs" % scriptname, False)
@@ -57,15 +57,13 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
         if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
             from pineboolib.application.staticloader.pnmodulesstaticloader import PNStaticLoader
 
-            ret_py = PNStaticLoader.content(
-                "%s.py" % scriptname, mng_modules.staticBdInfo_, True
-            )  # Con True solo devuelve el path
+            ret_py = PNStaticLoader.content("%s.py" % scriptname, mng_modules.staticBdInfo_, True)
             if ret_py:
                 script_path_py = ret_py
             else:
                 ret_qs = PNStaticLoader.content(
                     "%s.qs" % scriptname, mng_modules.staticBdInfo_, True
-                )  # Con True solo devuelve el path
+                )
                 if ret_qs:
                     script_path_qs = ret_qs
 

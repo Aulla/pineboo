@@ -329,13 +329,14 @@ class Project(object):
             if (
                 self.parseProject
                 and nombre.endswith(".qs")
-                and config.value("application/isDebuggerMode", False)
+                and config.value("application/parseProject", False)
             ):
                 if os.path.exists(file_name):
                     list_files.append(file_name)
                     # self.parseScript(file_name, "(%d de %d)" % (p, size_))
         f1.close()
         self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
+
         if list_files:
             self.parse_script_list(list_files)
 
@@ -499,7 +500,8 @@ class Project(object):
 
     def parse_script_list(self, path_list: List[str]) -> None:
         """Convert QS scripts list into Python and stores it in the same folders."""
-        from .parsers.qsaparser import pyconvert, pytnyzer
+        from .parsers import qsaparser
+        from .parsers.qsaparser import pytnyzer, pyconvert
         from multiprocessing import Pool
 
         if not path_list:
@@ -520,11 +522,18 @@ class Project(object):
         msg = "Convirtiendo a Python . . ."
         self.logger.info(msg)
 
-        with Pool(pyconvert.CPU_COUNT) as p:
-            # TODO: Add proper signatures to Python files to avoid reparsing
-            pycode_list: List[bool] = p.map(pyconvert.pythonify_item, itemlist, chunksize=2)
-            if not all(pycode_list):
-                raise Exception("Conversion failed for some files")
+        pycode_list: List[bool] = []
+
+        if qsaparser.USE_THREADS:
+            with Pool(pyconvert.CPU_COUNT) as p:
+                # TODO: Add proper signatures to Python files to avoid reparsing
+                pycode_list = p.map(pyconvert.pythonify_item, itemlist, chunksize=2)
+        else:
+            for item in itemlist:
+                pycode_list.append(pyconvert.pythonify_item(item))
+
+        if not all(pycode_list):
+            raise Exception("Conversion failed for some files")
 
     def get_temp_dir(self) -> str:
         """

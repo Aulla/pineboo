@@ -12,8 +12,8 @@ from multiprocessing import Pool
 from typing import List, Tuple, TypeVar, cast, Dict, Optional
 from pineboolib.core.utils import logging
 from pineboolib.core.utils.struct import ActionStruct
-from pineboolib.application.parsers.qsaparser import postparse
-from pineboolib.application.parsers.qsaparser import pytnyzer
+from pineboolib.application.parsers import qsaparser
+from pineboolib.application.parsers.qsaparser import postparse, pytnyzer
 
 
 class Action(ActionStruct):
@@ -104,7 +104,8 @@ class PythonifyItem(object):
 
 def pythonify_item(o: PythonifyItem) -> bool:
     """Parse QS into Python. For multiprocessing.map."""
-    logger.info("(%.2f%%) Parsing QS %r", 100 * o.n / o.len, o.src_path)
+    if qsaparser.USE_THREADS:
+        logger.info("(%.2f%%) Parsing QS %r", 100 * o.n / o.len, o.src_path)
     try:
         pycode = postparse.pythonify2(o.src_path, known_refs=o.known)
     except Exception:
@@ -215,11 +216,16 @@ def main() -> None:
         PythonifyItem(src=src, dst=dst, n=n, len=len(qs_files), known=known_modules)
         for n, (src, dst) in enumerate(qs_files)
     ]
-    try:
+
+    pycode_list: List[bool] = []
+
+    if qsaparser.USE_THREADS:
         with Pool(CPU_COUNT) as p:
             # TODO: Add proper signatures to Python files to avoid reparsing
-            pycode_list: List[bool] = p.map(pythonify_item, itemlist, chunksize=2)
-            if not all(pycode_list):
-                raise Exception("Conversion failed for some files")
-    except Exception:
-        logger.warning("Pool raise a exception killing threads")
+            pycode_list = p.map(pythonify_item, itemlist, chunksize=2)
+    else:
+        for item in itemlist:
+            pycode_list.append(pythonify_item(item))
+
+    if not all(pycode_list):
+        raise Exception("Conversion failed for some files")
