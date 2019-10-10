@@ -6,9 +6,10 @@ from pineboolib.core.utils import logging
 
 from typing import Any, Union, List, Optional, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from .pnsqlcursor import PNSqlCursor
-
+    from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
 
 logger = logging.getLogger("database.utils")
 
@@ -189,7 +190,7 @@ def sqlSelect(
     where_: Optional[str] = None,
     table_list_: Optional[Union[str, List]] = None,
     size_: int = 0,
-    conn_name_: str = "default",
+    conn_: Union[str, "IConnection"] = "default",
 ) -> Any:
     """
     Execute a query of type select, returning the results of the first record found.
@@ -207,7 +208,7 @@ def sqlSelect(
     if where_ is None:
         where_ = "1 = 1"
 
-    _qry = PNSqlQuery(None, conn_name_)
+    _qry = PNSqlQuery(None, conn_)
     if table_list_:
         _qry.setTablesList(table_list_)
     else:
@@ -224,7 +225,10 @@ def sqlSelect(
 
 
 def quickSqlSelect(
-    from_: str, select_: str, where_: Optional[str] = None, conn_name: str = "default"
+    from_: str,
+    select_: str,
+    where_: Optional[str] = None,
+    conn_: Union[str, "IConnection"] = "default",
 ) -> Any:
     """
     Quick version of sqlSelect. Run the query directly without checking.Use with caution.
@@ -234,7 +238,7 @@ def quickSqlSelect(
     if where_ is None:
         where_ = "1 = 1"
 
-    _qry = PNSqlQuery(None, conn_name)
+    _qry = PNSqlQuery(None, conn_)
     if not _qry.exec_("SELECT %s FROM %s WHERE %s " % (select_, from_, where_)):
         return False
 
@@ -245,7 +249,7 @@ def sqlInsert(
     table_: str,
     field_list_: Union[str, List[str]],
     value_list_: Union[str, List, bool, int, float],
-    conn_name_: str = "default",
+    conn_: Union[str, "IConnection"] = "default",
 ) -> bool:
     """
     Perform the insertion of a record in a table using an FLSqlCursor object.
@@ -267,7 +271,7 @@ def sqlInsert(
 
     from .pnsqlcursor import PNSqlCursor
 
-    _cursor = PNSqlCursor(table_, True, conn_name_)
+    _cursor = PNSqlCursor(table_, True, conn_)
     _cursor.setModeAccess(_cursor.Insert)
     _cursor.refreshBuffer()
 
@@ -285,7 +289,7 @@ def sqlUpdate(
     field_list_: Union[str, List[str]],
     value_list_: Union[str, List, bool, int, float],
     where_: str,
-    conn_name_: str = "default",
+    conn_: Union[str, "IConnection"] = "default",
 ) -> bool:
     """
     Modify one or more records in a table using an FLSqlCursor object.
@@ -299,7 +303,7 @@ def sqlUpdate(
     """
     from .pnsqlcursor import PNSqlCursor
 
-    _cursor = PNSqlCursor(table_, True, conn_name_)
+    _cursor = PNSqlCursor(table_, True, conn_)
     _cursor.select(where_)
     _cursor.setForwardOnly(True)
     while _cursor.next():
@@ -322,7 +326,7 @@ def sqlUpdate(
     return True
 
 
-def sqlDelete(table_: str, where_: str, conn_name_: str = "default") -> bool:
+def sqlDelete(table_: str, where_: str, conn_: Union[str, "IConnection"] = "default") -> bool:
     """
     Delete one or more records in a table using an FLSqlCursor object.
 
@@ -333,7 +337,7 @@ def sqlDelete(table_: str, where_: str, conn_name_: str = "default") -> bool:
     """
     from .pnsqlcursor import PNSqlCursor
 
-    _cursor = PNSqlCursor(table_, True, conn_name_)
+    _cursor = PNSqlCursor(table_, True, conn_)
 
     # if not c.select(w):
     #     return False
@@ -349,14 +353,14 @@ def sqlDelete(table_: str, where_: str, conn_name_: str = "default") -> bool:
     return True
 
 
-def quickSqlDelete(table_: str, where_: str, conn_name_: str = "default") -> None:
+def quickSqlDelete(table_: str, where_: str, conn_: Union[str, "IConnection"] = "default") -> None:
     """
     Quick version of sqlDelete. Execute the query directly without checking and without committing signals.Use with caution.
     """
-    execSql("DELETE FROM %s WHERE %s" % (table_, where_), conn_name_)
+    execSql("DELETE FROM %s WHERE %s" % (table_, where_), conn_)
 
 
-def execSql(sql_: str, conn_name_: str = "default") -> bool:
+def execSql(sql_: str, conn_: Union[str, "IConnection"] = "default") -> bool:
     """
     Run a query.
     """
@@ -365,14 +369,15 @@ def execSql(sql_: str, conn_name_: str = "default") -> bool:
     if project.conn is None:
         raise Exception("Project is not connected yet")
 
-    _conn = project.conn.useConn(conn_name_)
-    _cur = _conn.cursor()
+    if isinstance(conn_, str):
+        conn_ = project.conn.useConn(conn_)
+    _cur = conn_.cursor()
     try:
         logger.warning("execSql: Ejecutando la consulta : %s", sql_)
         # sql = conn_.db().driver().fix_query(sql)
         # cur.execute(sql)
         # conn_.conn.commit()
-        _conn.execute_query(sql_, _cur)
+        conn_.execute_query(sql_, _cur)
         return True
     except Exception as exc:
         logger.exception("execSql: Error al ejecutar la consulta SQL: %s %s", sql_, exc)

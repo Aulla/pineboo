@@ -851,7 +851,7 @@ class FLUtil(QtCore.QObject):
         w: str,
         tL: Optional[Union[str, List]] = None,
         size_or_conn: Any = 0,
-        conn: Optional[Union[str, "IConnection"]] = "default",
+        conn: Union[str, "IConnection"] = "default",
     ) -> Any:
         """Return a value from a query."""
         from pineboolib.application.database.utils import sqlSelect
@@ -866,7 +866,7 @@ class FLUtil(QtCore.QObject):
 
     @classmethod
     def quickSqlSelect(
-        cls, f: str, s: str, w: str, conn: Optional[Union[str, "IConnection"]] = "default"
+        cls, f: str, s: str, w: str, conn: Union[str, "IConnection"] = "default"
     ) -> Any:
         """Return a value from a quick query."""
         from pineboolib.application.database.utils import quickSqlSelect
@@ -879,7 +879,7 @@ class FLUtil(QtCore.QObject):
         t: str,
         fL: Union[str, List],
         vL: Union[str, List, bool, int, float],
-        conn: Optional[Union[str, "IConnection"]] = "default",
+        conn: Union[str, "IConnection"] = "default",
     ) -> Any:
         """Insert values to a table."""
         from pineboolib.application.database.utils import sqlInsert
@@ -893,7 +893,7 @@ class FLUtil(QtCore.QObject):
         fL: Union[str, List],
         vL: Union[str, List, bool, int, float],
         w: str,
-        conn: Optional[Union[str, "IConnection"]] = "default",
+        conn: Union[str, "IConnection"] = "default",
     ) -> Any:
         """Update values to a table."""
         from pineboolib.application.database.utils import sqlUpdate
@@ -901,14 +901,14 @@ class FLUtil(QtCore.QObject):
         return sqlUpdate(t, fL, vL, w, conn)
 
     @classmethod
-    def sqlDelete(cls, t: str, w: str, conn: Optional[Union[str, "IConnection"]] = "default"):
+    def sqlDelete(cls, t: str, w: str, conn: Union[str, "IConnection"] = "default"):
         """Delete a value from a table."""
         from pineboolib.application.database.utils import sqlDelete
 
         return sqlDelete(t, w, conn)
 
     @classmethod
-    def quickSqlDelete(cls, t: str, w: str, conn: Optional[Union[str, "IConnection"]] = "default"):
+    def quickSqlDelete(cls, t: str, w: str, conn: Union[str, "IConnection"] = "default"):
         """Quick delete a value from a table."""
 
         from pineboolib.application.database.utils import quickSqlDelete
@@ -916,7 +916,7 @@ class FLUtil(QtCore.QObject):
         return quickSqlDelete(t, w, conn)
 
     @classmethod
-    def execSql(cls, sql: str, conn: Optional[Union[str, "IConnection"]] = "default"):
+    def execSql(cls, sql: str, conn: Union[str, "IConnection"] = "default"):
         """Set a query to a database."""
         from pineboolib.application.database.utils import execSql
 
