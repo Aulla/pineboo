@@ -280,7 +280,17 @@ class Project(object):
 
             if os.path.exists(file_name):
                 if file_name.endswith(".qs"):
-                    if os.path.exists("%s.py" % file_name[:-3]):
+                    folder_path = os.path.dirname(file_name)
+                    static_flag = "%s/STATIC" % folder_path
+                    file_name_py = "%s.py" % file_name[:-3]
+                    if os.path.exists(static_flag):
+                        os.remove(static_flag)
+                        if os.path.exists(file_name):
+                            os.remove(file_name)
+                        if os.path.exists(file_name_py):
+                            os.remove(file_name_py)
+
+                    elif os.path.exists(file_name_py):
                         continue
 
                 elif file_name.endswith(".mtd"):
