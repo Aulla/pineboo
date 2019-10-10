@@ -19,15 +19,15 @@ class TestStaticLoader(unittest.TestCase):
         config.set_value("StaticLoader/%s/dirs" % db_name, dirs)
         init_testing()
 
-    # def test_script_overload(self) -> None:
-    #    """Test script overload loader."""
-    #    from pineboolib.qsa import qsa
-    #    from pineboolib import application
+    def test_script_overload(self) -> None:
+        """Test script overload loader."""
+        from pineboolib.qsa import qsa
+        from pineboolib import application
 
-    #    self.assertEqual(qsa.from_project("sys").saluda(), "Hola!")
-    #    action = application.project.actions["sys"]
-    #    script = application.load_script.load_script("sys.qs", action)
-    #    self.assertEqual(script.FormInternalObj().saluda(), "Hola!")
+        self.assertEqual(qsa.from_project("sys").saluda(), "Hola!")
+        action = application.project.actions["sys"]
+        script = application.load_script.load_script("sys.qs", action)
+        self.assertEqual(script.FormInternalObj().saluda(), "Hola!")
 
     @classmethod
     def tearDownClass(cls) -> None:
