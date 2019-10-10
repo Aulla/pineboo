@@ -1,6 +1,7 @@
 """Test_flutil module."""
 
 import unittest
+from pineboolib.loader.main import init_testing, finish_testing
 
 
 class TestTranslations(unittest.TestCase):
@@ -48,11 +49,12 @@ class TestTranslations(unittest.TestCase):
             util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], cx), "123oX"
         )
         self.assertEqual(
-            util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], 0, cx), "123oX"
-        )
-        self.assertEqual(
             util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], 0, "default"),
             "123oX",
+        )
+
+        self.assertEqual(
+            util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], 0, cx), "123oX"
         )
 
     @classmethod

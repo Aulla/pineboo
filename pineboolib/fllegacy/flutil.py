@@ -12,9 +12,11 @@ from pineboolib import logging
 from typing import List, Optional, Union, Any, TYPE_CHECKING
 from pineboolib.application.types import Date
 
+
 if TYPE_CHECKING:
     from PyQt5.QtXml import QDomDocument  # type: ignore
     from pineboolib.application.database.pnsqlcursor import PNSqlCursor  # noqa: F401
+    from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -848,24 +850,28 @@ class FLUtil(QtCore.QObject):
         s: str,
         w: str,
         tL: Optional[Union[str, List]] = None,
-        size_or_conn_name: Any = 0,
-        conn_name: str = "default",
+        size_or_conn: Any = 0,
+        conn: Optional[Union[str, "IConnection"]] = "default",
     ) -> Any:
         """Return a value from a query."""
         from pineboolib.application.database.utils import sqlSelect
 
-        if not isinstance(size_or_conn_name, int):
+        if not isinstance(size_or_conn, int):
             size = 0
-            conn_name = size_or_conn_name
+            conn = size_or_conn
+        else:
+            size = size_or_conn
 
-        return sqlSelect(f, s, w, tL, size, conn_name)
+        return sqlSelect(f, s, w, tL, size, conn)
 
     @classmethod
-    def quickSqlSelect(cls, f: str, s: str, w: str, conn_name: str = "default") -> Any:
+    def quickSqlSelect(
+        cls, f: str, s: str, w: str, conn: Optional[Union[str, "IConnection"]] = "default"
+    ) -> Any:
         """Return a value from a quick query."""
         from pineboolib.application.database.utils import quickSqlSelect
 
-        return quickSqlSelect(f, s, w, conn_name)
+        return quickSqlSelect(f, s, w, conn)
 
     @classmethod
     def sqlInsert(
@@ -873,12 +879,12 @@ class FLUtil(QtCore.QObject):
         t: str,
         fL: Union[str, List],
         vL: Union[str, List, bool, int, float],
-        conn_name: str = "default",
+        conn: Optional[Union[str, "IConnection"]] = "default",
     ) -> Any:
         """Insert values to a table."""
         from pineboolib.application.database.utils import sqlInsert
 
-        return sqlInsert(t, fL, vL, conn_name)
+        return sqlInsert(t, fL, vL, conn)
 
     @classmethod
     def sqlUpdate(
@@ -887,34 +893,34 @@ class FLUtil(QtCore.QObject):
         fL: Union[str, List],
         vL: Union[str, List, bool, int, float],
         w: str,
-        conn_name: str = "default",
+        conn: Optional[Union[str, "IConnection"]] = "default",
     ) -> Any:
         """Update values to a table."""
         from pineboolib.application.database.utils import sqlUpdate
 
-        return sqlUpdate(t, fL, vL, w, conn_name)
+        return sqlUpdate(t, fL, vL, w, conn)
 
     @classmethod
-    def sqlDelete(cls, t: str, w: str, conn_name: str = "default"):
+    def sqlDelete(cls, t: str, w: str, conn: Optional[Union[str, "IConnection"]] = "default"):
         """Delete a value from a table."""
         from pineboolib.application.database.utils import sqlDelete
 
-        return sqlDelete(t, w, conn_name)
+        return sqlDelete(t, w, conn)
 
     @classmethod
-    def quickSqlDelete(cls, t: str, w: str, conn_name: str = "default"):
+    def quickSqlDelete(cls, t: str, w: str, conn: Optional[Union[str, "IConnection"]] = "default"):
         """Quick delete a value from a table."""
 
         from pineboolib.application.database.utils import quickSqlDelete
 
-        return quickSqlDelete(t, w, conn_name)
+        return quickSqlDelete(t, w, conn)
 
     @classmethod
-    def execSql(cls, sql: str, conn_name: str = "default"):
+    def execSql(cls, sql: str, conn: Optional[Union[str, "IConnection"]] = "default"):
         """Set a query to a database."""
         from pineboolib.application.database.utils import execSql
 
-        return execSql(sql, conn_name)
+        return execSql(sql, conn)
 
     @classmethod
     def createProgressDialog(
