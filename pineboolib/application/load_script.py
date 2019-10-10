@@ -69,9 +69,9 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
                     "%s.qs" % scriptname, mng_modules.staticBdInfo_, True
                 )  # Con True solo devuelve el path
 
-        if script_path_py is not None:
+        if script_path_py is not None or script_path_py_static:
             if script_path_py_static:
-                shutil.copy(script_path_py_static, script_path_py)
+                script_path_py = script_path_py_static
 
             logger.info("Loading script PY %s . . . ", scriptname)
             if not os.path.isfile(script_path_py):
