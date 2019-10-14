@@ -213,6 +213,10 @@ class Project(object):
             "flvar",
             "flmetadata",
             "flsettings",
+            "flupdates",
+            "flmetadata",
+            "flseqs",
+            "flsettings",
         ):
             self.conn.manager().createSystemTable(table)
 

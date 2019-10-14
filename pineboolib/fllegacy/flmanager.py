@@ -87,8 +87,8 @@ class FLManager(QtCore.QObject, IManager):
         Initialize.
         """
         self.initCount_ = self.initCount_ + 1
-        self.createSystemTable("flmetadata")
-        self.createSystemTable("flseqs")
+        # self.createSystemTable("flmetadata")
+        # self.createSystemTable("flseqs")
 
         if not self.db_:
             raise Exception("FLManagar.__init__. self.db_ is empty!")
@@ -99,7 +99,7 @@ class FLManager(QtCore.QObject, IManager):
         # q = PNSqlQuery(None, self.db_.dbAux())
         # q.setForwardOnly(True)
 
-        self.createSystemTable("flsettings")
+        # self.createSystemTable("flsettings")
         """
         if not q.exec_("SELECT * FROM flsettings WHERE flkey = 'sysmodver'"):
 
