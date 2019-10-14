@@ -40,4 +40,4 @@ lxml
 flup
 xmljson
 twine
---extra-index-url https://test.pypi.org/simple/ pyfpdf==1.7.3
+pyfpdf
