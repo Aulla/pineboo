@@ -317,8 +317,10 @@ def exec_main(options: Values) -> int:
 
     project.options = options
     if options.enable_gui:
-        project.set_app(QtWidgets.QApplication(sys.argv))
-        project.app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+        app_ = QtWidgets.QApplication
+        app_.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+        project.set_app(app_(sys.argv))
         setup_gui(project.app, options)
     else:
         project.set_app(QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"]))
