@@ -1,7 +1,6 @@
 black
 fernet
 flake8
-fpdf
 mccabe
 mypy
 mypy-extensions
@@ -9,9 +8,10 @@ ninja
 pg8000
 ply
 pylint
-PyQt5
+six
+PyQt5==5.12.3
 PyQt5-sip
-PyQt5-stubs
+PyQt5-stubs==5.12.1.0
 pytest
 python-barcode
 python-dateutil
@@ -40,3 +40,4 @@ lxml
 flup
 xmljson
 twine
+--extra-index-url https://test.pypi.org/simple/ pyfpdf==1.7.3
