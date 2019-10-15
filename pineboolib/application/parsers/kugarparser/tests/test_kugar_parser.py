@@ -1,7 +1,7 @@
 """Test kugar parser module."""
 
 import unittest
-from . import fixture_read, fixture_path
+from . import fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
 
 
@@ -17,15 +17,17 @@ class TestParser(unittest.TestCase):
         """Test parser."""
 
         from pineboolib.qsa import qsa
-        from pineboolib import plugins
         from pineboolib import application
         from pineboolib.plugins.mainform.eneboo import eneboo
         import os
 
         application.project.main_form = eneboo
-        application.project.main_form.mainWindow = application.project.main_form.MainForm()
-        application.project.main_form.mainWindow.initScript()
-        application.project.main_window = application.project.main_form.mainWindow
+        # application.project.main_form.mainWindow = application.project.main_form.MainForm()
+        # application.project.main_form.mainWindow.initScript()
+        # application.project.main_window = application.project.main_form.mainWindow
+
+        application.project.main_window = application.project.main_form.MainForm()  # type: ignore
+        application.project.main_window.initScript()
 
         qsa_sys = qsa.sys
         path = fixture_path("principal.eneboopkg")
@@ -59,6 +61,8 @@ class TestParser(unittest.TestCase):
         rpt_viewer_.renderReport()
         if rpt_viewer_.rptEngine_ and hasattr(rpt_viewer_.rptEngine_, "parser_"):
             pdf_file = rpt_viewer_.rptEngine_.parser_.get_file_name()
+
+        self.assertTrue(pdf_file)
 
     @classmethod
     def tearDownClass(cls) -> None:
