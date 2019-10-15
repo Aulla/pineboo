@@ -85,6 +85,11 @@ class SysType(SysBaseType):
 
         return translate.translate(group, text)
 
+    def printTextEdit(self, editor: QtWidgets.QTextEdit):
+        from pineboolib.fllegacy import flapplication
+
+        flapplication.aqApp.printTextEdit(editor)
+
     @classmethod
     def transactionLevel(self) -> int:
         """Return transaction level."""
