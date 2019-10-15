@@ -258,7 +258,7 @@ class Array(object):
             x = 0
             new = {}
             for m in self._dict.keys():
-                if i >= pos_ini and x <= length_:
+                if i >= pos_ini and x < length_:
                     new[m] = self._dict[m]
                     x += 1
 
@@ -267,8 +267,21 @@ class Array(object):
             self._dict = new
 
         elif len(args) > 2 and args[1] == 0:  # Insertion
-            for i in range(2, len(args)):
-                self.append(args[i])
+
+            pos = 0
+            new_dict = {}
+            fix_pos = 0
+            for pos in range(len(self._dict)):
+                new_dict[fix_pos] = self._dict[pos]
+                fix_pos += 1
+
+                if pos == args[0]:
+                    for i in range(2, len(args)):
+                        new_dict[fix_pos] = args[i]
+                        fix_pos += 1
+
+            self._dict = new_dict
+
         elif len(args) > 2 and args[1] > 0:  # Replacement
             pos_ini = args[0]
             replacement_size = args[1]

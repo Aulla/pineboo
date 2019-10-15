@@ -32,12 +32,14 @@ class TestBoolean(unittest.TestCase):
         self.assertEqual(Boolean("True"), True)
         self.assertEqual(Boolean("Yes"), True)
         self.assertEqual(Boolean(0.8), True)
+        self.assertEqual(Boolean(True), True)
 
     def test_false(self) -> None:
         """Test for false."""
         self.assertEqual(Boolean(0), False)
         self.assertEqual(Boolean("False"), False)
         self.assertEqual(Boolean("No"), False)
+        self.assertEqual(Boolean(False), False)
 
 
 class TestQString(unittest.TestCase):
@@ -90,10 +92,13 @@ class TestArray(unittest.TestCase):
         """Basic testing."""
         test_arr = [0, 1, 2, 3, 4]
         a = Array(test_arr)
+        b = Array(test_arr)
         self.assertEqual(a[3], 3)
         self.assertEqual(list(a._dict.values()), test_arr)
         self.assertEqual(len(a), len(test_arr))
         self.assertEqual(a, test_arr)
+        self.assertEqual(a[3], b[3])
+        self.assertNotEqual(a[3], b[0])
 
         test_arr = [3, 4, 2, 1, 0]
         a = Array(test_arr)
@@ -129,6 +134,20 @@ class TestArray(unittest.TestCase):
         a1 = Array(test_arr)
         a2 = [x for x in a1]
         self.assertEqual(test_arr, a2)
+
+    def test_splice(self) -> None:
+        """Test splice."""
+
+        test_arr = [3, 4, 5, 6, 7]
+        a1 = Array(test_arr)
+        a1.splice(1, 2)  # Delete
+        self.assertEqual(str(a1), str(Array([4, 5])))
+        a2 = Array(test_arr)
+        a2.splice(2, 0, 9, 10)  # Insertion
+        self.assertEqual(str(a2), str(Array([3, 4, 5, 9, 10, 6, 7])))
+        a3 = Array(test_arr)
+        a3.splice(2, 1, 9, 10)  # Replace
+        self.assertEqual(str(a3), str(Array([3, 4, 9, 10, 6, 7])))
 
 
 class TestDate(unittest.TestCase):
