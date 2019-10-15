@@ -40,3 +40,4 @@ lxml
 flup
 xmljson
 twine
+fpdf2
