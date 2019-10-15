@@ -33,6 +33,12 @@
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
+                <property name="margin">
+                    <number>2</number>
+                </property>
+                <property name="spacing">
+                    <number>2</number>
+                </property>
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>pb_uno</cstring>
@@ -64,6 +70,15 @@
             <property name="name">
                 <cstring>fLTableDB1</cstring>
             </property>
+            <property name="font">
+                <font>
+                    <bold>1</bold>
+                    <italic>1</italic>
+                </font>
+            </property>
+            <property name="functionGetColor">
+                <string>flfactppal.iface.getcolor</string>
+            </property>
         </widget>
         <widget class="QGroupBox" row="0" column="0">
             <property name="name">
@@ -79,6 +94,13 @@
                 <widget class="FLFieldDB">
                     <property name="name">
                         <cstring>fLFieldDB1</cstring>
+                    </property>
+                    <property name="paletteForegroundColor">
+                        <color>
+                            <red>249</red>
+                            <green>242</green>
+                            <blue>118</blue>
+                        </color>
                     </property>
                     <property name="fieldName">
                         <string>field_01</string>
@@ -180,6 +202,68 @@
                     </property>
                     <property name="text">
                         <string>checkBox1</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QGroupBox" row="2" column="1">
+            <property name="name">
+                <cstring>groupBox3</cstring>
+            </property>
+            <property name="title">
+                <string>groupBox3</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout4</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>pushButton2</cstring>
+                            </property>
+                            <property name="text">
+                                <string>pushButton2</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer3</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>121</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </vbox>
+                </widget>
+                <widget class="QSpinBox">
+                    <property name="name">
+                        <cstring>spinBox1</cstring>
+                    </property>
+                    <property name="maxValue">
+                        <number>200</number>
+                    </property>
+                    <property name="minValue">
+                        <number>1</number>
+                    </property>
+                    <property name="value">
+                        <number>33</number>
                     </property>
                 </widget>
             </vbox>
