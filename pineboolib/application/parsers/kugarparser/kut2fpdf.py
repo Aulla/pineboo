@@ -125,6 +125,9 @@ class Kut2FPDF(object):
             self._document = report
         # Seteamos rutas a carpetas con tipos de letra ...
 
+        if not hasattr(self._document, "set_stretching"):
+            raise Exception("incorrect pyfpdf versión , you need <= 1.7.3")
+
         # Cargamos las fuentes disponibles
         next_page_break = (flags[2] == 1) if len(flags) == 3 else True
         page_append = (flags[1] == 1) if len(flags) > 1 else False
