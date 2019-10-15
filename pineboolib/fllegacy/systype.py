@@ -86,7 +86,7 @@ class SysType(SysBaseType):
         return translate.translate(group, text)
 
     def printTextEdit(self, editor: QtWidgets.QTextEdit):
-        """Print text from a textEdit"""
+        """Print text from a textEdit."""
 
         from pineboolib.fllegacy import flapplication
 
