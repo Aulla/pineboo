@@ -396,7 +396,7 @@ class FLApplication(QtCore.QObject):
         self.db().managerModules().setActiveIdModule("")
 
         self.clearProject()
-        mw = project.main_form.mainWindow
+        mw = project.main_window
         if self.main_widget_ is None:
             self.main_widget_ = mw
 
