@@ -9,9 +9,9 @@ pg8000
 ply
 pylint
 six
-PyQt5==5.12.3
+PyQt5
 PyQt5-sip
-PyQt5-stubs==5.12.1.0
+PyQt5-stubs
 pytest
 python-barcode
 python-dateutil
