@@ -296,13 +296,14 @@ class FLApplication(QtCore.QObject):
         # self.apAppIdle()
         self._inicializing = True
 
-        mw = project.main_form.mainWindow
+        if hasattr(project.main_form, "mainWindow"):
+            mw = project.main_form.mainWindow
 
-        if mw is not None:
-            mw.writeState()
-            mw.writeStateModule()
-            if hasattr(mw, "_p_work_space"):
-                mw._p_work_space = None
+            if mw is not None:
+                mw.writeState()
+                mw.writeStateModule()
+                if hasattr(mw, "_p_work_space"):
+                    mw._p_work_space = None
 
         QtCore.QTimer.singleShot(0, self.reinitP)
         from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import empty_base
