@@ -352,15 +352,18 @@ class SysBaseType(object):
             logger.warning(ustr(u"INFO: ", msg))
 
     @classmethod
-    def warnMsgBox(self, msg: str = "") -> None:
+    def warnMsgBox(self, msg: str = "", *buttons: Any) -> None:
         """Show Warning message box."""
-        msg = ustr(msg)
-        msg += u"\n"
+        new_list = []
+        new_list.append("%s.\n" % ustr(msg))
+        for bt in buttons:
+            new_list.append(bt)
+
         if self.interactiveGUI():
             # QtWidgets.QMessageBox.warning(
             #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
             # )
-            project.message_manager().send("msgBoxWarning", None, [msg])
+            project.message_manager().send("msgBoxWarning", None, new_list)
         else:
             logger.warning(ustr(u"WARN: ", msg))
 
