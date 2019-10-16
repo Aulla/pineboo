@@ -79,6 +79,8 @@ class Alignment(object):
 
     AlignTop = QtCore.Qt.AlignTop
     WordBreak = QtCore.Qt.TextWordWrap
+    AlignHCenter = QtCore.Qt.AlignHCenter
+    AlignVCenter = QtCore.Qt.AlignVCenter
 
 
 class AQS(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment, PrinterColorMode):
