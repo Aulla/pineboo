@@ -25,15 +25,10 @@ class QByteArray(QtCore.QByteArray):
         """Get a char number from a position."""
         return self.data()[pos]
 
-    def fromBase64(  # type: ignore[override] # noqa : F821
-        self,
-        options: Optional[
-            Union[QtCore.QByteArray.Base64Options, QtCore.QByteArray.Base64Option]
-        ] = None,
-    ) -> bytes:
+    def fromBase64(self, *args) -> bytes:  # type: ignore[override] # noqa : F821
         """Return a decoded base64 value."""
-        if options:
-            return super().fromBase64(*options)
+        if args:
+            return super().fromBase64(*args)
         else:
             import base64
 
