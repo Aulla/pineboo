@@ -33,7 +33,10 @@ class TestParser(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
+        qsa.from_project("flfactppal").iface.valoresIniciales()
+
         cur_paises = qsa.FLSqlCursor("paises")
+        """
         cur_paises.setModeAccess(cur_paises.Insert)
         cur_paises.refreshBuffer()
         cur_paises.setValueBuffer("codpais", "ES")
@@ -44,7 +47,7 @@ class TestParser(unittest.TestCase):
         cur_paises.setValueBuffer("codpais", "PT")
         cur_paises.setValueBuffer("nombre", "PORTUGAL")
         self.assertTrue(cur_paises.commitBuffer())
-
+        """
         cur_paises.select("1=1")
         cur_paises.first()
         init_ = cur_paises.valueBuffer("codpais")
