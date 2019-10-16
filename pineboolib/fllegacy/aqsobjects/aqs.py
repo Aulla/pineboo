@@ -83,7 +83,11 @@ class Alignment(object):
     AlignVCenter = QtCore.Qt.AlignVCenter
 
 
-class AQS(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment, PrinterColorMode):
+class WaitCursor(object):
+    WaitCursor = QtCore.Qt.WaitCursor
+
+
+class AQS(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment, PrinterColorMode, WaitCursor):
     """AQS Class."""
 
     Box = None
