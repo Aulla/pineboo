@@ -310,13 +310,16 @@ class AQOdsRow(object):
             self.fix_precision_ = n
 
 
-def AQOdsColor(color: int) -> str:
+def AQOdsColor(*args) -> str:
     """
-    Returnsa color from a hexadecimal value.
+    Returns a color from a hexadecimal value.
 
     @param color. Hexadecimal value.
     """
-    return hex(color)[2:]
+    if len(args) == 1:
+        return hex(args[0])[2:]
+    else:
+        return "%02x%02x%02x" % (args[0], args[1], args[2])
 
 
 class AQOdsStyle_class(object):
