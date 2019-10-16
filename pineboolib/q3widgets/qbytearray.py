@@ -33,7 +33,7 @@ class QByteArray(QtCore.QByteArray):
     ) -> bytes:
         """Return a decoded base64 value."""
         if options:
-            return super().fromBase64(self, *options)
+            return super().fromBase64(*options)
         else:
             import base64
 
