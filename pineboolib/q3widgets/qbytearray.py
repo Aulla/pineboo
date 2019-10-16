@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5 import QtCore  # type: ignore
-from typing import Union
+from typing import Union, Optional
 
 
 class QByteArray(QtCore.QByteArray):
@@ -25,11 +25,15 @@ class QByteArray(QtCore.QByteArray):
         """Get a char number from a position."""
         return self.data()[pos]
 
-    def fromBase64(self, *args):
+    def fromBase64(  # type: ignore[override] # noqa : F821
+        self,
+        options: Optional[
+            Union[QtCore.QByteArray.Base64Options, QtCore.QByteArray.Base64Option]
+        ] = None,
+    ) -> bytes:
         """Return a decoded base64 value."""
-
-        if args:
-            return super().fromBase64(self, *args)
+        if options:
+            return super().fromBase64(self, *options)
         else:
             import base64
 
