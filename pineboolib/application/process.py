@@ -181,7 +181,7 @@ class Process(ProcessBaseClass):
         self.stdout = self.readAllStandardOutput().data().decode(self._encoding)
         return self.exitCode()
 
-    def execute(  # type: ignore
+    def execute(  # type: ignore[override] # noqa : F821
         self,
         program: Union[str, List[str], "types.Array"],
         arguments: Optional[Iterable[str]] = None,
@@ -204,6 +204,8 @@ class Process(ProcessBaseClass):
         return self.exitCode()
 
     running = property(get_is_running)
-    workingDirectory = property(get_working_directory, set_working_directory)  # type: ignore
+    workingDirectory = property(  # type: ignore[assignment] # noqa : F821
+        get_working_directory, set_working_directory
+    )
     stdout = property(read_std_out, set_std_out)
     stderr = property(read_std_error, set_std_error)
