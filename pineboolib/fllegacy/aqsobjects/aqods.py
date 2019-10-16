@@ -312,7 +312,7 @@ class AQOdsRow(object):
 
 def AQOdsColor(*args) -> str:
     """
-    Returns a color from a hexadecimal value.
+    Return a color from a hexadecimal value.
 
     @param color. Hexadecimal value.
     """

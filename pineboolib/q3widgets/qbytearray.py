@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5 import QtCore  # type: ignore
-from typing import Any, Union
+from typing import Union
 
 
 class QByteArray(QtCore.QByteArray):
@@ -22,9 +22,12 @@ class QByteArray(QtCore.QByteArray):
         super().insert(pos, _ch)
 
     def get(self, pos: int):
+        """Get a char number from a position."""
         return self.data()[pos]
 
     def fromBase64(self, *args):
+        """Return a decoded base64 value."""
+
         if args:
             return super().fromBase64(self, *args)
         else:
