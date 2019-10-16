@@ -530,6 +530,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """Close file."""
         pass
 
+    def errorString(self) -> str:
+        """Return error string."""
+        return self._q_file.errorString()
+
     def read(self, bytes: bool = False) -> str:
         """
         Read file completely.
