@@ -30,6 +30,16 @@ class TestAQS(unittest.TestCase):
         child.refresh(qsa.AQS.RefreshData)
         # FIXME : saber que ha funcionado
 
+    def test_qevents(self) -> None:
+        """Test QEvent class."""
+        from pineboolib.qsa import qsa
+
+        ev_1 = qsa.AQS.FocusIn
+        ev_2 = qsa.AQS.KeyRelease
+
+        self.assertEqual(ev_1, 8)
+        self.assertEqual(ev_2, 7)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

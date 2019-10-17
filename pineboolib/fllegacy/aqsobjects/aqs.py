@@ -13,7 +13,6 @@ from PyQt5 import QtGui
 
 from pineboolib.core.utils import logging
 
-
 from typing import Any, Optional, Union
 
 
@@ -89,7 +88,7 @@ class Cursor(object):
     WaitCursor = QtCore.Qt.WaitCursor
 
 
-class AQS(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment, PrinterColorMode, Cursor):
+class AQS_Class(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment, PrinterColorMode, Cursor):
     """AQS Class."""
 
     Box = None
@@ -243,6 +242,9 @@ class AQS(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment, PrinterColorMod
         ret_ = getattr(QtGui, "Q%sEvent" % name, None)
 
         if ret_ is None:
+            ret_ = getattr(QtCore.QEvent, name, None)
+
+        if ret_ is None:
             for lib in [QFrame, QLabel, QSizePolicy, QtCore.Qt]:
                 ret_ = getattr(lib, name, None)
                 if ret_ is not None:
@@ -259,3 +261,6 @@ class AQS(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment, PrinterColorMod
         """Return codec name."""
 
         return codec_name
+
+
+AQS = AQS_Class()

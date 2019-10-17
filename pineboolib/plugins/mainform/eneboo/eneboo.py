@@ -37,7 +37,7 @@ class DockListView(QtCore.QObject):
         super(DockListView, self).__init__(parent)
         if parent is None:
             return
-        self.AQS = aqsobjectfactory.AQS()
+        self.AQS = aqsobjectfactory.AQS
         self._name = name
         self.w_ = QtWidgets.QDockWidget(name, parent)
         self.w_.setObjectName("%sListView" % name)
@@ -290,7 +290,7 @@ class MainForm(QtWidgets.QMainWindow):
         super().__init__()
 
         self.qsa_sys = systype.SysType()
-        self.AQS = aqsobjectfactory.AQS()
+        self.AQS = aqsobjectfactory.AQS
         self.ag_menu_ = None
         self.ag_rec_ = None
         self.ag_mar_ = None
