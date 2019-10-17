@@ -40,6 +40,14 @@ class TestAQS(unittest.TestCase):
         self.assertEqual(ev_1, 8)
         self.assertEqual(ev_2, 7)
 
+    def test_aqs_attributes(self) -> None:
+        """Test AQS Attributes."""
+        from PyQt5 import QtCore
+        from pineboolib.qsa import qsa
+
+        at_1 = qsa.AQS.WaitCursor
+        self.assertEqual(at_1, QtCore.Qt.WaitCursor)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
