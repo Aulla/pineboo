@@ -19,13 +19,6 @@ from typing import Any, Optional, Union
 logger = logging.getLogger("AQS")
 
 
-class SortOrder(object):
-    """Sort Order enumerate class."""
-
-    Ascending: QtCore.Qt.SortOrder = QtCore.Qt.AscendingOrder
-    Descending: QtCore.Qt.SortOrder = QtCore.Qt.DescendingOrder
-
-
 class SMTP(object):
     """Smtp enumerate class."""
 
@@ -42,22 +35,12 @@ class SMTP(object):
     SmtpClientError: int = 17
 
 
-class Events(object):
-    """Event enumerate class."""
-
-    Close = QtGui.QCloseEvent
-    Show = QtGui.QShowEvent
-    WindowStateChange = QtGui.QWindowStateChangeEvent
-    ContextMenu = QtGui.QContextMenuEvent
-
-
 class Docker(object):
     """Docker enumerate class."""
 
     LeftDockWidgetArea: int = 1
     InDock: str = "InDock"
     OutSideDock: str = "OutSideDock"
-    translate = ["DockLeft", "ContextMenu"]
 
 
 class FLTableDB(object):
@@ -73,27 +56,44 @@ class PrinterColorMode(object):
     PrintColor = 1
 
 
-class Alignment(object):
-    """Alignment enumerate class."""
-
-    AlignTop = QtCore.Qt.AlignTop
-    WordBreak = QtCore.Qt.TextWordWrap
-    AlignHCenter = QtCore.Qt.AlignHCenter
-    AlignVCenter = QtCore.Qt.AlignVCenter
-
-
-class Cursor(object):
-    """Cursor enumerate class."""
-
-    WaitCursor = QtCore.Qt.WaitCursor
-
-
-class AQS_Class(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment, PrinterColorMode, Cursor):
+class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
     """AQS Class."""
 
     Box = None
     Plain = None
     StFailed = None
+
+    def __getattr__(self, name: str) -> Any:
+        """
+        Return the attributes of the main classes, if it is not in the class.
+
+        @param name. Attribute name.
+        @return Attribute or None.
+        """
+
+        if name == "DockLeft":
+            name = "LeftDockWidgetArea"
+        elif name == "WordBreak":
+            name = "TextWordWrap"
+
+        ret_ = None
+
+        for lib in [QFrame, QLabel, QSizePolicy, QtCore.Qt, QtCore.QEvent]:
+            ret_ = getattr(lib, name, None)
+            if ret_ is not None:
+                break
+
+        if ret_ is None:
+            ret_ = getattr(QtCore.Qt, "%sOrder" % name, None)
+
+        if ret_ is None:
+            ret_ = getattr(QtGui, "Q%sEvent" % name, None)
+
+        if ret_ is not None:
+            logger.info("AQS: Looking up attr: %r -> %r  (Please set these in AQS)", name, ret_)
+            return ret_
+
+        logger.warning("AQS: No se encuentra el atributo %s", name)
 
     @staticmethod
     def ColorDialog_getColor(
@@ -226,35 +226,6 @@ class AQS_Class(SortOrder, SMTP, Events, Docker, FLTableDB, Alignment, PrinterCo
     def Application_restoreOverrideCursor(cls) -> None:
         """Restore override cursor."""
         QApplication.restoreOverrideCursor()
-
-    def __getattr__(self, name: str) -> Any:
-        """
-        Return the attributes of the main classes, if it is not in the class.
-
-        @param name. Attribute name.
-        @return Attribute or None.
-        """
-
-        if name in self.translate:
-            if name == "DockLeft":
-                name = "LeftDockWidgetArea"
-
-        ret_ = getattr(QtGui, "Q%sEvent" % name, None)
-
-        if ret_ is None:
-            ret_ = getattr(QtCore.QEvent, name, None)
-
-        if ret_ is None:
-            for lib in [QFrame, QLabel, QSizePolicy, QtCore.Qt]:
-                ret_ = getattr(lib, name, None)
-                if ret_ is not None:
-                    break
-
-        if ret_ is not None:
-            logger.info("AQS: Looking up attr: %r -> %r  (Please set these in AQS)", name, ret_)
-            return ret_
-
-        logger.warning("AQS: No se encuentra el atributo %s", name)
 
     @classmethod
     def TextCodec_codecForName(cls, codec_name: str) -> str:
