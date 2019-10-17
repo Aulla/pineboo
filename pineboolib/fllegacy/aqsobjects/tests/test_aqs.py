@@ -42,11 +42,13 @@ class TestAQS(unittest.TestCase):
 
     def test_aqs_attributes(self) -> None:
         """Test AQS Attributes."""
-        from PyQt5 import QtCore
+        from PyQt5 import QtCore, QtGui
         from pineboolib.qsa import qsa
 
         at_1 = qsa.AQS.WaitCursor
+        at_2 = qsa.AQS.ContextMenu
         self.assertEqual(at_1, QtCore.Qt.WaitCursor)
+        self.assertEqual(at_2, QtGui.QContextMenuEvent)
 
     @classmethod
     def tearDownClass(cls) -> None:

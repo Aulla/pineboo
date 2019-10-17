@@ -953,6 +953,6 @@ class FLFormDB(QDialog):
         """Export this widget into an xml."""
         from pineboolib.fllegacy.aqsobjects.aqs import AQS
 
-        xml = AQS().toXml(self, True, True)
+        xml = AQS.toXml(self, True, True)
         print(xml.toString(2))
         pass

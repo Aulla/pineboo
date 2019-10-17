@@ -76,18 +76,16 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
         elif name == "WordBreak":
             name = "TextWordWrap"
 
-        ret_ = None
-
-        for lib in [QFrame, QLabel, QSizePolicy, QtCore.Qt, QtCore.QEvent]:
-            ret_ = getattr(lib, name, None)
-            if ret_ is not None:
-                break
-
-        if ret_ is None:
-            ret_ = getattr(QtCore.Qt, "%sOrder" % name, None)
+        ret_ = getattr(QtCore.Qt, "%sOrder" % name, None)
 
         if ret_ is None:
             ret_ = getattr(QtGui, "Q%sEvent" % name, None)
+
+        if ret_ is None:
+            for lib in [QFrame, QLabel, QSizePolicy, QtCore.Qt, QtCore.QEvent]:
+                ret_ = getattr(lib, name, None)
+                if ret_ is not None:
+                    break
 
         if ret_ is not None:
             logger.info("AQS: Looking up attr: %r -> %r  (Please set these in AQS)", name, ret_)
