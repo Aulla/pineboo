@@ -2508,7 +2508,7 @@ def write_python_file(
 def pythonize(filename: str, destfilename: str, debugname: Optional[str] = None) -> None:
     """Convert given QS filename into Python saved as destfilename."""
     # bname = os.path.basename(filename)
-    ASTPython.debug_file = open(debugname, "w") if debugname else None
+    ASTPython.debug_file = open(debugname, "w", encoding="UTF-8") if debugname else None
     parser = ElementTree.XMLParser(encoding="UTF-8")
     try:
         ast_tree = ElementTree.parse(open(filename, "r", encoding="UTF-8"), parser)
