@@ -609,7 +609,7 @@ class FLUtil(QtCore.QObject):
         return ret
 
     @classmethod
-    def addDays(cls, fecha: Any, offset: int) -> Optional["Date"]:
+    def addDays(cls, fecha: Any, offset: int) -> "Date":
         """
         Add days to a date.
 
@@ -620,14 +620,11 @@ class FLUtil(QtCore.QObject):
 
         if isinstance(fecha, str):
             fecha = Date(fecha, "yyyy-MM-dd")
-        if not isinstance(fecha, Date):
-            logger.error("addDays: No reconozco el tipo de dato %s", type(fecha))
-            logger.trace("Detalle:", stack_info=True)
-            return None
+
         return fecha.addDays(offset)
 
     @classmethod
-    def addMonths(cls, fecha: Any, offset: int) -> Optional["Date"]:
+    def addMonths(cls, fecha: Any, offset: int) -> "Date":
         """
         Add months to a date.
 
@@ -638,14 +635,11 @@ class FLUtil(QtCore.QObject):
 
         if isinstance(fecha, str):
             fecha = Date(fecha)
-        if not isinstance(fecha, Date):
-            logger.error("addMonths: No reconozco el tipo de dato %s", type(fecha))
-            logger.trace("Detalle:", stack_info=True)
-            return None
+
         return fecha.addMonths(offset)
 
     @classmethod
-    def addYears(cls, fecha: Any, offset: int) -> Optional["Date"]:
+    def addYears(cls, fecha: Any, offset: int) -> "Date":
         """
         Add years to a date.
 
@@ -656,9 +650,7 @@ class FLUtil(QtCore.QObject):
 
         if isinstance(fecha, str):
             fecha = Date(fecha)
-        if not isinstance(fecha, Date):
-            logger.error("addYears: No reconozco el tipo de dato %s", type(fecha), stack_info=True)
-            return None
+
         return fecha.addYears(offset)
 
     @classmethod
