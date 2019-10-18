@@ -11,13 +11,13 @@ from xml.dom import minidom  # type: ignore
 import logging
 import importlib
 from . import pytnyzer
+from . import flscriptparse
+from typing import List, Type, Optional, Dict, Tuple, Any, Callable, cast, Iterable
 
 sm = pytnyzer.STRICT_MODE
 importlib.reload(pytnyzer)
 pytnyzer.STRICT_MODE = sm
 
-from . import flscriptparse
-from typing import List, Type, Optional, Dict, Tuple, Any, Callable, cast, Iterable
 
 TreeData = Dict[str, Any]
 
