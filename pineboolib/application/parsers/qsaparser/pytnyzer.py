@@ -2523,7 +2523,7 @@ def pythonize(filename: str, destfilename: str, debugname: Optional[str] = None)
     if black:
         try:
             new_code = black.format_file_contents(
-                Path(destfilename).read_text(), fast=True, mode=BLACK_FILEMODE
+                Path(destfilename).read_text(encoding="UTF-8"), fast=True, mode=BLACK_FILEMODE
             )
         except black.NothingChanged:
             # The file we saved earlier is already good.
