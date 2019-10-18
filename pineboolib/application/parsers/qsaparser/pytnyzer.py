@@ -585,7 +585,7 @@ class Function(ASTPython):
         if parent is not None:
             grandparent = cast(Optional[ElementTree.Element], parent.get("parent_"))  # FIXME
 
-        if grandparent and grandparent.get("name") == "FormInternalObj":
+        if grandparent is not None and grandparent.get("name") == "FormInternalObj":
             className = name.split("_")[0]
             if className not in classesDefined:
                 if className == "":
@@ -673,16 +673,16 @@ class FunctionCall(ASTPython):
             else:
                 name = expr[0]
 
-        if parent and parent.tag == "InstructionCall":
+        if parent is not None and parent.tag == "InstructionCall":
             class_ = None
             p_: Optional[ElementTree.Element] = parent
-            while p_:
+            while p_ is not None:
                 if p_.tag == "Class":
                     class_ = p_
                     break
                 p_ = cast(ElementTree.Element, p_.get("parent_"))
 
-            if class_:
+            if class_ is not None:
                 extends = class_.get("extends")
                 if extends == name:
                     name = "super(%s, self).__init__" % class_.get("name")
@@ -2012,7 +2012,7 @@ class New(ASTPython):
                 if ident.find(".") == -1:
                     parentClass_ = cast(ElementTree.Element, self.elem.get("parent_"))
                     # classIdent_ = False
-                    while parentClass_:
+                    while parentClass_ is not None:
                         if parentClass_.tag == "Source":
                             for m in parentClass_.findall("Class"):
                                 if m.get("name") == ident:
