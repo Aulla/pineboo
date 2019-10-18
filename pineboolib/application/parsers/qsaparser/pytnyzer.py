@@ -2371,7 +2371,12 @@ def file_template(
 ) -> ASTGenerator:
     """Create a new file template."""
 
+    from pineboolib import application
+
+    application.project.load_version()
+
     yield "line", "# -*- coding: utf-8 -*-"
+    yield "line", "# Translated with pineboolib %s" % application.project.version.split(" ")[1]
     yield "line", "from typing import TYPE_CHECKING, Any"
 
     if not STRICT_MODE:
