@@ -64,6 +64,13 @@ class TestParser(unittest.TestCase):
         flfacturac_py = fixture_read("flfacturac.python")
         flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
 
+        # Delete version translator tag.
+        pos_ini = flfacturac_qs_py.find("# Translated with pineboolib v")
+        pos_fin = flfacturac_qs_py[pos_ini:].find("\n")
+        flfacturac_qs_py = flfacturac_qs_py.replace(
+            flfacturac_qs_py[pos_ini : pos_ini + pos_fin + 1], ""
+        )
+
         # Write onto git so we have an example.
         with open(fixture_path("flfacturac.qs.python"), "w") as f:
             f.write(flfacturac_qs_py)
