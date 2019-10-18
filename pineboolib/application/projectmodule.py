@@ -197,7 +197,10 @@ class Project(object):
                 for f in os.listdir(self.tmpdir):
                     if f.find(".") > -1 and not f.endswith("sqlite3"):
                         pt_ = os.path.join(self.tmpdir, f)
-                        os.remove(pt_)
+                        try:
+                            os.remove(pt_)
+                        except:
+                            pass
 
         # Conectar:
 
