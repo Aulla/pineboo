@@ -1307,22 +1307,17 @@ class Variable(ASTPython):
 
         dtype: Optional[str] = self.elem.get("type", None)
         if (values == 0) and force_value:
-            yield "expr", "="
+
             if dtype is None:
+                yield "expr", ":Any ="
                 yield "expr", "None"
-            elif dtype == "String":
-                yield "expr", '""'
-            elif dtype == "Number":
-                yield "expr", "0"
             else:
-                # parent1 = self.elem.get("parent_")
-                # parent2 = parent1.get("parent_")
-                # parent3 = parent2.get("parent_")
-                # print("**", parent2.tag, parent3.tag)
-                # if parent2.tag == "Source" and parent3.tag == "Class":
-                #    yield "expr", "None"
-                # else:
-                if dtype in ("FLSqlCursor", "FLTableDB"):
+                yield "expr", "="
+                if dtype == "String":
+                    yield "expr", '""'
+                elif dtype == "Number":
+                    yield "expr", "0"
+                elif dtype in ("FLSqlCursor", "FLTableDB"):
                     yield "expr", "None"
                 else:
                     yield "expr", "%s()" % self.local_var(dtype)
