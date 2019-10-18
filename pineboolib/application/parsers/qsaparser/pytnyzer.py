@@ -1309,8 +1309,7 @@ class Variable(ASTPython):
         if (values == 0) and force_value:
 
             if dtype is None:
-                yield "expr", ":Any ="
-                yield "expr", "None"
+                yield "expr", ":Any"
             else:
                 yield "expr", "="
                 if dtype == "String":
