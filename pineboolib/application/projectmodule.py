@@ -199,7 +199,10 @@ class Project(object):
                         pt_ = os.path.join(self.tmpdir, f)
                         try:
                             os.remove(pt_)
-                        except:
+                        except Exception:
+                            self.logger.warning(
+                                "No se ha podido borrar %s al limpiar la cache", pt_
+                            )
                             pass
 
         # Conectar:

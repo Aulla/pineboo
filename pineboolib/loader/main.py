@@ -284,10 +284,12 @@ def finish_testing() -> None:
 
     try:
         shutil.rmtree(project.tmpdir)
-    except:
+    except Exception:
+        logger.warning("No se ha podido borrar %s al limpiar cambios del test", project.tmpdir)
         pass
     qsadictmodules.QSADictModules.clean_all()
-    os.mkdir(project.tmpdir)
+    if not os.path.exists(project.tmpdir):
+        os.mkdir(project.tmpdir)
     # needed for delete older virtual database.
 
     # conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
