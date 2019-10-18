@@ -282,7 +282,10 @@ def finish_testing() -> None:
     import shutil
     import os
 
-    shutil.rmtree(project.tmpdir)
+    try:
+        shutil.rmtree(project.tmpdir)
+    except:
+        pass
     qsadictmodules.QSADictModules.clean_all()
     os.mkdir(project.tmpdir)
     # needed for delete older virtual database.
