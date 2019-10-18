@@ -9,9 +9,14 @@ from PyQt5.QtXml import QDomDocument  # type: ignore
 from PyQt5 import QtCore  # type: ignore
 
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
-from .pnaccesscontrolfactory import PNAccessControlFactory
+from . import pnaccesscontrolfactory
+
 from pineboolib import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from . import pnaccesscontrol
+
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +29,7 @@ class PNAccessControlLists(object):
 
     Generalmente corresponderá con el identificador del registro de la tabla "flacls" que se utilizó para crear "acl.xml".
     """
-    _name: str
+    _name: Optional[str]
 
     """
     Diccionario (lista) que mantiene los objetos de las reglas de control de acceso establecidas.
@@ -37,13 +42,13 @@ class PNAccessControlLists(object):
     \\endcode
     """
 
-    _access_control_list: Dict[str, Any]
+    _access_control_list: Dict[str, "pnaccesscontrol.PNAccessControl"]
 
     def __init__(self):
         """Initialize the class."""
 
         self._name = None
-        self._access_control_list = []
+        self._access_control_list = {}
 
     def __del__(self) -> None:
         """Process when destroying the class."""
@@ -52,7 +57,7 @@ class PNAccessControlLists(object):
             self._access_control_list.clear()
             del self._access_control_list
 
-    def name(self) -> str:
+    def name(self) -> Optional[str]:
         """
         Return the name that identifies the currently established access control list.
 
@@ -101,7 +106,7 @@ class PNAccessControlLists(object):
                     no = no.nextSibling()
                     continue
 
-                ac = PNAccessControlFactory().create(e.tagName())
+                ac = pnaccesscontrolfactory.PNAccessControlFactory().create(e.tagName())
                 if ac:
                     ac.set(e)
                     self._access_control_list["%s::%s::%s" % (ac.type(), ac.name(), ac.user())] = ac
@@ -122,7 +127,7 @@ class PNAccessControlLists(object):
 
         if not self._access_control_list:
             return
-        type_ = PNAccessControlFactory().type(obj)
+        type_ = pnaccesscontrolfactory.PNAccessControlFactory().type(obj)
         name = ""
 
         if hasattr(obj, "name"):
@@ -216,7 +221,7 @@ class PNAccessControlLists(object):
         if not iduser or not q or not d:
             return
 
-        ac = PNAccessControlFactory().create(str(q.value(1)))
+        ac = pnaccesscontrolfactory.PNAccessControlFactory().create(str(q.value(1)))
         if ac:
             ac.setName(str(q.value(2)))
             ac.setUser(iduser)

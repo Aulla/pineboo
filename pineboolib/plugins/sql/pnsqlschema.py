@@ -39,7 +39,7 @@ class PNSqlSchema(object):
         self.open_ = False
         self.errorList = []
         self.alias_ = ""
-        self._dbname = None
+        self._dbname = ""
         self.mobile_ = False
         self.pure_python_ = False
         self.defaultPort_ = 0

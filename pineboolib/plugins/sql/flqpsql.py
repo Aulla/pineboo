@@ -37,7 +37,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         self.open_ = False
         self.errorList = []
         self.alias_ = "PostgreSQL (PSYCOPG2)"
-        self._dbname = None
         self.mobile_ = False
         self.pure_python_ = False
         self.defaultPort_ = 5432
