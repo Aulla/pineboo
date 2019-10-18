@@ -673,24 +673,25 @@ class FunctionCall(ASTPython):
             else:
                 name = expr[0]
 
-        if parent is not None and parent.tag == "InstructionCall":
-            class_ = None
-            p_: Optional[ElementTree.Element] = parent
-            while p_ is not None:
-                if p_.tag == "Class":
-                    class_ = p_
-                    break
-                p_ = cast(ElementTree.Element, p_.get("parent_"))
+        if parent is not None:
+            if parent.tag == "InstructionCall":
+                class_ = None
+                p_: Optional[ElementTree.Element] = parent
+                while p_ is not None:
+                    if p_.tag == "Class":
+                        class_ = p_
+                        break
+                    p_ = cast(ElementTree.Element, p_.get("parent_"))
 
-            if class_ is not None:
-                extends = class_.get("extends")
-                if extends == name:
-                    name = "super(%s, self).__init__" % class_.get("name")
-            functions = parent.findall('Function[@name="%s"]' % name)
-            for f in functions:
-                # yield "debug", "Function to:" + ElementTree.tostring(f)
-                name = "self.%s" % name
-                break
+                if class_ is not None:
+                    extends = class_.get("extends")
+                    if extends == name:
+                        name = "super(%s, self).__init__" % class_.get("name")
+                functions = parent.findall('Function[@name="%s"]' % name)
+                for f in functions:
+                    # yield "debug", "Function to:" + ElementTree.tostring(f)
+                    name = "self.%s" % name
+                    break
 
         arguments = []
         for n, arg in enumerate(self.elem.findall("CallArguments/*")):
