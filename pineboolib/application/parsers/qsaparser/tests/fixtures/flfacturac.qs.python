@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from pineboolib.qsa import qsa
 
 # /** @file */
@@ -3929,7 +3929,7 @@ class FormInternalObj(qsa.FormDBWidget):
         equivA = "ÑñÇçÁáÉéÍíÓóÚúÀàÈèÌìÒòÙùÂâÊêÎîÔôÛûÄäËëÏïÖöÜüº"
         equivB = "NnCcAaEeIiOoUuAaEeIiOoUuAaEeIiOoUuAaEeIiOoUu "
         validos = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ /-?+:,.'()"
-        iEq = None
+        iEq: Any = None
         i = 0
         while_pass = True
         while i < qsa.length(cIn):
