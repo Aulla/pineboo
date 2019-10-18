@@ -61,4 +61,4 @@ class QRadioButton(QtWidgets.QRadioButton):
         super().setText(t)
 
     checked = property(get_checked, set_checked)
-    text = property(get_text, set_text)  # type: ignore
+    text = property(get_text, set_text)  # type: ignore[assignment] # noqa : F821
