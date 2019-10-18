@@ -15,7 +15,7 @@ from pineboolib import logging
 from typing import Any, Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from . import pnaccesscontrol
+    from . import pnaccesscontrol  # noqa : F401
 
 
 logger = logging.getLogger(__name__)
