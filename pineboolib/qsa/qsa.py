@@ -28,7 +28,7 @@ from .pncontrolsfactory import QCheckBox, QWidget, QMessageBox, QDialog, QDateTi
 from .pncontrolsfactory import QVBoxLayout, QHBoxLayout, QFrame, QMainWindow  # noqa: F401
 from .pncontrolsfactory import QMenu, QToolBar, QAction, QDataView, QByteArray  # noqa: F401
 from .pncontrolsfactory import QMdiArea, QEventLoop, QActionGroup, QInputDialog  # noqa: F401
-from .pncontrolsfactory import QApplication, QStyleFactory, QFontDialog  # noqa: F401
+from .pncontrolsfactory import QApplication, QStyleFactory, QFontDialog, QTextStream  # noqa: F401
 from .pncontrolsfactory import QMdiSubWindow, QSizePolicy, QProgressDialog  # noqa: F401
 from .pncontrolsfactory import QFileDialog, QTreeWidget, QTreeWidgetItem  # noqa: F401
 from .pncontrolsfactory import QTreeWidgetItemIterator, QListWidgetItem, QObject  # noqa: F401

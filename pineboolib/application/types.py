@@ -521,14 +521,22 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
     def open(self, m: QIODevice) -> bool:
         """Open file."""
+
         self._mode = m
         self.eof = False
+        if self._q_file is not None:
+            self._q_file.open(self._mode)
 
         return True
 
+    def ioDevice(self) -> QIODevice:
+        """Return ioDevice mode."""
+        return self._q_file
+
     def close(self) -> None:
         """Close file."""
-        pass
+        if self._q_file is not None:
+            self._q_file.close()
 
     def errorString(self) -> str:
         """Return error string."""
