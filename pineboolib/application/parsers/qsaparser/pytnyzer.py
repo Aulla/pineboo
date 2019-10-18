@@ -1522,7 +1522,7 @@ class Member(ASTPython):
 
         # Deteccion de llamada a modulo externo
         if (
-            len(arguments) >= 3
+            len(arguments) >= 2
             and arguments[1] == "iface"
             and arguments[0] != "self"
             and not arguments[0].startswith("qsa.from_project")

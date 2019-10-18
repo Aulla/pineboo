@@ -61,6 +61,9 @@ class TestKnownBugs(unittest.TestCase):
         value_3 = 'qsa.sys.AQTimer.singleShot(0, qsa.from_project("flfactppal").iface.test)\n'
         self.assertEqual(qs2py("sys.AQTimer.singleShot(0, flfactppal.iface.test);"), value_3)
 
+        value_4 = '_fP = qsa.from_project("flfactppal").iface\n'
+        self.assertEqual(qs2py("var _fP = flfactppal.iface;"), value_4)
+
     def test_multiples_if(self) -> None:
         """Check stackoverflow when parsing."""
 
