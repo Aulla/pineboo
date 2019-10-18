@@ -2393,7 +2393,7 @@ def file_template(
 
     sourceclasses = ElementTree.Element("Source")
     for cls in ast.findall("Class"):
-        cls.set("parent_", cast(str, ast))  # FIXME: AST is an XML Element, not a string.
+        cls.set("parent_", ast)
         sourceclasses.append(cast(ElementTree.Element, cls))
 
     mainclass = ElementTree.SubElement(
