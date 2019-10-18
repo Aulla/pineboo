@@ -2378,7 +2378,7 @@ def file_template(
     """Create a new file template."""
 
     yield "line", "# -*- coding: utf-8 -*-"
-    yield "line", "from typing import TYPE_CHECKING"
+    yield "line", "from typing import TYPE_CHECKING, Any"
 
     if not STRICT_MODE:
         yield "line", "from pineboolib.qsa.qsa import *  # noqa: F403"
