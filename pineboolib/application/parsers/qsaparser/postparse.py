@@ -9,6 +9,12 @@ import sys
 from xml.etree import ElementTree
 from xml.dom import minidom  # type: ignore
 import logging
+import importlib
+from . import pytnyzer
+
+sm = pytnyzer.STRICT_MODE
+importlib.reload(pytnyzer)
+pytnyzer.STRICT_MODE = sm
 
 from . import flscriptparse
 from typing import List, Type, Optional, Dict, Tuple, Any, Callable, cast, Iterable
@@ -832,7 +838,6 @@ def pythonify(filelist: List[str], arguments: List[str] = []) -> None:
 
 def pythonify2(filename: str, known_refs: Dict[str, Tuple[str, str]] = {}) -> str:
     """Convert File to Python. Faster version as does not write to disk. Avoids re-parsing XML."""
-    from .pytnyzer import pythonize2
 
     filecontent = open(filename, "r", encoding="latin-1").read()
     prog = flscriptparse.parse(filecontent)
@@ -844,7 +849,7 @@ def pythonify2(filename: str, known_refs: Dict[str, Tuple[str, str]] = {}) -> st
     tree_data: TreeData = flscriptparse.calctree(prog, alias_mode=0)
     ast = post_parse(tree_data)
 
-    return pythonize2(ast, known_refs)
+    return pytnyzer.pythonize2(ast, known_refs)
 
 
 def pythonify_string(
@@ -853,7 +858,6 @@ def pythonify_string(
     parser_template: str = "expression_template",
 ) -> str:
     """Convert QS string to Python. For unit-testing, only evaluates expressions."""
-    from .pytnyzer import pythonize2
 
     prog = flscriptparse.parse(qs_code)
     if not prog:
@@ -864,7 +868,7 @@ def pythonify_string(
     tree_data: TreeData = flscriptparse.calctree(prog, alias_mode=0)
     ast = post_parse(tree_data)
     ast.set("parser-template", parser_template)
-    return pythonize2(ast, known_refs)
+    return pytnyzer.pythonize2(ast, known_refs)
 
 
 def execute(options: Any, args: List[str]) -> None:
