@@ -2393,6 +2393,7 @@ def file_template(
 
     sourceclasses = ElementTree.Element("Source")
     for cls in ast.findall("Class"):
+        logger.warning("sourceclasess.append %s type(%s)", cls, type(cls))
         cls.set("parent_", ast)
         sourceclasses.append(cast(ElementTree.Element, cls))
 
