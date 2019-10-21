@@ -113,6 +113,13 @@ class TestSysType(unittest.TestCase):
         self.assertEqual(sys_2.transactionLevel(), 1)
         self.assertTrue(cur_modulos.rollback())
 
+    # def test_mod_main_widget(self) -> None:
+    #    """Test modMainWidget."""
+    #    from pineboolib.qsa import qsa
+
+    #    mw = qsa.sys.modMainWidget("sys")
+    #    self.assertTrue(mw)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
