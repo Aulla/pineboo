@@ -125,6 +125,13 @@ class SysType(SysBaseType):
         flapplication.aqApp.reinit()
 
     @classmethod
+    def modMainWidget(self, id_module_: str) -> Optional[QtWidgets.QWidget]:
+        """Set module MainWinget."""
+        from pineboolib.fllegacy import flapplication
+
+        return flapplication.aqApp.modMainWidget(id_module_)
+
+    @classmethod
     def setCaptionMainWidget(self, title: str) -> None:
         """Set caption in the main widget."""
 

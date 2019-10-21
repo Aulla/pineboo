@@ -561,10 +561,25 @@ class FLApplication(QtCore.QObject):
         """Return if console is shown."""
         return bool(self._ted_output and not self._ted_output.isHidden())
 
-    @decorators.NotImplementedWarn
-    def modMainWidget(self, id_modulo):
-        """Not implemented."""
-        pass
+    def modMainWidget(self, id_modulo: str) -> Optional[QtWidgets.QWidget]:
+        """Set module main widget."""
+        mw = project.main_window
+        mod_widget: Optional[QtWidgets.QWidget] = None
+        if hasattr(mw, "_dict_main_widgets"):
+            if id_modulo in mw._dict_main_widgets.keys():
+                mod_widget = mw._dict_main_widgets[id_modulo]
+
+        if mod_widget is None:
+            list_ = QtWidgets.QApplication.topLevelWidgets()
+            for w in list_:
+                if w.objectName() == id_modulo:
+                    mod_widget = w
+                    break
+
+        if mod_widget is None and self.mainWidget() is not None:
+            mod_widget = self.mainWidget().findChild(QtWidgets.QWidget, id_modulo)
+
+        return mod_widget
 
     def evaluateProject(self) -> None:
         """Execute QS entry function."""
