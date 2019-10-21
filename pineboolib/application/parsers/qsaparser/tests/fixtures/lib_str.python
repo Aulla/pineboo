@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# Translated with pineboolib v0.45.1
 from typing import TYPE_CHECKING, Any
 from pineboolib.qsa import qsa
 
