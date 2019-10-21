@@ -77,6 +77,25 @@ class TestParser(unittest.TestCase):
 
         self.assertEqual(flfacturac_qs_py, flfacturac_py)
 
+    def test_lib_str(self) -> None:
+        """Test conveting fixture lib_str."""
+        flfacturac_qs = fixture_read("lib_str.qs")
+        flfacturac_py = fixture_read("lib_str.python")
+        flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
+
+        # Delete version translator tag.
+        pos_ini = flfacturac_qs_py.find("# Translated with pineboolib v")
+        pos_fin = flfacturac_qs_py[pos_ini:].find("\n")
+        flfacturac_qs_py = flfacturac_qs_py.replace(
+            flfacturac_qs_py[pos_ini : pos_ini + pos_fin + 1], ""
+        )
+
+        # Write onto git so we have an example.
+        with open(fixture_path("lib_str.qs.python"), "w") as f:
+            f.write(flfacturac_qs_py)
+
+        self.assertEqual(flfacturac_qs_py, flfacturac_py)
+
     def test_form(self) -> None:
         """Test converting form"""
         self.assertEqual(qs2py("form = this;"), "form = self\n")

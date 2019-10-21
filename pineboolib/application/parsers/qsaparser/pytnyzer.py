@@ -694,6 +694,7 @@ class FunctionCall(ASTPython):
                     break
 
         arguments = []
+
         for n, arg in enumerate(self.elem.findall("CallArguments/*")):
             # FIXME:
             arg.set("parent_", self.elem)  # type: ignore
@@ -714,7 +715,13 @@ class FunctionCall(ASTPython):
                 arg1 = arg1.replace(" )", ")")
                 arguments.append(arg1)
 
-        yield "expr", "%s(%s)" % (name, ", ".join(arguments))
+        comment = ""
+        if STRICT_MODE and name.startswith("__undef__"):
+            name = name[9:]
+            name = "self.%s" % name
+            comment = "# This orphan function is assigned to self."
+
+        yield "expr", "%s(%s)%s" % (name, ", ".join(arguments), comment)
 
 
 class FunctionAnonExec(FunctionCall):

@@ -1,0 +1,54 @@
+# -*- coding: utf-8 -*-
+from typing import TYPE_CHECKING, Any
+from pineboolib.qsa import qsa
+
+# /** @file */
+
+
+# /** @class_declaration FormInternalObj */
+class FormInternalObj(qsa.FormDBWidget):
+
+    # /** @class_definition FormInternalObj */
+    def _class_init(self):
+        pass
+
+    # /** @class_definition entry */
+    def entry_point(self, user=None, verb=None, model=None, params=None, method=None):
+        qsa.debug("Hola")
+        return
+        f = self.get_api_function(verb, model, method)  # This orphan function is assigned to self.
+        if not f:
+            return False
+        try:
+            qsa.debug(qsa.ustr("f = ", f))
+            return
+            response_data = f(user, params)
+            return response_data
+
+        except Exception:
+            e = qsa.format_exc()
+            qsa.debug(qsa.ustr("Error ", e))
+
+    # /** @class_definition get */
+    def get_api_function(self, verb=None, model=None, method=None):
+        f = False
+        for case in qsa.switch(model):
+            if case("gt_tareas"):
+                for case in qsa.switch(verb):
+                    if case("get"):
+                        for case in qsa.switch(method):
+                            if case(None):
+                                f = "Hola"
+                                break
+                        break
+
+                break
+
+        return f
+
+
+if TYPE_CHECKING:
+    form: FormInternalObj = FormInternalObj()
+    iface = form.iface
+else:
+    form = None
