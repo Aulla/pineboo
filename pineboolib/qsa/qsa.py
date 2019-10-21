@@ -61,7 +61,7 @@ from .pncontrolsfactory import Picture, Rect, Size, Pixmap  # noqa: F401
 # AQS
 from .pncontrolsfactory import AQS, AQUnpacker, AQSettings, AQSqlQuery  # noqa: F401
 from .pncontrolsfactory import AQSqlCursor, AQUtil, AQSql, AQSmtpClient  # noqa: F401
-from .pncontrolsfactory import AQSignalMapper  # noqa: F401
+from .pncontrolsfactory import AQSignalMapper, AQSSProject  # noqa: F401
 
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 
@@ -81,6 +81,7 @@ from .pncontrolsfactory import SysType, sys, System  # noqa: F401
 QFile = File
 util = FLUtil
 print_ = print
+QSProject = AQSSProject()
 
 undefined = None
 LogText = 0

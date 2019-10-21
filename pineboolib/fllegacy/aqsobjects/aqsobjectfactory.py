@@ -16,6 +16,7 @@ from .aqsmtpclient import AQSmtpClient  # noqa: F401
 from .aqs import AQS  # noqa: F401
 from .aqboolflagstate import AQBoolFlagState, AQBoolFlagStateList  # noqa: F401
 from .aqformdb import AQFormDB  # noqa: F401
+from .aqssproject import AQSSProject  # noqa: F401
 
 
 if not getattr(sys, "frozen", False):  # FIXME: No module named 'xml.sax.expatreader' in deploy

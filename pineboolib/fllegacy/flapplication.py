@@ -473,7 +473,7 @@ class FLApplication(QtCore.QObject):
         project.main_form.mainWindow.setCaptionMainWidget(text)
 
     @decorators.NotImplementedWarn
-    def addSysCode(self, code, scritp_entry_function):
+    def addSysCode(self, code, script_entry_function):
         """Not implemented."""
         pass
 
@@ -574,7 +574,7 @@ class FLApplication(QtCore.QObject):
         """Execute QS entry function."""
         if self.script_entry_function_:
             self.call(self.script_entry_function_, [], self)
-            self.script_entry_function_ = None
+            # self.script_entry_function_ = None
 
     def emitTransactionBegin(self, o: "PNSqlCursor") -> None:
         """Emit signal."""

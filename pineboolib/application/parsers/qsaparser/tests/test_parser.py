@@ -22,6 +22,11 @@ class TestParser(unittest.TestCase):
 
         self.assertEqual(qs2py("x = 0"), "x = 0\n")
 
+    def test_aqssproject(self) -> None:
+        """Test aqssproject parse."""
+
+        self.assertEqual(qs2py("QSProject.entryFunction"), "qsa.QSProject.entryFunction\n")
+
     def test_file_class(self) -> None:
         """Test parsing the file class."""
         self.assertEqual(qs2py('x = File.read("test")'), 'x = qsa.FileStatic.read("test")\n')

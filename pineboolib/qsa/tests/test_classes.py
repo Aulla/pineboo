@@ -58,6 +58,18 @@ class TestClasses(unittest.TestCase):
             read_data = f.read()
             self.assertEqual(read_data, "Hola!\nHola de nuevo!\n")
 
+    def test_qsproject(self) -> None:
+        """Test qsproject."""
+
+        from pineboolib.qsa import qsa
+
+        value_1 = "flfactppal.iface.prueba"
+        qsa.aqApp.setScriptEntryFunction("flfactppal.iface.prueba")
+
+        value_2 = qsa.QSProject.entryFunction
+
+        self.assertEqual(value_1, value_2)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
