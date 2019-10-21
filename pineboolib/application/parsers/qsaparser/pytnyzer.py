@@ -314,6 +314,8 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
         name = "lower"
     if name == "toUpperCase":
         name = "upper"
+    if name == "indexOf":
+        name = "index"
     # if name == "Process":
     #    name = "qsatype.Process"
     if name in python_keywords:

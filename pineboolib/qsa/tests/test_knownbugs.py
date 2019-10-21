@@ -41,6 +41,15 @@ class TestKnownBugs(unittest.TestCase):
 
         self.assertEqual(qsa.System.getenv("TEST_PINEBOO"), "¡hola!")
 
+    def test_index_of(self) -> None:
+        """Check indexOf translation."""
+
+        value = """var text_:String = "test@test.test";\nif (text_.indexOf("@") == -1){\ndebug("ok");}"""
+        self.assertEqual(
+            qs2py(value),
+            """text_ = "test@test.test"\nif text_.index("@") == -1:\n    qsa.debug("ok")\n""",
+        )
+
     def test_reg_exp(self) -> None:
         """Test regExp parser."""
         value = """var reg_exp:RegExp = new RegExp( "''" );\nreg_exp.global = true;"""
