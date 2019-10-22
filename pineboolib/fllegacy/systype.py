@@ -92,6 +92,13 @@ class SysType(SysBaseType):
 
         flapplication.aqApp.printTextEdit(editor)
 
+    def dialogGetFileImage(self) -> Optional[str]:
+        """Show a file dialog and return a file name."""
+
+        from pineboolib.fllegacy import flapplication
+
+        return flapplication.aqApp.dialogGetFileImage()
+
     @classmethod
     def transactionLevel(self) -> int:
         """Return transaction level."""

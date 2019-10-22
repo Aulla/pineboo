@@ -853,6 +853,29 @@ class FLApplication(QtCore.QObject):
         """Return app version."""
         return project.version
 
+    def dialogGetFileImage(self) -> Optional[str]:
+        """Get image file name."""
+
+        # from . import flpixmapviewer
+
+        file_dialog = QtWidgets.QFileDialog(
+            QtWidgets.qApp.focusWidget(), self.tr("Elegir archivo"), project.tmpdir, "*"
+        )
+        # pixmap_viewer = flpixmapview.FLPixmapView(file_dialog)
+
+        # pixmap_viewer.setAutoScaled(True)
+        # file_dialog.setContentsPreviewEnabled(True)
+        # file_dialog.setContentsPreview(p, p)
+        # file_dialog.setPreviewMode(QtWidgets.QFileDialog.Contents)
+
+        file_name = None
+        if file_dialog.exec_() == QtWidgets.QDialog.Accepted:
+            list_ = file_dialog.selectedFiles()
+            if list_:
+                file_name = list_[0]
+
+        return file_name
+
 
 """
 class FLPopuWarn(QtWidgets.QWhatsThis):
