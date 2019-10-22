@@ -161,6 +161,7 @@ from pineboolib.fllegacy.aqsobjects.aqsmtpclient import AQSmtpClient  # noqa: F4
 from pineboolib.fllegacy.aqsobjects.aqs import AQS  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsignalmapper import AQSignalMapper  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqssproject import AQSSProject  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqobjectquerylist import AQObjectQueryList  # noqa: F401
 
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 

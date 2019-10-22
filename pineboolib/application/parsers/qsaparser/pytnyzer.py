@@ -39,6 +39,7 @@ QSA_KNOWN_ATTRS = {
     "AQBoolFlagState",
     "AQBoolFlagStateList",
     "AQFormDB",
+    "AQObjectQueryList",
     "AQOdsColor",
     "AQOdsGenerator",
     "AQOdsImage",
