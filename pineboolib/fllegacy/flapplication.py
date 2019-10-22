@@ -401,9 +401,14 @@ class FLApplication(QtCore.QObject):
             self.main_widget_ = mw
 
         if project.main_window is None:
-            raise Exception("project.main_window is empty!")
+            if project.main_form is not None:
+                project.main_form.mainWindow = project.main_form.MainForm()
+                project.main_window = project.main_form.mainWindow
+            else:
+                raise Exception("project.main_window and project.main_form is empty!")
 
-        project.main_window.initialized_mods_ = []
+        if project.main_window is not None:
+            project.main_window.initialized_mods_ = []
 
         QSADictModules.clean_all()
 
