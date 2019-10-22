@@ -783,17 +783,16 @@ class FLApplication(QtCore.QObject):
         # self._multi_lang_enabled = backMultiEnabled
         # return ret
 
-    @decorators.BetaImplementation
-    def setMultiLang(self, enable, langid):
+    def setMultiLang(self, enable_: bool, lang_id_: str) -> None:
         """
         Change multilang status.
 
         @param enable, Boolean con el nuevo estado
         @param langid, Identificador del leguaje a activar
         """
-        self._multi_lang_enabled = enable
-        if enable and langid:
-            self._multi_lang_id = langid.upper()
+        self._multi_lang_enabled = enable_
+        if enable_ and lang_id_:
+            self._multi_lang_id = lang_id_.upper()
 
     def loadTranslationFromModule(self, idM, lang) -> None:
         """

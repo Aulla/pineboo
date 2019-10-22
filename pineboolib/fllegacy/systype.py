@@ -106,6 +106,16 @@ class SysType(SysBaseType):
 
         return flapplication.aqApp.toPixmap(value_)
 
+    def setMultiLang(self, enable_: bool, lang_id_: str) -> None:
+        """
+        Change multilang status.
+
+        @param enable, Boolean con el nuevo estado
+        @param langid, Identificador del leguaje a activar
+        """
+
+        return flapplication.aqApp.setMultiLang(enable_, lang_id_)
+
     def fromPixmap(self, pix_: QtGui.QPixmap) -> str:
         """Return a text from a QPixmap."""
 
