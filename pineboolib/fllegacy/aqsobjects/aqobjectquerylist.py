@@ -26,7 +26,7 @@ def AQObjectQueryList(
 
     args_.append(class_)
 
-    if object_name is "":
+    if object_name and object_name == "":
         object_name = None
 
     args_.append(object_name)
