@@ -249,13 +249,13 @@ def init_testing() -> None:
     project.init_conn(connection=conn)
 
     project.no_python_cache = True
-    project.run()
+    if project.run():
 
-    # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
-    project.conn.managerModules().loadIdAreas()
-    project.conn.managerModules().loadAllIdModules()
+        # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
+        project.conn.managerModules().loadIdAreas()
+        project.conn.managerModules().loadAllIdModules()
 
-    project.load_modules()
+        project.load_modules()
 
 
 def finish_testing() -> None:

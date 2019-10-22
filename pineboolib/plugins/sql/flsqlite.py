@@ -92,6 +92,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if db_name == ":memory:":
             self.db_name = "temp_db"
             self.db_filename = db_name
+            if application.project._splash:
+                application.project._splash.hide()
         else:
             self.db_filename = _dir("%s.sqlite3" % self.db_name)
 
