@@ -134,4 +134,4 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         """Escape values, suitable to prevent sql injection."""
         import pymysql
 
-        return pymysql.escape_string(text).decode("utf-8")
+        return pymysql.escape_string(text)
