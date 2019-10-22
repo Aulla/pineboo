@@ -348,7 +348,7 @@ class Dir(object):
 
     def __init__(self, path: Optional[str] = None):
         """Create a new Dir."""
-        self.path_: Optional[str] = path
+        self.path: Optional[str] = path
 
     def entryList(self, patron: str, type_: int = NoFilter, sort: int = NoSort) -> list:
         """
@@ -357,16 +357,16 @@ class Dir(object):
         @param patron. Patron a usa para identificar los ficheros
         @return lista con los ficheros que coinciden con el patrón
         """
-        # p = os.walk(self.path_)
+        # p = os.walk(self.path)
         retorno: List[str] = []
         try:
             import fnmatch
 
-            if self.path_ is None:
-                raise ValueError("self.path_ is not defined!")
+            if self.path is None:
+                raise ValueError("self.path is not defined!")
 
-            if os.path.exists(self.path_):
-                for file in os.listdir(self.path_):
+            if os.path.exists(self.path):
+                for file in os.listdir(self.path):
                     if fnmatch.fnmatch(file, patron):
                         retorno.append(file)
         except Exception as e:
@@ -428,10 +428,10 @@ class Dir(object):
         @param name. Nombre de la ruta a crear
         """
         if name is None:
-            if self.path_ is None:
-                raise ValueError("self.path_ is not defined!")
+            if self.path is None:
+                raise ValueError("self.path is not defined!")
 
-            name = self.path_
+            name = self.path
         try:
             os.stat(name)
         except Exception:
