@@ -111,10 +111,12 @@ class SysType(SysBaseType):
 
         return flapplication.aqApp.fromPixmap(pix_)
 
-    def scalePixmap(self, pix_: QtGui.QPixmap) -> QtGui.QImage:
+    def scalePixmap(
+        self, pix_: QtGui.QPixmap, w_: int, h_: int, mode_: QtCore.Qt.AspectRatioMode
+    ) -> QtGui.QImage:
         """Return QImage scaled from a QPixmap."""
 
-        return flapplication.aqApp.scalePixmap(pix_)
+        return flapplication.aqApp.scalePixmap(pix_, w_, h_, mode_)
 
     @classmethod
     def transactionLevel(self) -> int:

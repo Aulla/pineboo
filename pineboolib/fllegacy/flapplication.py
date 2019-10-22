@@ -444,10 +444,10 @@ class FLApplication(QtCore.QObject):
 
         SysBaseType.openUrl([url_])
 
-    def toPixmap(self, value: string) -> QtGui.QPixmap:
+    def toPixmap(self, value: str) -> QtGui.QPixmap:
         """Create a QPixmap from a text."""
 
-        from pineboolib.application.utils import xmp
+        from pineboolib.application.utils import xpm
 
         ret_ = QtGui.QPixmap()
 
@@ -479,7 +479,7 @@ class FLApplication(QtCore.QObject):
 
         img_ = pix_.toImage()
 
-        return img_.scaled(w_, h_, model_)
+        return img_.scaled(w_, h_, mode_)
 
     def timeUser(self) -> Any:
         """Get amount of time running."""
