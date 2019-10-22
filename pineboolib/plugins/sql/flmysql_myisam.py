@@ -988,7 +988,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             return self.alterTable2(mtd1, mtd2, key, True)
 
         if not ok:
-            from MySQLdb.cursors import DictCursor
+
+            from MySQLdb.cursors import DictCursor  # type: ignore
 
             oldCursor = self.conn_.cursor(DictCursor)
             # print("Lanzando!!", "SELECT * FROM %s WHERE 1 = 1" % (renameOld))
