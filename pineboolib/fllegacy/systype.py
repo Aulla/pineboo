@@ -6,7 +6,7 @@ import os.path
 import sys
 
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtXml import QDomDocument
 from PyQt5.QtCore import QFile, QTextStream
 from PyQt5.QtCore import Qt, QDir, pyqtSignal
@@ -100,6 +100,21 @@ class SysType(SysBaseType):
         """Show externa file."""
 
         return flapplication.aqApp.showDocPage(url_)
+
+    def toPixmap(self, value_: str) -> QtGui.QPixmap:
+        """Create a QPixmap from a text."""
+
+        return flapplication.aqApp.toPixmap(value_)
+
+    def fromPixmap(self, pix_: QtGui.QPixmap) -> str:
+        """Return a text from a QPixmap."""
+
+        return flapplication.aqApp.fromPixmap(pix_)
+
+    def scalePixmap(self, pix_: QtGui.QPixmap) -> QtGui.QImage:
+        """Return QImage scaled from a QPixmap."""
+
+        return flapplication.aqApp.scalePixmap(pix_)
 
     @classmethod
     def transactionLevel(self) -> int:

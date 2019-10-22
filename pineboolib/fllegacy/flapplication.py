@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """FLApplication Module."""
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from pineboolib import logging
 
@@ -443,6 +443,43 @@ class FLApplication(QtCore.QObject):
         """Show documentation."""
 
         SysBaseType.openUrl([url_])
+
+    def toPixmap(self, value: string) -> QtGui.QPixmap:
+        """Create a QPixmap from a text."""
+
+        from pineboolib.application.utils import xmp
+
+        ret_ = QtGui.QPixmap()
+
+        file_name = xpm.cacheXPM(value)
+        if file_name:
+            ret_ = QtGui.QPixmap(file_name)
+
+        return ret_
+
+    def fromPixmap(self, pix_: QtGui.QPixmap) -> str:
+        """Return a text from a QPixmap."""
+        ret_: str = ""
+        if pix_.isNull():
+            return ret_
+
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        buffer_ = QtCore.QBuffer()
+        buffer_.open(QtCore.QIODevice.WriteOnly)
+        pix_.save(buffer_, "xpm")
+
+        QtWidgets.QApplication.restoreOverrideCursor()
+
+        return str(buffer_.data(), encoding="utf-8")
+
+    def scalePixmap(
+        self, pix_: QtGui.QPixmap, w_: int, h_: int, mode_: QtCore.Qt.AspectRatioMode
+    ) -> QtGui.QImage:
+        """Return QImage scaled from a QPixmap."""
+
+        img_ = pix_.toImage()
+
+        return img_.scaled(w_, h_, model_)
 
     def timeUser(self) -> Any:
         """Get amount of time running."""
