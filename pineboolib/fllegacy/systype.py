@@ -111,6 +111,11 @@ class SysType(SysBaseType):
 
         return flapplication.aqApp.fromPixmap(pix_)
 
+    def openMasterForm(self, action_name_: str, pix_: Optional[QtGui.QPixmap] = None) -> None:
+        """Open default form from a action."""
+
+        flapplication.aqApp.openMasterForm(action_name_, pix_)
+
     def scalePixmap(
         self, pix_: QtGui.QPixmap, w_: int, h_: int, mode_: QtCore.Qt.AspectRatioMode
     ) -> QtGui.QImage:

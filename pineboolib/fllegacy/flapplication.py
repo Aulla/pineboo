@@ -262,7 +262,7 @@ class FLApplication(QtCore.QObject):
 
         self.main_widget_.statusBar().showMessage(text, 2000)
 
-    def openMasterForm(self, action_name, pix) -> None:
+    def openMasterForm(self, action_name: str, pix: Optional[QtGui.QPixmap] = None) -> None:
         """Open a tab."""
         if action_name in project.actions.keys():
             project.actions[action_name].openDefaultForm()
