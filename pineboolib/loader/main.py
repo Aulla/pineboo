@@ -256,6 +256,8 @@ def init_testing() -> None:
         project.conn.managerModules().loadAllIdModules()
 
         project.load_modules()
+    else:
+        raise Exception("Project initialization failed!")
 
 
 def finish_testing() -> None:
