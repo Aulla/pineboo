@@ -42,6 +42,7 @@ from pineboolib.q3widgets.qbytearray import QByteArray  # noqa: F401
 from pineboolib.q3widgets.qradiobutton import QRadioButton  # noqa: F401
 from pineboolib.q3widgets.qspinbox import QSpinBox  # noqa: F401
 from pineboolib.q3widgets.qtextstream import QTextStream  # noqa: F401
+from pineboolib.q3widgets.qpopupmenu import QPopupMenu  # noqa: F401
 
 from pineboolib.q3widgets.qeventloop import QEventLoop  # noqa: F401
 from pineboolib.q3widgets.qlistviewwidget import QListViewWidget  # noqa: F401

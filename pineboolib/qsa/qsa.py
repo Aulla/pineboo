@@ -36,7 +36,7 @@ from .pncontrolsfactory import QListViewWidget, QSignalMapper, QPainter, QBrush 
 from .pncontrolsfactory import QKeySequence, QIcon, QColor, QDomDocument  # noqa: F401
 from .pncontrolsfactory import QPushButton, QSpinBox, QRadioButton, QPixmap  # noqa: F401
 from .pncontrolsfactory import QButtonGroup, QToolBox, QSize, QDockWidget, QDir  # noqa: F401
-
+from .pncontrolsfactoty import QPopupMenu  # noqa: F401
 
 # FL
 from .pncontrolsfactory import FLDomDocument, FLDomElement, FLDomNode  # noqa: F401
