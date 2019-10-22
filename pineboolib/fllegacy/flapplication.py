@@ -439,10 +439,10 @@ class FLApplication(QtCore.QObject):
         if hasattr(project.main_window, "reinitSript"):
             project.main_window.reinitSript()
 
-    @decorators.NotImplementedWarn
-    def showDocPage(self, url):
+    def showDocPage(self, url_: str) -> None:
         """Show documentation."""
-        pass
+
+        SysBaseType.openUrl([url_])
 
     def timeUser(self) -> Any:
         """Get amount of time running."""

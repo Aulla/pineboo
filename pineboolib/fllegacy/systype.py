@@ -99,6 +99,12 @@ class SysType(SysBaseType):
 
         return flapplication.aqApp.dialogGetFileImage()
 
+    def showDocPage(self, url_: str) -> None:
+        """Show externa file."""
+        from pineboolib.fllegacy import flapplication
+
+        return flapplication.aqApp.showDocPage(url_)
+
     @classmethod
     def transactionLevel(self) -> int:
         """Return transaction level."""
