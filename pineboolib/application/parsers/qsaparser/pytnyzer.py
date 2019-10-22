@@ -165,6 +165,7 @@ QSA_KNOWN_ATTRS = {
     "QObject",
     "QPainter",
     "QPixmap",
+    "QPopupMenu",
     "QProcess",
     "QProgressDialog",
     "QPushButton",
