@@ -668,10 +668,10 @@ class FLApplication(QtCore.QObject):
         from pineboolib.fllegacy.flutil import FLUtil
 
         ret = FLUtil().sqlSelect("flsettings", "valor", "flkey='FLLargeMode'")
-        if ret == "True":
-            return False
+        if ret in "True":
+            return True
 
-        return True
+        return False
 
     def msgBoxWarning(self, t, _gui) -> None:
         """Display warning."""
