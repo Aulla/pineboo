@@ -2779,8 +2779,13 @@ class FLTableDB(QtWidgets.QWidget):
         else:
             self.filter_ = ""
 
-    def setSortOrder(self, ascending: bool = True, col_order: Optional[int] = None) -> None:
+    def setSortOrder(
+        self, ascending: Optional[Union[bool, int]] = True, col_order: Optional[int] = None
+    ) -> None:
         """Set sort columns order."""
+
+        if isinstance(ascending, int):
+            ascending = True if ascending == 0 else False
 
         order = Qt.AscendingOrder if ascending else Qt.DescendingOrder
 
