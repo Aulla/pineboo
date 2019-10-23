@@ -450,12 +450,12 @@ class FLTableDB(QtWidgets.QWidget):
         if not self.cursor().metadata():
             return
 
-        tMD = self.cursor().metadata()
+        tmd_ = self.cursor().metadata()
         if self.sortField_ is None:
-            if tMD is not None:
-                self.sortField_ = tMD.field(tMD.primaryKey())
+            if tmd_ is not None:
+                self.sortField_ = tmd_.field(tmd_.primaryKey())
 
-        ownTMD = None
+        own_tmd_ = None
         if self.tableName_:
             if DEBUG:
                 logger.warning(
@@ -463,21 +463,24 @@ class FLTableDB(QtWidgets.QWidget):
                 )
 
             if not self.cursor().db().manager().existsTable(self.tableName_):
-                ownTMD = True
-                tMD = self.cursor().db().manager().createTable(self.tableName_)
+                own_tmd_ = True
+                tmd_ = self.cursor().db().manager().createTable(self.tableName_)
             else:
-                ownTMD = True
+                own_tmd_ = True
                 manager_tmd = self.cursor().db().manager().metadata(self.tableName_)
 
                 if not manager_tmd or isinstance(manager_tmd, bool):
                     return
 
-                tMD = manager_tmd
+                tmd_ = manager_tmd
+
+            if tmd_ is None:
+                return
 
             if not self.foreignField_ or not self.fieldRelation_:
                 if not self.cursor().metadata():
-                    if ownTMD and tMD and not tMD.inCache():
-                        del tMD
+                    if own_tmd_ and tmd_ and not tmd_.inCache():
+                        del tmd_
                     return
 
                 if not self.cursor().metadata().name() == self.tableName_:
@@ -490,8 +493,8 @@ class FLTableDB(QtWidgets.QWidget):
                         self.cursor().setContext(ctxt)
                         self.cursorAux = None
 
-                    if ownTMD and tMD and not tMD.inCache():
-                        del tMD
+                    if own_tmd_ and tmd_ and not tmd_.inCache():
+                        del tmd_
 
                     return
 
@@ -506,8 +509,8 @@ class FLTableDB(QtWidgets.QWidget):
             or not self.fieldRelation_
             or self.cursorAux
         ):
-            if ownTMD and tMD and not tMD.inCache():
-                del tMD
+            if own_tmd_ and tmd_ and not tmd_.inCache():
+                del tmd_
 
             return
 
@@ -518,7 +521,7 @@ class FLTableDB(QtWidgets.QWidget):
             .metadata()
             .relation(self.foreignField_, self.fieldRelation_, self.tableName_)
         )
-        testM1 = tMD.relation(self.fieldRelation_, self.foreignField_, curName)
+        testM1 = tmd_.relation(self.fieldRelation_, self.foreignField_, curName)
         checkIntegrity = False
         if not rMD:
             if testM1:
@@ -526,11 +529,11 @@ class FLTableDB(QtWidgets.QWidget):
                     checkIntegrity = True
             fMD = self.cursor().metadata().field(self.foreignField_)
             if fMD is not None:
-                tmdAux = self.cursor().db().manager().metadata(self.tableName_)
-                if not tmdAux or tmdAux.isQuery():
+                tmd_aux_ = self.cursor().db().manager().metadata(self.tableName_)
+                if not tmd_aux_ or tmd_aux_.isQuery():
                     checkIntegrity = False
-                if tmdAux and not tmdAux.inCache():
-                    del tmdAux
+                if tmd_aux_ and not tmd_aux_.inCache():
+                    del tmd_aux_
 
                 rMD = PNRelationMetaData(
                     self.tableName_,
@@ -566,7 +569,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         rMD = testM1
         if not rMD:
-            fMD = tMD.field(self.fieldRelation_)
+            fMD = tmd_.field(self.fieldRelation_)
             if fMD is not None:
                 rMD = PNRelationMetaData(
                     curName, self.foreignField_, PNRelationMetaData.RELATION_1M, False, False, False
@@ -611,8 +614,8 @@ class FLTableDB(QtWidgets.QWidget):
             self.topWidget.setCaption(self.cursor().metadata().alias())
             self.topWidget.setCursor(self.cursor())
 
-        if ownTMD or tMD and not tMD.inCache():
-            del tMD
+        if own_tmd_ or tmd_ and not tmd_.inCache():
+            del tmd_
 
     def cursor(self) -> "pnsqlcursor.PNSqlCursor":
         """
