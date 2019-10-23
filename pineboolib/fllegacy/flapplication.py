@@ -668,7 +668,7 @@ class FLApplication(QtCore.QObject):
         from pineboolib.fllegacy.flutil import FLUtil
 
         ret = FLUtil().sqlSelect("flsettings", "valor", "flkey='FLLargeMode'")
-        if ret in "True":
+        if ret in ["True", True]:
             return True
 
         return False
