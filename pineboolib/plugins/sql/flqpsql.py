@@ -1210,10 +1210,12 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             result_set = old_cursor.fetchall()
             totalSteps = len(result_set)
             util.createProgressDialog(
-                util.tr("application", "Reestructurando registros para %s..." % newMTD.alias()),
+                util.translate(
+                    "application", "Reestructurando registros para %s..." % newMTD.alias()
+                ),
                 totalSteps,
             )
-            util.setLabelText(util.tr("application", "Tabla modificada"))
+            util.setLabelText(util.translate("application", "Tabla modificada"))
 
             step = 0
             newBuffer = None
@@ -1281,7 +1283,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                                 v = defVal
 
                     if v is not None and newField.type() == "string" and newField.length() > 0:
-                        v = v[: newField.length()]
+                        v = str(v)[: newField.length()]
 
                     if (not oldField.allowNull() or not newField.allowNull()) and v in (
                         None,
@@ -1366,13 +1368,15 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         for f in records:
             field = mtd.field(f[0])
             if field.generated():
-                fList.append(field.name())
+
                 value = f[5]
                 value = self.formatValue(field.type(), value, False)
-                if field.type() in ("string", "stringlist") and value == "Null":
-                    value = ""
+                if field.type() in ("string", "stringlist") and value in ["Null", "NULL"]:
+                    value = "''"
                 #    value = self.db_.normalizeValue(value)
-
+                # if value is None and field.allowNull():
+                #    continue
+                fList.append(field.name())
                 vList.append(value)
 
         sql = """INSERT INTO %s(%s) values (%s)""" % (
@@ -1387,7 +1391,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         try:
             cursor_.execute(sql)
         except Exception as exc:
-            print(sql, "\n", exc)
+            print(sql[:200], "\n", exc)
             return False
 
         return True
