@@ -1611,7 +1611,6 @@ class FLManager(QtCore.QObject, IManager):
         tableLarge = None
         from pineboolib.fllegacy.flapplication import aqApp
 
-        print("***", aqApp.singleFLLarge())
         if aqApp.singleFLLarge():
             tableLarge = "fllarge"
         else:
