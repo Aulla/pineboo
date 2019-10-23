@@ -1581,7 +1581,7 @@ class FLManager(QtCore.QObject, IManager):
 
         return False
 
-    def storeLargeValue(self, mtd: PNFieldMetaData, largeValue: str) -> Optional[str]:
+    def storeLargeValue(self, mtd: PNTableMetaData, largeValue: str) -> Optional[str]:
         """
         Store large field values ​​in separate indexed tables by SHA keys of the value content.
 
@@ -1611,6 +1611,7 @@ class FLManager(QtCore.QObject, IManager):
         tableLarge = None
         from pineboolib.fllegacy.flapplication import aqApp
 
+        print("***", aqApp.singleFLLarge())
         if aqApp.singleFLLarge():
             tableLarge = "fllarge"
         else:
@@ -1624,7 +1625,7 @@ class FLManager(QtCore.QObject, IManager):
                 fieldLarge3 = PNFieldMetaData("contenido", "contenido", True, False, "stringlist")
                 mtdLarge.addFieldMD(fieldLarge3)
                 mtdAux = self.createTable(mtdLarge)
-                mtd.insertChild(mtdLarge)  # type: ignore
+                # mtd.insertChild(mtdLarge)  # type: ignore
                 if not mtdAux:
                     return None
 
