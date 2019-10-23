@@ -764,9 +764,9 @@ class FLFormDB(QDialog):
         # self._action.mainform_widget = None
         self.deleteLater()
         self._loaded = False
-        from PyQt5.QtWidgets import qApp
+        # from PyQt5.QtWidgets import qApp
 
-        qApp.processEvents()
+        # qApp.processEvents() #Si se habilita pierde mucho tiempo!
 
         # self.hide()
         try:
