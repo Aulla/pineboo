@@ -794,6 +794,13 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         """Alter a table following mtd instructions."""
         return self.alterTable2(mtd1, mtd2, key, force)
 
+    def dict_cursor(self) -> Any:
+        """Return dict cursor."""
+
+        from MySQLdb.cursors import DictCursor  # type: ignore
+
+        return DictCursor
+
     def alterTable2(self, mtd1, mtd2, key: Optional[str], force: bool = False) -> bool:
         """Alter a table following mtd instructions."""
         if not self.db_:
@@ -989,9 +996,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         if not ok:
 
-            from MySQLdb.cursors import DictCursor  # type: ignore
-
-            oldCursor = self.conn_.cursor(DictCursor)
+            oldCursor = self.conn_.cursor(self.dict_cursor())
             # print("Lanzando!!", "SELECT * FROM %s WHERE 1 = 1" % (renameOld))
             oldCursor.execute("SELECT * FROM %s WHERE 1 = 1" % (renameOld))
             result_set = oldCursor.fetchall()
