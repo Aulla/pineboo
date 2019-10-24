@@ -3841,6 +3841,8 @@ class PNCursorPrivate(QtCore.QObject):
         """
         Delete restrictions according to access control list.
         """
+        if self.metadata_ is None:
+            return
 
         if self.metadata_.name() in self.acl_table_.keys():
             self.aclDone_ = False
