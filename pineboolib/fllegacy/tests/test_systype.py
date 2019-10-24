@@ -73,6 +73,20 @@ class TestSysType(unittest.TestCase):
         self.assertTrue(qry.first())
         self.assertEqual(qry.value(0), 147)
 
+    def test_run_transaction(self) -> None:
+        """Test run transaction."""
+        from pineboolib.qsa import qsa
+
+        o_param_ = qsa.Object()
+        fun_ = "test"
+        o_param_.errorMsg = qsa.sys.translate("Error en la función %s" % fun_)
+        f_1 = qsa.Function("oParam", "return true;")
+        result_1 = qsa.sys.runTransaction(f_1, o_param_)
+        self.assertTrue(result_1)
+        f_2 = qsa.Function("oParam", 'oParam.errorMsg = "Holaa";return false;')
+        result_2 = qsa.sys.runTransaction(f_2, o_param_)
+        self.assertFalse(result_2)
+
     def test_transaction_level(self) -> None:
         from pineboolib.qsa import qsa
         from pineboolib.application.metadata import pnrelationmetadata

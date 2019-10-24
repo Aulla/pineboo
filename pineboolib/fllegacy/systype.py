@@ -1495,68 +1495,65 @@ class SysType(SysBaseType):
         return False
 
     @classmethod
-    @decorators.WorkingOnThis
     def runTransaction(self, f: Callable, oParam: Dict[str, Any]) -> Any:
         """Run a Transaction."""
+        roll_back_: bool = False
+        error_msg_: str = ""
+        valor_: Any
 
-        curT = PNSqlCursor(u"flfiles")
-        curT.transaction(False)
-        valor = None
-        errorMsg = None
-        gui = self.interactiveGUI()
-        # FIXME: setOverrideCursor expects a QCursor, not a flag.
-        # if gui:
-        #     try:
-        #         AQS.Application_setOverrideCursor(Qt.WaitCursor)
-        #     except Exception:
-        #         e = traceback.format_exc()
+        from pineboolib import application
+
+        db_ = application.project.conn
+
+        transaction_level_ = db_.transactionLevel()
+        # Create Transaction.
+        if transaction_level_ == 0:
+            db_.transaction()
+        else:
+            db_.savePoint(transaction_level_)
+
+        db_.transaction_ += 1
+
+        if self.interactiveGUI():
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
 
         try:
-            valor = f(oParam)
+            valor_ = f(oParam)
             if "errorMsg" in oParam:
-                errorMsg = oParam["errorMsg"]
+                error_msg_ = oParam["errorMsg"]
 
-            if valor:
-                curT.commit()
-            else:
-                curT.rollback()
-                if gui:
-                    try:
-                        AQS.Application_restoreOverrideCursor()
-                    except Exception:
-                        e = traceback.format_exc()
-
-                if errorMsg:
-                    self.warnMsgBox(errorMsg)
-                else:
-                    self.warnMsgBox(self.translate(u"Error al ejecutar la función"))
-
-                return False
+            if not valor_:
+                roll_back_ = True
 
         except Exception:
             e = traceback.format_exc(limit=-6, chain=False)
-            curT.rollback()
-            if gui:
-                try:
-                    AQS.Application_restoreOverrideCursor()
-                except Exception:
-                    e = traceback.format_exc()
+            roll_back_ = True
+            valor_ = False
+            if error_msg_ == "":
+                error_msg_ = self.translate("Error al ejecutar la función")
+            error_msg_ = "%s:\n%s" % (error_msg_, error_manager(e))
 
-            if errorMsg:
-                self.warnMsgBox(ustr(errorMsg, u": ", str(e)))
+        db_.transaction_ -= 1
+
+        if roll_back_:  # do RollBack
+            if error_msg_ != "":
+                self.warnMsgBox(error_msg_)
+
+            if transaction_level_ == 0:
+                db_.rollbackTransaction()
             else:
-                self.warnMsgBox(error_manager(e))
+                db_.rollbackSavePoint(transaction_level_)
 
-            return False
+        else:  # do Commit
+            if transaction_level_ == 0:
+                db_.commit()
+            else:
+                db_.releaseSavePoint(transaction_level_)
 
-        if gui:
-            try:
-                AQS.Application_restoreOverrideCursor()
-            except Exception:
-                e = traceback.format_exc()
-                logger.error(e)
+        if self.interactiveGUI():
+            AQS.Application_restoreOverrideCursor()
 
-        return valor
+        return valor_
 
     @classmethod
     def search_git_updates(self, url: str) -> None:
