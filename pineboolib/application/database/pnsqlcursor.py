@@ -5,7 +5,7 @@ Module for PNSqlCursor class.
 import weakref
 import importlib
 import traceback
-from typing import Any, Optional, List, Union, cast, Callable, TYPE_CHECKING
+from typing import Any, Optional, List, Union, cast, Callable, Dict, TYPE_CHECKING
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMessageBox, QApplication, QDialog
@@ -3676,11 +3676,11 @@ class PNCursorPrivate(QtCore.QObject):
     Para el control de acceso dinámico en función del contenido de los registros
     """
 
-    acTable_: Any
+    acl_table_: Dict[str, Any] = {}
     acPermTable_ = None
-    acPermBackupTable_ = None
+    acPermBackupTable_: Dict[str, str] = {}
     acosTable_: List[str] = []
-    acosBackupTable_ = None
+    acosBackupTable_: Dict[str, str] = {}
     acosCondName_: Optional[str] = None
     acosCond_: int
     acosCondVal_ = None
@@ -3732,7 +3732,7 @@ class PNCursorPrivate(QtCore.QObject):
         self.cursor_ = None
         self.cursorRelation_ = None
         self.relation_ = None
-        self.acTable_ = None
+        # self.acl_table_ = None
         self.timer_ = None
         self.ctxt_ = None
         self.rawValues_ = False
@@ -3746,6 +3746,10 @@ class PNCursorPrivate(QtCore.QObject):
         if self.metadata_:
             self.undoAcl()
 
+            if self.metadata_.name() in self.acl_table_.keys():
+                del self.acl_table_[self.metadata_.name()]
+                # self.acl_table_ = None
+
         if self.bufferCopy_:
             del self.bufferCopy_
             self.bufferCopy_ = None
@@ -3753,10 +3757,6 @@ class PNCursorPrivate(QtCore.QObject):
         if self.relation_:
             del self.relation_
             self.relation_ = None
-
-        if self.acTable_:
-            del self.acTable_
-            self.acTable_ = None
 
         if self.edition_states_:
             del self.edition_states_
@@ -3777,12 +3777,18 @@ class PNCursorPrivate(QtCore.QObject):
         """
         from pineboolib.application.acls import pnaccesscontrolfactory
 
-        if not self.acTable_:
-            self.acTable_ = pnaccesscontrolfactory.PNAccessControlFactory().create("table")
-            self.acTable_.setFromObject(self.metadata_)
-            self.acosBackupTable_ = self.acTable_.getAcos()
-            self.acPermBackupTable_ = self.acTable_.perm()
-            self.acTable_.clear()
+        if not self.metadata_.name() in self.acl_table_.keys():
+            self.acl_table_[
+                self.metadata_.name()
+            ] = pnaccesscontrolfactory.PNAccessControlFactory().create("table")
+            self.acl_table_[self.metadata_.name()].setFromObject(self.metadata_)
+            self.acosBackupTable_[self.metadata_.name()] = self.acl_table_[
+                self.metadata_.name()
+            ].getAcos()
+            self.acPermBackupTable_[self.metadata_.name()] = self.acl_table_[
+                self.metadata_.name()
+            ].perm()
+            self.acl_table_[self.metadata_.name()].clear()
         if self.cursor_ is None:
             raise Exception("Cursor not created yet")
         if self.modeAccess_ == PNSqlCursor.Insert or (
@@ -3804,23 +3810,23 @@ class PNCursorPrivate(QtCore.QObject):
                 condTrue_ = project.call(self.acosCondName_, [self.cursor_]) == self.acosCondVal_
 
             if condTrue_:
-                if self.acTable_.name() != self.id_:
-                    self.acTable_.clear()
-                    self.acTable_.setName(self.id_)
-                    self.acTable_.setPerm(self.acPermTable_)
-                    self.acTable_.setAcos(self.acosTable_)
-                    self.acTable_.processObject(self.metadata_)
+                if self.acl_table_[self.metadata_.name()].name() != self.id_:
+                    self.acl_table_[self.metadata_.name()].clear()
+                    self.acl_table_[self.metadata_.name()].setName(self.id_)
+                    self.acl_table_[self.metadata_.name()].setPerm(self.acPermTable_)
+                    self.acl_table_[self.metadata_.name()].setAcos(self.acosTable_)
+                    self.acl_table_[self.metadata_.name()].processObject(self.metadata_)
                     self.aclDone_ = True
 
                 return
 
         elif self.cursor_.isLocked() or (self.cursorRelation_ and self.cursorRelation_.isLocked()):
 
-            if not self.acTable_.name() == self.id_:
-                self.acTable_.clear()
-                self.acTable_.setName(self.id_)
-                self.acTable_.setPerm("r-")
-                self.acTable_.processObject(self.metadata_)
+            if not self.acl_table_[self.metadata_.name()].name() == self.id_:
+                self.acl_table_[self.metadata_.name()].clear()
+                self.acl_table_[self.metadata_.name()].setName(self.id_)
+                self.acl_table_[self.metadata_.name()].setPerm("r-")
+                self.acl_table_[self.metadata_.name()].processObject(self.metadata_)
                 self.aclDone_ = True
 
             return
@@ -3832,12 +3838,16 @@ class PNCursorPrivate(QtCore.QObject):
         Delete restrictions according to access control list.
         """
 
-        if self.acTable_ and self.aclDone_:
+        if self.metadata_.name() in self.acl_table_.keys():
             self.aclDone_ = False
-            self.acTable_.clear()
-            self.acTable_.setPerm(self.acPermBackupTable_)
-            self.acTable_.setAcos(self.acosBackupTable_)
-            self.acTable_.processObject(self.metadata_)
+            self.acl_table_[self.metadata_.name()].clear()
+            self.acl_table_[self.metadata_.name()].setPerm(
+                self.acPermBackupTable_[self.metadata_.name()]
+            )
+            self.acl_table_[self.metadata_.name()].setAcos(
+                self.acosBackupTable_[self.metadata_.name()]
+            )
+            self.acl_table_[self.metadata_.name()].processObject(self.metadata_)
 
     def needUpdate(self) -> bool:
         """
