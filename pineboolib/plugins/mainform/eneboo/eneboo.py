@@ -733,7 +733,7 @@ class MainForm(QtWidgets.QMainWindow):
         object_list = action_group.children()
         for obj_ in object_list:
             o_name = obj_.objectName()
-            if not obj_.isVisible():
+            if not getattr(obj_, "isVisible", None) or not obj_.isVisible():
                 continue
             if isinstance(obj_, QtWidgets.QActionGroup):
                 new_parent = parent
