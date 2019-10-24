@@ -389,10 +389,11 @@ class PNSqlCursor(QtCore.QObject):
         if not self._action.table():
             return False
 
-        if not self.d.metadata_:
+        if self.d.metadata_ is None:
             self.d.metadata_ = self.db().manager().metadata(self._action.table())
 
-        self.d.doAcl()
+        if self.d.metadata_ is not None:
+            self.d.doAcl()
 
         from .pncursortablemodel import PNCursorTableModel
 
@@ -3776,6 +3777,9 @@ class PNCursorPrivate(QtCore.QObject):
         Create restrictions according to access control list.
         """
         from pineboolib.application.acls import pnaccesscontrolfactory
+
+        if self.metadata_ is None:
+            return
 
         if not self.metadata_.name() in self.acl_table_.keys():
             self.acl_table_[
