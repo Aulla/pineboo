@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData  # noqa: F401
     from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
     from pineboolib.application.metadata import pnaction  # noqa: F401
-    from pineboolib.application.database.pnbuffer import FieldStruct  # noqa: F401
+    from .pnbuffer import FieldStruct  # noqa: F401
 
 
 logger = logging.getLogger(__name__)
@@ -114,7 +114,7 @@ class PNSqlCursor(QtCore.QObject):
         self,
         name: Union[str, TableStruct] = None,
         conn_or_autopopulate: Union[bool, str] = True,
-        connectionName_or_db: Optional[Union[str, "IConnection"]] = None,
+        connectionName_or_db: Union[str, "IConnection"] = "default",
         cR: Optional["PNSqlCursor"] = None,
         r: Optional["PNRelationMetaData"] = None,
         parent=None,
@@ -147,22 +147,24 @@ class PNSqlCursor(QtCore.QObject):
         # name = name.table
         # else:
         # self.actionName_ = name
-
-        self.d = PNCursorPrivate()
-        self.d.cursor_ = self
-        self.d.nameCursor_ = "%s_%s" % (
-            act_.name(),
-            QtCore.QDateTime.currentDateTime().toString("dd.MM.yyyyThh:mm:ss.zzz"),
+        cursor_ = self
+        db_: "IConnection" = (
+            project.conn.useConn(connectionName_or_db)
+            if isinstance(connectionName_or_db, str)
+            else connectionName_or_db
         )
 
-        if connectionName_or_db is None:
-            self.d.db_ = project.conn
-        # elif isinstance(connectionName_or_db, QString) or
-        # isinstance(connectionName_or_db, str):
-        elif isinstance(connectionName_or_db, str):
-            self.d.db_ = project.conn.useConn(connectionName_or_db)
-        else:
-            self.d.db_ = connectionName_or_db
+        self.d = PNCursorPrivate(cursor_, act_, db_)
+        # self.d.cursor_ = self
+        # self.d.nameCursor_ = "%s_%s" % (
+        #    act_.name(),
+        #    QtCore.QDateTime.currentDateTime().toString("dd.MM.yyyyThh:mm:ss.zzz"),
+        # )
+
+        # if isinstance(connectionName_or_db, str):
+        #    self.d.db_ = project.conn.useConn(connectionName_or_db)
+        # else:
+        #    self.d.db_ = connectionName_or_db
 
         # for module in project.modules:
         #    for action in module.actions:
@@ -188,7 +190,6 @@ class PNSqlCursor(QtCore.QObject):
         # if self.d.metadata_ and not self.d.metadata_.aqWasDeleted() and not
         # self.d.metadata_.inCache():
 
-        self.d.curName_ = name
         if self.setAction(name):
             self.d.countRefCursor = self.d.countRefCursor + 1
         else:
@@ -3704,8 +3705,11 @@ class PNCursorPrivate(QtCore.QObject):
 
     edition_states_: AQBoolFlagStateList
     _current_changed = QtCore.pyqtSignal(int)
+    _id_acl: str
 
-    def __init__(self) -> None:
+    def __init__(
+        self, cursor_: PNSqlCursor, action_: "pnaction.PNAction", db_: "IConnection"
+    ) -> None:
         """
         Initialize the private part of the cursor.
         """
@@ -3730,7 +3734,7 @@ class PNCursorPrivate(QtCore.QObject):
         self.aclDone_ = False
         self.edition_ = True
         self.browse_ = True
-        self.cursor_ = None
+        self.cursor_ = cursor_
         self.cursorRelation_ = None
         self.relation_ = None
         # self.acl_table_ = None
@@ -3738,6 +3742,13 @@ class PNCursorPrivate(QtCore.QObject):
         self.ctxt_ = None
         self.rawValues_ = False
         self.persistentFilter_ = None
+        self.db_ = db_
+        self.curName_ = action_.name()
+        self._id_acl = ""
+        # self.nameCursor = "%s_%s" % (
+        #    act_.name(),
+        #    QtCore.QDateTime.currentDateTime().toString("dd.MM.yyyyThh:mm:ss.zzz"),
+        # )
 
     def __del__(self) -> None:
         """
@@ -3747,8 +3758,8 @@ class PNCursorPrivate(QtCore.QObject):
         if self.metadata_:
             self.undoAcl()
 
-            if self.metadata_.name() in self.acl_table_.keys():
-                del self.acl_table_[self.metadata_.name()]
+            if self._id_acl in self.acl_table_.keys():
+                del self.acl_table_[self._id_acl]
                 # self.acl_table_ = None
 
         if self.bufferCopy_:
@@ -3781,18 +3792,16 @@ class PNCursorPrivate(QtCore.QObject):
         if self.metadata_ is None:
             return
 
-        if not self.metadata_.name() in self.acl_table_.keys():
-            self.acl_table_[
-                self.metadata_.name()
-            ] = pnaccesscontrolfactory.PNAccessControlFactory().create("table")
-            self.acl_table_[self.metadata_.name()].setFromObject(self.metadata_)
-            self.acosBackupTable_[self.metadata_.name()] = self.acl_table_[
-                self.metadata_.name()
-            ].getAcos()
-            self.acPermBackupTable_[self.metadata_.name()] = self.acl_table_[
-                self.metadata_.name()
-            ].perm()
-            self.acl_table_[self.metadata_.name()].clear()
+        if not self._id_acl:
+            self._id_acl = "%s_%s" % (project.session_id(), self.metadata_.name())
+        if self._id_acl not in self.acl_table_.keys():
+            self.acl_table_[self._id_acl] = pnaccesscontrolfactory.PNAccessControlFactory().create(
+                "table"
+            )
+            self.acl_table_[self._id_acl].setFromObject(self.metadata_)
+            self.acosBackupTable_[self._id_acl] = self.acl_table_[self._id_acl].getAcos()
+            self.acPermBackupTable_[self._id_acl] = self.acl_table_[self._id_acl].perm()
+            self.acl_table_[self._id_acl].clear()
         if self.cursor_ is None:
             raise Exception("Cursor not created yet")
         if self.modeAccess_ == PNSqlCursor.Insert or (
@@ -3814,23 +3823,23 @@ class PNCursorPrivate(QtCore.QObject):
                 condTrue_ = project.call(self.acosCondName_, [self.cursor_]) == self.acosCondVal_
 
             if condTrue_:
-                if self.acl_table_[self.metadata_.name()].name() != self.id_:
-                    self.acl_table_[self.metadata_.name()].clear()
-                    self.acl_table_[self.metadata_.name()].setName(self.id_)
-                    self.acl_table_[self.metadata_.name()].setPerm(self.acPermTable_)
-                    self.acl_table_[self.metadata_.name()].setAcos(self.acosTable_)
-                    self.acl_table_[self.metadata_.name()].processObject(self.metadata_)
+                if self.acl_table_[self._id_acl].name() != self.id_:
+                    self.acl_table_[self._id_acl].clear()
+                    self.acl_table_[self._id_acl].setName(self.id_)
+                    self.acl_table_[self._id_acl].setPerm(self.acPermTable_)
+                    self.acl_table_[self._id_acl].setAcos(self.acosTable_)
+                    self.acl_table_[self._id_acl].processObject(self.metadata_)
                     self.aclDone_ = True
 
                 return
 
         elif self.cursor_.isLocked() or (self.cursorRelation_ and self.cursorRelation_.isLocked()):
 
-            if not self.acl_table_[self.metadata_.name()].name() == self.id_:
-                self.acl_table_[self.metadata_.name()].clear()
-                self.acl_table_[self.metadata_.name()].setName(self.id_)
-                self.acl_table_[self.metadata_.name()].setPerm("r-")
-                self.acl_table_[self.metadata_.name()].processObject(self.metadata_)
+            if not self.acl_table_[self._id_acl].name() == self.id_:
+                self.acl_table_[self._id_acl].clear()
+                self.acl_table_[self._id_acl].setName(self.id_)
+                self.acl_table_[self._id_acl].setPerm("r-")
+                self.acl_table_[self._id_acl].processObject(self.metadata_)
                 self.aclDone_ = True
 
             return
@@ -3841,19 +3850,15 @@ class PNCursorPrivate(QtCore.QObject):
         """
         Delete restrictions according to access control list.
         """
-        if self.metadata_ is None:
+        if self.metadata_ is None or not self._id_acl:
             return
 
-        if self.metadata_.name() in self.acl_table_.keys():
+        if self._id_acl in self.acl_table_.keys():
             self.aclDone_ = False
-            self.acl_table_[self.metadata_.name()].clear()
-            self.acl_table_[self.metadata_.name()].setPerm(
-                self.acPermBackupTable_[self.metadata_.name()]
-            )
-            self.acl_table_[self.metadata_.name()].setAcos(
-                self.acosBackupTable_[self.metadata_.name()]
-            )
-            self.acl_table_[self.metadata_.name()].processObject(self.metadata_)
+            self.acl_table_[self._id_acl].clear()
+            self.acl_table_[self._id_acl].setPerm(self.acPermBackupTable_[self._id_acl])
+            self.acl_table_[self._id_acl].setAcos(self.acosBackupTable_[self._id_acl])
+            self.acl_table_[self._id_acl].processObject(self.metadata_)
 
     def needUpdate(self) -> bool:
         """
