@@ -577,3 +577,8 @@ class Project(object):
     def message_manager(self):
         """Return message manager for splash and progress."""
         return self._msg_mng
+
+    def session_id(self) -> str:
+        """Return id if use pineboo like framework."""
+
+        return ""
