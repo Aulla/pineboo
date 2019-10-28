@@ -47,6 +47,7 @@ class PNConnection(QtCore.QObject, IConnection):
     _isOpen: bool
     driver_ = None
     _last_active_cursor: Optional["PNSqlCursor"]
+    conn_dict: Dict[str, "IConnection"] = {}
 
     def __init__(
         self,
@@ -59,14 +60,12 @@ class PNConnection(QtCore.QObject, IConnection):
         name: str = None,
     ) -> None:
         """Database connection through a sql driver."""
-
         from .pnsqldrivers import PNSqlDrivers
 
         super(PNConnection, self).__init__()
         self.conn = None
         # self.currentSavePoint_ = None
         self.driverSql = PNSqlDrivers()
-        self.connAux: Dict[str, "IConnection"] = {}
         if name is None:
             self.name = "default"
         else:
@@ -79,9 +78,12 @@ class PNConnection(QtCore.QObject, IConnection):
         # self.queueSavePoints_ = []
         self.interactiveGUI_ = True
         self._last_active_cursor = None
-        if name and name not in ("dbAux", "Aux"):
+        if name and name not in ("dbAux", "Aux", "main_connection", "default"):
             self._isOpen = False
             return
+
+        if name == "main_connection":
+            self.conn_dict[name] = self
 
         if self.driverName_ and self.driverSql.loadDriver(self.driverName_):
             # self.driver_ = self.driverSql.driver()
@@ -116,18 +118,22 @@ class PNConnection(QtCore.QObject, IConnection):
         """
         name: str
         if isinstance(name_or_conn, IConnection):
-            name = str(name_or_conn.connectionName())
+            name = name_or_conn.connectionName()
         else:
-            name = str(name_or_conn)
+            name = name_or_conn
 
-        if name in ("default", None):
-            return self
+        from pineboolib import application
 
-        connection = self.connAux.get(name, None)
-        if connection is None:
+        name_conn_: str = "%s_%s" % (application.project.session_id(), name)
+        # if name in ("default", None):
+        #    return self
+
+        if name_conn_ in self.conn_dict.keys():
+            connection_ = self.conn_dict[name_conn_]
+        else:
             if self.driverSql is None:
                 raise Exception("No driver selected")
-            connection = PNConnection(
+            connection_ = PNConnection(
                 self.db_name,
                 self.db_host,
                 self.db_port,
@@ -136,13 +142,14 @@ class PNConnection(QtCore.QObject, IConnection):
                 self.driverSql.nameToAlias(self.driverName()),
                 name,
             )
-            self.connAux[name] = connection
-        return connection
+            self.conn_dict[name_conn_] = connection_
+
+        return connection_
 
     def dictDatabases(self) -> Dict[str, "IConnection"]:
         """Return dict with own database connections."""
 
-        return self.connAux
+        return self.conn_dict
 
     def removeConn(self, name="default") -> bool:
         """Delete a connection specified by name."""
@@ -152,7 +159,7 @@ class PNConnection(QtCore.QObject, IConnection):
             if conn_ is not None:
                 conn_.close()
 
-            del self.connAux[name]
+            del self.conn_dict[name]
         except Exception:
             pass
 
@@ -220,7 +227,6 @@ class PNConnection(QtCore.QObject, IConnection):
 
     def cursor(self) -> "IApiCursor":
         """Return a cursor to the database."""
-
         if self.conn is None:
             raise Exception("cursor. Empty conn!!")
 
