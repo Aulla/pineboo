@@ -432,7 +432,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         if DEBUG:
             logger.warning(
-                "**FLTableDB::name: %r cursor: %r", self.objectName(), self.cursor().d.nameCursor_
+                "**FLTableDB::name: %r cursor: %r", self.objectName(), self.cursor().curName()
             )
 
     def loaded(self) -> bool:
