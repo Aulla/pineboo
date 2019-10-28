@@ -19,20 +19,21 @@ class TestPNConnection(unittest.TestCase):
 
         conn_ = application.project.conn
 
-        self.assertEqual(conn_.connectionName(), "default")
+        self.assertEqual(conn_.connectionName(), "main_connection")
         conn_aux_ = conn_.useConn("dbAux")
         conn_.useConn("conn_test")
         self.assertNotEqual(conn_, conn_aux_)
-        dict_databases = conn_.dictDatabases()
-        self.assertTrue(dict_databases)
+        dict_databases_1 = conn_.dictDatabases()
+        self.assertTrue(dict_databases_1)
 
         self.assertTrue(conn_.isOpen())
         self.assertTrue(conn_.useConn("dbAux").isOpen())
         self.assertFalse(conn_.useConn("conn_test").isOpen())
 
-        self.assertEqual([*dict_databases], ["dbAux", "conn_test"])
+        self.assertEqual([*dict_databases_1], ["main_connection", "dbAux", "conn_test"])
         self.assertTrue(conn_.removeConn("conn_test"))
-        self.assertEqual([*dict_databases], ["dbAux"])
+        dict_databases_2 = conn_.dictDatabases()
+        self.assertEqual([*dict_databases_2], ["main_connection", "dbAux"])
 
     def test_basic2(self) -> None:
         """Basic test 2."""
@@ -46,7 +47,7 @@ class TestPNConnection(unittest.TestCase):
 
         db = conn_.database()
         db_db_aux = conn_.database("dbAux")
-        self.assertEqual(conn_.db(), conn_)
+        self.assertNotEqual(conn_.db(), conn_)
         self.assertNotEqual(db, db_db_aux)
         self.assertEqual(conn_.DBName(), str(conn_))
 
@@ -62,7 +63,7 @@ class TestPNConnection(unittest.TestCase):
         self.assertTrue(conn_.cursor())
         sys_type.addDatabase("conn_test_2")
         self.assertTrue(conn_.useConn("conn_test_2").isOpen())
-        sys_type.removeDatabase("conn_test_2")
+        self.assertTrue(sys_type.removeDatabase("conn_test_2"))
         self.assertEqual(conn_.driverName(), "FLsqlite")
         self.assertEqual(conn_.driver().alias_, conn_.driverAlias())
         self.assertEqual(conn_.driverNameToDriverAlias(conn_.driverName()), "SQLite3 (SQLITE3)")
@@ -74,7 +75,7 @@ class TestPNConnection(unittest.TestCase):
         self.assertTrue(conn_.interactiveGUI_)
         conn_.setInteractiveGUI(False)
         self.assertFalse(conn_.interactiveGUI())
-        self.assertEqual(conn_, conn_.db())
+        self.assertNotEqual(conn_, conn_.db())
         self.assertEqual(conn_.dbAux(), conn_.useConn("dbAux"))
 
         self.assertEqual(conn_.formatValue("string", "hola", True), "'HOLA'")
@@ -138,6 +139,7 @@ class TestPNConnection(unittest.TestCase):
         from pineboolib.application.database import pnsqlcursor
 
         conn_ = application.project.conn
+        conn_default = conn_.useConn("default")
         conn_test = conn_.useConn("test")
         cursor = pnsqlcursor.PNSqlCursor("flsettings")
         cursor.setAskForCancelChanges(False)
@@ -147,11 +149,11 @@ class TestPNConnection(unittest.TestCase):
             "UPDATE test SET field1, 'val_1' WHERE 1=1",
         )
         self.assertTrue(conn_test.removeConn("test"))
-        self.assertTrue(conn_.doTransaction(cursor))
+        self.assertTrue(conn_default.doTransaction(cursor))
         self.assertTrue(cursor.inTransaction())
-        self.assertTrue(conn_.doCommit(cursor, False))
-        self.assertTrue(conn_.doTransaction(cursor))
-        self.assertTrue(conn_.doRollback(cursor))
+        self.assertTrue(conn_default.doCommit(cursor, False))
+        self.assertTrue(conn_default.doTransaction(cursor))
+        self.assertTrue(conn_default.doRollback(cursor))
 
     @classmethod
     def tearDown(cls) -> None:

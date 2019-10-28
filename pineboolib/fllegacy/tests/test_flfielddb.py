@@ -66,7 +66,7 @@ class TestFLFieldDBString(unittest.TestCase):
 
         module_ = dictmodules.from_project("formRecordflmodules")
         parent = module_.widget.parentWidget()
-        table_mtd = application.project.conn.manager().metadata("flmodules")
+        table_mtd = application.project.conn.useConn("default").manager().metadata("flmodules")
         if table_mtd is None:
             raise Exception("table_mtd is empty!.")
         field_mtd = pnfieldmetadata.PNFieldMetaData(
@@ -92,7 +92,6 @@ class TestFLFieldDBString(unittest.TestCase):
             False,
         )
         table_mtd.addFieldMD(field_mtd)
-
         new_field = flfielddb.FLFieldDB(parent)
         new_field.setObjectName("date_control")
         new_field.setFieldName(field_mtd.name())
