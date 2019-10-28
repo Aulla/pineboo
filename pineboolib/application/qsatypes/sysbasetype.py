@@ -213,10 +213,10 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def removeDatabase(self, connName: str = "default") -> Any:
+    def removeDatabase(self, conn_name: str = "default") -> Any:
         """Remove a database."""
-        project.conn.useConn(connName)._isOpen = False
-        return project.conn.useConn(connName).removeConn(connName)
+        print("*** borrando", conn_name)
+        return project.conn.removeConn(conn_name)
 
     @classmethod
     def idSession(self) -> str:

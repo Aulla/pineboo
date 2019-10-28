@@ -139,7 +139,7 @@ class SysType(SysBaseType):
 
         from pineboolib import application
 
-        return application.project.conn.transactionLevel()
+        return application.project.conn.useConn("default").transactionLevel()
 
     @classmethod
     def installACL(self, idacl) -> None:

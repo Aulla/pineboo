@@ -64,6 +64,7 @@ class PNConnection(QtCore.QObject, IConnection):
 
         super(PNConnection, self).__init__()
         self.conn = None
+        self.driver_ = None
         # self.currentSavePoint_ = None
         self.driverSql = PNSqlDrivers()
         if name is None:
@@ -78,6 +79,8 @@ class PNConnection(QtCore.QObject, IConnection):
         # self.queueSavePoints_ = []
         self.interactiveGUI_ = True
         self._last_active_cursor = None
+
+        self._isOpen = True
         if name and name not in ("dbAux", "Aux", "main_connection", "default"):
             self._isOpen = False
             return
@@ -91,8 +94,6 @@ class PNConnection(QtCore.QObject, IConnection):
             if self.conn is False:
                 return
 
-            self._isOpen = True
-
         else:
             logger.error("PNConnection.ERROR: No se encontro el driver '%s'", driverAlias)
             import sys
@@ -101,12 +102,22 @@ class PNConnection(QtCore.QObject, IConnection):
 
         self.driver().db_ = self
 
-    @decorators.NotImplementedWarn
     def finish(self) -> None:
         """Set the connection as terminated."""
+
+        from pineboolib import application
+
+        for n in list(self.conn_dict.keys()):
+            conn_ = self.conn_dict[n].conn
+            if conn_ not in [None, application.project.conn.conn]:
+                conn_.close()
+
+            del self.conn_dict[n]
+
+        self.conn_dict = {}
         del self
 
-    def connectionName(self) -> Any:
+    def connectionName(self) -> str:
         """Get the current connection name for this cursor."""
         return self.name
 
@@ -148,21 +159,34 @@ class PNConnection(QtCore.QObject, IConnection):
 
     def dictDatabases(self) -> Dict[str, "IConnection"]:
         """Return dict with own database connections."""
+        from pineboolib import application
 
-        return self.conn_dict
+        conn_list = []
+        session_name = application.project.session_id()
+        for n in self.conn_dict.keys():
+            if session_name:
+                if n.startswith(session_name):
+                    conn_list.append(n.replace("%s_" % session_name, ""))
+            else:
+                if n[0] == "_":
+                    conn_list.append(n[1:])
+                else:
+                    conn_list.append(n)
+
+        return conn_list
 
     def removeConn(self, name="default") -> bool:
         """Delete a connection specified by name."""
+        from pineboolib import application
 
-        try:
-            conn_ = self.useConn(name).conn
-            if conn_ is not None:
-                conn_.close()
+        name_conn_: str = "%s_%s" % (application.project.session_id(), name)
 
-            del self.conn_dict[name]
-        except Exception:
-            pass
+        self.conn_dict[name_conn_]._isOpen = False
+        conn_ = self.conn_dict[name_conn_].conn
+        if conn_ not in [None, application.project.conn.conn]:
+            conn_.close()
 
+        del self.conn_dict[name_conn_]
         return True
 
     def isOpen(self) -> bool:
@@ -229,7 +253,6 @@ class PNConnection(QtCore.QObject, IConnection):
         """Return a cursor to the database."""
         if self.conn is None:
             raise Exception("cursor. Empty conn!!")
-
         return self.conn.cursor()
 
     def conectar(
@@ -340,7 +363,7 @@ class PNConnection(QtCore.QObject, IConnection):
     def db(self) -> "IConnection":
         """Return the connection itself."""
 
-        return self
+        return self.useConn("default")
 
     def dbAux(self) -> "IConnection":
         """
@@ -348,7 +371,6 @@ class PNConnection(QtCore.QObject, IConnection):
 
         This connection is useful for out of transaction operations.
         """
-
         return self.useConn("dbAux")
 
     def formatValue(self, t: str, v: Any, upper: bool) -> Any:
