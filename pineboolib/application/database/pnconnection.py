@@ -161,19 +161,19 @@ class PNConnection(QtCore.QObject, IConnection):
         """Return dict with own database connections."""
         from pineboolib import application
 
-        conn_list = []
+        dict_ = {}
         session_name = application.project.session_id()
         for n in self.conn_dict.keys():
             if session_name:
                 if n.startswith(session_name):
-                    conn_list.append(n.replace("%s_" % session_name, ""))
+                    dict_[n.replace("%s_" % session_name, "")] = self.conn_dict[n]
             else:
                 if n[0] == "_":
-                    conn_list.append(n[1:])
+                    dict_[n[1:]] = self.conn_dict[n]
                 else:
-                    conn_list.append(n)
+                    dict_[n] = self.conn_dict[n]
 
-        return conn_list
+        return dict_
 
     def removeConn(self, name="default") -> bool:
         """Delete a connection specified by name."""
