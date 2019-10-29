@@ -366,11 +366,11 @@ def execSql(sql_: str, conn_: Union[str, "IConnection"] = "default") -> bool:
     """
     from pineboolib.application import project
 
-    if project.conn is None:
+    if project.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     if isinstance(conn_, str):
-        conn_ = project.conn.useConn(conn_)
+        conn_ = project.conn_manager.useConn(conn_)
     _cur = conn_.cursor()
     try:
         logger.warning("execSql: Ejecutando la consulta : %s", sql_)

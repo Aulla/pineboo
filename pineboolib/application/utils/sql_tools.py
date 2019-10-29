@@ -392,14 +392,14 @@ class SqlInspector(object):
         elif type_ == "pixmap":
             from pineboolib.application import project
 
-            if project.conn is None:
+            if project.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
             metadata = mtd.metadata()
             if metadata is None:
                 raise Exception("Metadata not found")
-            if raw or not project.conn.manager().isSystemTable(metadata.name()):
-                ret_ = project.conn.manager().fetchLargeValue(ret_)
+            if raw or not project.conn_manager.manager().isSystemTable(metadata.name()):
+                ret_ = project.conn_manager.manager().fetchLargeValue(ret_)
         elif type_ == "date":
             from pineboolib.application import types
 
@@ -433,7 +433,7 @@ class SqlInspector(object):
 
         from pineboolib.application import project
 
-        if project.conn is None:
+        if project.conn_manager is None:
             raise Exception("Project is not connected yet")
 
         _filter = ["sum(", "max(", "distint("]
@@ -447,7 +447,7 @@ class SqlInspector(object):
             self._field_list[field_name_org] = number_
             field_name = field_name_org
             for table_name in list(tables_list):
-                mtd_table = project.conn.manager().metadata(table_name)
+                mtd_table = project.conn_manager.manager().metadata(table_name)
                 if mtd_table is not None:
                     for fil in _filter:
                         if field_name.startswith(fil):

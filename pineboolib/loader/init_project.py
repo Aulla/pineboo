@@ -29,7 +29,7 @@ def init_project(DGI: Any, options: Any, project: Any, mainForm: Any, app: Any) 
         list = options.action.split(":")
         action_name = list[0].split(".")[0]
         # FIXME: Why is commented out?
-        # objaction = project.conn.manager(options.action)
+        # objaction = project.conn_manager.manager(options.action)
         if action_name in project.actions.keys():
 
             ret = project.call(list[0], list[1:] if len(list) > 1 else [])

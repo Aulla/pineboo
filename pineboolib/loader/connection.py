@@ -37,19 +37,12 @@ def config_dbconn(options: Values) -> Optional[ProjectConfig]:
 
 def connect_to_db(config: ProjectConfig) -> "PNConnection":
     """Try connect a database with projectConfig data."""
-
     if config.database is None:
         raise ValueError("database not set")
     if config.type is None:
         raise ValueError("type not set")
     port = int(config.port) if config.port else None
     connection = PNConnection(
-        config.database,
-        config.host,
-        port,
-        config.username,
-        config.password,
-        config.type,
-        "main_connection",
+        config.database, config.host, port, config.username, config.password, config.type
     )
     return connection

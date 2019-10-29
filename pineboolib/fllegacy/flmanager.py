@@ -9,7 +9,7 @@ from pineboolib.core import decorators
 from pineboolib.core.settings import config
 from pineboolib.core.utils.utils_base import filedir, auto_qt_translate_text
 from pineboolib.application.utils.xpm import cacheXPM
-
+from pineboolib import application
 
 from pineboolib.application.metadata.pncompoundkeymetadata import PNCompoundKeyMetaData
 from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
@@ -93,50 +93,9 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("FLManagar.__init__. self.db_ is empty!")
 
-        if not self.db_.dbAux():
+        if not self.db_.connManager().dbAux():
             return
 
-        # q = PNSqlQuery(None, self.db_.dbAux())
-        # q.setForwardOnly(True)
-
-        # self.createSystemTable("flsettings")
-        """
-        if not q.exec_("SELECT * FROM flsettings WHERE flkey = 'sysmodver'"):
-
-            if project.conn.driver().cascadeSupport():
-                q.exec_("DROP TABLE flsettings CASCADE")
-            else:
-                q.exec_("DROP TABLE flsettings")
-
-            self.createSystemTable("flsettings")
-
-        if not self.dictKeyMetaData_:
-            self.dictKeyMetaData_ = {}
-            # self.dictKeyMetaData_.setAutoDelete(True)
-        else:
-            self.dictKeyMetaData_.clear()
-
-        q.exec_("SELECT tabla,xml FROM flmetadata")
-        while q.next():
-            self.dictKeyMetaData_[q.value(0)] = q.value(1)
-
-        q.exec_("SELECT * FROM flsettings WHERE flkey = 'sysmodver'")
-        if not q.next():
-
-            if project.conn.driver().cascadeSupport():
-                q.exec_("DROP TABLE flmetadata CASCADE")
-            else:
-                q.exec_("DROP TABLE flmetadata")
-
-            self.createSystemTable("flmetadata")
-
-            c = FLSqlCursor("flmetadata", True, self.db_.dbAux())
-            for key, value in self.dictKeyMetaData_:
-                buffer = c.primeInsert()
-                buffer.setValue("tabla", key)
-                buffer.setValue("xml", value)
-                c.insert()
-        """
         if not self.cacheMetaData_:
             self.cacheMetaData_ = {}
 
@@ -212,7 +171,9 @@ class FLManager(QtCore.QObject, IManager):
                     ret = self.cacheMetaData_[key]
 
             if not ret:
-                stream = self.db_.managerModules().contentCached("%s.mtd" % n)
+                stream = application.project.conn_manager.managerModules().contentCached(
+                    "%s.mtd" % n
+                )
 
                 if not stream:
                     if n.find("alteredtable") == -1:
@@ -810,7 +771,7 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("alterTable. self.db_ is empty!")
 
-        return self.db_.dbAux().alterTable(mtd1, mtd2, key, force)
+        return self.db_.connManager().dbAux().alterTable(mtd1, mtd2, key, force)
 
     def createTable(self, n_or_tmd: Union[str, PNTableMetaData, None]) -> Optional[PNTableMetaData]:
         """
@@ -1481,7 +1442,7 @@ class FLManager(QtCore.QObject, IManager):
         else:
             self.listTables_.clear()
 
-        self.listTables_ = self.db_.dbAux().tables()
+        self.listTables_ = self.db_.connManager().dbAux().tables()
 
     def cleanupMetaData(self) -> None:
         """

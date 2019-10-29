@@ -256,7 +256,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if (
             self.tableName_
             and self.cursor_ is not None
-            and not self.cursor_.db().manager().metadata(self.tableName_)
+            and not self.cursor_.db().connManager().manager().metadata(self.tableName_)
         ):
             self.cursor_ = None
             self.initFakeEditor()
@@ -1682,14 +1682,19 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         Start the cursor according to this field either from the source table or from a related table.
         """
-        if project.conn is None:
+        if project.conn_manager is None:
             raise Exception("Project is not connected yet")
 
         if self.tableName_ and not self.foreignField_ and not self.fieldRelation_:
             self.cursorBackup_ = self.cursor_
             if self.cursor_:
                 self.cursor_ = FLSqlCursor(
-                    self.tableName_, True, project.conn.db().connectionName(), None, None, self
+                    self.tableName_,
+                    True,
+                    project.conn_manager.useConn("default").connectionName(),
+                    None,
+                    None,
+                    self,
                 )
             else:
                 if not self.topWidget_:
@@ -1697,7 +1702,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.cursor_ = FLSqlCursor(
                     self.tableName_,
                     True,
-                    project.conn.database().connectionName(),
+                    project.conn_manager.useConn("default").connectionName(),
                     None,
                     None,
                     self,
@@ -1747,7 +1752,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.cursor_.bufferChanged.connect(self.refreshQuick)
             return
 
-        tMD = self.cursor_.db().manager().metadata(self.tableName_)
+        tMD = self.cursor_.db().connManager().manager().metadata(self.tableName_)
         if not tMD:
             return
 
@@ -1927,7 +1932,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if rt:
             hasPushButtonDB = True
-            tmd = self.cursor_.db().manager().metadata(rt)
+            tmd = self.cursor_.db().connManager().manager().metadata(rt)
             if not tmd and self.pushButtonDB:
                 self.pushButtonDB.setDisabled(True)
                 field.setEditable(False)
@@ -3405,7 +3410,7 @@ class FLFieldDB(QtWidgets.QWidget):
                             and self.fieldRelation_ is not None
                             and not self.cursorAux.bufferIsNull(self.foreignField_)
                         ):
-                            mng = self.cursor_.db().manager()
+                            mng = self.cursor_.db().connManager().manager()
                             tMD = self.cursor_.metadata()
                             if tMD:
                                 v = self.cursorAux.valueBuffer(self.foreignField_)

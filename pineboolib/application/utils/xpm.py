@@ -23,12 +23,13 @@ def cacheXPM(value: str) -> str:
 
     xpm_name = value[: value.find("[]")]
     xpm_name = xpm_name[xpm_name.rfind(" ") + 1 :]
-    from pineboolib.application import project
+    from pineboolib import application
 
-    if project.conn is None:
+    conn = application.project.conn_manager.mainConn()
+    if conn is None:
         raise Exception("Project is not connected yet")
 
-    cache_dir = "%s/cache/%s/cacheXPM" % (project.tmpdir, project.conn.DBName())
+    cache_dir = "%s/cache/%s/cacheXPM" % (application.project.tmpdir, conn.DBName())
     if not os.path.exists(cache_dir):
         os.mkdir(cache_dir)
 

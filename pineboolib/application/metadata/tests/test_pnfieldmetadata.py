@@ -15,7 +15,7 @@ class TestStringField(unittest.TestCase):
 
         from pineboolib.application import project
 
-        mtd = project.conn.manager().metadata("flmodules")
+        mtd = project.conn_manager.manager().metadata("flmodules")
         if mtd is None:
             raise Exception
         field = mtd.field("version")
@@ -54,7 +54,7 @@ class TestCopyField(unittest.TestCase):
         from pineboolib.application import project
         from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
 
-        mtd = project.conn.manager().metadata("flmodules")
+        mtd = project.conn_manager.manager().metadata("flmodules")
         if mtd is None:
             raise Exception
         field_1 = mtd.field("version")
@@ -87,7 +87,7 @@ class TestUintField(unittest.TestCase):
 
         from pineboolib.application import project
 
-        mtd = project.conn.manager().metadata("flseqs")
+        mtd = project.conn_manager.manager().metadata("flseqs")
         if mtd is None:
             raise Exception
         field = mtd.field("seq")
@@ -130,7 +130,7 @@ class TestStringListField(unittest.TestCase):
 
         from pineboolib.application import project
 
-        mtd = project.conn.manager().metadata("flsettings")
+        mtd = project.conn_manager.manager().metadata("flsettings")
         if mtd is None:
             raise Exception
         field = mtd.field("valor")
@@ -165,7 +165,7 @@ class TestPixmapField(unittest.TestCase):
 
         from pineboolib.application import project
 
-        mtd = project.conn.manager().metadata("flmodules")
+        mtd = project.conn_manager.manager().metadata("flmodules")
         if mtd is None:
             raise Exception
 
@@ -200,7 +200,7 @@ class TestUnlockField(unittest.TestCase):
 
         from pineboolib.application import project
 
-        mtd = project.conn.manager().metadata("flmodules")
+        mtd = project.conn_manager.manager().metadata("flmodules")
         if mtd is None:
             raise Exception
 
@@ -235,7 +235,7 @@ class TestBoolField(unittest.TestCase):
 
         from pineboolib.application import project
 
-        mtd = project.conn.manager().metadata("flmetadata")
+        mtd = project.conn_manager.manager().metadata("flmetadata")
         if mtd is None:
             raise Exception
 
@@ -271,7 +271,7 @@ class TestDateField(unittest.TestCase):
 
         from pineboolib.application import project
 
-        mtd = project.conn.manager().metadata("flupdates")
+        mtd = project.conn_manager.manager().metadata("flupdates")
         if mtd is None:
             raise Exception
         field = mtd.field("fecha")
@@ -307,7 +307,7 @@ class TestTimeField(unittest.TestCase):
 
         from pineboolib.application import project
 
-        mtd = project.conn.manager().metadata("flupdates")
+        mtd = project.conn_manager.manager().metadata("flupdates")
         if mtd is None:
             raise Exception
         field = mtd.field("hora")

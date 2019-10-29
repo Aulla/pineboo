@@ -48,8 +48,8 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     project.init_conn(connection=conn)
     project.no_python_cache = True
     project.run()
-    project.conn.managerModules().loadIdAreas()
-    project.conn.managerModules().loadAllIdModules()
+    project.conn_manager.managerModules().loadIdAreas()
+    project.conn_manager.managerModules().loadAllIdModules()
     project.load_modules()
 
 
@@ -252,8 +252,8 @@ def init_testing() -> None:
     if project.run():
 
         # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
-        project.conn.managerModules().loadIdAreas()
-        project.conn.managerModules().loadAllIdModules()
+        project.conn_manager.managerModules().loadIdAreas()
+        project.conn_manager.managerModules().loadAllIdModules()
 
         project.load_modules()
     else:
@@ -264,7 +264,7 @@ def finish_testing() -> None:
     """Clear data from pineboo project."""
     # import time
 
-    project.conn.manager().cleanupMetaData()
+    project.conn_manager.manager().cleanupMetaData()
     project.actions = {}
     project.areas = {}
     project.modules = {}
@@ -273,11 +273,11 @@ def finish_testing() -> None:
         project.main_window.initialized_mods_ = []
 
     # project.conn.execute_query("DROP DATABASE %s" % IN_MEMORY_SQLITE_CONN.database)
-    project.conn.finish()
-    project.conn.driver_ = None
-    project.conn.conn.close()
-    project.conn.conn = None
-
+    project.conn_manager.finish()
+    # project.conn_manager.mainConn().driver_ = None
+    # project.conn_manager.conn.close()
+    # project.conn.conn = None
+    del project.conn_manager
     # time.sleep(0.5)  # Wait until database close ends
 
     from pineboolib.application import qsadictmodules
@@ -456,19 +456,21 @@ def exec_main(options: Values) -> int:
     if acl._access_control_list:
         aqApp.set_acl(acl)
 
-    if not project.conn.conn:
+    conn = project.conn_manager.mainConn()
+
+    if not conn:
         logger.warning("No connection was provided. Aborting Pineboo load.")
         return -99
 
     if not config.value("ebcomportamiento/orm_parser_disabled", False):
         from pineboolib.application.parsers.mtdparser.pnmtdparser import mtd_parse
 
-        for table in project.conn.tables("Tables"):
+        for table in conn.tables("Tables"):
             mtd_parse(table)
 
     # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
-    project.conn.managerModules().loadIdAreas()
-    project.conn.managerModules().loadAllIdModules()
+    project.conn_manager.managerModules().loadIdAreas()
+    project.conn_manager.managerModules().loadAllIdModules()
 
     project.load_modules()
 

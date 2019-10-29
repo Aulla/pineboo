@@ -61,7 +61,7 @@ class Module(object):
         from .moduleactions import ModuleActions
         from pineboolib import application
 
-        mng_modules = application.project.conn.managerModules()
+        mng_modules = application.project.conn_manager.managerModules()
 
         path_xml = _path("%s.xml" % self.name)
 

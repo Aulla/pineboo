@@ -15,7 +15,7 @@ class TestPNRelationMetaData(unittest.TestCase):
 
         from pineboolib.application import project
 
-        mtd = project.conn.manager().metadata("flgroups")
+        mtd = project.conn_manager.manager().metadata("flgroups")
         if mtd is None:
             raise Exception
         rel_1 = mtd.relation("idgroup", "idgroup", "flusers")
@@ -41,7 +41,7 @@ class TestCreatePNRelationMetaData(unittest.TestCase):
         from pineboolib.application import project
         from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData
 
-        mtd = project.conn.manager().metadata("flgroups")
+        mtd = project.conn_manager.manager().metadata("flgroups")
         if mtd is None:
             raise Exception
         rel_1 = mtd.relation("idgroup", "idgroup", "flusers")

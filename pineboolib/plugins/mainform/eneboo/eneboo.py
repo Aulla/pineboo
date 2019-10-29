@@ -344,7 +344,7 @@ class MainForm(QtWidgets.QMainWindow):
         """Create UI from file path."""
         from pineboolib.application import project
 
-        mng = project.conn.managerModules()
+        mng = project.conn_manager.managerModules()
         self.w_ = mng.createUI(ui_file, None, self)
         self.w_.setObjectName("container")
 
@@ -394,7 +394,7 @@ class MainForm(QtWidgets.QMainWindow):
         settings.writeEntry("%swidth" % key, w.width())
         settings.writeEntry("%sheight" % key, w.height())
 
-        key += "%s/" % project.conn.database()
+        key += "%s/" % project.conn_manager.database()
 
         open_actions = []
 
@@ -466,7 +466,7 @@ class MainForm(QtWidgets.QMainWindow):
             from pineboolib.application import project
 
             settings = aqsobjectfactory.AQSettings()
-            key = "MainWindow/%s/" % project.conn.database()
+            key = "MainWindow/%s/" % project.conn_manager.database()
 
             open_actions = settings.readListEntry("%sopenActions" % key)
             i = 0
@@ -481,7 +481,7 @@ class MainForm(QtWidgets.QMainWindow):
                 action = self.ag_menu_.findChild(QtWidgets.QAction, open_action)
                 if not action or not action.isVisible():
                     continue
-                module_name = project.conn.managerModules().idModuleOfFile(
+                module_name = project.conn_manager.managerModules().idModuleOfFile(
                     "%s.ui" % action.objectName()
                 )
                 if module_name:
@@ -1301,7 +1301,7 @@ class MainForm(QtWidgets.QMainWindow):
 
     # def load(self):
     #    from pineboolib.core.utils.utils_base import filedir
-    #    self.ui_ = project.conn.managerModules().createUI(filedir('plugins/mainform/eneboo/mainform.ui'), None, self)
+    #    self.ui_ = project.conn_manager.managerModules().createUI(filedir('plugins/mainform/eneboo/mainform.ui'), None, self)
 
     @classmethod
     def setDebugLevel(self, q: int) -> None:

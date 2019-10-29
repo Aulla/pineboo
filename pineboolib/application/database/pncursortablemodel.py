@@ -421,8 +421,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 else:
                     if self.parent_view is not None:
                         if self.parent_view and self.parent_view.showAllPixmap():
-                            if not self.db().manager().isSystemTable(self._parent.table()):
-                                d = self.db().manager().fetchLargeValue(d)
+                            if (
+                                not self.db()
+                                .connManager()
+                                .manager()
+                                .isSystemTable(self._parent.table())
+                            ):
+                                d = self.db().connManager().manager().fetchLargeValue(d)
                             else:
                                 from pineboolib.application.utils.xpm import cacheXPM
 
@@ -791,7 +796,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         SZ_FETCH = max(1000, oldrows)
         self.driver_sql().refreshQuery(
-            self._curname, self.sql_str, from_, self.where_filter, self.cursorDB(), self.db().db()
+            self._curname, self.sql_str, from_, self.where_filter, self.cursorDB(), self.db()
         )
 
         self.refreshFetch(SZ_FETCH)
@@ -1237,7 +1242,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             from_ = self.metadata().name()
 
             if mtd.isQuery():
-                qry = self.db().manager().query(self.metadata().query())
+                qry = self.db().connManager().manager().query(self.metadata().query())
                 if qry is None:
                     raise Exception("Query not found")
                 from_ = qry.from_()
@@ -1247,7 +1252,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             from pineboolib.application.database.pnsqlquery import PNSqlQuery  # noqa: F811
 
-            q = PNSqlQuery(None, self.db().name)
+            q = PNSqlQuery(None, self.db())
             q.exec_("SELECT COUNT(*) FROM %s WHERE %s" % (from_, where_))
             if q.first():
                 size = q.value(0)

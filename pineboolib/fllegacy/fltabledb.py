@@ -462,12 +462,12 @@ class FLTableDB(QtWidgets.QWidget):
                     "**FLTableDB::name: %r tableName: %r", self.objectName(), self.tableName_
                 )
 
-            if not self.cursor().db().manager().existsTable(self.tableName_):
+            if not self.cursor().db().connManager().manager().existsTable(self.tableName_):
                 own_tmd_ = True
-                tmd_ = self.cursor().db().manager().createTable(self.tableName_)
+                tmd_ = self.cursor().db().connManager().manager().createTable(self.tableName_)
             else:
                 own_tmd_ = True
-                manager_tmd = self.cursor().db().manager().metadata(self.tableName_)
+                manager_tmd = self.cursor().db().connManager().manager().metadata(self.tableName_)
 
                 if not manager_tmd or isinstance(manager_tmd, bool):
                     return
@@ -529,7 +529,7 @@ class FLTableDB(QtWidgets.QWidget):
                     checkIntegrity = True
             fMD = self.cursor().metadata().field(self.foreignField_)
             if fMD is not None:
-                tmd_aux_ = self.cursor().db().manager().metadata(self.tableName_)
+                tmd_aux_ = self.cursor().db().connManager().manager().metadata(self.tableName_)
                 if not tmd_aux_ or tmd_aux_.isQuery():
                     checkIntegrity = False
                 if tmd_aux_ and not tmd_aux_.inCache():
@@ -1073,10 +1073,10 @@ class FLTableDB(QtWidgets.QWidget):
 
         # own_tmd = bool(self.tableName_)
         if self.tableName_:
-            if not self.cursor().db().manager().existsTable(self.tableName_):
-                tmd = self.cursor().db().manager().createTable(self.tableName_)
+            if not self.cursor().db().connManager().manager().existsTable(self.tableName_):
+                tmd = self.cursor().db().connManager().manager().createTable(self.tableName_)
             else:
-                tmd = self.cursor().db().manager().metadata(self.tableName_)
+                tmd = self.cursor().db().connManager().manager().metadata(self.tableName_)
 
             if not tmd:
                 return
@@ -2020,6 +2020,7 @@ class FLTableDB(QtWidgets.QWidget):
                 id_mod = (
                     self.cursor()
                     .db()
+                    .connManager()
                     .managerModules()
                     .idModuleOfFile("%s.mtd" % self.cursor().metadata().name())
                 )

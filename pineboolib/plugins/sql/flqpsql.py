@@ -547,7 +547,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             db_ = self.db_
 
         if isinstance(tmd_or_table2, str):
-            mtd = db_.manager().metadata(tmd_or_table2, True)
+            mtd = db_.connManager().manager().metadata(tmd_or_table2, True)
             if not mtd:
                 return False
 
@@ -670,7 +670,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             if self.db_ is None:
                 raise Exception("recordInfo. self.db_ es Nulo")
 
-            stream = self.db_.managerModules().contentCached("%s.mtd" % tablename)
+            stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
             util = FLUtil()
             if not util.domDocumentSetContent(doc, stream):
                 print(
@@ -682,7 +682,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 return self.recordInfo2(tablename)
 
             # docElem = doc.documentElement()
-            mtd = self.db_.manager().metadata(tablename, True)
+            mtd = self.db_.connManager().manager().metadata(tablename, True)
             if not mtd:
                 return self.recordInfo2(tablename)
             fL = mtd.fieldList()

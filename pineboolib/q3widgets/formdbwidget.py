@@ -192,7 +192,7 @@ class FormDBWidget(QtWidgets.QWidget):
                 from pineboolib.application import project
                 from pineboolib.application.database.pnsqlcursor import PNSqlCursor
 
-                action = project.conn.manager().action(self._action.name)
+                action = project.conn_manager.manager().action(self._action.name)
                 self.cursor_ = PNSqlCursor(action.name())
 
         if not self.cursor_:

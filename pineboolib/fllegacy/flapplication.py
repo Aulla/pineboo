@@ -684,7 +684,7 @@ class FLApplication(QtCore.QObject):
 
     def db(self) -> Any:
         """Return current connection."""
-        return project._conn
+        return project.conn_manager
 
     @decorators.NotImplementedWarn
     def classType(self, n):
@@ -848,7 +848,7 @@ class FLApplication(QtCore.QObject):
         """
         pass
 
-    def createModTranslator(self, idM, lang, loadDefault=False) -> Optional["FLTranslator"]:
+    def createModTranslator(self, id_module, lang, loadDefault=False) -> Optional["FLTranslator"]:
         """
         Create new translation for module.
 
@@ -858,21 +858,22 @@ class FLApplication(QtCore.QObject):
         @return objeto traducción
         """
 
-        fileTs = "%s.%s.ts" % (idM, lang)
+        file_ts = "%s.%s.ts" % (id_module, lang)
         key = None
-        if self.db():
-            key = self.db().managerModules().shaOfFile(fileTs)
 
-        if idM == "sys":
-            if not key:
-                key = " "
+        if id_module == "sys":
+            key = " "
+
+        else:
+            if self.db():
+                key = self.db().managerModules().shaOfFile(file_ts)
 
         if key:
-            tor = FLTranslator(self, "%s_%s" % (idM, lang), lang == "multilang")
+            tor = FLTranslator(self, "%s_%s" % (id_module, lang), lang == "multilang")
             if key and tor.loadTsContent(key):
                 return tor
 
-        return self.createModTranslator(idM, "es") if loadDefault else None
+        return self.createModTranslator(id_module, "es") if loadDefault else None
 
     def modules(self) -> Any:
         """Return loaded modules."""
@@ -888,7 +889,7 @@ class FLApplication(QtCore.QObject):
 
     def transactionLevel(self):
         """Return number of concurrent transactions."""
-        return project.conn.transactionLevel()
+        return project.conn_manager.useConn("default").transactionLevel()
 
     def version(self):
         """Return app version."""

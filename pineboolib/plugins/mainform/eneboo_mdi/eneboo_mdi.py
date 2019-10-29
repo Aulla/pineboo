@@ -79,7 +79,7 @@ class MainForm(QtWidgets.QMainWindow):
     def db(self) -> "iconnection.IConnection":
         """Return the dababase connection."""
 
-        return application.project.conn
+        return application.project.conn_manager.mainConn()
 
     def createUi(self, ui_file: str) -> None:
         """Create UI from a file."""

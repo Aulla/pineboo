@@ -101,13 +101,12 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         import sqlite3
 
-        if (
-            application.project._conn is not None
-            and self.db_filename == getattr(application.project._conn, "db_name", None)
-            and application.project.conn.conn
-        ):
-            self.conn_ = application.project.conn.conn
-        else:
+        if application.project.conn_manager:
+            conn = application.project.conn_manager.mainConn()
+            if self.db_filename == conn.DBName() and conn.conn:
+                self.conn_ = conn.conn
+
+        if self.conn_ is None:
             self.conn_ = sqlite3.connect("%s" % self.db_filename)
             sqlalchemy_uri = "sqlite:///%s" % self.db_filename
             if self.db_filename == ":memory:":

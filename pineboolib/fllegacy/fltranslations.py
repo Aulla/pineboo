@@ -93,10 +93,10 @@ class FLTranslations(object):
             self.releaseTsFile(ts_input_file, verbose, stripped)
 
         else:
-            if project.conn is None:
+            if project.conn_manager is None:
                 raise Exception("Project has no connection yet")
 
-            key = project.conn.managerModules().shaOfFile(ts_input_file)
+            key = project.conn_manager.managerModules().shaOfFile(ts_input_file)
             tagMap = full_text
             # TODO: hay que cargar todo el contenido del fichero en un diccionario
             for key, value in tagMap:

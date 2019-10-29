@@ -17,13 +17,13 @@ class TestPNConnection(unittest.TestCase):
     def test_basic1(self) -> None:
         """Basic test 1."""
 
-        conn_ = application.project.conn
+        conn_manager = application.project.conn_manager
 
-        self.assertEqual(conn_.connectionName(), "main_connection")
-        conn_aux_ = conn_.useConn("dbAux")
-        conn_.useConn("conn_test")
+        self.assertEqual(conn_manager.mainConn().connectionName(), "main_conn")
+        conn_aux_ = conn_manager.useConn("dbAux")
+        conn_ = conn_manager.useConn("conn_test")
         self.assertNotEqual(conn_, conn_aux_)
-        dict_databases_1 = conn_.dictDatabases()
+        dict_databases_1 = conn_manager.dictDatabases()
         self.assertTrue(dict_databases_1)
 
         self.assertTrue(conn_.isOpen())
@@ -31,22 +31,22 @@ class TestPNConnection(unittest.TestCase):
         self.assertFalse(conn_.useConn("conn_test").isOpen())
 
         self.assertEqual([*dict_databases_1], ["main_connection", "dbAux", "conn_test"])
-        self.assertTrue(conn_.removeConn("conn_test"))
-        dict_databases_2 = conn_.dictDatabases()
+        self.assertTrue(conn_manager.removeConn("conn_test"))
+        dict_databases_2 = conn_manager.dictDatabases()
         self.assertEqual([*dict_databases_2], ["main_connection", "dbAux"])
 
     def test_basic2(self) -> None:
         """Basic test 2."""
 
-        conn_ = application.project.conn
-
+        conn_manager = application.project.conn_manager
+        conn_ = conn_manager_.mainConn()
         self.assertTrue("flareas" in conn_.tables("Tables"))
         self.assertTrue("sqlite_master" in conn_.tables())
         self.assertEqual(conn_.tables("SystemTables"), ["sqlite_master"])
         self.assertEqual(conn_.tables("Views"), [])
 
         db = conn_.database()
-        db_db_aux = conn_.database("dbAux")
+        db_db_aux = conn_manager.database("dbAux")
         self.assertNotEqual(conn_.db(), conn_)
         self.assertNotEqual(db, db_db_aux)
         self.assertEqual(conn_.DBName(), str(conn_))
@@ -56,13 +56,14 @@ class TestPNConnection(unittest.TestCase):
 
         from pineboolib.fllegacy import systype
 
-        conn_ = application.project.conn
+        conn_manager = application.project.conn_manager
         sys_type = systype.SysType()
+        conn_ = conn_manager.mainConn()
 
         self.assertTrue(conn_.driver())
         self.assertTrue(conn_.cursor())
         sys_type.addDatabase("conn_test_2")
-        self.assertTrue(conn_.useConn("conn_test_2").isOpen())
+        self.assertTrue(conn_manager.useConn("conn_test_2").isOpen())
         self.assertTrue(sys_type.removeDatabase("conn_test_2"))
         self.assertEqual(conn_.driverName(), "FLsqlite")
         self.assertEqual(conn_.driver().alias_, conn_.driverAlias())
@@ -71,12 +72,13 @@ class TestPNConnection(unittest.TestCase):
     def test_basic4(self) -> None:
         """Basic test 4."""
 
-        conn_ = application.project.conn
+        conn_manager = application.project.conn_manager
+        conn_ = conn_manager.mainConn()
         self.assertTrue(conn_.interactiveGUI_)
         conn_.setInteractiveGUI(False)
         self.assertFalse(conn_.interactiveGUI())
         self.assertNotEqual(conn_, conn_.db())
-        self.assertEqual(conn_.dbAux(), conn_.useConn("dbAux"))
+        self.assertEqual(conn_manager.dbAux(), conn_manager.useConn("dbAux"))
 
         self.assertEqual(conn_.formatValue("string", "hola", True), "'HOLA'")
         self.assertEqual(conn_.formatValueLike("string", "hola", True), "LIKE 'HOLA%%'")
@@ -84,11 +86,11 @@ class TestPNConnection(unittest.TestCase):
         self.assertTrue(conn_.canTransaction())
         self.assertEqual(conn_.transactionLevel(), 0)
         self.assertTrue(conn_.canDetectLocks())
-        self.assertTrue(conn_.manager())
-        self.assertTrue(conn_.managerModules())
+        self.assertTrue(conn_manager.manager())
+        self.assertTrue(conn_manager.managerModules())
         self.assertTrue(conn_.canOverPartition())
 
-        mtd_seqs = conn_.manager().metadata("flseqs")
+        mtd_seqs = conn_manager.manager().metadata("flseqs")
 
         if mtd_seqs is None:
             raise Exception("mtd_seqs is empty!.")
@@ -101,7 +103,8 @@ class TestPNConnection(unittest.TestCase):
     def test_basic5(self) -> None:
         """Basic test 5."""
 
-        conn_ = application.project.conn
+        conn_manager = application.project.conn_manager
+        conn_ = conn_manager.mainConn()
         cursor = pnsqlcursor.PNSqlCursor("flareas")
         conn_.doTransaction(cursor)
         cursor.setModeAccess(cursor.Insert)
@@ -138,12 +141,12 @@ class TestPNConnection(unittest.TestCase):
         """Test basic 6."""
         from pineboolib.application.database import pnsqlcursor
 
-        conn_ = application.project.conn
-        conn_default = conn_.useConn("default")
-        conn_test = conn_.useConn("test")
+        conn_manager = application.project.conn_manager
+        conn_default = conn_manager.useConn("default")
+        conn_test = conn_manager.useConn("test")
         cursor = pnsqlcursor.PNSqlCursor("flsettings")
         cursor.setAskForCancelChanges(False)
-        conn_.Mr_Proper()
+        conn_manager.mainConn().Mr_Proper()
         self.assertEqual(
             conn_.queryUpdate("test", "field1, 'val_1'", "1=1"),
             "UPDATE test SET field1, 'val_1' WHERE 1=1",

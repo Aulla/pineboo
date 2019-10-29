@@ -61,12 +61,12 @@ class FLFormSearchDB(FLFormDB):
 
         from pineboolib.application import project
 
-        if project.conn is None:
+        if project.conn_manager is None:
             raise Exception("Project is not connected yet")
 
         parent = parent or flapplication.aqApp.mainWidget()
         if isinstance(name_or_cursor, str):
-            action = project.conn.manager().action(name_or_cursor)
+            action = project.conn_manager.manager().action(name_or_cursor)
             cursor = FLSqlCursor(action.table(), True, "default", None, None, self)
         else:
             action = name_or_cursor._action

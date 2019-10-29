@@ -199,11 +199,11 @@ class FLReportEngine(object):
         self.d_.template_ = t
 
         if not self.d_.qry_:
-            from pineboolib.application import project
+            from pineboolib import application
 
-            if project.conn is None:
+            if application.project.conn_manager is None:
                 raise Exception("Project is not connected yet")
-            mgr = project.conn.managerModules()
+            mgr = application.project.conn_manager.managerModules()
 
         else:
             mgr = self.d_.qry_.db().managerModules()

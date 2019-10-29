@@ -70,7 +70,7 @@ class XMLAction(ActionStruct):
             self.logger.debug("Loading record action %s . . . ", self.name)
             if self.project.DGI.useDesktop():
                 # FIXME: looks like code duplication. Bet both sides of the IF do the same.
-                self.formrecord_widget = self.project.conn.managerModules().createFormRecord(
+                self.formrecord_widget = self.project.conn_manager.managerModules().createFormRecord(
                     action=self, parent_or_cursor=cursor
                 )
             else:
@@ -109,7 +109,9 @@ class XMLAction(ActionStruct):
 
             if self.project.DGI.useDesktop():
                 self.logger.info("Loading action %s (createForm). . . ", self.name)
-                self.mainform_widget = self.project.conn.managerModules().createForm(action=self)
+                self.mainform_widget = self.project.conn_manager.managerModules().createForm(
+                    action=self
+                )
             else:
                 self.logger.info(
                     "Loading action %s (load_script %s). . . ", self.name, self.scriptform
@@ -137,7 +139,7 @@ class XMLAction(ActionStruct):
         """
         Execute function for main action.
         """
-        a = self.project.conn.manager().action(name)
+        a = self.project.conn_manager.manager().action(name)
         if not a:
             self.logger.warning("No existe la acción %s", name)
             return

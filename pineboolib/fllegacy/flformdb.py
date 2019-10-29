@@ -256,10 +256,10 @@ class FLFormDB(QDialog):
         if self._uiName:
             from pineboolib.application import project
 
-            if project.conn is None:
+            if project.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
-            project.conn.managerModules().createUI(self._uiName, None, self)
+            project.conn_manager.managerModules().createUI(self._uiName, None, self)
 
         self._loaded = True
 
@@ -545,10 +545,10 @@ class FLFormDB(QDialog):
         """Emit formClosed signal."""
         from pineboolib.application import project
 
-        if project.conn is None:
+        if project.conn_manager is None:
             raise Exception("Project is not connected yet")
 
-        if "fltesttest" in project.conn.managerModules().listAllIdModules():
+        if "fltesttest" in project.conn_manager.managerModules().listAllIdModules():
             project.call("fltesttest.iface.recibeEvento", ["formClosed", self.actionName_], None)
 
         self.formClosed.emit()
@@ -597,7 +597,7 @@ class FLFormDB(QDialog):
                 self.cursor_.setMainFilter(v, False)
 
             # if self._loaded and not self.__class__.__name__ == "FLFormRecordDB":
-            # project.conn.managerModules().loadFLTableDBs(self)
+            # project.conn_manager.managerModules().loadFLTableDBs(self)
 
             if self._action.description() not in ("", None):
                 self.setWhatsThis(self._action.description())
@@ -886,7 +886,7 @@ class FLFormDB(QDialog):
         from PyQt5 import QtWidgets
 
         if hasattr(application.project.main_window, "_dict_main_widgets"):
-            module_name = application.project.conn.managerModules().activeIdModule()
+            module_name = application.project.conn_manager.managerModules().activeIdModule()
             if (
                 module_name
                 and module_name in application.project.main_window._dict_main_widgets.keys()

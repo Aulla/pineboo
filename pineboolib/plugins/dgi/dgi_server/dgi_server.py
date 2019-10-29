@@ -100,14 +100,14 @@ class Parser(object):
         cursor = None
 
         if fun_name == "hello":
-            project.conn.removeConn("%s_remote_client" % id_conn)
+            project.conn_manager.removeConn("%s_remote_client" % id_conn)
             # list_to_delete = []
             for k in list(cursor_dict.keys()):
                 if k.startswith(id_conn):
                     cursor_dict[k] = None
                     del cursor_dict[k]
 
-        conn = project.conn.useConn("%s_remote_client" % id_conn)
+        conn = project.conn_manager.useConn("%s_remote_client" % id_conn)
 
         # print("--->", dict_["function"], dict_["arguments"]["cursor_id"] if "cursor_id" in dict_["arguments"] else None)
 
@@ -154,7 +154,7 @@ class Parser(object):
                     dict_["arguments"]["table"],
                     dict_["arguments"]["where"],
                     cursor,
-                    project.conn.driver().conn_,
+                    conn.driver().conn_,
                 )
             except Exception:
                 print("Error refreshQuery", traceback.format_exc())

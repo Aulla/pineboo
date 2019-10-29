@@ -113,12 +113,12 @@ class PNSqlQuery(object):
         Initialize a new query.
         """
 
-        if project.conn is None:
+        if project.conn_manager.mainConn() is None:
             raise Exception("Project is not connected yet")
         self._fieldNameToPosDict = None
         self.d = PNSqlQueryPrivate(cx)
         if isinstance(connection_name, str):
-            self.d.db_ = project.conn.useConn(connection_name)
+            self.d.db_ = project.conn_manager.useConn(connection_name)
         else:
             self.d.db_ = connection_name
 
@@ -132,7 +132,7 @@ class PNSqlQuery(object):
 
         retorno_qry = None
         if cx:
-            retorno_qry = project.conn.manager().query(cx, self)
+            retorno_qry = project.conn_manager.manager().query(cx, self)
 
         if retorno_qry:
             self.d = retorno_qry.d
@@ -717,9 +717,16 @@ class PNSqlQuery(object):
 
         table_list = table_list.replace(" ", "")
         for tabla in table_list.split(","):
-            if not self.db().manager().existsTable(tabla) and len(table_list.split(",")) >= 1:
+            if (
+                not self.db().connManager().manager().existsTable(tabla)
+                and len(table_list.split(",")) >= 1
+            ):
                 self._invalid_tables_list = True
-                logger.warning("setTablesList: table not found %r. Query will not execute.", tabla)
+                logger.warning(
+                    "setTablesList: table not found %r. Query will not execute.",
+                    tabla,
+                    stack_info=True,
+                )
 
             self.d._tables_list.append(tabla)
 

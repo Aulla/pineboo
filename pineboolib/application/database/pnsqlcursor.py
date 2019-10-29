@@ -142,14 +142,14 @@ class PNSqlCursor(QtCore.QObject):
         else:
             name_action = name
 
-        act_ = project.conn.manager().action(name_action)
+        act_ = project.conn_manager.manager().action(name_action)
         # self.actionName_ = name.name
         # name = name.table
         # else:
         # self.actionName_ = name
         cursor_ = self
         db_: "IConnection" = (
-            project.conn.useConn(connectionName_or_db)
+            project.conn_manager.useConn(connectionName_or_db)
             if isinstance(connectionName_or_db, str)
             else connectionName_or_db
         )
@@ -162,7 +162,7 @@ class PNSqlCursor(QtCore.QObject):
         # )
 
         # if isinstance(connectionName_or_db, str):
-        #    self.d.db_ = project.conn.useConn(connectionName_or_db)
+        #    self.d.db_ = project.conn_manager.useConn(connectionName_or_db)
         # else:
         #    self.d.db_ = connectionName_or_db
 
@@ -215,7 +215,9 @@ class PNSqlCursor(QtCore.QObject):
         #    self.build_cursor_tree_dict()
 
         self.d.isQuery_ = self.d.metadata_.isQuery()
-        if (name[len(name) - 3 :]) == "sys" or self.db().manager().isSystemTable(name):
+        if (name[len(name) - 3 :]) == "sys" or self.db().connManager().manager().isSystemTable(
+            name
+        ):
             self.d.isSysTable_ = True
         else:
             self.d.isSysTable_ = False
@@ -356,7 +358,7 @@ class PNSqlCursor(QtCore.QObject):
         """
         action = None
         if isinstance(a, str):
-            action = self.db().manager().action(a.lower())
+            action = self.db().connManager().manager().action(a.lower())
             if action.table() == "":
                 action.setTable(a)
         else:
@@ -391,7 +393,7 @@ class PNSqlCursor(QtCore.QObject):
             return False
 
         if self.d.metadata_ is None:
-            self.d.metadata_ = self.db().manager().metadata(self._action.table())
+            self.d.metadata_ = self.db().connManager().manager().metadata(self._action.table())
 
         if self.d.metadata_ is not None:
             self.d.doAcl()
@@ -408,7 +410,7 @@ class PNSqlCursor(QtCore.QObject):
         self._selection = QtCore.QItemSelectionModel(self.d._model)
         self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
         self._currentregister = self.selection().currentIndex().row()
-        self.d.metadata_ = self.db().manager().metadata(self._action.table())
+        # self.d.metadata_ = self.db().manager().metadata(self._action.table())
         self.d.activatedCheckIntegrity_ = True
         self.d.activatedCommitActions_ = True
         return True
@@ -1331,9 +1333,7 @@ class PNSqlCursor(QtCore.QObject):
                         )
                         q.setForwardOnly(True)
                         logger.debug(
-                            "SQL linea = %s conn name = %s",
-                            q.sql(),
-                            str(project.conn.connectionName()),
+                            "SQL linea = %s conn name = %s", q.sql(), self.connectionName()
                         )
                         q.exec_()
                         if not q.next():
@@ -2458,7 +2458,9 @@ class PNSqlCursor(QtCore.QObject):
 
             if field is not None and fgValue is not None:
 
-                relationFilter = self.db().manager().formatAssignValue(field, fgValue, True)
+                relationFilter = (
+                    self.db().connManager().manager().formatAssignValue(field, fgValue, True)
+                )
                 filterAc = self.d.cursorRelation_.filterAssoc(
                     self.d.relation_.foreignField(), self.d.metadata_
                 )
@@ -3220,19 +3222,19 @@ class PNSqlCursor(QtCore.QObject):
         return []
 
     @pyqtSlot()
-    def changeConnection(self, connName: str) -> None:
+    def changeConnection(self, conn_name: str) -> None:
         """
         Change the cursor to another database connection.
 
-        @param connName. connection name.
+        @param conn_name. connection name.
         """
 
-        curConnName = self.connectionName()
-        if curConnName == connName:
+        cur_conn_name = self.connectionName()
+        if cur_conn_name == conn_name:
             return
 
-        newDB = project.conn.database(connName)
-        if curConnName == newDB.connectionName():
+        newDB = project.conn_manager.database(conn_name)
+        if cur_conn_name == newDB.connectionName():
             return
 
         if self.d.transactionsOpened_:

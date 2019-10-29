@@ -35,25 +35,9 @@ class IConnection:
     _isOpen: bool
     driver_ = None
 
-    def finish(self) -> None:
-        """Set the connection as terminated."""
-        return
-
     def connectionName(self) -> str:
         """Get the current connection name for this cursor."""
         return ""
-
-    def useConn(self, name: str = "default") -> "IConnection":
-        """
-        Select another connection which can be not the default one.
-
-        Allow you to select a connection.
-        """
-        return self
-
-    def removeConn(self, name="default") -> bool:
-        """Delete a connection specified by name."""
-        return True
 
     def isOpen(self) -> bool:
         """Indicate if a connection is open."""
@@ -62,10 +46,6 @@ class IConnection:
     def tables(self, t_: Optional[Union[str, int]] = None) -> List[str]:
         """Return a list of available tables in the database, according to a given filter."""
         return []
-
-    def database(self, name=None) -> "IConnection":
-        """Return the connection to a database."""
-        return self
 
     def DBName(self) -> str:
         """Return the database name."""
@@ -159,15 +139,6 @@ class IConnection:
 
         return
 
-    def manager(self) -> IManager:
-        """
-        Flmanager instance that manages the connection.
-
-        Flmanager manages metadata of fields, tables, queries, etc .. to then be managed this data by the controls of the application.
-        """
-
-        return IManager()
-
     def md5TuplesStateTable(self, curname: str) -> bool:
         """
         Return the sum md5 with the total records inserted, deleted and modified in the database so far.
@@ -186,20 +157,6 @@ class IConnection:
         """See properties of the qsa exceptions."""
 
         return
-
-    def db(self) -> "IConnection":
-        """Return the connection itself."""
-
-        return self
-
-    def dbAux(self) -> "IConnection":
-        """
-        Return the auxiliary connection to the database.
-
-        This connection is useful for out of transaction operations.
-        """
-
-        return self
 
     def formatValue(self, t, v, upper) -> str:
         """Return a correctly formatted value to be assigned as a where filter."""
@@ -255,15 +212,6 @@ class IConnection:
         """Send the commit order to the database."""
 
         return True
-
-    def managerModules(self) -> Any:
-        """
-        Instance of the FLManagerModules class.
-
-        Contains functions to control the state, health, etc ... of the database tables.
-        """
-
-        return
 
     def canOverPartition(self) -> bool:
         """Return True if the database supports the OVER statement."""

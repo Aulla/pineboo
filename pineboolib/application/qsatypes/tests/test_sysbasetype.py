@@ -66,14 +66,14 @@ class TestSysBaseClassDataBase(unittest.TestCase):
 
         base_type = sysbasetype.SysBaseType()
 
-        prueba_conn_1 = application.project.conn.useConn("prueba")
+        prueba_conn_1 = application.project.conn_manager.useConn("prueba")
         self.assertEqual(prueba_conn_1.isOpen(), False)
         self.assertEqual(base_type.addDatabase("prueba"), True)
         self.assertEqual(prueba_conn_1.isOpen(), True)
         self.assertEqual(base_type.removeDatabase("prueba"), True)
         self.assertNotEqual(base_type.idSession(), None)
         self.assertEqual(prueba_conn_1.isOpen(), False)
-        prueba_conn_2 = application.project.conn.useConn("prueba")
+        prueba_conn_2 = application.project.conn_manager.useConn("prueba")
         self.assertEqual(prueba_conn_2.isOpen(), False)
         self.assertEqual(base_type.addDatabase("prueba"), True)
         self.assertEqual(prueba_conn_2.isOpen(), True)

@@ -362,7 +362,9 @@ class TestGeneral(unittest.TestCase):
         from pineboolib.application.database import pnsqlcursor
 
         cursor = pnsqlcursor.PNSqlCursor("fltest")
-        cursor2 = pnsqlcursor.PNSqlCursor("flareas", True, application.project.conn)
+        cursor2 = pnsqlcursor.PNSqlCursor(
+            "flareas", True, application.project.conn_manager.mainConn()
+        )
         self.assertEqual(cursor.table(), "fltest")
         action = cursor.action()
         action2 = cursor2.action()

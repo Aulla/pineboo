@@ -39,7 +39,7 @@ class TestCopyPNTableMetaData(unittest.TestCase):
         from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
         from pineboolib import application
 
-        mtd_1 = application.project.conn.manager().metadata("flgroups")
+        mtd_1 = application.project.conn_manager.manager().metadata("flgroups")
 
         mtd_2 = PNTableMetaData(mtd_1)
 
@@ -63,8 +63,8 @@ class TestPNTableMetaData(unittest.TestCase):
 
         from pineboolib import application
 
-        mtd = application.project.conn.manager().metadata("flgroups")
-        mtd_2 = application.project.conn.manager().metadata("flareas")
+        mtd = application.project.conn_manager.manager().metadata("flgroups")
+        mtd_2 = application.project.conn_manager.manager().metadata("flareas")
         if mtd is None:
             raise Exception
         if mtd_2 is None:
@@ -134,7 +134,7 @@ class TestRelationsPNTableMetaData(unittest.TestCase):
 
         from pineboolib import application
 
-        mtd_1 = application.project.conn.manager().metadata("flusers")
+        mtd_1 = application.project.conn_manager.manager().metadata("flusers")
         if mtd_1 is None:
             raise Exception
         self.assertEqual(mtd_1.fieldTableM1("idgroup"), "flgroups")
@@ -154,7 +154,7 @@ class TestCompoundKeyPNTableMetaData(unittest.TestCase):
 
         from pineboolib import application
 
-        mtd = application.project.conn.manager().metadata("flseqs")
+        mtd = application.project.conn_manager.manager().metadata("flseqs")
         if mtd is None:
             raise Exception
         field_list = mtd.fieldListOfCompoundKey("campo")

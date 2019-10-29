@@ -16,7 +16,7 @@ class TestFLFormDB(unittest.TestCase):
         from pineboolib.fllegacy import flformdb
         from pineboolib import application
 
-        action = application.project.conn.manager().action("flareas")
+        action = application.project.conn_manager.manager().action("flareas")
         form = flformdb.FLFormDB(None, action)
         self.assertTrue(form)
         form.load()

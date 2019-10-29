@@ -40,7 +40,7 @@ class SysBaseType(object):
         if project.DGI.use_alternative_credentials():
             ret_ = project.DGI.get_nameuser()
         else:
-            ret_ = project.conn.user()
+            ret_ = project.conn_manager.mainConn().user()
 
         return ret_ or ""
 
@@ -88,7 +88,7 @@ class SysBaseType(object):
     @classmethod
     def isLoadedModule(self, modulename: str) -> bool:
         """Check if a module has been loaded."""
-        return modulename in project.conn.managerModules().listAllIdModules()
+        return modulename in project.conn_manager.managerModules().listAllIdModules()
 
     @classmethod
     def osName(self) -> str:
@@ -109,7 +109,7 @@ class SysBaseType(object):
     @classmethod
     def nameBD(self) -> str:
         """Get database name."""
-        return project.conn.DBName()
+        return project.conn_manager.mainConn().DBName()
 
     @classmethod
     def toUnicode(self, val: str, format: str) -> str:
@@ -124,7 +124,7 @@ class SysBaseType(object):
     @classmethod
     def Mr_Proper(self) -> None:
         """Cleanup database like Mr. Proper."""
-        project.conn.Mr_Proper()
+        project.conn_manager.mainConn().Mr_Proper()
 
     @classmethod
     def installPrefix(self) -> str:
@@ -156,38 +156,40 @@ class SysBaseType(object):
     @classmethod
     def cleanupMetaData(self, connName: str = "default") -> None:
         """Clean up metadata."""
-        project.conn.useConn(connName).manager().cleanupMetaData()
+        project.conn_manager.useConn(connName).manager().cleanupMetaData()
 
     @classmethod
     def nameDriver(self, connName: str = "default") -> Any:
         """Get driver name."""
-        return project.conn.useConn(connName).driverName()
+        return project.conn_manager.useConn(connName).driverName()
 
     @classmethod
     def nameHost(self, connName: str = "default") -> Any:
         """Get database host name."""
-        return project.conn.useConn(connName).host()
+        return project.conn_manager.useConn(connName).host()
 
     @classmethod
     def addDatabase(self, *args: Any) -> bool:
         """Add a new database."""
         # def addDatabase(self, driver_name = None, db_name = None, db_user_name = None,
         #                 db_password = None, db_host = None, db_port = None, connName="default"):
+
         if len(args) == 1:
-            conn_db = project.conn.useConn(args[0])
+            conn_db = project.conn_manager.useConn(args[0])
             if not conn_db.isOpen():
                 if (
                     conn_db.driverName_
                     and conn_db.driverSql
                     and conn_db.driverSql.loadDriver(conn_db.driverName_)
                 ):
+                    main_conn = project.conn_manager.mainConn()
                     conn_db.driver_ = conn_db.driverSql.driver()
                     conn_db.conn = conn_db.conectar(
-                        project.conn.db_name,
-                        project.conn.db_host,
-                        project.conn.db_port,
-                        project.conn.db_userName,
-                        project.conn.db_password,
+                        main_conn.db_name,
+                        main_conn.db_host,
+                        main_conn.db_port,
+                        main_conn.db_userName,
+                        main_conn.db_password,
                     )
                     if conn_db.conn is False:
                         return False
@@ -195,7 +197,7 @@ class SysBaseType(object):
                     conn_db._isOpen = True
 
         else:
-            conn_db = project.conn.useConn(args[6])
+            conn_db = project.conn_manager.useConn(args[6])
             if not conn_db.isOpen():
                 if conn_db.driverSql is None:
                     raise Exception("driverSql not loaded!")
@@ -215,8 +217,7 @@ class SysBaseType(object):
     @classmethod
     def removeDatabase(self, conn_name: str = "default") -> Any:
         """Remove a database."""
-        print("*** borrando", conn_name)
-        return project.conn.removeConn(conn_name)
+        return project.conn_manager.removeConn(conn_name)
 
     @classmethod
     def idSession(self) -> str:

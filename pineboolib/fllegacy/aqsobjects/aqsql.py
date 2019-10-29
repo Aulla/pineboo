@@ -50,9 +50,9 @@ class AQSql(object):
     def database(self, connection_name: str = "default") -> "IConnection":
         """Return the database of a connection."""
 
-        if project.conn is None:
+        if project.conn__manager is None:
             raise Exception("Project is not connected yet")
-        return project.conn.useConn(connection_name)
+        return project.conn_manager.useConn(connection_name)
 
     @classmethod
     def update(

@@ -18,10 +18,11 @@ from pineboolib.core.settings import config
 
 from pineboolib.application.module import Module
 from pineboolib.application.utils.path import _dir
+from pineboolib.application.database import pnconnectionmanager
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.dgi_schema import dgi_schema
-    from pineboolib.application.database.pnconnection import PNConnection
+
     from pineboolib.core.utils.struct import ActionStruct  # noqa: F401
 
 
@@ -32,9 +33,10 @@ class Project(object):
     Can be accessed with pineboolib.project from anywhere.
     """
 
+    _conn_manager: pnconnectionmanager.PNConnectionManager
     logger = logging.getLogger("main.Project")
     _app: Optional[QtCore.QCoreApplication] = None
-    _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
+    # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
     debugLevel = 100
     options: Values
     modules: Dict[str, "Module"]
@@ -55,7 +57,7 @@ class Project(object):
 
     def __init__(self) -> None:
         """Constructor."""
-        self._conn = None
+        # self._conn = None
         self._DGI = None
         self.tree = None
         self.root = None
@@ -78,6 +80,8 @@ class Project(object):
         if not os.path.exists(self.tmpdir):
             Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
 
+        self._conn_manager = pnconnectionmanager.PNConnectionManager()
+
     @property
     def app(self) -> QtCore.QCoreApplication:
         """Retrieve current Qt Application or throw error."""
@@ -90,11 +94,11 @@ class Project(object):
         self._app = app
 
     @property
-    def conn(self) -> "PNConnection":
+    def conn_manager(self) -> "pnconnectionmanager.PNConnectionManager":
         """Retrieve current connection or throw."""
-        if self._conn is None:
+        if self._conn_manager is None:
             raise Exception("Project is not initialized")
-        return self._conn
+        return self._conn_manager
 
     @property
     def DGI(self) -> "dgi_schema":
@@ -105,11 +109,11 @@ class Project(object):
 
     def init_conn(self, connection: "PNConnection") -> None:
         """Initialize project with a connection."""
-        if self._conn is not None:
-            del self._conn
-            self._conn = None
+        # if self._conn is not None:
+        #    del self._conn
+        #    self._conn = None
 
-        self._conn = connection
+        self._conn_manager.setMainConn(connection)
         self.apppath = filedir("..")
 
         self.deleteCache = config.value("ebcomportamiento/deleteCache", False)
@@ -167,19 +171,20 @@ class Project(object):
         if self._DGI is None:
             raise Exception("DGI not loaded")
 
-        if not self.conn or not self.conn.conn:
+        if not self.conn_manager or not "main_conn" in self.conn_manager.conn_dict.keys():
             raise NotConnectedError("Cannot execute Pineboo Project without a connection in place")
 
+        conn = self.conn_manager.mainConn()
         # TODO: Refactorizar esta función en otras más sencillas
         # Preparar temporal
 
-        if self.deleteCache and os.path.exists(_dir("cache/%s" % self.conn.DBName())):
+        if self.deleteCache and os.path.exists(_dir("cache/%s" % conn.DBName())):
 
             self.message_manager().send("splash", "showMessage", ["Borrando caché ..."])
             self.logger.debug(
-                "DEVELOP: DeleteCache Activado\nBorrando %s", _dir("cache/%s" % self.conn.DBName())
+                "DEVELOP: DeleteCache Activado\nBorrando %s", _dir("cache/%s" % conn.DBName())
             )
-            for root, dirs, files in os.walk(_dir("cache/%s" % self.conn.DBName()), topdown=False):
+            for root, dirs, files in os.walk(_dir("cache/%s" % conn.DBName()), topdown=False):
                 for name in files:
                     os.remove(os.path.join(root, name))
                 for name in dirs:
@@ -188,8 +193,8 @@ class Project(object):
         if not os.path.exists(_dir("cache")):
             os.makedirs(_dir("cache"))
 
-        if not os.path.exists(_dir("cache/%s" % self.conn.DBName())):
-            os.makedirs(_dir("cache/%s" % self.conn.DBName()))
+        if not os.path.exists(_dir("cache/%s" % conn.DBName())):
+            os.makedirs(_dir("cache/%s" % conn.DBName()))
 
         if not self.deleteCache:
             keep_images = config.value("ebcomportamiento/keep_general_cache", False)
@@ -224,9 +229,9 @@ class Project(object):
             "flseqs",
             "flsettings",
         ):
-            self.conn.manager().createSystemTable(table)
+            self.conn_manager.manager().createSystemTable(table)
 
-        cursor_ = self.conn.dbAux().cursor()
+        cursor_ = self.conn_manager.dbAux().cursor()
         self.areas: Dict[str, AreaStruct] = {}
         cursor_.execute(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
         for idarea, descripcion in cursor_:
@@ -237,7 +242,7 @@ class Project(object):
         # Obtener módulos activos
         cursor_.execute(
             """ SELECT idarea, idmodulo, descripcion, icono FROM flmodules WHERE bloqueo = %s """
-            % self.conn.driver().formatValue("bool", "True", False)
+            % conn.driver().formatValue("bool", "True", False)
         )
 
         self.modules: Dict[str, "Module"] = {}
@@ -276,7 +281,7 @@ class Project(object):
             p = p + 1
             if idmodulo not in self.modules:
                 continue  # I
-            fileobj = File(idmodulo, nombre, sha, db_name=self.conn.DBName())
+            fileobj = File(idmodulo, nombre, sha, db_name=conn.DBName())
             if nombre in self.files:
                 self.logger.warning("run: file %s already loaded, overwritting..." % nombre)
             self.files[nombre] = fileobj
@@ -310,13 +315,13 @@ class Project(object):
                 else:
                     continue
 
-            cur2 = self.conn.dbAux().cursor()
+            cur2 = self.conn_manager.useConn("dbAux").cursor()
             sql = (
                 "SELECT contenido FROM flfiles WHERE idmodulo = %s AND nombre = %s AND sha = %s"
                 % (
-                    self.conn.driver().formatValue("string", idmodulo, False),
-                    self.conn.driver().formatValue("string", nombre, False),
-                    self.conn.driver().formatValue("string", sha, False),
+                    conn.driver().formatValue("string", idmodulo, False),
+                    conn.driver().formatValue("string", nombre, False),
+                    conn.driver().formatValue("string", sha, False),
                 )
             )
             cur2.execute(sql)
@@ -371,7 +376,7 @@ class Project(object):
             # list_files = []
             for nombre in files:
                 if root.find("modulos") == -1:
-                    fileobj = File(idmodulo, nombre, basedir=root, db_name=self.conn.DBName())
+                    fileobj = File(idmodulo, nombre, basedir=root, db_name=conn.DBName())
                     self.files[nombre] = fileobj
                     self.modules[idmodulo].add_project_file(fileobj)
                     # if self.parseProject and nombre.endswith(".qs"):

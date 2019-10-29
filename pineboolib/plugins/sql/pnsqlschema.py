@@ -48,6 +48,7 @@ class PNSqlSchema(object):
         self.declarative_base_ = None
         self.lastError_ = None
         self.cursor_ = None
+        self.db_ = None
 
     def useThreads(self) -> bool:
         """Return True if the driver use threads."""

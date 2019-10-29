@@ -139,7 +139,7 @@ class SysType(SysBaseType):
 
         from pineboolib import application
 
-        return application.project.conn.useConn("default").transactionLevel()
+        return application.project.conn_manager.useConn("default").transactionLevel()
 
     @classmethod
     def installACL(self, idacl) -> None:
@@ -980,7 +980,7 @@ class SysType(SysBaseType):
         dirBasePath = FileDialog.getExistingDirectory(Dir.home)
         if not dirBasePath:
             return
-        dataBaseName = project.conn.db_name
+        dataBaseName = project.conn_manager.mainConn().db_name_
         dirBasePath = Dir.cleanDirPath(
             ustr(dirBasePath, u"/modulos_exportados_", dataBaseName[dataBaseName.rfind(u"/") + 1 :])
         )
@@ -1503,7 +1503,7 @@ class SysType(SysBaseType):
 
         from pineboolib import application
 
-        db_ = application.project.conn
+        db_ = application.project.conn_manager.useConn("default")
 
         transaction_level_ = db_.transactionLevel()
         # Create Transaction.

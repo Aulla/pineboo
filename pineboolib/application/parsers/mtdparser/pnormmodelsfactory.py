@@ -61,7 +61,7 @@ def base_model(name: str) -> Any:
     # print("Base", name)
     from pineboolib.application import project
 
-    if project.conn is None:
+    if project.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     path = _path("%s.mtd" % name, False)
@@ -71,7 +71,7 @@ def base_model(name: str) -> Any:
         path = path.replace(
             "system_module/tables",
             "%s/cache/%s/sys/file.mtd"
-            % (config.value("ebcomportamiento/temp_dir"), project.conn.DBName()),
+            % (config.value("ebcomportamiento/temp_dir"), project.conn_manager.mainConn().DBName()),
         )
     if path:
         path = "%s_model.py" % path[:-4]
@@ -109,7 +109,7 @@ def load_model(nombre):
     #        setattr(qsa_dict_modules, model_name, mod)  # NOTE: Use application.qsadictmodules
     from pineboolib.application import project
 
-    db_name = project.conn.DBName()
+    db_name = project.conn_manager.mainConn().DBName()
 
     module = None
     file_path = filedir(
@@ -155,12 +155,12 @@ def empty_base():
     """Cleanup sqlalchemy models."""
     from pineboolib.application import project
 
-    if project.conn is None:
+    if project.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     # FIXME: Not a good idea to delete from other module
-    del project.conn.driver().declarative_base_
-    project.conn.driver().declarative_base_ = None
+    del project.conn_manager.driver().declarative_base_
+    project.conn_manager.driver().declarative_base_ = None
 
 
 def load_models() -> None:
@@ -169,15 +169,17 @@ def load_models() -> None:
     from pineboolib.application.qsadictmodules import QSADictModules
     from pineboolib.application import project
 
-    if project.conn is None:
+    if project.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    db_name = project.conn.DBName()
-    tables = project.conn.tables()
+    main_conn = project.conn_manager.mainConn()
 
-    QSADictModules.save_other("Base", project.conn.declarative_base())
-    QSADictModules.save_other("session", project.conn.session())
-    QSADictModules.save_other("engine", project.conn.engine())
+    db_name = main_conn.DBName()
+    tables = main_conn.tables()
+
+    QSADictModules.save_other("Base", main_conn.declarative_base())
+    QSADictModules.save_other("session", main_conn.session())
+    QSADictModules.save_other("engine", main_conn.engine())
 
     for t in tables:
         try:

@@ -13,10 +13,10 @@ def AQFormDB(action_name: str, parent: "QtWidgets.QWidget") -> "FLFormDB":
     from pineboolib.application.utils.convert_flaction import convertFLAction
     from pineboolib.application import project
 
-    if project.conn is None:
+    if project.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    ac_flaction = project.conn.manager().action(action_name)
+    ac_flaction = project.conn_manager.manager().action(action_name)
     ac_xml = convertFLAction(ac_flaction)
     ac_xml.load()
     ret_ = ac_xml.mainform_widget

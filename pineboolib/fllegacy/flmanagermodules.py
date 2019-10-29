@@ -186,8 +186,12 @@ class FLManagerModules(object):
         @return QString with the contents of the file or empty in case of error.
         """
 
-        cursor = self.conn_.dbAux().execute_query(
-            "SELECT contenido FROM flfiles WHERE nombre='%s' AND NOT sha = ''" % file_name
+        cursor = (
+            self.conn_.connManager()
+            .dbAux()
+            .execute_query(
+                "SELECT contenido FROM flfiles WHERE nombre='%s' AND NOT sha = ''" % file_name
+            )
         )
 
         for contenido in cursor:
@@ -248,9 +252,9 @@ class FLManagerModules(object):
         @param file_name File name.
         @return QString with the contents of the file or None in case of error.
         """
-        not_sys_table = file_name[0:3] != "sys" and not self.conn_.manager().isSystemTable(
-            file_name
-        )
+        not_sys_table = file_name[
+            0:3
+        ] != "sys" and not self.conn_.connManager().manager().isSystemTable(file_name)
         if not_sys_table and self.staticBdInfo_ and self.staticBdInfo_.enabled_:
             str_ret = self.contentStatic(file_name)
             if str_ret is not None:
@@ -279,7 +283,7 @@ class FLManagerModules(object):
         elif ext_ == "xml":
             type_ = ""
 
-        if not shaKey and not self.conn_.manager().isSystemTable(name_):
+        if not shaKey and not self.conn_.connManager().manager().isSystemTable(name_):
 
             cursor = self.conn_.execute_query(
                 "SELECT sha FROM flfiles WHERE nombre='%s'" % file_name
@@ -288,10 +292,10 @@ class FLManagerModules(object):
             for contenido in cursor:
                 shaKey = contenido[0]
 
-        if self.conn_.manager().isSystemTable(name_):
+        if self.conn_.connManager().manager().isSystemTable(name_):
             modId = "sys"
         else:
-            modId = self.conn_.managerModules().idModuleOfFile(file_name)
+            modId = self.idModuleOfFile(file_name)
 
         from pineboolib.application import project
 
@@ -337,7 +341,7 @@ class FLManagerModules(object):
         @param content File content.
         """
 
-        if not self.conn_.dbAux():
+        if not self.conn_.connManager().dbAux():
             return
 
         format_val = self.conn_.manager().formatAssignValue("nombre", "string", file_name, True)
@@ -346,7 +350,7 @@ class FLManagerModules(object):
         from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
         from pineboolib.fllegacy.flutil import FLUtil
 
-        cursor = FLSqlCursor("flfiles", True, self.conn_.dbAux())
+        cursor = FLSqlCursor("flfiles", True, self.conn_.connManager().dbAux())
         cursor.setActivatedCheckIntegrity(False)
         cursor.select("%s AND %s" % (format_val, format_val2))
 
@@ -391,7 +395,7 @@ class FLManagerModules(object):
 
         form_path = file_name if os.path.exists(file_name) else _path(file_name)
 
-        if flapplication.aqApp.db() is not None:
+        if flapplication.aqApp.db().mainConn() is not None:
             mng_modules = flapplication.aqApp.db().managerModules()
             if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
                 ret_ui = mng_modules.contentStatic(file_name, True)
@@ -572,10 +576,10 @@ class FLManagerModules(object):
             return self.listIdAreas_
 
         ret: List[str] = []
-        if not self.conn_.dbAux():
+        if not self.conn_.connManager().dbAux():
             return ret
 
-        q = PNSqlQuery(None, self.conn_.dbAux())
+        q = PNSqlQuery(None, "dbAux")
         q.setForwardOnly(True)
         q.exec_("SELECT idarea FROM flareas WHERE idarea <> 'sys'")
         while q.next():
@@ -611,11 +615,11 @@ class FLManagerModules(object):
             return self.listAllIdModules_
 
         ret: List[str] = []
-        if not self.conn_.dbAux():
+        if not self.conn_.connManager().dbAux():
             return ret
 
         ret.append("sys")
-        q = PNSqlQuery(None, self.conn_.dbAux())
+        q = PNSqlQuery(None, "dbAux")
         q.setForwardOnly(True)
         q.exec_("SELECT idmodulo FROM flmodules WHERE idmodulo <> 'sys'")
         while q.next():
@@ -708,10 +712,10 @@ class FLManagerModules(object):
         @return Sha key of the globally loaded modules version
         """
 
-        if not self.conn_.dbAux():
+        if not self.conn_.connManager().dbAux():
             return ""
 
-        q = PNSqlQuery(None, self.conn_.dbAux())
+        q = PNSqlQuery(None, "dbAux")
         q.setForwardOnly(True)
         q.exec_("SELECT sha FROM flserial")
         if q.lastError is None:
@@ -737,9 +741,15 @@ class FLManagerModules(object):
         @return Key sh associated with the files
         """
 
-        if not file_name[:3] == "sys" and not self.conn_.manager().isSystemTable(file_name):
-            formatVal = self.conn_.manager().formatAssignValue("nombre", "string", file_name, True)
-            q = PNSqlQuery(None, self.conn_.dbAux())
+        if not file_name[:3] == "sys" and not self.conn_.connManager().manager().isSystemTable(
+            file_name
+        ):
+            formatVal = (
+                self.conn_.connManager()
+                .manager()
+                .formatAssignValue("nombre", "string", file_name, True)
+            )
+            q = PNSqlQuery(None, "dbAux")
             # q.setForwardOnly(True)
             q.exec_("SELECT sha FROM flfiles WHERE %s" % formatVal)
             if q.next():
@@ -754,7 +764,7 @@ class FLManagerModules(object):
 
         self.dictKeyFiles = {}
         self.dictModFiles = {}
-        q = PNSqlQuery(None, self.conn_.dbAux())
+        q = PNSqlQuery(None, "dbAux")
         # q.setForwardOnly(True)
         q.exec_("SELECT nombre, sha, idmodulo FROM flfiles")
         name = None
@@ -771,8 +781,9 @@ class FLManagerModules(object):
         self.listAllIdModules_ = []
         self.listAllIdModules_.append("sys")
         self.dictInfoMods = {}
+        conn_manager = self.conn_.connManager()
 
-        q = PNSqlQuery(None, self.conn_.dbAux())
+        q = PNSqlQuery(None, "dbAux")
         q.setTablesList("flmodules,flareas")
         q.setSelect(
             "idmodulo,flmodules.idarea,flmodules.descripcion,version,icono,flareas.descripcion"
@@ -816,7 +827,7 @@ class FLManagerModules(object):
         """
 
         self.listIdAreas_ = []
-        q = PNSqlQuery(None, self.conn_.dbAux())
+        q = PNSqlQuery(None, "dbAux")
         # q.setForwardOnly(True)
         q.exec_("SELECT idarea from flareas WHERE idarea <> 'sys'")
         while q.next():
@@ -849,7 +860,7 @@ class FLManagerModules(object):
         from pineboolib.application import project
 
         if n.endswith(".mtd"):
-            if project.conn.manager().isSystemTable(n):
+            if project.conn_manager.manager().isSystemTable(n):
                 return "sys"
 
         cursor = self.conn_.execute_query("SELECT idmodulo FROM flfiles WHERE nombre='%s'" % n)
@@ -863,8 +874,8 @@ class FLManagerModules(object):
         """
 
         idDB = "noDB"
-        if self.conn_.dbAux():
-            db_aux = self.conn_.dbAux()
+        if self.conn_.connManager().dbAux():
+            db_aux = self.conn_.connManager().dbAux()
             idDB = "%s%s%s%s%s" % (
                 db_aux.database(),
                 db_aux.host(),
@@ -892,10 +903,10 @@ class FLManagerModules(object):
         """
         Read the module system status.
         """
-        if not self.conn_.dbAux():
+        if not self.conn_.connManager().dbAux():
             return
 
-        db_aux = self.conn_.dbAux()
+        db_aux = self.conn_.connManager().dbAux()
 
         idDB = "%s%s%s%s%s" % (
             db_aux.database(),

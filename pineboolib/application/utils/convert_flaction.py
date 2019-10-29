@@ -42,14 +42,14 @@ def convert2FLAction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
 
     from pineboolib.application import project
 
-    if project.conn is None:
+    if project.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     logger.trace("convert2action: Load action from db manager")
 
     action_ = None
 
-    cached_actions = project.conn.manager().cacheAction_
+    cached_actions = project.conn_manager.manager().cacheAction_
     if action_name in cached_actions.keys():
         action_ = cached_actions[action_name]
     else:
