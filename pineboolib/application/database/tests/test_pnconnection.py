@@ -27,8 +27,8 @@ class TestPNConnection(unittest.TestCase):
         self.assertTrue(dict_databases_1)
 
         self.assertTrue(conn_.isOpen())
-        self.assertTrue(conn_.useConn("dbAux").isOpen())
-        self.assertFalse(conn_.useConn("conn_test").isOpen())
+        self.assertTrue(conn_manager.useConn("dbAux").isOpen())
+        self.assertFalse(conn_manager.useConn("conn_test").isOpen())
 
         self.assertEqual([*dict_databases_1], ["main_connection", "dbAux", "conn_test"])
         self.assertTrue(conn_manager.removeConn("conn_test"))
@@ -39,7 +39,7 @@ class TestPNConnection(unittest.TestCase):
         """Basic test 2."""
 
         conn_manager = application.project.conn_manager
-        conn_ = conn_manager_.mainConn()
+        conn_ = conn_manager.mainConn()
         self.assertTrue("flareas" in conn_.tables("Tables"))
         self.assertTrue("sqlite_master" in conn_.tables())
         self.assertEqual(conn_.tables("SystemTables"), ["sqlite_master"])
@@ -148,10 +148,10 @@ class TestPNConnection(unittest.TestCase):
         cursor.setAskForCancelChanges(False)
         conn_manager.mainConn().Mr_Proper()
         self.assertEqual(
-            conn_.queryUpdate("test", "field1, 'val_1'", "1=1"),
+            conn_manager.mainConn().queryUpdate("test", "field1, 'val_1'", "1=1"),
             "UPDATE test SET field1, 'val_1' WHERE 1=1",
         )
-        self.assertTrue(conn_test.removeConn("test"))
+        self.assertTrue(conn_manager.removeConn("test"))
         self.assertTrue(conn_default.doTransaction(cursor))
         self.assertTrue(cursor.inTransaction())
         self.assertTrue(conn_default.doCommit(cursor, False))

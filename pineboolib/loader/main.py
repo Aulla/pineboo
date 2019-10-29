@@ -226,7 +226,7 @@ def setup_gui(app: QtCore.QCoreApplication, options: Values) -> None:
 def init_testing() -> None:
     """Initialize Pineboo for testing purposes."""
     config.set_value("application/dbadmin_enabled", True)
-    if project._conn is not None:
+    if "main_conn" in project._conn_manager.conn_dict.keys():
         # Assume already initialized, return without doing anything
         # Tests may call this several times, so we have to take it into account.
         pass
