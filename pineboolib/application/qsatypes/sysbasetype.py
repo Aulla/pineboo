@@ -185,11 +185,11 @@ class SysBaseType(object):
                     main_conn = project.conn_manager.mainConn()
                     conn_db.driver_ = conn_db.driverSql.driver()
                     conn_db.conn = conn_db.conectar(
-                        main_conn.db_name,
-                        main_conn.db_host,
-                        main_conn.db_port,
-                        main_conn.db_userName,
-                        main_conn.db_password,
+                        main_conn.db_name_,
+                        main_conn.db_host_,
+                        main_conn.db_port_,
+                        main_conn.db_user_name_,
+                        main_conn.db_password_,
                     )
                     if conn_db.conn is False:
                         return False

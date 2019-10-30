@@ -101,10 +101,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         import sqlite3
 
-        if application.project.conn_manager:
-            conn = application.project.conn_manager.mainConn()
-            if self.db_filename == conn.DBName() and conn.conn:
-                self.conn_ = conn.conn
+        main_conn = application.project.conn_manager.mainConn()
+        if main_conn is not None:
+            if self.db_filename == main_conn.driver().db_filename and main_conn.conn:
+                self.conn_ = main_conn.conn
 
         if self.conn_ is None:
             self.conn_ = sqlite3.connect("%s" % self.db_filename)
@@ -560,7 +560,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             db_ = self.db_
 
         if isinstance(tmd_or_table2, str):
-            mtd = db_.manager().metadata(tmd_or_table2, True)
+            mtd = db_.connManager().manager().metadata(tmd_or_table2, True)
             if not mtd:
                 return False
 
@@ -656,7 +656,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             tablename = tablename_or_query
 
             doc = QDomDocument(tablename)
-            stream = self.db_.managerModules().contentCached("%s.mtd" % tablename)
+            stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
             util = FLUtil()
             if not util.domDocumentSetContent(doc, stream):
                 self.logger.warning(
@@ -669,7 +669,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 return self.recordInfo2(tablename)
 
             docElem = doc.documentElement()
-            mtd = self.db_.manager().metadata(docElem, True)
+            mtd = self.db_.connManager().manager().metadata(docElem, True)
             if not mtd:
                 return self.recordInfo2(tablename)
             fL = mtd.fieldList()
@@ -1047,8 +1047,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         qry.exec_("delete from flmetadata")
         qry.exec_("delete from flvar")
-        self.db_.manager().cleanupMetaData()
-        self.db_.dbAux().commit()
+        self.db_.connManager().manager().cleanupMetaData()
+        self.db_.connManager().dbAux().commit()
 
         util.setLabelText(util.tr("Vacunando base de datos"))
         steps = steps + 1

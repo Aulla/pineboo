@@ -344,8 +344,16 @@ class FLManagerModules(object):
         if not self.conn_.connManager().dbAux():
             return
 
-        format_val = self.conn_.manager().formatAssignValue("nombre", "string", file_name, True)
-        format_val2 = self.conn_.manager().formatAssignValue("idmodulo", "string", id_module, True)
+        format_val = (
+            self.conn_.connManager()
+            .manager()
+            .formatAssignValue("nombre", "string", file_name, True)
+        )
+        format_val2 = (
+            self.conn_.connManager()
+            .manager()
+            .formatAssignValue("idmodulo", "string", id_module, True)
+        )
 
         from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
         from pineboolib.fllegacy.flutil import FLUtil

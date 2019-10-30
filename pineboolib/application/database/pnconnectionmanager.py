@@ -3,14 +3,14 @@ from PyQt5 import QtCore
 
 
 from pineboolib import application
+from pineboolib.interfaces import iconnection
 
-from typing import Dict, Union, TYPE_CHECKING
+from typing import Dict, Union, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
     from pineboolib.fllegacy import flmanagermodules
     from . import pnconnection
-    from pineboolib.interfaces import iconnection
 
 
 class PNConnectionManager(QtCore.QObject):
@@ -19,6 +19,10 @@ class PNConnectionManager(QtCore.QObject):
     _manager: "flmanager.FLManager"
     _manager_modules: "flmanagermodules.FLManagerModules"
     conn_dict: Dict[str, "pnconnection.PNConnection"] = {}
+
+    def __init__(self):
+        super().__init__()
+        self.conn_dict = {}
 
     # def __init__(
     #    self,
@@ -36,24 +40,22 @@ class PNConnectionManager(QtCore.QObject):
 
     def setMainConn(self, main_conn: "pnconnection.PNConnection") -> bool:
         """Set main connection."""
-
         if "main_conn" in self.conn_dict:
             conn_ = self.conn_dict["main_conn"]
-            conn_.conn.close()
-            del conn_
-            del self.conn_dict["main_conn"]
+            if main_conn.conn is not conn_.conn:
+                conn_.conn.close()
+                del conn_
+                del self.conn_dict["main_conn"]
 
         self.conn_dict["main_conn"] = main_conn
         return True
 
-    def mainConn(self) -> "pnconnection.PNConnection":
+    def mainConn(self) -> Optional["pnconnection.PNConnection"]:
         """Return main conn."""
-        ret_: "pnconnection.PNConnection"
+        ret_: Optional["pnconnection.PNConnection"] = None
 
         if "main_conn" in self.conn_dict.keys():
             ret_ = self.conn_dict["main_conn"]
-        else:
-            raise Exception("mainConn is not defined!")
 
         return ret_
 
@@ -62,8 +64,14 @@ class PNConnectionManager(QtCore.QObject):
 
         for n in list(self.conn_dict.keys()):
             conn_ = self.conn_dict[n].conn
-            if conn_ not in [None, self.mainConn().conn]:
-                conn_.close()
+            if conn_ is None:
+                continue
+
+            # if "main_conn" in self.conn_dict.keys():
+            #    if self.conn_dict["main_conn"].conn is conn_:
+            #        continue
+
+            conn_.close()
 
             del self.conn_dict[n]
 
@@ -95,7 +103,10 @@ class PNConnectionManager(QtCore.QObject):
             #    raise Exception("No driver selected")
             from . import pnconnection
 
-            connection_ = pnconnection.PNConnection(self.mainConn().db_name_)
+            main_conn = self.mainConn()
+            if main_conn is None:
+                raise Exception("main_conn is empty!!")
+            connection_ = pnconnection.PNConnection(main_conn.db_name_)
             connection_.name = name
             self.conn_dict[name_conn_] = connection_
 

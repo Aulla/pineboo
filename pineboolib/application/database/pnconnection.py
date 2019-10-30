@@ -109,8 +109,6 @@ class PNConnection(QtCore.QObject, IConnection):
 
         #    sys.exit(0)
 
-        self.driver().db_ = self
-
     def connManager(self):
         """Return connection manager."""
         return self._conn_manager
@@ -197,7 +195,7 @@ class PNConnection(QtCore.QObject, IConnection):
         self.db_password_ = db_password
         # if self.name:
         #    self.driver().alias_ = self.driverName() + ":" + self.name
-
+        self.driver().db_ = self
         return self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
 
     def driverName(self) -> str:

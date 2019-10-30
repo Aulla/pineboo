@@ -226,12 +226,14 @@ def setup_gui(app: QtCore.QCoreApplication, options: Values) -> None:
 def init_testing() -> None:
     """Initialize Pineboo for testing purposes."""
     config.set_value("application/dbadmin_enabled", True)
+
     if "main_conn" in project._conn_manager.conn_dict.keys():
         # Assume already initialized, return without doing anything
         # Tests may call this several times, so we have to take it into account.
         pass
 
     else:
+
         qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
 
         init_logging()  # NOTE: Use pytest --log-level=0 for debug
@@ -277,7 +279,8 @@ def finish_testing() -> None:
     # project.conn_manager.mainConn().driver_ = None
     # project.conn_manager.conn.close()
     # project.conn.conn = None
-    del project.conn_manager
+    # del project._conn_manager
+    # project._conn_manager = None
     # time.sleep(0.5)  # Wait until database close ends
 
     from pineboolib.application import qsadictmodules
