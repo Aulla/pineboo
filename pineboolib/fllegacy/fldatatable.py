@@ -587,7 +587,7 @@ class FLDataTable(QtWidgets.QTableView):
                 lay_popup.addWidget(dt)
 
                 dt.setFLSqlCursor(cur)
-                filter = db.manager().formatAssignValue(field, pri_key_val, False)
+                filter = db.connManager().manager().formatAssignValue(field, pri_key_val, False)
                 cur.setFilter(filter)
                 dt.setFilter(filter)
                 dt.refresh()

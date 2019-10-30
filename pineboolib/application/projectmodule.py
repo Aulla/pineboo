@@ -22,7 +22,7 @@ from pineboolib.application.database import pnconnectionmanager
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.dgi_schema import dgi_schema
-
+    from pineboolib.application.database import pnconnection
     from pineboolib.core.utils.struct import ActionStruct  # noqa: F401
 
 
@@ -33,7 +33,7 @@ class Project(object):
     Can be accessed with pineboolib.project from anywhere.
     """
 
-    _conn_manager: pnconnectionmanager.PNConnectionManager
+    _conn_manager: "pnconnectionmanager.PNConnectionManager"
     logger = logging.getLogger("main.Project")
     _app: Optional[QtCore.QCoreApplication] = None
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
@@ -107,7 +107,7 @@ class Project(object):
             raise Exception("Project is not initialized")
         return self._DGI
 
-    def init_conn(self, connection: "PNConnection") -> None:
+    def init_conn(self, connection: "pnconnection.PNConnection") -> None:
         """Initialize project with a connection."""
         # if self._conn is not None:
         #    del self._conn
@@ -171,7 +171,7 @@ class Project(object):
         if self._DGI is None:
             raise Exception("DGI not loaded")
 
-        if not self.conn_manager or not "main_conn" in self.conn_manager.conn_dict.keys():
+        if not self.conn_manager or "main_conn" not in self.conn_manager.conn_dict.keys():
             raise NotConnectedError("Cannot execute Pineboo Project without a connection in place")
 
         conn = self.conn_manager.mainConn()

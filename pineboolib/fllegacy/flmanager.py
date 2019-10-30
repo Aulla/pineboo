@@ -9,7 +9,6 @@ from pineboolib.core import decorators
 from pineboolib.core.settings import config
 from pineboolib.core.utils.utils_base import filedir, auto_qt_translate_text
 from pineboolib.application.utils.xpm import cacheXPM
-from pineboolib import application
 
 from pineboolib.application.metadata.pncompoundkeymetadata import PNCompoundKeyMetaData
 from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
@@ -171,9 +170,7 @@ class FLManager(QtCore.QObject, IManager):
                     ret = self.cacheMetaData_[key]
 
             if not ret:
-                stream = application.project.conn_manager.managerModules().contentCached(
-                    "%s.mtd" % n
-                )
+                stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % n)
 
                 if not stream:
                     if n.find("alteredtable") == -1:
@@ -223,7 +220,8 @@ class FLManager(QtCore.QObject, IManager):
 
                     must_alter = self.db_.mismatchedTable(n, ret)
                     if must_alter:
-                        if not self.alterTable(stream, stream, "", True):
+                        # if not self.alterTable(stream, stream, "", True):
+                        if not self.alterTable(ret, ret, "", True):
                             logger.warning("La regeneración de la tabla %s ha fallado", n)
 
                 # throwMsgWarning(self.db_, msg)
@@ -433,7 +431,7 @@ class FLManager(QtCore.QObject, IManager):
             raise Exception("query. self.db_ is empty!")
 
         qryName = "%s.qry" % name
-        qry_ = self.db_.managerModules().contentCached(qryName)
+        qry_ = self.db_.connManager().managerModules().contentCached(qryName)
 
         if not qry_:
             return None
@@ -1467,9 +1465,9 @@ class FLManager(QtCore.QObject, IManager):
             self.dictKeyMetaData_ = {}
 
         self.loadTables()
-        self.db_.managerModules().loadKeyFiles()
-        self.db_.managerModules().loadAllIdModules()
-        self.db_.managerModules().loadIdAreas()
+        self.db_.connManager().managerModules().loadKeyFiles()
+        self.db_.connManager().managerModules().loadAllIdModules()
+        self.db_.connManager().managerModules().loadIdAreas()
 
         q = PNSqlQuery(None, "dbAux")
         q.exec_("SELECT tabla,xml FROM flmetadata")

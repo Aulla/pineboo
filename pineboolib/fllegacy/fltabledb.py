@@ -1692,6 +1692,7 @@ class FLTableDB(QtWidgets.QWidget):
                 qry = (
                     self.cursor()
                     .db()
+                    .connManager()
                     .manager()
                     .query(self.cursor().metadata().query(), self.cursor())
                 )
@@ -1725,12 +1726,14 @@ class FLTableDB(QtWidgets.QWidget):
                         arg2 = (
                             self.cursor()
                             .db()
+                            .connManager()
                             .manager()
                             .formatValue(type, editorOp1.currentText, True)
                         )
                         arg4 = (
                             self.cursor()
                             .db()
+                            .connManager()
                             .manager()
                             .formatValue(type, editorOp2.currentText, True)
                         )
@@ -1739,6 +1742,7 @@ class FLTableDB(QtWidgets.QWidget):
                         arg2 = (
                             self.cursor()
                             .db()
+                            .connManager()
                             .manager()
                             .formatValue(type, editorOp1.currentText, True)
                         )
@@ -1747,15 +1751,27 @@ class FLTableDB(QtWidgets.QWidget):
                         editorOp1 = self.tdbFilter.cellWidget(i, 3)
                         editorOp2 = self.tdbFilter.cellWidget(i, 4)
                         arg2 = (
-                            self.cursor().db().manager().formatValue(type, editorOp1.text(), True)
+                            self.cursor()
+                            .db()
+                            .connManager()
+                            .manager()
+                            .formatValue(type, editorOp1.text(), True)
                         )
                         arg4 = (
-                            self.cursor().db().manager().formatValue(type, editorOp2.text(), True)
+                            self.cursor()
+                            .db()
+                            .connManager()
+                            .manager()
+                            .formatValue(type, editorOp2.text(), True)
                         )
                     else:
                         editorOp1 = self.tdbFilter.cellWidget(i, 2)
                         arg2 = (
-                            self.cursor().db().manager().formatValue(type, editorOp1.text(), True)
+                            self.cursor()
+                            .db()
+                            .connManager()
+                            .manager()
+                            .formatValue(type, editorOp1.text(), True)
                         )
 
             if type == "serial":
@@ -1778,12 +1794,14 @@ class FLTableDB(QtWidgets.QWidget):
                     arg2 = (
                         self.cursor()
                         .db()
+                        .connManager()
                         .manager()
                         .formatValue(type, util.dateDMAtoAMD(str(editorOp1.text())))
                     )
                     arg4 = (
                         self.cursor()
                         .db()
+                        .connManager()
                         .manager()
                         .formatValue(type, util.dateDMAtoAMD(str(editorOp2.text())))
                     )
@@ -1792,6 +1810,7 @@ class FLTableDB(QtWidgets.QWidget):
                     arg2 = (
                         self.cursor()
                         .db()
+                        .connManager()
                         .manager()
                         .formatValue(type, util.dateDMAtoAMD(str(editorOp1.text())))
                     )
@@ -1803,12 +1822,14 @@ class FLTableDB(QtWidgets.QWidget):
                     arg2 = (
                         self.cursor()
                         .db()
+                        .connManager()
                         .manager()
                         .formatValue(type, editorOp1.time().toString(Qt.ISODate))
                     )
                     arg4 = (
                         self.cursor()
                         .db()
+                        .connManager()
                         .manager()
                         .formatValue(type, editorOp2.time().toString(Qt.ISODate))
                     )
@@ -1817,6 +1838,7 @@ class FLTableDB(QtWidgets.QWidget):
                     arg2 = (
                         self.cursor()
                         .db()
+                        .connManager()
                         .manager()
                         .formatValue(type, editorOp1.time().toString(Qt.ISODate))
                     )
@@ -1826,7 +1848,7 @@ class FLTableDB(QtWidgets.QWidget):
                 checked_ = False
                 if editorOp1.isChecked():
                     checked_ = True
-                arg2 = self.cursor().db().manager().formatValue(type, checked_)
+                arg2 = self.cursor().db().connManager().manager().formatValue(type, checked_)
 
             if where:
                 where += " AND"
@@ -2725,7 +2747,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         if not self.cursor().model():
             return
-        bFilter: Optional[str] = None
+        bFilter: Any = None
         if not self.tableRecords_:
             raise Exception("tableRecords_ is not defined!")
 
@@ -2741,11 +2763,12 @@ class FLTableDB(QtWidgets.QWidget):
         if colidx is None:
             raise Exception("Unexpected: Column not found")
         field = self.cursor().model().metadata().indexFieldObject(colidx)
-        bFilter = self.cursor().db().manager().formatAssignValueLike(field, p, True)
+        bFilter = self.cursor().db().connManager().manager().formatAssignValueLike(field, p, True)
 
         idMod = (
             self.cursor()
             .db()
+            .connManager()
             .managerModules()
             .idModuleOfFile("%s.mtd" % self.cursor().metadata().name())
         )

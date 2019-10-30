@@ -17,7 +17,7 @@ from pineboolib import logging
 from typing import Any, cast, List, Optional, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import iconnection
+    from pineboolib.application.database import pnconnectionmanager
 
 logger = logging.getLogger("mainForm_%s" % __name__)
 
@@ -76,10 +76,10 @@ class MainForm(QtWidgets.QMainWindow):
         self.container_ = self
         self.init()
 
-    def db(self) -> "iconnection.IConnection":
+    def db(self) -> "pnconnectionmanager.PNConnectionManager":
         """Return the dababase connection."""
 
-        return application.project.conn_manager.mainConn()
+        return application.project.conn_manager
 
     def createUi(self, ui_file: str) -> None:
         """Create UI from a file."""

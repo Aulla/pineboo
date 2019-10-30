@@ -373,7 +373,7 @@ class PNSqlQuery(object):
                     pass
 
                 if field == "*" and not table:
-                    mtd = self.db().manager().metadata(table, True)
+                    mtd = self.db().connManager().manager().metadata(table, True)
                     if mtd is not None:
                         self.d._field_list = mtd.fieldNames()
                         if not mtd.inCache():

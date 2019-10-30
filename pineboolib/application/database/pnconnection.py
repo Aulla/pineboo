@@ -111,16 +111,13 @@ class PNConnection(QtCore.QObject, IConnection):
 
         self.driver().db_ = self
 
-    def manager(self):
-        logger.warning("PNConnection.manager() Please fix this call", stack_info=True)
-        return self._conn_manager.manager()
-
-    def dbAux(self):
-        raise Exception("Fixme Please!!")
-
     def connManager(self):
         """Return connection manager."""
         return self._conn_manager
+
+    def database(self) -> "IConnection":
+        """Return self."""
+        return self
 
     def connectionName(self) -> str:
         """Get the current connection name for this cursor."""

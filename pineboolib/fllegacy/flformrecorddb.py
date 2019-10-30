@@ -534,6 +534,7 @@ class FLFormRecordDB(FLFormDB):
                 pKN = mtd.primaryKey()
                 pKWhere = (
                     self.cursor_.db()
+                    .connManager()
                     .manager()
                     .formatAssignValue(mtd.field(pKN), self.cursor_.valueBuffer(pKN))
                 )

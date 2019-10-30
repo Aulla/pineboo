@@ -1665,7 +1665,7 @@ class SysType(SysBaseType):
 
         w = None
         a = None
-        conn = application.project._conn
+        conn = application.project._conn_manager
         if conn is None:
             raise Exception("conn is empty!")
 

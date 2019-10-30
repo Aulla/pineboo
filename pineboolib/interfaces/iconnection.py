@@ -2,7 +2,7 @@
 """
 Defines the IConnection class.
 """
-from .imanager import IManager
+
 from .iapicursor import IApiCursor
 
 from typing import Any, List, Dict, Optional, Union, TYPE_CHECKING
@@ -14,23 +14,20 @@ if TYPE_CHECKING:
 class IConnection:
     """Interface for database cursors which are used to emulate FLSqlCursor."""
 
-    db_name: str
-    db_host: Optional[str]
-    db_port: Optional[int]
-    db_userName: Optional[str]
-    db_password: Optional[str]
+    db_name_: str
+    db_host_: Optional[str]
+    db_port_: Optional[int]
+    db_user_name_: Optional[str]
+    db_password_: Optional[str]
     conn: Any  # connection from the actual driver
     connAux: Dict[str, "IConnection"]
     driverSql: Any
     transaction_: int
-    _managerModules = None
-    _manager = None
     currentSavePoint_: Optional[Any]  # Optional["PNSqlSavePoint"]
     stackSavePoints_: List[Any]  # List["PNSqlSavePoint"]
     queueSavePoints_: List[Any]  # List["PNSqlSavePoint"]
     interactiveGUI_: bool
-    driverName_: str
-    _dbAux = None
+    driver_name_: str
     name: str
     _isOpen: bool
     driver_ = None
@@ -56,6 +53,11 @@ class IConnection:
 
         return None
 
+    def database(self) -> Any:
+        """Return self."""
+
+        return None
+
     def session(self) -> Any:
         """
         Sqlalchemy session.
@@ -64,6 +66,11 @@ class IConnection:
         """
 
         return None
+
+    def connManager(self) -> Any:
+        """Return connection manager."""
+
+        return
 
     def engine(self) -> Any:
         """Sqlalchemy connection."""

@@ -156,7 +156,7 @@ class SysBaseType(object):
     @classmethod
     def cleanupMetaData(self, connName: str = "default") -> None:
         """Clean up metadata."""
-        project.conn_manager.useConn(connName).manager().cleanupMetaData()
+        project.conn_manager.manager().cleanupMetaData()
 
     @classmethod
     def nameDriver(self, connName: str = "default") -> Any:
@@ -178,9 +178,9 @@ class SysBaseType(object):
             conn_db = project.conn_manager.useConn(args[0])
             if not conn_db.isOpen():
                 if (
-                    conn_db.driverName_
+                    conn_db.driver_name_
                     and conn_db.driverSql
-                    and conn_db.driverSql.loadDriver(conn_db.driverName_)
+                    and conn_db.driverSql.loadDriver(conn_db.driver_name_)
                 ):
                     main_conn = project.conn_manager.mainConn()
                     conn_db.driver_ = conn_db.driverSql.driver()
@@ -201,8 +201,8 @@ class SysBaseType(object):
             if not conn_db.isOpen():
                 if conn_db.driverSql is None:
                     raise Exception("driverSql not loaded!")
-                conn_db.driverName_ = args[0].lower()
-                if conn_db.driverName_ and conn_db.driverSql.loadDriver(conn_db.driverName_):
+                conn_db.driver_name_ = args[0].lower()
+                if conn_db.driver_name_ and conn_db.driverSql.loadDriver(conn_db.driver_name_):
                     conn_db.conn = conn_db.conectar(args[1], args[4], args[5], args[2], args[3])
 
                     if conn_db.conn is False:

@@ -206,7 +206,7 @@ class FLReportEngine(object):
             mgr = application.project.conn_manager.managerModules()
 
         else:
-            mgr = self.d_.qry_.db().managerModules()
+            mgr = self.d_.qry_.db().connManager().managerModules()
 
         self.rt = mgr.contentCached("%s.kut" % t)
 

@@ -4,13 +4,13 @@ from PyQt5 import QtCore
 
 from pineboolib import application
 
-from typing import Dict, Optional, Union, TYPE_CHECKING
+from typing import Dict, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
     from pineboolib.fllegacy import flmanagermodules
     from . import pnconnection
-from pineboolib.interfaces.iconnection import IConnection
+    from pineboolib.interfaces import iconnection
 
 
 class PNConnectionManager(QtCore.QObject):
@@ -18,7 +18,7 @@ class PNConnectionManager(QtCore.QObject):
 
     _manager: "flmanager.FLManager"
     _manager_modules: "flmanagermodules.FLManagerModules"
-    conn_dict: Dict[str, IConnection] = {}
+    conn_dict: Dict[str, "pnconnection.PNConnection"] = {}
 
     # def __init__(
     #    self,
@@ -48,9 +48,12 @@ class PNConnectionManager(QtCore.QObject):
 
     def mainConn(self) -> "pnconnection.PNConnection":
         """Return main conn."""
-        ret_ = None
+        ret_: "pnconnection.PNConnection"
+
         if "main_conn" in self.conn_dict.keys():
             ret_ = self.conn_dict["main_conn"]
+        else:
+            raise Exception("mainConn is not defined!")
 
         return ret_
 
@@ -67,14 +70,16 @@ class PNConnectionManager(QtCore.QObject):
         self.conn_dict = {}
         del self
 
-    def useConn(self, name_or_conn: Union[str, IConnection] = "default") -> IConnection:
+    def useConn(
+        self, name_or_conn: Union[str, "iconnection.IConnection"] = "default"
+    ) -> "iconnection.IConnection":
         """
         Select another connection which can be not the default one.
 
         Allow you to select a connection.
         """
         name: str
-        if isinstance(name_or_conn, IConnection):
+        if isinstance(name_or_conn, iconnection.IConnection):
             name = name_or_conn.connectionName()
         else:
             name = name_or_conn
@@ -96,7 +101,7 @@ class PNConnectionManager(QtCore.QObject):
 
         return connection_
 
-    def dictDatabases(self) -> Dict[str, IConnection]:
+    def dictDatabases(self) -> Dict[str, "pnconnection.PNConnection"]:
         """Return dict with own database connections."""
 
         dict_ = {}
@@ -126,7 +131,7 @@ class PNConnectionManager(QtCore.QObject):
         del self.conn_dict[name_conn_]
         return True
 
-    def database(self, name: str = "default") -> "IConnection":
+    def database(self, name: str = "default") -> "iconnection.IConnection":
         """Return the connection to a database."""
 
         return self.useConn(name)
@@ -161,12 +166,12 @@ class PNConnectionManager(QtCore.QObject):
 
         return self._manager_modules
 
-    def db(self) -> "IConnection":
+    def db(self) -> "iconnection.IConnection":
         """Return the connection itself."""
 
         return self.useConn("default")
 
-    def dbAux(self) -> "IConnection":
+    def dbAux(self) -> "iconnection.IConnection":
         """
         Return the auxiliary connection to the database.
 

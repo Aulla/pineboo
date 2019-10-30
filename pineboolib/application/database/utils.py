@@ -149,7 +149,7 @@ def _nextCounter_3(serie_: str, name_: str, cursor_: "PNSqlCursor") -> Optional[
     _where: str = "length(%s)=%d AND %s" % (
         name_,
         field.length(),
-        cursor_.db().manager().formatAssignValueLike(name_, "string", serie_, True),
+        cursor_.db().connManager().manager().formatAssignValueLike(name_, "string", serie_, True),
     )
 
     q = PNSqlQuery(None, cursor_.db().connectionName())

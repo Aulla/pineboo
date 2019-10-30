@@ -649,7 +649,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # if qry is None:
         #    return
         if is_query:
-            qry = self.db().manager().query(self.metadata().query())
+            qry = self.db().connManager().manager().query(self.metadata().query())
             if qry is None:
                 raise Exception(" The query %s return empty value" % self.metadata().query())
             qry_select = [x.strip() for x in (qry.select()).split(",")]
@@ -658,7 +658,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             }
 
             for table in qry.tablesList():
-                mtd = self.db().manager().metadata(table, True)
+                mtd = self.db().connManager().manager().metadata(table, True)
                 if mtd:
                     qry_tables.append((table, mtd))
 
@@ -779,7 +779,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             cast(pyqtSignal, self.rowsRemoved).emit(parent, 0, oldrows - 1)
 
         if self.metadata().isQuery():
-            query = self.db().manager().query(self.metadata().query())
+            query = self.db().connManager().manager().query(self.metadata().query())
             if query is None:
                 raise Exception("query is empty!")
             from_ = query.from_()
@@ -928,7 +928,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if mtdfield is None:
             raise Exception("Primary Key %s not found" % pkey_name)
         typePK_ = mtdfield.type()
-        pKValue = self.db().manager().formatValue(typePK_, pKValue, False)
+        pKValue = self.db().connManager().manager().formatValue(typePK_, pKValue, False)
         # if typePK_ == "string" or typePK_ == "pixmap" or typePK_ == "stringlist" or typePK_ == "time" or typePK_ == "date":
         # pKValue = str("'" + pKValue + "'")
 
@@ -944,7 +944,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             # value = str("'" + value + "'")
             if type_ in ("string", "stringlist"):
                 value = self.db().normalizeValue(value)
-            value = self.db().manager().formatValue(type_, value, False)
+            value = self.db().connManager().manager().formatValue(type_, value, False)
 
             # update_set.append("%s = %s" % (key, (self._cursor.mogrify("%s",[value]))))
             update_set.append("%s = %s" % (key, value))
@@ -1056,7 +1056,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 #    pKValue = value
                 if b.type_ in ("string", "stringlist") and isinstance(value, str):
                     value = self.db().normalizeValue(value)
-                value = self.db().manager().formatValue(b.type_, value, False)
+                value = self.db().connManager().manager().formatValue(b.type_, value, False)
                 if not campos:
                     campos = b.name
                     valores = value
@@ -1098,7 +1098,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             raise Exception("PK Field %s not found" % pKName)
         typePK = mtdfield.type()
         tableName = self.metadata().name()
-        val = self.db().manager().formatValue(typePK, self.value(cursor.d._currentregister, pKName))
+        val = (
+            self.db()
+            .connManager()
+            .manager()
+            .formatValue(typePK, self.value(cursor.d._currentregister, pKName))
+        )
         sql = "DELETE FROM %s WHERE %s = %s" % (tableName, pKName, val)
         # conn = self._cursorConn.db()
         try:

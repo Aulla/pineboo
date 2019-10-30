@@ -2622,7 +2622,11 @@ class FLFieldDB(QtWidgets.QWidget):
 
             if field:
                 filter = (
-                    self.cursor().db().manager().formatAssignValueLike(field, self.value(), True)
+                    self.cursor()
+                    .db()
+                    .connManager()
+                    .manager()
+                    .formatAssignValueLike(field, self.value(), True)
                 )
                 self.autoComPopup_.setFilter(filter)
                 self.autoComPopup_.setSort("%s ASC" % self.autoComFieldName_)
@@ -2747,11 +2751,12 @@ class FLFieldDB(QtWidgets.QWidget):
             )
             return
 
-        self.cursor_.db().manager()
+        self.cursor_.db().connManager().manager()
         c = FLSqlCursor(field_relation.foreignTable(), True, self.cursor_.db().connectionName())
         # c = FLSqlCursor(field.relationM1().foreignTable())
         c.select(
             self.cursor_.db()
+            .connManager()
             .manager()
             .formatAssignValue(field_relation.foreignField(), field, v, True)
         )
@@ -2819,7 +2824,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 )
                 return
 
-            mng = self.cursor_.db().manager()
+            mng = self.cursor_.db().connManager().manager()
             c = FLSqlCursor(fmd_relation.foreignTable(), True, self.cursor_.db().connectionName())
             c.select(mng.formatAssignValue(fmd_relation.foreignField(), fMD, v, True))
             if c.size() > 0:
@@ -2845,7 +2850,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
             form_search.setFilter(mng.formatAssignValue(fmd_relation.foreignField(), fMD, v, True))
         else:
-            mng = self.cursor_.db().manager()
+            mng = self.cursor_.db().connManager().manager()
             if not self.actionName_:
                 a = mng.action(field_relation.foreignTable())
                 if not a:
@@ -3177,7 +3182,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
             if field_relation is not None:
                 if not field_relation.foreignTable() == tMD.name():
-                    mng = self.cursor_.db().manager()
+                    mng = self.cursor_.db().connManager().manager()
                     rt = field_relation.foreignTable()
                     fF = self.fieldMapValue_.foreignField()
                     q = FLSqlQuery(None, self.cursor_.db().connectionName())

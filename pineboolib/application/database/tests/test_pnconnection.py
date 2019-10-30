@@ -143,7 +143,7 @@ class TestPNConnection(unittest.TestCase):
 
         conn_manager = application.project.conn_manager
         conn_default = conn_manager.useConn("default")
-        conn_test = conn_manager.useConn("test")
+        conn_manager.useConn("test")
         cursor = pnsqlcursor.PNSqlCursor("flsettings")
         cursor.setAskForCancelChanges(False)
         conn_manager.mainConn().Mr_Proper()

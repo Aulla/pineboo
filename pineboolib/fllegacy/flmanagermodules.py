@@ -548,22 +548,22 @@ class FLManagerModules(object):
             self.activeIdArea_ = im.idArea
             self.activeIdModule_ = id_module
 
-    def activeIdArea(self) -> Optional[str]:
+    def activeIdArea(self) -> str:
         """
         Return the area of ​​the active module.
 
         @return Area identifier
         """
-        return self.activeIdArea_
+        return self.activeIdArea_ or ""
 
-    def activeIdModule(self) -> Optional[str]:
+    def activeIdModule(self) -> str:
         """
         Return the active module.
 
         @return Module identifier
         """
 
-        return self.activeIdModule_
+        return self.activeIdModule_ or ""
 
     def listIdAreas(self) -> List[str]:
         """
@@ -781,7 +781,6 @@ class FLManagerModules(object):
         self.listAllIdModules_ = []
         self.listAllIdModules_.append("sys")
         self.dictInfoMods = {}
-        conn_manager = self.conn_.connManager()
 
         q = PNSqlQuery(None, "dbAux")
         q.setTablesList("flmodules,flareas")

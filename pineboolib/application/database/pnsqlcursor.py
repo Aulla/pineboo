@@ -475,7 +475,7 @@ class PNSqlCursor(QtCore.QObject):
             )
             return
 
-        if not self.db().dbAux():
+        if not self.db().connManager().dbAux():
             return
 
         type = field.type()
@@ -486,29 +486,32 @@ class PNSqlCursor(QtCore.QObject):
         if self.d.cursorRelation_ and self.modeAccess() == self.Browse:
             self.self.d.cursorRelation_.commit(False)
 
-        if pK and self.db().db() is not self.db().dbAux():
+        if pK and self.db() is not self.db().connManager().dbAux():
             pKV = self.d.buffer_.value(pK)
-            self.db().dbAux().transaction()
+            self.db().connManager().dbAux().transaction()
 
             arglist: List[Any] = []
             arglist.append(fN)
             arglist.append(self.d.buffer_.value(fN))
             v = project.call(functionName, arglist, self.context())
 
-            q = PNSqlQuery(None, self.db().dbAux())
+            q = PNSqlQuery(None, "dbAux")
             ret = q.exec_(
                 "UPDATE  %s SET %s = %s WHERE %s"
                 % (
                     self.d.metadata_.name(),
                     fN,
-                    self.db().manager().formatValue(type, v),
-                    self.db().manager().formatAssignValue(self.d.metadata_.field(pK), pKV),
+                    self.db().connManager().manager().formatValue(type, v),
+                    self.db()
+                    .connManager()
+                    .manager()
+                    .formatAssignValue(self.d.metadata_.field(pK), pKV),
                 )
             )
             if ret:
-                self.db().dbAux().commit()
+                self.db().connManager().dbAux().commit()
             else:
-                self.db().dbAux().rollbackTransaction()
+                self.db().connManager().dbAux().rollbackTransaction()
         else:
             logger.warning(
                 "No se puede actualizar el campo de forma atómica, porque no existe clave primaria"
@@ -542,7 +545,7 @@ class PNSqlCursor(QtCore.QObject):
             logger.warning("setValueBuffer(): No existe el campo %s:%s", self.curName(), fN)
             return
         db = self.db()
-        manager = db.manager()
+        manager = db.connManager().manager()
         if manager is None:
             raise Exception("no manager")
 
@@ -573,7 +576,7 @@ class PNSqlCursor(QtCore.QObject):
 
         if (
             field.outTransaction()
-            and db.db() is not db.dbAux()
+            and self.db() is not self.db().connManager().dbAux()
             and self.modeAccess() != self.Insert
         ):
             pK = self.d.metadata_.primaryKey()
@@ -648,7 +651,7 @@ class PNSqlCursor(QtCore.QObject):
         v = None
         if (
             field.outTransaction()
-            and self.db().db() is not self.db().dbAux()
+            and self.db() is not self.db().connManager().dbAux()
             and self.modeAccess() != self.Insert
         ):
             pK = self.d.metadata_.primaryKey()
@@ -662,7 +665,10 @@ class PNSqlCursor(QtCore.QObject):
                 sql_query = "SELECT %s FROM %s WHERE %s" % (
                     fN,
                     self.d.metadata_.name(),
-                    self.db().manager().formatAssignValue(self.d.metadata_.field(pK), pKV),
+                    self.db()
+                    .connManager()
+                    .manager()
+                    .formatAssignValue(self.d.metadata_.field(pK), pKV),
                 )
                 # q.exec_(self.db().dbAux(), sql_query)
                 q.exec_(sql_query)
@@ -686,9 +692,9 @@ class PNSqlCursor(QtCore.QObject):
                 v = Date(v)
             elif type_ == "pixmap":
                 v_large = None
-                if not self.db().manager().isSystemTable(self.table()):
+                if not self.db().connManager().manager().isSystemTable(self.table()):
 
-                    v_large = self.db().manager().fetchLargeValue(v)
+                    v_large = self.db().connManager().manager().fetchLargeValue(v)
 
                 else:
                     from pineboolib.application.utils.xpm import cacheXPM
@@ -707,7 +713,7 @@ class PNSqlCursor(QtCore.QObject):
 
     def fetchLargeValue(self, value: str) -> Any:
         """Retrieve large value from database."""
-        return self.db().manager().fetchLargeValue(value)
+        return self.db().connManager().manager().fetchLargeValue(value)
 
     def valueBufferCopy(self, fN: str) -> Any:
         """
@@ -749,8 +755,8 @@ class PNSqlCursor(QtCore.QObject):
 
             elif type_ == "pixmap":
                 v_large = None
-                if not self.db().manager().isSystemTable(self.table()):
-                    v_large = self.db().manager().fetchLargeValue(v)
+                if not self.db().connManager().manager().isSystemTable(self.table()):
+                    v_large = self.db().connManager().manager().fetchLargeValue(v)
                 else:
                     v_large = cacheXPM(v)
 
@@ -940,7 +946,7 @@ class PNSqlCursor(QtCore.QObject):
         @param  lock Actualmente no se usa y no tiene ningún efecto. Se mantiene por compatibilidad hacia atrás
         @return TRUE si la operación tuvo exito
         """
-        if not self.db() and not self.db().db():
+        if not self.db():
             logger.warning("transaction(): No hay conexión con la base de datos")
             return False
 
@@ -952,7 +958,7 @@ class PNSqlCursor(QtCore.QObject):
 
         @return TRUE if success.
         """
-        if not self.db() and not self.db().db():
+        if not self.db():
             logger.warning("rollback(): No hay conexión con la base de datos")
             return False
 
@@ -966,7 +972,7 @@ class PNSqlCursor(QtCore.QObject):
               If FALSE skips and emits autoCommit signal.
         @return TRUE if success.
         """
-        if not self.db() and not self.db().db():
+        if not self.db():
             logger.warning("commit(): No hay conexión con la base de datos")
             return False
 
@@ -1196,7 +1202,12 @@ class PNSqlCursor(QtCore.QObject):
                     r = field.relationM1()
                     if not r.checkIn():
                         continue
-                    tMD = self.db().manager().metadata(field.relationM1().foreignTable())
+                    tMD = (
+                        self.db()
+                        .connManager()
+                        .manager()
+                        .metadata(field.relationM1().foreignTable())
+                    )
                     if not tMD:
                         continue
                     fmdName = fMD.name()
@@ -1208,9 +1219,11 @@ class PNSqlCursor(QtCore.QObject):
                     if ss:
                         filter = "%s AND %s" % (
                             self.db()
+                            .connManager()
                             .manager()
                             .formatAssignValue(field.associatedFieldFilterTo(), fMD, ss, True),
                             self.db()
+                            .connManager()
                             .manager()
                             .formatAssignValue(field.relationM1().foreignField(), field, s, True),
                         )
@@ -1278,9 +1291,12 @@ class PNSqlCursor(QtCore.QObject):
                         q.setWhere(
                             "%s AND %s <> %s"
                             % (
-                                self.db().manager().formatAssignValue(field, s, True),
+                                self.db().connManager().manager().formatAssignValue(field, s, True),
                                 self.d.metadata_.primaryKey(self.d.isQuery_),
-                                self.db().manager().formatValue(field_mtd.type(), pKV),
+                                self.db()
+                                .connManager()
+                                .manager()
+                                .formatValue(field_mtd.type(), pKV),
                             )
                         )
                         q.setForwardOnly(True)
@@ -1301,7 +1317,7 @@ class PNSqlCursor(QtCore.QObject):
                     q.setTablesList(self.d.metadata_.name())
                     q.setSelect(fiName)
                     q.setFrom(self.d.metadata_.name())
-                    q.setWhere(self.db().manager().formatAssignValue(field, s, True))
+                    q.setWhere(self.db().connManager().manager().formatAssignValue(field, s, True))
                     q.setForwardOnly(True)
                     q.exec_()
                     if q.next():
@@ -1321,7 +1337,7 @@ class PNSqlCursor(QtCore.QObject):
                         and not field.relationM1().foreignTable() == self.d.metadata_.name()
                     ):
                         r = field.relationM1()
-                        tMD = self.db().manager().metadata(r.foreignTable())
+                        tMD = self.db().connManager().manager().metadata(r.foreignTable())
                         if not tMD:
                             continue
                         q = PNSqlQuery(None, self.db().connectionName())
@@ -1329,7 +1345,10 @@ class PNSqlCursor(QtCore.QObject):
                         q.setSelect(r.foreignField())
                         q.setFrom(tMD.name())
                         q.setWhere(
-                            self.db().manager().formatAssignValue(r.foreignField(), field, s, True)
+                            self.db()
+                            .connManager()
+                            .manager()
+                            .formatAssignValue(r.foreignField(), field, s, True)
                         )
                         q.setForwardOnly(True)
                         logger.debug(
@@ -1360,11 +1379,19 @@ class PNSqlCursor(QtCore.QObject):
                         for fieldCK in fieldListCK:
                             sCK = self.d.buffer_.value(fieldCK.name())
                             if filterCK is None:
-                                filterCK = self.db().manager().formatAssignValue(fieldCK, sCK, True)
+                                filterCK = (
+                                    self.db()
+                                    .connManager()
+                                    .manager()
+                                    .formatAssignValue(fieldCK, sCK, True)
+                                )
                             else:
                                 filterCK = "%s AND %s" % (
                                     filterCK,
-                                    self.db().manager().formatAssignValue(fieldCK, sCK, True),
+                                    self.db()
+                                    .connManager()
+                                    .manager()
+                                    .formatAssignValue(fieldCK, sCK, True),
                                 )
                             if field_1 is None:
                                 field_1 = fieldCK.alias()
@@ -1417,7 +1444,7 @@ class PNSqlCursor(QtCore.QObject):
                     for r in relationList:
                         if not r.checkIn():
                             continue
-                        mtd = self.db().manager().metadata(r.foreignTable())
+                        mtd = self.db().connManager().manager().metadata(r.foreignTable())
                         if not mtd:
                             continue
                         f = mtd.field(r.foreignField())
@@ -1457,7 +1484,10 @@ class PNSqlCursor(QtCore.QObject):
                         q.setSelect(r.foreignField())
                         q.setFrom(mtd.name())
                         q.setWhere(
-                            self.db().manager().formatAssignValue(r.foreignField(), field, s, True)
+                            self.db()
+                            .connManager()
+                            .manager()
+                            .formatAssignValue(r.foreignField(), field, s, True)
                         )
                         q.setForwardOnly(True)
                         q.exec_()
@@ -1774,7 +1804,7 @@ class PNSqlCursor(QtCore.QObject):
             rel_m1 = field.relationM1()
             if rel_m1 is None:
                 raise Exception("relation is empty!")
-            tableMD = self.db().manager().metadata(rel_m1.foreignTable())
+            tableMD = self.db().connManager().manager().metadata(rel_m1.foreignTable())
 
         if not tableMD:
             return None
@@ -1799,7 +1829,7 @@ class PNSqlCursor(QtCore.QObject):
         if vv:
             # if ownTMD and not tableMD.inCache():
             # del tableMD
-            return self.db().manager().formatAssignValue(fieldBy, fieldAc, vv, True)
+            return self.db().connManager().manager().formatAssignValue(fieldBy, fieldAc, vv, True)
 
         # if ownTMD and not tableMD.inCache():
         # del rableMD
@@ -2763,7 +2793,12 @@ class PNSqlCursor(QtCore.QObject):
         functionAfter = None
         model_module: Any = None
 
-        idMod = self.db().managerModules().idModuleOfFile("%s.mtd" % self.d.metadata_.name())
+        idMod = (
+            self.db()
+            .connManager()
+            .managerModules()
+            .idModuleOfFile("%s.mtd" % self.d.metadata_.name())
+        )
 
         # FIXME: module_script is FLFormDB
         module_script: QDialog = project.actions[
@@ -2912,6 +2947,7 @@ class PNSqlCursor(QtCore.QObject):
                             c.setForwardOnly(True)
                             c.select(
                                 self.conn()
+                                .connManager()
                                 .manager()
                                 .formatAssignValue(r.foreignField(), f, s, True)
                             )
