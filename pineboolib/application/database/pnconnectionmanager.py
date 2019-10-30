@@ -5,7 +5,7 @@ from PyQt5 import QtCore
 from pineboolib import application
 from pineboolib.interfaces import iconnection
 
-from typing import Dict, Union, Optional, TYPE_CHECKING
+from typing import Dict, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
@@ -21,6 +21,8 @@ class PNConnectionManager(QtCore.QObject):
     conn_dict: Dict[str, "pnconnection.PNConnection"] = {}
 
     def __init__(self):
+        """Initialize."""
+
         super().__init__()
         self.conn_dict = {}
 
