@@ -101,9 +101,12 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         import sqlite3
 
-        main_conn = application.project.conn_manager.mainConn()
+        main_conn = None
+        if "main_conn" in application.project.conn_manager.conn_dict.keys():
+            main_conn = application.project.conn_manager.mainConn()
         if main_conn is not None:
             if self.db_filename == main_conn.driver().db_filename and main_conn.conn:
+
                 self.conn_ = main_conn.conn
 
         if self.conn_ is None:
@@ -998,7 +1001,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if self.db_ is None:
             raise Exception("MR_Proper. self.db_ is None")
 
-        self.db_.dbAux().transaction()
+        self.db_.connManager().dbAux().transaction()
         rx = QRegExp("^.*[\\d][\\d][\\d][\\d].[\\d][\\d].*[\\d][\\d]$")
         rx2 = QRegExp("^.*alteredtable[\\d][\\d][\\d][\\d].*$")
         qry = PNSqlQuery(None, "dbAux")

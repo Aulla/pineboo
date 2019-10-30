@@ -1416,11 +1416,11 @@ class FLManager(QtCore.QObject, IManager):
                     return False
                 else:
                     docElem = doc.documentElement()
-
                     mtd = self.createTable(self.metadata(docElem, True))
                     if mtd:
                         return True
                     else:
+
                         return False
                 # FIXME: f.close() is closing an unknown object. it is a file?
                 # ... also, close, but we have return inside the loop.
@@ -1602,7 +1602,7 @@ class FLManager(QtCore.QObject, IManager):
                     largeValue,
                     refKey,
                 )
-                if not util.execSql(sql, "Aux"):
+                if not util.execSql(sql, "dbAux"):
                     logger.warning(
                         "FLManager::ERROR:StoreLargeValue.Update %s.%s", tableLarge, refKey
                     )
@@ -1613,7 +1613,7 @@ class FLManager(QtCore.QObject, IManager):
                 largeValue,
                 refKey,
             )
-            if not util.execSql(sql, "Aux"):
+            if not util.execSql(sql, "dbAux"):
                 logger.warning("FLManager::ERROR:StoreLargeValue.Insert %s.%s", tableLarge, refKey)
                 return None
 
@@ -1638,7 +1638,7 @@ class FLManager(QtCore.QObject, IManager):
         if not self.existsTable(tableName):
             return None
 
-        q = PNSqlQuery(None, "Aux")
+        q = PNSqlQuery(None, "dbAux")
         q.setSelect("contenido")
         q.setFrom(tableName)
         q.setWhere(" refkey = '%s'" % refKey)

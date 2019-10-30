@@ -227,13 +227,13 @@ def init_testing() -> None:
     """Initialize Pineboo for testing purposes."""
     config.set_value("application/dbadmin_enabled", True)
 
-    if "main_conn" in project._conn_manager.conn_dict.keys():
-        # Assume already initialized, return without doing anything
-        # Tests may call this several times, so we have to take it into account.
-        pass
+    if project._DGI is not None:
+        from pineboolib.application.database import pnconnectionmanager
+
+        del project._conn_manager
+        project._conn_manager = pnconnectionmanager.PNConnectionManager()
 
     else:
-
         qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
 
         init_logging()  # NOTE: Use pytest --log-level=0 for debug

@@ -49,7 +49,7 @@ class Kut2FPDF(object):
     increase_section_size: int
     last_detail: bool
     actual_data_level: int
-    last_data_processed: Element
+    last_data_processed: Optional[Element]
     prev_level: int
     draws_at_header: Dict[str, str]
     detailn: Dict[str, int]
@@ -69,6 +69,7 @@ class Kut2FPDF(object):
         self._unavalible_fonts = []
         self.design_mode = config.value("ebcomportamiento/kugar_debug_mode", False)
         self._actual_data_line = None
+        self.last_data_processed = None
         self._no_print_footer = False
         self.increase_section_size = 0
         self.actual_data_level = 0

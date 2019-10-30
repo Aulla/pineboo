@@ -47,15 +47,29 @@ class PNConnectionManager(QtCore.QObject):
                 del conn_
                 del self.conn_dict["main_conn"]
 
+        if not main_conn.isOpen():
+            if main_conn.driver_name_ and main_conn.driverSql.loadDriver(main_conn.driver_name_):
+                main_conn.conn = main_conn.conectar(
+                    main_conn.db_name_,
+                    main_conn.db_host_,
+                    main_conn.db_port_,
+                    main_conn.db_user_name_,
+                    main_conn.db_password_,
+                )
+                main_conn._isOpen = True
+
+        main_conn.name = "main_conn"
         self.conn_dict["main_conn"] = main_conn
         return True
 
-    def mainConn(self) -> Optional["pnconnection.PNConnection"]:
+    def mainConn(self) -> "pnconnection.PNConnection":
         """Return main conn."""
-        ret_: Optional["pnconnection.PNConnection"] = None
+        ret_: "pnconnection.PNConnection"
 
         if "main_conn" in self.conn_dict.keys():
             ret_ = self.conn_dict["main_conn"]
+        else:
+            raise Exception("main_conn is empty!")
 
         return ret_
 
@@ -72,10 +86,11 @@ class PNConnectionManager(QtCore.QObject):
             #        continue
 
             conn_.close()
-
             del self.conn_dict[n]
 
         self.conn_dict = {}
+        del self._manager
+        del self._manager_modules
         del self
 
     def useConn(
@@ -108,6 +123,20 @@ class PNConnectionManager(QtCore.QObject):
                 raise Exception("main_conn is empty!!")
             connection_ = pnconnection.PNConnection(main_conn.db_name_)
             connection_.name = name
+
+            if name in ["default", "dbAux"]:  # Las abrimos automáticamene!
+                if connection_.driver_name_ and connection_.driverSql.loadDriver(
+                    connection_.driver_name_
+                ):
+                    connection_.conn = connection_.conectar(
+                        connection_.db_name_,
+                        connection_.db_host_,
+                        connection_.db_port_,
+                        connection_.db_user_name_,
+                        connection_.db_password_,
+                    )
+                    connection_._isOpen = True
+
             self.conn_dict[name_conn_] = connection_
 
         return connection_

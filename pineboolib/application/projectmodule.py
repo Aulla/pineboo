@@ -33,7 +33,7 @@ class Project(object):
     Can be accessed with pineboolib.project from anywhere.
     """
 
-    _conn_manager: Optional["pnconnectionmanager.PNConnectionManager"]
+    _conn_manager: "pnconnectionmanager.PNConnectionManager"
     logger = logging.getLogger("main.Project")
     _app: Optional[QtCore.QCoreApplication] = None
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
@@ -73,7 +73,6 @@ class Project(object):
         self.tables: Dict[Any, Any] = {}  # FIXME: Add proper type
         self.files: Dict[Any, Any] = {}  # FIXME: Add proper type
         self.options = Values()
-        self._conn_manager = None
         if self.tmpdir is None:
             self.tmpdir = filedir("%s/Pineboo/tempdata" % Path.home())
             config.set_value("ebcomportamiento/temp_dir", self.tmpdir)

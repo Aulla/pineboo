@@ -98,10 +98,10 @@ class PNConnection(QtCore.QObject, IConnection):
         self._last_active_cursor = None
 
         self._isOpen = False
-        if self.driver_name_ and self.driverSql.loadDriver(self.driver_name_):
-            self.conn = self.conectar(db_name, db_host, db_port, db_user_name, db_password)
-            if self.conn is False:
-                return
+        # if self.driver_name_ and self.driverSql.loadDriver(self.driver_name_):
+        #    self.conn = self.conectar(db_name, db_host, db_port, db_user_name, db_password)
+        #    if self.conn is False:
+        #        return
 
         # else:
         #    logger.error("PNConnection.ERROR: No se encontro el driver '%s'", driverAlias)
@@ -115,6 +115,11 @@ class PNConnection(QtCore.QObject, IConnection):
 
     def database(self) -> "IConnection":
         """Return self."""
+        return self
+
+    def db(self) -> "IConnection":
+        """Return self."""
+
         return self
 
     def connectionName(self) -> str:

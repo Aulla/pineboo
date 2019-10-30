@@ -101,7 +101,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.container_.setObjectName("container")
         self.container_.setWindowIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("pineboo.png")))
         if self.db() is not None:
-            self.container_.setWindowTitle(self.db().DBName())
+            self.container_.setWindowTitle(self.db().mainConn().DBName())
         else:
             self.container_.setWindowTitle("Pineboo %s" % application.project.version)
 
@@ -1000,7 +1000,7 @@ class MainForm(QtWidgets.QMainWindow):
                 QtWidgets.QApplication.setActiveWindow(self.container_)
 
             if self.db() is not None:
-                self.container_.setWindowTitle(self.db().DBName())
+                self.container_.setWindowTitle(self.db().mainConn().DBName())
             else:
                 self.container_.setWindowTitle("Pineboo %s" % application.project.version)
 

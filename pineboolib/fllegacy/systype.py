@@ -1638,7 +1638,7 @@ class SysType(SysBaseType):
     def interactiveGUI(self):
         """Return interactiveGUI."""
 
-        return flapplication.aqApp.db().interactiveGUI()
+        return flapplication.aqApp.db().mainConn().interactiveGUI()
 
     @classmethod
     def getWidgetList(self, container: str, control_name: str) -> str:

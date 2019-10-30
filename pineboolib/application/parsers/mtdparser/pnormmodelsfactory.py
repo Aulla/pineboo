@@ -159,8 +159,8 @@ def empty_base():
         raise Exception("Project is not connected yet")
 
     # FIXME: Not a good idea to delete from other module
-    del project.conn_manager.driver().declarative_base_
-    project.conn_manager.driver().declarative_base_ = None
+    del project.conn_manager.mainConn().driver().declarative_base_
+    project.conn_manager.mainConn().driver().declarative_base_ = None
 
 
 def load_models() -> None:
