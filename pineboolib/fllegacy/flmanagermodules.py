@@ -403,7 +403,7 @@ class FLManagerModules(object):
 
         form_path = file_name if os.path.exists(file_name) else _path(file_name)
 
-        if flapplication.aqApp.db().mainConn() is not None:
+        if "main_conn" in flapplication.aqApp.db().conn_dict.keys():
             mng_modules = flapplication.aqApp.db().managerModules()
             if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
                 ret_ui = mng_modules.contentStatic(file_name, True)

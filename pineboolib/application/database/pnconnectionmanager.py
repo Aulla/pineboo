@@ -1,7 +1,7 @@
 """PNConnection_manager module."""
 from PyQt5 import QtCore
 
-
+from pineboolib.core.utils import logging
 from pineboolib import application
 from pineboolib.interfaces import iconnection
 
@@ -11,6 +11,8 @@ if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
     from pineboolib.fllegacy import flmanagermodules
     from . import pnconnection
+
+logger = logging.getLogger(__name__)
 
 
 class PNConnectionManager(QtCore.QObject):
@@ -49,16 +51,15 @@ class PNConnectionManager(QtCore.QObject):
                 del conn_
                 del self.conn_dict["main_conn"]
 
-        if not main_conn.isOpen():
-            if main_conn.driver_name_ and main_conn.driverSql.loadDriver(main_conn.driver_name_):
-                main_conn.conn = main_conn.conectar(
-                    main_conn.db_name_,
-                    main_conn.db_host_,
-                    main_conn.db_port_,
-                    main_conn.db_user_name_,
-                    main_conn.db_password_,
-                )
-                main_conn._isOpen = True
+        if main_conn.driver_name_ and main_conn.driverSql.loadDriver(main_conn.driver_name_):
+            main_conn.conn = main_conn.conectar(
+                main_conn.db_name_,
+                main_conn.db_host_,
+                main_conn.db_port_,
+                main_conn.db_user_name_,
+                main_conn.db_password_,
+            )
+            main_conn._isOpen = True
 
         main_conn.name = "main_conn"
         self.conn_dict["main_conn"] = main_conn
@@ -138,6 +139,9 @@ class PNConnectionManager(QtCore.QObject):
                         connection_.db_password_,
                     )
                     connection_._isOpen = True
+
+            if connection_.conn is None:
+                logger.warning("EOO", stack_info=True)
 
             self.conn_dict[name_conn_] = connection_
 
@@ -220,3 +224,7 @@ class PNConnectionManager(QtCore.QObject):
         This connection is useful for out of transaction operations.
         """
         return self.useConn("dbAux")
+
+    def __getattr__(self, name):
+        """Return attributer from main_conn pnconnection."""
+        return getattr(self.mainConn(), name, None)

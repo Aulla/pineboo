@@ -443,7 +443,7 @@ class FLManager(QtCore.QObject, IManager):
         # )
         from pineboolib.application.database.pnsqlquery import PNSqlQuery
 
-        q = PNSqlQuery("", self.db_.connectionName())
+        q = PNSqlQuery()
         q.setName(name)
         root_ = etree.ElementTree.fromstring(qry_)
         elem_select = root_.find("select")

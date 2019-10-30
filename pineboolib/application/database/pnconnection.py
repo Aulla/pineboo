@@ -180,7 +180,7 @@ class PNConnection(QtCore.QObject, IConnection):
     def cursor(self) -> "IApiCursor":
         """Return a cursor to the database."""
         if self.conn is None:
-            raise Exception("cursor. Empty conn!!")
+            raise Exception("cursor. Empty conn!! in %s", self.connectionName())
         return self.conn.cursor()
 
     def conectar(
