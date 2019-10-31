@@ -350,9 +350,13 @@ class SqlInspector(object):
         elif type_ in ("unlock", "bool"):
             ret_ = False
         elif type_ == "date":
-            from pineboolib.application import types
+            if mtd.allowNull():
+                ret_ = ""
+            else:
+                from pineboolib.application import types
 
-            ret_ = types.Date()
+                ret_ = types.Date()
+
         elif type_ == "time":
             ret_ = "00:00:00"
         elif type_ == "bytearray":

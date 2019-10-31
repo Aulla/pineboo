@@ -206,6 +206,25 @@ class TestKnownBugs(unittest.TestCase):
 
         self.assertTrue(hasattr(qsa.from_project("sys"), "iface"))
 
+    def test_flsqlquery_date_null(self) -> None:
+        """Test FLSqlQuery date null."""
+
+        from pineboolib.qsa import qsa
+
+        cursor = qsa.FLSqlCursor("fltest")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())
+
+        qry = qsa.FLSqlQuery()
+        qry.setTablesList("fltest")
+        qry.setSelect("date_field")
+        qry.setFrom("fltest")
+        qry.setWhere("1=1 LIMIT 1")
+        self.assertTrue(qry.exec_())
+        self.assertTrue(qry.first())
+        self.assertEqual(str(qry.value(0)), "")
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
