@@ -219,11 +219,12 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         q.setWhere("1 = 1")
         if not q.exec_():  # FIXME: exec es palabra reservada
             self.logger.warning("not exec sequence")
-            return None
-        if q.first() and q.value(0) is not None:
-            return int(q.value(0)) + 1
-        else:
-            return None
+        elif q.first():
+            old_value = q.value(0)
+            if old_value is not None:
+                return int(old_value) + 1
+
+        return None
 
     def savePoint(self, n: int) -> bool:
         """Set a savepoint."""

@@ -258,8 +258,11 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         if not q.exec_():
             logger.warning("not exec sequence")
             return None
-        if q.first() and q.value(0) is not None:
-            max = q.value(0)
+        elif q.first():
+            v = q.value(0)
+            if v is not None:
+                max = v
+
         if not self.conn_:
             raise Exception("must be connected")
         cursor = self.conn_.cursor()

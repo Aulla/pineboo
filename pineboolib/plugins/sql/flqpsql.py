@@ -243,11 +243,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         q.setWhere("")
         if not q.exec_():
             qWarning("not exec sequence")
-            return None
-        if q.first():
+        elif q.first():
             return q.value(0)
-        else:
-            return None
+
+        return None
 
     def savePoint(self, n: int) -> bool:
         """Set a savepoint."""
