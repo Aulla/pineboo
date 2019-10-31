@@ -345,18 +345,10 @@ class SqlInspector(object):
         ret_: Any = None
         if type_ in ("double", "int", "uint", "serial"):
             ret_ = 0
-        elif type_ in ("string", "stringlist", "pixmap"):
+        elif type_ in ("string", "stringlist", "pixmap", "date"):
             ret_ = ""
         elif type_ in ("unlock", "bool"):
             ret_ = False
-        elif type_ == "date":
-            if mtd.allowNull():
-                ret_ = ""
-            else:
-                from pineboolib.application import types
-
-                ret_ = types.Date()
-
         elif type_ == "time":
             ret_ = "00:00:00"
         elif type_ == "bytearray":
