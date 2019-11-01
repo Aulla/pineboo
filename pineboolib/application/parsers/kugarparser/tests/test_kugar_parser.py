@@ -109,11 +109,14 @@ class TestParser(unittest.TestCase):
         cur = pnsqlcursor.PNSqlCursor("paises")
         cur.select("1=1")
         cur.first()
-        bandera = cur.buffer().value("bandera")
-        self.assertEqual(
-            parser_tools.parseKey(bandera),
-            os.path.abspath("%s/%s.png" % (application.project.tmpdir, bandera)),
-        )
+        buffer = cur.buffer()
+        if buffer:
+            bandera = buffer.value("bandera")
+
+            self.assertEqual(
+                parser_tools.parseKey(str(bandera)),
+                os.path.abspath("%s/%s.png" % (application.project.tmpdir, bandera)),
+            )
 
     @classmethod
     def tearDownClass(cls) -> None:
