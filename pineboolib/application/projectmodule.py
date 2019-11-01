@@ -351,11 +351,7 @@ class Project(object):
                     f2.write(txt)
                     f2.close()
 
-            if (
-                self.parseProject
-                and nombre.endswith(".qs")
-                and config.value("application/parseProject", False)
-            ):
+            if self.parseProject and nombre.endswith(".qs"):
                 if os.path.exists(file_name):
                     list_files.append(file_name)
                     # self.parseScript(file_name, "(%d de %d)" % (p, size_))
