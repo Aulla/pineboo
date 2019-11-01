@@ -146,7 +146,7 @@ class KParserTools(object):
 
         return ret_
 
-    def parseKey(self, ref_key: str = None) -> Optional[str]:
+    def parseKey(self, ref_key: Optional[str] = None) -> Optional[str]:
         """
         Get filename of .png file cached on tempdata. If it does not exist it is created.
 
