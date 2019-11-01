@@ -7,7 +7,7 @@ import sys
 
 
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtXml import QDomDocument
+from PyQt5 import QtXml
 from PyQt5.QtCore import QFile, QTextStream
 from PyQt5.QtCore import Qt, QDir, pyqtSignal
 from PyQt5.QtWidgets import QFileDialog, QApplication, QGroupBox, QCheckBox
@@ -25,8 +25,8 @@ from pineboolib.application.types import Array, Date, File, Dir, FileStatic
 from pineboolib.application.packager.aqunpacker import AQUnpacker
 from pineboolib.application import connections
 from pineboolib.application.qsatypes.sysbasetype import SysBaseType
-from pineboolib.application.database.pnsqlcursor import PNSqlCursor
-from pineboolib.application.database.pnsqlquery import PNSqlQuery
+from pineboolib.application.database import pnsqlcursor
+from pineboolib.application.database import pnsqlquery
 from pineboolib.application.database.utils import sqlSelect
 from pineboolib.application.process import Process
 
@@ -95,6 +95,11 @@ class SysType(SysBaseType):
         """Show a file dialog and return a file name."""
 
         return flapplication.aqApp.dialogGetFileImage()
+
+    def toXmlReportData(self, qry: "pnsqlquery.PNSqlQuery") -> "QtXml.QDomDocument":
+        """Return xml from a query."""
+
+        return flapplication.aqApp.toXmlReportData(qry)
 
     def showDocPage(self, url_: str) -> None:
         """Show externa file."""
@@ -196,7 +201,7 @@ class SysType(SysBaseType):
         aqDumper.init()
 
     @staticmethod
-    def terminateChecksLocks(sqlCursor: "PNSqlCursor" = None) -> None:
+    def terminateChecksLocks(sqlCursor: "pnsqlcursor.PNSqlCursor" = None) -> None:
         """Set check risk locks to False in a cursor."""
         if sqlCursor is not None:
             sqlCursor.checkRisksLocks(True)
@@ -297,14 +302,14 @@ class SysType(SysBaseType):
         diag.exec_()
 
     @classmethod
-    def mvProjectXml(self) -> QDomDocument:
+    def mvProjectXml(self) -> QtXml.QDomDocument:
         """Extract a module defition to a QDomDocument."""
 
-        docRet = QDomDocument()
+        docRet = QtXml.QDomDocument()
         strXml = sqlSelect(u"flupdates", u"modulesdef", u"actual='true'")
         if not strXml:
             return docRet
-        doc = QDomDocument()
+        doc = QtXml.QDomDocument()
         if not doc.setContent(strXml):
             return docRet
         strXml = u""
@@ -398,7 +403,7 @@ class SysType(SysBaseType):
         """Return sha global value."""
 
         v = ""
-        qry = PNSqlQuery()
+        qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"sha")
         qry.setFrom(u"flfiles")
         if qry.exec_() and qry.first():
@@ -504,13 +509,13 @@ class SysType(SysBaseType):
         return False if (diag.exec_() == 0) else True
 
     @classmethod
-    def xmlFilesDefBd(self) -> QDomDocument:
+    def xmlFilesDefBd(self) -> QtXml.QDomDocument:
         """Return a QDomDocument with files definition."""
 
-        doc = QDomDocument(u"files_def")
+        doc = QtXml.QDomDocument(u"files_def")
         root = doc.createElement(u"files")
         doc.appendChild(root)
-        qry = PNSqlQuery()
+        qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"idmodulo,nombre,contenido")
         qry.setFrom(u"flfiles")
         if not qry.exec_():
@@ -574,7 +579,7 @@ class SysType(SysBaseType):
             #    e = traceback.format_exc()
             #    logger.error(e)
 
-        qry = PNSqlQuery()
+        qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"idmodulo,icono")
         qry.setFrom(u"flmodules")
         if qry.exec_():
@@ -714,7 +719,7 @@ class SysType(SysBaseType):
         """Load files definition from a package to a QDomDocument."""
 
         filesDef = self.toUnicode(un.getText(), u"utf8")
-        doc = QDomDocument()
+        doc = QtXml.QDomDocument()
         if not doc.setContent(filesDef):
             self.errorMsgBox(
                 self.translate(u"Error XML al intentar cargar la definición de los ficheros.")
@@ -769,7 +774,7 @@ class SysType(SysBaseType):
         """Register a file in the database."""
 
         if fil["id"].endswith(u".xpm"):
-            cur = PNSqlCursor(u"flmodules")
+            cur = pnsqlcursor.PNSqlCursor(u"flmodules")
             if not cur.select(ustr(u"idmodulo='", fil["module"], u"'")):
                 return False
             if not cur.first():
@@ -779,7 +784,7 @@ class SysType(SysBaseType):
             cur.setValueBuffer(u"icono", un.getText())
             return cur.commitBuffer()
 
-        cur = PNSqlCursor(u"flfiles")
+        cur = pnsqlcursor.PNSqlCursor(u"flfiles")
         if not cur.select(ustr(u"nombre='", fil["id"], u"'")):
             return False
         cur.setModeAccess((AQSql.Edit if cur.first() else AQSql.Insert))
@@ -836,7 +841,7 @@ class SysType(SysBaseType):
         """Return QDomDocument with modules definition."""
 
         modulesDef = self.toUnicode(un.getText(), u"utf8")
-        doc = QDomDocument()
+        doc = QtXml.QDomDocument()
         if not doc.setContent(modulesDef):
             self.errorMsgBox(
                 self.translate(u"Error XML al intentar cargar la definición de los módulos.")
@@ -885,7 +890,7 @@ class SysType(SysBaseType):
     @classmethod
     def registerArea(self, mod: Dict[str, Any]) -> bool:
         """Return True if the area is created or False."""
-        cur = PNSqlCursor(u"flareas")
+        cur = pnsqlcursor.PNSqlCursor(u"flareas")
         if not cur.select(ustr(u"idarea='", mod["area"], u"'")):
             return False
         cur.setModeAccess((AQSql.Edit if cur.first() else AQSql.Insert))
@@ -898,7 +903,7 @@ class SysType(SysBaseType):
     def registerModule(self, mod: Dict[str, Any]) -> bool:
         """Return True if the module is created or False."""
 
-        cur = PNSqlCursor(u"flmodules")
+        cur = pnsqlcursor.PNSqlCursor(u"flmodules")
         if not cur.select(ustr(u"idmodulo='", mod["id"], u"'")):
             return False
         cur.setModeAccess((AQSql.Edit if cur.first() else AQSql.Insert))
@@ -999,7 +1004,7 @@ class SysType(SysBaseType):
             )
             return
 
-        qry = PNSqlQuery()
+        qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"idmodulo")
         qry.setFrom(u"flmodules")
         if not qry.exec_() or qry.size() == 0:
@@ -1025,7 +1030,7 @@ class SysType(SysBaseType):
         if not dbProName:
             dbProName = u""
         if not dbProName == "":
-            doc = QDomDocument()
+            doc = QtXml.QDomDocument()
             tag = doc.createElement(u"mvproject")
             tag.toElement().setAttribute(u"name", dbProName)
             doc.appendChild(tag)
@@ -1041,13 +1046,13 @@ class SysType(SysBaseType):
         self.infoMsgBox(self.translate(u"Módulos exportados en:\n") + dirBasePath)
 
     @classmethod
-    def xmlModule(self, idMod: str) -> QDomDocument:
+    def xmlModule(self, idMod: str) -> QtXml.QDomDocument:
         """Return xml data from a module."""
-        qry = PNSqlQuery()
+        qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"descripcion,idarea,version")
         qry.setFrom(u"flmodules")
         qry.setWhere(ustr(u"idmodulo='", idMod, u"'"))
-        doc = QDomDocument(u"MODULE")
+        doc = QtXml.QDomDocument(u"MODULE")
         if not qry.exec_() or not qry.next():
             return doc
 
@@ -1138,7 +1143,7 @@ class SysType(SysBaseType):
         self.fileWriteIso(ustr(dirPath, u"/", idMod, u".mod"), xmlMod.toString(2))
         xpmMod = sqlSelect(u"flmodules", u"icono", ustr(u"idmodulo='", idMod, u"'"))
         self.fileWriteIso(ustr(dirPath, u"/", idMod, u".xpm"), xpmMod)
-        qry = PNSqlQuery()
+        qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"nombre,contenido")
         qry.setFrom(u"flfiles")
         qry.setWhere(ustr(u"idmodulo='", idMod, u"'"))
@@ -1320,7 +1325,7 @@ class SysType(SysBaseType):
             return False
         mod_folder = os.path.dirname(modPath)
         mod = None
-        xmlMod = QDomDocument()
+        xmlMod = QtXml.QDomDocument()
         if xmlMod.setContent(contentMod):
             nodeMod = xmlMod.namedItem(u"MODULE")
             if not nodeMod:
@@ -1419,7 +1424,7 @@ class SysType(SysBaseType):
             and not name.endswith(u".svg")
         ) or name.endswith(u"untranslated.ts"):
             return ok
-        cur = PNSqlCursor(u"flfiles")
+        cur = pnsqlcursor.PNSqlCursor(u"flfiles")
         cur.select(ustr(u"nombre = '", name, u"'"))
         if not cur.first():
             if name.endswith(u".ar"):
@@ -1624,7 +1629,7 @@ class SysType(SysBaseType):
         strXmlUpt = sqlSelect("flupdates", "filesdef", "actual='true'")
         if not strXmlUpt:
             return ret
-        docUpt = QDomDocument()
+        docUpt = QtXml.QDomDocument()
         if not docUpt.setContent(strXmlUpt):
             self.errorMsgBox(
                 self.translate(u"Error XML al intentar cargar la definición de los ficheros.")
@@ -2083,7 +2088,7 @@ class AbanQDbDumper(QtCore.QObject):
             return False
         ts = QTextStream(file.ioDevice())
         ts.setCodec(AQS.TextCodec_codecForName(u"utf8"))
-        qry = PNSqlQuery()
+        qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(ustr(table, u".*"))
         qry.setFrom(table)
         if not qry.exec_():

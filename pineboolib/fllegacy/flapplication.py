@@ -20,8 +20,9 @@ from .fltexteditoutput import FLTextEditOutput
 from typing import Any, Optional, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.database.pnsqlcursor import PNSqlCursor  # noqa: F401
-
+    from pineboolib.application.database import pnsqlcursor  # noqa: F401
+    from pineboolib.application.database import pnsqlquery  # noqa: F401
+    from PyQt5 import QtXml  # noqa: F401
 
 logger = logging.getLogger("FLApplication")
 
@@ -118,6 +119,15 @@ class FLApplication(QtCore.QObject):
     def eventLoop(self) -> "QtCore.QEventLoop":
         """Create main event loop."""
         return QtCore.QEventLoop()
+
+    def toXmlReportData(self, qry: "pnsqlquery.PNSqlQuery") -> "QtXml.QDomDocument":
+        """Return xml from a query."""
+        from . import flreportengine
+
+        rpt_ = flreportengine.FLReportEngine()
+        rpt_.setReportData(qry)
+        ret = rpt_.reportData()
+        return ret
 
     @decorators.NotImplementedWarn
     def checkForUpdate(self):
@@ -396,16 +406,18 @@ class FLApplication(QtCore.QObject):
         self.db().managerModules().setActiveIdModule("")
 
         self.clearProject()
-        mw = project.main_window
-        if self.main_widget_ is None:
-            self.main_widget_ = mw
 
         if project.main_window is None:
             if project.main_form is not None:
                 project.main_form.mainWindow = project.main_form.MainForm()
                 project.main_window = project.main_form.mainWindow
+                project.main_window.initScript()
             else:
                 raise Exception("project.main_window and project.main_form is empty!")
+
+        mw = project.main_window
+        if self.main_widget_ is None:
+            self.main_widget_ = mw
 
         if project.main_window is not None:
             project.main_window.initialized_mods_ = []
@@ -633,15 +645,15 @@ class FLApplication(QtCore.QObject):
             self.call(self.script_entry_function_, [], self)
             # self.script_entry_function_ = None
 
-    def emitTransactionBegin(self, o: "PNSqlCursor") -> None:
+    def emitTransactionBegin(self, o: "pnsqlcursor.PNSqlCursor") -> None:
         """Emit signal."""
         db_signals.emitTransactionBegin(o)
 
-    def emitTransactionEnd(self, o: "PNSqlCursor") -> None:
+    def emitTransactionEnd(self, o: "pnsqlcursor.PNSqlCursor") -> None:
         """Emit signal."""
         db_signals.emitTransactionEnd(o)
 
-    def emitTransactionRollback(self, o: "PNSqlCursor") -> None:
+    def emitTransactionRollback(self, o: "pnsqlcursor.PNSqlCursor") -> None:
         """Emit signal."""
         db_signals.emitTransactionRollback(o)
 
