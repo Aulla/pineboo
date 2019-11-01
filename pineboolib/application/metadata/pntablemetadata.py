@@ -18,12 +18,12 @@ from pineboolib.interfaces.itablemetadata import ITableMetaData
 from pineboolib import logging
 import copy
 
-from typing import Any, Optional, List, Dict, TYPE_CHECKING
-from .pnfieldmetadata import PNFieldMetaData
-from .pncompoundkeymetadata import PNCompoundKeyMetaData
+from typing import Optional, List, Dict, TYPE_CHECKING
+from . import pnfieldmetadata
+from . import pncompoundkeymetadata
 
 if TYPE_CHECKING:
-    from .pnrelationmetadata import PNRelationMetaData  # noqa
+    from . import pnrelationmetadata  # noqa
 
 
 class PNTableMetaData(ITableMetaData):
@@ -79,7 +79,7 @@ class PNTableMetaData(ITableMetaData):
 
         self.d = PNTableMetaDataPrivate(name)
 
-        self.d.compoundKey_ = PNCompoundKeyMetaData()
+        self.d.compoundKey_ = pncompoundkeymetadata.PNCompoundKeyMetaData()
 
         """
         try:
@@ -166,7 +166,7 @@ class PNTableMetaData(ITableMetaData):
 
         return True if self.d.query_ else False
 
-    def addFieldMD(self, f: "PNFieldMetaData") -> None:
+    def addFieldMD(self, f: "pnfieldmetadata.PNFieldMetaData") -> None:
         """
         Add the description of a field to the list of field descriptions.
 
@@ -181,7 +181,7 @@ class PNTableMetaData(ITableMetaData):
         self.d.addFieldName(f.name())
         self.d.formatAlias(f)
 
-        if f.type() == PNFieldMetaData.Unlock:
+        if f.type() == pnfieldmetadata.PNFieldMetaData.Unlock:
             self.d.fieldNamesUnlock_.append(f.name())
         if f.d.isPrimaryKey_:
             self.d.primaryKey_ = f.name().lower()
@@ -199,7 +199,7 @@ class PNTableMetaData(ITableMetaData):
 
         self.d.removeFieldName(field_name)
 
-    def setCompoundKey(self, cK: Optional[PNCompoundKeyMetaData]) -> None:
+    def setCompoundKey(self, cK: Optional["pncompoundkeymetadata.PNCompoundKeyMetaData"]) -> None:
         """
         Set the composite key of this table.
 
@@ -226,53 +226,48 @@ class PNTableMetaData(ITableMetaData):
         else:
             return str(self.d.primaryKey_)
 
-    def fieldNameToAlias(self, fN: str) -> str:
+    def fieldNameToAlias(self, field_name: Optional[str] = None) -> Optional[str]:
         """
         Get the alias of a field from its name.
 
         @param fN Field name
         """
 
-        if not fN:
-            return fN
+        if field_name:
+            for key in self.d.field_list_:
+                if key.name().lower() == field_name.lower():
+                    return key.alias()
 
-        for key in self.d.field_list_:
-            if key.name().lower() == fN.lower():
-                return key.alias()
+        return None
 
-        return fN
-
-    def fieldAliasToName(self, aN: str) -> Optional[str]:
+    def fieldAliasToName(self, alias_name: Optional[str] = None) -> Optional[str]:
         """
         Get the name of a field from its alias.
 
         @param aN Field alias name
         """
 
-        if not aN:
-            return aN
-
-        for key in self.d.field_list_:
-            if key.alias().lower() == aN.lower():
-                return key.name()
+        if alias_name:
+            for key in self.d.field_list_:
+                if key.alias().lower() == alias_name.lower():
+                    return key.name()
 
         return None
 
-    def fieldType(self, fN: str) -> Optional[int]:
+    def fieldType(self, field_name: Optional[str] = None) -> Optional[int]:
         """
         Get the type of a field from its name.
 
         @param fN Field name
         """
-
-        if not fN:
-            return None
-        fN = str(fN)
         type_ = None
-        for f in self.d.field_list_:
-            if f.name() == fN.lower():
-                type_ = f.type()
-                break
+        if field_name:
+            field_name = str(field_name)
+
+            for f in self.d.field_list_:
+                if f.name() == field_name.lower():
+                    type_ = f.type()
+                    break
 
         ret_ = None
         if type_ is not None:
@@ -297,98 +292,82 @@ class PNTableMetaData(ITableMetaData):
             elif type_ == "check":
                 ret_ = 300
             else:
-                # FIXME: Falta stringlist e int
+                # FIXME: Falta int
                 self.logger.warning(
                     "FIXME:: No hay definido un valor numérico para el tipo %s", type_
                 )
 
         return ret_
 
-    def fieldIsPrimaryKey(self, fN: str) -> Optional[bool]:
+    def fieldIsPrimaryKey(self, field_name: Optional[str] = None) -> Optional[bool]:
         """
         Get if a field is the primary key from its name.
 
         @param fN Field name.
         """
 
-        if not fN:
-            return None
-        fN = str(fN)
-        for f in self.d.field_list_:
-            if f.name() == fN.lower():
-                return f.isPrimaryKey()
+        if field_name:
+            for f in self.d.field_list_:
+                if f.name() == field_name.lower():
+                    return f.isPrimaryKey()
 
         return None
 
-    def fieldIsIndex(self, field_name: str) -> int:
+    def fieldIsIndex(self, field_name: Optional[str] = None) -> int:
         """
         Get if a field is index based on its name.
 
         @param fN Field name.
         """
-
-        if field_name in self.fieldNames():
-            return self.fieldNames().index(field_name)
+        if field_name:
+            if field_name in self.fieldNames():
+                return self.fieldNames().index(field_name)
 
         self.logger.warning("FLTableMetaData.fieldIsIndex(%s) No encontrado", field_name)
         return -1
 
-    def fieldIsCounter(self, fN: str) -> Optional[bool]:
+    def fieldIsCounter(self, field_name: Optional[str] = None) -> Optional[bool]:
         """
         Get if a field is a counter.
 
         @param fN Field name.
         @author Andrés Otón Urbano (baxas@eresmas.com)
         """
-
-        if not fN:
-            return False
-
-        field = None
-
-        for f in self.d.field_list_:
-            if f.name() == fN.lower():
-                field = f
-                break
-
-        if field:
-            return field.d.contador_
+        if field_name:
+            for f in self.d.field_list_:
+                if f.name() == field_name.lower():
+                    return f.isCounter()
 
         return False
 
-    def fieldAllowNull(self, fN: str) -> Optional[bool]:
+    def fieldAllowNull(self, field_name: Optional[str] = None) -> Optional[bool]:
         """
         Get if a field can be null.
 
         @param fN Field name
         """
 
-        if not fN:
-            return False
-
-        for f in self.d.field_list_:
-            if f.name() == fN.lower():
-                return f.allowNull()
+        if field_name:
+            for f in self.d.field_list_:
+                if f.name() == field_name.lower():
+                    return f.allowNull()
 
         return False
 
-    def fieldIsUnique(self, fN: str) -> Optional[bool]:
+    def fieldIsUnique(self, field_name: Optional[str] = None) -> Optional[bool]:
         """
         Get if a field is unique from its name.
 
         @param fN Field name.
         """
-
-        if not fN:
-            return False
-
-        for f in self.d.field_list_:
-            if f.name() == fN.lower():
-                return f.isUnique()
+        if field_name:
+            for f in self.d.field_list_:
+                if f.name() == field_name.lower():
+                    return f.isUnique()
 
         return False
 
-    def fieldTableM1(self, fN: str) -> Optional[str]:
+    def fieldTableM1(self, field_name: Optional[str]) -> Optional[str]:
         """
         Get the name of the foreign table related to a field in this table by an M1 relationship (many to one).
 
@@ -398,22 +377,16 @@ class PNTableMetaData(ITableMetaData):
             empty without the field is not related.
         """
 
-        if not fN:
-            return None
-
-        field = None
-
-        for f in self.fieldList():
-            if f.name() == fN.lower():
-                field = f
-                break
-
-        if field and field.d.relationM1_:
-            return field.d.relationM1_.foreignTable()
+        if field_name:
+            for f in self.fieldList():
+                if f.name() == field_name.lower():
+                    relation_ = f.relationM1()
+                    if relation_:
+                        return relation_.foreignTable()
 
         return None
 
-    def fieldForeignFieldM1(self, fN: str) -> Optional[str]:
+    def fieldForeignFieldM1(self, field_name: Optional[str]) -> Optional[str]:
         """
         Get the name of the foreign table field related to the one indicated by an M1 relationship (many still).
 
@@ -422,22 +395,17 @@ class PNTableMetaData(ITableMetaData):
         @return The name of the foreign field related to the indicated.
         """
 
-        if not fN:
-            return None
-
-        field = None
-
-        for f in self.fieldList():
-            if f.name() == fN.lower():
-                field = f
-                break
-
-        if field and field.d.relationM1_:
-            return field.d.relationM1_.foreignField()
-
+        if field_name:
+            for f in self.fieldList():
+                if f.name() == field_name.lower():
+                    relation_ = f.relationM1()
+                    if relation_:
+                        return relation_.foreignField()
         return None
 
-    def relation(self, fN: str, fFN: str, fTN: str) -> Optional["PNRelationMetaData"]:
+    def relation(
+        self, field_name: str, foreign_field: str, foreign_table: str
+    ) -> Optional["pnrelationmetadata.PNRelationMetaData"]:
         """
         Get the relationship object that defines two fields.
 
@@ -448,37 +416,27 @@ class PNTableMetaData(ITableMetaData):
             when it exists If it does not exist, it returns False.
         """
 
-        if not fN:
-            return None
-
-        field = None
-
         for f in self.fieldList():
-            if f.name() == fN.lower():
-                field = f
-                break
-
-        if field:
-            if (
-                field.d.relationM1_
-                and field.d.relationM1_.foreignField() == str(fFN).lower()
-                and field.d.relationM1_.foreignTable() == str(fTN).lower()
-            ):
-                return field.d.relationM1_
-
-            relationList = field.d.relationList_
-
-            if relationList:
-                for itR in relationList:
+            if f.name() == field_name.lower():
+                relation_ = f.relationM1()
+                if relation_:
                     if (
-                        itR.foreignField() == str(fFN).lower()
-                        and itR.foreignTable() == str(fTN).lower()
+                        relation_.foreignField() == foreign_field.lower()
+                        and relation_.foreignTable() == foreign_table.lower()
                     ):
-                        return itR
+                        return relation_
+
+                relation_list = f.relationList()
+                for itr in relation_list:
+                    if (
+                        itr.foreignField() == foreign_field.lower()
+                        and itr.foreignTable() == foreign_table.lower()
+                    ):
+                        return itr
 
         return None
 
-    def fieldLength(self, fN: str) -> Optional[int]:
+    def fieldLength(self, field_name: Optional[str] = None) -> Optional[int]:
         """
         Get the length of a field from its name.
 
@@ -486,16 +444,14 @@ class PNTableMetaData(ITableMetaData):
         @return field length.
         """
 
-        if not fN:
-            return None
-
-        for f in self.fieldList():
-            if f.name() == fN.lower():
-                return f.length()
+        if field_name:
+            for f in self.fieldList():
+                if f.name() == field_name.lower():
+                    return f.length()
 
         return None
 
-    def fieldPartInteger(self, fN: str) -> Optional[int]:
+    def fieldPartInteger(self, field_name: Optional[str] = None) -> Optional[int]:
         """
         Get the number of digits of the entire part of a field from its name.
 
@@ -503,16 +459,14 @@ class PNTableMetaData(ITableMetaData):
         @return integer length.
         """
 
-        if not fN:
-            return None
-
-        for f in self.fieldList():
-            if f.name() == fN.lower():
-                return f.partInteger()
+        if field_name:
+            for f in self.fieldList():
+                if f.name() == field_name.lower():
+                    return f.partInteger()
 
         return None
 
-    def fieldPartDecimal(self, fN: str) -> Optional[int]:
+    def fieldPartDecimal(self, field_name: Optional[str] = None) -> Optional[int]:
         """
         Get the number of digits of the decimal part of a field from its name.
 
@@ -520,48 +474,44 @@ class PNTableMetaData(ITableMetaData):
         @return part decimal length.
         """
 
-        if not fN:
-            return None
-
-        for f in self.fieldList():
-            if f.name() == fN.lower():
-                return f.partDecimal()
+        if field_name:
+            for f in self.fieldList():
+                if f.name() == field_name.lower():
+                    return f.partDecimal()
 
         return None
 
-    def fieldCalculated(self, fN: str) -> Optional[int]:
+    def fieldCalculated(self, field_name: Optional[str] = None) -> Optional[int]:
         """
         Get if a field is calculated.
 
         @param fN Field name.
         """
 
-        if not fN:
-            return None
-
-        for f in self.fieldList():
-            if f.name() == fN.lower():
-                return f.calculated()
+        if field_name:
+            for f in self.fieldList():
+                if f.name() == field_name.lower():
+                    return f.calculated()
 
         return None
 
-    def fieldVisible(self, fN: str) -> Optional[bool]:
+    def fieldVisible(self, field_name: Optional[str] = None) -> Optional[bool]:
         """
         Get if a field is visible.
 
         @param fN Field name.
         """
 
-        if not fN:
-            return None
-
-        for f in self.fieldList():
-            if f.name() == fN.lower():
-                return f.visible()
+        if field_name:
+            for f in self.fieldList():
+                if f.name() == field_name.lower():
+                    return f.visible()
 
         return None
 
-    def field(self, fN: str) -> Optional["PNFieldMetaData"]:
+    def field(
+        self, field_name: Optional[str] = None
+    ) -> Optional["pnfieldmetadata.PNFieldMetaData"]:
         """
         Get the metadata of a field.
 
@@ -569,16 +519,14 @@ class PNTableMetaData(ITableMetaData):
         @return A FLFieldMetaData object with the information or metadata of a given field.
         """
 
-        if not fN:
-            return None
-
-        for f in self.d.field_list_:
-            if f.name() == fN.lower():
-                return f
+        if field_name:
+            for f in self.d.field_list_:
+                if f.name() == field_name.lower():
+                    return f
 
         return None
 
-    def fieldList(self) -> List[Any]:
+    def fieldList(self) -> List["pnfieldmetadata.PNFieldMetaData"]:
         """
         Return a list of field definitions.
 
@@ -617,7 +565,9 @@ class PNTableMetaData(ITableMetaData):
 
         return self.fieldIsIndex(field_name)
 
-    def fieldListOfCompoundKey(self, fN: str) -> Optional[List[PNFieldMetaData]]:
+    def fieldListOfCompoundKey(
+        self, field_name: Optional[str] = None
+    ) -> Optional[List["pnfieldmetadata.PNFieldMetaData"]]:
         """
         Get the list of fields of a compound key, from the name of a field that you want to find out if it is in that compound key.
 
@@ -627,9 +577,10 @@ class PNTableMetaData(ITableMetaData):
           that the consulted field does not belong to any compound key returns None
         """
 
-        if self.d.compoundKey_:
-            if self.d.compoundKey_.hasField(fN):
-                return self.d.compoundKey_.fieldList()
+        if field_name:
+            if self.d.compoundKey_:
+                if self.d.compoundKey_.hasField(field_name):
+                    return self.d.compoundKey_.fieldList()
         return None
 
     def fieldNames(self) -> List[str]:
@@ -699,14 +650,14 @@ class PNTableMetaData(ITableMetaData):
 
         return self.d.ftsfun_
 
-    def setFTSFunction(self, ftsfun: str) -> None:
+    def setFTSFunction(self, full_text_search_function: str) -> None:
         """
         Set the function name to call for Full Text Search.
 
         @param ftsfun. function name.
         """
 
-        self.d.ftsfun_ = ftsfun
+        self.d.ftsfun_ = full_text_search_function
 
     def inCache(self) -> bool:
         """
@@ -738,7 +689,7 @@ class PNTableMetaData(ITableMetaData):
 
         self.d = copy.copy(other.d)
 
-    def indexFieldObject(self, position: int) -> "PNFieldMetaData":
+    def indexFieldObject(self, position: int) -> "pnfieldmetadata.PNFieldMetaData":
         """
         Return the PNFieldMetaData of the given field.
 
@@ -766,12 +717,12 @@ class PNTableMetaDataPrivate:
     """
     Lista de campos que tiene esta tabla
     """
-    field_list_: List["PNFieldMetaData"]
+    field_list_: List["pnfieldmetadata.PNFieldMetaData"]
 
     """
     Clave compuesta que tiene esta tabla
     """
-    compoundKey_: Optional[PNCompoundKeyMetaData] = None
+    compoundKey_: Optional["pncompoundkeymetadata.PNCompoundKeyMetaData"] = None
 
     """
     Nombre de la consulta (fichero .qry) de la que define los metadatos
@@ -864,25 +815,25 @@ class PNTableMetaDataPrivate:
         self.compoundKey_ = None
         self.inCache = False
 
-    def inicializeNewFLTableMetaDataPrivate(self, n: str, a, q: str = None) -> None:
+    def inicializeNewFLTableMetaDataPrivate(self, name: str, alias: str, query: str = None) -> None:
         """
         Initialize the class end with data.
 
-        @param n metadata name.
-        @param a metadata alias.
-        @param q query string.
+        @param name metadata name.
+        @param alias metadata alias.
+        @param query query string.
         """
 
-        self.name_ = n.lower()
-        self.alias_ = a
+        self.name_ = name.lower()
+        self.alias_ = alias
         self.compoundKey_ = None
-        if q is not None:
-            self.query_ = q
+        if query is not None:
+            self.query_ = query
         self.concurWarn_ = False
         self.detectLocks_ = False
         self.inCache_ = False
 
-    def inicializeFLTableMetaDataPrivateS(self, name) -> None:
+    def inicializeFLTableMetaDataPrivateS(self, name: str) -> None:
         """
         Initialize the class end with basic data.
 
@@ -901,43 +852,41 @@ class PNTableMetaDataPrivate:
 
         self.fieldNames_.append(n.lower())
 
-    def removeFieldName(self, name_: str) -> None:
+    def removeFieldName(self, name: str) -> None:
         """
         Remove the name of a field from the field name string, see fieldNames().
 
-        @param n Field Name
+        @param name Field Name
         """
 
-        if name_ in self.fieldNames_:
-            self.fieldNames_.remove(name_)
+        if name in self.fieldNames_:
+            self.fieldNames_.remove(name)
 
-        if name_ in self.fieldNamesUnlock_:
-            self.fieldNamesUnlock_.remove(name_)
-        if self.primaryKey_ == name_:
+        if name in self.fieldNamesUnlock_:
+            self.fieldNamesUnlock_.remove(name)
+        if self.primaryKey_ == name:
             self.primaryKey_ = None
 
-    def formatAlias(self, f=None) -> None:
+    def formatAlias(self, field_object: Optional["pnfieldmetadata.PNFieldMetaData"] = None) -> None:
         """
         Format the alias of the indicated field to avoid duplicates.
 
         @param f Object field whose alias you want to format
         """
 
-        if f is None:
-            return
+        if field_object is not None:
+            alias = field_object.alias()
+            field = field_object.name().lower()
 
-        alias = f.alias()
-        field = f.name().lower()
+            for aliasF in self.aliasFieldMap_:
+                if aliasF == alias:
+                    alias = "%s(%s)" % (alias, str(len(self.aliasFieldMap_) + 1))
+                    break
 
-        for aliasF in self.aliasFieldMap_:
-            if aliasF == alias:
-                alias = "%s(%s)" % (alias, str(len(self.aliasFieldMap_) + 1))
-                break
+            field_object.d.alias_ = alias
 
-        f.d.alias_ = alias
-
-        self.aliasFieldMap_[alias] = field
-        self.fieldAliasMap_[field] = alias
+            self.aliasFieldMap_[alias] = field
+            self.fieldAliasMap_[field] = alias
 
     def clearFieldList(self) -> None:
         """

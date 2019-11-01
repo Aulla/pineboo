@@ -34,7 +34,7 @@ class ITableMetaData:
         """Return list of fields for CK."""
         return []
 
-    def fieldNameToAlias(self, fN: str) -> str:
+    def fieldNameToAlias(self, fN: Optional[str]) -> Optional[str]:
         """Get alias of field."""
         return ""
 

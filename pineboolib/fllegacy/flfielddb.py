@@ -2249,15 +2249,18 @@ class FLFieldDB(QtWidgets.QWidget):
         elif type_ == "bool":
             from pineboolib.q3widgets.qcheckbox import QCheckBox
 
+            alias = tMD.fieldNameToAlias(self.fieldName_)
+            if not alias:
+                raise Exception("alias is empty!")
+
             self.editor_ = QCheckBox(self)
             # self.editor_.setName("editor")
-            self.editor_.setText(tMD.fieldNameToAlias(self.fieldName_))
+            self.editor_.setText(alias)
             self.editor_.setFont(self.font())
             self.editor_.installEventFilter(self)
 
             self.editor_.setMinimumWidth(
-                self.fontMetrics().width(tMD.fieldNameToAlias(self.fieldName()))
-                + self.fontMetrics().maxWidth() * 2
+                self.fontMetrics().width(alias) + self.fontMetrics().maxWidth() * 2
             )
             sizePolicy = QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy(0)

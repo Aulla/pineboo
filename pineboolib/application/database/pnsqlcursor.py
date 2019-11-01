@@ -1181,6 +1181,7 @@ class PNSqlCursor(QtCore.QObject):
 
             for field in fieldList:
                 fiName = field.name()
+                r = field.relationM1()
                 if not self.d.buffer_.isGenerated(fiName):
                     continue
 
@@ -1190,7 +1191,7 @@ class PNSqlCursor(QtCore.QObject):
 
                 fMD = field.associatedField()
                 if fMD and s is not None:
-                    if not field.relationM1():
+                    if not r:
                         msg = (
                             msg
                             + "\n"
@@ -1199,15 +1200,9 @@ class PNSqlCursor(QtCore.QObject):
                         )
                         continue
 
-                    r = field.relationM1()
                     if not r.checkIn():
                         continue
-                    tMD = (
-                        self.db()
-                        .connManager()
-                        .manager()
-                        .metadata(field.relationM1().foreignTable())
-                    )
+                    tMD = self.db().connManager().manager().metadata(r.foreignTable())
                     if not tMD:
                         continue
                     fmdName = fMD.name()
@@ -1225,7 +1220,7 @@ class PNSqlCursor(QtCore.QObject):
                             self.db()
                             .connManager()
                             .manager()
-                            .formatAssignValue(field.relationM1().foreignField(), field, s, True),
+                            .formatAssignValue(r.foreignField(), field, s, True),
                         )
                         q = PNSqlQuery(None, self.db().connectionName())
                         q.setTablesList(tMD.name())
@@ -1331,12 +1326,9 @@ class PNSqlCursor(QtCore.QObject):
                             % s
                         )
 
-                if field.relationM1() and s:
-                    if (
-                        field.relationM1().checkIn()
-                        and not field.relationM1().foreignTable() == self.d.metadata_.name()
-                    ):
-                        r = field.relationM1()
+                if r and s:
+                    if r.checkIn() and not r.foreignTable() == self.d.metadata_.name():
+                        # r = field.relationM1()
                         tMD = self.db().connManager().manager().metadata(r.foreignTable())
                         if not tMD:
                             continue
@@ -1421,7 +1413,7 @@ class PNSqlCursor(QtCore.QObject):
 
         elif self.d.modeAccess_ == self.Del:
             fieldList = self.d.metadata_.fieldList()
-            fiName = None
+            # fiName = None
             s = None
 
             for field in fieldList:
@@ -2664,8 +2656,6 @@ class PNSqlCursor(QtCore.QObject):
         self.insertRecord()
 
         for it in field_list:
-            if it is None:
-                continue
 
             if (
                 self.d.buffer_.isNull(it.name())

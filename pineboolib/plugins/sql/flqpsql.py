@@ -6,12 +6,12 @@ from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QWidget  # type: ignor
 from pineboolib.core.utils.utils_base import text2bool, auto_qt_translate_text
 
 from pineboolib.application.utils.check_dependencies import check_dependencies
-from pineboolib.application.database.pnsqlquery import PNSqlQuery
-from pineboolib.application.database.pnsqlcursor import PNSqlCursor
-from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
-from pineboolib.application import project
+from pineboolib.application.database import pnsqlquery
+from pineboolib.application.database import pnsqlcursor
+from pineboolib.application.metadata import pnfieldmetadata
+from pineboolib import application
 
-from pineboolib.fllegacy.flutil import FLUtil
+from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 from pineboolib import logging
 
@@ -19,10 +19,9 @@ from sqlalchemy import create_engine  # type: ignore
 import traceback
 from typing import Iterable, Optional, Union, List, Dict, Any, cast, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from pineboolib.application.database import pnsqlcursor  # noqa: F401
-
 
 logger = logging.getLogger(__name__)
 
@@ -83,10 +82,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 % (db_userName, db_password, db_host, db_port, db_name)
             )
         except psycopg2.OperationalError as e:
-            if project._splash:
-                project._splash.hide()
+            if application.project._splash:
+                application.project._splash.hide()
 
-            if project._DGI and not project.DGI.localDesktop():
+            if application.project._DGI and not application.project.DGI.localDesktop():
                 return False
 
             if "does not exist" in str(e) or "no existe" in str(e):
@@ -150,7 +149,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
     def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
         """Return a string with the format value like."""
-        util = FLUtil()
+        util = flutil.FLUtil()
         res = "IS NULL"
 
         if type_ == "bool":
@@ -182,7 +181,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def formatValue(self, type_: str, v: Any, upper: bool) -> Optional[Union[int, str, bool]]:
         """Return a string with the format value."""
 
-        util = FLUtil()
+        util = flutil.FLUtil()
 
         s: Any = None
 
@@ -237,7 +236,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Return next serial value."""
-        q = PNSqlQuery()
+        q = pnsqlquery.PNSqlQuery()
         q.setSelect(u"nextval('" + table + "_" + field + "_seq')")
         q.setFrom("")
         q.setWhere("")
@@ -433,7 +432,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
     def sqlCreateTable(self, tmd: "pntablemetadata.PNTableMetaData") -> Optional[str]:
         """Return a create table query."""
-        util = FLUtil()
+        util = flutil.FLUtil()
         if not tmd:
             return None
 
@@ -478,7 +477,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 sql = sql + " BYTEA"
             elif field.type() == "serial":
                 seq = "%s_%s_seq" % (tmd.name(), field.name())
-                q = PNSqlQuery()
+                q = pnsqlquery.PNSqlQuery()
                 q.setForwardOnly(True)
                 q.exec_("SELECT relname FROM pg_class WHERE relname='%s'" % seq)
                 if not q.next():
@@ -670,7 +669,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 raise Exception("recordInfo. self.db_ es Nulo")
 
             stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
-            util = FLUtil()
+            util = flutil.FLUtil()
             if not util.domDocumentSetContent(doc, stream):
                 print(
                     "FLManager : "
@@ -740,7 +739,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         if not self.isOpen():
             return tl
 
-        t = PNSqlQuery()
+        t = pnsqlquery.PNSqlQuery()
         t.setForwardOnly(True)
 
         if not typeName or typeName == "Tables":
@@ -781,7 +780,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         if self.db_ is None:
             raise Exception("constraintExists. self.db_ is None")
 
-        q = PNSqlQuery(None, self.db_.dbAux())
+        q = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
 
         return q.exec_(sql) and q.size() > 0
 
@@ -808,7 +807,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         if self.hasCheckColumn(newMTD):
             return False
 
-        util = FLUtil()
+        util = flutil.FLUtil()
 
         oldMTD = newMTD
         fieldList = oldMTD.fieldList()
@@ -823,7 +822,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         self.db_.dbAux().transaction()
 
-        q = PNSqlQuery(None, self.db_.dbAux())
+        q = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
 
         constraintName = "%s_key" % oldMTD.name()
 
@@ -852,7 +851,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             self.db_.dbAux().rollbackTransaction()
             return False
 
-        oldCursor = PNSqlCursor(renameOld, True, self.db_.dbAux())
+        oldCursor = pnsqlcursor.PNSqlCursor(renameOld, True, self.db_.dbAux())
         oldCursor.setModeAccess(oldCursor.Browse)
         oldCursor.select()
 
@@ -884,17 +883,18 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         v = None
 
         for newField in fieldList:
-            oldField = oldMTD.field(newField.name())
+            old_field: Optional["pnfieldmetadata.PNFieldMetaData"] = oldMTD.field(newField.name())
+
             defValues[str(step)] = None
-            if not oldField or not oldCursor.field(oldField.name()):
-                if not oldField:
-                    oldField = newField
+            if not old_field or not oldCursor.field(old_field.name()):
+                if not old_field:
+                    old_field = newField
                 if not newField.type() == "serial":
                     v = newField.defaultValue()
                     defValues[str(step)] = v
 
             newFieldsList[str(step)] = newField
-            oldFieldsList[str(step)] = oldField
+            oldFieldsList[str(step)] = old_field
             step = step + 1
 
         ok = True
@@ -981,7 +981,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     ) -> bool:
         """Modify a table structure."""
         # logger.warning("alterTable2 FIXME::Me quedo colgado al hacer createTable --> existTable")
-        util = FLUtil()
+        util = flutil.FLUtil()
 
         oldMTD = None
         newMTD = None
@@ -1098,7 +1098,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         self.db_.dbAux().transaction()
 
         if key and len(key) == 40:
-            c = PNSqlCursor("flfiles", True, self.db_.dbAux())
+            c = pnsqlcursor.PNSqlCursor("flfiles", True, self.db_.dbAux())
             c.setForwardOnly(True)
             c.setFilter("nombre = '%s.mtd'" % renameOld)
             c.select()
@@ -1111,7 +1111,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     buffer.setValue("sha", key)
                     c.insert()
 
-        # q = PNSqlQuery(None, self.db_.dbAux())
+        # q = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
         constraintName = "%s_pkey" % oldMTD.name()
         c1 = self.db_.dbAux().cursor()
         c1.execute("ALTER TABLE %s DROP CONSTRAINT %s" % (oldMTD.name(), constraintName))
@@ -1231,7 +1231,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 if oldField is None or not result_set:
                     if oldField is None:
                         oldField = it2
-                    if it2.type() != PNFieldMetaData.Serial:
+                    if it2.type() != pnfieldmetadata.PNFieldMetaData.Serial:
                         v = it2.defaultValue()
                         step += 1
                         default_values[str(step)] = v
@@ -1275,7 +1275,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                         if (
                             (not oldField.allowNull() or not newField.allowNull())
                             and (v is None)
-                            and newField.type() != PNFieldMetaData.Serial
+                            and newField.type() != pnfieldmetadata.PNFieldMetaData.Serial
                         ):
                             defVal = newField.defaultValue()
                             if defVal is not None:
@@ -1288,7 +1288,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                         None,
                         "None",
                     ):
-                        if oldField.type() == PNFieldMetaData.Serial:
+                        if oldField.type() == pnfieldmetadata.PNFieldMetaData.Serial:
                             v = int(self.nextSerialVal(newMTD.name(), newField.name()))
                         elif oldField.type() in ["int", "uint"]:
                             v = 0
@@ -1397,18 +1397,18 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
     def Mr_Proper(self) -> None:
         """Clear all garbage data."""
-        util = FLUtil()
+        util = flutil.FLUtil()
 
         if self.db_ is None:
             raise Exception("Mr_Proper. self.db_ is None")
 
         self.db_.dbAux().transaction()
 
-        qry = PNSqlQuery(None, "dbAux")
-        # qry2 = PNSqlQuery(None, "dbAux")
-        qry3 = PNSqlQuery(None, "dbAux")
-        qry4 = PNSqlQuery(None, "dbAux")
-        qry5 = PNSqlQuery(None, "dbAux")
+        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+        # qry2 = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry3 = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry4 = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry5 = pnsqlquery.PNSqlQuery(None, "dbAux")
         cur = self.db_.dbAux().cursor()
         steps = 0
 
@@ -1485,8 +1485,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         self.db_.dbAux().driver().transaction()
         steps = 0
-        # sqlCursor = PNSqlCursor(None, True, self.db_.dbAux())
-        sqlQuery = PNSqlQuery(None, self.db_.dbAux())
+        # sqlCursor = pnsqlcursor.PNSqlCursor(None, True, self.db_.dbAux())
+        sqlQuery = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
         if sqlQuery.exec_(
             "select relname from pg_class where ( relkind = 'r' ) "
             "and ( relname !~ '^Inv' ) "
@@ -1508,7 +1508,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 for it in fL:
                     if not it or not it.type() == "pixmap":
                         continue
-                    cur = PNSqlCursor(item, True, self.db_.dbAux())
+                    cur = pnsqlcursor.PNSqlCursor(item, True, self.db_.dbAux())
                     cur.select(it.name() + " not like 'RK@%'")
                     while cur.next():
                         v = cur.value(it.name())

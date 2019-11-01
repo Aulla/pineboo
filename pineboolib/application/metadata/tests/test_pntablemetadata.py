@@ -1,20 +1,27 @@
 """Test_pntablemetadata module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 
 
 class TestCreatePNTableMetaData(unittest.TestCase):
     """TestCreatePNTableMetaData Class."""
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
     def test_basic(self) -> None:
         """Test create a PNTableMetaData."""
 
-        from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
+        from pineboolib.application.metadata import pntablemetadata
 
-        mtd = PNTableMetaData("prueba_1", "Alias de prueba_1", "qry_prueba_1")
+        mtd = pntablemetadata.PNTableMetaData("prueba_1", "Alias de prueba_1", "qry_prueba_1")
+        mtd_2 = pntablemetadata.PNTableMetaData("prueba_2")
 
         self.assertEqual(mtd.name(), "prueba_1")
+        self.assertEqual(mtd_2.name(), "prueba_2")
         self.assertEqual(mtd.alias(), "Alias de prueba_1")
         self.assertEqual(mtd.isQuery(), True)
 
@@ -23,6 +30,31 @@ class TestCreatePNTableMetaData(unittest.TestCase):
         mtd.setQuery("qry_prueba_2")
 
         self.assertEqual(mtd.query(), "qry_prueba_2")
+
+    def test_basic_2(self) -> None:
+        """Test functions."""
+
+        from pineboolib.application.database import pnsqlcursor
+
+        cur = pnsqlcursor.PNSqlCursor("fltest2")
+        mtd = cur.metadata()
+
+        self.assertEqual(mtd.fieldType("string_field"), 3)
+        self.assertEqual(mtd.fieldType("time_field"), 27)
+        self.assertEqual(mtd.fieldType("date_field"), 26)
+        self.assertEqual(mtd.fieldType("double_field"), 19)
+        self.assertEqual(mtd.fieldType("bool_field"), 18)
+        self.assertEqual(mtd.fieldType("uint_field"), 17)
+        self.assertEqual(mtd.fieldType("bloqueo"), 200)
+
+        self.assertFalse(mtd.fieldIsCounter("string_field"))
+        self.assertTrue(mtd.fieldAllowNull("string_field"))
+        self.assertFalse(mtd.fieldAllowNull("bloqueo"))
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 class TestCopyPNTableMetaData(unittest.TestCase):
@@ -48,6 +80,11 @@ class TestCopyPNTableMetaData(unittest.TestCase):
         self.assertEqual(mtd_2.fieldNameToAlias("idgroup"), "Nombre")
         self.assertEqual(mtd_2.primaryKey(), "idgroup")
         self.assertEqual(mtd_2.fieldAliasToName("Nombre"), "idgroup")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 class TestPNTableMetaData(unittest.TestCase):
@@ -120,6 +157,11 @@ class TestPNTableMetaData(unittest.TestCase):
         field_pos_0 = mtd.indexFieldObject(0)
         self.assertEqual(field_pos_0.name(), "idgroup")
 
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
+
 
 class TestRelationsPNTableMetaData(unittest.TestCase):
     """TestRelationsPNTableMetaData Class."""
@@ -139,6 +181,11 @@ class TestRelationsPNTableMetaData(unittest.TestCase):
             raise Exception
         self.assertEqual(mtd_1.fieldTableM1("idgroup"), "flgroups")
         self.assertEqual(mtd_1.fieldForeignFieldM1("idgroup"), "idgroup")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 class TestCompoundKeyPNTableMetaData(unittest.TestCase):
@@ -161,6 +208,11 @@ class TestCompoundKeyPNTableMetaData(unittest.TestCase):
         if field_list is None:
             raise Exception
         self.assertEqual(field_list[0].name(), "campo")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
 
 
 if __name__ == "__main__":
