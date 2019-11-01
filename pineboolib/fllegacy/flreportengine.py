@@ -1,6 +1,6 @@
 """Flreportengine module."""
 from typing import List
-from PyQt5 import QtXml, QtWidgets  # type: ignore
+from PyQt5 import QtXml, QtWidgets, QtCore  # type: ignore
 from PyQt5.QtXml import QDomNode as FLDomNodeInterface  # type: ignore # FIXME
 
 from pineboolib.core import decorators
@@ -9,14 +9,16 @@ from pineboolib.application.database.pnsqlquery import PNSqlQuery
 from typing import Any, Optional, Dict, Union
 
 
-class FLReportEngine(object):
+class FLReportEngine(QtCore.QObject):
     """FLReportEngine class."""
 
     report_: Any
     rt: Optional[str]
 
-    def __init__(self, parent: QtWidgets.QWidget) -> None:
+    def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
         """Inicialize."""
+
+        super().__init__(parent)
         self.d_ = FLReportEngine.FLReportEnginePrivate(self)
         self.relDpi_ = 78.0
         self.report_ = None
