@@ -67,6 +67,54 @@ class TestParser(unittest.TestCase):
 
         self.assertTrue(pdf_file)
 
+    def test_parser_tools(self) -> None:
+        """Test parser tools."""
+        from pineboolib.application.parsers.kugarparser import kparsertools
+        from pineboolib import application
+        from pineboolib.core.utils.utils_base import load2xml
+        from pineboolib.application.database import pnsqlquery, pnsqlcursor
+        from pineboolib.qsa import qsa
+        import datetime
+        import os
+
+        qry = pnsqlquery.PNSqlQuery()
+        qry.setTablesList("paises")
+        qry.setSelect("codpais, bandera")
+        qry.setFrom("paises")
+        qry.setWhere("1=1")
+        self.assertTrue(qry.exec_())
+        self.assertTrue(qry.first())
+        data = qsa.sys.toXmlReportData(qry)
+        parser_tools = kparsertools.KParserTools()
+        xml_data = load2xml(data.toString()).getroot()
+
+        child = xml_data.findall("Row")[0]
+        element = parser_tools.convertToNode(child)
+        self.assertTrue(element)
+        fecha_ = str(datetime.date.__format__(datetime.date.today(), "%d.%m.%Y"))
+
+        self.assertEqual(parser_tools.getSpecial("Fecha"), fecha_)
+        self.assertEqual(parser_tools.getSpecial("[Date]"), fecha_)
+        self.assertEqual(parser_tools.getSpecial("NúmPágina", 1), "1")
+        self.assertEqual(parser_tools.getSpecial("PageNo", 6), "6")
+        self.assertEqual(parser_tools.getSpecial("[NÃºmPÃ¡gina]", 12), "12")
+        from PyQt5 import QtCore
+
+        ret_ = QtCore.QLocale.system().toString(float("11.22"), "f", 2)
+
+        self.assertEqual(parser_tools.calculated("11.22", 2, 2), ret_)
+        self.assertEqual(parser_tools.calculated("2019-01-31T00:01:02", 3), "31-01-2019")
+        self.assertEqual(parser_tools.calculated("codpais", 1, None, child), "ES")
+
+        cur = pnsqlcursor.PNSqlCursor("paises")
+        cur.select("1=1")
+        cur.first()
+        bandera = cur.buffer().value("bandera")
+        self.assertEqual(
+            parser_tools.parseKey(bandera),
+            os.path.abspath("%s/%s.png" % (application.project.tmpdir, bandera)),
+        )
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

@@ -133,19 +133,15 @@ class KParserTools(object):
             from PyQt5 import QtCore  # type: ignore
 
             ret_ = QtCore.QLocale.system().toString(float(value), "f", p)
-        elif data_type == 0:
-            pass
         elif data_type == 3:
             if value.find("T") > -1:
                 value = value[: value.find("T")]
             ret_ = date_amd_to_dma(value)
 
-        elif data_type == 5:  # Imagen
+        elif data_type in [0, 5, 6]:  # 5 Imagen, 6 Barcode
             pass
 
-        elif data_type == 6:  # Barcode
-            pass
-        elif data:
+        elif data is not None:
             ret_ = data.get(value)
 
         return ret_
@@ -172,14 +168,14 @@ class KParserTools(object):
 
                 single_query = PNSqlQuery()
                 single_query.exec_("SELECT valor FROM flsettings WHERE flkey='FLLargeMode'")
-                single_fllarge = True
+                one_fllarge = True
 
                 if single_query.next():
                     if single_query.value(0) == "True":
-                        single_fllarge = False
+                        one_fllarge = False
 
                 if (
-                    not single_fllarge
+                    not one_fllarge
                 ):  # Si no es FLLarge modo único añadimos sufijo "_nombre" a fllarge
                     table_name += "_%s" % ref_key.split("@")[1]
 

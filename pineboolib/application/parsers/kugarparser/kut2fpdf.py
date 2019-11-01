@@ -12,7 +12,7 @@ from pineboolib.application import project
 from pineboolib import logging
 from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.utils.check_dependencies import check_dependencies
-from pineboolib.application.parsers.kugarparser.parsertools import KParserTools
+from pineboolib.application.parsers.kugarparser import kparsertools
 from pineboolib.core.settings import config
 
 
@@ -39,7 +39,7 @@ class Kut2FPDF(object):
     _top_margin: int
     _page_top: Dict[int, int]
     _data_row: Element
-    _parser_tools: KParserTools
+    _parser_tools: "kparsertools.KParserTools"
     _avalible_fonts: List[str]
     _unavalible_fonts: List[str]
     design_mode: bool
@@ -63,7 +63,7 @@ class Kut2FPDF(object):
         self.logger = logging.getLogger("kut2fpdf")
         check_dependencies({"fpdf": "fpdf2"})
 
-        self._parser_tools = KParserTools()
+        self._parser_tools = kparsertools.KParserTools()
         self._avalible_fonts = []
         self._page_top: Dict[int, int] = {}
         self._unavalible_fonts = []
