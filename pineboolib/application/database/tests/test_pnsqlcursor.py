@@ -718,6 +718,23 @@ class TestRelations(unittest.TestCase):
         self.assertTrue(cur_modulos.rollback())
         self.assertEqual(cur_modulos.transactionsOpened(), [])
         self.assertTrue(cur_areas.rollback())
+        self.assertEqual(cur_areas.transactionsOpened(), ["5", "3", "2"])
+        cur_areas.setModeAccess(cur_areas.Insert)
+        cur_areas.refreshBuffer()
+        cur_areas.setValueBuffer("bloqueo", True)
+        cur_areas.setValueBuffer("idarea", "Q")
+        cur_areas.setValueBuffer("descripcion", "Área de prueba Q")
+
+        cur_modulos.setModeAccess(cur_modulos.Insert)
+        cur_modulos.refreshBuffer()
+        cur_modulos.setValueBuffer("idmodulo", "CCC")
+        cur_modulos.setValueBuffer("idarea", "Q")
+        cur_modulos.setValueBuffer("descripcion", "modulo de prueba")
+        cur_modulos.setValueBuffer("version", "0.0")
+
+        self.assertTrue(cur_modulos.commitBufferCursorRelation())
+        cur_modulos.setModeAccess(cur_modulos.Edit)
+        self.assertTrue(cur_modulos.commitBufferCursorRelation())
 
     @classmethod
     def tearDownClass(cls) -> None:
