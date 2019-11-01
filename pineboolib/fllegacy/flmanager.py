@@ -2,31 +2,31 @@
 
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore  # type: ignore
-from PyQt5.QtXml import QDomDocument  # type: ignore
+from PyQt5.QtXml import QDomDocument, QDomElement  # type: ignore
 
+from xml import etree  # type: ignore
 
 from pineboolib.core import decorators
 from pineboolib.core.settings import config
 from pineboolib.core.utils.utils_base import filedir, auto_qt_translate_text
-from pineboolib.application.utils.xpm import cacheXPM
 
 from pineboolib.application.metadata.pncompoundkeymetadata import PNCompoundKeyMetaData
 from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
 from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData
 from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
 
-from .flutil import FLUtil
-
-from xml import etree  # type: ignore
-from pineboolib import logging
-from pineboolib.interfaces import IManager
-
-from PyQt5.QtXml import QDomElement  # type: ignore
-
-
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
 from pineboolib.application.database.pngroupbyquery import PNGroupByQuery
 from pineboolib.application.database.pnsqlcursor import PNSqlCursor
+
+from pineboolib.application.utils.xpm import cacheXPM
+
+from pineboolib.interfaces import IManager
+
+from pineboolib import logging
+
+from .flutil import FLUtil
+
 
 from typing import Optional, Union, Any, List, Dict, TYPE_CHECKING
 
@@ -1619,37 +1619,25 @@ class FLManager(QtCore.QObject, IManager):
 
         return refKey
 
-    def fetchLargeValue(self, refKey: str) -> Optional[str]:
+    def fetchLargeValue(self, ref_key: Optional[str]) -> Optional[str]:
         """
         Return the large value according to its reference key.
 
         @param refKey Reference key. This key is usually obtained through FLManager :: storeLargeValue
         @return Large value stored
         """
-        if refKey is None:
-            return None
-        if not refKey[0:3] == "RK@":
-            return None
+        if ref_key and ref_key[0:3] == "RK@":
+            from pineboolib.fllegacy.flapplication import aqApp
 
-        from pineboolib.fllegacy.flapplication import aqApp
+            table_name = "fllarge" if aqApp.singleFLLarge() else "fllarge_" + ref_key.split("@")[1]
 
-        tableName = "fllarge" if aqApp.singleFLLarge() else "fllarge_" + refKey.split("@")[1]
-
-        if not self.existsTable(tableName):
-            return None
-
-        q = PNSqlQuery(None, "dbAux")
-        q.setSelect("contenido")
-        q.setFrom(tableName)
-        q.setWhere(" refkey = '%s'" % refKey)
-        if q.exec_() and q.first():
-            v = q.value(0)
-            del q
-            # print(v)
-            v = cacheXPM(v)
-            # print(v)
-
-            return v
+            if self.existsTable(table_name):
+                q = PNSqlQuery(None, "dbAux")
+                q.setSelect("contenido")
+                q.setFrom(table_name)
+                q.setWhere("refkey = '%s'" % ref_key)
+                if q.exec_() and q.first():
+                    return cacheXPM(q.value(0))
 
         return None
 
