@@ -681,9 +681,9 @@ class FLApplication(QtCore.QObject):
 
         ret = FLUtil().sqlSelect("flsettings", "valor", "flkey='FLLargeMode'")
         if ret in ["True", True]:
-            return True
+            return False
 
-        return False
+        return True
 
     def msgBoxWarning(self, t, _gui) -> None:
         """Display warning."""
