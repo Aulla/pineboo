@@ -17,12 +17,14 @@ from pineboolib.core.settings import config
 
 import os
 
+from typing import Optional
+
 logger = logging.getLogger(__name__)
 
 reserved_words = ["pass"]
 
 
-def mtd_parse(table_name: str) -> str:
+def mtd_parse(table_name: str) -> Optional[str]:
     """
     Parse MTD into SqlAlchemy model.
     """
@@ -31,22 +33,22 @@ def mtd_parse(table_name: str) -> str:
         table_name = table_name[:-4]
 
     if table_name.find("alteredtable") > -1 or table_name.startswith("fllarge_"):
-        return
+        return None
 
     if project.conn_manager is None:
         raise Exception("Project is not connected yet")
     mtd_ = project.conn_manager.manager().metadata(table_name, True)
     if mtd_ is None:
-        return
+        return None
     mtd: PNTableMetaData = cast(PNTableMetaData, mtd_)
     if mtd.isQuery():
-        return
+        return None
 
     mtd_file = _path("%s.mtd" % table_name)
 
     if mtd_file is None:
         logger.warning("No se encuentra %s.mtd", table_name)
-        return
+        return None
 
     dest_file = "%s_model.py" % mtd_file[: len(mtd_file) - 4]
     if dest_file.find("system_module") > -1:
