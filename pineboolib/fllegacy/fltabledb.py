@@ -2169,7 +2169,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self.tableRecords_ and self.tableRecords_.isHidden():
             self.tableRecords_.show()
 
-        QtCore.QTimer.singleShot(50, self.setSortOrder)
+        # QtCore.QTimer.singleShot(50, self.setSortOrder)
 
     def refreshDelayed(self, msec: int = 5, refreshData: bool = True) -> None:
         """
@@ -2807,9 +2807,8 @@ class FLTableDB(QtWidgets.QWidget):
         self, ascending: Optional[Union[bool, int]] = True, col_order: Optional[int] = None
     ) -> None:
         """Set sort columns order."""
-
         if isinstance(ascending, int):
-            ascending = True if ascending == 0 else False
+            ascending = True if ascending == 1 else False
 
         order = Qt.AscendingOrder if ascending else Qt.DescendingOrder
 
