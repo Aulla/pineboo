@@ -599,32 +599,27 @@ class MainForm(QtWidgets.QMainWindow):
 
     def addForm(self, action_name: str, icono: "QtGui.QPixmap") -> None:
         """Add new tab."""
-        tw = self.tw_
 
-        if tw is None:
-            raise Exception("tw is empty!")
+        if self.tw_ is None:
+            raise Exception("tw_ is empty!")
 
-        for i in range(tw.count()):
-            if tw.widget(i).action().name() == action_name:
-                tw.widget(i).close()
+        for i in range(self.tw_.count()):
+            if self.tw_.widget(i).action().name() == action_name:
+                self.tw_.widget(i).close()
 
-        fm = aqsobjectfactory.AQFormDB(action_name, tw)
+        fm = aqsobjectfactory.AQFormDB(action_name, self.tw_)
         fm.setMainWidget()
         if not fm.mainWidget():
             return
         if self.ag_menu_:
-            tw.addTab(
+            self.tw_.addTab(
                 fm, self.ag_menu_.findChild(QtWidgets.QAction, action_name).icon(), fm.windowTitle()
             )
         fm.setIdMDI(action_name)
         fm.show()
-        if self.tw_:
-            # idx = tw.indexOf(fm)
-            # self.tw_.setCurrentPage(idx)
-            self.tw_.setCurrentWidget(fm)
+
+        self.tw_.setCurrentWidget(fm)
         fm.installEventFilter(self.w_)
-        # if len(tw.pages()) == 1 and self.tw_corner is not None:
-        #    self.tw_corner.show()
 
     def addRecent(self, action: QtWidgets.QAction) -> None:
         """Add new entry to recent list."""
