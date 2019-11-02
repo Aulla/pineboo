@@ -40,10 +40,7 @@ class TestMtdParserGeneral(unittest.TestCase):
             file_path = pnmtdparser.mtd_parse(table)
             self.assertTrue(os.path.exists(file_path))
 
-        if config.value("ebcomportamiento/orm_load_disabled", True):
-            pnormmodelsfactory.load_models()
-
-        self.assertTrue(False)
+        pnormmodelsfactory.load_models()
 
     @classmethod
     def tearDownClass(cls) -> None:
