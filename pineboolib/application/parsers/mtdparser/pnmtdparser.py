@@ -22,16 +22,20 @@ logger = logging.getLogger(__name__)
 reserved_words = ["pass"]
 
 
-def mtd_parse(table_name: str) -> None:
+def mtd_parse(table_name: str) -> str:
     """
     Parse MTD into SqlAlchemy model.
     """
+
+    if table_name.endswith(".mtd"):
+        table_name = table_name[:-4]
+
     if table_name.find("alteredtable") > -1 or table_name.startswith("fllarge_"):
         return
 
     if project.conn_manager is None:
         raise Exception("Project is not connected yet")
-    mtd_ = project.conn_manager.manager().metadata(table_name)
+    mtd_ = project.conn_manager.manager().metadata(table_name, True)
     if mtd_ is None:
         return
     mtd: PNTableMetaData = cast(PNTableMetaData, mtd_)
@@ -65,6 +69,8 @@ def mtd_parse(table_name: str) -> None:
             for line in lines:
                 f.write("%s\n" % line)
             f.close()
+
+    return dest_file
 
 
 def generate_model(dest_file: str, mtd_table: PNTableMetaData) -> List[str]:

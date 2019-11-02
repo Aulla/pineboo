@@ -66,7 +66,7 @@ def base_model(name: str) -> Any:
 
     path = _path("%s.mtd" % name, False)
     if path is None:
-        raise Exception("File %s.mtd not found" % name)
+        return None
     if path.find("system_module/tables") > -1:
         path = path.replace(
             "system_module/tables",

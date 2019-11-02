@@ -11,9 +11,6 @@ class TestMtdParserGeneral(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
-        from pineboolib.core.settings import config
-
-        config.set_value("ebcomportamiento/orm_parser_disabled", False)
 
         init_testing()
 
@@ -32,10 +29,24 @@ class TestMtdParserGeneral(unittest.TestCase):
         pnmtdparser.mtd_parse("flmodules")
         self.assertTrue(os.path.exists(file))
 
+    def test_orm_parser(self) -> None:
+        """Test ORM parser."""
+        from pineboolib.core.settings import config
+        from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
+        from pineboolib import application
+        import os
+
+        for table in application.project.conn_manager.useConn("default").tables("Tables"):
+            file_path = pnmtdparser.mtd_parse(table)
+            self.assertTrue(os.path.exists(file_path))
+
+        if config.value("ebcomportamiento/orm_load_disabled", True):
+            pnormmodelsfactory.load_models()
+
+        self.assertTrue(False)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
-        from pineboolib.core.settings import config
 
-        config.set_value("ebcomportamiento/orm_parser_disabled", True)
         finish_testing()

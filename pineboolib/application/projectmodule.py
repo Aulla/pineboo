@@ -20,6 +20,7 @@ from pineboolib.application.module import Module
 from pineboolib.application.utils.path import _dir
 from pineboolib.application.database import pnconnectionmanager
 
+
 if TYPE_CHECKING:
     from pineboolib.interfaces.dgi_schema import dgi_schema
     from pineboolib.application.database import pnconnection
@@ -309,7 +310,7 @@ class Project(object):
                         continue
 
                 elif file_name.endswith(".mtd"):
-                    if not config.value("ebcomportamiento/orm_parser_disabled", True):
+                    if not config.value("ebcomportamiento/orm_parser_disabled", False):
                         if os.path.exists("%s_model.py" % _dir("cache", fileobj.filekey[:-4])):
                             continue
                 else:
@@ -354,7 +355,7 @@ class Project(object):
             if self.parseProject and nombre.endswith(".qs"):
                 if os.path.exists(file_name):
                     list_files.append(file_name)
-                    # self.parseScript(file_name, "(%d de %d)" % (p, size_))
+
         f1.close()
         self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
 
@@ -375,6 +376,7 @@ class Project(object):
                     fileobj = File(idmodulo, nombre, basedir=root, db_name=conn.DBName())
                     self.files[nombre] = fileobj
                     self.modules[idmodulo].add_project_file(fileobj)
+
                     # if self.parseProject and nombre.endswith(".qs"):
                     # self.parseScript(_dir(root, nombre))
                     #    list_files.append(_dir(root, nombre))
@@ -383,8 +385,9 @@ class Project(object):
 
         if not config.value("ebcomportamiento/orm_load_disabled", False):
             self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
-            # from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import load_models
-            # load_models()
+            from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import load_models
+
+            load_models()
 
         # FIXME: ACLs needed at this level?
         # self.acl_ = FLAccessControlLists()
