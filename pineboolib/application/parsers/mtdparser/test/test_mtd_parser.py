@@ -31,7 +31,7 @@ class TestMtdParserGeneral(unittest.TestCase):
 
     def test_orm_parser(self) -> None:
         """Test ORM parser."""
-        from pineboolib.core.settings import config
+
         from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
         from pineboolib import application
         import os
