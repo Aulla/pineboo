@@ -283,7 +283,7 @@ class FLFormDB(QDialog):
             if self.widget:
                 self.widget.clear_connections()
 
-            if hasattr(self.iface, "init"):  # Meterlo en un hilo
+            if hasattr(self.iface, "init"):
                 try:
                     self.iface.init()
                 except Exception:
