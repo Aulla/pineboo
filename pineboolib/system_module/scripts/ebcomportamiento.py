@@ -346,6 +346,7 @@ class FormInternalObj(qsa.FormDBWidget):
         old_dir = self.fixPath(old_dir)
         new_dir = qsa.FileDialog.getExistingDirectory(old_dir)
         if new_dir and new_dir is not old_dir:
+            new_dir = new_dir[:-1]
             self.w_.findChild(QtWidgets.QWidget, "le_temporales").setText(new_dir)
             from pineboolib import application
 
