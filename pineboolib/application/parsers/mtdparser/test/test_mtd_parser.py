@@ -1,7 +1,7 @@
 """Test_sysbasetype module."""
 
 import unittest
-from pineboolib.loader.main import init_testing
+from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core.settings import config
 
 
@@ -11,6 +11,10 @@ class TestMtdParserGeneral(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
+        from pineboolib.core.settings import config
+
+        config.set_value("ebcomportamiento/orm_parser_disabled", False)
+
         init_testing()
 
     def test_basic(self) -> None:
@@ -27,3 +31,11 @@ class TestMtdParserGeneral(unittest.TestCase):
             os.remove(file)
         pnmtdparser.mtd_parse("flmodules")
         self.assertTrue(os.path.exists(file))
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        from pineboolib.core.settings import config
+
+        config.set_value("ebcomportamiento/orm_parser_disabled", True)
+        finish_testing()
