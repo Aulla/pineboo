@@ -213,7 +213,7 @@ class KParserTools(object):
 
         return ret
 
-    def converPageSize(
+    def convertPageSize(
         self, size: int, orientation: int, custom: Optional[List[int]] = None
     ) -> List[int]:
         """
@@ -299,13 +299,13 @@ class KParserTools(object):
         """
         fonts_folders: List[str] = []
         if sys.platform.find("win") > -1:
-            windir = os.environ.get("WINDIR")
-            if windir is None:
+            windirs = os.environ.get("WINDIR")
+            if windirs is None:
                 raise Exception("WINDIR environ not found!")
 
-            folders_ = os.path.join(windir, "fonts")
-            if folders_:
-                fonts_folders = fonts_folders
+            for win_dir in windirs.split(";"):
+                fonts_folders.append(os.path.join(win_dir, "fonts"))
+
         elif sys.platform.find("linux") > -1:
             lindirs = os.environ.get("XDG_DATA_DIRS", "")
             if not lindirs:

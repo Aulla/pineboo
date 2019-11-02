@@ -1090,7 +1090,7 @@ class Kut2FPDF(object):
             ]
 
         self._page_orientation = "P" if page_orientation == "0" else "L"
-        self._page_size = self._parser_tools.converPageSize(
+        self._page_size = self._parser_tools.convertPageSize(
             page_size, int(page_orientation), custom_size
         )  # devuelve un array
 

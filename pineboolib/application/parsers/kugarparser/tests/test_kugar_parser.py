@@ -67,7 +67,7 @@ class TestParser(unittest.TestCase):
 
         self.assertTrue(pdf_file)
 
-    def test_parser_tools(self) -> None:
+    def test_parser_tools_1(self) -> None:
         """Test parser tools."""
         from pineboolib.application.parsers.kugarparser import kparsertools
         from pineboolib import application
@@ -117,6 +117,64 @@ class TestParser(unittest.TestCase):
                 parser_tools.parseKey(str(bandera)),
                 os.path.abspath("%s/%s.png" % (application.project.tmpdir, bandera)),
             )
+
+    def test_parser_tools_2(self) -> None:
+        """Test parser tools."""
+        from pineboolib.application.parsers.kugarparser import kparsertools
+        from xml.etree import ElementTree as et
+        from decimal import Decimal
+
+        parser_tools = kparsertools.KParserTools()
+        self.assertEqual(parser_tools.convertPageSize(0, 0), [595, 842])
+        self.assertEqual(parser_tools.convertPageSize(1, 0), [709, 499])
+        self.assertEqual(parser_tools.convertPageSize(2, 0), [612, 791])
+        self.assertEqual(parser_tools.convertPageSize(3, 0), [612, 1009])
+        self.assertEqual(parser_tools.convertPageSize(5, 0), [2384, 3370])
+        self.assertEqual(parser_tools.convertPageSize(6, 0), [1684, 2384])
+        self.assertEqual(parser_tools.convertPageSize(7, 0), [1191, 1684])
+        self.assertEqual(parser_tools.convertPageSize(8, 0), [842, 1191])
+        self.assertEqual(parser_tools.convertPageSize(9, 0), [420, 595])
+        self.assertEqual(parser_tools.convertPageSize(10, 0), [298, 420])
+        self.assertEqual(parser_tools.convertPageSize(11, 0), [210, 298])
+        self.assertEqual(parser_tools.convertPageSize(12, 0), [147, 210])
+        self.assertEqual(parser_tools.convertPageSize(13, 0), [105, 147])
+        self.assertEqual(parser_tools.convertPageSize(14, 0), [4008, 2835])
+        self.assertEqual(parser_tools.convertPageSize(15, 0), [2835, 2004])
+        self.assertEqual(parser_tools.convertPageSize(16, 0), [125, 88])
+        self.assertEqual(parser_tools.convertPageSize(17, 0), [2004, 1417])
+        self.assertEqual(parser_tools.convertPageSize(18, 0), [1417, 1001])
+        self.assertEqual(parser_tools.convertPageSize(19, 0), [1001, 709])
+        self.assertEqual(parser_tools.convertPageSize(20, 0), [499, 354])
+        self.assertEqual(parser_tools.convertPageSize(21, 0), [324, 249])
+        self.assertEqual(parser_tools.convertPageSize(22, 0), [249, 176])
+        self.assertEqual(parser_tools.convertPageSize(23, 0), [176, 125])
+        self.assertEqual(parser_tools.convertPageSize(24, 0), [649, 459])
+        self.assertEqual(parser_tools.convertPageSize(25, 0), [113, 79])
+        self.assertEqual(parser_tools.convertPageSize(28, 0), [1255, 791])
+        self.assertEqual(parser_tools.convertPageSize(29, 0), [791, 1255])
+        self.assertEqual(parser_tools.convertPageSize(30, 0, [100, 200]), [100, 200])
+        self.assertEqual(parser_tools.convertPageSize(100, 0), [595, 842])
+        xml = et.ElementTree()
+        root = et.Element("AllItems")
+        xml._setroot(root)
+        item_1 = et.SubElement(root, "Item")
+        item_1.set("valor", 21.00)
+        item_1.set("level", "1")
+        item_2 = et.SubElement(root, "Item")
+        item_2.set("valor", 26.29)
+        item_2.set("level", "2")
+        item_3 = et.SubElement(root, "Item")
+        item_3.set("valor", 5.84)
+        item_3.set("level", "1")
+
+        ret_0 = float(
+            parser_tools.calculate_sum("valor", et.Element("Empty"), xml.findall("Item"), 0)
+        )
+        ret_1 = float(
+            parser_tools.calculate_sum("valor", et.Element("Empty"), xml.findall("Item"), 1)
+        )
+        self.assertEqual(float(Decimal(format(ret_0, ".2f"))), 53.13)  # level > 0
+        self.assertEqual(float(Decimal(format(ret_1, ".2f"))), 26.29)  # level > 1
 
     @classmethod
     def tearDownClass(cls) -> None:
