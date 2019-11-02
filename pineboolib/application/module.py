@@ -65,7 +65,7 @@ class Module(object):
 
         path_xml = _path("%s.xml" % self.name)
 
-        if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
+        if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
             ret_xml = mng_modules.contentStatic(
                 "%s.xml" % self.name, True
             )  # Con True solo devuelve el path

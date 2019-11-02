@@ -57,16 +57,16 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
         script_path_py = _path("%s.py" % scriptname, False)
 
         mng_modules = project.conn_manager.managerModules()
-        if mng_modules.staticBdInfo_ and mng_modules.staticBdInfo_.enabled_:
+        if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
             from pineboolib.application.staticloader.pnmodulesstaticloader import PNStaticLoader
 
             script_path_py_static = PNStaticLoader.content(
-                "%s.py" % scriptname, mng_modules.staticBdInfo_, True
+                "%s.py" % scriptname, mng_modules.static_db_info_, True
             )  # Con True solo devuelve el path
 
             if script_path_py_static is None:
                 script_path_qs_static = PNStaticLoader.content(
-                    "%s.qs" % scriptname, mng_modules.staticBdInfo_, True
+                    "%s.qs" % scriptname, mng_modules.static_db_info_, True
                 )  # Con True solo devuelve el path
 
         if script_path_py is not None or script_path_py_static:
