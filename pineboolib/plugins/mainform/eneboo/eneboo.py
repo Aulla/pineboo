@@ -764,7 +764,6 @@ class MainForm(QtWidgets.QMainWindow):
 
     def updateMenuAndDocks(self) -> None:
         """Update the main menu and dockers."""
-
         # FIXME: Duplicated piece of code
         self.updateActionGroup()
         pinebooMenu = self.w_.findChild(QtWidgets.QMenu, "menuPineboo")
@@ -1057,7 +1056,6 @@ class MainForm(QtWidgets.QMainWindow):
 
     def widgetActions(self, ui_file: str, parent: Any) -> Any:
         """Collect the actions provided by a widget."""
-
         mng = flapplication.aqApp.db().managerModules()
         doc = QtXml.QDomDocument()
         cc = mng.contentCached(ui_file)
@@ -1233,7 +1231,6 @@ class MainForm(QtWidgets.QMainWindow):
 
     def triggerAction(self, signature: str) -> None:
         """Start a process according to a given pattern."""
-
         mw = self
         sgt = signature.split(":")
         # ok = True

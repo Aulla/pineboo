@@ -281,14 +281,14 @@ class MainForm(QtWidgets.QMainWindow):
         if w:
             w.setFocus()
 
-    def existFormInMDI(self, id) -> bool:
+    def existFormInMDI(self, id: str) -> bool:
         """Return if named FLFormDB is open."""
         from pineboolib.fllegacy.flformdb import FLFormDB
 
         if id is None or not self._p_work_space:
             return False
 
-        for window in self.subWindowList():
+        for window in self._p_work_space.subWindowList():
             s = window.findChild(FLFormDB)
             if s.idMDI() == id:
                 window.showNormal()
@@ -302,7 +302,7 @@ class MainForm(QtWidgets.QMainWindow):
         if self._p_work_space is None:
             return
 
-        self._p_work_space.closeActiveWindow()
+        self._p_work_space.closeActiveSubWindow()
 
     def workspace(self) -> Any:
         """Get current workspace."""

@@ -1,10 +1,14 @@
 """Test Eneboo module."""
 
+from PyQt5 import QtWidgets
+
 import unittest
 import importlib
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
-from PyQt5 import QtWidgets
+
+from pineboolib.core.settings import config
+from . import fixture_path
 
 
 class TestEnebooGUI(unittest.TestCase):
@@ -15,11 +19,16 @@ class TestEnebooGUI(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
+        config.set_value("application/isDebuggerMode", True)
+        config.set_value("application/dbadmin_enabled", True)
+
         init_testing()
 
     def test_initialize(self) -> None:
         """Test GUI initialize."""
         from pineboolib.fllegacy import flapplication
+        from pineboolib.qsa import qsa
+        import os
 
         project = application.project
         project.main_form = importlib.import_module(
@@ -27,11 +36,27 @@ class TestEnebooGUI(unittest.TestCase):
         )
         project.main_window = getattr(project.main_form, "mainWindow", None)
         main_form_ = getattr(project.main_form, "MainForm", None)
+
         self.assertTrue(main_form_)
         self.main_w = main_form_()
         self.main_w.initScript()
         self.main_w.show()
+
+        qsa_sys = qsa.sys
+        path = fixture_path("principal.eneboopkg")
+        self.assertTrue(os.path.exists(path))
+        qsa_sys.loadModules(path, False)
+        self.main_w = project.main_window
+
         self.assertTrue(self.main_w)
+
+        self.main_w.initToolBar()
+        self.main_w.windowMenuAboutToShow()
+        self.main_w.activateModule("sys")
+        self.assertFalse(self.main_w.existFormInMDI("flusers"))
+        project.actions["flusers"].openDefaultForm()
+        self.assertTrue(self.main_w.existFormInMDI("flusers"))
+        self.main_w.windowClose()
         flapplication.aqApp.stopTimerIdle()
 
     @classmethod
@@ -39,4 +64,8 @@ class TestEnebooGUI(unittest.TestCase):
         """Ensure this class is finished correctly."""
         del application.project.main_form
         del application.project.main_window
+
+        config.set_value("application/isDebuggerMode", False)
+        config.set_value("application/dbadmin_enabled", False)
+
         finish_testing()
