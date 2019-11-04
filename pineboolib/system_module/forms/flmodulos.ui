@@ -28,7 +28,7 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <widget class="FLFieldDB" name="flfielddb">
+           <widget class="FLFieldDB" name="idMod">
             <property name="fieldName">
              <string>idmodulo</string>
             </property>
