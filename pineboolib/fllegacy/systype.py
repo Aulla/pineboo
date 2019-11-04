@@ -8,10 +8,7 @@ import sys
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5 import QtXml
-from PyQt5.QtCore import QFile, QTextStream
-from PyQt5.QtCore import Qt, QDir, pyqtSignal
-from PyQt5.QtWidgets import QFileDialog, QApplication, QGroupBox, QCheckBox
-from PyQt5.QtWidgets import QFrame
+
 
 from pineboolib.core.settings import settings
 from pineboolib.core import decorators
@@ -483,16 +480,16 @@ class SysType(SysBaseType):
         # lay.setSpacing(6)
         lbl = QLabel(diag)
         lbl.setText(txt)
-        lbl.setAlignment(cast(Qt.Alignment, Qt.AlignTop))
+        lbl.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.AlignTop))
         lay.addWidget(lbl)
         ted = QTextEdit(diag)
         ted.setTextFormat(QTextEdit.LogText)
-        ted.setAlignment(cast(Qt.Alignment, Qt.AlignHCenter | Qt.AlignVCenter))
+        ted.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter))
         ted.append(self.reportChanges(changes))
         lay.addWidget(ted)
         lbl2 = QLabel(diag)
         lbl2.setText(self.translate("¿Que desea hacer?"))
-        lbl2.setAlignment(cast(Qt.Alignment, Qt.AlignTop))
+        lbl2.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.AlignTop))
         lay.addWidget(lbl2)
         lay2 = QHBoxLayout()
         # lay2.setMargin(6)
@@ -635,8 +632,8 @@ class SysType(SysBaseType):
         if input_ is None:
             dir_ = Dir(self.installPrefix())
             dir_.setCurrent()
-            path_tuple = QFileDialog.getOpenFileName(
-                QApplication.focusWidget(),
+            path_tuple = QtWidgets.QFileDialog.getOpenFileName(
+                QtWidgets.QApplication.focusWidget(),
                 u"Eneboo/AbanQ Packages",
                 self.translate(u"scripts", u"Seleccionar Fichero"),
                 "*.eneboopkg",
@@ -953,7 +950,7 @@ class SysType(SysBaseType):
         lay2.addWidget(lblPix)
         lbl = QLabel(diag)
         lbl.setText(msg)
-        lbl.setAlignment(cast(Qt.Alignment, AQS.AlignTop | AQS.WordBreak))
+        lbl.setAlignment(cast(QtCore.Qt.Alignment, AQS.AlignTop | AQS.WordBreak))
         lay2.addWidget(lbl)
         lay3 = QHBoxLayout(lay)
         lay3.setMargin(6)
@@ -970,7 +967,7 @@ class SysType(SysBaseType):
         if keyRemember and txtRemember:
             # from pineboolib.q3widgets.qcheckbox import QCheckBox
 
-            chkRemember = QCheckBox(txtRemember, diag)
+            chkRemember = QtWidgets.QCheckBox(txtRemember, diag)
             chkRemember.setChecked(valRemember)
             lay.addWidget(chkRemember)
         ret = MessageBox.No if (diag.exec_() == 0) else MessageBox.Yes
@@ -1090,14 +1087,14 @@ class SysType(SysBaseType):
 
         from pineboolib.application.types import File
 
-        # from PyQt5.QtCore import QTextStream
+        # from PyQt5.QtCore import QtCore.QTextStream
 
         fileISO = File(file_name, "ISO8859-15")
         fileISO.write(content)
         # if not fileISO.open(File.WriteOnly):
         #    logger.warning(ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
         #    return False
-        # tsISO = QTextStream(fileISO)
+        # tsISO = QtCore.QTextStream(fileISO)
         # tsISO.setCodec(AQS.TextCodec_codecForName(u"ISO8859-15"))
         # tsISO.opIn(content)
         fileISO.close()
@@ -1107,14 +1104,14 @@ class SysType(SysBaseType):
         """Write data into a file with UTF-8 encode."""
         from pineboolib.application.types import File
 
-        # from PyQt5.QtCore import QTextStream
+        # from PyQt5.QtCore import QtCore.QTextStream
 
         fileUTF = File(file_name, "UTF-8")
         fileUTF.write(content)
         # if not fileUTF.open(File.WriteOnly):
         #    logger.warning(ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
         #    return False
-        # tsUTF = QTextStream(fileUTF.ioDevice)
+        # tsUTF = QtCore.QTextStream(fileUTF.ioDevice)
         # tsUTF.setCodec(AQS.TextCodec_codecForName(u"utf8"))
         # tsUTF.opIn(content)
         fileUTF.close()
@@ -1231,7 +1228,7 @@ class SysType(SysBaseType):
             return
         dirMods = Dir.cleanDirPath(dirMods)
         dirMods = Dir.convertSeparators(dirMods)
-        QDir.setCurrent(dirMods)  # change current directory
+        QtCore.QDir.setCurrent(dirMods)  # change current directory
         listFilesMod = self.selectModsDialog(flutil.FLUtil.findFiles(dirMods, u"*.mod", False))
         flutil.FLUtil.createProgressDialog(self.translate(u"Importando"), len(listFilesMod))
         flutil.FLUtil.setProgress(1)
@@ -1267,7 +1264,7 @@ class SysType(SysBaseType):
         dialog = Dialog()
         dialog.okButtonText = self.translate(u"Aceptar")
         dialog.cancelButtonText = self.translate(u"Cancelar")
-        bgroup = QGroupBox()
+        bgroup = QtWidgets.QGroupBox()
         bgroup.setTitle(self.translate(u"Seleccione módulos a importar"))
         dialog.add(bgroup)
         res = Array()
@@ -1280,7 +1277,7 @@ class SysType(SysBaseType):
                 while_pass = True
                 continue
             while_pass = False
-            cB[i] = QCheckBox()
+            cB[i] = QtWidgets.QCheckBox()
             bgroup.add(cB[i])
             cB[i].text = listFilesMod[i]
             cB[i].checked = True
@@ -1783,10 +1780,10 @@ class AbanQDbDumper(QtCore.QObject):
         self.w_.resize(800, 600)
         # lay = QVBoxLayout(self.w_, 6, 6)
         lay = QVBoxLayout(self.w_)
-        frm = QFrame(self.w_)
-        frm.setFrameShape(QFrame.Box)
+        frm = QtWidgets.QFrame(self.w_)
+        frm.setFrameShape(QtWidgets.QFrame.Box)
         frm.setLineWidth(1)
-        frm.setFrameShadow(QFrame.Plain)
+        frm.setFrameShadow(QtWidgets.QFrame.Plain)
 
         # layFrm = QVBoxLayout(frm, 6, 6)
         layFrm = QVBoxLayout(frm)
@@ -1795,23 +1792,23 @@ class AbanQDbDumper(QtCore.QObject):
             SysType.translate(u"Driver: %s")
             % (str(self.db_.driverNameToDriverAlias(self.db_.driverName())))
         )
-        lbl.setAlignment(Qt.AlignTop)
+        lbl.setAlignment(QtCore.Qt.AlignTop)
         layFrm.addWidget(lbl)
         lbl = QLabel(frm)
         lbl.setText(SysType.translate(u"Base de datos: %s") % (str(self.db_.database())))
-        lbl.setAlignment(Qt.AlignTop)
+        lbl.setAlignment(QtCore.Qt.AlignTop)
         layFrm.addWidget(lbl)
         lbl = QLabel(frm)
         lbl.setText(SysType.translate(u"Host: %s") % (str(self.db_.host())))
-        lbl.setAlignment(Qt.AlignTop)
+        lbl.setAlignment(QtCore.Qt.AlignTop)
         layFrm.addWidget(lbl)
         lbl = QLabel(frm)
         lbl.setText(SysType.translate(u"Puerto: %s") % (str(self.db_.port())))
-        lbl.setAlignment(Qt.AlignTop)
+        lbl.setAlignment(QtCore.Qt.AlignTop)
         layFrm.addWidget(lbl)
         lbl = QLabel(frm)
         lbl.setText(SysType.translate(u"Usuario: %s") % (str(self.db_.user())))
-        lbl.setAlignment(Qt.AlignTop)
+        lbl.setAlignment(QtCore.Qt.AlignTop)
         layFrm.addWidget(lbl)
         layAux = QHBoxLayout()
         layFrm.addLayout(layAux)
@@ -1819,7 +1816,7 @@ class AbanQDbDumper(QtCore.QObject):
         self.lblDirBase_.setText(
             SysType.translate(u"Directorio Destino: %s") % (str(self.dirBase_))
         )
-        self.lblDirBase_.setAlignment(Qt.AlignVCenter)
+        self.lblDirBase_.setAlignment(QtCore.Qt.AlignVCenter)
         layAux.addWidget(self.lblDirBase_)
         self.pbChangeDir_ = QPushButton(SysType.translate(u"Cambiar"), frm)
         self.pbChangeDir_.setSizePolicy(
@@ -1836,7 +1833,9 @@ class AbanQDbDumper(QtCore.QObject):
         lay.addWidget(lbl)
         self.tedLog_ = QTextEdit(self.w_)
         self.tedLog_.setTextFormat(QTextEdit.LogText)
-        self.tedLog_.setAlignment(cast(Qt.Alignment, Qt.AlignHCenter | Qt.AlignVCenter))
+        self.tedLog_.setAlignment(
+            cast(QtCore.Qt.Alignment, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        )
         lay.addWidget(self.tedLog_)
 
     def initDump(self) -> None:
@@ -1909,8 +1908,8 @@ class AbanQDbDumper(QtCore.QObject):
         self.proc_.setProgram(command[0])
         self.proc_.setArguments(command[1:])
         # FIXME: Mejorar lectura linea a linea
-        cast(pyqtSignal, self.proc_.readyReadStandardOutput).connect(self.readFromStdout)
-        cast(pyqtSignal, self.proc_.readyReadStandardError).connect(self.readFromStderr)
+        cast(QtCore.pyqtSignal, self.proc_.readyReadStandardOutput).connect(self.readFromStdout)
+        cast(QtCore.pyqtSignal, self.proc_.readyReadStandardError).connect(self.readFromStderr)
         self.proc_.start()
 
         while self.proc_.running:
@@ -2083,10 +2082,10 @@ class AbanQDbDumper(QtCore.QObject):
         """Dump a table to a CSV."""
 
         fileName = ustr(dirBase, table, u".csv")
-        file = QFile(fileName)
+        file = QtCore.QFile(fileName)
         if not file.open(File.WriteOnly):
             return False
-        ts = QTextStream(file.ioDevice())
+        ts = QtCore.QTextStream(file.ioDevice())
         ts.setCodec(AQS.TextCodec_codecForName(u"utf8"))
         qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(ustr(table, u".*"))
