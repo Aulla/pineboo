@@ -6,8 +6,7 @@ import os.path
 import sys
 
 
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5 import QtXml
+from PyQt5 import QtCore, QtWidgets, QtGui, QtXml
 
 
 from pineboolib.core.settings import settings
@@ -17,14 +16,17 @@ from pineboolib.core.system import System
 from pineboolib.core.utils import logging
 from pineboolib.core.error_manager import error_manager
 
-from pineboolib.application import project
-from pineboolib.application.types import Array, Date, File, Dir, FileStatic
+from pineboolib import application
+from pineboolib.application import types
+
+from pineboolib.application.database import pnsqlcursor, pnsqlquery
+from pineboolib.application.database.utils import sqlSelect
+
 from pineboolib.application.packager.aqunpacker import AQUnpacker
 from pineboolib.application import connections
 from pineboolib.application.qsatypes.sysbasetype import SysBaseType
-from pineboolib.application.database import pnsqlcursor
-from pineboolib.application.database import pnsqlquery
-from pineboolib.application.database.utils import sqlSelect
+
+
 from pineboolib.application.process import Process
 
 
@@ -138,8 +140,6 @@ class SysType(SysBaseType):
     @classmethod
     def transactionLevel(self) -> int:
         """Return transaction level."""
-
-        from pineboolib import application
 
         return application.project.conn_manager.useConn("default").transactionLevel()
 
@@ -339,9 +339,9 @@ class SysType(SysBaseType):
         return docRet
 
     @classmethod
-    def mvProjectModules(self) -> Array:
+    def mvProjectModules(self) -> types.Array:
         """Return modules defitions Dict."""
-        ret = Array()
+        ret = types.Array()
         doc = self.mvProjectXml()
         mods = doc.elementsByTagName(u"module")
         i = 0
@@ -367,10 +367,10 @@ class SysType(SysBaseType):
         return ret
 
     @classmethod
-    def mvProjectExtensions(self) -> Array:
+    def mvProjectExtensions(self) -> types.Array:
         """Return project extensions Dict."""
 
-        ret = Array()
+        ret = types.Array()
         doc = self.mvProjectXml()
         exts = doc.elementsByTagName(u"extension")
         i = 0
@@ -443,8 +443,8 @@ class SysType(SysBaseType):
         unpacker.jump()
         unpacker.jump()
         unpacker.jump()
-        now = Date()
-        file = File(input_)
+        now = types.Date()
+        file = types.File(input_)
         fileName = file.name
         modulesDef = self.toUnicode(unpacker.getText(), u"utf8")
         filesDef = self.toUnicode(unpacker.getText(), u"utf8")
@@ -630,7 +630,7 @@ class SysType(SysBaseType):
         """Load modules from a package."""
 
         if input_ is None:
-            dir_ = Dir(self.installPrefix())
+            dir_ = types.Dir(self.installPrefix())
             dir_.setCurrent()
             path_tuple = QtWidgets.QFileDialog.getOpenFileName(
                 QtWidgets.QApplication.focusWidget(),
@@ -979,14 +979,14 @@ class SysType(SysBaseType):
     def exportModules(self) -> None:
         """Export modules."""
 
-        dirBasePath = FileDialog.getExistingDirectory(Dir.home)
+        dirBasePath = FileDialog.getExistingDirectory(types.Dir.home)
         if not dirBasePath:
             return
-        dataBaseName = project.conn_manager.mainConn().db_name_
-        dirBasePath = Dir.cleanDirPath(
+        dataBaseName = application.project.conn_manager.mainConn().db_name_
+        dirBasePath = types.Dir.cleanDirPath(
             ustr(dirBasePath, u"/modulos_exportados_", dataBaseName[dataBaseName.rfind(u"/") + 1 :])
         )
-        dir = Dir()
+        dir = types.Dir()
         if not dir.fileExists(dirBasePath):
             try:
                 dir.mkdir(dirBasePath)
@@ -1032,7 +1032,7 @@ class SysType(SysBaseType):
             tag.toElement().setAttribute(u"name", dbProName)
             doc.appendChild(tag)
             try:
-                FileStatic.write(ustr(dirBasePath, u"/mvproject.xml"), doc.toString(2))
+                types.FileStatic.write(ustr(dirBasePath, u"/mvproject.xml"), doc.toString(2))
             except Exception:
                 e = traceback.format_exc()
                 flutil.FLUtil.destroyProgressDialog()
@@ -1085,13 +1085,11 @@ class SysType(SysBaseType):
     def fileWriteIso(self, file_name: str, content: str) -> None:
         """Write data into a file with ISO-8859-15 encode."""
 
-        from pineboolib.application.types import File
-
         # from PyQt5.QtCore import QtCore.QTextStream
 
-        fileISO = File(file_name, "ISO8859-15")
+        fileISO = types.File(file_name, "ISO8859-15")
         fileISO.write(content)
-        # if not fileISO.open(File.WriteOnly):
+        # if not fileISO.open(types.File.WriteOnly):
         #    logger.warning(ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
         #    return False
         # tsISO = QtCore.QTextStream(fileISO)
@@ -1102,13 +1100,12 @@ class SysType(SysBaseType):
     @classmethod
     def fileWriteUtf8(self, file_name: str, content: str) -> None:
         """Write data into a file with UTF-8 encode."""
-        from pineboolib.application.types import File
 
         # from PyQt5.QtCore import QtCore.QTextStream
 
-        fileUTF = File(file_name, "UTF-8")
+        fileUTF = types.File(file_name, "UTF-8")
         fileUTF.write(content)
-        # if not fileUTF.open(File.WriteOnly):
+        # if not fileUTF.open(types.File.WriteOnly):
         #    logger.warning(ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
         #    return False
         # tsUTF = QtCore.QTextStream(fileUTF.ioDevice)
@@ -1120,8 +1117,8 @@ class SysType(SysBaseType):
     def exportModule(self, idMod: str, dirBasePath: str) -> None:
         """Export a module to a directory."""
 
-        dir = Dir()
-        dirPath = Dir.cleanDirPath(ustr(dirBasePath, u"/", idMod))
+        dir = types.Dir()
+        dirPath = types.Dir.cleanDirPath(ustr(dirBasePath, u"/", idMod))
         if not dir.fileExists(dirPath):
             dir.mkdir(dirPath)
         if not dir.fileExists(ustr(dirPath, u"/forms")):
@@ -1226,8 +1223,8 @@ class SysType(SysBaseType):
         )
         if not dirMods:
             return
-        dirMods = Dir.cleanDirPath(dirMods)
-        dirMods = Dir.convertSeparators(dirMods)
+        dirMods = types.Dir.cleanDirPath(dirMods)
+        dirMods = types.Dir.convertSeparators(dirMods)
         QtCore.QDir.setCurrent(dirMods)  # change current directory
         listFilesMod = self.selectModsDialog(flutil.FLUtil.findFiles(dirMods, u"*.mod", False))
         flutil.FLUtil.createProgressDialog(self.translate(u"Importando"), len(listFilesMod))
@@ -1258,7 +1255,7 @@ class SysType(SysBaseType):
         AQTimer.singleShot(0, self.reinit)
 
     @classmethod
-    def selectModsDialog(self, listFilesMod: List = []) -> Array:
+    def selectModsDialog(self, listFilesMod: List = []) -> types.Array:
         """Select modules dialog."""
 
         dialog = Dialog()
@@ -1267,8 +1264,8 @@ class SysType(SysBaseType):
         bgroup = QtWidgets.QGroupBox()
         bgroup.setTitle(self.translate(u"Seleccione módulos a importar"))
         dialog.add(bgroup)
-        res = Array()
-        cB = Array()
+        res = types.Array()
+        cB = types.Array()
         i = 0
         while_pass = True
         while i < len(listFilesMod):
@@ -1402,10 +1399,10 @@ class SysType(SysBaseType):
     def importFile(self, filePath: str, idMod: str) -> bool:
         """Import a file from a path."""
 
-        file = File(filePath)
+        file = types.File(filePath)
         content = u""
         try:
-            file.open(File.ReadOnly)
+            file.open(types.File.ReadOnly)
             content = str(file.read())
         except Exception:
             e = traceback.format_exc()
@@ -1447,7 +1444,7 @@ class SysType(SysBaseType):
                 contenidoCopia = cur.valueBuffer(u"contenido")
                 cur.setModeAccess(AQSql.Insert)
                 cur.refreshBuffer()
-                d = Date()
+                d = types.Date()
                 cur.setValueBuffer(u"nombre", name + str(d))
                 cur.setValueBuffer(u"idmodulo", idMod)
                 cur.setValueBuffer(u"contenido", contenidoCopia)
@@ -1484,7 +1481,7 @@ class SysType(SysBaseType):
             if not localEnc:
                 localEnc = u"ISO-8859-15"
             content = self.fromUnicode(content, localEnc)
-            f = FileStatic()
+            f = types.FileStatic()
             try:
                 f.write(filePath, content)
             except Exception:
@@ -1502,8 +1499,6 @@ class SysType(SysBaseType):
         roll_back_: bool = False
         error_msg_: str = ""
         valor_: Any
-
-        from pineboolib import application
 
         db_ = application.project.conn_manager.useConn("default")
 
@@ -1743,7 +1738,7 @@ class AbanQDbDumper(QtCore.QObject):
     pbChangeDir_: QPushButton
     tedLog_: QTextEdit
     pbInitDump_: QPushButton
-    state_: Array
+    state_: types.Array
     funLog_: Callable
     proc_: Process
 
@@ -1760,11 +1755,11 @@ class AbanQDbDumper(QtCore.QObject):
 
         self.db_ = flapplication.aqApp.db() if db is None else db
         self.showGui_ = showGui
-        self.dirBase_ = Dir.home if dirBase is None else dirBase
+        self.dirBase_ = types.Dir.home if dirBase is None else dirBase
 
         self.fileName_ = self.genFileName()
         self.encoding = sys.getdefaultencoding()
-        self.state_ = Array()
+        self.state_ = types.Array()
 
     def init(self) -> None:
         """Inicialize dump dialog."""
@@ -1857,7 +1852,7 @@ class AbanQDbDumper(QtCore.QObject):
 
     def genFileName(self) -> str:
         """Return a file name."""
-        now = Date()
+        now = types.Date()
         timeStamp = str(now)
         regExp = ["-", ":"]
         # regExp.global_ = True
@@ -1865,8 +1860,8 @@ class AbanQDbDumper(QtCore.QObject):
             timeStamp = timeStamp.replace(rE, u"")
 
         fileName = "%s/dump_%s_%s" % (self.dirBase_, self.db_.database(), timeStamp)
-        fileName = Dir.cleanDirPath(fileName)
-        fileName = Dir.convertSeparators(fileName)
+        fileName = types.Dir.cleanDirPath(fileName)
+        fileName = types.Dir.convertSeparators(fileName)
         return fileName
 
     def changeDirBase(self, dir_: Optional[str] = None) -> None:
@@ -1897,7 +1892,7 @@ class AbanQDbDumper(QtCore.QObject):
         self.state_.ok = ok
         self.state_.msg = msg
 
-    def state(self) -> Array:
+    def state(self) -> types.Array:
         """Return state."""
 
         return self.state_
@@ -1950,10 +1945,10 @@ class AbanQDbDumper(QtCore.QObject):
             self.funLog_(self.state_.msg)
             self.dumpAllTablesToCsv()
             return False
-        file = File(self.fileName_)  # noqa
+        file = types.File(self.fileName_)  # noqa
         try:
             if not os.path.exists(self.fileName_):
-                dir_ = Dir(self.fileName_)  # noqa
+                dir_ = types.Dir(self.fileName_)  # noqa
 
         except Exception:
             e = traceback.format_exc()
@@ -2083,7 +2078,7 @@ class AbanQDbDumper(QtCore.QObject):
 
         fileName = ustr(dirBase, table, u".csv")
         file = QtCore.QFile(fileName)
-        if not file.open(File.WriteOnly):
+        if not file.open(types.File.WriteOnly):
             return False
         ts = QtCore.QTextStream(file.ioDevice())
         ts.setCodec(AQS.TextCodec_codecForName(u"utf8"))
@@ -2149,9 +2144,9 @@ class AbanQDbDumper(QtCore.QObject):
         """Dump all tables to a csv files."""
         fileName = self.fileName_
         tables = self.db_.tables(AQSql.TableType.Tables)
-        dir_ = Dir(fileName)
+        dir_ = types.Dir(fileName)
         dir_.mkdir()
-        dirBase = Dir.convertSeparators(ustr(fileName, u"/"))
+        dirBase = types.Dir.convertSeparators(ustr(fileName, u"/"))
         # i = 0
         # while_pass = True
         for table_ in tables:
@@ -2162,8 +2157,8 @@ class AbanQDbDumper(QtCore.QObject):
 class AQGlobalFunctions(QtCore.QObject):
     """AQSGlobalFunction class."""
 
-    functions_ = Array()
-    mappers_ = Array()
+    functions_ = types.Array()
+    mappers_ = types.Array()
     count_ = 0
 
     def set(self, function_name: str, global_function: Callable) -> None:
