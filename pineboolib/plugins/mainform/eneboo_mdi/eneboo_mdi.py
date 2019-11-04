@@ -279,7 +279,7 @@ class MainForm(QtWidgets.QMainWindow):
 
         window_list_ = self._p_work_space.subWindowList()
         if window_list_:
-            w = window_list_[id].setFocus()
+            window_list_[id].setFocus()
 
     def existFormInMDI(self, id: str) -> bool:
         """Return if named FLFormDB is open."""
