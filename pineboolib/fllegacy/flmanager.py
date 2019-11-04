@@ -1464,6 +1464,11 @@ class FLManager(QtCore.QObject, IManager):
         else:
             self.dictKeyMetaData_ = {}
 
+        if self.metadataCachedFails:
+            self.metadataCachedFails.clear()
+        else:
+            self.metadataCachedFails = {}
+
         self.loadTables()
         self.db_.connManager().managerModules().loadKeyFiles()
         self.db_.connManager().managerModules().loadAllIdModules()
