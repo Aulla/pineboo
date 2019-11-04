@@ -3491,6 +3491,8 @@ class FLFieldDB(QtWidgets.QWidget):
         Create a very schematic preview of the editor, but enough to
         See the position and approximate size of the actual editor.
         """
+        if hasattr(self, "editor_"):
+            return
 
         hasPushButtonDB = None
         if not self.tableName_ and not self.foreignField_ and not self.fieldRelation_:
