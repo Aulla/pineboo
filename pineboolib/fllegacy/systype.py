@@ -8,31 +8,24 @@ import sys
 
 from PyQt5 import QtCore, QtWidgets, QtGui, QtXml
 
-
-from pineboolib.core.settings import settings
-from pineboolib.core import decorators
-from pineboolib.core.utils.utils_base import ustr, filedir, sha1
-from pineboolib.core.system import System
-from pineboolib.core.utils import logging
 from pineboolib.core.error_manager import error_manager
+from pineboolib.core.system import System
+from pineboolib.core.utils import utils_base, logging
+
+from pineboolib.core import settings, decorators
 
 from pineboolib import application
-from pineboolib.application import types
+from pineboolib.application import types, process
 
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
-from pineboolib.application.database.utils import sqlSelect
+from pineboolib.application.database import utils as utils_db
 
-from pineboolib.application.packager.aqunpacker import AQUnpacker
-from pineboolib.application import connections
-from pineboolib.application.qsatypes.sysbasetype import SysBaseType
-
-
-from pineboolib.application.process import Process
+from pineboolib.application.packager import aqunpacker
+from pineboolib.application.qsatypes import sysbasetype
 
 
 from .aqsobjects.aqs import AQS
 from .aqsobjects.aqsql import AQSql
-from .aqsobjects.aqsettings import AQSettings
 
 from . import flutil
 from . import flapplication
@@ -63,7 +56,7 @@ class AQTimer(QtCore.QTimer):
     pass
 
 
-class SysType(SysBaseType):
+class SysType(sysbasetype.SysBaseType):
     """SysType class."""
 
     time_user_ = QtCore.QDateTime.currentDateTime()
@@ -227,7 +220,7 @@ class SysType(SysBaseType):
                     while_pass = True
                     continue
                 while_pass = False
-                headInfo += ustr(u"<td><b>", fields[i], u"</b></td>")
+                headInfo += utils_base.ustr(u"<td><b>", fields[i], u"</b></td>")
                 i += 1
                 while_pass = True
                 try:
@@ -236,7 +229,7 @@ class SysType(SysBaseType):
                     break
 
             headInfo += u"</tr>"
-            headRecord = ustr(
+            headRecord = utils_base.ustr(
                 u'<table border="1"><tr><td><b>',
                 self.translate(u"scripts", u"Registro bloqueado"),
                 u"</b></td></tr>",
@@ -255,7 +248,9 @@ class SysType(SysBaseType):
                         html += u"</table>"
                     if not closeRecord:
                         html += headRecord
-                    html += ustr(u"<tr><td>", item[(len(item) - (len(item) - 2)) :], u"</td></tr>")
+                    html += utils_base.ustr(
+                        u"<tr><td>", item[(len(item) - (len(item) - 2)) :], u"</td></tr>"
+                    )
                     closeRecord = True
                     closeInfo = False
 
@@ -274,7 +269,7 @@ class SysType(SysBaseType):
                             while_pass = True
                             continue
                         while_pass = False
-                        html += ustr(u"<td>", fields[j], u"</td>")
+                        html += utils_base.ustr(u"<td>", fields[j], u"</td>")
                         j += 1
                         while_pass = True
                         try:
@@ -303,7 +298,7 @@ class SysType(SysBaseType):
         """Extract a module defition to a QDomDocument."""
 
         docRet = QtXml.QDomDocument()
-        strXml = sqlSelect(u"flupdates", u"modulesdef", u"actual='true'")
+        strXml = utils_db.sqlSelect(u"flupdates", u"modulesdef", u"actual='true'")
         if not strXml:
             return docRet
         doc = QtXml.QDomDocument()
@@ -404,9 +399,9 @@ class SysType(SysBaseType):
         qry.setSelect(u"sha")
         qry.setFrom(u"flfiles")
         if qry.exec_() and qry.first():
-            v = sha1(str(qry.value(0)))
+            v = utils_base.sha1(str(qry.value(0)))
             while qry.next():
-                v = sha1(v + str(qry.value(0)))
+                v = utils_base.sha1(v + str(qry.value(0)))
 
         return v
 
@@ -416,7 +411,7 @@ class SysType(SysBaseType):
 
         if not input_:
             return
-        unpacker = AQUnpacker(input_)
+        unpacker = aqunpacker.AQUnpacker(input_)
         errors = unpacker.errorMessages()
         if len(errors) != 0:
             msg = self.translate(u"Hubo los siguientes errores al intentar cargar los módulos:")
@@ -429,7 +424,7 @@ class SysType(SysBaseType):
                     while_pass = True
                     continue
                 while_pass = False
-                msg += ustr(errors[i], u"\n")
+                msg += utils_base.ustr(errors[i], u"\n")
                 i += 1
                 while_pass = True
                 try:
@@ -501,8 +496,8 @@ class SysType(SysBaseType):
         pbAccept.setText(self.translate(u"continue"))
         lay2.addWidget(pbCancel)
         lay2.addWidget(pbAccept)
-        connections.connect(pbAccept, "clicked()", diag, "accept()")
-        connections.connect(pbCancel, "clicked()", diag, "reject()")
+        application.connections.connect(pbAccept, "clicked()", diag, "accept()")
+        application.connections.connect(pbCancel, "clicked()", diag, "reject()")
         return False if (diag.exec_() == 0) else True
 
     @classmethod
@@ -558,7 +553,7 @@ class SysType(SysBaseType):
             #    if self.binaryPacking(fName):
             #        ne = doc.createElement(u"binary")
             #        nf.appendChild(ne)
-            #        nt = doc.createTextNode(ustr(fName, u".qso"))
+            #        nt = doc.createTextNode(utils_base.ustr(fName, u".qso"))
             #        ne.appendChild(nt)
             #        sha = AQS.sha1(qry.value(3))
             #        ne = doc.createElement(u"shabinary")
@@ -584,7 +579,7 @@ class SysType(SysBaseType):
                 idMod = str(qry.value(0))
                 if idMod == u"sys":
                     continue
-                fName = ustr(idMod, u".xpm")
+                fName = utils_base.ustr(idMod, u".xpm")
                 ba = QByteArray()
                 ba.string = str(qry.value(1))
                 sha = ba.sha1()
@@ -664,7 +659,7 @@ class SysType(SysBaseType):
                 if not self.warnLocalChanges(changes):
                     return
             if ok:
-                unpacker = AQUnpacker(input_)
+                unpacker = aqunpacker.AQUnpacker(input_)
                 errors = unpacker.errorMessages()
                 if len(errors) != 0:
                     msg = self.translate(
@@ -679,7 +674,7 @@ class SysType(SysBaseType):
                             while_pass = True
                             continue
                         while_pass = False
-                        msg += ustr(errors[i], u"\n")
+                        msg += utils_base.ustr(errors[i], u"\n")
                         i += 1
                         while_pass = True
                         try:
@@ -746,13 +741,15 @@ class SysType(SysBaseType):
             }
             flutil.FLUtil.setProgress(i)
             flutil.FLUtil.setLabelText(
-                ustr(self.translate(u"Registrando fichero"), u" ", fil["id"])
+                utils_base.ustr(self.translate(u"Registrando fichero"), u" ", fil["id"])
             )
             if len(fil["id"]) == 0 or fil["skip"] == u"true":
                 continue
             if not self.registerFile(fil, un):
                 self.errorMsgBox(
-                    ustr(self.translate(u"Error registrando el fichero"), u" ", fil["id"])
+                    utils_base.ustr(
+                        self.translate(u"Error registrando el fichero"), u" ", fil["id"]
+                    )
                 )
                 ok = False
                 break
@@ -772,7 +769,7 @@ class SysType(SysBaseType):
 
         if fil["id"].endswith(u".xpm"):
             cur = pnsqlcursor.PNSqlCursor(u"flmodules")
-            if not cur.select(ustr(u"idmodulo='", fil["module"], u"'")):
+            if not cur.select(utils_base.ustr(u"idmodulo='", fil["module"], u"'")):
                 return False
             if not cur.first():
                 return False
@@ -782,7 +779,7 @@ class SysType(SysBaseType):
             return cur.commitBuffer()
 
         cur = pnsqlcursor.PNSqlCursor(u"flfiles")
-        if not cur.select(ustr(u"nombre='", fil["id"], u"'")):
+        if not cur.select(utils_base.ustr(u"nombre='", fil["id"], u"'")):
             return False
         cur.setModeAccess((AQSql.Edit if cur.first() else AQSql.Insert))
         cur.refreshBuffer()
@@ -867,10 +864,12 @@ class SysType(SysBaseType):
                 "version": it.namedItem(u"version").toElement().text(),
             }
             flutil.FLUtil.setProgress(i)
-            flutil.FLUtil.setLabelText(ustr(self.translate(u"Registrando módulo"), u" ", mod["id"]))
+            flutil.FLUtil.setLabelText(
+                utils_base.ustr(self.translate(u"Registrando módulo"), u" ", mod["id"])
+            )
             if not self.registerArea(mod) or not self.registerModule(mod):
                 self.errorMsgBox(
-                    ustr(self.translate(u"Error registrando el módulo"), u" ", mod["id"])
+                    utils_base.ustr(self.translate(u"Error registrando el módulo"), u" ", mod["id"])
                 )
                 ok = False
                 break
@@ -888,7 +887,7 @@ class SysType(SysBaseType):
     def registerArea(self, mod: Dict[str, Any]) -> bool:
         """Return True if the area is created or False."""
         cur = pnsqlcursor.PNSqlCursor(u"flareas")
-        if not cur.select(ustr(u"idarea='", mod["area"], u"'")):
+        if not cur.select(utils_base.ustr(u"idarea='", mod["area"], u"'")):
             return False
         cur.setModeAccess((AQSql.Edit if cur.first() else AQSql.Insert))
         cur.refreshBuffer()
@@ -901,7 +900,7 @@ class SysType(SysBaseType):
         """Return True if the module is created or False."""
 
         cur = pnsqlcursor.PNSqlCursor(u"flmodules")
-        if not cur.select(ustr(u"idmodulo='", mod["id"], u"'")):
+        if not cur.select(utils_base.ustr(u"idmodulo='", mod["id"], u"'")):
             return False
         cur.setModeAccess((AQSql.Edit if cur.first() else AQSql.Insert))
         cur.refreshBuffer()
@@ -924,11 +923,10 @@ class SysType(SysBaseType):
     ) -> Any:
         """Return a messagebox result."""
 
-        settings = AQSettings()
         key = u"QuestionMsgBox/"
         valRemember = False
         if keyRemember:
-            valRemember = settings.readBoolEntry(key + keyRemember)
+            valRemember = settings.settings.value(key + keyRemember)
             if valRemember and not forceShow:
                 return MessageBox.Yes
         if not self.interactiveGUI():
@@ -961,8 +959,8 @@ class SysType(SysBaseType):
         pbNo.setText(txtNo if txtNo else self.translate(u"No"))
         lay3.addWidget(pbYes)
         lay3.addWidget(pbNo)
-        connections.connect(pbYes, u"clicked()", diag, u"accept()")
-        connections.connect(pbNo, u"clicked()", diag, u"reject()")
+        application.connections.connect(pbYes, u"clicked()", diag, u"accept()")
+        application.connections.connect(pbNo, u"clicked()", diag, u"reject()")
         chkRemember = None
         if keyRemember and txtRemember:
             # from pineboolib.q3widgets.qcheckbox import QCheckBox
@@ -972,7 +970,7 @@ class SysType(SysBaseType):
             lay.addWidget(chkRemember)
         ret = MessageBox.No if (diag.exec_() == 0) else MessageBox.Yes
         if chkRemember is not None:
-            settings.writeEntry(key + keyRemember, chkRemember.checked)
+            settings.settings.set_value(key + keyRemember, chkRemember.checked)
         return ret
 
     @classmethod
@@ -984,7 +982,9 @@ class SysType(SysBaseType):
             return
         dataBaseName = application.project.conn_manager.mainConn().db_name_
         dirBasePath = types.Dir.cleanDirPath(
-            ustr(dirBasePath, u"/modulos_exportados_", dataBaseName[dataBaseName.rfind(u"/") + 1 :])
+            utils_base.ustr(
+                dirBasePath, u"/modulos_exportados_", dataBaseName[dataBaseName.rfind(u"/") + 1 :]
+            )
         )
         dir = types.Dir()
         if not dir.fileExists(dirBasePath):
@@ -992,7 +992,7 @@ class SysType(SysBaseType):
                 dir.mkdir(dirBasePath)
             except Exception:
                 e = traceback.format_exc()
-                self.errorMsgBox(ustr(u"", e))
+                self.errorMsgBox(utils_base.ustr(u"", e))
                 return
 
         else:
@@ -1020,7 +1020,7 @@ class SysType(SysBaseType):
             except Exception:
                 e = traceback.format_exc()
                 flutil.FLUtil.destroyProgressDialog()
-                self.errorMsgBox(ustr(u"", e))
+                self.errorMsgBox(utils_base.ustr(u"", e))
                 return
 
         dbProName = flutil.FLUtil.readDBSettingEntry(u"projectname")
@@ -1032,11 +1032,13 @@ class SysType(SysBaseType):
             tag.toElement().setAttribute(u"name", dbProName)
             doc.appendChild(tag)
             try:
-                types.FileStatic.write(ustr(dirBasePath, u"/mvproject.xml"), doc.toString(2))
+                types.FileStatic.write(
+                    utils_base.ustr(dirBasePath, u"/mvproject.xml"), doc.toString(2)
+                )
             except Exception:
                 e = traceback.format_exc()
                 flutil.FLUtil.destroyProgressDialog()
-                self.errorMsgBox(ustr(u"", e))
+                self.errorMsgBox(utils_base.ustr(u"", e))
                 return
 
         flutil.FLUtil.destroyProgressDialog()
@@ -1048,7 +1050,7 @@ class SysType(SysBaseType):
         qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"descripcion,idarea,version")
         qry.setFrom(u"flmodules")
-        qry.setWhere(ustr(u"idmodulo='", idMod, u"'"))
+        qry.setWhere(utils_base.ustr(u"idmodulo='", idMod, u"'"))
         doc = QtXml.QDomDocument(u"MODULE")
         if not qry.exec_() or not qry.next():
             return doc
@@ -1066,7 +1068,9 @@ class SysType(SysBaseType):
         tag = doc.createElement(u"area")
         tag.appendChild(doc.createTextNode(idArea))
         tagMod.appendChild(tag)
-        areaName = sqlSelect(u"flareas", u"descripcion", ustr(u"idarea='", idArea, u"'"))
+        areaName = utils_db.sqlSelect(
+            u"flareas", u"descripcion", utils_base.ustr(u"idarea='", idArea, u"'")
+        )
         tag = doc.createElement(u"areaname")
         tag.appendChild(doc.createTextNode(trNoop % areaName))
         tagMod.appendChild(tag)
@@ -1077,7 +1081,7 @@ class SysType(SysBaseType):
         tag.appendChild(doc.createTextNode(qry.value(2)))
         tagMod.appendChild(tag)
         tag = doc.createElement(u"icon")
-        tag.appendChild(doc.createTextNode(ustr(idMod, u".xpm")))
+        tag.appendChild(doc.createTextNode(utils_base.ustr(idMod, u".xpm")))
         tagMod.appendChild(tag)
         return doc
 
@@ -1090,7 +1094,7 @@ class SysType(SysBaseType):
         fileISO = types.File(file_name, "ISO8859-15")
         fileISO.write(content)
         # if not fileISO.open(types.File.WriteOnly):
-        #    logger.warning(ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
+        #    logger.warning(utils_base.ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
         #    return False
         # tsISO = QtCore.QTextStream(fileISO)
         # tsISO.setCodec(AQS.TextCodec_codecForName(u"ISO8859-15"))
@@ -1106,7 +1110,7 @@ class SysType(SysBaseType):
         fileUTF = types.File(file_name, "UTF-8")
         fileUTF.write(content)
         # if not fileUTF.open(types.File.WriteOnly):
-        #    logger.warning(ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
+        #    logger.warning(utils_base.ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
         #    return False
         # tsUTF = QtCore.QTextStream(fileUTF.ioDevice)
         # tsUTF.setCodec(AQS.TextCodec_codecForName(u"utf8"))
@@ -1118,29 +1122,31 @@ class SysType(SysBaseType):
         """Export a module to a directory."""
 
         dir = types.Dir()
-        dirPath = types.Dir.cleanDirPath(ustr(dirBasePath, u"/", idMod))
+        dirPath = types.Dir.cleanDirPath(utils_base.ustr(dirBasePath, u"/", idMod))
         if not dir.fileExists(dirPath):
             dir.mkdir(dirPath)
-        if not dir.fileExists(ustr(dirPath, u"/forms")):
-            dir.mkdir(ustr(dirPath, u"/forms"))
-        if not dir.fileExists(ustr(dirPath, u"/scripts")):
-            dir.mkdir(ustr(dirPath, u"/scripts"))
-        if not dir.fileExists(ustr(dirPath, u"/queries")):
-            dir.mkdir(ustr(dirPath, u"/queries"))
-        if not dir.fileExists(ustr(dirPath, u"/tables")):
-            dir.mkdir(ustr(dirPath, u"/tables"))
-        if not dir.fileExists(ustr(dirPath, u"/reports")):
-            dir.mkdir(ustr(dirPath, u"/reports"))
-        if not dir.fileExists(ustr(dirPath, u"/translations")):
-            dir.mkdir(ustr(dirPath, u"/translations"))
+        if not dir.fileExists(utils_base.ustr(dirPath, u"/forms")):
+            dir.mkdir(utils_base.ustr(dirPath, u"/forms"))
+        if not dir.fileExists(utils_base.ustr(dirPath, u"/scripts")):
+            dir.mkdir(utils_base.ustr(dirPath, u"/scripts"))
+        if not dir.fileExists(utils_base.ustr(dirPath, u"/queries")):
+            dir.mkdir(utils_base.ustr(dirPath, u"/queries"))
+        if not dir.fileExists(utils_base.ustr(dirPath, u"/tables")):
+            dir.mkdir(utils_base.ustr(dirPath, u"/tables"))
+        if not dir.fileExists(utils_base.ustr(dirPath, u"/reports")):
+            dir.mkdir(utils_base.ustr(dirPath, u"/reports"))
+        if not dir.fileExists(utils_base.ustr(dirPath, u"/translations")):
+            dir.mkdir(utils_base.ustr(dirPath, u"/translations"))
         xmlMod = self.xmlModule(idMod)
-        self.fileWriteIso(ustr(dirPath, u"/", idMod, u".mod"), xmlMod.toString(2))
-        xpmMod = sqlSelect(u"flmodules", u"icono", ustr(u"idmodulo='", idMod, u"'"))
-        self.fileWriteIso(ustr(dirPath, u"/", idMod, u".xpm"), xpmMod)
+        self.fileWriteIso(utils_base.ustr(dirPath, u"/", idMod, u".mod"), xmlMod.toString(2))
+        xpmMod = utils_db.sqlSelect(
+            u"flmodules", u"icono", utils_base.ustr(u"idmodulo='", idMod, u"'")
+        )
+        self.fileWriteIso(utils_base.ustr(dirPath, u"/", idMod, u".xpm"), xpmMod)
         qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"nombre,contenido")
         qry.setFrom(u"flfiles")
-        qry.setWhere(ustr(u"idmodulo='", idMod, u"'"))
+        qry.setWhere(utils_base.ustr(u"idmodulo='", idMod, u"'"))
         if not qry.exec_() or qry.size() == 0:
             return
         while qry.next():
@@ -1154,27 +1160,27 @@ class SysType(SysBaseType):
             if s02_when == u".xml":
                 s02_do_work, s02_work_done = True, True
             if s02_do_work:
-                self.fileWriteIso(ustr(dirPath, u"/", name), content)
+                self.fileWriteIso(utils_base.ustr(dirPath, u"/", name), content)
                 s02_do_work = False  # BREAK
             if s02_when == u".ui":
                 s02_do_work, s02_work_done = True, True
             if s02_do_work:
-                self.fileWriteIso(ustr(dirPath, u"/forms/", name), content)
+                self.fileWriteIso(utils_base.ustr(dirPath, u"/forms/", name), content)
                 s02_do_work = False  # BREAK
             if s02_when == u".qs":
                 s02_do_work, s02_work_done = True, True
             if s02_do_work:
-                self.fileWriteIso(ustr(dirPath, u"/scripts/", name), content)
+                self.fileWriteIso(utils_base.ustr(dirPath, u"/scripts/", name), content)
                 s02_do_work = False  # BREAK
             if s02_when == u".qry":
                 s02_do_work, s02_work_done = True, True
             if s02_do_work:
-                self.fileWriteIso(ustr(dirPath, u"/queries/", name), content)
+                self.fileWriteIso(utils_base.ustr(dirPath, u"/queries/", name), content)
                 s02_do_work = False  # BREAK
             if s02_when == u".mtd":
                 s02_do_work, s02_work_done = True, True
             if s02_do_work:
-                self.fileWriteIso(ustr(dirPath, u"/tables/", name), content)
+                self.fileWriteIso(utils_base.ustr(dirPath, u"/tables/", name), content)
                 s02_do_work = False  # BREAK
             if s02_when == u".kut":
                 s02_do_work, s02_work_done = True, True
@@ -1191,12 +1197,12 @@ class SysType(SysBaseType):
             if s02_when == u".svg":
                 s02_do_work, s02_work_done = True, True
             if s02_do_work:
-                self.fileWriteIso(ustr(dirPath, u"/reports/", name), content)
+                self.fileWriteIso(utils_base.ustr(dirPath, u"/reports/", name), content)
                 s02_do_work = False  # BREAK
             if s02_when == u".ts":
                 s02_do_work, s02_work_done = True, True  # noqa
             if s02_do_work:
-                self.fileWriteIso(ustr(dirPath, u"/translations/", name), content)
+                self.fileWriteIso(utils_base.ustr(dirPath, u"/translations/", name), content)
                 s02_do_work = False  # BREAK
 
     @classmethod
@@ -1215,8 +1221,8 @@ class SysType(SysBaseType):
             if MessageBox.Yes != MessageBox.warning(txt, MessageBox.No, MessageBox.Yes):
                 return
 
-        key = ustr(u"scripts/sys/modLastDirModules_", SysBaseType.nameBD())
-        dirAnt = settings.value(key)
+        key = utils_base.ustr(u"scripts/sys/modLastDirModules_", self.nameBD())
+        dirAnt = settings.settings.value(key)
 
         dirMods = FileDialog.getExistingDirectory(
             str(dirAnt) if dirAnt else None, self.translate(u"Directorio de Módulos")
@@ -1315,7 +1321,7 @@ class SysType(SysBaseType):
                 contentMod = fileMod.read()
         except Exception:
             e = traceback.format_exc()
-            self.errorMsgBox(ustr(self.translate(u"Error leyendo fichero."), u"\n", e))
+            self.errorMsgBox(utils_base.ustr(self.translate(u"Error leyendo fichero."), u"\n", e))
             return False
         mod_folder = os.path.dirname(modPath)
         mod = None
@@ -1334,7 +1340,7 @@ class SysType(SysBaseType):
             }
             if not self.registerArea(mod) or not self.registerModule(mod):
                 self.errorMsgBox(
-                    ustr(self.translate(u"Error registrando el módulo"), u" ", mod["id"])
+                    utils_base.ustr(self.translate(u"Error registrando el módulo"), u" ", mod["id"])
                 )
                 return False
             if not self.importFiles(mod_folder, u"*.xml", mod["id"]):
@@ -1406,7 +1412,7 @@ class SysType(SysBaseType):
             content = str(file.read())
         except Exception:
             e = traceback.format_exc()
-            self.errorMsgBox(ustr(self.translate(u"Error leyendo fichero."), u"\n", e))
+            self.errorMsgBox(utils_base.ustr(self.translate(u"Error leyendo fichero."), u"\n", e))
             return False
 
         ok = True
@@ -1419,7 +1425,7 @@ class SysType(SysBaseType):
         ) or name.endswith(u"untranslated.ts"):
             return ok
         cur = pnsqlcursor.PNSqlCursor(u"flfiles")
-        cur.select(ustr(u"nombre = '", name, u"'"))
+        cur.select(utils_base.ustr(u"nombre = '", name, u"'"))
         if not cur.first():
             if name.endswith(u".ar"):
                 if not self.importReportAr(filePath, idMod, content):
@@ -1449,7 +1455,7 @@ class SysType(SysBaseType):
                 cur.setValueBuffer(u"idmodulo", idMod)
                 cur.setValueBuffer(u"contenido", contenidoCopia)
                 cur.commitBuffer()
-                cur.select(ustr(u"nombre = '", name, u"'"))
+                cur.select(utils_base.ustr(u"nombre = '", name, u"'"))
                 cur.first()
                 cur.setModeAccess(AQSql.Edit)
                 cur.refreshBuffer()
@@ -1471,13 +1477,13 @@ class SysType(SysBaseType):
 
         if not self.isLoadedModule(u"flar2kut"):
             return False
-        if settings.value(u"scripts/sys/conversionAr") != u"true":
+        if settings.settings.value(u"scripts/sys/conversionAr") != u"true":
             return False
         content = self.toUnicode(content, u"UTF-8")
         content = SafeQSA.root_module("flar2kut").iface.pub_ar2kut(content)
-        filePath = ustr(filePath[0 : len(filePath) - 3], u".kut")
+        filePath = utils_base.ustr(filePath[0 : len(filePath) - 3], u".kut")
         if content:
-            localEnc = settings.value(u"scripts/sys/conversionArENC")
+            localEnc = settings.settings.value(u"scripts/sys/conversionArENC")
             if not localEnc:
                 localEnc = u"ISO-8859-15"
             content = self.fromUnicode(content, localEnc)
@@ -1486,7 +1492,9 @@ class SysType(SysBaseType):
                 f.write(filePath, content)
             except Exception:
                 e = traceback.format_exc()
-                self.errorMsgBox(ustr(self.translate(u"Error escribiendo fichero."), u"\n", e))
+                self.errorMsgBox(
+                    utils_base.ustr(self.translate(u"Error escribiendo fichero."), u"\n", e)
+                )
                 return False
 
             return self.importFile(filePath, idMod)
@@ -1556,18 +1564,17 @@ class SysType(SysBaseType):
     def search_git_updates(self, url: str) -> None:
         """Search updates of pineboo."""
 
-        if not os.path.exists(filedir("../.git")):
+        if not os.path.exists(utils_base.filedir("../.git")):
             return
 
-        settings = AQSettings()
         if not url:
-            url = settings.readEntry(
+            url = settings.settings.value(
                 "ebcomportamiento/git_updates_repo", "https://github.com/Aulla/pineboo.git"
             )
 
         command = "git status %s" % url
 
-        pro = Process()
+        pro = process.Process()
         pro.execute(command)
         if pro.stdout is None:
             return
@@ -1618,7 +1625,7 @@ class SysType(SysBaseType):
         """Return xml with local changes."""
         ret = {}
         ret[u"size"] = 0
-        strXmlUpt = sqlSelect("flupdates", "filesdef", "actual='true'")
+        strXmlUpt = utils_db.sqlSelect("flupdates", "filesdef", "actual='true'")
         if not strXmlUpt:
             return ret
         docUpt = QtXml.QDomDocument()
@@ -1740,7 +1747,7 @@ class AbanQDbDumper(QtCore.QObject):
     pbInitDump_: QPushButton
     state_: types.Array
     funLog_: Callable
-    proc_: Process
+    proc_: process.Process
 
     def __init__(
         self,
@@ -1817,11 +1824,11 @@ class AbanQDbDumper(QtCore.QObject):
         self.pbChangeDir_.setSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred
         )
-        connections.connect(self.pbChangeDir_, u"clicked()", self, u"changeDirBase()")
+        application.connections.connect(self.pbChangeDir_, u"clicked()", self, u"changeDirBase()")
         layAux.addWidget(self.pbChangeDir_)
         lay.addWidget(frm)
         self.pbInitDump_ = QPushButton(SysType.translate(u"INICIAR COPIA"), self.w_)
-        connections.connect(self.pbInitDump_, u"clicked()", self, u"initDump()")
+        application.connections.connect(self.pbInitDump_, u"clicked()", self, u"initDump()")
         lay.addWidget(self.pbInitDump_)
         lbl = QLabel(self.w_)
         lbl.setText("Log:")
@@ -1899,7 +1906,7 @@ class AbanQDbDumper(QtCore.QObject):
 
     def launchProc(self, command: List[str]) -> str:
         """Return the result from a Launched command."""
-        self.proc_ = Process()
+        self.proc_ = process.Process()
         self.proc_.setProgram(command[0])
         self.proc_.setArguments(command[1:])
         # FIXME: Mejorar lectura linea a linea
@@ -1952,7 +1959,7 @@ class AbanQDbDumper(QtCore.QObject):
 
         except Exception:
             e = traceback.format_exc()
-            self.setState(False, ustr(u"", e))
+            self.setState(False, utils_base.ustr(u"", e))
             self.funLog_(self.state_.msg)
             return False
 
@@ -2035,29 +2042,29 @@ class AbanQDbDumper(QtCore.QObject):
 
         myDump: str = u"mysqldump"
         command: List[str]
-        fileName = ustr(self.fileName_, u".sql")
+        fileName = utils_base.ustr(self.fileName_, u".sql")
         db = self.db_
         if SysType.osName() == u"WIN32":
             myDump += u".exe"
             command = [
                 myDump,
                 u"-v",
-                ustr(u"--result-file=", fileName),
-                ustr(u"--host=", db.host()),
-                ustr(u"--port=", db.port()),
-                ustr(u"--password=", db.returnword()),
-                ustr(u"--user=", db.user()),
+                utils_base.ustr(u"--result-file=", fileName),
+                utils_base.ustr(u"--host=", db.host()),
+                utils_base.ustr(u"--port=", db.port()),
+                utils_base.ustr(u"--password=", db.returnword()),
+                utils_base.ustr(u"--user=", db.user()),
                 str(db.database()),
             ]
         else:
             command = [
                 myDump,
                 u"-v",
-                ustr(u"--result-file=", fileName),
-                ustr(u"--host=", db.host()),
-                ustr(u"--port=", db.port()),
-                ustr(u"--password=", db.returnword()),
-                ustr(u"--user=", db.user()),
+                utils_base.ustr(u"--result-file=", fileName),
+                utils_base.ustr(u"--host=", db.host()),
+                utils_base.ustr(u"--port=", db.port()),
+                utils_base.ustr(u"--password=", db.returnword()),
+                utils_base.ustr(u"--user=", db.user()),
                 str(db.database()),
             ]
 
@@ -2076,14 +2083,14 @@ class AbanQDbDumper(QtCore.QObject):
     def dumpTableToCsv(self, table: str, dirBase: str) -> bool:
         """Dump a table to a CSV."""
 
-        fileName = ustr(dirBase, table, u".csv")
+        fileName = utils_base.ustr(dirBase, table, u".csv")
         file = QtCore.QFile(fileName)
         if not file.open(types.File.WriteOnly):
             return False
         ts = QtCore.QTextStream(file.ioDevice())
         ts.setCodec(AQS.TextCodec_codecForName(u"utf8"))
         qry = pnsqlquery.PNSqlQuery()
-        qry.setSelect(ustr(table, u".*"))
+        qry.setSelect(utils_base.ustr(table, u".*"))
         qry.setFrom(table)
         if not qry.exec_():
             return False
@@ -2107,7 +2114,7 @@ class AbanQDbDumper(QtCore.QObject):
             except Exception:
                 break
 
-        ts.opIn(ustr(rec, u"\n"))
+        ts.opIn(utils_base.ustr(rec, u"\n"))
         flutil.FLUtil.createProgressDialog(
             SysType.translate(u"Haciendo copia en CSV de ") + table, qry.size()
         )
@@ -2132,7 +2139,7 @@ class AbanQDbDumper(QtCore.QObject):
                 except Exception:
                     break
 
-            ts.opIn(ustr(rec, u"\n"))
+            ts.opIn(utils_base.ustr(rec, u"\n"))
             p += 1
             flutil.FLUtil.setProgress(p)
 
@@ -2146,7 +2153,7 @@ class AbanQDbDumper(QtCore.QObject):
         tables = self.db_.tables(AQSql.TableType.Tables)
         dir_ = types.Dir(fileName)
         dir_.mkdir()
-        dirBase = types.Dir.convertSeparators(ustr(fileName, u"/"))
+        dirBase = types.Dir.convertSeparators(utils_base.ustr(fileName, u"/"))
         # i = 0
         # while_pass = True
         for table_ in tables:
@@ -2187,6 +2194,6 @@ class AQGlobalFunctions(QtCore.QObject):
         def _():
             self.mappers_[c] = None
 
-        connections.connect(sigMap, u"mapped(QString)", self, u"exec()")
+        application.connections.connect(sigMap, u"mapped(QString)", self, u"exec()")
         sigMap.setMapping(obj, function_name)
-        connections.connect(obj, signal, sigMap, u"map()")
+        application.connections.connect(obj, signal, sigMap, u"map()")
