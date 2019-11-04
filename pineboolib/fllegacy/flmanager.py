@@ -1494,6 +1494,7 @@ class FLManager(QtCore.QObject, IManager):
                     )
                     % table,
                 )
+                continue
 
             c.select("tabla='%s'" % table)
             if c.next():
