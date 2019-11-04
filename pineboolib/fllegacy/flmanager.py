@@ -58,14 +58,14 @@ class FLManager(QtCore.QObject, IManager):
     dict_key_metadata_: Dict[
         str, str
     ]  # Diccionario de claves de metadatos, para optimizar lecturas
-    cacheMetaData_: Dict[
+    cache_metadata_: Dict[
         str, "pntablemetadata.PNTableMetaData"
     ]  # Caché de metadatos, para optimizar lecturas
     cacheAction_: Dict[
         str, "pnaction.PNAction"
     ]  # Caché de definiciones de acciones, para optimizar lecturas
     # Caché de metadatos de talblas del sistema para optimizar lecturas
-    cacheMetaDataSys_: Dict[str, "pntablemetadata.PNTableMetaData"]
+    cache_metadata_sys_: Dict[str, "pntablemetadata.PNTableMetaData"]
     db_: "IConnection"  # Base de datos a utilizar por el manejador
     init_count_: int  # Indica el número de veces que se ha llamado a FLManager::init()
     buffer_: Any
@@ -81,8 +81,8 @@ class FLManager(QtCore.QObject, IManager):
         self.list_tables_ = []
         self.dict_key_metadata_ = {}
         self.init_count_ = 0
-        self.cacheMetaData_ = {}
-        self.cacheMetaDataSys_ = {}
+        self.cache_metadata_ = {}
+        self.cache_metadata_sys_ = {}
         self.cacheAction_ = {}
         QtCore.QTimer.singleShot(100, self.init)
         self.metadata_cache_fails_ = []
@@ -101,21 +101,21 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_.connManager().dbAux():
             return
 
-        if not self.cacheMetaData_:
-            self.cacheMetaData_ = {}
+        if not self.cache_metadata_:
+            self.cache_metadata_ = {}
 
         if not self.cacheAction_:
             self.cacheAction_ = {}
 
-        if not self.cacheMetaDataSys_:
-            self.cacheMetaDataSys_ = {}
+        if not self.cache_metadata_sys_:
+            self.cache_metadata_sys_ = {}
 
     def finish(self) -> None:
         """Apply close process."""
 
         self.dict_key_metadata_ = {}
         self.list_tables_ = []
-        self.cacheMetaData_ = {}
+        self.cache_metadata_ = {}
         self.cacheAction_ = {}
 
         del self
@@ -142,7 +142,6 @@ class FLManager(QtCore.QObject, IManager):
         @param quick If TRUE does not check, use carefully
         @return A PNTableMetaData object with the metadata of the requested table
         """
-
         util = flutil.FLUtil()
 
         if not n:
@@ -169,11 +168,11 @@ class FLManager(QtCore.QObject, IManager):
                 return None
 
             elif isSysTable:
-                if key in self.cacheMetaDataSys_.keys():
-                    ret = self.cacheMetaDataSys_[key]
+                if key in self.cache_metadata_sys_.keys():
+                    ret = self.cache_metadata_sys_[key]
             else:
-                if key in self.cacheMetaData_.keys():
-                    ret = self.cacheMetaData_[key]
+                if key in self.cache_metadata_.keys():
+                    ret = self.cache_metadata_[key]
 
             if not ret:
                 stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % n)
@@ -206,9 +205,9 @@ class FLManager(QtCore.QObject, IManager):
                     self.createTable(ret)
 
                 if not isSysTable:
-                    self.cacheMetaData_[key] = ret
+                    self.cache_metadata_[key] = ret
                 else:
-                    self.cacheMetaDataSys_[key] = ret
+                    self.cache_metadata_sys_[key] = ret
 
                 if (
                     not quick
