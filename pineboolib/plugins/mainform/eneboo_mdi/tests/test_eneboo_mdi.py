@@ -55,8 +55,15 @@ class TestEnebooGUI(unittest.TestCase):
         self.main_w.activateModule("sys")
         self.assertFalse(self.main_w.existFormInMDI("flusers"))
         project.actions["flusers"].openDefaultForm()
+        self.main_w.windowMenuAboutToShow()
+        self.main_w.windowMenuActivated(0)
         self.assertTrue(self.main_w.existFormInMDI("flusers"))
+        self.main_w.writeState()
+        self.main_w.writeStateModule()
+        self.main_w.toggleToolBar(True)
+        self.main_w.toggleStatusBar(True)
         self.main_w.windowClose()
+
         flapplication.aqApp.stopTimerIdle()
 
     @classmethod

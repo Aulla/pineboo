@@ -36,8 +36,8 @@ class TestEnebooGUI(unittest.TestCase):
         import os
 
         application.project.main_form = eneboo
-        mainWindow = eneboo.MainForm()
-        mainWindow.initScript()
+        eneboo.mainWindow = eneboo.MainForm()
+        eneboo.mainWindow.initScript()
         application.project.main_window = eneboo.mainWindow
 
         # main_window = application.project.main_form.MainForm()  # type: ignore
@@ -67,6 +67,16 @@ class TestEnebooGUI(unittest.TestCase):
 
         application.project.main_window.ag_mar_.removeAction(ac)
         application.project.main_window.dck_mar_.update(application.project.main_window.ag_mar_)
+        w = QtWidgets.QDockWidget()
+        w.setWidget(QtWidgets.QTreeWidget())
+        application.project.main_window.dck_mar_.initFromWidget(w)
+        application.project.main_window.dck_mar_.change_state(False)
+
+        application.project.main_window.removeCurrentPage(0)
+        application.project.main_window.initModule("sys")
+
+        application.project.main_window.initFromWidget(application.project.main_window)
+        application.project.main_window.triggerAction("triggered():shConsole():clientes")
 
     @classmethod
     def tearDownClass(cls) -> None:

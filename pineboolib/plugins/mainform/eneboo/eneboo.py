@@ -524,13 +524,19 @@ class MainForm(QtWidgets.QMainWindow):
         self.act_sig_map_ = QtCore.QSignalMapper(self.w_)
         self.act_sig_map_.setObjectName("pinebooActSignalMap")
         self.tw_ = w.findChild(QtWidgets.QTabWidget, "tabWidget")
-        self.agMenu_ = w.child("pinebooActionGroup", "QActionGroup")
+        self.agMenu_ = w.findChild(QtWidgets.QActionGroup, "pinebooActionGroup")
         self.dck_mod_ = DockListView()
-        self.dck_mod_.initFromWidget(w.child("pinebooDockModules", "QDockWindow"))
+        self.dck_mod_.initFromWidget(
+            self.w_.findChild(QtWidgets.QDockWidget, "pinebooDockModulesListView")
+        )
         self.dck_rec_ = DockListView()
-        self.dck_rec_.initFromWidget(w.child("pinebooDockRecent", "QDockWindow"))
+        self.dck_rec_.initFromWidget(
+            self.w_.findChild(QtWidgets.QDockWidget, "pinebooDockRecentListView")
+        )
         self.dck_mar_ = DockListView()
-        self.dck_mar_.initFromWidget(w.child("pinebooDockMark", "QDockWindow"))
+        self.dck_mar_.initFromWidget(
+            self.w_.findChild(QtWidgets.QDockWidget, "pinebooDockMarksListView")
+        )
         self.initEventFilter()
 
     def initEventFilter(self) -> None:
@@ -990,7 +996,7 @@ class MainForm(QtWidgets.QMainWindow):
 
         self.dck_mar_ = DockListView(self.w_, "pinebooDockMarks", self.tr("Marcadores"))
         self.w_.addDockWidget(self.AQS.DockLeft, self.dck_mar_.w_)
-        self.dck_rec_ = DockListView(self.w_, "pinebooDoctkRecent", self.tr("Recientes"))
+        self.dck_rec_ = DockListView(self.w_, "pinebooDockRecent", self.tr("Recientes"))
         self.w_.addDockWidget(self.AQS.DockLeft, self.dck_rec_.w_)
         self.dck_mod_ = DockListView(self.w_, "pinebooDockModules", self.tr("Módulos"))
         self.w_.addDockWidget(self.AQS.DockLeft, self.dck_mod_.w_)
