@@ -152,13 +152,14 @@ class TestSysType(unittest.TestCase):
         cursor.first()
         buffer_ = cursor.buffer()
         self.assertTrue(buffer_)
-        icono_txt = buffer_.value("icono")
-        pixmap = sys.toPixmap(icono_txt)
-        self.assertTrue(pixmap)
-        res_txt = sys.fromPixmap(pixmap)
-        self.assertTrue(res_txt.find("22 22 214 2") > -1)
-        pixmap_2 = sys.scalePixmap(pixmap, 50, 50, QtCore.Qt.KeepAspectRatio)
-        self.assertTrue(pixmap_2)
+        if buffer_:
+            icono_txt = buffer_.value("icono")
+            pixmap = sys.toPixmap(str(icono_txt))
+            self.assertTrue(pixmap)
+            res_txt = sys.fromPixmap(pixmap)
+            self.assertTrue(res_txt.find("22 22 214 2") > -1)
+            pixmap_2 = sys.scalePixmap(pixmap, 50, 50, QtCore.Qt.KeepAspectRatio)
+            self.assertTrue(pixmap_2)
 
     def test_project_info(self) -> None:
         """Test information functiones."""
