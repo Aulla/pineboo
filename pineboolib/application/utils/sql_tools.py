@@ -3,6 +3,8 @@ Collect information from the query, such as field tables, lines, etc ...
 """
 
 from pineboolib.core.utils import logging
+from pineboolib import application
+
 import datetime
 from typing import Dict, Any, List, TYPE_CHECKING
 
@@ -204,13 +206,13 @@ class SqlInspector(object):
         for k in self._field_list.keys():
             if int(self._field_list[k]) == pos:
                 return k
-        raise Exception("fieldName not found!")
+        raise Exception("fieldName not found! %s")
 
     def _resolve_fields(self) -> None:
         """
         Break the query into the different data.
         """
-
+        print("*", self._sql)
         list_sql = self._sql.split(" ")
         self._list_sql = list_sql
 
@@ -303,9 +305,18 @@ class SqlInspector(object):
             fl_finish = []
             for f in fl:
                 field_name = f
-                # if field_name.find(".") > -1:
-                #    a_ = field_name[0 : field_name.find(".")]
-                # f_ = field_name[field_name.find(".") + 1 :]
+                if field_name.find(".") > -1:
+                    table_ = field_name[0 : field_name.find(".")]
+                    field_ = field_name[field_name.find(".") + 1 :]
+
+                    if field_ == "*":
+                        mtd_table = application.project.conn_manager.manager().metadata(table_)
+                        if mtd_table is not None:
+                            for n in mtd_table.fieldListArray():
+                                fl_finish.append(n)
+
+                            continue
+
                 #    if a_.find("(") > -1:
                 #        a = a_[a_.find("(") + 1 :]
                 #    else:
@@ -426,10 +437,7 @@ class SqlInspector(object):
         @param fields_list. fields list.
         @param tables_list. tables list.
         """
-
-        from pineboolib.application import project
-
-        if project.conn_manager is None:
+        if application.project.conn_manager is None:
             raise Exception("Project is not connected yet")
 
         _filter = ["sum(", "max(", "distint("]
@@ -443,7 +451,7 @@ class SqlInspector(object):
             self._field_list[field_name_org] = number_
             field_name = field_name_org
             for table_name in list(tables_list):
-                mtd_table = project.conn_manager.manager().metadata(table_name)
+                mtd_table = application.project.conn_manager.manager().metadata(table_name)
                 if mtd_table is not None:
                     for fil in _filter:
                         if field_name.startswith(fil):

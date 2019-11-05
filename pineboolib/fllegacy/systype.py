@@ -2092,7 +2092,7 @@ class AbanQDbDumper(QtCore.QObject):
         """Dump a table to a CSV."""
 
         fileName = utils_base.ustr(dirBase, table, u".csv")
-        file = QtCore.QFile(fileName)
+        file = types.File(fileName)
         if not file.open(types.File.WriteOnly):
             return False
         ts = QtCore.QTextStream(file.ioDevice())
@@ -2122,7 +2122,8 @@ class AbanQDbDumper(QtCore.QObject):
             except Exception:
                 break
 
-        ts.opIn(utils_base.ustr(rec, u"\n"))
+        ts.device().write(utils_base.ustr(rec, u"\n").encode())
+        # ts.opIn(utils_base.ustr(rec, u"\n"))
         flutil.FLUtil.createProgressDialog(
             SysType.translate(u"Haciendo copia en CSV de ") + table, qry.size()
         )
@@ -2147,7 +2148,8 @@ class AbanQDbDumper(QtCore.QObject):
                 except Exception:
                     break
 
-            ts.opIn(utils_base.ustr(rec, u"\n"))
+            # ts.opIn(utils_base.ustr(rec, u"\n"))
+            ts.device().write(utils_base.ustr(rec, u"\n").encode())
             p += 1
             flutil.FLUtil.setProgress(p)
 

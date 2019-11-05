@@ -175,7 +175,7 @@ class TestSysType(unittest.TestCase):
         self.assertEqual(list_extensions, [])
 
         self.assertEqual(sys.calculateShaGlobal(), "8487ffab326d4a44d1f4da3ec1e74e6b1b149832")
-
+        self.assertEqual(sys.localChanges(), {"size": 0})
         res_ = sys.xmlFilesDefBd()
         self.assertTrue(res_)
 
@@ -189,6 +189,23 @@ class TestSysType(unittest.TestCase):
         path_ = application.project.tmpdir
         sys.exportModule("flfactppal", path_)
         sys.importModule("%s/flfactppal/flfactppal.mod" % path_)
+
+    def test_project_others(self) -> None:
+        """Test basics functions."""
+        sys = systype.SysType()
+        list_1 = sys.getWidgetList("formRecordclientes", "FLFieldDB")
+        list_2 = sys.getWidgetList("formRecordclientes", "FLTableDB")
+        list_3 = sys.getWidgetList("formRecordclientes", "Button")
+        self.assertTrue(list_3)
+
+    def test_project_dump(self) -> None:
+        """Test dump class."""
+        from pineboolib import application
+
+        ad_ = systype.AbanQDbDumper(
+            application.project.conn_manager.useConn("default"), application.project.tmpdir, False
+        )
+        ad_.initDump()
 
     @classmethod
     def tearDownClass(cls) -> None:
