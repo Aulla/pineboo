@@ -25,7 +25,7 @@ from pineboolib.application.qsatypes import sysbasetype
 
 
 from .aqsobjects.aqs import AQS
-from .aqsobjects.aqsql import AQSql
+from .aqsobjects import aqsql
 
 from . import flutil
 from . import flapplication
@@ -297,14 +297,14 @@ class SysType(sysbasetype.SysBaseType):
     def mvProjectXml(self) -> QtXml.QDomDocument:
         """Extract a module defition to a QDomDocument."""
 
-        docRet = QtXml.QDomDocument()
-        strXml = utils_db.sqlSelect(u"flupdates", u"modulesdef", u"actual='true'")
-        if not strXml:
-            return docRet
+        doc_ret_ = QtXml.QDomDocument()
+        str_xml_ = utils_db.sqlSelect(u"flupdates", u"modulesdef", "actual")
+        if not str_xml_:
+            return doc_ret_
         doc = QtXml.QDomDocument()
-        if not doc.setContent(strXml):
-            return docRet
-        strXml = u""
+        if not doc.setContent(str_xml_):
+            return doc_ret_
+        str_xml_ = u""
         nodes = doc.childNodes()
         i = 0
         while_pass = True
@@ -318,7 +318,7 @@ class SysType(sysbasetype.SysBaseType):
             if it.isComment():
                 data = it.toComment().data()
                 if not data == "" and data.startswith(u"<mvproject "):
-                    strXml = data
+                    str_xml_ = data
                     break
 
             i += 1
@@ -328,10 +328,10 @@ class SysType(sysbasetype.SysBaseType):
             except Exception:
                 break
 
-        if strXml == "":
-            return docRet
-        docRet.setContent(strXml)
-        return docRet
+        if str_xml_ == "":
+            return doc_ret_
+        doc_ret_.setContent(str_xml_)
+        return doc_ret_
 
     @classmethod
     def mvProjectModules(self) -> types.Array:
@@ -402,6 +402,8 @@ class SysType(sysbasetype.SysBaseType):
             v = utils_base.sha1(str(qry.value(0)))
             while qry.next():
                 v = utils_base.sha1(v + str(qry.value(0)))
+        else:
+            v = utils_base.sha1("")
 
         return v
 
@@ -438,17 +440,24 @@ class SysType(sysbasetype.SysBaseType):
         unpacker.jump()
         unpacker.jump()
         unpacker.jump()
-        now = types.Date()
+        now = str(types.Date())
         file = types.File(input_)
         fileName = file.name
         modulesDef = self.toUnicode(unpacker.getText(), u"utf8")
         filesDef = self.toUnicode(unpacker.getText(), u"utf8")
         shaGlobal = self.calculateShaGlobal()
-        AQSql.update(u"flupdates", [u"actual"], [False])
-        AQSql.insert(
+        aqsql.AQSql.update(u"flupdates", [u"actual"], [False], "1=1")
+        aqsql.AQSql.insert(
             u"flupdates",
             [u"fecha", u"hora", u"nombre", u"modulesdef", u"filesdef", u"shaglobal"],
-            [now, str(now)[(len(str(now)) - (8)) :], fileName, modulesDef, filesDef, shaGlobal],
+            [
+                now[: now.find("T")],
+                str(now)[(len(str(now)) - (8)) :],
+                fileName,
+                modulesDef,
+                filesDef,
+                shaGlobal,
+            ],
         )
 
     @classmethod
@@ -773,7 +782,7 @@ class SysType(sysbasetype.SysBaseType):
                 return False
             if not cur.first():
                 return False
-            cur.setModeAccess(AQSql.Edit)
+            cur.setModeAccess(aqsql.AQSql.Edit)
             cur.refreshBuffer()
             cur.setValueBuffer(u"icono", un.getText())
             return cur.commitBuffer()
@@ -781,7 +790,7 @@ class SysType(sysbasetype.SysBaseType):
         cur = pnsqlcursor.PNSqlCursor(u"flfiles")
         if not cur.select(utils_base.ustr(u"nombre='", fil["id"], u"'")):
             return False
-        cur.setModeAccess((AQSql.Edit if cur.first() else AQSql.Insert))
+        cur.setModeAccess((aqsql.AQSql.Edit if cur.first() else aqsql.AQSql.Insert))
         cur.refreshBuffer()
         cur.setValueBuffer(u"nombre", fil["id"])
         cur.setValueBuffer(u"idmodulo", fil["module"])
@@ -889,7 +898,7 @@ class SysType(sysbasetype.SysBaseType):
         cur = pnsqlcursor.PNSqlCursor(u"flareas")
         if not cur.select(utils_base.ustr(u"idarea='", mod["area"], u"'")):
             return False
-        cur.setModeAccess((AQSql.Edit if cur.first() else AQSql.Insert))
+        cur.setModeAccess((aqsql.AQSql.Edit if cur.first() else aqsql.AQSql.Insert))
         cur.refreshBuffer()
         cur.setValueBuffer(u"idarea", mod["area"])
         cur.setValueBuffer(u"descripcion", mod["areaname"])
@@ -902,7 +911,7 @@ class SysType(sysbasetype.SysBaseType):
         cur = pnsqlcursor.PNSqlCursor(u"flmodules")
         if not cur.select(utils_base.ustr(u"idmodulo='", mod["id"], u"'")):
             return False
-        cur.setModeAccess((AQSql.Edit if cur.first() else AQSql.Insert))
+        cur.setModeAccess((aqsql.AQSql.Edit if cur.first() else aqsql.AQSql.Insert))
         cur.refreshBuffer()
         cur.setValueBuffer(u"idmodulo", mod["id"])
         cur.setValueBuffer(u"idarea", mod["area"])
@@ -1430,7 +1439,7 @@ class SysType(sysbasetype.SysBaseType):
             if name.endswith(u".ar"):
                 if not self.importReportAr(filePath, idMod, content):
                     return True
-            cur.setModeAccess(AQSql.Insert)
+            cur.setModeAccess(aqsql.AQSql.Insert)
             cur.refreshBuffer()
             cur.setValueBuffer(u"nombre", name)
             cur.setValueBuffer(u"idmodulo", idMod)
@@ -1441,14 +1450,14 @@ class SysType(sysbasetype.SysBaseType):
             ok = cur.commitBuffer()
 
         else:
-            cur.setModeAccess(AQSql.Edit)
+            cur.setModeAccess(aqsql.AQSql.Edit)
             cur.refreshBuffer()
             ba = QByteArray()
             ba.string = content
             shaCnt = ba.sha1()
             if cur.valueBuffer(u"sha") != shaCnt:
                 contenidoCopia = cur.valueBuffer(u"contenido")
-                cur.setModeAccess(AQSql.Insert)
+                cur.setModeAccess(aqsql.AQSql.Insert)
                 cur.refreshBuffer()
                 d = types.Date()
                 cur.setValueBuffer(u"nombre", name + str(d))
@@ -1457,7 +1466,7 @@ class SysType(sysbasetype.SysBaseType):
                 cur.commitBuffer()
                 cur.select(utils_base.ustr(u"nombre = '", name, u"'"))
                 cur.first()
-                cur.setModeAccess(AQSql.Edit)
+                cur.setModeAccess(aqsql.AQSql.Edit)
                 cur.refreshBuffer()
                 cur.setValueBuffer(u"idmodulo", idMod)
                 cur.setValueBuffer(u"sha", shaCnt)
@@ -2150,7 +2159,7 @@ class AbanQDbDumper(QtCore.QObject):
     def dumpAllTablesToCsv(self) -> bool:
         """Dump all tables to a csv files."""
         fileName = self.fileName_
-        tables = self.db_.tables(AQSql.TableType.Tables)
+        tables = self.db_.tables(aqsql.AQSql.TableType.Tables)
         dir_ = types.Dir(fileName)
         dir_.mkdir()
         dirBase = types.Dir.convertSeparators(utils_base.ustr(fileName, u"/"))

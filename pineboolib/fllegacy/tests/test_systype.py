@@ -63,6 +63,7 @@ class TestSysType(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
+        qsa_sys.registerUpdate(path)
 
         qry = qsa.FLSqlQuery()
         qry.setTablesList("flfiles")
@@ -133,6 +134,49 @@ class TestSysType(unittest.TestCase):
 
     #    mw = qsa.sys.modMainWidget("sys")
     #    self.assertTrue(mw)
+    def test_translations(self) -> None:
+        """Test translations functions."""
+
+        sys = systype.SysType()
+
+        self.assertEqual(sys.translate("MetaData", "123"), "123")
+
+    def test_pixmap(self) -> None:
+        """Text str to pixmap function."""
+        from pineboolib.application.database import pnsqlcursor
+        from PyQt5 import QtCore
+
+        sys = systype.SysType()
+        cursor = pnsqlcursor.PNSqlCursor("flmodules")
+        cursor.select("1=1")
+        cursor.first()
+        buffer_ = cursor.buffer()
+        self.assertTrue(buffer_)
+        icono_txt = buffer_.value("icono")
+        pixmap = sys.toPixmap(icono_txt)
+        self.assertTrue(pixmap)
+        res_txt = sys.fromPixmap(pixmap)
+        self.assertTrue(res_txt.find("22 22 214 2") > -1)
+        pixmap_2 = sys.scalePixmap(pixmap, 50, 50, QtCore.Qt.KeepAspectRatio)
+        self.assertTrue(pixmap_2)
+
+    def test_project_info(self) -> None:
+        """Test information functiones."""
+        sys = systype.SysType()
+
+        document_ = sys.mvProjectXml()
+        self.assertEqual(document_.toString(), "")
+
+        list_modules = sys.mvProjectModules()
+        self.assertEqual(list_modules, [])
+
+        list_extensions = sys.mvProjectExtensions()
+        self.assertEqual(list_extensions, [])
+
+        self.assertEqual(sys.calculateShaGlobal(), "8487ffab326d4a44d1f4da3ec1e74e6b1b149832")
+
+        res_ = sys.xmlFilesDefBd()
+        self.assertTrue(res_)
 
     @classmethod
     def tearDownClass(cls) -> None:
