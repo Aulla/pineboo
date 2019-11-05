@@ -1097,11 +1097,10 @@ class SysType(sysbasetype.SysBaseType):
     @classmethod
     def fileWriteIso(self, file_name: str, content: str) -> None:
         """Write data into a file with ISO-8859-15 encode."""
-
         # from PyQt5.QtCore import QtCore.QTextStream
 
         fileISO = types.File(file_name, "ISO8859-15")
-        fileISO.write(content)
+        fileISO.write(content.encode("ISO8859-15", "ignore"))
         # if not fileISO.open(types.File.WriteOnly):
         #    logger.warning(utils_base.ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
         #    return False
@@ -1326,7 +1325,7 @@ class SysType(sysbasetype.SysBaseType):
     def importModule(self, modPath: str) -> bool:
         """Import a module specified by name."""
         try:
-            with open(modPath, "r") as fileMod:
+            with open(modPath, "r", encoding="ISO8859-15") as fileMod:
                 contentMod = fileMod.read()
         except Exception:
             e = traceback.format_exc()
@@ -1380,41 +1379,41 @@ class SysType(sysbasetype.SysBaseType):
         return True
 
     @classmethod
-    def importFiles(self, dirPath: str, ext: str, idMod: str) -> bool:
+    def importFiles(self, dir_path_: str, ext: str, id_module_: str) -> bool:
         """Import files with a exension from a path."""
         ok = True
-        listFiles = flutil.FLUtil.findFiles(dirPath, ext, False)
-        flutil.FLUtil.createProgressDialog(self.translate(u"Importando"), len(listFiles))
-        flutil.FLUtil.setProgress(1)
+        util = flutil.FLUtil()
+        list_files_ = util.findFiles(dir_path_, ext, False)
+        util.createProgressDialog(self.translate(u"Importando"), len(list_files_))
+        util.setProgress(1)
         i = 0
         while_pass = True
-        while i < len(listFiles):
+        while i < len(list_files_):
             if not while_pass:
                 i += 1
                 while_pass = True
                 continue
             while_pass = False
-            flutil.FLUtil.setLabelText(listFiles[i])
-            flutil.FLUtil.setProgress(i)
-            if not self.importFile(listFiles[i], idMod):
-                self.errorMsgBox(self.translate(u"Error al cargar :\n") + listFiles[i])
+            util.setLabelText(list_files_[i])
+            util.setProgress(i)
+            if not self.importFile(list_files_[i], id_module_):
+                self.errorMsgBox(self.translate(u"Error al cargar :\n") + list_files_[i])
                 ok = False
                 break
             i += 1
             while_pass = True
             try:
-                i < len(listFiles)
+                i < len(list_files_)
             except Exception:
                 break
 
-        flutil.FLUtil.destroyProgressDialog()
+        util.destroyProgressDialog()
         return ok
 
     @classmethod
-    def importFile(self, filePath: str, idMod: str) -> bool:
+    def importFile(self, file_path_: str, id_module_: str) -> bool:
         """Import a file from a path."""
-
-        file = types.File(filePath)
+        file = types.File(file_path_)
         content = u""
         try:
             file.open(types.File.ReadOnly)
@@ -1437,12 +1436,12 @@ class SysType(sysbasetype.SysBaseType):
         cur.select(utils_base.ustr(u"nombre = '", name, u"'"))
         if not cur.first():
             if name.endswith(u".ar"):
-                if not self.importReportAr(filePath, idMod, content):
+                if not self.importReportAr(file_path_, id_module_, content):
                     return True
             cur.setModeAccess(aqsql.AQSql.Insert)
             cur.refreshBuffer()
             cur.setValueBuffer(u"nombre", name)
-            cur.setValueBuffer(u"idmodulo", idMod)
+            cur.setValueBuffer(u"idmodulo", id_module_)
             ba = QByteArray()
             ba.string = content
             cur.setValueBuffer(u"sha", ba.sha1())
@@ -1461,25 +1460,25 @@ class SysType(sysbasetype.SysBaseType):
                 cur.refreshBuffer()
                 d = types.Date()
                 cur.setValueBuffer(u"nombre", name + str(d))
-                cur.setValueBuffer(u"idmodulo", idMod)
+                cur.setValueBuffer(u"idmodulo", id_module_)
                 cur.setValueBuffer(u"contenido", contenidoCopia)
                 cur.commitBuffer()
                 cur.select(utils_base.ustr(u"nombre = '", name, u"'"))
                 cur.first()
                 cur.setModeAccess(aqsql.AQSql.Edit)
                 cur.refreshBuffer()
-                cur.setValueBuffer(u"idmodulo", idMod)
+                cur.setValueBuffer(u"idmodulo", id_module_)
                 cur.setValueBuffer(u"sha", shaCnt)
                 cur.setValueBuffer(u"contenido", content)
                 ok = cur.commitBuffer()
                 if name.endswith(u".ar"):
-                    if not self.importReportAr(filePath, idMod, content):
+                    if not self.importReportAr(file_path_, id_module_, content):
                         return True
 
         return ok
 
     @classmethod
-    def importReportAr(self, filePath: str, idMod: str, content: str) -> bool:
+    def importReportAr(self, file_path_: str, id_module_: str, content: str) -> bool:
         """Import a report file, convert and install."""
 
         from pineboolib.application.safeqsa import SafeQSA
@@ -1490,7 +1489,7 @@ class SysType(sysbasetype.SysBaseType):
             return False
         content = self.toUnicode(content, u"UTF-8")
         content = SafeQSA.root_module("flar2kut").iface.pub_ar2kut(content)
-        filePath = utils_base.ustr(filePath[0 : len(filePath) - 3], u".kut")
+        file_path_ = utils_base.ustr(file_path_[0 : len(file_path_) - 3], u".kut")
         if content:
             localEnc = settings.settings.value(u"scripts/sys/conversionArENC")
             if not localEnc:
@@ -1498,7 +1497,7 @@ class SysType(sysbasetype.SysBaseType):
             content = self.fromUnicode(content, localEnc)
             f = types.FileStatic()
             try:
-                f.write(filePath, content)
+                f.write(file_path_, content)
             except Exception:
                 e = traceback.format_exc()
                 self.errorMsgBox(
@@ -1506,7 +1505,7 @@ class SysType(sysbasetype.SysBaseType):
                 )
                 return False
 
-            return self.importFile(filePath, idMod)
+            return self.importFile(file_path_, id_module_)
 
         return False
 

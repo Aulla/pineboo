@@ -162,7 +162,7 @@ class TestSysType(unittest.TestCase):
             self.assertTrue(pixmap_2)
 
     def test_project_info(self) -> None:
-        """Test information functiones."""
+        """Test information functions."""
         sys = systype.SysType()
 
         document_ = sys.mvProjectXml()
@@ -178,6 +178,17 @@ class TestSysType(unittest.TestCase):
 
         res_ = sys.xmlFilesDefBd()
         self.assertTrue(res_)
+
+    def test_project_info_2(self) -> None:
+        """Test information functions."""
+        from pineboolib import application
+
+        sys = systype.SysType()
+        res_1 = sys.xmlModule("flfactppal")
+        self.assertTrue(res_1)
+        path_ = application.project.tmpdir
+        sys.exportModule("flfactppal", path_)
+        sys.importModule("%s/flfactppal/flfactppal.mod" % path_)
 
     @classmethod
     def tearDownClass(cls) -> None:

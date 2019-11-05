@@ -1117,9 +1117,8 @@ class FLUtil(QtCore.QObject):
         return ""
 
     @classmethod
-    @decorators.NotImplementedWarn
     def findFiles(
-        cls, paths: str, filter_: str = "*", break_on_first_match: bool = False
+        cls, path_: Union[str, List[str]], filter_: str = "*", break_on_first_match: bool = False
     ) -> List[str]:
         """
         Search files recursively on the indicated paths and according to the indicated pattern.
@@ -1134,8 +1133,15 @@ class FLUtil(QtCore.QObject):
 
         import glob
 
+        list_path = []
+        if isinstance(path_, str):
+            list_path.append(path_)
+        else:
+            list_path = path_
+
         files_found = []
-        for p in paths:
+
+        for p in list_path:
             for file_name in glob.iglob("%s/**/%s" % (p, filter_), recursive=True):
                 files_found.append(file_name)
                 if break_on_first_match:
