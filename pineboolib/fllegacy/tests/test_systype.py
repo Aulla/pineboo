@@ -197,6 +197,8 @@ class TestSysType(unittest.TestCase):
         list_2 = sys.getWidgetList("formRecordclientes", "FLTableDB")
         list_3 = sys.getWidgetList("formRecordclientes", "Button")
         self.assertTrue(list_3)
+        self.assertTrue(list_1)
+        self.assertTrue(list_2)
 
     def test_project_dump(self) -> None:
         """Test dump class."""
