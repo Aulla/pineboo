@@ -212,7 +212,6 @@ class SqlInspector(object):
         """
         Break the query into the different data.
         """
-        print("*", self._sql)
         list_sql = self._sql.split(" ")
         self._list_sql = list_sql
 
