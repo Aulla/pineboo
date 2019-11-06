@@ -4,15 +4,18 @@ from PyQt5 import QtCore
 from pineboolib.core.utils import logging
 from pineboolib import application
 from pineboolib.interfaces import iconnection
+from . import pnconnection
 
 from typing import Dict, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
     from pineboolib.fllegacy import flmanagermodules
-    from . import pnconnection
 
 logger = logging.getLogger(__name__)
+
+LIMIT_CONNECTIONS = 10  # Limit of connections to use.
+CONNECTIONS_TIME_OUT = 0  # Seconds to wait to eliminate the inactive connections.
 
 
 class PNConnectionManager(QtCore.QObject):
@@ -87,7 +90,7 @@ class PNConnectionManager(QtCore.QObject):
             # if "main_conn" in self.conn_dict.keys():
             #    if self.conn_dict["main_conn"].conn is conn_:
             #        continue
-
+            self.conn_dict[n]._isOpen = False
             conn_.close()
             del self.conn_dict[n]
 
@@ -110,16 +113,18 @@ class PNConnectionManager(QtCore.QObject):
         else:
             name = name_or_conn
 
-        name_conn_: str = "%s_%s" % (application.project.session_id(), name)
+        name_conn_: str = "%s|%s" % (application.project.session_id(), name)
         # if name in ("default", None):
         #    return self
+        self.check_alive_connections()
 
         if name_conn_ in self.conn_dict.keys():
             connection_ = self.conn_dict[name_conn_]
         else:
+            if len(self.conn_dict.keys()) > LIMIT_CONNECTIONS:
+                raise Exception("Connections limit reached!")
             # if self.driverSql is None:
             #    raise Exception("No driver selected")
-            from . import pnconnection
 
             main_conn = self.mainConn()
             if main_conn is None:
@@ -153,21 +158,26 @@ class PNConnectionManager(QtCore.QObject):
         dict_ = {}
         session_name = application.project.session_id()
         for n in self.conn_dict.keys():
-            if session_name:
-                if n.startswith(session_name):
-                    dict_[n.replace("%s_" % session_name, "")] = self.conn_dict[n]
-            else:
-                if n[0] == "_":
-                    dict_[n[1:]] = self.conn_dict[n]
-                else:
-                    dict_[n] = self.conn_dict[n]
+            if n.find("|") > -1:
+                connection_data = n.split("|")
+                if connection_data[0] == session_name:
+                    dict_[connection_data[1]] = self.conn_dict[n]
+
+            # if session_name:
+            #    if n.startswith(session_name):
+            #        dict_[n.replace("%s|" % session_name, "")] = self.conn_dict[n]
+            # else:
+            #    if n[0] == "|":
+            #        dict_[n[1:]] = self.conn_dict[n]
+            #    else:
+            #        dict_[n] = self.conn_dict[n]
 
         return dict_
 
     def removeConn(self, name="default") -> bool:
         """Delete a connection specified by name."""
 
-        name_conn_: str = "%s_%s" % (application.project.session_id(), name)
+        name_conn_: str = "%s|%s" % (application.project.session_id(), name)
 
         self.conn_dict[name_conn_]._isOpen = False
         conn_ = self.conn_dict[name_conn_].conn
@@ -176,11 +186,6 @@ class PNConnectionManager(QtCore.QObject):
 
         del self.conn_dict[name_conn_]
         return True
-
-    def database(self, name: str = "default") -> "iconnection.IConnection":
-        """Return the connection to a database."""
-
-        return self.useConn(name)
 
     def manager(self) -> "flmanager.FLManager":
         """
@@ -225,6 +230,23 @@ class PNConnectionManager(QtCore.QObject):
         """
         return self.useConn("dbAux")
 
+    def check_alive_connections(self):
+        """Check alive connections."""
+
+        for conn_name in list(self.conn_dict.keys()):
+            if conn_name.find("|") > -1:
+                connection_data = conn_name.split("|")
+                if (
+                    not self.conn_dict[conn_name]._isOpen  # Closed connections
+                    and self.conn_dict[conn_name].conn is not None  # Only initialized connections.
+                ) or (
+                    CONNECTIONS_TIME_OUT
+                    and self.conn_dict[conn_name].idle_time() > CONNECTIONS_TIME_OUT
+                ):
+                    self.removeConn(connection_data[1])
+
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""
         return getattr(self.mainConn(), name, None)
+
+    database = useConn

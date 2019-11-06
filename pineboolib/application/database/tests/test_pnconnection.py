@@ -30,10 +30,10 @@ class TestPNConnection(unittest.TestCase):
         self.assertTrue(conn_manager.useConn("dbAux").isOpen())
         self.assertFalse(conn_manager.useConn("conn_test").isOpen())
 
-        self.assertEqual([*dict_databases_1], ["main_conn", "dbAux", "default", "conn_test"])
+        self.assertEqual([*dict_databases_1], ["dbAux", "default", "conn_test"])
         self.assertTrue(conn_manager.removeConn("conn_test"))
         dict_databases_2 = conn_manager.dictDatabases()
-        self.assertEqual([*dict_databases_2], ["main_conn", "dbAux", "default"])
+        self.assertEqual([*dict_databases_2], ["dbAux", "default"])
 
     def test_basic2(self) -> None:
         """Basic test 2."""

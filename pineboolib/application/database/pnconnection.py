@@ -2,30 +2,29 @@
 """
 Defines the PNConnection class.
 """
-from PyQt5 import QtCore, QtWidgets  # type: ignore
+from PyQt5 import QtCore, QtWidgets
 
-from pineboolib.core.utils import logging
-from pineboolib.core.settings import config
-from pineboolib.core import decorators
-from pineboolib.interfaces.iconnection import IConnection
-from pineboolib.interfaces.cursoraccessmode import CursorAccessMode
-from .pnsqldrivers import PNSqlDrivers
+from pineboolib.core import utils
+from pineboolib.core import settings, decorators
+from pineboolib.interfaces import iconnection
+from . import pnsqldrivers
+from pineboolib import application
 
 # from .pnsqlsavepoint import PNSqlSavePoint
 from . import db_signals
 from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
+import time
+
 if TYPE_CHECKING:
-    from pineboolib.interfaces.iapicursor import IApiCursor
+    from pineboolib.interfaces import iapicursor
+    from pineboolib.application.metadata import pntablemetadata
+    from . import pnconnectionmanager, pnsqlcursor
 
-    from .pnsqlcursor import PNSqlCursor
-    from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
-    from . import pnconnectionmanager
-
-logger = logging.getLogger(__name__)
+logger = utils.logging.getLogger(__name__)
 
 
-class PNConnection(QtCore.QObject, IConnection):
+class PNConnection(QtCore.QObject, iconnection.IConnection):
     """Wrapper for database cursors which are used to emulate FLSqlCursor."""
 
     name: str
@@ -35,7 +34,7 @@ class PNConnection(QtCore.QObject, IConnection):
     db_user_name_: Optional[str]
     db_password_: Optional[str]
     conn: Any = None  # Connection from the actual driver
-    driverSql: "PNSqlDrivers"
+    driverSql: "pnsqldrivers.PNSqlDrivers"
     transaction_: int
     driver_name_: str
     # currentSavePoint_: Optional[PNSqlSavePoint]
@@ -45,9 +44,10 @@ class PNConnection(QtCore.QObject, IConnection):
     _dbAux = None
     _isOpen: bool
     driver_ = None
-    _last_active_cursor: Optional["PNSqlCursor"]
-    conn_dict: Dict[str, "IConnection"] = {}
+    _last_active_cursor: Optional["pnsqlcursor.PNSqlCursor"]
+    conn_dict: Dict[str, "iconnection.IConnection"] = {}
     _conn_manager: "pnconnectionmanager.PNConnectionManager"
+    _last_activity_time: float
 
     def __init__(
         self,
@@ -61,11 +61,11 @@ class PNConnection(QtCore.QObject, IConnection):
         """Database connection through a sql driver."""
 
         super().__init__()
+        self.update_activity_time()
         self.conn = None
         self.driver_ = None
         self.db_name_ = db_name
-        self.driverSql = PNSqlDrivers()
-        from pineboolib import application
+        self.driverSql = pnsqldrivers.PNSqlDrivers()
 
         conn_manager = application.project.conn_manager
         self._conn_manager = conn_manager
@@ -113,11 +113,11 @@ class PNConnection(QtCore.QObject, IConnection):
         """Return connection manager."""
         return self._conn_manager
 
-    def database(self) -> "IConnection":
+    def database(self) -> "iconnection.IConnection":
         """Return self."""
         return self
 
-    def db(self) -> "IConnection":
+    def db(self) -> "iconnection.IConnection":
         """Return self."""
 
         return self
@@ -156,6 +156,7 @@ class PNConnection(QtCore.QObject, IConnection):
         if self.driver_ is None:
             self.driver_ = self.driverSql.driver()
 
+        self.update_activity_time()
         return self.driver_
 
     def session(self) -> Any:
@@ -177,7 +178,7 @@ class PNConnection(QtCore.QObject, IConnection):
 
         return self.driver().declarative_base()
 
-    def cursor(self) -> "IApiCursor":
+    def cursor(self) -> "iapicursor.IApiCursor":
         """Return a cursor to the database."""
         if self.conn is None:
             raise Exception("cursor. Empty conn!! in %s", self.connectionName())
@@ -297,14 +298,12 @@ class PNConnection(QtCore.QObject, IConnection):
 
         return self._last_active_cursor
 
-    def doTransaction(self, cursor: "PNSqlCursor") -> bool:
+    def doTransaction(self, cursor: "pnsqlcursor.PNSqlCursor") -> bool:
         """Make a transaction or savePoint according to transaction level."""
 
-        from pineboolib.application import project
-
         if self.transaction_ == 0 and self.canTransaction():
-            if config.value("application/isDebuggerMode", False):
-                project.message_manager().send(
+            if settings.config.value("application/isDebuggerMode", False):
+                application.project.message_manager().send(
                     "status_help_msg", "send", ["Iniciando Transacción... %s" % self.transaction_]
                 )
             if self.transaction():
@@ -327,8 +326,8 @@ class PNConnection(QtCore.QObject, IConnection):
                 return False
 
         else:
-            if config.value("application/isDebuggerMode", False):
-                project.message_manager().send(
+            if settings.config.value("application/isDebuggerMode", False):
+                application.project.message_manager().send(
                     "status_help_msg",
                     "send",
                     ["Creando punto de salvaguarda %s:%s" % (self.name, self.transaction_)],
@@ -364,20 +363,18 @@ class PNConnection(QtCore.QObject, IConnection):
 
         return self.transaction_
 
-    def doRollback(self, cur: "PNSqlCursor") -> bool:
+    def doRollback(self, cur: "pnsqlcursor.PNSqlCursor") -> bool:
         """Drop a transaction or savepoint depending on the transaction level."""
-
-        from pineboolib.application import project
 
         cancel = False
         if (
             self.interactiveGUI()
-            and cur.d.modeAccess_ in (CursorAccessMode.Insert, CursorAccessMode.Edit)
+            and cur.modeAccess() in (cur.Insert, cur.Edit)
             and cur.isModifiedBuffer()
             and cur.d.askForCancelChanges_
         ):
 
-            if project.DGI.localDesktop():
+            if application.project.DGI.localDesktop():
                 res = QtWidgets.QMessageBox.information(
                     QtWidgets.QApplication.activeWindow(),
                     "Cancelar Cambios",
@@ -410,8 +407,8 @@ class PNConnection(QtCore.QObject, IConnection):
             return True
 
         if self.transaction_ == 0 and self.canTransaction():
-            if config.value("application/isDebuggerMode", False):
-                project.message_manager().send(
+            if settings.config.value("application/isDebuggerMode", False):
+                application.project.message_manager().send(
                     "status_help_msg", "send", ["Deshaciendo Transacción... %s" % self.transaction_]
                 )
             if self.rollbackTransaction():
@@ -425,7 +422,7 @@ class PNConnection(QtCore.QObject, IConnection):
                 #    self.stackSavePoints_.clear()
                 #    self.queueSavePoints_.clear()
 
-                cur.d.modeAccess_ = CursorAccessMode.Browse
+                cur.setModeAccess(cur.Browse)
                 if cancel:
                     cur.select()
 
@@ -437,7 +434,7 @@ class PNConnection(QtCore.QObject, IConnection):
 
         else:
 
-            project.message_manager().send(
+            application.project.message_manager().send(
                 "status_help_msg",
                 "send",
                 ["Restaurando punto de salvaguarda %s:%s..." % (self.name, self.transaction_)],
@@ -471,7 +468,7 @@ class PNConnection(QtCore.QObject, IConnection):
             # else:
             self.rollbackSavePoint(self.transaction_)
 
-            cur.d.modeAccess_ = CursorAccessMode.Browse
+            cur.setModeAccess(cur.Browse)
             return True
 
     def interactiveGUI(self) -> bool:
@@ -479,7 +476,7 @@ class PNConnection(QtCore.QObject, IConnection):
 
         return self.interactiveGUI_
 
-    def doCommit(self, cur: "PNSqlCursor", notify: bool = True) -> bool:
+    def doCommit(self, cur: "pnsqlcursor.PNSqlCursor", notify: bool = True) -> bool:
         """Approve changes to a transaction or a save point based on your transaction level."""
 
         if not notify:
@@ -505,11 +502,9 @@ class PNConnection(QtCore.QObject, IConnection):
 
             return True
 
-        from pineboolib.application import project
-
         if self.transaction_ == 0 and self.canTransaction():
-            if config.value("application/isDebuggerMode", False):
-                project.message_manager().send(
+            if settings.config.value("application/isDebuggerMode", False):
+                application.project.message_manager().send(
                     "status_help_msg", "send", ["Terminando Transacción... %s" % self.transaction_]
                 )
             try:
@@ -525,7 +520,7 @@ class PNConnection(QtCore.QObject, IConnection):
                     #    self.queueSavePoints_.clear()
 
                     if notify:
-                        cur.d.modeAccess_ = CursorAccessMode.Browse
+                        cur.setModeAccess(cur.Browse)
 
                     db_signals.emitTransactionEnd(cur)
                     return True
@@ -540,7 +535,7 @@ class PNConnection(QtCore.QObject, IConnection):
                 logger.error("doCommit: Fallo al intentar terminar transacción: %s", e)
                 return False
         else:
-            project.message_manager().send(
+            application.project.message_manager().send(
                 "status_help_msg",
                 "send",
                 ["Liberando punto de salvaguarda %s:%s..." % (self.name, self.transaction_)],
@@ -558,7 +553,7 @@ class PNConnection(QtCore.QObject, IConnection):
                 # else:
                 self.releaseSavePoint(self.transaction_)
                 if notify:
-                    cur.d.modeAccess_ = CursorAccessMode.Browse
+                    cur.setModeAccess(cur.Browse)
 
                 return True
             # if not self.canSavePoint():
@@ -577,7 +572,7 @@ class PNConnection(QtCore.QObject, IConnection):
             self.releaseSavePoint(self.transaction_)
 
             if notify:
-                cur.d.modeAccess_ = CursorAccessMode.Browse
+                cur.setModeAccess(cur.Browse)
 
             return True
 
@@ -641,7 +636,7 @@ class PNConnection(QtCore.QObject, IConnection):
 
         return self.connManager().dbAux().driver().existsTable(name)
 
-    def createTable(self, tmd: "PNTableMetaData") -> bool:
+    def createTable(self, tmd: "pntablemetadata.PNTableMetaData") -> bool:
         """Create a table in the database, from a PNTableMetaData."""
 
         do_transaction = False
@@ -670,7 +665,7 @@ class PNConnection(QtCore.QObject, IConnection):
 
         return True
 
-    def mismatchedTable(self, tablename: str, tmd: "PNTableMetaData") -> bool:
+    def mismatchedTable(self, tablename: str, tmd: "pntablemetadata.PNTableMetaData") -> bool:
         """Compare an existing table with a PNTableMetaData and return if there are differences."""
 
         return self.connManager().dbAux().driver().mismatchedTable(tablename, tmd, self)
@@ -697,7 +692,11 @@ class PNConnection(QtCore.QObject, IConnection):
         return self.driver().execute_query(q, cursor)
 
     def alterTable(
-        self, mtd_1: "PNTableMetaData", mtd_2: "PNTableMetaData", key: str, force: bool = False
+        self,
+        mtd_1: "pntablemetadata.PNTableMetaData",
+        mtd_2: "pntablemetadata.PNTableMetaData",
+        key: str,
+        force: bool = False,
     ) -> bool:
         """Modify the fields of a table in the database based on the differences of two PNTableMetaData."""
 
@@ -709,10 +708,19 @@ class PNConnection(QtCore.QObject, IConnection):
         return self.driver().canRegenTables()
 
     @decorators.NotImplementedWarn
-    def regenTable(self, table_name: str, mtd: "PNTableMetaData") -> None:
+    def regenTable(self, table_name: str, mtd: "pntablemetadata.PNTableMetaData") -> None:
         """Regenerate a table."""
 
         return None
+
+    def idle_time(self) -> float:
+        """Return idle time in Seconds."""
+        actual_time = time.time()
+        return actual_time - self._last_activity_time
+
+    def update_activity_time(self):
+        """Update activity time."""
+        self._last_activity_time = time.time()
 
     def __str__(self):
         """Return the name of the database in text format."""
