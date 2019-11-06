@@ -723,11 +723,7 @@ class PNSqlQuery(object):
                 and len(table_list.split(",")) >= 1
             ):
                 self._invalid_tables_list = True
-                logger.warning(
-                    "setTablesList: table not found %r. Query will not execute.",
-                    tabla,
-                    stack_info=True,
-                )
+                logger.warning("setTablesList: table not found %r. Query will not execute.", tabla)
 
             self.d._tables_list.append(tabla)
 
