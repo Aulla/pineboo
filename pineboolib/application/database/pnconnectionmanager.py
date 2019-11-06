@@ -31,6 +31,10 @@ class PNConnectionManager(QtCore.QObject):
         super().__init__()
         self.conn_dict = {}
 
+        logger.info("Initializing PNConnection Manager:")
+        logger.info("LIMIT CONNECTIONS = %s.", LIMIT_CONNECTIONS)
+        logger.info("CONNECTIONS TIME OUT = %s. (0 disabled)", CONNECTIONS_TIME_OUT)
+
     # def __init__(
     #    self,
     #    db_name: str,
@@ -244,6 +248,16 @@ class PNConnectionManager(QtCore.QObject):
                     and self.conn_dict[conn_name].idle_time() > CONNECTIONS_TIME_OUT
                 ):
                     self.removeConn(connection_data[1])
+
+    def set_max_connections_limit(self, n: int) -> None:
+        """Set maximum connections limit."""
+        logger.info("New max connections limit %s.", n)
+        LIMIT_CONNECTIONS = n  # noqa: F841
+
+    def set_max_idle_connections(self, s: int) -> None:
+        """Set maximum connections time idle."""
+        logger.info("New max connections idle time %s.", s)
+        CONNECTIONS_TIME_OUT = s  # noqa: F841
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""
