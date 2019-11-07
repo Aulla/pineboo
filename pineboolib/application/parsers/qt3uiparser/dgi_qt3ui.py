@@ -572,7 +572,8 @@ class loadWidget:
                     layout_type = "Q%s%sLayout" % (c.tag[0:2].upper(), c.tag[2:])
                 else:
                     layout_type = "QGridLayout"
-                _LayoutClass = getattr(QtWidgets, layout_type)
+
+                _LayoutClass = WidgetResolver.get_widget_class(layout_type)
                 self.widget._layout = cast(QtWidgets.QLayout, _LayoutClass())
 
                 lay_name = None
