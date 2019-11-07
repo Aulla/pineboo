@@ -180,9 +180,9 @@ class PNConnectionManager(QtCore.QObject):
 
     def removeConn(self, name="default") -> bool:
         """Delete a connection specified by name."""
-        name_conn_ = name
+        name_conn_: str = name
         if name.find("|") == -1:
-            name_conn_: str = "%s|%s" % (application.project.session_id(), name)
+            name_conn_ = "%s|%s" % (application.project.session_id(), name)
 
         self.conn_dict[name_conn_]._isOpen = False
         conn_ = self.conn_dict[name_conn_].conn
