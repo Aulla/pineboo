@@ -226,7 +226,7 @@ class FLManager(QtCore.QObject, IManager):
                     must_alter = self.db_.mismatchedTable(n, ret)
                     if must_alter:
                         # if not self.alterTable(stream, stream, "", True):
-                        if not self.alterTable(ret, ret, "", True):
+                        if not self.alterTable(stream, stream, "", True):
                             logger.warning("La regeneración de la tabla %s ha fallado", n)
 
                 # throwMsgWarning(self.db_, msg)

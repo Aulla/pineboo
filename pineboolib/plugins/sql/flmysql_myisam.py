@@ -789,13 +789,19 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
     def alterTable(
         self,
-        mtd1: "pntablemetadata.PNTableMetaData",
-        mtd2: Optional["pntablemetadata.PNTableMetaData"] = None,
+        mtd1: Union[str, "pntablemetadata.PNTableMetaData"],
+        mtd2: Optional[str] = None,
         key: Optional[str] = None,
         force: bool = False,
     ) -> bool:
         """Alter a table following mtd instructions."""
-        return self.alterTable2(mtd1, mtd2, key, force)
+        if not isinstance(mtd1, str):
+            raise Exception("unexpected PNTableMetaData")
+        else:
+            if mtd2 is None:
+                raise Exception("mtd2 is empty!")
+
+            return self.alterTable2(mtd1, mtd2, key, force)
 
     def dict_cursor(self) -> Any:
         """Return dict cursor."""
@@ -804,27 +810,27 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return DictCursor
 
-    def alterTable2(self, mtd1, mtd2, key: Optional[str], force: bool = False) -> bool:
+    def alterTable2(self, mtd1: str, mtd2: str, key: Optional[str], force: bool = False) -> bool:
         """Alter a table following mtd instructions."""
         if not self.db_:
             raise Exception("must be connected")
 
         util = FLUtil()
 
-        oldMTD = None
-        newMTD = None
+        old_mtd = None
+        new_mtd = None
         doc = QDomDocument("doc")
         docElem = None
         if not util.domDocumentSetContent(doc, mtd1):
             print("FLManager::alterTable : " + util.tr("Error al cargar los metadatos."))
         else:
             docElem = doc.documentElement()
-            oldMTD = self.db_.manager().metadata(docElem, True)
+            old_mtd = self.db_.manager().metadata(docElem, True)
 
-        if oldMTD and oldMTD.isQuery():
+        if old_mtd and old_mtd.isQuery():
             return True
 
-        if oldMTD and self.hasCheckColumn(oldMTD):
+        if old_mtd and self.hasCheckColumn(old_mtd):
             return False
 
         if not util.domDocumentSetContent(doc, mtd2):
@@ -832,125 +838,126 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             return False
         else:
             docElem = doc.documentElement()
-            newMTD = self.db_.manager().metadata(docElem, True)
+            new_mtd = self.db_.manager().metadata(docElem, True)
 
-        if not oldMTD:
-            oldMTD = newMTD
+        if not old_mtd:
+            old_mtd = new_mtd
 
-        if not oldMTD.name() == newMTD.name():
+        if not old_mtd.name() == new_mtd.name():
             print(
                 "FLManager::alterTable : "
                 + util.tr("Los nombres de las tablas nueva y vieja difieren.")
             )
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and not old_mtd == new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
-        oldPK = oldMTD.primaryKey()
-        newPK = newMTD.primaryKey()
+        oldPK = old_mtd.primaryKey()
+        newPK = new_mtd.primaryKey()
 
         if not oldPK == newPK:
             print(
                 "FLManager::alterTable : "
                 + util.tr("Los nombres de las claves primarias difieren.")
             )
-            if oldMTD and oldMTD != newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and old_mtd != new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
-        if not force and self.db_.manager().checkMetaData(oldMTD, newMTD):
-            if oldMTD and oldMTD != newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+        if not force and self.db_.manager().checkMetaData(old_mtd, new_mtd):
+            if old_mtd and old_mtd != new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return True
 
-        if not self.db_.manager().existsTable(oldMTD.name()):
+        if not self.db_.manager().existsTable(old_mtd.name()):
             print(
                 "FLManager::alterTable : "
                 + util.tr(
-                    "La tabla %s antigua de donde importar los registros no existe." % oldMTD.name()
+                    "La tabla %s antigua de donde importar los registros no existe."
+                    % old_mtd.name()
                 )
             )
-            if oldMTD and oldMTD != newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and old_mtd != new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
-        fieldList = oldMTD.fieldList()
+        fieldList = old_mtd.fieldList()
         # oldField = None
 
         if not fieldList:
             print("FLManager::alterTable : " + util.tr("Los antiguos metadatos no tienen campos."))
-            if oldMTD and oldMTD != newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and old_mtd != new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
         fieldNamesOld = []
         if not force:
             for it in fieldList:
-                if newMTD.field(it.name()) is not None:
+                if new_mtd.field(it.name()) is not None:
                     fieldNamesOld.append(it.name())
 
         renameOld = "%salteredtable%s" % (
-            oldMTD.name()[0:5],
+            old_mtd.name()[0:5],
             QDateTime().currentDateTime().toString("ddhhssz"),
         )
 
         if not self.db_.dbAux():
-            if oldMTD and oldMTD != newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and old_mtd != new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
         # self.db_.dbAux().transaction()
-        fieldList = newMTD.fieldList()
+        fieldList = new_mtd.fieldList()
 
         if not fieldList:
             qWarning("FLManager::alterTable : " + util.tr("Los nuevos metadatos no tienen campos"))
 
-            if oldMTD and oldMTD != newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and old_mtd != new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
         q = pnsqlquery.PNSqlQuery(None, "dbAux")
-        in_sql = "ALTER TABLE %s RENAME TO %s" % (oldMTD.name(), renameOld)
+        in_sql = "ALTER TABLE %s RENAME TO %s" % (old_mtd.name(), renameOld)
         logger.warning(in_sql)
         if not q.exec_(in_sql):
             qWarning(
                 "FLManager::alterTable : " + util.tr("No se ha podido renombrar la tabla antigua.")
             )
 
-            if oldMTD and oldMTD != newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and old_mtd != new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
-        if not self.db_.manager().createTable(newMTD):
+        if not self.db_.manager().createTable(new_mtd):
             self.db_.dbAux().rollbackTransaction()
-            if oldMTD and oldMTD != newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and old_mtd != new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
@@ -975,7 +982,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                     % (
                         renameOld,
                         mtd1,
-                        self.db_.managerModules().idModuleOfFile("%s.mtd" % oldMTD.name()),
+                        self.db_.managerModules().idModuleOfFile("%s.mtd" % old_mtd.name()),
                         key,
                     )
                 )
@@ -985,15 +992,15 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         ok = False
         if force and fieldNamesOld:
             # sel = fieldNamesOld.join(",")
-            # in_sql = "INSERT INTO %s(%s) SELECT %s FROM %s" % (newMTD.name(), sel, sel, renameOld)
+            # in_sql = "INSERT INTO %s(%s) SELECT %s FROM %s" % (new_mtd.name(), sel, sel, renameOld)
             # logger.warning(in_sql)
             # ok = q.exec_(in_sql)
             if not ok:
                 self.db_.dbAux().rollbackTransaction()
-                if oldMTD and oldMTD != newMTD:
-                    del oldMTD
-                if newMTD:
-                    del newMTD
+                if old_mtd and old_mtd != new_mtd:
+                    del old_mtd
+                if new_mtd:
+                    del new_mtd
 
             return self.alterTable2(mtd1, mtd2, key, True)
 
@@ -1011,7 +1018,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             # totalSteps = oldCursor.size()
 
             util.createProgressDialog(
-                util.tr("Reestructurando registros para %s...") % newMTD.alias(), totalSteps
+                util.tr("Reestructurando registros para %s...") % new_mtd.alias(), totalSteps
             )
             util.setLabelText(util.tr("Tabla modificada"))
 
@@ -1019,13 +1026,13 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             newBuffer = None
             newField = None
             listRecords = []
-            newBufferInfo = self.recordInfo2(newMTD.name())
+            newBufferInfo = self.recordInfo2(new_mtd.name())
             vector_fields = {}
             default_values = {}
             v = None
 
             for it2 in fieldList:
-                oldField = oldMTD.field(it2.name())
+                oldField = old_mtd.field(it2.name())
                 if (
                     oldField is None
                     or not result_set
@@ -1082,7 +1089,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
                     if (not oldField.allowNull() or not newField.allowNull()) and v is None:
                         if oldField.type() == PNFieldMetaData.Serial:
-                            v = int(self.nextSerialVal(newMTD.name(), newField.name()))
+                            v = int(self.nextSerialVal(new_mtd.name(), newField.name()))
                         elif oldField.type() in ["int", "uint", "bool", "unlock"]:
                             v = 0
                         elif oldField.type() == "double":
@@ -1110,7 +1117,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                     # newBuffer.setValue(newField.name(), v)
 
                 if listRecords:
-                    if not self.insertMulti(newMTD.name(), listRecords):
+                    if not self.insertMulti(new_mtd.name(), listRecords):
                         ok = False
                     listRecords = []
 
@@ -1125,19 +1132,19 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         else:
             self.db_.dbAux().rollbackTransaction()
 
-            q.exec_("DROP TABLE %s CASCADE" % oldMTD.name())
-            q.exec_("ALTER TABLE %s RENAME TO %s" % (renameOld, oldMTD.name()))
+            q.exec_("DROP TABLE %s CASCADE" % old_mtd.name())
+            q.exec_("ALTER TABLE %s RENAME TO %s" % (renameOld, old_mtd.name()))
 
-            if oldMTD and oldMTD != newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and old_mtd != new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
             return False
 
-        if oldMTD and oldMTD != newMTD:
-            del oldMTD
-        if newMTD:
-            del newMTD
+        if old_mtd and old_mtd != new_mtd:
+            del old_mtd
+        if new_mtd:
+            del new_mtd
 
         return True
 

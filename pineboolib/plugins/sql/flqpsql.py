@@ -9,6 +9,7 @@ from pineboolib.application.utils.check_dependencies import check_dependencies
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.metadata import pnfieldmetadata
+from pineboolib.application.metadata import pntablemetadata
 from pineboolib import application
 
 from pineboolib.fllegacy import flutil
@@ -17,11 +18,8 @@ from pineboolib import logging
 
 from sqlalchemy import create_engine  # type: ignore
 import traceback
-from typing import Iterable, Optional, Union, List, Dict, Any, cast, TYPE_CHECKING
+from typing import Iterable, Optional, Union, List, Dict, Any, cast
 
-
-if TYPE_CHECKING:
-    from pineboolib.application.metadata import pntablemetadata  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -780,7 +778,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         if self.db_ is None:
             raise Exception("constraintExists. self.db_ is None")
 
-        q = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
+        q = pnsqlquery.PNSqlQuery(None, "dbAux")
 
         return q.exec_(sql) and q.size() > 0
 
@@ -790,82 +788,82 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
     def alterTable(
         self,
-        mtd1: "pntablemetadata.PNTableMetaData",
-        mtd2: Optional["pntablemetadata.PNTableMetaData"] = None,
+        mtd1: Union[str, "pntablemetadata.PNTableMetaData"],
+        mtd2: Optional[str] = None,
         key: Optional[str] = None,
         force: bool = False,
     ) -> bool:
         """Modify a table structure."""
 
-        if mtd2 is None:
+        if isinstance(mtd1, pntablemetadata.PNTableMetaData):
             return self.alterTable3(mtd1)
         else:
             return self.alterTable2(mtd1, mtd2, key, force)
 
-    def alterTable3(self, newMTD: "pntablemetadata.PNTableMetaData") -> bool:
+    def alterTable3(self, new_mtd: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify a table structure."""
-        if self.hasCheckColumn(newMTD):
+        if self.hasCheckColumn(new_mtd):
             return False
 
         util = flutil.FLUtil()
 
-        oldMTD = newMTD
-        fieldList = oldMTD.fieldList()
+        old_mtd = new_mtd
+        fieldList = old_mtd.fieldList()
 
         renameOld = "%salteredtable%s" % (
-            oldMTD.name()[0:5],
+            old_mtd.name()[0:5],
             QDateTime().currentDateTime().toString("ddhhssz"),
         )
 
         if self.db_ is None:
             raise Exception("alterTable3. self.db_ is None")
 
-        self.db_.dbAux().transaction()
+        self.db_.connManager().dbAux().transaction()
 
-        q = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
+        q = pnsqlquery.PNSqlQuery(None, self.db_.connManager().dbAux())
 
-        constraintName = "%s_key" % oldMTD.name()
+        constraintName = "%s_key" % old_mtd.name()
 
         if self.constraintExists(constraintName) and not q.exec_(
-            "ALTER TABLE %s DROP CONSTRAINT %s" % (oldMTD.name(), constraintName)
+            "ALTER TABLE %s DROP CONSTRAINT %s" % (old_mtd.name(), constraintName)
         ):
-            self.db_.dbAux().rollbackTransaction()
+            self.db_.connManager().dbAux().rollbackTransaction()
             return False
 
         for oldField in fieldList:
             if oldField.isCheck():
                 return False
             if oldField.isUnique():
-                constraintName = "%s_%s_key" % (oldMTD.name(), oldField.name())
+                constraintName = "%s_%s_key" % (old_mtd.name(), oldField.name())
                 if self.constraintExists(constraintName) and not q.exec_(
-                    "ALTER TABLE %s DROP CONSTRAINT %s" % (oldMTD.name(), constraintName)
+                    "ALTER TABLE %s DROP CONSTRAINT %s" % (old_mtd.name(), constraintName)
                 ):
-                    self.db_.dbAux().rollbackTransaction()
+                    self.db_.connManager().dbAux().rollbackTransaction()
                     return False
 
-        if not q.exec_("ALTER TABLE %s RENAME TO %s" % (oldMTD.name(), renameOld)):
-            self.db_.dbAux().rollbackTransaction()
+        if not q.exec_("ALTER TABLE %s RENAME TO %s" % (old_mtd.name(), renameOld)):
+            self.db_.connManager().dbAux().rollbackTransaction()
             return False
 
-        if not self.db_.manager().createTable(newMTD):
-            self.db_.dbAux().rollbackTransaction()
+        if not self.db_.connManager().manager().createTable(new_mtd):
+            self.db_.connManager().dbAux().rollbackTransaction()
             return False
 
-        oldCursor = pnsqlcursor.PNSqlCursor(renameOld, True, self.db_.dbAux())
+        oldCursor = pnsqlcursor.PNSqlCursor(renameOld, True, "dbAux")
         oldCursor.setModeAccess(oldCursor.Browse)
         oldCursor.select()
 
-        fieldList = newMTD.fieldList()
+        fieldList = new_mtd.fieldList()
 
         if not fieldList:
-            self.db_.dbAux().rollbackTransaction()
+            self.db_.connManager().dbAux().rollbackTransaction()
             return False
 
         oldCursor.select()
         totalSteps = oldCursor.size()
         progress = QProgressDialog(
             util.translate("application", "Reestructurando registros para %s...")
-            % (newMTD.alias()),
+            % (new_mtd.alias()),
             util.translate("application", "Cancelar"),
             0,
             totalSteps,
@@ -876,14 +874,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         newBuffer = None
         newField = None
         listRecords = []
-        newBufferInfo = self.recordInfo2(newMTD.name())
+        newBufferInfo = self.recordInfo2(new_mtd.name())
         oldFieldsList = {}
         newFieldsList = {}
         defValues: Dict[str, Any] = {}
         v = None
 
         for newField in fieldList:
-            old_field: Optional["pnfieldmetadata.PNFieldMetaData"] = oldMTD.field(newField.name())
+            old_field: Optional["pnfieldmetadata.PNFieldMetaData"] = old_mtd.field(newField.name())
 
             defValues[str(step)] = None
             if not old_field or not oldCursor.field(old_field.name()):
@@ -931,7 +929,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
                     if (not oldField.allowNull() or not newField.allowNull()) and v is None:
                         if oldField.type() == "serial":
-                            v = int(self.nextSerialVal(newMTD.name(), newField.name()))
+                            v = int(self.nextSerialVal(new_mtd.name(), newField.name()))
                         elif oldField.type() in ("int", "uint", "bool", "unlock"):
                             v = 0
                         elif oldField.type() == "double":
@@ -949,7 +947,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
                 listRecords.append(newBuffer)
 
-            # if not self.insertMulti(newMTD.name(), listRecords):
+            # if not self.insertMulti(new_mtd.name(), listRecords):
             #    ok = False
             #    listRecords.clear()
             #    break
@@ -957,14 +955,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             # listRecords.clear()
 
         if len(listRecords) > 0:
-            if not self.insertMulti(newMTD.name(), listRecords):
+            if not self.insertMulti(new_mtd.name(), listRecords):
                 ok = False
             listRecords.clear()
 
         if ok:
-            self.db_.dbAux().commit()
+            self.db_.connManager().dbAux().commit()
         else:
-            self.db_.dbAux().rollbackTransaction()
+            self.db_.connManager().dbAux().rollbackTransaction()
             return False
 
         force = False  # FIXME
@@ -973,18 +971,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         return True
 
     def alterTable2(
-        self,
-        mtd1: Any,
-        mtd2: Optional["pntablemetadata.PNTableMetaData"] = None,
-        key: Optional[str] = None,
-        force: bool = False,
+        self, mtd1: str, mtd2: Optional[str] = None, key: Optional[str] = None, force: bool = False
     ) -> bool:
         """Modify a table structure."""
         # logger.warning("alterTable2 FIXME::Me quedo colgado al hacer createTable --> existTable")
         util = flutil.FLUtil()
 
-        oldMTD = None
-        newMTD = None
+        old_mtd = None
+        new_mtd = None
         doc = QDomDocument("doc")
         docElem = None
 
@@ -999,9 +993,9 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         else:
             docElem = doc.documentElement()
 
-            oldMTD = self.db_.manager().metadata(docElem, True)
+            old_mtd = self.db_.connManager().manager().metadata(docElem, True)
 
-        if oldMTD and oldMTD.isQuery():
+        if old_mtd and old_mtd.isQuery():
             return True
 
         if not util.domDocumentSetContent(doc, mtd2):
@@ -1012,62 +1006,62 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             return False
         else:
             docElem = doc.documentElement()
-            newMTD = self.db_.manager().metadata(docElem, True)
+            new_mtd = self.db_.connManager().manager().metadata(docElem, True)
 
-        if not oldMTD:
-            oldMTD = newMTD
+        if not old_mtd:
+            old_mtd = new_mtd
 
-        if not oldMTD.name() == newMTD.name():
+        if not old_mtd.name() == new_mtd.name():
             logger.warning(
                 "FLManager::alterTable : "
                 + util.translate("application", "Los nombres de las tablas nueva y vieja difieren.")
             )
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and not old_mtd == new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
-        oldPK = oldMTD.primaryKey()
-        newPK = newMTD.primaryKey()
+        oldPK = old_mtd.primaryKey()
+        newPK = new_mtd.primaryKey()
 
         if not oldPK == newPK:
             logger.warning(
                 "FLManager::alterTable : "
                 + util.translate("application", "Los nombres de las claves primarias difieren.")
             )
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and not old_mtd == new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
-        if not self.db_.manager().checkMetaData(oldMTD, newMTD):
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+        if not self.db_.connManager().manager().checkMetaData(old_mtd, new_mtd):
+            if old_mtd and not old_mtd == new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return True
 
-        if not self.db_.manager().existsTable(oldMTD.name()):
+        if not self.db_.connManager().manager().existsTable(old_mtd.name()):
             logger.warning(
                 "FLManager::alterTable : "
                 + util.translate(
                     "application", "La tabla %s antigua de donde importar los registros no existe."
                 )
-                % (oldMTD.name())
+                % (old_mtd.name())
             )
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and not old_mtd == new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
-        fieldList = oldMTD.fieldList()
+        fieldList = old_mtd.fieldList()
         oldField = None
 
         if not fieldList:
@@ -1075,30 +1069,30 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 "FLManager::alterTable : "
                 + util.translate("application", "Los antiguos metadatos no tienen campos.")
             )
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and not old_mtd == new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
         renameOld = "%salteredtable%s" % (
-            oldMTD.name()[0:5],
+            old_mtd.name()[0:5],
             QDateTime().currentDateTime().toString("ddhhssz"),
         )
 
-        if not self.db_.dbAux():
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+        if not self.db_.connManager().dbAux():
+            if old_mtd and not old_mtd == new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
-        self.db_.dbAux().transaction()
+        self.db_.connManager().dbAux().transaction()
 
         if key and len(key) == 40:
-            c = pnsqlcursor.PNSqlCursor("flfiles", True, self.db_.dbAux())
+            c = pnsqlcursor.PNSqlCursor("flfiles", True, "dbAux")
             c.setForwardOnly(True)
             c.setFilter("nombre = '%s.mtd'" % renameOld)
             c.select()
@@ -1112,9 +1106,11 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     c.insert()
 
         # q = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
-        constraintName = "%s_pkey" % oldMTD.name()
-        c1 = self.db_.dbAux().cursor()
-        c1.execute("ALTER TABLE %s DROP CONSTRAINT %s" % (oldMTD.name(), constraintName))
+        constraintName = "%s_pkey" % old_mtd.name()
+        c1 = self.db_.connManager().dbAux().cursor()
+        c1.execute(
+            "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (old_mtd.name(), constraintName)
+        )  # FIXME CASCADE is correct?
 
         if self.constraintExists(constraintName):
 
@@ -1123,30 +1119,30 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 + util.translate(
                     "application",
                     "En método alterTable, no se ha podido borrar el índice %s_pkey de la tabla antigua."
-                    % oldMTD.name(),
+                    % old_mtd.name(),
                 )
             )
-            self.db_.dbAux().rollbackTransaction()
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            self.db_.connManager().dbAux().rollbackTransaction()
+            if old_mtd and not old_mtd == new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
         fieldNamesOld = []
-        record_info = self.recordInfo2(oldMTD.name())
+        record_info = self.recordInfo2(old_mtd.name())
         for f in record_info:
             fieldNamesOld.append(f[0])
 
         for it in fieldList:
-            # if newMTD.field(it.name()) is not None:
+            # if new_mtd.field(it.name()) is not None:
             #    fieldNamesOld.append(it.name())
 
             if it.isUnique():
-                constraintName = "%s_%s_key" % (oldMTD.name(), it.name())
-                c2 = self.db_.dbAux().cursor()
-                c2.execute("ALTER TABLE %s DROP CONSTRAINT %s" % (oldMTD.name(), constraintName))
+                constraintName = "%s_%s_key" % (old_mtd.name(), it.name())
+                c2 = self.db_.connManager().dbAux().cursor()
+                c2.execute("ALTER TABLE %s DROP CONSTRAINT %s" % (old_mtd.name(), constraintName))
 
                 if self.constraintExists(constraintName):
                     logger.warning(
@@ -1155,37 +1151,37 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                             "application",
                             "En método alterTable, no se ha podido borrar el índice %s_%s_key de la tabla antigua.",
                         )
-                        % (oldMTD.name(), oldField)
+                        % (old_mtd.name(), oldField)
                     )
-                    self.db_.dbAux().rollbackTransaction()
-                    if oldMTD and not oldMTD == newMTD:
-                        del oldMTD
-                    if newMTD:
-                        del newMTD
+                    self.db_.connManager().dbAux().rollbackTransaction()
+                    if old_mtd and not old_mtd == new_mtd:
+                        del old_mtd
+                    if new_mtd:
+                        del new_mtd
 
                     return False
 
-        # if not q.exec_("ALTER TABLE %s RENAME TO %s" % (oldMTD.name(), renameOld)):
+        # if not q.exec_("ALTER TABLE %s RENAME TO %s" % (old_mtd.name(), renameOld)):
         #    logger.warning(
         #        "FLManager::alterTable : "
         #        + util.translate("application", "No se ha podido renombrar la tabla antigua.")
         #    )
 
         #    self.db_.dbAux().rollbackTransaction()
-        #    if oldMTD and not oldMTD == newMTD:
-        #        del oldMTD
-        #    if newMTD:
-        #        del newMTD
+        #    if old_mtd and not old_mtd == new_mtd:
+        #        del old_mtd
+        #    if new_mtd:
+        #        del new_mtd
 
         #    return False
-        c3 = self.db_.dbAux().cursor()
-        c3.execute("ALTER TABLE %s RENAME TO %s" % (oldMTD.name(), renameOld))
-        if not self.db_.manager().createTable(newMTD):
-            self.db_.dbAux().rollbackTransaction()
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+        c3 = self.db_.connManager().dbAux().cursor()
+        c3.execute("ALTER TABLE %s RENAME TO %s" % (old_mtd.name(), renameOld))
+        if not self.db_.connManager().manager().createTable(new_mtd):
+            self.db_.connManager().dbAux().rollbackTransaction()
+            if old_mtd and not old_mtd == new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return False
 
@@ -1193,16 +1189,16 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         ok = False
 
         if not force and not fieldNamesOld:
-            self.db_.dbAux().rollbackTransaction()
-            if oldMTD and not oldMTD == newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            self.db_.connManager().dbAux().rollbackTransaction()
+            if old_mtd and not old_mtd == new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
 
             return self.alterTable2(mtd1, mtd2, key, True)
 
         if not ok:
-            old_cursor = self.db_.dbAux().cursor()
+            old_cursor = self.db_.connManager().dbAux().cursor()
             old_cursor.execute(
                 "SELECT %s FROM %s WHERE 1 = 1" % (", ".join(fieldNamesOld), renameOld)
             )
@@ -1210,7 +1206,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             totalSteps = len(result_set)
             util.createProgressDialog(
                 util.translate(
-                    "application", "Reestructurando registros para %s..." % newMTD.alias()
+                    "application", "Reestructurando registros para %s..." % new_mtd.alias()
                 ),
                 totalSteps,
             )
@@ -1220,13 +1216,13 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             newBuffer = None
             newField = None
             listRecords = []
-            newBufferInfo = self.recordInfo2(newMTD.name())
+            newBufferInfo = self.recordInfo2(new_mtd.name())
             vector_fields = {}
             default_values = {}
             v = None
 
             for it2 in fieldList:
-                oldField = oldMTD.field(it2.name())
+                oldField = old_mtd.field(it2.name())
 
                 if oldField is None or not result_set:
                     if oldField is None:
@@ -1289,7 +1285,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                         "None",
                     ):
                         if oldField.type() == pnfieldmetadata.PNFieldMetaData.Serial:
-                            v = int(self.nextSerialVal(newMTD.name(), newField.name()))
+                            v = int(self.nextSerialVal(new_mtd.name(), newField.name()))
                         elif oldField.type() in ["int", "uint"]:
                             v = 0
                         elif oldField.type() in ["bool", "unlock"]:
@@ -1319,35 +1315,35 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     # newBuffer.setValue(newField.name(), v)
 
                 if listRecords:
-                    if not self.insertMulti(newMTD.name(), listRecords):
+                    if not self.insertMulti(new_mtd.name(), listRecords):
                         ok = False
                     listRecords = []
 
             util.setProgress(totalSteps)
 
         util.destroyProgressDialog()
-        c_drop = self.db_.dbAux().cursor()
+        c_drop = self.db_.connManager().dbAux().cursor()
         if ok:
-            self.db_.dbAux().commit()
+            self.db_.connManager().dbAux().commit()
 
             if force:
                 c_drop.execute("DROP TABLE %s CASCADE" % renameOld)
         else:
-            self.db_.dbAux().rollbackTransaction()
+            self.db_.connManager().dbAux().rollbackTransaction()
 
-            c_drop.execute("DROP TABLE %s CASCADE" % oldMTD.name())
-            c_drop.execute("ALTER TABLE %s RENAME TO %s" % (renameOld, oldMTD.name()))
+            c_drop.execute("DROP TABLE %s CASCADE" % old_mtd.name())
+            c_drop.execute("ALTER TABLE %s RENAME TO %s" % (renameOld, old_mtd.name()))
 
-            if oldMTD and oldMTD != newMTD:
-                del oldMTD
-            if newMTD:
-                del newMTD
+            if old_mtd and old_mtd != new_mtd:
+                del old_mtd
+            if new_mtd:
+                del new_mtd
             return False
 
-        if oldMTD and oldMTD != newMTD:
-            del oldMTD
-        if newMTD:
-            del newMTD
+        if old_mtd and old_mtd != new_mtd:
+            del old_mtd
+        if new_mtd:
+            del new_mtd
 
         return True
 
@@ -1360,7 +1356,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         if self.db_ is None:
             raise Exception("insertMulti. self.db_ is None")
 
-        mtd = self.db_.manager().metadata(table_name)
+        mtd = self.db_.connManager().manager().metadata(table_name)
         fList = []
         vList = []
         cursor_ = self.conn_.cursor()
@@ -1369,6 +1365,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             if field.generated():
 
                 value = f[5]
+                if field.type() in ("string", "stringlist") and value:
+                    value = self.normalizeValue(value)
                 value = self.formatValue(field.type(), value, False)
                 if field.type() in ("string", "stringlist") and value in ["Null", "NULL"]:
                     value = "''"
@@ -1391,6 +1389,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             cursor_.execute(sql)
         except Exception as exc:
             print(sql[:200], "\n", exc)
+            raise Exception("EOo!")
             return False
 
         return True
@@ -1402,14 +1401,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         if self.db_ is None:
             raise Exception("Mr_Proper. self.db_ is None")
 
-        self.db_.dbAux().transaction()
+        self.db_.connManager().dbAux().transaction()
 
         qry = pnsqlquery.PNSqlQuery(None, "dbAux")
         # qry2 = pnsqlquery.PNSqlQuery(None, "dbAux")
         qry3 = pnsqlquery.PNSqlQuery(None, "dbAux")
         qry4 = pnsqlquery.PNSqlQuery(None, "dbAux")
         qry5 = pnsqlquery.PNSqlQuery(None, "dbAux")
-        cur = self.db_.dbAux().cursor()
+        cur = self.db_.connManager().dbAux().cursor()
         steps = 0
 
         rx = QRegExp("^.*\\d{6,9}$")
@@ -1454,7 +1453,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         util.setProgress(steps)
         cur.execute("DELETE FROM flmetadata")
         cur.execute("DELETE FROM flvar")
-        self.db_.manager().cleanupMetaData()
+        self.db_.connManager().manager().cleanupMetaData()
         # self.db_.driver().commit()
         util.destroyProgressDialog()
 
@@ -1468,7 +1467,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             util.setLabelText(util.translate("application", "Comprobando tabla %s" % item))
             mustAlter = self.mismatchedTable(item, item)
             if mustAlter:
-                conte = self.db_.managerModules().content("%s.mtd" % item)
+                conte = self.db_.connManager().managerModules().content("%s.mtd" % item)
                 if conte:
                     msg = util.translate(
                         "application",
@@ -1483,10 +1482,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             steps = steps + 1
             util.setProgress(steps)
 
-        self.db_.dbAux().driver().transaction()
+        self.db_.connManager().dbAux().driver().transaction()
         steps = 0
         # sqlCursor = pnsqlcursor.PNSqlCursor(None, True, self.db_.dbAux())
-        sqlQuery = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
+        sqlQuery = pnsqlquery.PNSqlQuery(None, "dbAux")
         if sqlQuery.exec_(
             "select relname from pg_class where ( relkind = 'r' ) "
             "and ( relname !~ '^Inv' ) "
@@ -1499,7 +1498,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 steps = steps + 1
                 util.setProgress(steps)
                 util.setLabelText(util.translate("application", "Creando índices para %s" % item))
-                mtd = self.db_.manager().metadata(item, True)
+                mtd = self.db_.connManager().manager().metadata(item, True)
                 if not mtd:
                     continue
                 fL = mtd.fieldList()
@@ -1508,14 +1507,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 for it in fL:
                     if not it or not it.type() == "pixmap":
                         continue
-                    cur = pnsqlcursor.PNSqlCursor(item, True, self.db_.dbAux())
+                    cur = pnsqlcursor.PNSqlCursor(item, True, self.db_.connManager().dbAux())
                     cur.select(it.name() + " not like 'RK@%'")
                     while cur.next():
                         v = cur.value(it.name())
                         if v is None:
                             continue
 
-                        v = self.db_.manager().storeLargeValue(mtd, v)
+                        v = self.db_.connManager().manager().storeLargeValue(mtd, v)
                         if v:
                             buf = cur.primeUpdate()
                             buf.setValue(it.name(), v)

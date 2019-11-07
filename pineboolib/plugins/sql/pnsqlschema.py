@@ -271,8 +271,8 @@ class PNSqlSchema(object):
 
     def alterTable(
         self,
-        mtd1: "pntablemetadata.PNTableMetaData",
-        mtd2: Optional["pntablemetadata.PNTableMetaData"] = None,
+        mtd1: Union[str, "pntablemetadata.PNTableMetaData"],
+        mtd2: Optional[str] = None,
         key: Optional[str] = None,
         force: bool = False,
     ) -> bool:
