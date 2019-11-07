@@ -3,7 +3,7 @@ Project Module.
 """
 import os
 import time
-from typing import List, Optional, Any, Dict, TYPE_CHECKING
+from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
 from optparse import Values
 from pathlib import Path
 
@@ -55,6 +55,7 @@ class Project(object):
     no_python_cache = False  # TODO: Fill this one instead
     _msg_mng = None
     alternative_folder: Optional[str]
+    _session_func_: Optional[Callable]
 
     def __init__(self) -> None:
         """Constructor."""
@@ -81,6 +82,7 @@ class Project(object):
         if not os.path.exists(self.tmpdir):
             Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
 
+        self._session_func_ = None
         self._conn_manager = pnconnectionmanager.PNConnectionManager()
 
     @property
@@ -582,7 +584,12 @@ class Project(object):
         """Return message manager for splash and progress."""
         return self._msg_mng
 
+    def set_session_function(self, fun_: Callable) -> None:
+        """Set session funcion."""
+
+        self._session_func_ = fun_
+
     def session_id(self) -> str:
         """Return id if use pineboo like framework."""
 
-        return ""
+        return self._session_func_() if self._session_func_ is not None else ""
