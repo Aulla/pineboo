@@ -184,13 +184,17 @@ class PNConnectionManager(QtCore.QObject):
         if name.find("|") == -1:
             name_conn_ = "%s|%s" % (application.project.session_id(), name)
 
-        self.conn_dict[name_conn_]._isOpen = False
-        conn_ = self.conn_dict[name_conn_].conn
-        if conn_ not in [None, self.mainConn().conn]:
-            conn_.close()
+        if name_conn_ in self.conn_dict.keys():
+            self.conn_dict[name_conn_]._isOpen = False
+            conn_ = self.conn_dict[name_conn_].conn
+            if conn_ not in [None, self.mainConn().conn]:
+                conn_.close()
 
-        del self.conn_dict[name_conn_]
-        return True
+            del self.conn_dict[name_conn_]
+            return True
+        else:
+            logger.warning("An attempt was made to delete an invalid connection named %s" % name)
+            return False
 
     def manager(self) -> "flmanager.FLManager":
         """
