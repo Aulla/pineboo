@@ -16,6 +16,6 @@ class QVBoxLayout(QtWidgets.QVBoxLayout):
             if parent:
                 parent.addLayout(self)
 
-        self.setContentsMargins(1, 1, 1, 1)
+        self.setContentsMargins(0, 2, 0, 2)
         self.setSpacing(1)
         self.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
