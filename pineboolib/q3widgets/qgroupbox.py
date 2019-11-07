@@ -18,6 +18,7 @@ class QGroupBox(QtWidgets.QGroupBox):
     # _line_width: int
     presset = QtCore.pyqtSignal(int)
     selectedId: int
+    line_width: int = 1
 
     def __init__(self, *args, **kwargs) -> None:
         """Inicialize."""
@@ -41,10 +42,15 @@ class QGroupBox(QtWidgets.QGroupBox):
             self.objectName(),
             s,
         )
+        self.line_width = s
         self.setStyleSheet(style_)
 
     def setTitle(self, t: str) -> None:
         """Set title."""
+        if self.line_width == 0:
+            t = ""
+        if t == "":
+            self.setLineWidth(0)
         super().setTitle(t)
 
     def get_enabled(self) -> bool:
