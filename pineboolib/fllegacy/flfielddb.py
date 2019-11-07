@@ -3516,8 +3516,8 @@ class FLFieldDB(QtWidgets.QWidget):
             )
         # self.editor_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
         self.editor_.setMinimumWidth(100)
-        if project.DGI.mobilePlatform():
-            self.editor_.setMinimumHeight(60)
+        # if project.DGI.mobilePlatform():
+        #    self.editor_.setMinimumHeight(60)
 
         if self.FLWidgetFieldDBLayout:
             self.FLWidgetFieldDBLayout.addWidget(self.editor_)
