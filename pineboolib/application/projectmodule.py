@@ -592,4 +592,4 @@ class Project(object):
     def session_id(self) -> str:
         """Return id if use pineboo like framework."""
 
-        return self._session_func_() if self._session_func_ is not None else ""
+        return str(self._session_func_()) if self._session_func_ is not None else ""
