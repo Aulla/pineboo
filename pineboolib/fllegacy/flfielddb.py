@@ -2204,6 +2204,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_ = QTextEdit(self)
             self.editor_.setFont(self.font())
             self.editor_.setTabChangesFocus(True)
+            self.setMinimumHeight(100)
             # self.editor_.setMinimumHeight(100)
             # self.editor_.setMaximumHeight(120)
             sizePolicy = QtWidgets.QSizePolicy(
