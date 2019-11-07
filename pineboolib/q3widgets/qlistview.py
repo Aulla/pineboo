@@ -47,6 +47,8 @@ class QListView(QtWidgets.QWidget):
 
     def singleClickedEmit(self, index: Any) -> None:
         """Emit single clicked signal."""
+        if not self._clickable:
+            return
 
         if index.column() != 0:
             index = index.sibling(index.row(), 0)
@@ -58,6 +60,8 @@ class QListView(QtWidgets.QWidget):
 
     def doubleClickedEmit(self, index: Any) -> None:
         """Emit double clicked signal."""
+        if not self._clickable:
+            return
 
         item = index.model().itemFromIndex(index)
         self.doubleClicked.emit(item)
@@ -107,22 +111,32 @@ class QListView(QtWidgets.QWidget):
 
         self.setHeaderLabel(self._cols_labels)
 
-    @decorators.NotImplementedWarn
     def setClickable(self, c: bool) -> None:
         """Set clickable."""
         self._clickable = True if c else False
 
-    @decorators.NotImplementedWarn
     def setResizable(self, r: bool) -> None:
         """Set resizeable."""
-
         self._resizeable = True if r else False
 
-    @decorators.NotImplementedWarn
-    def resizeEvent(self, e: QtCore.QEvent) -> None:
-        """Process resize event."""
-        if self._resizeable:
-            super().resizeEvent(e)
+    def eventFilter(self, obj: QtWidgets.QWidget, ev: QtCore.QEvent) -> bool:
+        """Event filter."""
+
+        if ev.type() == QtGui.QResizeEvent:
+            if not self._resizeable:
+                return False
+
+        return super().eventFilter(obj, ev)
+
+    def setItemMargin(self, s: int) -> None:
+        style_ = "QTreeView::item#%s { border: 0px; padding: %spx; }" % (self.objectName(), s)
+        self.setStyleSheet(style_)
+
+    # @decorators.NotImplementedWarn
+    # def resizeEvent(self, e: QtCore.QEvent) -> None:
+    #    """Process resize event."""
+    #    if self._resizeable:
+    #        super().resizeEvent(e)
 
     def clear(self) -> None:
         """Clear all data."""
