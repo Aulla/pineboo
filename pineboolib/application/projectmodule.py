@@ -557,7 +557,7 @@ class Project(object):
                 pycode_list.append(pyconvert.pythonify_item(item))
 
         if not all(pycode_list):
-            raise Exception("Conversion failed for some files")
+            self.logger.warning("Conversion failed for some files")
 
     def get_temp_dir(self) -> str:
         """
