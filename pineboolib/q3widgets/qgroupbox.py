@@ -28,11 +28,20 @@ class QGroupBox(QtWidgets.QGroupBox):
         if not config.value("ebcomportamiento/spacerLegacy", False):
             self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 
+        self.setContentsMargins(2, 2, 2, 2)
+
     def setLayout(self, layout: QtWidgets.QLayout) -> None:
         """Set layout to QGroupBox."""
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        layout.setContentsMargins(1, 1, 1, 1)
+        layout.setSpacing(1)
         super().setLayout(layout)
+
+    def setLineWidth(self, s: int) -> None:
+        style_ = "QGroupBox#%s {  border: %spx solid gray; border-radius: 3px;}" % (
+            self.objectName(),
+            s,
+        )
+        self.setStyleSheet(style_)
 
     def setTitle(self, t: str) -> None:
         """Set title."""
