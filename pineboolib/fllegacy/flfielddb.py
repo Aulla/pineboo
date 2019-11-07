@@ -3506,8 +3506,6 @@ class FLFieldDB(QtWidgets.QWidget):
         else:
             self.fieldAlias_ = self.fieldName_
 
-        from pineboolib.application import project
-
         self.editor_ = QLineEdit(self)
         self.editor_.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         if self.textLabelDB:

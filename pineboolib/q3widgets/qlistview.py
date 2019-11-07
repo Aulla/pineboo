@@ -78,12 +78,6 @@ class QListView(QtWidgets.QWidget):
         if self._tree is not None:
             self._tree.model().setItem(self._current_row, 0, item)
 
-    @decorators.NotImplementedWarn
-    def setItemMargin(self, m: int):
-        """Set items margin."""
-
-        self.setContentsMargins(m, m, m, m)
-
     def setHeaderLabel(self, labels: Union[str, List[str]]) -> None:
         """Set header labels from a stringlist."""
         if isinstance(labels, str):
@@ -122,15 +116,17 @@ class QListView(QtWidgets.QWidget):
     def eventFilter(self, obj: QtWidgets.QWidget, ev: QtCore.QEvent) -> bool:
         """Event filter."""
 
-        if ev.type() == QtGui.QResizeEvent:
+        if isinstance(ev, QtGui.QResizeEvent):
             if not self._resizeable:
                 return False
 
         return super().eventFilter(obj, ev)
 
     def setItemMargin(self, s: int) -> None:
+        """Set items margin."""
+
         style_ = "QTreeView::item#%s { border: 0px; padding: %spx; }" % (self.objectName(), s)
-        self.setStyleSheet(style_)
+        self._tree.setStyleSheet(style_)
 
     # @decorators.NotImplementedWarn
     # def resizeEvent(self, e: QtCore.QEvent) -> None:
