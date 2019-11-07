@@ -4,6 +4,8 @@
 from PyQt5 import QtWidgets, QtCore  # type: ignore
 from pineboolib.core import decorators
 
+from pineboolib.core import settings
+
 from pineboolib import logging
 
 from typing import Any
@@ -24,17 +26,17 @@ class QGroupBox(QtWidgets.QGroupBox):
         """Inicialize."""
 
         super(QGroupBox, self).__init__(*args, **kwargs)
-        from pineboolib.core.settings import config
 
-        if not config.value("ebcomportamiento/spacerLegacy", False):
+        if not settings.config.value("ebcomportamiento/spacerLegacy", False):
             self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 
-        self.setContentsMargins(2, 2, 2, 2)
+        self.setContentsMargins(0, 2, 0, 2)
 
     def setLayout(self, layout: QtWidgets.QLayout) -> None:
         """Set layout to QGroupBox."""
-        layout.setContentsMargins(1, 1, 1, 1)
-        layout.setSpacing(1)
+
+        # layout.setContentsMargins(0, 0, 0, 0)
+        # layout.setSpacing(0)
         super().setLayout(layout)
 
     def setLineWidth(self, s: int) -> None:
