@@ -180,8 +180,9 @@ class PNConnectionManager(QtCore.QObject):
 
     def removeConn(self, name="default") -> bool:
         """Delete a connection specified by name."""
-
-        name_conn_: str = "%s|%s" % (application.project.session_id(), name)
+        name_conn_ = name
+        if name.find("|") == -1:
+            name_conn_: str = "%s|%s" % (application.project.session_id(), name)
 
         self.conn_dict[name_conn_]._isOpen = False
         conn_ = self.conn_dict[name_conn_].conn
@@ -247,7 +248,7 @@ class PNConnectionManager(QtCore.QObject):
                     CONNECTIONS_TIME_OUT
                     and self.conn_dict[conn_name].idle_time() > CONNECTIONS_TIME_OUT
                 ):
-                    self.removeConn(connection_data[1])
+                    self.removeConn(conn_name)
 
     def set_max_connections_limit(self, n: int) -> None:
         """Set maximum connections limit."""
