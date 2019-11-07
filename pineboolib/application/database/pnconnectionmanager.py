@@ -240,7 +240,6 @@ class PNConnectionManager(QtCore.QObject):
 
         for conn_name in list(self.conn_dict.keys()):
             if conn_name.find("|") > -1:
-                connection_data = conn_name.split("|")
                 if (
                     not self.conn_dict[conn_name]._isOpen  # Closed connections
                     and self.conn_dict[conn_name].conn is not None  # Only initialized connections.
