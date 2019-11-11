@@ -144,6 +144,7 @@ from pineboolib.q3widgets.filedialog import FileDialog  # noqa: F401
 from pineboolib.q3widgets.spinbox import SpinBox  # noqa: F401
 
 from pineboolib.q3widgets.dialog import Dialog  # noqa: F401
+from pineboolib.q3widgets.inputdialog import InputDialog  # noqa: F401
 from pineboolib.q3widgets.groupbox import GroupBox  # noqa: F401
 
 from pineboolib.q3widgets.numberedit import NumberEdit  # noqa: F401
