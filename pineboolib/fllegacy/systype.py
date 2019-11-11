@@ -4,6 +4,7 @@ import traceback
 import os
 import os.path
 import sys
+import re
 
 
 from PyQt5 import QtCore, QtWidgets, QtGui, QtXml
@@ -56,11 +57,50 @@ class AQTimer(QtCore.QTimer):
     pass
 
 
+class AQGlobalFunctions_class(QtCore.QObject):
+    """AQSGlobalFunction class."""
+
+    functions_ = types.Array()
+    mappers_: QtCore.QSignalMapper
+
+    def __init__(self):
+        super().__init__()
+        self.mappers_ = QtCore.QSignalMapper()
+
+    def set(self, function_name: str, global_function: Callable) -> None:
+        """Set a new global function."""
+        self.functions_[function_name] = global_function
+
+    def get(self, function_name: str) -> Callable:
+        """Return a global function specified by name."""
+
+        return self.functions_[function_name]
+
+    def exec_(self, function_name: str) -> None:
+        """Execute a function specified by name."""
+
+        fn = self.functions_[function_name]
+        if fn is not None:
+            fn()
+
+    def mapConnect(self, obj: QtWidgets.QWidget, signal: str, function_name: str) -> None:
+        """Add conection to map."""
+
+        self.mappers_.mapped[str].connect(self.exec_)
+        sg_name = re.sub(r" *\(.*\)", "", signal)
+
+        sg = getattr(obj, sg_name, None)
+        if sg is not None:
+            sg.connect(self.mappers_.map)
+            self.mappers_.setMapping(obj, function_name)
+
+
 class SysType(sysbasetype.SysBaseType):
     """SysType class."""
 
     time_user_ = QtCore.QDateTime.currentDateTime()
     AQTimer = AQTimer
+    AQGlobalFunctions = AQGlobalFunctions_class()
 
     @classmethod
     def translate(self, *args) -> str:
@@ -2169,41 +2209,3 @@ class AbanQDbDumper(QtCore.QObject):
         for table_ in tables:
             self.dumpTableToCsv(table_, dirBase)
         return True
-
-
-class AQGlobalFunctions(QtCore.QObject):
-    """AQSGlobalFunction class."""
-
-    functions_ = types.Array()
-    mappers_ = types.Array()
-    count_ = 0
-
-    def set(self, function_name: str, global_function: Callable) -> None:
-        """Set a new global function."""
-        self.functions_[function_name] = global_function
-
-    def get(self, function_name: str) -> Callable:
-        """Return a global function specified by name."""
-
-        return self.functions_[function_name]
-
-    def exec_(self, function_name: str) -> None:
-        """Execute a function specified by name."""
-
-        fn = self.functions_[function_name]
-        if fn is not None:
-            fn()
-
-    def mapConnect(self, obj: QtWidgets.QWidget, signal: str, function_name: str) -> None:
-        """Add conection to map."""
-
-        c = self.count_ % 100
-        sigMap = QtCore.QSignalMapper(obj)
-        self.mappers_[c] = sigMap
-
-        def _():
-            self.mappers_[c] = None
-
-        application.connections.connect(sigMap, u"mapped(QString)", self, u"exec()")
-        sigMap.setMapping(obj, function_name)
-        application.connections.connect(obj, signal, sigMap, u"map()")

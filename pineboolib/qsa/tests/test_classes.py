@@ -8,6 +8,8 @@ import os
 class TestClasses(unittest.TestCase):
     """Test classes."""
 
+    _prueba = False
+
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
@@ -69,6 +71,23 @@ class TestClasses(unittest.TestCase):
         value_2 = qsa.QSProject.entryFunction
 
         self.assertEqual(value_1, value_2)
+
+    def test_aq_global_functions(self) -> None:
+        """Test AQGlobal function."""
+        from pineboolib.qsa import qsa
+        from PyQt5 import QtWidgets
+
+        qsa.sys.AQGlobalFunctions.set("saludo", self.saludo)
+        btn = QtWidgets.QPushButton()
+        qsa.sys.AQGlobalFunctions.mapConnect(btn, "clicked()", "saludo")
+        self.assertFalse(self._prueba)
+        btn.clicked.emit()
+        self.assertTrue(self._prueba)
+
+    def saludo(self):
+        """AQGlobalFunction test."""
+        print("****")
+        self._prueba = True
 
     @classmethod
     def tearDownClass(cls) -> None:
