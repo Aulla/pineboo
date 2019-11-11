@@ -64,6 +64,8 @@ class AQGlobalFunctions_class(QtCore.QObject):
     mappers_: QtCore.QSignalMapper
 
     def __init__(self):
+        """Initialize."""
+
         super().__init__()
         self.mappers_ = QtCore.QSignalMapper()
 
@@ -86,7 +88,7 @@ class AQGlobalFunctions_class(QtCore.QObject):
     def mapConnect(self, obj: QtWidgets.QWidget, signal: str, function_name: str) -> None:
         """Add conection to map."""
 
-        self.mappers_.mapped[str].connect(self.exec_)
+        self.mappers_.mapped[str].connect(self.exec_)  # type: ignore
         sg_name = re.sub(r" *\(.*\)", "", signal)
 
         sg = getattr(obj, sg_name, None)

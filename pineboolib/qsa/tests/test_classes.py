@@ -84,7 +84,7 @@ class TestClasses(unittest.TestCase):
         btn.clicked.emit()
         self.assertTrue(self._prueba)
 
-    def saludo(self):
+    def saludo(self) -> None:
         """AQGlobalFunction test."""
         self._prueba = True
 
