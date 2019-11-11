@@ -49,7 +49,7 @@ from .pncontrolsfactory import FLCodBar, FLWidget, FLWorkSpace, FLPosPrinter  # 
 from .pncontrolsfactory import FLSqlQuery, FLSqlCursor, FLNetwork, FLSerialPort  # noqa: F401
 from .pncontrolsfactory import FLApplication, FLVar, FLSmtpClient, FLTable  # noqa: F401
 from .pncontrolsfactory import FLListViewItem, FLReportViewer, FLUtil, FLSettings  # noqa: F401
-from .pncontrolsfactory import FLScriptEditor  # noqa: F401
+from .pncontrolsfactory import FLScriptEditor, FLReportEngine, FLJasperEngine  # noqa: F401
 
 # QSA
 from .pncontrolsfactory import FileDialog, Color, Label, Line, CheckBox, Dialog  # noqa: F401

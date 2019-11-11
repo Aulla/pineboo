@@ -121,6 +121,8 @@ from pineboolib.fllegacy.flserialport import FLSerialPort  # noqa: F401
 from pineboolib.fllegacy.flsqlcursor import FLSqlCursor  # noqa: F401
 from pineboolib.fllegacy.flnetwork import FLNetwork  # noqa: F401
 from pineboolib.fllegacy.flreportviewer import FLReportViewer  # noqa: F401
+from pineboolib.fllegacy.flreportengine import FLReportEngine  # noqa: F401
+from pineboolib.fllegacy.fljasperengine import FLJasperEngine  # noqa: F401
 from pineboolib.fllegacy.flapplication import FLApplication  # noqa: F401
 from pineboolib.fllegacy.flvar import FLVar  # noqa: F401
 from pineboolib.fllegacy.flsmtpclient import FLSmtpClient  # noqa: F401
