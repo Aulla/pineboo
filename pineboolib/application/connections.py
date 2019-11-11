@@ -12,7 +12,7 @@ from pineboolib.q3widgets.formdbwidget import FormDBWidget
 
 from pineboolib.core.utils import logging
 
-from PyQt5.QtCore import Qt, QObject, pyqtSignal
+from PyQt5.QtCore import Qt, QObject, pyqtSignal, QSignalMapper
 from PyQt5.QtWidgets import QWidget
 
 from typing import Callable, Any, Dict, Tuple, Optional
@@ -213,6 +213,10 @@ def solve_connection(
     if isinstance(sender, QTable):
         if "CurrentChanged" in signal:
             signal = signal.replace("CurrentChanged", "currentChanged")
+
+    if isinstance(sender, QSignalMapper):
+        if "mapped(QString)" in signal:
+            signal = signal.replace("mapped(QString)", "mapped[str]")
 
     # if receiver.__class__.__name__ == "FormInternalObj" and slot == "accept":
     #    receiver = receiver.parent()

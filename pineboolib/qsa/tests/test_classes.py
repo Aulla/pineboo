@@ -86,7 +86,6 @@ class TestClasses(unittest.TestCase):
 
     def saludo(self):
         """AQGlobalFunction test."""
-        print("****")
         self._prueba = True
 
     @classmethod
