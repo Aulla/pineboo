@@ -34,15 +34,15 @@ class FLDateEdit(qdateedit.QDateEdit):
         """Return date."""
         return super().getDate()
 
-    def setDate(self, date: Union[str, datetime.date, Date] = None) -> None:  # type: ignore
+    def setDate(self, date: Union[str, datetime.date, Date] = None) -> None:  # type: ignore [override] # noqa F821
         """Set Date."""
 
         if date in (None, "NAN", ""):
-            date = QtCore.QDate.fromString(str("01-01-2000"), self.DMY)
+            date_ = QtCore.QDate.fromString(str("01-01-2000"), self.DMY)
         else:
-            date = convert_to_qdate(date)
+            date_ = convert_to_qdate(date)
 
-        super().setDate(date)
+        super().setDate(date_)
         self.setStyleSheet("color: black")
 
-    date = property(getDate, setDate)  # type: ignore
+    date: str = property(getDate, setDate)  # type: ignore [assignment] # noqa F821
