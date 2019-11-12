@@ -28,17 +28,18 @@ class TestEnebooGUI(unittest.TestCase):
         """Test GUI initialize."""
         from pineboolib.fllegacy import flapplication
         from pineboolib.qsa import qsa
+
+        from pineboolib.plugins.mainform.eneboo_mdi import eneboo_mdi
+
         import os
 
         project = application.project
-        project.main_form = importlib.import_module(
-            "pineboolib.plugins.mainform.eneboo_mdi.eneboo_mdi"
-        )
-        project.main_window = getattr(project.main_form, "mainWindow", None)
-        main_form_ = getattr(project.main_form, "MainForm", None)
+        project.main_form = eneboo_mdi
+        project.main_window = eneboo_mdi.MainForm()
+        main_form_ = project.main_window
 
         self.assertTrue(main_form_)
-        self.main_w = main_form_()
+        self.main_w = main_form_
         self.main_w.initScript()
         self.main_w.show()
 
