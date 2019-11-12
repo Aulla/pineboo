@@ -12,7 +12,7 @@ from pineboolib.q3widgets.formdbwidget import FormDBWidget
 
 from pineboolib.core.utils import logging
 
-from PyQt5.QtCore import Qt, QObject, pyqtSignal, QSignalMapper
+from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5.QtWidgets import QWidget
 
 from typing import Callable, Any, Dict, Tuple, Optional
