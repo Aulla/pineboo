@@ -4,12 +4,17 @@
 from PyQt5 import QtWidgets
 
 from pineboolib.core import decorators
-from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core.settings import settings
+from pineboolib.core.utils import utils_base
+from pineboolib.core import settings
 
 from pineboolib.application.metadata import pnaction
 from pineboolib.application.staticloader import pnmodulesstaticloader
 from pineboolib.application.database import pnsqlquery, pnsqlcursor
+
+from pineboolib.application.utils import path
+from pineboolib.application.parsers.qt3uiparser import qt3ui
+
+from pineboolib import q3widgets
 
 from . import flutil
 from . import flformdb
@@ -325,8 +330,10 @@ class FLManagerModules(object):
                 )
 
         if data is None:
-            if os.path.exists(filedir("./system_module/%s%s.%s" % (type_, name_, ext_))):
-                data = self.contentFS(filedir("./system_module/%s%s.%s" % (type_, name_, ext_)))
+            if os.path.exists(utils_base.filedir("./system_module/%s%s.%s" % (type_, name_, ext_))):
+                data = self.contentFS(
+                    utils_base.filedir("./system_module/%s%s.%s" % (type_, name_, ext_))
+                )
             else:
                 data = self.content(file_name)
 
@@ -389,17 +396,13 @@ class FLManagerModules(object):
         @param parent. Parent widget
         @return QWidget corresponding to the built form.
         """
-        from pineboolib.core.utils.utils_base import filedir, load2xml
-
-        from pineboolib.application.utils.path import _path
-        from pineboolib.application.parsers.qt3uiparser import dgi_qt3ui
 
         from pineboolib import application
 
         if ".ui" not in file_name:
             file_name += ".ui"
 
-        form_path = file_name if os.path.exists(file_name) else _path(file_name)
+        form_path = file_name if os.path.exists(file_name) else path._path(file_name)
         conn_manager = application.project.conn_manager
 
         if "main_conn" in conn_manager.conn_dict.keys():
@@ -416,7 +419,7 @@ class FLManagerModules(object):
 
             return QtWidgets.QWidget()
 
-        tree = load2xml(form_path)
+        tree = utils_base.load2xml(form_path)
 
         if not tree:
             return parent or QtWidgets.QWidget()
@@ -436,18 +439,11 @@ class FLManagerModules(object):
                 raise Exception("class was expected")
 
             parent = None
-            if UIVersion < "4.0":
-                from pineboolib import q3widgets
 
-                if xclass == "QMainWindow":
-                    parent = q3widgets.qmainwindow.QMainWindow()
-                elif xclass in ["QDialog", "QWidget"]:
-                    parent = q3widgets.qdialog.QDialog()
-            else:
-                if xclass == "QMainWindow":
-                    parent = QtWidgets.QMainWindow()
-                elif xclass in ["QDialog", "QWidget"]:
-                    parent = QtWidgets.QDialog()
+            if xclass == "QMainWindow":
+                parent = q3widgets.qmainwindow.QMainWindow()
+            elif xclass in ["QDialog", "QWidget"]:
+                parent = q3widgets.qdialog.QDialog()
 
             if parent is None:
                 raise Exception("xclass not found %s" % xclass)
@@ -459,11 +455,11 @@ class FLManagerModules(object):
 
         logger.info("Procesando %s (v%s)", file_name, UIVersion)
         if UIVersion < "4.0":
-            dgi_qt3ui.loadUi(form_path, w_)
+            qt3ui.loadUi(form_path, w_)
         else:
             from PyQt5 import uic  # type: ignore
 
-            qtWidgetPlugings = filedir("plugins/custom_widgets")
+            qtWidgetPlugings = utils_base.filedir("plugins/custom_widgets")
             if qtWidgetPlugings not in uic.widgetPluginPath:
                 logger.info("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
                 uic.widgetPluginPath.append(qtWidgetPlugings)
@@ -821,7 +817,9 @@ class FLManagerModules(object):
             info_module_.idArea = "sys"
             info_module_.descripcion = "Administracion"
             info_module_.version = "0.0"
-            info_module_.icono = self.contentFS("%s/%s" % (filedir("./system_module"), "/sys.xpm"))
+            info_module_.icono = self.contentFS(
+                "%s/%s" % (utils_base.filedir("./system_module"), "/sys.xpm")
+            )
             info_module_.areaDescripcion = "Sistema"
             self.dict_info_mods_[info_module_.idModulo.upper()] = info_module_
 
@@ -897,9 +895,9 @@ class FLManagerModules(object):
         if self.sha_local_ is None:
             raise ValueError("sha_local_ is empty!")
 
-        settings.setValue("Modules/activeIdModule/%s" % idDB, self.active_id_module_)
-        settings.setValue("Modules/activeIdArea/%s" % idDB, self.active_id_area_)
-        settings.setValue("Modules/shaLocal/%s" % idDB, self.sha_local_)
+        settings.settings.setValue("Modules/activeIdModule/%s" % idDB, self.active_id_module_)
+        settings.settings.setValue("Modules/activeIdArea/%s" % idDB, self.active_id_area_)
+        settings.settings.setValue("Modules/shaLocal/%s" % idDB, self.sha_local_)
 
     def readState(self) -> None:
         """
@@ -916,9 +914,11 @@ class FLManagerModules(object):
                 db_aux.port(),
             )
 
-            self.active_id_module_ = settings.value("Modules/activeIdModule/%s" % idDB, None)
-            self.active_id_area_ = settings.value("Modules/activeIdArea/%s" % idDB, None)
-            self.sha_local_ = settings.value("Modules/shaLocal/%s" % idDB, None)
+            self.active_id_module_ = settings.settings.value(
+                "Modules/activeIdModule/%s" % idDB, None
+            )
+            self.active_id_area_ = settings.settings.value("Modules/activeIdArea/%s" % idDB, None)
+            self.sha_local_ = settings.settings.value("Modules/shaLocal/%s" % idDB, None)
 
             if (
                 self.active_id_module_ is None
@@ -974,5 +974,5 @@ class FLManagerModules(object):
         """
         Display dialog box to configure static load from local disk.
         """
-        ui = self.createUI(filedir("./system_module/forms/FLStaticLoaderUI.ui"))
+        ui = self.createUI(utils_base.filedir("./system_module/forms/FLStaticLoaderUI.ui"))
         pnmodulesstaticloader.PNStaticLoader.setup(self.static_db_info_, ui)
