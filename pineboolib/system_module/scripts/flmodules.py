@@ -44,7 +44,7 @@ class FormInternalObj(qsa.FormDBWidget):
             and not nombre.endswith(u".certificates")
             and not nombre.endswith(u".qs")
             and not nombre.endswith(u".ar")
-            and not nombre.endswith(u".qs.py")
+            and not nombre.endswith(u".py")
             and not nombre.endswith(u".kut")
         ):
             return
@@ -151,7 +151,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     if not isinstance(value_py, str):
                         raise Exception("value_py must be string not bytes.")
 
-                    self.cargarFicheroEnBD("%s.py" % ficheros[i], value_py, log, directorio)
+                    self.cargarFicheroEnBD("%s.py" % ficheros[i][-3], value_py, log, directorio)
 
             encode = "ISO-8859-1"
             if path_.endswith("ts"):
@@ -253,7 +253,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 self.cargarFicheros(qsa.ustr(directorio, u"/forms/"), u"*.ui")
                 self.cargarFicheros(qsa.ustr(directorio, u"/tables/"), u"*.mtd")
                 self.cargarFicheros(qsa.ustr(directorio, u"/scripts/"), u"*.qs")
-                self.cargarFicheros(qsa.ustr(directorio, u"/scripts/"), u"*.qs.py")
+                self.cargarFicheros(qsa.ustr(directorio, u"/scripts/"), u"*.py")
                 self.cargarFicheros(qsa.ustr(directorio, u"/queries/"), u"*.qry")
                 self.cargarFicheros(qsa.ustr(directorio, u"/reports/"), u"*.kut")
                 self.cargarFicheros(qsa.ustr(directorio, u"/reports/"), u"*.ar")
