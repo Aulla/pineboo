@@ -214,10 +214,6 @@ def solve_connection(
         if "CurrentChanged" in signal:
             signal = signal.replace("CurrentChanged", "currentChanged")
 
-    if isinstance(sender, QSignalMapper):
-        if "mapped(QString)" in signal:
-            signal = signal.replace("mapped(QString)", "mapped[str]")
-
     # if receiver.__class__.__name__ == "FormInternalObj" and slot == "accept":
     #    receiver = receiver.parent()
     remote_fn = None
