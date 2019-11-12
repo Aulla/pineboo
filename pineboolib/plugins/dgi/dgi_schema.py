@@ -74,7 +74,7 @@ class dgi_schema(object):
         self._desktopEnabled = val
 
     def localDesktop(
-        self
+        self,
     ) -> bool:  # Indica si son ventanas locales o remotas a traves de algún parser
         """Return if is local desktop."""
         return self._localDesktop
