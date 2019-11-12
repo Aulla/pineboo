@@ -17,6 +17,32 @@ if TYPE_CHECKING:
 class ProcessBaseClass(QtCore.QProcess):
     """Process base class."""
 
+    _std_out: Optional[str]
+    _std_error: Optional[str]
+    _encoding: str
+
+    def read_std_error(self) -> Any:
+        """Return last std error."""
+
+        return self._std_error
+
+    def read_std_out(self) -> Any:
+        """Return last std out."""
+        return self._std_out
+
+    def set_std_out(self, value: str) -> None:
+        """Set last std out."""
+
+        self._std_out = value
+
+    def set_std_error(self, value: str) -> None:
+        """Set last std error."""
+
+        self._std_error = value
+
+    stdout: str = property(read_std_out, set_std_out)  # type: ignore [assignment] # noqa F821
+    stderr: str = property(read_std_error, set_std_error)  # type: ignore [assignment] # noqa F821
+
 
 class ProcessStatic(ProcessBaseClass):
     """Process static class."""
@@ -74,10 +100,6 @@ class ProcessStatic(ProcessBaseClass):
 class Process(ProcessBaseClass):
     """Process class."""
 
-    _encoding: str
-    _std_out: Optional[str]
-    _std_error: Optional[str]
-
     def __init__(self, *args) -> None:
         """Inicialize."""
 
@@ -99,8 +121,7 @@ class Process(ProcessBaseClass):
 
     def stop(self) -> None:
         """Stop the process."""
-
-        super().stop()
+        self.kill()
 
     def writeToStdin(self, stdin_) -> None:
         """Write data to stdin channel."""
@@ -116,25 +137,6 @@ class Process(ProcessBaseClass):
     # @decorators.pyqtSlot()
     # def stderrReady(self) -> None:
     #    self._stderr = str(self.readAllStandardError())
-
-    def read_std_error(self) -> Any:
-        """Return last std error."""
-
-        return self._std_error
-
-    def read_std_out(self) -> Any:
-        """Return last std out."""
-        return self._std_out
-
-    def set_std_out(self, value: str) -> None:
-        """Set last std out."""
-
-        self._std_out = value
-
-    def set_std_error(self, value: str) -> None:
-        """Set last std error."""
-
-        self._std_error = value
 
     def get_working_directory(self) -> str:
         """Return working directory."""
@@ -204,8 +206,6 @@ class Process(ProcessBaseClass):
         return self.exitCode()
 
     running = property(get_is_running)
-    workingDirectory = property(  # type: ignore[assignment] # noqa : F821
+    workingDirectory: str = property(  # type: ignore[assignment] # noqa : F821
         get_working_directory, set_working_directory
     )
-    stdout = property(read_std_out, set_std_out)
-    stderr = property(read_std_error, set_std_error)
