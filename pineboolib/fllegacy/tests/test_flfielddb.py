@@ -2,6 +2,7 @@
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
+from pineboolib.fllegacy import fldateedit
 
 
 class TestFLFieldDBString(unittest.TestCase):
@@ -104,12 +105,14 @@ class TestFLFieldDBString(unittest.TestCase):
 
         self.assertEqual(field_mtd, field_mtd_2)
         self.assertEqual(field_mtd_2.type(), "date")
-        self.assertTrue(new_field.editor_)
-        self.assertEqual(new_field.editor_.DMY, "dd-MM-yyyy")
-        new_field.editor_.date = "01-02-2001"
-        self.assertEqual(new_field.editor_.date, "2001-02-01")
-        new_field.editor_.date = None
-        self.assertEqual(new_field.editor_.date, None)
+        editor = new_field.editor_
+        if not isinstance(editor, fldateedit.FLDateEdit):
+            raise Exception("wrong control!")
+        self.assertEqual(editor.DMY, "dd-MM-yyyy")
+        editor.date = "01-02-2001"
+        self.assertEqual(editor.date, "2001-02-01")
+        editor.date = None
+        self.assertEqual(editor.date, None)
         table_mtd.removeFieldMD(field_mtd.name())
         # lay = parent.layout()
         # lay.addWidget(new_field)
