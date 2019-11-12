@@ -40,7 +40,7 @@ from .fldatatable import FLDataTable
 
 from pineboolib import logging
 
-from typing import Any, Optional, TYPE_CHECKING, cast
+from typing import Any, Optional, TYPE_CHECKING, cast, Union
 
 if TYPE_CHECKING:
     from PyQt5.QtGui import QPixmap
@@ -57,7 +57,9 @@ class FLFieldDB(QtWidgets.QWidget):
     _partDecimal: int
     autoSelect: bool
 
-    editor_: QtWidgets.QWidget  # Editor para el contenido del campo que representa el componente
+    editor_: Union[
+        FLLineEdit, FLDateEdit, FLTimeEdit, QTextEdit, QCheckBox, QComboBox, QLineEdit
+    ]  # Editor para el contenido del campo que representa el componente
     editorImg_: "FLPixmapView"
     fieldName_: str  # Nombre del campo de la tabla al que esta asociado este componente
     tableName_: Optional[str]  # Nombre de la tabla fóranea
