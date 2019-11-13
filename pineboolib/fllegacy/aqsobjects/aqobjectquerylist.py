@@ -2,6 +2,7 @@
 
 from PyQt5 import QtCore, QtWidgets
 
+from pineboolib.application import types
 from typing import List, Union, Optional
 
 
@@ -34,4 +35,4 @@ def AQObjectQueryList(
     if recursirve_search:
         args_.append(QtCore.Qt.FindChildrenRecursively)
 
-    return obj_.findChildren(*args_)
+    return types.Array(obj_.findChildren(*args_))
