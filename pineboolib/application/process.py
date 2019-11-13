@@ -40,8 +40,21 @@ class ProcessBaseClass(QtCore.QProcess):
 
         self._std_error = value
 
+    def get_working_directory(self) -> str:
+        """Return working directory."""
+
+        return super().workingDirectory()
+
+    def set_working_directory(self, wd: str) -> None:
+        """Set working directory."""
+
+        super().setWorkingDirectory(wd)
+
     stdout: str = property(read_std_out, set_std_out)  # type: ignore [assignment] # noqa F821
     stderr: str = property(read_std_error, set_std_error)  # type: ignore [assignment] # noqa F821
+    workingDirectory: str = property(  # type: ignore[assignment] # noqa : F821
+        get_working_directory, set_working_directory
+    )
 
 
 class ProcessStatic(ProcessBaseClass):
@@ -138,16 +151,6 @@ class Process(ProcessBaseClass):
     # def stderrReady(self) -> None:
     #    self._stderr = str(self.readAllStandardError())
 
-    def get_working_directory(self) -> str:
-        """Return working directory."""
-
-        return super().workingDirectory()
-
-    def set_working_directory(self, wd: str) -> None:
-        """Set working directory."""
-
-        super().setWorkingDirectory(wd)
-
     def get_is_running(self) -> bool:
         """Return if the process is running."""
 
@@ -206,6 +209,3 @@ class Process(ProcessBaseClass):
         return self.exitCode()
 
     running = property(get_is_running)
-    workingDirectory: str = property(  # type: ignore[assignment] # noqa : F821
-        get_working_directory, set_working_directory
-    )
