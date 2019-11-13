@@ -4,7 +4,7 @@ import traceback
 import inspect
 import datetime
 
-from PyQt5 import QtCore  # type: ignore
+from PyQt5 import QtCore, QtWidgets
 
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
@@ -250,7 +250,7 @@ class dgi_server(dgi_schema):
         self.showInitBanner()
         self._mainForm = None
         self._show_object_not_found_warnings = False
-        self.qApp = QtCore.QCoreApplication
+        self.qApp = QtWidgets.QApplication
         # self.ParserDGI = ParserJson()
 
     def alternativeMain(self, options: Any) -> None:

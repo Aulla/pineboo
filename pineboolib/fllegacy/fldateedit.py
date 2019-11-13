@@ -34,7 +34,9 @@ class FLDateEdit(qdateedit.QDateEdit):
         """Return date."""
         return super().getDate()
 
-    def setDate(self, date: Union[str, datetime.date, Date] = None) -> None:  # type: ignore [override] # noqa F821
+    def setDate(  # type: ignore [override] # noqa F821
+        self, date: Optional[Union[str, datetime.date, Date]] = None
+    ) -> None:
         """Set Date."""
 
         if date in (None, "NAN", ""):
@@ -45,4 +47,4 @@ class FLDateEdit(qdateedit.QDateEdit):
         super().setDate(date_)
         self.setStyleSheet("color: black")
 
-    date: str = property(getDate, setDate)  # type: ignore [assignment] # noqa F821
+    date: Optional[str] = property(getDate, setDate)  # type: ignore [assignment] # noqa F821

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from importlib import import_module
 from typing import List, cast, Optional, Any
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.application.utils.mobilemode import is_mobile_mode
 from pineboolib import logging
@@ -50,7 +50,7 @@ class dgi_schema(object):
         """Return DGI alias."""
         return self._alias
 
-    def create_app(self) -> QtCore.QCoreApplication:
+    def create_app(self) -> QtWidgets.QApplication:
         """Create an alternative Core.Application."""
         from pineboolib.application import project
 

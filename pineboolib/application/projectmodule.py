@@ -36,7 +36,7 @@ class Project(object):
 
     _conn_manager: "pnconnectionmanager.PNConnectionManager"
     logger = logging.getLogger("main.Project")
-    _app: Optional[QtCore.QCoreApplication] = None
+    _app: Optional[QtWidgets.QApplication] = None
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
     debugLevel = 100
     options: Values
@@ -86,13 +86,13 @@ class Project(object):
         self._conn_manager = pnconnectionmanager.PNConnectionManager()
 
     @property
-    def app(self) -> QtCore.QCoreApplication:
+    def app(self) -> QtWidgets.QApplication:
         """Retrieve current Qt Application or throw error."""
         if self._app is None:
             raise Exception("No application set")
         return self._app
 
-    def set_app(self, app: QtCore.QCoreApplication):
+    def set_app(self, app: QtWidgets.QApplication):
         """Set Qt Application."""
         self._app = app
 

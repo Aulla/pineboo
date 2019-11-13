@@ -44,8 +44,8 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     project.set_app(qapp)
     _DGI = load_dgi("qt", None)
     project.init_dgi(_DGI)
-    conn = connect_to_db(conn)
-    project.init_conn(connection=conn)
+    conn_ = connect_to_db(conn)
+    project.init_conn(connection=conn_)
     project.no_python_cache = True
     project.run()
     project.conn_manager.managerModules().loadIdAreas()
@@ -187,7 +187,7 @@ def init_gui() -> None:
     eneboo_mdi.mainWindow = eneboo_mdi.MainForm()
 
 
-def setup_gui(app: QtCore.QCoreApplication, options: Values) -> None:
+def setup_gui(app: QtWidgets.QApplication, options: Values) -> None:
     """Configure GUI app."""
     from pineboolib.core.utils.utils_base import filedir
     from pineboolib.application.utils.mobilemode import is_mobile_mode
@@ -202,18 +202,12 @@ def setup_gui(app: QtCore.QCoreApplication, options: Values) -> None:
     for fontfile in noto_fonts:
         QtGui.QFontDatabase.addApplicationFont(filedir("./core/fonts/Noto_Sans", fontfile))
 
-    styleA = config.value("application/style", None)
-    if styleA is None:
-        styleA = "Fusion"
-
-    app.setStyle(styleA)
+    style_app: str = config.value("application/style", "Fusion")
+    app.setStyle(style_app)  # type: ignore
 
     fontA = config.value("application/font", None)
     if fontA is None:
-        if is_mobile_mode():
-            font = QtGui.QFont("Noto Sans", 14)
-        else:
-            font = QtGui.QFont("Noto Sans", 9)
+        font = QtGui.QFont("Noto Sans", 9)
         font.setBold(False)
         font.setItalic(False)
     else:

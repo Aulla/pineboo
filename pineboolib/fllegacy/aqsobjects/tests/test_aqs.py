@@ -2,6 +2,7 @@
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
+from typing import cast
 
 
 class TestAQS(unittest.TestCase):
@@ -25,7 +26,7 @@ class TestAQS(unittest.TestCase):
         self.assertTrue(form)
         form.load()
         form.setCursor(cursor)
-        child = form.child("tableDBRecords")
+        child = cast(fltabledb.FLTableDB, form.child("tableDBRecords"))
         self.assertTrue(isinstance(child, fltabledb.FLTableDB))
         child.refresh(qsa.AQS.RefreshData)
         # FIXME : saber que ha funcionado
