@@ -2,12 +2,13 @@
 """About_pineboo module."""
 
 from PyQt5 import QtWidgets
+from typing import Any
 
 
 class AboutPineboo(QtWidgets.QDialog):
     """AboutPineboo class."""
 
-    ui = None
+    ui: Any = None
 
     def __init__(self) -> None:
         """Inicialize."""

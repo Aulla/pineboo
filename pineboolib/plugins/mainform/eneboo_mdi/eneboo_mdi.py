@@ -34,7 +34,7 @@ class MainForm(QtWidgets.QMainWindow):
     _p_work_space: Any
     mdi_toolbuttons: List[QtWidgets.QToolButton]
     _dict_main_widgets: Dict[str, QtWidgets.QWidget]
-
+    debugLevel: int
     tool_box_: Any
     toogle_bars_: Any
     last_text_caption_: str
@@ -85,7 +85,7 @@ class MainForm(QtWidgets.QMainWindow):
         """Create UI from a file."""
 
         mng = self.db().managerModules()
-        self.w_ = mng.createUI(ui_file, None, self)
+        self.w_ = cast(QtWidgets.QMainWindow, mng.createUI(ui_file, None, self))
         self.w_.setObjectName("container")
 
     def init(self) -> None:
@@ -198,7 +198,9 @@ class MainForm(QtWidgets.QMainWindow):
     def initToolBar(self) -> None:
         """Initialize toolbar."""
 
-        mw = flapplication.aqApp.main_widget_
+        mw: Optional[QtWidgets.QMainWindow] = cast(
+            QtWidgets.QMainWindow, flapplication.aqApp.main_widget_
+        )
         if mw is None:
             return
 
@@ -317,8 +319,12 @@ class MainForm(QtWidgets.QMainWindow):
         if main_widget is None:
             raise Exception("flapplication.aqApp.main_widget_ is empty!")
 
-        self.tool_box_ = main_widget.findChild(QtWidgets.QToolBox, "toolBox")
-        self.modules_menu = main_widget.findChild(QtWidgets.QMenu, "modulesMenu")
+        self.tool_box_ = cast(
+            QtWidgets.QToolBox, main_widget.findChild(QtWidgets.QToolBox, "toolBox")
+        )
+        self.modules_menu = cast(
+            QtWidgets.QMenu, main_widget.findChild(QtWidgets.QMenu, "modulesMenu")
+        )
 
         if self.tool_box_ is None or self.modules_menu is None:
             return
@@ -578,16 +584,16 @@ class MainForm(QtWidgets.QMainWindow):
                 self.activateModule(obj.objectName())
                 return True
 
-        elif evt == QtCore.QEvent.MouseButtonPress:
-            if self.modules_menu:
-                me = ev
-                if me.button() == QtCore.Qt.RightButton:
-                    self.modules_menu.pop(QtGui.QCursor.pos())
-                    return True
-                else:
-                    return False
-            else:
-                return False
+        # elif evt == QtCore.QEvent.MouseButtonPress:
+        #    if self.modules_menu:
+        #        me = ev
+        #        if me.button() == QtCore.Qt.RightButton:
+        #            self.modules_menu.pop(QtGui.QCursor.pos())
+        #            return True
+        #        else:
+        #            return False
+        #    else:
+        #        return False
 
         elif evt == QtCore.QEvent.Resize and obj is self:
             for bt in self.mdi_toolbuttons:
@@ -641,7 +647,7 @@ class MainForm(QtWidgets.QMainWindow):
                         receiver = itn.namedItem("receiver").toElement().text()
                         slot = itn.namedItem("slot").toElement().text()
                         if receiver == "pncore" and signal == "triggered()":
-                            ac = w.findChild(QtWidgets.QAction, sender)
+                            ac = cast(QtWidgets.QAction, w.findChild(QtWidgets.QAction, sender))
                             if ac is not None and sender in application.project.actions.keys():
                                 sl = getattr(
                                     application.project.actions[sender],
@@ -787,7 +793,9 @@ class MainForm(QtWidgets.QMainWindow):
                     if it in self._dict_main_widgets.keys():
                         w = self._dict_main_widgets[it]
                     if w is None:
-                        act = self.container_.findChild(QtWidgets.QAction, it)
+                        act = cast(
+                            QtWidgets.QAction, self.container_.findChild(QtWidgets.QAction, it)
+                        )
                         if not act or not act.isVisible():
                             continue
 
@@ -838,9 +846,10 @@ class MainForm(QtWidgets.QMainWindow):
         windows_opened = settings.value("windowsOpened/%s" % idm, None)
         if windows_opened:
             for it in windows_opened:
-                act = main_widget.findChild(QtCore.QObject, it)
+                act = cast(QtWidgets.QAction, main_widget.findChild(QtWidgets.QAction, it))
                 if act and act.isVisible():
-                    flapplication.aqApp.openMasterForm(it, act.icon())
+                    # flapplication.aqApp.openMasterForm(it, act.icon())
+                    flapplication.aqApp.openMasterForm(it)
 
         r = QtCore.QRect(main_widget.pos(), main_widget.size())
         k = "Geometry/%s" % idm
@@ -913,7 +922,7 @@ class MainForm(QtWidgets.QMainWindow):
 
     def initView(self) -> None:
         """Initialize view."""
-        mw = flapplication.aqApp.main_widget_
+        mw = cast(QtWidgets.QMainWindow, flapplication.aqApp.main_widget_)
 
         if mw is None:
             return
@@ -960,7 +969,7 @@ class MainForm(QtWidgets.QMainWindow):
             return
 
         if self.toogle_bars_:
-            tool_bar = mw.findChild(QtWidgets.QToolBar)
+            tool_bar = cast(QtWidgets.QToolBar, mw.findChild(QtWidgets.QToolBar))
             for ac in self.toogle_bars_.actions():
                 if ac.objectName() == "Herramientas":
                     a = ac
@@ -1037,13 +1046,14 @@ class MainForm(QtWidgets.QMainWindow):
 
     def initMainWidget(self) -> None:
         """Init mainwidget UI."""
-        if not flapplication.aqApp.main_widget_ or not self.container_:
+        mw = cast(QtWidgets.QMainWindow, flapplication.aqApp.main_widget_)
+        if not mw or not self.container_:
             return
 
-        if flapplication.aqApp.main_widget_:
-            ac = flapplication.aqApp.main_widget_.menuBar().addMenu(self.window_menu)
+        if mw:
+            ac = mw.menuBar().addMenu(self.window_menu)
             ac.setText(self.tr("&Ventana"))
-            flapplication.aqApp.main_widget_.setCentralWidget(None)
+            # mw.setCentralWidget(None)
 
         self.initView()
         self.initActions()
@@ -1089,29 +1099,39 @@ class MainForm(QtWidgets.QMainWindow):
         flapplication.aqApp.statusHelpMsg(self.tr("Listo."))
 
         if mw is not None:
-            mw.statusBar().setSizeGripEnabled(False)
+            status_bar = cast(QtWidgets.QMainWindow, mw).statusBar()
+            status_bar.setSizeGripEnabled(False)
 
-            conexion = QtWidgets.QLabel(mw.statusBar())
+            conexion = QtWidgets.QLabel(status_bar)
             conexion.setText("%s@%s" % (self.db().user(), self.db().DBName()))
-            mw.statusBar().addWidget(conexion)
+            status_bar.addWidget(conexion)
 
-    def toggleToolBar(self, toggle) -> None:
+    def toggleToolBar(self, toggle: bool) -> None:
         """Show or hide toolbar."""
-        if not flapplication.aqApp.main_widget_:
+        mw = cast(QtWidgets.QToolBar, flapplication.aqApp.main_widget_)
+
+        if not mw:
             return
 
-        tb = flapplication.aqApp.main_widget_.findChild(QtWidgets.QToolBar)
+        tb = cast(QtWidgets.QToolBar, mw.findChild(QtWidgets.QToolBar))
+
         if not tb:
             return
 
-        tb.show() if toggle else tb.hide()
+        if toggle:
+            tb.show()
+        else:
+            tb.hide()
 
-    def toggleStatusBar(self, toggle) -> None:
+    def toggleStatusBar(self, toggle: bool) -> None:
         """Toggle status bar."""
-        if not flapplication.aqApp.main_widget_:
+        mw = cast(QtWidgets.QMainWindow, flapplication.aqApp.main_widget_)
+        if not mw:
             return
-
-        flapplication.aqApp.main_widget_.statusBar().show() if toggle else flapplication.aqApp.main_widget_.statusBar().hide()
+        if toggle:
+            mw.statusBar().show()
+        else:
+            mw.statusBar().hide()
 
     def generalExit(self, ask_exit=True) -> bool:
         """Perform before close checks."""
