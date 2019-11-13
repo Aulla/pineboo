@@ -3,6 +3,7 @@ Provide some functions based on data.
 """
 
 from pineboolib.core.utils import logging
+from pineboolib.application.types import Array
 
 from typing import Any, Union, List, Optional, TYPE_CHECKING
 
@@ -188,7 +189,7 @@ def sqlSelect(
     from_: str,
     select_: str,
     where_: Optional[str] = None,
-    table_list_: Optional[Union[str, List]] = None,
+    table_list_: Optional[Union[str, List, Array]] = None,
     size_: int = 0,
     conn_: Union[str, "IConnection"] = "default",
 ) -> Any:
@@ -247,8 +248,8 @@ def quickSqlSelect(
 
 def sqlInsert(
     table_: str,
-    field_list_: Union[str, List[str]],
-    value_list_: Union[str, List, bool, int, float],
+    field_list_: Union[str, List[str], Array],
+    value_list_: Union[str, List, bool, int, float, Array],
     conn_: Union[str, "IConnection"] = "default",
 ) -> bool:
     """
@@ -260,6 +261,8 @@ def sqlInsert(
     @param conn_name_ Connection name.
     @return True in case of successful insertion, False in any other case.
     """
+    if isinstance(field_list_, Array):
+        field_list_ = str(field_list_)
 
     _field_list: List[str] = field_list_.split(",") if isinstance(field_list_, str) else field_list_
     _value_list: List[str] = value_list_.split(",") if isinstance(
@@ -286,8 +289,8 @@ def sqlInsert(
 
 def sqlUpdate(
     table_: str,
-    field_list_: Union[str, List[str]],
-    value_list_: Union[str, List, bool, int, float],
+    field_list_: Union[str, List[str], Array],
+    value_list_: Union[str, List, bool, int, float, Array],
     where_: str,
     conn_: Union[str, "IConnection"] = "default",
 ) -> bool:
@@ -370,14 +373,17 @@ def execSql(sql_: str, conn_: Union[str, "IConnection"] = "default") -> bool:
         raise Exception("Project is not connected yet")
 
     if isinstance(conn_, str):
-        conn_ = project.conn_manager.useConn(conn_)
-    _cur = conn_.cursor()
+        my_conn = project.conn_manager.useConn(conn_)
+    else:
+        my_conn = conn_
+
+    _cur = my_conn.cursor()
     try:
         logger.warning("execSql: Ejecutando la consulta : %s", sql_)
         # sql = conn_.db().driver().fix_query(sql)
         # cur.execute(sql)
         # conn_.conn.commit()
-        conn_.execute_query(sql_, _cur)
+        my_conn.execute_query(sql_, _cur)
         return True
     except Exception as exc:
         logger.exception("execSql: Error al ejecutar la consulta SQL: %s %s", sql_, exc)
