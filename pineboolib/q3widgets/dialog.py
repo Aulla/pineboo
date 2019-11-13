@@ -14,8 +14,8 @@ class Dialog(QDialog):
 
     _layout: QtWidgets.QVBoxLayout
     _button_box: QtWidgets.QDialogButtonBox
-    _ok_button_text: str
-    _cancel_button_text: str
+    okButtonText: str
+    cancelButtonText: str
     okButton: QPushButton
     cancelButton: QPushButton
     _tab: QTabWidget
@@ -37,8 +37,8 @@ class Dialog(QDialog):
         self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)
         self._button_box = QtWidgets.QDialogButtonBox()
-        self._ok_button_text = "Aceptar"
-        self._cancel_button_text = "Cancelar"
+        self.okButtonText = "Aceptar"
+        self.cancelButtonText = "Cancelar"
         self.okButton = QPushButton("&Aceptar")
         self.cancelButton = QPushButton("&Cancelar")
         self._button_box.addButton(self.okButton, QtWidgets.QDialogButtonBox.AcceptRole)
@@ -57,10 +57,10 @@ class Dialog(QDialog):
     def exec_(self) -> int:
         """Show dialog and return a value."""
 
-        if self._ok_button_text:
-            self.okButton.setText(str(self._ok_button_text))
-        if self._cancel_button_text:
-            self.cancelButton.setText(str(self._cancel_button_text))
+        if self.okButtonText:
+            self.okButton.setText(str(self.okButtonText))
+        if self.cancelButtonText:
+            self.cancelButton.setText(str(self.cancelButtonText))
         self._layout.addWidget(self._button_box)
 
         return super().exec_()
