@@ -841,7 +841,7 @@ class FLUtil(QtCore.QObject):
         f: str,
         s: str,
         w: str,
-        tL: Optional[Union[str, List]] = None,
+        tL: Optional[Union[str, List, Array]] = None,
         size_or_conn: Any = 0,
         conn: Union[str, "IConnection"] = "default",
     ) -> Any:
@@ -869,8 +869,8 @@ class FLUtil(QtCore.QObject):
     def sqlInsert(
         cls,
         t: str,
-        fL: Union[str, List],
-        vL: Union[str, List, bool, int, float],
+        fL: Union[str, List, Array],
+        vL: Union[str, List, bool, int, float, Array],
         conn: Union[str, "IConnection"] = "default",
     ) -> Any:
         """Insert values to a table."""
@@ -882,8 +882,8 @@ class FLUtil(QtCore.QObject):
     def sqlUpdate(
         cls,
         t: str,
-        fL: Union[str, List],
-        vL: Union[str, List, bool, int, float],
+        fL: Union[str, List, Array],
+        vL: Union[str, List, bool, int, float, Array],
         w: str,
         conn: Union[str, "IConnection"] = "default",
     ) -> Any:

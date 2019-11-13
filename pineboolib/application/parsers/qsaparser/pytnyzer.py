@@ -106,6 +106,7 @@ QSA_KNOWN_ATTRS = {
     "FLVar",
     "FLWidget",
     "FLWorkSpace",
+    "Font",
     "File",
     "FileDialog",
     "FormDBWidget",

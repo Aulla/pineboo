@@ -259,6 +259,16 @@ class TestFile(unittest.TestCase):
         self.assertEqual(file_.fullName(), temporal)
         self.assertTrue(file_.readable())
 
+    def test_last_modified(self) -> None:
+        """Test lastModified."""
+
+        temporal = "%s%s" % (config.value("ebcomportamiento/temp_dir"), u"/test_last_modified.txt")
+        contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
+        file_ = File(temporal)
+        file_.write(contenido)
+        file_.close()
+        self.assertNotEqual(file_.lastModified(), "")
+
 
 class TestDir(unittest.TestCase):
     """TestDir class."""
