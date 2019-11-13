@@ -214,7 +214,7 @@ class FormInternalObj(qsa.FormDBWidget):
         w.allowedEvents = qsa.Array([qsa.AQS.Close])
         w.installEventFilter(w)
 
-    def eventFilter(self, o: QtWidgets.QWidget, e: QtCore.QEvent) -> bool:
+    def eventFilter(self, o: QtCore.QObject, e: QtCore.QEvent) -> bool:
         """Event filter."""
         if type(e) == qsa.AQS.Close:
             self.cerrar_clicked()
