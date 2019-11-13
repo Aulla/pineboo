@@ -7,6 +7,7 @@ from pineboolib.core.utils import logging
 
 from pineboolib.application.utils import sql_tools
 from pineboolib.application import project
+from pineboolib.application import types
 
 from typing import Any, Union, List, Dict, Optional, TYPE_CHECKING
 
@@ -704,7 +705,7 @@ class PNSqlQuery(object):
 
         return self.d._tables_list if self.d._tables_list else self.sql_inspector.table_names()
 
-    def setTablesList(self, tl: Union[str, List, Array]) -> None:
+    def setTablesList(self, tl: Union[str, List, types.Array]) -> None:
         """
         Set the list of names of the query tables.
 
