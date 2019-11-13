@@ -132,7 +132,7 @@ from pineboolib.fllegacy.flscripteditor import FLScriptEditor  # noqa: F401
 
 from PyQt5.QtGui import QColor as Color  # noqa: F401
 from PyQt5.QtWidgets import QLabel as Label  # noqa: F401
-from PyQt5.Qt import QFont as Font  # noqa: F401
+from PyQt5.QtGui import QFont as Font  # noqa: F401
 
 from pineboolib.q3widgets.line import Line  # noqa: F401
 from pineboolib.q3widgets.checkbox import CheckBox  # noqa: F401

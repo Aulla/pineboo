@@ -11,7 +11,7 @@ from pineboolib.core.utils import logging
 from pineboolib.core.decorators import pyqtSlot
 from pineboolib.loader.projectconfig import ProjectConfig, PasswordMismatchError
 
-from typing import Optional, cast, Dict
+from typing import Optional, cast, Dict, Any
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class DlgConnect(QtWidgets.QWidget):
 
         dlg_ = filedir("loader/dlgconnect/dlgconnect.ui")
 
-        self.ui = FLManagerModules.createUI(dlg_, None, self)
+        self.ui: Any = FLManagerModules.createUI(dlg_, None, self)
         if not self.ui:
             raise Exception("Error creating dlgConnect")
         # Centrado en pantalla
@@ -256,7 +256,10 @@ class DlgConnect(QtWidgets.QWidget):
                 self.ui,
                 "Pineboo",
                 "¿Desea borrar el perfil %s?" % self.ui.cbProfiles.currentText(),
-                cast(QtWidgets.QMessageBox, QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No),
+                cast(
+                    QtWidgets.QMessageBox.StandardButtons,
+                    QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
+                ),
                 QtWidgets.QMessageBox.No,
             )
             if res == QtWidgets.QMessageBox.No:

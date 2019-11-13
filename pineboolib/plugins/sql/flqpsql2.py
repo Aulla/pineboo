@@ -68,7 +68,7 @@ class FLQPSQL2(FLQPSQL):
                     QWidget(),
                     "Pineboo",
                     "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
-                    cast(QMessageBox, QMessageBox.Ok | QMessageBox.No),
+                    cast(QMessageBox.StandardButtons, QMessageBox.Ok | QMessageBox.No),
                 )
                 if ret == QMessageBox.No:
                     return False

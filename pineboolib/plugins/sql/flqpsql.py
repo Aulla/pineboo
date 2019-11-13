@@ -91,7 +91,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     QWidget(),
                     "Pineboo",
                     "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
-                    cast(QMessageBox, QMessageBox.Ok | QMessageBox.No),
+                    cast(QMessageBox.StandardButtons, QMessageBox.Ok | QMessageBox.No),
                 )
                 if ret == QMessageBox.No:
                     return False
@@ -905,7 +905,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 if defValues[reg]:
                     v = defValues[reg]
                 else:
-                    v = oldCursor.value(newField.name())
+                    v = oldCursor.valueBuffer(newField.name())
                     if (
                         (not oldField.allowNull or not newField.allowNull())
                         and not v
@@ -1097,13 +1097,19 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             c.setFilter("nombre = '%s.mtd'" % renameOld)
             c.select()
             if not c.next():
-                c.primeInsert()
-                buffer = c.buffer()
-                if buffer is not None:
-                    buffer.setValue("nombre", "%s.mtd" % renameOld)
-                    buffer.setValue("contenido", mtd1)
-                    buffer.setValue("sha", key)
-                    c.insert()
+                c.setModeAccess(c.Insert)
+                c.refreshBuffer()
+                c.setValueBuffer("nombre", "%s.mtd" % renameOld)
+                c.setValueBuffer("contenido", mtd1)
+                c.setValueBuffer("sha", key)
+                c.commitBuffer()
+                # c.primeInsert()
+                # buffer = c.buffer()
+                # if buffer is not None:
+                #    buffer.setValue("nombre", "%s.mtd" % renameOld)
+                #    buffer.setValue("contenido", mtd1)
+                #    buffer.setValue("sha", key)
+                #    c.insert()
 
         # q = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
         constraintName = "%s_pkey" % old_mtd.name()

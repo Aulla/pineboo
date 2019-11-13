@@ -84,7 +84,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                     QWidget(),
                     "Pineboo",
                     "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
-                    cast(QMessageBox, QMessageBox.Ok | QMessageBox.No),
+                    cast(QMessageBox.StandardButtons, QMessageBox.Ok | QMessageBox.No),
                 )
                 if ret == QMessageBox.No:
                     return False
@@ -746,7 +746,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                     cur = pnsqlcursor.PNSqlCursor(item, True, self.db_.dbAux())
                     cur.select(it.name() + " not like 'RK@%'")
                     while cur.next():
-                        v = cur.value(it.name())
+                        v = cur.valueBuffer(it.name())
                         if v is None:
                             continue
 

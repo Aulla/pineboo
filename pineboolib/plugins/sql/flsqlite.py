@@ -307,7 +307,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         # ret_ = query.replace(";", "")
         return query
 
-    def execute_query(self, q: str, cursor: Optional["pnsqlcursor.PNSqlCursor"] = None) -> Any:
+    def execute_query(self, q: str, cursor: Any = None) -> Any:
         """Excecute a query and return result."""
         if not self.isOpen():
             self.logger.warning("%s::execute_query: Database not open", __name__)
