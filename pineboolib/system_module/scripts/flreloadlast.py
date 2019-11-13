@@ -85,12 +85,12 @@ class FormInternalObj(qsa.FormDBWidget):
             if not isinstance(f, str):
                 raise Exception("data are bytes, not string!!")
             aF = f.split(u"\n")
-            modulo = self.from_module("formflloadmod").dameValor(aF[0])
-            descripcion = self.from_module("formflloadmod").dameValor(aF[1])
-            area = self.from_module("formflloadmod").dameValor(aF[2]) or ""
-            desArea = self.from_module("formflloadmod").dameValor(aF[3])
-            version = self.from_module("formflloadmod").dameValor(aF[4])
-            nombreIcono = self.from_module("formflloadmod").dameValor(aF[5])
+            modulo = self.dameValor(aF[0])
+            descripcion = self.dameValor(aF[1])
+            area = self.dameValor(aF[2]) or ""
+            desArea = self.dameValor(aF[3])
+            version = self.dameValor(aF[4])
+            nombreIcono = self.dameValor(aF[5])
 
         descripcion = self.traducirCadena(descripcion or "", fichero.path or "", modulo or "")
         desArea = self.traducirCadena(desArea or "", fichero.path or "", modulo or "")
@@ -207,6 +207,10 @@ class FormInternalObj(qsa.FormDBWidget):
                     break
 
         return cadena
+
+    def dameValor(self, linea: str) -> str:
+        """Return value."""
+        return linea
 
 
 form = None

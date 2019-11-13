@@ -86,14 +86,6 @@ class FormInternalObj(qsa.FormDBWidget):
         if qsa.ProcessStatic.stderr != u"":
             res[u"ok"] = False
             res[u"salida"] = qsa.ProcessStatic.stderr
-            if self.pub_log:
-                self.pub_log.child(u"log").append(
-                    qsa.ustr(
-                        u"Error al ejecutar el comando: ", comando, u"\n", qsa.ProcessStatic.stderr
-                    )
-                )
-                self.pub_log.child(u"log").append(res.salida)
-
         else:
             res[u"ok"] = True
             res[u"salida"] = qsa.ProcessStatic.stdout
@@ -341,6 +333,10 @@ class FormInternalObj(qsa.FormDBWidget):
         if len(resultado) == 0:
             return qsa.Array()
         return resultado
+
+    def dameValor(self, linea: str) -> str:
+        """Return value."""
+        return linea
 
 
 form = None

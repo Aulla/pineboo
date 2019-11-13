@@ -121,7 +121,10 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
 
     @classmethod
     def toXml(
-        cls, obj_: "QWidget", include_children: bool = True, include_complex_types: bool = False
+        cls,
+        obj_: QtCore.QObject,
+        include_children: bool = True,
+        include_complex_types: bool = False,
     ) -> QDomDocument:
         """
         Convert an object to xml.

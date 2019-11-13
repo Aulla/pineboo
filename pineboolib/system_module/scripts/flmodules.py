@@ -32,7 +32,7 @@ class FormInternalObj(qsa.FormDBWidget):
             botonExportar.setEnabled(False)
 
     def cargarFicheroEnBD(
-        self, nombre: str, contenido: str, log: "QtWidgets.QWidget", directorio: str
+        self, nombre: str, contenido: str, log: "QtWidgets.QTextEdit", directorio: str
     ) -> None:
         """Load a file into database."""
         if (
@@ -92,7 +92,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     self.cargarAr(nombre, contenido, log, directorio)
 
     def cargarAr(
-        self, nombre: str, contenido: str, log: "QtWidgets.QWidget", directorio: str
+        self, nombre: str, contenido: str, log: "QtWidgets.QTextEdit", directorio: str
     ) -> bool:
         """Load AR reports."""
         if not qsa.sys.isLoadedModule(u"flar2kut"):

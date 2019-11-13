@@ -182,10 +182,9 @@ class FormInternalObj(qsa.FormDBWidget):
                 return
             app_.reinit()
 
-
-def dameValor(self, linea: str) -> str:
-    """Return value."""
-    return linea
+    def dameValor(self, linea: str) -> str:
+        """Return value."""
+        return linea
 
 
 def valorPorClave(tabla: str, campo: str, where: str) -> Any:
