@@ -3,7 +3,7 @@ Provide some functions based on data.
 """
 
 from pineboolib.core.utils import logging
-from pineboolib.application.types import Array
+from pineboolib.application import types
 
 from typing import Any, Union, List, Optional, TYPE_CHECKING
 
@@ -189,7 +189,7 @@ def sqlSelect(
     from_: str,
     select_: str,
     where_: Optional[str] = None,
-    table_list_: Optional[Union[str, List, Array]] = None,
+    table_list_: Optional[Union[str, List, types.Array]] = None,
     size_: int = 0,
     conn_: Union[str, "IConnection"] = "default",
 ) -> Any:
@@ -248,8 +248,8 @@ def quickSqlSelect(
 
 def sqlInsert(
     table_: str,
-    field_list_: Union[str, List[str], Array],
-    value_list_: Union[str, List, bool, int, float, Array],
+    field_list_: Union[str, List[str], types.Array],
+    value_list_: Union[str, List, bool, int, float, types.Array],
     conn_: Union[str, "IConnection"] = "default",
 ) -> bool:
     """
@@ -261,7 +261,7 @@ def sqlInsert(
     @param conn_name_ Connection name.
     @return True in case of successful insertion, False in any other case.
     """
-    if isinstance(field_list_, Array):
+    if isinstance(field_list_, types.Array):
         field_list_ = str(field_list_)
 
     _field_list: List[str] = field_list_.split(",") if isinstance(field_list_, str) else field_list_
@@ -289,8 +289,8 @@ def sqlInsert(
 
 def sqlUpdate(
     table_: str,
-    field_list_: Union[str, List[str], Array],
-    value_list_: Union[str, List, bool, int, float, Array],
+    field_list_: Union[str, List[str], types.Array],
+    value_list_: Union[str, List, bool, int, float, types.Array],
     where_: str,
     conn_: Union[str, "IConnection"] = "default",
 ) -> bool:
@@ -314,11 +314,13 @@ def sqlUpdate(
         _cursor.setModeAccess(_cursor.Edit)
         _cursor.refreshBuffer()
 
-        if not isinstance(field_list_, str):
+        if isinstance(field_list_, (List, types.Array)):
             for _pos in range(len(field_list_)):
                 _cursor.setValueBuffer(
                     field_list_[_pos],
-                    value_list_[_pos] if not isinstance(value_list_, str) else value_list_,
+                    value_list_[_pos]
+                    if isinstance(value_list_, (List, types.Array))
+                    else value_list_,
                 )
         else:
             _cursor.setValueBuffer(field_list_, value_list_)
