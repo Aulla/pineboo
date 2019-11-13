@@ -8,8 +8,6 @@ from typing import Any
 class AboutPineboo(QtWidgets.QDialog):
     """AboutPineboo class."""
 
-    ui: Any = None
-
     def __init__(self) -> None:
         """Inicialize."""
 
@@ -24,7 +22,7 @@ class AboutPineboo(QtWidgets.QDialog):
 
         dlg_ = filedir("plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui")
         version_ = application.project.version
-        self.ui = application.project.conn_manager.managerModules().createUI(dlg_, None, self)
+        self.ui: Any = application.project.conn_manager.managerModules().createUI(dlg_, None, self)
         if self.ui is None:
             raise Exception("Error creating UI About Dialog")
         self.ui.lbl_version.setText("Pineboo %s" % str(version_))
