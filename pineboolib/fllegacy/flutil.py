@@ -10,7 +10,7 @@ from pineboolib.core import decorators
 from pineboolib import logging
 
 from typing import List, Optional, Union, Any, TYPE_CHECKING
-from pineboolib.application.types import Date
+from pineboolib.application.types import Date, Array
 
 
 if TYPE_CHECKING:
