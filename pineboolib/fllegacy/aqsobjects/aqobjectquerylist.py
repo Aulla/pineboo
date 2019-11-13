@@ -3,7 +3,7 @@
 from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.application import types
-from typing import List, Union, Optional
+from typing import Union, Optional
 
 
 def AQObjectQueryList(
