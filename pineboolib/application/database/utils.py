@@ -314,11 +314,11 @@ def sqlUpdate(
         _cursor.setModeAccess(_cursor.Edit)
         _cursor.refreshBuffer()
 
-        if isinstance(field_list_, list):
+        if not isinstance(field_list_, str):
             for _pos in range(len(field_list_)):
                 _cursor.setValueBuffer(
                     field_list_[_pos],
-                    value_list_[_pos] if isinstance(value_list_, list) else value_list_,
+                    value_list_[_pos] if not isinstance(value_list_, str) else value_list_,
                 )
         else:
             _cursor.setValueBuffer(field_list_, value_list_)

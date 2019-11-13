@@ -704,7 +704,7 @@ class PNSqlQuery(object):
 
         return self.d._tables_list if self.d._tables_list else self.sql_inspector.table_names()
 
-    def setTablesList(self, tl: Union[str, List]) -> None:
+    def setTablesList(self, tl: Union[str, List, Array]) -> None:
         """
         Set the list of names of the query tables.
 
@@ -714,7 +714,7 @@ class PNSqlQuery(object):
         if isinstance(tl, list):
             table_list = ",".join(tl)
         else:
-            table_list = tl
+            table_list = str(tl)
 
         table_list = table_list.replace(" ", "")
         for tabla in table_list.split(","):

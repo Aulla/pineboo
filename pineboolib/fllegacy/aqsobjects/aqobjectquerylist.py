@@ -12,7 +12,7 @@ def AQObjectQueryList(
     object_name: Optional[str] = None,
     reg_ext_match: bool = False,
     recursirve_search: bool = False,
-) -> List:
+) -> types.Array:
     """Return a list with objects."""
 
     if isinstance(obj_, int) or obj_ is None:
