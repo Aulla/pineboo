@@ -735,6 +735,11 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         return os.access(self._file_name or "", os.R_OK)
 
+    def lastModified(self) -> str:
+        """Return last modified date."""
+
+        return QtCore.QFileInfo(self._q_file).lastModified().toString("yyyy-MM-dd-hh:mm:ss")
+
     name = property(getName)
 
 
