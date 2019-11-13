@@ -142,7 +142,7 @@ class FormDBWidget(QtWidgets.QWidget):
                 pass
         self._formconnections.clear()
 
-    def child(self, child_name: str) -> QtWidgets.QWidget:
+    def child(self, child_name: str) -> Any:
         """Return child from name."""
 
         try:
