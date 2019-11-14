@@ -8,7 +8,7 @@ from optparse import Values
 from pathlib import Path
 
 # from pineboolib.fllegacy.flaccesscontrollists import FLAccessControlLists # FIXME: Not allowed yet
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtWidgets
 
 from pineboolib.core.utils import logging
 from pineboolib.core.utils.utils_base import filedir

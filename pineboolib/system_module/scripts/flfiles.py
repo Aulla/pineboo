@@ -136,9 +136,9 @@ class FormInternalObj(qsa.FormDBWidget):
                 s01_do_work, s01_work_done = True, True
             if s01_do_work:
                 self.setDisabled(True)
-                editor = qsa.FLScriptEditor(nombre)
-                editor.exec_()
-                self.child(u"contenido").text = editor.code()
+                editor_ = qsa.FLScriptEditor(nombre)
+                editor_.exec_()
+                self.child(u"contenido").text = editor_.code()
                 self.setDisabled(False)
                 s01_do_work = False  # BREAK
 

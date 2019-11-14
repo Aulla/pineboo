@@ -190,7 +190,6 @@ def init_gui() -> None:
 def setup_gui(app: QtWidgets.QApplication, options: Values) -> None:
     """Configure GUI app."""
     from pineboolib.core.utils.utils_base import filedir
-    from pineboolib.application.utils.mobilemode import is_mobile_mode
     from PyQt5 import QtGui
 
     noto_fonts = [

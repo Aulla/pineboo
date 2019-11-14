@@ -894,15 +894,17 @@ class FLFormDB(QDialog):
                 module_window = application.project.main_window._dict_main_widgets[module_name]
 
                 mdi_area = module_window.centralWidget()
-                for sub_window in mdi_area.subWindowList():
-                    if sub_window.widget().formName() == self.formName():
-                        mdi_area.setActiveSubWindow(sub_window)
-                        return
+                if isinstance(mdi_area, QtWidgets.QMdiArea):
 
-                if isinstance(mdi_area, QtWidgets.QMdiArea) and type(self).__name__ == "FLFormDB":
-                    # if not isinstance(self.parent(), QtWidgets.QMdiSubWindow):
-                    # size = self.size()
-                    mdi_area.addSubWindow(self)
+                    for sub_window in mdi_area.subWindowList():
+                        if sub_window.widget().formName() == self.formName():
+                            mdi_area.setActiveSubWindow(sub_window)
+                            return
+
+                    if type(self).__name__ == "FLFormDB":
+                        # if not isinstance(self.parent(), QtWidgets.QMdiSubWindow):
+                        # size = self.size()
+                        mdi_area.addSubWindow(self)
 
         if self.initFocusWidget_ is None:
             self.initFocusWidget_ = self.focusWidget()

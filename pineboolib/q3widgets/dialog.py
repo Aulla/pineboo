@@ -2,23 +2,23 @@
 
 from PyQt5 import QtCore, QtWidgets
 
-from .qdialog import QDialog
-from .qpushbutton import QPushButton
-from .qtabwidget import QTabWidget
+from . import qdialog
+from . import qpushbutton
+from . import qtabwidget
 
 from typing import Optional, Union
 
 
-class Dialog(QDialog):
+class Dialog(qdialog.QDialog):
     """Dialog class."""
 
     _layout: QtWidgets.QVBoxLayout
     _button_box: QtWidgets.QDialogButtonBox
     okButtonText: str
     cancelButtonText: str
-    okButton: QPushButton
-    cancelButton: QPushButton
-    _tab: QTabWidget
+    okButton: qpushbutton.QPushButton
+    cancelButton: qpushbutton.QPushButton
+    _tab: qtabwidget.QTabWidget
 
     def __init__(
         self,
@@ -39,13 +39,13 @@ class Dialog(QDialog):
         self._button_box = QtWidgets.QDialogButtonBox()
         self.okButtonText = "Aceptar"
         self.cancelButtonText = "Cancelar"
-        self.okButton = QPushButton("&Aceptar")
-        self.cancelButton = QPushButton("&Cancelar")
+        self.okButton = qpushbutton.QPushButton("&Aceptar")
+        self.cancelButton = qpushbutton.QPushButton("&Cancelar")
         self._button_box.addButton(self.okButton, QtWidgets.QDialogButtonBox.AcceptRole)
         self._button_box.addButton(self.cancelButton, QtWidgets.QDialogButtonBox.RejectRole)
         self.okButton.clicked.connect(self.accept)
         self.cancelButton.clicked.connect(self.reject)
-        self._tab = QTabWidget()
+        self._tab = qtabwidget.QTabWidget()
         self._tab.hide()
         self._layout.addWidget(self._tab)
 
@@ -71,3 +71,17 @@ class Dialog(QDialog):
         if self._tab.isHidden():
             self._tab.show()
         self._tab.addTab(QtWidgets.QWidget(), str(name))
+
+    def setWidth(self, width: Union[int, float]) -> None:
+        """Set width."""
+
+        height = self.height()
+        self.setMinimunSize(width, height)
+        self.resize(width, height)
+
+    def setHeight(self, height: Union[int, float]) -> None:
+        """Set height."""
+
+        width = self.width()
+        self.setMinimunSize(width, height)
+        self.resize(width, height)

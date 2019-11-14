@@ -289,9 +289,8 @@ class MainForm(QtWidgets.QMainWindow):
 
         if id is None or not self._p_work_space:
             return False
-
         for window in self._p_work_space.subWindowList():
-            s = window.findChild(FLFormDB)
+            s = cast(FLFormDB, window.findChild(FLFormDB))
             if s.idMDI() == id:
                 window.showNormal()
                 window.setFocus()

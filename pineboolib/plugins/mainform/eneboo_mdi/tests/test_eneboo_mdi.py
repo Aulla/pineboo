@@ -3,7 +3,6 @@
 from PyQt5 import QtWidgets
 
 import unittest
-import importlib
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
 
@@ -58,6 +57,7 @@ class TestEnebooGUI(unittest.TestCase):
         project.actions["flusers"].openDefaultForm()
         self.main_w.windowMenuAboutToShow()
         self.main_w.windowMenuActivated(0)
+        print("***", self.main_w)
         self.assertTrue(self.main_w.existFormInMDI("flusers"))
         self.main_w.writeState()
         self.main_w.writeStateModule()

@@ -308,7 +308,7 @@ class PNSqlSchema(object):
         """Return cursor to database."""
         return None
 
-    def execute_query(self, q: str, cursor: Optional["pnsqlcursor.PNSqlCursor"] = None) -> Any:
+    def execute_query(self, q: str, cursor: Any = None) -> Any:
         """Excecute a query and return result."""
         if not self.isOpen():
             logger.warning("%s::execute_query: Database not open", __name__)

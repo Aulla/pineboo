@@ -13,7 +13,7 @@ class QTextEdit(QtWidgets.QTextEdit):
     RichText: int = 1
 
     def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
-        """Injicialize."""
+        """Inicialize."""
         super().__init__(parent)
         self.LogText = 0
         self.RichText = 1

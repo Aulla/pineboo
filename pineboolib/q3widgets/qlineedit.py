@@ -5,12 +5,13 @@ from PyQt5 import QtWidgets  # type: ignore
 from pineboolib.core import decorators
 
 
-from typing import Union, Optional, Any, TYPE_CHECKING
+from typing import Optional, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .qframe import QFrame  # noqa: F401
-    from .qgroupbox import QGroupBox  # noqa: F401
-    from .qwidget import QWidget  # noqa: F401
+    from . import qframe  # noqa: F401
+    from . import qgroupbox  # noqa: F401
+    from . import qwidget  # noqa: F401
+    from . import qlineedit  # noqa: F401
 
 
 class QLineEdit(QtWidgets.QLineEdit):
@@ -18,12 +19,9 @@ class QLineEdit(QtWidgets.QLineEdit):
 
     _parent = None
     WindowOrigin = 0
+    autoSelect: bool = False
 
-    def __init__(
-        self,
-        parent: Optional[Union["QGroupBox", "QWidget", "QFrame"]] = None,
-        name: Optional[str] = None,
-    ) -> None:
+    def __init__(self, parent: Optional[Any] = None, name: Optional[str] = None) -> None:
         """Inicialize."""
 
         super(QLineEdit, self).__init__(parent)
@@ -47,7 +45,7 @@ class QLineEdit(QtWidgets.QLineEdit):
 
         super().setText(v)
 
-    text = property(getText, setText)  # type: ignore
+    text: str = property(getText, setText)  # type: ignore [has-type]
 
     @decorators.NotImplementedWarn
     def setBackgroundOrigin(self, bgo: Any):
