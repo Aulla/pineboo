@@ -155,7 +155,7 @@ class FLFormDB(QDialog):
 
     known_instances: Dict[Tuple[Type["FLFormDB"], str], "FLFormDB"] = {}
 
-    bottomToolbar: Optional[QtWidgets.QToolBar]
+    bottomToolbar: Optional[QtWidgets.QFrame]
 
     toolButtonClose: Optional[QtWidgets.QToolButton]
 

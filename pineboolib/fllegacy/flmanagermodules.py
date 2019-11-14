@@ -438,8 +438,6 @@ class FLManagerModules(object):
             if xclass is None:
                 raise Exception("class was expected")
 
-            parent = None
-
             if xclass == "QMainWindow":
                 parent = q3widgets.qmainwindow.QMainWindow()
             elif xclass in ["QDialog", "QWidget"]:
@@ -448,14 +446,14 @@ class FLManagerModules(object):
             if parent is None:
                 raise Exception("xclass not found %s" % xclass)
 
-        if hasattr(parent, "widget"):
-            w_ = parent.widget
-        else:
-            w_ = parent
+        # if hasattr(parent, "widget"):
+        #    w_ = parent.widget
+        # else:
+        #    w_ = parent
 
         logger.info("Procesando %s (v%s)", file_name, UIVersion)
         if UIVersion < "4.0":
-            qt3ui.loadUi(form_path, w_)
+            qt3ui.loadUi(form_path, parent)
         else:
             from PyQt5 import uic  # type: ignore
 
@@ -463,9 +461,9 @@ class FLManagerModules(object):
             if qtWidgetPlugings not in uic.widgetPluginPath:
                 logger.info("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
                 uic.widgetPluginPath.append(qtWidgetPlugings)
-            uic.loadUi(form_path, w_)
+            uic.loadUi(form_path, parent)
 
-        return w_
+        return parent
 
     def createForm(
         self,
@@ -956,7 +954,7 @@ class FLManagerModules(object):
 
                 doc = QDomDocument(file_name)
                 if util.domDocumentSetContent(doc, str_ret):
-                    mng = self.conn_.manager()
+                    mng = self.conn_.connManager().manager()
                     docElem = doc.documentElement()
                     mtd = mng.metadata(docElem, True)
 

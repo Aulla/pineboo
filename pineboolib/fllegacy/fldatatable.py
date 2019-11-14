@@ -1,7 +1,7 @@
 """Fldatatable module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtCore, QtWidgets, Qt
+from PyQt5 import QtCore, QtWidgets, Qt, QtGui
 
 
 from pineboolib.core import decorators
@@ -14,9 +14,10 @@ from .flsqlcursor import FLSqlCursor
 from pineboolib import logging
 from typing import Any, Optional, List, Dict, Tuple, cast, TYPE_CHECKING
 
+from pineboolib.application.database import pnsqlcursor, pncursortablemodel
+
 
 if TYPE_CHECKING:
-    from pineboolib.application.database.pncursortablemodel import PNCursorTableModel  # noqa: F401
     from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData  # noqa: F401
     from pineboolib.application.metadata.pntablemetadata import PNTableMetaData  # noqa: F401
 
@@ -48,7 +49,7 @@ class FLDataTable(QtWidgets.QTableView):
     """
     Cursor, con los registros
     """
-    cursor_: Optional[FLSqlCursor]
+    cursor_: Optional[pnsqlcursor.PNSqlCursor]
 
     """
     Almacena la tabla está en modo sólo lectura
@@ -177,32 +178,35 @@ class FLDataTable(QtWidgets.QTableView):
         #    self.timerViewRepaint_.stop()
 
         if self.cursor_:
-            self.cursor_.restoreEditionFlag(self)
-            self.cursor_.restoreBrowseFlag(self)
+            self.cursor_.restoreEditionFlag()
+            self.cursor_.restoreBrowseFlag()
 
     def header(self) -> Any:
         """Return the FLDatatable header."""
 
         return self._h_header
 
-    def model(self) -> "PNCursorTableModel":
+    def model(self) -> pncursortablemodel.PNCursorTableModel:
         """Return cursor table model."""
-        return super().model()
+        return cast(pncursortablemodel.PNCursorTableModel, super().model())
 
-    def setFLSqlCursor(self, cursor: FLSqlCursor) -> None:
+    def setFLSqlCursor(self, cursor: pnsqlcursor.PNSqlCursor) -> None:
         """Set the cursor."""
 
         if cursor and cursor.metadata():
             cur_chg = False
             if self.cursor_ and not self.cursor_ == cursor:
-                self.cursor_.restoreEditionFlag(self)
-                self.cursor_.restoreBrowseFlag(self)
+                self.cursor_.restoreEditionFlag()
+                self.cursor_.restoreBrowseFlag()
                 cast(QtCore.pyqtSignal, self.cursor_.cursorUpdated).disconnect(self.refresh)
 
                 cur_chg = True
 
             if not self.cursor_ or cur_chg:
                 self.cursor_ = cursor
+                if not self.cursor_:
+                    raise Exception("cursor_ is empty!")
+
                 self.setFLReadOnly(self.readonly_)
                 self.setEditOnly(self.editonly_)
                 self.setInsertOnly(self.insertonly_)
@@ -258,7 +262,7 @@ class FLDataTable(QtWidgets.QTableView):
     #    return self.cursor_
 
     @property
-    def cur(self) -> FLSqlCursor:
+    def cur(self) -> pnsqlcursor.PNSqlCursor:
         """
         Return the cursor used by the control.
         """
@@ -277,7 +281,7 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_ or self.cursor_.aqWasDeleted():
             return
 
-        self.cursor_.setEdition(not mode, self)
+        self.cursor_.setEdition(not mode)
         self.readonly_ = mode
 
     def flReadOnly(self) -> bool:
@@ -312,7 +316,7 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_ or self.cursor_.aqWasDeleted():
             return
 
-        self.cursor_.setEdition(not mode, self)
+        self.cursor_.setEdition(not mode)
         self.insertonly_ = mode
 
     def insertOnly(self) -> bool:
@@ -395,8 +399,8 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_ or self.cursor_.aqWasDeleted():
             return
 
-        self.cursor_.setEdition(not on, self)
-        self.cursor_.setBrowse(not on, self)
+        self.cursor_.setEdition(not on)
+        self.cursor_.setBrowse(not on)
         self.onlyTable_ = on
 
     def onlyTable(self) -> bool:
@@ -631,28 +635,28 @@ class FLDataTable(QtWidgets.QTableView):
         self.setPrimaryKeyChecked(str(pK), model._checkColumn[pK].isChecked())
         # print("FIXME: falta un repaint para ver el color!!")
 
-    def focusOutEvent(self, e: QtCore.QEvent) -> None:
-        """
-        Losing focus event.
-        """
-        # setPaletteBackgroundColor(qApp->palette().color(QPalette::Active, QColorGroup::Background)) FIXME
-        pass
+    # def focusOutEvent(self, e: QtCore.QEvent) -> None:
+    #    """
+    #    Losing focus event.
+    #    """
+    # setPaletteBackgroundColor(qApp->palette().color(QPalette::Active, QColorGroup::Background)) FIXME
+    #    pass
 
-    def syncNumRows(self) -> None:
-        """
-        Synchronize the number of lines.
-        """
+    # def syncNumRows(self) -> None:
+    #    """
+    #    Synchronize the number of lines.
+    #    """
 
-        # print("syncNumRows")
-        if not self.cursor_:
-            return
+    # print("syncNumRows")
+    #    if not self.cursor_:
+    #        return
 
-        if self.changingNumRows_:
-            return
-        if self.numRows() != self.cursor_.size():
-            self.changingNumRows_ = True
-            self.setNumRows(self.cursor_.size())
-            self.changingNumRows_ = False
+    #    if self.changingNumRows_:
+    #        return
+    # if self.numRows() != self.cursor_.size():
+    #    self.changingNumRows_ = True
+    #    self.setNumRows(self.cursor_.size())
+    #    self.changingNumRows_ = False
 
     def paintFieldMtd(self, f: str, t: "PNTableMetaData") -> "PNFieldMetaData":
         """
@@ -672,23 +676,23 @@ class FLDataTable(QtWidgets.QTableView):
 
     timerViewRepaint_ = None
 
-    def focusInEvent(self, e: QtCore.QEvent) -> None:
-        """
-        Focus pickup event.
-        """
+    # def focusInEvent(self, e: QtGui.QFocusEvent) -> None:
+    #    """
+    #    Focus pickup event.
+    #    """
 
-        obj = self
-        # refresh = True
-        while obj.parent():
-            if getattr(obj, "inExec_", False):
-                # refresh = False
-                break
-            else:
-                obj = obj.parent()
+    #    obj = self
+    #    # refresh = True
+    #    while obj.parent():
+    #        if getattr(obj, "inExec_", False):
+    #            # refresh = False
+    #            break
+    #        else:
+    #            obj = obj.parent()
 
-        # if refresh:
-        #    self.refresh()
-        super().focusInEvent(e)
+    #    # if refresh:
+    #    #    self.refresh()
+    #    super().focusInEvent(e)
 
     def refresh(self, refresh_option: Any = None) -> None:
         """
@@ -736,7 +740,12 @@ class FLDataTable(QtWidgets.QTableView):
 
     # @decorators.pyqtSlot()
     # @decorators.pyqtSlot(int)
-    # def ensureRowSelectedVisible(self, position: Optional[int] = None) -> None:
+    @decorators.NotImplementedWarn
+    def ensureRowSelectedVisible(self, position: Optional[int] = None) -> None:
+        """Ensure row selected visible."""
+
+        pass
+
     #    """
     #    Make the selected row visible.
     #    """
@@ -870,7 +879,7 @@ class FLDataTable(QtWidgets.QTableView):
     def mouseDoubleClickEvent(self, e: QtCore.QEvent) -> None:
         """Double click event."""
 
-        if e.button() != QtCore.Qt.LeftButton:
+        if cast(QtGui.QMouseEvent, e).button() == QtCore.Qt.LeftButton:
             return
 
         self.recordChoosed.emit()
@@ -927,7 +936,7 @@ class FLDataTable(QtWidgets.QTableView):
         # if logIdx is None:
         #     logger.warning("visual_index_to_field: logIdx is None")
         #     return None
-        model: "PNCursorTableModel" = self.model()
+        model: pncursortablemodel.PNCursorTableModel = self.model()
         mtd = model.metadata()
         mtdfield = mtd.indexFieldObject(logIdx)
         if not mtdfield.visibleGrid():

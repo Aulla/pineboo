@@ -12,7 +12,16 @@ from pineboolib.application.qsatypes.sysbasetype import SysBaseType
 from .fldatatable import FLDataTable
 from .flformsearchdb import FLFormSearchDB
 from .flsqlcursor import FLSqlCursor
+from .fllineedit import FLLineEdit
+from .flcheckbox import FLCheckBox
+from .fltimeedit import FLTimeEdit
+from .fldateedit import FLDateEdit
+from .flspinbox import FLSpinBox
+from .fldoublevalidator import FLDoubleValidator
+from .flintvalidator import FLIntValidator
+from .fluintvalidator import FLUIntValidator
 
+from pineboolib.q3widgets.qcombobox import QComboBox
 
 from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData
 from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
@@ -22,7 +31,8 @@ from pineboolib.core.settings import config
 from . import flapplication
 
 
-from typing import Any, Optional, List, Union, TYPE_CHECKING
+from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
+from pineboolib.application.database import pnsqlcursor
 
 if TYPE_CHECKING:
     from pineboolib.application.database import pnsqlcursor  # noqa: F401
@@ -410,7 +420,7 @@ class FLTableDB(QtWidgets.QWidget):
                 )
                 return
 
-            self.cursor_ = self.topWidget.cursor()
+            self.cursor_ = cast(pnsqlcursor.PNSqlCursor, self.topWidget.cursor())
 
         self.initCursor()
         # self.setFont(QtWidgets.QApplication.font())
@@ -499,7 +509,7 @@ class FLTableDB(QtWidgets.QWidget):
                     return
 
             else:
-                cursorTopWidget = self.topWidget.cursor()
+                cursorTopWidget = cast(pnsqlcursor.PNSqlCursor, self.topWidget.cursor())
                 if cursorTopWidget and cursorTopWidget.metadata().name() != self.tableName_:
                     self.cursor_ = cursorTopWidget
 
@@ -611,13 +621,13 @@ class FLTableDB(QtWidgets.QWidget):
 
         # Si hay cursorTopWidget no machaco el cursor de topWidget
         if self.cursorAux and isinstance(self.topWidget, FLFormSearchDB) and not cursorTopWidget:
-            self.topWidget.setCaption(self.cursor().metadata().alias())
+            self.topWidget.setWindowTitle(self.cursor().metadata().alias())
             self.topWidget.setCursor(self.cursor())
 
         if own_tmd_ or tmd_ and not tmd_.inCache():
             del tmd_
 
-    def cursor(self) -> "pnsqlcursor.PNSqlCursor":
+    def cursor(self) -> "pnsqlcursor.PNSqlCursor":  # type: ignore [override]
         """
         Return the cursor used by the component.
 
@@ -824,7 +834,7 @@ class FLTableDB(QtWidgets.QWidget):
 
             for column in range(model.columnCount()):
                 list_.append(
-                    self.tableRecords_._model.headerData(
+                    self.tableRecords_.model().headerData(
                         column, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole
                     )
                 )
@@ -877,8 +887,9 @@ class FLTableDB(QtWidgets.QWidget):
         if not self.tableRecords_:
             raise Exception("tableRecords_ is not defined!")
 
-        return self.tableRecords_._model.headerData(
-            self.tableRecords_.selectionModel().selectedColumns(),
+        return self.tableRecords_.model().headerData(
+            # self.tableRecords_.selectionModel().selectedColumns(),
+            self.tableRecords_.currentColumn(),
             QtCore.Qt.Horizontal,
             QtCore.Qt.DisplayRole,
         )
@@ -994,7 +1005,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         return self.autoSortColumn_
 
-    def eventFilter(self, obj: QtWidgets.QWidget, ev: QtCore.QEvent) -> bool:
+    def eventFilter(self, obj: QtCore.QObject, ev: QtCore.QEvent) -> bool:
         """
         Process user events.
         """
@@ -1005,51 +1016,52 @@ class FLTableDB(QtWidgets.QWidget):
             or not self.comboBoxFieldToSearch2
             or not self.cursor()
         ):
-            return super(FLTableDB, self).eventFilter(obj, ev)
+            return super().eventFilter(obj, ev)
 
-        if ev.type() == QtCore.QEvent.KeyPress and isinstance(obj, FLDataTable):
-            k = ev
+        if ev.type() == QtCore.QEvent.KeyPress:
+            k = cast(QtGui.QKeyEvent, ev)
 
-            if k.key() == QtCore.Qt.Key_F2:
-                self.comboBoxFieldToSearch.popup()
-                return True
+            if isinstance(obj, FLDataTable):
 
-        # if ev.type() == QtCore.QEvent.WindowUnblocked and isinstance(obj, FLDataTable):
-        #    self.refreshDelayed()
-        #    return True
+                if k.key() == QtCore.Qt.Key_F2:
+                    self.comboBoxFieldToSearch.showPopup()
+                    return True
 
-        if ev.type() == QtCore.QEvent.KeyPress and isinstance(obj, QtWidgets.QLineEdit):
-            k = ev
+            # if ev.type() == QtCore.QEvent.WindowUnblocked and isinstance(obj, FLDataTable):
+            #    self.refreshDelayed()
+            #    return True
 
-            if k.key() == QtCore.Qt.Key_Enter or k.key() == QtCore.Qt.Key_Return:
-                self.tableRecords_.setFocus()
-                return True
+            elif isinstance(obj, QtWidgets.QLineEdit):
 
-            if k.key() == QtCore.Qt.Key_Up:
-                self.comboBoxFieldToSearch.setFocus()
-                return True
+                if k.key() == QtCore.Qt.Key_Enter or k.key() == QtCore.Qt.Key_Return:
+                    self.tableRecords_.setFocus()
+                    return True
 
-            if k.key() == QtCore.Qt.Key_Down:
-                self.tableRecords_.setFocus()
-                return True
+                elif k.key() == QtCore.Qt.Key_Up:
+                    self.comboBoxFieldToSearch.setFocus()
+                    return True
 
-            if k.key() == QtCore.Qt.Key_F2:
-                self.comboBoxFieldToSearch.popup()
-                return True
+                elif k.key() == QtCore.Qt.Key_Down:
+                    self.tableRecords_.setFocus()
+                    return True
 
-            if k.text() == "'" or k.text() == "\\":
-                return True
+                elif k.key() == QtCore.Qt.Key_F2:
+                    self.comboBoxFieldToSearch.showPopup()
+                    return True
+
+                elif k.text() == "'" or k.text() == "\\":
+                    return True
 
         if obj in (self.tableRecords_, self.lineEditSearch):
             return False
         else:
-            return super(FLTableDB, self).eventFilter(obj, ev)
+            return super().eventFilter(obj, ev)
 
-    def showEvent(self, e: QtCore.QEvent) -> None:
+    def showEvent(self, e: QtGui.QShowEvent) -> None:
         """
         Proccess show event.
         """
-        super(FLTableDB, self).showEvent(e)
+        super().showEvent(e)
         self.load()
         if not self.loaded():
             self.showWidget()
@@ -1408,7 +1420,6 @@ class FLTableDB(QtWidgets.QWidget):
                 return
 
             field = None
-            editor_ = None
             # type = None
             # len = None
             partInteger = None
@@ -1472,7 +1483,6 @@ class FLTableDB(QtWidgets.QWidget):
                 partDecimal = field.partDecimal()
                 rX = field.regExpValidator()
                 ol = field.hasOptionsList()
-                from pineboolib.q3widgets.qcombobox import QComboBox
 
                 cond = QComboBox(self)
                 if not type_ == "pixmap":
@@ -1502,112 +1512,92 @@ class FLTableDB(QtWidgets.QWidget):
 
                 j = 2
                 while j < 5:
-                    editor_ = None
+
                     if type_ in ("uint", "int", "double", "string", "stringlist"):
                         if ol:
-                            editor_ = QComboBox(self)
+                            editor_qcb = QComboBox(self)
                             olTranslated = []
                             olNoTranslated = field.optionsList()
                             for z in olNoTranslated:
                                 olTranslated.append(util.translate("Metadata", z))
 
-                            editor_.insertStringList(olTranslated)
+                            editor_qcb.insertStringList(olTranslated)
+
+                            self.tdbFilter.setCellWidget(_linea, j, editor_qcb)
                         else:
-                            from pineboolib.fllegacy.fllineedit import FLLineEdit
 
-                            editor_ = FLLineEdit(self)
-
-                            if editor_ is None:
-                                raise Exception("editor_ is Empty!")
-
+                            editor_le = FLLineEdit(self)
                             if type_ == "double":
-                                from .fldoublevalidator import FLDoubleValidator
 
-                                editor_.setValidator(
+                                editor_le.setValidator(
                                     FLDoubleValidator(
-                                        0, pow(10, partInteger) - 1, partDecimal, editor_
+                                        0, pow(10, partInteger) - 1, partDecimal, editor_le
                                     )
                                 )
-                                editor_.setAlignment(Qt.AlignRight)
-                            else:
-                                if type_ in ("uint", "int"):
-                                    if type_ == "uint":
-                                        from .fluintvalidator import FLUIntValidator
+                                editor_le.setAlignment(Qt.AlignRight)
+                            elif type_ in ("uint", "int"):
+                                if type_ == "uint":
 
-                                        editor_.setValidator(
-                                            FLUIntValidator(0, pow(10, partInteger) - 1, editor_)
-                                        )
-                                    else:
-                                        from .flintvalidator import FLIntValidator
-
-                                        editor_.setValidator(
-                                            FLIntValidator(
-                                                pow(10, partInteger) - 1 * (-1),
-                                                pow(10, partInteger) - 1,
-                                                editor_,
-                                            )
-                                        )
-
-                                    editor_.setAlignment(Qt.AlignRight)
+                                    editor_le.setValidator(
+                                        FLUIntValidator(0, pow(10, partInteger) - 1, editor_le)
+                                    )
                                 else:
-                                    if len_ > 0:
-                                        editor_.setMaxLength(len_)
-                                        if rX:
-                                            editor_.setValidator(
-                                                QtGui.QRegExpValidator(QtCore.QRegExp(rX), editor_)
-                                            )
 
-                                    editor_.setAlignment(Qt.AlignLeft)
+                                    editor_le.setValidator(
+                                        FLIntValidator(
+                                            pow(10, partInteger) - 1 * (-1),
+                                            pow(10, partInteger) - 1,
+                                            editor_le,
+                                        )
+                                    )
 
-                    if type_ == "serial":
-                        from pineboolib.fllegacy.flspinbox import FLSpinBox
+                                editor_le.setAlignment(Qt.AlignRight)
+                            else:
+                                if len_ > 0:
+                                    editor_le.setMaxLength(len_)
+                                    if rX:
+                                        editor_le.setValidator(
+                                            QtGui.QRegExpValidator(QtCore.QRegExp(rX), editor_le)
+                                        )
 
-                        editor_ = FLSpinBox()
-                        if editor_ is None:
-                            raise Exception("editor_ is Empty!")
+                                editor_le.setAlignment(Qt.AlignLeft)
 
-                        editor_.setMaxValue(pow(10, partInteger) - 1)
+                            self.tdbFilter.setCellWidget(_linea, j, editor_le)
 
-                    if type_ == "pixmap":
-                        from pineboolib.fllegacy.fllineedit import FLLineEdit
+                    elif type_ == "serial":
 
-                        editor_ = FLLineEdit(self)
-                        if editor_ is None:
-                            raise Exception("editor_ is Empty!")
+                        editor_se = FLSpinBox()
+                        editor_se.setMaxValue(pow(10, partInteger) - 1)
+                        self.tdbFilter.setCellWidget(_linea, j, editor_se)
 
+                    elif type_ == "pixmap":
+
+                        editor_px = FLLineEdit(self)
                         self.tdbFilter.setRowReadOnly(i, True)
+                        self.tdbFilter.setCellWidget(_linea, j, editor_px)
 
-                    if type_ == "date":
-                        from pineboolib.fllegacy.fldateedit import FLDateEdit
+                    elif type_ == "date":
 
-                        editor_ = FLDateEdit(self, _label)
-                        if editor_ is None:
-                            raise Exception("editor_ is Empty!")
-
-                        editor_.setOrder(FLDateEdit.DMY)
-                        editor_.setAutoAdvance(True)
-                        editor_.setCalendarPopup(True)
-                        editor_.setSeparator("-")
+                        editor_de = FLDateEdit(self, _label)
+                        editor_de.setOrder(FLDateEdit.DMY)
+                        editor_de.setAutoAdvance(True)
+                        editor_de.setCalendarPopup(True)
+                        editor_de.setSeparator("-")
                         da = QtCore.QDate()
-                        editor_.setDate(da.currentDate())
+                        editor_de.setDate(da.currentDate())
+                        self.tdbFilter.setCellWidget(_linea, j, editor_de)
 
-                    if type_ == "time":
-                        from pineboolib.fllegacy.fltimeedit import FLTimeEdit
+                    elif type_ == "time":
 
-                        editor_ = FLTimeEdit(self)
-                        if editor_ is None:
-                            raise Exception("editor_ is Empty!")
-
+                        editor_te = FLTimeEdit(self)
                         timeNow = QtCore.QTime.currentTime()
-                        editor_.setTime(timeNow)
+                        editor_te.setTime(timeNow)
+                        self.tdbFilter.setCellWidget(_linea, j, editor_te)
 
-                    if type_ in (PNFieldMetaData.Unlock, "bool"):
-                        from pineboolib.fllegacy.flcheckbox import FLCheckBox
+                    elif type_ in (PNFieldMetaData.Unlock, "bool"):
 
-                        editor_ = FLCheckBox(self)
-
-                    if editor_:
-                        self.tdbFilter.setCellWidget(_linea, j, editor_)
+                        editor_cb = FLCheckBox(self)
+                        self.tdbFilter.setCellWidget(_linea, j, editor_cb)
 
                     j += 1
 
@@ -1874,7 +1864,7 @@ class FLTableDB(QtWidgets.QWidget):
                 condValue += " >= " + str(arg2) + " AND " + fieldArg + " <= " + str(arg4)
             elif condType == self.Null:
                 condValue += " IS NULL "
-            elif condType == self.notNull:
+            elif condType == self.NotNull:
                 condValue += " IS NOT NULL "
 
             where += condValue
@@ -2159,7 +2149,7 @@ class FLTableDB(QtWidgets.QWidget):
         if not self.insertonly_ == self.reqInsertOnly_ or (
             self.tableRecords_ and not self.insertonly_ == self.tableRecords_.insertOnly()
         ):
-            self.setInsetOnly(self.reqInsertOnly_)
+            self.setInsertOnly(self.reqInsertOnly_)
 
         if not self.onlyTable_ == self.reqOnlyTable_ or (
             self.tableRecords_ and not self.onlyTable_ == self.tableRecords_.onlyTable()
@@ -2197,7 +2187,7 @@ class FLTableDB(QtWidgets.QWidget):
     def insertRecord(self, wait: bool = True) -> None:
         """Call method FLSqlCursor.insertRecord."""
 
-        w = self.sender()
+        w = cast(QtWidgets.QWidget, self.sender())
         # if (w and (not self.cursor() or self.reqReadOnly_ or self.reqEditOnly_ or self.reqOnlyTable_ or (self.cursor().cursorRelation()
         #      and self.cursor().cursorRelation().isLocked()))):
         relationLock = False
@@ -2223,7 +2213,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         Call method FLSqlCursor.editRecord.
         """
-        w = self.sender()
+        w = cast(QtWidgets.QWidget, self.sender())
         cur_relation = self.cursor().cursorRelation()
 
         if (
@@ -2249,7 +2239,7 @@ class FLTableDB(QtWidgets.QWidget):
         Call method FLSqlCursor.browseRecord.
         """
 
-        w = self.sender()
+        w = cast(QtWidgets.QWidget, self.sender())
 
         if w and not isinstance(w, FLDataTable) and (not self.cursor() or self.reqOnlyTable_):
             w.setDisabled(True)
@@ -2263,7 +2253,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         Call method FLSqlCursor.deleteRecord.
         """
-        w = self.sender()
+        w = cast(QtWidgets.QWidget, self.sender())
 
         cur_relation = self.cursor().cursorRelation()
 
@@ -2290,7 +2280,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         Call method FLSqlCursor.copyRecord.
         """
-        w = self.sender()
+        w = cast(QtWidgets.QWidget, self.sender())
 
         cur_relation = self.cursor().cursorRelation()
 

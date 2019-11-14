@@ -11,6 +11,7 @@ from PyQt5.QtGui import QIcon
 from pineboolib.core import decorators
 from pineboolib.core.settings import config
 from pineboolib.core.utils.utils_base import filedir
+from PyQt5.QtWidgets import QMdiSubWindow
 
 from .flformdb import FLFormDB
 from .flsqlcursor import FLSqlCursor
@@ -93,14 +94,14 @@ class FLFormSearchDB(FLFormDB):
         if self.cursor_:
             self.cursor_.setAction(a)
 
-    def __delattr__(self, *args, **kwargs) -> None:
-        """Delete attributes."""
+    # def __delattr__(self, *args, **kwargs) -> None:
+    #    """Delete attributes."""
 
-        if self.cursor_:
-            self.cursor_.restoreEditionFlag(self)
-            self.cursor_.restoreBrowseFlag(self)
+    #    if self.cursor_:
+    #        self.cursor_.restoreEditionFlag(self)
+    #        self.cursor_.restoreBrowseFlag(self)
 
-        super().__delattr__(self, *args, **kwargs)
+    #    super().__delattr__(self, *args, **kwargs)
 
     """
     formReady = QtCore.pyqtSignal()
@@ -113,11 +114,11 @@ class FLFormSearchDB(FLFormDB):
         if self.bottomToolbar:
             self.bottomToolbar.setMaximumHeight(64)
             self.bottomToolbar.setMinimumHeight(16)
-            self.bottomToolbar.widget_hlayout = QtWidgets.QHBoxLayout()
-            self.bottomToolbar.setLayout(self.bottomToolbar.widget_hlayout)
-            self.bottomToolbar.widget_hlayout.setContentsMargins(0, 0, 0, 0)
-            self.bottomToolbar.widget_hlayout.setSpacing(0)
-            self.bottomToolbar.widget_hlayout.addStretch()
+            self.bottomToolbar.setLayout(QtWidgets.QHBoxLayout())
+            # self.bottomToolbar.setLayout(self.bottomToolbar.widget_hlayout)
+            self.bottomToolbar.layout().setContentsMargins(0, 0, 0, 0)
+            self.bottomToolbar.layout().setSpacing(0)
+            # self.bottomToolbar.layout().addStretch()
             self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
             self.layout_.addWidget(self.bottomToolbar)
 
@@ -139,7 +140,7 @@ class FLFormSearchDB(FLFormDB):
             pushButtonExport.setWhatsThis("Exportar a XML(F3)")
             pushButtonExport.setToolTip("Exportar a XML(F3)")
             pushButtonExport.setFocusPolicy(QtCore.Qt.NoFocus)
-            self.bottomToolbar.widget_hlayout.addWidget(pushButtonExport)
+            self.bottomToolbar.layout().addWidget(pushButtonExport)
             pushButtonExport.clicked.connect(self.exportToXml)
 
             if config.value("ebcomportamiento/show_snaptshop_button", False):
@@ -153,13 +154,13 @@ class FLFormSearchDB(FLFormDB):
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.NoFocus)
-                self.bottomToolbar.widget_hlayout.addWidget(push_button_snapshot)
+                self.bottomToolbar.layout().addWidget(push_button_snapshot)
                 push_button_snapshot.clicked.connect(self.saveSnapShot)
 
             spacer = QtWidgets.QSpacerItem(
                 20, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
             )
-            self.bottomToolbar.widget_hlayout.addItem(spacer)
+            self.bottomToolbar.layout().addItem(spacer)
 
         if not self.pushButtonAccept:
             self.pushButtonAccept = QtWidgets.QToolButton(self)
@@ -175,7 +176,7 @@ class FLFormSearchDB(FLFormDB):
         self.pushButtonAccept.setWhatsThis("Seleccionar registro actual y cerrar formulario (F10)")
         self.pushButtonAccept.setToolTip("Seleccionar registro actual y cerrar formulario (F10)")
         self.pushButtonAccept.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.bottomToolbar.widget_hlayout.addWidget(self.pushButtonAccept)
+        self.bottomToolbar.layout().addWidget(self.pushButtonAccept)
         self.pushButtonAccept.show()
 
         if not self.pushButtonCancel:
@@ -191,7 +192,7 @@ class FLFormSearchDB(FLFormDB):
         # pushButtonCancel->setAccel(Esc); FIXME
         self.pushButtonCancel.setWhatsThis("Cerrar formulario sin seleccionar registro (Esc)")
         self.pushButtonCancel.setToolTip("Cerrar formulario sin seleccionar registro (Esc)")
-        self.bottomToolbar.widget_hlayout.addWidget(self.pushButtonCancel)
+        self.bottomToolbar.layout().addWidget(self.pushButtonCancel)
         self.pushButtonCancel.show()
         if self.cursor_ is None:
             raise Exception("Cursor is empty!.")
@@ -352,10 +353,9 @@ class FLFormSearchDB(FLFormDB):
         self.saveGeometry()
         self.hide()
 
-        from PyQt5.QtWidgets import QMdiSubWindow
-
-        if isinstance(self.parent(), QMdiSubWindow):
-            self.parent().hide()
+        parent = self.parent()
+        if isinstance(parent, QMdiSubWindow):
+            parent.hide()
 
     @decorators.pyqtSlot()
     def reject(self) -> None:

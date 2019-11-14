@@ -4,17 +4,13 @@
 from PyQt5 import QtWidgets  # type: ignore
 
 
-from typing import Optional, Union, Any, List, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from .qframe import QFrame  # noqa: F401
-    from .qgroupbox import QGroupBox  # noqa: F401
+from typing import Optional, Any, List, Union
 
 
 class QComboBox(QtWidgets.QComboBox):
     """QComboBox class."""
 
-    def __init__(self, parent: Optional[Union["QFrame", "QGroupBox"]] = None) -> None:
+    def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
         """Inicialize."""
 
         super().__init__(parent)

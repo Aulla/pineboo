@@ -805,7 +805,7 @@ class PNSqlCursor(QtCore.QObject):
         if state_changes:
             self.d.edition_ = b
 
-    def restoreEditionFlag(self, m: str) -> None:
+    def restoreEditionFlag(self, m: Optional[str] = None) -> None:
         """Restore Edition flag to its previous value."""
         if not self.d.edition_states_:
             return
@@ -852,7 +852,7 @@ class PNSqlCursor(QtCore.QObject):
         if state_changes:
             self.d.browse_ = b
 
-    def restoreBrowseFlag(self, m: str) -> None:
+    def restoreBrowseFlag(self, m: Optional[str] = None) -> None:
         """Restores browse flag to its previous state."""
         if not self.d.browse_states_:
             return

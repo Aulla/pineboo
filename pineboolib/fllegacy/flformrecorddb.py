@@ -14,6 +14,7 @@ from pineboolib.application.database import pnsqlcursor
 from pineboolib.fllegacy.flformdb import FLFormDB
 from pineboolib.fllegacy.flsqlquery import FLSqlQuery
 from pineboolib.fllegacy import flapplication
+from . import flfielddb
 
 from pineboolib import logging
 
@@ -129,11 +130,11 @@ class FLFormRecordDB(FLFormDB):
         self.setWindowModality(QtCore.Qt.ApplicationModal)
 
         if cursor:
-            self.setCursor(parent_or_cursor)
+            self.setCursor(cursor)
         self.logger.trace("__init__: load formRecord")
         self._uiName = action.formRecord()
         self._scriptForm = action.scriptFormRecord() or "emptyscript"
-
+        self.bottomToolbar = None
         self.pushButtonAccept = None
         self.pushButtonAcceptContinue = None
         self.pushButtonFirst = None
@@ -238,9 +239,12 @@ class FLFormRecordDB(FLFormDB):
 
             self.bottomToolbar.layout().setContentsMargins(0, 0, 0, 0)
             self.bottomToolbar.layout().setSpacing(0)
-            self.bottomToolbar.layout().addStretch()
+            # self.bottomToolbar.layout().addStretch()
             self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
             self.layout_.addWidget(self.bottomToolbar)
+
+        else:
+            raise Exception("bottomToolbar is missing!")
         # if self.layout:
         #    self.layout = None
         # Limpiamos la toolbar
@@ -414,7 +418,7 @@ class FLFormRecordDB(FLFormDB):
             self.pushButtonCancel = QtWidgets.QToolButton()
             self.pushButtonCancel.setObjectName("pushButtonCancel")
             try:
-                self.cursor().autocommit.connect(self.disablePushButtonCancel)
+                self.cursor().autoCommit.connect(self.disablePushButtonCancel)
             except Exception:
                 pass
 
@@ -464,13 +468,12 @@ class FLFormRecordDB(FLFormDB):
         """
         self.frameGeometry()
         if self.focusWidget():
-            fdb = self.focusWidget().parentWidget()
-            try:
-                if fdb.autoComFrame_.isvisible():
+            parent = self.focusWidget().parentWidget()
+            if parent:
+                fdb = cast(flfielddb.FLFieldDB, parent)
+                if fdb and fdb.autoComFrame_ and fdb.autoComFrame_.isVisible():
                     fdb.autoComFrame_.hide()
                     return
-            except Exception:
-                pass
 
         if self.cursor_:
 
@@ -558,11 +561,11 @@ class FLFormRecordDB(FLFormDB):
                             "No : Respeta el cambio del otro usuario e ignora el valor que ha introducido\n"
                             "Cancelar : Cancela el guardado del registro y vuelve a la edición del registro\n\n",
                             cast(
-                                QtWidgets.QMessageBox,
+                                QtWidgets.QMessageBox.StandardButtons,
                                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Default,
                             ),
                             cast(
-                                QtWidgets.QMessageBox,
+                                QtWidgets.QMessageBox.StandardButton,
                                 QtWidgets.QMessageBox.No
                                 | QtWidgets.QMessageBox.Cancel
                                 | QtWidgets.QMessageBox.Escape,
