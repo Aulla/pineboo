@@ -459,7 +459,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
             self.autoComFrame_.hide()
             if self.editor_ and key.key() == Qt.Key_Backspace:
-                self.editor_.backspace()
+                cast(FLLineEdit, self.editor_).backspace()
 
             if not self.timerAutoComp_:
                 self.timerAutoComp_ = QtCore.QTimer(self)
@@ -495,7 +495,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
     @decorators.pyqtSlot()
     @decorators.pyqtSlot(int)
-    def eventFilter(self, obj: QtWidgets.QWidget, event: QtCore.QEvent):
+    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
         """
         Process Qt events for keypresses.
         """
@@ -504,7 +504,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         QtWidgets.QWidget.eventFilter(self, obj, event)
         if event.type() == QtCore.QEvent.KeyPress:
-            k = event
+            k = cast(QtGui.QKeyEvent, event)
             if self._process_autocomplete_events(event):
                 return True
 
@@ -542,7 +542,7 @@ class FLFieldDB(QtWidgets.QWidget):
         elif (
             event.type() == QtCore.QEvent.MouseButtonRelease
             and isinstance(obj, type(self.textLabelDB))
-            and event.button() == Qt.LeftButton
+            and cast(QtGui.QMouseEvent, event).button() == Qt.LeftButton
         ):
             self.emitLabelClicked()
             return True
@@ -770,8 +770,8 @@ class FLFieldDB(QtWidgets.QWidget):
                         "No se encuentra el valor %s en las opciones %s", v, field.optionsList()
                     )
             if idxItem == -1:
-                self.editor_.setCurrentItem(v)
-            self.updateValue(self.editor_.currentText)
+                cast(QComboBox, self.editor_).setCurrentItem(v)
+            self.updateValue(cast(QComboBox, self.editor_).currentText)
             return
 
         if type_ == "pixmap":
@@ -795,25 +795,25 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if type_ in ("uint", "int"):
             doHome = False
-            if not self.editor_.text():
+            editor_int = cast(FLLineEdit, self.editor_)
+            if not editor_int.text():
                 doHome = True
-            if v:
-                self.editor_.setText(v)
-            else:
-                self.editor_.setText("0")
+
+            editor_int.setText(v if v else "0")
 
             if doHome:
-                self.editor_.home(False)
+                editor_int.home(False)
 
         elif type_ == "string":
             doHome = False
-            if not self.editor_.text():
+            editor_str = cast(FLLineEdit, self.editor_)
+            if not editor_str.text():
                 doHome = True
 
-            self.editor_.setText(v if v else "")
+            editor_str.setText(v if v else "")
 
             if doHome:
-                self.editor_.home(False)
+                editor_str.home(False)
 
         elif type_ == "stringlist":
 
@@ -822,7 +822,9 @@ class FLFieldDB(QtWidgets.QWidget):
         elif type_ == "double":
             s = ""
             if v is not None:
-                s = round(float(v), self._partDecimal if self._partDecimal else field.partDecimal())
+                s = str(
+                    round(float(v), self._partDecimal if self._partDecimal else field.partDecimal())
+                )
 
             cast(FLLineEdit, self.editor_).setText(s)
 
