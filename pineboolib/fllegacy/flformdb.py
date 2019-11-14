@@ -17,6 +17,7 @@ from pineboolib.application.utils.geometry import loadGeometryForm, saveGeometry
 from pineboolib.application.metadata import pnaction
 from pineboolib.application import load_script
 
+
 from . import flapplication
 
 from typing import Any, Union, Dict, Optional, Tuple, Type, cast, Callable, TYPE_CHECKING
@@ -60,7 +61,7 @@ class FLFormDB(QDialog):
     """
     Capa principal del formulario
     """
-    layout_: QtWidgets.QLayout
+    layout_: QtWidgets.QVBoxLayout
 
     """
     Widget principal del formulario
@@ -320,8 +321,8 @@ class FLFormDB(QDialog):
 
         if self.cursor_ and self.cursor_ is not cursor:
             if type(self).__name__ == "FLFormRecodDB":
-                self.cursor_.restoreEditionFlag(self)
-                self.cursor_.restoreBrowseFlag(self)
+                self.cursor_.restoreEditionFlag(self.objectName())
+                self.cursor_.restoreBrowseFlag(self.objectName())
 
         if self.cursor_:
 
@@ -330,15 +331,15 @@ class FLFormDB(QDialog):
         self.cursor_ = cursor
 
         if type(self).__name__ == "FLFormRecodDB":
-            self.cursor_.setEdition(False, self)
-            self.cursor_.setBrowse(False, self)
+            self.cursor_.setEdition(False, self.objectName())
+            self.cursor_.setBrowse(False, self.objectName())
 
         cast(pyqtSignal, self.cursor_.destroyed).connect(self.cursorDestroyed)
         if self.iface and self.cursor_:
             self.oldCursorCtxt = self.cursor_.context()
             self.cursor_.setContext(self.iface)
 
-    def cursor(self) -> "pnsqlcursor.PNSqlCursor":  # type : ignore
+    def cursor(self) -> "pnsqlcursor.PNSqlCursor":  # type: ignore [override]
         """
         To get the cursor used by the form.
         """
@@ -631,7 +632,7 @@ class FLFormDB(QDialog):
         self.bottomToolbar.setLayout(self.bottomToolbar.layout())
         self.bottomToolbar.layout().setContentsMargins(0, 0, 0, 0)
         self.bottomToolbar.layout().setSpacing(0)
-        self.bottomToolbar.layout().addStretch()
+        # self.bottomToolbar.layout().addStretch()
         self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
         if self.layout_ is not None:
             self.layout_.addWidget(self.bottomToolbar)
@@ -798,22 +799,18 @@ class FLFormDB(QDialog):
                 self.formName(),
                 traceback.format_exc(),
             )
-        from PyQt5.QtWidgets import QMdiSubWindow
 
-        if isinstance(self.parent(), QMdiSubWindow):
-            self.parent().close()
+        parent = self.parent()
+
+        if isinstance(parent, QtWidgets.QMdiSubWindow):
+            parent.close()
 
     def showEvent(self, e: Any) -> None:
         """
         Capture event show.
         """
         # --> Para mostrar form sin negro previo
-        from PyQt5.QtWidgets import QMdiSubWindow
-        from pineboolib.fllegacy.systype import SysType
-
-        qsa_sys = SysType()
-
-        qsa_sys.processEvents()
+        QtWidgets.QApplication.processEvents()
         # <--
         if not self.loaded():
             return
@@ -834,9 +831,11 @@ class FLFormDB(QDialog):
         if size:
             self.resize(size)
 
-            if self.parent() and isinstance(self.parent(), QMdiSubWindow):
-                self.parent().resize(size)
-                self.parent().repaint()
+            parent = self.parent()
+
+            if parent and isinstance(parent, QtWidgets.QMdiSubWindow):
+                parent.resize(size)
+                parent.repaint()
 
     def cursorDestroyed(self, obj_: Optional[Any] = None) -> None:
         """Clean up. Called when cursor has been deleted."""
@@ -897,7 +896,7 @@ class FLFormDB(QDialog):
                 if isinstance(mdi_area, QtWidgets.QMdiArea):
 
                     for sub_window in mdi_area.subWindowList():
-                        if sub_window.widget().formName() == self.formName():
+                        if cast(FLFormDB, sub_window.widget()).formName() == self.formName():
                             mdi_area.setActiveSubWindow(sub_window)
                             return
 
@@ -936,9 +935,15 @@ class FLFormDB(QDialog):
 
     def child(self, child_name: str) -> QtWidgets.QWidget:
         """Get child by name."""
-        ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
+        ret = cast(
+            QtWidgets.QWidget,
+            self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively),
+        )
         if ret is not None:
-            if hasattr(ret, "_loaded"):
+            from . import flfielddb
+            from . import fltabledb
+
+            if isinstance(ret, (flfielddb.FLFieldDB, fltabledb.FLTableDB)):
                 if ret._loaded is False:
                     ret.load()
 

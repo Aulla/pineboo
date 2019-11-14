@@ -21,6 +21,7 @@ from pineboolib.application.database.pnsqlquery import PNSqlQuery
 from pineboolib.application import project
 from pineboolib.application.utils.xpm import cacheXPM
 
+from pineboolib.interfaces import isqlcursor
 
 from .pnbuffer import PNBuffer
 
@@ -250,10 +251,10 @@ class PNSqlCursor(QtCore.QObject):
             except Exception:
                 pass
             cR.newBuffer.connect(self.clearPersistentFilter)
-            if (
-                project.DGI.use_model() and cR.meta_model()
-            ):  # Si el cursor_relation tiene un model asociado , este cursor carga el propio también
-                self.assoc_model()
+            # if (
+            #    project.DGI.use_model() and cR.meta_model()
+            # ):  # Si el cursor_relation tiene un model asociado , este cursor carga el propio también
+            #    self.assoc_model()
 
         else:
             self.seek(None)
@@ -484,7 +485,7 @@ class PNSqlCursor(QtCore.QObject):
         v: Any
 
         if self.d.cursorRelation_ and self.modeAccess() == self.Browse:
-            self.self.d.cursorRelation_.commit(False)
+            self.d.cursorRelation_.commit(False)
 
         if pK and self.db() is not self.db().connManager().dbAux():
             pKV = self.d.buffer_.value(pK)
@@ -805,18 +806,18 @@ class PNSqlCursor(QtCore.QObject):
         if state_changes:
             self.d.edition_ = b
 
-    def restoreEditionFlag(self, m: Optional[str] = None) -> None:
+    def restoreEditionFlag(self, m: str) -> None:
         """Restore Edition flag to its previous value."""
-        if not self.d.edition_states_:
-            return
+        es = self.d.edition_states_
+        if es:
 
-        i = self.d.edition_states_.find(m)
+            i = es.find(m)
 
-        if i and i == self.d.edition_states_.current():
-            self.d.edition_ = i.prevValue_
+            if i and i == es.current():
+                self.d.edition_ = i.prevValue_
 
-        if i:
-            self.d.edition_states_.erase(i)
+            if i:
+                es.erase(i)
 
     def setBrowse(self, b: bool, m: Optional[str] = None) -> None:
         """
@@ -852,24 +853,23 @@ class PNSqlCursor(QtCore.QObject):
         if state_changes:
             self.d.browse_ = b
 
-    def restoreBrowseFlag(self, m: Optional[str] = None) -> None:
+    def restoreBrowseFlag(self, m: str) -> None:
         """Restores browse flag to its previous state."""
-        if not self.d.browse_states_:
-            return
+        bs = self.d.browse_states_
+        if bs:
+            i = bs.find(m)
 
-        i = self.d.browse_states_.find(m)
+            if i and i == bs.current():
+                self.d.browse_ = i.prevValue_
 
-        if i and i == self.d.browse_states_.current():
-            self.d.browse_ = i.prevValue_
+            if i:
+                bs.erase(i)
 
-        if i:
-            self.d.browse_states_.erase(i)
-
-    def meta_model(self) -> Callable:
-        """
-        Check if DGI requires models (SqlAlchemy?).
-        """
-        return self._meta_model if project.DGI.use_model() else None
+    # def meta_model(self) -> Callable:
+    #    """
+    #    Check if DGI requires models (SqlAlchemy?).
+    #    """
+    #    return self.meta_model if project.DGI.use_model() else None
 
     def setContext(self, c: Any = None) -> None:
         """
@@ -2791,9 +2791,11 @@ class PNSqlCursor(QtCore.QObject):
         )
 
         # FIXME: module_script is FLFormDB
-        module_script: QDialog = project.actions[
-            idMod
-        ].load() if idMod in project.actions.keys() else project.actions["sys"].load()
+        module_script = (
+            project.actions[idMod].load()
+            if idMod in project.actions.keys()
+            else project.actions["sys"].load()
+        )
         module_iface: Any = getattr(module_script, "iface", None)
         if project.DGI.use_model():
             model_name = "models.%s.%s_def" % (idMod, idMod)
@@ -3845,7 +3847,7 @@ class PNCursorPrivate(QtCore.QObject):
                 condTrue_ = self.cursor_.valueBuffer(self.acosCondName_) == self.acosCondVal_
             elif self.acosCond_ == AcosConditionEval.REGEXP:
                 condTrue_ = QtCore.QRegExp(str(self.acosCondVal_)).exactMatch(
-                    self.cursor_.value(self.acosCondName_)
+                    self.cursor_.valueBuffer(self.acosCondName_)
                 )
             elif self.acosCond_ == AcosConditionEval.FUNCTION:
                 condTrue_ = project.call(self.acosCondName_, [self.cursor_]) == self.acosCondVal_

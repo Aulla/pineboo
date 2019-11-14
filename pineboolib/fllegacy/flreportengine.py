@@ -231,7 +231,7 @@ class FLReportEngine(QtCore.QObject):
         """Set template to report."""
 
         if isinstance(t, FLDomNodeInterface):
-            return self.setFLReportData(t.obj())
+            return self.setFLReportData(t)
 
         return self.setFLReportData(t)
 

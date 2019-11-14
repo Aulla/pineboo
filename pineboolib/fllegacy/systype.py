@@ -43,6 +43,7 @@ from pineboolib.q3widgets.qpushbutton import QPushButton
 from pineboolib.q3widgets.filedialog import FileDialog
 
 from typing import cast, Optional, List, Any, Dict, Callable, TYPE_CHECKING
+from pineboolib.fllegacy import flfielddb, fltabledb
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
@@ -192,7 +193,7 @@ class SysType(sysbasetype.SysBaseType):
     def updateAreas(self) -> None:
         """Update areas in mdi."""
 
-        flapplication.aqApp.initToolBox()
+        flapplication.aqApp.mainWidget().initToolBox()
 
     @classmethod
     def reinit(self) -> None:
@@ -512,7 +513,7 @@ class SysType(sysbasetype.SysBaseType):
             return True
         diag = QDialog()
         diag.caption = self.translate(u"Detectados cambios locales")
-        diag.modal = True
+        diag.setModal(True)
         txt = u""
         txt += self.translate(u"¡¡ CUIDADO !! DETECTADOS CAMBIOS LOCALES\n\n")
         txt += self.translate(u"Se han detectado cambios locales en los módulos desde\n")
@@ -984,12 +985,12 @@ class SysType(sysbasetype.SysBaseType):
             return True
         diag = QDialog()
         diag.caption = txtCaption if txtCaption else u"Eneboo"
-        diag.modal = True
+        diag.setModal(True)
         lay = QVBoxLayout(diag)
-        lay.setMargin(6)
+        # lay.setMargin(6)
         lay.setSpacing(6)
-        lay2 = QHBoxLayout(lay)
-        lay2.setMargin(6)
+        lay2 = QHBoxLayout(diag)
+        # lay2.setMargin(6)
         lay2.setSpacing(6)
         lblPix = QLabel(diag)
         pixmap = AQS.pixmap_fromMimeSource(u"help_index.png")
@@ -1001,8 +1002,8 @@ class SysType(sysbasetype.SysBaseType):
         lbl.setText(msg)
         lbl.setAlignment(cast(QtCore.Qt.Alignment, AQS.AlignTop | AQS.WordBreak))
         lay2.addWidget(lbl)
-        lay3 = QHBoxLayout(lay)
-        lay3.setMargin(6)
+        lay3 = QHBoxLayout(diag)
+        # lay3.setMargin(6)
         lay3.setSpacing(6)
         pbYes = QPushButton(diag)
         pbYes.setText(txtYes if txtYes else self.translate(u"Sí"))
@@ -1021,7 +1022,7 @@ class SysType(sysbasetype.SysBaseType):
             lay.addWidget(chkRemember)
         ret = MessageBox.No if (diag.exec_() == 0) else MessageBox.Yes
         if chkRemember is not None:
-            settings.settings.set_value(key + keyRemember, chkRemember.checked)
+            settings.settings.set_value(key + keyRemember, chkRemember.isChecked())
         return ret
 
     @classmethod
@@ -1331,7 +1332,7 @@ class SysType(sysbasetype.SysBaseType):
                 continue
             while_pass = False
             cB[i] = QtWidgets.QCheckBox()
-            bgroup.add(cB[i])
+            # bgroup.add(cB[i])
             cB[i].text = listFilesMod[i]
             cB[i].checked = True
             i += 1
@@ -1697,17 +1698,14 @@ class SysType(sysbasetype.SysBaseType):
     @classmethod
     def getWidgetList(self, container: str, control_name: str) -> str:
         """Get widget list from a widget."""
-        from pineboolib import application
 
-        obj_class = None
+        obj_class: Any = None
         if control_name == "FLFieldDB":
-            from .flfielddb import FLFieldDB
 
-            obj_class = FLFieldDB
+            obj_class = flfielddb.FLFieldDB
         elif control_name == "FLTableDB":
-            from .fltabledb import FLTableDB
 
-            obj_class = FLTableDB
+            obj_class = fltabledb.FLTableDB
         elif control_name == "Button":
             control_name = "QPushButton"
 
@@ -1750,12 +1748,12 @@ class SysType(sysbasetype.SysBaseType):
                 continue
 
             if control_name == "FLFieldDB":
-                field_table_ = obj.tableName()
+                field_table_ = cast(flfielddb.FLFieldDB, obj).tableName()
                 if field_table_ and field_table_ != a.table():
                     continue
-                retorno_ += "%s/%s*" % (name_, obj.fieldName())
+                retorno_ += "%s/%s*" % (name_, cast(flfielddb.FLFieldDB, obj).fieldName())
             elif control_name == "FLTableDB":
-                retorno_ += "%s/%s*" % (name_, obj.tableName())
+                retorno_ += "%s/%s*" % (name_, cast(fltabledb.FLTableDB, obj).tableName())
             elif control_name in ["QPushButton", "Button"]:
                 if name_ in ["pushButtonDB", "pbAux", "qt_left_btn", "qt_right_btn"]:
                     continue
@@ -1828,7 +1826,7 @@ class AbanQDbDumper(QtCore.QObject):
         """Build a Dialog for database dump."""
         self.w_ = QDialog()
         self.w_.caption = SysType.translate(u"Copias de seguridad")
-        self.w_.modal = True
+        self.w_.setModal(True)
         self.w_.resize(800, 600)
         # lay = QVBoxLayout(self.w_, 6, 6)
         lay = QVBoxLayout(self.w_)
@@ -1895,10 +1893,10 @@ class AbanQDbDumper(QtCore.QObject):
 
         gui = self.showGui_ and self.w_ is not None
         if gui:
-            self.w_.enabled = False
+            self.w_.enable = False
         self.dumpDatabase()
         if gui:
-            self.w_.enabled = True
+            self.w_.enable = True
         if self.state_.ok:
             if gui:
                 SysType.infoMsgBox(self.state_.msg)

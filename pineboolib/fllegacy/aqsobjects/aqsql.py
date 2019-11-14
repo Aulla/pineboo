@@ -8,13 +8,14 @@ from enum import IntEnum, unique, Enum
 
 from pineboolib.application import project, types
 
+from pineboolib.application.database.pnsqlcursor import PNSqlCursor
+
 from pineboolib import logging
 
 from typing import Union, Any, List, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from pineboolib.fllegacy.flsqlcursor import FLSqlCursor  # noqa: F401
     from pineboolib.interfaces.iconnection import IConnection
 
 logger = logging.getLogger(__name__)
@@ -57,7 +58,7 @@ class AQSql(object):
     @classmethod
     def update(
         self,
-        table_or_cursor: Union[str, "FLSqlCursor"],
+        table_or_cursor: Union[str, PNSqlCursor],
         fields: Union[List[str], types.Array],
         values: Union[List[Any], types.Array],
         where: str = "",
@@ -66,8 +67,6 @@ class AQSql(object):
         """Update a set of cursor records with new values."""
 
         if isinstance(table_or_cursor, str):
-            from pineboolib.application.database.pnsqlcursor import PNSqlCursor
-
             cur = PNSqlCursor(table_or_cursor, conn)
         else:
             cur = table_or_cursor
@@ -106,7 +105,7 @@ class AQSql(object):
     @classmethod
     def insert(
         self,
-        table_or_cursor: Union[str, "FLSqlCursor"],
+        table_or_cursor: Union[str, PNSqlCursor],
         fields: Union[List[str], types.Array],
         values: Union[List[Any], types.Array],
         where: str = "",
@@ -115,8 +114,6 @@ class AQSql(object):
         """Insert a record in a cursor."""
 
         if isinstance(table_or_cursor, str):
-            from pineboolib.application.database.pnsqlcursor import PNSqlCursor
-
             cur = PNSqlCursor(table_or_cursor, conn)
         else:
             cur = table_or_cursor
@@ -147,7 +144,7 @@ class AQSql(object):
 
     @classmethod
     def del_(
-        self, cur_or_table: Union[str, "FLSqlCursor"], where: str = "", conn_name: str = "default"
+        self, cur_or_table: Union[str, PNSqlCursor], where: str = "", conn_name: str = "default"
     ):
         """Remove a recordset from a cursor."""
 
@@ -185,11 +182,20 @@ class AQSql(object):
 
             return ok
         else:
-            from pineboolib.application.database.pnsqlcursor import PNSqlCursor
 
             cur = PNSqlCursor(cur_or_table, True, conn_name)
-            cur.setForwardOnly(True)
-            return cur.del_(where)
+            cur.select(where)
+            if cur.first():
+                while True:
+                    cur.setModeAccess(cur.Del)
+                    cur.refreshBuffer()
+                    if not cur.commitBuffer():
+                        ok = False
+
+                    if not cur.next():
+                        break
+
+            return ok
 
 
 """

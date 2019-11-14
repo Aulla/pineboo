@@ -388,7 +388,7 @@ class TestGeneral(unittest.TestCase):
         self.assertEqual(cursor3.valueBuffer("id"), cursor3.valueBufferCopy("id"))
         self.assertEqual(cursor3.baseFilter(), "id > 1")
 
-        self.assertFalse(cursor3.meta_model())
+        # self.assertFalse(cursor3.meta_model())
         self.assertFalse(cursor3.inTransaction())
         self.assertTrue(cursor3.commit())
 

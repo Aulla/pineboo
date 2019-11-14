@@ -15,7 +15,8 @@ from pineboolib import logging
 from pineboolib.application import types
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqlcursor
+    # from pineboolib.interfaces import isqlcursor
+    from . import pnsqlcursor
     from pineboolib.interfaces import ifieldmetadata
 
 logger = logging.getLogger(__name__)
@@ -185,7 +186,7 @@ class PNBuffer(object):
     the fields of the record.
     """
 
-    def __init__(self, cursor: "isqlcursor.ISqlCursor") -> None:
+    def __init__(self, cursor: "pnsqlcursor.PNSqlCursor") -> None:
         """Create a Buffer from the specified PNSqlCursor."""
         super().__init__()
         if not cursor:

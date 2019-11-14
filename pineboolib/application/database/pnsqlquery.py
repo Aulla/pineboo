@@ -9,6 +9,9 @@ from pineboolib.application.utils import sql_tools
 from pineboolib.application import project
 from pineboolib.application import types
 
+from PyQt5 import QtWidgets
+
+
 from typing import Any, Union, List, Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -466,12 +469,14 @@ class PNSqlQuery(object):
                 v = self.d.parameterDict_[pD]
 
                 if v is None:
-                    if not project._DGI:
-                        raise Exception("project._DGI is empty!")
-                    dialog = project.DGI.QInputDialog
+                    dialog = QtWidgets.QInputDialog()
 
                     if dialog is not None:
-                        v = dialog.getText(None, "Entrada de parámetros de la consulta", pD)
+                        v = dialog.getText(
+                            QWidgets.QApplication.activeWindow(),
+                            "Entrada de parámetros de la consulta",
+                            pD,
+                        )
                         if v:
                             v = v[0]
 

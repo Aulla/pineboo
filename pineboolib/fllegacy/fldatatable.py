@@ -178,8 +178,8 @@ class FLDataTable(QtWidgets.QTableView):
         #    self.timerViewRepaint_.stop()
 
         if self.cursor_:
-            self.cursor_.restoreEditionFlag()
-            self.cursor_.restoreBrowseFlag()
+            self.cursor_.restoreEditionFlag(self.objectName())
+            self.cursor_.restoreBrowseFlag(self.objectName())
 
     def header(self) -> Any:
         """Return the FLDatatable header."""
@@ -196,8 +196,8 @@ class FLDataTable(QtWidgets.QTableView):
         if cursor and cursor.metadata():
             cur_chg = False
             if self.cursor_ and not self.cursor_ == cursor:
-                self.cursor_.restoreEditionFlag()
-                self.cursor_.restoreBrowseFlag()
+                self.cursor_.restoreEditionFlag(self.objectName())
+                self.cursor_.restoreBrowseFlag(self.objectName())
                 cast(QtCore.pyqtSignal, self.cursor_.cursorUpdated).disconnect(self.refresh)
 
                 cur_chg = True
@@ -281,7 +281,7 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_ or self.cursor_.aqWasDeleted():
             return
 
-        self.cursor_.setEdition(not mode)
+        self.cursor_.setEdition(not mode, self.objectName())
         self.readonly_ = mode
 
     def flReadOnly(self) -> bool:
@@ -316,7 +316,7 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_ or self.cursor_.aqWasDeleted():
             return
 
-        self.cursor_.setEdition(not mode)
+        self.cursor_.setEdition(not mode, self.objectName())
         self.insertonly_ = mode
 
     def insertOnly(self) -> bool:
@@ -399,8 +399,8 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_ or self.cursor_.aqWasDeleted():
             return
 
-        self.cursor_.setEdition(not on)
-        self.cursor_.setBrowse(not on)
+        self.cursor_.setEdition(not on, self.objectName())
+        self.cursor_.setBrowse(not on, self.objectName())
         self.onlyTable_ = on
 
     def onlyTable(self) -> bool:

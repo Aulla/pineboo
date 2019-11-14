@@ -17,7 +17,7 @@ from .fltranslator import FLTranslator
 
 from .fltexteditoutput import FLTextEditOutput
 
-from typing import Any, Optional, List, TYPE_CHECKING
+from typing import Any, Optional, List, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.database import pnsqlcursor  # noqa: F401
@@ -270,7 +270,7 @@ class FLApplication(QtCore.QObject):
         if not self.main_widget_:
             return
 
-        self.main_widget_.statusBar().showMessage(text, 2000)
+        cast(QtWidgets.QMainWindow, self.main_widget_).statusBar().showMessage(text, 2000)
 
     def openMasterForm(self, action_name: str, pix: Optional[QtGui.QPixmap] = None) -> None:
         """Open a tab."""
@@ -487,7 +487,7 @@ class FLApplication(QtCore.QObject):
 
         QtWidgets.QApplication.restoreOverrideCursor()
 
-        return str(buffer_.data(), encoding="utf-8")
+        return str(buffer_.data())
 
     def scalePixmap(
         self, pix_: QtGui.QPixmap, w_: int, h_: int, mode_: QtCore.Qt.AspectRatioMode
@@ -573,7 +573,7 @@ class FLApplication(QtCore.QObject):
                 self.mainWidget().mapToGlobal(QtCore.QPoint(mw.width() * 2, 0)), msg_warn, mw
             )
             QtCore.QTimer.singleShot(4000, wi.hideText)
-            self.processEvents()
+            QtWidgets.QApplication.processEvents()
 
     @decorators.NotImplementedWarn
     def checkDatabaseLocks(self, timer_):
@@ -881,7 +881,7 @@ class FLApplication(QtCore.QObject):
                 key = self.db().managerModules().shaOfFile(file_ts)
 
         if key:
-            tor = FLTranslator(self, "%s_%s" % (id_module, lang), lang == "multilang")
+            tor = FLTranslator(self.mainWidget(), "%s_%s" % (id_module, lang), lang == "multilang")
             if key and tor.loadTsContent(key):
                 return tor
 

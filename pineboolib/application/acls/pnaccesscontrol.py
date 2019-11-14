@@ -181,7 +181,7 @@ class PNAccessControl(object):
 
         return None
 
-    def set(self, e: "QtXml.QDomDocument") -> None:
+    def set(self, e: "QtXml.QDomElement") -> None:
         """
         Define the access control rule from the information of a DOM node of a given DOM / XML document.
 
