@@ -629,10 +629,10 @@ class FLFormDB(QDialog):
             self.bottomToolbar.setMinimumSize(self.iconSize)
 
         self.bottomToolbar.setLayout(QtWidgets.QHBoxLayout())
-        self.bottomToolbar.setLayout(self.bottomToolbar.layout())
+        # self.bottomToolbar.setLayout(self.bottomToolbar.layout())
         self.bottomToolbar.layout().setContentsMargins(0, 0, 0, 0)
         self.bottomToolbar.layout().setSpacing(0)
-        # self.bottomToolbar.layout().addStretch()
+        self.bottomToolbar.layout().addStretch()
         self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
         if self.layout_ is not None:
             self.layout_.addWidget(self.bottomToolbar)

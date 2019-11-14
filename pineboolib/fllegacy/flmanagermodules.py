@@ -446,8 +446,8 @@ class FLManagerModules(object):
             if parent is None:
                 raise Exception("xclass not found %s" % xclass)
 
-        # if hasattr(parent, "widget"):
-        #    w_ = parent.widget
+        if hasattr(parent, "widget"):
+            parent = parent.widget
         # else:
         #    w_ = parent
 

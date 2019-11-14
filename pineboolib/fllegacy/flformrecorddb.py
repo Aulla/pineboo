@@ -239,7 +239,7 @@ class FLFormRecordDB(FLFormDB):
 
             self.bottomToolbar.layout().setContentsMargins(0, 0, 0, 0)
             self.bottomToolbar.layout().setSpacing(0)
-            # self.bottomToolbar.layout().addStretch()
+            self.bottomToolbar.layout().addStretch()
             self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
             self.layout_.addWidget(self.bottomToolbar)
 
@@ -859,26 +859,27 @@ class FLFormRecordDB(FLFormDB):
         if not caption:
             caption = self.cursor().metadata().alias()
 
-        if not self.cursor().isValid():
-            self.cursor().model().refresh()
+        cur = self.cursor_
 
-        if self.cursor().modeAccess() in (
-            self.cursor().Insert,
-            self.cursor().Edit,
-            self.cursor().Browse,
-        ):
-            self.cursor().transaction()
-            self.initTransLevel = self.cursor().transactionLevel()
-            self.setCaptionWidget(caption)
-            iface = getattr(self.script, "iface", None)
-            if iface is not None:
-                self.cursor().setContext(iface)
-        if self.cursor().modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
-            self.showAcceptContinue_ = True
-        else:
-            self.showAcceptContinue_ = False
+        if cur:
+            if not cur.isValid():
+                cur.model().refresh()
 
-        self.loadControls()
+            if cur.modeAccess() in (cur.Insert, cur.Edit, cur.Browse):
+                cur.transaction()
+                self.initTransLevel = cur.transactionLevel()
+
+            if cur.modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
+                self.showAcceptContinue_ = True
+            else:
+                self.showAcceptContinue_ = False
+
+            self.loadControls()
+        self.setCaptionWidget(caption)
+        iface = getattr(self.script, "iface", None)
+        if iface is not None:
+            cur.setContext(iface)
+
         super(FLFormRecordDB, self).show()
 
     def inicializeControls(self) -> None:

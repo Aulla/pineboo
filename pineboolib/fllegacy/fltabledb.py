@@ -12,7 +12,6 @@ from pineboolib.application.qsatypes.sysbasetype import SysBaseType
 from .fldatatable import FLDataTable
 from .flformsearchdb import FLFormSearchDB
 from .flsqlcursor import FLSqlCursor
-from .fllineedit import FLLineEdit
 from .flcheckbox import FLCheckBox
 from .fltimeedit import FLTimeEdit
 from .fldateedit import FLDateEdit
@@ -1526,7 +1525,7 @@ class FLTableDB(QtWidgets.QWidget):
                             self.tdbFilter.setCellWidget(_linea, j, editor_qcb)
                         else:
 
-                            editor_le = FLLineEdit(self)
+                            editor_le = QtWidgets.QLineEdit(self)
                             if type_ == "double":
 
                                 editor_le.setValidator(
@@ -1572,7 +1571,7 @@ class FLTableDB(QtWidgets.QWidget):
 
                     elif type_ == "pixmap":
 
-                        editor_px = FLLineEdit(self)
+                        editor_px = QtWidgets.QLineEdit(self)
                         self.tdbFilter.setRowReadOnly(i, True)
                         self.tdbFilter.setCellWidget(_linea, j, editor_px)
 
