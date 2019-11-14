@@ -35,7 +35,7 @@ class FLDateEdit(qdateedit.QDateEdit):
         return super().getDate()
 
     def setDate(  # type: ignore [override] # noqa F821
-        self, date: Optional[Union[str, datetime.date, Date]] = None
+        self, date: Optional[Union[str, datetime.date, Date, QtCore.QDate]] = None
     ) -> None:
         """Set Date."""
 

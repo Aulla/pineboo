@@ -39,12 +39,15 @@ from .fltimeedit import FLTimeEdit
 from .flpixmapview import FLPixmapView
 from .flspinbox import FLSpinBox
 from .fldatatable import FLDataTable
+
 from . import flcheckbox
+
+from pineboolib.application.types import Date
 
 from pineboolib import logging
 
-from typing import Any, Optional, TYPE_CHECKING, cast, Union, List
-from pineboolib.fllegacy.fllineedit import FLLineEdit
+from typing import Any, Optional, TYPE_CHECKING, cast, Union, List, Dict
+
 
 if TYPE_CHECKING:
     from PyQt5.QtGui import QPixmap
@@ -89,7 +92,7 @@ class FLFieldDB(QtWidgets.QWidget):
     autoComFrame_: Optional[QtWidgets.QWidget]
     autoComFieldName_: str
     autoComFieldRelation_: Optional[str]
-    accel_: Any
+    accel_: Dict[str, QtWidgets.QShortcut]
     keepDisabled_: bool
 
     pbAux_: Optional[QPushButton]
@@ -151,7 +154,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self.pbAux2_ = None
         self.pbAux3_ = None
         self.pbAux4_ = None
-        self.accel_ = None
+        self.accel_ = {}
         self.textFormat_ = QtCore.Qt.AutoText
         self.textLabelDB = None
         self.FLWidgetFieldDBLayout = None
@@ -771,102 +774,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.updateValue(self.editor_.currentText)
             return
 
-        """
-        fltype_ = None
-
-        if type_ == "int" or type_ == "double" or type_ == "time" or type_ == "date" or type_ == "bytearray":
-            fltype_ = type_
-        elif type_ == "serial" or type_ == "uint":
-            fltype_ = "uint"
-        elif type_ == "bool" or type_ == "unlock":
-            fltype_ = "bool"
-        elif type_ == "string" or type_ == "pixmap" or type_ == "stringList":
-            fltype_ = "string"
-
-
-
-        #print("v.type()", v.type())
-        if v.type() == "bool" and not fltype_ == "bool":
-            if type_ == "double" or type_ == "int" or type_ == "uint":
-                v = 0
-            else:
-                v.clear()
-
-        if v.type() == "string" and v.toString().isEmpty():
-
-            if type_ == "double" or type_ == "int" or type_ == "uint":
-
-                v.clear()
-
-        isNull = False
-        if not v.isValid() or v.isNull():
-            isNull = True
-
-        if isNull == True and not field.allowNull():
-            defVal = field.defaultValue()
-            if defVal.isValid() and not defVal.isNull():
-                v = defVal
-                isNull = False
-
-        #v.cast(fltype_) FIXME
-
-        """
-        if type_ in ("uint", "int"):
-            if self.editor_:
-                doHome = False
-                if not self.editor_.text():
-                    doHome = True
-                if v:
-                    self.editor_.setText(v)
-                else:
-                    self.editor_.setText("0")
-
-                if doHome:
-                    self.editor_.home(False)
-
-        elif type_ == "string":
-            if self.editor_:
-                doHome = False
-                if not self.editor_.text():
-                    doHome = True
-                if v:
-                    self.editor_.setText(v)
-                else:
-                    self.editor_.setText("")
-
-                if doHome:
-                    self.editor_.home(False)
-
-        elif type_ == "stringlist":
-            if not self.editor_:
-                return
-
-            if v is not None:
-                self.editor_.setText(v)
-            else:
-                self.editor_.setText("")
-
-        elif type_ == "double":
-            if self.editor_:
-                s = None
-                if v is not None:
-                    if self._partDecimal:
-                        s = round(float(v), self._partDecimal)
-                    else:
-                        s = round(float(v), field.partDecimal())
-                    self.editor_.setText(str(s))
-                else:
-
-                    self.editor_.setText("")
-
-        elif type_ == "serial":
-            if self.editor_:
-                if v is not None:
-                    self.editor_.setText(str(v))
-                else:
-                    self.editor_.setText("")
-
-        elif type_ == "pixmap":
+        if type_ == "pixmap":
             if self.editorImg_:
 
                 if v is None:
@@ -881,28 +789,66 @@ class FLFieldDB(QtWidgets.QWidget):
                     self.editorImg_.setPixmap(pix)
                 else:
                     self.editorImg_.clear()
+        else:
+            if not self.editor_:
+                return
+
+        if type_ in ("uint", "int"):
+            doHome = False
+            if not self.editor_.text():
+                doHome = True
+            if v:
+                self.editor_.setText(v)
+            else:
+                self.editor_.setText("0")
+
+            if doHome:
+                self.editor_.home(False)
+
+        elif type_ == "string":
+            doHome = False
+            if not self.editor_.text():
+                doHome = True
+
+            self.editor_.setText(v if v else "")
+
+            if doHome:
+                self.editor_.home(False)
+
+        elif type_ == "stringlist":
+
+            cast(FLLineEdit, self.editor_).setText("" if v is None else v)
+
+        elif type_ == "double":
+            s = ""
+            if v is not None:
+                s = round(float(v), self._partDecimal if self._partDecimal else field.partDecimal())
+
+            cast(FLLineEdit, self.editor_).setText(s)
+
+        elif type_ == "serial":
+            cast(FLLineEdit, self.editor_).setText(str(v) if v is not None else "")
 
         elif type_ == "date":
-            if self.editor_:
-                if v is None:
-                    self.editor_.setDate(QtCore.QDate())
-                elif isinstance(v, str):
-                    if v.find("T") > -1:
-                        v = v[0 : v.find("T")]
-                    self.editor_.setDate(QtCore.QDate.fromString(v, "yyyy-MM-dd"))
-                else:
-                    self.editor_.setDate(v)
+            editor_date = cast(FLDateEdit, self.editor_)
+            if v is None:
+                editor_date.setDate(QtCore.QDate())
+            elif isinstance(v, str):
+                if v.find("T") > -1:
+                    v = v[0 : v.find("T")]
+                editor_date.setDate(QtCore.QDate.fromString(v, "yyyy-MM-dd"))
+            else:
+                editor_date.setDate(v)
 
         elif type_ == "time":
-            if self.editor_:
-                if v is None:
-                    self.editor_.setTime(QtCore.QTime())
-                else:
-                    self.editor_.setTime(v)
+            if v is None:
+                v = QtCore.QTime()
+
+            cast(FLTimeEdit, self.editor_).setTime(v)
 
         elif type_ == "bool":
-            if self.editor_ and v is not None:
-                self.editor_.setChecked(v)
+            if v is not None:
+                cast(flcheckbox.FLCheckBox, self.editor_).setChecked(v)
 
     def value(self) -> Any:
         """
@@ -925,7 +871,7 @@ class FLFieldDB(QtWidgets.QWidget):
         v: Any = None
 
         if field.hasOptionsList():
-            v = int(self.editor_.currentItem())
+            v = int(cast(QComboBox, self.editor_).currentItem())
             return v
 
         type_ = field.type()
@@ -972,19 +918,17 @@ class FLFieldDB(QtWidgets.QWidget):
 
         elif type_ == "date":
             if self.editor_:
-                v = self.editor_.date
+                v = cast(FLDateEdit, self.editor_).date
                 if v:
-                    from pineboolib.application.types import Date
-
                     v = Date(v)
 
         elif type_ == "time":
             if self.editor_:
-                v = self.editor_.time
+                v = cast(FLTimeEdit, self.editor_).time
 
         elif type_ == "bool":
             if self.editor_:
-                v = self.editor_.isChecked()
+                v = cast(flcheckbox.FLCheckBox, self.editor_).isChecked()
 
         # v.cast(fltype)
         return v
@@ -1005,14 +949,16 @@ class FLFieldDB(QtWidgets.QWidget):
         type_ = field.type()
 
         if type_ == "double" or type_ == "int" or type_ == "uint" or type_ == "string":
-            if self.editor_:
-                self.editor_.selectAll()
+            editor_le = cast(FLLineEdit, self.editor_)
+            if editor_le:
+                editor_le.selectAll()
 
         elif type_ == "serial":
-            if self.editor_:
-                self.editor_.selectAll()
+            editor_se = cast(FLLineEdit, self.editor_)
+            if editor_se:
+                editor_se.selectAll()
 
-    def cursor(self) -> FLSqlCursor:
+    def cursor(self) -> pnsqlcursor.PNSqlCursor:  # type: ignore [override]
         """
         Return the cursor from where the data is obtained.
 
@@ -1047,8 +993,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 else:
                     self.textLabelDB.hide()
 
-    @decorators.NotImplementedWarn
-    def insertAccel(self, key: str):  # FIXME
+    def insertAccel(self, key: str) -> bool:
         """
         Insert a key combination as a keyboard accelerator, returning its identifier.
 
@@ -1056,29 +1001,24 @@ class FLFieldDB(QtWidgets.QWidget):
         @return The identifier internally associated with the key combination acceleration inserted
         """
 
-        if not self.accel_:
-            self.accel_ = QtCore.QAccel(self.editor_)
-            self.accel_.activated.connect(self.ActivatedAccel)
-            # connect(accel_, SIGNAL(activated(int)), this, SLOT(emitActivatedAccel(int)));#FIXME
+        if key not in self.accel_.keys():
+            accel = QtWidgets.QShortcut(QtGui.QKeySequence(key), self)
+            # accel.activated.connect(self.ActivatedAccel)
+            self.accel_[key] = accel
 
-        id = self.accel_.findKey(QtCore.QKeySequence(key))
+        return True
 
-        if not id == -1:
-            return
-
-        id = self.accel_.insertItem(QtCore.QKeySequence(key))
-        return id
-
-    @decorators.NotImplementedWarn
-    def removeAccel(self, identifier: str):  # FIXME
+    def removeAccel(self, key: str) -> bool:
         """
         Eliminate, deactivate, a combination of acceleration keys according to their identifier.
 
         @param identifier Accelerator key combination identifier
         """
-        if not self.accel_:
-            return
-        self.accel_.removeItem(identifier)
+
+        if key in self.accel_.keys():
+            del self.accel_[key]
+
+        return True
 
     def setKeepDisabled(self, keep: bool) -> None:
         """
@@ -1101,7 +1041,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
 
         self.showEditor_ = show
-        ed = None
+        ed: Any = None
         if hasattr(self, "editor_"):
             ed = self.editor_
         elif hasattr(self, "editorImg_"):
@@ -1145,7 +1085,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         @param fN Name of a field
         """
-        if not self.cursor_ or not isinstance(self.cursor_, FLSqlCursor):
+        if not self.cursor_ or not isinstance(self.cursor_, pnsqlcursor.PNSqlCursor):
             self.logger.debug("FLField.refresh() Cancelado")
             return
         tMD = self.cursor_.metadata()
@@ -1185,7 +1125,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 if relation_m1 is None:
                     return
 
-                tmd = FLSqlCursor(relation_m1.foreignTable()).metadata()
+                tmd = pnsqlcursor.PNSqlCursor(relation_m1.foreignTable()).metadata()
                 if tmd is None:
                     return
 
@@ -1280,8 +1220,9 @@ class FLFieldDB(QtWidgets.QWidget):
         self.setEnabled(not fDis)
 
         if type_ == "double":
+            editor_dbl = cast(FLLineEdit, self.editor_)
             try:
-                self.editor_.textChanged.disconnect(self.updateValue)
+                cast(pyqtSignal, editor_dbl.textChanged).disconnect(self.updateValue)
             except Exception:
                 self.logger.debug("Error al desconectar señal textChanged", exc_info=True)
             s = None
@@ -1290,13 +1231,10 @@ class FLFieldDB(QtWidgets.QWidget):
                 dv = field.defaultValue()
 
                 if field.allowNull():
-                    if dv is None:
-                        self.editor_.setText("")
-                    else:
-                        self.editor_.setText(dv)
+                    editor_dbl.setText("" if dv is None else dv)
                 else:
                     if dv is not None:
-                        self.editor_.setText(dv)
+                        editor_dbl.setText(dv)
 
             else:
                 if not v:
@@ -1307,20 +1245,24 @@ class FLFieldDB(QtWidgets.QWidget):
                 if pos_dot is not None and pos_dot > -1:
                     while len(s[pos_dot + 1 :]) < partDecimal:
                         s = "%s0" % s
-                self.editor_.setText(s)
+                editor_dbl.setText(s)
 
-            self.editor_.textChanged.connect(self.updateValue)
+            cast(pyqtSignal, editor_dbl.textChanged).connect(self.updateValue)
 
             # if v == None and not nulo:
             #    self.editor_.setText("0.00")
 
         elif type_ == "string":
+
             doHome = False
             if not ol:
+                editor_str = cast(FLLineEdit, self.editor_)
                 try:
-                    self.editor_.textChanged.disconnect(self.updateValue)
+                    cast(pyqtSignal, editor_str.textChanged).disconnect(self.updateValue)
                 except Exception:
                     self.logger.exception("Error al desconectar señal textChanged")
+            else:
+                editor_cb = cast(QComboBox, self.editor_)
 
             if v is not None:
                 if ol:
@@ -1328,26 +1270,26 @@ class FLFieldDB(QtWidgets.QWidget):
                         v = aqtt(v)
                     idx = field.getIndexOptionsList(v)
                     if idx is not None:
-                        self.editor_.setCurrentIndex(idx)
+                        editor_cb.setCurrentIndex(idx)
                 else:
-                    self.editor_.setText(v)
+                    editor_str.setText(v)
             else:
                 if ol:
-                    self.editor_.setCurrentIndex(0)
-                elif not nulo:
-                    self.editor_.setText(field.defaultValue())
+                    editor_cb.setCurrentIndex(0)
                 else:
-                    self.editor_.setText("")
-
-            if not ol and doHome:
-                self.editor_.home(False)
+                    def_val = field.defaultValue() or ""
+                    editor_str.setText(def_val if not nulo else "")
 
             if not ol:
-                self.editor_.textChanged.connect(self.updateValue)
+                if doHome:
+                    editor_str.home(False)
+
+                cast(pyqtSignal, editor_str.textChanged).connect(self.updateValue)
 
         elif type_ in ("int", "uint"):
+            editor_int = cast(FLLineEdit, self.editor_)
             try:
-                self.editor_.textChanged.disconnect(self.updateValue)
+                cast(pyqtSignal, editor_int.textChanged).disconnect(self.updateValue)
             except Exception:
                 self.logger.exception("Error al desconectar señal textChanged")
 
@@ -1355,29 +1297,30 @@ class FLFieldDB(QtWidgets.QWidget):
                 dv = field.defaultValue()
                 if field.allowNull():
                     if dv is None:
-                        self.editor_.setText("")
+                        editor_int.setText("")
                     else:
-                        self.editor_.setText(dv)
+                        editor_int.setText(dv)
                 else:
                     if dv is not None:
-                        self.editor_.setText(dv)
+                        editor_int.setText(dv)
 
             else:
                 if not v:
-                    self.editor_.setText(0)
+                    editor_int.setText(str(0))
                 else:
-                    self.editor_.setText(v)
+                    editor_int.setText(v)
 
-            self.editor_.textChanged.connect(self.updateValue)
+            cast(pyqtSignal, editor_int.textChanged).connect(self.updateValue)
 
         elif type_ == "serial":
+            editor_serial = cast(FLLineEdit, self.editor_)
             try:
-                self.editor_.textChanged.disconnect(self.updateValue)
+                cast(pyqtSignal, editor_serial.textChanged).disconnect(self.updateValue)
             except Exception:
                 self.logger.exception("Error al desconectar señal textChanged")
-            self.editor_.setText(str(0))
+            editor_serial.setText(str(0))
 
-            self.editor_.textChanged.connect(self.updateValue)
+            cast(pyqtSignal, editor_serial.textChanged).connect(self.updateValue)
 
         elif type_ == "pixmap":
             if not hasattr(self, "editorImg_"):
@@ -1429,79 +1372,84 @@ class FLFieldDB(QtWidgets.QWidget):
             # self.pushButtonDB.setVisible(False)
 
         elif type_ == "date":
-            if self.cursor_.modeAccess() == FLSqlCursor.Insert and nulo and not field.allowNull():
+            editor_date = cast(FLDateEdit, self.editor_)
+            if self.cursor_.modeAccess() == self.cursor_.Insert and nulo and not field.allowNull():
                 defVal = field.defaultValue()
                 if defVal is not None:
                     defVal = QtCore.QDate.fromString(str(defVal))
                 else:
                     defVal = QtCore.QDate.currentDate()
 
-                self.editor_.setDate(defVal)
+                editor_date.setDate(defVal)
                 self.updateValue(defVal)
 
             else:
                 try:
-                    self.editor_.dateChanged.disconnect(self.updateValue)
+                    cast(pyqtSignal, editor_date.dateChanged).disconnect(self.updateValue)
                 except Exception:
                     self.logger.exception("Error al desconectar señal textChanged")
 
                 if v:
                     util = FLUtil()
                     v = util.dateDMAtoAMD(v)
-                    self.editor_.setDate(v)
+                    editor_date.setDate(v)
                 else:
-                    self.editor_.setDate()
+                    editor_date.setDate()
 
-                self.editor_.dateChanged.connect(self.updateValue)
+                cast(pyqtSignal, editor_date.dateChanged).connect(self.updateValue)
 
         elif type_ == "time":
-            if self.cursor_.modeAccess() == FLSqlCursor.Insert and nulo and not field.allowNull():
+            editor_time = cast(FLTimeEdit, self.editor_)
+            if self.cursor_.modeAccess() == self.cursor_.Insert and nulo and not field.allowNull():
                 defVal = field.defaultValue()
                 if defVal is not None:
                     defVal = QtCore.QTime.fromString(str(defVal))
                 else:
                     defVal = QtCore.QTime.currentTime()
 
-                self.editor_.setTime(defVal)
+                editor_time.setTime(defVal)
                 self.updateValue(defVal)
 
             else:
                 try:
-                    self.editor_.timeChanged.disconnect(self.updateValue)
+                    cast(pyqtSignal, editor_time.timeChanged).disconnect(self.updateValue)
                 except Exception:
                     self.logger.exception("Error al desconectar señal timeChanged")
 
                 if v is not None:
-                    self.editor_.setTime(v)
+                    editor_time.setTime(v)
 
-                self.editor_.timeChanged.connect(self.updateValue)
+                cast(pyqtSignal, editor_time.timeChanged).connect(self.updateValue)
 
         elif type_ == "stringlist":
+            editor_sl = cast(QTextEdit, self.editor_)
             try:
-                self.editor_.textChanged.disconnect(self.updateValue)
+                cast(pyqtSignal, editor_sl.textChanged).disconnect(self.updateValue)
             except Exception:
                 self.logger.exception("Error al desconectar señal timeChanged")
             if v is not None:
-                self.editor_.setText(v)
+                editor_sl.setText(v)
             else:
-                self.editor_.setText(field.defaultValue())
-            self.editor_.textChanged.connect(self.updateValue)
+                def_val = field.defaultValue() or ""
+                editor_sl.setText(str(def_val))
+            cast(pyqtSignal, editor_sl.textChanged).connect(self.updateValue)
 
         elif type_ == "bool":
+            editor_bool = cast(flcheckbox.FLCheckBox, self.editor_)
             try:
-                self.editor_.toggled.disconnect(self.updateValue)
+                cast(pyqtSignal, editor_bool.toggled).disconnect(self.updateValue)
             except Exception:
                 self.logger.exception("Error al desconectar señal toggled")
 
             if v is not None:
 
-                self.editor_.setChecked(v)
+                editor_bool.setChecked(v)
             else:
                 dV = field.defaultValue()
                 if dV is not None:
-                    self.editor_.setChecked(dV)
+                    editor_bool.setChecked(dV)
 
-            self.editor_.toggled.connect(self.updateValue)
+            cast(pyqtSignal, editor_bool.toggled).connect(self.updateValue)
 
         if not field.visible():
             if self.editor_:
@@ -1546,7 +1494,7 @@ class FLFieldDB(QtWidgets.QWidget):
             # part_decimal = self._partDecimal if self._partDecimal > -1 else field.partDecimal()
 
             e_text = editor_le.text() if editor_le.text() != "" else 0.0
-            if float(e_text) == float(v):
+            if float(str(e_text)) == float(v):
                 return
             try:
                 cast(pyqtSignal, editor_le.textChanged).disconnect(self.updateValue)
@@ -3239,13 +3187,13 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         self.textChanged.emit(t)
 
-    @decorators.pyqtSlot(int)
-    def ActivatedAccel(self, identifier: int) -> None:
-        """
-        Emit the activatedAccel (int) signal.
-        """
-        if self.editor_ and self.editor_.hasFocus:
-            self.accel_.activated.emit(identifier)
+    # @decorators.pyqtSlot(int)
+    # def ActivatedAccel(self, identifier: int) -> None:
+    #    """
+    #    Emit the activatedAccel (int) signal.
+    #    """
+    #    if self.editor_ and self.editor_.hasFocus:
+    #        self.accel_.activated.emit(identifier)
 
     def setDisabled(self, disable: bool) -> None:
         """Set if the control is disbled."""

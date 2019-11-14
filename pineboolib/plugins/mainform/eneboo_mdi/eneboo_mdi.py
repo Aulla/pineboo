@@ -289,8 +289,9 @@ class MainForm(QtWidgets.QMainWindow):
 
         if id is None or not self._p_work_space:
             return False
+
         for window in self._p_work_space.subWindowList():
-            s = cast(FLFormDB, window.findChild(FLFormDB))
+            s = window.findChild(FLFormDB)
             if s.idMDI() == id:
                 window.showNormal()
                 window.setFocus()
@@ -927,12 +928,12 @@ class MainForm(QtWidgets.QMainWindow):
             return
 
         view_back = mw.centralWidget()
-        if view_back is None:
+        if not isinstance(view_back, QtWidgets.QMdiArea):
 
             view_back = QtWidgets.QMdiArea()
             view_back.setObjectName("mdi_area")
             view_back.setBackground(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
-            view_back.logo = pixmap_fromMimeSource("pineboo-logo.png")
+            # view_back.logo = pixmap_fromMimeSource("pineboo-logo.png")
             # view_back.logo = AQS.pixmap_fromMimeSource("pineboo-logo.png")
             view_back.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
             view_back.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)

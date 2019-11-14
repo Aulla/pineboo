@@ -35,10 +35,8 @@ class TestEnebooGUI(unittest.TestCase):
         project = application.project
         project.main_form = eneboo_mdi
         project.main_window = eneboo_mdi.MainForm()
-        main_form_ = project.main_window
-
-        self.assertTrue(main_form_)
-        self.main_w = main_form_
+        self.assertTrue(project.main_window)
+        self.main_w = project.main_window
         self.main_w.initScript()
         self.main_w.show()
 
@@ -47,7 +45,6 @@ class TestEnebooGUI(unittest.TestCase):
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
         self.main_w = project.main_window
-
         self.assertTrue(self.main_w)
 
         self.main_w.initToolBar()
@@ -57,7 +54,6 @@ class TestEnebooGUI(unittest.TestCase):
         project.actions["flusers"].openDefaultForm()
         self.main_w.windowMenuAboutToShow()
         self.main_w.windowMenuActivated(0)
-        print("***", self.main_w)
         self.assertTrue(self.main_w.existFormInMDI("flusers"))
         self.main_w.writeState()
         self.main_w.writeStateModule()
