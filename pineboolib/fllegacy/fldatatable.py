@@ -171,15 +171,15 @@ class FLDataTable(QtWidgets.QTableView):
         self.fltable_iface = None
         self.popup_ = popup
 
-    def __del__(self) -> None:
-        """Destroyer."""
+    # def __del__(self) -> None:
+    #    """Destroyer."""
 
-        # if self.timerViewRepaint_:
-        #    self.timerViewRepaint_.stop()
+    # if self.timerViewRepaint_:
+    #    self.timerViewRepaint_.stop()
 
-        if self.cursor_:
-            self.cursor_.restoreEditionFlag(self.objectName())
-            self.cursor_.restoreBrowseFlag(self.objectName())
+    #    if self.cursor_:
+    #        self.cursor_.restoreEditionFlag(self.objectName())
+    #        self.cursor_.restoreBrowseFlag(self.objectName())
 
     def header(self) -> Any:
         """Return the FLDatatable header."""
