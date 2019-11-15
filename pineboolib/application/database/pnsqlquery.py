@@ -473,7 +473,7 @@ class PNSqlQuery(object):
 
                     if dialog is not None:
                         v = dialog.getText(
-                            QWidgets.QApplication.activeWindow(),
+                            QtWidgets.QApplication.activeWindow(),
                             "Entrada de parámetros de la consulta",
                             pD,
                         )

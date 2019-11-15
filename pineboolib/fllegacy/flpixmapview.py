@@ -49,7 +49,7 @@ class FLPixmapView(QtWidgets.QScrollArea):
         self.repaint()
         QtWidgets.QApplication.restoreOverrideCursor()
 
-    def eventFilter(self, obj: QtWidgets.QWidget, ev: QtCore.QEvent) -> bool:
+    def eventFilter(self, obj: QtCore.QObject, ev: QtCore.QEvent) -> bool:
         """Event filter process."""
 
         if isinstance(obj, QtWidgets.QLabel) and isinstance(ev, QtGui.QResizeEvent):

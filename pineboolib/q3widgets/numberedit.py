@@ -6,7 +6,7 @@ from .qlineedit import QLineEdit
 from .qlabel import QLabel
 from .qhboxlayout import QHBoxLayout
 from PyQt5.Qt import QDoubleValidator  # type: ignore
-from typing import Any, SupportsFloat, SupportsInt, Union
+from typing import Any, SupportsFloat, SupportsInt, Union, cast
 
 
 class NumberEdit(QWidget):
@@ -46,12 +46,12 @@ class NumberEdit(QWidget):
     def getDecimals(self) -> int:
         """Return decimals."""
 
-        return self.line_edit.validator().decimals()
+        return cast(QDoubleValidator, self.line_edit.validator()).decimals()
 
     def setDecimals(self, decimals: Union[bytes, str, SupportsInt]) -> None:
         """Set decimals."""
 
-        self.line_edit.validator().setDecimals(int(decimals))
+        cast(QDoubleValidator, self.line_edit.validator()).setDecimals(int(decimals))
 
     def setMinimum(self, min: Union[bytes, str, SupportsFloat]) -> None:
         """Set minimum value."""
@@ -59,17 +59,17 @@ class NumberEdit(QWidget):
         if min in ["", None]:
             return
 
-        self.line_edit.validator().setBottom(float(min))
+        cast(QDoubleValidator, self.line_edit.validator()).setBottom(float(min))
 
     def getMinimum(self) -> Union[int, float]:
         """Return minimum value."""
 
-        return self.line_edit.validator().bottom()
+        return cast(QDoubleValidator, self.line_edit.validator()).bottom()
 
     def getMaximum(self) -> Union[int, float]:
         """Return maximum value."""
 
-        return self.line_edit.validator().top()
+        return cast(QDoubleValidator, self.line_edit.validator()).top()
 
     def setMaximum(self, max: Union[bytes, str, SupportsFloat]) -> Any:
         """Set maximum value."""
@@ -77,7 +77,7 @@ class NumberEdit(QWidget):
         if max in ["", None]:
             return
 
-        return self.line_edit.validator().setTop(float(max))
+        return cast(QDoubleValidator, self.line_edit.validator()).setTop(float(max))
 
     def getLabel(self) -> str:
         """Return dialog label."""

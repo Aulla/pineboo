@@ -17,12 +17,12 @@ class FLTextEditOutput(QtWidgets.QPlainTextEdit):
 
     def __init__(self, parent: QtWidgets.QWidget) -> None:
         """Inicialize."""
-        super(FLTextEditOutput, self).__init__(parent)
+        super().__init__(parent)
 
         self.oldStdout = sys.stdout
         self.oldStderr = sys.stderr
-        sys.stdout = self
-        sys.stderr = self
+        sys.stdout = self  # type: ignore [assignment]
+        sys.stderr = self  # type: ignore [assignment]
 
     def write(self, txt: Union[bytearray, bytes, str]) -> None:
         """Set text."""

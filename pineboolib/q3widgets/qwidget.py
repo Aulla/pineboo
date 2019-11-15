@@ -2,6 +2,7 @@
 
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtCore  # type: ignore
+from typing import cast
 
 
 class QWidget(QtWidgets.QWidget):
@@ -10,7 +11,8 @@ class QWidget(QtWidgets.QWidget):
     def child(self, child_name: str) -> QtWidgets.QWidget:
         """Return an QWidget especified by name."""
 
-        ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
+        ret = cast(QtWidgets.QWidget, self.findChild(QtWidgets.QWidget, child_name))
+
         if ret is None:
             raise Exception("child %s not found!." % child_name)
 

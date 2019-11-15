@@ -3,13 +3,15 @@
 from PyQt5 import QtWidgets, QtCore
 from pineboolib import logging
 
+from pineboolib.fllegacy import flapplication
+from pineboolib import application
+from pineboolib.application.database import pnsqlcursor
 
 from typing import Set, Tuple, Optional, Any, TYPE_CHECKING
 import weakref
 import sys
 
 if TYPE_CHECKING:
-    from pineboolib.application.database import pnsqlcursor  # type: ignore
     from pineboolib.application import xmlaction  # noqa: F401
 
 
@@ -17,7 +19,7 @@ class FormDBWidget(QtWidgets.QWidget):
     """FormDBWidget class."""
 
     closed = QtCore.pyqtSignal()
-    cursor_: Optional["pnsqlcursor.PNSqlCursor"]
+    cursor_: Optional[pnsqlcursor.PNSqlCursor]
     form: Any
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
@@ -88,9 +90,9 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return self.parentWidget()
 
-    # def _class_init(self):
-    #    """Constructor de la clase QS (p.ej. interna(context))"""
-    #    pass
+    def _class_init(self) -> None:
+        """Constructor de la clase QS (p.ej. interna(context))"""
+        pass
 
     # def init(self):
     #    """Evento init del motor. Llama a interna_init en el QS"""
@@ -148,7 +150,7 @@ class FormDBWidget(QtWidgets.QWidget):
         try:
             ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
             if ret is not None:
-                if hasattr(ret, "_loaded"):
+                if ret.__class__.__name__ in ("FLFieldDB", "FLTableDB"):
                     if ret._loaded is False:
                         ret.load()
 
@@ -170,33 +172,29 @@ class FormDBWidget(QtWidgets.QWidget):
             self.logger.exception("child: Error trying to get child of <%s>", child_name)
             return QtWidgets.QWidget()
 
-    def cursor(self) -> "pnsqlcursor.PNSqlCursor":
+    def cursor(self) -> pnsqlcursor.PNSqlCursor:  # type: ignore [override]
         """Return cursor associated."""
 
         # if self.cursor_:
         #    return self.cursor_
 
         cursor = None
-        parent = self
+        parent: Any = self
 
         while cursor is None and parent:
             parent = parent.parentWidget()
             cursor = getattr(parent, "cursor_", None)
-        if cursor:
-            self.cursor_ = cursor
-        else:
-            if not self.cursor_:
-                if self._action is None:
-                    raise Exception("_action is empty!.")
 
-                from pineboolib.application import project
-                from pineboolib.application.database.pnsqlcursor import PNSqlCursor
-
-                action = project.conn_manager.manager().action(self._action.name)
-                self.cursor_ = PNSqlCursor(action.name())
+            if cursor:
+                self.cursor_ = cursor
+                break
 
         if not self.cursor_:
-            raise Exception("cursor is empty!.")
+            if self._action is None:
+                raise Exception("_action is empty!.")
+
+            action = application.project.conn_manager.manager().action(self._action.name)
+            self.cursor_ = pnsqlcursor.PNSqlCursor(action.name())
 
         return self.cursor_
 
@@ -204,20 +202,20 @@ class FormDBWidget(QtWidgets.QWidget):
         """Guess if attribute can be found in other related objects."""
         ret_ = getattr(self.cursor_, name, None)
         if ret_ is None and self.parent():
-            ret_ = (
-                getattr(self.parent(), name, None) or getattr(self.parent().script, name, None)
-                if hasattr(self.parent(), "script")
-                else None
-            )
+            parent_ = self.parent()
+            ret_ = getattr(parent_, name, None)
+            if ret_ is None:
+                script = getattr(parent_, "script", None)
+                if script is not None:
+                    ret_ = getattr(script, name, None)
 
-        if ret_:
+        if ret_ is not None:
             return ret_
 
         if not TYPE_CHECKING:
             # FIXME: q3widgets should not interact with fllegacy
-            from pineboolib.fllegacy.flapplication import aqApp
 
-            ret_ = getattr(aqApp, name, None)
+            ret_ = getattr(flapplication.aqApp, name, None)
             if ret_:
                 self.logger.info(
                     "FormDBWidget: Coearcing attribute %r from aqApp (should be avoided)" % name
@@ -228,11 +226,16 @@ class FormDBWidget(QtWidgets.QWidget):
 
     def __hasattr__(self, name: str) -> bool:
         """Guess if attribute can be found in other related objects."""
-        ret_ = (
-            hasattr(self.cursor_, name)
-            or hasattr(self.parent(), name)
-            or hasattr(self.parent().script, name)
-        )
+
+        ret_ = hasattr(self.cursor_, name)
+        if not ret_:
+            parent_ = self.parent()
+            ret_ = hasattr(parent_, name)
+            if not ret_:
+                script = getattr(parent_, "script", None)
+                if script is not None:
+                    ret_ = hasattr(script, name)
+
         return ret_
 
     def __iter__(self) -> Any:

@@ -8,7 +8,7 @@ import platform
 import traceback
 import ast
 
-from typing import Any, Dict, Optional, List, Union
+from typing import Any, Dict, Optional, List, Union, cast
 
 from PyQt5 import QtCore, QtWidgets, QtXml
 
@@ -468,7 +468,7 @@ class SysBaseType(object):
         c = self.testObj(container, component)
         if c is None:
             return False
-        clase = u"FLFieldDB" if hasattr(c, "editor_") else c.__class__.__name__
+        clase = c.__class__.__name__
 
         if clase == u"QPushButton":
             pass
@@ -489,7 +489,7 @@ class SysBaseType(object):
         if not c:
             return False
 
-        clase = c.className()
+        clase = c.__class__.__name__
 
         if clase in ["QToolButton", "QPushButton"]:
             self.runObjMethod(container, component, u"setEnabled", False)
@@ -506,11 +506,9 @@ class SysBaseType(object):
         c = self.testObj(container, component)
         if not c:
             return False
-        clase = (
-            u"FLFieldDB"
-            if (u"editor" in c)
-            else ((u"FLTableDB" if (u"tableName" in c) else c.className()))
-        )
+
+        clase = c.__class__.__name__
+
         if clase == u"QPushButton":
             pass
         elif clase == u"QToolButton":
@@ -525,29 +523,29 @@ class SysBaseType(object):
     def filterObj(self, container: QtWidgets.QWidget, component: str, filter: str = "") -> bool:
         """Apply filter to random widget."""
         c = self.testObj(container, component)
-        if not c:
+        if c is None:
             return False
-        clase = (
-            u"FLFieldDB"
-            if (u"editor" in c)
-            else ((u"FLTableDB" if (u"tableName" in c) else c.className()))
-        )
+
+        clase = c.__class__.__name__
+
         if clase == u"FLTableDB":
             pass
         elif clase == u"FLFieldDB":
             self.runObjMethod(container, component, u"setFilter", filter)
         else:
             return False
+
         return True
 
     @classmethod
     def testObj(
-        self, container: QtWidgets.QWidget = None, component: str = None
+        self, container: QtWidgets.QWidget = None, component: str = ""
     ) -> Optional[QtWidgets.QWidget]:
         """Test if object does exist."""
+
         if not container or container is None:
             return None
-        c = container.child(component, QtWidgets.QWidget)
+        c = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
         if not c:
             logger.warning(ustr(component, u" no existe"))
             return None
@@ -555,11 +553,7 @@ class SysBaseType(object):
 
     @classmethod
     def testAndRun(
-        self,
-        container: QtWidgets.QWidget,
-        component: QtWidgets.QWidget,
-        method: str = "",
-        param: Any = None,
+        self, container: QtWidgets.QWidget, component: str, method: str = "", param: Any = None
     ) -> bool:
         """Test and execute object."""
         c = self.testObj(container, component)
@@ -574,7 +568,7 @@ class SysBaseType(object):
         self, container: QtWidgets.QWidget, component: str, method: str, param: Any = None
     ) -> bool:
         """Execute method from object."""
-        c = container.child(component, QtWidgets.QWidget)
+        c = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
         m = getattr(c, method, None)
         if m is not None:
             m(param)

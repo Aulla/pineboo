@@ -17,7 +17,7 @@ from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application import project
 from pineboolib.application import connections
 
-from pineboolib.q3widgets import qmainwindow
+from pineboolib.q3widgets import qmainwindow, qlistview
 from pineboolib.q3widgets import qtoolbar
 from pineboolib.q3widgets import qmenu
 from pineboolib.q3widgets import qaction
@@ -26,7 +26,7 @@ from pineboolib.q3widgets import qspinbox
 from pineboolib.core.settings import config
 
 
-from typing import Optional, Tuple, Callable, List, Dict, Any, cast, Type
+from typing import Optional, Tuple, Callable, List, Dict, Any, cast, Type, Union
 
 
 ICONS: Dict[str, Any] = {}
@@ -270,7 +270,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
     widget.show()
 
 
-def loadToolBar(xml: ET.Element, widget: QWidget) -> None:
+def loadToolBar(xml: ET.Element, widget: QtWidgets.QMainWindow) -> None:
     """
     Load UI Toolbar from XML and store it into widget.
 
@@ -311,7 +311,7 @@ def loadMenuBar(xml: ET.Element, widget: QWidget) -> None:
         mB = widget.menuBar()
     else:
         mB = QtWidgets.QMenuBar(widget)
-        widget._layout().setMenuBar(mB)
+        widget.layout().setMenuBar(mB)  # quitamos _layout()
     for x in xml:
         if x.tag == "property":
             name = x.get("name")
@@ -351,23 +351,25 @@ def loadMenuBar(xml: ET.Element, widget: QWidget) -> None:
             process_item(x, mB, widget)
 
 
-def process_item(xml: ET.Element, parent: QWidget, widget: QWidget) -> None:
+def process_item(
+    xml: ET.Element, parent: Union[QtWidgets.QMenuBar, QtWidgets.QMenu], widget: QWidget
+) -> None:
     """
     Process random XML item.
 
     widget: pre-created widget to store the object.
     """
-    name = xml.get("name")
-    text = xml.get("text")
+    name = xml.get("name") or ""
+    text = xml.get("text") or ""
     # accel = xml.get("accel")
 
     menu_ = parent.addMenu(text)
     menu_.setObjectName(name)
     for x in xml:
         if x.tag == "action":
-            name = x.get("name")
-            ac_ = menu_.addAction(name)
-            ac_.setObjectName(name)
+            name_ = x.get("name") or ""
+            ac_ = menu_.addAction(name_)
+            ac_.setObjectName(name_)
             load_action(ac_, widget)
         elif x.tag == "item":
             process_item(x, menu_, widget)
@@ -380,7 +382,7 @@ def load_action(action: QtWidgets.QAction, widget: QWidget) -> None:
     widget: pre-created widget to store the object.
     used only on loadToolBar and process_item
     """
-    real_action = widget.findChild(QtWidgets.QAction, action.objectName())
+    real_action = cast(QtWidgets.QAction, widget.findChild(QtWidgets.QAction, action.objectName()))
     if real_action is not None:
         action.setText(real_action.text())
         action.setIcon(real_action.icon())
@@ -494,16 +496,16 @@ class loadWidget:
         "accel": "shortcut",
         "layoutMargin": "contentsMargins",
     }
-    widget: QtWidgets.QWidget
+    widget: QtCore.QObject
     parent: QtWidgets.QWidget
     origWidget: QtWidgets.QWidget
 
     def __init__(
         self,
         xml: ET.Element,
-        widget: QtWidgets.QWidget,
-        parent: Optional[QtWidgets.QWidget] = None,
-        origWidget: Optional[QtWidgets.QWidget] = None,
+        widget: QtCore.QObject,
+        parent: Optional[QtCore.QObject] = None,
+        origWidget: Optional[QtCore.QObject] = None,
     ) -> None:
         """
         Load a random widget from given XML.
@@ -522,8 +524,8 @@ class loadWidget:
         if origWidget is None:
             origWidget = widget
         self.widget = widget
-        self.origWidget = origWidget
-        self.parent = parent
+        self.origWidget = cast(QtWidgets.QWidget, origWidget)
+        self.parent = cast(QtWidgets.QWidget, parent)
         del widget
         del origWidget
         del parent
@@ -539,7 +541,7 @@ class loadWidget:
             if class_ is None:
                 class_ = type(self.widget).__name__
 
-            nwidget = createWidget(class_, parent=self.origWidget)
+            nwidget = cast(QtWidgets.QWidget, createWidget(class_, parent=self.origWidget))
             self.parent = nwidget
         layouts_pending_process: List[Tuple[ET.Element, str]] = []
         properties = []
@@ -554,7 +556,7 @@ class loadWidget:
                     raise Exception("Expected class attr")
                 lay_ = getattr(QtWidgets, classname)()
                 lay_.setObjectName(c.get("name"))
-                self.widget.setLayout(lay_)
+                self.widget.setLayout(lay_)  # type: ignore [attr-defined]
                 continue
 
             elif c.tag == "property":
@@ -574,7 +576,9 @@ class loadWidget:
                     layout_type = "QGridLayout"
 
                 _LayoutClass = WidgetResolver.get_widget_class(layout_type)
-                self.widget._layout = cast(QtWidgets.QLayout, _LayoutClass())
+                self.widget._layout = cast(  # type: ignore [attr-defined]
+                    QtWidgets.QLayout, _LayoutClass()
+                )
 
                 lay_name = None
                 lay_margin_v = 2
@@ -607,14 +611,20 @@ class loadWidget:
                                 raise ValueError("spacing no contiene valor")
                             lay_spacing = int(number_elem.text)
                     elif p_name == "sizePolicy":
-                        self.widget.setSizePolicy(loadVariant(p, self.widget))
+                        self.widget.setSizePolicy(  # type: ignore [attr-defined]
+                            loadVariant(p, self.widget)
+                        )
 
-                self.widget._layout.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
-                self.widget._layout.setObjectName(lay_name or "layout")
-                self.widget._layout.setContentsMargins(
+                self.widget._layout.setSizeConstraint(  # type: ignore [attr-defined]
+                    QtWidgets.QLayout.SetMinAndMaxSize
+                )
+                self.widget._layout.setObjectName(  # type: ignore [attr-defined]
+                    lay_name or "layout"
+                )
+                self.widget._layout.setContentsMargins(  # type: ignore [attr-defined]
                     lay_margin_h, lay_margin_v, lay_margin_h, lay_margin_v
                 )
-                self.widget._layout.setSpacing(lay_spacing)
+                self.widget._layout.setSpacing(lay_spacing)  # type: ignore [attr-defined]
 
                 lay_type = "grid" if c.tag == "grid" else "box"
                 layouts_pending_process += [(c, lay_type)]
@@ -630,7 +640,7 @@ class loadWidget:
                         k, v = loadProperty(p)
                         prop1[k] = v
 
-                    self.widget.addItem(prop1["text"])
+                    self.widget.addItem(prop1["text"])  # type: ignore [attr-defined]
                 continue
 
             elif c.tag == "attribute":
@@ -655,29 +665,31 @@ class loadWidget:
                 if classname is None:
                     raise Exception("Expected class attr")
                 new_widget = createWidget(classname, parent=self.parent)
-                new_widget.hide()
-                new_widget._attrs = {}
+                new_widget.hide()  # type: ignore [attr-defined]
+                new_widget._attrs = {}  # type: ignore [attr-defined]
                 loadWidget(c, new_widget, self.parent, self.origWidget)
                 prop_name = c.find("./property[@name='name']/cstring")
-                new_widget.setContentsMargins(0, 0, 0, 0)
-                new_widget.show()
+                new_widget.setContentsMargins(0, 0, 0, 0)  # type: ignore [attr-defined]
+                new_widget.show()  # type: ignore [attr-defined]
 
                 gb = isinstance(self.widget, QtWidgets.QGroupBox)
                 wd = isinstance(self.widget, QtWidgets.QWidget)
                 if isinstance(self.widget, QtWidgets.QTabWidget):
-                    title = new_widget._attrs.get("title", "UnnamedTab")
-                    self.widget.addTab(new_widget, title)
+                    title = new_widget._attrs.get(  # type: ignore [attr-defined]
+                        "title", "UnnamedTab"
+                    )
+                    self.widget.addTab(cast(QtWidgets.QWidget, new_widget), title)
                 elif gb or wd:
                     lay = getattr(self.widget, "layout")()
                     if not lay and not isinstance(self.widget, qtoolbar.QToolBar):
                         lay = QtWidgets.QVBoxLayout()
-                        self.widget.setLayout(lay)
+                        cast(QtWidgets.QWidget, self.widget).setLayout(lay)
 
                     if isinstance(self.widget, qtoolbar.QToolBar):
                         if isinstance(new_widget, QtWidgets.QAction):
                             self.widget.addAction(new_widget)
                         else:
-                            self.widget.addWidget(new_widget)
+                            self.widget.addWidget(cast(QtWidgets.QWidget, new_widget))
                     else:
                         lay.addWidget(new_widget)
                 else:
@@ -687,7 +699,7 @@ class loadWidget:
                             self.widget.__class__,
                             repr(c.tag),
                         )
-                unbold_fonts.append(new_widget)
+                unbold_fonts.append(cast(QtWidgets.QWidget, new_widget))
                 continue
 
             elif c.tag == "action":
@@ -698,24 +710,24 @@ class loadWidget:
                 for xmlaction in root.findall("actions//action"):
                     prop_name = xmlaction.find("./property[@name='name']/cstring")
                     if prop_name is not None and prop_name.text == acName:
-                        self.process_action(xmlaction, self.widget)
+                        self.process_action(xmlaction, cast(QtWidgets.QToolBar, self.widget))
                         continue
 
                 continue
 
             elif c.tag == "separator":
-                self.widget.addSeparator()
+                cast(QtWidgets.QMenu, self.widget).addSeparator()
                 continue
 
             elif c.tag == "column":
                 for p in c.findall("property"):
                     k, v = loadProperty(p)
                     if k == "text":
-                        self.widget.setHeaderLabel(v)
+                        cast(qlistview.QListView, self.widget).setHeaderLabel(v)
                     elif k == "clickable":
-                        self.widget.setClickable(bool(v))
+                        cast(qlistview.QListView, self.widget).setClickable(bool(v))
                     elif k == "resizable":
-                        self.widget.setResizable(bool(v))
+                        cast(qlistview.QListView, self.widget).setResizable(bool(v))
 
                 continue
 
@@ -737,12 +749,16 @@ class loadWidget:
         #    if nwidget is not None and origWidget.objectName() not in origWidget.ui_:
         #        origWidget.ui_[origWidget.objectName()] = nwidget
 
-    def process_property(self, xmlprop: ET.Element, widget: Optional[QtCore.QObject] = None):
+    def process_property(self, xmlprop: ET.Element, widget_: Optional[QtCore.QObject] = None):
         """
         Process a XML property from the UI.
         """
-        if widget is None:
+        widget: Any
+        if widget_ is None:
             widget = self.widget
+        else:
+            widget = widget_
+
         set_fn: Optional[Callable] = None
         pname = xmlprop.get("name") or ""
         pname = self.translate_properties.get(pname, pname)
@@ -771,7 +787,7 @@ class loadWidget:
         elif pname == "lineStep" and isinstance(widget, qspinbox.QSpinBox):
             set_fn = widget.setSingleStep
         elif pname == "newLine":
-            set_fn = self.origWidget.addToolBarBreak
+            set_fn = cast(QtWidgets.QMainWindow, self.origWidget).addToolBarBreak
         elif pname == "functionGetColor":
             set_fn = widget.setFunctionGetColor
         elif pname == "cursor":
@@ -847,7 +863,7 @@ class loadWidget:
         """
         Process a QAction.
         """
-        action = createWidget("QAction")
+        action = cast(QtWidgets.QAction, createWidget("QAction"))
         for p in xmlaction:
             pname = p.get("name")
             if pname in self.translate_properties:
@@ -981,7 +997,7 @@ def loadIcon(xml: "ET.Element") -> None:
     ICONS[name] = icon
 
 
-def loadVariant(xml: ET.Element, widget: Optional[QWidget] = None) -> Any:
+def loadVariant(xml: ET.Element, widget: Optional[QtCore.QObject] = None) -> Any:
     """Load Variant from XML."""
     for variant in xml:
         return _loadVariant(variant, widget)
@@ -1021,7 +1037,7 @@ def b(x: str) -> bool:
     return False
 
 
-def _loadVariant(variant: ET.Element, widget: Optional[QWidget] = None) -> Any:
+def _loadVariant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) -> Any:
     """Load a variant from XM. Internal."""
     text = variant.text or ""
     text = text.strip()
@@ -1058,7 +1074,7 @@ def _loadVariant(variant: ET.Element, widget: Optional[QWidget] = None) -> Any:
             if c.tag == "verstretch":
                 p.setVerticalStretch(ivalue_policy)
         return p
-    if variant.tag == "size":
+    elif variant.tag == "size":
         p_sz = QtCore.QSize()
         for c in variant:
             ivalue = int((c.text or "0").strip())
@@ -1067,7 +1083,7 @@ def _loadVariant(variant: ET.Element, widget: Optional[QWidget] = None) -> Any:
             if c.tag == "height":
                 p_sz.setHeight(ivalue)
         return p_sz
-    if variant.tag == "font":
+    elif variant.tag == "font":
         p_font = QtGui.QFont()
         for c in variant:
             value = (c.text or "0").strip()
@@ -1089,7 +1105,7 @@ def _loadVariant(variant: ET.Element, widget: Optional[QWidget] = None) -> Any:
                 logger.warning(e)
         return p_font
 
-    if variant.tag == "set":
+    elif variant.tag == "set":
         v = None
         final = 0
         text = variant.text or "0"
@@ -1097,7 +1113,7 @@ def _loadVariant(variant: ET.Element, widget: Optional[QWidget] = None) -> Any:
 
         if text.find("WordBreak|") > -1:
             if widget is not None and hasattr(widget, "setWordWrap"):
-                widget.setWordWrap(True)
+                widget.setWordWrap(True)  # type: ignore [attr-defined]
             text = text.replace("WordBreak|", "")
 
         for lib in libs_1:
@@ -1110,7 +1126,7 @@ def _loadVariant(variant: ET.Element, widget: Optional[QWidget] = None) -> Any:
 
         return aF
 
-    if variant.tag == "enum":
+    elif variant.tag == "enum":
         v = None
         libs_2: List[Any] = [
             QtCore.Qt,
@@ -1135,7 +1151,7 @@ def _loadVariant(variant: ET.Element, widget: Optional[QWidget] = None) -> Any:
         if att_found is not None:
             return att_found
 
-    if variant.tag == "color":
+    elif variant.tag == "color":
         qcolor = QtGui.QColor()
         red_ = 0
         green_ = 0
@@ -1153,8 +1169,8 @@ def _loadVariant(variant: ET.Element, widget: Optional[QWidget] = None) -> Any:
         qcolor.setRgb(red_, green_, blue_)
         return qcolor
 
-    if variant.tag == "palette":
-        p = QtGui.QPalette()
+    elif variant.tag == "palette":
+        pal_ = QtGui.QPalette()
         for state in variant:
             print("FIXME: Procesando palette", state.tag)
             for color in state:
@@ -1187,9 +1203,9 @@ def _loadVariant(variant: ET.Element, widget: Optional[QWidget] = None) -> Any:
                     logger.warning("Unknown palette state %s", state.tag)
                 logger.debug("pallete color: %s %s %s", r_, g_, b_)
 
-        return p
+        return pal_
 
-    if variant.tag == "date":
+    elif variant.tag == "date":
 
         y_ = 2000
         m_ = 1

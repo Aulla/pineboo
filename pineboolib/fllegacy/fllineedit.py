@@ -3,7 +3,7 @@
 
 from PyQt5 import QtCore, QtWidgets  # type: ignore
 from pineboolib import logging
-from typing import Any
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -27,27 +27,31 @@ class FLLineEdit(QtWidgets.QLineEdit):
 
     def __init__(self, parent: QtWidgets.QWidget, name: str = "") -> None:
         """Inicialize."""
-
         super(FLLineEdit, self).__init__(parent)
         self._name = name
-        if hasattr(parent, "fieldName_"):
-            if isinstance(parent.fieldName_, str):
-                self._field_name = parent.fieldName_
+        field_name = getattr(parent, "fieldName_", None)
+        if field_name is not None:
+            self._field_name = field_name
+            cursor = getattr(parent, "cursor_", None)
+            if cursor is not None:
+                mtd = cursor.metadata()
+                if mtd is None:
+                    raise Exception("mtd is Empty!")
 
-            self._tipo = parent.cursor_.metadata().field(self._field_name).type()
-            self._part_decimal = 0
-            self._auto_select = True
-            self._formating = False
-            self._part_integer = parent.cursor_.metadata().field(self._field_name).partInteger()
+                self._tipo = mtd.field(self._field_name).type()
+                self._part_decimal = 0
+                self._auto_select = True
+                self._formating = False
+                self._part_integer = mtd.field(self._field_name).partInteger()
 
-            self._parent = parent
+                self._parent = parent
 
-            if self._tipo == "string":
-                self._longitud_max = parent.cursor_.metadata().field(self._field_name).length()
-                self.setMaxLength(self._longitud_max)
+                if self._tipo == "string":
+                    self._longitud_max = mtd.field(self._field_name).length()
+                    self.setMaxLength(self._longitud_max)
 
-            if self._tipo in ("int", "uint", "double"):
-                self.setAlignment(QtCore.Qt.AlignRight)
+                elif self._tipo in ("int", "uint", "double"):
+                    self.setAlignment(QtCore.Qt.AlignRight)
 
     def setText(self, text_: str, check_focus: bool = True) -> None:
         """Set text to control."""

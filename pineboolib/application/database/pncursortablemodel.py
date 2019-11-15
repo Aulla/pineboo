@@ -21,6 +21,7 @@ from pineboolib.core.utils import logging
 from pineboolib.application.utils.date_conversion import date_amd_to_dma
 from typing import Any, Iterable, Optional, List, Dict, Tuple, cast, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData  # noqa: F401
     from pineboolib.application.metadata.pntablemetadata import PNTableMetaData  # noqa: F401
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
     from pineboolib.application.database.pnsqlquery import PNSqlQuery  # noqa: F401
     from pineboolib.interfaces.iconnection import IConnection
     from pineboolib.interfaces.iapicursor import IApiCursor
-
+    from pineboolib.fllegacy import fldatatable
 DEBUG = False
 
 
@@ -53,7 +54,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     need_update = False
     _driver_sql = None
     _size = None
-    parent_view: Optional[QtWidgets.QTableView]  # type is FLDatatable
+    parent_view: Optional["fldatatable.FLDataTable"]
     sql_str = ""
     canFetchMoreRows: bool
     _curname: str
@@ -395,10 +396,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     else:
                         pixmap = QtGui.QPixmap(filedir("./core/images/icons", "lock.png"))
                     if self.parent_view is not None:
-                        if (
-                            self.parent_view.showAllPixmap()
-                            or row == self.parent_view.cursor().at()
-                        ):
+                        if self.parent_view.showAllPixmap() or row == self.parent_view.cur.at():
                             if pixmap and not pixmap.isNull() and self.parent_view:
 
                                 row_height = self.parent_view.rowHeight(row)  # Altura row
@@ -1206,7 +1204,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             raise Exception("field %s not found" % fieldName)
         return field.alias()
 
-    def columnCount(self, *args: List[Any]) -> int:
+    def columnCount(self, *args: List[Any]) -> int:  # type: ignore [override]
         """
         Get current column count.
 
@@ -1328,6 +1326,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """Get current connection."""
         return self._cursorConn
 
-    def set_parent_view(self, parent_view: QtWidgets.QTableView) -> None:
+    def set_parent_view(self, parent_view: "fldatatable.FLDataTable") -> None:
         """Set the parent view."""
         self.parent_view = parent_view

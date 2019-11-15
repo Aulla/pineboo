@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5 import QtWidgets  # type: ignore
-from typing import Any, Optional
+from typing import Any, Optional, cast
 from pineboolib.core import decorators
 
 
@@ -26,7 +26,7 @@ class QDialog(QtWidgets.QDialog):
     def child(self, name: str) -> QtWidgets.QWidget:
         """Return an child specified by name."""
 
-        return self.findChild(QtWidgets.QWidget, name)
+        return cast(QtWidgets.QWidget, self.findChild(QtWidgets.QWidget, name))
 
     def getTitle(self) -> str:
         """Return dialog title."""

@@ -36,13 +36,9 @@ class CheckBox(QWidget):
             self._label.setText(str(value))
         elif name == "checked":
             self._cb.setChecked(value)
-        else:
-            super(CheckBox, self).__setattr__(name, value)
 
     def __getattr__(self, name: str) -> Any:
         """Return an attribute."""
 
         if name == "checked":
             return self._cb.isChecked()
-        else:
-            return super(CheckBox, self).__getattr__(name)

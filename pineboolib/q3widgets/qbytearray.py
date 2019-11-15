@@ -28,7 +28,7 @@ class QByteArray(QtCore.QByteArray):
     def fromBase64(self, *args) -> bytes:  # type: ignore[override] # noqa : F821
         """Return a decoded base64 value."""
         if args:
-            return super().fromBase64(*args)
+            return super().fromBase64(*args).data()
         else:
             import base64
 

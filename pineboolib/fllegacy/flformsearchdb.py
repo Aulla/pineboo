@@ -114,11 +114,11 @@ class FLFormSearchDB(FLFormDB):
         if self.bottomToolbar:
             self.bottomToolbar.setMaximumHeight(64)
             self.bottomToolbar.setMinimumHeight(16)
-            self.bottomToolbar.setLayout(QtWidgets.QHBoxLayout())
-            # self.bottomToolbar.setLayout(self.bottomToolbar.widget_hlayout)
-            self.bottomToolbar.layout().setContentsMargins(0, 0, 0, 0)
-            self.bottomToolbar.layout().setSpacing(0)
-            self.bottomToolbar.layout().addStretch()
+            hblay = QtWidgets.QHBoxLayout()
+            hblay.setContentsMargins(0, 0, 0, 0)
+            hblay.setSpacing(0)
+            hblay.addStretch()
+            self.bottomToolbar.setLayout(hblay)
             self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
             self.layout_.addWidget(self.bottomToolbar)
 

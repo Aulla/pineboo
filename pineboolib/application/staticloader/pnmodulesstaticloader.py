@@ -130,7 +130,7 @@ warn_: Optional[FLStaticLoaderWarning] = None
 class PNStaticLoader(QtCore.QObject):
     """Perform static loading of scripts from filesystem."""
 
-    def __init__(self, b: "AQStaticBdInfo", ui: QtWidgets.QWidget) -> None:
+    def __init__(self, b: "AQStaticBdInfo", ui: QtWidgets.QDialog) -> None:
         """Create a new FLStaticLoader."""
 
         super(PNStaticLoader, self).__init__()
@@ -141,7 +141,7 @@ class PNStaticLoader(QtCore.QObject):
             raise Exception("pixOn not found!.")
         self.pixOn.setVisible(False)
 
-        self.tblDirs.verticalHeader().setVisible(False)
+        cast(QtWidgets.QTableView, self.tblDirs).verticalHeader().setVisible(False)
         # self.tblDirs.setLeftMargin(0)
         # self.tblDirs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
         # self.tblDirs.horizontalHeader().setSectionsClickable(False)
@@ -151,110 +151,114 @@ class PNStaticLoader(QtCore.QObject):
 
         # self.load()
 
-        self.pbAddDir.clicked.connect(self.addDir)
-        self.pbModDir.clicked.connect(self.modDir)
-        self.pbDelDir.clicked.connect(self.delDir)
-        self.chkEnabled.toggled.connect(self.setEnabled)
+        cast(QtWidgets.QToolButton, self.pbAddDir).clicked.connect(self.addDir)
+        cast(QtWidgets.QToolButton, self.pbModDir).clicked.connect(self.modDir)
+        cast(QtWidgets.QToolButton, self.pbDelDir).clicked.connect(self.delDir)
+        cast(QtWidgets.QCheckBox, self.chkEnabled).toggled.connect(self.setEnabled)
 
     @decorators.pyqtSlot()
     def load(self) -> None:
         """Load and initialize the object."""
         self.b_.readSettings()
-        self.lblBdTop.setText(self.b_.db_)
-        self.chkEnabled.setChecked(self.b_.enabled_)
+        cast(QtWidgets.QLabel, self.lblBdTop).setText(self.b_.db_)
+        cast(QtWidgets.QCheckBox, self.chkEnabled).setChecked(self.b_.enabled_)
+        tbl_dir = cast(QtWidgets.QTableView, self.tblDirs)
+        # if self.b_.dirs_:
+        #    n_rows = tbl_dir.numRows()
+        #    if n_rows > 0:
+        #        rows = []
+        #        for row in range(n_rows):
+        #            rows.append(row)
 
-        if self.b_.dirs_:
-            n_rows = self.tblDirs.numRows()
-            if n_rows > 0:
-                rows = []
-                for row in range(n_rows):
-                    rows.append(row)
+        #        tbl_dir.removeRows(rows)
 
-                self.tblDirs.removeRows(rows)
+        #    n_rows = len(self.b_.dirs_)
+        #    tbl_dir.setNumRows(n_rows)
+        #    row = 0
 
-            n_rows = len(self.b_.dirs_)
-            self.tblDirs.setNumRows(n_rows)
-            row = 0
+        #    for info in self.b_.dirs_:
+        #        tbl_dir.setText(row, 0, info.path_)
 
-            for info in self.b_.dirs_:
-                self.tblDirs.setText(row, 0, info.path_)
+        # chk = QtWidgets.QCheckBox(self.tblDirs, row)
+        #        chk = QtWidgets.QCheckBox(tbl_dir)
+        #        chk.setChecked(info.active_)
+        #        chk.toggled.connect(self.setChecked)
+        #        tbl_dir.setCellWidget(row, 1, chk)
+        #        row += 1
 
-                # chk = QtWidgets.QCheckBox(self.tblDirs, row)
-                chk = QtWidgets.QCheckBox(self.tblDirs)
-                chk.setChecked(info.active_)
-                chk.toggled.connect(self.setChecked)
-                self.tblDirs.setCellWidget(row, 1, chk)
-                row += 1
-
-            self.tblDirs.setCurrentCell(n_rows, 0)
+        #    tbl_dir.setCurrentCell(n_rows, 0)
 
     @decorators.pyqtSlot(bool)
     def addDir(self) -> None:
         """Ask user for adding a new folder for static loading."""
-        cur_row = self.tblDirs.currentRow()
-        dir_init = self.tblDirs.text(cur_row, 0) if cur_row > -1 else ""
 
-        dir = Qt.QFileDialog.getExistingDirectory(
-            None, self.tr("Selecciones el directorio a insertar"), dir_init
-        )
+    #    tbl_dir = cast(QtWidgets.QTableView, self.tblDirs)
+    #    cur_row = tbl_dir.currentRow()
+    #    dir_init = tbl_dir.text(cur_row, 0) if cur_row > -1 else ""
 
-        if dir:
+    #    dir = Qt.QFileDialog.getExistingDirectory(
+    #        None, self.tr("Selecciones el directorio a insertar"), dir_init
+    #    )
 
-            n_rows = self.tblDirs.numRows()
-            self.tblDirs.setNumRows(n_rows + 1)
-            self.tblDirs.setText(n_rows, 0, dir)
+    #    if dir:
 
-            # chk = QtWidgets.QCheckBox(self.tblDirs, n_rows)
-            chk = QtWidgets.QCheckBox(self.tblDirs)
-            chk.setChecked(True)
-            chk.toggled.connect(self.setChecked)
+    #        n_rows = self.tblDirs.numRows()
+    #        tbl_dir.setNumRows(n_rows + 1)
+    #        tbl_dir.setText(n_rows, 0, dir)
 
-            self.tblDirs.setCellWidget(n_rows, 1, chk)
-            self.tblDirs.setCurrentCell(n_rows, 0)
+    #        chk = QtWidgets.QCheckBox(tbl_dir)
+    #        chk.setChecked(True)
+    #        chk.toggled.connect(self.setChecked)
 
-            self.b_.dirs_.append(AQStaticDirInfo(True, dir))
+    #        tbl_dir.setCellWidget(n_rows, 1, chk)
+    #        tbl_dir.setCurrentCell(n_rows, 0)
+
+    #        self.b_.dirs_.append(AQStaticDirInfo(True, dir))
 
     @decorators.pyqtSlot()
     def modDir(self) -> None:
         """Ask user for a folder to change."""
 
-        cur_row = self.tblDirs.currentRow()
-        if cur_row == -1:
-            return
+    #    tbl_dir = cast(QtWidgets.QTableView, self.tblDirs)
+    #    cur_row = tbl_dir.currentRow()
+    #    if cur_row == -1:
+    #        return
 
-        dir_init = self.tblDirs.text(cur_row, 0) if cur_row > -1 else ""
+    #    dir_init = tbl_dir.text(cur_row, 0) if cur_row > -1 else ""
 
-        dir = Qt.QFileDialog.getExistingDirectory(
-            None, self.tr("Selecciones el directorio a modificar"), dir_init
-        )
+    #    dir = Qt.QFileDialog.getExistingDirectory(
+    #        None, self.tr("Selecciones el directorio a modificar"), dir_init
+    #    )
 
-        if dir:
-            info = self.b_.findPath(self.tblDirs.text(cur_row, 0))
-            if info:
-                info.path_ = dir
+    #    if dir:
+    #        info = self.b_.findPath(tbl_dir.text(cur_row, 0))
+    #        if info:
+    #            info.path_ = dir
 
-            self.tblDirs.setText(cur_row, 0, dir)
+    #        tbl_dir.setText(cur_row, 0, dir)
 
     @decorators.pyqtSlot()
     def delDir(self) -> None:
         """Ask user for folder to delete."""
-        cur_row = self.tblDirs.currentRow()
-        if cur_row == -1:
-            return
 
-        if QtWidgets.QMessageBox.No == QtWidgets.QMessageBox.warning(
-            QtWidgets.QWidget(),
-            self.tr("Borrar registro"),
-            self.tr("El registro activo será borrado. ¿ Está seguro ?"),
-            cast(QtWidgets.QMessageBox, QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No),
-        ):
-            return
+    #    tbl_dir = cast(QtWidgets.QTableView, self.tblDirs)
+    #    cur_row = tbl_dir.currentRow()
+    #    if cur_row == -1:
+    #        return
 
-        info = self.b_.findPath(self.tblDirs.text(cur_row, 0))
-        if info:
-            self.b_.dirs_.remove(info)
+    #    if QtWidgets.QMessageBox.No == QtWidgets.QMessageBox.warning(
+    #        QtWidgets.QWidget(),
+    #        self.tr("Borrar registro"),
+    #        self.tr("El registro activo será borrado. ¿ Está seguro ?"),
+    #        cast(QtWidgets.QMessageBox, QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No),
+    #    ):
+    #        return
 
-        self.tblDirs.removeRow(cur_row)
+    #    info = self.b_.findPath(tbl_dir.text(cur_row, 0))
+    #    if info:
+    #        self.b_.dirs_.remove(info)
+
+    #    tbl_dir.removeRow(cur_row)
 
     @decorators.pyqtSlot(bool)
     def setEnabled(self, on: bool) -> None:
@@ -265,26 +269,28 @@ class PNStaticLoader(QtCore.QObject):
     def setChecked(self, on: bool) -> None:
         """Set checked this object."""
 
-        chk = self.sender()
-        if not chk:
-            return
+    #    tbl_dir = cast(QtWidgets.QTableView, self.tblDirs)
+    #    chk = self.sender()
+    #    if not chk:
+    #        return
 
-        rows = self.tblDirs.rowCount()
+    #    rows = tbl_dir.rowCount()
 
-        info = None
-        for r in range(rows):
-            if self.tblDirs.cellWidget(r, 1) is chk:
-                info = self.b_.findPath(self.tblDirs.text(r, 0))
+    #    info = None
+    #    for r in range(rows):
+    #        if tbl_dir.cellWidget(r, 1) is chk:
+    #            info = self.b_.findPath(tbl_dir.text(r, 0))
 
-        if info:
-            info.active_ = on
+    #    if info:
+    #        info.active_ = on
 
     @staticmethod
-    def setup(b: "AQStaticBdInfo", ui: QtWidgets.QWidget) -> None:
+    def setup(b: "AQStaticBdInfo", ui: QtWidgets.QDialog) -> None:
         """Configure user interface from given widget."""
-        diag_setup = PNStaticLoader(b, ui)
-        if QtWidgets.QDialog.Accepted == diag_setup.ui_.exec_():
-            b.writeSettings()
+
+    #    diag_setup = PNStaticLoader(b, ui)
+    #    if QtWidgets.QDialog.Accepted == diag_setup.ui_.exec_():
+    #        b.writeSettings()
 
     @staticmethod
     def content(n: str, b: "AQStaticBdInfo", only_path: bool = False) -> Any:
@@ -329,4 +335,4 @@ class PNStaticLoader(QtCore.QObject):
 
     def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Emulate child properties as if they were inserted into the object."""
-        return self.ui_.findChild(QtWidgets.QWidget, name)
+        return cast(QtWidgets.QWidget, self.ui_.findChild(QtWidgets.QWidget, name))

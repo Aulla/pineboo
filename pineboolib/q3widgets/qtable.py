@@ -31,7 +31,7 @@ class QTable(Q3TableWidget):
     read_only_cols: List[int]
     read_only_rows: List[int]
     cols_list: List[str]
-    resize_policy: int
+    resize_policy: QtWidgets.QSizePolicy
 
     Default = 0
     Manual = 1
@@ -56,7 +56,7 @@ class QTable(Q3TableWidget):
         cast(pyqtSignal, self.itemChanged).connect(self.valueChanged_)
         self.read_only_cols = []
         self.read_only_rows = []
-        self.resize_policy = 0  # Default
+        self.resize_policy = cast(QtWidgets.QSizePolicy, 0)  # Default
         self.sort_column_ = -1
 
     def currentChanged_(
@@ -313,7 +313,7 @@ class QTable(Q3TableWidget):
         """Set left margin."""
         pass
 
-    def setCellBackgroundColor(self, row: int, col: int, color: QtGui.QColor) -> None:
+    def setCellBackgroundColor(self, row: int, col: int, color: QtGui.QBrush) -> None:
         """Set cell backgroun color."""
         item = self.item(row, col)
 

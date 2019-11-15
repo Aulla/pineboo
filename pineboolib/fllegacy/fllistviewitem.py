@@ -5,7 +5,7 @@ from PyQt5 import Qt  # type: ignore
 from pineboolib.core import decorators
 from pineboolib import logging
 from pineboolib.q3widgets import qlistview
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Optional, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PyQt5 import QtWidgets  # noqa: F401
@@ -41,7 +41,7 @@ class FLListViewItem(Qt.QStandardItem):
             else:
                 if isinstance(parent, self):
                     # print("Añadiendo nueva linea a", parent.text(0))
-                    parent.appendRow(self)
+                    cast(FLListViewItem, parent).appendRow(self)
 
         # if parent:
         #    self._parent = parent

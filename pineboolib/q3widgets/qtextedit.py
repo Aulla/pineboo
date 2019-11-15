@@ -56,7 +56,7 @@ class QTextEdit(QtWidgets.QTextEdit):
         """Return text in plain text format."""
         return super(QTextEdit, self).toPlainText()
 
-    def setAutoFormatting(self, value: int = QtWidgets.QTextEdit.AutoAll) -> None:
+    def setAutoFormatting(self, value=QtWidgets.QTextEdit.AutoAll) -> None:
         """Set auto formating mode."""
 
         super().setAutoFormatting(QtWidgets.QTextEdit.AutoAll)

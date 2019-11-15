@@ -7,13 +7,14 @@ from pineboolib.core.utils import logging
 from pineboolib.core.utils.struct import ActionStruct
 from . import load_script
 
+from pineboolib.fllegacy import flformdb
+from pineboolib.fllegacy import flformrecorddb
 
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flaction import FLAction  # noqa: F401
-    from pineboolib.fllegacy.flformdb import FLFormDB
-    from pineboolib.fllegacy.flformrecorddb import FLFormRecordDB
+
     from .moduleactions import ModuleActions  # noqa: F401
     from .database.pnsqlcursor import PNSqlCursor  # noqa: F401
     from .projectmodule import Project
@@ -50,11 +51,11 @@ class XMLAction(ActionStruct):
         self.mainscript = self._v("mainscript")
         self.formrecord = self._v("formrecord")
         self.scriptformrecord = self._v("scriptformrecord")
-        self.mainform_widget: Optional[FLFormDB] = None
-        self.formrecord_widget: Optional[FLFormRecordDB] = None
+        self.mainform_widget: Optional[flformdb.FLFormDB] = None
+        self.formrecord_widget: Optional[flformrecorddb.FLFormRecordDB] = None
         self._loaded = False
 
-    def loadRecord(self, cursor: Optional["PNSqlCursor"]) -> "FLFormRecordDB":
+    def loadRecord(self, cursor: Optional["PNSqlCursor"]) -> "flformrecorddb.FLFormRecordDB":
         """
         Load FLFormRecordDB by default.
 
@@ -70,8 +71,11 @@ class XMLAction(ActionStruct):
             self.logger.debug("Loading record action %s . . . ", self.name)
             if self.project.DGI.useDesktop():
                 # FIXME: looks like code duplication. Bet both sides of the IF do the same.
-                self.formrecord_widget = self.project.conn_manager.managerModules().createFormRecord(
-                    action=self, parent_or_cursor=cursor
+                self.formrecord_widget = cast(
+                    flformrecorddb.FLFormRecordDB,
+                    self.project.conn_manager.managerModules().createFormRecord(
+                        action=self, parent_or_cursor=cursor
+                    ),
                 )
             else:
                 # self.script = getattr(self, "script", None)
@@ -98,7 +102,7 @@ class XMLAction(ActionStruct):
 
         return self.formrecord_widget
 
-    def load(self) -> "FLFormDB":
+    def load(self) -> "flformdb.FLFormDB":
         """
         Load master form.
         """
@@ -109,8 +113,9 @@ class XMLAction(ActionStruct):
 
             if self.project.DGI.useDesktop():
                 self.logger.info("Loading action %s (createForm). . . ", self.name)
-                self.mainform_widget = self.project.conn_manager.managerModules().createForm(
-                    action=self
+                self.mainform_widget = cast(
+                    flformdb.FLFormDB,
+                    self.project.conn_manager.managerModules().createForm(action=self),
                 )
             else:
                 self.logger.info(
@@ -145,7 +150,7 @@ class XMLAction(ActionStruct):
             return
         self.project.call("%s.main" % a.name(), [], None, False)
 
-    def formRecordWidget(self) -> "FLFormRecordDB":
+    def formRecordWidget(self) -> "flformrecorddb.FLFormRecordDB":
         """
         Return formrecord widget.
 
@@ -211,10 +216,12 @@ class XMLAction(ActionStruct):
         if self.mainform_widget is None:
             raise Exception("Unexpected: No form loaded")
 
-        if self.mainform_widget.iface is not None:
-            self.mainform_widget.iface.main()
-        else:
-            self.mainform_widget.main()
+        main = getattr(self.mainform_widget.widget, "iface", self.mainform_widget.widget)
+        main.main()
+        # if self.mainform_widget.widget.iface is not None:
+        #    self.mainform_widget.iface.main()
+        # else:
+        #    self.mainform_widget.widget.main()
 
     def unknownSlot(self) -> None:
         """Log error for actions with unknown slots or scripts."""

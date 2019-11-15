@@ -36,7 +36,7 @@ class QLine(QtWidgets.QFrame):
     def getOrientation(self) -> int:
         """Return orientation."""
 
-        return self.orientation_
+        return self._orientation
 
     orientation = property(getOrientation, setOrientation)
     objectName = property(getObjectName, setObjectName)  # type: ignore

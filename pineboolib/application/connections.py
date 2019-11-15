@@ -15,7 +15,7 @@ from pineboolib.core.utils import logging
 from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5.QtWidgets import QWidget
 
-from typing import Callable, Any, Dict, Tuple, Optional
+from typing import Callable, Any, Dict, Tuple, Optional, Union
 
 logger = logging.getLogger("application.connections")
 
@@ -243,7 +243,7 @@ def solve_connection(
         # if receiver.__class__.__name__ in ("FLFormSearchDB", "QDialog") and slot in ("accept", "reject"):
         #    return oSignal, remote_fn
 
-        pS = ProxySlot(remote_fn, receiver, slot)
+        pS = ProxySlot(remote_fn, receiver, slot)  # type: ignore [arg-type]
         proxyfn = pS.getProxyFn()
         return oSignal, proxyfn
     elif m:
@@ -253,14 +253,15 @@ def solve_connection(
         remote_fn = getattr(remote_obj, m.group(2), None)
         if remote_fn is None:
             raise AttributeError("Object %s not found on %s" % (remote_fn, remote_obj))
-        return oSignal, remote_fn
+        return oSignal, remote_fn  # type: ignore [return-value]
 
     elif isinstance(receiver, QObject):
         if isinstance(slot, str):
             oSlot = getattr(receiver, slot, None)
             if not oSlot:
-                if hasattr(receiver, "iface"):
-                    oSlot = getattr(receiver.iface, slot, None)
+                iface = getattr(receiver, "iface", None)
+                if iface:
+                    oSlot = getattr(iface, slot, None)
             if not oSlot:
                 logger.error(
                     "Al realizar connect %s:%s -> %s:%s ; " "el es QObject pero no tiene slot",

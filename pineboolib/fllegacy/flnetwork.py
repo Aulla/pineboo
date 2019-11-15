@@ -43,7 +43,7 @@ class FLNetwork(QtCore.QObject):
         """Get value from a location."""
 
         self.request.setUrl(QtCore.QUrl("%s%s" % (self.url, location)))
-        self.reply = self.manager.get(self.request)
+        self.reply = cast(QtNetwork.QNetworkReply, self.manager.get(self.request))
         try:
             cast(QtCore.pyqtSignal, self.reply.uploadProgress).disconnect(self._slotNetworkProgress)
             cast(QtCore.pyqtSignal, self.reply.downloadProgress).disconnect(
@@ -59,7 +59,7 @@ class FLNetwork(QtCore.QObject):
         """Send data to a location."""
 
         self.request.setUrl(QtCore.QUrl("%s%s" % (self.url, location)))
-        self.reply = self.manager.put(data, self.request)
+        self.reply = cast(QtNetwork.QNetworkReply, self.manager.put(self.request, data))
         try:
             cast(QtCore.pyqtSignal, self.reply.uploadProgress).disconnect(self._slotNetworkProgress)
             cast(QtCore.pyqtSignal, self.reply.downloadProgress).disconnect(
@@ -67,7 +67,7 @@ class FLNetwork(QtCore.QObject):
             )
         except Exception:
             pass
-        cast(QtCore.pyqtSignal, self.uploadProgress).connect(self.slotNetworkProgress)
+        cast(QtCore.pyqtSignal, self.reply.uploadProgress).connect(self._slotNetworkProgress)
 
     @decorators.BetaImplementation
     def copy(self, fromLocation: str, toLocation: str) -> None:

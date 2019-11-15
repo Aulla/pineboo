@@ -8,7 +8,7 @@ from PyQt5.QtGui import QPixmap  # type: ignore
 
 from pineboolib import logging
 from pineboolib.core import decorators
-from pineboolib.application.qsatypes.sysbasetype import SysBaseType
+
 from .fldatatable import FLDataTable
 from .flformsearchdb import FLFormSearchDB
 from .flsqlcursor import FLSqlCursor
@@ -2691,6 +2691,7 @@ class FLTableDB(QtWidgets.QWidget):
         sheet.close()
         spread_sheet.close()
         from PyQt5.QtWidgets import qApp
+        from pineboolib.application.qsatypes.sysbasetype import SysBaseType
 
         util.setProgress(tdb_num_rows)
         qApp.setOverrideCursor(QtCore.Qt.WaitCursor)

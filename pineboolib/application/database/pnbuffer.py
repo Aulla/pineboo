@@ -198,10 +198,6 @@ class PNBuffer(object):
         self.inicialized_: bool = False
 
         tmd = self.cursor_.metadata()
-        if tmd is None:
-            logger.warning("Metadata not found for specified cursor %s", self.cursor_.curName())
-            return
-
         campos = tmd.fieldList()
         # FIXME: Should not inspect the fields in each create, this should be cached in the metadata()
         for campo in campos:
@@ -428,7 +424,7 @@ class PNBuffer(object):
 
         return True
 
-    def cursor(self) -> "isqlcursor.ISqlCursor":
+    def cursor(self) -> "pnsqlcursor.PNSqlCursor":
         """
         Indicate the parent cursor.
 

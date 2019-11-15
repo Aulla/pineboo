@@ -5,7 +5,7 @@ AQS package.
 Main entrance to the different AQS resources.
 """
 
-from PyQt5.QtWidgets import QFrame, QLabel, QSizePolicy, QApplication
+from PyQt5.QtWidgets import QFrame, QLabel, QSizePolicy, QApplication, QWidget
 from PyQt5.QtGui import QColor, QPixmap, QCursor
 from PyQt5.QtXml import QDomDocument
 from PyQt5 import QtCore

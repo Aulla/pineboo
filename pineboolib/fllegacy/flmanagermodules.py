@@ -22,7 +22,7 @@ from . import flformrecorddb
 
 from pineboolib import logging
 
-from typing import Union, List, Dict, Any, Optional, TYPE_CHECKING
+from typing import Union, List, Dict, Any, Optional, cast, TYPE_CHECKING
 import os
 
 
@@ -447,13 +447,13 @@ class FLManagerModules(object):
                 raise Exception("xclass not found %s" % xclass)
 
         if hasattr(parent, "widget"):
-            parent = parent.widget
-        # else:
-        #    w_ = parent
+            w_ = parent.widget  # type: ignore [attr-defined]
+        else:
+            w_ = parent
 
         logger.info("Procesando %s (v%s)", file_name, UIVersion)
         if UIVersion < "4.0":
-            qt3ui.loadUi(form_path, parent)
+            qt3ui.loadUi(form_path, w_)
         else:
             from PyQt5 import uic  # type: ignore
 
@@ -461,9 +461,9 @@ class FLManagerModules(object):
             if qtWidgetPlugings not in uic.widgetPluginPath:
                 logger.info("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
                 uic.widgetPluginPath.append(qtWidgetPlugings)
-            uic.loadUi(form_path, parent)
+            uic.loadUi(form_path, w_)
 
-        return parent
+        return w_
 
     def createForm(
         self,
@@ -972,5 +972,8 @@ class FLManagerModules(object):
         """
         Display dialog box to configure static load from local disk.
         """
-        ui = self.createUI(utils_base.filedir("./system_module/forms/FLStaticLoaderUI.ui"))
+        ui = cast(
+            QtWidgets.QDialog,
+            self.createUI(utils_base.filedir("./system_module/forms/FLStaticLoaderUI.ui")),
+        )
         pnmodulesstaticloader.PNStaticLoader.setup(self.static_db_info_, ui)

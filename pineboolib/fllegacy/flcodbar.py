@@ -231,8 +231,8 @@ class FLCodBar(object):
         """Clean barcode data."""
 
         if self.p:
-            self.p.resize(0, 0)
-        self.pError.resize(0, 0)
+            self.p.scaled(0, 0)
+        self.pError.scaled(0, 0)
 
     def nameToType(self, name: str) -> int:
         """Return barcode  name from type."""

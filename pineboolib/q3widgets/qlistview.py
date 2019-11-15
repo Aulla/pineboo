@@ -1,7 +1,7 @@
 """Qlistview module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtCore, QtWidgets, QtGui  # type: ignore
+from PyQt5 import QtCore, QtWidgets, QtGui
 from pineboolib.core import decorators
 
 from typing import Any, List, Optional, Union, cast
@@ -76,7 +76,7 @@ class QListView(QtWidgets.QWidget):
         item.setEditable(False)
         item.setText(t)
         if self._tree is not None:
-            self._tree.model().setItem(self._current_row, 0, item)
+            cast(QtGui.QStandardItemModel, self._tree.model()).setItem(self._current_row, 0, item)
 
     def setHeaderLabel(self, labels: Union[str, List[str]]) -> None:
         """Set header labels from a stringlist."""
@@ -84,7 +84,7 @@ class QListView(QtWidgets.QWidget):
             labels = [labels]
 
         if self._tree is not None:
-            self._tree.model().setHorizontalHeaderLabels(labels)
+            cast(QtGui.QStandardItemModel, self._tree.model()).setHorizontalHeaderLabels(labels)
         self._cols_labels = labels
 
     def setColumnText(self, col: int, new_value: str) -> None:
@@ -113,7 +113,7 @@ class QListView(QtWidgets.QWidget):
         """Set resizeable."""
         self._resizeable = True if r else False
 
-    def eventFilter(self, obj: QtWidgets.QWidget, ev: QtCore.QEvent) -> bool:
+    def eventFilter(self, obj: QtCore.QObject, ev: QtCore.QEvent) -> bool:
         """Event filter."""
 
         if isinstance(ev, QtGui.QResizeEvent):
@@ -153,6 +153,6 @@ class QListView(QtWidgets.QWidget):
         """Return model index."""
 
         if self._tree is not None:
-            return self._tree.model()
+            return cast(QtGui.QStandardItemModel, self._tree.model())
         else:
             raise Exception("No hay _tree")

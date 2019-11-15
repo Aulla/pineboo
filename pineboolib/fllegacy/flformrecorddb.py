@@ -235,11 +235,11 @@ class FLFormRecordDB(FLFormDB):
 
         if self.bottomToolbar:
             self.bottomToolbar.setMinimumSize(self.iconSize)
-            self.bottomToolbar.setLayout(QtWidgets.QHBoxLayout())
-
-            self.bottomToolbar.layout().setContentsMargins(0, 0, 0, 0)
-            self.bottomToolbar.layout().setSpacing(0)
-            self.bottomToolbar.layout().addStretch()
+            hblay = QtWidgets.QHBoxLayout()
+            hblay.setContentsMargins(0, 0, 0, 0)
+            hblay.setSpacing(0)
+            hblay.addStretch()
+            self.bottomToolbar.setLayout(hblay)
             self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
             self.layout_.addWidget(self.bottomToolbar)
 
@@ -861,6 +861,8 @@ class FLFormRecordDB(FLFormDB):
 
         cur = self.cursor_
 
+        iface = getattr(self.script, "iface", None)
+
         if cur:
             if not cur.isValid():
                 cur.model().refresh()
@@ -875,12 +877,12 @@ class FLFormRecordDB(FLFormDB):
                 self.showAcceptContinue_ = False
 
             self.loadControls()
-        self.setCaptionWidget(caption)
-        iface = getattr(self.script, "iface", None)
-        if iface is not None:
-            cur.setContext(iface)
 
-        super(FLFormRecordDB, self).show()
+            if iface is not None:
+                cur.setContext(iface)
+
+        self.setCaptionWidget(caption)
+        super().show()
 
     def inicializeControls(self) -> None:
         """Initialize UI controls for this form."""

@@ -11,8 +11,12 @@ from typing import Any, Iterable, Optional, SupportsInt, Union, List
 
 from pineboolib import logging
 from pineboolib.core.utils.utils_base import load2xml
-from pineboolib.application.utils.xpm import cacheXPM
+from pineboolib.application.utils import date_conversion, xpm
 from pineboolib.core.settings import config
+
+from PyQt5 import QtXml
+
+from pineboolib.application.database import pnsqlquery
 
 
 class KParserTools(object):
@@ -56,7 +60,7 @@ class KParserTools(object):
         """
         return int(value * self._fix_ratio_w)
 
-    def convertToNode(self, data: Element) -> Element:
+    def convertToNode(self, data: Element) -> QtXml.QDomElement:
         """
         Convert XML line to Node XML.
 
@@ -66,9 +70,8 @@ class KParserTools(object):
         """
 
         # node = Node()
-        from PyQt5.QtXml import QDomDocument
 
-        doc = QDomDocument()
+        doc = QtXml.QDomDocument()
         ele = doc.createElement("element")
         for k in data.keys():
             attr_node = doc.createAttribute(k)
@@ -124,8 +127,6 @@ class KParserTools(object):
 
         p = 0 if p is None else int(p)
 
-        from pineboolib.application.utils.date_conversion import date_amd_to_dma
-
         ret_ = value
         if data_type == 2:  # Double
             if value in (None, "None"):
@@ -136,7 +137,7 @@ class KParserTools(object):
         elif data_type == 3:
             if value.find("T") > -1:
                 value = value[: value.find("T")]
-            ret_ = date_amd_to_dma(value)
+            ret_ = date_conversion.date_amd_to_dma(value)
 
         elif data_type in [0, 5, 6]:  # 5 Imagen, 6 Barcode
             pass
@@ -164,9 +165,8 @@ class KParserTools(object):
             img_file = "%s/%s.png" % (tmp_dir, ref_key)
 
             if not os.path.exists(img_file) and ref_key[0:3] == "RK@":
-                from pineboolib.application.database.pnsqlquery import PNSqlQuery
 
-                single_query = PNSqlQuery()
+                single_query = pnsqlquery.PNSqlQuery()
                 single_query.exec_("SELECT valor FROM flsettings WHERE flkey='FLLargeMode'")
                 one_fllarge = True
 
@@ -179,10 +179,10 @@ class KParserTools(object):
                 ):  # Si no es FLLarge modo único añadimos sufijo "_nombre" a fllarge
                     table_name += "_%s" % ref_key.split("@")[1]
 
-                q = PNSqlQuery()
+                q = pnsqlquery.PNSqlQuery()
                 q.exec_("SELECT contenido FROM %s WHERE refkey='%s'" % (table_name, ref_key))
                 if q.next():
-                    value = cacheXPM(q.value(0))
+                    value = xpm.cacheXPM(q.value(0))
 
                 if value:
                     ret = img_file

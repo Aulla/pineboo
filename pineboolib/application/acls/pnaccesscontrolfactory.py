@@ -4,13 +4,13 @@ PNAccessControlFactory Module.
 
 Manage ACLs between different application objects.
 """
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt5 import QtWidgets
 
 from pineboolib.application.metadata import pntablemetadata
 from . import pnaccesscontrol
 
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, cast
 
 import logging
 
@@ -38,17 +38,19 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
         list1 = main_window.findChildren(QtWidgets.QAction)
 
         if self._perm != "":
-            for a in list1:
+            for action in list1:
+                a = cast(QtWidgets.QAction, action)
                 if a.objectName() in self._acos_perms.keys():
                     continue
                 if self._perm in ["-w", "--"]:
                     a.setVisible(False)
 
         for a_name, perm in self._acos_perms.items():
-            for a in list1:
-                if a.objectName() == a_name:
+            for ac_ in list1:
+                a_ = cast(QtWidgets.QWidget, ac_)
+                if a_.objectName() == a_name:
                     if perm in ["-w", "--"]:
-                        a.setVisible(False)
+                        a_.setVisible(False)
 
     def setFromObject(self, object: Any) -> None:
         """Not implemented jet."""
@@ -98,7 +100,8 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
             return
 
         if self._perm != "":
-            for child in widget.findChildren(QtWidgets.QWidget):
+            for ch in widget.findChildren(QtWidgets.QWidget):
+                child = cast(QtWidgets.QWidget, ch)
                 if child.objectName() in self._acos_perms.keys():
                     continue
 
@@ -112,7 +115,7 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
                     child.setDisabled(True)
 
         for object_name in self._acos_perms.keys():
-            child = widget.findChild(QtWidgets.QWidget, object_name)
+            child = cast(QtWidgets.QWidget, widget.findChild(QtWidgets.QWidget, object_name))
             if child:
                 perm = self._acos_perms[object_name]
                 if perm in ("-w", "--"):

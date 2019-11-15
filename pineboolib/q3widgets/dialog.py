@@ -29,7 +29,7 @@ class Dialog(qdialog.QDialog):
         """Inicialize."""
 
         # FIXME: f no lo uso , es qt.windowsflg
-        super(Dialog, self).__init__(None, f if not isinstance(f, int) else None)
+        super(Dialog, self).__init__(None, f if isinstance(f, str) else None)
         if title:
             self.setWindowTitle(str(title))
 
@@ -76,12 +76,12 @@ class Dialog(qdialog.QDialog):
         """Set width."""
 
         height = self.height()
-        self.setMinimunSize(width, height)
-        self.resize(width, height)
+        # self.setMinimunSize(width, height)
+        self.resize(int(width), height)
 
     def setHeight(self, height: Union[int, float]) -> None:
         """Set height."""
 
         width = self.width()
-        self.setMinimunSize(width, height)
-        self.resize(width, height)
+        # self.setMinimunSize(width, height)
+        self.resize(width, int(height))

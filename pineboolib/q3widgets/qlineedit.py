@@ -45,7 +45,7 @@ class QLineEdit(QtWidgets.QLineEdit):
 
         super().setText(v)
 
-    text: str = property(getText, setText)  # type: ignore [has-type]
+    text: str = property(getText, setText)  # type: ignore [assignment]
 
     @decorators.NotImplementedWarn
     def setBackgroundOrigin(self, bgo: Any):

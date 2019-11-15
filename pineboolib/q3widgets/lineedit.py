@@ -39,5 +39,3 @@ class LineEdit(qwidget.QWidget):
 
         if name == "text":
             return self._line.text()
-        else:
-            return super(LineEdit, self).__getattr__(name)
