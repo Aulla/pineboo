@@ -49,6 +49,7 @@ test_mypy_pyroma_black_pytest:
         - coverage report --fail-under=50
         - ./test_import_safety.sh
 
+
 deploy_build:
     stage: deploy
     script:
@@ -62,6 +63,9 @@ deploy_build:
     artifacts:
         paths:
             - dist/*.whl
+
+    only:
+        - master
 
 pages:
     cache:
@@ -86,5 +90,5 @@ pages:
     artifacts:
         paths:
             - public
-#   only:
-#       - master
+    only:
+        - master
