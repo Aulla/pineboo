@@ -153,7 +153,7 @@ class FormDBWidget(QtWidgets.QWidget):
                     if ret._loaded is False:  # type: ignore
                         ret.load()  # type: ignore
 
-            if ret is None and self.parent():
+            elif self.parent():
                 ret = getattr(self.parent(), child_name, None)
 
             if ret is None:
