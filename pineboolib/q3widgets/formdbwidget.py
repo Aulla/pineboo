@@ -146,13 +146,12 @@ class FormDBWidget(QtWidgets.QWidget):
 
     def child(self, child_name: str) -> Any:
         """Return child from name."""
-
         try:
             ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
             if ret is not None:
                 if ret.__class__.__name__ in ("FLFieldDB", "FLTableDB"):
-                    if ret._loaded is False:
-                        ret.load()
+                    if ret._loaded is False:  # type: ignore
+                        ret.load()  # type: ignore
 
             if ret is None and self.parent():
                 ret = getattr(self.parent(), child_name, None)
