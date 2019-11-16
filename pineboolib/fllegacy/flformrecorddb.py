@@ -471,8 +471,9 @@ class FLFormRecordDB(FLFormDB):
             parent = self.focusWidget().parentWidget()
             if parent:
                 fdb = cast(flfielddb.FLFieldDB, parent)
-                if fdb and fdb.autoComFrame_ and fdb.autoComFrame_.isVisible():
-                    fdb.autoComFrame_.hide()
+                acf_ = getattr(fdb, "autoComFrame_", None)
+                if acf_ and acf_.autoComFrame_.isVisible():
+                    acf_.hide()
                     return
 
         if self.cursor_:

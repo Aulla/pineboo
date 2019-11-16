@@ -90,9 +90,9 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return self.parentWidget()
 
-    # def _class_init(self) -> None:
-    #    """Initialize the class."""
-    #    pass
+    def _class_init(self) -> None:
+        """Initialize the class."""
+        pass
 
     # def init(self):
     #    """Evento init del motor. Llama a interna_init en el QS"""
