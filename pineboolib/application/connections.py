@@ -1,21 +1,26 @@
 """
 Manage Qt Signal-Slot connections.
 """
+
+
+from PyQt5 import QtCore, QtWidgets
+
+from pineboolib.q3widgets import qdateedit
+from pineboolib.q3widgets import qtable
+
+from pineboolib.core.utils import logging
+
 import inspect
 import weakref
 import re
 import types
 
-from pineboolib.q3widgets.qdateedit import QDateEdit
-from pineboolib.q3widgets.qtable import QTable
-from pineboolib.q3widgets.formdbwidget import FormDBWidget
 
-from pineboolib.core.utils import logging
+from typing import Callable, Any, Dict, Tuple, Optional, TYPE_CHECKING
 
-from PyQt5.QtCore import Qt, QObject, pyqtSignal
-from PyQt5.QtWidgets import QWidget
+if TYPE_CHECKING:
+    from pineboolib.q3widgets import formdbwidget  # noqa F401
 
-from typing import Callable, Any, Dict, Tuple, Optional, Union
 
 logger = logging.getLogger("application.connections")
 
@@ -27,7 +32,7 @@ class ProxySlot:
 
     PROXY_FUNCTIONS: Dict[str, Callable] = {}
 
-    def __init__(self, remote_fn: types.MethodType, receiver: QObject, slot: str) -> None:
+    def __init__(self, remote_fn: types.MethodType, receiver: QtCore.QObject, slot: str) -> None:
         """Create a proxy for a method."""
         self.key = "%r.%r->%r" % (remote_fn, receiver, slot)
         if self.key not in self.PROXY_FUNCTIONS:
@@ -80,14 +85,17 @@ def proxy_fn(wf: weakref.WeakMethod, wr: weakref.ref, slot: str) -> Callable:
 
 
 def slot_done(
-    fn: Callable, signal: pyqtSignal, sender: QWidget, caller: Optional[FormDBWidget]
+    fn: Callable,
+    signal: "QtCore.pyqtSignal",
+    sender: "QtWidgets.QWidget",
+    caller: Optional["formdbwidget.FormDBWidget"],
 ) -> Callable:
     """Create a fake slot for QS connects."""
 
     def new_fn(*args: Any, **kwargs: Any) -> Any:
 
         res = False
-        # PyQt5-Stubs seems to miss pyqtSignal.name (also, this seems to be internal)
+        # PyQt5-Stubs seems to miss QtCore.pyqtSignal.name (also, this seems to be internal)
         original_signal_name: str = getattr(signal, "signal")
 
         # Este parche es para evitar que las conexiones de un clicked de error de cantidad de argumentos.
@@ -108,7 +116,7 @@ def slot_done(
 
         if caller is not None:
             try:
-                # PyQt5-Stubs seems to miss pyqtSignal.name (also, this seems to be internal)
+                # PyQt5-Stubs seems to miss QtCore.pyqtSignal.name (also, this seems to be internal)
                 caller_signal_name: str = getattr(caller.signal_test, "signal")
                 if original_signal_name != caller_signal_name:
                     signal_name = original_signal_name[
@@ -130,12 +138,12 @@ def slot_done(
 
 
 def connect(
-    sender: QWidget,
+    sender: QtWidgets.QWidget,
     signal: str,
-    receiver: QObject,
+    receiver: QtCore.QObject,
     slot: str,
-    caller: Optional[FormDBWidget] = None,
-) -> Optional[Tuple[pyqtSignal, Callable]]:
+    caller: Optional["formdbwidget.FormDBWidget"] = None,
+) -> Optional[Tuple["QtCore.pyqtSignal", Callable]]:
     """Connect signal to slot for QSA."""
 
     # Parameters example:
@@ -154,7 +162,7 @@ def connect(
     if not signal_slot:
         return None
     # http://pyqt.sourceforge.net/Docs/PyQt4/qt.html#ConnectionType-enum
-    conntype = Qt.QueuedConnection | Qt.UniqueConnection
+    conntype = QtCore.Qt.QueuedConnection | QtCore.Qt.UniqueConnection
     new_signal, new_slot = signal_slot
 
     # if caller:
@@ -175,12 +183,12 @@ def connect(
 
 
 def disconnect(
-    sender: QWidget,
+    sender: QtWidgets.QWidget,
     signal: str,
-    receiver: QObject,
+    receiver: QtCore.QObject,
     slot: str,
-    caller: Optional[FormDBWidget] = None,
-) -> Optional[Tuple[pyqtSignal, Callable]]:
+    caller: Optional["formdbwidget.FormDBWidget"] = None,
+) -> Optional[Tuple["QtCore.pyqtSignal", Callable]]:
     """Disconnect signal from slot for QSA."""
     signal_slot = solve_connection(sender, signal, receiver, slot)
     if not signal_slot:
@@ -195,8 +203,8 @@ def disconnect(
 
 
 def solve_connection(
-    sender: QWidget, signal: str, receiver: QObject, slot: str
-) -> Optional[Tuple[pyqtSignal, Callable]]:
+    sender: QtWidgets.QWidget, signal: str, receiver: QtCore.QObject, slot: str
+) -> Optional[Tuple[QtCore.pyqtSignal, Callable]]:
     """Try hard to guess which is the correct way of connecting signal to slot. For QSA."""
     # if sender is None:
     #     logger.error("Connect Error:: %s %s %s %s", sender, signal, receiver, slot)
@@ -206,11 +214,11 @@ def solve_connection(
     if slot.endswith("()"):
         slot = slot[:-2]
 
-    if isinstance(sender, QDateEdit):
+    if isinstance(sender, qdateedit.QDateEdit):
         if "valueChanged" in signal:
             signal = signal.replace("valueChanged", "dateChanged")
 
-    if isinstance(sender, QTable):
+    if isinstance(sender, qtable.QTable):
         if "CurrentChanged" in signal:
             signal = signal.replace("CurrentChanged", "currentChanged")
 
@@ -243,7 +251,7 @@ def solve_connection(
         # if receiver.__class__.__name__ in ("FLFormSearchDB", "QDialog") and slot in ("accept", "reject"):
         #    return oSignal, remote_fn
 
-        pS = ProxySlot(remote_fn, receiver, slot)  # type: ignore [arg-type]
+        pS = ProxySlot(remote_fn, receiver, slot)  # type: ignore [arg-type] # noqa F821
         proxyfn = pS.getProxyFn()
         return oSignal, proxyfn
     elif m:
@@ -253,9 +261,9 @@ def solve_connection(
         remote_fn = getattr(remote_obj, m.group(2), None)
         if remote_fn is None:
             raise AttributeError("Object %s not found on %s" % (remote_fn, remote_obj))
-        return oSignal, remote_fn  # type: ignore [return-value]
+        return oSignal, remote_fn  # type: ignore [return-value] # noqa F723
 
-    elif isinstance(receiver, QObject):
+    elif isinstance(receiver, QtCore.QObject):
         if isinstance(slot, str):
             oSlot = getattr(receiver, slot, None)
             if not oSlot:
@@ -264,7 +272,8 @@ def solve_connection(
                     oSlot = getattr(iface, slot, None)
             if not oSlot:
                 logger.error(
-                    "Al realizar connect %s:%s -> %s:%s ; " "el es QObject pero no tiene slot",
+                    "Al realizar connect %s:%s -> %s:%s ; "
+                    "el es QtCore.QObject pero no tiene slot",
                     sender,
                     signal,
                     receiver,
@@ -274,7 +283,7 @@ def solve_connection(
             return oSignal, oSlot
     # logger.error(
     #     "Al realizar connect %s:%s -> %s:%s ; "
-    #     "el slot no se reconoce y el receptor no es QObject.",
+    #     "el slot no se reconoce y el receptor no es QtCore.QObject.",
     #     sender,
     #     signal,
     #     receiver,

@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from pineboolib.core.utils.utils_base import filedir, pixmap_fromMimeSource
+from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core.settings import config, settings
 
 from pineboolib.application.acls import pnaccesscontrollists

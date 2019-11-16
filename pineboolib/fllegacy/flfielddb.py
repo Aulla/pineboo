@@ -960,7 +960,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if editor_se:
                 editor_se.selectAll()
 
-    def cursor(self) -> pnsqlcursor.PNSqlCursor:  # type: ignore [override]
+    def cursor(self) -> pnsqlcursor.PNSqlCursor:  # type: ignore [override] # noqa F821
         """
         Return the cursor from where the data is obtained.
 

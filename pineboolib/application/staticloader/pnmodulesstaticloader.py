@@ -4,16 +4,17 @@ Static loader emulating Eneboo.
 
 Performs load of scripts from disk instead of database.
 """
+
+
+from PyQt5 import QtWidgets, QtCore
+
+from pineboolib import application
+
+from pineboolib.core.utils import logging
+from pineboolib.core import settings, decorators
+from pineboolib.application.qsatypes import sysbasetype
+
 import os
-
-from PyQt5 import QtWidgets, Qt, QtCore  # type: ignore
-
-from pineboolib import logging
-from pineboolib.core import decorators
-
-
-from pineboolib.core.settings import config
-from pineboolib.application.qsatypes.sysbasetype import SysBaseType
 
 # from pineboolib.fllegacy.flutil import FLUtil
 # from pineboolib.fllegacy import flapplication
@@ -22,7 +23,7 @@ from pineboolib.application.qsatypes.sysbasetype import SysBaseType
 from typing import Any, List, Optional, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.database.pnconnection import PNConnection
+    from pineboolib.application.database import pnconnection
 
 logger = logging.getLogger(__name__)
 
@@ -51,12 +52,12 @@ class AQStaticBdInfo(object):
     dirs_: List[AQStaticDirInfo]
     key_: str
 
-    def __init__(self, database: "PNConnection") -> None:
+    def __init__(self, database: "pnconnection.PNConnection") -> None:
         """Create new AQStaticBdInfo."""
         self.db_ = database.DBName()
         self.dirs_ = []
         self.key_ = "StaticLoader/%s/" % self.db_
-        self.enabled_ = config.value("%senabled" % self.key_, False)
+        self.enabled_ = settings.config.value("%senabled" % self.key_, False)
 
     def findPath(self, p: str) -> Optional[AQStaticDirInfo]:
         """Find if path "p" is managed in this class."""
@@ -68,9 +69,9 @@ class AQStaticBdInfo(object):
 
     def readSettings(self) -> None:
         """Read settings for staticloader."""
-        self.enabled_ = config.value("%senabled" % self.key_, False)
+        self.enabled_ = settings.config.value("%senabled" % self.key_, False)
         self.dirs_.clear()
-        dirs = config.value("%sdirs" % self.key_, [])
+        dirs = settings.config.value("%sdirs" % self.key_, [])
         i = 0
 
         while i < len(dirs):
@@ -82,7 +83,7 @@ class AQStaticBdInfo(object):
 
     def writeSettings(self) -> None:
         """Write settings for staticloader."""
-        config.set_value("%senabled" % self.key_, self.enabled_)
+        settings.config.set_value("%senabled" % self.key_, self.enabled_)
         dirs = []
         active_dirs = []
 
@@ -92,8 +93,8 @@ class AQStaticBdInfo(object):
             if info.active_:
                 active_dirs.append(info.path_)
 
-        config.set_value("%sdirs" % self.key_, dirs)
-        config.set_value("%sactiveDirs" % self.key_, ",".join(active_dirs))
+        settings.config.set_value("%sdirs" % self.key_, dirs)
+        settings.config.set_value("%sactiveDirs" % self.key_, ",".join(active_dirs))
 
 
 class FLStaticLoaderWarning(QtCore.QObject):
@@ -162,7 +163,7 @@ class PNStaticLoader(QtCore.QObject):
         self.b_.readSettings()
         cast(QtWidgets.QLabel, self.lblBdTop).setText(self.b_.db_)
         cast(QtWidgets.QCheckBox, self.chkEnabled).setChecked(self.b_.enabled_)
-        tbl_dir = cast(QtWidgets.QTableView, self.tblDirs)
+        # tbl_dir = cast(QtWidgets.QTableView, self.tblDirs)
         # if self.b_.dirs_:
         #    n_rows = tbl_dir.numRows()
         #    if n_rows > 0:
@@ -297,7 +298,7 @@ class PNStaticLoader(QtCore.QObject):
         """Get content from given path."""
         global warn_
         b.readSettings()
-        separator = "\\" if SysBaseType.osName().find("WIN") > -1 else "/"
+        separator = "\\" if sysbasetype.SysBaseType.osName().find("WIN") > -1 else "/"
         for info in b.dirs_:
             content_path = info.path_ + separator + n
             if info.active_ and os.path.exists(content_path):
@@ -316,18 +317,17 @@ class PNStaticLoader(QtCore.QObject):
                 if msg not in warn_.warns_:
                     warn_.warns_.append(msg)
                     warn_.paths_.append("%s:%s" % (n, info.path_))
-                    if config.value("ebcomportamiento/SLConsola", False):
+                    if settings.config.value("ebcomportamiento/SLConsola", False):
                         logger.warning("CARGA ESTATICA ACTIVADA:%s -> %s", n, info.path_)
 
                 if only_path:
                     return content_path
                 else:
-                    from pineboolib.application import project
 
-                    if project.conn_manager is None:
+                    if application.project.conn_manager is None:
                         raise Exception("Project is not connected yet")
 
-                    return project.conn_manager.managerModules().contentFS(
+                    return application.project.conn_manager.managerModules().contentFS(
                         info.path_ + separator + n
                     )
 

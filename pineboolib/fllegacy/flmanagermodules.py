@@ -447,7 +447,7 @@ class FLManagerModules(object):
                 raise Exception("xclass not found %s" % xclass)
 
         if hasattr(parent, "widget"):
-            w_ = parent.widget  # type: ignore [attr-defined]
+            w_ = parent.widget  # type: ignore [attr-defined] # noqa F821
         else:
             w_ = parent
 

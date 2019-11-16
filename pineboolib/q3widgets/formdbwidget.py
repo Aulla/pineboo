@@ -81,7 +81,7 @@ class FormDBWidget(QtWidgets.QWidget):
                 self._formconnections.remove(sl)
                 break
 
-    def obj(self) -> Any:
+    def obj(self) -> "FormDBWidget":
         """Return self."""
         return self
 
@@ -90,9 +90,9 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return self.parentWidget()
 
-    def _class_init(self) -> None:
-        """Constructor de la clase QS (p.ej. interna(context))"""
-        pass
+    # def _class_init(self) -> None:
+    #    """Initialize the class."""
+    #    pass
 
     # def init(self):
     #    """Evento init del motor. Llama a interna_init en el QS"""
@@ -171,7 +171,7 @@ class FormDBWidget(QtWidgets.QWidget):
             self.logger.exception("child: Error trying to get child of <%s>", child_name)
             return QtWidgets.QWidget()
 
-    def cursor(self) -> pnsqlcursor.PNSqlCursor:  # type: ignore [override]
+    def cursor(self) -> pnsqlcursor.PNSqlCursor:  # type: ignore [override] # noqa F821
         """Return cursor associated."""
 
         # if self.cursor_:

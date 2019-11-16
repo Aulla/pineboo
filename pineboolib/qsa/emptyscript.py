@@ -14,10 +14,10 @@ class interna(object):
 
         self.ctx = context
 
-    # def init(self) -> None:
-    #    """Run optional inicialize script."""
+    def init(self) -> None:
+        """Run optional inicialize script."""
 
-    # self.ctx.interna_init()
+        self.ctx.interna_init()
 
 
 class oficial(interna):
@@ -55,9 +55,9 @@ class FormInternalObj(formdbwidget.FormDBWidget):
 
         self.iface = ifaceCtx(self)
 
-    # def interna_init(self) -> None:
-    #    """Run optional inicialize script."""
-    #    pass
+    def interna_init(self) -> None:
+        """Run optional inicialize script."""
+        pass
 
 
 form = None

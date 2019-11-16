@@ -339,7 +339,7 @@ class FLFormDB(QDialog):
             self.oldCursorCtxt = self.cursor_.context()
             self.cursor_.setContext(self.iface)
 
-    def cursor(self) -> "pnsqlcursor.PNSqlCursor":  # type: ignore [override]
+    def cursor(self) -> "pnsqlcursor.PNSqlCursor":  # type: ignore [override] # noqa F821
         """
         To get the cursor used by the form.
         """

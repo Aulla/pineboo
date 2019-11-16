@@ -1,7 +1,7 @@
 """Qwidget module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtCore  # type: ignore
+from PyQt5 import QtWidgets
 from typing import cast
 
 
