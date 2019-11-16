@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets
 from pineboolib.loader.main import init_testing, finish_testing
 
 from pineboolib.core.settings import config
-
+from pineboolib import application
 from . import fixture_path
 from pineboolib import logging
 
@@ -31,7 +31,7 @@ class TestEnebooGUI(unittest.TestCase):
         """Test GUI initialize."""
 
         from pineboolib.qsa import qsa
-        from pineboolib import application
+
         from pineboolib.plugins.mainform.eneboo import eneboo
         import os
 
@@ -81,6 +81,9 @@ class TestEnebooGUI(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure this class is finished correctly."""
+        del application.project.main_form
+        del application.project.main_window
+
         config.set_value("application/isDebuggerMode", False)
         config.set_value("application/dbadmin_enabled", False)
 

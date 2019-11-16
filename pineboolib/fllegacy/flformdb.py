@@ -17,6 +17,7 @@ from pineboolib.application.utils.geometry import loadGeometryForm, saveGeometry
 from pineboolib.application.metadata import pnaction
 from pineboolib.application import load_script
 
+from pineboolib import application
 
 from . import flapplication
 
@@ -172,11 +173,9 @@ class FLFormDB(QDialog):
     ) -> None:
         """Create a new FLFormDB for given action."""
         # self.tiempo_ini = time.time()
-        from pineboolib.application import project
-
         if not parent:
             parent = flapplication.aqApp.mainWidget()
-        # if project.DGI.localDesktop():  # Si es local Inicializa
+        # if application.project.DGI.localDesktop():  # Si es local Inicializa
         # QtWidgets.QWidget.__init__(self, parent)  # FIXME: Porqué pide dos argumentos extra??
         # super(QtWidgets.QWidget, self).__init__(parent)
         super().__init__(parent)
@@ -227,14 +226,16 @@ class FLFormDB(QDialog):
 
         self.logger.info("init: Action: %s", self._action)
 
-        self.script = load_script.load_script(script_name, project.actions[self._action.name()])
+        self.script = load_script.load_script(
+            script_name, application.project.actions[self._action.name()]
+        )
         self.widget = self.script.form
 
         if hasattr(self.widget, "iface"):
             self.iface = self.widget.iface
 
-        if project._DGI is not None:
-            self.iconSize = project.DGI.iconSize()
+        if application.project._DGI is not None:
+            self.iconSize = application.project.DGI.iconSize()
 
         if load:
             self.load()
@@ -255,12 +256,11 @@ class FLFormDB(QDialog):
         self.layout_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
 
         if self._uiName:
-            from pineboolib.application import project
 
-            if project.conn_manager is None:
+            if application.project.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
-            project.conn_manager.managerModules().createUI(self._uiName, None, self)
+            application.project.conn_manager.managerModules().createUI(self._uiName, None, self)
 
         self._loaded = True
 
@@ -289,10 +289,10 @@ class FLFormDB(QDialog):
                     self.iface.init()
                 except Exception:
                     from pineboolib.core.error_manager import error_manager
-                    from pineboolib.application import project
 
                     flapplication.aqApp.msgBoxWarning(
-                        error_manager(traceback.format_exc(limit=-6, chain=False)), project._DGI
+                        error_manager(traceback.format_exc(limit=-6, chain=False)),
+                        application.project._DGI,
                     )
                     return False
 
@@ -544,13 +544,14 @@ class FLFormDB(QDialog):
 
     def emitFormClosed(self) -> None:
         """Emit formClosed signal."""
-        from pineboolib.application import project
 
-        if project.conn_manager is None:
+        if application.project.conn_manager is None:
             raise Exception("Project is not connected yet")
 
-        if "fltesttest" in project.conn_manager.managerModules().listAllIdModules():
-            project.call("fltesttest.iface.recibeEvento", ["formClosed", self.actionName_], None)
+        if "fltesttest" in application.project.conn_manager.managerModules().listAllIdModules():
+            application.project.call(
+                "fltesttest.iface.recibeEvento", ["formClosed", self.actionName_], None
+            )
 
         self.formClosed.emit()
         if self.widget:
@@ -598,7 +599,7 @@ class FLFormDB(QDialog):
                 self.cursor_.setMainFilter(v, False)
 
             # if self._loaded and not self.__class__.__name__ == "FLFormRecordDB":
-            # project.conn_manager.managerModules().loadFLTableDBs(self)
+            # application.project.conn_manager.managerModules().loadFLTableDBs(self)
 
             if self._action.description() not in ("", None):
                 self.setWhatsThis(self._action.description())
@@ -882,8 +883,6 @@ class FLFormDB(QDialog):
         @param w Widget to initialize. If not set use
         by default the current main widget.
         """
-        from pineboolib import application
-        from PyQt5 import QtWidgets
 
         if hasattr(application.project.main_window, "_dict_main_widgets"):
             module_name = application.project.conn_manager.managerModules().activeIdModule()

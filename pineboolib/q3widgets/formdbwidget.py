@@ -149,7 +149,8 @@ class FormDBWidget(QtWidgets.QWidget):
         try:
             ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
             if ret is not None:
-                if ret.__class__.__name__ in ("FLFieldDB", "FLTableDB"):
+                _loaded = getattr(ret, "_loaded", None)
+                if _loaded is not None:
                     if ret._loaded is False:  # type: ignore
                         ret.load()  # type: ignore
 
@@ -157,11 +158,12 @@ class FormDBWidget(QtWidgets.QWidget):
                 ret = getattr(self.parent(), child_name, None)
 
             if ret is None:
-                if child_name == super().objectName() and self.form is not None:
-                    ret = self.form
+                if self.form is not None:
+                    if child_name == super().objectName():
+                        ret = self.form
 
-            if ret is None and self.form is not None:
-                ret = getattr(self.form, child_name)
+                    else:
+                        ret = getattr(self.form, child_name)
 
             if ret is None:
                 self.logger.warning("WARN: No se encontro el control %s", child_name)
