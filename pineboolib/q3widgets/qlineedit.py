@@ -1,7 +1,7 @@
 """Qlineedit module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt5 import QtWidgets
 from pineboolib.core import decorators
 
 
@@ -45,7 +45,7 @@ class QLineEdit(QtWidgets.QLineEdit):
 
         super().setText(v)
 
-    text: str = property(getText, setText)  # type: ignore [assignment]
+    text: str = property(getText, setText)  # type: ignore [assignment] # noqa F821
 
     @decorators.NotImplementedWarn
     def setBackgroundOrigin(self, bgo: Any):

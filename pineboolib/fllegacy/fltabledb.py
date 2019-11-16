@@ -30,11 +30,8 @@ from pineboolib.core.settings import config
 from . import flapplication
 
 
-from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
+from typing import Any, Optional, List, Union, cast
 from pineboolib.application.database import pnsqlcursor
-
-if TYPE_CHECKING:
-    from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 
 logger = logging.getLogger(__name__)
@@ -626,7 +623,7 @@ class FLTableDB(QtWidgets.QWidget):
         if own_tmd_ or tmd_ and not tmd_.inCache():
             del tmd_
 
-    def cursor(self) -> "pnsqlcursor.PNSqlCursor":  # type: ignore [override]
+    def cursor(self) -> "pnsqlcursor.PNSqlCursor":  # type: ignore [override] # noqa F821
         """
         Return the cursor used by the component.
 

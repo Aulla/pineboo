@@ -556,7 +556,7 @@ class loadWidget:
                     raise Exception("Expected class attr")
                 lay_ = getattr(QtWidgets, classname)()
                 lay_.setObjectName(c.get("name"))
-                self.widget.setLayout(lay_)  # type: ignore [attr-defined]
+                self.widget.setLayout(lay_)  # type: ignore [attr-defined] # noqa F821
                 continue
 
             elif c.tag == "property":
@@ -576,7 +576,7 @@ class loadWidget:
                     layout_type = "QGridLayout"
 
                 _LayoutClass = WidgetResolver.get_widget_class(layout_type)
-                self.widget._layout = cast(  # type: ignore [attr-defined]
+                self.widget._layout = cast(  # type: ignore [attr-defined] # noqa F821
                     QtWidgets.QLayout, _LayoutClass()
                 )
 
@@ -611,20 +611,22 @@ class loadWidget:
                                 raise ValueError("spacing no contiene valor")
                             lay_spacing = int(number_elem.text)
                     elif p_name == "sizePolicy":
-                        self.widget.setSizePolicy(  # type: ignore [attr-defined]
+                        self.widget.setSizePolicy(  # type: ignore [attr-defined] # noqa F821
                             loadVariant(p, self.widget)
                         )
 
-                self.widget._layout.setSizeConstraint(  # type: ignore [attr-defined]
+                self.widget._layout.setSizeConstraint(  # type: ignore [attr-defined] # noqa F821
                     QtWidgets.QLayout.SetMinAndMaxSize
                 )
-                self.widget._layout.setObjectName(  # type: ignore [attr-defined]
+                self.widget._layout.setObjectName(  # type: ignore [attr-defined] # noqa F821
                     lay_name or "layout"
                 )
-                self.widget._layout.setContentsMargins(  # type: ignore [attr-defined]
+                self.widget._layout.setContentsMargins(  # type: ignore [attr-defined] # noqa F821
                     lay_margin_h, lay_margin_v, lay_margin_h, lay_margin_v
                 )
-                self.widget._layout.setSpacing(lay_spacing)  # type: ignore [attr-defined]
+                self.widget._layout.setSpacing(  # type: ignore [attr-defined] # noqa F821
+                    lay_spacing
+                )
 
                 lay_type = "grid" if c.tag == "grid" else "box"
                 layouts_pending_process += [(c, lay_type)]
@@ -640,7 +642,7 @@ class loadWidget:
                         k, v = loadProperty(p)
                         prop1[k] = v
 
-                    self.widget.addItem(prop1["text"])  # type: ignore [attr-defined]
+                    self.widget.addItem(prop1["text"])  # type: ignore [attr-defined] # noqa F821
                 continue
 
             elif c.tag == "attribute":
@@ -665,17 +667,17 @@ class loadWidget:
                 if classname is None:
                     raise Exception("Expected class attr")
                 new_widget = createWidget(classname, parent=self.parent)
-                new_widget.hide()  # type: ignore [attr-defined]
-                new_widget._attrs = {}  # type: ignore [attr-defined]
+                new_widget.hide()  # type: ignore [attr-defined] # noqa F821
+                new_widget._attrs = {}  # type: ignore [attr-defined] # noqa F821
                 loadWidget(c, new_widget, self.parent, self.origWidget)
                 prop_name = c.find("./property[@name='name']/cstring")
-                new_widget.setContentsMargins(0, 0, 0, 0)  # type: ignore [attr-defined]
-                new_widget.show()  # type: ignore [attr-defined]
+                new_widget.setContentsMargins(0, 0, 0, 0)  # type: ignore [attr-defined] # noqa F821
+                new_widget.show()  # type: ignore [attr-defined] # noqa F821
 
                 gb = isinstance(self.widget, QtWidgets.QGroupBox)
                 wd = isinstance(self.widget, QtWidgets.QWidget)
                 if isinstance(self.widget, QtWidgets.QTabWidget):
-                    title = new_widget._attrs.get(  # type: ignore [attr-defined]
+                    title = new_widget._attrs.get(  # type: ignore [attr-defined] # noqa F821
                         "title", "UnnamedTab"
                     )
                     self.widget.addTab(cast(QtWidgets.QWidget, new_widget), title)
@@ -1113,7 +1115,7 @@ def _loadVariant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) -
 
         if text.find("WordBreak|") > -1:
             if widget is not None and hasattr(widget, "setWordWrap"):
-                widget.setWordWrap(True)  # type: ignore [attr-defined]
+                widget.setWordWrap(True)  # type: ignore [attr-defined] # noqa F821
             text = text.replace("WordBreak|", "")
 
         for lib in libs_1:

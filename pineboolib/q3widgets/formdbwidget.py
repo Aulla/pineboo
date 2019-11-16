@@ -81,7 +81,7 @@ class FormDBWidget(QtWidgets.QWidget):
                 self._formconnections.remove(sl)
                 break
 
-    def obj(self) -> Any:
+    def obj(self) -> "FormDBWidget":
         """Return self."""
         return self
 
@@ -91,7 +91,7 @@ class FormDBWidget(QtWidgets.QWidget):
         return self.parentWidget()
 
     def _class_init(self) -> None:
-        """Constructor de la clase QS (p.ej. interna(context))"""
+        """Initialize the class."""
         pass
 
     # def init(self):
@@ -149,7 +149,8 @@ class FormDBWidget(QtWidgets.QWidget):
         try:
             ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
             if ret is not None:
-                if ret.__class__.__name__ in ("FLFieldDB", "FLTableDB"):
+                _loaded = getattr(ret, "_loaded", None)
+                if _loaded is not None:
                     if ret._loaded is False:  # type: ignore
                         ret.load()  # type: ignore
 
@@ -157,11 +158,12 @@ class FormDBWidget(QtWidgets.QWidget):
                 ret = getattr(self.parent(), child_name, None)
 
             if ret is None:
-                if child_name == super().objectName() and self.form is not None:
-                    ret = self.form
+                if self.form is not None:
+                    if child_name == super().objectName():
+                        ret = self.form
 
-            if ret is None and self.form is not None:
-                ret = getattr(self.form, child_name)
+                    else:
+                        ret = getattr(self.form, child_name)
 
             if ret is None:
                 self.logger.warning("WARN: No se encontro el control %s", child_name)
@@ -171,7 +173,7 @@ class FormDBWidget(QtWidgets.QWidget):
             self.logger.exception("child: Error trying to get child of <%s>", child_name)
             return QtWidgets.QWidget()
 
-    def cursor(self) -> pnsqlcursor.PNSqlCursor:  # type: ignore [override]
+    def cursor(self) -> pnsqlcursor.PNSqlCursor:  # type: ignore [override] # noqa F821
         """Return cursor associated."""
 
         # if self.cursor_:

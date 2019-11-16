@@ -60,6 +60,6 @@ class QComboBox(QtWidgets.QComboBox):
         super().setCurrentText(value)
 
     currentItem = property(getCurrentItem, setCurrentItem, None, "get/set current item index")
-    currentText: str = property(  # type: ignore [assignment]
+    currentText: str = property(  # type: ignore [assignment] # noqa F821
         getCurrentText, setCurrentText, None, "get/set current text"
     )

@@ -25,33 +25,28 @@ class TestEnebooGUI(unittest.TestCase):
 
     def test_initialize(self) -> None:
         """Test GUI initialize."""
-        from pineboolib.fllegacy import flapplication
         from pineboolib.qsa import qsa
-
         from pineboolib.plugins.mainform.eneboo_mdi import eneboo_mdi
 
         import os
 
-        project = application.project
-        project.main_form = eneboo_mdi
-        project.main_window = eneboo_mdi.MainForm()
-        self.assertTrue(project.main_window)
-        self.main_w = project.main_window
-        self.main_w.initScript()
-        self.main_w.show()
+        application.project.main_form = eneboo_mdi
+        eneboo_mdi.mainWindow = eneboo_mdi.MainForm()
+        eneboo_mdi.mainWindow.initScript()
+        application.project.main_window = eneboo_mdi.mainWindow
 
         qsa_sys = qsa.sys
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
-        self.main_w = project.main_window
+        self.main_w = application.project.main_window
         self.assertTrue(self.main_w)
 
         self.main_w.initToolBar()
         self.main_w.windowMenuAboutToShow()
         self.main_w.activateModule("sys")
         self.assertFalse(self.main_w.existFormInMDI("flusers"))
-        project.actions["flusers"].openDefaultForm()
+        application.project.actions["flusers"].openDefaultForm()
         self.main_w.windowMenuAboutToShow()
         self.main_w.windowMenuActivated(0)
         self.assertTrue(self.main_w.existFormInMDI("flusers"))
@@ -60,8 +55,6 @@ class TestEnebooGUI(unittest.TestCase):
         self.main_w.toggleToolBar(True)
         self.main_w.toggleStatusBar(True)
         self.main_w.windowClose()
-
-        flapplication.aqApp.stopTimerIdle()
 
     @classmethod
     def tearDownClass(cls) -> None:

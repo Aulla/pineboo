@@ -1,15 +1,16 @@
 """Eneboo_mdi module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore, QtXml
 
-from pineboolib.core.utils.utils_base import filedir, pixmap_fromMimeSource
+from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core.settings import config, settings
 
 from pineboolib.application.acls import pnaccesscontrollists
 
-
-from pineboolib.fllegacy import flapplication, flworkspace
+from pineboolib.fllegacy.aqsobjects import aqs
+from pineboolib.fllegacy import flapplication, flworkspace, flformdb
+from pineboolib.application import pncore
 
 from pineboolib import application
 from pineboolib import logging
@@ -91,15 +92,13 @@ class MainForm(QtWidgets.QMainWindow):
     def init(self) -> None:
         """Initialize FLApplication."""
 
-        from pineboolib.fllegacy.aqsobjects.aqs import AQS
-
         self._dict_main_widgets = {}
 
         if self.container_ is None:
             raise Exception("init. self.container_ is empty")
 
         self.container_.setObjectName("container")
-        self.container_.setWindowIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("pineboo.png")))
+        self.container_.setWindowIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("pineboo.png")))
         if self.db() is not None:
             self.container_.setWindowTitle(self.db().mainConn().DBName())
         else:
@@ -111,21 +110,23 @@ class MainForm(QtWidgets.QMainWindow):
         self.window_menu.setObjectName("windowMenu")
 
         self.window_cascade_action = QtWidgets.QAction(
-            QtGui.QIcon(AQS.pixmap_fromMimeSource("cascada.png")),
+            QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("cascada.png")),
             self.tr("Cascada"),
             self.container_,
         )
         self.window_menu.addAction(self.window_cascade_action)
 
         self.window_tile_action = QtWidgets.QAction(
-            QtGui.QIcon(AQS.pixmap_fromMimeSource("mosaico.png")),
+            QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("mosaico.png")),
             self.tr("Mosaico"),
             self.container_,
         )
         self.window_menu.addAction(self.window_tile_action)
 
         self.window_close_action = QtWidgets.QAction(
-            QtGui.QIcon(AQS.pixmap_fromMimeSource("cerrar.png")), self.tr("Cerrar"), self.container_
+            QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("cerrar.png")),
+            self.tr("Cerrar"),
+            self.container_,
         )
         self.window_menu.addAction(self.window_close_action)
 
@@ -138,7 +139,7 @@ class MainForm(QtWidgets.QMainWindow):
         vl = QtWidgets.QVBoxLayout(w)
 
         self.exit_button = QtWidgets.QPushButton(
-            QtGui.QIcon(AQS.pixmap_fromMimeSource("exit.png")), self.tr("Salir"), w
+            QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("exit.png")), self.tr("Salir"), w
         )
         self.exit_button.setObjectName("pbSalir")
         self.exit_button.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+Q")))
@@ -285,13 +286,11 @@ class MainForm(QtWidgets.QMainWindow):
 
     def existFormInMDI(self, id: str) -> bool:
         """Return if named FLFormDB is open."""
-        from pineboolib.fllegacy.flformdb import FLFormDB
-
         if id is None or not self._p_work_space:
             return False
 
         for window in self._p_work_space.subWindowList():
-            s = window.findChild(FLFormDB)
+            s = window.findChild(flformdb.FLFormDB)
             if s.idMDI() == id:
                 window.showNormal()
                 window.setFocus()
@@ -312,7 +311,6 @@ class MainForm(QtWidgets.QMainWindow):
 
     def initToolBox(self) -> None:
         """Initialize toolbox."""
-        from pineboolib.fllegacy.aqsobjects.aqs import AQS
 
         main_widget = flapplication.aqApp.main_widget_
 
@@ -379,7 +377,7 @@ class MainForm(QtWidgets.QMainWindow):
                         new_module_action.setText(self.tr(descript_module))
                         new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
                         new_module_action.setIcon(
-                            QtGui.QIcon(AQS.pixmap_fromMimeSource("folder_update.png"))
+                            QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("folder_update.png"))
                         )
                         new_area_bar.addAction(new_module_action)
                         new_module_action.triggered.connect(flapplication.aqApp.staticLoaderSetup)
@@ -392,7 +390,7 @@ class MainForm(QtWidgets.QMainWindow):
                         new_module_action.setText(self.tr(descript_module))
                         new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
                         new_module_action.setIcon(
-                            QtGui.QIcon(AQS.pixmap_fromMimeSource("reload.png"))
+                            QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("reload.png"))
                         )
                         new_area_bar.addAction(new_module_action)
                         new_module_action.triggered.connect(flapplication.aqApp.reinit)
@@ -407,7 +405,9 @@ class MainForm(QtWidgets.QMainWindow):
                     new_module_action.setObjectName("shConsoleAction")
                     new_module_action.setText(self.tr(descript_module))
                     new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-                    new_module_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("consola.png")))
+                    new_module_action.setIcon(
+                        QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("consola.png"))
+                    )
                     new_area_bar.addAction(new_module_action)
                     new_module_action.triggered.connect(flapplication.aqApp.showConsole)
                     ag.addAction(new_module_action)
@@ -452,7 +452,7 @@ class MainForm(QtWidgets.QMainWindow):
         font_action.setObjectName("fontAction")
         font_action.setText(self.tr(descript_module))
         # font_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        font_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("font.png")))
+        font_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("font.png")))
         config_tool_bar.addAction(font_action)
         font_action.triggered.connect(flapplication.aqApp.chooseFont)
         ag.addAction(font_action)
@@ -462,7 +462,7 @@ class MainForm(QtWidgets.QMainWindow):
         style_action.setObjectName("styleAction")
         style_action.setText(self.tr(descript_module))
         # style_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        style_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("estilo.png")))
+        style_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("estilo.png")))
         config_tool_bar.addAction(style_action)
         style_action.triggered.connect(flapplication.aqApp.showStyles)
         ag.addAction(style_action)
@@ -472,7 +472,7 @@ class MainForm(QtWidgets.QMainWindow):
         help_action.setObjectName("helpAction")
         help_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        help_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("help_index.png")))
+        help_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("help_index.png")))
         config_tool_bar.addAction(help_action)
         help_action.triggered.connect(flapplication.aqApp.helpIndex)
         ag.addAction(help_action)
@@ -482,7 +482,7 @@ class MainForm(QtWidgets.QMainWindow):
         about_pineboo_action.setObjectName("aboutPinebooAction")
         about_pineboo_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        about_pineboo_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("about.png")))
+        about_pineboo_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("about.png")))
         config_tool_bar.addAction(about_pineboo_action)
         about_pineboo_action.triggered.connect(flapplication.aqApp.aboutPineboo)
         ag.addAction(about_pineboo_action)
@@ -492,7 +492,7 @@ class MainForm(QtWidgets.QMainWindow):
         visit_pineboo_action.setObjectName("visitPinebooAction")
         visit_pineboo_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        visit_pineboo_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("about.png")))
+        visit_pineboo_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("about.png")))
         config_tool_bar.addAction(visit_pineboo_action)
         visit_pineboo_action.triggered.connect(flapplication.aqApp.urlPineboo)
         ag.addAction(visit_pineboo_action)
@@ -502,7 +502,7 @@ class MainForm(QtWidgets.QMainWindow):
         about_qt_action.setObjectName("aboutQtAction")
         about_qt_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
-        about_qt_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("aboutqt.png")))
+        about_qt_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("aboutqt.png")))
         config_tool_bar.addAction(about_qt_action)
         about_qt_action.triggered.connect(flapplication.aqApp.aboutQt)
         ag.addAction(about_qt_action)
@@ -621,10 +621,6 @@ class MainForm(QtWidgets.QMainWindow):
                 w = self.db().managerModules().createUI(file_name="%s.ui" % idm)
                 if not w:
                     return
-
-                from pineboolib.application import pncore
-                from pineboolib import application
-                from PyQt5 import QtXml
 
                 if w.findChild(pncore.PNCore):
                     doc = QtXml.QDomDocument()
@@ -934,7 +930,7 @@ class MainForm(QtWidgets.QMainWindow):
             view_back.setObjectName("mdi_area")
             view_back.setBackground(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
             # view_back.logo = pixmap_fromMimeSource("pineboo-logo.png")
-            # view_back.logo = AQS.pixmap_fromMimeSource("pineboo-logo.png")
+            # view_back.logo = aqs.AQS.pixmap_fromMimeSource("pineboo-logo.png")
             view_back.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
             view_back.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
             self._p_work_space = flworkspace.FLWorkSpace(

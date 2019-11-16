@@ -1,6 +1,6 @@
 """Fltexteditoutput module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt5 import QtWidgets
 import sys
 from typing import Union, Any
 
@@ -21,8 +21,8 @@ class FLTextEditOutput(QtWidgets.QPlainTextEdit):
 
         self.oldStdout = sys.stdout
         self.oldStderr = sys.stderr
-        sys.stdout = self  # type: ignore [assignment]
-        sys.stderr = self  # type: ignore [assignment]
+        sys.stdout = self  # type: ignore [assignment] # noqa F821
+        sys.stderr = self  # type: ignore [assignment] # noqa F821
 
     def write(self, txt: Union[bytearray, bytes, str]) -> None:
         """Set text."""

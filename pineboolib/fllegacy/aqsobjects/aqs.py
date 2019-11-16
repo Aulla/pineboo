@@ -5,11 +5,7 @@ AQS package.
 Main entrance to the different AQS resources.
 """
 
-from PyQt5.QtWidgets import QFrame, QLabel, QSizePolicy, QApplication, QWidget
-from PyQt5.QtGui import QColor, QPixmap, QCursor
-from PyQt5.QtXml import QDomDocument
-from PyQt5 import QtCore
-from PyQt5 import QtGui
+from PyQt5 import QtCore, QtWidgets, QtGui, QtXml
 
 from pineboolib.core.utils import logging
 
@@ -82,7 +78,13 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
             ret_ = getattr(QtGui, "Q%sEvent" % name, None)
 
         if ret_ is None:
-            for lib in [QFrame, QLabel, QSizePolicy, QtCore.Qt, QtCore.QEvent]:
+            for lib in [
+                QtWidgets.QFrame,
+                QtWidgets.QLabel,
+                QtWidgets.QSizePolicy,
+                QtCore.Qt,
+                QtCore.QEvent,
+            ]:
                 ret_ = getattr(lib, name, None)
                 if ret_ is not None:
                     break
@@ -95,8 +97,8 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
 
     @staticmethod
     def ColorDialog_getColor(
-        color: Optional[Union[int, str, QColor]] = None,
-        parent: Optional["QWidget"] = None,
+        color: Optional[Union[int, str, QtGui.QColor]] = None,
+        parent: Optional[QtWidgets.QWidget] = None,
         name: Optional[str] = None,
     ) -> Any:
         """
@@ -107,16 +109,14 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
         @param name. deprecated. Parameter used for compatibility.
         """
 
-        from PyQt5.QtWidgets import QColorDialog  # type: ignore
-
         if color is None:
-            qcolor = QColor("black")
-        elif not isinstance(color, QColor):
-            qcolor = QColor(color)
+            qcolor = QtGui.QColor("black")
+        elif not isinstance(color, QtGui.QColor):
+            qcolor = QtGui.QColor(color)
         else:
             qcolor = color
 
-        cL = QColorDialog(qcolor, parent)
+        cL = QtWidgets.QColorDialog(qcolor, parent)
         return cL.getColor()
 
     @classmethod
@@ -125,7 +125,7 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
         obj_: QtCore.QObject,
         include_children: bool = True,
         include_complex_types: bool = False,
-    ) -> QDomDocument:
+    ) -> QtXml.QDomDocument:
         """
         Convert an object to xml.
 
@@ -135,7 +135,7 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
         @return xml of the given object
         """
 
-        xml_ = QDomDocument()
+        xml_ = QtXml.QDomDocument()
 
         if not obj_:
             return xml_
@@ -184,12 +184,12 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
         return xml_
 
     @staticmethod
-    def pixmap_fromMimeSource(name: str) -> QPixmap:
+    def pixmap_fromMimeSource(name: str) -> QtGui.QPixmap:
         """
-        Get a QPixmap of a given file name.
+        Get a QtGui.QPixmap of a given file name.
 
         @param name. File Name
-        @return QPixmap
+        @return QtGui.QPixmap
         """
 
         from pineboolib.core.utils.utils_base import pixmap_fromMimeSource
@@ -213,20 +213,20 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
         return ba.sha1()
 
     @classmethod
-    def Application_setOverrideCursor(cls, shape: "QCursor", replace: bool = False) -> None:
+    def Application_setOverrideCursor(cls, shape: "QtGui.QCursor", replace: bool = False) -> None:
         """
         Set override cursor.
 
-        @param. shape. QCursor instance to override.
+        @param. shape. QtGui.QCursor instance to override.
         @param. replace. Not used.
         """
 
-        QApplication.setOverrideCursor(shape)
+        QtWidgets.QApplication.setOverrideCursor(shape)
 
     @classmethod
     def Application_restoreOverrideCursor(cls) -> None:
         """Restore override cursor."""
-        QApplication.restoreOverrideCursor()
+        QtWidgets.QApplication.restoreOverrideCursor()
 
     @classmethod
     def TextCodec_codecForName(cls, codec_name: str) -> str:

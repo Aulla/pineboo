@@ -216,8 +216,20 @@ class XMLAction(ActionStruct):
         if self.mainform_widget is None:
             raise Exception("Unexpected: No form loaded")
 
-        main = getattr(self.mainform_widget.widget, "iface", self.mainform_widget.widget)
-        main.main()
+        main = None
+
+        iface = getattr(script.form, "iface", None)
+        if iface is not None:
+            main = getattr(iface, "main", None)
+
+        if main is None:
+            main = getattr(script.form, "main", None)
+
+        if main is None:
+            raise Exception("main function not found!")
+        else:
+            main()
+
         # if self.mainform_widget.widget.iface is not None:
         #    self.mainform_widget.iface.main()
         # else:

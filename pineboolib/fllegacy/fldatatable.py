@@ -538,7 +538,7 @@ class FLDataTable(QtWidgets.QTableView):
         To prevent the context menu from appearing with the options to edit records.
         """
 
-        super(FLDataTable, self).contextMenuEvent(e)
+        super().contextMenuEvent(e)
 
         if not self.cursor_ or not self.cursor_.isValid() or not self.cursor_.metadata():
             return
@@ -876,10 +876,9 @@ class FLDataTable(QtWidgets.QTableView):
 
         return self.cursor_.model().metadata().fieldIsIndex(name)
 
-    def mouseDoubleClickEvent(self, e: QtCore.QEvent) -> None:
+    def mouseDoubleClickEvent(self, e: QtGui.QMouseEvent) -> None:
         """Double click event."""
-
-        if cast(QtGui.QMouseEvent, e).button() == QtCore.Qt.LeftButton:
+        if cast(QtGui.QMouseEvent, e).button() != QtCore.Qt.LeftButton:
             return
 
         self.recordChoosed.emit()
