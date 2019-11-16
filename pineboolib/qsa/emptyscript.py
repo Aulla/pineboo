@@ -7,9 +7,9 @@ from pineboolib.q3widgets import formdbwidget
 class interna(object):
     """Interna class."""
 
-    ctx: formdbwidget.FormDBWidget
+    ctx: "FormInternalObj"
 
-    def __init__(self, context: formdbwidget.FormDBWidget) -> None:
+    def __init__(self, context: "FormInternalObj") -> None:
         """Inicialize."""
 
         self.ctx = context
@@ -23,7 +23,7 @@ class interna(object):
 class oficial(interna):
     """Oficial class."""
 
-    def __init__(self, context: formdbwidget.FormDBWidget) -> None:
+    def __init__(self, context: "FormInternalObj") -> None:
         """Inicialize."""
 
         super().__init__(context)
@@ -32,7 +32,7 @@ class oficial(interna):
 class head(oficial):
     """Head class."""
 
-    def __init__(self, context: formdbwidget.FormDBWidget) -> None:
+    def __init__(self, context: "FormInternalObj") -> None:
         """Inicialize."""
 
         super().__init__(context)
@@ -41,7 +41,7 @@ class head(oficial):
 class ifaceCtx(head):
     """IfaceCtx class."""
 
-    def __init__(self, context: formdbwidget.FormDBWidget) -> None:
+    def __init__(self, context: "FormInternalObj") -> None:
         """Inicialize."""
 
         super().__init__(context)
