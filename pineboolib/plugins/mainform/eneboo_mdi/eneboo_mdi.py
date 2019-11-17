@@ -3,15 +3,14 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtGui, QtCore, QtXml
 
-from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core.settings import config, settings
+from pineboolib.core.utils import utils_base
+from pineboolib.core import settings
 
 from pineboolib.application.acls import pnaccesscontrollists
 
 from pineboolib.fllegacy.aqsobjects import aqs
 from pineboolib.fllegacy import flapplication, flworkspace, flformdb
 from pineboolib.application import pncore
-
 from pineboolib import application
 from pineboolib import logging
 
@@ -72,7 +71,7 @@ class MainForm(QtWidgets.QMainWindow):
     def initScript(self) -> None:
         """Inicialize main script."""
 
-        self.createUi(filedir("plugins/mainform/eneboo_mdi/mainform.ui"))
+        self.createUi(utils_base.filedir("plugins/mainform/eneboo_mdi/mainform.ui"))
 
         self.container_ = self
         self.init()
@@ -366,7 +365,7 @@ class MainForm(QtWidgets.QMainWindow):
                     continue
 
                 if mod == "sys":
-                    if config.value("application/isDebuggerMode", False):
+                    if settings.config.value("application/isDebuggerMode", False):
 
                         descript_module = "%s: %s" % (
                             str(chr(c)),
@@ -681,8 +680,8 @@ class MainForm(QtWidgets.QMainWindow):
     def writeState(self) -> None:
         """Write settings back to disk."""
 
-        settings.set_value("MultiLang/Enabled", self._multi_lang_enabled)
-        settings.set_value("MultiLang/LangId", self._multi_lang_id)
+        settings.settings.set_value("MultiLang/Enabled", self._multi_lang_enabled)
+        settings.settings.set_value("MultiLang/LangId", self._multi_lang_id)
 
         if self.container_ is not None:
             windows_opened = []
@@ -707,20 +706,22 @@ class MainForm(QtWidgets.QMainWindow):
                     ):
                         windows_opened.append(it.objectName())
 
-            settings.set_value("windowsOpened/Main", windows_opened)
-            settings.set_value("Geometry/MainWindowMaximized", self.container_.isMaximized())
+            settings.settings.set_value("windowsOpened/Main", windows_opened)
+            settings.settings.set_value(
+                "Geometry/MainWindowMaximized", self.container_.isMaximized()
+            )
             if not self.container_.isMaximized():
-                settings.set_value("Geometry/MainWindowX", self.container_.x())
-                settings.set_value("Geometry/MainWindowY", self.container_.y())
-                settings.set_value("Geometry/MainWindowWidth", self.container_.width())
-                settings.set_value("Geometry/MainWindowHeight", self.container_.height())
+                settings.settings.set_value("Geometry/MainWindowX", self.container_.x())
+                settings.settings.set_value("Geometry/MainWindowY", self.container_.y())
+                settings.settings.set_value("Geometry/MainWindowWidth", self.container_.width())
+                settings.settings.set_value("Geometry/MainWindowHeight", self.container_.height())
 
         for map in self._map_geometry_form:  # FIXME esto no se rellena nunca
             k = "Geometry/%s/" % map.key()
-            settings.set_value("%s/X" % k, map.x())
-            settings.set_value("%s/Y" % k, map.y())
-            settings.set_value("%s/Width" % k, map.width())
-            settings.set_value("%s/Height" % k, map.height())
+            settings.settings.set_value("%s/X" % k, map.x())
+            settings.settings.set_value("%s/Y" % k, map.y())
+            settings.settings.set_value("%s/Width" % k, map.width())
+            settings.settings.set_value("%s/Height" % k, map.height())
 
     def writeStateModule(self) -> None:
         """Write settings for modules."""
@@ -741,14 +742,14 @@ class MainForm(QtWidgets.QMainWindow):
                 if s is not None:
                     windows_opened.append(s.idMDI())
 
-        settings.set_value("windowsOpened/%s" % idm, windows_opened)
+        settings.settings.set_value("windowsOpened/%s" % idm, windows_opened)
 
         k = "Geometry/%s" % idm
-        settings.set_value("%s/Maximized" % k, main_widget.isMaximized())
-        settings.set_value("%s/X" % k, main_widget.x())
-        settings.set_value("%s/Y" % k, main_widget.y())
-        settings.set_value("%s/Width" % k, main_widget.width())
-        settings.set_value("%s/Height" % k, main_widget.height())
+        settings.settings.set_value("%s/Maximized" % k, main_widget.isMaximized())
+        settings.settings.set_value("%s/X" % k, main_widget.x())
+        settings.settings.set_value("%s/Y" % k, main_widget.y())
+        settings.settings.set_value("%s/Width" % k, main_widget.width())
+        settings.settings.set_value("%s/Height" % k, main_widget.height())
 
     def readState(self) -> None:
         """Read settings."""
@@ -757,16 +758,16 @@ class MainForm(QtWidgets.QMainWindow):
 
         if self.container_:
             r = QtCore.QRect(self.container_.pos(), self.container_.size())
-            self._multi_lang_enabled = settings.value("MultiLang/Enabled", False)
-            self._multi_lang_id = settings.value(
+            self._multi_lang_enabled = settings.settings.value("MultiLang/Enabled", False)
+            self._multi_lang_id = settings.settings.value(
                 "MultiLang/LangId", QtCore.QLocale().name()[:2].upper()
             )
 
-            if not settings.value("Geometry/MainWindowMaximized", False):
-                r.setX(settings.value("Geometry/MainWindowX", r.x()))
-                r.setY(settings.value("Geometry/MainWindowY", r.y()))
-                r.setWidth(settings.value("Geometry/MainWindowWidth", r.width()))
-                r.setHeight(settings.value("Geometry/MainWindowHeight", r.height()))
+            if not settings.settings.value("Geometry/MainWindowMaximized", False):
+                r.setX(settings.settings.value("Geometry/MainWindowX", r.x()))
+                r.setY(settings.settings.value("Geometry/MainWindowY", r.y()))
+                r.setWidth(settings.settings.value("Geometry/MainWindowWidth", r.width()))
+                r.setHeight(settings.settings.value("Geometry/MainWindowHeight", r.height()))
 
                 desk = QtWidgets.QApplication.desktop().availableGeometry(self.container_)
                 inter = desk.intersected(r)
@@ -781,7 +782,7 @@ class MainForm(QtWidgets.QMainWindow):
 
             active_id_module = self.db().managerModules().activeIdModule()
 
-            windows_opened = settings.value("windowsOpened/Main", [])
+            windows_opened = settings.settings.value("windowsOpened/Main", [])
 
             for it in windows_opened:
                 if it in self.db().managerModules().listAllIdModules():
@@ -839,7 +840,7 @@ class MainForm(QtWidgets.QMainWindow):
         if main_widget is None or main_widget.objectName() != idm:
             return
 
-        windows_opened = settings.value("windowsOpened/%s" % idm, None)
+        windows_opened = settings.settings.value("windowsOpened/%s" % idm, None)
         if windows_opened:
             for it in windows_opened:
                 act = cast(QtWidgets.QAction, main_widget.findChild(QtWidgets.QAction, it))
@@ -849,11 +850,11 @@ class MainForm(QtWidgets.QMainWindow):
 
         r = QtCore.QRect(main_widget.pos(), main_widget.size())
         k = "Geometry/%s" % idm
-        if not settings.value("%s/Maximized" % k, False):
-            r.setX(settings.value("%s/X" % k, r.x()))
-            r.setY(settings.value("%s/Y" % k, r.y()))
-            r.setWidth(settings.value("%s/Width" % k, r.width()))
-            r.setHeight(settings.value("%s/Height" % k, r.height()))
+        if not settings.settings.value("%s/Maximized" % k, False):
+            r.setX(settings.settings.value("%s/X" % k, r.x()))
+            r.setY(settings.settings.value("%s/Y" % k, r.y()))
+            r.setWidth(settings.settings.value("%s/Width" % k, r.width()))
+            r.setHeight(settings.settings.value("%s/Height" % k, r.height()))
             desk = QtWidgets.QApplication.desktop().availableGeometry(main_widget)
             inter = desk.intersected(r)
             main_widget.resize(r.size())
@@ -889,31 +890,6 @@ class MainForm(QtWidgets.QMainWindow):
 
         # if app_db:
         #     app_db.finish()
-        """
-        if self.showDebug():
-            from pineboolib.fllegacy.FLFieldMetaData import FLFieldMetaData
-            from pineboolib.fllegacy.FLTableMetadata import FLTableMetaData
-            from pineboolib.fllegacy.FLRelationMetaData import FLRelationMetaData
-            from pineboolib.fllegacy.FLSqlCursor import FLSqlCursor
-            from pineboolib.fllegacy.FLSqlQuery import FLSqlQuery
-
-            logger.warning("*************************************************")
-            logger.warning("FLSqlQuery::count_ref_query")
-            logger.warning("*************************************************")
-            logger.warning("%d", FLSqlQuery.count_ref_query)
-            logger.warning("*************************************************")
-            logger.warning("FLSqlQuery::count_ref_query")
-            logger.warning("*************************************************")
-            logger.warning("FLSqlCursor::count_ref_cursor")
-            logger.warning("*************************************************")
-            logger.warning("%d", FLSqlCursor.count_ref_cursor)
-            logger.warning("*************************************************")
-            logger.warning("FLSqlCursor::count_ref_cursor")
-            logger.warning("*************************************************")
-            logger.warning("FLTableMetaData::count_ %d", FLTableMetaData.count_)
-            logger.warning("FLFieldMetaData::count_ %d", FLFieldMetaData.count_)
-            logger.warning("FLRelationMetaData::count_ %d", FLRelationMetaData.count_)
-        """
         self.aqApp = None
 
     def initView(self) -> None:

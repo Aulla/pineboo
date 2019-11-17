@@ -4,15 +4,17 @@ Main Eneboo-alike UI.
 """
 from PyQt5 import QtWidgets, QtCore, QtGui, QtXml
 
-from pineboolib.q3widgets.qmessagebox import QMessageBox
+from pineboolib.core import settings
+from pineboolib.core.utils import utils_base
+
+from pineboolib.q3widgets import qmessagebox
 
 from pineboolib.fllegacy.aqsobjects import aqsobjectfactory
-from pineboolib.fllegacy import flformdb
-from pineboolib.fllegacy import flapplication
-from pineboolib.fllegacy import systype
-from pineboolib import logging
 
-from pineboolib.core import settings
+from pineboolib.fllegacy import flformdb, flapplication, systype
+
+from pineboolib import logging, application
+
 
 from typing import Any, Dict, Optional, List, cast, Union
 
@@ -117,9 +119,8 @@ class DockListView(QtCore.QObject):
         height = settings.readNumEntry("%sheight" % key, self.w_.height())
         self.lw_.resize(width, height)
         # self.w_.resize(width, height)
-        from pineboolib.application import project
 
-        if not project.DGI.mobilePlatform():
+        if not application.project.DGI.mobilePlatform():
             visible = settings.readBoolEntry("%svisible" % key, True)
             if visible:
                 self.w_.show()
@@ -337,18 +338,21 @@ class MainForm(QtWidgets.QMainWindow):
 
     def createUi(self, ui_file: str) -> None:
         """Create UI from file path."""
-        from pineboolib.application import project
 
-        mng = project.conn_manager.managerModules()
+        mng = application.project.conn_manager.managerModules()
         self.w_ = cast(QtWidgets.QMainWindow, mng.createUI(ui_file, None, self))
         self.w_.setObjectName("container")
 
     def exit(self) -> bool:
         """Process exit events."""
-        res = QMessageBox.information(
-            "¿ Quiere salir de la aplicación ?", QMessageBox.Yes, QMessageBox.No, None, "Pineboo"
+        res = qmessagebox.QMessageBox.information(
+            "¿ Quiere salir de la aplicación ?",
+            qmessagebox.QMessageBox.Yes,
+            qmessagebox.QMessageBox.No,
+            None,
+            "Pineboo",
         )
-        doExit = True if res == QMessageBox.Yes else False
+        doExit = True if res == qmessagebox.QMessageBox.Yes else False
         if doExit:
             self.writeState()
             self.w_.removeEventFilter(self.w_)
@@ -363,7 +367,6 @@ class MainForm(QtWidgets.QMainWindow):
 
     def writeState(self) -> None:
         """Save settings."""
-        from pineboolib.application import project
 
         w = self.w_
 
@@ -389,7 +392,7 @@ class MainForm(QtWidgets.QMainWindow):
         settings.writeEntry("%swidth" % key, w.width())
         settings.writeEntry("%sheight" % key, w.height())
 
-        key += "%s/" % project.conn_manager.database()
+        key += "%s/" % application.project.conn_manager.database()
 
         open_actions = []
 
@@ -453,10 +456,9 @@ class MainForm(QtWidgets.QMainWindow):
     def loadTabs(self) -> None:
         """Load tabs."""
         if self.ag_menu_:
-            from pineboolib.application import project
 
             settings = aqsobjectfactory.AQSettings()
-            key = "MainWindow/%s/" % project.conn_manager.database()
+            key = "MainWindow/%s/" % application.project.conn_manager.database()
 
             open_actions = settings.readListEntry("%sopenActions" % key)
             i = 0
@@ -473,7 +475,7 @@ class MainForm(QtWidgets.QMainWindow):
                 )
                 if not action or not action.isVisible():
                     continue
-                module_name = project.conn_manager.managerModules().idModuleOfFile(
+                module_name = application.project.conn_manager.managerModules().idModuleOfFile(
                     "%s.ui" % action.objectName()
                 )
                 if module_name:
@@ -1218,12 +1220,10 @@ class MainForm(QtWidgets.QMainWindow):
     def initScript(self) -> None:
         """Startup process."""
 
-        from pineboolib.core.utils.utils_base import filedir
-
         flapplication.aqApp.main_widget_ = self
 
         mw = self
-        mw.createUi(filedir("plugins/mainform/eneboo/mainform.ui"))
+        mw.createUi(utils_base.filedir("plugins/mainform/eneboo/mainform.ui"))
 
         mw.init()
 
@@ -1316,10 +1316,6 @@ class MainForm(QtWidgets.QMainWindow):
         else:
             logger.debug("tiggerAction: Unhandled slot : %s" % signature)
 
-    # def load(self):
-    #    from pineboolib.core.utils.utils_base import filedir
-    #    self.ui_ = project.conn_manager.managerModules().createUI(filedir('plugins/mainform/eneboo/mainform.ui'), None, self)
-
     @classmethod
     def setDebugLevel(self, q: int) -> None:
         """Specify debug level."""
@@ -1333,7 +1329,6 @@ class MainForm(QtWidgets.QMainWindow):
 
     def setCaptionMainWidget(self, value) -> None:
         """Set application title."""
-        from pineboolib import application
 
         self.setWindowTitle("Pineboo %s - %s" % (application.project.version, value))
 
