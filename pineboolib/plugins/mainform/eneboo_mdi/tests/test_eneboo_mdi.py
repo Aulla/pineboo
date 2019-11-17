@@ -13,13 +13,15 @@ from . import fixture_path
 class TestEnebooGUI(unittest.TestCase):
     """Tes EnebooGUI class."""
 
-    main_w: QtWidgets.QMainWindow
+    prev_main_window_name: str
 
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
         config.set_value("application/isDebuggerMode", True)
         config.set_value("application/dbadmin_enabled", True)
+        cls.prev_main_window_name = config.value("ebcomportamiento/main_form_name", "eneboo")
+        config.set_value("ebcomportamiento/main_form_name", "eneboo_mdi")
 
         init_testing()
 
@@ -39,22 +41,26 @@ class TestEnebooGUI(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
-        self.main_w = application.project.main_window
-        self.assertTrue(self.main_w)
+        application.project.main_window = application.project.main_form.mainWindow
+        self.assertTrue(application.project.main_window)
 
-        self.main_w.initToolBar()
-        self.main_w.windowMenuAboutToShow()
-        self.main_w.activateModule("sys")
-        self.assertFalse(self.main_w.existFormInMDI("flusers"))
+        application.project.main_window.initToolBar()
+        application.project.main_window.windowMenuAboutToShow()
+        application.project.main_window.show()
+        application.project.main_window.activateModule("sys")
+        for window in application.project.main_window._p_work_space.subWindowList():
+            window.close()
+
+        self.assertFalse(application.project.main_window.existFormInMDI("flusers"))
         application.project.actions["flusers"].openDefaultForm()
-        self.main_w.windowMenuAboutToShow()
-        self.main_w.windowMenuActivated(0)
-        self.assertTrue(self.main_w.existFormInMDI("flusers"))
-        self.main_w.writeState()
-        self.main_w.writeStateModule()
-        self.main_w.toggleToolBar(True)
-        self.main_w.toggleStatusBar(True)
-        self.main_w.windowClose()
+        application.project.main_window.windowMenuAboutToShow()
+        application.project.main_window.windowMenuActivated(0)
+        self.assertTrue(application.project.main_window.existFormInMDI("flusers"))
+        application.project.main_window.writeState()
+        application.project.main_window.writeStateModule()
+        application.project.main_window.toggleToolBar(True)
+        application.project.main_window.toggleStatusBar(True)
+        application.project.main_window.windowClose()
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -64,5 +70,6 @@ class TestEnebooGUI(unittest.TestCase):
 
         config.set_value("application/isDebuggerMode", False)
         config.set_value("application/dbadmin_enabled", False)
+        config.set_value("ebcomportamiento/main_form_name", cls.prev_main_window_name)
 
         finish_testing()
