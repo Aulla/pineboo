@@ -438,10 +438,16 @@ class FLManagerModules(object):
             if xclass is None:
                 raise Exception("class was expected")
 
-            if xclass == "QMainWindow":
-                parent = q3widgets.qmainwindow.QMainWindow()
-            elif xclass in ["QDialog", "QWidget"]:
-                parent = q3widgets.qdialog.QDialog()
+            if UIVersion < "4.0":
+                if xclass == "QMainWindow":
+                    parent = q3widgets.qmainwindow.QMainWindow()
+                elif xclass in ["QDialog", "QWidget"]:
+                    parent = q3widgets.qdialog.QDialog()
+            else:
+                if xclass == "QMainWindow":
+                    parent = QtWidgets.QMainWindow()
+                elif xclass in ["QDialog", "QWidget"]:
+                    parent = QtWidgets.QDialog()
 
             if parent is None:
                 raise Exception("xclass not found %s" % xclass)
