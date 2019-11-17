@@ -5,7 +5,8 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
 
 from pineboolib.core.settings import config
-from . import fixture_path
+
+# from . import fixture_path
 
 
 class TestEnebooGUI(unittest.TestCase):
@@ -25,17 +26,17 @@ class TestEnebooGUI(unittest.TestCase):
 
     def test_initialize(self) -> None:
         """Test GUI initialize."""
-        from pineboolib.qsa import qsa
+        # from pineboolib.qsa import qsa
         from pineboolib.plugins.mainform.eneboo_mdi import eneboo_mdi
 
-        import os
+        # import os
 
         application.project.main_form = eneboo_mdi
         eneboo_mdi.mainWindow = eneboo_mdi.MainForm()
         eneboo_mdi.mainWindow.initScript()
         application.project.main_window = eneboo_mdi.mainWindow
 
-        qsa_sys = qsa.sys
+        # qsa_sys = qsa.sys
         # path = fixture_path("principal.eneboopkg")
         # self.assertTrue(os.path.exists(path))
         # qsa_sys.loadModules(path, False)
