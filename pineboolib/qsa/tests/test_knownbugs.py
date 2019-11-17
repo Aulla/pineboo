@@ -225,6 +225,23 @@ class TestKnownBugs(unittest.TestCase):
         self.assertTrue(qry.first())
         self.assertEqual(str(qry.value(0)), "")
 
+    def test_args(self) -> None:
+        """Test translate with args parse."""
+        self.maxDiff = None
+        cadena = qs2py(
+            """var res = util.translate("scripts", "Uno %1 para %2. ¿Desea continuar?")
+        .arg(qryRecargo.value("f.codigo"))
+        .arg(qryRecargo.value("f.nombrecliente"))"""
+        )
+
+        cadena_result = """res = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
+    str(qryRecargo.value("f.codigo")),
+    str(qryRecargo.value("f.nombrecliente")),
+)\n"""
+
+        print(cadena_result)
+        self.assertEqual(cadena, cadena_result)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
