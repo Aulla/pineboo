@@ -25,4 +25,4 @@ class QTimeEdit(QtWidgets.QTimeEdit):
 
         return super().time().toString("hh:mm:ss")
 
-    time = property(getTime, setTime)  # type: ignore
+    time: str = property(getTime, setTime)  # type: ignore [assignment] # noqa F821
