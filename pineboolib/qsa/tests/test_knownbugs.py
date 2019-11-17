@@ -229,12 +229,14 @@ class TestKnownBugs(unittest.TestCase):
         """Test translate with args parse."""
         self.maxDiff = None
         cadena = qs2py(
-            """var res = util.translate("scripts", "Uno %1 para %2. ¿Desea continuar?")
+            """var qryRecargo: FLSqlQuery = new FLSqlQuery;    
+        var res = util.translate("scripts", "Uno %1 para %2. ¿Desea continuar?")
         .arg(qryRecargo.value("f.codigo"))
         .arg(qryRecargo.value("f.nombrecliente"))"""
         )
 
-        cadena_result = """res = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
+        cadena_result = """qryRecargo = qsa.FLSqlQuery()
+res = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
     str(qryRecargo.value("f.codigo")),
     str(qryRecargo.value("f.nombrecliente")),
 )\n"""
