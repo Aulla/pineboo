@@ -1725,11 +1725,11 @@ class Member(ASTPython):
                             sPart2 = ""
                             if len(part2) > 0:
                                 for i in range(len(part2)):
-                                    part2[i] = str(part2[i]).replace("arg", "str")
+
+                                    part2[i] = str(part2[i]).replace("arg(", "str(")
                                 sPart2 = ", " + ", ".join(part2)
                             sPart1 = re.sub(r"%\d", "%s", sPart1)
                             arguments = ["%s %% (str(%s" % (sPart1, value + ")" + sPart2 + ")")]
-
                     elif member == "join":
                         value = arg1[5:]
                         value = value[: len(value) - 1] or '""'
