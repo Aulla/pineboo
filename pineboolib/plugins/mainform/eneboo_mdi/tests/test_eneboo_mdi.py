@@ -36,9 +36,9 @@ class TestEnebooGUI(unittest.TestCase):
         application.project.main_window = eneboo_mdi.mainWindow
 
         qsa_sys = qsa.sys
-        path = fixture_path("principal.eneboopkg")
-        self.assertTrue(os.path.exists(path))
-        qsa_sys.loadModules(path, False)
+        # path = fixture_path("principal.eneboopkg")
+        # self.assertTrue(os.path.exists(path))
+        # qsa_sys.loadModules(path, False)
         application.project.main_window = application.project.main_form.mainWindow  # type: ignore
         self.assertTrue(application.project.main_window)
 
