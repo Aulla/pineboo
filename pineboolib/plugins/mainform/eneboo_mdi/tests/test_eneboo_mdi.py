@@ -1,7 +1,5 @@
 """Test Eneboo module."""
 
-from PyQt5 import QtWidgets
-
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
@@ -41,7 +39,7 @@ class TestEnebooGUI(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
-        application.project.main_window = application.project.main_form.mainWindow
+        application.project.main_window = application.project.main_form.mainWindow  # type: ignore
         self.assertTrue(application.project.main_window)
 
         application.project.main_window.initToolBar()

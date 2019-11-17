@@ -3,23 +3,19 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtWidgets, Qt, QtGui
 
-
-from pineboolib.core import decorators
-from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core.settings import config
-
-from .flsqlcursor import FLSqlCursor
-
+from pineboolib.core import decorators, settings
+from pineboolib.core.utils import utils_base
 
 from pineboolib import logging
+
 from typing import Any, Optional, List, Dict, Tuple, cast, TYPE_CHECKING
 
 from pineboolib.application.database import pnsqlcursor, pncursortablemodel
 
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData  # noqa: F401
-    from pineboolib.application.metadata.pntablemetadata import PNTableMetaData  # noqa: F401
+    from pineboolib.application.metadata import pnfieldmetadata
+    from pineboolib.application.metadata import pntablemetadata
 
 logger = logging.getLogger(__name__)
 
@@ -118,14 +114,14 @@ class FLDataTable(QtWidgets.QTableView):
     onlyTable_: bool
     changingNumRows_: bool
     paintFieldName_: Optional[str]
-    paintFieldMtd_: Optional["PNFieldMetaData"]
+    paintFieldMtd_: Optional["pnfieldmetadata.PNFieldMetaData"]
 
     def __init__(
         self, parent: Optional[Any] = None, name: Optional[str] = None, popup: bool = False
     ):
         """Inicialize."""
 
-        super(FLDataTable, self).__init__(parent)
+        super().__init__(parent)
 
         if parent:
             self._parent = parent
@@ -146,8 +142,8 @@ class FLDataTable(QtWidgets.QTableView):
         self.persistentFilter_ = ""
         self.widthCols_ = {}
 
-        self.pixOk_ = filedir("./core/images/icons", "unlock.png")
-        self.pixNo_ = filedir("./core/images/icons", "lock.png")
+        self.pixOk_ = utils_base.filedir("./core/images/icons", "unlock.png")
+        self.pixNo_ = utils_base.filedir("./core/images/icons", "lock.png")
         self.paintFieldMtd_ = None
         self.refreshing_ = False
         self.popup_ = False
@@ -255,7 +251,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         self.sort_ = sort
 
-    # def cursor(self) -> Optional[FLSqlCursor]:
+    # def cursor(self) -> Optional[pnsqlcursor.PNSqlCursor]:
     #    """
     #    Devuelve el cursor
     #    """
@@ -468,7 +464,7 @@ class FLDataTable(QtWidgets.QTableView):
             if key_event.key() == QtCore.Qt.Key_Space:
                 self.setChecked(self.model().index(r, c))
 
-            if not config.value("ebcomportamiento/FLTableShortCut", False):
+            if not settings.config.value("ebcomportamiento/FLTableShortCut", False):
                 if key_event.key() == QtCore.Qt.Key_A and not self.popup_:
                     if (
                         self.cursor_
@@ -573,7 +569,9 @@ class FLDataTable(QtWidgets.QTableView):
         tmp_pos = e.globalPos()
 
         for rel in rel_list:
-            cur = FLSqlCursor(rel.foreignTable(), True, db.connectionName(), None, None, popup)
+            cur = pnsqlcursor.PNSqlCursor(
+                rel.foreignTable(), True, db.connectionName(), None, None, popup
+            )
 
             if cur.d.metadata_:
                 mtd = cur.metadata()
@@ -658,7 +656,9 @@ class FLDataTable(QtWidgets.QTableView):
     #    self.setNumRows(self.cursor_.size())
     #    self.changingNumRows_ = False
 
-    def paintFieldMtd(self, f: str, t: "PNTableMetaData") -> "PNFieldMetaData":
+    def paintFieldMtd(
+        self, f: str, t: "pntablemetadata.PNTableMetaData"
+    ) -> "pnfieldmetadata.PNFieldMetaData":
         """
         Return the metadata of a field.
         """
@@ -832,7 +832,7 @@ class FLDataTable(QtWidgets.QTableView):
         Unlink a cursor to this control.
         """
 
-        if not obj or not isinstance(obj, FLSqlCursor):
+        if not obj or not isinstance(obj, pnsqlcursor.PNSqlCursor):
             return
 
         self.cursor_ = None
@@ -918,7 +918,7 @@ class FLDataTable(QtWidgets.QTableView):
         """
         return self.header().visualIndex(c)
 
-    def visual_index_to_field(self, pos_: int) -> Optional["PNFieldMetaData"]:
+    def visual_index_to_field(self, pos_: int) -> Optional["pnfieldmetadata.PNFieldMetaData"]:
         """
         Return the metadata of a field according to visual position.
         """

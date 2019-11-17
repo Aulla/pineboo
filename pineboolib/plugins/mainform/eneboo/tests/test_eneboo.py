@@ -16,6 +16,8 @@ logger = logging.getLogger("eneboo_%s" % __name__)
 class TestEnebooGUI(unittest.TestCase):
     """Tes EnebooGUI class."""
 
+    prev_main_window_name: str
+
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
