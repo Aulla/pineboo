@@ -16,14 +16,14 @@ logger = logging.getLogger("eneboo_%s" % __name__)
 class TestEnebooGUI(unittest.TestCase):
     """Tes EnebooGUI class."""
 
-    main_w: QtWidgets.QMainWindow
-
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
 
         config.set_value("application/isDebuggerMode", True)
         config.set_value("application/dbadmin_enabled", True)
+        cls.prev_main_window_name = config.value("ebcomportamiento/main_form_name", "eneboo")
+        config.set_value("ebcomportamiento/main_form_name", "eneboo")
 
         init_testing()
 
@@ -86,5 +86,6 @@ class TestEnebooGUI(unittest.TestCase):
 
         config.set_value("application/isDebuggerMode", False)
         config.set_value("application/dbadmin_enabled", False)
+        config.set_value("ebcomportamiento/main_form_name", cls.prev_main_window_name)
 
         finish_testing()
