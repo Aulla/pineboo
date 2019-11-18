@@ -11,6 +11,7 @@ from pineboolib.core.utils import logging
 
 from typing import Any, Optional, Union
 
+from . import aqshttp
 
 logger = logging.getLogger("AQS")
 
@@ -88,6 +89,9 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
                 ret_ = getattr(lib, name, None)
                 if ret_ is not None:
                     break
+
+        if ret_ is None:
+            ret_ = getattr(aqshttp.AQSHttp(), "Http%s" % name, None)
 
         if ret_ is not None:
             logger.info("AQS: Looking up attr: %r -> %r  (Please set these in AQS)", name, ret_)
