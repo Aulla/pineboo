@@ -1,0 +1,514 @@
+"""QHttp module."""
+
+from PyQt5 import QtCore, QtNetwork, QtWidgets
+from typing import Union, Optional, cast, Dict, List, Any
+from pineboolib.core import decorators
+
+
+class QHttpRequest(object):
+    """QHttpRequest class."""
+
+    _valid: bool
+    _major_ver: int
+    _minor_ver: int
+    _values: Dict[str, Any]
+
+    def __init__(self):
+        """Initialize."""
+
+        self._values = {}
+        self._major_ver = 1
+        self._minor_ver = 1
+
+    def majorVersion(self) -> int:
+        """Return major version."""
+
+        return self._major_ver
+
+    def minorVersion(self) -> int:
+        """Return minor version."""
+
+        return self._minor_ver
+
+    @decorators.NotImplementedWarn
+    def parse(self, text_: str):
+        """Parse text."""
+
+        pass
+
+    def keys(self) -> str:
+        """Return keys stringlist."""
+
+        return ",".join(list(self._values.keys()))
+
+    def setValue(self, key_: str, value_: Any):
+        """Set key to dict."""
+
+        self._values[key_.lower()] = value_
+
+    def removeValue(self, key_: str):
+        """Remove key from dict."""
+
+        k_ = key_.lower()
+        if k_ in self._values.keys():
+            self._values[k_] = None
+            del self._values[k_]
+
+    def setValid(self, valid_: bool) -> None:
+        """Set if is valid."""
+
+        self._valid = valid_
+
+    def parseLine(self, line_: str, num_: int = 0) -> bool:
+        """Parse line."""
+
+        if line_.find(":") == -1:
+            return False
+        else:
+            list_ = line_.split(":")
+            self._values[list_[0].lower()] = list_[1]
+
+            return True
+
+    def __str__(self):
+        """Return string value."""
+
+        if not self._valid:
+            return ""
+        ret_ = ""
+        for k, v in self._values:
+            ret_ += "%s:%s\r\n" % (k, v)
+
+        return ret_
+
+    def hasContentLength(self):
+        """Return if content length is avaliable."""
+
+        return "content-length" in self._values.keys()
+
+    def contentLenth(self) -> int:
+        """Return content length."""
+
+        if "content-length" in self._values.keys():
+            return self._values["content-length"]
+        else:
+            return 0
+
+    def setContentLength(self, length_: int) -> None:
+        """Set content length."""
+
+        self._values["content-length"] = length_
+
+    def hasContentType(self):
+        """Return if has content type."""
+
+        return "content-type" in self._values.keys()
+
+    def contentType(self) -> str:
+        """Return content type."""
+
+        if "content-type" in self._values.keys():
+            return self._values["content-type"]
+        else:
+            return ""
+
+    def setContentType(self, type_: str) -> None:
+        """Set content type."""
+
+        self._values["content-type"] = type_
+
+
+class QHttpResponseHeader(QHttpRequest):
+    """QHttpRespnse class."""
+
+    _status_code: int
+    _reason_phr: Optional[str]
+
+    def __init__(self, *args):
+        """Initialize."""
+
+        super().__init__()
+        self.setValid(False)
+        self._status_code = 0
+        self._reason_phr = ""
+
+        if len(args) > 1:
+            self._status_code = args[0]
+            self._reason_phr = args[1] or ""
+            if len(args) > 2:
+                self._major_ver = args[2]
+            if len(args) > 3:
+                self._minor_ver = args[3]
+        else:
+            self.parse(args[0])
+
+    def setStatusLine(self, code_: int, text_: Optional[str] = None, major_ver_=1, minor_ver_=1):
+        """Set status line."""
+
+        self.setValid(True)
+        self._status_code = code_
+        self._reason_phr = text_
+        self._major_ver = major_ver_
+        self._minor_ver = minor_ver_
+
+    def statusCode(self) -> int:
+        """Return status code."""
+
+        return self._status_code
+
+    def reasonPhrase(self) -> str:
+        """Return reason."""
+
+        return self._reason_phr or ""
+
+    def parseLine(self, line_: str, number_: int = 0) -> bool:
+        """Parse Line."""
+        if number_ != 0:
+            return super().parseLine(line_)
+
+        l_ = line_.strip()
+        if len(l_) < 10:
+            return False
+
+        if (
+            l_[0:5] == "HTTP/"
+            and l_[5].isdigit()
+            and l_[6] == "."
+            and l_[7].isdigit()
+            and l_[8] == "."
+            and l_[9].isdigit()
+        ):
+            self._major_ver = int(l_[5]) - 0
+            self._minor_ver = int(l_[7]) - 0
+
+            pos = l_[9:].find(" ")
+            if pos > -1:
+                self._reason_phr = l_[9 + pos :]
+                self._status_code = int(l_[9 : 9 + pos])
+            else:
+                self._status_code = int(l_[9:])
+                self._reason_phr = ""
+        else:
+            return False
+
+        return True
+
+    def __str__(self):
+        """Return str value."""
+
+        return "HTTP/%s.%s %s %s\r\n%s\r\n" % (
+            self._major_ver,
+            self._minor_ver,
+            self._status_code,
+            self._reason_phr,
+            str(super()),
+        )
+
+
+class QHttpRequestHeader(QHttpRequest):
+    """QHttpRequestHeader class."""
+
+    _method: str
+    _path: str
+
+    def __init__(self, *args):
+        """Initialize."""
+
+        super().__init__()
+
+        self.setValid(False)
+        self._method = "POS"
+
+        if len(args) > 1:
+            self._method = args[0]
+            self._path = args[1]
+            if len(args) > 2:
+                self._major_ver: int = args[2]
+            if len(args) > 3:
+                self._minor_ver: int = args[3]
+
+        elif isinstance(args[0], str):
+            self.parse(args[0])
+        else:
+            self = args[0]
+
+    def setRequest(self, method_: str, path_: str, major_ver: int = 1, minor_ver=1):
+        """Set request."""
+
+        self.setValid(True)
+        self._method = method_
+        self._path = path_
+        self._major_ver = major_ver
+        self._minor_ver = minor_ver
+
+    def method(self) -> str:
+        """Return method."""
+
+        return self._method
+
+    def path(self) -> str:
+        """Return path."""
+
+        return self._path
+
+    def __str__(self):
+        """Return string value."""
+
+        return "%s %s HTTP/%s.%s\r\n%s\r\n" % (
+            self._method,
+            self._path,
+            self._major_ver,
+            self._minor_ver,
+            str(super()),
+        )
+
+
+class HttpState(object):
+    """HttpState class."""
+
+    Unconnected = 0
+    HostLookup = 1
+    Connecting = 2
+    Sending = 3
+    Reading = 4
+    Connected = 5
+    Closing = 6
+
+
+class HttpError(object):
+    """HttpError class."""
+
+    NoError = 0
+    UnknownError = 1
+    HostNotFound = 2
+    ConnectionRefused = 3
+    UnexpectedClose = 4
+    InvalidResponseHeader = 5
+    WrongContentLength = 6
+    Aborted = 7
+
+
+class QHttp(HttpState, HttpError):
+    """QHttp class."""
+
+    stateChanged = QtCore.pyqtSignal(int)
+    dataSendProgress = QtCore.pyqtSignal(int, int)
+    dataReadProgress = QtCore.pyqtSignal(int, int)
+    requestStarted = QtCore.pyqtSignal(int)
+    requestFinished = QtCore.pyqtSignal(int, bool)
+    responseHeaderReceived = QtCore.pyqtSignal(QHttpResponseHeader)
+    done = QtCore.pyqtSignal(bool)
+    readyRead = QtCore.pyqtSignal(QHttpResponseHeader)
+
+    _manager: QtNetwork.QNetworkAccessManager
+    _reply: QtNetwork.QNetworkReply
+    _state: int
+    _error: int
+    _host: str
+    _port: int
+    _name: str
+    _error_str: str
+    _parent: Optional[QtCore.QObject]
+    _operation: int
+    _pending_request: List[QHttpRequest]
+    _data: Optional[QtCore.QIODevice]
+
+    def __init__(self, *args, **kwargs):
+        """Initialize."""
+
+        super().__init__()
+        self._state = self.Unconnected
+        self._error = self.NoError
+        self._pending_request = []
+        self._data = None
+
+        if kwargs:
+            self.initialize1(args[0], **kwargs)
+        elif args:
+            self.initialize2(*args)
+
+        self._manager = QtNetwork.QNetworkAccessManager()
+        # self._request = QtNetwork.QNetworkRequest()
+        cast(QtCore.pyqtSignal, self._manager.finished).connect(self._slotNetworkFinished)
+
+        self._error_str = QtWidgets.QApplication.translate("QHttp", "Unknown error")
+
+    def initialize1(
+        self,
+        host_name: str,
+        port_: int = 80,
+        parent_: Optional[QtCore.QObject] = None,
+        name_: Optional[str] = None,
+    ):
+        """Initialize with kwars."""
+        self._host = host_name
+        self._port = port_
+        self._parent = parent_
+        self._name = name_ or ""
+
+    def initialize2(self, parent_: QtCore.QObject, name_: str = ""):
+        """Initialize with args."""
+
+        self._parent = parent_
+        self._name = name_
+
+    def setHost(self, name_: str, port_: int = 80) -> None:
+        """Set host."""
+
+        self._name = name_
+        self._port = port_
+
+    def get(self, path_: str) -> None:
+        """Get data from url."""
+
+        self._data = QtCore.QIODevice()
+        _request = QtNetwork.QNetworkRequest()
+        _request.setUrl(QtCore.QUrl("%s:%s%s" % (self._host, self._port, path_)))
+        self._reply = self._manager.get(_request)
+        cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgress)
+
+    def post(self, path_: str, data_: Union[QtCore.QIODevice, QtCore.QByteArray]) -> None:
+        """Send data to url."""
+
+        self._data = QtCore.QIODevice()
+        _request = QtNetwork.QNetworkRequest()
+        _request.setUrl(QtCore.QUrl("%s:%s%s" % (self._host, self._port, path_)))
+        self._reply = self._manager.post(_request, data_)
+        cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgress)
+
+    @decorators.NotImplementedWarn
+    def head(self, path_: str) -> None:
+        """Set head."""
+        return None
+        # header = QHttpRequestHeader("HEAD", path_)
+        # header.setValue("Connection", "Keep-Alive")
+        # return self.request()
+
+    def request(
+        self,
+        request_header: QHttpRequestHeader,
+        data_: Union[QtCore.QIODevice, QtCore.QByteArray],
+        buffer_: QtCore.QIODevice,
+    ) -> None:
+        """Send request."""
+
+        self._data = None
+        del self._data
+        _request = QtNetwork.QNetworkRequest()
+
+        if request_header.hasContentType():
+            _request.setHeader(
+                QtNetwork.QNetworkRequest.ContentTypeHeader, request_header.contentType()
+            )
+
+        _request.setUrl(QtCore.QUrl("%s:%s%s" % (self._host, self._port, request_header.path())))
+        method_ = getattr(self._manager, request_header.method().lower(), None)
+        self._data = buffer_
+        self._reply = method_(_request, data_)
+
+        cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgress)
+
+        self.requestStarted.emit()
+
+    @decorators.NotImplementedWarn
+    def closeConnection(self) -> None:
+        """Close Connection."""
+
+        self._reply.close()
+
+    def bytesAvalible(self) -> int:
+        """Return bytes avalible."""
+
+        if self._data is not None:
+            return self._data.size()
+        else:
+            return self._reply.size()
+
+    @decorators.NotImplementedWarn
+    def readBlock(self, data_: str, max_length_: int) -> None:
+        """Read block."""
+
+        pass
+
+    def readAll(self) -> QtCore.QByteArray:
+        """Read all data."""
+        if self._data is not None:
+            return self._data.readAll()
+        else:
+            return self._reply.readAll()
+
+    @decorators.NotImplementedWarn
+    def currentId(self) -> None:
+        """Return id."""
+        # return self._pending_request[0].id
+        pass
+
+    @decorators.NotImplementedWarn
+    def currentSourceDevice(self) -> QtCore.QIODevice:
+        """Return current source device."""
+
+        pass
+
+    @decorators.NotImplementedWarn
+    def currentDestinationDevice(self) -> QtCore.QIODevice:
+        """Return current destination device."""
+
+        pass
+
+    @decorators.NotImplementedWarn
+    def currentRequest(self) -> QHttpRequest:
+        """Return current request."""
+
+        return self._pending_request[0]
+
+    @decorators.NotImplementedWarn
+    def hasPendingRequests(self) -> bool:
+        """Return if pendidng reuqest exists."""
+
+        return len(self._pending_request) > 0
+
+    def clearPendingRequests(self):
+        """Clear pending requests."""
+
+        for request_ in list(self._pending_request):
+            self._pending_request.remove(request_)
+
+    def setState(self, state_: int) -> None:
+        """Set state."""
+
+        self._state = state_
+
+    def state(self) -> int:
+        """Return state."""
+
+        return self._state
+
+    def error(self) -> int:
+        """Return error."""
+
+        return cast(int, self._reply.NetworkError)
+
+    @decorators.NotImplementedWarn
+    def errorString(self) -> str:
+        """Return error string."""
+
+        return self._error_str
+
+    @decorators.pyqtSlot()
+    def _slotNetworkFinished(self):
+        """Send done signal."""
+        self.done.emit()
+        self.requestFinished.emit(0)
+
+    @decorators.pyqtSlot()
+    def _slotNetworkProgress(self, b_done: int, b_total: int) -> None:
+        """Send done signal."""
+        if self._reply is None:
+            raise Exception("No reply in progress")
+
+        self.dataReadProgress.emit(b_done, b_total)
+        self.dataSendProgress.emit(b_done, b_total)
+        if self._data is not None:
+            self._data.write(self._reply.readAll())
+        else:
+            self.readyRead.emit()
