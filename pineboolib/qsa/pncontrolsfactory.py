@@ -49,6 +49,8 @@ from pineboolib.q3widgets.qlistviewwidget import QListViewWidget  # noqa: F401
 from pineboolib.q3widgets.qdatetime import QDateTime  # noqa: F401
 from pineboolib.q3widgets.qdir import QDir  # noqa: F401
 
+from pineboolib.q3widgets.qhttp import QHttp, QHttpResponseHeader, QHttpRequestHeader  # noqa: F401
+
 from PyQt5.QtWidgets import QActionGroup  # noqa: F401
 from PyQt5.QtWidgets import QInputDialog  # noqa: F401
 from PyQt5.QtWidgets import QApplication  # noqa: F401
@@ -166,6 +168,7 @@ from pineboolib.fllegacy.aqsobjects.aqs import AQS  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsignalmapper import AQSignalMapper  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqssproject import AQSSProject  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqobjectquerylist import AQObjectQueryList  # noqa: F401
+
 
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 
