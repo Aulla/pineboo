@@ -279,6 +279,16 @@ class TestDir(unittest.TestCase):
         self.assertEqual(os.curdir, Dir().current)
         self.assertEqual(os.curdir, DirStatic.current)
 
+    def test_mkdir_rmdir(self) -> None:
+        """Test mkdir and rmdir."""
+
+        tmp_dir = config.value("ebcomportamiento/temp_dir")
+        my_dir = Dir(tmp_dir)
+        my_dir.mkdir("test")
+        self.assertTrue(os.path.exists("%s/test" % tmp_dir))
+        my_dir.rmdirs("test")
+        self.assertFalse(os.path.exists("%s/test" % tmp_dir))
+
 
 if __name__ == "__main__":
     unittest.main()

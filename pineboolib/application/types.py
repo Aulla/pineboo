@@ -432,10 +432,13 @@ class Dir(object):
         if name is None:
             name = ""
 
-        if self.path is None:
-            raise ValueError("self.path is not defined!")
+            if self.path is None:
+                raise ValueError("self.path is not defined!")
 
-        name_ = self.path + "/" + name
+        if self.path:
+            name_ = self.path + "/" + name
+        else:
+            name_ = name
         try:
             os.stat(name_)
         except Exception:
@@ -445,15 +448,14 @@ class Dir(object):
         """ Delete a folder."""
 
         if name is None:
-            name = ""
+            raise ValueError("name is not defined!")
 
         if self.path is None:
             raise ValueError("self.path is not defined!")
 
         name_ = self.path + "/" + name
-        try:
-            os.stat(name_)
-        except Exception:
+
+        if os.path.exists(name_):
             import shutil
 
             shutil.rmtree(name_)
