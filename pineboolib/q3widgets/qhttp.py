@@ -30,11 +30,33 @@ class QHttpRequest(object):
 
         return self._minor_ver
 
-    @decorators.NotImplementedWarn
-    def parse(self, text_: str):
+    def parse(self, text_: str) -> bool:
         """Parse text."""
 
-        pass
+        list_ = []
+        pos = text_.find("\n")
+        if pos > 0 and text_[pos - 1] == "\r":
+            list_ = text_.strip().split("\r\n")
+        else:
+            list_ = text_.strip().split("\n")
+
+        if not list_:
+            return
+        lines_ = []
+        for it in list_:
+            if it[0].isspace():
+                if lines_:
+                    lines_[len(lines_) - 1] += " "
+                    lines_[len(lines_) - 1] += it.strip()
+            else:
+                lines_.append(it)
+
+        for i in range(len(lines_)):
+            if not self.parseLine(lines_[i], i):
+                self._valid = False
+                return False
+
+        return True
 
     def keys(self) -> str:
         """Return keys stringlist."""
