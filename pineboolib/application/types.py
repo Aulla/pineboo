@@ -334,6 +334,8 @@ class Dir(object):
     Emulates QtCore.QDir for QSA.
     """
 
+    path = Optional[str]
+
     # Filters :
     Files = QtCore.QDir.Files
     Dirs = QtCore.QDir.Dirs
@@ -428,14 +430,33 @@ class Dir(object):
         @param name. Nombre de la ruta a crear
         """
         if name is None:
-            if self.path is None:
-                raise ValueError("self.path is not defined!")
+            name = ""
 
-            name = self.path
+        if self.path is None:
+            raise ValueError("self.path is not defined!")
+
+        name_ = self.path + "/" + name
         try:
-            os.stat(name)
+            os.stat(name_)
         except Exception:
-            os.mkdir(name)
+            os.mkdir(name_)
+
+    def rmdirs(self, name: Optional[str] = None) -> None:
+        """ Delete a folder."""
+
+        if name is None:
+            name = ""
+
+        if self.path is None:
+            raise ValueError("self.path is not defined!")
+
+        name_ = self.path + "/" + name
+        try:
+            os.stat(name_)
+        except Exception:
+            import shutil
+
+            shutil.rmtree(name_)
 
     current = property(getCurrent, set_current)
 
