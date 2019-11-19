@@ -240,8 +240,20 @@ res = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
     str(qryRecargo.value("f.codigo")),
     str(qryRecargo.value("f.nombrecliente")),\n)\n"""
 
-        print(cadena_result)
         self.assertEqual(cadena, cadena_result)
+
+    def test_args_str_int(self) -> None:
+        """Test argStr and argInt."""
+
+        one = """var res= util.translate("scripts", "Hola %1").argStr("Uno");"""
+        result_one = """res = qsa.util.translate("scripts", "Hola %s") % (str("Uno"))\n"""
+
+        self.assertEqual(qs2py(one), result_one)
+
+        two = """var res= util.translate("scripts", "Hola %1").argInt("Dos");"""
+        result_two = """res = qsa.util.translate("scripts", "Hola %s") % (str("Dos"))\n"""
+
+        self.assertEqual(qs2py(two), result_two)
 
     @classmethod
     def tearDownClass(cls) -> None:
