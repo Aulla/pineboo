@@ -33,7 +33,7 @@ class QHttpRequest(object):
     def parse(self, text_: str) -> bool:
         """Parse text."""
 
-        list_ = []
+        list_: List[str] = []
         pos = text_.find("\n")
         if pos > 0 and text_[pos - 1] == "\r":
             list_ = text_.strip().split("\r\n")
@@ -41,8 +41,9 @@ class QHttpRequest(object):
             list_ = text_.strip().split("\n")
 
         if not list_:
-            return
-        lines_ = []
+            return True
+
+        lines_: List[str] = []
         for it in list_:
             if it[0].isspace():
                 if lines_:

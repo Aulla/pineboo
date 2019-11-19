@@ -334,7 +334,7 @@ class Dir(object):
     Emulates QtCore.QDir for QSA.
     """
 
-    path = Optional[str]
+    path: Optional[str]
 
     # Filters :
     Files = QtCore.QDir.Files
@@ -350,7 +350,7 @@ class Dir(object):
 
     def __init__(self, path: Optional[str] = None):
         """Create a new Dir."""
-        self.path: Optional[str] = path
+        self.path = path
 
     def entryList(self, patron: str, type_: int = NoFilter, sort: int = NoSort) -> list:
         """
@@ -445,7 +445,7 @@ class Dir(object):
             os.mkdir(name_)
 
     def rmdirs(self, name: Optional[str] = None) -> None:
-        """ Delete a folder."""
+        """Delete a folder."""
 
         if name is None:
             raise ValueError("name is not defined!")
