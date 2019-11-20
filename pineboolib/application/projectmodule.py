@@ -3,22 +3,28 @@ Project Module.
 """
 import os
 import time
-from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
 from optparse import Values
 from pathlib import Path
+from multiprocessing import Pool
+
+from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
+
 
 # from pineboolib.fllegacy.flaccesscontrollists import FLAccessControlLists # FIXME: Not allowed yet
 from PyQt5 import QtWidgets
 
-from pineboolib.core.utils import logging
-from pineboolib.core.utils.utils_base import filedir
+from pineboolib.core.utils import logging, utils_base
 from pineboolib.core.utils.struct import AreaStruct
-from pineboolib.core.exceptions import CodeDoesNotBelongHereException, NotConnectedError
-from pineboolib.core.settings import config
+from pineboolib.core import exceptions, settings, message_manager
 
-from pineboolib.application.module import Module
-from pineboolib.application.utils.path import _dir
+
+from pineboolib.application.parsers.qsaparser import postparse, pytnyzer, pyconvert
+from pineboolib.application.parsers.mtdparser import pnormmodelsfactory
 from pineboolib.application.database import pnconnectionmanager
+from pineboolib.application.utils import path, xpm
+from pineboolib.application import module, file
+
+from pineboolib.application.parsers import qsaparser
 
 
 if TYPE_CHECKING:
@@ -40,7 +46,7 @@ class Project(object):
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
     debugLevel = 100
     options: Values
-    modules: Dict[str, "Module"]
+    modules: Dict[str, "module.Module"]
 
     # _initModules = None
     main_form: Any = None  # FIXME: How is this used? Which type?
@@ -65,7 +71,7 @@ class Project(object):
         self.root = None
         self.alternative_folder = None
         self.apppath = ""
-        self.tmpdir = config.value("ebcomportamiento/temp_dir")
+        self.tmpdir = settings.config.value("ebcomportamiento/temp_dir")
         self.parser = None
         # self.main_form_name: Optional[str] = None
         self.deleteCache = False
@@ -76,8 +82,8 @@ class Project(object):
         self.files: Dict[Any, Any] = {}  # FIXME: Add proper type
         self.options = Values()
         if self.tmpdir is None:
-            self.tmpdir = filedir("%s/Pineboo/tempdata" % Path.home())
-            config.set_value("ebcomportamiento/temp_dir", self.tmpdir)
+            self.tmpdir = utils_base.filedir("%s/Pineboo/tempdata" % Path.home())
+            settings.config.set_value("ebcomportamiento/temp_dir", self.tmpdir)
 
         if not os.path.exists(self.tmpdir):
             Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
@@ -117,19 +123,18 @@ class Project(object):
         #    self._conn = None
 
         self._conn_manager.setMainConn(connection)
-        self.apppath = filedir("..")
+        self.apppath = utils_base.filedir("..")
 
-        self.deleteCache = config.value("ebcomportamiento/deleteCache", False)
-        self.parseProject = config.value("ebcomportamiento/parseProject", False)
+        self.deleteCache = settings.config.value("ebcomportamiento/deleteCache", False)
+        self.parseProject = settings.config.value("ebcomportamiento/parseProject", False)
 
     def init_dgi(self, DGI: "dgi_schema") -> None:
         """Load and associate the defined DGI onto this project."""
         # FIXME: Actually, DGI should be loaded here, or kind of.
-        from pineboolib.core.message_manager import Manager
 
         self._DGI = DGI
 
-        self._msg_mng = Manager(DGI)
+        self._msg_mng = message_manager.Manager(DGI)
 
         self._DGI.extraProjectInit()
 
@@ -157,7 +162,7 @@ class Project(object):
     #     return self.acl_
     def acl(self):
         """Return loaded ACL."""
-        raise CodeDoesNotBelongHereException("ACL Does not belong to PROJECT. Go away.")
+        raise exceptions.CodeDoesNotBelongHereException("ACL Does not belong to PROJECT. Go away.")
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
@@ -175,32 +180,34 @@ class Project(object):
             raise Exception("DGI not loaded")
 
         if not self.conn_manager or "main_conn" not in self.conn_manager.conn_dict.keys():
-            raise NotConnectedError("Cannot execute Pineboo Project without a connection in place")
+            raise exceptions.NotConnectedError(
+                "Cannot execute Pineboo Project without a connection in place"
+            )
 
         conn = self.conn_manager.mainConn()
         # TODO: Refactorizar esta función en otras más sencillas
         # Preparar temporal
 
-        if self.deleteCache and os.path.exists(_dir("cache/%s" % conn.DBName())):
+        if self.deleteCache and os.path.exists(path._dir("cache/%s" % conn.DBName())):
 
             self.message_manager().send("splash", "showMessage", ["Borrando caché ..."])
             self.logger.debug(
-                "DEVELOP: DeleteCache Activado\nBorrando %s", _dir("cache/%s" % conn.DBName())
+                "DEVELOP: DeleteCache Activado\nBorrando %s", path._dir("cache/%s" % conn.DBName())
             )
-            for root, dirs, files in os.walk(_dir("cache/%s" % conn.DBName()), topdown=False):
+            for root, dirs, files in os.walk(path._dir("cache/%s" % conn.DBName()), topdown=False):
                 for name in files:
                     os.remove(os.path.join(root, name))
                 for name in dirs:
                     os.rmdir(os.path.join(root, name))
 
-        if not os.path.exists(_dir("cache")):
-            os.makedirs(_dir("cache"))
+        if not os.path.exists(path._dir("cache")):
+            os.makedirs(path._dir("cache"))
 
-        if not os.path.exists(_dir("cache/%s" % conn.DBName())):
-            os.makedirs(_dir("cache/%s" % conn.DBName()))
+        if not os.path.exists(path._dir("cache/%s" % conn.DBName())):
+            os.makedirs(path._dir("cache/%s" % conn.DBName()))
 
         if not self.deleteCache:
-            keep_images = config.value("ebcomportamiento/keep_general_cache", False)
+            keep_images = settings.config.value("ebcomportamiento/keep_general_cache", False)
             if keep_images is False:
                 for f in os.listdir(self.tmpdir):
                     if f.find(".") > -1 and not f.endswith("sqlite3"):
@@ -248,32 +255,30 @@ class Project(object):
             % conn.driver().formatValue("bool", "True", False)
         )
 
-        self.modules: Dict[str, "Module"] = {}
-        from pineboolib.application.utils.xpm import cacheXPM
+        self.modules: Dict[str, "module.Module"] = {}
 
         for idarea, idmodulo, descripcion, icono in cursor_:
-            icono = cacheXPM(icono)
-            self.modules[idmodulo] = Module(idarea, idmodulo, descripcion, icono)
+            icono = xpm.cacheXPM(icono)
+            self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
 
-        file_object = open(filedir(".", "system_module", "sys.xpm"), "r")
+        file_object = open(utils_base.filedir(".", "system_module", "sys.xpm"), "r")
         icono = file_object.read()
         file_object.close()
         # icono = clearXPM(icono)
 
-        self.modules["sys"] = Module("sys", "sys", "Administración", icono)
+        self.modules["sys"] = module.Module("sys", "sys", "Administración", icono)
 
         cursor_.execute(
             """ SELECT idmodulo, nombre, sha FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
         )
 
-        f1 = open(_dir("project.txt"), "w")
+        f1 = open(path._dir("project.txt"), "w")
         self.files = {}
         if self._DGI.useDesktop() and self._DGI.localDesktop():
             tiempo_ini = time.time()
-        if not os.path.exists(_dir("cache")):
+        if not os.path.exists(path._dir("cache")):
             raise AssertionError
         p = 0
-        from pineboolib.application.file import File
 
         list_files: List[str] = []
 
@@ -284,15 +289,15 @@ class Project(object):
             p = p + 1
             if idmodulo not in self.modules:
                 continue  # I
-            fileobj = File(idmodulo, nombre, sha, db_name=conn.DBName())
+            fileobj = file.File(idmodulo, nombre, sha, db_name=conn.DBName())
             if nombre in self.files:
                 self.logger.warning("run: file %s already loaded, overwritting..." % nombre)
             self.files[nombre] = fileobj
             self.modules[idmodulo].add_project_file(fileobj)
             f1.write(fileobj.filekey + "\n")
 
-            fileobjdir = os.path.dirname(_dir("cache", fileobj.filekey))
-            file_name = _dir("cache", fileobj.filekey)
+            fileobjdir = os.path.dirname(path._dir("cache", fileobj.filekey))
+            file_name = path._dir("cache", fileobj.filekey)
             if not os.path.exists(fileobjdir):
                 os.makedirs(fileobjdir)
 
@@ -312,8 +317,8 @@ class Project(object):
                         continue
 
                 elif file_name.endswith(".mtd"):
-                    if not config.value("ebcomportamiento/orm_parser_disabled", False):
-                        if os.path.exists("%s_model.py" % _dir("cache", fileobj.filekey[:-4])):
+                    if not settings.config.value("ebcomportamiento/orm_parser_disabled", False):
+                        if os.path.exists("%s_model.py" % path._dir("cache", fileobj.filekey[:-4])):
                             continue
                 else:
                     continue
@@ -334,7 +339,7 @@ class Project(object):
                 if str(nombre).endswith(".kut") or str(nombre).endswith(".ts"):
                     encode_ = "utf-8"
 
-                folder = _dir(
+                folder = path._dir(
                     "cache",
                     "/".join(fileobj.filekey.split("/")[: len(fileobj.filekey.split("/")) - 1]),
                 )
@@ -371,25 +376,24 @@ class Project(object):
 
         # Cargar el núcleo común del proyecto
         idmodulo = "sys"
-        for root, dirs, files in os.walk(filedir(".", "system_module")):
+        for root, dirs, files in os.walk(utils_base.filedir(".", "system_module")):
             # list_files = []
             for nombre in files:
                 if root.find("modulos") == -1:
-                    fileobj = File(idmodulo, nombre, basedir=root, db_name=conn.DBName())
+                    fileobj = file.File(idmodulo, nombre, basedir=root, db_name=conn.DBName())
                     self.files[nombre] = fileobj
                     self.modules[idmodulo].add_project_file(fileobj)
 
                     # if self.parseProject and nombre.endswith(".qs"):
-                    # self.parseScript(_dir(root, nombre))
-                    #    list_files.append(_dir(root, nombre))
+                    # self.parseScript(path._dir(root, nombre))
+                    #    list_files.append(path._dir(root, nombre))
 
             # self.parse_script_lists(list_files)
 
-        if not config.value("ebcomportamiento/orm_load_disabled", False):
+        if not settings.config.value("ebcomportamiento/orm_load_disabled", False):
             self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
-            from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import load_models
 
-            load_models()
+            pnormmodelsfactory.load_models()
 
         # FIXME: ACLs needed at this level?
         # self.acl_ = FLAccessControlLists()
@@ -517,8 +521,6 @@ class Project(object):
 
             # clean_no_python = self._DGI.clean_no_python() # FIXME: No longer needed. Applied on the go.
 
-            from pineboolib.application.parsers.qsaparser import postparse
-
             try:
                 postparse.pythonify([scriptname], ["--strict"])
             except Exception:
@@ -526,9 +528,6 @@ class Project(object):
 
     def parse_script_list(self, path_list: List[str]) -> None:
         """Convert QS scripts list into Python and stores it in the same folders."""
-        from .parsers import qsaparser
-        from .parsers.qsaparser import pytnyzer, pyconvert
-        from multiprocessing import Pool
 
         if not path_list:
             return
@@ -569,13 +568,13 @@ class Project(object):
         ***DEPRECATED***
         """
         # FIXME: anti-pattern in Python. Getters for plain variables are wrong.
-        raise CodeDoesNotBelongHereException("Use project.tmpdir instead, please.")
+        raise exceptions.CodeDoesNotBelongHereException("Use project.tmpdir instead, please.")
         # return self.tmpdir
 
     def load_version(self):
         """Initialize current version numbers."""
         self.version = "0.57"
-        if config.value("application/dbadmin_enabled", False):
+        if settings.config.value("application/dbadmin_enabled", False):
             self.version = "DBAdmin v%s" % self.version
         else:
             self.version = "Quick v%s" % self.version
