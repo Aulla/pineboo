@@ -81,7 +81,7 @@ class QHttpRequest(object):
         if key_.lower() in self._values.keys():
             return self._values[key_.lower()]
 
-        raise ValueError("%n not found in values!" % key_)
+        raise ValueError("%s not found in values!" % key_)
 
     def removeValue(self, key_: str):
         """Remove key from dict."""
@@ -376,12 +376,12 @@ class QHttp(HttpState, HttpError):
     def initialize1(
         self,
         host_name: str,
-        # port_: int = 80,
+        port_: int = 80,
         parent_: Optional[QtCore.QObject] = None,
         name_: Optional[str] = None,
     ):
         """Initialize with kwars."""
-        self._host = host_name
+        self._host = "%s:%s" % (host_name, port_)
         # self._port = port_
         self._parent = parent_
         self._name = name_ or ""
@@ -403,7 +403,7 @@ class QHttp(HttpState, HttpError):
 
         _request = QHttpRequestHeader("GET", full_path)
         _request.setValue("Connection", "Keep-Alive")
-        self.request(_request, b"")
+        self.request(_request)
 
         # self._data = QtCore.QBuffer()
         # _request = QtNetwork.QNetworkRequest()
@@ -414,7 +414,7 @@ class QHttp(HttpState, HttpError):
         # self._state = self.Connected
         # cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgressRead)
 
-    def post(self, full_path_: str, data_: Union[QtCore.QIODevice, QtCore.QByteArray]) -> None:
+    def post(self, full_path: str, data_: Union[QtCore.QIODevice, QtCore.QByteArray]) -> None:
         """Send data to url."""
 
         _request = QHttpRequestHeader("POST", full_path)
@@ -440,7 +440,7 @@ class QHttp(HttpState, HttpError):
     def request(
         self,
         request_header: QHttpRequestHeader,
-        data_: Union[QtCore.QIODevice, QtCore.QByteArray],
+        data_: Optional[Union[QtCore.QIODevice, QtCore.QByteArray]] = None,
         buffer_: Optional[QtCore.QBuffer] = None,
     ) -> None:
         """Send request."""
@@ -545,13 +545,15 @@ class QHttp(HttpState, HttpError):
     def hasPendingRequests(self) -> bool:
         """Return if pendidng reuqest exists."""
 
-        return len(self._pending_request) > 0
+        return True
 
-    def clearPendingRequests(self):
+    @decorators.NotImplementedWarn
+    def clearPendingRequests(self) -> None:
         """Clear pending requests."""
 
-        for request_ in list(self._pending_request):
-            self._pending_request.remove(request_)
+        pass
+        # for request_ in list(self._pending_request):
+        #    self._pending_request.remove(request_)
 
     def setState(self, state_: int) -> None:
         """Set state."""

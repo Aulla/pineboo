@@ -46,7 +46,7 @@ class TestQHttp(unittest.TestCase):
         # header_.setContentLength(0)
 
         http_.setHost(host_)
-        http_.request(header_, b"", self._buffer)
+        http_.request(header_, QtCore.QByteArray(), self._buffer)
         while http_._reply.isRunning():
             QtWidgets.QApplication.processEvents()
 
