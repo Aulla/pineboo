@@ -1,6 +1,6 @@
 """QHttp module."""
 
-from PyQt5 import QtCore, QtNetwork, QtWidgets
+from PyQt5 import QtCore, QtNetwork
 from typing import Union, Optional, cast, Dict, List, Any
 from pineboolib.core import decorators
 
@@ -12,13 +12,19 @@ class QHttpRequest(object):
     _major_ver: int
     _minor_ver: int
     _values: Dict[str, Any]
+    _id: int
+    ID: int = 0
 
     def __init__(self):
         """Initialize."""
 
+        self._id = self.ID
+        print("* ID", self._id)
+        self.ID += 1
         self._values = {}
         self._major_ver = 1
         self._minor_ver = 1
+        # self.setValue("Connection", "keep-alive")
 
     def majorVersion(self) -> int:
         """Return major version."""
@@ -68,6 +74,14 @@ class QHttpRequest(object):
         """Set key to dict."""
 
         self._values[key_.lower()] = value_
+
+    def value(self, key_: str):
+        """Return value."""
+
+        if key_.lower() in self._values.keys():
+            return self._values[key_.lower()]
+
+        raise ValueError("%n not found in values!" % key_)
 
     def removeValue(self, key_: str):
         """Remove key from dict."""
@@ -286,7 +300,7 @@ class QHttpRequestHeader(QHttpRequest):
         )
 
 
-class HttpState(object):
+class HttpState(QtCore.QObject):
     """HttpState class."""
 
     Unconnected = 0
@@ -298,7 +312,7 @@ class HttpState(object):
     Closing = 6
 
 
-class HttpError(object):
+class HttpError(QtCore.QObject):
     """HttpError class."""
 
     NoError = 0
@@ -333,39 +347,42 @@ class QHttp(HttpState, HttpError):
     _error_str: str
     _parent: Optional[QtCore.QObject]
     _operation: int
-    _pending_request: List[QHttpRequest]
-    _data: Optional[QtCore.QIODevice]
+    _data: Optional[QtCore.QBuffer]
+    _current_id: int
+    _request_list: List[QtNetwork.QNetworkRequest]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args):
         """Initialize."""
 
         super().__init__()
         self._state = self.Unconnected
         self._error = self.NoError
-        self._pending_request = []
+        self._pending_request = {}
         self._data = None
 
-        if kwargs:
-            self.initialize1(args[0], **kwargs)
-        elif args:
-            self.initialize2(*args)
+        self._request_list = []
+
+        if len(args) == 2:
+            self.initialize2(args[0], args[1])
+        elif len(args) == 4:
+            self.initialize1(args[0], args[1], args[2], args[3])
 
         self._manager = QtNetwork.QNetworkAccessManager()
         # self._request = QtNetwork.QNetworkRequest()
         cast(QtCore.pyqtSignal, self._manager.finished).connect(self._slotNetworkFinished)
 
-        self._error_str = QtWidgets.QApplication.translate("QHttp", "Unknown error")
+        self._error_str = self.tr("Unknown error")
 
     def initialize1(
         self,
         host_name: str,
-        port_: int = 80,
+        # port_: int = 80,
         parent_: Optional[QtCore.QObject] = None,
         name_: Optional[str] = None,
     ):
         """Initialize with kwars."""
         self._host = host_name
-        self._port = port_
+        # self._port = port_
         self._parent = parent_
         self._name = name_ or ""
 
@@ -378,26 +395,39 @@ class QHttp(HttpState, HttpError):
     def setHost(self, name_: str, port_: int = 80) -> None:
         """Set host."""
 
-        self._name = name_
-        self._port = port_
+        self._name = "%s:%s" % (name_, port_)
+        # self._port = port_
 
-    def get(self, path_: str) -> None:
+    def get(self, full_path: str) -> None:
         """Get data from url."""
 
-        self._data = QtCore.QIODevice()
-        _request = QtNetwork.QNetworkRequest()
-        _request.setUrl(QtCore.QUrl("%s:%s%s" % (self._host, self._port, path_)))
-        self._reply = self._manager.get(_request)
-        cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgress)
+        _request = QHttpRequestHeader("GET", full_path)
+        _request.setValue("Connection", "Keep-Alive")
+        self.request(_request, b"")
 
-    def post(self, path_: str, data_: Union[QtCore.QIODevice, QtCore.QByteArray]) -> None:
+        # self._data = QtCore.QBuffer()
+        # _request = QtNetwork.QNetworkRequest()
+        # _request.setUrl(QtCore.QUrl(path_))
+
+        # self._state = self.Connecting
+        # self._reply = self._manager.get(_request)
+        # self._state = self.Connected
+        # cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgressRead)
+
+    def post(self, full_path_: str, data_: Union[QtCore.QIODevice, QtCore.QByteArray]) -> None:
         """Send data to url."""
 
-        self._data = QtCore.QIODevice()
-        _request = QtNetwork.QNetworkRequest()
-        _request.setUrl(QtCore.QUrl("%s:%s%s" % (self._host, self._port, path_)))
-        self._reply = self._manager.post(_request, data_)
-        cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgress)
+        _request = QHttpRequestHeader("POST", full_path)
+        _request.setValue("Connection", "Keep-Alive")
+        self.request(_request, data_)
+
+        # self._data = QtCore.QBuffer()
+        # _request = QtNetwork.QNetworkRequest()
+        # _request.setUrl(QtCore.QUrl(path_))
+        # self._state = self.Connecting
+        # self._reply = self._manager.post(_request, data_)
+        # self._state = self.Connected
+        # cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgressRead)
 
     @decorators.NotImplementedWarn
     def head(self, path_: str) -> None:
@@ -411,32 +441,63 @@ class QHttp(HttpState, HttpError):
         self,
         request_header: QHttpRequestHeader,
         data_: Union[QtCore.QIODevice, QtCore.QByteArray],
-        buffer_: QtCore.QIODevice,
+        buffer_: Optional[QtCore.QBuffer] = None,
     ) -> None:
         """Send request."""
 
         self._data = None
         del self._data
+
+        if buffer_ is None:
+            buffer_ = QtCore.QBuffer()
+
         _request = QtNetwork.QNetworkRequest()
+        _tipo = request_header.method().lower()
 
-        if request_header.hasContentType():
-            _request.setHeader(
-                QtNetwork.QNetworkRequest.ContentTypeHeader, request_header.contentType()
-            )
+        # if request_header.hasContentType():
+        #    _request.setHeader(
+        #        QtNetwork.QNetworkRequest.ContentTypeHeader, request_header.contentType()
+        #    )
+        url_ = QtCore.QUrl(request_header.path())
 
-        _request.setUrl(QtCore.QUrl("%s:%s%s" % (self._host, self._port, request_header.path())))
-        method_ = getattr(self._manager, request_header.method().lower(), None)
+        for k in request_header._values.keys():
+            if k != "host":
+                print("->", k, str(request_header._values[k]).lower())
+                _request.setRawHeader(
+                    str.encode(k), str.encode(str(request_header._values[k]).lower())
+                )
+
+            else:
+                url_ = QtCore.QUrl("%s/%s" % (request_header.value("host"), request_header.path()))
+
+        if not url_.isValid():
+            raise Exception("url_ is not a valid URL!")
+        _request.setUrl(url_)
+
+        method_ = getattr(self._manager, _tipo, None)
         self._data = buffer_
-        self._reply = method_(_request, data_)
+        if self._data is not None:
+            self._data.open(QtCore.QIODevice.ReadWrite)
 
-        cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgress)
+        self._state = self.Connecting
 
-        self.requestStarted.emit()
+        print("**", str(url_), self._state)
+
+        if _tipo == "get":
+            self._reply = method_(_request)
+        else:
+            self._reply = method_(_request, data_)
+
+        cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgressRead)
+        cast(QtCore.pyqtSignal, self._reply.uploadProgress).connect(self._slotNetworkProgressSend)
+        self._state = self.Connected
+        self._current_id = request_header._id
+        self.requestStarted.emit(request_header._id)
 
     @decorators.NotImplementedWarn
     def closeConnection(self) -> None:
         """Close Connection."""
-
+        self._state = self.Closing
         self._reply.close()
 
     def bytesAvalible(self) -> int:
@@ -460,11 +521,10 @@ class QHttp(HttpState, HttpError):
         else:
             return self._reply.readAll()
 
-    @decorators.NotImplementedWarn
-    def currentId(self) -> None:
+    def currentId(self) -> int:
         """Return id."""
-        # return self._pending_request[0].id
-        pass
+
+        return self._current_id
 
     @decorators.NotImplementedWarn
     def currentSourceDevice(self) -> QtCore.QIODevice:
@@ -509,29 +569,54 @@ class QHttp(HttpState, HttpError):
     def error(self) -> int:
         """Return error."""
 
-        return cast(int, self._reply.NetworkError)
+        return cast(int, self._reply.error())
 
-    @decorators.NotImplementedWarn
     def errorString(self) -> str:
         """Return error string."""
 
-        return self._error_str
+        return self._reply.errorString()
 
-    @decorators.pyqtSlot()
-    def _slotNetworkFinished(self):
+    def _slotNetworkFinished(self) -> None:
         """Send done signal."""
-        self.done.emit()
-        self.requestFinished.emit(0)
+        self._state = self.Closing
+        sender = self.sender()
 
-    @decorators.pyqtSlot()
-    def _slotNetworkProgress(self, b_done: int, b_total: int) -> None:
+        error_ = True
+        if self._error == self.NoError:
+            error_ = False
+
+        self.done.emit(error_)
+        self.requestFinished.emit(0, error_)
+        self._state = self.Unconnected
+
+    def _slotNetworkProgressRead(self, b_done: int, b_total: int) -> None:
         """Send done signal."""
+
         if self._reply is None:
             raise Exception("No reply in progress")
 
+        self._state = self.Reading
         self.dataReadProgress.emit(b_done, b_total)
-        self.dataSendProgress.emit(b_done, b_total)
+        # self.dataSendProgress.emit(b_done, b_total)
+
         if self._data is not None:
-            self._data.write(self._reply.readAll())
+            data_ = self._reply.readAll()
+            self._data.write(data_)
+        else:
+            self.readyRead.emit()
+
+    def _slotNetworkProgressSend(self, b_done: int, b_total: int) -> None:
+        """Send done signal."""
+
+        if self._reply is None:
+            raise Exception("No reply in progress")
+
+        self._state = self.Sending
+        # self.dataReadProgress.emit(b_done, b_total)
+        self.dataSendProgress.emit(b_done, b_total)
+
+        if self._data is not None:
+            data_ = self._reply.readAll()
+            self._data.write(data_)
         else:
             self.readyRead.emit()
