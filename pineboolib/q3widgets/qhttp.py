@@ -349,7 +349,6 @@ class QHttp(HttpState, HttpError):
     _operation: int
     _data: Optional[QtCore.QBuffer]
     _current_id: int
-    _request_list: List[QtNetwork.QNetworkRequest]
 
     def __init__(self, *args):
         """Initialize."""
@@ -357,7 +356,7 @@ class QHttp(HttpState, HttpError):
         super().__init__()
         self._state = self.Unconnected
         self._error = self.NoError
-        self._pending_request = []
+
         self._data = None
 
         self._request_list = []
@@ -536,10 +535,10 @@ class QHttp(HttpState, HttpError):
         pass
 
     @decorators.NotImplementedWarn
-    def currentRequest(self) -> QHttpRequest:
+    def currentRequest(self) -> None:
         """Return current request."""
 
-        return self._pending_request[0]
+        return None
 
     @decorators.NotImplementedWarn
     def hasPendingRequests(self) -> bool:
@@ -578,7 +577,7 @@ class QHttp(HttpState, HttpError):
     def _slotNetworkFinished(self) -> None:
         """Send done signal."""
         self._state = self.Closing
-        sender = self.sender()
+        # sender = self.sender()
 
         error_ = True
         if self._error == self.NoError:
