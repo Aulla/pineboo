@@ -357,7 +357,7 @@ class QHttp(HttpState, HttpError):
         super().__init__()
         self._state = self.Unconnected
         self._error = self.NoError
-        self._pending_request = {}
+        self._pending_request = []
         self._data = None
 
         self._request_list = []
