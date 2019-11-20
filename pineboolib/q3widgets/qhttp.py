@@ -462,7 +462,6 @@ class QHttp(HttpState, HttpError):
 
         for k in request_header._values.keys():
             if k != "host":
-                print("->", k, str(request_header._values[k]).lower())
                 _request.setRawHeader(
                     str.encode(k), str.encode(str(request_header._values[k]).lower())
                 )
@@ -480,8 +479,6 @@ class QHttp(HttpState, HttpError):
             self._data.open(QtCore.QIODevice.ReadWrite)
 
         self._state = self.Connecting
-
-        print("**", str(url_), self._state)
 
         if _tipo == "get":
             self._reply = method_(_request)
