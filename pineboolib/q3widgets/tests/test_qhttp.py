@@ -50,7 +50,7 @@ class TestQHttp(unittest.TestCase):
         while http_._reply.isRunning():
             QtWidgets.QApplication.processEvents()
 
-        self.assertTrue(len(http_._data.data()) > 0)
+        self.assertTrue(len(self._buffer.data()) > 0)
 
     @classmethod
     def tearDownClass(cls) -> None:
