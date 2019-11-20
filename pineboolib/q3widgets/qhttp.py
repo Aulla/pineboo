@@ -359,8 +359,6 @@ class QHttp(HttpState, HttpError):
 
         self._data = None
 
-        self._request_list = []
-
         if len(args) == 2:
             self.initialize2(args[0], args[1])
         elif len(args) == 4:
