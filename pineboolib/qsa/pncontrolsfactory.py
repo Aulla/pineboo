@@ -73,7 +73,7 @@ from PyQt5.QtWidgets import QMdiArea  # noqa: F401
 from PyQt5.QtCore import QSignalMapper  # noqa: F401
 from PyQt5.QtCore import QSize  # noqa: F401
 from PyQt5.QtCore import QObject  # noqa: F401
-
+from PyQt5.QtCore import QBuffer  # noqa: F401
 
 from PyQt5.QtGui import QPainter  # noqa: F401
 from PyQt5.QtGui import QBrush  # noqa: F401
@@ -135,6 +135,7 @@ from pineboolib.fllegacy.flscripteditor import FLScriptEditor  # noqa: F401
 from PyQt5.QtGui import QColor as Color  # noqa: F401
 from PyQt5.QtWidgets import QLabel as Label  # noqa: F401
 from PyQt5.QtGui import QFont as Font  # noqa: F401
+
 
 from pineboolib.q3widgets.line import Line  # noqa: F401
 from pineboolib.q3widgets.checkbox import CheckBox  # noqa: F401

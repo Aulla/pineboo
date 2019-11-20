@@ -133,6 +133,7 @@ QSA_KNOWN_ATTRS = {
     "QAction",
     "QActionGroup",
     "QApplication",
+    "QBuffer",
     "QBrush",
     "QButtonGroup",
     "QByteArray",
