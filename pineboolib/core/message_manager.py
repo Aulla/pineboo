@@ -1,8 +1,10 @@
 """
 Module for Manager class.
 """
-from typing import Any, Iterable, Optional
-from pineboolib.interfaces.dgi_schema import dgi_schema
+from typing import Any, Iterable, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.interfaces import dgi_schema
 
 
 class Manager(object):
@@ -12,9 +14,9 @@ class Manager(object):
     Mainly used to display progress in splash screen
     """
 
-    _dgi: Optional[dgi_schema] = None
+    _dgi: Optional["dgi_schema.dgi_schema"] = None
 
-    def __init__(self, dgi: dgi_schema) -> None:
+    def __init__(self, dgi: "dgi_schema.dgi_schema") -> None:
         """Create a Manager with specified DGI."""
         self._dgi = dgi
 
