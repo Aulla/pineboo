@@ -146,32 +146,30 @@ class FormDBWidget(QtWidgets.QWidget):
 
     def child(self, child_name: str) -> Any:
         """Return child from name."""
-        try:
-            ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
-            if ret is not None:
-                _loaded = getattr(ret, "_loaded", None)
-                if _loaded is not None:
-                    if ret._loaded is False:  # type: ignore
-                        ret.load()  # type: ignore
 
-            elif self.parent():
-                ret = getattr(self.parent(), child_name, None)
+        ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
+        if ret is not None:
+            _loaded = getattr(ret, "_loaded", None)
+            if _loaded is not None:
+                if ret._loaded is False:  # type: ignore
+                    ret.load()  # type: ignore
 
-            if ret is None:
-                if self.form is not None:
-                    if child_name == super().objectName():
-                        ret = self.form
+        elif self.parent():
+            ret = getattr(self.parent(), child_name, None)
 
-                    else:
-                        ret = getattr(self.form, child_name)
+        if ret is None:
+            if self.form is not None:
+                if child_name == super().objectName():
+                    ret = self.form
 
-            if ret is None:
-                self.logger.warning("WARN: No se encontro el control %s", child_name)
-                return QtWidgets.QWidget()
-            return ret
-        except Exception:
-            self.logger.exception("child: Error trying to get child of <%s>", child_name)
-            return QtWidgets.QWidget()
+                else:
+                    ret = getattr(self.form, child_name)
+
+        if ret is None:
+            raise Exception("control %s not found!" % child_name)
+            # self.logger.warning("WARN: No se encontro el control %s", child_name)
+            # return QtWidgets.QWidget()
+        return ret
 
     def cursor(self) -> pnsqlcursor.PNSqlCursor:  # type: ignore [override] # noqa F821
         """Return cursor associated."""
