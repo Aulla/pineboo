@@ -419,7 +419,7 @@ class Dir(object):
         """Return current folder."""
         return os.curdir
 
-    def set_current(self, new_path: str) -> None:
+    def set_current(self, new_path: Optional[str] = None) -> None:
         """Set new patch."""
         os.chdir(new_path or filedir("."))
 
