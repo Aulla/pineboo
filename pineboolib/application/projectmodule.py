@@ -5,7 +5,7 @@ import os
 import time
 from optparse import Values
 from pathlib import Path
-from multiprocessing import Pool
+
 
 from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
 
@@ -18,13 +18,10 @@ from pineboolib.core.utils.struct import AreaStruct
 from pineboolib.core import exceptions, settings, message_manager
 
 
-from pineboolib.application.parsers.qsaparser import postparse, pytnyzer, pyconvert
 from pineboolib.application.parsers.mtdparser import pnormmodelsfactory
 from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.utils import path, xpm
 from pineboolib.application import module, file
-
-from pineboolib.application.parsers import qsaparser
 
 
 if TYPE_CHECKING:
@@ -507,6 +504,7 @@ class Project(object):
 
         @param scriptname, Nombre del script a convertir
         """
+        from pineboolib.application.parsers.qsaparser import postparse
 
         # Intentar convertirlo a Python primero con flscriptparser2
         if not os.path.isfile(scriptname):
@@ -528,6 +526,10 @@ class Project(object):
 
     def parse_script_list(self, path_list: List[str]) -> None:
         """Convert QS scripts list into Python and stores it in the same folders."""
+
+        from multiprocessing import Pool
+        from pineboolib.application.parsers import qsaparser
+        from pineboolib.application.parsers.qsaparser import pytnyzer, pyconvert
 
         if not path_list:
             return
