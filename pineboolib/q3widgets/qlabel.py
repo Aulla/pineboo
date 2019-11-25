@@ -12,9 +12,14 @@ class QLabel(QtWidgets.QLabel):
     """QLabel class."""
 
     def __init__(
-        self, text: str, parent: Optional[QtWidgets.QWidget] = None, name: Optional[str] = None
+        self,
+        text_or_parent: Union[str, QtWidgets.QWidget],
+        parent: Optional[QtWidgets.QWidget] = None,
+        name: Optional[str] = None,
     ):
-        super().__init__(text)
+        """Inititalize."""
+
+        super().__init__(text_or_parent)
 
         if parent is not None:
             self.setParent(parent)

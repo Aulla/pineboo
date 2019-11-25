@@ -23,6 +23,7 @@ Generador de ficheros ODS
 
 
 class OdsStyleFlags(object):
+    """OdsStyleFlags."""
 
     ODS_NONE = 0
     ODS_BORDER_BOTTOM = 10
@@ -38,7 +39,7 @@ class OdsStyleFlags(object):
 
 
 class AQOdsGenerator(object):
-    """AQOdsGenerator_class Class."""
+    """AQOdsGenerator Class."""
 
     doc_: Any = None
     """
@@ -339,7 +340,7 @@ def AQOdsColor(*args) -> str:
 
 
 class AQOdsStyle(object):
-    """AQOdsStyle_class."""
+    """AQOdsStyle class."""
 
     def __init__(self, style: Optional[int] = 0):
         """Initialize."""
