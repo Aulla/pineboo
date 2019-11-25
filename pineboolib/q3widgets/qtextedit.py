@@ -1,7 +1,7 @@
 """Qtextedit module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets  # type: ignore
 from pineboolib.core import decorators
 from typing import Optional
 
@@ -52,12 +52,6 @@ class QTextEdit(QtWidgets.QTextEdit):
         # else:
         #    super().hide()
 
-    def get_alignment(self) -> QtCore.Qt.Alignment:
-        return super().alignment()
-
-    def set_alignment(self, flags: Union[QtCore.Qt.Alignment, QtCore.Qt.AlignmentFlag]) -> None:
-        super().setAlignment(flags)
-
     def getPlainText(self) -> str:
         """Return text in plain text format."""
         return super(QTextEdit, self).toPlainText()
@@ -70,6 +64,3 @@ class QTextEdit(QtWidgets.QTextEdit):
     textFormat = property(getTextFormat, setTextFormat)
     text = property(getText, setText)
     PlainText = property(getPlainText, setText)
-    aligment: QtCore.Qt.Alignment = property(  # type: ignore [assignment] # noqa F821
-        get_alignment, set_aligment
-    )
