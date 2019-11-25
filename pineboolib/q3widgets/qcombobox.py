@@ -10,10 +10,15 @@ from typing import Optional, Any, List, Union
 class QComboBox(QtWidgets.QComboBox):
     """QComboBox class."""
 
-    def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
+    def __init__(
+        self, parent: Optional[QtWidgets.QWidget] = None, name: Optional[str] = None
+    ) -> None:
         """Inicialize."""
 
         super().__init__(parent)
+        if name is not None:
+            self.setObjectName(name)
+
         self.setEditable(False)
 
     def insertStringList(self, strl: List[str]) -> None:

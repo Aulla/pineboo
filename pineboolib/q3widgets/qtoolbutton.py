@@ -15,9 +15,15 @@ class QToolButton(QtWidgets.QToolButton):
 
     groupId: Optional[int]
 
-    def __init__(self, parent: Union[QWidget, QGroupBox, QFrame]) -> None:
+    def __init__(
+        self, parent: Union[QWidget, QGroupBox, QFrame], name: Optional[str] = None
+    ) -> None:
         """Inicialize."""
-        super(QToolButton, self).__init__(parent)
+        super().__init__(parent)
+
+        if name is not None:
+            self.setObjectName(name)
+
         self.groupId = None
 
     def setToggleButton(self, value: bool) -> None:
