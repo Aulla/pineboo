@@ -825,7 +825,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         constraintName = "%s_key" % old_mtd.name()
 
         if self.constraintExists(constraintName) and not q.exec_(
-            "ALTER TABLE %s DROP CONSTRAINT %s" % (old_mtd.name(), constraintName)
+            "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (old_mtd.name(), constraintName)
         ):
             self.db_.connManager().dbAux().rollbackTransaction()
             return False
@@ -836,7 +836,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             if oldField.isUnique():
                 constraintName = "%s_%s_key" % (old_mtd.name(), oldField.name())
                 if self.constraintExists(constraintName) and not q.exec_(
-                    "ALTER TABLE %s DROP CONSTRAINT %s" % (old_mtd.name(), constraintName)
+                    "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (old_mtd.name(), constraintName)
                 ):
                     self.db_.connManager().dbAux().rollbackTransaction()
                     return False
@@ -1148,7 +1148,9 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             if it.isUnique():
                 constraintName = "%s_%s_key" % (old_mtd.name(), it.name())
                 c2 = self.db_.connManager().dbAux().cursor()
-                c2.execute("ALTER TABLE %s DROP CONSTRAINT %s" % (old_mtd.name(), constraintName))
+                c2.execute(
+                    "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (old_mtd.name(), constraintName)
+                )
 
                 if self.constraintExists(constraintName):
                     logger.warning(
