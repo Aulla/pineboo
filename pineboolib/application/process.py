@@ -50,8 +50,20 @@ class ProcessBaseClass(QtCore.QProcess):
 
         super().setWorkingDirectory(wd)
 
+    def get_arguments(self) -> List[str]:
+        """Return arguments list."""
+        return super().arguments()
+
+    def set_arguments(self, list_: List[str]) -> None:
+        """Set a arguments list."""
+
+        super().setArguments(list_)
+
     stdout: str = property(read_std_out, set_std_out)  # type: ignore [assignment] # noqa F821
     stderr: str = property(read_std_error, set_std_error)  # type: ignore [assignment] # noqa F821
+    arguments: List[str] = property(  # type: ignore [assignment] # noqa F821
+        get_arguments, set_arguments
+    )
     workingDirectory: str = property(  # type: ignore[assignment] # noqa : F821
         get_working_directory, set_working_directory
     )
