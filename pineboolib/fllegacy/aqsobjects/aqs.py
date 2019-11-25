@@ -11,7 +11,7 @@ from pineboolib.core.utils import logging
 
 from typing import Any, Optional, Union
 
-from . import aqshttp
+from . import aqshttp, aqods
 
 logger = logging.getLogger("AQS")
 
@@ -53,7 +53,7 @@ class PrinterColorMode(object):
     PrintColor = 1
 
 
-class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode):
+class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags):
     """AQS Class."""
 
     Box = None

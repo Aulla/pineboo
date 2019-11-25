@@ -12,6 +12,7 @@ import odf  # type: ignore
 from odf import table, style  # type: ignore
 
 from pineboolib import logging
+from pineboolib.core import decorators
 
 
 logger = logging.getLogger("AQOds")
@@ -21,7 +22,22 @@ Generador de ficheros ODS
 """
 
 
-class AQOdsGenerator_class(object):
+class OdsStyleFlags(object):
+
+    ODS_NONE = 0
+    ODS_BORDER_BOTTOM = 10
+    ODS_BORDER_LEFT = 11
+    ODS_BORDER_RIGHT = 12
+    ODS_BORDER_TOP = 13
+    ODS_ALIGN_LEFT = 14
+    ODS_ALIGN_CENTER = 15
+    ODS_ALIGN_RIGHT = 16
+    ODS_TEXT_BOLD = 17
+    ODS_TEXT_ITALIC = 18
+    ODS_TEXT_UNDERLINE = 19
+
+
+class AQOdsGenerator(object):
     """AQOdsGenerator_class Class."""
 
     doc_: Any = None
@@ -67,9 +83,9 @@ class AQOdsSpreadSheet(object):
     """
 
     spread_sheet: "OpenDocumentSpreadsheet"
-    generator_: "AQOdsGenerator_class"
+    generator_: "AQOdsGenerator"
 
-    def __init__(self, generator: AQOdsGenerator_class) -> None:
+    def __init__(self, generator: "AQOdsGenerator") -> None:
         """
         Initialize the file generator.
 
@@ -322,8 +338,38 @@ def AQOdsColor(*args) -> str:
         return "%02x%02x%02x" % (args[0], args[1], args[2])
 
 
-class AQOdsStyle_class(object):
+class AQOdsStyle(object):
     """AQOdsStyle_class."""
+
+    def __init__(self, style: Optional[int] = 0):
+        """Initialize."""
+
+        if style is not None:
+            ods = OdsStyleFlags
+            if style == ods.ODS_NONE:
+                return
+            elif style == ods.ODS_BORDER_BOTTOM:
+                self = self.borderBottom()
+            elif style == ods.ODS_BORDER_LEFT:
+                self = self.borderLeft()
+            elif style == ods.ODS_BORDER_RIGHT:
+                self = self.borderRight()
+            elif style == ods.ODS_BORDER_TOP:
+                self = self.borderTop()
+            elif style == ods.ODS_ALIGN_LEFT:
+                self = self.alignLeft()
+            elif style == ods.ODS_ALIGN_CENTER:
+                self = self.alignCenter()
+            elif style == ods.ODS_ALIGN_RIGHT:
+                self = self.alignRight()
+            elif style == ods.ODS_TEXT_BOLD:
+                self = self.textBold()
+            elif style == ods.ODS_TEXT_ITALIC:
+                self = self.textItalic()
+            elif style == ods.ODS_TEXT_UNDERLINE:
+                self = self.textUnderline()
+            else:
+                raise ValueError("Unknown flag!")
 
     def alignCenter(self) -> style.ParagraphProperties:
         """
@@ -361,6 +407,18 @@ class AQOdsStyle_class(object):
 
         bold_style = style.Style(name="Bold", family="text")
         bold_style.addElement(style.TextProperties(fontweight="bold"))
+        return bold_style
+
+    @decorators.BetaImplementation
+    def textUnderline(self) -> style.Style:
+        """
+        Return text bold property.
+
+        @return Style Property.
+        """
+
+        bold_style = style.Style(name="Underline", family="text")
+        bold_style.addElement(style.TextProperties(fontstyle="underline"))
         return bold_style
 
     def textItalic(self) -> style.Style:
@@ -421,11 +479,8 @@ class AQOdsStyle_class(object):
     Align_left = property(alignLeft, None)
     Text_bold = property(textBold, None)
     Text_italic = property(textItalic, None)
+    Text_underline = property(textUnderline, None)
     Border_bottom = property(borderBottom, None)
     Border_top = property(borderTop, None)
     Border_right = property(borderRight, None)
     Border_left = property(borderLeft, None)
-
-
-AQOdsStyle = AQOdsStyle_class()
-AQOdsGenerator = AQOdsGenerator_class()

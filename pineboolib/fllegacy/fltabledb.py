@@ -2593,7 +2593,7 @@ class FLTableDB(QtWidgets.QWidget):
         border_right = AQOdsStyle.Border_right
         border_left = AQOdsStyle.Border_left
         italic = AQOdsStyle.Text_italic
-        ods_gen = AQOdsGenerator
+        ods_gen = AQOdsGenerator()
         spread_sheet = AQOdsSpreadSheet(ods_gen)
         sheet = AQOdsSheet(spread_sheet, mtd.alias())
         tdb_num_rows = cursor.size()
