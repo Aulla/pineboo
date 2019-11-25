@@ -14,7 +14,10 @@ class QLabel(QtWidgets.QLabel):
     def __init__(
         self, text: str, parent: Optional[QtWidgets.QWidget] = None, name: Optional[str] = None
     ):
-        super().__init__(text, parent)
+        super().__init__(text)
+
+        if parent is not None:
+            self.setParent(parent)
 
         if name is not None:
             self.setObjectName(name)
