@@ -33,10 +33,10 @@ from .pncontrolsfactory import QMdiSubWindow, QSizePolicy, QProgressDialog  # no
 from .pncontrolsfactory import QFileDialog, QTreeWidget, QTreeWidgetItem  # noqa: F401
 from .pncontrolsfactory import QTreeWidgetItemIterator, QListWidgetItem, QObject  # noqa: F401
 from .pncontrolsfactory import QListViewWidget, QSignalMapper, QPainter, QBrush  # noqa: F401
-from .pncontrolsfactory import QKeySequence, QIcon, QColor, QDomDocument  # noqa: F401
+from .pncontrolsfactory import QKeySequence, QIcon, QColor, QDomDocument, QIconSet  # noqa: F401
 from .pncontrolsfactory import QPushButton, QSpinBox, QRadioButton, QPixmap  # noqa: F401
 from .pncontrolsfactory import QButtonGroup, QToolBox, QSize, QDockWidget, QDir  # noqa: F401
-from .pncontrolsfactory import QPopupMenu, QBuffer, QIconSet  # noqa: F401
+from .pncontrolsfactory import QPopupMenu, QBuffer, QHButtonGroup, QVButtonGroup  # noqa: F401
 from .pncontrolsfactory import QHttp, QHttpResponseHeader, QHttpRequestHeader  # noqa: F401
 
 # FL
