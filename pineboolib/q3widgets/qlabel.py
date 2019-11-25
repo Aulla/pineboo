@@ -3,13 +3,21 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5 import QtWidgets, QtGui
-from typing import Any, Union
+from typing import Any, Union, Optional
 
 from pineboolib.core import decorators
 
 
 class QLabel(QtWidgets.QLabel):
     """QLabel class."""
+
+    def __init__(
+        self, text: str, parent: Optional[QtWidgets.QWidget] = None, name: Optional[str] = None
+    ):
+        super().__init__(text, parent)
+
+        if name is not None:
+            self.setObjectName(name)
 
     def get_text(self) -> str:
         """Return text label."""
