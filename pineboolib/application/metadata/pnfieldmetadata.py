@@ -575,9 +575,9 @@ class PNFieldMetaData(IFieldMetaData):
 
         if fltype_ == "int":
             _type = "int"
-        elif fltype_ == "serial" or fltype_ == "uint":
+        elif fltype_ in ("serial", "uint"):
             _type = "uint"
-        elif fltype_ == "bool" or fltype_ == "unlock":
+        elif fltype_ in ("bool", "unlock"):
             _type = "bool"
         elif fltype_ == "double":
             _type = "double"
@@ -585,7 +585,7 @@ class PNFieldMetaData(IFieldMetaData):
             _type = "time"
         elif fltype_ == "date":
             _type = "date"
-        elif fltype_ == "string" or fltype_ == "pixmap" or fltype_ == "stringlist":
+        elif fltype_ in ("string", "pixmap", "stringlist", "timestamp"):
             _type = "string"
         elif fltype_ == "bytearray":
             _type = "bytearray"
@@ -671,7 +671,7 @@ class PNFieldMetaData(IFieldMetaData):
 
         isText = False
         # if isinstance(value, str):
-        if self.type() in ("string, time, date, pixmap"):
+        if self.type() in ("string", "time", "date", "pixmap", "timestamp"):
             isText = True
 
         formatV: Any = None

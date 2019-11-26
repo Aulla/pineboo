@@ -355,7 +355,7 @@ class SqlInspector(object):
         ret_: Any = None
         if type_ in ("double", "int", "uint", "serial"):
             ret_ = 0
-        elif type_ in ("string", "stringlist", "pixmap", "date"):
+        elif type_ in ("string", "stringlist", "pixmap", "date", "timestamp"):
             ret_ = ""
         elif type_ in ("unlock", "bool"):
             ret_ = False
@@ -389,7 +389,7 @@ class SqlInspector(object):
                 type_ = mtd.type()
 
         ret_: Any = value
-        if type_ in ("string", "stringlist"):
+        if type_ in ("string", "stringlist", "timestamp"):
             pass
         elif type_ == "double":
             ret_ = float(ret_)
