@@ -722,6 +722,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Update activity time."""
         self._last_activity_time = time.time()
 
+    def getTimeStamp(self) -> str:
+        """Return timestamp."""
+
+        return self.driver().getTimeStamp()
+
     def __str__(self):
         """Return the name of the database in text format."""
 

@@ -52,6 +52,14 @@ class TestUtils(unittest.TestCase):
             ),
             "Campo de prueba 2",
         )
+
+        self.assertNotEqual(
+            utils.sqlSelect(
+                "fltest3", "timezone_field", "counter = '%s'" % val_3, "fltest3", 0, "default"
+            ),
+            "",
+        )
+
         self.assertEqual(
             utils.sqlSelect(
                 "fltest3", "string_field", "counter = '%s'" % val_3, ["fltest3"], 0, "default"

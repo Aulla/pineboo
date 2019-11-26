@@ -370,7 +370,7 @@ class PNBuffer(object):
         if field.value is None:
             return None
 
-        if field.type_ in ("string", "pixmap", "time", "date", "datetime"):
+        if field.type_ in ("string", "pixmap", "time", "date", "datetime", "timestamp"):
             try:
                 v = str(field.value)
             except Exception as e:

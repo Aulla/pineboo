@@ -327,3 +327,13 @@ class PNSqlSchema(object):
             )
 
         return cursor
+
+    def getTimeStamp(self) -> str:
+        """Return TimeStamp."""
+
+        sql = "SELECT CURRENT_TIMESTAMP"
+
+        cur = self.execute_query(sql)
+
+        for line in cur:
+            return line[0]

@@ -1251,7 +1251,7 @@ class PNSqlCursor(QtCore.QObject):
                 if (
                     self.d.buffer_.isNull(fiName)
                     and not field.allowNull()
-                    and not field.type() == "serial"
+                    and not field.type() in ("serial")
                 ):
                     msg = (
                         msg
@@ -2104,7 +2104,9 @@ class PNSqlCursor(QtCore.QObject):
                         if val is None:
                             val = 0
                         self.d.buffer_.setValue(field_name, val)
-
+                    elif type_ == "timestamp":
+                        val = self.db().getTimeStamp()
+                        self.d.buffer_.setValue(field_name, val)
                     if field.isCounter():
                         from pineboolib.application.database.utils import nextCounter
 

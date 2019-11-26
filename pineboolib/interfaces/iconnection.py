@@ -311,3 +311,8 @@ class IConnection:
         """Modify the fields of a table in the database based on the differences of two PNTableMetaData."""
 
         return False
+
+    def getTimeStamp(self) -> str:
+        """Return timestamp"""
+
+        return ""

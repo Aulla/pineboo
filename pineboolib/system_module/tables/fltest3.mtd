@@ -24,4 +24,12 @@
 		<type>string</type>
 		<default></default>
 	</field>
+	<field>
+		<name>timezone_field</name>
+		<alias>QT_TRANSLATE_NOOP("MetaData","TimeZone field")</alias>
+		<null>false</null>
+		<pk>false</pk>
+		<type>timestamp</type>
+		<default></default>
+	</field>
 </TMD>

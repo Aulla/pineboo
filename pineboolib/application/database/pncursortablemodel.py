@@ -945,7 +945,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             type_ = mtdfield.type()
             # if type_ == "string" or type_ == "pixmap" or type_ == "stringlist" or type_ == "time" or type_ == "date":
             # value = str("'" + value + "'")
-            if type_ in ("string", "stringlist"):
+            if type_ in ("string", "stringlist", "timestamp"):
                 value = self.db().normalizeValue(value)
             value = self.db().connManager().manager().formatValue(type_, value, False)
 
