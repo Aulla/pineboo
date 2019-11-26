@@ -697,7 +697,7 @@ class PNSqlCursor(QtCore.QObject):
                 if v_large:
                     v = v_large
         else:
-            if type_ in ("string", "stringlist", "date"):
+            if type_ in ("string", "stringlist", "date", "timestamp"):
                 v = ""
             elif type_ in ("double", "int", "uint"):
                 v = 0
@@ -755,7 +755,7 @@ class PNSqlCursor(QtCore.QObject):
                 if v_large:
                     v = v_large
         else:
-            if type_ in ("string", "stringlist", "date"):
+            if type_ in ("string", "stringlist", "date", "timestamp"):
                 v = ""
             elif type_ in ("double", "int", "uint"):
                 v = 0

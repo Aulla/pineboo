@@ -89,7 +89,7 @@ class FieldStruct(object):
 
                     return float(value)
 
-        elif self.type_ in ("string", "stringlist"):
+        elif self.type_ in ("string", "stringlist", "timestamp"):
             if value is None:
                 return None
             else:
@@ -164,7 +164,7 @@ class FieldStruct(object):
             return self.value != val
         elif isinstance(val, (datetime.date, datetime.time)):
             return str(self.value) != str(val)
-        elif self.type_ in ("string", "stringlist"):
+        elif self.type_ in ("string", "stringlist", "timestamp"):
             return self.value != val
         elif self.type_ in ("int", "uint", "serial", "date"):
             return str(self.value) != str(val)
@@ -370,7 +370,7 @@ class PNBuffer(object):
         if field.value is None:
             return None
 
-        if field.type_ in ("str", "pixmap", "time", "date"):
+        if field.type_ in ("string", "pixmap", "time", "date", "datetime"):
             try:
                 v = str(field.value)
             except Exception as e:
