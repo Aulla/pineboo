@@ -2,9 +2,8 @@
 
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt5 import QtWidgets
 from .qwidget import QWidget
-from typing import Any
 
 
 class CheckBox(QWidget):
@@ -29,16 +28,39 @@ class CheckBox(QWidget):
         _lay.addSpacerItem(spacer)
         self.setLayout(_lay)
 
-    def __setattr__(self, name: str, value: Any) -> None:
-        """Set an attribute."""
+    # def __setattr__(self, name: str, value: Any) -> None:
+    #    """Set an attribute."""
 
-        if name == "text":
-            self._label.setText(str(value))
-        elif name == "checked":
-            self._cb.setChecked(value)
+    #    if name == "text":
+    #        self._label.setText(str(value))
+    #    elif name == "checked":
+    #        self._cb.setChecked(value)
 
-    def __getattr__(self, name: str) -> Any:
-        """Return an attribute."""
+    # def __getattr__(self, name: str) -> Any:
+    #    """Return an attribute."""
 
-        if name == "checked":
-            return self._cb.isChecked()
+    #    if name == "checked":
+    #        return self._cb.isChecked()
+
+    def getText(self) -> str:
+        """Return text label."""
+
+        return self._label.text()
+
+    def setText(self, value: str) -> None:
+        """Set text label."""
+
+        self._label.setText(value)
+
+    def getChecked(self) -> bool:
+        """Return if checked."""
+
+        return self._cb.isChecked()
+
+    def setChecked(self, b: bool) -> None:
+        """Set checked."""
+
+        self._cb.setChecked(b)
+
+    text: str = property(getText, setText)  # type: ignore [assignment] # noqa: F821
+    checked: bool = property(getChecked, setChecked)  # type: ignore [assignment] # noqa: F821
