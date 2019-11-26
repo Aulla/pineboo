@@ -928,7 +928,7 @@ class FLManager(QtCore.QObject, IManager):
             if args[0] is None or not args[1]:
                 return "1 = 1"
 
-            is_text = args[1] in ["string", "stringlist"]
+            is_text = args[1] in ["string", "stringlist", "timestamp"]
             format_value = self.formatValueLike(args[1], args[2], args[3])
 
             if not format_value:
@@ -1139,6 +1139,8 @@ class FLManager(QtCore.QObject, IManager):
                         t = "unlock"
                     elif e.text() == "serial":
                         t = "serial"
+                    elif e.text() == "timestamp":
+                        t = "timestamp"
                     no = no.nextSibling()
                     continue
 
