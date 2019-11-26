@@ -313,6 +313,6 @@ class IConnection:
         return False
 
     def getTimeStamp(self) -> str:
-        """Return timestamp"""
+        """Return timestamp."""
 
         return ""

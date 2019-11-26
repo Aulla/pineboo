@@ -334,6 +334,12 @@ class PNSqlSchema(object):
         sql = "SELECT CURRENT_TIMESTAMP"
 
         cur = self.execute_query(sql)
-
+        time_stamp_: str
         for line in cur:
-            return line[0]
+            time_stamp_ = line[0]
+            break
+
+        if time_stamp_ is None:
+            raise Exception("timestamp is empty!")
+
+        return time_stamp_
