@@ -211,14 +211,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             else:
                 s = v
 
-        elif type_ in ("string", "stringlist"):
+        elif type_ in ("string", "stringlist", "timestamp"):
             if v == "":
                 s = "Null"
             else:
                 if type_ == "string":
                     v = auto_qt_translate_text(v)
-                if upper and type_ == "string":
-                    v = v.upper()
+                    if upper:
+                        v = v.upper()
 
                 s = "'%s'" % v
 
@@ -452,28 +452,29 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         i = 1
         for field in fieldList:
-            sql = sql + field.name()
-            if field.type() == "int":
-                sql = sql + " INT2"
-            elif field.type() == "uint":
-                sql = sql + " INT4"
-            elif field.type() in ("bool", "unlock"):
-                sql = sql + " BOOLEAN"
-            elif field.type() == "double":
-                sql = sql + " FLOAT8"
-            elif field.type() == "time":
-                sql = sql + " TIME"
-            elif field.type() == "date":
-                sql = sql + " DATE"
-            elif field.type() == "pixmap":
-                sql = sql + " TEXT"
-            elif field.type() == "string":
-                sql = sql + " VARCHAR"
-            elif field.type() == "stringlist":
-                sql = sql + " TEXT"
-            elif field.type() == "bytearray":
-                sql = sql + " BYTEA"
-            elif field.type() == "serial":
+            sql += field.name()
+            type_ = field.type()
+            if type_ == "int":
+                sql += " INT2"
+            elif type_ == "uint":
+                sql += " INT4"
+            elif type_ in ("bool", "unlock"):
+                sql += " BOOLEAN"
+            elif type_ == "double":
+                sql += " FLOAT8"
+            elif type_ == "time":
+                sql += " TIME"
+            elif type_ == "date":
+                sql += " DATE"
+            elif type_ in ("pixmap", "stringlist"):
+                sql += " TEXT"
+            elif type_ == "string":
+                sql += " VARCHAR"
+            elif type_ == "bytearray":
+                sql += " BYTEA"
+            elif type_ == "timestamp":
+                sql += " TIMESTAMPTZ"
+            elif type_ == "serial":
                 seq = "%s_%s_seq" % (tmd.name(), field.name())
                 q = pnsqlquery.PNSqlQuery()
                 q.setForwardOnly(True)
@@ -650,6 +651,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             ret = "time"
         elif type_ == 1043:
             ret = "string"
+        elif type_ == 1184:
+            ret = "timestamp"
 
         return ret
 
@@ -724,6 +727,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             elif field1[1] == "bool" and not field2[1] in ("bool", "unlock"):
                 ret = True
             elif field1[1] == "double" and not field2[1] == "double":
+                ret = True
+            elif field1[1] == "timestamp" and not field2[1] == "timestamp":
                 ret = True
 
         except Exception:

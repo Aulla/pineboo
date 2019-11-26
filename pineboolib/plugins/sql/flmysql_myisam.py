@@ -200,14 +200,14 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             else:
                 s = v
 
-        elif type_ in ("string", "stringlist"):
+        elif type_ in ("string", "stringlist", "timestamp"):
             if v == "":
                 s = "Null"
             else:
                 if type_ == "string":
                     v = auto_qt_translate_text(v)
-                if upper and type_ == "string":
-                    v = v.upper()
+                    if upper:
+                        v = v.upper()
 
                 s = "'%s'" % v
 
@@ -593,6 +593,9 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
             elif field.type() == "bytearray":
                 sql = sql + " LONGBLOB"
+
+            elif field.type() == "timestamp":
+                sql = sql + " TIMESTAMP"
 
             if field.isPrimaryKey():
                 if primaryKey is None:
@@ -1312,6 +1315,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             ret = "bytearray"
         elif t == "time":
             ret = "time"
+        elif t == "timestamp":
+            ret = "timestamp"
 
         else:
             logger.warning("formato desconocido %s", ret)
@@ -1391,6 +1396,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             elif field1[1] == "bool" and not field2[1] in ("bool", "unlock"):
                 ret = True
             elif field1[1] == "double" and not field2[1] == "double":
+                ret = True
+            elif field1[1] == "timestamp" and not field2[1] == "timestamp":
                 ret = True
 
         except Exception:

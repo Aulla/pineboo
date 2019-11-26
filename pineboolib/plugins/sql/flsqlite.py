@@ -169,7 +169,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if type_ == "pixmap" and v.find("'") > -1:
             v = self.normalizeValue(v)
 
-        if type_ == "bool" or type_ == "unlock":
+        if type_ in ("bool", "unlock"):
             if isinstance(v, str):
                 if v[0].lower() == "t":
                     s = 1
@@ -185,10 +185,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             s = "'%s'" % util.dateDMAtoAMD(v)
 
         elif type_ == "time":
-            if v:
-                s = "'%s'" % v
-            else:
+            if v is None:
                 s = ""
+            else:
+                s = "'%s'" % v
 
         elif type_ in ("uint", "int", "double", "serial"):
             if v is None:
@@ -197,14 +197,16 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 s = v
 
         else:
-            if v and type_ == "string":
+            if type_ in ("string", "stringlist", "timestamp"):
                 if v is None:
-                    return "NULL"
-                v = auto_qt_translate_text(v)
-            if upper and v and type_ == "string":
-                v = v.upper()
-                # v = v.encode("UTF-8")
-            s = "'%s'" % v
+                    s = "NULL"
+                else:
+                    if type_ == "string":
+                        v = auto_qt_translate_text(v)
+                        if upper:
+                            v = v.upper()
+                    # v = v.encode("UTF-8")
+                    s = "'%s'" % v
         return s
 
     def DBName(self) -> str:
@@ -476,31 +478,33 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         i = 1
         for field in fieldList:
-            sql = sql + field.name()
+            sql += field.name()
             if field.type() == "int":
-                sql = sql + " INTEGER"
+                sql += " INTEGER"
             elif field.type() == "uint":
-                sql = sql + " INTEGER"
+                sql += " INTEGER"
             elif field.type() in ("bool", "unlock"):
-                sql = sql + " BOOLEAN"
+                sql += " BOOLEAN"
             elif field.type() == "double":
-                sql = sql + " FLOAT"
+                sql += " FLOAT"
             elif field.type() == "time":
-                sql = sql + " VARCHAR(20)"
+                sql += " VARCHAR(20)"
             elif field.type() == "date":
-                sql = sql + " VARCHAR(20)"
+                sql += " VARCHAR(20)"
             elif field.type() == "pixmap":
-                sql = sql + " TEXT"
+                sql += " TEXT"
             elif field.type() == "string":
-                sql = sql + " VARCHAR"
+                sql += " VARCHAR"
             elif field.type() == "stringlist":
-                sql = sql + " TEXT"
+                sql += " TEXT"
             elif field.type() == "bytearray":
-                sql = sql + " CLOB"
+                sql += " CLOB"
+            elif field.type() == "timestamp":
+                sql += " DATETIME"
             elif field.type() == "serial":
-                sql = sql + " INTEGER"
+                sql += " INTEGER"
                 if not field.isPrimaryKey():
-                    sql = sql + " PRIMARY KEY"
+                    sql += " PRIMARY KEY"
 
             longitud = field.length()
             if longitud > 0:
@@ -508,7 +512,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
             if field.isPrimaryKey():
                 if primaryKey is None:
-                    sql = sql + " PRIMARY KEY"
+                    sql += " PRIMARY KEY"
                 else:
                     self.logger.debug(
                         QApplication.tr("FLManager : Tabla-> ")
@@ -627,6 +631,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 ret = True
             elif field1[1] == "double" and not field2[1] == "double":
                 ret = True
+            elif field1[1] == "timestamp" and not field2[1] == "timestamp":
+                ret = True
 
         except Exception:
             self.logger.error("notEqualsFields %s %s", field1, field2)
@@ -725,6 +731,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             ret = "stringlist"
         elif type_ == "INTEGER":  # serial
             ret = "uint"
+        elif type_ == "DATETIME":
+            ret = "timestamp"
 
         return ret
 
