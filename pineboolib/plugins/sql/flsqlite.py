@@ -185,10 +185,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             s = "'%s'" % util.dateDMAtoAMD(v)
 
         elif type_ == "time":
-            if v is None:
-                s = ""
-            else:
+            if v:
                 s = "'%s'" % v
+            else:
+                s = ""
 
         elif type_ in ("uint", "int", "double", "serial"):
             if v is None:
@@ -197,16 +197,23 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 s = v
 
         else:
-            if type_ in ("string", "stringlist", "timestamp"):
-                if v is None:
-                    s = "NULL"
-                else:
-                    if type_ == "string":
-                        v = auto_qt_translate_text(v)
-                        if upper:
-                            v = v.upper()
-                    # v = v.encode("UTF-8")
-                    s = "'%s'" % v
+            if v and type_ == "string":
+                v = auto_qt_translate_text(v)
+                if upper:
+                    v = v.upper()
+
+            s = "'%s'" % v
+
+            # if type_ in ("string", "stringlist", "timestamp"):
+            #    if v is None:
+            #        s = "NULL"
+            #    else:
+            #        if type_ == "string":
+            #            v = auto_qt_translate_text(v)
+            #            if upper:
+            #                v = v.upper()
+            #        # v = v.encode("UTF-8")
+            #        s = "'%s'" % v
         return s
 
     def DBName(self) -> str:
