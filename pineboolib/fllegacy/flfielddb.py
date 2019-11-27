@@ -837,6 +837,17 @@ class FLFieldDB(QtWidgets.QWidget):
             if v is not None:
                 cast(flcheckbox.FLCheckBox, self.editor_).setChecked(v)
 
+        elif type_ == "timestamp":
+            doHome = False
+            editor_ts = cast(fllineedit.FLLineEdit, self.editor_)
+            if not editor_ts.text():
+                doHome = True
+
+            editor_ts.setText(v if v else "")
+
+            if doHome:
+                editor_ts.home(False)
+
     def value(self) -> Any:
         """
         Return the value contained in the field.
@@ -868,7 +879,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if type_ == "double" or type_ == "int" or type_ == "uint":
                 return 0
 
-        if type_ in ("string", "stringlist"):
+        if type_ in ("string", "stringlist", "timestamp"):
             if self.editor_:
                 ed_ = self.editor_
                 if isinstance(ed_, fllineedit.FLLineEdit):
@@ -937,7 +948,7 @@ class FLFieldDB(QtWidgets.QWidget):
             return
         type_ = field.type()
 
-        if type_ == "double" or type_ == "int" or type_ == "uint" or type_ == "string":
+        if type_ in ("double", "int", "uint", "string", "timestamp"):
             editor_le = cast(fllineedit.FLLineEdit, self.editor_)
             if editor_le:
                 editor_le.selectAll()
@@ -1275,6 +1286,26 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 cast(QtCore.pyqtSignal, editor_str.textChanged).connect(self.updateValue)
 
+        elif type_ == "timestamp":
+
+            doHome = False
+            editor_str = cast(fllineedit.FLLineEdit, self.editor_)
+            try:
+                cast(QtCore.pyqtSignal, editor_str.textChanged).disconnect(self.updateValue)
+            except Exception:
+                self.logger.exception("Error al desconectar señal textChanged")
+
+            if v is not None:
+                editor_str.setText(v)
+            else:
+                def_val = field.defaultValue() or ""
+                editor_str.setText(def_val if not nulo else "")
+
+            if doHome:
+                editor_str.home(False)
+
+            cast(QtCore.pyqtSignal, editor_str.textChanged).connect(self.updateValue)
+
         elif type_ in ("int", "uint"):
             editor_int = cast(fllineedit.FLLineEdit, self.editor_)
             try:
@@ -1533,7 +1564,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 cast(QtCore.pyqtSignal, ed.textChanged).connect(self.updateValue)
 
-        elif type_ == "uint" or type_ == "int" or type_ == "serial":
+        elif type_ in ("uint", "int", "serial", "timestamp"):
             editor_le = cast(fllineedit.FLLineEdit, self.editor_)
             if v == editor_le.text():
                 return
@@ -1896,7 +1927,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self.initMaxSize_ = self.maximumSize()
         self.initMinSize_ = self.minimumSize()
 
-        if type_ in ("uint", "int", "double", "string"):
+        if type_ in ("uint", "int", "double", "string", "timestamp"):
             self.initEditorControlForNumber(
                 has_option_list=ol,
                 field=field,

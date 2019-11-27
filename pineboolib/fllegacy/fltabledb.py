@@ -1505,7 +1505,7 @@ class FLTableDB(QtWidgets.QWidget):
                 j = 2
                 while j < 5:
 
-                    if type_ in ("uint", "int", "double", "string", "stringlist"):
+                    if type_ in ("uint", "int", "double", "string", "stringlist", "timestamp"):
                         if ol:
                             editor_qcb = QtWidgets.QComboBox(self)
                             olTranslated = []
@@ -1549,7 +1549,7 @@ class FLTableDB(QtWidgets.QWidget):
                                     )
 
                                 editor_le.setAlignment(QtCore.Qt.AlignRight)
-                            else:
+                            else:  # string, stringlist, timestamp
                                 if len_ > 0:
                                     editor_le.setMaxLength(len_)
                                     if rX:
@@ -1706,10 +1706,10 @@ class FLTableDB(QtWidgets.QWidget):
             type = field.type()
             ol = field.hasOptionsList()
 
-            if type in ("string", "stringlist"):
+            if type in ("string", "stringlist", "timestamp"):
                 fieldArg = "UPPER(%s)" % fieldName
 
-            if type in ("uint", "int", "double", "string", "stringlist"):
+            if type in ("uint", "int", "double", "string", "stringlist", "timestamp"):
                 if ol:
                     if condType == self.FromTo:
                         editorOp1 = self.tdbFilter.cellWidget(i, 3)
