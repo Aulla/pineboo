@@ -769,7 +769,9 @@ class FLTableDB(QtWidgets.QWidget):
 
         i = 0
         for fi in fieldsList:
-            _index = self.tableRecords_.column_name_to_column_index(fi)
+            _index = self.tableRecords_.logical_index_to_visual_index(
+                self.tableRecords_.column_name_to_column_index(fi)
+            )
             self.moveCol(_index, i)
             i = i + 1
 
@@ -819,11 +821,12 @@ class FLTableDB(QtWidgets.QWidget):
                 raise Exception("tableRecords_ is not defined!")
 
             for column in range(model.columnCount()):
-                list_.append(
-                    self.tableRecords_.model().headerData(
-                        column, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole
-                    )
+                alias_ = self.tableRecords_.model().headerData(
+                    self.tableRecords_.visual_index_to_logical_index(column),
+                    QtCore.Qt.Horizontal,
+                    QtCore.Qt.DisplayRole,
                 )
+                list_.append(tMD.fieldAliasToName(alias_) or "")
 
         return list_
 

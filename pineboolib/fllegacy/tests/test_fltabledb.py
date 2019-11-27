@@ -34,6 +34,21 @@ class TestFLTableDB(unittest.TestCase):
         # form.close()
         # self.assertFalse(form._loaded)
 
+    def test_order_cols(self) -> None:
+        """Test order cols."""
+        from pineboolib.fllegacy import fltabledb
+        from pineboolib import application
+
+        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+            "flareas"
+        ].mainform_widget
+
+        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        fltable.setOrderCols(["descripcion", "idarea", "bloqueo"])
+        self.assertEqual(fltable.orderCols(), ["descripcion", "idarea", "bloqueo"])
+        fltable.setOrderCols(["idarea"])
+        self.assertEqual(fltable.orderCols(), ["idarea", "descripcion", "bloqueo"])
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
