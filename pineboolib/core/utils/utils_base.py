@@ -4,6 +4,12 @@ Collection of utility functions.
 
 Just an assortment of functions that don't depend on externals and don't fit other modules.
 """
+
+
+from PyQt5 import QtGui, QtCore
+
+from pineboolib.core import utils, settings
+
 import os
 import re
 import sys
@@ -11,21 +17,16 @@ import io
 import os.path
 import hashlib
 import traceback
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import QObject, QFileInfo, QFile, QIODevice, QUrl, QDir, pyqtSignal
-from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
-from typing import Optional, Union, Any, List, cast
-from typing import Callable, TypeVar, TYPE_CHECKING
-from types import FrameType
-from xml.etree.ElementTree import ElementTree, Element
-from pineboolib.core.utils import logging
-from pineboolib.core import decorators
-from pineboolib.core.settings import config
+import types
+
+from typing import Optional, Union, Any, List, cast, Callable, TypeVar, TYPE_CHECKING
+
+from xml.etree import ElementTree
 
 if TYPE_CHECKING:
     from pineboolib.application.qsatypes.date import Date  # noqa: F401
 
-logger = logging.getLogger(__name__)
+logger = utils.logging.getLogger(__name__)
 T1 = TypeVar("T1")
 
 # FIXME: Move commaSeparator to Pineboo internals, not aqApp
@@ -60,7 +61,9 @@ def one(x: List[T1], default: Any = None) -> Optional[T1]:
         return default
 
 
-def traceit(frame: FrameType, event: str, arg: Any) -> Callable[[FrameType, str, Any], Any]:
+def traceit(
+    frame: types.FrameType, event: str, arg: Any
+) -> Callable[[types.FrameType, str, Any], Any]:
     """
     Print a trace line for each Python line executed or call.
 
@@ -96,7 +99,7 @@ class TraceBlock:
         code
     """
 
-    def __enter__(self) -> Callable[[FrameType, str, Any], Any]:
+    def __enter__(self) -> Callable[[types.FrameType, str, Any], Any]:
         """Create tracing context on enter."""
         # NOTE: "sys.systrace" function could lead to arbitrary code execution
         sys.settrace(traceit)  # noqa: DUO111
@@ -125,16 +128,16 @@ def copy_dir_recursive(from_dir: str, to_dir: str, replace_on_conflict: bool = F
     *** DEPRECATED ***
     Use python shutil.copytree for this.
     """
-    dir = QDir()
+    dir = QtCore.QDir()
     dir.setPath(from_dir)
 
-    from_dir += QDir.separator()
-    to_dir += QDir.separator()
+    from_dir += QtCore.QDir.separator()
+    to_dir += QtCore.QDir.separator()
 
     if not os.path.exists(to_dir):
         os.makedirs(to_dir)
 
-    for file_ in dir.entryList(QDir.Files):
+    for file_ in dir.entryList(QtCore.QDir.Files):
         from_ = from_dir + file_
         to_ = to_dir + file_
         if str(to_).endswith(".src"):
@@ -146,10 +149,12 @@ def copy_dir_recursive(from_dir: str, to_dir: str, replace_on_conflict: bool = F
             else:
                 continue
 
-        if not QFile.copy(from_, to_):
+        if not QtCore.QFile.copy(from_, to_):
             return False
 
-    for dir_ in dir.entryList(cast(QDir.Filter, QDir.Dirs | QDir.NoDotAndDotDot)):
+    for dir_ in dir.entryList(
+        cast(QtCore.QDir.Filter, QtCore.QDir.Dirs | QtCore.QDir.NoDotAndDotDot)
+    ):
         from_ = from_dir + dir_
         to_ = to_dir + dir_
 
@@ -239,9 +244,8 @@ class StructMyDict(dict):
         self[name] = value
 
 
-def load2xml(form_path_or_str: str) -> ElementTree:
+def load2xml(form_path_or_str: str) -> ElementTree.ElementTree:
     """Parse a Eneboo style XML."""
-    from xml.etree import ElementTree as ET
 
     """
     class xml_parser(ET.TreeBuilder):
@@ -272,12 +276,12 @@ def load2xml(form_path_or_str: str) -> ElementTree:
         raise Exception("File %s not found" % form_path_or_str[:200])
 
     try:
-        parser = ET.XMLParser()
-        return ET.parse(file_ptr or form_path_or_str, parser)
+        parser = ElementTree.XMLParser()
+        return ElementTree.parse(file_ptr or form_path_or_str, parser)
     except Exception:
         try:
-            parser = ET.XMLParser(encoding="ISO-8859-15")
-            return ET.parse(file_ptr or form_path_or_str, parser)
+            parser = ElementTree.XMLParser(encoding="ISO-8859-15")
+            return ElementTree.parse(file_ptr or form_path_or_str, parser)
         except Exception:
             logger.exception(
                 "Error cargando UI después de intentar con UTF8 e ISO \n%s", form_path_or_str
@@ -358,7 +362,7 @@ def _parse_for_duplicates(text: str) -> str:
     return ret_
 
 
-def pretty_print_xml(elem: Element, level: int = 0) -> None:
+def pretty_print_xml(elem: ElementTree.Element, level: int = 0) -> None:
     """
     Generate pretty-printed version of given XML.
 
@@ -517,7 +521,7 @@ def download_files() -> None:
 
     copy_dir_recursive(":/pineboolib", filedir("../pineboolib"))
 
-    tmp_dir = config.value("ebcomportamiento/temp_dir")
+    tmp_dir = settings.config.value("ebcomportamiento/temp_dir")
 
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)
@@ -526,7 +530,7 @@ def download_files() -> None:
 def pixmap_fromMimeSource(name: str) -> Any:
     """Convert mime source into a pixmap."""
     file_name = filedir("./core/images/icons", name)
-    return QPixmap(file_name) if os.path.exists(file_name) else None
+    return QtGui.QPixmap(file_name) if os.path.exists(file_name) else None
 
 
 def sha1(x: str) -> str:

@@ -14,7 +14,7 @@ class TestUtilsBase(unittest.TestCase):
         self.assertEqual(utils_base.one(["1", 2, "3"]), "1")
         self.assertEqual(utils_base.one([], "no"), "no")
 
-        self.assertTrue(utils_base.text2bool(True))
+        self.assertTrue(utils_base.text2bool("True"))
         self.assertTrue(utils_base.text2bool("true"))
         self.assertTrue(utils_base.text2bool("yes"))
         self.assertTrue(utils_base.text2bool("1"))
