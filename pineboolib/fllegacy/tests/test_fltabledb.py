@@ -14,12 +14,14 @@ class TestFLTableDB(unittest.TestCase):
 
     def test_export_to_ods(self) -> None:
         """Test export to ods."""
-        from pineboolib.fllegacy import flformdb, fltabledb
+        from pineboolib.fllegacy import fltabledb
         from pineboolib import application
 
         application.project.actions["flareas"].openDefaultForm()
 
-        form = application.project.actions["flareas"].mainform_widget
+        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+            "flareas"
+        ].mainform_widget
         # form = flformdb.FLFormDB(None, action)
         # self.assertTrue(form)
         # form.load()
