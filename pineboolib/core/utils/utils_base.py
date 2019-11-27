@@ -30,7 +30,9 @@ logger = utils.logging.getLogger(__name__)
 T1 = TypeVar("T1")
 
 # FIXME: Move commaSeparator to Pineboo internals, not aqApp
-DECIMAL_SEPARATOR = ","  # FIXME: Locale dependent. ES: "," EN: "."
+DECIMAL_SEPARATOR = (
+    "," if QtCore.QLocale.system().toString(float(0.01), "f", 2).find(",") > -1 else "."
+)
 
 
 def auto_qt_translate_text(text: Optional[str]) -> str:
