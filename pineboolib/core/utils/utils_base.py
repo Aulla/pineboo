@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 T1 = TypeVar("T1")
 
 # FIXME: Move commaSeparator to Pineboo internals, not aqApp
-decimal_separator = ","  # FIXME: Locale dependent. ES: "," EN: "."
+DECIMAL_SEPARATOR = ","  # FIXME: Locale dependent. ES: "," EN: "."
 
 
 def auto_qt_translate_text(text: Optional[str]) -> str:
@@ -58,58 +58,6 @@ def one(x: List[T1], default: Any = None) -> Optional[T1]:
         return x[0]
     except IndexError:
         return default
-
-
-class DefFun:
-    """
-    Default function emulator.
-
-    Double functionality. First, it can convert calls to properties into calls to real functions.
-    Second, its main use is omit calls to non-existent functions, so it warns on console but
-    the code should keep running. (THIS IS DANGEROUS)
-
-    *** DEPRECATED ***
-    """
-
-    def __init__(self, parent: Any, funname: str, realfun: Any = None) -> None:
-        """Build a new DefFun."""
-        self.parent = parent
-        self.funname = funname
-        self.realfun = realfun
-
-    def __str__(self) -> Any:
-        """Emulate call function... when converted to string."""
-        if self.realfun:
-            logger.debug(
-                "%r: Redirigiendo Propiedad a función %r",
-                self.parent.__class__.__name__,
-                self.funname,
-            )
-            return self.realfun()
-
-        logger.debug(
-            "WARN: %r: Propiedad no implementada %r", self.parent.__class__.__name__, self.funname
-        )
-        return 0
-
-    def __call__(self, *args: Any) -> Any:
-        """Emulate call function."""
-        if self.realfun:
-            logger.debug(
-                "%r: Redirigiendo Llamada a función %s %s",
-                self.parent.__class__.__name__,
-                self.funname,
-                args,
-            )
-            return self.realfun(*args)
-
-        logger.debug(
-            "%r: Método no implementado %s %s",
-            self.parent.__class__.__name__,
-            self.funname.encode("UTF-8"),
-            args,
-        )
-        return None
 
 
 def traceit(frame: FrameType, event: str, arg: Any) -> Callable[[FrameType, str, Any], Any]:
@@ -168,100 +116,6 @@ def trace_function(f: Callable) -> Callable:
             return f(*args)
 
     return wrapper
-
-
-class downloadManager(QObject):  # FIXME: PLZ follow python naming PEP8
-    """
-    Emulator for Eneboo downloadManager.
-    """
-
-    manager: QNetworkAccessManager
-    currentDownload: List[Any]
-    reply = None
-    url = None
-    result = None
-    filename = None
-    dir_ = None
-    url_ = None
-
-    def __init__(self) -> None:
-        """Create a new downloadManager."""
-        super(downloadManager, self).__init__()
-        self.manager = QNetworkAccessManager()
-        self.currentDownload = []
-        cast(pyqtSignal, self.manager.finished).connect(self.downloadFinished)
-
-    def setLE(self, filename: str, dir_: str, urllineedit: Any) -> None:
-        """Configure manager."""
-        self.filename = filename
-        self.dir_ = dir_
-        self.url_ = urllineedit
-
-    def doDownload(self) -> None:
-        """Download as configured."""
-        if self.url_ is None or self.dir_ is None:
-            raise ValueError("setLE was not called first")
-        request = QNetworkRequest(QUrl("%s/%s/%s" % (self.url_.text(), self.dir_, self.filename)))
-        self.reply = self.manager.get(request)
-        # self.reply.sslErrors.connect(self.sslErrors)
-        self.currentDownload.append(self.reply)
-
-    def saveFileName(self, url: str) -> str:
-        """Get suitable filename for saving a download."""
-        path = url
-        basename = QFileInfo(path).fileName()
-
-        if not basename:
-            basename = "download"
-
-        if os.path.exists(basename):
-            i = 1
-            while os.path.exists("%s.%s" % (basename, i)):
-                i += 1
-
-            basename = "%s.%s" % (basename, i)
-
-        return basename
-
-    def saveToDisk(self, filename: str, data: Any) -> bool:
-        """Store download to file."""
-        if self.dir_ is None:
-            raise ValueError("setLE was not called first")
-        fi = "%s/%s" % (self.dir_, filename)
-        if not os.path.exists(self.dir_):
-            os.makedirs(self.dir_)
-        file = QFile(fi)
-        if not file.open(QIODevice.WriteOnly):
-            return False
-
-        file.write(data.readAll())
-        file.close()
-
-        return True
-
-    def isHttpRedirect(self, reply: Any) -> bool:
-        """Return True if REPLY is some kind of HTTP Redirect."""
-        statusCode = reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
-        return statusCode in [301, 302, 303, 305, 307, 308]
-
-    @decorators.pyqtSlot(QNetworkReply)
-    def downloadFinished(self, reply: Any) -> None:
-        """
-        Slot called when the downloadFinishes.
-
-        Stores the data retrieved on the file specified before
-        """
-        url = reply.url()
-        if not reply.error():
-            if not self.isHttpRedirect(reply):
-                filename = self.saveFileName(url)
-                filename = filename.replace(":", "")
-                self.saveToDisk(filename, reply)
-                self.result = "%s ---> %s/%s" % (url, self.dir_, filename)
-            else:
-                self.result = "Redireccionado ... :("
-        else:
-            self.result = reply.errorString()
 
 
 def copy_dir_recursive(from_dir: str, to_dir: str, replace_on_conflict: bool = False) -> bool:
@@ -345,8 +199,13 @@ def ustr(*t1: Union[bytes, str, int, "Date", None, float]) -> str:
             return t
 
         if isinstance(t, float):
+            t_float = t
             try:
                 t = int(t)
+
+                if not t_float == t:
+                    t = str(t_float)
+
             except Exception:
                 pass
 
@@ -553,7 +412,7 @@ def format_double(d: Union[int, str, float], part_integer: int, part_decimal: in
     # Fixme: Que pasa cuando la parte entera sobrepasa el limite, se coge el maximo valor o
     ret_ = "%s%s%s" % (
         str_integer,
-        decimal_separator if found_comma else "",
+        DECIMAL_SEPARATOR if found_comma or part_decimal > 0 else "",
         str_decimal if part_decimal > 0 else "",
     )
     return ret_
@@ -565,7 +424,7 @@ def format_int(value: Union[str, int, float, None], part_integer: int = None) ->
         return ""
     str_integer = "{:,d}".format(int(value))
 
-    if decimal_separator == ",":
+    if DECIMAL_SEPARATOR == ",":
         str_integer = str_integer.replace(",", ".")
     else:
         str_integer = str_integer.replace(".", ",")
@@ -573,43 +432,43 @@ def format_int(value: Union[str, int, float, None], part_integer: int = None) ->
     return str_integer
 
 
-def unformat_number(new_str: str, old_str: Optional[str], type_: str) -> str:
-    """Undoes some of the locale formatting to ensure float(x) works."""
-    ret_ = new_str
-    if old_str is not None:
+# def unformat_number(new_str: str, old_str: Optional[str], type_: str) -> str:
+#    """Undoes some of the locale formatting to ensure float(x) works."""
+#    ret_ = new_str
+#    if old_str is not None:
 
-        if type_ in ("int", "uint"):
-            new_str = new_str.replace(",", "")
-            new_str = new_str.replace(".", "")
+#        if type_ in ("int", "uint"):
+#            new_str = new_str.replace(",", "")
+#            new_str = new_str.replace(".", "")
 
-            ret_ = new_str
+#            ret_ = new_str
 
-        else:
-            end_comma = False
-            if new_str.endswith(",") or new_str.endswith("."):
-                # Si acaba en coma, lo guardo
-                end_comma = True
+#        else:
+#            end_comma = False
+#            if new_str.endswith(",") or new_str.endswith("."):
+# Si acaba en coma, lo guardo
+#                end_comma = True
 
-            ret_ = new_str.replace(",", "")
-            ret_ = ret_.replace(".", "")
-            if end_comma:
-                ret_ = ret_ + "."
-            # else:
-            #    comma_pos = old_str.find(".")
-            #    if comma_pos > -1:
-            print("Desformateando", new_str, ret_)
+#            ret_ = new_str.replace(",", "")
+#            ret_ = ret_.replace(".", "")
+#            if end_comma:
+#                ret_ = ret_ + "."
+# else:
+#    comma_pos = old_str.find(".")
+#    if comma_pos > -1:
+#            print("Desformateando", new_str, ret_)
 
-        # else:
-        # pos_comma = old_str.find(".")
+# else:
+# pos_comma = old_str.find(".")
 
-        # if pos_comma > -1:
-        #    if pos_comma > new_str.find("."):
-        #        new_str = new_str.replace(".", "")
+# if pos_comma > -1:
+#    if pos_comma > new_str.find("."):
+#        new_str = new_str.replace(".", "")
 
-        #        ret_ = new_str[0:pos_comma] + "." + new_str[pos_comma:]
+#        ret_ = new_str[0:pos_comma] + "." + new_str[pos_comma:]
 
-    # print("l2", ret_)
-    return ret_
+# print("l2", ret_)
+#    return ret_
 
 
 # FIXME: Belongs to RPC drivers
