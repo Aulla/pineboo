@@ -101,10 +101,10 @@ class Date(object):
 
         @param yyyy. Año a setear
         """
+
         self.date_ = QtCore.QDate.fromString(
             "%s-%s-%s" % (year, self.date_.toString("MM"), self.date_.toString("dd")), "yyyy-MM-dd"
         )
-
         return self
 
     def getMonth(self) -> int:
@@ -121,10 +121,8 @@ class Date(object):
 
         @param mm. Mes a setear
         """
-        if isinstance(mm, int):
-            mm = str(mm)
-
-        if len(mm) == 1:
+        mm = str(mm)
+        if len(mm) < 2:
             mm = "0%s" % mm
 
         self.date_ = QtCore.QDate.fromString(
@@ -147,10 +145,9 @@ class Date(object):
 
         @param dd. Dia a setear
         """
-        if isinstance(dd, int):
-            dd = str(dd)
+        dd = str(dd)
 
-        if len(str(dd)) == 1:
+        if len(dd) < 2:
             dd = "0%s" % dd
 
         self.date_ = QtCore.QDate.fromString(

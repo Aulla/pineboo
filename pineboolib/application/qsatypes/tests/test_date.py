@@ -26,6 +26,26 @@ class TestDate(unittest.TestCase):
         self.assertEqual(date_.addMonths(-2).toString("yyyy-MM-dd"), "2019-09-26")
         self.assertEqual(date_.addYears(1).toString("yyyy-MM-dd"), "2020-11-26")
 
+        date2_ = date.Date("2020-01-31T12:10:59")
+        self.assertEqual(date2_.getHours(), 12)
+        date2_.setYear("2021")
+        date2_.setMonth("12")
+        date2_.setDay(16)
+        self.assertEqual(date2_.getHours(), 12)
+        self.assertEqual(date2_.getMinutes(), 10)
+        self.assertEqual(date2_.getSeconds(), 59)
+        self.assertEqual(date2_.getMilliseconds(), 0)
+
+        self.assertEqual(date2_.getYear(), 2021)
+        self.assertTrue(date_ < date2_)
+        self.assertFalse(date_ == date2_)
+        self.assertTrue(date_ != date2_)
+        date2_.setDate(14)
+        self.assertEqual(date2_.getDay(), 14)
+
+        date3_ = date2_.parse("2019-06-02")
+        self.assertEqual(date3_.getYear(), 2019)
+
 
 if __name__ == "__main__":
     unittest.main()
