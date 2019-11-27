@@ -7,7 +7,7 @@ Defines PNCursorTableModel class.
 from PyQt5 import QtCore, QtGui, Qt, QtWidgets
 
 from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import logging, utils_base
 
 from pineboolib.application.utils import date_conversion
 
@@ -381,7 +381,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             elif _type == "double":
                 if d is not None:
-                    d = QtCore.QLocale.system().toString(float(d), "f", field.partDecimal())
+                    # d = QtCore.QLocale.system().toString(float(d), "f", field.partDecimal())
+                    d = utils_base.format_double(d, field.partInteger(), field.partDecimal())
             elif _type in ("int", "uint"):
                 if d is not None:
                     d = QtCore.QLocale.system().toString(int(d))
