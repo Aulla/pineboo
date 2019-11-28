@@ -47,31 +47,27 @@ class TestSysBaseClassGeneral(unittest.TestCase):
 
     def test_objects(self) -> None:
         """Test objects functions."""
-
-        from pineboolib.qsa import dictmodules
         from pineboolib.application.qsatypes import sysbasetype
-        from pineboolib.application.database import pnsqlcursor
+        from pineboolib.fllegacy import fltabledb
+        from pineboolib import application
 
-        cursor_1 = pnsqlcursor.PNSqlCursor("flmodules")
-        cursor_1.select()
-        cursor_1.setModeAccess(cursor_1.Insert)
-        cursor_1.refreshBuffer()
-        cursor_1.insertRecord(False)
+        application.project.actions["flareas"].openDefaultForm()
 
-        form = dictmodules.from_project("formRecordflmodules")
-        self.assertTrue(form)
-
-        field = form.child("flfielddb_5")
+        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+            "flareas"
+        ].mainform_widget
+        # form = flformdb.FLFormDB(None, action)
+        # self.assertTrue(form)
+        # form.load()
+        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
 
         base_type = sysbasetype.SysBaseType()
 
-        self.assertTrue(base_type.setObjText(form, "flfielddb_5", "Holas"))
-        self.assertTrue(base_type.setObjText(form, "toolButtonInsert", "prueba"))
+        self.assertFalse(base_type.setObjText(fltable, "flfielddb_5", "Holas"))
+        self.assertFalse(base_type.setObjText(fltable, "toolButtonInsert", "prueba"))
 
-        base_type.disableObj(form, "flfielddb_5")
-        self.assertTrue(field.keepDisabled_)
-        base_type.enableObj(form, "flfielddb_5")
-        self.assertFalse(field.keepDisabled_)
+        base_type.disableObj(form, "tableDBRecords")
+        base_type.enableObj(form, "tableDBRecords")
 
     @classmethod
     def tearDownClass(cls) -> None:
