@@ -26,8 +26,8 @@ import traceback
 
 from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
 
-# FIXME: Remove dependency: Should not import from fllegacy.*
-from pineboolib.fllegacy.aqsobjects import aqboolflagstate  # FIXME: Should not depend on AQS
+
+from pineboolib.application.acls import pnboolflagstate
 
 if TYPE_CHECKING:
 
@@ -725,14 +725,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         state_changes = b != self.d.edition_
 
         if state_changes and not self.d.edition_states_:
-            self.d.edition_states_ = aqboolflagstate.AQBoolFlagStateList()
+            self.d.edition_states_ = pnboolflagstate.PNBoolFlagStateList()
 
         # if self.d.edition_states_ is None:
         #     return
 
         i = self.d.edition_states_.find(m)
         if not i and state_changes:
-            i = aqboolflagstate.AQBoolFlagState()
+            i = pnboolflagstate.PNBoolFlagState()
             i.modifier_ = m
             i.prevValue_ = self.d.edition_
             self.d.edition_states_.append(i)
@@ -772,14 +772,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         state_changes = b != self.d.browse_
 
         if state_changes and not self.d.browse_states_:
-            self.d.browse_states_ = aqboolflagstate.AQBoolFlagStateList()
+            self.d.browse_states_ = pnboolflagstate.PNBoolFlagStateList()
 
         if not self.d.browse_states_:
             return
 
         i = self.d.browse_states_.find(m)
         if not i and state_changes:
-            i = aqboolflagstate.AQBoolFlagState()
+            i = pnboolflagstate.PNBoolFlagState()
             i.modifier_ = m
             i.prevValue_ = self.d.browse_
             self.d.browse_states_.append(i)
@@ -3470,8 +3470,8 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         self._currentregister = -1
         self.acosCondName_ = None
         self.buffer_ = None
-        self.edition_states_ = aqboolflagstate.AQBoolFlagStateList()
-        self.browse_states_ = aqboolflagstate.AQBoolFlagStateList()
+        self.edition_states_ = pnboolflagstate.PNBoolFlagStateList()
+        self.browse_states_ = pnboolflagstate.PNBoolFlagStateList()
         self.activatedCheckIntegrity_ = True
         self.activatedCommitActions_ = True
         self.askForCancelChanges_ = True
@@ -3522,12 +3522,12 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
 
         if self.edition_states_:
             del self.edition_states_
-            self.edition_states_ = aqboolflagstate.AQBoolFlagStateList()
+            self.edition_states_ = pnboolflagstate.PNBoolFlagStateList()
             # logger.trace("AQBoolFlagState count %s", self.count_)
 
         if self.browse_states_:
             del self.browse_states_
-            self.browse_states_ = aqboolflagstate.AQBoolFlagStateList()
+            self.browse_states_ = pnboolflagstate.PNBoolFlagStateList()
             # logger.trace("AQBoolFlagState count %s", self.count_)
         if self.transactionsOpened_:
             del self.transactionsOpened_
