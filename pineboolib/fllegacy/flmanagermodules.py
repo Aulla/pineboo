@@ -1,7 +1,7 @@
 """Flmanagermodules module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 
 from pineboolib.core import decorators
 from pineboolib.core.utils import utils_base
@@ -14,7 +14,7 @@ from pineboolib.application.database import pnsqlquery, pnsqlcursor
 from pineboolib.application.utils import path
 from pineboolib.application.parsers.qt3uiparser import qt3ui
 
-from pineboolib import q3widgets
+from pineboolib.q3widgets import qmainwindow, qdialog
 
 from . import flutil
 from . import flformdb
@@ -27,9 +27,8 @@ import os
 
 
 if TYPE_CHECKING:
-    from pineboolib.application.xmlaction import XMLAction  # noqa: F401
-    from pineboolib.application.database.pnconnection import PNConnection  # noqa: F401
-    from PyQt5.QtGui import QPixmap  # noqa: F401
+    from pineboolib.application import xmlaction  # noqa: F401
+    from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401
 
 
 """
@@ -125,7 +124,7 @@ class FLManagerModules(object):
     trans_dir_: str
     filesCached_: Dict[str, str]
 
-    def __init__(self, db: "PNConnection") -> None:
+    def __init__(self, db: "iconnection.IConnection") -> None:
         """Inicialize."""
 
         super(FLManagerModules, self).__init__()
@@ -384,7 +383,7 @@ class FLManagerModules(object):
     @staticmethod
     def createUI(
         file_name: str,
-        connection: Optional["PNConnection"] = None,
+        connection: Optional["iconnection.IConnection"] = None,
         parent: Optional["QtWidgets.QWidget"] = None,
     ) -> "QtWidgets.QWidget":
         """
@@ -440,9 +439,9 @@ class FLManagerModules(object):
 
             if UIVersion < "4.0":
                 if xclass == "QMainWindow":
-                    parent = q3widgets.qmainwindow.QMainWindow()
+                    parent = qmainwindow.QMainWindow()
                 elif xclass in ["QDialog", "QWidget"]:
-                    parent = q3widgets.qdialog.QDialog()
+                    parent = qdialog.QDialog()
             else:
                 if xclass == "QMainWindow":
                     parent = QtWidgets.QMainWindow()
@@ -473,8 +472,8 @@ class FLManagerModules(object):
 
     def createForm(
         self,
-        action: Union["pnaction.PNAction", "XMLAction"],
-        connector: Optional["PNConnection"] = None,
+        action: Union["pnaction.PNAction", "xmlaction.XMLAction"],
+        connector: Optional["iconnection.IConnection"] = None,
         parent: Optional["QtWidgets.QWidget"] = None,
         name: Optional[str] = None,
     ) -> "QtWidgets.QWidget":
@@ -504,9 +503,9 @@ class FLManagerModules(object):
 
     def createFormRecord(
         self,
-        action: Union["pnaction.PNAction", "XMLAction"],
-        connector: Optional["PNConnection"] = None,
-        parent_or_cursor: Optional[Union["pnsqlcursor.PNSqlCursor", "QtWidgets.QWidget"]] = None,
+        action: Union["pnaction.PNAction", "xmlaction.XMLAction"],
+        connector: Optional["iconnection.IConnection"] = None,
+        parent_or_cursor: Optional[Union["isqlcursor.ISqlCursor", "QtWidgets.QWidget"]] = None,
         name: Optional[str] = None,
     ) -> "QtWidgets.QWidget":
         """
@@ -664,22 +663,21 @@ class FLManagerModules(object):
 
         return ret_
 
-    def iconModule(self, id_module: str) -> "QPixmap":
+    def iconModule(self, id_module: str) -> "QtGui.QPixmap":
         """
         To obtain the icon associated with a module.
 
         @param id_moule Identifier of the module from which to obtain the icon
         @return QPixmap with the icon
         """
-        from PyQt5.QtGui import QPixmap
 
-        pix = QPixmap()
+        pix = QtGui.QPixmap()
         mod_obj = self.dict_info_mods_.get(id_module.upper(), None)
         mod_icono = getattr(mod_obj, "icono", None)
         if mod_icono is not None:
             from pineboolib.application.utils import xpm
 
-            pix = QPixmap(xpm.cacheXPM(mod_icono))
+            pix = QtGui.QPixmap(xpm.cacheXPM(mod_icono))
 
         return pix
 

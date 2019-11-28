@@ -4,8 +4,7 @@ Defines the PNConnection class.
 """
 from PyQt5 import QtCore, QtWidgets
 
-from pineboolib.core import utils
-from pineboolib.core import settings, decorators
+from pineboolib.core import settings, decorators, utils
 from pineboolib.interfaces import iconnection
 from . import pnsqldrivers
 from pineboolib import application
@@ -17,9 +16,9 @@ from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 import time
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import iapicursor
+    from pineboolib.interfaces import iapicursor, isqlcursor
     from pineboolib.application.metadata import pntablemetadata
-    from . import pnconnectionmanager, pnsqlcursor
+    from . import pnconnectionmanager
 
 logger = utils.logging.getLogger(__name__)
 
@@ -44,7 +43,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _dbAux = None
     _isOpen: bool
     driver_ = None
-    _last_active_cursor: Optional["pnsqlcursor.PNSqlCursor"]
+    _last_active_cursor: Optional["isqlcursor.ISqlCursor"]
     conn_dict: Dict[str, "iconnection.IConnection"] = {}
     _conn_manager: "pnconnectionmanager.PNConnectionManager"
     _last_activity_time: float
@@ -298,7 +297,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self._last_active_cursor
 
-    def doTransaction(self, cursor: "pnsqlcursor.PNSqlCursor") -> bool:
+    def doTransaction(self, cursor: "isqlcursor.ISqlCursor") -> bool:
         """Make a transaction or savePoint according to transaction level."""
 
         if self.transaction_ == 0 and self.canTransaction():
@@ -363,7 +362,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.transaction_
 
-    def doRollback(self, cur: "pnsqlcursor.PNSqlCursor") -> bool:
+    def doRollback(self, cur: "isqlcursor.ISqlCursor") -> bool:
         """Drop a transaction or savepoint depending on the transaction level."""
 
         cancel = False
@@ -476,7 +475,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.interactiveGUI_
 
-    def doCommit(self, cur: "pnsqlcursor.PNSqlCursor", notify: bool = True) -> bool:
+    def doCommit(self, cur: "isqlcursor.ISqlCursor", notify: bool = True) -> bool:
         """Approve changes to a transaction or a save point based on your transaction level."""
 
         if not notify:

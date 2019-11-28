@@ -1,29 +1,28 @@
 """Flsqlite module."""
 
-from PyQt5.Qt import QDomDocument, QRegExp, QApplication  # type: ignore
+from PyQt5 import QtWidgets, QtCore, Qt
 
-from PyQt5.QtCore import Qt
 
 from pineboolib.core.utils.utils_base import auto_qt_translate_text
 from pineboolib.core import decorators
 
-from pineboolib.application.utils.check_dependencies import check_dependencies
-from pineboolib.application.utils.path import _dir
-from pineboolib.application.database.pnsqlquery import PNSqlQuery
+from pineboolib.application.utils import check_dependencies, path
+from pineboolib.application.database import pnsqlquery
 
-from pineboolib.fllegacy.flutil import FLUtil
+from pineboolib import logging
+
+from pineboolib.fllegacy import flutil
+
 from . import pnsqlschema
-from sqlalchemy import create_engine  # type: ignore
 
 import traceback
 import os
-from pineboolib import logging
+
 
 from typing import Optional, Union, Any, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
-    from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 
 class FLSQLITE(pnsqlschema.PNSqlSchema):
@@ -62,7 +61,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
-        return check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"}, False)
+        return check_dependencies.check_dependencies(
+            {"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"}, False
+        )
 
     def cursor(self) -> Any:
         """Return a cursor connection."""
@@ -85,8 +86,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     ) -> Any:
         """Connec to to database."""
         from pineboolib import application
+        from sqlalchemy import create_engine  # type: ignore
 
-        check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"})
+        check_dependencies.check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"})
 
         self.db_name = db_name
         if db_name == ":memory:":
@@ -95,7 +97,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             if application.project._splash:
                 application.project._splash.hide()
         else:
-            self.db_filename = _dir("%s.sqlite3" % self.db_name)
+            self.db_filename = path._dir("%s.sqlite3" % self.db_name)
 
         db_is_new = not os.path.exists("%s" % self.db_filename)
 
@@ -134,13 +136,13 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         if type_ == "bool":
             s = str(v[0]).upper()
-            if s == str(QApplication.tr("Sí")[0]).upper():
+            if s == str(QtWidgets.QApplication.translate("FLSQLite", "Sí")[0]).upper():
                 res = "=1"
-            elif str(QApplication.tr("No")[0]).upper():
+            elif str(QtWidgets.QApplication.translate("FLSQLite", "No")[0]).upper():
                 res = "=0"
 
         elif type_ == "date":
-            util = FLUtil()
+            util = flutil.FLUtil()
             dateamd = util.dateDMAtoAMD(str(v))
             if dateamd is None:
                 dateamd = ""
@@ -148,7 +150,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         elif type_ == "time":
             t = v.toTime()
-            res = "LIKE '" + t.toString(Qt.ISODate) + "%%'"
+            res = "LIKE '" + t.toString(QtCore.Qt.ISODate) + "%%'"
 
         else:
             res = str(v)
@@ -162,7 +164,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     def formatValue(self, type_: str, v: Any, upper: bool) -> Optional[Union[int, str, bool]]:
         """Return a string with the format value."""
 
-        util = FLUtil()
+        util = flutil.FLUtil()
 
         s: Any = None
         # TODO: psycopg2.mogrify ???
@@ -222,7 +224,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def nextSerialVal(self, table: str, field: str) -> Optional[int]:
         """Return next serial value."""
-        q = PNSqlQuery()
+        q = pnsqlquery.PNSqlQuery()
         q.setSelect("max(%s)" % field)
         q.setFrom(table)
         q.setWhere("1 = 1")
@@ -522,15 +524,15 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                     sql += " PRIMARY KEY"
                 else:
                     self.logger.debug(
-                        QApplication.tr("FLManager : Tabla-> ")
+                        QtWidgets.QApplication.tr("FLManager : Tabla-> ")
                         + tmd.name()
-                        + QApplication.tr(
+                        + QtWidgets.QApplication.tr(
                             " . Se ha intentado poner una segunda clave primaria para el campo "
                         )
                         + field.name()
-                        + QApplication.tr(" , pero el campo ")
+                        + QtWidgets.QApplication.tr(" , pero el campo ")
                         + primaryKey
-                        + QApplication.tr(
+                        + QtWidgets.QApplication.tr(
                             " ya es clave primaria. Sólo puede existir una clave primaria en FLTableMetaData, "
                             "use FLCompoundKey para crear claves compuestas."
                         )
@@ -557,7 +559,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 tmd.primaryKey(),
             )
 
-        # q = PNSqlQuery()
+        # q = pnsqlquery.PNSqlQuery()
         # q.setForwardOnly(True)
         # q.exec_(createIndex)
         sql += create_index
@@ -672,14 +674,14 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if isinstance(tablename_or_query, str):
             tablename = tablename_or_query
 
-            doc = QDomDocument(tablename)
+            doc = Qt.QDomDocument(tablename)
             stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
-            util = FLUtil()
+            util = flutil.FLUtil()
             if not util.domDocumentSetContent(doc, stream):
                 self.logger.warning(
                     "FLManager : "
-                    + QApplication.tr("Error al cargar los metadatos para la tabla %1").arg(
-                        tablename
+                    + QtWidgets.QApplication.translate(
+                        "FLSQLite", "Error al cargar los metadatos para la tabla %s" % tablename
                     )
                 )
 
@@ -756,11 +758,11 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     # FIXME: newField is never assigned
     # def alterTable(self, mtd1, mtd2, key, force=False):
-    #     util = FLUtil()
+    #     util = flutil.FLUtil()
     #
     #     oldMTD = None
     #     newMTD = None
-    #     doc = QDomDocument("doc")
+    #     doc = Qt.QDomDocument("doc")
     #     docElem = None
     #
     #     if not util.domDocumentSetContent(doc, mtd1):
@@ -861,7 +863,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #             buffer.setValue("sha", key)
     #             c.insert()
     #
-    #     q = PNSqlQuery("", self.db_.dbAux())
+    #     q = pnsqlquery.PNSqlQuery("", self.db_.dbAux())
     #     if not q.exec_("CREATE TABLE %s AS SELECT * FROM %s;" % (renameOld, oldMTD.name())) or not q.exec_(
     #         "DROP TABLE %s;" % oldMTD.name()
     #     ):
@@ -978,7 +980,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if not self.isOpen():
             return tl
 
-        t = PNSqlQuery()
+        t = pnsqlquery.PNSqlQuery()
         t.setForwardOnly(True)
 
         if type_name is None:
@@ -1013,20 +1015,20 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Clear all garbage data."""
 
         self.logger.warning("FLSQLITE: FIXME: Mr_Proper no regenera tablas")
-        util = FLUtil()
+        util = flutil.FLUtil()
         if self.db_ is None:
             raise Exception("MR_Proper. self.db_ is None")
 
         self.db_.connManager().dbAux().transaction()
-        rx = QRegExp("^.*[\\d][\\d][\\d][\\d].[\\d][\\d].*[\\d][\\d]$")
-        rx2 = QRegExp("^.*alteredtable[\\d][\\d][\\d][\\d].*$")
-        qry = PNSqlQuery(None, "dbAux")
-        qry2 = PNSqlQuery(None, "dbAux")
-        qry3 = PNSqlQuery(None, "dbAux")
+        rx = Qt.QRegExp("^.*[\\d][\\d][\\d][\\d].[\\d][\\d].*[\\d][\\d]$")
+        rx2 = Qt.QRegExp("^.*alteredtable[\\d][\\d][\\d][\\d].*$")
+        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry2 = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry3 = pnsqlquery.PNSqlQuery(None, "dbAux")
         steps = 0
         item = ""
 
-        rx3 = QRegExp("^.*\\d{6,9}$")
+        rx3 = Qt.QRegExp("^.*\\d{6,9}$")
         # listOldBks = self.tables("").grep(rx3)
         listOldBks_prev = self.tables("Tables")
 

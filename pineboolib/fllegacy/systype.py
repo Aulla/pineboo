@@ -46,7 +46,7 @@ from typing import cast, Optional, List, Any, Dict, Callable, TYPE_CHECKING
 from pineboolib.fllegacy import flfielddb, fltabledb
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
+    from pineboolib.interfaces import iconnection, isqlcursor
 
 
 logger = logging.getLogger("fllegacy.systype")
@@ -234,7 +234,7 @@ class SysType(sysbasetype.SysBaseType):
         aqDumper.init()
 
     @staticmethod
-    def terminateChecksLocks(sqlCursor: "pnsqlcursor.PNSqlCursor" = None) -> None:
+    def terminateChecksLocks(sqlCursor: "isqlcursor.ISqlCursor" = None) -> None:
         """Set check risk locks to False in a cursor."""
         if sqlCursor is not None:
             sqlCursor.checkRisksLocks(True)
@@ -1784,7 +1784,7 @@ class AbanQDbDumper(QtCore.QObject):
     """AbanqDbDumper class."""
 
     SEP_CSV = u"\u00b6"
-    db_: "IConnection"
+    db_: "iconnection.IConnection"
     showGui_: bool
     dirBase_: str
     fileName_: str
@@ -1799,7 +1799,7 @@ class AbanQDbDumper(QtCore.QObject):
 
     def __init__(
         self,
-        db: Optional["IConnection"] = None,
+        db: Optional["iconnection.IConnection"] = None,
         dirBase: Optional[str] = None,
         showGui: bool = True,
         fun_log: Optional[Callable] = None,

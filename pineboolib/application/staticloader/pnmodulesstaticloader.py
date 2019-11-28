@@ -23,7 +23,7 @@ import os
 from typing import Any, List, Optional, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.database import pnconnection
+    from pineboolib.interfaces import iconnection
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class AQStaticBdInfo(object):
     dirs_: List[AQStaticDirInfo]
     key_: str
 
-    def __init__(self, database: "pnconnection.PNConnection") -> None:
+    def __init__(self, database: "iconnection.IConnection") -> None:
         """Create new AQStaticBdInfo."""
         self.db_ = database.DBName()
         self.dirs_ = []

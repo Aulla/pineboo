@@ -7,7 +7,7 @@ from pineboolib import logging
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.database import pnsqlcursor
+    from pineboolib.interfaces import isqlcursor
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ class FormInternalObj(qsa.FormDBWidget):
         if settings.readBoolEntry("ebcomportamiento/git_updates_enabled", False):
             qsa.sys.AQTimer.singleShot(2000, qsa.SysType.search_git_updates)
 
-    def afterCommit_flfiles(self, cur_files_: "pnsqlcursor.PNSqlCursor") -> bool:
+    def afterCommit_flfiles(self, cur_files_: "isqlcursor.ISqlCursor") -> bool:
         """After commit flfiles."""
 
         if cur_files_.modeAccess() != cur_files_.Browse:

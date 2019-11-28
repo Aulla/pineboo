@@ -5,10 +5,10 @@ AQSqlCursor Module.
 Use the resources of pineboolib.application.database.pnsqlcursor.PNSqlCursor.
 """
 
-from pineboolib.application.database.pnsqlcursor import PNSqlCursor
+from pineboolib.application.database import pnsqlcursor
 
 
-class AQSqlCursor(PNSqlCursor):
+class AQSqlCursor(pnsqlcursor.PNSqlCursor):
     """AQSqlCursor Class."""
 
     pass

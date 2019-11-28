@@ -2,21 +2,21 @@
 # -*- coding: utf-8 -*-
 import hashlib
 import datetime
+from datetime import date
 
-from PyQt5 import QtCore  # type: ignore
+from PyQt5 import QtCore
 
-from pineboolib.application.qsatypes.sysbasetype import SysBaseType
+from pineboolib.application.qsatypes import sysbasetype
 from pineboolib.core import decorators
 from pineboolib import logging
 
 from typing import List, Optional, Union, Any, TYPE_CHECKING
-from pineboolib.application.types import Date, Array
+from pineboolib.application import types
 
 
 if TYPE_CHECKING:
-    from PyQt5.QtXml import QDomDocument  # type: ignore
-    from pineboolib.application.database.pnsqlcursor import PNSqlCursor  # noqa: F401
-    from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
+    from PyQt5 import QtXml
+    from pineboolib.interfaces import isqlcursor, iconnection  # noqa : F401
 
 logger = logging.getLogger(__name__)
 
@@ -544,8 +544,8 @@ class FLUtil(QtCore.QObject):
     def nextCounter(
         cls,
         name_or_series: str,
-        cursor_or_name: Union[str, "PNSqlCursor"],
-        cursor_: Optional["PNSqlCursor"] = None,
+        cursor_or_name: Union[str, "isqlcursor.ISqlCursor"],
+        cursor_: Optional["isqlcursor.ISqlCursor"] = None,
     ) -> Optional[Union[str, int]]:
         """Return next counter value."""
 
@@ -609,7 +609,7 @@ class FLUtil(QtCore.QObject):
         return ret
 
     @classmethod
-    def addDays(cls, fecha: Any, offset: int) -> "Date":
+    def addDays(cls, fecha: Any, offset: int) -> "types.Date":
         """
         Add days to a date.
 
@@ -619,12 +619,12 @@ class FLUtil(QtCore.QObject):
         """
 
         if isinstance(fecha, str):
-            fecha = Date(fecha, "yyyy-MM-dd")
+            fecha = types.Date(fecha, "yyyy-MM-dd")
 
         return fecha.addDays(offset)
 
     @classmethod
-    def addMonths(cls, fecha: Any, offset: int) -> "Date":
+    def addMonths(cls, fecha: Any, offset: int) -> "types.Date":
         """
         Add months to a date.
 
@@ -634,12 +634,12 @@ class FLUtil(QtCore.QObject):
         """
 
         if isinstance(fecha, str):
-            fecha = Date(fecha)
+            fecha = types.Date(fecha)
 
         return fecha.addMonths(offset)
 
     @classmethod
-    def addYears(cls, fecha: Any, offset: int) -> "Date":
+    def addYears(cls, fecha: Any, offset: int) -> "types.Date":
         """
         Add years to a date.
 
@@ -649,7 +649,7 @@ class FLUtil(QtCore.QObject):
         """
 
         if isinstance(fecha, str):
-            fecha = Date(fecha)
+            fecha = types.Date(fecha)
 
         return fecha.addYears(offset)
 
@@ -662,9 +662,8 @@ class FLUtil(QtCore.QObject):
         @param d2 Destination Date
         @return Number of days between d1 and d2. It will be negative if d2 is earlier than d1.
         """
-        from datetime import date
 
-        if isinstance(d1, Date):
+        if isinstance(d1, types.Date):
             d1 = d1.toString()
 
         if isinstance(d1, date):
@@ -678,7 +677,7 @@ class FLUtil(QtCore.QObject):
                 logger.error("daysTo: No reconozco el tipo de dato %s", type(d1))
             return None
 
-        if isinstance(d2, Date):
+        if isinstance(d2, types.Date):
             d2 = d2.toString()
 
         if isinstance(d2, date):
@@ -841,9 +840,9 @@ class FLUtil(QtCore.QObject):
         f: str,
         s: str,
         w: str,
-        tL: Optional[Union[str, List, Array]] = None,
+        tL: Optional[Union[str, List, types.Array]] = None,
         size_or_conn: Any = 0,
-        conn: Union[str, "IConnection"] = "default",
+        conn: Union[str, "iconnection.IConnection"] = "default",
     ) -> Any:
         """Return a value from a query."""
         from pineboolib.application.database.utils import sqlSelect
@@ -858,7 +857,7 @@ class FLUtil(QtCore.QObject):
 
     @classmethod
     def quickSqlSelect(
-        cls, f: str, s: str, w: str, conn: Union[str, "IConnection"] = "default"
+        cls, f: str, s: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"
     ) -> Any:
         """Return a value from a quick query."""
         from pineboolib.application.database.utils import quickSqlSelect
@@ -869,9 +868,9 @@ class FLUtil(QtCore.QObject):
     def sqlInsert(
         cls,
         t: str,
-        fL: Union[str, List, Array],
-        vL: Union[str, List, bool, int, float, Array],
-        conn: Union[str, "IConnection"] = "default",
+        fL: Union[str, List, types.Array],
+        vL: Union[str, List, bool, int, float, types.Array],
+        conn: Union[str, "iconnection.IConnection"] = "default",
     ) -> Any:
         """Insert values to a table."""
         from pineboolib.application.database.utils import sqlInsert
@@ -882,10 +881,10 @@ class FLUtil(QtCore.QObject):
     def sqlUpdate(
         cls,
         t: str,
-        fL: Union[str, List, Array],
-        vL: Union[str, List, bool, int, float, Array],
+        fL: Union[str, List, types.Array],
+        vL: Union[str, List, bool, int, float, types.Array],
         w: str,
-        conn: Union[str, "IConnection"] = "default",
+        conn: Union[str, "iconnection.IConnection"] = "default",
     ) -> Any:
         """Update values to a table."""
         from pineboolib.application.database.utils import sqlUpdate
@@ -893,14 +892,16 @@ class FLUtil(QtCore.QObject):
         return sqlUpdate(t, fL, vL, w, conn)
 
     @classmethod
-    def sqlDelete(cls, t: str, w: str, conn: Union[str, "IConnection"] = "default"):
+    def sqlDelete(cls, t: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"):
         """Delete a value from a table."""
         from pineboolib.application.database.utils import sqlDelete
 
         return sqlDelete(t, w, conn)
 
     @classmethod
-    def quickSqlDelete(cls, t: str, w: str, conn: Union[str, "IConnection"] = "default"):
+    def quickSqlDelete(
+        cls, t: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"
+    ):
         """Quick delete a value from a table."""
 
         from pineboolib.application.database.utils import quickSqlDelete
@@ -908,7 +909,7 @@ class FLUtil(QtCore.QObject):
         return quickSqlDelete(t, w, conn)
 
     @classmethod
-    def execSql(cls, sql: str, conn: Union[str, "IConnection"] = "default"):
+    def execSql(cls, sql: str, conn: Union[str, "iconnection.IConnection"] = "default"):
         """Set a query to a database."""
         from pineboolib.application.database.utils import execSql
 
@@ -977,7 +978,7 @@ class FLUtil(QtCore.QObject):
         project.message_manager().send("progress_dialog_manager", "setTotalSteps", [tS, id_])
 
     @classmethod
-    def domDocumentSetContent(cls, doc: "QDomDocument", content: Any) -> bool:
+    def domDocumentSetContent(cls, doc: "QtXml.QDomDocument", content: Any) -> bool:
         """
         Return the content of an XML document.
 
@@ -1093,7 +1094,7 @@ class FLUtil(QtCore.QObject):
     def getOS(cls) -> str:
         """Return OS name."""
 
-        return SysBaseType.osName()
+        return sysbasetype.SysBaseType.osName()
 
     @classmethod
     @decorators.NotImplementedWarn
@@ -1372,7 +1373,7 @@ class FLUtil(QtCore.QObject):
     @classmethod
     def nameUser(cls) -> str:
         """Return user name."""
-        return SysBaseType.nameUser()
+        return sysbasetype.SysBaseType.nameUser()
 
     # FIXME: Missing in SysType:
     # @classmethod
@@ -1394,4 +1395,4 @@ class FLUtil(QtCore.QObject):
     def nameBD(cls) -> str:
         """Return database name."""
 
-        return SysBaseType.nameBD()
+        return sysbasetype.SysBaseType.nameBD()

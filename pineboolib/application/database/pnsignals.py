@@ -4,7 +4,7 @@ Module for PNSignals class.
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.database.pnsqlcursor import PNSqlCursor
+    from pineboolib.interfaces import isqlcursor
 
 
 class PNSignals(object):
@@ -31,17 +31,17 @@ class PNSignals(object):
         self.notify_end_transaction_ = False
         self.notify_roll_back_transaction_ = False
 
-    def emitTransactionBegin(self, o: "PNSqlCursor") -> None:
+    def emitTransactionBegin(self, o: "isqlcursor.ISqlCursor") -> None:
         """Emit transaction begin signal."""
         if self.notify_begin_transaction_:
             o.transactionBegin.emit()
 
-    def emitTransactionEnd(self, o: "PNSqlCursor") -> None:
+    def emitTransactionEnd(self, o: "isqlcursor.ISqlCursor") -> None:
         """Emit transaction end signal."""
         if self.notify_end_transaction_:
             o.transactionEnd.emit()
 
-    def emitTransactionRollback(self, o: "PNSqlCursor") -> None:
+    def emitTransactionRollback(self, o: "isqlcursor.ISqlCursor") -> None:
         """Emit transaction begin rollback."""
         if self.notify_roll_back_transaction_:
             o.transactionRollBack.emit()

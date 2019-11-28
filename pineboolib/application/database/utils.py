@@ -5,20 +5,22 @@ Provide some functions based on data.
 from pineboolib.core.utils import logging
 from pineboolib.application import types
 
+from . import pnsqlcursor
+
 from typing import Any, Union, List, Optional, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from .pnsqlcursor import PNSqlCursor
-    from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
+
+    from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401
 
 logger = logging.getLogger("database.utils")
 
 
 def nextCounter(
     name_or_series: str,
-    cursor_or_name: Union[str, "PNSqlCursor"],
-    cursor_: Optional["PNSqlCursor"] = None,
+    cursor_or_name: Union[str, "isqlcursor.ISqlCursor"],
+    cursor_: Optional["isqlcursor.ISqlCursor"] = None,
 ) -> Optional[Union[str, int]]:
     """
     Return the following value of a counter type field of a table.
@@ -60,9 +62,8 @@ def nextCounter(
     @author Andrés Otón Urbano.
     """
     if cursor_ is None:
-        from .pnsqlcursor import PNSqlCursor
 
-        if not isinstance(cursor_or_name, PNSqlCursor):
+        if not isinstance(cursor_or_name, pnsqlcursor.PNSqlCursor):
             raise ValueError
         return _nextCounter_2(name_or_series, cursor_or_name)
     else:
@@ -71,7 +72,7 @@ def nextCounter(
         return _nextCounter_3(name_or_series, cursor_or_name, cursor_)
 
 
-def _nextCounter_2(name_: str, cursor_: "PNSqlCursor") -> Optional[Union[str, int]]:
+def _nextCounter_2(name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[Union[str, int]]:
     from .pnsqlquery import PNSqlQuery
 
     if not cursor_:
@@ -130,7 +131,7 @@ def _nextCounter_2(name_: str, cursor_: "PNSqlCursor") -> Optional[Union[str, in
     return None
 
 
-def _nextCounter_3(serie_: str, name_: str, cursor_: "PNSqlCursor") -> Optional[str]:
+def _nextCounter_3(serie_: str, name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[str]:
     from .pnsqlquery import PNSqlQuery
 
     if not cursor_:
@@ -191,7 +192,7 @@ def sqlSelect(
     where_: Optional[str] = None,
     table_list_: Optional[Union[str, List, types.Array]] = None,
     size_: int = 0,
-    conn_: Union[str, "IConnection"] = "default",
+    conn_: Union[str, "iconnection.IConnection"] = "default",
 ) -> Any:
     """
     Execute a query of type select, returning the results of the first record found.
@@ -229,7 +230,7 @@ def quickSqlSelect(
     from_: str,
     select_: str,
     where_: Optional[str] = None,
-    conn_: Union[str, "IConnection"] = "default",
+    conn_: Union[str, "iconnection.IConnection"] = "default",
 ) -> Any:
     """
     Quick version of sqlSelect. Run the query directly without checking.Use with caution.
@@ -250,7 +251,7 @@ def sqlInsert(
     table_: str,
     field_list_: Union[str, List[str], types.Array],
     value_list_: Union[str, List, bool, int, float, types.Array],
-    conn_: Union[str, "IConnection"] = "default",
+    conn_: Union[str, "iconnection.IConnection"] = "default",
 ) -> bool:
     """
     Perform the insertion of a record in a table using an FLSqlCursor object.
@@ -272,9 +273,7 @@ def sqlInsert(
     if not len(_field_list) == len(_value_list):
         return False
 
-    from .pnsqlcursor import PNSqlCursor
-
-    _cursor = PNSqlCursor(table_, True, conn_)
+    _cursor = pnsqlcursor.PNSqlCursor(table_, True, conn_)
     _cursor.setModeAccess(_cursor.Insert)
     _cursor.refreshBuffer()
 
@@ -292,7 +291,7 @@ def sqlUpdate(
     field_list_: Union[str, List[str], types.Array],
     value_list_: Union[str, List, bool, int, float, types.Array],
     where_: str,
-    conn_: Union[str, "IConnection"] = "default",
+    conn_: Union[str, "iconnection.IConnection"] = "default",
 ) -> bool:
     """
     Modify one or more records in a table using an FLSqlCursor object.
@@ -304,9 +303,8 @@ def sqlUpdate(
     @param conn_name_ Connection name.
     @return True in case of successful insertion, false in any other case.
     """
-    from .pnsqlcursor import PNSqlCursor
 
-    _cursor = PNSqlCursor(table_, True, conn_)
+    _cursor = pnsqlcursor.PNSqlCursor(table_, True, conn_)
     _cursor.select(where_)
     _cursor.setForwardOnly(True)
     while _cursor.next():
@@ -331,7 +329,9 @@ def sqlUpdate(
     return True
 
 
-def sqlDelete(table_: str, where_: str, conn_: Union[str, "IConnection"] = "default") -> bool:
+def sqlDelete(
+    table_: str, where_: str, conn_: Union[str, "iconnection.IConnection"] = "default"
+) -> bool:
     """
     Delete one or more records in a table using an FLSqlCursor object.
 
@@ -340,9 +340,8 @@ def sqlDelete(table_: str, where_: str, conn_: Union[str, "IConnection"] = "defa
     @param conn_name_ Connection name.
     @return True in case of successful insertion, false in any other case.
     """
-    from .pnsqlcursor import PNSqlCursor
 
-    _cursor = PNSqlCursor(table_, True, conn_)
+    _cursor = pnsqlcursor.PNSqlCursor(table_, True, conn_)
 
     # if not c.select(w):
     #     return False
@@ -358,14 +357,16 @@ def sqlDelete(table_: str, where_: str, conn_: Union[str, "IConnection"] = "defa
     return True
 
 
-def quickSqlDelete(table_: str, where_: str, conn_: Union[str, "IConnection"] = "default") -> None:
+def quickSqlDelete(
+    table_: str, where_: str, conn_: Union[str, "iconnection.IConnection"] = "default"
+) -> None:
     """
     Quick version of sqlDelete. Execute the query directly without checking and without committing signals.Use with caution.
     """
     execSql("DELETE FROM %s WHERE %s" % (table_, where_), conn_)
 
 
-def execSql(sql_: str, conn_: Union[str, "IConnection"] = "default") -> bool:
+def execSql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default") -> bool:
     """
     Run a query.
     """

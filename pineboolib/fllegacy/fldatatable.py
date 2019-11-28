@@ -16,6 +16,7 @@ from pineboolib.application.database import pnsqlcursor, pncursortablemodel
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pnfieldmetadata
     from pineboolib.application.metadata import pntablemetadata
+    from pineboolib.interfaces import isqlcursor
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ class FLDataTable(QtWidgets.QTableView):
     """
     Cursor, con los registros
     """
-    cursor_: Optional[pnsqlcursor.PNSqlCursor]
+    cursor_: Optional["isqlcursor.ISqlCursor"]
 
     """
     Almacena la tabla está en modo sólo lectura
@@ -186,7 +187,7 @@ class FLDataTable(QtWidgets.QTableView):
         """Return cursor table model."""
         return cast(pncursortablemodel.PNCursorTableModel, super().model())
 
-    def setFLSqlCursor(self, cursor: pnsqlcursor.PNSqlCursor) -> None:
+    def setFLSqlCursor(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Set the cursor."""
 
         if cursor and cursor.metadata():
@@ -251,14 +252,14 @@ class FLDataTable(QtWidgets.QTableView):
 
         self.sort_ = sort
 
-    # def cursor(self) -> Optional[pnsqlcursor.PNSqlCursor]:
+    # def cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
     #    """
     #    Devuelve el cursor
     #    """
     #    return self.cursor_
 
     @property
-    def cur(self) -> pnsqlcursor.PNSqlCursor:
+    def cur(self) -> "isqlcursor.ISqlCursor":
         """
         Return the cursor used by the control.
         """

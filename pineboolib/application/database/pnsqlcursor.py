@@ -2,28 +2,29 @@
 """
 Module for PNSqlCursor class.
 """
-import weakref
-import importlib
-import traceback
-from typing import Any, Optional, List, Union, cast, Dict, TYPE_CHECKING
 
 from PyQt5 import QtCore, QtWidgets
 
-from pineboolib import application
-
-from pineboolib.core import error_manager
-from pineboolib.core import decorators
 from pineboolib.core.utils import logging, struct
-
-from pineboolib.interfaces import cursoraccessmode
+from pineboolib.core import error_manager, decorators
 
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.utils import xpm
 from pineboolib.application import types
 
+from pineboolib import application
+
+from pineboolib.interfaces import isqlcursor
 
 from . import pnbuffer
 from . import pncursortablemodel
+
+
+import weakref
+import importlib
+import traceback
+
+from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
 
 # FIXME: Remove dependency: Should not import from fllegacy.*
 from pineboolib.fllegacy.aqsobjects import aqboolflagstate  # FIXME: Should not depend on AQS
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
     from pineboolib.application.metadata import pnrelationmetadata  # noqa: F401
     from pineboolib.application.metadata import pnaction  # noqa: F401
-    from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
+    from pineboolib.interfaces import iconnection  # noqa: F401
 
 
 logger = logging.getLogger(__name__)
@@ -48,76 +49,24 @@ logger = logging.getLogger(__name__)
 # ######
 # ###############################################################################
 # ###############################################################################
-class AcosConditionEval(enumerate):
-    """Class AcosConditionEval."""
-
-    VALUE = 0
-    REGEXP = 1
-    FUNCTION = 2
 
 
-class PNSqlCursor(QtCore.QObject):
+class PNSqlCursor(isqlcursor.ISqlCursor):
     """
     Database Cursor class.
     """
-
-    """
-    Insertar, en este modo el buffer se prepara para crear un nuevo registro
-    """
-
-    Insert = cursoraccessmode.CursorAccessMode.Insert
-
-    """
-    Edición, en este modo el buffer se prepara para editar el registro activo
-    """
-    Edit = cursoraccessmode.CursorAccessMode.Edit
-
-    """
-    Borrar, en este modo el buffer se prepara para borrar el registro activo
-    """
-    Del = cursoraccessmode.CursorAccessMode.Del
-
-    """
-    Navegacion, en este modo solo se puede visualizar el buffer
-    """
-    Browse = cursoraccessmode.CursorAccessMode.Browse
-
-    """
-    evalua un valor fijo
-    """
-    Value = 0
-
-    """
-    evalua una expresion regular
-    """
-    RegExp = 1
-
-    """
-    evalua el valor devuelto por una funcion de script
-    """
-    Function = 2
-
-    _selection: Optional[QtCore.QItemSelectionModel] = None
-
-    _iter_current: Optional[int]
-
-    _action: Optional["pnaction.PNAction"] = None
-
-    transactionBegin: QtCore.pyqtSignal = QtCore.pyqtSignal()
-    transactionEnd: QtCore.pyqtSignal = QtCore.pyqtSignal()
-    transactionRollBack: QtCore.pyqtSignal = QtCore.pyqtSignal()
 
     def __init__(
         self,
         name: Union[str, struct.TableStruct] = None,
         conn_or_autopopulate: Union[bool, str] = True,
-        connectionName_or_db: Union[str, "IConnection"] = "default",
-        cR: Optional["PNSqlCursor"] = None,
+        connectionName_or_db: Union[str, "iconnection.IConnection"] = "default",
+        cR: Optional["isqlcursor.ISqlCursor"] = None,
         r: Optional["pnrelationmetadata.PNRelationMetaData"] = None,
         parent=None,
     ) -> None:
         """Create a new cursor."""
-        super().__init__()
+        super().__init__(name, conn_or_autopopulate, connectionName_or_db, cR, r, parent)
         self._valid = False
         if name is None:
             logger.warning(
@@ -145,7 +94,7 @@ class PNSqlCursor(QtCore.QObject):
         # else:
         # self.actionName_ = name
         cursor_ = self
-        db_: "IConnection" = (
+        db_: "iconnection.IConnection" = (
             application.project.conn_manager.useConn(connectionName_or_db)
             if isinstance(connectionName_or_db, str)
             else connectionName_or_db
@@ -174,7 +123,7 @@ class PNSqlCursor(QtCore.QObject):
         self,
         name: str,
         autopopulate: bool,
-        cR: Optional["PNSqlCursor"],
+        cR: Optional["isqlcursor.ISqlCursor"],
         r: Optional["pnrelationmetadata.PNRelationMetaData"],
     ) -> None:
         """
@@ -267,7 +216,7 @@ class PNSqlCursor(QtCore.QObject):
         # self.d.md5Tuples_ = self.db().md5TuplesStateTable(self.d.curName_)
         # self.first()
 
-    def conn(self) -> "IConnection":
+    def conn(self) -> "iconnection.IConnection":
         """Get current connection for this cursor."""
         return self.db()
 
@@ -404,7 +353,7 @@ class PNSqlCursor(QtCore.QObject):
 
         self._selection = QtCore.QItemSelectionModel(self.d._model)
         self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
-        self._currentregister = self.selection().currentIndex().row()
+        # self._currentregister = self.selection().currentIndex().row()
         # self.d.metadata_ = self.db().manager().metadata(self._action.table())
         self.d.activatedCheckIntegrity_ = True
         self.d.activatedCommitActions_ = True
@@ -1515,7 +1464,7 @@ class PNSqlCursor(QtCore.QObject):
             return False
         return True
 
-    def cursorRelation(self) -> Optional["PNSqlCursor"]:
+    def cursorRelation(self) -> Optional["isqlcursor.ISqlCursor"]:
         """
         Return the cursor relationed.
 
@@ -1731,7 +1680,7 @@ class PNSqlCursor(QtCore.QObject):
 
         self.setValueBuffer(name, None)
 
-    def db(self) -> "IConnection":
+    def db(self) -> "iconnection.IConnection":
         """
         To get the database you work on.
 
@@ -3488,56 +3437,6 @@ class PNSqlCursor(QtCore.QObject):
             return None
 
     """
-    signals:
-    """
-
-    """
-    Indica que se ha cargado un nuevo buffer
-    """
-    newBuffer = QtCore.pyqtSignal()
-
-    """
-    Indica ha cambiado un campo del buffer, junto con la señal se envía el nombre del campo que
-    ha cambiado.
-    """
-    bufferChanged = QtCore.pyqtSignal(str)
-
-    """
-    Indica que se ha actualizado el cursor
-    """
-    cursorUpdated = QtCore.pyqtSignal()
-
-    """
-    Indica que se ha elegido un registro, mediante doble clic sobre él o bien pulsando la tecla Enter
-    """
-    recordChoosed = QtCore.pyqtSignal()
-
-    """
-    Indica que la posicion del registro activo dentro del cursor ha cambiado
-    """
-    currentChanged = QtCore.pyqtSignal(int)
-
-    """
-    Indica que se ha realizado un commit automático para evitar bloqueos
-    """
-    autoCommit = QtCore.pyqtSignal()
-
-    """
-    Indica que se ha realizado un commitBuffer
-    """
-    bufferCommited = QtCore.pyqtSignal()
-
-    """
-    Indica que se ha cambiado la conexión de base de datos del cursor. Ver changeConnection
-    """
-    connectionChanged = QtCore.pyqtSignal()
-
-    """
-    Indica que se ha realizado un commit
-    """
-    commited = QtCore.pyqtSignal()
-
-    """
     private slots:
     """
 
@@ -3555,197 +3454,17 @@ class PNSqlCursor(QtCore.QObject):
         self.d.persistentFilter_ = None
 
 
-class PNCursorPrivate(QtCore.QObject):
-    """
-    Buffer with a cursor record.
-
-    According to the FLSqlCursor :: Mode access mode set for the cusor, this buffer will contain
-    the active record of said cursor ready to insert, edit, delete or navigate.
-    """
-
-    buffer_: Optional[pnbuffer.PNBuffer] = None
-
-    """
-    Copia del buffer.
-
-    Aqui se guarda una copia del FLSqlCursor::buffer_ actual mediante el metodo FLSqlCursor::updateBufferCopy().
-    """
-    bufferCopy_: Optional[pnbuffer.PNBuffer] = None
-
-    """
-    Metadatos de la tabla asociada al cursor.
-    """
-    metadata_: Optional["pntablemetadata.PNTableMetaData"]
-
-    """
-    Mantiene el modo de acceso actual del cursor, ver FLSqlCursor::Mode.
-    """
-    modeAccess_ = -1
-
-    """
-    Cursor relacionado con este.
-    """
-    cursorRelation_: Optional["PNSqlCursor"]
-
-    """
-    Relación que determina como se relaciona con el cursor relacionado.
-    """
-    relation_: Optional["pnrelationmetadata.PNRelationMetaData"]
-
-    """
-    Esta bandera cuando es TRUE indica que se abra el formulario de edición de regitros en
-    modo edición, y cuando es FALSE se consulta la bandera FLSqlCursor::browse. Por defecto esta
-    bandera está a TRUE
-    """
-    edition_: bool
-
-    """
-    Esta bandera cuando es TRUE y la bandera FLSqlCuror::edition es FALSE, indica que se
-    abra el formulario de edición de registro en modo visualización, y cuando es FALSE no hace
-    nada. Por defecto esta bandera está a TRUE
-    """
-    browse_: bool
-    browse_states_: "aqboolflagstate.AQBoolFlagStateList"
-
-    """
-    Filtro principal para el cursor.
-
-    Este filtro persiste y se aplica al cursor durante toda su existencia,
-    los filtros posteriores, siempre se ejecutaran unidos con 'AND' a este.
-    """
-    # self.d._model.where_filters["main-filter"] = None
-
-    """
-    Accion asociada al cursor, esta accion pasa a ser propiedad de FLSqlCursor, que será el
-    encargado de destruirla
-    """
-    action_: "pnaction.PNAction"
-
-    """
-    Cuando esta propiedad es TRUE siempre se pregunta al usuario si quiere cancelar
-    cambios al editar un registro del cursor.
-    """
-    askForCancelChanges_: bool
-
-    """
-    Indica si estan o no activos los chequeos de integridad referencial
-    """
-    activatedCheckIntegrity_: bool
-
-    """
-    Indica si estan o no activas las acciones a realiar antes y después del Commit
-    """
-    activatedCommitActions_: bool
-
-    """
-    Contexto de ejecución de scripts.
-
-    El contexto de ejecución será un objeto formulario el cual tiene asociado un script.
-    Ese objeto formulario corresponde a aquel cuyo origen de datos es este cursor.
-    El contexto de ejecución es automáticamente establecido por las clases FLFormXXXX.
-    """
-    ctxt_: Any
-
-    """
-    Cronómetro interno
-    """
-    timer_: Optional[QtCore.QTimer]
-
-    """
-    Cuando el cursor proviene de una consulta indica si ya se han agregado al mismo
-    la definición de los campos que lo componen
-    """
-    populated_: bool
-
-    """
-    Cuando el cursor proviene de una consulta contiene la sentencia sql
-    """
-    isQuery_: bool
-
-    """
-    Cuando el cursor proviene de una consulta contiene la clausula order by
-    """
-    queryOrderBy_: str
-
-    """
-    Base de datos sobre la que trabaja
-    """
-    db_: Optional["IConnection"]
-
-    """
-    Pila de los niveles de transacción que han sido iniciados por este cursor
-    """
-    transactionsOpened_: List[int]
-
-    """
-    Filtro persistente para incluir en el cursor los registros recientemente insertados aunque estos no
-    cumplan los filtros principales. Esto es necesario para que dichos registros sean válidos dentro del
-    cursor y así poder posicionarse sobre ellos durante los posibles refrescos que puedan producirse en
-    el proceso de inserción. Este filtro se agrega a los filtros principales mediante el operador OR.
-    """
-    persistentFilter_: Optional[str]
-
-    """
-    Cursor propietario
-    """
-    cursor_: Optional["PNSqlCursor"]
-
-    """
-    Nombre del cursor
-    """
-    curName_: str
-
-    """
-    Orden actual
-    """
-    sort_: str
-    """
-    Auxiliares para la comprobacion de riesgos de bloqueos
-    """
-    inLoopRisksLocks_: bool
-    inRisksLocks_: bool
-
-    """
-    Para el control de acceso dinámico en función del contenido de los registros
-    """
-
-    acl_table_: Dict[str, Any] = {}
-    acPermTable_ = None
-    acPermBackupTable_: Dict[str, str] = {}
-    acosTable_: List[str] = []
-    acosBackupTable_: Dict[str, str] = {}
-    acosCondName_: Optional[str] = None
-    acosCond_: int
-    acosCondVal_ = None
-    lastAt_ = None
-    aclDone_ = False
-    idAc_ = 0
-    idAcos_ = 0
-    idCond_ = 0
-    id_ = "000"
-
-    """ Uso interno """
-    isSysTable_: bool
-    rawValues_: bool
-
-    md5Tuples_: str
-
-    countRefCursor: int
-
-    _model: "pncursortablemodel.PNCursorTableModel"
-
-    edition_states_: aqboolflagstate.AQBoolFlagStateList
-    _current_changed = QtCore.pyqtSignal(int)
-    _id_acl: str
+class PNCursorPrivate(isqlcursor.ICursorPrivate):
+    """PNCursorPrivate class."""
 
     def __init__(
-        self, cursor_: PNSqlCursor, action_: "pnaction.PNAction", db_: "IConnection"
+        self, cursor_: "PNSqlCursor", action_: "pnaction.PNAction", db_: "iconnection.IConnection"
     ) -> None:
         """
         Initialize the private part of the cursor.
         """
 
-        super().__init__()
+        super().__init__(cursor_, action_, db_)
         self.metadata_ = None
         self.countRefCursor = 0
         self._currentregister = -1
@@ -3843,14 +3562,14 @@ class PNCursorPrivate(QtCore.QObject):
         if self.acosCondName_ is not None:
             condTrue_ = False
 
-            if self.acosCond_ == AcosConditionEval.VALUE:
+            if self.acosCond_ == self.cursor_.Value:
 
                 condTrue_ = self.cursor_.valueBuffer(self.acosCondName_) == self.acosCondVal_
-            elif self.acosCond_ == AcosConditionEval.REGEXP:
+            elif self.acosCond_ == self.cursor_.RegExp:
                 condTrue_ = QtCore.QRegExp(str(self.acosCondVal_)).exactMatch(
                     self.cursor_.valueBuffer(self.acosCondName_)
                 )
-            elif self.acosCond_ == AcosConditionEval.FUNCTION:
+            elif self.acosCond_ == self.cursor_.Function:
                 condTrue_ = (
                     application.project.call(self.acosCondName_, [self.cursor_])
                     == self.acosCondVal_

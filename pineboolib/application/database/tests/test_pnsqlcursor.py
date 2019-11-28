@@ -786,7 +786,7 @@ class TestAcos(unittest.TestCase):
             self.assertTrue(field.editable())
 
         cur_grupos.setAcTable("r-")
-        cur_grupos.setAcosCondition("descripcion", pnsqlcursor.AcosConditionEval.VALUE, "desc c")
+        cur_grupos.setAcosCondition("descripcion", cur_grupos.Value, "desc c")
 
         cur_grupos.select()
         while cur_grupos.next():

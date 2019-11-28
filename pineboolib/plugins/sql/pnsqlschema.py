@@ -7,7 +7,6 @@ from typing import Iterable, Optional, Union, List, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 
 logger = logging.getLogger(__name__)

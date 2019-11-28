@@ -12,7 +12,10 @@ from pineboolib import logging
 
 from . import fldatatable, flformsearchdb, flutil
 
-from typing import Any, Optional, List, Union, cast
+from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.interfaces import isqlcursor
 
 
 logger = logging.getLogger(__name__)
@@ -101,13 +104,13 @@ class FLTableDB(QtWidgets.QWidget):
     """
     Cursor con los datos de origen para el componente
     """
-    cursor_: "pnsqlcursor.PNSqlCursor"
+    cursor_: "isqlcursor.ISqlCursor"
 
     """
     Cursor auxiliar de uso interno para almacenar los registros de la tabla
     relacionada con la de origen
     """
-    cursorAux: Optional["pnsqlcursor.PNSqlCursor"]
+    cursorAux: Optional["isqlcursor.ISqlCursor"]
 
     """
     Matiene la ventana padre
@@ -613,7 +616,7 @@ class FLTableDB(QtWidgets.QWidget):
         if own_tmd_ or tmd_ and not tmd_.inCache():
             del tmd_
 
-    def cursor(self) -> "pnsqlcursor.PNSqlCursor":  # type: ignore [override] # noqa F821
+    def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
         """
         Return the cursor used by the component.
 

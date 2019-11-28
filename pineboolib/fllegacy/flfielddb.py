@@ -2,7 +2,6 @@
 
 # -*- coding: utf-8 -*-
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
@@ -13,16 +12,18 @@ from pineboolib.core import settings, decorators
 
 from pineboolib.q3widgets import qpushbutton, qtextedit, qlineedit, qcombobox
 
-from pineboolib import application
+from pineboolib import application, logging
 
 from . import fllineedit, flutil, flformdb, fldateedit, fltimeedit, flpixmapview
 from . import flspinbox, fldatatable, flcheckbox
 
 import datetime
 
-from pineboolib import logging
 
-from typing import Any, Optional, cast, Union, List, Dict
+from typing import Any, Optional, cast, Union, List, Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.interfaces import isqlcursor
 
 
 class FLFieldDB(QtWidgets.QWidget):
@@ -53,15 +54,15 @@ class FLFieldDB(QtWidgets.QWidget):
     fieldRelation_: Optional[str]  # Nombre del campo de la relación
     filter_: Optional[str]  # Nombre del campo de la relación
     cursor_: Optional[
-        "pnsqlcursor.PNSqlCursor"
+        "isqlcursor.ISqlCursor"
     ]  # Cursor con los datos de la tabla origen para el componente
     cursorInit_: bool  # Indica que si ya se ha inicializado el cursor
     cursorAuxInit: bool  # Indica que si ya se ha inicializado el cursor auxiliar
     cursorBackup_: Optional[
-        "pnsqlcursor.PNSqlCursor"
+        "isqlcursor.ISqlCursor"
     ]  # Backup del cursor por defecto para acceder al modo tabla externa
     cursorAux: Optional[
-        "pnsqlcursor.PNSqlCursor"
+        "isqlcursor.ISqlCursor"
     ]  # Cursor auxiliar de uso interno para almacenar los registros de la tabla relacionada con la de origen
 
     showed: bool
@@ -958,7 +959,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if editor_se:
                 editor_se.selectAll()
 
-    def cursor(self) -> "pnsqlcursor.PNSqlCursor":  # type: ignore [override] # noqa F821
+    def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
         """
         Return the cursor from where the data is obtained.
 
@@ -2527,7 +2528,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 if field is not None:
                     self.autoComPopup_ = fldatatable.FLDataTable(None, "autoComPopup", True)
                     lay.addWidget(self.autoComPopup_)
-                    cur: Optional[pnsqlcursor.PNSqlCursor] = None
+                    cur: Optional["isqlcursor.ISqlCursor"] = None
                     field_relation = field.relationM1()
 
                     if field_relation is None:

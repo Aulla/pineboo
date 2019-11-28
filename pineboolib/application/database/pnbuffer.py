@@ -5,19 +5,17 @@ Manage buffers used by PNSqlCursor.
 
 Buffers are the data records pointed to by a PNSqlCursor.
 """
+from pineboolib.application import types
+from pineboolib import logging
 
 import copy
 import datetime
 import decimal
+
 from typing import Dict, List, Union, Optional, Any, TYPE_CHECKING
 
-from pineboolib import logging
-from pineboolib.application import types
-
 if TYPE_CHECKING:
-    # from pineboolib.interfaces import isqlcursor
-    from . import pnsqlcursor
-    from pineboolib.interfaces import ifieldmetadata
+    from pineboolib.interfaces import ifieldmetadata, isqlcursor
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +184,7 @@ class PNBuffer(object):
     the fields of the record.
     """
 
-    def __init__(self, cursor: "pnsqlcursor.PNSqlCursor") -> None:
+    def __init__(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Create a Buffer from the specified PNSqlCursor."""
         super().__init__()
         if not cursor:
@@ -424,7 +422,7 @@ class PNBuffer(object):
 
         return True
 
-    def cursor(self) -> "pnsqlcursor.PNSqlCursor":
+    def cursor(self) -> "isqlcursor.ISqlCursor":
         """
         Indicate the parent cursor.
 

@@ -2,34 +2,29 @@
 # -*- coding: utf-8 -*-
 
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.Qt import QKeySequence  # type: ignore
+from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 
-from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core.settings import config
-from pineboolib.core import decorators
+from pineboolib.core.utils import utils_base
+from pineboolib.core import settings, decorators
 
-from pineboolib.application.database import pnsqlcursor
-
-from pineboolib.fllegacy.flformdb import FLFormDB
-from pineboolib.fllegacy.flsqlquery import FLSqlQuery
-from pineboolib.fllegacy import flapplication
-from . import flfielddb
-
+from pineboolib.application.database import pnsqlcursor, pnsqlquery
 from pineboolib import logging
 
+from . import flformdb, flapplication
+from . import flfielddb
 
 from typing import cast, Union, Optional, TYPE_CHECKING
+
 import traceback
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pnaction
-
+    from pineboolib.interfaces import isqlcursor  # noqa : F401
 
 DEBUG = False
 
 
-class FLFormRecordDB(FLFormDB):
+class FLFormRecordDB(flformdb.FLFormDB):
     """
     FLFormRecordDBInterface Class.
 
@@ -102,7 +97,7 @@ class FLFormRecordDB(FLFormDB):
 
     def __init__(
         self,
-        parent_or_cursor: Union[QtWidgets.QWidget, pnsqlcursor.PNSqlCursor, None],
+        parent_or_cursor: Union[QtWidgets.QWidget, "isqlcursor.ISqlCursor", None],
         action: "pnaction.PNAction",
         load: bool = False,
     ) -> None:
@@ -113,7 +108,7 @@ class FLFormRecordDB(FLFormDB):
             "__init__: parent_or_cursor=%s, action=%s, load=%s", parent_or_cursor, action, load
         )
 
-        cursor: Optional[pnsqlcursor.PNSqlCursor] = None
+        cursor: Optional["isqlcursor.ISqlCursor"] = None
         parent: Optional[QtWidgets.QWidget] = None
         # if isinstance(action, str):
         #    flapplication.aqApp.db().manager().action(action)
@@ -199,8 +194,6 @@ class FLFormRecordDB(FLFormDB):
         else:
             self.setCaptionWidget("No hay metadatos")
 
-        from pineboolib.fllegacy import flapplication
-
         acl = flapplication.aqApp.acl()
         if acl:
             acl.process(self)
@@ -256,7 +249,7 @@ class FLFormRecordDB(FLFormDB):
 
         pbSize = self.iconSize
 
-        if config.value("application/isDebuggerMode", False):
+        if settings.config.value("application/isDebuggerMode", False):
 
             pushButtonExport = QtWidgets.QToolButton()
             pushButtonExport.setObjectName("pushButtonExport")
@@ -264,25 +257,25 @@ class FLFormRecordDB(FLFormDB):
             pushButtonExport.setMinimumSize(pbSize)
             pushButtonExport.setMaximumSize(pbSize)
             pushButtonExport.setIcon(
-                QtGui.QIcon(filedir("./core/images/icons", "gtk-properties.png"))
+                QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-properties.png"))
             )
-            pushButtonExport.setShortcut(QKeySequence(self.tr("F3")))
+            pushButtonExport.setShortcut(Qt.QKeySequence(self.tr("F3")))
             pushButtonExport.setWhatsThis("Exportar a XML(F3)")
             pushButtonExport.setToolTip("Exportar a XML(F3)")
             pushButtonExport.setFocusPolicy(QtCore.Qt.NoFocus)
             self.bottomToolbar.layout().addWidget(pushButtonExport)
             pushButtonExport.clicked.connect(self.exportToXml)
 
-            if config.value("ebcomportamiento/show_snaptshop_button", False):
+            if settings.config.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton()
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
                 push_button_snapshot.setSizePolicy(sizePolicy)
                 push_button_snapshot.setMinimumSize(pbSize)
                 push_button_snapshot.setMaximumSize(pbSize)
                 push_button_snapshot.setIcon(
-                    QtGui.QIcon(filedir("./core/images/icons", "gtk-paste.png"))
+                    QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
                 )
-                push_button_snapshot.setShortcut(QKeySequence(self.tr("F8")))
+                push_button_snapshot.setShortcut(Qt.QKeySequence(self.tr("F8")))
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -299,13 +292,13 @@ class FLFormRecordDB(FLFormDB):
                 self.pushButtonFirst = QtWidgets.QToolButton()
                 self.pushButtonFirst.setObjectName("pushButtonFirst")
                 self.pushButtonFirst.setIcon(
-                    QtGui.QIcon(filedir("./core/images/icons", "gtk-goto-first-ltr.png"))
+                    QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-goto-first-ltr.png"))
                 )
                 self.pushButtonFirst.clicked.connect(self.firstRecord)
                 self.pushButtonFirst.setSizePolicy(sizePolicy)
                 self.pushButtonFirst.setMaximumSize(pbSize)
                 self.pushButtonFirst.setMinimumSize(pbSize)
-                self.pushButtonFirst.setShortcut(QKeySequence(self.tr("F5")))
+                self.pushButtonFirst.setShortcut(Qt.QKeySequence(self.tr("F5")))
                 self.pushButtonFirst.setWhatsThis(
                     "Aceptar los cambios e ir al primer registro (F5)"
                 )
@@ -318,13 +311,13 @@ class FLFormRecordDB(FLFormDB):
                 self.pushButtonPrevious = QtWidgets.QToolButton()
                 self.pushButtonPrevious.setObjectName("pushButtonPrevious")
                 self.pushButtonPrevious.setIcon(
-                    QtGui.QIcon(filedir("./core/images/icons", "gtk-go-back-ltr.png"))
+                    QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-go-back-ltr.png"))
                 )
                 self.pushButtonPrevious.clicked.connect(self.previousRecord)
                 self.pushButtonPrevious.setSizePolicy(sizePolicy)
                 self.pushButtonPrevious.setMaximumSize(pbSize)
                 self.pushButtonPrevious.setMinimumSize(pbSize)
-                self.pushButtonPrevious.setShortcut(QKeySequence(self.tr("F6")))
+                self.pushButtonPrevious.setShortcut(Qt.QKeySequence(self.tr("F6")))
                 self.pushButtonPrevious.setWhatsThis(
                     "Aceptar los cambios e ir al registro anterior (F6)"
                 )
@@ -339,13 +332,13 @@ class FLFormRecordDB(FLFormDB):
                 self.pushButtonNext = QtWidgets.QToolButton()
                 self.pushButtonNext.setObjectName("pushButtonNext")
                 self.pushButtonNext.setIcon(
-                    QtGui.QIcon(filedir("./core/images/icons", "gtk-go-back-rtl.png"))
+                    QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-go-back-rtl.png"))
                 )
                 self.pushButtonNext.clicked.connect(self.nextRecord)
                 self.pushButtonNext.setSizePolicy(sizePolicy)
                 self.pushButtonNext.setMaximumSize(pbSize)
                 self.pushButtonNext.setMinimumSize(pbSize)
-                self.pushButtonNext.setShortcut(QKeySequence(self.tr("F7")))
+                self.pushButtonNext.setShortcut(Qt.QKeySequence(self.tr("F7")))
                 self.pushButtonNext.setWhatsThis(
                     "Aceptar los cambios e ir al registro siguiente (F7)"
                 )
@@ -360,13 +353,13 @@ class FLFormRecordDB(FLFormDB):
                 self.pushButtonLast = QtWidgets.QToolButton()
                 self.pushButtonLast.setObjectName("pushButtonLast")
                 self.pushButtonLast.setIcon(
-                    QtGui.QIcon(filedir("./core/images/icons", "gtk-goto-last-ltr.png"))
+                    QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-goto-last-ltr.png"))
                 )
                 self.pushButtonLast.clicked.connect(self.lastRecord)
                 self.pushButtonLast.setSizePolicy(sizePolicy)
                 self.pushButtonLast.setMaximumSize(pbSize)
                 self.pushButtonLast.setMinimumSize(pbSize)
-                self.pushButtonLast.setShortcut(QKeySequence(self.tr("F8")))
+                self.pushButtonLast.setShortcut(Qt.QKeySequence(self.tr("F8")))
                 self.pushButtonLast.setWhatsThis("Aceptar los cambios e ir al último registro (F8)")
                 self.pushButtonLast.setToolTip("Aceptar los cambios e ir al último registro (F8)")
                 self.pushButtonLast.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -381,9 +374,9 @@ class FLFormRecordDB(FLFormDB):
             self.pushButtonAcceptContinue.setMaximumSize(pbSize)
             self.pushButtonAcceptContinue.setMinimumSize(pbSize)
             self.pushButtonAcceptContinue.setIcon(
-                QtGui.QIcon(filedir("./core/images/icons", "gtk-refresh.png"))
+                QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-refresh.png"))
             )
-            self.pushButtonAcceptContinue.setShortcut(QKeySequence(self.tr("F9")))
+            self.pushButtonAcceptContinue.setShortcut(Qt.QKeySequence(self.tr("F9")))
             self.pushButtonAcceptContinue.setWhatsThis(
                 "Aceptar los cambios y continuar con la edición de un nuevo registro (F9)"
             )
@@ -405,9 +398,9 @@ class FLFormRecordDB(FLFormDB):
             self.pushButtonAccept.setMaximumSize(pbSize)
             self.pushButtonAccept.setMinimumSize(pbSize)
             self.pushButtonAccept.setIcon(
-                QtGui.QIcon(filedir("./core/images/icons", "gtk-save.png"))
+                QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-save.png"))
             )
-            self.pushButtonAccept.setShortcut(QKeySequence(self.tr("F10")))
+            self.pushButtonAccept.setShortcut(Qt.QKeySequence(self.tr("F10")))
             self.pushButtonAccept.setWhatsThis("Aceptar los cambios y cerrar formulario (F10)")
             self.pushButtonAccept.setToolTip("Aceptar los cambios y cerrar formulario (F10)")
             self.pushButtonAccept.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -427,8 +420,10 @@ class FLFormRecordDB(FLFormDB):
         self.pushButtonCancel.setSizePolicy(sizePolicy)
         self.pushButtonCancel.setMaximumSize(pbSize)
         self.pushButtonCancel.setMinimumSize(pbSize)
-        self.pushButtonCancel.setShortcut(QKeySequence(self.tr("Esc")))
-        self.pushButtonCancel.setIcon(QtGui.QIcon(filedir("./core/images/icons", "gtk-stop.png")))
+        self.pushButtonCancel.setShortcut(Qt.QKeySequence(self.tr("Esc")))
+        self.pushButtonCancel.setIcon(
+            QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-stop.png"))
+        )
         if not self.cursor().modeAccess() == self.cursor().Browse:
             self.pushButtonCancel.setFocusPolicy(QtCore.Qt.NoFocus)
             self.pushButtonCancel.setWhatsThis("Cancelar los cambios y cerrar formulario (Esc)")
@@ -450,7 +445,7 @@ class FLFormRecordDB(FLFormDB):
         self.setFocusPolicy(QtCore.Qt.NoFocus)
 
         # self.toolButtonAccept = QtGui.QToolButton()
-        # self.toolButtonAccept.setIcon(QtGui.QIcon(filedir("./core/images/icons","gtk-add.png")))
+        # self.toolButtonAccept.setIcon(QtGui.QIcon(utils_base.filedir("./core/images/icons","gtk-add.png")))
         # self.toolButtonAccept.clicked.connect(self.validateForm)
         # self.bottomToolbar.layout.addWidget(self.toolButtonAccept)
         self.inicializeControls()
@@ -542,7 +537,7 @@ class FLFormRecordDB(FLFormDB):
                     .manager()
                     .formatAssignValue(mtd.field(pKN), self.cursor_.valueBuffer(pKN))
                 )
-                q = FLSqlQuery(None, self.cursor_.db().connectionName())
+                q = pnsqlquery.PNSqlQuery(None, self.cursor_.db().connectionName())
                 q.setTablesList(mtd.name())
                 q.setSelect(colFields)
                 q.setFrom(mtd.name())
@@ -591,10 +586,11 @@ class FLFormRecordDB(FLFormDB):
                 except Exception:
                     # script_name = self.iface.__module__
                     from pineboolib.core.error_manager import error_manager
-                    from pineboolib.application import project
+                    from pineboolib import application
 
                     flapplication.aqApp.msgBoxWarning(
-                        error_manager(traceback.format_exc(limit=-6, chain=False)), project._DGI
+                        error_manager(traceback.format_exc(limit=-6, chain=False)),
+                        application.project._DGI,
                     )
 
             return ret_ if isinstance(ret_, bool) else True

@@ -1,11 +1,12 @@
 """Formdbwidget module."""
 # # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtCore
-from pineboolib import logging
+
+from pineboolib.application.database import pnsqlcursor
 
 from pineboolib.fllegacy import flapplication
-from pineboolib import application
-from pineboolib.application.database import pnsqlcursor
+from pineboolib import application, logging
+
 
 from typing import Set, Tuple, Optional, Any, TYPE_CHECKING
 import weakref
@@ -13,13 +14,14 @@ import sys
 
 if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # noqa: F401
+    from pineboolib.interfaces import isqlcursor
 
 
 class FormDBWidget(QtWidgets.QWidget):
     """FormDBWidget class."""
 
     closed = QtCore.pyqtSignal()
-    cursor_: Optional[pnsqlcursor.PNSqlCursor]
+    cursor_: Optional["isqlcursor.ISqlCursor"]
     form: Any
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
@@ -171,7 +173,7 @@ class FormDBWidget(QtWidgets.QWidget):
             # return QtWidgets.QWidget()
         return ret
 
-    def cursor(self) -> pnsqlcursor.PNSqlCursor:  # type: ignore [override] # noqa F821
+    def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
         """Return cursor associated."""
 
         # if self.cursor_:

@@ -1,22 +1,19 @@
 """Flqpsql module."""
-from PyQt5.QtCore import QTime, QDate, QDateTime, Qt  # type: ignore
-from PyQt5.Qt import qWarning, QDomDocument, QRegExp  # type: ignore
-from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QWidget  # type: ignore
+from PyQt5 import QtCore, QtXml, Qt, QtWidgets
 
 from pineboolib.core.utils.utils_base import text2bool, auto_qt_translate_text
 
-from pineboolib.application.utils.check_dependencies import check_dependencies
+from pineboolib.application.utils import check_dependencies
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.metadata import pnfieldmetadata
 from pineboolib.application.metadata import pntablemetadata
-from pineboolib import application
+from pineboolib import application, logging
 
 from pineboolib.fllegacy import flutil
 from . import pnsqlschema
-from pineboolib import logging
 
-from sqlalchemy import create_engine  # type: ignore
+
 import traceback
 from typing import Iterable, Optional, Union, List, Dict, Any, cast
 
@@ -44,7 +41,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
-        return check_dependencies(
+        return check_dependencies.check_dependencies(
             {"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"}, False
         )
 
@@ -57,9 +54,12 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     ) -> Any:
         """Connecto to database."""
         self._dbname = db_name
-        check_dependencies({"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"})
+        check_dependencies.check_dependencies(
+            {"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"}
+        )
         import psycopg2  # type: ignore
         from psycopg2.extras import LoggingConnection  # type: ignore
+        from sqlalchemy import create_engine  # type: ignore
 
         logger = logging.getLogger(self.alias_)
         logger.debug = logger.trace  # type: ignore  # Send Debug output to Trace
@@ -87,13 +87,16 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 return False
 
             if "does not exist" in str(e) or "no existe" in str(e):
-                ret = QMessageBox.warning(
-                    QWidget(),
+                ret = QtWidgets.QMessageBox.warning(
+                    QtWidgets.QWidget(),
                     "Pineboo",
                     "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
-                    cast(QMessageBox.StandardButtons, QMessageBox.Ok | QMessageBox.No),
+                    cast(
+                        QtWidgets.QMessageBox.StandardButtons,
+                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
+                    ),
                 )
-                if ret == QMessageBox.No:
+                if ret == QtWidgets.QMessageBox.No:
                     return False
                 else:
                     conninfostr2 = (
@@ -116,18 +119,21 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                         cursor.close()
                         return self.connect(db_name, db_host, db_port, db_userName, db_password)
                     except Exception:
-                        qWarning(traceback.format_exc())
-                        QMessageBox.information(
-                            QWidget(),
+                        Qt.qWarning(traceback.format_exc())
+                        QtWidgets.QMessageBox.information(
+                            QtWidgets.QWidget(),
                             "Pineboo",
                             "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
-                            QMessageBox.Ok,
+                            QtWidgets.QMessageBox.Ok,
                         )
                         print("ERROR: No se ha podido crear la Base de Datos %s" % db_name)
                         return False
             else:
-                QMessageBox.information(
-                    QWidget(), "Pineboo", "Error de conexión\n%s" % str(e), QMessageBox.Ok
+                QtWidgets.QMessageBox.information(
+                    QtWidgets.QWidget(),
+                    "Pineboo",
+                    "Error de conexión\n%s" % str(e),
+                    QtWidgets.QMessageBox.Ok,
                 )
                 return False
 
@@ -141,7 +147,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         try:
             self.conn_.set_client_encoding("UTF8")
         except Exception:
-            qWarning(traceback.format_exc())
+            Qt.qWarning(traceback.format_exc())
 
         return self.conn_
 
@@ -165,7 +171,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         elif type_ == "time":
             t = v.toTime()
-            res = "::text LIKE '" + t.toString(Qt.ISODate) + "%%'"
+            res = "::text LIKE '" + t.toString(QtCore.Qt.ISODate) + "%%'"
 
         else:
             res = str(v)
@@ -239,7 +245,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         q.setFrom("")
         q.setWhere("")
         if not q.exec_():
-            qWarning("not exec sequence")
+            Qt.qWarning("not exec sequence")
         elif q.first():
             return q.value(0)
 
@@ -248,7 +254,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def savePoint(self, n: int) -> bool:
         """Set a savepoint."""
         if not self.isOpen():
-            qWarning("PSQLDriver::savePoint: Database not open")
+            Qt.qWarning("PSQLDriver::savePoint: Database not open")
             return False
         self.set_last_error_null()
         cursor = self.conn_.cursor()
@@ -256,7 +262,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             cursor.execute("SAVEPOINT sv_%s" % n)
         except Exception:
             self.setLastError("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % n)
-            qWarning(
+            Qt.qWarning(
                 "PSQLDriver:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s \n %s "
                 % (n, traceback.format_exc())
             )
@@ -267,7 +273,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def rollbackSavePoint(self, n: int) -> bool:
         """Set rollback savepoint."""
         if not self.isOpen():
-            qWarning("PSQLDriver::rollbackSavePoint: Database not open")
+            Qt.qWarning("PSQLDriver::rollbackSavePoint: Database not open")
             return False
         self.set_last_error_null()
         cursor = self.conn_.cursor()
@@ -277,7 +283,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             self.setLastError(
                 "No se pudo rollback a punto de salvaguarda", "ROLLBACK TO SAVEPOINTt sv_%s" % n
             )
-            qWarning(
+            Qt.qWarning(
                 "PSQLDriver:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s\n %s"
                 % (n, traceback.format_exc())
             )
@@ -288,14 +294,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def commitTransaction(self) -> bool:
         """Set commit transaction."""
         if not self.isOpen():
-            qWarning("PSQLDriver::commitTransaction: Database not open")
+            Qt.qWarning("PSQLDriver::commitTransaction: Database not open")
         self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("COMMIT TRANSACTION")
         except Exception:
             self.setLastError("No se pudo aceptar la transacción", "COMMIT")
-            qWarning(
+            Qt.qWarning(
                 "PSQLDriver:: No se pudo aceptar la transacción COMMIT\n %s"
                 % traceback.format_exc()
             )
@@ -306,14 +312,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def rollbackTransaction(self) -> bool:
         """Set a rollback transaction."""
         if not self.isOpen():
-            qWarning("PSQLDriver::rollbackTransaction: Database not open")
+            Qt.qWarning("PSQLDriver::rollbackTransaction: Database not open")
         self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("ROLLBACK TRANSACTION")
         except Exception:
             self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-            qWarning(
+            Qt.qWarning(
                 "PSQLDriver:: No se pudo deshacer la transacción ROLLBACK\n %s"
                 % traceback.format_exc()
             )
@@ -324,14 +330,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def transaction(self) -> bool:
         """Set a new transaction."""
         if not self.isOpen():
-            qWarning("PSQLDriver::transaction: Database not open")
+            Qt.qWarning("PSQLDriver::transaction: Database not open")
         self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("BEGIN TRANSACTION")
         except Exception:
             self.setLastError("No se pudo crear la transacción", "BEGIN")
-            qWarning(
+            Qt.qWarning(
                 "PSQLDriver:: No se pudo crear la transacción BEGIN\n %s" % traceback.format_exc()
             )
             return False
@@ -342,7 +348,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         """Set release savepoint."""
 
         if not self.isOpen():
-            qWarning("PSQLDriver::releaseSavePoint: Database not open")
+            Qt.qWarning("PSQLDriver::releaseSavePoint: Database not open")
             return False
         self.set_last_error_null()
         cursor = self.conn_.cursor()
@@ -352,7 +358,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             self.setLastError(
                 "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % n
             )
-            qWarning(
+            Qt.qWarning(
                 "PSQLDriver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s\n %s"
                 % (n, traceback.format_exc())
             )
@@ -446,8 +452,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 unlocks = unlocks + 1
 
         if unlocks > 1:
-            qWarning(u"FLManager : No se ha podido crear la tabla " + tmd.name())
-            qWarning(u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno.")
+            Qt.qWarning(u"FLManager : No se ha podido crear la tabla " + tmd.name())
+            Qt.qWarning(u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno.")
             return None
 
         i = 1
@@ -499,7 +505,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 if primaryKey is None:
                     sql = sql + " PRIMARY KEY"
                 else:
-                    qWarning(
+                    Qt.qWarning(
                         util.translate("application", "FLManager : Tabla-> ")
                         + tmd.name()
                         + util.translate(
@@ -665,7 +671,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         if isinstance(tablename_or_query, str):
             tablename = tablename_or_query
 
-            doc = QDomDocument(tablename)
+            doc = QtXml.QDomDocument(tablename)
             if self.db_ is None:
                 raise Exception("recordInfo. self.db_ es Nulo")
 
@@ -817,7 +823,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         renameOld = "%salteredtable%s" % (
             old_mtd.name()[0:5],
-            QDateTime().currentDateTime().toString("ddhhssz"),
+            QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
         )
 
         if self.db_ is None:
@@ -866,7 +872,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         oldCursor.select()
         totalSteps = oldCursor.size()
-        progress = QProgressDialog(
+        progress = QtWidgets.QProgressDialog(
             util.translate("application", "Reestructurando registros para %s...")
             % (new_mtd.alias()),
             util.translate("application", "Cancelar"),
@@ -940,9 +946,9 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                         elif oldField.type() == "double":
                             v = 0.0
                         elif oldField.type() == "time":
-                            v = QTime().currentTime()
+                            v = QtCore.QTime().currentTime()
                         elif oldField.type() == "date":
-                            v = QDate().currentDate()
+                            v = QtCore.QDate().currentDate()
                         else:
                             v = "NULL"[0 : newField.length()]
 
@@ -984,7 +990,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         old_mtd = None
         new_mtd = None
-        doc = QDomDocument("doc")
+        doc = QtXml.QDomDocument("doc")
         docElem = None
 
         if self.db_ is None:
@@ -1083,7 +1089,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         renameOld = "%salteredtable%s" % (
             old_mtd.name()[0:5],
-            QDateTime().currentDateTime().toString("ddhhssz"),
+            QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
         )
 
         if not self.db_.connManager().dbAux():
@@ -1306,9 +1312,9 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                         elif oldField.type() == "double":
                             v = 0.0
                         elif oldField.type() == "time":
-                            v = QTime.currentTime()
+                            v = QtCore.QTime.currentTime()
                         elif oldField.type() == "date":
-                            v = QDate.currentDate()
+                            v = QtCore.QDate.currentDate()
                         else:
                             v = "NULL"[: newField.length()]
 
@@ -1424,7 +1430,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         cur = self.db_.connManager().dbAux().cursor()
         steps = 0
 
-        rx = QRegExp("^.*\\d{6,9}$")
+        rx = Qt.QRegExp("^.*\\d{6,9}$")
         if rx in self.tables():
             listOldBks = self.tables()[rx]
         else:

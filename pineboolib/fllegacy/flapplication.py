@@ -5,17 +5,14 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 from pineboolib import logging
 
-from pineboolib.core import decorators
-from pineboolib.core.settings import config
+from pineboolib.core import decorators, settings
 
-from pineboolib.application import project
+from pineboolib import application
 from pineboolib.application.database import db_signals
-from pineboolib.application.qsatypes.sysbasetype import SysBaseType
+from pineboolib.application.qsatypes import sysbasetype
 from pineboolib.application.acls import pnaccesscontrollists
 
-from .fltranslator import FLTranslator
-
-from .fltexteditoutput import FLTextEditOutput
+from . import fltranslator
 
 from typing import Any, Optional, List, cast, TYPE_CHECKING
 
@@ -46,7 +43,7 @@ class FLApplication(QtCore.QObject):
     _not_exit: bool
     _multi_lang_enabled: bool
     _multi_lang_id: str
-    _translator: List[FLTranslator]
+    _translator: List["fltranslator.FLTranslator"]
 
     container_: Optional[QtWidgets.QWidget]  # Contenedor actual??
 
@@ -191,7 +188,7 @@ class FLApplication(QtCore.QObject):
             QtWidgets.QApplication.setFont(font_[0])
             save_ = [font_[0].family(), font_[0].pointSize(), font_[0].weight(), font_[0].italic()]
 
-            config.set_value("application/font", save_)
+            settings.config.set_value("application/font", save_)
 
     def showStyles(self) -> None:
         """Open style selector."""
@@ -207,16 +204,15 @@ class FLApplication(QtCore.QObject):
 
     def setStyle(self, style_: str) -> None:
         """Change application style."""
-        config.set_value("application/style", style_)
+        settings.config.set_value("application/style", style_)
         QtWidgets.QApplication.setStyle(style_)
 
     def initStyles(self) -> None:
         """Initialize styles."""
-        from pineboolib.core.settings import config
 
         self.style_mapper = QtCore.QSignalMapper()
         self.style_mapper.mapped[str].connect(self.setStyle)  # type: ignore
-        style_read = config.value("application/style", None)
+        style_read = settings.config.value("application/style", None)
         if not style_read:
             style_read = "Fusion"
 
@@ -255,16 +251,15 @@ class FLApplication(QtCore.QObject):
 
     def aboutPineboo(self) -> None:
         """Show about Pineboo."""
-        if project.DGI.localDesktop():
-            fun_about = getattr(project.DGI, "about_pineboo", None)
+        if application.project.DGI.localDesktop():
+            fun_about = getattr(application.project.DGI, "about_pineboo", None)
             if fun_about is not None:
                 fun_about()
 
     def statusHelpMsg(self, text) -> None:
         """Show help message."""
-        from pineboolib.core.settings import config
 
-        if config.value("application/isDebuggerMode", False):
+        if settings.config.value("application/isDebuggerMode", False):
             logger.warning("StatusHelpMsg: %s", text)
 
         if not self.main_widget_:
@@ -274,8 +269,8 @@ class FLApplication(QtCore.QObject):
 
     def openMasterForm(self, action_name: str, pix: Optional[QtGui.QPixmap] = None) -> None:
         """Open a tab."""
-        if action_name in project.actions.keys():
-            project.actions[action_name].openDefaultForm()
+        if action_name in application.project.actions.keys():
+            application.project.actions[action_name].openDefaultForm()
 
     @decorators.NotImplementedWarn
     def openDefaultForm(self):
@@ -284,8 +279,8 @@ class FLApplication(QtCore.QObject):
 
     def execMainScript(self, action_name) -> None:
         """Execute main script."""
-        if action_name in project.actions.keys():
-            project.actions[action_name].execDefaultScript()
+        if action_name in application.project.actions.keys():
+            application.project.actions[action_name].execDefaultScript()
 
     @decorators.NotImplementedWarn
     def execDefaultScript(self):
@@ -294,8 +289,8 @@ class FLApplication(QtCore.QObject):
 
     def loadScriptsFromModule(self, idm) -> None:
         """Load scripts from named module."""
-        if idm in project.modules.keys():
-            project.modules[idm].load()
+        if idm in application.project.modules.keys():
+            application.project.modules[idm].load()
 
     def reinit(self) -> None:
         """Cleanup and restart."""
@@ -306,8 +301,8 @@ class FLApplication(QtCore.QObject):
         # self.apAppIdle()
         self._inicializing = True
 
-        if hasattr(project.main_form, "mainWindow"):
-            mw = project.main_form.mainWindow
+        if hasattr(application.project.main_form, "mainWindow"):
+            mw = application.project.main_form.mainWindow
 
             if mw is not None:
                 mw.writeState()
@@ -383,10 +378,10 @@ class FLApplication(QtCore.QObject):
 
     def clearProject(self) -> None:
         """Cleanup."""
-        project.actions = {}
-        project.areas = {}
-        project.modules = {}
-        project.tables = {}
+        application.project.actions = {}
+        application.project.areas = {}
+        application.project.modules = {}
+        application.project.tables = {}
 
     def acl(self) -> Optional[pnaccesscontrollists.PNAccessControlLists]:
         """Return acl."""
@@ -397,7 +392,7 @@ class FLApplication(QtCore.QObject):
         self.acl_ = acl
 
     def reinitP(self) -> None:
-        """Reinitialize project."""
+        """Reinitialize application.project."""
         from pineboolib.application.qsadictmodules import QSADictModules
 
         self.db().managerModules().finish()
@@ -407,28 +402,28 @@ class FLApplication(QtCore.QObject):
 
         self.clearProject()
 
-        if project.main_window is None:
-            if project.main_form is not None:
-                project.main_form.mainWindow = project.main_form.MainForm()
-                project.main_window = project.main_form.mainWindow
-                project.main_window.initScript()
+        if application.project.main_window is None:
+            if application.project.main_form is not None:
+                application.project.main_form.mainWindow = application.project.main_form.MainForm()
+                application.project.main_window = application.project.main_form.mainWindow
+                application.project.main_window.initScript()
             else:
                 raise Exception("project.main_window and project.main_form is empty!")
 
-        mw = project.main_window
+        mw = application.project.main_window
         if self.main_widget_ is None:
             self.main_widget_ = mw
 
-        if project.main_window is not None:
-            project.main_window.initialized_mods_ = []
+        if application.project.main_window is not None:
+            application.project.main_window.initialized_mods_ = []
 
         QSADictModules.clean_all()
 
-        project.run()
+        application.project.run()
         self.db().managerModules().loadIdAreas()
         self.db().managerModules().loadAllIdModules()
-        # for module_name in project.modules.keys():
-        #    project.modules[module_name].load()
+        # for module_name in application.project.modules.keys():
+        #    application.project.modules[module_name].load()
         self.db().manager().init()
 
         self.db().managerModules()
@@ -453,13 +448,13 @@ class FLApplication(QtCore.QObject):
 
         self._inicializing = False
 
-        if hasattr(project.main_window, "reinitSript"):
-            project.main_window.reinitSript()
+        if hasattr(application.project.main_window, "reinitSript"):
+            application.project.main_window.reinitSript()
 
     def showDocPage(self, url_: str) -> None:
         """Show documentation."""
 
-        SysBaseType.openUrl([url_])
+        sysbasetype.SysBaseType.openUrl([url_])
 
     def toPixmap(self, value: str) -> QtGui.QPixmap:
         """Create a QPixmap from a text."""
@@ -501,11 +496,11 @@ class FLApplication(QtCore.QObject):
     def timeUser(self) -> Any:
         """Get amount of time running."""
 
-        return SysBaseType.time_user_
+        return sysbasetype.SysBaseType.time_user_
 
     def call(self, function, argument_list=[], object_content=None, show_exceptions=True) -> Any:
         """Call a QS project function."""
-        return project.call(function, argument_list, object_content, show_exceptions)
+        return application.project.call(function, argument_list, object_content, show_exceptions)
 
     @decorators.NotImplementedWarn
     def setNotExit(self, b):
@@ -524,7 +519,7 @@ class FLApplication(QtCore.QObject):
 
     def setCaptionMainWidget(self, text: str) -> None:
         """Set caption main widget."""
-        project.main_form.mainWindow.setCaptionMainWidget(text)
+        application.project.main_form.mainWindow.setCaptionMainWidget(text)
 
     @decorators.NotImplementedWarn
     def addSysCode(self, code, script_entry_function):
@@ -600,13 +595,16 @@ class FLApplication(QtCore.QObject):
 
     def showConsole(self) -> None:
         """Show application console on GUI."""
-        mw = project.main_form.mainWindow
+        mw = application.project.main_form.mainWindow
         if mw:
             if self._ted_output:
                 self._ted_output.parentWidget().close()
 
             dw = QtWidgets.QDockWidget("tedOutputDock", mw)
-            self._ted_output = FLTextEditOutput(dw)
+
+            from . import fltexteditoutput
+
+            self._ted_output = fltexteditoutput.FLTextEditOutput(dw)
             dw.setWidget(self._ted_output)
             dw.setWindowTitle(self.tr("Mensajes de Eneboo"))
             mw.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dw)
@@ -617,7 +615,7 @@ class FLApplication(QtCore.QObject):
 
     def modMainWidget(self, id_modulo: str) -> Optional[QtWidgets.QWidget]:
         """Set module main widget."""
-        mw = project.main_window
+        mw = application.project.main_window
         mod_widget: Optional[QtWidgets.QWidget] = None
         if hasattr(mw, "_dict_main_widgets"):
             if id_modulo in mw._dict_main_widgets.keys():
@@ -669,7 +667,7 @@ class FLApplication(QtCore.QObject):
 
     def DGI(self) -> Any:
         """Return current DGI."""
-        return project._DGI
+        return application.project._DGI
 
     def singleFLLarge(self) -> bool:
         """
@@ -696,7 +694,7 @@ class FLApplication(QtCore.QObject):
 
     def db(self) -> Any:
         """Return current connection."""
-        return project.conn_manager
+        return application.project.conn_manager
 
     @decorators.NotImplementedWarn
     def classType(self, n):
@@ -706,7 +704,7 @@ class FLApplication(QtCore.QObject):
         return type(n)
 
     # def __getattr__(self, name):
-    #    return getattr(project, name, None)
+    #    return getattr(application.project, name, None)
 
     def mainWidget(self) -> Any:
         """Return current mainWidget."""
@@ -724,11 +722,11 @@ class FLApplication(QtCore.QObject):
         if self._not_exit:
             return False
 
-        if not SysBaseType.interactiveGUI():
+        if not sysbasetype.SysBaseType.interactiveGUI():
             return True
 
         ret = QtWidgets.QMessageBox.information(
-            project.main_form.mainWindow,
+            application.project.main_form.mainWindow,
             self.tr("Salir ..."),
             self.tr("¿ Quiere salir de la aplicación ?"),
             QtWidgets.QMessageBox.Yes,
@@ -748,11 +746,11 @@ class FLApplication(QtCore.QObject):
 
     def urlPineboo(self) -> None:
         """Open Eneboo URI."""
-        SysBaseType.openUrl(["http://eneboo.org/"])
+        sysbasetype.SysBaseType.openUrl(["http://eneboo.org/"])
 
     def helpIndex(self) -> None:
         """Open help."""
-        SysBaseType.openUrl(["http://manuales-eneboo-pineboo.org/"])
+        sysbasetype.SysBaseType.openUrl(["http://manuales-eneboo-pineboo.org/"])
 
     def tr(self, sourceText: str, disambiguation: Optional[str] = None, n: int = 0) -> Any:
         """Open translations."""
@@ -860,7 +858,9 @@ class FLApplication(QtCore.QObject):
         """
         pass
 
-    def createModTranslator(self, id_module, lang, loadDefault=False) -> Optional["FLTranslator"]:
+    def createModTranslator(
+        self, id_module, lang, loadDefault=False
+    ) -> Optional["fltranslator.FLTranslator"]:
         """
         Create new translation for module.
 
@@ -881,7 +881,9 @@ class FLApplication(QtCore.QObject):
                 key = self.db().managerModules().shaOfFile(file_ts)
 
         if key:
-            tor = FLTranslator(self.mainWidget(), "%s_%s" % (id_module, lang), lang == "multilang")
+            tor = fltranslator.FLTranslator(
+                self.mainWidget(), "%s_%s" % (id_module, lang), lang == "multilang"
+            )
             if key and tor.loadTsContent(key):
                 return tor
 
@@ -889,7 +891,7 @@ class FLApplication(QtCore.QObject):
 
     def modules(self) -> Any:
         """Return loaded modules."""
-        return project.modules
+        return application.project.modules
 
     def commaSeparator(self) -> Any:
         """Return comma separator for floating points on current language."""
@@ -897,15 +899,15 @@ class FLApplication(QtCore.QObject):
 
     def tmp_dir(self) -> Any:
         """Return temporary folder."""
-        return project.tmpdir
+        return application.project.tmpdir
 
     def transactionLevel(self):
         """Return number of concurrent transactions."""
-        return project.conn_manager.useConn("default").transactionLevel()
+        return application.project.conn_manager.useConn("default").transactionLevel()
 
     def version(self):
         """Return app version."""
-        return project.version
+        return application.project.version
 
     def dialogGetFileImage(self) -> Optional[str]:
         """Get image file name."""
@@ -913,7 +915,7 @@ class FLApplication(QtCore.QObject):
         # from . import flpixmapviewer
 
         file_dialog = QtWidgets.QFileDialog(
-            QtWidgets.qApp.focusWidget(), self.tr("Elegir archivo"), project.tmpdir, "*"
+            QtWidgets.qApp.focusWidget(), self.tr("Elegir archivo"), application.project.tmpdir, "*"
         )
         # pixmap_viewer = flpixmapview.FLPixmapView(file_dialog)
 

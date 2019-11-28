@@ -6,7 +6,6 @@ Defines PNCursorTableModel class.
 
 from PyQt5 import QtCore, QtGui, Qt, QtWidgets
 
-from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core.utils import logging, utils_base
 
 from pineboolib.application.utils import date_conversion
@@ -28,11 +27,7 @@ from typing import Any, Iterable, Optional, List, Dict, Tuple, cast, TYPE_CHECKI
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pnfieldmetadata  # noqa: F401
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from pineboolib.application.database import pnsqlcursor  # noqa: F401
-
-    from pineboolib.interfaces import iconnection
-    from pineboolib.interfaces import iapicursor
-
+    from pineboolib.interfaces import iconnection, isqlcursor, iapicursor
     from pineboolib.fllegacy import fldatatable
 
 DEBUG = False
@@ -63,13 +58,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     sql_str = ""
     canFetchMoreRows: bool
     _curname: str
-    _parent: "pnsqlcursor.PNSqlCursor"
+    _parent: "isqlcursor.ISqlCursor"
     _initialized: Optional[
         bool
     ] = None  # Usa 3 estado None, True y False para hacer un primer refresh retardado si pertenece a un fldatatable
     _checkColumn: Dict[str, QtWidgets.QCheckBox]
 
-    def __init__(self, conn: "iconnection.IConnection", parent: "pnsqlcursor.PNSqlCursor") -> None:
+    def __init__(self, conn: "iconnection.IConnection", parent: "isqlcursor.ISqlCursor") -> None:
         """
         Constructor.
 
@@ -397,9 +392,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
                 if _type == "unlock":
                     if d in (True, "1"):
-                        pixmap = QtGui.QPixmap(filedir("./core/images/icons", "unlock.png"))
+                        pixmap = QtGui.QPixmap(
+                            utils_base.filedir("./core/images/icons", "unlock.png")
+                        )
                     else:
-                        pixmap = QtGui.QPixmap(filedir("./core/images/icons", "lock.png"))
+                        pixmap = QtGui.QPixmap(
+                            utils_base.filedir("./core/images/icons", "lock.png")
+                        )
                     if self.parent_view is not None:
                         if self.parent_view.showAllPixmap() or row == self.parent_view.cur.at():
                             if pixmap and not pixmap.isNull() and self.parent_view:
@@ -1033,7 +1032,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.setValuesDict(row, {fieldname: value})
 
     def Insert(
-        self, fl_cursor: "pnsqlcursor.PNSqlCursor"
+        self, fl_cursor: "isqlcursor.ISqlCursor"
     ) -> bool:  # FIXME: Should be "insert" in lowercase.
         """
         Create new row in TableModel.
@@ -1092,7 +1091,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return True
         return False
 
-    def delete(self, cursor: "pnsqlcursor.PNSqlCursor") -> None:
+    def delete(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """
         Delete a row from tableModel.
 

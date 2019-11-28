@@ -6,17 +6,15 @@ Provide queries to DB.
 """
 from enum import IntEnum, unique, Enum
 
-from pineboolib.application import project, types
-
-from pineboolib.application.database.pnsqlcursor import PNSqlCursor
-
-from pineboolib import logging
+from pineboolib import application, logging
+from pineboolib.application import types
+from pineboolib.application.database import pnsqlcursor
 
 from typing import Union, Any, List, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces.iconnection import IConnection
+    from pineboolib.interfaces import iconnection, isqlcursor
 
 logger = logging.getLogger(__name__)
 
@@ -48,26 +46,27 @@ class AQSql(object):
         AllTables = 0xFF
 
     @classmethod
-    def database(self, connection_name: str = "default") -> "IConnection":
+    def database(self, connection_name: str = "default") -> "iconnection.IConnection":
         """Return the database of a connection."""
 
-        if project.conn_manager is None:
+        if application.project.conn_manager is None:
             raise Exception("Project is not connected yet")
-        return project.conn_manager.useConn(connection_name)
+        return application.project.conn_manager.useConn(connection_name)
 
     @classmethod
     def update(
         self,
-        table_or_cursor: Union[str, PNSqlCursor],
+        table_or_cursor: Union[str, "isqlcursor.ISqlCursor"],
         fields: Union[List[str], types.Array],
         values: Union[List[Any], types.Array],
         where: str = "",
         conn: str = "default",
     ):
         """Update a set of cursor records with new values."""
+        cur: "isqlcursor.ISqlCursor"
 
         if isinstance(table_or_cursor, str):
-            cur = PNSqlCursor(table_or_cursor, conn)
+            cur = pnsqlcursor.PNSqlCursor(table_or_cursor, conn)
         else:
             cur = table_or_cursor
 
@@ -105,16 +104,17 @@ class AQSql(object):
     @classmethod
     def insert(
         self,
-        table_or_cursor: Union[str, PNSqlCursor],
+        table_or_cursor: Union[str, "isqlcursor.ISqlCursor"],
         fields: Union[List[str], types.Array],
         values: Union[List[Any], types.Array],
         where: str = "",
         conn: str = "default",
     ):
         """Insert a record in a cursor."""
+        cur: "isqlcursor.ISqlCursor"
 
         if isinstance(table_or_cursor, str):
-            cur = PNSqlCursor(table_or_cursor, conn)
+            cur = pnsqlcursor.PNSqlCursor(table_or_cursor, conn)
         else:
             cur = table_or_cursor
 
@@ -144,7 +144,10 @@ class AQSql(object):
 
     @classmethod
     def del_(
-        self, cur_or_table: Union[str, PNSqlCursor], where: str = "", conn_name: str = "default"
+        self,
+        cur_or_table: Union[str, "isqlcursor.ISqlCursor"],
+        where: str = "",
+        conn_name: str = "default",
     ):
         """Remove a recordset from a cursor."""
 
@@ -183,7 +186,7 @@ class AQSql(object):
             return ok
         else:
 
-            cur = PNSqlCursor(cur_or_table, True, conn_name)
+            cur = pnsqlcursor.PNSqlCursor(cur_or_table, True, conn_name)
             cur.select(where)
             if cur.first():
                 while True:

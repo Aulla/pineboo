@@ -4,9 +4,7 @@
 from PyQt5 import QtCore, QtXml
 
 from pineboolib.core import decorators, settings
-
 from pineboolib.core.utils import utils_base
-
 
 from pineboolib.application.metadata import (
     pncompoundkeymetadata,
@@ -16,7 +14,6 @@ from pineboolib.application.metadata import (
 )
 
 from pineboolib.application.database import pnsqlquery, pngroupbyquery, pnsqlcursor
-
 from pineboolib.application.utils import xpm, convert_flaction
 
 from pineboolib.application import types
@@ -33,7 +30,7 @@ import xml
 from typing import Optional, Union, Any, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces.iconnection import IConnection
+    from pineboolib.interfaces import iconnection
     from pineboolib.application.metadata import pnaction
 
 logger = logging.getLogger(__name__)
@@ -66,12 +63,12 @@ class FLManager(QtCore.QObject, IManager):
     ]  # Caché de definiciones de acciones, para optimizar lecturas
     # Caché de metadatos de talblas del sistema para optimizar lecturas
     cache_metadata_sys_: Dict[str, "pntablemetadata.PNTableMetaData"]
-    db_: "IConnection"  # Base de datos a utilizar por el manejador
+    db_: "iconnection.IConnection"  # Base de datos a utilizar por el manejador
     init_count_: int  # Indica el número de veces que se ha llamado a FLManager::init()
     buffer_: Any
     metadata_cache_fails_: List[str]
 
-    def __init__(self, db: "IConnection") -> None:
+    def __init__(self, db: "iconnection.IConnection") -> None:
         """
         Inicialize.
         """

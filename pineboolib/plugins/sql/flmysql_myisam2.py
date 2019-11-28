@@ -1,16 +1,10 @@
 """
 Module for MYISAM2 driver.
 """
-from PyQt5.Qt import qWarning  # type: ignore
+from PyQt5 import Qt, QtWidgets
 
-
-from PyQt5.QtWidgets import QMessageBox, QWidget  # type: ignore
-from pineboolib.application.utils.check_dependencies import check_dependencies
-
-from pineboolib.application import project
-
-
-from pineboolib import logging
+from pineboolib.application.utils import check_dependencies
+from pineboolib import application, logging
 
 from . import flmysql_myisam
 
@@ -20,7 +14,6 @@ from typing import Any, Dict, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from pineboolib.application.database import pnsqlcursor  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -53,14 +46,16 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
-        return check_dependencies({"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"}, False)
+        return check_dependencies.check_dependencies(
+            {"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"}, False
+        )
 
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
     ) -> Any:
         """Connect to a database."""
         self._dbname = db_name
-        check_dependencies({"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"})
+        check_dependencies.check_dependencies({"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"})
         from sqlalchemy import create_engine  # type: ignore
         import pymysql
 
@@ -78,19 +73,22 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
                 % (db_userName, db_password, db_host, db_port, db_name)
             )
         except pymysql.Error as e:
-            if project._splash:
-                project._splash.hide()
+            if application.project._splash:
+                application.project._splash.hide()
             if "Unknown database" in str(e):
-                if project._DGI and not project.DGI.localDesktop():
+                if application.project._DGI and not application.project.DGI.localDesktop():
                     return False
 
-                ret = QMessageBox.warning(
-                    QWidget(),
+                ret = QtWidgets.QMessageBox.warning(
+                    QtWidgets.QWidget(),
                     "Pineboo",
                     "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
-                    cast(QMessageBox.StandardButtons, QMessageBox.Ok | QMessageBox.No),
+                    cast(
+                        QtWidgets.QMessageBox.StandardButtons,
+                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
+                    ),
                 )
-                if ret == QMessageBox.No:
+                if ret == QtWidgets.QMessageBox.No:
                     return False
                 else:
                     try:
@@ -112,19 +110,22 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
                         cursor.close()
                         return self.connect(db_name, db_host, db_port, db_userName, db_password)
                     except Exception:
-                        qWarning(traceback.format_exc())
-                        QMessageBox.information(
-                            QWidget(),
+                        Qt.qWarning(traceback.format_exc())
+                        QtWidgets.QMessageBox.information(
+                            QtWidgets.QWidget(),
                             "Pineboo",
                             "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
-                            QMessageBox.Ok,
+                            QtWidgets.QMessageBox.Ok,
                         )
                         print("ERROR: No se ha podido crear la Base de Datos %s" % db_name)
                         return False
 
             else:
-                QMessageBox.information(
-                    QWidget(), "Pineboo", "Error de conexión\n%s" % str(e), QMessageBox.Ok
+                QtWidgets.QMessageBox.information(
+                    QtWidgets.QWidget(),
+                    "Pineboo",
+                    "Error de conexión\n%s" % str(e),
+                    QtWidgets.QMessageBox.Ok,
                 )
                 return False
 

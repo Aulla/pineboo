@@ -4,20 +4,15 @@ Module for MYISAM driver.
 
 import traceback
 
-from PyQt5.Qt import qWarning, QApplication, QRegExp  # type: ignore
-from PyQt5.QtCore import QTime, QDate, QDateTime, Qt  # type: ignore
-from PyQt5.QtXml import QDomDocument  # type: ignore
-from PyQt5.QtWidgets import QMessageBox, QWidget  # type: ignore
+from PyQt5 import Qt, QtCore, QtWidgets, QtXml
 
-from pineboolib.core.utils.utils_base import auto_qt_translate_text
-from pineboolib.core.utils.utils_base import text2bool
-from pineboolib.application.utils.check_dependencies import check_dependencies
+from pineboolib.core.utils import utils_base
+from pineboolib.application.utils import check_dependencies
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
-from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
+from pineboolib.application.metadata import pnfieldmetadata
 
-from pineboolib.fllegacy.flutil import FLUtil
-from pineboolib.application import project
-from pineboolib import logging
+from pineboolib.fllegacy import flutil
+from pineboolib import application, logging
 from . import pnsqlschema
 
 from typing import Any, Iterable, Optional, Union, List, Dict, cast, TYPE_CHECKING
@@ -56,14 +51,18 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
-        return check_dependencies({"MySQLdb": "mysqlclient", "sqlalchemy": "sqlAlchemy"}, False)
+        return check_dependencies.check_dependencies(
+            {"MySQLdb": "mysqlclient", "sqlalchemy": "sqlAlchemy"}, False
+        )
 
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
     ) -> Any:
         """Connect to a database."""
         self._dbname = db_name
-        check_dependencies({"MySQLdb": "mysqlclient", "sqlalchemy": "sqlAlchemy"})
+        check_dependencies.check_dependencies(
+            {"MySQLdb": "mysqlclient", "sqlalchemy": "sqlAlchemy"}
+        )
         from sqlalchemy import create_engine  # type: ignore
         import MySQLdb  # type: ignore
 
@@ -74,19 +73,22 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 % (db_userName, db_password, db_host, db_port, db_name)
             )
         except MySQLdb.OperationalError as e:
-            if project._splash:
-                project._splash.hide()
+            if application.project._splash:
+                application.project._splash.hide()
             if "Unknown database" in str(e):
-                if project._DGI and not project.DGI.localDesktop():
+                if application.project._DGI and not application.project.DGI.localDesktop():
                     return False
 
-                ret = QMessageBox.warning(
-                    QWidget(),
+                ret = QtWidgets.QMessageBox.warning(
+                    QtWidgets.QWidget(),
                     "Pineboo",
                     "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
-                    cast(QMessageBox.StandardButtons, QMessageBox.Ok | QMessageBox.No),
+                    cast(
+                        QtWidgets.QMessageBox.StandardButtons,
+                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
+                    ),
                 )
-                if ret == QMessageBox.No:
+                if ret == QtWidgets.QMessageBox.No:
                     return False
                 else:
                     try:
@@ -102,18 +104,21 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                         cursor.close()
                         return self.connect(db_name, db_host, db_port, db_userName, db_password)
                     except Exception:
-                        QMessageBox.information(
-                            QWidget(),
+                        QtWidgets.QMessageBox.information(
+                            QtWidgets.QWidget(),
                             "Pineboo",
                             "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
-                            QMessageBox.Ok,
+                            QtWidgets.QMessageBox.Ok,
                         )
                         print("ERROR: No se ha podido crear la Base de Datos %s" % db_name)
                         return False
 
             else:
-                QMessageBox.information(
-                    QWidget(), "Pineboo", "Error de conexión\n%s" % str(e), QMessageBox.Ok
+                QtWidgets.QMessageBox.information(
+                    QtWidgets.QWidget(),
+                    "Pineboo",
+                    "Error de conexión\n%s" % str(e),
+                    QtWidgets.QMessageBox.Ok,
                 )
                 return False
 
@@ -155,7 +160,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
             elif type_ == "time":
                 t = v.toTime()
-                res = " LIKE '" + t.toString(Qt.ISODate) + "%'"
+                res = " LIKE '" + t.toString(QtCore.Qt.ISODate) + "%'"
 
             else:
                 res = str(v)
@@ -169,7 +174,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     def formatValue(self, type_: str, v: Any, upper: bool) -> Union[bool, str, None]:
         """Format value for database WHERE comparison."""
 
-        # util = FLUtil()
+        # util = flutil.FLUtil()
 
         s: Union[bool, str, None] = None
 
@@ -181,7 +186,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             return "NULL"
 
         if type_ == "bool" or type_ == "unlock":
-            s = text2bool(v)
+            s = utils_base.text2bool(v)
 
         elif type_ == "date":
             # val = util.dateDMAtoAMD(v)
@@ -205,7 +210,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 s = "Null"
             else:
                 if type_ == "string":
-                    v = auto_qt_translate_text(v)
+                    v = utils_base.auto_qt_translate_text(v)
                     if upper:
                         v = v.upper()
 
@@ -320,7 +325,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 return
 
         # if not self.commitTransaction():
-        #    qWarning("%s:: No se puede aceptar la transacción" % self.name_)
+        #    Qt.qWarning("%s:: No se puede aceptar la transacción" % self.name_)
         #    return None
 
         return ret
@@ -417,7 +422,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 )
                 return False
         else:
-            qWarning(
+            Qt.qWarning(
                 "%s:: No se pudo deshacer la transacción ROLLBACK\n %s"
                 % (self.name_, traceback.format_exc())
             )
@@ -449,7 +454,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             return True
 
         if not self.isOpen():
-            qWarning("%s::releaseSavePoint: Database not open" % self.name_)
+            Qt.qWarning("%s::releaseSavePoint: Database not open" % self.name_)
             return False
         self.set_last_error_null()
         cursor = self.cursor()
@@ -459,7 +464,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             self.setLastError(
                 "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % n
             )
-            qWarning(
+            Qt.qWarning(
                 "MySQLDriver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s\n %s"
                 % (n, traceback.format_exc())
             )
@@ -480,8 +485,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         try:
             self.cursorsArray_[curname].execute(sql)
         except Exception:
-            print("*", sql)
-            qWarning("CursorTableModel.Refresh\n %s" % traceback.format_exc())
+            Qt.qWarning("CursorTableModel.Refresh\n %s" % traceback.format_exc())
 
     def fix_query(self, val: str) -> str:
         """Fix values on SQL."""
@@ -500,7 +504,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         # try:
         #    self.cursorsArray_[curname].fetchmany(number)
         # except Exception:
-        #    qWarning("%s.refreshFetch\n %s" %(self.name_, traceback.format_exc()))
+        #    Qt.qWarning("%s.refreshFetch\n %s" %(self.name_, traceback.format_exc()))
 
     def fetchAll(
         self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
@@ -540,7 +544,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
     def sqlCreateTable(self, tmd: "pntablemetadata.PNTableMetaData") -> Optional[str]:
         """Create a table from given MTD."""
-        # util = FLUtil()
+        # util = flutil.FLUtil()
         if not tmd:
             return None
 
@@ -556,8 +560,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 unlocks += 1
 
         if unlocks > 1:
-            qWarning(u"%s : No se ha podido crear la tabla %s" % (self.name_, tmd.name()))
-            qWarning(u"%s : Hay mas de un campo tipo unlock. Solo puede haber uno." % self.name_)
+            Qt.qWarning(u"%s : No se ha podido crear la tabla %s" % (self.name_, tmd.name()))
+            Qt.qWarning(u"%s : Hay mas de un campo tipo unlock. Solo puede haber uno." % self.name_)
             return None
 
         i = 1
@@ -602,16 +606,16 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                     sql += " PRIMARY KEY"
                     primaryKey = field.name()
                 else:
-                    qWarning(
-                        QApplication.tr("FLManager : Tabla-> ")
+                    Qt.qWarning(
+                        QtWidgets.QApplication.tr("FLManager : Tabla-> ")
                         + tmd.name()
-                        + QApplication.tr(
+                        + QtWidgets.QApplication.tr(
                             " . Se ha intentado poner una segunda clave primaria para el campo "
                         )
                         + field.name()
-                        + QApplication.tr(" , pero el campo ")
+                        + QtWidgets.QApplication.tr(" , pero el campo ")
                         + primaryKey
-                        + QApplication.tr(
+                        + QtWidgets.QApplication.tr(
                             " ya es clave primaria. Sólo puede existir una clave primaria en FLTableMetaData,"
                             " use FLCompoundKey para crear claves compuestas."
                         )
@@ -634,13 +638,13 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         sql += " DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
 
-        qWarning("NOTICE: CREATE TABLE (%s%s)" % (tmd.name(), engine))
+        Qt.qWarning("NOTICE: CREATE TABLE (%s%s)" % (tmd.name(), engine))
 
         return sql
 
     def Mr_Proper(self) -> None:
         """Cleanup database like mr.proper."""
-        util = FLUtil()
+        util = flutil.FLUtil()
         if not self.db_:
             raise Exception("must be connected")
         self.db_.dbAux().transaction()
@@ -653,7 +657,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         steps = 0
         self.active_create_index = False
 
-        rx = QRegExp("^.*\\d{6,9}$")
+        rx = Qt.QRegExp("^.*\\d{6,9}$")
         if rx in self.tables():
             listOldBks = self.tables()[rx]
         else:
@@ -767,8 +771,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 )
                 if not sql_query2.next():
                     if do_ques:
-                        res = QMessageBox.question(
-                            QWidget(),
+                        res = QtWidgets.QMessageBox.question(
+                            QtWidgets.QWidget(),
                             util.tr("Mr. Proper"),
                             util.tr(
                                 "Existen tablas que no son del tipo %s utilizado por el driver de la conexión actual.\n"
@@ -776,10 +780,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                                 "se pueden peder datos en la conversión de forma definitiva.\n\n"
                                 "¿ Quiere convertirlas ?" % (engine)
                             ),
-                            QMessageBox.Yes,
-                            QMessageBox.No,
+                            QtWidgets.QMessageBox.Yes,
+                            QtWidgets.QMessageBox.No,
                         )
-                        if res == QMessageBox.Yes:
+                        if res == QtWidgets.QMessageBox.Yes:
                             convert_engine = True
 
                     do_ques = False
@@ -818,11 +822,11 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         if not self.db_:
             raise Exception("must be connected")
 
-        util = FLUtil()
+        util = flutil.FLUtil()
 
         old_mtd = None
         new_mtd = None
-        doc = QDomDocument("doc")
+        doc = QtXml.QDomDocument("doc")
         docElem = None
         if not util.domDocumentSetContent(doc, mtd1):
             print("FLManager::alterTable : " + util.tr("Error al cargar los metadatos."))
@@ -916,7 +920,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         renameOld = "%salteredtable%s" % (
             old_mtd.name()[0:5],
-            QDateTime().currentDateTime().toString("ddhhssz"),
+            QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
         )
 
         if not self.db_.dbAux():
@@ -931,7 +935,9 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         fieldList = new_mtd.fieldList()
 
         if not fieldList:
-            qWarning("FLManager::alterTable : " + util.tr("Los nuevos metadatos no tienen campos"))
+            Qt.qWarning(
+                "FLManager::alterTable : " + util.tr("Los nuevos metadatos no tienen campos")
+            )
 
             if old_mtd and old_mtd != new_mtd:
                 del old_mtd
@@ -944,7 +950,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         in_sql = "ALTER TABLE %s RENAME TO %s" % (old_mtd.name(), renameOld)
         logger.warning(in_sql)
         if not q.exec_(in_sql):
-            qWarning(
+            Qt.qWarning(
                 "FLManager::alterTable : " + util.tr("No se ha podido renombrar la tabla antigua.")
             )
 
@@ -1043,7 +1049,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 ):
                     if oldField is None:
                         oldField = it2
-                    if it2.type() != PNFieldMetaData.Serial:
+                    if it2.type() != pnfieldmetadata.PNFieldMetaData.Serial:
                         v = it2.defaultValue()
                         step += 1
                         default_values[str(step)] = v
@@ -1081,7 +1087,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                         if (
                             (not oldField.allowNull() or not newField.allowNull())
                             and (v is None)
-                            and newField.type() != PNFieldMetaData.Serial
+                            and newField.type() != pnfieldmetadata.PNFieldMetaData.Serial
                         ):
                             defVal = newField.defaultValue()
                             if defVal is not None:
@@ -1091,16 +1097,16 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                         v = v[: newField.length()]
 
                     if (not oldField.allowNull() or not newField.allowNull()) and v is None:
-                        if oldField.type() == PNFieldMetaData.Serial:
+                        if oldField.type() == pnfieldmetadata.PNFieldMetaData.Serial:
                             v = int(self.nextSerialVal(new_mtd.name(), newField.name()))
                         elif oldField.type() in ["int", "uint", "bool", "unlock"]:
                             v = 0
                         elif oldField.type() == "double":
                             v = 0.0
                         elif oldField.type() == "time":
-                            v = QTime.currentTime()
+                            v = QtCore.QTime.currentTime()
                         elif oldField.type() == "date":
-                            v = QDate.currentDate()
+                            v = QtCore.QDate.currentDate()
                         else:
                             v = "NULL"[: newField.length()]
 
@@ -1334,13 +1340,15 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         if isinstance(tablename_or_query, str):
             tablename = tablename_or_query
 
-            doc = QDomDocument(tablename)
+            doc = QtXml.QDomDocument(tablename)
             stream = self.db_.managerModules().contentCached("%s.mtd" % tablename)
-            util = FLUtil()
+            util = flutil.FLUtil()
             if not util.domDocumentSetContent(doc, stream):
-                print(
+                logger.warning(
                     "FLManager : "
-                    + QApplication.tr("Error al cargar los metadatos para la tabla")
+                    + QtWidgets.QApplication.translate(
+                        "FLMySQL", "Error al cargar los metadatos para la tabla"
+                    )
                     + tablename
                 )
 

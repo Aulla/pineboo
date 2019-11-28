@@ -1,35 +1,30 @@
 """
 XMLAction module.
 """
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import logging, struct
 
-
-from pineboolib.core.utils.struct import ActionStruct
 from . import load_script
-
-from pineboolib.fllegacy import flformdb
-from pineboolib.fllegacy import flformrecorddb
-
+from pineboolib.fllegacy import flformdb, flformrecorddb
 from typing import Optional, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.fllegacy.flaction import FLAction  # noqa: F401
-
-    from .moduleactions import ModuleActions  # noqa: F401
-    from .database.pnsqlcursor import PNSqlCursor  # noqa: F401
-    from .projectmodule import Project
+    from . import moduleactions  # noqa : F401
+    from pineboolib.interfaces import isqlcursor
+    from . import projectmodule
 
 
-class XMLAction(ActionStruct):
+class XMLAction(struct.ActionStruct):
     """
     Information related to actions specified in XML modules.
     """
 
     logger = logging.getLogger("main.XMLAction")
-    mod: Optional["ModuleActions"]
+    mod: Optional["moduleactions.ModuleActions"]
     alias: str
 
-    def __init__(self, *args, project: "Project", name: Optional[str] = None, **kwargs) -> None:
+    def __init__(
+        self, *args, project: "projectmodule.Project", name: Optional[str] = None, **kwargs
+    ) -> None:
         """
         Constructor.
         """
@@ -55,7 +50,9 @@ class XMLAction(ActionStruct):
         self.formrecord_widget: Optional[flformrecorddb.FLFormRecordDB] = None
         self._loaded = False
 
-    def loadRecord(self, cursor: Optional["PNSqlCursor"]) -> "flformrecorddb.FLFormRecordDB":
+    def loadRecord(
+        self, cursor: Optional["isqlcursor.ISqlCursor"]
+    ) -> "flformrecorddb.FLFormRecordDB":
         """
         Load FLFormRecordDB by default.
 
@@ -165,7 +162,7 @@ class XMLAction(ActionStruct):
         return self.formrecord_widget
 
     # FIXME: cursor is FLSqlCursor but should be something core, not "FL". Also, an interface
-    def openDefaultFormRecord(self, cursor: "PNSqlCursor", wait: bool = True) -> None:
+    def openDefaultFormRecord(self, cursor: "isqlcursor.ISqlCursor", wait: bool = True) -> None:
         """
         Open FLFormRecord specified on defaults.
 

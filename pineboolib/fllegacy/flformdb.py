@@ -3,17 +3,13 @@
 # -*- coding: utf-8 -*-
 import traceback
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QKeySequence
-from PyQt5.QtWidgets import QDialog, QFileDialog, QApplication
-from PyQt5.QtCore import pyqtSignal
 
 from pineboolib import logging
 
-from pineboolib.core import decorators
-from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core.settings import config
+from pineboolib.core import decorators, settings
+from pineboolib.core.utils import utils_base
 
-from pineboolib.application.utils.geometry import loadGeometryForm, saveGeometryForm
+from pineboolib.application.utils import geometry
 from pineboolib.application.metadata import pnaction
 from pineboolib.application import load_script
 
@@ -25,10 +21,10 @@ from typing import Any, Union, Dict, Optional, Tuple, Type, cast, Callable, TYPE
 
 
 if TYPE_CHECKING:
-    from pineboolib.application.database import pnsqlcursor
+    from pineboolib.interfaces import isqlcursor
 
 
-class FLFormDB(QDialog):
+class FLFormDB(QtWidgets.QDialog):
     """
     Represents a form that links to a table.
 
@@ -51,7 +47,7 @@ class FLFormDB(QDialog):
     Cursor, con los registros, utilizado por el formulario
     """
 
-    cursor_: Optional["pnsqlcursor.PNSqlCursor"]
+    cursor_: Optional["isqlcursor.ISqlCursor"]
 
     """
     Nombre de la tabla, contiene un valor no vacío cuando
@@ -311,7 +307,7 @@ class FLFormDB(QDialog):
 
         self.unbindIface()
 
-    def setCursor(self, cursor: "pnsqlcursor.PNSqlCursor" = None) -> None:  # type: ignore
+    def setCursor(self, cursor: "isqlcursor.ISqlCursor" = None) -> None:  # type: ignore
         """Change current cursor binded to this control."""
         if cursor is not self.cursor_ and self.cursor_ and self.oldCursorCtxt:
             self.cursor_.setContext(self.oldCursorCtxt)
@@ -326,7 +322,7 @@ class FLFormDB(QDialog):
 
         if self.cursor_:
 
-            cast(pyqtSignal, self.cursor_.destroyed).disconnect(self.cursorDestroyed)
+            cast(QtCore.pyqtSignal, self.cursor_.destroyed).disconnect(self.cursorDestroyed)
 
         self.cursor_ = cursor
 
@@ -334,12 +330,12 @@ class FLFormDB(QDialog):
             self.cursor_.setEdition(False, self.objectName())
             self.cursor_.setBrowse(False, self.objectName())
 
-        cast(pyqtSignal, self.cursor_.destroyed).connect(self.cursorDestroyed)
+        cast(QtCore.pyqtSignal, self.cursor_.destroyed).connect(self.cursorDestroyed)
         if self.iface and self.cursor_:
             self.oldCursorCtxt = self.cursor_.context()
             self.cursor_.setContext(self.iface)
 
-    def cursor(self) -> "pnsqlcursor.PNSqlCursor":  # type: ignore [override] # noqa F821
+    def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
         """
         To get the cursor used by the form.
         """
@@ -394,8 +390,8 @@ class FLFormDB(QDialog):
                 QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz"),
             )
 
-            ret = QFileDialog.getSaveFileName(
-                QApplication.activeWindow(), "Pineboo", tmp_file, "PNG(*.png)"
+            ret = QtWidgets.QFileDialog.getSaveFileName(
+                QtWidgets.QApplication.activeWindow(), "Pineboo", tmp_file, "PNG(*.png)"
             )
             path_file = ret[0] if ret else None
 
@@ -419,7 +415,7 @@ class FLFormDB(QDialog):
         # else:
         #    geo = QtCore.QSize(pW.width(), pW.height())
 
-        saveGeometryForm(self.geoName(), geo)
+        geometry.saveGeometryForm(self.geoName(), geo)
         return super().saveGeometry()
 
     def setCaptionWidget(self, text: str) -> None:
@@ -435,7 +431,7 @@ class FLFormDB(QDialog):
         """
         Return if the form has been accepted.
         """
-        # FIXME: QDialog.accepted() is a signal. We're shadowing it.
+        # FIXME: QtWidgets.QDialog.accepted() is a signal. We're shadowing it.
         return self.accepted_
 
     def formClassName(self) -> str:
@@ -649,7 +645,7 @@ class FLFormDB(QDialog):
 
         pbSize = self.iconSize
 
-        if config.value("application/isDebuggerMode", False):
+        if settings.config.value("application/isDebuggerMode", False):
 
             pushButtonExport = QtWidgets.QToolButton()
             pushButtonExport.setObjectName("pushButtonExport")
@@ -657,9 +653,9 @@ class FLFormDB(QDialog):
             pushButtonExport.setMinimumSize(pbSize)
             pushButtonExport.setMaximumSize(pbSize)
             pushButtonExport.setIcon(
-                QtGui.QIcon(filedir("./core/images/icons", "gtk-properties.png"))
+                QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-properties.png"))
             )
-            pushButtonExport.setShortcut(QKeySequence(self.tr("F3")))
+            pushButtonExport.setShortcut(QtGui.QKeySequence(self.tr("F3")))
             pushButtonExport.setWhatsThis(
                 QtWidgets.QApplication.translate("FLFormDB", "Exportar a XML(F3)")
             )
@@ -670,16 +666,16 @@ class FLFormDB(QDialog):
             self.bottomToolbar.layout().addWidget(pushButtonExport)
             pushButtonExport.clicked.connect(self.exportToXml)
 
-            if config.value("ebcomportamiento/show_snaptshop_button", False):
+            if settings.config.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton()
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
                 push_button_snapshot.setSizePolicy(sizePolicy)
                 push_button_snapshot.setMinimumSize(pbSize)
                 push_button_snapshot.setMaximumSize(pbSize)
                 push_button_snapshot.setIcon(
-                    QtGui.QIcon(filedir("./core/images/icons", "gtk-paste.png"))
+                    QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
                 )
-                push_button_snapshot.setShortcut(QKeySequence(self.tr("F8")))
+                push_button_snapshot.setShortcut(QtGui.QKeySequence(self.tr("F8")))
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -694,15 +690,19 @@ class FLFormDB(QDialog):
         if not self.pushButtonCancel:
             self.pushButtonCancel = QtWidgets.QToolButton()
             self.pushButtonCancel.setObjectName("pushButtonCancel")
-            cast(pyqtSignal, self.pushButtonCancel.clicked).connect(cast(Callable, self.close))
+            cast(QtCore.pyqtSignal, self.pushButtonCancel.clicked).connect(
+                cast(Callable, self.close)
+            )
 
         self.pushButtonCancel.setSizePolicy(sizePolicy)
         self.pushButtonCancel.setMaximumSize(pbSize)
         self.pushButtonCancel.setMinimumSize(pbSize)
-        self.pushButtonCancel.setIcon(QtGui.QIcon(filedir("./core/images/icons", "gtk-stop.png")))
+        self.pushButtonCancel.setIcon(
+            QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-stop.png"))
+        )
         # self.pushButtonCancel.setFocusPolicy(QtCore.Qt.StrongFocus)
         # self.pushButtonCancel.setFocus()
-        self.pushButtonCancel.setShortcut(QKeySequence(self.tr("Esc")))
+        self.pushButtonCancel.setShortcut(QtGui.QKeySequence(self.tr("Esc")))
         self.pushButtonCancel.setWhatsThis("Cerrar formulario (Esc)")
         self.pushButtonCancel.setToolTip("Cerrar formulario (Esc)")
         self.bottomToolbar.layout().addWidget(self.pushButtonCancel)
@@ -829,7 +829,7 @@ class FLFormDB(QDialog):
 
             self.bindIface()
 
-        size = loadGeometryForm(self.geoName())
+        size = geometry.loadGeometryForm(self.geoName())
         if size:
             self.resize(size)
 
@@ -864,7 +864,7 @@ class FLFormDB(QDialog):
         else:
             geo = QtCore.QSize(pW.width(), pW.height())
 
-        #saveGeometryForm(self.geoName(), geo)
+        #geometry.saveGeometryForm(self.geoName(), geo)
     """
 
     def focusInEvent(self, f: Any) -> None:
