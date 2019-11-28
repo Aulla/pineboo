@@ -45,6 +45,35 @@ class TestSysBaseClassGeneral(unittest.TestCase):
         self.assertEqual(base_type.nameDriver(), "FLsqlite")
         self.assertEqual(base_type.nameHost(), None)
 
+    def test_objects(self) -> None:
+        """Test objects functions."""
+
+        from pineboolib.qsa import dictmodules
+        from pineboolib.application.qsatypes import sysbasetype
+        from pineboolib.application.database import pnsqlcursor
+
+        cursor_1 = pnsqlcursor.PNSqlCursor("flmodules")
+        cursor_1.select()
+        cursor_1.setModeAccess(cursor_1.Insert)
+        cursor_1.refreshBuffer()
+        cursor_1.insertRecord(False)
+
+        form = dictmodules.from_project("formRecordflmodules")
+        self.assertTrue(form)
+
+        cursor_2 = form.cursor()
+        field = form.child("flfielddb_5")
+
+        base_type = sysbasetype.SysBaseType()
+
+        self.assertTrue(base_type.setObjText(form, "flfielddb_5", "Holas"))
+        self.assertTrue(base_type.setObjText(form, "toolButtonInsert", "prueba"))
+
+        base_type.disableObj(form, "flfielddb_5")
+        self.assertTrue(field.keepDisabled_)
+        base_type.enableObj(form, "flfielddb_5")
+        self.assertFalse(field.keepDisabled_)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
