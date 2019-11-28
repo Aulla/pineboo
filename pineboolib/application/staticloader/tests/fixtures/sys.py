@@ -1,7 +1,6 @@
 """Sys module."""
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
-import traceback
 from pineboolib import logging
 
 

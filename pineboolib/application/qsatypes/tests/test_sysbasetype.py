@@ -61,7 +61,6 @@ class TestSysBaseClassGeneral(unittest.TestCase):
         form = dictmodules.from_project("formRecordflmodules")
         self.assertTrue(form)
 
-        cursor_2 = form.cursor()
         field = form.child("flfielddb_5")
 
         base_type = sysbasetype.SysBaseType()
