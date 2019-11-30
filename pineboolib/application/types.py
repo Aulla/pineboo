@@ -793,10 +793,7 @@ class FileStatic(FileBaseClass):
         with codecs.open(file_, "r" if not bytes else "rb", encoding="ISO-8859-15") as f:
             ret = f.read()
 
-        if bytes:
-            return ret.decode("UTF-8")
-        else:
-            return ret
+        return ret
 
     @staticmethod
     def write(file_: str, data: Union[str, bytes], length: int = -1) -> None:
