@@ -228,6 +228,60 @@ class TestPNSqlQuery(unittest.TestCase):
         self.assertEqual(q.value(0), "")
         self.assertEqual(q.value("date_field"), "")
 
+    def test_limit_offset(self) -> None:
+        """Test limit and offset clausules from a query."""
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())  # 9 rows total!
+
+        q1 = pnsqlquery.PNSqlQuery()
+        q1.setSelect("date_field")
+        q1.setFrom("fltest")
+        q1.setWhere("1 = 1")
+        q1.setLimit(4)
+        self.assertTrue(q1.exec_())
+        self.assertTrue(q1.sql().lower().find("limit") > -1)
+        self.assertEqual(q1.size(), 4)
+
+        q2 = pnsqlquery.PNSqlQuery()
+        q2.setSelect("date_field")
+        q2.setFrom("fltest")
+        q2.setWhere("1 = 1")
+        q2.setLimit(100)
+        q2.setOffset(7)
+        self.assertTrue(q2.exec_())
+        self.assertTrue(q2.sql().lower().find("offset") > -1)
+        self.assertEqual(q2.size(), 2)  # 7 + 2 = 9 rows
+
+        q3 = pnsqlquery.PNSqlQuery()
+        q3.setSelect("date_field")
+        q3.setFrom("fltest")
+        q3.setWhere("1 = 1")
+        q3.setOrderBy("date_field")
+        q3.setOffset(5)
+        self.assertTrue(q3.exec_())
+        sql = q3.sql()
+        self.assertTrue(sql.lower().find("offset") > -1)
+        self.assertTrue(sql.lower().find("order by") > -1)
+        self.assertEqual(q3.size(), 4)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

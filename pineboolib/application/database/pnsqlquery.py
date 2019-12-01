@@ -77,6 +77,8 @@ class PNSqlQueryPrivate(object):
 
     _last_query: Union[bool, str]
     _forward_only: bool
+    _limit: Optional[int]
+    _offset: Optional[int]
 
     def __init__(self, name: Optional[str] = None) -> None:
         """Create a new instance of PNSqlQueryPrivate."""
@@ -92,6 +94,8 @@ class PNSqlQueryPrivate(object):
         self.from_ = None
         self._last_query = False
         self._forward_only = False
+        self._limit = None
+        self._offset = None
 
 
 class PNSqlQuery(object):
@@ -462,7 +466,19 @@ class PNSqlQuery(object):
                 i = i + 1
 
         elif self.d.orderBy_:
-            res = res + " ORDER BY " + self.d.orderBy_
+            res += " ORDER BY %s" % self.d.orderBy_
+
+        if self.d._limit is not None:
+            res += " LIMIT %s" % self.d._limit
+
+        if self.d._offset is not None:
+            if self.d._limit is None:
+                res += " LIMIT %s" % 99999999
+                logger.warning("It is highly recommended to use limit next to offset")
+
+            res += " OFFSET %s" % self.d._offset
+            if self.d.orderBy_ is None:
+                logger.warning("It is highly recommended to use order by next to offset")
 
         if self.d.parameterDict_:
             for pD in self.d.parameterDict_.keys():
@@ -936,3 +952,13 @@ class PNSqlQuery(object):
             return True
 
         return False
+
+    def setLimit(self, limit: int) -> None:
+        """Set limit."""
+
+        self.d._limit = limit
+
+    def setOffset(self, offset: int) -> None:
+        """Set offset."""
+
+        self.d._offset = offset
