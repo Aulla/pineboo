@@ -214,19 +214,19 @@ class TestPNSqlQuery(unittest.TestCase):
         q.setSelect("date_field")
         q.setFrom("fltest")
         q.setWhere("1=1")
-        if q.exec_():
-            if q.next():
-                self.assertTrue(q.isNull("date_field"))
-                self.assertEqual(q.value(0), "")
-                self.assertEqual(q.value("date_field"), "")
-            if q.next():
-                self.assertFalse(q.isNull("date_field"))
-                self.assertEqual(str(q.value(0)), "2020-01-01T00:00:00")
-                self.assertEqual(str(q.value("date_field")), "2020-01-01T00:00:00")
-            if q.next():
-                self.assertTrue(q.isNull("date_field"))
-                self.assertEqual(q.value(0), "")
-                self.assertEqual(q.value("date_field"), "")
+        self.assertTrue(q.exec_())
+        self.assertTrue(q.next())
+        self.assertTrue(q.isNull("date_field"))
+        self.assertEqual(q.value(0), "")
+        self.assertEqual(q.value("date_field"), "")
+        self.assertTrue(q.next())
+        self.assertFalse(q.isNull("date_field"))
+        self.assertEqual(str(q.value(0)), "2020-01-01T00:00:00")
+        self.assertEqual(str(q.value("date_field")), "2020-01-01T00:00:00")
+        self.assertTrue(q.next())
+        self.assertTrue(q.isNull("date_field"))
+        self.assertEqual(q.value(0), "")
+        self.assertEqual(q.value("date_field"), "")
 
     @classmethod
     def tearDownClass(cls) -> None:
