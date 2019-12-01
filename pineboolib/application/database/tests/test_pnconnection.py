@@ -20,12 +20,14 @@ class TestPNConnection(unittest.TestCase):
         conn_manager = application.project.conn_manager
 
         self.assertEqual(conn_manager.mainConn().connectionName(), "main_conn")
+        conn_default_ = conn_manager.useConn("default")
         conn_aux_ = conn_manager.useConn("dbAux")
         conn_ = conn_manager.useConn("conn_test")
         self.assertNotEqual(conn_, conn_aux_)
         dict_databases_1 = conn_manager.dictDatabases()
         self.assertTrue(dict_databases_1)
 
+        self.assertTrue(conn_default_.isOpen())
         self.assertTrue(conn_manager.mainConn().isOpen())
         self.assertTrue(conn_manager.useConn("dbAux").isOpen())
         self.assertFalse(conn_manager.useConn("conn_test").isOpen())
