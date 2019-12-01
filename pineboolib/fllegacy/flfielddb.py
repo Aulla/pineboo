@@ -2152,9 +2152,8 @@ class FLFieldDB(QtWidgets.QWidget):
                 and not field.allowNull()
             ):
                 defVal = field.defaultValue()
-                # if not defVal.isValid() or defVal.isNull():
                 if defVal is None:
-                    self.editor_.setDate(QtCore.QDate.currentDate().toString())
+                    self.editor_.setDate(QtCore.QDate.currentDate().toString("dd-MM-yyyy"))
                 else:
                     self.editor_.setDate(defVal.toDate())
 
