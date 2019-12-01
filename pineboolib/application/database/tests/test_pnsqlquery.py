@@ -196,6 +196,38 @@ class TestPNSqlQuery(unittest.TestCase):
         self.assertEqual(qry_2.where(), "astro = 'sol'")
         self.assertEqual(qry_2.from_(), "dias inner join planetas as p on p.id = dias.id")
 
+    def test_date_result(self) -> None:
+        """Test date values."""
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("date_field", "2020-01-01")
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.commitBuffer())
+
+        q = pnsqlquery.PNSqlQuery()
+        q.setSelect("date_field")
+        q.setFrom("fltest")
+        q.setWhere("1=1")
+        if q.exec_():
+            if q.next():
+                self.assertTrue(q.isNull("date_field"))
+                self.assertEqual(q.value(0), "")
+                self.assertEqual(q.value("date_field"), "")
+            if q.next():
+                self.assertFalse(q.isNull("date_field"))
+                self.assertEqual(str(q.value(0)), "2020-01-01T00:00:00")
+                self.assertEqual(str(q.value("date_field")), "2020-01-01T00:00:00")
+            if q.next():
+                self.assertTrue(q.isNull("date_field"))
+                self.assertEqual(q.value(0), "")
+                self.assertEqual(q.value("date_field"), "")
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
