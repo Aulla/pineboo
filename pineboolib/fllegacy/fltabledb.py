@@ -2332,11 +2332,15 @@ class FLTableDB(QtWidgets.QWidget):
         if not self.tableRecords_:
             raise Exception("tableRecords_ is not defined!")
 
-        _index = (
-            self.tableRecords_.column_name_to_column_index(col)
-            if isinstance(col, str)
-            else self.tableRecords_.visual_index_to_column_index(col)
-        )
+        col_index_: int
+        if isinstance(col, str):
+            col_index_ = self.tableRecords_.logical_index_to_visual_index(
+                self.tableRecords_.column_name_to_column_index(col)
+            )
+        else:
+            col_index_ = col
+
+        _index = self.tableRecords_.visual_index_to_column_index(col_index_)
 
         if _index is None or _index < 0:
             return
@@ -2356,11 +2360,16 @@ class FLTableDB(QtWidgets.QWidget):
         """
         if not self.tableRecords_:
             raise Exception("tableRecords_ is not defined!")
-        _index = (
-            self.tableRecords_.column_name_to_column_index(col)
-            if isinstance(col, str)
-            else self.tableRecords_.visual_index_to_column_index(col)
-        )
+
+        col_index_: int
+        if isinstance(col, str):
+            col_index_ = self.tableRecords_.logical_index_to_visual_index(
+                self.tableRecords_.column_name_to_column_index(col)
+            )
+        else:
+            col_index_ = col
+
+        _index = self.tableRecords_.visual_index_to_column_index(col_index_)
 
         if _index is None or _index < 0:
             return

@@ -1,5 +1,8 @@
 """Test_fltabledb module."""
 
+from pineboolib.fllegacy import fltabledb
+from pineboolib import application
+
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 
@@ -14,8 +17,6 @@ class TestFLTableDB(unittest.TestCase):
 
     def test_export_to_ods(self) -> None:
         """Test export to ods."""
-        from pineboolib.fllegacy import fltabledb
-        from pineboolib import application
 
         application.project.actions["flareas"].openDefaultForm()
 
@@ -36,8 +37,6 @@ class TestFLTableDB(unittest.TestCase):
 
     def test_order_cols(self) -> None:
         """Test order cols."""
-        from pineboolib.fllegacy import fltabledb
-        from pineboolib import application
 
         form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
@@ -48,6 +47,36 @@ class TestFLTableDB(unittest.TestCase):
         self.assertEqual(fltable.orderCols(), ["descripcion", "idarea", "bloqueo"])
         fltable.setOrderCols(["idarea"])
         self.assertEqual(fltable.orderCols(), ["idarea", "descripcion", "bloqueo"])
+
+    def test_put_x_col(self) -> None:
+        """Test put first and second col."""
+
+        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+            "flareas"
+        ].mainform_widget
+
+        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        self.assertEqual(fltable.orderCols(), ["idarea", "descripcion", "bloqueo"])
+        fltable.putFirstCol(1)
+        self.assertEqual(fltable.orderCols(), ["descripcion", "idarea", "bloqueo"])
+        fltable.putFirstCol(1)
+        self.assertEqual(fltable.orderCols(), ["idarea", "descripcion", "bloqueo"])
+        fltable.putFirstCol(2)
+        self.assertEqual(fltable.orderCols(), ["bloqueo", "descripcion", "idarea"])
+        fltable.putFirstCol("idarea")
+        self.assertEqual(fltable.orderCols(), ["idarea", "descripcion", "bloqueo"])
+        fltable.putFirstCol("idarea")
+        self.assertEqual(fltable.orderCols(), ["idarea", "descripcion", "bloqueo"])
+        fltable.putFirstCol("descripcion")
+        self.assertEqual(fltable.orderCols(), ["descripcion", "idarea", "bloqueo"])
+        fltable.putSecondCol(2)
+        self.assertEqual(fltable.orderCols(), ["descripcion", "bloqueo", "idarea"])
+        fltable.putSecondCol(0)
+        self.assertEqual(fltable.orderCols(), ["bloqueo", "descripcion", "idarea"])
+        fltable.putSecondCol("bloqueo")
+        self.assertEqual(fltable.orderCols(), ["descripcion", "bloqueo", "idarea"])
+        fltable.putSecondCol("bloqueo")
+        self.assertEqual(fltable.orderCols(), ["descripcion", "bloqueo", "idarea"])
 
     @classmethod
     def tearDownClass(cls) -> None:
