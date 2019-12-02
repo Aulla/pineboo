@@ -1394,9 +1394,12 @@ class FLTableDB(QtWidgets.QWidget):
         """
         Refresh the data tab by applying the filter.
         """
+        if self.filter_ is not None and self.tdbFilterLastWhere_ is not None:
+            self.filter_ = self.filter_.replace(self.tdbFilterLastWhere_, "")
+
         tdbWhere: Optional[str] = self.tdbFilterBuildWhere()
-        if not tdbWhere == self.tdbFilterLastWhere_:
-            self.tdbFilterLastWhere_ = tdbWhere
+        # if not tdbWhere == self.tdbFilterLastWhere_:
+        self.tdbFilterLastWhere_ = tdbWhere
 
         self.refresh(False, True)
 
@@ -1412,9 +1415,9 @@ class FLTableDB(QtWidgets.QWidget):
             return
 
         hCount = horizHeader.count() - self.sortColumn_
-        if self.tdbFilter and self.tdbFilter.numRows() < hCount and self.cursor():
+        if self.tdbFilter and self.cursor():
             tMD = self.cursor().metadata()
-            if not tMD:
+            if tMD is None:
                 return
 
             field = None
@@ -1449,7 +1452,6 @@ class FLTableDB(QtWidgets.QWidget):
             self.mapCondType.insert(self.FromTo, util.tr("Desde - Hasta"))
             self.mapCondType.insert(self.Null, util.tr("Vacío"))
             self.mapCondType.insert(self.NotNull, util.tr("No Vacío"))
-
             i = 0
             # for headT in hCount:
             _linea = 0
@@ -1462,7 +1464,9 @@ class FLTableDB(QtWidgets.QWidget):
                 )
                 _alias = tMD.fieldAliasToName(_label)
                 if _alias is None:
-                    raise Exception("alias could not be solved")
+                    i = i + 1
+                    continue
+
                 field = tMD.field(_alias)
 
                 if field is None:
@@ -1510,7 +1514,6 @@ class FLTableDB(QtWidgets.QWidget):
 
                 j = 2
                 while j < 5:
-
                     if type_ in ("uint", "int", "double", "string", "stringlist", "timestamp"):
                         if ol:
                             editor_qcb = QtWidgets.QComboBox(self)
@@ -1677,11 +1680,10 @@ class FLTableDB(QtWidgets.QWidget):
                 continue
 
             cond = self.tdbFilter.cellWidget(i, 1)
-
-            if not cond:
+            if cond is None:
                 continue
 
-            condType = self.decodeCondType(cond.currentText)
+            condType = self.decodeCondType(cond.currentText())
             if condType == self.All:
                 continue
 

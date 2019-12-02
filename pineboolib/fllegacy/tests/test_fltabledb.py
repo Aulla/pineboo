@@ -173,6 +173,73 @@ class TestFLTableDB(unittest.TestCase):
         fltable.setInsertOnly(False)
         self.assertFalse(fltable.insertOnly())
 
+    def test_x_tab_filter(self) -> None:
+        from PyQt5 import QtCore
+        from pineboolib.fllegacy import flutil
+
+        util = flutil.FLUtil()
+        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+            "flareas"
+        ].mainform_widget
+
+        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        fltable.filter_ = None
+        fltable.activeTabFilter(True)
+        fltable.tdbFilterClear()
+        widget_cb = fltable.tdbFilter.cellWidget(1, 1)
+        widget_cb.setCurrentText(util.tr("Igual a Valor"))
+        widget_le = fltable.tdbFilter.cellWidget(1, 2)
+        widget_le.setText("A")
+        fltable.activeTabData(True)
+        fltable.refresh()
+        cursor1 = fltable.cursor()
+        self.assertEqual(cursor1.size(), 1)
+
+        fltable.activeTabFilter(True)
+        fltable.tdbFilterClear()
+        widget_cb_2 = fltable.tdbFilter.cellWidget(1, 1)
+        widget_cb_2.setCurrentText(util.tr("Contiene Valor"))
+        widget_le_2 = fltable.tdbFilter.cellWidget(1, 2)
+        widget_le_2.setText("A")
+        fltable.activeTabData(True)
+        fltable.refresh()
+        cursor2 = fltable.cursor()
+        self.assertEqual(cursor2.size(), 2)
+
+        fltable.activeTabFilter(True)
+        fltable.tdbFilterClear()
+        widget_cb_3 = fltable.tdbFilter.cellWidget(1, 1)
+        widget_cb_3.setCurrentText(util.tr("Distinto de Valor"))
+        widget_le_3 = fltable.tdbFilter.cellWidget(1, 2)
+        widget_le_3.setText("W")
+        fltable.activeTabData(True)
+        fltable.refresh()
+        cursor3 = fltable.cursor()
+        self.assertEqual(cursor3.size(), 4)
+
+        fltable.activeTabFilter(True)
+        fltable.tdbFilterClear()
+        widget_cb_4 = fltable.tdbFilter.cellWidget(0, 1)
+        widget_cb_4.setCurrentText(util.tr("Contiene Valor"))
+        widget_chb_1 = fltable.tdbFilter.cellWidget(0, 2)
+        widget_chb_1.setChecked(True)
+        fltable.activeTabData(True)
+        fltable.refresh()
+        cursor4 = fltable.cursor()
+        self.assertEqual(cursor4.size(), 0)
+
+        # _label = fltable.cursor().model().headerData(0, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole)
+        fltable.activeTabFilter(True)
+        fltable.tdbFilterClear()
+        widget_cb_5 = fltable.tdbFilter.cellWidget(0, 1)
+        widget_cb_5.setCurrentText(util.tr("Contiene Valor"))
+        widget_chb_2 = fltable.tdbFilter.cellWidget(0, 2)
+        widget_chb_2.setChecked(False)
+        fltable.activeTabData(True)
+        fltable.refresh()
+        cursor5 = fltable.cursor()
+        self.assertEqual(cursor5.size(), 4)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
