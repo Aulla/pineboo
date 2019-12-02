@@ -192,8 +192,9 @@ class SysType(sysbasetype.SysBaseType):
     @classmethod
     def updateAreas(self) -> None:
         """Update areas in mdi."""
-
-        flapplication.aqApp.mainWidget().initToolBox()
+        mw = flapplication.aqApp.mainWidget()
+        if hasattr(mw, "initToolBox"):
+            mw.initToolBox()
 
     @classmethod
     def reinit(self) -> None:
