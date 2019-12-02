@@ -2,6 +2,7 @@
 
 from pineboolib.fllegacy import fltabledb
 from pineboolib import application
+from . import fixture_path
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
@@ -135,7 +136,7 @@ class TestFLTableDB(unittest.TestCase):
         cursor.setValueBuffer("bloqueo", False)
         cursor.commitBuffer()
 
-        self.assertEqual(fltable.cursor().size(), 4)
+        self.assertEqual(fltable.cursor().size(), 5)
         self.assertEqual(fltable.orderCols(), ["bloqueo", "idarea", "descripcion"])
         fltable.setOrderCols(["idarea", "descripcion", "bloqueo"])
         fltable.filterRecords("X")
@@ -216,7 +217,7 @@ class TestFLTableDB(unittest.TestCase):
         fltable.activeTabData(True)
         fltable.refresh()
         cursor3 = fltable.cursor()
-        self.assertEqual(cursor3.size(), 4)
+        self.assertEqual(cursor3.size(), 5)
 
         fltable.activeTabFilter(True)
         fltable.tdbFilterClear()
@@ -227,7 +228,7 @@ class TestFLTableDB(unittest.TestCase):
         fltable.activeTabData(True)
         fltable.refresh()
         cursor4 = fltable.cursor()
-        self.assertEqual(cursor4.size(), 0)
+        self.assertEqual(cursor4.size(), 1)
 
         # _label = fltable.cursor().model().headerData(0, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole)
         fltable.activeTabFilter(True)
@@ -240,6 +241,36 @@ class TestFLTableDB(unittest.TestCase):
         fltable.refresh()
         cursor5 = fltable.cursor()
         self.assertEqual(cursor5.size(), 4)
+
+    def test_cursorRelation(self):
+        """Test FLTableDB cursor with cursorRelation."""
+        from pineboolib.qsa import qsa
+        from pineboolib.fllegacy import systype
+        import os
+
+        qsa_sys = systype.SysType()
+        path = fixture_path("principal.eneboopkg")
+        self.assertTrue(os.path.exists(path))
+        qsa_sys.loadModules(path, False)
+        application.project.actions["flareas"].load()
+
+        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+            "flareas"
+        ].mainform_widget
+
+        self.assertTrue(form)
+
+        table_ = fltabledb.FLTableDB(form, "new_fltable")
+        table_.cursor_ = form.cursor()
+        table_.setTableName("flmodules")
+        cursor = form.cursor()
+        cursor.select("idarea = 'F'")
+        # cursor.bufferChanged.emit("idarea")
+        table_.initCursor()
+        cursor_modules = table_.cursor()
+        self.assertEqual(cursor.size(), 1)
+        cursor.select("idarea = 'M'")
+        self.assertEqual(cursor.size(), 0)
 
     @classmethod
     def tearDownClass(cls) -> None:
