@@ -3,18 +3,15 @@
 # -*- coding: utf-8 -*-
 from pineboolib import logging, application
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.Qt import QKeySequence  # type: ignore
-from PyQt5.QtGui import QIcon
+from PyQt5 import QtCore, QtWidgets, Qt, QtGui
 
 
-from pineboolib.core import decorators
-from pineboolib.core.settings import config
-from pineboolib.core.utils.utils_base import filedir
-from PyQt5.QtWidgets import QMdiSubWindow
+from pineboolib.core import decorators, settings
+from pineboolib.core.utils import utils_base
 
-from .flformdb import FLFormDB
-from .flsqlcursor import FLSqlCursor
+from pineboolib.application.database import pnsqlcursor
+from . import flformdb
+
 
 from typing import Optional, Union, TYPE_CHECKING
 
@@ -22,7 +19,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pnaction
 
 
-class FLFormSearchDB(FLFormDB):
+class FLFormSearchDB(flformdb.FLFormDB):
     """
     Subclass of the FLFormDB class, designed to search for a record in a table.
 
@@ -67,7 +64,7 @@ class FLFormSearchDB(FLFormDB):
         # parent = parent or flapplication.aqApp.mainWidget()
         if isinstance(name_or_cursor, str):
             action = application.project.conn_manager.manager().action(name_or_cursor)
-            cursor = FLSqlCursor(action.table(), True, "default", None, None, self)
+            cursor = pnsqlcursor.PNSqlCursor(action.table(), True, "default", None, None, self)
         else:
             action = name_or_cursor._action
             cursor = name_or_cursor
@@ -128,29 +125,33 @@ class FLFormSearchDB(FLFormDB):
         sizePolicy.setHeightForWidth(True)
 
         pbSize = self.iconSize
-        if config.value("application/isDebuggerMode", False):
+        if settings.config.value("application/isDebuggerMode", False):
 
             pushButtonExport = QtWidgets.QToolButton(self)
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(sizePolicy)
             pushButtonExport.setMinimumSize(pbSize)
             pushButtonExport.setMaximumSize(pbSize)
-            pushButtonExport.setIcon(QIcon(filedir("./core/images/icons", "gtk-properties.png")))
-            pushButtonExport.setShortcut(QKeySequence(self.tr("F3")))
+            pushButtonExport.setIcon(
+                QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-properties.png"))
+            )
+            pushButtonExport.setShortcut(Qt.QKeySequence(self.tr("F3")))
             pushButtonExport.setWhatsThis("Exportar a XML(F3)")
             pushButtonExport.setToolTip("Exportar a XML(F3)")
             pushButtonExport.setFocusPolicy(QtCore.Qt.NoFocus)
             self.bottomToolbar.layout().addWidget(pushButtonExport)
             pushButtonExport.clicked.connect(self.exportToXml)
 
-            if config.value("ebcomportamiento/show_snaptshop_button", False):
+            if settings.config.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton(self)
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
                 push_button_snapshot.setSizePolicy(sizePolicy)
                 push_button_snapshot.setMinimumSize(pbSize)
                 push_button_snapshot.setMaximumSize(pbSize)
-                push_button_snapshot.setIcon(QIcon(filedir("./core/images/icons", "gtk-paste.png")))
-                push_button_snapshot.setShortcut(QKeySequence(self.tr("F8")))
+                push_button_snapshot.setIcon(
+                    QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
+                )
+                push_button_snapshot.setShortcut(Qt.QKeySequence(self.tr("F8")))
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -170,8 +171,10 @@ class FLFormSearchDB(FLFormDB):
         self.pushButtonAccept.setSizePolicy(sizePolicy)
         self.pushButtonAccept.setMaximumSize(pbSize)
         self.pushButtonAccept.setMinimumSize(pbSize)
-        self.pushButtonAccept.setIcon(QIcon(filedir("./core/images/icons", "gtk-save.png")))
-        # pushButtonAccept->setAccel(QKeySequence(Qt::Key_F10)); FIXME
+        self.pushButtonAccept.setIcon(
+            QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-save.png"))
+        )
+        # pushButtonAccept->setAccel(Qt.QKeySequence(Qt::Key_F10)); FIXME
         self.pushButtonAccept.setFocus()
         self.pushButtonAccept.setWhatsThis("Seleccionar registro actual y cerrar formulario (F10)")
         self.pushButtonAccept.setToolTip("Seleccionar registro actual y cerrar formulario (F10)")
@@ -187,7 +190,9 @@ class FLFormSearchDB(FLFormDB):
         self.pushButtonCancel.setSizePolicy(sizePolicy)
         self.pushButtonCancel.setMaximumSize(pbSize)
         self.pushButtonCancel.setMinimumSize(pbSize)
-        self.pushButtonCancel.setIcon(QIcon(filedir("./core/images/icons", "gtk-stop.png")))
+        self.pushButtonCancel.setIcon(
+            QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-stop.png"))
+        )
         self.pushButtonCancel.setFocusPolicy(QtCore.Qt.NoFocus)
         # pushButtonCancel->setAccel(Esc); FIXME
         self.pushButtonCancel.setWhatsThis("Cerrar formulario sin seleccionar registro (Esc)")
@@ -216,7 +221,7 @@ class FLFormSearchDB(FLFormDB):
             return False
 
         if self.cursor_.isLocked():
-            self.cursor_.setModeAccess(FLSqlCursor.Browse)
+            self.cursor_.setModeAccess(pnsqlcursor.PNSqlCursor.Browse)
 
         if self.loop or self.inExec_:
             print("FLFormSearchDB::exec(): Se ha detectado una llamada recursiva")
@@ -354,7 +359,7 @@ class FLFormSearchDB(FLFormDB):
         self.hide()
 
         parent = self.parent()
-        if isinstance(parent, QMdiSubWindow):
+        if isinstance(parent, QtWidgets.QMdiSubWindow):
             parent.hide()
 
     @decorators.pyqtSlot()

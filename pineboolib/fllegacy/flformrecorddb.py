@@ -10,8 +10,7 @@ from pineboolib.core import settings, decorators
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
 from pineboolib import logging
 
-from . import flformdb, flapplication
-from . import flfielddb
+from . import flformdb, flapplication, flfielddb
 
 from typing import cast, Union, Optional, TYPE_CHECKING
 
