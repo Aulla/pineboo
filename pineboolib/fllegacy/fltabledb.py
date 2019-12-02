@@ -2825,6 +2825,14 @@ class FLTableDB(QtWidgets.QWidget):
         order = QtCore.Qt.AscendingOrder if ascending else QtCore.Qt.DescendingOrder
 
         col = col_order if col_order is not None else self.sortColumn_
+
+        if col == 0:
+            self.orderAsc_ = ascending
+        elif col == 1:
+            self.orderAsc2_ = ascending
+        elif col == 2:
+            self.orderAsc3_ = ascending
+
         if self.tableRecords_:
             while True:
 

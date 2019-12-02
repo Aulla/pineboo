@@ -78,6 +78,28 @@ class TestFLTableDB(unittest.TestCase):
         fltable.putSecondCol("bloqueo")
         self.assertEqual(fltable.orderCols(), ["descripcion", "bloqueo", "idarea"])
 
+    def test_sort_order(self) -> None:
+        """Test sort orders."""
+
+        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+            "flareas"
+        ].mainform_widget
+
+        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        cursor = fltable.cursor()
+        fltable.setSortOrder(0, 2)
+        self.assertEqual(cursor.sort(), "idarea DESC")
+        fltable.setSortOrder(False, 1)
+        self.assertEqual(cursor.sort(), "bloqueo DESC")
+        fltable.setSortOrder(False, 0)
+        self.assertEqual(cursor.sort(), "descripcion DESC")
+        self.assertFalse(fltable.isSortOrderAscending())
+        fltable.setSortOrder(1, 0)
+        self.assertEqual(cursor.sort(), "descripcion ASC")
+        fltable.setSortOrder(True, 1)
+        self.assertEqual(cursor.sort(), "bloqueo ASC")
+        self.assertTrue(fltable.isSortOrderAscending())
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
