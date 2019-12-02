@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets, QtCore
 
 from pineboolib.application.database import pnsqlcursor
 
-from pineboolib.fllegacy import flapplication
+# from pineboolib.fllegacy import flapplication
 from pineboolib import application, logging
 
 
@@ -42,7 +42,7 @@ class FormDBWidget(QtWidgets.QWidget):
         # if parent and hasattr(parent, "parentWidget"):
         #    self.parent_ = parent.parentWidget()
 
-        self.form = None
+        self.form = None  # Limpiar self.form al inicializar... Luego flformdb se asigna..
         # from pineboolib.fllegacy import flformdb
 
         # if isinstance(parent, flformdb.FLFormDB):
@@ -148,110 +148,95 @@ class FormDBWidget(QtWidgets.QWidget):
 
     def child(self, child_name: str) -> Any:
         """Return child from name."""
+        ret = None
+        if self.form:
+            ret = self.form.child(child_name)
 
-        ret = self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively)
-        if ret is not None:
-            _loaded = getattr(ret, "_loaded", None)
-            if _loaded is not None:
-                if ret._loaded is False:  # type: ignore
-                    ret.load()  # type: ignore
-
-        elif self.parent():
-            ret = getattr(self.parent(), child_name, None)
+            if ret is None:
+                if child_name == super().objectName():
+                    return self.form
+                else:
+                    ret = getattr(self.form, child_name, None)
 
         if ret is None:
-            if self.form is not None:
-                if child_name == super().objectName():
-                    ret = self.form
-
-                else:
-                    ret = getattr(self.form, child_name)
+            parent = self.parent()
+            if parent is not None:
+                ret = getattr(parent, child_name, None)
 
         if ret is None:
             raise Exception("control %s not found!" % child_name)
-            # self.logger.warning("WARN: No se encontro el control %s", child_name)
-            # return QtWidgets.QWidget()
+
         return ret
 
     def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
         """Return cursor associated."""
 
-        # if self.cursor_:
-        #    return self.cursor_
-
-        cursor = None
-        parent: Any = self
-
-        while cursor is None and parent:
-            parent = parent.parentWidget()
-            cursor = getattr(parent, "cursor_", None)
-
-            if cursor:
-                self.cursor_ = cursor
-                break
-
         if not self.cursor_:
-            if self._action is None:
-                raise Exception("_action is empty!.")
+            if self.form is not None:
+                self.cursor_ = self.form.cursor_
 
-            action = application.project.conn_manager.manager().action(self._action.name)
-            self.cursor_ = pnsqlcursor.PNSqlCursor(action.name())
+            if not self.cursor_:
+                if self._action:
+                    action = application.project.conn_manager.manager().action(self._action.name)
+                    self.cursor_ = pnsqlcursor.PNSqlCursor(action.name())
+                else:
+                    raise Exception("_action is empty!.")
 
         return self.cursor_
 
-    def __getattr__(self, name: str) -> QtWidgets.QWidget:
-        """Guess if attribute can be found in other related objects."""
-        ret_ = getattr(self.cursor_, name, None)
-        if ret_ is None and self.parent():
-            parent_ = self.parent()
-            ret_ = getattr(parent_, name, None)
-            if ret_ is None:
-                script = getattr(parent_, "script", None)
-                if script is not None:
-                    ret_ = getattr(script, name, None)
+    # def __getattr__(self, name: str) -> QtWidgets.QWidget:
+    #    """Guess if attribute can be found in other related objects."""
+    # ret_ = getattr(self.cursor_, name, None)
+    # if ret_ is None and self.parent():
+    #    parent_ = self.parent()
+    #    ret_ = getattr(parent_, name, None)
+    #    if ret_ is None:
+    #        script = getattr(parent_, "script", None)
+    #        if script is not None:
+    #            ret_ = getattr(script, name, None)
 
-        if ret_ is not None:
-            return ret_
+    # if ret_ is not None:
+    #    return ret_
 
-        if not TYPE_CHECKING:
-            # FIXME: q3widgets should not interact with fllegacy
+    # if not TYPE_CHECKING:
+    # FIXME: q3widgets should not interact with fllegacy
 
-            ret_ = getattr(flapplication.aqApp, name, None)
-            if ret_:
-                self.logger.info(
-                    "FormDBWidget: Coearcing attribute %r from aqApp (should be avoided)" % name
-                )
-                return ret_
+    #    ret_ = getattr(flapplication.aqApp, name, None)
+    #    if ret_:
+    #        self.logger.info(
+    #            "FormDBWidget: Coearcing attribute %r from aqApp (should be avoided)" % name
+    #        )
+    #        return ret_
 
-        raise AttributeError("FormDBWidget: Attribute does not exist: %r" % name)
+    #    raise AttributeError("FormDBWidget: Attribute does not exist: %r" % name)
 
-    def __hasattr__(self, name: str) -> bool:
-        """Guess if attribute can be found in other related objects."""
+    # def __hasattr__(self, name: str) -> bool:
+    #    """Guess if attribute can be found in other related objects."""
 
-        ret_ = hasattr(self.cursor_, name)
-        if not ret_:
-            parent_ = self.parent()
-            ret_ = hasattr(parent_, name)
-            if not ret_:
-                script = getattr(parent_, "script", None)
-                if script is not None:
-                    ret_ = hasattr(script, name)
+    #    ret_ = hasattr(self.cursor_, name)
+    #    if not ret_:
+    #        parent_ = self.parent()
+    #        ret_ = hasattr(parent_, name)
+    #        if not ret_:
+    #            script = getattr(parent_, "script", None)
+    #            if script is not None:
+    #                ret_ = hasattr(script, name)
 
-        return ret_
+    #    return ret_
 
-    def __iter__(self) -> Any:
-        """Return iter."""
+    # def __iter__(self) -> Any:
+    #    """Return iter."""
 
-        self._iter_current = -1
-        return self
+    #    self._iter_current = -1
+    #    return self
 
-    def __next__(self) -> Any:
-        """Return next."""
+    # def __next__(self) -> Any:
+    #    """Return next."""
 
-        self._iter_current = 0 if self._iter_current == -1 else self._iter_current + 1
+    #    self._iter_current = 0 if self._iter_current == -1 else self._iter_current + 1
 
-        list_ = [attr for attr in dir(self) if not attr[0] == "_"]
-        if self._iter_current >= len(list_):
-            raise StopIteration
+    #    list_ = [attr for attr in dir(self) if not attr[0] == "_"]
+    #    if self._iter_current >= len(list_):
+    #        raise StopIteration
 
-        return list_[self._iter_current]
+    #    return list_[self._iter_current]

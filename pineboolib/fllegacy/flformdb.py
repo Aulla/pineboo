@@ -13,9 +13,12 @@ from pineboolib.application.utils import geometry
 from pineboolib.application.metadata import pnaction
 from pineboolib.application import load_script
 
+from pineboolib.application.database import pnsqlcursor
+
 from pineboolib import application
 
 from . import flapplication
+
 
 from typing import Any, Union, Dict, Optional, Tuple, Type, cast, Callable, TYPE_CHECKING
 
@@ -240,7 +243,7 @@ class FLFormDB(QtWidgets.QDialog):
             script_name, application.project.actions[self._action.name()]
         )
         self.widget = self.script.form
-
+        self.widget.form = self
         if hasattr(self.widget, "iface"):
             self.iface = self.widget.iface
 
@@ -593,9 +596,7 @@ class FLFormDB(QtWidgets.QDialog):
                 or not self.cursor_._action
                 or self.cursor_._action.table() is not self._action.table()
             ):
-                from pineboolib.fllegacy.flsqlcursor import FLSqlCursor
-
-                cursor = FLSqlCursor(self._action.table())
+                cursor = pnsqlcursor.PNSqlCursor(self._action.table())
                 self.setCursor(cursor)
 
             v = None
@@ -931,10 +932,9 @@ class FLFormDB(QtWidgets.QDialog):
         # tiempo_fin = time.time()
         parent_ = self.parent()
         if parent_ and parent_.parent() is None:
-            from PyQt5.QtWidgets import QDesktopWidget  # type: ignore # Centrado
 
             qt_rectangle = self.frameGeometry()
-            center_point = QDesktopWidget().availableGeometry().center()
+            center_point = QtWidgets.QDesktopWidget().availableGeometry().center()
             qt_rectangle.moveCenter(center_point)
             self.move(qt_rectangle.topLeft())
         # if settings.readBoolEntry("application/isDebuggerMode", False):
