@@ -101,6 +101,8 @@ class TestFLTableDB(unittest.TestCase):
         self.assertTrue(fltable.isSortOrderAscending())
 
     def test_filter_records(self) -> None:
+        """Test filterRecords function."""
+
         form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ].mainform_widget
@@ -142,6 +144,34 @@ class TestFLTableDB(unittest.TestCase):
         fltable.filterRecords("A")
         fltable.refresh()
         self.assertEqual(fltable.cursor().size(), 2)
+
+    def test_x_edition_flags(self) -> None:
+        """Test edition flags."""
+
+        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+            "flareas"
+        ].mainform_widget
+
+        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        cursor = fltable.cursor()
+
+        self.assertFalse(fltable.readOnly())
+        fltable.setReadOnly(True)
+        self.assertTrue(fltable.readOnly())
+        fltable.setReadOnly(False)
+        self.assertFalse(fltable.readOnly())
+
+        self.assertFalse(fltable.editOnly())
+        fltable.setEditOnly(True)
+        self.assertTrue(fltable.editOnly())
+        fltable.setEditOnly(False)
+        self.assertFalse(fltable.editOnly())
+
+        self.assertFalse(fltable.insertOnly())
+        fltable.setInsertOnly(True)
+        self.assertTrue(fltable.insertOnly())
+        fltable.setInsertOnly(False)
+        self.assertFalse(fltable.insertOnly())
 
     @classmethod
     def tearDownClass(cls) -> None:
