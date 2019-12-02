@@ -22,7 +22,7 @@ class TestAQS(unittest.TestCase):
 
         cursor = flsqlcursor.FLSqlCursor("flareas")
         action = application.project.conn_manager.manager().action("flareas")
-        form = flformdb.FLFormDB(None, action)
+        form = flformdb.FLFormDB(action, None)
         self.assertTrue(form)
         form.load()
         form.setCursor(cursor)

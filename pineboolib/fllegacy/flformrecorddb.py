@@ -97,7 +97,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
     def __init__(
         self,
-        parent_or_cursor: Union[QtWidgets.QWidget, "isqlcursor.ISqlCursor", None],
+        parent_or_cursor: Union[QtWidgets.QWidget, "isqlcursor.ISqlCursor", None, int],
         action: "pnaction.PNAction",
         load: bool = False,
     ) -> None:
@@ -108,7 +108,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             "__init__: parent_or_cursor=%s, action=%s, load=%s", parent_or_cursor, action, load
         )
 
-        cursor: Optional["isqlcursor.ISqlCursor"] = None
+        cursor: Optional[pnsqlcursor.PNSqlCursor] = None
         parent: Optional[QtWidgets.QWidget] = None
         # if isinstance(action, str):
         #    flapplication.aqApp.db().manager().action(action)
@@ -118,9 +118,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
             cursor = parent_or_cursor
         elif isinstance(parent_or_cursor, QtWidgets.QWidget):
             parent = parent_or_cursor
-            cursor = None
 
-        super().__init__(parent, action, load)
+        super().__init__(action, parent, load)
 
         self.setWindowModality(QtCore.Qt.ApplicationModal)
 

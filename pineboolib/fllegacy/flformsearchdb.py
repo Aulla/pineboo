@@ -1,7 +1,7 @@
 """FlformSearchdb module."""
 
 # -*- coding: utf-8 -*-
-from pineboolib import logging
+from pineboolib import logging, application
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.Qt import QKeySequence  # type: ignore
@@ -15,9 +15,8 @@ from PyQt5.QtWidgets import QMdiSubWindow
 
 from .flformdb import FLFormDB
 from .flsqlcursor import FLSqlCursor
-from . import flapplication
 
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pnaction
@@ -51,7 +50,9 @@ class FLFormSearchDB(FLFormDB):
 
     logger = logging.getLogger("FLFormSearchDB")
 
-    def __init__(self, name_or_cursor, parent=None) -> None:
+    def __init__(
+        self, name_or_cursor, parent: Optional[Union[QtWidgets.QWidget, int]] = None
+    ) -> None:
         """
         Initialize.
         """
@@ -60,20 +61,19 @@ class FLFormSearchDB(FLFormDB):
             self.logger.warning("Se ha llamado a FLFormSearchDB sin name_or_cursor")
             return
 
-        from pineboolib.application import project
-
-        if project.conn_manager is None:
+        if application.project.conn_manager is None:
             raise Exception("Project is not connected yet")
 
-        parent = parent or flapplication.aqApp.mainWidget()
+        # parent = parent or flapplication.aqApp.mainWidget()
         if isinstance(name_or_cursor, str):
-            action = project.conn_manager.manager().action(name_or_cursor)
+            action = application.project.conn_manager.manager().action(name_or_cursor)
             cursor = FLSqlCursor(action.table(), True, "default", None, None, self)
         else:
             action = name_or_cursor._action
             cursor = name_or_cursor
 
-        super(FLFormSearchDB, self).__init__(parent, action, load=False)
+        super().__init__(action, parent, load=False)
+
         self.setWindowModality(QtCore.Qt.ApplicationModal)
 
         self.setCursor(cursor)

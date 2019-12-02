@@ -161,25 +161,39 @@ class FLFormDB(QtWidgets.QDialog):
     _scriptForm: Union[Any, str]
 
     loop: bool
-
+    _action: "pnaction.PNAction"
     logger = logging.getLogger("FLFormDB")
 
     def __init__(
-        self, parent: Optional[QtWidgets.QWidget], action: "pnaction.PNAction", load: bool = False
+        self,
+        action_or_name: Union["pnaction.PNAction", str],
+        parent: Optional[Union[QtWidgets.QWidget, int]] = None,
+        load: Union[bool, int] = False,
     ) -> None:
         """Create a new FLFormDB for given action."""
         # self.tiempo_ini = time.time()
-        if not parent:
-            parent = flapplication.aqApp.mainWidget()
+        parent_widget: QtWidgets.QWidget = flapplication.aqApp.mainWidget()
+        if parent is None or isinstance(parent, int):
+            parent_widget = flapplication.aqApp.mainWidget()
+        else:
+            parent_widget = parent
         # if application.project.DGI.localDesktop():  # Si es local Inicializa
         # QtWidgets.QWidget.__init__(self, parent)  # FIXME: Porqué pide dos argumentos extra??
         # super(QtWidgets.QWidget, self).__init__(parent)
-        super().__init__(parent)
+        super().__init__(parent_widget)
+
+        if isinstance(load, int):
+            load = load == 1
 
         self._loaded = False
-        self.known_instances[(self.__class__, action.name())] = self
 
-        self._action: "pnaction.PNAction" = action
+        if isinstance(action_or_name, str):
+            self._action = application.project.conn_manager.manager().action(action_or_name)
+        else:
+            self._action = action_or_name
+
+        self.known_instances[(self.__class__, self._action.name())] = self
+
         if type(self).__name__ == "FLFormRecordDB":
             self.actionName_ = "formRecord" + self._action.name()
             script_name = self._action.scriptFormRecord()

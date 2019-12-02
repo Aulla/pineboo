@@ -537,7 +537,7 @@ class FLApplication(QtCore.QObject):
         """Not implemented."""
         pass
 
-    def popupWarn(self, msg_warn, script_calls=[]) -> None:
+    def popupWarn(self, msg_warn: str, script_calls: List[Any] = []) -> None:
         """Show a warning popup."""
         mw = self.container_ or self.main_widget_
 
