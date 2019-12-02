@@ -244,7 +244,6 @@ class TestFLTableDB(unittest.TestCase):
 
     def test_cursorRelation(self):
         """Test FLTableDB cursor with cursorRelation."""
-        from pineboolib.qsa import qsa
         from pineboolib.fllegacy import systype
         import os
 
@@ -267,7 +266,6 @@ class TestFLTableDB(unittest.TestCase):
         cursor.select("idarea = 'F'")
         # cursor.bufferChanged.emit("idarea")
         table_.initCursor()
-        cursor_modules = table_.cursor()
         self.assertEqual(cursor.size(), 1)
         cursor.select("idarea = 'M'")
         self.assertEqual(cursor.size(), 0)
