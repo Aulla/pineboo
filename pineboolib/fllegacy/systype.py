@@ -161,6 +161,11 @@ class SysType(sysbasetype.SysBaseType):
 
         return flapplication.aqApp.fromPixmap(pix_)
 
+    def popupWarn(self, msg_warn: str, script_calls: List[Any] = []) -> None:
+        """Show a warning popup."""
+
+        flapplication.aqApp.popupWarn(msg_warn, script_calls)
+
     def openMasterForm(self, action_name_: str, pix_: Optional[QtGui.QPixmap] = None) -> None:
         """Open default form from a action."""
 
