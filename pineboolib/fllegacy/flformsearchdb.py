@@ -64,7 +64,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         # parent = parent or flapplication.aqApp.mainWidget()
         if isinstance(name_or_cursor, str):
             action = application.project.conn_manager.manager().action(name_or_cursor)
-            cursor = pnsqlcursor.PNSqlCursor(action.table(), True, "default", None, None, self)
+            cursor = pnsqlcursor.PNSqlCursor(action.table())
         else:
             action = name_or_cursor._action
             cursor = name_or_cursor
@@ -279,11 +279,6 @@ class FLFormSearchDB(flformdb.FLFormDB):
         """Return the class name of the form at runtime."""
 
         return "FormSearchDB"
-
-    def geoName(self) -> str:
-        """Return form name."""
-
-        return "formSearch%s" % self.idMDI_
 
     def formName(self) -> str:
         """

@@ -175,18 +175,17 @@ class FLFormDB(QtWidgets.QDialog):
     ) -> None:
         """Create a new FLFormDB for given action."""
         # self.tiempo_ini = time.time()
-        parent_widget: QtWidgets.QWidget = flapplication.aqApp.mainWidget()
+        parent_widget: QtWidgets.QWidget
+
+        if isinstance(load, int):
+            load = load == 1
+
         if parent is None or isinstance(parent, int):
             parent_widget = flapplication.aqApp.mainWidget()
         else:
             parent_widget = parent
-        # if application.project.DGI.localDesktop():  # Si es local Inicializa
-        # QtWidgets.QWidget.__init__(self, parent)  # FIXME: Porqué pide dos argumentos extra??
-        # super(QtWidgets.QWidget, self).__init__(parent)
-        super().__init__(parent_widget)
 
-        if isinstance(load, int):
-            load = load == 1
+        super().__init__(parent_widget)
 
         self._loaded = False
 
@@ -197,19 +196,15 @@ class FLFormDB(QtWidgets.QDialog):
 
         self.known_instances[(self.__class__, self._action.name())] = self
 
-        if type(self).__name__ == "FLFormRecordDB":
-            self.actionName_ = "formRecord" + self._action.name()
-            script_name = self._action.scriptFormRecord()
-        else:
-            if self._action.table():
-                self.actionName_ = "form" + self._action.name()
-                script_name = self._action.scriptForm()
+        self.actionName_ = script_name = self._action.name()
+
+        if self._action.table():
+            if type(self).__name__ == "FLFormRecordDB":
+                self.actionName_ = "formRecord%s" % self.actionName_
+                script_name = self._action.scriptFormRecord()
             else:
-                # Load of the main script (flfactppal/flfacturac)
-                # Currently detected by having no table
-                # FIXME: A better detection method should be placed.
-                self.actionName_ = self._action.name()
-                script_name = self._action.name()
+                self.actionName_ = "form%s" % self.actionName_
+                script_name = self._action.scriptForm()
 
         # self.mod = self._action.mod
         self.loop = False

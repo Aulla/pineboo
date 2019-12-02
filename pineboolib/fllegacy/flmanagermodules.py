@@ -530,7 +530,7 @@ class FLManagerModules(object):
             raise Exception("action is empty!")
 
         logger.trace("createFormRecord: load FormRecordDB")
-        return flformrecorddb.FLFormRecordDB(parent_or_cursor, action, load=False)
+        return flformrecorddb.FLFormRecordDB(action, parent_or_cursor, load=False)
 
     def setActiveIdModule(self, id_module: Optional[str] = None) -> None:
         """

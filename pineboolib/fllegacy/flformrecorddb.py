@@ -96,8 +96,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
     def __init__(
         self,
-        parent_or_cursor: Union[QtWidgets.QWidget, "isqlcursor.ISqlCursor", None, int],
         action: "pnaction.PNAction",
+        parent_or_cursor: Optional[Union[QtWidgets.QWidget, "isqlcursor.ISqlCursor", int]] = None,
         load: bool = False,
     ) -> None:
         """
@@ -109,11 +109,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         cursor: Optional[pnsqlcursor.PNSqlCursor] = None
         parent: Optional[QtWidgets.QWidget] = None
-        # if isinstance(action, str):
-        #    flapplication.aqApp.db().manager().action(action)
 
         if isinstance(parent_or_cursor, pnsqlcursor.PNSqlCursor):
-            parent = QtWidgets.QApplication.activeWindow()
             cursor = parent_or_cursor
         elif isinstance(parent_or_cursor, QtWidgets.QWidget):
             parent = parent_or_cursor
