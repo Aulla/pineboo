@@ -100,6 +100,49 @@ class TestFLTableDB(unittest.TestCase):
         self.assertEqual(cursor.sort(), "bloqueo ASC")
         self.assertTrue(fltable.isSortOrderAscending())
 
+    def test_filter_records(self) -> None:
+        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+            "flareas"
+        ].mainform_widget
+
+        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        cursor = fltable.cursor()
+
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("idarea", "A")
+        cursor.setValueBuffer("descripcion", "AREA A")
+        cursor.setValueBuffer("bloqueo", False)
+        cursor.commitBuffer()
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("idarea", "A1")
+        cursor.setValueBuffer("descripcion", "AREA A1")
+        cursor.setValueBuffer("bloqueo", False)
+        cursor.commitBuffer()
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("idarea", "B")
+        cursor.setValueBuffer("descripcion", "AREA B")
+        cursor.setValueBuffer("bloqueo", False)
+        cursor.commitBuffer()
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("idarea", "C")
+        cursor.setValueBuffer("descripcion", "AREA C")
+        cursor.setValueBuffer("bloqueo", False)
+        cursor.commitBuffer()
+
+        self.assertEqual(fltable.cursor().size(), 4)
+        self.assertEqual(fltable.orderCols(), ["bloqueo", "idarea", "descripcion"])
+        fltable.setOrderCols(["idarea", "descripcion", "bloqueo"])
+        fltable.filterRecords("X")
+        fltable.refresh()  # Forzamos refresh para emular el refresh delayed
+        self.assertEqual(fltable.cursor().size(), 0)
+        fltable.filterRecords("A")
+        fltable.refresh()
+        self.assertEqual(fltable.cursor().size(), 2)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
