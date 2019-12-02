@@ -625,7 +625,8 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.cursor_.setValueBuffer(self.fieldName_, str(data))
 
         elif hasattr(self, "editorImg_"):
-            self.cursor_.setValueBuffer(self.fieldName_, data)
+            if not data == self.cursor_.valueBuffer(self.fieldName_):
+                self.cursor_.setValueBuffer(self.fieldName_, data)
 
     def status(self) -> None:
         """
@@ -2914,7 +2915,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if not buffer:
             return
 
-        s = str(buffer.data())
+        s = buffer.data().data().decode("utf8")
 
         if s.find("*dummy") > -1:
             s = s.replace(
@@ -2970,7 +2971,7 @@ class FLFieldDB(QtWidgets.QWidget):
             return
         s = None
 
-        s = str(buffer.data())
+        s = buffer.data().data().decode("utf8")
 
         # if not QtGui.QPixmapCache.find(s.left(100)):
         #    QtGui.QPixmapCache.insert(s.left(100), pix)
@@ -3025,7 +3026,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if not buffer:
             return
 
-        s = str(buffer.data())
+        s = buffer.data().data().decode("utf8")
 
         # if not QtGui.QPixmapCache.find(s.left(100)):
         #    QtGui.QPixmapCache.insert(s.left(100), pix)
