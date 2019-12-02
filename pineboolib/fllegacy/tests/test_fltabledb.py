@@ -153,7 +153,6 @@ class TestFLTableDB(unittest.TestCase):
         ].mainform_widget
 
         fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
-        cursor = fltable.cursor()
 
         self.assertFalse(fltable.readOnly())
         fltable.setReadOnly(True)
@@ -174,7 +173,9 @@ class TestFLTableDB(unittest.TestCase):
         self.assertFalse(fltable.insertOnly())
 
     def test_x_tab_filter(self) -> None:
-        from PyQt5 import QtCore
+        """Test tab filter."""
+
+        # from PyQt5 import QtCore
         from pineboolib.fllegacy import flutil
 
         util = flutil.FLUtil()
