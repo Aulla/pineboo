@@ -550,154 +550,82 @@ class FLFieldDB(QtWidgets.QWidget):
 
         isNull = False
 
-        """
-        if data is None:
-            if not self.cursor_:
-                return
-            #ted = self.editor_
-            data = self.editor_
-            print("Tipo ...", type(data))
-            if isinstance(data, fllineedit.FLLineEdit):
-                t = self.editor_.text()
+        if hasattr(self, "editor_"):
 
-            elif isinstance(data, qtextedit.QTextEdit):
-                t = str(self.editor_.toPlainText())
+            if isinstance(self.editor_, fldateedit.FLDateEdit):
+                data = str(self.editor_.getDate())
+                if not data:
+                    isNull = True
 
-            elif isinstance(data, fldateedit.FLDateEdit):
-                t = str(self.editor_.date().toString(QtCore.Qt.ISODate))
+                if not self.cursor_.bufferIsNull(self.fieldName_):
 
-            #else:
-                #return
-
-            if not self.cursor_.bufferIsNull(self.fieldName_):
-                if t == self.cursor_.valueBuffer(self.fieldName_):
-                    return
-            else:
-                if not t:
+                    if str(data) == self.cursor_.valueBuffer(self.fieldName_):
+                        return
+                elif isNull:
                     return
 
-            if not t:
-                self.cursor_.setValueBuffer(self.fieldName_, None)
-            else:
-                self.cursor_.setValueBuffer(self.fieldName_, t)
+                if isNull:
+                    self.cursor_.setValueBuffer(
+                        self.fieldName_, QtCore.QDate().toString("dd-MM-yyyy")
+                    )
+                else:
+                    self.cursor_.setValueBuffer(self.fieldName_, data)
 
-        """
-        if isinstance(self.editor_, fldateedit.FLDateEdit):
-            data = str(self.editor_.getDate())
-            if not data:
-                isNull = True
+            elif isinstance(self.editor_, fltimeedit.FLTimeEdit):
+                data = str(self.editor_.time().toString("hh:mm:ss"))
 
-            if not self.cursor_.bufferIsNull(self.fieldName_):
+                if not data:
+                    isNull = True
+                if not self.cursor_.bufferIsNull(self.fieldName_):
 
-                if str(data) == self.cursor_.valueBuffer(self.fieldName_):
+                    if str(data) == self.cursor_.valueBuffer(self.fieldName_):
+                        return
+                elif isNull:
                     return
-            elif isNull:
-                return
 
-            if isNull:
-                self.cursor_.setValueBuffer(self.fieldName_, QtCore.QDate().toString("dd-MM-yyyy"))
-            else:
+                if isNull:
+                    self.cursor_.setValueBuffer(
+                        self.fieldName_, str(QtCore.QTime().toString("hh:mm:ss"))
+                    )
+                else:
+                    self.cursor_.setValueBuffer(self.fieldName_, data)
+
+            elif isinstance(self.editor_, flcheckbox.FLCheckBox):
+                data = bool(self.editor_.checkState())
+
+                if not self.cursor_.bufferIsNull(self.fieldName_):
+                    if data == bool(self.cursor_.valueBuffer(self.fieldName_)):
+                        return
+
                 self.cursor_.setValueBuffer(self.fieldName_, data)
 
-        elif isinstance(self.editor_, fltimeedit.FLTimeEdit):
-            data = str(self.editor_.time().toString("hh:mm:ss"))
+            elif isinstance(self.editor_, qtextedit.QTextEdit):
+                data = str(self.editor_.toPlainText())
+                if not self.cursor_.bufferIsNull(self.fieldName_):
+                    if self.cursor_.valueBuffer(self.fieldName_) == data:
+                        return
 
-            if not data:
-                isNull = True
-            if not self.cursor_.bufferIsNull(self.fieldName_):
-
-                if str(data) == self.cursor_.valueBuffer(self.fieldName_):
-                    return
-            elif isNull:
-                return
-
-            if isNull:
-                self.cursor_.setValueBuffer(
-                    self.fieldName_, str(QtCore.QTime().toString("hh:mm:ss"))
-                )
-            else:
                 self.cursor_.setValueBuffer(self.fieldName_, data)
 
-        elif isinstance(self.editor_, flcheckbox.FLCheckBox):
-            data = bool(self.editor_.checkState())
+            elif isinstance(self.editor_, fllineedit.FLLineEdit):
 
-            if not self.cursor_.bufferIsNull(self.fieldName_):
-                if data == bool(self.cursor_.valueBuffer(self.fieldName_)):
-                    return
+                data = self.editor_.text()
+                if not self.cursor_.bufferIsNull(self.fieldName_):
+                    if data == self.cursor_.valueBuffer(self.fieldName_):
+                        return
+                self.cursor_.setValueBuffer(self.fieldName_, data)
 
+            elif isinstance(self.editor_, qcombobox.QComboBox):
+                data = str(self.editor_.getCurrentText())
+
+                if not self.cursor_.bufferIsNull(self.fieldName_):
+                    if data == self.cursor_.valueBuffer(self.fieldName_):
+                        return
+
+                self.cursor_.setValueBuffer(self.fieldName_, str(data))
+
+        elif hasattr(self, "editorImg_"):
             self.cursor_.setValueBuffer(self.fieldName_, data)
-
-        elif isinstance(self.editor_, qtextedit.QTextEdit):
-            data = str(self.editor_.toPlainText())
-            if not self.cursor_.bufferIsNull(self.fieldName_):
-                if self.cursor_.valueBuffer(self.fieldName_) == data:
-                    return
-
-            self.cursor_.setValueBuffer(self.fieldName_, data)
-
-        elif isinstance(self.editor_, fllineedit.FLLineEdit):
-
-            data = self.editor_.text()
-            if not self.cursor_.bufferIsNull(self.fieldName_):
-                if data == self.cursor_.valueBuffer(self.fieldName_):
-                    return
-            self.cursor_.setValueBuffer(self.fieldName_, data)
-
-        elif isinstance(self.editor_, qcombobox.QComboBox):
-            data = str(self.editor_.getCurrentText())
-
-            if not self.cursor_.bufferIsNull(self.fieldName_):
-                if data == self.cursor_.valueBuffer(self.fieldName_):
-                    return
-
-            self.cursor_.setValueBuffer(self.fieldName_, str(data))
-
-        elif isinstance(self.editorImg_, flpixmapview.FLPixmapView):
-            if data == self.cursor_.valueBuffer(self.fieldName_):
-                return
-            self.cursor_.setValueBuffer(self.fieldName_, data)
-
-        """
-        elif isinstance(self.editor_, str) or isinstance(data, int):
-            tMD = self.cursor_.metadata()
-            if not tMD:
-                return
-            field = tMD.field(self.fieldName_)
-            if not field:
-                return
-
-            ol = field.hasOptionsList()
-            tAux = data
-
-            if ol and self.editor_:
-                tAux = field.optionsList()[data]
-
-            if not self.cursor_.bufferIsNull(self.fieldName_):
-                if tAux == self.cursor_.valueBuffer(self.fieldName_):
-                    return
-
-            elif not tAux:
-                return
-
-
-            s = tAux
-            if field.type() == "string" and not ol:
-                if len(s) > 1 and s[0] == " ":
-                    self.cursor_.bufferChanged.disconnect(self.refreshQuick)
-                    self.cursor.setValueBuffer(self.fieldName_, s[1:])
-                    self.cursor_.bufferChanged.connect(self.refreshQuick)
-                    return
-
-            if self.editor_ and (field.type() == "double" or field.type() == "int" or field.type() == "uint"):
-                s = self.editor_.text()
-
-            if s:
-                self.cursor_.setValueBuffer(self.fieldName_, s)
-            else:
-                self.cursor_.setValueBuffer(self.fieldName_, "")
-        """
-        # if self.isVisible() and self.hasFocus() and field.type() == "string" and field.length() == len(s):
-        # self.focusNextPrevChild(True)
 
     def status(self) -> None:
         """
