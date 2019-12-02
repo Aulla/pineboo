@@ -797,6 +797,7 @@ class PNTableMetaDataPrivate:
         self.fieldNamesUnlock_ = []
         self.aliasFieldMap_ = {}
         self.fieldAliasMap_ = {}
+        self.detectLocks_ = True
         self.query_ = ""
         # print("Vaciando field list ahora",  len(self.field_list_))
         if n is None:

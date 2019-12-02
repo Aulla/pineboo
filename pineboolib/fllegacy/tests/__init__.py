@@ -1,6 +1,6 @@
 """Tests for fllegacy package."""
 
-import os.path
+import os
 
 
 def fixture_path(*path: str) -> str:

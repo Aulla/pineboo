@@ -3,9 +3,10 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.database import pnsqlquery, pnsqlcursor
+from . import fixture_path
 
 
-class TestPNSqlQuery(unittest.TestCase):
+class TestPNSqlQuery_1(unittest.TestCase):
     """TestPNSqlDrivers Class."""
 
     @classmethod
@@ -143,6 +144,7 @@ class TestPNSqlQuery(unittest.TestCase):
         cursor_6.setValueBuffer("idarea", "P")
         cursor_6.setValueBuffer("descripcion", "Área de prueba T")
         self.assertTrue(cursor_6.commitBuffer())
+        cursor_6.commit()
 
         qry = pnsqlquery.PNSqlQuery("")
         qry.setTablesList("flareas")
@@ -209,6 +211,7 @@ class TestPNSqlQuery(unittest.TestCase):
         cursor.setModeAccess(cursor.Insert)
         cursor.refreshBuffer()
         self.assertTrue(cursor.commitBuffer())
+        cursor.commit()
 
         q = pnsqlquery.PNSqlQuery()
         q.setSelect("date_field")
@@ -250,6 +253,7 @@ class TestPNSqlQuery(unittest.TestCase):
         cursor.setModeAccess(cursor.Insert)
         cursor.refreshBuffer()
         self.assertTrue(cursor.commitBuffer())  # 9 rows total!
+        cursor.commit()
 
         q1 = pnsqlquery.PNSqlQuery()
         q1.setSelect("date_field")
@@ -281,6 +285,204 @@ class TestPNSqlQuery(unittest.TestCase):
         self.assertTrue(sql.lower().find("offset") > -1)
         self.assertTrue(sql.lower().find("order by") > -1)
         self.assertEqual(q3.size(), 4)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
+
+
+class TestPNSqlQuery_2(unittest.TestCase):
+    """TestPNSqlDrivers Class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_basic_4(self) -> None:
+        """Test basic test 4."""
+        from pineboolib.qsa import qsa
+        from pineboolib import application
+        from pineboolib.application.metadata import pntablemetadata, pnfieldmetadata
+        import os
+
+        qsa_sys = qsa.sys
+        path = fixture_path("principal.eneboopkg")
+        self.assertTrue(os.path.exists(path))
+        qsa_sys.loadModules(path, False)
+        widget = qsa.from_project("flfactppal")
+        widget.iface.valoresIniciales()
+        cur_clientes = qsa.FLSqlCursor("clientes")
+        cur_clientes.setModeAccess(cur_clientes.Insert)
+        cur_clientes.refreshBuffer()
+        # cur_clientes.setValueBuffer("codigo", "000001")
+        cur_clientes.setValueBuffer("nombre", "cliente de prueba")
+        cur_clientes.setValueBuffer("cifnif", "01234567H")
+        cur_clientes.setValueBuffer("codserie", "A")
+        self.assertTrue(cur_clientes.commitBuffer())
+        cur_clientes.commit()
+        cur_clientes.conn().doTransaction(cur_clientes)
+
+        mtd_tareas = pntablemetadata.PNTableMetaData("tareas")
+        field_01 = pnfieldmetadata.PNFieldMetaData(
+            "idtarea",
+            "Id",
+            False,
+            True,
+            "serial",
+            0,
+            True,
+            True,
+            True,
+            0,
+            0,
+            True,
+            True,
+            False,
+            None,
+            False,
+            False,
+            False,
+            True,
+            False,
+        )
+        field_02 = pnfieldmetadata.PNFieldMetaData(
+            "nombre",
+            "Nombre",
+            False,
+            False,
+            "string",
+            10,
+            False,
+            True,
+            True,
+            0,
+            0,
+            False,
+            False,
+            False,
+            None,
+            False,
+            False,
+            True,
+            False,
+            False,
+        )
+        field_03 = pnfieldmetadata.PNFieldMetaData(
+            "fechaini",
+            "Fecha Inicial",
+            True,
+            False,
+            "date",
+            0,
+            False,
+            True,
+            True,
+            0,
+            0,
+            False,
+            False,
+            False,
+            None,
+            False,
+            False,
+            True,
+            False,
+            False,
+        )
+        field_04 = pnfieldmetadata.PNFieldMetaData(
+            "fechafinal",
+            "Fecha Final",
+            True,
+            False,
+            "date",
+            0,
+            False,
+            True,
+            True,
+            0,
+            0,
+            False,
+            False,
+            False,
+            None,
+            False,
+            False,
+            True,
+            False,
+            False,
+        )
+        mtd_tareas.addFieldMD(field_01)
+        mtd_tareas.addFieldMD(field_02)
+        mtd_tareas.addFieldMD(field_03)
+        mtd_tareas.addFieldMD(field_04)
+        self.assertEqual(
+            mtd_tareas.fieldListArray(False), ["idtarea", "nombre", "fechaini", "fechafinal"]
+        )
+        application.project.conn_manager.manager().cache_metadata_["tareas"] = mtd_tareas
+        application.project.conn_manager.manager().createTable("tareas")
+        self.assertTrue(application.project.conn_manager.manager().existsTable("tareas"))
+
+        cur_tareas = qsa.FLSqlCursor("tareas")
+        self.assertEqual(
+            cur_tareas.metadata().fieldListArray(False),
+            ["idtarea", "nombre", "fechaini", "fechafinal"],
+        )
+
+        cur_tareas.setModeAccess(cur_tareas.Insert)
+        cur_tareas.refreshBuffer()
+        # cur_tareas.setValueBuffer("idtarea", 1)
+        cur_tareas.setValueBuffer("nombre", "prueba1")
+        self.assertTrue(cur_tareas.commitBuffer())
+        cur_tareas.setModeAccess(cur_tareas.Insert)
+        cur_tareas.refreshBuffer()
+        # cur_tareas.setValueBuffer("idtarea", 2)
+        cur_tareas.setValueBuffer("nombre", "prueba2")
+        cur_tareas.setValueBuffer("fechaini", str(qsa.Date()))
+        cur_tareas.setValueBuffer("fechafinal", str(qsa.Date()))
+        self.assertTrue(cur_tareas.commitBuffer())
+        cur_tareas.setModeAccess(cur_tareas.Insert)
+        cur_tareas.refreshBuffer()
+        # cur_tareas.setValueBuffer("idtarea", 3)
+        cur_tareas.setValueBuffer("nombre", "prueba3")
+        cur_tareas.setValueBuffer("fechaini", str(qsa.Date()))
+        cur_tareas.setValueBuffer("fechafinal", str(qsa.Date()))
+        self.assertTrue(cur_tareas.commitBuffer())
+        cur_tareas.setModeAccess(cur_tareas.Insert)
+        cur_tareas.refreshBuffer()
+        cur_tareas.setValueBuffer("nombre", "prueba4")
+        cur_tareas.setValueBuffer("fechaini", str(qsa.Date()))
+        self.assertTrue(cur_tareas.commitBuffer())
+        cur_tareas.setModeAccess(cur_tareas.Insert)
+        cur_tareas.refreshBuffer()
+        # cur_tareas.setValueBuffer("idtarea", 3)
+        cur_tareas.setValueBuffer("nombre", "prueba5")
+        cur_tareas.setValueBuffer("fechafinal", str(qsa.Date()))
+        self.assertTrue(cur_tareas.commitBuffer())
+        cur_tareas.commit()
+
+        qry = qsa.FLSqlQuery()
+        qry.setSelect("idtarea,nombre,fechaini,fechafinal")
+        qry.setFrom("tareas")
+        qry.setWhere("1=1")
+        qry.setOrderBy("idtarea")
+        self.assertTrue(qry.exec_())
+        self.assertTrue(qry.first())
+        self.assertEqual(qry.value("fechaini"), "")
+        self.assertEqual(qry.value("fechafinal"), "")
+        self.assertTrue(qry.next())
+        self.assertNotEqual(qry.value("fechaini"), "")
+        self.assertNotEqual(qry.value("fechafinal"), "")
+        self.assertTrue(qry.next())
+        self.assertNotEqual(qry.value("fechaini"), "")
+        self.assertNotEqual(qry.value("fechafinal"), "")
+        self.assertTrue(qry.next())
+        self.assertNotEqual(qry.value("fechaini"), "")
+        self.assertEqual(qry.value("fechafinal"), "")
+        self.assertTrue(qry.next())
+        self.assertEqual(qry.value("fechaini"), "")
+        self.assertNotEqual(qry.value("fechafinal"), "")
 
     @classmethod
     def tearDownClass(cls) -> None:

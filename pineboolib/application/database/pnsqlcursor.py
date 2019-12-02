@@ -3475,6 +3475,7 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         self.activatedCheckIntegrity_ = True
         self.activatedCommitActions_ = True
         self.askForCancelChanges_ = True
+        self.inRisksLocks_ = False
         self.populated_ = False
         self.transactionsOpened_ = []
         self.idAc_ = 0
