@@ -11,8 +11,10 @@ from pineboolib.application.metadata import pnaction
 from pineboolib.application.staticloader import pnmodulesstaticloader
 from pineboolib.application.database import pnsqlquery, pnsqlcursor
 
-from pineboolib.application.utils import path
+from pineboolib.application.utils import path, xpm, convert_flaction
 from pineboolib.application.parsers.qt3uiparser import qt3ui
+
+from pineboolib import application
 
 from pineboolib.q3widgets import qmainwindow, qdialog
 
@@ -248,7 +250,7 @@ class FLManagerModules(object):
             logger.warn("Error trying to read %r", path_name, exc_info=True)
             return ""
 
-    def contentCached(self, file_name: str, shaKey=None) -> Optional[str]:
+    def contentCached(self, file_name: str, sha_key=None) -> Optional[str]:
         """
         Get the contents of a file, using the memory and disk cache.
 
@@ -258,10 +260,15 @@ class FLManagerModules(object):
         @param file_name File name.
         @return QString with the contents of the file or None in case of error.
         """
-        not_sys_table = file_name[
-            0:3
-        ] != "sys" and not self.conn_.connManager().manager().isSystemTable(file_name)
-        if not_sys_table and self.static_db_info_ and self.static_db_info_.enabled_:
+        sys_table: bool = False
+
+        if file_name.endswith(".mtd"):
+            if file_name[0:3] == "sys":
+                sys_table = True
+            else:
+                sys_table = self.conn_.connManager().manager().isSystemTable(file_name)
+
+        if not sys_table and self.static_db_info_ and self.static_db_info_.enabled_:
             str_ret = self.contentStatic(file_name)
             if str_ret is not None:
                 return str_ret
@@ -289,28 +296,24 @@ class FLManagerModules(object):
         elif ext_ == "xml":
             type_ = ""
 
-        if not shaKey and not self.conn_.connManager().manager().isSystemTable(name_):
-
-            cursor = self.conn_.execute_query(
-                "SELECT sha FROM flfiles WHERE nombre='%s'" % file_name
-            )
-
-            for contenido in cursor:
-                shaKey = contenido[0]
-
-        if self.conn_.connManager().manager().isSystemTable(name_):
+        if sys_table:
             modId = "sys"
         else:
             modId = self.idModuleOfFile(file_name)
+            if not sha_key:
+                cursor = self.conn_.execute_query(
+                    "SELECT sha FROM flfiles WHERE nombre='%s'" % file_name
+                )
 
-        from pineboolib.application import project
+                for contenido in cursor:
+                    sha_key = contenido[0]
 
         # if not project._DGI:
         #    raise Exception("DGI not loaded")
 
         # if project.DGI.alternative_content_cached():
         #    data = project.DGI.content_cached(
-        #        project.tmpdir, self.conn_.DBName(), modId, ext_, name_, shaKey
+        #        project.tmpdir, self.conn_.DBName(), modId, ext_, name_, sha_key
         #    )
         #    if data is not None:
         #        return data
@@ -319,12 +322,20 @@ class FLManagerModules(object):
             """Ruta por defecto"""
             if os.path.exists(
                 "%s/cache/%s/%s/file.%s/%s"
-                % (project.tmpdir, self.conn_.DBName(), modId, ext_, name_)
+                % (application.project.tmpdir, self.conn_.DBName(), modId, ext_, name_)
             ):
                 utf8_ = True if ext_ == "kut" else False
                 data = self.contentFS(
                     "%s/cache/%s/%s/file.%s/%s/%s.%s"
-                    % (project.tmpdir, self.conn_.DBName(), modId, ext_, name_, shaKey, ext_),
+                    % (
+                        application.project.tmpdir,
+                        self.conn_.DBName(),
+                        modId,
+                        ext_,
+                        name_,
+                        sha_key,
+                        ext_,
+                    ),
                     utf8_,
                 )
 
@@ -349,9 +360,6 @@ class FLManagerModules(object):
         @param content File content.
         """
 
-        if not self.conn_.connManager().dbAux():
-            return
-
         format_val = (
             self.conn_.connManager()
             .manager()
@@ -363,7 +371,7 @@ class FLManagerModules(object):
             .formatAssignValue("idmodulo", "string", id_module, True)
         )
 
-        cursor = pnsqlcursor.PNSqlCursor("flfiles", True, self.conn_.connManager().dbAux())
+        cursor = pnsqlcursor.PNSqlCursor("flfiles", True, "dbAux")
         cursor.setActivatedCheckIntegrity(False)
         cursor.select("%s AND %s" % (format_val, format_val2))
 
@@ -395,8 +403,6 @@ class FLManagerModules(object):
         @param parent. Parent widget
         @return QWidget corresponding to the built form.
         """
-
-        from pineboolib import application
 
         if ".ui" not in file_name:
             file_name += ".ui"
@@ -487,9 +493,7 @@ class FLManagerModules(object):
         """
 
         if not isinstance(action, pnaction.PNAction):
-            from pineboolib.application.utils.convert_flaction import convert2FLAction
-
-            action = convert2FLAction(action)
+            action = convert_flaction.convert2FLAction(action)
 
         if action is None:
             raise Exception("action is empty!.")
@@ -522,9 +526,8 @@ class FLManagerModules(object):
         # Falta implementar conector y name
         if not isinstance(action, pnaction.PNAction):
             logger.trace("createFormRecord: convert2FLAction")
-            from pineboolib.application.utils.convert_flaction import convert2FLAction
 
-            action = convert2FLAction(action)
+            action = convert_flaction.convert2FLAction(action)
 
         if action is None:
             raise Exception("action is empty!")
@@ -675,8 +678,6 @@ class FLManagerModules(object):
         mod_obj = self.dict_info_mods_.get(id_module.upper(), None)
         mod_icono = getattr(mod_obj, "icono", None)
         if mod_icono is not None:
-            from pineboolib.application.utils import xpm
-
             pix = QtGui.QPixmap(xpm.cacheXPM(mod_icono))
 
         return pix
@@ -848,7 +849,7 @@ class FLManagerModules(object):
 
         pass
 
-    def idModuleOfFile(self, name: Union[str]) -> Any:
+    def idModuleOfFile(self, name: str) -> str:
         """
         Return the identifier of the module to which a given file belongs.
 
@@ -856,21 +857,16 @@ class FLManagerModules(object):
         @return Identifier of the module to which the file belongs
         """
 
-        if not isinstance(name, str):
-            n = str(name.toString())
-        else:
-            n = name
-
-        from pineboolib.application import project
-
-        if n.endswith(".mtd"):
-            if project.conn_manager.manager().isSystemTable(n):
+        if name.endswith(".mtd"):
+            if application.project.conn_manager.manager().isSystemTable(name):
                 return "sys"
 
-        cursor = self.conn_.execute_query("SELECT idmodulo FROM flfiles WHERE nombre='%s'" % n)
+        cursor = self.conn_.execute_query("SELECT idmodulo FROM flfiles WHERE nombre='%s'" % name)
 
         for idmodulo in cursor:
             return idmodulo[0]
+
+        return ""
 
     def writeState(self) -> None:
         """

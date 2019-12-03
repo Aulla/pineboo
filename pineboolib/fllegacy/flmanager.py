@@ -1536,31 +1536,24 @@ class FLManager(QtCore.QObject, IManager):
         @return TRUE if it is a system table
         """
 
-        if table_name[0:2] != "fl":
-            return False
-
-        if table_name.endswith(".mtd"):
-            table_name = table_name[:-4]
-
-        if table_name in (
-            "flfiles",
-            "flmetadata",
-            "flmodules",
-            "flareas",
-            "flserial",
-            "flvar",
-            "flsettings",
-            "flseqs",
-            "flupdates",
-            "flacls",
-            "flacos",
-            "flacs",
-            "flgroups",
-            "flusers",
-        ):
-            return True
-
-        return False
+        return table_name.startswith(
+            (
+                "flfiles",
+                "flmetadata",
+                "flmodules",
+                "flareas",
+                "flserial",
+                "flvar",
+                "flsettings",
+                "flseqs",
+                "flupdates",
+                "flacls",
+                "flacos",
+                "flacs",
+                "flgroups",
+                "flusers",
+            )
+        )
 
     def storeLargeValue(
         self, mtd: "pntablemetadata.PNTableMetaData", largeValue: str
