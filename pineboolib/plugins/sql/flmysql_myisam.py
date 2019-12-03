@@ -1226,7 +1226,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             db_ = self.db_
 
         if isinstance(tmd_or_table2, str):
-            mtd = db_.manager().metadata(tmd_or_table2, True)
+            mtd = db_.connManager().manager().metadata(tmd_or_table2, True)
             if not mtd:
                 return False
 
