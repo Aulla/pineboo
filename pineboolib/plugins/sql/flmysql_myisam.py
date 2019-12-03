@@ -647,7 +647,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         util = flutil.FLUtil()
         if not self.db_:
             raise Exception("must be connected")
-        self.db_.dbAux().transaction()
+        self.db_.connManager().dbAux().transaction()
 
         qry = pnsqlquery.PNSqlQuery(None, "dbAux")
         qry2 = pnsqlquery.PNSqlQuery(None, "dbAux")
@@ -698,8 +698,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         util.setProgress(steps)
         qry.exec_("DELETE FROM flmetadata")
         qry.exec_("DELETE FROM flvar")
-        self.db_.manager().cleanupMetaData()
-        # self.db_.driver().commit()
+        self.db_.connManager().manager().cleanupMetaData()
+        # self.db_.connManager().driver().commit()
         util.destroyProgressDialog()
 
         steps = 0
@@ -714,7 +714,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             # qry2.exec_("alter table %s convert to character set utf8 collate utf8_bin" % item)
             mustAlter = self.mismatchedTable(item, item)
             if mustAlter:
-                conte = self.db_.managerModules().content("%s.mtd" % item)
+                conte = self.db_.connManager().managerModules().content("%s.mtd" % item)
                 if conte:
                     msg = util.translate(
                         "SqlDriver",
@@ -729,16 +729,16 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             steps = steps + 1
             util.setProgress(steps)
 
-        self.db_.dbAux().driver().transaction()
+        self.db_.connManager().dbAux().driver().transaction()
         self.active_create_index = True
         steps = 0
-        # sqlCursor = pnsqlcursor.PNSqlCursor(None, True, self.db_.dbAux())
+        # sqlCursor = pnsqlcursor.PNSqlCursor(None, True, self.db_.connManager().dbAux())
         engine = "MyISAM" if self.noInnoDB else "INNODB"
         convert_engine = False
         do_ques = True
 
-        sqlQuery = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
-        sql_query2 = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
+        sqlQuery = pnsqlquery.PNSqlQuery(None, self.db_.connManager().dbAux())
+        sql_query2 = pnsqlquery.PNSqlQuery(None, self.db_.connManager().dbAux())
         if sqlQuery.exec_("SHOW TABLES"):
             util.setTotalSteps(sqlQuery.size())
             while sqlQuery.next():
@@ -746,7 +746,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 steps = steps + 1
                 util.setProgress(steps)
                 util.setLabelText(util.translate("SqlDriver", "Creando índices para %s" % item))
-                mtd = self.db_.manager().metadata(item, True)
+                mtd = self.db_.connManager().manager().metadata(item, True)
                 if not mtd:
                     continue
                 fL = mtd.fieldList()
@@ -755,14 +755,14 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 for it in fL:
                     if not it or not it.type() == "pixmap":
                         continue
-                    cur = pnsqlcursor.PNSqlCursor(item, True, self.db_.dbAux())
+                    cur = pnsqlcursor.PNSqlCursor(item, True, self.db_.connManager().dbAux())
                     cur.select(it.name() + " not like 'RK@%'")
                     while cur.next():
                         v = cur.valueBuffer(it.name())
                         if v is None:
                             continue
 
-                        v = self.db_.manager().storeLargeValue(mtd, v)
+                        v = self.db_.connManager().manager().storeLargeValue(mtd, v)
                         if v:
                             buf = cur.primeUpdate()
                             buf.setValue(it.name(), v)
@@ -770,7 +770,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
                 # sqlCursor.setName(item, True)
 
-                # self.db_.dbAux().driver().commit()
+                # self.db_.connManager().dbAux().driver().commit()
                 sql_query2.exec_(
                     "show table status where Engine='%s' and Name='%s'" % (engine, item)
                 )
@@ -794,7 +794,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
                     do_ques = False
                     if convert_engine:
-                        conte = self.db_.managerModules().content("%s.mtd" % item)
+                        conte = self.db_.connManager().managerModules().content("%s.mtd" % item)
                         self.alterTable2(conte, conte, None, True)
 
         self.active_create_index = False
@@ -841,7 +841,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             )
         else:
             docElem = doc.documentElement()
-            old_mtd = self.db_.manager().metadata(docElem, True)
+            old_mtd = self.db_.connManager().manager().metadata(docElem, True)
 
         if old_mtd and old_mtd.isQuery():
             return True
@@ -857,7 +857,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             return False
         else:
             docElem = doc.documentElement()
-            new_mtd = self.db_.manager().metadata(docElem, True)
+            new_mtd = self.db_.connManager().manager().metadata(docElem, True)
 
         if not old_mtd:
             old_mtd = new_mtd
@@ -889,7 +889,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
             return False
 
-        if not force and self.db_.manager().checkMetaData(old_mtd, new_mtd):
+        if not force and self.db_.connManager().manager().checkMetaData(old_mtd, new_mtd):
             if old_mtd and old_mtd != new_mtd:
                 del old_mtd
             if new_mtd:
@@ -897,7 +897,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
             return True
 
-        if not self.db_.manager().existsTable(old_mtd.name()):
+        if not self.db_.connManager().manager().existsTable(old_mtd.name()):
             print(
                 "FLManager::alterTable : "
                 + util.translate(
@@ -939,7 +939,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
         )
 
-        if not self.db_.dbAux():
+        if not self.db_.connManager().dbAux():
             if old_mtd and old_mtd != new_mtd:
                 del old_mtd
             if new_mtd:
@@ -947,7 +947,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
             return False
 
-        # self.db_.dbAux().transaction()
+        # self.db_.connManager().dbAux().transaction()
         fieldList = new_mtd.fieldList()
 
         if not fieldList:
@@ -979,8 +979,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
             return False
 
-        if not self.db_.manager().createTable(new_mtd):
-            self.db_.dbAux().rollbackTransaction()
+        if not self.db_.connManager().manager().createTable(new_mtd):
+            self.db_.connManager().dbAux().rollbackTransaction()
             if old_mtd and old_mtd != new_mtd:
                 del old_mtd
             if new_mtd:
@@ -988,10 +988,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
             return False
 
-        self.db_.dbAux().transaction()
+        self.db_.connManager().dbAux().transaction()
 
         if not force and key and len(key) == 40:
-            c = pnsqlcursor.PNSqlCursor("flfiles", True, self.db_.dbAux())
+            c = pnsqlcursor.PNSqlCursor("flfiles", True, self.db_.connManager().dbAux())
             # oldCursor.setModeAccess(oldCursor.Browse)
             c.setForwardOnly(True)
             c.setFilter("nombre='%s.mtd'" % renameOld)
@@ -1009,7 +1009,9 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                     % (
                         renameOld,
                         mtd1,
-                        self.db_.managerModules().idModuleOfFile("%s.mtd" % old_mtd.name()),
+                        self.db_.connManager()
+                        .managerModules()
+                        .idModuleOfFile("%s.mtd" % old_mtd.name()),
                         key,
                     )
                 )
@@ -1023,7 +1025,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             # logger.warning(in_sql)
             # ok = q.exec_(in_sql)
             if not ok:
-                self.db_.dbAux().rollbackTransaction()
+                self.db_.connManager().dbAux().rollbackTransaction()
                 if old_mtd and old_mtd != new_mtd:
                     del old_mtd
                 if new_mtd:
@@ -1154,12 +1156,12 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         util.destroyProgressDialog()
         if ok:
-            self.db_.dbAux().commit()
+            self.db_.connManager().dbAux().commit()
 
             if force:
                 q.exec_("DROP TABLE %s CASCADE" % renameOld)
         else:
-            self.db_.dbAux().rollbackTransaction()
+            self.db_.connManager().dbAux().rollbackTransaction()
 
             q.exec_("DROP TABLE %s CASCADE" % old_mtd.name())
             q.exec_("ALTER TABLE %s RENAME TO %s" % (renameOld, old_mtd.name()))
@@ -1185,7 +1187,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         if not self.db_:
             raise Exception("must be connected")
 
-        mtd = self.db_.manager().metadata(table_name)
+        mtd = self.db_.connManager().manager().metadata(table_name)
         fList = []
         vList = []
         cursor_ = self.cursor()
@@ -1361,7 +1363,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             tablename = tablename_or_query
 
             doc = QtXml.QDomDocument(tablename)
-            stream = self.db_.managerModules().contentCached("%s.mtd" % tablename)
+            stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
             util = flutil.FLUtil()
             if not util.domDocumentSetContent(doc, stream):
                 logger.warning(
@@ -1375,7 +1377,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 return self.recordInfo2(tablename)
 
             # docElem = doc.documentElement()
-            mtd = self.db_.manager().metadata(tablename, True)
+            mtd = self.db_.connManager().manager().metadata(tablename, True)
             if not mtd:
                 return self.recordInfo2(tablename)
             fL = mtd.fieldList()
