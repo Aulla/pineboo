@@ -2,16 +2,22 @@
 # -*- coding: utf-8 -*-
 import hashlib
 import datetime
+import glob
 from datetime import date
 
 from PyQt5 import QtCore
 
 from pineboolib.application.qsatypes import sysbasetype
-from pineboolib.core import decorators
-from pineboolib import logging
+from pineboolib.application.utils import date_conversion
+from pineboolib.application.database import utils, pnsqlquery
+from pineboolib.application import types
+
+from pineboolib.core import decorators, translate, settings
+from pineboolib import logging, application
+
+from . import flapplication
 
 from typing import List, Optional, Union, Any, TYPE_CHECKING
-from pineboolib.application import types
 
 
 if TYPE_CHECKING:
@@ -21,7 +27,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class FLUtil(QtCore.QObject):
+class FLUtil(object):
     """
     Class with methods, tools and tools necessary for certain operations.
 
@@ -375,9 +381,7 @@ class FLUtil(QtCore.QObject):
         @return Field List.
         """
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        campos = aqApp.db().manager().metadata(tablename).fieldNames()
+        campos = flapplication.aqApp.db().manager().metadata(tablename).fieldNames()
         return [len(campos)] + campos
 
     @classmethod
@@ -433,9 +437,8 @@ class FLUtil(QtCore.QObject):
         @param f Text string with the date to transform.
         @return Text string with the date transformed.
         """
-        from pineboolib.application.utils.date_conversion import date_dma_to_amd
 
-        return date_dma_to_amd(f)
+        return date_conversion.date_dma_to_amd(f)
 
     @classmethod
     def dateAMDtoDMA(cls, f) -> Optional[str]:
@@ -445,9 +448,8 @@ class FLUtil(QtCore.QObject):
         @param f Text string with the date to transform
         @return Text string with the date transformed
         """
-        from pineboolib.application.utils.date_conversion import date_amd_to_dma
 
-        return date_amd_to_dma(f)
+        return date_conversion.date_amd_to_dma(f)
 
     @classmethod
     @decorators.BetaImplementation
@@ -507,8 +509,6 @@ class FLUtil(QtCore.QObject):
         @return Returns the string translated into the local language
         """
 
-        from pineboolib.core import translate
-
         if text_ == "MetaData":
             group, text_ = text_, group
 
@@ -549,9 +549,7 @@ class FLUtil(QtCore.QObject):
     ) -> Optional[Union[str, int]]:
         """Return next counter value."""
 
-        from pineboolib.application.database.utils import nextCounter
-
-        return nextCounter(name_or_series, cursor_or_name, cursor_)
+        return utils.nextCounter(name_or_series, cursor_or_name, cursor_)
 
     @classmethod
     @decorators.NotImplementedWarn
@@ -736,9 +734,8 @@ class FLUtil(QtCore.QObject):
 
         @return Setting value
         """
-        from pineboolib.core.settings import settings
 
-        return settings.value(key, def_)
+        return settings.settings.value(key, def_)
 
     @classmethod
     def writeSettingEntry(cls, key: str, value: Any) -> None:
@@ -750,9 +747,8 @@ class FLUtil(QtCore.QObject):
 
         @return Indicator if the writing of the settings is successful
         """
-        from pineboolib.core.settings import settings
 
-        return settings.set_value(key, value)
+        return settings.settings.set_value(key, value)
 
     @classmethod
     def readDBSettingEntry(cls, key: str) -> Any:
@@ -763,10 +759,9 @@ class FLUtil(QtCore.QObject):
 
         @return Setting value.
         """
-        from pineboolib.fllegacy.flsqlquery import FLSqlQuery
 
         ret = None
-        q = FLSqlQuery()
+        q = pnsqlquery.PNSqlQuery()
         q.setSelect("valor")
         q.setFrom("flsettings")
         q.setWhere("flkey = '%s'" % key)
@@ -791,11 +786,10 @@ class FLUtil(QtCore.QObject):
         @return Indicator if the writing of the settings is successful
         """
         # result = False
-        from pineboolib.application import project
 
         where = "flkey = '%s'" % key
         found = cls.readDBSettingEntry(key)
-        cursor = project.conn_manager.useConn("default").cursor()
+        cursor = application.project.conn_manager.useConn("default").cursor()
         if found is None:
             sql = "INSERT INTO flsettings (flkey, valor) VALUES ('%s', '%s')" % (key, value)
         else:
@@ -826,9 +820,7 @@ class FLUtil(QtCore.QObject):
         @return Rounded Number
         """
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        tmd = aqApp.db().manager().metadata(table_name)
+        tmd = flapplication.aqApp.db().manager().metadata(table_name)
         if tmd is None:
             return ""
         fmd = tmd.field(field_name)
@@ -845,7 +837,6 @@ class FLUtil(QtCore.QObject):
         conn: Union[str, "iconnection.IConnection"] = "default",
     ) -> Any:
         """Return a value from a query."""
-        from pineboolib.application.database.utils import sqlSelect
 
         if not isinstance(size_or_conn, int):
             size = 0
@@ -853,16 +844,15 @@ class FLUtil(QtCore.QObject):
         else:
             size = size_or_conn
 
-        return sqlSelect(f, s, w, tL, size, conn)
+        return utils.sqlSelect(f, s, w, tL, size, conn)
 
     @classmethod
     def quickSqlSelect(
         cls, f: str, s: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"
     ) -> Any:
         """Return a value from a quick query."""
-        from pineboolib.application.database.utils import quickSqlSelect
 
-        return quickSqlSelect(f, s, w, conn)
+        return utils.quickSqlSelect(f, s, w, conn)
 
     @classmethod
     def sqlInsert(
@@ -873,9 +863,8 @@ class FLUtil(QtCore.QObject):
         conn: Union[str, "iconnection.IConnection"] = "default",
     ) -> Any:
         """Insert values to a table."""
-        from pineboolib.application.database.utils import sqlInsert
 
-        return sqlInsert(t, fL, vL, conn)
+        return utils.sqlInsert(t, fL, vL, conn)
 
     @classmethod
     def sqlUpdate(
@@ -887,16 +876,14 @@ class FLUtil(QtCore.QObject):
         conn: Union[str, "iconnection.IConnection"] = "default",
     ) -> Any:
         """Update values to a table."""
-        from pineboolib.application.database.utils import sqlUpdate
 
-        return sqlUpdate(t, fL, vL, w, conn)
+        return utils.sqlUpdate(t, fL, vL, w, conn)
 
     @classmethod
     def sqlDelete(cls, t: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"):
         """Delete a value from a table."""
-        from pineboolib.application.database.utils import sqlDelete
 
-        return sqlDelete(t, w, conn)
+        return utils.sqlDelete(t, w, conn)
 
     @classmethod
     def quickSqlDelete(
@@ -904,16 +891,13 @@ class FLUtil(QtCore.QObject):
     ):
         """Quick delete a value from a table."""
 
-        from pineboolib.application.database.utils import quickSqlDelete
-
-        return quickSqlDelete(t, w, conn)
+        return utils.quickSqlDelete(t, w, conn)
 
     @classmethod
     def execSql(cls, sql: str, conn: Union[str, "iconnection.IConnection"] = "default"):
         """Set a query to a database."""
-        from pineboolib.application.database.utils import execSql
 
-        return execSql(sql, conn)
+        return utils.execSql(sql, conn)
 
     @classmethod
     def createProgressDialog(
@@ -925,9 +909,8 @@ class FLUtil(QtCore.QObject):
         @param l Label of the dialogue
         @param tS Total number of steps to perform
         """
-        from pineboolib.application import project
 
-        return project.message_manager().send(
+        return application.project.message_manager().send(
             "progress_dialog_manager", "create", [title, steps, id_]
         )
 
@@ -937,9 +920,7 @@ class FLUtil(QtCore.QObject):
         Destroy the progress dialog.
         """
 
-        from pineboolib.application import project
-
-        project.message_manager().send("progress_dialog_manager", "destroy", [id_])
+        application.project.message_manager().send("progress_dialog_manager", "destroy", [id_])
 
     @classmethod
     def setProgress(cls, step_number: Union[int, float], id_: str = "default") -> None:
@@ -949,9 +930,9 @@ class FLUtil(QtCore.QObject):
         @param p Degree of progress
         """
 
-        from pineboolib.application import project
-
-        project.message_manager().send("progress_dialog_manager", "setProgress", [step_number, id_])
+        application.project.message_manager().send(
+            "progress_dialog_manager", "setProgress", [step_number, id_]
+        )
 
     @classmethod
     def setLabelText(cls, l: str, id_: str = "default") -> None:
@@ -961,9 +942,9 @@ class FLUtil(QtCore.QObject):
         @param l Tag
         """
 
-        from pineboolib.application import project
-
-        project.message_manager().send("progress_dialog_manager", "setLabelText", [l, id_])
+        application.project.message_manager().send(
+            "progress_dialog_manager", "setLabelText", [l, id_]
+        )
 
     @classmethod
     def setTotalSteps(cls, tS: int, id_: str = "default") -> None:
@@ -973,9 +954,9 @@ class FLUtil(QtCore.QObject):
         @param ts Total number of steps
         """
 
-        from pineboolib.application import project
-
-        project.message_manager().send("progress_dialog_manager", "setTotalSteps", [tS, id_])
+        application.project.message_manager().send(
+            "progress_dialog_manager", "setTotalSteps", [tS, id_]
+        )
 
     @classmethod
     def domDocumentSetContent(cls, doc: "QtXml.QDomDocument", content: Any) -> bool:
@@ -1132,8 +1113,6 @@ class FLUtil(QtCore.QObject):
         @return List of the names of the files found
         """
 
-        import glob
-
         list_path = []
         if isinstance(path_, str):
             list_path.append(path_)
@@ -1174,9 +1153,7 @@ class FLUtil(QtCore.QObject):
         @return field type id
         """
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        conn = aqApp.db().useConn(conn_name)
+        conn = flapplication.aqApp.db().useConn(conn_name)
         mtd = conn.manager().metadata(tn)
 
         return None if mtd is None else mtd.fieldType(fn)
@@ -1194,9 +1171,7 @@ class FLUtil(QtCore.QObject):
         if tn is None:
             return 0
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        conn = aqApp.db().useConn(conn_name)
+        conn = flapplication.aqApp.db().useConn(conn_name)
         mtd = conn.manager().metadata(tn)
 
         return 0 if mtd is None else mtd.fieldLength(fn)
@@ -1214,9 +1189,7 @@ class FLUtil(QtCore.QObject):
         if tn is None:
             return fn
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        conn = aqApp.db().useConn(conn_name)
+        conn = flapplication.aqApp.db().useConn(conn_name)
         mtd = conn.manager().metadata(tn)
 
         return fn if mtd is None else mtd.fieldNameToAlias(fn)
@@ -1234,9 +1207,7 @@ class FLUtil(QtCore.QObject):
         if tn is None:
             return None
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        conn = aqApp.db().useConn(conn_name)
+        conn = flapplication.aqApp.db().useConn(conn_name)
         mtd = conn.manager().metadata(tn)
 
         return None if mtd is None else mtd.alias()
@@ -1255,9 +1226,7 @@ class FLUtil(QtCore.QObject):
         if tn is None:
             return an
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        conn = aqApp.db().useConn(conn_name)
+        conn = flapplication.aqApp.db().useConn(conn_name)
         mtd = conn.manager().metadata(tn)
 
         return an if mtd is None else mtd.fieldAliasToName(an)
@@ -1276,9 +1245,7 @@ class FLUtil(QtCore.QObject):
         if tn is None:
             return False
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        conn = aqApp.db().useConn(conn_name)
+        conn = flapplication.aqApp.db().useConn(conn_name)
         mtd = conn.manager().metadata(tn)
 
         return False if mtd is None else mtd.fieldAllowNull(fn)
@@ -1296,9 +1263,7 @@ class FLUtil(QtCore.QObject):
         if tn is None:
             return False
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        conn = aqApp.db().useConn(conn_name)
+        conn = flapplication.aqApp.db().useConn(conn_name)
         mtd = conn.manager().metadata(tn)
 
         return False if mtd is None else mtd.fieldIsPrimaryKey(fn)
@@ -1316,9 +1281,7 @@ class FLUtil(QtCore.QObject):
         if tn is None:
             return False
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        conn = aqApp.db().useConn(conn_name)
+        conn = flapplication.aqApp.db().useConn(conn_name)
         mtd = conn.manager().metadata(tn)
 
         if mtd is None:
@@ -1340,9 +1303,7 @@ class FLUtil(QtCore.QObject):
         if tn is None:
             return None  # return QVariant
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        conn = aqApp.db().useConn(conn_name)
+        conn = flapplication.aqApp.db().useConn(conn_name)
         mtd = conn.manager().metadata(tn)
 
         if mtd is None:
@@ -1365,9 +1326,7 @@ class FLUtil(QtCore.QObject):
         @return Formatted Value
         """
 
-        from pineboolib.fllegacy.flapplication import aqApp
-
-        conn = aqApp.db().useConn(conn_name)
+        conn = flapplication.aqApp.db().useConn(conn_name)
         return conn.manager().formatValue(t, v, upper)
 
     @classmethod

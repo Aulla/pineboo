@@ -1457,19 +1457,19 @@ class FLTableDB(QtWidgets.QWidget):
             self.tdbFilter.setNumRows(hCount - _notVisibles)
             self.tdbFilter.setColumnReadOnly(0, True)
             util = flutil.FLUtil()
-            self.tdbFilter.setColumnLabels(",", util.tr("Campo,Condición,Valor,Desde,Hasta"))
+            self.tdbFilter.setColumnLabels(",", self.tr("Campo,Condición,Valor,Desde,Hasta"))
 
-            self.mapCondType.insert(self.All, util.tr("Todos"))
-            self.mapCondType.insert(self.Contains, util.tr("Contiene Valor"))
-            self.mapCondType.insert(self.Starts, util.tr("Empieza por Valor"))
-            self.mapCondType.insert(self.End, util.tr("Acaba por Valor"))
-            self.mapCondType.insert(self.Equal, util.tr("Igual a Valor"))
-            self.mapCondType.insert(self.Dist, util.tr("Distinto de Valor"))
-            self.mapCondType.insert(self.Greater, util.tr("Mayor que Valor"))
-            self.mapCondType.insert(self.Less, util.tr("Menor que Valor"))
-            self.mapCondType.insert(self.FromTo, util.tr("Desde - Hasta"))
-            self.mapCondType.insert(self.Null, util.tr("Vacío"))
-            self.mapCondType.insert(self.NotNull, util.tr("No Vacío"))
+            self.mapCondType.insert(self.All, self.tr("Todos"))
+            self.mapCondType.insert(self.Contains, self.tr("Contiene Valor"))
+            self.mapCondType.insert(self.Starts, self.tr("Empieza por Valor"))
+            self.mapCondType.insert(self.End, self.tr("Acaba por Valor"))
+            self.mapCondType.insert(self.Equal, self.tr("Igual a Valor"))
+            self.mapCondType.insert(self.Dist, self.tr("Distinto de Valor"))
+            self.mapCondType.insert(self.Greater, self.tr("Mayor que Valor"))
+            self.mapCondType.insert(self.Less, self.tr("Menor que Valor"))
+            self.mapCondType.insert(self.FromTo, self.tr("Desde - Hasta"))
+            self.mapCondType.insert(self.Null, self.tr("Vacío"))
+            self.mapCondType.insert(self.NotNull, self.tr("No Vacío"))
             i = 0
             # for headT in hCount:
             _linea = 0
@@ -1507,25 +1507,25 @@ class FLTableDB(QtWidgets.QWidget):
                 cond = QtWidgets.QComboBox(self)
                 if not type_ == "pixmap":
                     condList = [
-                        util.tr("Todos"),
-                        util.tr("Igual a Valor"),
-                        util.tr("Distinto de Valor"),
-                        util.tr("Vacío"),
-                        util.tr("No Vacío"),
+                        self.tr("Todos"),
+                        self.tr("Igual a Valor"),
+                        self.tr("Distinto de Valor"),
+                        self.tr("Vacío"),
+                        self.tr("No Vacío"),
                     ]
                     if not type_ == "bool":
                         condList = [
-                            util.tr("Todos"),
-                            util.tr("Igual a Valor"),
-                            util.tr("Distinto de Valor"),
-                            util.tr("Vacío"),
-                            util.tr("No Vacío"),
-                            util.tr("Contiene Valor"),
-                            util.tr("Empieza por Valor"),
-                            util.tr("Acaba por Valor"),
-                            util.tr("Mayor que Valor"),
-                            util.tr("Menor que Valor"),
-                            util.tr("Desde - Hasta"),
+                            self.tr("Todos"),
+                            self.tr("Igual a Valor"),
+                            self.tr("Distinto de Valor"),
+                            self.tr("Vacío"),
+                            self.tr("No Vacío"),
+                            self.tr("Contiene Valor"),
+                            self.tr("Empieza por Valor"),
+                            self.tr("Acaba por Valor"),
+                            self.tr("Mayor que Valor"),
+                            self.tr("Menor que Valor"),
+                            self.tr("Desde - Hasta"),
                         ]
                     cond.insertItems(len(condList), condList)
                     self.tdbFilter.setCellWidget(_linea, 1, cond)

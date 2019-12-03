@@ -177,9 +177,6 @@ class TestFLTableDB(unittest.TestCase):
         """Test tab filter."""
 
         # from PyQt5 import QtCore
-        from pineboolib.fllegacy import flutil
-
-        util = flutil.FLUtil()
         form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ].mainform_widget
@@ -189,7 +186,7 @@ class TestFLTableDB(unittest.TestCase):
         fltable.activeTabFilter(True)
         fltable.tdbFilterClear()
         widget_cb = fltable.tdbFilter.cellWidget(1, 1)
-        widget_cb.setCurrentText(util.tr("Igual a Valor"))
+        widget_cb.setCurrentText(fltable.tr("Igual a Valor"))
         widget_le = fltable.tdbFilter.cellWidget(1, 2)
         widget_le.setText("A")
         fltable.activeTabData(True)
@@ -200,7 +197,7 @@ class TestFLTableDB(unittest.TestCase):
         fltable.activeTabFilter(True)
         fltable.tdbFilterClear()
         widget_cb_2 = fltable.tdbFilter.cellWidget(1, 1)
-        widget_cb_2.setCurrentText(util.tr("Contiene Valor"))
+        widget_cb_2.setCurrentText(fltable.tr("Contiene Valor"))
         widget_le_2 = fltable.tdbFilter.cellWidget(1, 2)
         widget_le_2.setText("A")
         fltable.activeTabData(True)
@@ -211,7 +208,7 @@ class TestFLTableDB(unittest.TestCase):
         fltable.activeTabFilter(True)
         fltable.tdbFilterClear()
         widget_cb_3 = fltable.tdbFilter.cellWidget(1, 1)
-        widget_cb_3.setCurrentText(util.tr("Distinto de Valor"))
+        widget_cb_3.setCurrentText(fltable.tr("Distinto de Valor"))
         widget_le_3 = fltable.tdbFilter.cellWidget(1, 2)
         widget_le_3.setText("W")
         fltable.activeTabData(True)
@@ -222,7 +219,7 @@ class TestFLTableDB(unittest.TestCase):
         fltable.activeTabFilter(True)
         fltable.tdbFilterClear()
         widget_cb_4 = fltable.tdbFilter.cellWidget(0, 1)
-        widget_cb_4.setCurrentText(util.tr("Contiene Valor"))
+        widget_cb_4.setCurrentText(fltable.tr("Contiene Valor"))
         widget_chb_1 = fltable.tdbFilter.cellWidget(0, 2)
         widget_chb_1.setChecked(True)
         fltable.activeTabData(True)
@@ -234,7 +231,7 @@ class TestFLTableDB(unittest.TestCase):
         fltable.activeTabFilter(True)
         fltable.tdbFilterClear()
         widget_cb_5 = fltable.tdbFilter.cellWidget(0, 1)
-        widget_cb_5.setCurrentText(util.tr("Contiene Valor"))
+        widget_cb_5.setCurrentText(fltable.tr("Contiene Valor"))
         widget_chb_2 = fltable.tdbFilter.cellWidget(0, 2)
         widget_chb_2.setChecked(False)
         fltable.activeTabData(True)

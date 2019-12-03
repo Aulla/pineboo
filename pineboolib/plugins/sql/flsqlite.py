@@ -766,7 +766,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #     docElem = None
     #
     #     if not util.domDocumentSetContent(doc, mtd1):
-    #         self.logger.warning("FLManager::alterTable : " + util.tr("Error al cargar los metadatos."))
+    #         self.logger.warning("FLManager::alterTable : " + util.translate("SqlDriver","Error al cargar los metadatos."))
     #     else:
     #         docElem = doc.documentElement()
     #         oldMTD = self.db_.manager().metadata(docElem, True)
@@ -775,7 +775,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #         return True
     #
     #     if not util.domDocumentSetContent(doc, mtd2):
-    #         self.logger.warning("FLManager::alterTable : " + util.tr("Error al cargar los metadatos."))
+    #         self.logger.warning("FLManager::alterTable : " + util.translate("SqlDriver","Error al cargar los metadatos."))
     #         return False
     #     else:
     #         docElem = doc.documentElement()
@@ -788,7 +788,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #         oldMTD = newMTD
     #
     #     if not oldMTD.name() == newMTD.name():
-    #         self.logger.warning("FLManager::alterTable : " + util.tr("Los nombres de las tablas nueva y vieja difieren."))
+    #         self.logger.warning("FLManager::alterTable : " +
+    # util.translate("SqlDriver","Los nombres de las tablas nueva y vieja difieren."))
     #         if oldMTD and not oldMTD == newMTD:
     #             del oldMTD
     #         if newMTD:
@@ -800,7 +801,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #     newPK = newMTD.primaryKey()
     #
     #     if not oldPK == newPK:
-    #         self.logger.warning("FLManager::alterTable : " + util.tr("Los nombres de las claves primarias difieren."))
+    #         self.logger.warning("FLManager::alterTable : " +
+    # util.translate("SqlDriver","Los nombres de las claves primarias difieren."))
     #         if oldMTD and not oldMTD == newMTD:
     #             del oldMTD
     #         if newMTD:
@@ -818,7 +820,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #
     #     if not self.db_.manager().existsTable(oldMTD.name()):
     #         self.logger.warning(
-    #             "FLManager::alterTable : " + util.tr("La tabla %1 antigua de donde importar los registros no existe.").arg(oldMTD.name())
+    #             "FLManager::alterTable : " + util.translate("SqlDriver",
+    # "La tabla %1 antigua de donde importar los registros no existe.").arg(oldMTD.name())
     #         )
     #         if oldMTD and not oldMTD == newMTD:
     #             del oldMTD
@@ -831,7 +834,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #     oldField = None
     #
     #     if not fieldList:
-    #         self.logger.warning("FLManager::alterTable : " + util.tr("Los antiguos metadatos no tienen campos."))
+    #         self.logger.warning("FLManager::alterTable : " + util.translate("SqlDriver","Los antiguos metadatos no tienen campos."))
     #         if oldMTD and not oldMTD == newMTD:
     #             del oldMTD
     #         if newMTD:
@@ -867,7 +870,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #     if not q.exec_("CREATE TABLE %s AS SELECT * FROM %s;" % (renameOld, oldMTD.name())) or not q.exec_(
     #         "DROP TABLE %s;" % oldMTD.name()
     #     ):
-    #         self.logger.warning("FLManager::alterTable : " + util.tr("No se ha podido renombrar la tabla antigua."))
+    #         self.logger.warning("FLManager::alterTable : " + util.translate("SqlDriver","No se ha podido renombrar la tabla antigua."))
     #
     #         self.db_.dbAux().rollbackTransaction()
     #         if oldMTD and not oldMTD == newMTD:
@@ -893,8 +896,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #
     #     oldCursor.select()
     #     totalSteps = oldCursor.size()
-    #     progress = QProgressDialog(util.tr("Reestructurando registros para %s..." % newMTD.alias()), util.tr("Cancelar"), 0, totalSteps)
-    #     progress.setLabelText(util.tr("Tabla modificada"))
+    #     progress = QProgressDialog(util.translate("SqlDriver","Reestructurando registros para %s..." % newMTD.alias()),
+    # util.translate("SqlDriver","Cancelar"), 0, totalSteps)
+    #     progress.setLabelText(util.translate("SqlDriver","Tabla modificada"))
     #
     #     step = 0
     #     newBuffer = None
@@ -903,7 +907,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #     newField = None
     #     # FIXME: newField is never assigned
     #     if not fieldList:
-    #         self.logger.warning("FLManager::alterTable : " + util.tr("Los nuevos metadatos no tienen campos."))
+    #         self.logger.warning("FLManager::alterTable : " + util.translate("SqlDriver","Los nuevos metadatos no tienen campos."))
     #         self.db_.dbAux().rollbackTransaction()
     #         if oldMTD and not oldMTD == newMTD:
     #             del oldMTD
@@ -936,7 +940,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #                 if not newBuffer.field(newField.name()).type() == newField.type():
     #                     self.logger.warning(
     #                         "FLManager::alterTable : "
-    #                         + util.tr("Los tipos del campo %s no son compatibles. Se introducirá un valor nulo." % newField.name())
+    #                         + util.translate("SqlDriver","Los tipos del campo %s no son compatibles.
+    # Se introducirá un valor nulo." % newField.name())
     #                     )
     #
     #             if not oldField.allowNull() or not newField.allowNull() and v is not None:
@@ -1039,15 +1044,17 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 listOldBks.append(l)
 
         qry.exec_("select nombre from flfiles")
-        util.createProgressDialog(util.tr("Borrando backups"), len(listOldBks) + qry.size() + 5)
+        util.createProgressDialog(
+            util.translate("SqlDriver", "Borrando backups"), len(listOldBks) + qry.size() + 5
+        )
         while qry.next():
             item = qry.value(0)
             if rx.indexIn(item) > -1 or rx2.indexIn(item) > -1:
-                util.setLabelText(util.tr("Borrando regisro %s" % item))
+                util.setLabelText(util.translate("SqlDriver", "Borrando regisro %s" % item))
                 qry2.exec_("delete from flfiles where nombre = '%s'" % item)
                 if item.find("alteredtable") > -1:
                     if item.replace(".mtd", "") in self.tables(""):
-                        util.setLabelText(util.tr("Borrando tabla %s" % item))
+                        util.setLabelText(util.translate("SqlDriver", "Borrando tabla %s" % item))
                         qry2.exec_("drop table %s" % item.replace(".mtd", ""))
 
             steps = steps + 1
@@ -1055,14 +1062,14 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         for item in listOldBks:
             if item in self.tables(""):
-                util.tr("Borrando tabla %s" % item)
-                util.setLabelText(util.tr("Borrando tabla %s" % item))
+                util.translate("SqlDriver", "Borrando tabla %s" % item)
+                util.setLabelText(util.translate("SqlDriver", "Borrando tabla %s" % item))
                 qry2.exec_("drop table %s" % item)
 
             steps = steps + 1
             util.setProgress(steps)
 
-        util.setLabelText(util.tr("Inicializando cachés"))
+        util.setLabelText(util.translate("SqlDriver", "Inicializando cachés"))
         steps = steps + 1
         util.setProgress(steps)
 
@@ -1071,7 +1078,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.db_.connManager().manager().cleanupMetaData()
         self.db_.connManager().dbAux().commit()
 
-        util.setLabelText(util.tr("Vacunando base de datos"))
+        util.setLabelText(util.translate("SqlDriver", "Vacunando base de datos"))
         steps = steps + 1
         util.setProgress(steps)
         qry3.exec_("vacuum")

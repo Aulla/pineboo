@@ -669,15 +669,17 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             "'.*alteredtable[[:digit:]][[:digit:]][[:digit:]][[:digit:]].*' or (bloqueo=0 and nombre like '%.mtd')"
         )
 
-        util.createProgressDialog(util.tr("Borrando backups"), len(listOldBks) + qry.size() + 2)
+        util.createProgressDialog(
+            util.translate("SqlDriver", "Borrando backups"), len(listOldBks) + qry.size() + 2
+        )
 
         while qry.next():
             item = qry.value(0)
-            util.setLabelText(util.tr("Borrando registro %s") % item)
+            util.setLabelText(util.translate("SqlDriver", "Borrando registro %s") % item)
             qry2.exec_("DELETE FROM flfiles WHERE nombre ='%s'" % item)
             if item.find("alteredtable") > -1:
                 if self.existsTable(item.replace(".mtd", "")):
-                    util.setLabelText(util.tr("Borrando tabla %s" % item))
+                    util.setLabelText(util.translate("SqlDriver", "Borrando tabla %s" % item))
                     qry2.exec_("DROP TABLE %s CASCADE" % item.replace(".mtd", ""))
 
             steps = steps + 1
@@ -685,13 +687,13 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         for item in listOldBks:
             if self.existsTable(item):
-                util.setLabelText(util.tr("Borrando tabla %s" % item))
+                util.setLabelText(util.translate("SqlDriver", "Borrando tabla %s" % item))
                 qry2.exec_("DROP TABLE %s CASCADE" % item)
 
             steps = steps + 1
             util.setProgress(steps)
 
-        util.setLabelText(util.tr("Inicializando cachés"))
+        util.setLabelText(util.translate("SqlDriver", "Inicializando cachés"))
         steps = steps + 1
         util.setProgress(steps)
         qry.exec_("DELETE FROM flmetadata")
@@ -703,7 +705,9 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         steps = 0
         qry3.exec_("SHOW TABLES")
 
-        util.createProgressDialog(util.tr("Comprobando base de datos"), qry3.size())
+        util.createProgressDialog(
+            util.translate("SqlDriver", "Comprobando base de datos"), qry3.size()
+        )
         while qry3.next():
             item = qry3.value(0)
             # print("Comprobando", item)
@@ -712,10 +716,11 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             if mustAlter:
                 conte = self.db_.managerModules().content("%s.mtd" % item)
                 if conte:
-                    msg = util.tr(
+                    msg = util.translate(
+                        "SqlDriver",
                         "La estructura de los metadatos de la tabla '%s' y su "
                         "estructura interna en la base de datos no coinciden. "
-                        "Intentando regenerarla." % item
+                        "Intentando regenerarla." % item,
                     )
 
                     logger.warning("%s", msg)
@@ -740,7 +745,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 item = sqlQuery.value(0)
                 steps = steps + 1
                 util.setProgress(steps)
-                util.setLabelText(util.tr("Creando índices para %s" % item))
+                util.setLabelText(util.translate("SqlDriver", "Creando índices para %s" % item))
                 mtd = self.db_.manager().metadata(item, True)
                 if not mtd:
                     continue
@@ -773,12 +778,13 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                     if do_ques:
                         res = QtWidgets.QMessageBox.question(
                             QtWidgets.QWidget(),
-                            util.tr("Mr. Proper"),
-                            util.tr(
+                            util.translate("SqlDriver", "Mr. Proper"),
+                            util.translate(
+                                "SqlDriver",
                                 "Existen tablas que no son del tipo %s utilizado por el driver de la conexión actual.\n"
                                 "Ahora es posible convertirlas, pero asegurése de tener una COPIA DE SEGURIDAD,\n"
                                 "se pueden peder datos en la conversión de forma definitiva.\n\n"
-                                "¿ Quiere convertirlas ?" % (engine)
+                                "¿ Quiere convertirlas ?" % (engine),
                             ),
                             QtWidgets.QMessageBox.Yes,
                             QtWidgets.QMessageBox.No,
@@ -829,7 +835,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         doc = QtXml.QDomDocument("doc")
         docElem = None
         if not util.domDocumentSetContent(doc, mtd1):
-            print("FLManager::alterTable : " + util.tr("Error al cargar los metadatos."))
+            print(
+                "FLManager::alterTable : "
+                + util.translate("SqlDriver", "Error al cargar los metadatos.")
+            )
         else:
             docElem = doc.documentElement()
             old_mtd = self.db_.manager().metadata(docElem, True)
@@ -841,7 +850,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             return False
 
         if not util.domDocumentSetContent(doc, mtd2):
-            print("FLManager::alterTable : " + util.tr("Error al cargar los metadatos."))
+            print(
+                "FLManager::alterTable : "
+                + util.translate("SqlDriver", "Error al cargar los metadatos.")
+            )
             return False
         else:
             docElem = doc.documentElement()
@@ -853,7 +865,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         if not old_mtd.name() == new_mtd.name():
             print(
                 "FLManager::alterTable : "
-                + util.tr("Los nombres de las tablas nueva y vieja difieren.")
+                + util.translate("SqlDriver", "Los nombres de las tablas nueva y vieja difieren.")
             )
             if old_mtd and not old_mtd == new_mtd:
                 del old_mtd
@@ -868,7 +880,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         if not oldPK == newPK:
             print(
                 "FLManager::alterTable : "
-                + util.tr("Los nombres de las claves primarias difieren.")
+                + util.translate("SqlDriver", "Los nombres de las claves primarias difieren.")
             )
             if old_mtd and old_mtd != new_mtd:
                 del old_mtd
@@ -888,9 +900,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         if not self.db_.manager().existsTable(old_mtd.name()):
             print(
                 "FLManager::alterTable : "
-                + util.tr(
+                + util.translate(
+                    "SqlDriver",
                     "La tabla %s antigua de donde importar los registros no existe."
-                    % old_mtd.name()
+                    % old_mtd.name(),
                 )
             )
             if old_mtd and old_mtd != new_mtd:
@@ -904,7 +917,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         # oldField = None
 
         if not fieldList:
-            print("FLManager::alterTable : " + util.tr("Los antiguos metadatos no tienen campos."))
+            print(
+                "FLManager::alterTable : "
+                + util.translate("SqlDriver", "Los antiguos metadatos no tienen campos.")
+            )
             if old_mtd and old_mtd != new_mtd:
                 del old_mtd
             if new_mtd:
@@ -936,7 +952,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         if not fieldList:
             Qt.qWarning(
-                "FLManager::alterTable : " + util.tr("Los nuevos metadatos no tienen campos")
+                "FLManager::alterTable : "
+                + util.translate("SqlDriver", "Los nuevos metadatos no tienen campos")
             )
 
             if old_mtd and old_mtd != new_mtd:
@@ -951,7 +968,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         logger.warning(in_sql)
         if not q.exec_(in_sql):
             Qt.qWarning(
-                "FLManager::alterTable : " + util.tr("No se ha podido renombrar la tabla antigua.")
+                "FLManager::alterTable : "
+                + util.translate("SqlDriver", "No se ha podido renombrar la tabla antigua.")
             )
 
             if old_mtd and old_mtd != new_mtd:
@@ -1027,9 +1045,11 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             # totalSteps = oldCursor.size()
 
             util.createProgressDialog(
-                util.tr("Reestructurando registros para %s...") % new_mtd.alias(), totalSteps
+                util.translate("SqlDriver", "Reestructurando registros para %s...")
+                % new_mtd.alias(),
+                totalSteps,
             )
-            util.setLabelText(util.tr("Tabla modificada"))
+            util.setLabelText(util.translate("SqlDriver", "Tabla modificada"))
 
             step = 0
             newBuffer = None

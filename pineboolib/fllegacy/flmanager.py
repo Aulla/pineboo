@@ -178,7 +178,9 @@ class FLManager(QtCore.QObject, IManager):
                     if n.find("alteredtable") == -1:
                         logger.info(
                             "FLManager : "
-                            + util.tr("Error al cargar los metadatos para la tabla %s" % n)
+                            + util.translate(
+                                "FLManager", "Error al cargar los metadatos para la tabla %s" % n
+                            )
                         )
                     self.metadata_cache_fails_.append(n)
                     return None
@@ -188,7 +190,9 @@ class FLManager(QtCore.QObject, IManager):
                 if not util.domDocumentSetContent(doc, stream):
                     logger.info(
                         "FLManager : "
-                        + util.tr("Error al cargar los metadatos para la tabla %s" % n)
+                        + util.translate(
+                            "FLManager", "Error al cargar los metadatos para la tabla %s" % n
+                        )
                     )
                     self.metadata_cache_fails_.append(n)
                     return None
@@ -793,7 +797,6 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("createTable. self.db_ is empty!")
 
-        util = flutil.FLUtil()
         if n_or_tmd is None:
             logger.debug("createTable: Called with no table.")
             return None
@@ -817,7 +820,7 @@ class FLManager(QtCore.QObject, IManager):
 
             if not self.db_.createTable(n_or_tmd):
                 logger.warning(
-                    "createTable: %s", util.tr("No se ha podido crear la tabla ") + n_or_tmd.name()
+                    "createTable: %s", self.tr("No se ha podido crear la tabla ") + n_or_tmd.name()
                 )
                 return None
             else:
