@@ -604,7 +604,7 @@ class FLUtil(object):
         return ret
 
     @classmethod
-    def addDays(cls, fecha: Any, offset: int) -> "types.Date":
+    def addDays(cls, fecha: Union[types.Date, str], offset: int) -> "types.Date":
         """
         Add days to a date.
 
@@ -614,12 +614,12 @@ class FLUtil(object):
         """
 
         if isinstance(fecha, str):
-            fecha = types.Date(fecha, "yyyy-MM-dd")
+            fecha = types.Date(fecha)
 
         return fecha.addDays(offset)
 
     @classmethod
-    def addMonths(cls, fecha: Any, offset: int) -> "types.Date":
+    def addMonths(cls, fecha: Union[types.Date, str], offset: int) -> "types.Date":
         """
         Add months to a date.
 
@@ -634,7 +634,7 @@ class FLUtil(object):
         return fecha.addMonths(offset)
 
     @classmethod
-    def addYears(cls, fecha: Any, offset: int) -> "types.Date":
+    def addYears(cls, fecha: Union[types.Date, str], offset: int) -> "types.Date":
         """
         Add years to a date.
 
@@ -649,7 +649,7 @@ class FLUtil(object):
         return fecha.addYears(offset)
 
     @classmethod
-    def daysTo(cls, d1: Any, d2: Any) -> Optional[int]:
+    def daysTo(cls, d1: Union[types.Date, str], d2: Union[types.Date, str]) -> Optional[int]:
         """
         Return difference of days from one date to another.
 
@@ -690,7 +690,7 @@ class FLUtil(object):
         return (d2 - d1).days
 
     @classmethod
-    def buildNumber(cls, v: Union[int, float, str], tipo: str, partDecimal: int) -> str:
+    def buildNumber(cls, v: Union[int, float, str], tipo: str, part_decimal: int = 0) -> str:
         """
         Return a string from a number, specifying the format and accuracy.
 
@@ -700,25 +700,12 @@ class FLUtil(object):
 
         @return String containing the formatted number
         """
-        val_str: str = str(v)
-        if val_str.endswith("5"):
-            val_str += "1"
+        import math
 
-        ret = round(float(val_str)) if partDecimal == 0 else round(float(val_str), partDecimal)
-        """
-        d = float(v) * 10**partDecimal
-        d = round(d)
-        d = d / 10**partDecimal
-        # ret.setNum(d, tipo, partDecimal)
-        # formamos algo de este tipo: '{:.3f}'.format(34.14159265358979)
-        # '34.142'
-        f = '{:.' + str(partDecimal) + 'f}'
-        ret = f.format(d)
-        if tipo == "float":
-            ret = float(ret)
-        return ret
-        """
-        return str(ret)
+        number = float(v)
+
+        multiplier = 10 ** part_decimal
+        return str(math.floor(number * multiplier + 0.5) / multiplier)
 
     @classmethod
     def readSettingEntry(cls, key: str, def_: Any = u"") -> Any:
@@ -1151,7 +1138,7 @@ class FLUtil(object):
         """
 
         conn = flapplication.aqApp.db().useConn(conn_name)
-        mtd = conn.manager().metadata(tn)
+        mtd = conn.connManager().manager().metadata(tn)
 
         return None if mtd is None else mtd.fieldType(fn)
 
@@ -1169,7 +1156,7 @@ class FLUtil(object):
             return 0
 
         conn = flapplication.aqApp.db().useConn(conn_name)
-        mtd = conn.manager().metadata(tn)
+        mtd = conn.connManager().manager().metadata(tn)
 
         return 0 if mtd is None else mtd.fieldLength(fn)
 
@@ -1187,7 +1174,7 @@ class FLUtil(object):
             return fn
 
         conn = flapplication.aqApp.db().useConn(conn_name)
-        mtd = conn.manager().metadata(tn)
+        mtd = conn.connManager().manager().metadata(tn)
 
         return fn if mtd is None else mtd.fieldNameToAlias(fn)
 
@@ -1205,7 +1192,7 @@ class FLUtil(object):
             return None
 
         conn = flapplication.aqApp.db().useConn(conn_name)
-        mtd = conn.manager().metadata(tn)
+        mtd = conn.connManager().manager().metadata(tn)
 
         return None if mtd is None else mtd.alias()
 
@@ -1224,7 +1211,7 @@ class FLUtil(object):
             return an
 
         conn = flapplication.aqApp.db().useConn(conn_name)
-        mtd = conn.manager().metadata(tn)
+        mtd = conn.connManager().manager().metadata(tn)
 
         return an if mtd is None else mtd.fieldAliasToName(an)
 
@@ -1243,7 +1230,7 @@ class FLUtil(object):
             return False
 
         conn = flapplication.aqApp.db().useConn(conn_name)
-        mtd = conn.manager().metadata(tn)
+        mtd = conn.connManager().manager().metadata(tn)
 
         return False if mtd is None else mtd.fieldAllowNull(fn)
 
@@ -1261,7 +1248,7 @@ class FLUtil(object):
             return False
 
         conn = flapplication.aqApp.db().useConn(conn_name)
-        mtd = conn.manager().metadata(tn)
+        mtd = conn.connManager().manager().metadata(tn)
 
         return False if mtd is None else mtd.fieldIsPrimaryKey(fn)
 
@@ -1279,7 +1266,7 @@ class FLUtil(object):
             return False
 
         conn = flapplication.aqApp.db().useConn(conn_name)
-        mtd = conn.manager().metadata(tn)
+        mtd = conn.connManager().manager().metadata(tn)
 
         if mtd is None:
             return False
@@ -1301,7 +1288,7 @@ class FLUtil(object):
             return None  # return QVariant
 
         conn = flapplication.aqApp.db().useConn(conn_name)
-        mtd = conn.manager().metadata(tn)
+        mtd = conn.connManager().manager().metadata(tn)
 
         if mtd is None:
             return None  # return QVariant
@@ -1313,7 +1300,7 @@ class FLUtil(object):
         return field.defaultValue()
 
     @classmethod
-    def formatValue(cls, t: str, v: Any, upper: bool, conn_name: str = "default") -> Any:
+    def formatValue(cls, t: str, v: Any, upper: bool, conn_name: str = "default") -> str:
         """
         Return formatted value.
 
@@ -1322,9 +1309,8 @@ class FLUtil(object):
         @param conn_name. Name of the connection to use
         @return Formatted Value
         """
-
         conn = flapplication.aqApp.db().useConn(conn_name)
-        return conn.manager().formatValue(t, v, upper)
+        return conn.connManager().manager().formatValue(t, v, upper)
 
     @classmethod
     def nameUser(cls) -> str:

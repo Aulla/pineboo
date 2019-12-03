@@ -193,10 +193,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 s = ""
 
         elif type_ in ("uint", "int", "double", "serial"):
-            if v is None:
-                s = 0
-            else:
-                s = v
+            s = v or 0
 
         else:
             if v and type_ == "string":

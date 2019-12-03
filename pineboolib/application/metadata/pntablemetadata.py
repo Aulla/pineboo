@@ -271,10 +271,12 @@ class PNTableMetaData(ITableMetaData):
 
         ret_ = None
         if type_ is not None:
-            if type_ in ("string", "counter"):
+            if type_ in ("string", "counter", "timestamp"):
                 ret_ = 3
             elif type_ == "stringlist":
                 ret_ = 4
+            elif type_ == "pixmap":
+                ret_ = 6
             elif type_ == "uint":
                 ret_ = 17
             elif type_ == "bool":

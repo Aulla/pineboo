@@ -70,6 +70,15 @@
 	</field>	
 	
 	<field>
+		<name>int_field</name>
+		<alias>QT_TRANSLATE_NOOP("MetaData","Int field")</alias>
+		<null>true</null>
+		<pk>false</pk>
+		<type>int</type>
+		<default>0</default>
+	</field>
+	
+	<field>
 		<name>bloqueo</name>
 		<alias>QT_TRANSLATE_NOOP("MetaData","Bloqueo")</alias>
 		<null>false</null>

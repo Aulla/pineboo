@@ -78,6 +78,64 @@ class TestTranslations(unittest.TestCase):
         self.assertFalse(util.numCreditCard("5539110012141618"))
         self.assertTrue(util.numCreditCard("3716820019271998"))
 
+    def test_dates(self) -> None:
+        """Test dates functions."""
+        from pineboolib.qsa import qsa
+
+        util = qsa.FLUtil()
+
+        self.assertEqual(str(util.addDays("30-11-2020", 2)), "2020-12-02T00:00:00")
+        self.assertEqual(str(util.addDays("2021-12-31", 2)), "2022-01-02T00:00:00")
+        self.assertEqual(str(util.addDays("2021-12-31T00:01:00", 2)), "2022-01-02T00:00:00")
+        self.assertEqual(str(util.addMonths("2021-12-31", 12)), "2022-12-31T00:00:00")
+        self.assertEqual(str(util.addMonths("01-10-2021", 12)), "2022-10-01T00:00:00")
+        self.assertEqual(str(util.addYears("01-10-2021", 12)), "2033-10-01T00:00:00")
+        self.assertEqual(str(util.addYears("2021-10-01", 12)), "2033-10-01T00:00:00")
+        self.assertEqual(util.daysTo(qsa.Date("2019-07-12"), qsa.Date("2019-07-15")), 3)
+        self.assertEqual(util.daysTo(qsa.Date("2019-07-01"), qsa.Date("2019-11-15")), 137)
+        self.assertEqual(util.daysTo(qsa.Date("2019-07-01"), qsa.Date("2019-03-15")), -108)
+
+    def test_basic_2(self) -> None:
+        """Test basic 2."""
+        from PyQt5 import QtCore
+
+        from pineboolib.fllegacy import flutil
+
+        util = flutil.FLUtil()
+
+        self.assertEqual(util.buildNumber("123.4533", "", 2), "123.45")
+        self.assertEqual(util.buildNumber("123.451000", "", 3), "123.451")
+        self.assertEqual(util.buildNumber("123.451000", "", 1), "123.5")
+        self.assertEqual(util.buildNumber("123.451000", "", 2), "123.45")
+        self.assertEqual(util.buildNumber("-123.451000", "", 2), "-123.45")
+
+        self.assertEqual(util.nameBD(), "temp_db")
+        self.assertEqual(util.nameUser(), "memory_user")
+        self.assertEqual(util.getIdioma(), QtCore.QLocale().name()[:2])
+
+    def test_field_functions(self) -> None:
+        """Test field functions."""
+        from pineboolib.fllegacy import flutil
+
+        util = flutil.FLUtil()
+
+        self.assertEqual(util.formatValue("string", "uno", True), "'UNO'")
+        self.assertEqual(util.formatValue("uint", 1233, False), "1233")
+        self.assertEqual(util.formatValue("double", 1233, False), "1233")
+        self.assertEqual(util.formatValue("bool", True, False), "1")
+
+        self.assertTrue(util.fieldDefaultValue("bloqueo", "flareas"))
+        self.assertFalse(util.fieldIsCompoundKey("idarea", "flareas"))
+        self.assertTrue(util.fieldIsPrimaryKey("idarea", "flareas"))
+        self.assertTrue(util.fieldAllowNull("icono", "flmodules"))
+        self.assertFalse(util.fieldAllowNull("idarea", "flareas"))
+        self.assertEqual(util.fieldAliasToName("Icono", "flmodules"), "icono")
+        self.assertEqual(util.fieldNameToAlias("icono", "flmodules"), "Icono")
+        self.assertEqual(util.fieldType("icono", "flmodules"), 6)
+        self.assertEqual(util.fieldLength("descripcion", "flareas"), 100)
+        self.assertEqual(util.fieldLength("idarea", "flareas"), 15)
+        self.assertEqual(util.fieldLength("bloqueo", "flareas"), 0)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
