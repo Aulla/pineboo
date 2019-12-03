@@ -19,7 +19,6 @@ from pineboolib import application
 
 from . import flapplication
 
-
 from typing import Any, Union, Dict, Optional, Tuple, Type, cast, Callable, TYPE_CHECKING
 
 
@@ -949,8 +948,7 @@ class FLFormDB(QtWidgets.QDialog):
             self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively),
         )
         if ret is not None:
-            from . import flfielddb
-            from . import fltabledb
+            from . import flfielddb, fltabledb
 
             if isinstance(ret, (flfielddb.FLFieldDB, fltabledb.FLTableDB)):
                 if ret._loaded is False:

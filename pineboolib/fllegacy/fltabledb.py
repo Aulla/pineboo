@@ -6,11 +6,32 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.metadata import pnfieldmetadata, pnrelationmetadata
+from pineboolib.application.qsatypes import sysbasetype
+
+from pineboolib.q3widgets import qtable
+
+from pineboolib.core.utils import utils_base
 from pineboolib.core import decorators, settings
+
+from pineboolib import application
 
 from pineboolib import logging
 
-from . import fldatatable, flformsearchdb, flutil
+from . import (
+    fldatatable,
+    flformsearchdb,
+    flutil,
+    flformrecorddb,
+    fldoublevalidator,
+    fluintvalidator,
+    flintvalidator,
+    flcheckbox,
+    fltimeedit,
+    fldateedit,
+    flspinbox,
+)
+
+from pineboolib.fllegacy.aqsobjects import aqods
 
 from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
 
@@ -358,11 +379,10 @@ class FLTableDB(QtWidgets.QWidget):
         self.checkColumnEnabled_ = False
         self.tdbFilterLastWhere_ = None
         self.filter_ = ""
-        from pineboolib.application import project
 
         self.iconSize = []
-        if project._DGI is not None:
-            self.iconSize = project.DGI.iconSize()
+        if application.project._DGI is not None:
+            self.iconSize = application.project.DGI.iconSize()
 
         self.tabControlLayout = QtWidgets.QHBoxLayout()
         self.tabFilter = QtWidgets.QFrame()  # contiene filtros
@@ -371,9 +391,9 @@ class FLTableDB(QtWidgets.QWidget):
         self.tabData.setObjectName("tabTable")
         self.functionGetColor_ = None
 
-        from .flformdb import FLFormDB
+        from . import flformdb
 
-        while not isinstance(self.topWidget, FLFormDB):
+        while not isinstance(self.topWidget, flformdb.FLFormDB):
             self.topWidget = self.topWidget.parentWidget()
             if not self.topWidget:
                 break
@@ -1087,8 +1107,6 @@ class FLTableDB(QtWidgets.QWidget):
 
         self.tableRecords()
 
-        from .flformrecorddb import FLFormRecordDB
-
         if not self.cursorAux:
             if not self.initSearch_:
                 self.refresh(True, True)
@@ -1102,12 +1120,15 @@ class FLTableDB(QtWidgets.QWidget):
                 else:
                     self.refreshDelayed()
 
-            if not isinstance(self.topWidget, FLFormRecordDB) and self.lineEditSearch is not None:
+            if (
+                not isinstance(self.topWidget, flformrecorddb.FLFormRecordDB)
+                and self.lineEditSearch is not None
+            ):
                 self.lineEditSearch.setFocus()
 
         if self.cursorAux:
             if (
-                isinstance(self.topWidget, FLFormRecordDB)
+                isinstance(self.topWidget, flformrecorddb.FLFormRecordDB)
                 and self.cursorAux.modeAccess() == pnsqlcursor.PNSqlCursor.Browse
             ):
                 self.cursor().setEdition(False)
@@ -1125,7 +1146,7 @@ class FLTableDB(QtWidgets.QWidget):
                     self.refreshDelayed()
 
         elif (
-            isinstance(self.topWidget, FLFormRecordDB)
+            isinstance(self.topWidget, flformrecorddb.FLFormRecordDB)
             and self.cursor().modeAccess() == pnsqlcursor.PNSqlCursor.Browse
             and tmd
             and not tmd.isQuery()
@@ -1138,9 +1159,6 @@ class FLTableDB(QtWidgets.QWidget):
 
     def createFLTableDBWidget(self) -> None:
         """Create all controls."""
-
-        from pineboolib.q3widgets import qtable
-        from pineboolib.core.utils import utils_base
 
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
@@ -1529,7 +1547,6 @@ class FLTableDB(QtWidgets.QWidget):
 
                             editor_le = QtWidgets.QLineEdit(self)
                             if type_ == "double":
-                                from . import fldoublevalidator
 
                                 editor_le.setValidator(
                                     fldoublevalidator.FLDoubleValidator(
@@ -1539,7 +1556,6 @@ class FLTableDB(QtWidgets.QWidget):
                                 editor_le.setAlignment(QtCore.Qt.AlignRight)
                             elif type_ in ("uint", "int"):
                                 if type_ == "uint":
-                                    from . import fluintvalidator
 
                                     editor_le.setValidator(
                                         fluintvalidator.FLUIntValidator(
@@ -1547,7 +1563,6 @@ class FLTableDB(QtWidgets.QWidget):
                                         )
                                     )
                                 else:
-                                    from . import flintvalidator
 
                                     editor_le.setValidator(
                                         flintvalidator.FLIntValidator(
@@ -1571,7 +1586,6 @@ class FLTableDB(QtWidgets.QWidget):
                             self.tdbFilter.setCellWidget(_linea, j, editor_le)
 
                     elif type_ == "serial":
-                        from . import flspinbox
 
                         editor_se = flspinbox.FLSpinBox()
                         editor_se.setMaxValue(pow(10, partInteger) - 1)
@@ -1584,7 +1598,6 @@ class FLTableDB(QtWidgets.QWidget):
                         self.tdbFilter.setCellWidget(_linea, j, editor_px)
 
                     elif type_ == "date":
-                        from . import fldateedit
 
                         editor_de = fldateedit.FLDateEdit(self, _label)
                         editor_de.setOrder(fldateedit.FLDateEdit.DMY)
@@ -1596,7 +1609,6 @@ class FLTableDB(QtWidgets.QWidget):
                         self.tdbFilter.setCellWidget(_linea, j, editor_de)
 
                     elif type_ == "time":
-                        from . import fltimeedit
 
                         editor_te = fltimeedit.FLTimeEdit(self)
                         timeNow = QtCore.QTime.currentTime()
@@ -1604,7 +1616,6 @@ class FLTableDB(QtWidgets.QWidget):
                         self.tdbFilter.setCellWidget(_linea, j, editor_te)
 
                     elif type_ in (pnfieldmetadata.PNFieldMetaData.Unlock, "bool"):
-                        from . import flcheckbox
 
                         editor_cb = flcheckbox.FLCheckBox(self)
                         self.tdbFilter.setCellWidget(_linea, j, editor_cb)
@@ -1780,9 +1791,8 @@ class FLTableDB(QtWidgets.QWidget):
                     arg2 = editorOp1.value()
                     arg4 = editorOp2.value()
                 else:
-                    from pineboolib.fllegacy.flspinbox import FLSpinBox
 
-                    editorOp1 = FLSpinBox(self.tdbFilter.cellWidget(i, 2))
+                    editorOp1 = flspinbox.FLSpinBox(self.tdbFilter.cellWidget(i, 2))
                     arg2 = editorOp1.value()
 
             if type == "date":
@@ -2059,9 +2069,7 @@ class FLTableDB(QtWidgets.QWidget):
                     vars.append(field_3.name())
                     vars.append(self.orderAsc3_)
 
-                from pineboolib.application import project
-
-                ret = project.call(function_qsa, vars, None, False)
+                ret = application.project.call(function_qsa, vars, None, False)
                 logger.debug("functionQSA: %s -> %r" % (function_qsa, ret))
                 if ret and not isinstance(ret, bool):
                     if isinstance(ret, str):
@@ -2594,25 +2602,15 @@ class FLTableDB(QtWidgets.QWidget):
         if not hasattr(tdb, "cursor"):
             return
 
-        from pineboolib.fllegacy.aqsobjects.aqods import (
-            AQOdsStyle,
-            AQOdsGenerator,
-            AQOdsSpreadSheet,
-            AQOdsSheet,
-            AQOdsRow,
-            AQOdsColor,
-            AQOdsImage,
-        )
-
         # hor_header = tdb.horizontalHeader()
-        title_style = [AQOdsStyle.Align_center, AQOdsStyle.Text_bold]
-        border_bot = AQOdsStyle.Border_bottom
-        border_right = AQOdsStyle.Border_right
-        border_left = AQOdsStyle.Border_left
-        italic = AQOdsStyle.Text_italic
-        ods_gen = AQOdsGenerator()
-        spread_sheet = AQOdsSpreadSheet(ods_gen)
-        sheet = AQOdsSheet(spread_sheet, mtd.alias())
+        title_style = [aqods.AQOdsStyle.Align_center, aqods.AQOdsStyle.Text_bold]
+        border_bot = aqods.AQOdsStyle.Border_bottom
+        border_right = aqods.AQOdsStyle.Border_right
+        border_left = aqods.AQOdsStyle.Border_left
+        italic = aqods.AQOdsStyle.Text_italic
+        ods_gen = aqods.AQOdsGenerator()
+        spread_sheet = aqods.AQOdsSpreadSheet(ods_gen)
+        sheet = aqods.AQOdsSheet(spread_sheet, mtd.alias())
         tdb_num_rows = cursor.size()
         tdb_num_cols = len(mtd.fieldNames())
 
@@ -2620,8 +2618,8 @@ class FLTableDB(QtWidgets.QWidget):
         id_pix = 0
         pd = util.createProgressDialog("Procesando", tdb_num_rows)
         util.setProgress(1)
-        row = AQOdsRow(sheet)
-        row.addBgColor(AQOdsColor(0xE7E7E7))
+        row = aqods.AQOdsRow(sheet)
+        row.addBgColor(aqods.AQOdsColor(0xE7E7E7))
         for i in range(tdb_num_cols):
             field = mtd.indexFieldObject(tdb.visual_index_to_logical_index(i))
             if field is not None and field.visibleGrid():
@@ -2642,7 +2640,7 @@ class FLTableDB(QtWidgets.QWidget):
             if pd.wasCanceled():
                 break
 
-            row = AQOdsRow(sheet)
+            row = aqods.AQOdsRow(sheet)
             for c in range(tdb_num_cols):
                 # idx = tdb.indexOf(c)  # Busca si la columna se ve
                 # if idx == -1:
@@ -2679,7 +2677,7 @@ class FLTableDB(QtWidgets.QWidget):
                                     pix_name = "pix%s_" % id_pix
                                     id_pix += 1
                                     row.opIn(
-                                        AQOdsImage(
+                                        aqods.AQOdsImage(
                                             pix_name,
                                             round((pix.width() * 2.54) / 98, 2) * 20,
                                             round((pix.height() * 2.54) / 98, 2) * 20,
@@ -2713,9 +2711,6 @@ class FLTableDB(QtWidgets.QWidget):
         # cur.seek(cur_row)
         sheet.close()
         spread_sheet.close()
-
-        from pineboolib import application
-        from pineboolib.application.qsatypes import sysbasetype
 
         util.setProgress(tdb_num_rows)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
@@ -2798,9 +2793,8 @@ class FLTableDB(QtWidgets.QWidget):
             msec_refresh = 200
             ret = None
             try:
-                from pineboolib.application import project
 
-                ret = project.call(functionQSA, vargs, None, False)
+                ret = application.project.call(functionQSA, vargs, None, False)
                 logger.debug("functionQSA:%s:", functionQSA)
             except Exception:
                 pass

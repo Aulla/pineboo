@@ -6,6 +6,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
 from pineboolib.application.metadata import pnrelationmetadata
+from pineboolib.application import types
+from pineboolib.application.utils import xpm
 
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings, decorators
@@ -14,8 +16,21 @@ from pineboolib.q3widgets import qpushbutton, qtextedit, qlineedit, qcombobox
 
 from pineboolib import application, logging
 
-from . import fllineedit, flutil, flformdb, fldateedit, fltimeedit, flpixmapview
-from . import flspinbox, fldatatable, flcheckbox
+from . import (
+    fllineedit,
+    flutil,
+    fldateedit,
+    fltimeedit,
+    flpixmapview,
+    flspinbox,
+    fldatatable,
+    flcheckbox,
+    fluintvalidator,
+    flintvalidator,
+    fldoublevalidator,
+    flformsearchdb,
+    fltabledb,
+)
 
 import datetime
 
@@ -211,6 +226,8 @@ class FLFieldDB(QtWidgets.QWidget):
         self.timer_1 = QtCore.QTimer(self)
 
         self.cursorAux = None
+
+        from . import flformdb
 
         while not isinstance(parent, flformdb.FLFormDB):
             parent = parent.parentWidget()
@@ -848,7 +865,6 @@ class FLFieldDB(QtWidgets.QWidget):
             if self.editor_:
                 v = cast(fldateedit.FLDateEdit, self.editor_).date
                 if v:
-                    from pineboolib.application import types
 
                     v = types.Date(v)
 
@@ -1304,9 +1320,8 @@ class FLFieldDB(QtWidgets.QWidget):
                 #    return
                 if isinstance(v, str):
                     if v.find("static char") > -1:
-                        from pineboolib.application.utils.xpm import cacheXPM
 
-                        v = cacheXPM(v)
+                        v = xpm.cacheXPM(v)
 
                 pix = QtGui.QPixmap(v)
                 # if not QtGui.QPixmapCache.find(cs.left(100), pix):
@@ -1529,9 +1544,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
             if isinstance(v, str):
                 if v.find("static char") > -1:
-                    from pineboolib.application.utils.xpm import cacheXPM
 
-                    v = cacheXPM(v)
+                    v = xpm.cacheXPM(v)
 
             pix = QtGui.QPixmap(v)
             # pix.loadFromData(v)
@@ -2298,7 +2312,6 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.editor_.installEventFilter(self)
 
             if type_ == "double":
-                from . import fldoublevalidator
 
                 self.editor_.setValidator(
                     fldoublevalidator.FLDoubleValidator(
@@ -2311,14 +2324,12 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.editor_.setAlignment(QtCore.Qt.AlignRight)
             else:
                 if type_ == "uint":
-                    from . import fluintvalidator
 
                     self.editor_.setValidator(
                         fluintvalidator.FLUIntValidator(0, pow(10, partInteger), self.editor_)
                     )
                     pass
                 elif type_ == "int":
-                    from . import flintvalidator
 
                     self.editor_.setValidator(
                         flintvalidator.FLIntValidator(
@@ -2737,9 +2748,6 @@ class FLFieldDB(QtWidgets.QWidget):
             return
 
         fMD = field.associatedField()
-
-        from . import flformsearchdb
-        from . import fltabledb
 
         form_search: flformsearchdb.FLFormSearchDB
 
