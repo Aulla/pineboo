@@ -182,28 +182,23 @@ class Project(object):
             )
 
         conn = self.conn_manager.mainConn()
+        db_name = conn.DBName()
         # TODO: Refactorizar esta función en otras más sencillas
         # Preparar temporal
 
-        if self.deleteCache and os.path.exists(path._dir("cache/%s" % conn.DBName())):
+        if self.deleteCache and os.path.exists(path._dir("cache/%s" % db_name)):
 
             self.message_manager().send("splash", "showMessage", ["Borrando caché ..."])
             self.logger.debug(
-                "DEVELOP: DeleteCache Activado\nBorrando %s", path._dir("cache/%s" % conn.DBName())
+                "DEVELOP: DeleteCache Activado\nBorrando %s", path._dir("cache/%s" % db_name)
             )
-            for root, dirs, files in os.walk(path._dir("cache/%s" % conn.DBName()), topdown=False):
+            for root, dirs, files in os.walk(path._dir("cache/%s" % db_name), topdown=False):
                 for name in files:
                     os.remove(os.path.join(root, name))
                 for name in dirs:
                     os.rmdir(os.path.join(root, name))
 
-        if not os.path.exists(path._dir("cache")):
-            os.makedirs(path._dir("cache"))
-
-        if not os.path.exists(path._dir("cache/%s" % conn.DBName())):
-            os.makedirs(path._dir("cache/%s" % conn.DBName()))
-
-        if not self.deleteCache:
+        else:
             keep_images = settings.config.value("ebcomportamiento/keep_general_cache", False)
             if keep_images is False:
                 for f in os.listdir(self.tmpdir):
@@ -216,6 +211,12 @@ class Project(object):
                                 "No se ha podido borrar %s al limpiar la cache", pt_
                             )
                             pass
+
+        if not os.path.exists(path._dir("cache")):
+            os.makedirs(path._dir("cache"))
+
+        if not os.path.exists(path._dir("cache/%s" % db_name)):
+            os.makedirs(path._dir("cache/%s" % db_name))
 
         # Conectar:
 
@@ -236,7 +237,8 @@ class Project(object):
             "flseqs",
             "flsettings",
         ):
-            self.conn_manager.manager().createSystemTable(table)
+            if not self.conn_manager.manager().existsTable(table):
+                self.conn_manager.manager().createSystemTable(table)
 
         cursor_ = self.conn_manager.dbAux().cursor()
         self.areas: Dict[str, AreaStruct] = {}
@@ -271,10 +273,7 @@ class Project(object):
 
         f1 = open(path._dir("project.txt"), "w")
         self.files = {}
-        if self._DGI.useDesktop() and self._DGI.localDesktop():
-            tiempo_ini = time.time()
-        if not os.path.exists(path._dir("cache")):
-            raise AssertionError
+
         p = 0
 
         list_files: List[str] = []
@@ -286,7 +285,7 @@ class Project(object):
             p = p + 1
             if idmodulo not in self.modules:
                 continue  # I
-            fileobj = file.File(idmodulo, nombre, sha, db_name=conn.DBName())
+            fileobj = file.File(idmodulo, nombre, sha, db_name=db_name)
             if nombre in self.files:
                 self.logger.warning("run: file %s already loaded, overwritting..." % nombre)
             self.files[nombre] = fileobj
@@ -366,20 +365,15 @@ class Project(object):
         if list_files:
             self.parse_script_list(list_files)
 
-        tiempo_fin = time.time()
-        self.logger.info(
-            "Descarga del proyecto completo a disco duro: %.3fs", (tiempo_fin - tiempo_ini)
-        )
-
         # Cargar el núcleo común del proyecto
-        idmodulo = "sys"
+
         for root, dirs, files in os.walk(utils_base.filedir(".", "system_module")):
             # list_files = []
             for nombre in files:
                 if root.find("modulos") == -1:
-                    fileobj = file.File(idmodulo, nombre, basedir=root, db_name=conn.DBName())
+                    fileobj = file.File("sys", nombre, basedir=root, db_name=db_name)
                     self.files[nombre] = fileobj
-                    self.modules[idmodulo].add_project_file(fileobj)
+                    self.modules["sys"].add_project_file(fileobj)
 
                     # if self.parseProject and nombre.endswith(".qs"):
                     # self.parseScript(path._dir(root, nombre))
