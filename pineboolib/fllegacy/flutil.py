@@ -649,7 +649,9 @@ class FLUtil(object):
         return fecha.addYears(offset)
 
     @classmethod
-    def daysTo(cls, d1: Union[types.Date, str], d2: Union[types.Date, str]) -> Optional[int]:
+    def daysTo(
+        cls, d1: Union[types.Date, str, date], d2: Union[types.Date, str, date]
+    ) -> Optional[int]:
         """
         Return difference of days from one date to another.
 
@@ -657,37 +659,22 @@ class FLUtil(object):
         @param d2 Destination Date
         @return Number of days between d1 and d2. It will be negative if d2 is earlier than d1.
         """
+        date1: str
+        date2: str
 
-        if isinstance(d1, types.Date):
-            d1 = d1.toString()
+        if isinstance(d1, (types.Date, date, str)):
+            date1 = str(d1)
 
-        if isinstance(d1, date):
-            d1 = str(d1)
+        date1 = date1[:10]
 
-        if isinstance(d1, str):
-            d1 = d1[:10]
+        if isinstance(d2, (types.Date, date, str)):
+            date2 = str(d2)
 
-        if not isinstance(d1, str) or d1 == "":
-            if d1 not in (None, ""):
-                logger.error("daysTo: No reconozco el tipo de dato %s", type(d1))
-            return None
+        date2 = date2[:10]
 
-        if isinstance(d2, types.Date):
-            d2 = d2.toString()
-
-        if isinstance(d2, date):
-            d2 = str(d2)
-
-        if isinstance(d2, str):
-            d2 = d2[:10]
-
-        if not isinstance(d2, str) or d2 == "":
-            if d2 not in (None, ""):
-                logger.error("daysTo: No reconozco el tipo de dato %s", type(d2))
-            return None
-        d1 = datetime.datetime.strptime(d1, "%Y-%m-%d").date()
-        d2 = datetime.datetime.strptime(d2, "%Y-%m-%d").date()
-        return (d2 - d1).days
+        r1 = datetime.datetime.strptime(date1, "%Y-%m-%d").date()
+        r2 = datetime.datetime.strptime(date2, "%Y-%m-%d").date()
+        return (r2 - r1).days
 
     @classmethod
     def buildNumber(cls, v: Union[int, float, str], tipo: str, part_decimal: int = 0) -> str:
