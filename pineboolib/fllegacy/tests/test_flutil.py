@@ -26,6 +26,7 @@ class TestTranslations(unittest.TestCase):
         )
 
     def test_sqlSelect(self) -> None:
+        """Test sqlSelect."""
 
         from pineboolib.qsa import qsa
 
@@ -56,6 +57,26 @@ class TestTranslations(unittest.TestCase):
         self.assertEqual(
             util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], 0, cx), "123oX"
         )
+
+    def test_basic_1(self) -> None:
+        """"Test basic 1."""
+
+        from pineboolib.qsa import qsa
+
+        util = qsa.FLUtil()
+
+        self.assertEqual(util.partDecimal(1.21), 21)
+        self.assertEqual(util.partInteger(12.345), 12)
+        result = "CIENTO VEINTITRES MILLONES CUATROCIENTOS CINCUENTA Y SEIS MIL SETECIENTOS OCHENTA"
+        result += " Y NUEVE EUROS CON VEINTIUN CÉNTIMOS"
+        self.assertEqual(util.enLetraMonedaEuro(123456789.21), result)
+
+        self.assertEqual(util.letraDni(12345678), "Z")
+        self.assertEqual(util.nombreCampos("flareas"), [3, "bloqueo", "idarea", "descripcion"])
+        self.assertEqual(util.calcularDC(30660001), "2")
+        self.assertEqual(util.formatoMiles("12345"), "12.345")
+        self.assertFalse(util.numCreditCard("5539110012141618"))
+        self.assertTrue(util.numCreditCard("3716820019271998"))
 
     @classmethod
     def tearDownClass(cls) -> None:

@@ -345,7 +345,7 @@ class FLUtil(object):
 
     @classmethod
     @decorators.BetaImplementation
-    def enLetraMonedaEuro(cls, n: int) -> str:
+    def enLetraMonedaEuro(cls, n: Union[int, float]) -> str:
         """
         Return the expression in text of how a monetary amount is stated, in Spanish and in Euros.
 
@@ -526,19 +526,16 @@ class FLUtil(object):
         @param num Text string with card number
         @return Returns true if the card number is valid
         """
-        n_sum = 0
-        n_rest = int(num)
-        i = 0
-        while i < 10:
-            n_sum += int(num[i])
-            n_rest = int(num[i + 1]) * 2
-            if n_rest > 9:
-                n_rest -= 9
+        list_ = []
+        for s in num:
+            list_.append(int(s))
 
-            n_sum += n_rest
-            i += 2
+        for i in range(0, len(num), 2):
+            list_[i] = list_[i] * 2
+            if list_[i] >= 10:
+                list_[i] = list_[i] // 10 + list_[i] % 10
 
-        return True if n_sum % 10 == 0 else False
+        return sum(list_) % 10 == 0
 
     @classmethod
     def nextCounter(
