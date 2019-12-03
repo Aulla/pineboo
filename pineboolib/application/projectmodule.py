@@ -2,7 +2,6 @@
 Project Module.
 """
 import os
-import time
 from optparse import Values
 from pathlib import Path
 
@@ -569,7 +568,7 @@ class Project(object):
 
     def load_version(self):
         """Initialize current version numbers."""
-        self.version = "0.64"
+        self.version = "0.64.1"
         if settings.config.value("application/dbadmin_enabled", False):
             self.version = "DBAdmin v%s" % self.version
         else:
