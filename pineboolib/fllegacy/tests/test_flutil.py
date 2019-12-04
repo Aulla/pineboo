@@ -70,11 +70,17 @@ class TestTranslations(unittest.TestCase):
         result = "CIENTO VEINTITRES MILLONES CUATROCIENTOS CINCUENTA Y SEIS MIL SETECIENTOS OCHENTA"
         result += " Y NUEVE EUROS CON VEINTIUN CÉNTIMOS"
         self.assertEqual(util.enLetraMonedaEuro(123456789.21), result)
-
+        self.assertEqual(util.enLetraMonedaEuro(100), "CIEN EUROS")
+        self.assertEqual(util.enLetraMonedaEuro(5000), "CINCO MIL EUROS")
+        self.assertEqual(util.enLetraMonedaEuro(6002), "SEIS MIL DOS EUROS")
+        self.assertEqual(util.enLetraMonedaEuro(13), "TRECE EUROS")
+        self.assertEqual(util.enLetraMonedaEuro(-10), "MENOS DIEZ EUROS")
+        self.assertEqual(util.enLetraMonedaEuro(5125), "CINCO MIL CIENTO VEINTICINCO EUROS")
         self.assertEqual(util.letraDni(12345678), "Z")
         self.assertEqual(util.nombreCampos("flareas"), [3, "bloqueo", "idarea", "descripcion"])
         self.assertEqual(util.calcularDC(30660001), "2")
         self.assertEqual(util.formatoMiles("12345"), "12.345")
+        self.assertEqual(util.formatoMiles("-12.05"), "-12,05")
         self.assertFalse(util.numCreditCard("5539110012141618"))
         self.assertTrue(util.numCreditCard("3716820019271998"))
 
@@ -94,6 +100,7 @@ class TestTranslations(unittest.TestCase):
         self.assertEqual(util.daysTo(qsa.Date("2019-07-12"), qsa.Date("2019-07-15")), 3)
         self.assertEqual(util.daysTo(qsa.Date("2019-07-01"), qsa.Date("2019-11-15")), 137)
         self.assertEqual(util.daysTo(qsa.Date("2019-07-01"), qsa.Date("2019-03-15")), -108)
+        self.assertEqual(util.dateAMDtoDMA("2019-12-01"), "01-12-2019")
 
     def test_basic_2(self) -> None:
         """Test basic 2."""
@@ -112,6 +119,50 @@ class TestTranslations(unittest.TestCase):
         self.assertEqual(util.nameBD(), "temp_db")
         self.assertEqual(util.nameUser(), "memory_user")
         self.assertEqual(util.getIdioma(), QtCore.QLocale().name()[:2])
+
+    def test_basic_3(self) -> None:
+        """Test basic 3."""
+        from pineboolib.fllegacy import flutil
+
+        util = flutil.FLUtil()
+        self.assertEqual(util.roundFieldValue("100.0193", "fltest", "double_field"), "100.02")
+        self.assertEqual(util.sha1("123456"), "7C4A8D09CA3762AF61E59520943DC26494F8941B")
+
+    def test_sql(self) -> None:
+        """Test sql functions."""
+        from pineboolib.fllegacy import flutil, flsqlcursor
+        from pineboolib.qsa import qsa
+
+        ar_1 = qsa.Array("idarea", "descripcion")
+        ar_2 = qsa.Array("G", "area test 2")
+
+        util = flutil.FLUtil()
+        self.assertTrue(util.sqlInsert("flareas", ["idarea", "descripcion"], ["T", "area test 1"]))
+        self.assertTrue(util.sqlInsert("flareas", ar_1, ar_2))
+        cur = flsqlcursor.FLSqlCursor("flareas")
+        cur.select()
+        self.assertEqual(cur.size(), 2)
+
+        res_1 = util.sqlSelect("flareas", "COUNT(idarea)", "1=1")
+        self.assertEqual(res_1, 2)
+
+        res_2 = util.quickSqlSelect("flareas", "COUNT(idarea)", "1=1")
+        self.assertEqual(res_2, 2)
+
+        self.assertTrue(
+            util.sqlUpdate("flareas", "descripcion", "area test modificado", "idarea ='T'")
+        )
+        self.assertEqual(
+            util.quickSqlSelect("flareas", "descripcion", "idarea ='T'"), "area test modificado"
+        )
+
+        self.assertTrue(util.execSql("SELECT COUNT(*) FROM flareas WHERE '1=1'", "default"))
+        self.assertFalse(util.execSql("SELECT COUNT(*) FROG flareas WHERE '1=1'", "default"))
+
+        self.assertTrue(util.sqlDelete("flareas", "idarea ='T'", "default"))
+        self.assertEqual(cur.size(), 1)
+        self.assertTrue(util.quickSqlDelete("flareas", "idarea ='G'", "default"))
+        self.assertEqual(cur.size(), 0)
 
     def test_field_functions(self) -> None:
         """Test field functions."""

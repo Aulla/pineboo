@@ -184,11 +184,10 @@ class FLUtil(object):
             raise ValueError("Param n must be positive integer")
         if n < 10000:
             buffer = cls.decenasmillar(n)
-            return buffer
-
-        buffer = cls.centenas(n / 1000)
-        buffer = buffer + " mil "
-        buffer = buffer + cls.centenas(n % 1000)
+        else:
+            buffer = cls.centenas(n / 1000)
+            buffer = buffer + " mil "
+            buffer = buffer + cls.centenas(n % 1000)
 
         return buffer
 
@@ -229,9 +228,9 @@ class FLUtil(object):
         elif n < 100:
             buffer = cls.decenas(int(n))
         else:
-            buffer = buffer + cls.vecCentenas[cls.partInteger(n / 100)]
-            buffer = buffer + " "
-            buffer = buffer + cls.decenas(int(n % 100))
+            buffer += cls.vecCentenas[cls.partInteger(n / 100)]
+            buffer += " "
+            buffer += cls.decenas(int(n % 100))
 
         return buffer
 
@@ -246,14 +245,20 @@ class FLUtil(object):
         if n < 1000:
             buffer = ""
 
-        if n / 1000 == 1:
-            buffer = "mil "
+        elif n / 1000 == 1:
+            buffer = "mil"
 
-        if n / 1000 > 1:
+        elif n / 1000 > 1:
             buffer = cls.unidades(int(n / 1000))
-            buffer = buffer + " mil "
+            buffer += " mil"
 
-        buffer = buffer + cls.centenas(int(n % 1000))
+        centenas = cls.centenas(int(n % 1000))
+        # if buffer:
+        #    buffer += " %s" % centenas
+        # else:
+        if buffer and centenas:
+            buffer += " "
+        buffer += centenas
 
         return buffer
 
@@ -267,11 +272,10 @@ class FLUtil(object):
         buffer = ""
         if n < 10000:
             buffer = cls.unidadesmillar(n)
-            return buffer
-
-        buffer = cls.decenas(n / 1000)
-        buffer = buffer + " mil "
-        buffer = buffer + cls.centenas(int(n % 10000))
+        else:
+            buffer = cls.decenas(n / 1000)
+            buffer = buffer + " mil "
+            buffer = buffer + cls.centenas(int(n % 10000))
         return buffer
 
     @classmethod
@@ -289,11 +293,11 @@ class FLUtil(object):
         buffer = ""
         if n > 1000000000:
             buffer = "Sólo hay capacidad hasta mil millones"
-            return buffer
 
-        if n < 1000000:
+        elif n < 1000000:
+
             buffer = cls.centenamillar(int(n))
-            return buffer
+
         else:
             if n / 1000000 == 1:
                 buffer = "un millon"
@@ -301,7 +305,8 @@ class FLUtil(object):
                 buffer = cls.centenas(int(n / 1000000))
                 buffer = buffer + " millones "
 
-        buffer = buffer + cls.centenamillar(int(n % 1000000))
+            buffer = buffer + cls.centenamillar(int(n % 1000000))
+
         return buffer.upper()
 
     @classmethod
@@ -327,19 +332,19 @@ class FLUtil(object):
         res = ""
 
         if entero > 0:
-            res = cls.enLetra(entero) + " " + m
+            res = "%s %s" % (cls.enLetra(entero), m)
 
-        if entero > 0 and decimal > 0:
-            # res += QString(" ") + QT_TR_NOOP("con") + " " + enLetra(decimal) + " " + QT_TR_NOOP("céntimos");
-            res += " " + "con" + " " + cls.enLetra(decimal) + " " + "céntimos"
+            if decimal > 0:
+                # res += QString(" ") + QT_TR_NOOP("con") + " " + enLetra(decimal) + " " + QT_TR_NOOP("céntimos");
+                res += " con %s céntimos" % cls.enLetra(decimal)
 
         if entero <= 0 and decimal > 0:
             # res = enLetra(decimal) + " " + QT_TR_NOOP("céntimos");
-            res = cls.enLetra(decimal) + " " + "céntimos"
+            res = "%s céntimos" % cls.enLetra(decimal)
 
         if n < 0.00:
             # res = QT_TR_NOOP("menos") + QString(" ") + res;
-            res = "menos" + " " + res
+            res = "menos %s" % res
 
         return res.upper()
 
@@ -480,7 +485,7 @@ class FLUtil(object):
             entera = s
 
         if neg:
-            entera.replace("-", "")
+            entera = entera.replace("-", "")
 
         length = len(entera)
 
@@ -845,13 +850,15 @@ class FLUtil(object):
         vL: Union[str, List, bool, int, float, types.Array],
         w: str,
         conn: Union[str, "iconnection.IConnection"] = "default",
-    ) -> Any:
+    ) -> bool:
         """Update values to a table."""
 
         return utils.sqlUpdate(t, fL, vL, w, conn)
 
     @classmethod
-    def sqlDelete(cls, t: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"):
+    def sqlDelete(
+        cls, t: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"
+    ) -> bool:
         """Delete a value from a table."""
 
         return utils.sqlDelete(t, w, conn)
@@ -859,13 +866,13 @@ class FLUtil(object):
     @classmethod
     def quickSqlDelete(
         cls, t: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"
-    ):
+    ) -> bool:
         """Quick delete a value from a table."""
 
         return utils.quickSqlDelete(t, w, conn)
 
     @classmethod
-    def execSql(cls, sql: str, conn: Union[str, "iconnection.IConnection"] = "default"):
+    def execSql(cls, sql: str, conn: Union[str, "iconnection.IConnection"] = "default") -> bool:
         """Set a query to a database."""
 
         return utils.execSql(sql, conn)

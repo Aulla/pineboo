@@ -4,8 +4,9 @@ Provide some functions based on data.
 
 from pineboolib.core.utils import logging
 from pineboolib.application import types
+from pineboolib import application
 
-from . import pnsqlcursor
+from . import pnsqlcursor, pnsqlquery
 
 from typing import Any, Union, List, Optional, TYPE_CHECKING
 
@@ -73,7 +74,6 @@ def nextCounter(
 
 
 def _nextCounter_2(name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[Union[str, int]]:
-    from .pnsqlquery import PNSqlQuery
 
     if not cursor_:
         return None
@@ -92,7 +92,7 @@ def _nextCounter_2(name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[Uni
     _len = int(field.length())
     _cadena = None
 
-    q = PNSqlQuery(None, cursor_.db().connectionName())
+    q = pnsqlquery.PNSqlQuery(None, cursor_.db().connectionName())
     q.setForwardOnly(True)
     q.setTablesList(tmd.name())
     q.setSelect(name_)
@@ -132,7 +132,6 @@ def _nextCounter_2(name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[Uni
 
 
 def _nextCounter_3(serie_: str, name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[str]:
-    from .pnsqlquery import PNSqlQuery
 
     if not cursor_:
         return None
@@ -154,7 +153,7 @@ def _nextCounter_3(serie_: str, name_: str, cursor_: "isqlcursor.ISqlCursor") ->
         cursor_.db().connManager().manager().formatAssignValueLike(name_, "string", serie_, True),
     )
 
-    q = PNSqlQuery(None, cursor_.db().connectionName())
+    q = pnsqlquery.PNSqlQuery(None, cursor_.db().connectionName())
     q.setForwardOnly(True)
     q.setTablesList(tmd.name())
     q.setSelect(name_)
@@ -205,16 +204,16 @@ def sqlSelect(
     @param conn_name_ Connection name.
     @return Value resulting from the query or false if it finds nothing.
     """
-    from .pnsqlquery import PNSqlQuery
 
     if where_ is None:
         where_ = "1 = 1"
 
-    _qry = PNSqlQuery(None, conn_)
+    _qry = pnsqlquery.PNSqlQuery(None, conn_)
+
     if table_list_:
         _qry.setTablesList(table_list_)
-    else:
-        _qry.setTablesList(from_)
+    # else:
+    #    _qry.setTablesList(from_)
 
     _qry.setSelect(select_)
     _qry.setFrom(from_)
@@ -235,12 +234,11 @@ def quickSqlSelect(
     """
     Quick version of sqlSelect. Run the query directly without checking.Use with caution.
     """
-    from .pnsqlquery import PNSqlQuery
 
     if where_ is None:
         where_ = "1 = 1"
 
-    _qry = PNSqlQuery(None, conn_)
+    _qry = pnsqlquery.PNSqlQuery(None, conn_)
     if not _qry.exec_("SELECT %s FROM %s WHERE %s " % (select_, from_, where_)):
         return False
 
@@ -262,15 +260,22 @@ def sqlInsert(
     @param conn_name_ Connection name.
     @return True in case of successful insertion, False in any other case.
     """
-    if isinstance(field_list_, types.Array):
-        field_list_ = str(field_list_)
+    _field_list: Union[List[Any], types.Array]
+    _value_list: Union[List[Any], types.Array]
 
-    _field_list: List[str] = field_list_.split(",") if isinstance(field_list_, str) else field_list_
-    _value_list: List[str] = value_list_.split(",") if isinstance(
-        value_list_, str
-    ) else value_list_ if isinstance(value_list_, list) else [value_list_]
+    if isinstance(field_list_, str):
+        _field_list = field_list_.split(",")
+    else:
+        _field_list = field_list_
 
-    if not len(_field_list) == len(_value_list):
+    if isinstance(value_list_, str):
+        _value_list = value_list_.split(",")
+    elif isinstance(value_list_, (List, types.Array)):
+        _value_list = value_list_
+    else:
+        _value_list = [value_list_]
+
+    if len(_field_list) != len(_value_list):
         return False
 
     _cursor = pnsqlcursor.PNSqlCursor(table_, True, conn_)
@@ -278,6 +283,7 @@ def sqlInsert(
     _cursor.refreshBuffer()
 
     for _pos in range(len(_field_list)):
+
         if _value_list[_pos] is None:
             _cursor.bufferSetNull(_field_list[_pos])
         else:
@@ -359,34 +365,36 @@ def sqlDelete(
 
 def quickSqlDelete(
     table_: str, where_: str, conn_: Union[str, "iconnection.IConnection"] = "default"
-) -> None:
+) -> bool:
     """
     Quick version of sqlDelete. Execute the query directly without checking and without committing signals.Use with caution.
     """
-    execSql("DELETE FROM %s WHERE %s" % (table_, where_), conn_)
+    return execSql("DELETE FROM %s WHERE %s" % (table_, where_), conn_)
 
 
 def execSql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default") -> bool:
     """
     Run a query.
     """
-    from pineboolib.application import project
 
-    if project.conn_manager is None:
+    if application.project.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     if isinstance(conn_, str):
-        my_conn = project.conn_manager.useConn(conn_)
+        my_conn = application.project.conn_manager.useConn(conn_)
     else:
         my_conn = conn_
 
     _cur = my_conn.cursor()
     try:
+        last = my_conn.lastError()
         logger.warning("execSql: Ejecutando la consulta : %s", sql_)
         # sql = conn_.db().driver().fix_query(sql)
         # cur.execute(sql)
         # conn_.conn.commit()
         my_conn.execute_query(sql_, _cur)
+        if my_conn.lastError() != last:
+            return False
         return True
     except Exception as exc:
         logger.exception("execSql: Error al ejecutar la consulta SQL: %s %s", sql_, exc)
