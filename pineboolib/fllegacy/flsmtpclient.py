@@ -64,7 +64,7 @@ class ConnectionType(object):
     TlsConnection: int = 2
 
 
-class FLSmtpClient(QtCore.QObject):
+class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
     """FLSmtpClient class."""
 
     from_value_: Optional[str]
@@ -366,9 +366,10 @@ class FLSmtpClient(QtCore.QObject):
         self.sendStepNumber.emit(step)
 
         try:
-            s = smtplib.SMTP(self.mail_server_ or "", self.port_ or 25)
+            s = smtplib.SMTP("%s:%s" % (self.mail_server_ or "", self.port_ or 25))
             if self.connection_type_ == ConnectionType.TlsConnection:
                 s.starttls()
+                self.changeStatus("StartTTLS", State.StartTTLS)
 
             if self.user_ and self.password_:
                 status_msg = "login."
