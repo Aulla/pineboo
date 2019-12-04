@@ -3,7 +3,7 @@
 from pineboolib.core.settings import settings
 
 
-from typing import List, Optional, Union, Any
+from typing import List, Union, Any
 from typing import SupportsFloat
 
 
@@ -24,7 +24,7 @@ class FLSettings(object):
 
         raise ValueError("Configuration key %s does not contain a list" % key)
 
-    def readEntry(self, _key: str, _def: Optional[Union[str, bool]] = None) -> Any:
+    def readEntry(self, _key: str, _def: Any = None) -> Any:
         """Return a value."""
 
         ret = self.s.value(_key, None)  # devuelve un QVariant !!!!
@@ -54,7 +54,7 @@ class FLSettings(object):
         else:
             return _def
 
-    def readDoubleEntry(self, key: str, _def: Union[bytes, str, SupportsFloat] = 0) -> float:
+    def readDoubleEntry(self, key: str, _def: Union[bytes, str, SupportsFloat] = 0.00) -> float:
         """Return a float value."""
 
         ret = self.s.value(key)
@@ -76,7 +76,7 @@ class FLSettings(object):
             return ret
         raise ValueError("Configuration key %s cannot be converted to boolean" % key)
 
-    def writeEntry(self, key: str, value: Union[int, str, bool]) -> None:
+    def writeEntry(self, key: str, value: Any) -> None:
         """Set a value."""
 
         self.s.setValue(key, value)

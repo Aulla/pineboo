@@ -10,7 +10,7 @@ class TestSettings(unittest.TestCase):
         """Test read functions."""
 
         setting = flsettings.FLSettings()
-        setting.writeEntryList("test_uno", "")
+        setting.writeEntryList("test_uno", [""])
         setting.writeEntryList("test_uno", ["test_uno"])
         setting.writeEntryList("test_dos", [])
         setting.writeEntryList("test_dos", ["test_2_1", "test_2_2"])
