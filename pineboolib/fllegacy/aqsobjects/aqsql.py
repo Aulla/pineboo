@@ -151,54 +151,30 @@ class AQSql(object):
     ):
         """Remove a recordset from a cursor."""
 
+        cur: "isqlcursor.ISqlCursor"
+
         if not isinstance(cur_or_table, str):
             cur = cur_or_table
-            if not cur:
-                return False
-
-            if not cur.metadata():
-                logger.warning("No hay metadatos para '%s%s'" % (cur.curName(), cur.db()))
-                return False
-
-            if not cur.select(where):
-                return False
-
-            ok = True
-            msg_check = ""
-            act_check = cur.activatedCheckIntegrity()
-
-            while ok and cur.next():
-                cur.setModeAccess(self.Del)
-                if not cur.refreshBuffer():
-                    ok = False
-                    break
-
-                msg_check = cur.msgCheckIntegrity()
-                if not msg_check:
-                    ok = False
-                    logger.warning(msg_check, cur.db())
-                    break
-
-                cur.setActivatedCheckIntegrity(False)
-                ok = cur.commitBuffer()
-                cur.setActivatedCheckIntegrity(act_check)
-
-            return ok
         else:
-
             cur = pnsqlcursor.PNSqlCursor(cur_or_table, True, conn_name)
-            cur.select(where)
-            if cur.first():
-                while True:
-                    cur.setModeAccess(cur.Del)
-                    cur.refreshBuffer()
-                    if not cur.commitBuffer():
-                        ok = False
 
-                    if not cur.next():
-                        break
+        act_check = cur.activatedCheckIntegrity()
 
-            return ok
+        cur.select(where)
+        if cur.first():
+            while True:
+                cur.setModeAccess(cur.Del)
+                cur.refreshBuffer()
+                cur.setActivatedCheckIntegrity(False)
+                res_commit = cur.commitBuffer()
+                cur.setActivatedCheckIntegrity(act_check)
+                if not res_commit:
+                    return False
+
+                if not cur.next():
+                    break
+
+        return True
 
 
 """
