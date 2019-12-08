@@ -53,4 +53,4 @@ class TestUtilsBase(unittest.TestCase):
             utils_base.auto_qt_translate_text('QT_TRANSLATE_NOOP("MetaData","Versión")'), "Versión"
         )
 
-        utils_base.trace_function(utils_base.auto_qt_translate_text("prueba"))
+        utils_base.trace_function(utils_base.auto_qt_translate_text)
