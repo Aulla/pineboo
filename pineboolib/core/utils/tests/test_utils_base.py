@@ -44,3 +44,13 @@ class TestUtilsBase(unittest.TestCase):
         )
         self.assertEqual(utils_base.format_int(12.12), "12")
         self.assertEqual(utils_base.format_int(13.99), "13")
+
+    def test_basic_1(self) -> None:
+        """Test basic."""
+
+        self.assertEqual(utils_base.auto_qt_translate_text("prueba"), "prueba")
+        self.assertEqual(
+            utils_base.auto_qt_translate_text('QT_TRANSLATE_NOOP("MetaData","Versión")'), "Versión"
+        )
+
+        utils_base.trace_function(utils_base.auto_qt_translate_text("prueba"))

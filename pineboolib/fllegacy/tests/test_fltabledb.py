@@ -16,13 +16,33 @@ class TestFLTableDB(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
-    def test_export_to_ods(self) -> None:
+    def test_export_to_ods_1(self) -> None:
         """Test export to ods."""
 
         application.project.actions["flareas"].openDefaultForm()
 
         form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
+        ].mainform_widget
+        # form = flformdb.FLFormDB(None, action)
+        # self.assertTrue(form)
+        # form.load()
+        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        self.assertTrue(fltable)
+        fltable.exportToOds()
+        # self.assertTrue(form._loaded)
+        # form.close()
+        # self.assertFalse(form._loaded)
+        # form.close()
+        # self.assertFalse(form._loaded)
+
+    def test_export_to_ods_2(self) -> None:
+        """Test export to ods."""
+
+        application.project.actions["flmodules"].openDefaultForm()
+
+        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+            "flmodules"
         ].mainform_widget
         # form = flformdb.FLFormDB(None, action)
         # self.assertTrue(form)

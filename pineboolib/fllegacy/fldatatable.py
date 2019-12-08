@@ -118,7 +118,7 @@ class FLDataTable(QtWidgets.QTableView):
     paintFieldMtd_: Optional["pnfieldmetadata.PNFieldMetaData"]
 
     def __init__(
-        self, parent: Optional[Any] = None, name: Optional[str] = None, popup: bool = False
+        self, parent: Optional[Any] = None, name: str = "FLDataTable", popup: bool = False
     ):
         """Inicialize."""
 
@@ -127,8 +127,6 @@ class FLDataTable(QtWidgets.QTableView):
         if parent:
             self._parent = parent
 
-        if name is None:
-            name = "FLDataTable"
         self.setObjectName(name)
 
         self.readonly_ = False
@@ -419,10 +417,10 @@ class FLDataTable(QtWidgets.QTableView):
         Return the name of the field according to a position.
         """
 
-        field = self.cur.field(self.indexOf(col))
+        field = self.cur.metadata().indexFieldObject(self.indexOf(col))
         if field is None:
             raise Exception("Field not found")
-        return field.name
+        return field.name()
 
     def eventFilter(self, o: Any, e: Any) -> bool:
         """
