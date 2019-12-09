@@ -1517,26 +1517,27 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 steps = steps + 1
                 util.setProgress(steps)
                 util.setLabelText(util.translate("application", "Creando índices para %s" % item))
-                mtd = self.db_.connManager().manager().metadata(item, True)
-                if not mtd:
-                    continue
-                fL = mtd.fieldList()
-                if not fL:
-                    continue
-                for it in fL:
-                    if it.type() == "pixmap":
-                        cursor_ = pnsqlcursor.PNSqlCursor(item, True, "dbAux")
-                        cursor_.select("%s not like 'RK@%'" % it.name())
-                        while cursor_.next():
-                            v = cursor_.value(it.name())
-                            if v is None:
-                                continue
+                # mtd = self.db_.connManager().manager().metadata(item, True)
+                # if not mtd:
+                #    continue
 
-                            v = self.db_.connManager().manager().storeLargeValue(mtd, v)
-                            if v:
-                                buf = cursor_.primeUpdate()
-                                buf.setValue(it.name(), v)
-                                cursor_.update(False)
+                # field_list = mtd.fieldList()
+
+                # for it in field_list:
+                #    if it.type() == "pixmap":
+                #        cursor_ = pnsqlcursor.PNSqlCursor(item, True, "dbAux")
+                #        cursor_.select(it.name() + " not like 'RK@%'")
+                #        while cursor_.next():
+                #            buf = cursor_.buffer()
+                #            v = buf.value(it.name())
+                #            if v is None:
+                #                continue
+
+                #            v = self.db_.connManager().manager().storeLargeValue(mtd, v)
+                #            if v:
+                #                buf = cursor_.primeUpdate()
+                #                buf.setValue(it.name(), v)
+                #                cursor_.update(False)
 
                 # sqlCursor.setName(item, True)
 

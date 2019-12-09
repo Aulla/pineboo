@@ -840,13 +840,14 @@ class MainForm(QtWidgets.QMainWindow):
         if main_widget is None or main_widget.objectName() != idm:
             return
 
-        windows_opened = settings.settings.value("windowsOpened/%s" % idm, None)
-        if windows_opened:
-            for it in windows_opened:
-                act = cast(QtWidgets.QAction, main_widget.findChild(QtWidgets.QAction, it))
-                if act and act.isVisible():
-                    # flapplication.aqApp.openMasterForm(it, act.icon())
-                    flapplication.aqApp.openMasterForm(it)
+        # FIXME: restore opened windows
+        # windows_opened = settings.settings.value("windowsOpened/%s" % idm, None)
+        # if windows_opened:
+        #    for it in windows_opened:
+        #        act = cast(QtWidgets.QAction, main_widget.findChild(QtWidgets.QAction, it))
+        #        if act and act.isVisible():
+        # flapplication.aqApp.openMasterForm(it, act.icon())
+        #            flapplication.aqApp.openMasterForm(it)
 
         r = QtCore.QRect(main_widget.pos(), main_widget.size())
         k = "Geometry/%s" % idm
