@@ -845,8 +845,11 @@ class FLFormDB(QtWidgets.QDialog):
             parent = self.parent()
 
             if parent and isinstance(parent, QtWidgets.QMdiSubWindow):
-                parent.resize(size)
-                parent.repaint()
+                try:
+                    parent.resize(size)
+                    parent.repaint()
+                except Exception:
+                    self.logger.warning("Error repaint QMdiSubWindow")
 
     def cursorDestroyed(self, obj_: Optional[Any] = None) -> None:
         """Clean up. Called when cursor has been deleted."""

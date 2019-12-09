@@ -203,7 +203,7 @@ class FormInternalObj(qsa.FormDBWidget):
         dialog = qsa.Dialog()
         dialog.setWidth(600)
         dialog.caption = qsa.util.translate(u"scripts", u"Acuerdo de Licencia.")
-        dialog.newTab(qsa.util.translate(u"scripts", u"Acuerdo de Licencia."))
+        # dialog.newTab(qsa.util.translate(u"scripts", u"Acuerdo de Licencia."))
         texto = qsa.TextEdit()
         texto.text = licencia
         dialog.add(texto)

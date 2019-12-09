@@ -1,6 +1,7 @@
 """Flreloadlast module."""
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
+import os
 
 
 class FormInternalObj(qsa.FormDBWidget):
@@ -32,10 +33,10 @@ class FormInternalObj(qsa.FormDBWidget):
         self.cargarModulo(fichMod)
         qsa.sys.reinit()
 
-    def cargarModulo(self, nombreFichero: str) -> bool:
+    def cargarModulo(self, nombre_fichero: str) -> bool:
         """Load modules."""
         util = qsa.FLUtil()
-        fichero = qsa.File(nombreFichero)
+        fichero = qsa.File(nombre_fichero, "iso-8859-15")
         modulo = None
         descripcion = None
         area = None
@@ -83,7 +84,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         else:
             if not isinstance(f, str):
-                raise Exception("data are bytes, not string!!")
+                raise Exception("data must be str, not bytes!!")
             aF = f.split(u"\n")
             modulo = self.dameValor(aF[0])
             descripcion = self.dameValor(aF[1])
@@ -134,6 +135,12 @@ class FormInternalObj(qsa.FormDBWidget):
         curModulo.editRecord(False)
         qsa.from_project("formRecordflmodules").cargarDeDisco(qsa.ustr(fichero.path, u"/"), False)
         qsa.from_project("formRecordflmodules").accept()
+
+        setting = "scripts/sys/modLastModule_%s" % qsa.sys.nameBD()
+        nombre_fichero = "%s" % os.path.abspath(nombre_fichero)
+        qsa.util.writeSettingEntry(setting, nombre_fichero)
+        qsa.sys.processEvents()
+
         return True
 
     def compararVersiones(self, v1: str, v2: str) -> int:
@@ -170,18 +177,18 @@ class FormInternalObj(qsa.FormDBWidget):
         if cadena.find(u"QT_TRANSLATE_NOOP") == -1:
             return cadena
         cadena = qsa.QString(cadena).mid(41, len(cadena) - 43)
-        nombreFichero = None
+        nombre_fichero = None
         try:
-            nombreFichero = qsa.ustr(
+            nombre_fichero = qsa.ustr(
                 path, u"/translations/", modulo, u".", util.getIdioma(), u".ts"
             )
         except Exception as e:
             qsa.debug(str(e))
             return cadena
 
-        if not qsa.File.exists(nombreFichero):
+        if not qsa.File.exists(nombre_fichero):
             return cadena
-        fichero = qsa.File(nombreFichero)
+        fichero = qsa.File(nombre_fichero)
         fichero.open(qsa.File.ReadOnly)
         f = fichero.read()
         xmlTranslations = qsa.FLDomDocument()
