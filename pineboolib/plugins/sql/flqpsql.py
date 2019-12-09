@@ -1426,7 +1426,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         # qry2 = pnsqlquery.PNSqlQuery(None, "dbAux")
         qry3 = pnsqlquery.PNSqlQuery(None, "dbAux")
         qry4 = pnsqlquery.PNSqlQuery(None, "dbAux")
-        qry5 = pnsqlquery.PNSqlQuery(None, "dbAux")
+        # qry5 = pnsqlquery.PNSqlQuery(None, "dbAux")
         cur = self.db_.connManager().dbAux().cursor()
         steps = 0
 
@@ -1524,24 +1524,24 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 if not fL:
                     continue
                 for it in fL:
-                    if not it or not it.type() == "pixmap":
-                        continue
-                    cur = pnsqlcursor.PNSqlCursor(item, True, self.db_.connManager().dbAux())
-                    cur.select(it.name() + " not like 'RK@%'")
-                    while cur.next():
-                        v = cur.value(it.name())
-                        if v is None:
-                            continue
+                    if it.type() == "pixmap":
+                        cursor_ = pnsqlcursor.PNSqlCursor(item, True, "dbAux")
+                        cursor_.select("%s not like 'RK@%'" % it.name())
+                        while cursor_.next():
+                            v = cursor_.value(it.name())
+                            if v is None:
+                                continue
 
-                        v = self.db_.connManager().manager().storeLargeValue(mtd, v)
-                        if v:
-                            buf = cur.primeUpdate()
-                            buf.setValue(it.name(), v)
-                            cur.update(False)
+                            v = self.db_.connManager().manager().storeLargeValue(mtd, v)
+                            if v:
+                                buf = cursor_.primeUpdate()
+                                buf.setValue(it.name(), v)
+                                cursor_.update(False)
 
                 # sqlCursor.setName(item, True)
 
         # self.db_.dbAux().driver().commit()
+        self.db_.connManager().dbAux().commitTransaction()
         util.destroyProgressDialog()
         steps = 0
         qry4.exec_("select tablename from pg_tables where schemaname='public'")
@@ -1551,7 +1551,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         while qry4.next():
             item = qry4.value(0)
             util.setLabelText(util.translate("application", "Analizando tabla %s" % item))
-            qry5.exec_("vacuum analyze %s" % item)
+            cur.execute("vacuum analyze %s" % item)
             steps = steps + 1
             util.setProgress(steps)
 
