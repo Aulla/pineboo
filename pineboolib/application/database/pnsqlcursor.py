@@ -472,7 +472,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param fN field name
         @param v Value to be set to the buffer field.
         """
-
         if not self.buffer():
             return
 
@@ -650,6 +649,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 v = ""
             elif type_ in ("double", "int", "uint"):
                 v = 0
+
+            self.d.buffer_.setValue(fN, v)
 
         return v
 
