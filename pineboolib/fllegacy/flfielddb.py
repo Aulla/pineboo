@@ -1577,6 +1577,9 @@ class FLFieldDB(QtWidgets.QWidget):
             except Exception:
                 self.logger.exception("Error al desconectar señal")
 
+            if v is None:
+                v = "00:00:00"
+
             editor_t.setTime(v)
             cast(QtCore.pyqtSignal, editor_t.timeChanged).connect(self.updateValue)
 

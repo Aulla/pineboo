@@ -115,7 +115,7 @@ class FieldStruct(object):
                 return txtvalue
 
         elif self.type_ == "date":
-            if value is None:
+            if value in ("", None):
                 return None
             if isinstance(value, types.Date):
                 txtvalue = value.toString()
