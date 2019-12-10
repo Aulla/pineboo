@@ -101,7 +101,9 @@ class QPushButton(QtWidgets.QPushButton):
         """Set if the button is enabled. Overloaded by property assign."""
         super().setEnabled(enabled)
 
-    toggleButton = property(getToggleButton, setToggleButton)
-    on = property(getOn, setOn)
-    text = property(getText, setText)  # type: ignore
-    enabled = property(isEnabled, setEnabled)
+    toggleButton: bool = property(  # type: ignore [assignment] # noqa: F821
+        getToggleButton, setToggleButton
+    )
+    on: bool = property(getOn, setOn)  # type: ignore [assignment] # noqa: F821
+    text: str = property(getText, setText)  # type: ignore [assignment] # noqa: F821
+    enabled: bool = property(isEnabled, setEnabled)  # type: ignore [assignment] # noqa: F821
