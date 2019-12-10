@@ -30,7 +30,7 @@ class FLDateEdit(qdateedit.QDateEdit):
         """Set order."""
         self.setDisplayFormat(order)
 
-    def getDate(self) -> Optional[str]:
+    def getDate(self) -> str:
         """Return date."""
         return super().getDate()
 
