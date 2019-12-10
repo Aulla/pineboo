@@ -654,9 +654,7 @@ class FLUtil(object):
         return fecha.addYears(offset)
 
     @classmethod
-    def daysTo(
-        cls, d1: Union[types.Date, str, date], d2: Union[types.Date, str, date]
-    ) -> Optional[int]:
+    def daysTo(cls, d1: Union[types.Date, str, date], d2: Union[types.Date, str, date]) -> int:
         """
         Return difference of days from one date to another.
 
