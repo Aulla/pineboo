@@ -14,8 +14,6 @@ class Dialog(qdialog.QDialog):
 
     _layout: QtWidgets.QVBoxLayout
     _button_box: QtWidgets.QDialogButtonBox
-    okButtonText: str
-    cancelButtonText: str
     okButton: qpushbutton.QPushButton
     cancelButton: qpushbutton.QPushButton
     _tab: qtabwidget.QTabWidget
@@ -54,17 +52,6 @@ class Dialog(qdialog.QDialog):
 
         self._layout.addWidget(_object)
 
-    def exec_(self) -> int:
-        """Show dialog and return a value."""
-
-        if self.okButtonText:
-            self.okButton.setText(str(self.okButtonText))
-        if self.cancelButtonText:
-            self.cancelButton.setText(str(self.cancelButtonText))
-        self._layout.addWidget(self._button_box)
-
-        return super().exec_()
-
     def newTab(self, name: str) -> None:
         """Add a new tab to Dialog."""
 
@@ -85,3 +72,41 @@ class Dialog(qdialog.QDialog):
         width = self.width()
         # self.setMinimunSize(width, height)
         self.resize(width, int(height))
+
+    def getCancelButtonText(self) -> str:
+        """Return cancel button text."""
+
+        return self.cancelButton.text
+
+    def setCancelButtonText(self, text_: str) -> None:
+        """Set cancel button text."""
+
+        self.cancelButton.setText(text_)
+
+    def getOkButtonText(self) -> str:
+        """Return cancel button text."""
+
+        return self.okButton.text
+
+    def setOkButtonText(self, text_: str) -> None:
+        """Set cancel button text."""
+
+        self.okButton.setText(text_)
+
+    def getTitle(self) -> str:
+        """Return dialog title."""
+
+        return self.windowTitle()
+
+    def setTitle(self, title_: str) -> None:
+        """Set dialog title."""
+
+        self.setWindowTitle(title_)
+
+    cancelButtonText: str = property(  # type: ignore [assignment] # noqa: F821
+        getCancelButtonText, setCancelButtonText
+    )
+    okButtonText: str = property(  # type: ignore [assignment] # noqa: F821
+        getOkButtonText, setOkButtonText
+    )
+    title: str = property(getTitle, setTitle)  # type: ignore [assignment] # noqa: F821
