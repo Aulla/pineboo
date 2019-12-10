@@ -3,7 +3,7 @@
 
 from PyQt5 import QtWidgets, QtCore  # type: ignore
 from pineboolib.core import decorators
-from typing import Any, Union, Optional
+from typing import Any, Union
 
 
 class QDateEdit(QtWidgets.QDateEdit):
@@ -26,13 +26,13 @@ class QDateEdit(QtWidgets.QDateEdit):
         # if not project.DGI.localDesktop():
         #    project.DGI._par.addQueque("%s_CreateWidget" % self._parent.objectName(), "QDateEdit")
 
-    def getDate(self) -> Optional[str]:
+    def getDate(self) -> str:
         """Return string date."""
         ret = super().date().toString(QtCore.Qt.ISODate)
         if ret != "2000-01-01":
             return ret
         else:
-            return None
+            return ""
 
     def setDate(self, v: Union[str, Any]) -> None:
         """Set date."""
