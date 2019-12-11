@@ -407,8 +407,6 @@ class FLApplication(QtCore.QObject):
                 application.project.main_form.mainWindow = application.project.main_form.MainForm()
                 application.project.main_window = application.project.main_form.mainWindow
                 application.project.main_window.initScript()
-            else:
-                raise Exception("project.main_window and project.main_form is empty!")
 
         mw = application.project.main_window
         if self.main_widget_ is None:
@@ -435,13 +433,14 @@ class FLApplication(QtCore.QObject):
         self.loadScripts()
         # self.db().managerModules().setShaFromGlobal()
         self.call("sys.init()", [])
-        if hasattr(mw, "initToolBox"):
-            mw.initToolBox()
+        if mw:
+            if hasattr(mw, "initToolBox"):
+                mw.initToolBox()
 
-        mw.readState()
+            mw.readState()
 
-        if hasattr(mw, "container_"):
-            mw.container_.installEventFilter(self)
+            if hasattr(mw, "container_"):
+                mw.container_.installEventFilter(self)
             # self.container_.setDisable(False)
 
         self.callScriptEntryFunction()
