@@ -72,7 +72,16 @@ class TestSysType(unittest.TestCase):
         qry.setWhere("1=1")
         self.assertTrue(qry.exec_())
         self.assertTrue(qry.first())
-        self.assertEqual(qry.value(0), 147)
+        self.assertEqual(qry.value(0), 148)
+
+        qry_2 = qsa.FLSqlQuery()
+        qry_2.setTablesList("flfiles")
+        qry_2.setSelect("nombre")
+        qry_2.setFrom("flfiles")
+        qry_2.setWhere("nombre='impuestos.py'")
+        self.assertTrue(qry_2.exec_())
+        self.assertTrue(qry_2.first())
+        self.assertEqual(qry_2.value(0), "impuestos.py")
 
     def test_run_transaction(self) -> None:
         """Test run transaction."""
@@ -174,7 +183,7 @@ class TestSysType(unittest.TestCase):
         list_extensions = sys.mvProjectExtensions()
         self.assertEqual(list_extensions, [])
 
-        self.assertEqual(sys.calculateShaGlobal(), "8487ffab326d4a44d1f4da3ec1e74e6b1b149832")
+        self.assertEqual(sys.calculateShaGlobal(), "cfc09ed22ee2b16a0c571bb99f383b7dd4113553")
         self.assertEqual(sys.localChanges(), {"size": 0})
         res_ = sys.xmlFilesDefBd()
         self.assertTrue(res_)
