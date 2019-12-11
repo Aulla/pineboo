@@ -118,7 +118,11 @@ class TestUtils(unittest.TestCase):
 
     def test_regexp(self) -> None:
         """Test regexp."""
-        regexp = utils.RegExp("''")
+        regexp = utils.RegExp("d")
         self.assertFalse(regexp.global_)
         regexp.global_ = True
         self.assertTrue(regexp.global_)
+        self.assertTrue(regexp.search("dog"))
+        self.assertEqual(regexp.replace("dog", "l"), "log")
+        self.assertEqual(regexp.cap(0), "d")
+        self.assertEqual(regexp.cap(1), None)
