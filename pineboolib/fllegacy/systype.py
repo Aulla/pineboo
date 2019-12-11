@@ -30,6 +30,7 @@ from .aqsobjects import aqsql
 
 from . import flutil
 from . import flapplication
+from . import flvar
 
 from pineboolib.q3widgets.dialog import Dialog
 from pineboolib.q3widgets.qbytearray import QByteArray
@@ -758,8 +759,7 @@ class SysType(sysbasetype.SysBaseType):
             else:
                 self.registerUpdate(input_)
                 self.infoMsgBox(self.translate(u"La carga de módulos se ha realizado con éxito."))
-                AQTimer.singleShot(0, self.reinit)
-                from . import flvar
+                self.reinit()
 
                 tmpVar = flvar.FLVar()
                 tmpVar.set(u"mrproper", u"dirty")
