@@ -16,7 +16,7 @@ class FormInternalObj(qsa.FormDBWidget):
     def entry_point(self, user=None, verb=None, model=None, params=None, method=None):
         qsa.debug("Hola")
         return
-        f = self.get_api_function(verb, model, method)  # This orphan function is assigned to self.
+        f = self.get_api_function(verb, model, method)
         if not f:
             return False
         try:
