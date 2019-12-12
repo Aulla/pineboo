@@ -3929,7 +3929,7 @@ class FormInternalObj(qsa.FormDBWidget):
         equivA = "ÑñÇçÁáÉéÍíÓóÚúÀàÈèÌìÒòÙùÂâÊêÎîÔôÛûÄäËëÏïÖöÜüº"
         equivB = "NnCcAaEeIiOoUuAaEeIiOoUuAaEeIiOoUuAaEeIiOoUu "
         validos = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ /-?+:,.'()"
-        iEq: Any
+        iEq: Any = None
         i = 0
         while_pass = True
         while i < qsa.length(cIn):
