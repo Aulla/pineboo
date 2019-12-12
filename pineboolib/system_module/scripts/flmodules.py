@@ -156,7 +156,13 @@ class FormInternalObj(qsa.FormDBWidget):
             encode = "ISO-8859-1"
             if path_.endswith("ts"):
                 encode = "UTF-8"
-            value = qsa.File(path_, encode).read()
+            try:
+                value = qsa.File(path_, encode).read()
+            except UnicodeDecodeError:
+                self.logger.warning("The file %s has a incorrect encode (%s)" % (path_, encode))
+                encode = "UTF8" if encode == "ISO-8859-1" else "ISO-8859-1"
+                value = qsa.File(path_, encode).read()
+
             if not isinstance(value, str):
                 raise Exception("value must be string not bytes.")
 
