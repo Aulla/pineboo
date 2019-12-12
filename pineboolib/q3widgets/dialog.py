@@ -66,8 +66,9 @@ class Dialog(qdialog.QDialog):
         # self.setMinimunSize(width, height)
         self.resize(int(width), height)
 
-    def exec_(self):
-        print("**")
+    def exec_(self) -> int:
+        """Execute Dialog."""
+
         self._layout.addWidget(self._button_box)
         return super().exec_()
 
