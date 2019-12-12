@@ -35,17 +35,17 @@ class Dialog(qdialog.QDialog):
         self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)
         self._button_box = QtWidgets.QDialogButtonBox()
-        self.okButtonText = "Aceptar"
-        self.cancelButtonText = "Cancelar"
         self.okButton = qpushbutton.QPushButton("&Aceptar")
         self.cancelButton = qpushbutton.QPushButton("&Cancelar")
+        self.okButtonText = "Aceptar"
+        self.cancelButtonText = "Cancelar"
+
         self._button_box.addButton(self.okButton, QtWidgets.QDialogButtonBox.AcceptRole)
         self._button_box.addButton(self.cancelButton, QtWidgets.QDialogButtonBox.RejectRole)
         self.okButton.clicked.connect(self.accept)
         self.cancelButton.clicked.connect(self.reject)
         self._tab = qtabwidget.QTabWidget()
         self._tab.hide()
-        self._layout.addWidget(self._tab)
 
     def add(self, _object: QtWidgets.QWidget) -> None:
         """Add widget to Dialog."""
@@ -65,6 +65,11 @@ class Dialog(qdialog.QDialog):
         height = self.height()
         # self.setMinimunSize(width, height)
         self.resize(int(width), height)
+
+    def exec_(self):
+        print("**")
+        self._layout.addWidget(self._button_box)
+        return super().exec_()
 
     def setHeight(self, height: Union[int, float]) -> None:
         """Set height."""
