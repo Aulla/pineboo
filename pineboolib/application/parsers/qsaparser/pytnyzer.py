@@ -738,7 +738,7 @@ class FunctionCall(ASTPython):
         if STRICT_MODE and name.startswith("__undef__"):
             name = name[9:]
             name = "self.%s" % name
-            comment = "# This orphan function is assigned to self."
+            comment = ""
 
         yield "expr", "%s(%s)%s" % (name, ", ".join(arguments), comment)
 
@@ -2340,8 +2340,10 @@ class DeclarationBlock(ASTPython):
                 # Transform: ['iface', '=', 'ifaceCtx(self)']
                 # To: ['iface', ':', 'ifaceCtx']
                 else:
-                    expr[1] = ":"
-                    expr[2] = expr[2].replace("(self)", "")
+                    if len(expr) > 2:
+                        expr[1] = ":"
+                        expr[2] = expr[2].replace("(self)", "")
+
             yield "line", " ".join(expr)
 
 
