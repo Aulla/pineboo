@@ -331,7 +331,11 @@ class Project(object):
             for (contenido,) in cur2:
 
                 encode_ = "ISO-8859-15"
-                if str(nombre).endswith(".kut") or str(nombre).endswith(".ts"):
+                if (
+                    str(nombre).endswith(".kut")
+                    or str(nombre).endswith(".ts")
+                    or str(nombre).endswith(".py")
+                ):
                     encode_ = "utf-8"
 
                 folder = path._dir(
