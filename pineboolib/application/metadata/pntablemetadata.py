@@ -698,6 +698,8 @@ class PNTableMetaData(ITableMetaData):
         @param i. Position.
         @return PNfieldMetadata.
         """
+        if position < 0 or position >= len(self.d.field_list_):
+            raise ValueError("Value n:%s out of bounds" % position)
 
         return self.d.field_list_[position]
 
