@@ -89,6 +89,9 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
             static_flag = "%s/STATIC" % folder_path
             if script_path_qs_static:
                 # Recogemos el .qs de carga estática.
+                if not os.path.exists(script_path_qs):
+                    raise Exception("The destination file %s does not exist!" % script_path_qs)
+
                 shutil.copy(script_path_qs_static, script_path_qs)  # Lo copiamos en tempdata
                 if script_path_py and os.path.exists(
                     script_path_py
