@@ -239,6 +239,8 @@ def solve_connection(
 
     sg_name = re.sub(r" *\(.*\)", "", signal)
     oSignal = getattr(sender, sg_name, None)
+    if not oSignal and hasattr(sender, "form"):
+        oSignal = getattr(sender.form, sg_name, None)
     # if not oSignal and sender.__class__.__name__ == "FormInternalObj":
     #    oSignal = getattr(sender.parent(), sg_name, None)
     if not oSignal:
