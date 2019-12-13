@@ -18,6 +18,8 @@ class TestFLFieldDBString(unittest.TestCase):
 
         from pineboolib.qsa import dictmodules
         from pineboolib.application.database import pnsqlcursor
+        from pineboolib.core.utils import utils_base
+        from PyQt5 import QtWidgets
 
         cursor_1 = pnsqlcursor.PNSqlCursor("flmodules")
         cursor_1.select()
@@ -48,6 +50,26 @@ class TestFLFieldDBString(unittest.TestCase):
         field.setAutoCompletionMode(comp_mode)
         field.refresh()
         field.refreshQuick()
+
+        del field.editor_
+        field.initFakeEditor()
+        field.field_map_value_ = field
+        field.setMapValue()
+
+        field.setNoShowed()
+        field.autoCompletionUpdateValue()
+        field.searchValue()
+
+        field_icono = module_.child("flfielddb_3")
+        icono_file = utils_base.filedir("./core/images/icons", "flfielddb.png")
+        field_icono.setPixmap(icono_file)
+        pix = field_icono.pixmap()
+        field_icono.setPixmapFromPixmap(pix)
+
+        clb = QtWidgets.QApplication.clipboard()
+        clb.setPixmap(pix)
+        field_icono.setPixmapFromClipboard()
+
         # module_.form.close()
 
     def test_button_in_empty_buffer(self) -> None:

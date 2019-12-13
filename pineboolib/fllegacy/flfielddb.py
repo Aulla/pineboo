@@ -3052,9 +3052,7 @@ class FLFieldDB(QtWidgets.QWidget):
         @return image associated to the field.
         @author Silix
         """
-        pix = QtGui.QPixmap()
-        pix.loadFromData(self.value().toCString())
-        return pix
+        return QtGui.QPixmap(self.value())
 
     def emitLostFocus(self) -> None:
         """
