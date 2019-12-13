@@ -44,7 +44,7 @@ class TestFLFieldDBString(unittest.TestCase):
         field.setKeepDisabled(False)
 
         comp_mode = field.autoCompletionMode()
-        self.assertEqual(comp_mode, "NeverAuto")
+        self.assertTrue(comp_mode)
         field.setAutoCompletionMode(comp_mode)
         field.refresh()
         field.refreshQuick()

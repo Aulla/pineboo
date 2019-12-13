@@ -195,7 +195,6 @@ class PNBuffer(object):
         self.inicialized_: bool = False
 
         tmd = self.cursor_.metadata()
-        print("****", tmd, tmd.fieldListArray())
         campos = tmd.fieldList()
         # FIXME: Should not inspect the fields in each create, this should be cached in the metadata()
         for campo in campos:
