@@ -36,7 +36,18 @@ class TestFLFieldDBString(unittest.TestCase):
         self.assertEqual(cursor_1.valueBuffer("descripcion"), "hola")
         cursor_2.setValueBuffer("descripcion", "nueva hola.")
         self.assertEqual(field.value(), "nueva hola.")
+        field.status()
+        field.selectAll()
+        field.setShowAlias(True)
+        self.assertTrue(field.showAlias())
+        self.assertTrue(field.showEditor())
+        field.setKeepDisabled(False)
 
+        comp_mode = field.autoCompletionMode()
+        self.assertEqual(comp_mode, "NeverAuto")
+        field.setAutoCompletionMode(comp_mode)
+        field.refresh()
+        field.refreshQuick()
         # module_.form.close()
 
     def test_button_in_empty_buffer(self) -> None:
@@ -94,7 +105,8 @@ class TestFLFieldDBString(unittest.TestCase):
         )
         table_mtd.addFieldMD(field_mtd)
         new_field = flfielddb.FLFieldDB(parent)
-        new_field.setObjectName("date_control")
+        new_field.setName("date_control")
+        self.assertEqual(new_field.objectName(), "date_control")
         new_field.setFieldName(field_mtd.name())
         new_field.load()
         cursor = new_field.cursor()
@@ -113,6 +125,26 @@ class TestFLFieldDBString(unittest.TestCase):
         self.assertEqual(editor.date, "2001-02-01")
         editor.date = None
         self.assertEqual(editor.date, "")
+
+        new_field.setValue("2011-03-02")
+        self.assertEqual(str(new_field.value())[:10], "2011-03-02")
+
+        new_field.refresh()
+        new_field.refreshQuick()
+        new_field.setActionName("nueva_action")
+        self.assertEqual(new_field.actionName(), "nueva_action")
+
+        new_field.setFilter("nuevo_filtro")
+        self.assertEqual(new_field.filter(), "nuevo_filtro")
+
+        new_field.setForeignField("foreignfield")
+        self.assertEqual(new_field.foreignField(), "foreignfield")
+
+        new_field.setFieldRelation("fieldrelation")
+        self.assertEqual(new_field.fieldRelation(), "fieldrelation")
+
+        new_field.toggleAutoCompletion()
+
         table_mtd.removeFieldMD(field_mtd.name())
         # lay = parent.layout()
         # lay.addWidget(new_field)

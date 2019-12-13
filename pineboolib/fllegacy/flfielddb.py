@@ -63,11 +63,11 @@ class FLFieldDB(QtWidgets.QWidget):
     ]  # Editor para el contenido del campo que representa el componente
     editorImg_: flpixmapview.FLPixmapView
     fieldName_: str  # Nombre del campo de la tabla al que esta asociado este componente
-    tableName_: Optional[str]  # Nombre de la tabla fóranea
-    actionName_: Optional[str]  # Nombre de la accion
-    foreignField_: Optional[str]  # Nombre del campo foráneo
-    fieldRelation_: Optional[str]  # Nombre del campo de la relación
-    filter_: Optional[str]  # Nombre del campo de la relación
+    tableName_: str  # Nombre de la tabla fóranea
+    actionName_: str  # Nombre de la accion
+    foreignField_: str  # Nombre del campo foráneo
+    fieldRelation_: str  # Nombre del campo de la relación
+    filter_: str  # Nombre del campo de la relación
     cursor_: Optional[
         "isqlcursor.ISqlCursor"
     ]  # Cursor con los datos de la tabla origen para el componente
@@ -143,7 +143,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self._refreshLaterEditor = None
         self.keepDisabled_ = False
         self.initNotNullColor_ = False
-        self.actionName_ = None
+        self.actionName_ = ""
         self.pbAux_ = None
         self.pbAux2_ = None
         self.pbAux3_ = None
@@ -183,9 +183,9 @@ class FLFieldDB(QtWidgets.QWidget):
         self.FLWidgetFieldDBLayout.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
         self.FLLayoutH.addLayout(self.lytButtons)
         self.FLLayoutH.addLayout(self.FLWidgetFieldDBLayout)
-        self.tableName_ = None
-        self.foreignField_ = None
-        self.fieldRelation_ = None
+        self.tableName_ = ""
+        self.foreignField_ = ""
+        self.fieldRelation_ = ""
 
         self.textLabelDB = QtWidgets.QLabel()
         self.textLabelDB.setObjectName("textLabelDB")
@@ -200,8 +200,8 @@ class FLFieldDB(QtWidgets.QWidget):
             self.textLabelDB.setTextFormat(QtCore.Qt.PlainText)
             self.textLabelDB.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
-        self.fieldAlias_ = None
-        self.filter_ = None
+        self.fieldAlias_ = ""
+        self.filter_ = ""
 
         self.FLWidgetFieldDBLayout.addWidget(self.textLabelDB)
 
@@ -255,7 +255,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self.cursor_.curName(),
                     self.cursor_.at(),
                 )
-                cur_values = [f.value for f in self.cursor_.d.buffer_.fieldList_]
+                cur_values = [f.value for f in self.cursor_.d.buffer_.fieldsList()]
                 self.logger.info("*** cursor Buffer: %r", cur_values)
             else:
                 self.logger.warning("*** FLFieldDB::loaded: SIN cursor ??")
@@ -312,7 +312,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self.filter_ = filter
         self.setMapValue()
 
-    def filter(self) -> Optional[str]:
+    def filter(self) -> str:
         """Return the cursor filter."""
 
         return self.filter_
@@ -325,7 +325,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         self.fieldName_ = field_name
 
-    def tableName(self) -> Optional[str]:
+    def tableName(self) -> str:
         """
         Return the name of the foreign table.
 
@@ -340,12 +340,12 @@ class FLFieldDB(QtWidgets.QWidget):
         @param foreign_table Table name
         """
 
-        if not foreign_table == "":
+        if foreign_table:
             self.tableName_ = foreign_table
         else:
-            self.tableName_ = None
+            self.tableName_ = ""
 
-    def foreignField(self) -> Optional[str]:
+    def foreignField(self) -> str:
         """
         Return the name of the foreign field.
 
@@ -362,7 +362,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         self.foreignField_ = foreign_field_name
 
-    def fieldRelation(self) -> Optional[str]:
+    def fieldRelation(self) -> str:
         """
         Return the name of the related field.
 
@@ -421,9 +421,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
         @param m Mode (Normal, NoEcho, Password)
         """
-        led = self.editor_
-        if isinstance(led, qlineedit.QLineEdit):
-            led.setEchoMode(m)
+        if isinstance(self.editor_, qlineedit.QLineEdit):
+            self.editor_.setEchoMode(m)
 
     def echoMode(self) -> int:
         """
@@ -431,9 +430,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
         @return The "echo" mode (Normal, NoEcho, Password)
         """
-        led = self.editor_
-        if isinstance(led, qlineedit.QLineEdit):
-            return led.echoMode()
+        if isinstance(self.editor_, qlineedit.QLineEdit):
+            return self.editor_.echoMode()
 
         return qlineedit.QLineEdit.Normal
 
@@ -656,7 +654,10 @@ class FLFieldDB(QtWidgets.QWidget):
         self.logger.info("FieldRelation:", self.fieldRelation_)
         self.logger.info("Cursor:", self.cursor_)
         self.logger.info("CurName:", self.cursor().curName() if self.cursor_ else None)
-        self.logger.info("Editor: %s, EditorImg: %s" % (self.editor_, self.editorImg_))
+        self.logger.info(
+            "Editor: %s, EditorImg: %s"
+            % (getattr(self, "editor_", None), getattr(self, "editorImg_", None))
+        )
         self.logger.info("RefreshLaterEditor:", self._refreshLaterEditor)
         self.logger.info("************************************")
 
@@ -3349,10 +3350,10 @@ class FLFieldDB(QtWidgets.QWidget):
                             if tMD:
                                 v = self.cursorAux.valueBuffer(self.foreignField_)
                                 # print("El valor de %s.%s es %s" % (tMD.name(), self.foreignField_, v))
-                                if self.tableName_ is None:
+                                if not self.tableName_:
                                     raise ValueError("tableName_ no puede ser Nulo")
 
-                                if self.fieldName_ is None:
+                                if not self.fieldName_:
                                     raise ValueError("fieldName_ no puede ser Nulo")
                                 # FIXME q = pnsqlquery.PNSqlQuery(False,
                                 # self.cursor_.db().connectionName())
