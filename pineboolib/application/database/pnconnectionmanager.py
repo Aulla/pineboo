@@ -265,6 +265,10 @@ class PNConnectionManager(QtCore.QObject):
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""
-        return getattr(self.mainConn(), name, None)
+
+        if "main_conn" in self.conn_dict.keys():
+            return getattr(self.mainConn(), name, None)
+
+        return None
 
     database = useConn
