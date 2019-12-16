@@ -679,14 +679,14 @@ class PNTableMetaData(ITableMetaData):
 
         self.d.inCache_ = b
 
-    def copy(self, other: "PNTableMetaData") -> None:
+    def copy(self, other: Optional["PNTableMetaData"] = None) -> None:
         """
         Copy the values ​​of a PNFieldMetaData from another.
 
         @param other. PNTableMetaData.
         """
 
-        if other == self:
+        if other is None or other == self:
             return
 
         self.d = copy.copy(other.d)
