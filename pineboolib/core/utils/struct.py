@@ -123,5 +123,7 @@ class ActionStruct(XMLStruct):
     load_script: Callable
     openDefaultForm: Callable
     execDefaultScript: Callable
+    execMainScript: Callable
     openDefaultFormRecord: Callable
+    formRecordWidget: Callable
     mod: Any

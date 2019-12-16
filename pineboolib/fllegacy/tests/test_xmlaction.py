@@ -26,7 +26,7 @@ class TestXMLAction(unittest.TestCase):
         application.project.actions["flareas"].execMainScript("formareas")
         application.project.actions["flreinit"].execDefaultScript()
         application.project.actions["flareas"].formRecordWidget()
-        self.assertTrue(application.project.actions["flareas"].formrecord_widget._loaded)
+        self.assertTrue(application.project.actions["flareas"].formRecordWidget()._loaded)
 
     @classmethod
     def tearDownClass(cls) -> None:
