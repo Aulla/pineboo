@@ -8,7 +8,7 @@ from pineboolib.core.utils.utils_base import load2xml
 from pineboolib import logging
 
 import barcode  # type: ignore # pip3 install python-barcode
-from typing import Dict, Any, Union, cast, Optional
+from typing import Dict, Any, cast, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class FLCodBar(object):
 
     def __init__(
         self,
-        value: Union[None, int, str, Dict[str, Any]] = None,
+        value: Any = None,
         type_: int = BARCODE_128,
         margin: int = 10,
         scale: float = 1.0,
@@ -84,8 +84,8 @@ class FLCodBar(object):
                 self.barcode["res"] = res
             elif isinstance(value, int):
                 raise ValueError("Not supported")
-            elif isinstance(value, dict):
-                self._copyBarCode(value, self.barcode)
+            elif isinstance(value, FLCodBar):
+                self._copyBarCode(value.barcode, self.barcode)
 
     def pixmap(self) -> QtGui.QPixmap:
         """Return pixmap barcode."""
@@ -211,8 +211,11 @@ class FLCodBar(object):
         """Return barcode data."""
         return self.barcode
 
-    def fillDefault(self, data: Dict[str, Any]) -> None:
+    def fillDefault(self, data: Dict[str, Any] = {}) -> None:
         """Fill with default values."""
+
+        if not data:
+            data = {}
 
         data["bg"] = "white"
         data["fg"] = "black"
@@ -226,6 +229,7 @@ class FLCodBar(object):
         data["caption"] = "Static"
         data["valid"] = False
         data["res"] = 72
+        self.setData(data)
 
     def cleanUp(self) -> None:
         """Clean barcode data."""
@@ -404,6 +408,7 @@ class FLCodBar(object):
         dest["valid"] = source["valid"]
         dest["fg"] = source["fg"]
         dest["bg"] = source["bg"]
-        dest["x"] = source["x"]
-        dest["y"] = source["y"]
+        if "x" in source.keys():
+            dest["x"] = source["x"]
+            dest["y"] = source["y"]
         dest["res"] = source["res"]
