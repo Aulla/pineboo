@@ -27,19 +27,7 @@ class TestProcess(unittest.TestCase):
         else:
             salida = proc.stdout
 
-        if salida.find("Python") > -1:
-            self.assertTrue(salida.find("Python") > -1)
-        else:
-            proc.execute("python --version")
-
-            salida = None
-            if proc.stderr != "":
-                salida = proc.stderr
-            else:
-                salida = proc.stdout
-
-            if salida.find("Python") > -1:
-                self.assertTrue(salida.find("Python") > -1)
+        self.assertTrue(salida.find("Python") > -1)
 
     def test_ProcessStatic(self) -> None:
         """Test ProcessStatic."""
@@ -57,21 +45,8 @@ class TestProcess(unittest.TestCase):
         else:
             salida = proc.stdout
 
-        if salida.find("Python") > -1:
-            comando_py = "python3"
-            self.assertTrue(salida.find("Python") > -1)
-        else:
-            comando_py = "python"
-            proc.execute("python --version")
-
-            salida = None
-            if proc.stderr != "":
-                salida = proc.stderr
-            else:
-                salida = proc.stdout
-
-            if salida.find("Python") > -1:
-                self.assertTrue(salida.find("Python") > -1)
+        comando_py = "python3"
+        self.assertTrue(salida.find("Python") > -1)
 
         comando = qsa.Array(comando_py, "--version")
 
