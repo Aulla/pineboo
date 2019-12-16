@@ -21,7 +21,6 @@ from . import pncursortablemodel
 
 
 import weakref
-import importlib
 import traceback
 
 from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
@@ -560,14 +559,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         fN = str(fN)
 
-        if application.project.DGI.use_model():
-            if fN == "pk":
-                # logger.warning("¡¡¡¡ OJO Cambiado fieldname PK!!", stack_info = True)
-                pk_name = self.primaryKey()
-                if pk_name is None:
-                    raise Exception("primary key is not defined!")
-
-                fN = pk_name
+        # if application.project.DGI.use_model():
+        #    if fN == "pk":
+        #        # logger.warning("¡¡¡¡ OJO Cambiado fieldname PK!!", stack_info = True)
+        #        pk_name = self.primaryKey()
+        #        if pk_name is None:
+        #            raise Exception("primary key is not defined!")
+        #
+        #        fN = pk_name
 
         if self.d.rawValues_:
             return self.valueBufferRaw(fN)
@@ -2744,12 +2743,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             else application.project.actions["sys"].load()
         )
         module_iface: Any = getattr(module_script, "iface", None)
-        if application.project.DGI.use_model():
-            model_name = "models.%s.%s_def" % (idMod, idMod)
-            try:
-                model_module = importlib.import_module(model_name)
-            except Exception:
-                logger.exception("Error trying to import module %s", model_name)
+        # if application.project.DGI.use_model():
+        #    model_name = "models.%s.%s_def" % (idMod, idMod)
+        #    try:
+        #        model_module = importlib.import_module(model_name)
+        #    except Exception:
+        #        logger.exception("Error trying to import module %s", model_name)
 
         if not self.modeAccess() == PNSqlCursor.Browse and self.activatedCommitActions():
 

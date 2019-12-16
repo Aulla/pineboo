@@ -159,9 +159,9 @@ class dgi_schema(object):
         # ... also the naming is bad. It conveys having done a cache in the past.
         return self._alternative_content_cached
 
-    def use_model(self):
-        """Return if this DGI use models."""
-        return False
+    # def use_model(self):
+    #    """Return if this DGI use models."""
+    #    return False
 
     def __getattr__(self, name: str) -> Optional[QtCore.QObject]:
         """Return and object specified by name."""
