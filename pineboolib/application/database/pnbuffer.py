@@ -61,7 +61,7 @@ class FieldStruct(object):
     def __init__(self, field: "ifieldmetadata.IFieldMetaData"):
         """Structure of each field that composes a buffer."""
 
-        self.name = str(field.name())
+        self.name = field.name()
         self.value = None
         self.metadata = field
         self.type_ = field.type()
@@ -184,13 +184,15 @@ class PNBuffer(object):
     the fields of the record.
     """
 
+    field_dict_: Dict[str, FieldStruct]
+
     def __init__(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Create a Buffer from the specified PNSqlCursor."""
         super().__init__()
         if not cursor:
             raise Exception("Missing cursor")
         self.cursor_ = cursor
-        self.field_dict_: Dict[str, FieldStruct] = {}
+        self.field_dict_ = {}
         self.line_: int = -1
         self.inicialized_: bool = False
 
@@ -199,6 +201,7 @@ class PNBuffer(object):
         # FIXME: Should not inspect the fields in each create, this should be cached in the metadata()
         for campo in campos:
             field = FieldStruct(campo)
+            # self.field_list_.append(field)
             self.field_dict_[field.name.lower()] = field
 
     def count(self) -> int:
@@ -267,8 +270,9 @@ class PNBuffer(object):
 
     def primeDelete(self) -> None:
         """Clear the values ​​of all buffer fields."""
-        for field_key in self.field_dict_.keys():
-            field = self.field_dict_[field_key]
+        # for field_key in self.field_dict_.keys():
+        #    field = self.field_dict_[field_key]
+        for field in self.fieldsList():
             field.value = None
             field.modified = field.originalValue is not None
 
@@ -302,7 +306,12 @@ class PNBuffer(object):
 
         @return True or False.
         """
-        return self.field_dict_[name].generated
+        field = self.field(name)
+        if field is not None:
+            return field.generated
+
+        raise Exception("Field %s not found!" % name)
+        # return self.field_dict_[name].generated
 
     def setGenerated(
         self, f: Union[int, str, "ifieldmetadata.IFieldMetaData"], value: bool
@@ -313,7 +322,7 @@ class PNBuffer(object):
         @param f = FLField Metadata of the field to be marked.
         @param value = True or False.
         """
-        if not isinstance(f, str) and not isinstance(f, int):
+        if not isinstance(f, (str, int)):
             f = f.name()
         self._field(f).generated = value
 
@@ -321,8 +330,9 @@ class PNBuffer(object):
         """
         Set all values ​​to None and check field.modified to True.
         """
-        for field_key in self.field_dict_.keys():
-            field = self.field_dict_[field_key]
+        # for field_key in self.field_dict_.keys():
+        #    field = self.field_dict_[field_key]
+        for field in self.fieldsList():
             field.value = None
             field.modified = True
 
@@ -344,10 +354,7 @@ class PNBuffer(object):
         field = self.field(n)
 
         if field is None:
-            # FIXME: Esto es un error. Si el campo no existe, es una llamada
-            # errónea.
-            logger.debug("PNBuffer.isNull: Field <%s> not found", n)
-            return True
+            raise Exception("PNBuffer.isNull: Field <%s> not found", n)
 
         return field.value in (None, "")
 
@@ -362,8 +369,7 @@ class PNBuffer(object):
         v = field.value
 
         if field.type_ in ("bool", "unlock"):
-            v = field.value in (True, "true")
-            return v
+            return field.value in (True, "true")
 
         if field.value is None:
             return None
@@ -437,9 +443,9 @@ class PNBuffer(object):
         @return array = List of modified fields.
         """
         lista = []
-        for f in self.fieldsList():
-            if f.modified:
-                lista.append(f.name)
+        for field in self.fieldsList():
+            if field.modified:
+                lista.append(field.name)
 
         return lista
 
@@ -447,8 +453,8 @@ class PNBuffer(object):
         """
         Set all fields as unmodified."""
 
-        for f in self.fieldsList():
-            f.modified = False
+        for field in self.fieldsList():
+            field.modified = False
 
     def pK(self) -> Optional[str]:
         """
@@ -456,9 +462,9 @@ class PNBuffer(object):
 
         @return field name Primary key.
         """
-        for f in self.fieldsList():
-            if f.metadata.isPrimaryKey():
-                return f.name
+        for field in self.fieldsList():
+            if field.metadata.isPrimaryKey():
+                return field.name
         logger.warning("PNBuffer.pk(): No se ha encontrado clave Primaria")
         return None
 
@@ -469,8 +475,8 @@ class PNBuffer(object):
         @param name = field name.
         @return field position.
         """
-        for i, f in enumerate(self.fieldsList()):
-            if f.name == name:
+        for i, field in enumerate(self.fieldsList()):
+            if field.name == name:
                 return i
         logger.warning("indexField: %s not found", name)
         return None
@@ -493,28 +499,29 @@ class PNBuffer(object):
         except (KeyError, ValueError):
             return None
 
-    def _field(self, n: Union[str, int]) -> FieldStruct:
+    def _field(self, n: Union[str, int]) -> Optional[FieldStruct]:
         """Fieldstruct of a specified field."""
+        mtd_field = None
 
         if isinstance(n, str):
             name = n.lower()
-            if name not in self.field_dict_.keys():
+            if name in self.field_dict_.keys():
+                return self.field_dict_[name]
+            else:
                 mtd_field = self.cursor_.metadata().field(name)
-                if mtd_field is not None:
-                    self.field_dict_[name] = FieldStruct(mtd_field)
-
-            return self.field_dict_[name]
         elif isinstance(n, int):
-            list_keys = list(self.field_dict_.keys())
-            if n < 0 or n >= len(list_keys):
-                if n >= 0:
-                    mtd_field = self.cursor_.metadata().indexFieldObject(n)
-                    if mtd_field is not None:
-                        field_struct = FieldStruct(mtd_field)
-                        self.field_dict_[mtd_field.name().lower()] = field_struct
-                        return field_struct
+            if n >= 0 or n < len(self.fieldsList()):
+                return self.fieldsList()[n]
+            else:
+                mtd_field = self.cursor_.metadata().indexFieldObject(n)
 
-                raise ValueError("Value n:%s out of bounds" % n)
+        else:
+            raise Exception("Bad call to _field, type not supported %s" % type(n))
 
-            return self.field_dict_[list_keys[n]]
-        raise Exception("Bad call to _field, type not supported %s" % type(n))
+        new_field_struct = None
+
+        if mtd_field is not None:
+            new_field_struct = FieldStruct(mtd_field)
+            self.field_dict_[new_field_struct.name] = new_field_struct
+
+        return new_field_struct
