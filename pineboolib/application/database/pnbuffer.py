@@ -324,7 +324,12 @@ class PNBuffer(object):
         """
         if not isinstance(f, (str, int)):
             f = f.name()
-        self._field(f).generated = value
+
+        field = self._field(f)
+        if field:
+            field.generated = value
+        else:
+            raise Exception("Field %s not found!" % f)
 
     def clearValues(self) -> None:
         """
@@ -366,6 +371,9 @@ class PNBuffer(object):
         @return Any = field value.
         """
         field = self._field(n)
+        if not field:
+            raise Exception("Field %s not found!" % n)
+
         v = field.value
 
         if field.type_ in ("bool", "unlock"):
