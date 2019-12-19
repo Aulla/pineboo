@@ -13,7 +13,6 @@ from pineboolib.application.utils import date_conversion
 from . import pnsqlquery
 
 import math
-import threading
 import time
 import itertools
 import locale

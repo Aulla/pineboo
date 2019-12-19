@@ -148,7 +148,6 @@ class TestPNCursorTableModel(unittest.TestCase):
         model.sort(1, QtCore.Qt.DescendingOrder)
         self.assertTrue(model._disable_refresh)
         model.disable_refresh(False)
-        model.threadFetch()
         model.updateRows()
         cursor.select()
         model.updateColumnsCount()
