@@ -13,7 +13,7 @@ class DateEdit(QtWidgets.QWidget):
     label_control: QtWidgets.QLabel
     date_control: qdateedit.QDateEdit
 
-    def __init__(self, parent: Optional[QtWidgets.QWidget]) -> None:
+    def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
         """Initialize."""
 
         super().__init__(parent)
