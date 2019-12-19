@@ -2225,25 +2225,30 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         # if row is None:
         #     row = -1
+        model = self.d._model
 
-        if not self.d._model:
+        if not model:
             return False
 
         if row < 0:
             row = -1
-        if row >= self.d._model.rows:
-            row = self.d._model.rows
+        if row >= model.rows:
+            while row > model.rows and model.canFetchMoreRows:
+                model.updateRows()
+
+            row = model.rows
+
         if self.currentRegister() == row:
             return False
 
-        topLeft = self.d._model.index(row, 0)
-        bottomRight = self.d._model.index(row, self.d._model.cols - 1)
+        topLeft = model.index(row, 0)
+        bottomRight = model.index(row, model.cols - 1)
         new_selection = QtCore.QItemSelection(topLeft, bottomRight)
         if self._selection is None:
             raise Exception("Call setAction first.")
         self._selection.select(new_selection, QtCore.QItemSelectionModel.ClearAndSelect)
         # self.d._current_changed.emit(self.at())
-        if row < self.d._model.rows and row >= 0:
+        if row < model.rows and row >= 0:
             self.d._currentregister = row
             return True
         else:
@@ -2283,7 +2288,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # if self.d.modeAccess_ == self.Del:
         #    return False
 
-        b = self.move(self.d._model.rows - 1)
+        b = self.move(self.size() - 1)
 
         if b:
             if emite:
