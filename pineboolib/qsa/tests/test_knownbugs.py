@@ -61,7 +61,8 @@ class TestKnownBugs(unittest.TestCase):
             """reg_exp = qsa.RegExp(" ")\nreg_exp.global_ = True\ntexto = qsa.replace("UNO DOS", reg_exp, "_")\n""",
         )
 
-        value3 = """var reg_exp:RegExp = new RegExp( " " );\nreg_exp.global = true;\nvar texto:String = "UNO DOS".replace(reg_exp, "_").lower();"""
+        value3 = """var reg_exp:RegExp = new RegExp( " " );\nreg_exp.global = true;\n
+        var texto:String = "UNO DOS".replace(reg_exp, "_").lower();"""
         self.assertEqual(
             qs2py(value3),
             """reg_exp = qsa.RegExp(" ")\nreg_exp.global_ = True\ntexto = qsa.replace("UNO DOS", reg_exp, "_").lower()\n""",
