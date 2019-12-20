@@ -55,6 +55,18 @@ class TestKnownBugs(unittest.TestCase):
         value = """var reg_exp:RegExp = new RegExp( "''" );\nreg_exp.global = true;"""
         self.assertEqual(qs2py(value), """reg_exp = qsa.RegExp("''")\nreg_exp.global_ = True\n""")
 
+        value2 = """var reg_exp:RegExp = new RegExp( " " );\nreg_exp.global = true;\nvar texto:String = "UNO DOS".replace(reg_exp, "_");"""
+        self.assertEqual(
+            qs2py(value2),
+            """reg_exp = qsa.RegExp(" ")\nreg_exp.global_ = True\ntexto = qsa.replace("UNO DOS", reg_exp, "_")\n""",
+        )
+
+        value3 = """var reg_exp:RegExp = new RegExp( " " );\nreg_exp.global = true;\nvar texto:String = "UNO DOS".replace(reg_exp, "_").lower();"""
+        self.assertEqual(
+            qs2py(value3),
+            """reg_exp = qsa.RegExp(" ")\nreg_exp.global_ = True\ntexto = qsa.replace("UNO DOS", reg_exp, "_").lower()\n""",
+        )
+
     def test_from_project(self) -> None:
         """Test from_project parser."""
         value_1 = (

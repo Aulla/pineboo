@@ -1773,21 +1773,29 @@ class Member(ASTPython):
                                 % (part_list[0], ",".join(part_list[1:]), ".".join(part1))
                             ] + part2
                         else:
-                            if not part2:
-                                if ".".join(part1) and "replace(" in " ".join(arguments[0:1]):
-                                    # arguments = ['numeroCSV', 'replace(".", ",")']
-                                    rep_str = arguments[0]
-                                    rep_from_to = arguments[1].replace("replace", "").strip()
-                                    if rep_from_to[0] == "(" and rep_from_to[-1] == ")":
-                                        rep_from_to = rep_from_to[1:-1]
+                            # if not part2:
+                            # if ".".join(part1) and "replace(" in " ".join(arguments[0:1]):
+                            # arguments = ['numeroCSV', 'replace(".", ",")']
+                            #    rep_str = arguments[0]
+                            #    rep_from_to = arguments[1].replace("replace", "").strip()
+                            #    if rep_from_to[0] == "(" and rep_from_to[-1] == ")":
+                            #        rep_from_to = rep_from_to[1:-1]
 
-                                    rep_extra = arguments[2:]
-                                    # print(arguments)
-                                    arguments = [
-                                        "qsa.replace(%s, %s)" % (rep_str, rep_from_to)
-                                    ] + rep_extra
-                                    # print(arguments)
-                                    # print("*")
+                            #    rep_extra = arguments[2:]
+                            # print(arguments)
+                            #    arguments = [
+                            #        "qsa.replace(%s, %s)" % (rep_str, rep_from_to)
+                            #    ] + rep_extra
+                            # print(arguments)
+                            # print("*")
+                            rep_str = arguments[0]
+                            rep_from_to = arguments[1].replace("replace", "").strip()
+                            if rep_from_to[0] == "(" and rep_from_to[-1] == ")":
+                                rep_from_to = rep_from_to[1:-1]
+
+                            rep_extra = arguments[2:]
+                            # print(arguments)
+                            arguments = ["qsa.replace(%s, %s)" % (rep_str, rep_from_to)] + rep_extra
 
                             # Es un regexpr
                         # else:
