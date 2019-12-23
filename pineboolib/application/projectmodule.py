@@ -546,10 +546,14 @@ class Project(object):
         msg = "Convirtiendo a Python . . ."
         self.logger.info(msg)
 
+        threads_num = pyconvert.CPU_COUNT
+        if len(itemlist) < threads_num:
+            threads_num = len(itemlist)
+
         pycode_list: List[bool] = []
 
         if qsaparser.USE_THREADS:
-            with Pool(pyconvert.CPU_COUNT) as p:
+            with Pool(threads_num) as p:
                 # TODO: Add proper signatures to Python files to avoid reparsing
                 pycode_list = p.map(pyconvert.pythonify_item, itemlist, chunksize=2)
         else:
