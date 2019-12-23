@@ -268,6 +268,15 @@ res = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
 
         self.assertEqual(qs2py(two), result_two)
 
+    def test_array_functions(self) -> None:
+        """Test funstions array conversion."""
+
+        one = """var cacheFunsEdi = [];
+        cacheFunsEdi["uno"]("dos");"""
+
+        result_one = """cacheFunsEdi = qsa.Array()\ncacheFunsEdi["uno"]("dos")\n"""
+        self.assertEqual(qs2py(one), result_one)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

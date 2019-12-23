@@ -414,7 +414,7 @@ class ASTPythonBase(object):
         if not is_member and self.source is not None:
             locals = self.source.locals if self.source else set()
             transform = self.source.locals_transform
-        return id_translate(name, qsa_exclude=locals, transform=transform)
+        return id_translate(name, qsa_exclude=locals, transform=transform) if name else ""
 
     def other_var(self, name: str) -> str:
         """Transform identifiers that cannot fit in any other category."""
@@ -681,6 +681,7 @@ class FunctionCall(ASTPython):
                     expr.append(data)
                 else:
                     yield dtype, data
+
             if len(expr) == 0:
                 name = "unknownFn"
                 yield "debug", "Function name not understood"
@@ -706,11 +707,13 @@ class FunctionCall(ASTPython):
                     extends = class_.get("extends")
                     if extends == name:
                         name = "super(%s, self).__init__" % class_.get("name")
-                functions = parent.findall('Function[@name="%s"]' % name)
-                for f in functions:
-                    # yield "debug", "Function to:" + ElementTree.tostring(f)
-                    name = "self.%s" % name
-                    break
+
+                if not name.find("["):  # if don't search a array
+                    functions = parent.findall('Function[@name="%s"]' % name)
+                    for f in functions:
+                        # yield "debug", "Function to:" + ElementTree.tostring(f)
+                        name = "self.%s" % name
+                        break
 
         arguments = []
 
