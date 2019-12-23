@@ -806,5 +806,45 @@ class TestAcos(unittest.TestCase):
         finish_testing()
 
 
+class TestCursorSize(unittest.TestCase):
+    """Test Acos class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_all(self) -> None:
+        """Test setAcosCondition."""
+
+        from pineboolib.application.database import pnsqlcursor
+
+        cur_test = pnsqlcursor.PNSqlCursor("fltest")
+        size = 2102
+        for i in range(size):
+            cur_test.setModeAccess(cur_test.Insert)
+            self.assertTrue(cur_test.refreshBuffer())
+            cur_test.setValueBuffer("string_field", "Registro %s" % i)
+            self.assertTrue(cur_test.commitBuffer())
+
+        self.assertEqual(cur_test.size(), size)
+
+        cur_test_2 = pnsqlcursor.PNSqlCursor("fltest")
+        cur_test_2.select()
+        self.assertTrue(cur_test_2.first())
+        self.assertEqual(cur_test_2.valueBuffer("string_field"), "Registro 0")
+        self.assertTrue(cur_test_2.next())
+        self.assertEqual(cur_test_2.valueBuffer("string_field"), "Registro 1")
+        self.assertTrue(cur_test_2.last())
+        self.assertEqual(cur_test_2.valueBuffer("string_field"), "Registro 2101")
+        self.assertTrue(cur_test_2.prev())
+        self.assertEqual(cur_test_2.valueBuffer("string_field"), "Registro 2100")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
+
+
 if __name__ == "__main__":
     unittest.main()
