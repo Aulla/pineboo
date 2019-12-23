@@ -216,7 +216,7 @@ class PNTableMetaData(ITableMetaData):
         """
 
         if not self.d.primaryKey_:
-            raise Exception("No primaryKey")
+            raise Exception("No primaryKey in %s" % self.d.name_)
 
         if "." in self.d.primaryKey_:
             return self.d.primaryKey_
@@ -795,7 +795,8 @@ class PNTableMetaDataPrivate:
         @param a metadata alias.
         @param q query string.
         """
-
+        self.name_ = ""
+        self.primaryKey_ = None
         self.field_list_ = []
         self.fieldNames_ = []
         self.fieldNamesUnlock_ = []
