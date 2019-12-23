@@ -2232,10 +2232,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if row < 0:
             row = -1
-        if row >= model.rows:
-            while row > model.rows and model.canFetchMoreRows:
-                model.updateRows()
 
+        while row >= model.rows and model.canFetchMoreRows:
+            model.updateRows()
+
+        if row >= model.rows:
             row = model.rows
 
         if self.currentRegister() == row:
