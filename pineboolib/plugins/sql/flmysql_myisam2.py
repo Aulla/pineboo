@@ -10,7 +10,7 @@ from . import flmysql_myisam
 
 import traceback
 
-from typing import Any, Dict, cast, TYPE_CHECKING
+from typing import Any, Dict, cast, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -22,11 +22,11 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
     """MYISAM2 Driver class."""
 
     cursorsArray_: Dict[str, Any]  # IApiCursor
+    rowsFetched: Dict[str, List]
 
     def __init__(self):
         """Create empty driver."""
         super().__init__()
-        self.version_ = "0.8"
         self.conn_ = None
         self.name_ = "FLMYSQL_MyISAM2"
         self.open_ = False
@@ -36,7 +36,7 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         self.mobile_ = True
         self.pure_python_ = True
         self.defaultPort_ = 3306
-        self.rowsFetched: Dict[str, int] = {}
+        self.rowsFetched = {}
         self.active_create_index = True
         self.db_ = None
         self.engine_ = None

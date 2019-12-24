@@ -29,17 +29,16 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     """FLSQLITE class."""
 
     declare: List[Any]
-    rowsFetched: Dict[str, int]
+    rowsFetched: Dict[str, List]
     cursorsArray_: Dict[str, Any]  # IApiCursor
     db_filename: Optional[str]
-    sql: str
     db_name: str
 
     def __init__(self):
         """Inicialize."""
         super().__init__()
         self.logger = logging.getLogger("FLSqLite")
-        self.version_ = "0.6"
+        self.version_ = "0.7"
         self.conn_ = None
         self.name_ = "FLsqlite"
         self.open_ = False
@@ -47,7 +46,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.alias_ = "SQLite3 (SQLITE3)"
         self.declare = []
         self.db_filename = None
-        self.sql = ""
         self.rowsFetched = {}
         self.db_ = None
         self.parseFromLatin = False
@@ -420,24 +418,26 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             self.rowsFetched[curname] = self.cursorsArray_[curname].fetchmany(number)
 
         except Exception as e:
-            logger.error("refreshFetch: %s", e)
-            logger.info("SQL: %s", sql)
-            logger.trace("Detalle:", stack_info=True)
+            self.logger.error("refreshFetch: %s", e)
+            # self.logger.info("SQL: %s", sql)
+            self.logger.trace("Detalle:", stack_info=True)
 
-    def process_booleans(self, where: str) -> Any:
+    def process_booleans(self, where: str) -> str:
         """Process booleans fields."""
-        where = where.replace("'true'", str(1))
-        return where.replace("'false'", str(0))
+        where = where.replace("'true'", "1")
+        return where.replace("'false'", "0")
 
     def fetchAll(
         self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
     ) -> List:
         """Return all fetched data from a query."""
-
+        ret_: List[str] = []
         try:
-            return self.rowsFetched[curname]
+            ret_ = self.rowsFetched[curname]
         except Exception:
-            logger.error("%s:: fetchAll:%s", self.name_, traceback.format_exc())
+            self.logger.error("%s:: fetchAll:%s", self.name_, traceback.format_exc())
+
+        return ret_
 
     def rowCount(self, curname: str, cursor: Any) -> int:
         """Return rowcount fetched."""

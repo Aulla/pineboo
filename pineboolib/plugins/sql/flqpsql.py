@@ -26,7 +26,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
     def __init__(self):
         """Inicialize."""
-        self.version_ = "0.8"
+        self.version_ = "0.9"
         self.name_ = "FLQPSQL"
         self.open_ = False
         self.errorList = []
