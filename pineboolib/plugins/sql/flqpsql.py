@@ -405,7 +405,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         try:
             cursor.execute(sql)
 
-            print(1, cursor.rowcount)
         except Exception as e:
             logger.error("refreshFetch: %s", e)
             logger.info("SQL: %s", sql)
@@ -423,7 +422,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             logger.info("where_filter: %s", where_filter)
             logger.trace("Detalle:", stack_info=True)
 
-        print(2, cursor.rowcount)
         return ret_
 
     def existsTable(self, name: str) -> bool:
