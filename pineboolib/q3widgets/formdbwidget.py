@@ -184,31 +184,31 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return self.cursor_
 
-    # def __getattr__(self, name: str) -> QtWidgets.QWidget:
-    #    """Guess if attribute can be found in other related objects."""
-    # ret_ = getattr(self.cursor_, name, None)
-    # if ret_ is None and self.parent():
-    #    parent_ = self.parent()
-    #    ret_ = getattr(parent_, name, None)
-    #    if ret_ is None:
-    #        script = getattr(parent_, "script", None)
-    #        if script is not None:
-    #            ret_ = getattr(script, name, None)
+    def __getattr__(self, name: str) -> QtWidgets.QWidget:
+        """Guess if attribute can be found in other related objects."""
+        ret_ = getattr(self.cursor_, name, None)
+        if ret_ is None and self.parent():
+            parent_ = self.parent()
+            ret_ = getattr(parent_, name, None)
+            if ret_ is None:
+                script = getattr(parent_, "script", None)
+                if script is not None:
+                    ret_ = getattr(script, name, None)
 
-    # if ret_ is not None:
-    #    return ret_
+            if ret_ is None and not TYPE_CHECKING:
+                # FIXME: q3widgets should not interact with fllegacy
+                from pineboolib.fllegacy import flapplication
 
-    # if not TYPE_CHECKING:
-    # FIXME: q3widgets should not interact with fllegacy
+                ret_ = getattr(flapplication.aqApp, name, None)
+                if ret_ is not None:
+                    self.logger.warning(
+                        "FormDBWidget: Coearcing attribute %r from aqApp (should be avoided)" % name
+                    )
 
-    #    ret_ = getattr(flapplication.aqApp, name, None)
-    #    if ret_:
-    #        self.logger.info(
-    #            "FormDBWidget: Coearcing attribute %r from aqApp (should be avoided)" % name
-    #        )
-    #        return ret_
+        if ret_ is None:
+            raise AttributeError("FormDBWidget: Attribute does not exist: %r" % name)
 
-    #    raise AttributeError("FormDBWidget: Attribute does not exist: %r" % name)
+        return ret_
 
     # def __hasattr__(self, name: str) -> bool:
     #    """Guess if attribute can be found in other related objects."""
