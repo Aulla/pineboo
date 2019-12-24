@@ -327,6 +327,11 @@ class PNSqlSchema(object):
 
         return cursor
 
+    def rowCount(self, curname: str, cursor: Any) -> int:
+        """Return rowcount fetched."""
+
+        return cursor.rowcount
+
     def getTimeStamp(self) -> str:
         """Return TimeStamp."""
 

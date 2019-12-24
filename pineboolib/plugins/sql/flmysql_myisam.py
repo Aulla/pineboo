@@ -500,34 +500,29 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self, number: int, curname: str, table: str, cursor: Any, fields: str, where_filter: str
     ) -> None:
         """Return data fetched."""
-        pass
-        # try:
-        #    self.cursorsArray_[curname].fetchmany(number)
-        # except Exception:
-        #    Qt.qWarning("%s.refreshFetch\n %s" %(self.name_, traceback.format_exc()))
+
+        try:
+            self.rowsFetched[curname] = self.cursorsArray_[curname].fetchmany(number)
+
+        except Exception as e:
+            logger.error("refreshFetch: %s", e)
+            logger.info("SQL: %s", sql)
+            logger.trace("Detalle:", stack_info=True)
 
     def fetchAll(
         self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
     ) -> List[Any]:
         """Fetch all pending rows on cursor."""
-        if curname not in self.rowsFetched.keys():
-            self.rowsFetched[curname] = 0
 
-        rowsF = []
         try:
-            rows = list(self.cursorsArray_[curname])
-            if self.rowsFetched[curname] < len(rows):
-                i = 0
-                for row in rows:
-                    i += 1
-                    if i > self.rowsFetched[curname]:
-                        rowsF.append(row)
-
-                self.rowsFetched[curname] = i
+            return self.rowsFetched[curname]
         except Exception:
             logger.error("%s:: fetchAll:%s", self.name_, traceback.format_exc())
 
-        return rowsF
+    def rowCount(self, curname: str, cursor: Any) -> int:
+        """Return rowcount fetched."""
+
+        return len(self.rowsFetched[curname])
 
     def existsTable(self, name: str) -> bool:
         """Return if table exists."""

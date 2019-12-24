@@ -29,7 +29,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     """FLSQLITE class."""
 
     declare: List[Any]
-    rowsFetched: Dict[Any, Any]
+    rowsFetched: Dict[str, int]
+    cursorsArray_: Dict[str, Any]  # IApiCursor
     db_filename: Optional[str]
     sql: str
     db_name: str
@@ -58,6 +59,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.session_ = None
         self.declarative_base_ = None
         self.lastError_ = None
+        self.cursorsArray_ = {}
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -399,21 +401,28 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
     ) -> None:
         """Set a refresh query for database."""
+        if curname not in self.cursorsArray_.keys():
+            self.cursorsArray_[curname] = cursor
 
         where = self.process_booleans(where)
-        self.sql = "SELECT %s FROM %s WHERE %s" % (fields, table, where)
-        # FIXME: revisar esto!!.self.sql??
+        sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
+
+        try:
+            self.cursorsArray_[curname].execute(sql)
+        except Exception:
+            Qt.qWarning("CursorTableModel.Refresh\n %s" % traceback.format_exc())
 
     def refreshFetch(
         self, number: int, curname: str, table: str, cursor: Any, fields: str, where_filter: str
-    ) -> Any:
+    ) -> None:
         """Return data fetched."""
         try:
-            cursor.execute(self.sql)
-            rows = cursor.fetchmany(number)
-            return rows
-        except Exception:
-            self.logger.error("SQL3Driver:: refreshFetch")
+            self.rowsFetched[curname] = self.cursorsArray_[curname].fetchmany(number)
+
+        except Exception as e:
+            logger.error("refreshFetch: %s", e)
+            logger.info("SQL: %s", sql)
+            logger.trace("Detalle:", stack_info=True)
 
     def process_booleans(self, where: str) -> Any:
         """Process booleans fields."""
@@ -425,27 +434,15 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     ) -> List:
         """Return all fetched data from a query."""
 
-        if curname not in self.rowsFetched.keys():
-            self.rowsFetched[curname] = 0
-
-        rowsF = []
-
         try:
-            cursor.execute(self.sql)
-            rows = cursor.fetchall()
-            if self.rowsFetched[curname] < len(rows):
-                i = 0
-                for row in rows:
-                    i += 1
-                    if i > self.rowsFetched[curname]:
-                        rowsF.append(row)
-
-                self.rowsFetched[curname] = i
-
+            return self.rowsFetched[curname]
         except Exception:
-            self.logger.error("SQL3Driver:: fetchAll", traceback.format_exc())
+            logger.error("%s:: fetchAll:%s", self.name_, traceback.format_exc())
 
-        return rowsF
+    def rowCount(self, curname: str, cursor: Any) -> int:
+        """Return rowcount fetched."""
+
+        return len(self.rowsFetched[curname])
 
     def existsTable(self, name: str) -> bool:
         """Return if exists a table specified by name."""

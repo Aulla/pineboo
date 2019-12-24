@@ -157,3 +157,66 @@ class TestPNCursorTableModel(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
+
+
+class TestFetchMore(unittest.TestCase):
+    """Test Acos class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_basic_1(self) -> None:
+        """Test fetchmoderows 1."""
+
+        from pineboolib.application.database import pnsqlcursor
+
+        cur_test = pnsqlcursor.PNSqlCursor("fltest")
+        size = 2102
+        for i in range(size):
+            cur_test.setModeAccess(cur_test.Insert)
+            self.assertTrue(cur_test.refreshBuffer())
+            cur_test.setValueBuffer("string_field", "Registro %s" % i)
+            self.assertTrue(cur_test.commitBuffer())
+
+        self.assertEqual(cur_test.size(), size)
+
+    def test_basic_2(self) -> None:
+        """Test fetchmoderows 2."""
+
+        from pineboolib.application.database import pnsqlcursor
+
+        cur_test = pnsqlcursor.PNSqlCursor("fltest")
+        cur_test.select()
+        self.assertTrue(cur_test.first())
+        self.assertEqual(cur_test.valueBuffer("string_field"), "Registro 0")
+        self.assertTrue(cur_test.next())
+        self.assertEqual(cur_test.valueBuffer("string_field"), "Registro 1")
+        self.assertTrue(cur_test.last())
+        self.assertEqual(cur_test.valueBuffer("string_field"), "Registro 2101")
+        self.assertTrue(cur_test.prev())
+        self.assertEqual(cur_test.valueBuffer("string_field"), "Registro 2100")
+
+    def test_basic_3(self) -> None:
+        """Test fetchmoderows 3."""
+
+        from pineboolib.application.database import pnsqlquery
+
+        qry_test = pnsqlquery.PNSqlQuery()
+        qry_test.setTablesList("fltest")
+        qry_test.setFrom("fltest")
+        qry_test.setWhere("1=1")
+        qry_test.setSelect("string_field")
+        qry_test.setOrderBy("id")
+        self.assertTrue(qry_test.exec_())
+        self.assertEqual(qry_test.size(), 2102)
+        self.assertTrue(qry_test.first())
+        self.assertEqual(qry_test.value(0), "Registro 0")
+        self.assertTrue(qry_test.last())
+        self.assertEqual(qry_test.value(0), "Registro 2101")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()

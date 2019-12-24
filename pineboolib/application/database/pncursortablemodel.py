@@ -62,6 +62,19 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     ] = None  # Usa 3 estado None, True y False para hacer un primer refresh retardado si pertenece a un fldatatable
     _checkColumn: Dict[str, QtWidgets.QCheckBox]
 
+    _data: List[List[Any]]
+    _vdata: List[Optional[List[Any]]]
+
+    sql_fields: List[str]
+    sql_fields_omited: List[str]
+    sql_fields_without_check: List[str]
+    pkpos: List[int]
+    ckpos: List[int]
+    pkidx: Dict[Tuple, int]
+    ckidx: Dict[Tuple, int]
+    _column_hints: List[int]
+    _cursor_db: "iapicursor.IApiCursor"
+
     def __init__(self, conn: "iconnection.IConnection", parent: "isqlcursor.ISqlCursor") -> None:
         """
         Constructor.
@@ -91,9 +104,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             self.logger.warning("SQL Driver supports neither Timer, defaulting to Timer")
         self.USE_TIMER = True
         self.rowsLoaded = 0
-        self.sql_fields: List[str] = []
-        self.sql_fields_omited: List[str] = []
-        self.sql_fields_without_check: List[str] = []
+        self.sql_fields = []
+        self.sql_fields_omited = []
+        self.sql_fields_without_check = []
         # self.field_aliases = []
         # self.field_type = []
         # self.field_metaData = []
@@ -106,16 +119,16 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # Como valor del IDX tenemos la posicion de la fila.
         # Si se hace alguna operación en _data como borrar filas intermedias hay
         # que invalidar los indices. Opcionalmente, regenerarlos.
-        self.pkpos: List[int] = []
-        self.ckpos: List[int] = []
-        self.pkidx: Dict[Tuple, int] = {}
-        self.ckidx: Dict[Tuple, int] = {}
+        self.pkpos = []
+        self.ckpos = []
+        self.pkidx = {}
+        self.ckidx = {}
         self._checkColumn = {}
         # Establecer a False otra vez si el contenido de los indices es erróneo.
         self.indexes_valid = False
-        self._data: List[List[Any]] = []
-        self._vdata: List[Optional[List[Any]]] = []
-        self._column_hints: List[int] = []
+        self._data = []
+        self._vdata = []
+        self._column_hints = []
         self.updateColumnsCount()
         self.rows = 0
         self.rowsLoaded = 0
@@ -139,7 +152,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.canFetchMoreRows = True
         self._disable_refresh = False
 
-        self._cursor_db: "iapicursor.IApiCursor" = self.db().cursor()
+        self._cursor_db = self.db().cursor()
         self._initialized = None
         # self.refresh()
 
@@ -235,11 +248,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         field = self.metadata().indexFieldObject(col)
         _type = field.type()
         res_color_function: List[str] = []
-
         if _type != "check":
-            r = [x for x in self._data[row]]
-            self._data[row] = r
-            d = r[col]
+            # r = [x for x in self._data[row]]
+            # self._data[row] = r
+            # d = r[col]
+            d = self._data[row][col]
         else:
             pK = str(self.value(row, self.metadata().primaryKey()))
             if pK not in self._checkColumn.keys():
@@ -536,6 +549,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if torow < fromrow:
             return
 
+        cur_db = self.cursorDB()
         # print("QUERY:", sql)
         if self.fetchedRows <= torow and self.canFetchMoreRows:
 
@@ -543,8 +557,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 where_filter = self.where_filter
 
             c_all = self.driver_sql().fetchAll(
-                self.cursorDB(), tablename, where_filter, self.sql_str, self._curname
+                cur_db, tablename, where_filter, self.sql_str, self._curname
             )
+
             newrows = len(c_all)  # self._cursor.rowcount
             from_rows = self.rows
             self._data += c_all
@@ -584,8 +599,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.indexes_valid = True
         self.rowsLoaded = torow + 1
         self.endInsertRows()
-        # print("fin refresco modelo tabla %r , query %r, rows: %d %r"
-        #        % (self._table.name, self._table.query_table, self.rows, (fromrow,torow)))
+
+        if not self.driver_sql().rowCount(
+            self._curname, cur_db
+        ):  # Si no hay nuevas lineas a la espera, cancelamos refresco
+            self.canFetchMoreRows = False
+
         topLeft = self.index(fromrow, 0)
         bottomRight = self.index(torow, self.cols - 1)
         self.dataChanged.emit(topLeft, bottomRight)
