@@ -149,16 +149,10 @@ class FieldStruct(object):
     def has_changed(self, val: T_VALUE2) -> bool:
         """Check if a buffer field has changed in value since it was initially loaded."""
 
-        if self.value is None:
-            if val is None:
-                return False
-            elif val in (None, "None"):
-                return True
+        if self.value is None and not val:
+            return False
 
-        if self.value in (None, "None"):
-            return True
-
-        if isinstance(self.value, str) and isinstance(val, str):
+        elif isinstance(self.value, str) and isinstance(val, str):
             return self.value != val
         elif isinstance(val, (datetime.date, datetime.time)):
             return str(self.value) != str(val)

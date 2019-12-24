@@ -1053,8 +1053,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.d.buffer_ is None:
             return False
 
-        modifiedFields = self.d.buffer_.modifiedFields()
-        if modifiedFields:
+        if self.d.buffer_.modifiedFields():
             return True
         else:
             return False
