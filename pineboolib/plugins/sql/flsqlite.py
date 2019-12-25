@@ -312,25 +312,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return query
 
-    def execute_query(self, q: str, cursor: Any = None) -> Any:
-        """Excecute a query and return result."""
-        if not self.isOpen():
-            logger.warning("%s::execute_query: Database not open", __name__)
-
-        self.set_last_error_null()
-        if cursor is None:
-            cursor = self.cursor()
-        try:
-            q = self.fix_query(q)
-            cursor.execute(q)
-        except Exception:
-            self.setLastError(
-                "%s::No se pudo ejecutar la query %s.\n%s" % (__name__, q, traceback.format_exc()),
-                q,
-            )
-
-        return cursor
-
     def rollbackTransaction(self) -> bool:
         """Set a rollback transaction."""
         if not self.isOpen():

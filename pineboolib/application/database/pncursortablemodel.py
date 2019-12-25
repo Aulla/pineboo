@@ -45,7 +45,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     where_filters: Dict[str, str] = {}
     _metadata: "pntablemetadata.PNTableMetaData"
     _sortOrder = ""
-    _disable_refresh = None
+    _disable_refresh: bool
     color_function_ = None
     need_update = False
     _driver_sql = None
@@ -160,7 +160,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # self.timer.start(1000)
 
         # self.canFetchMoreRows = True
-        # self._disable_refresh = False
+        self._disable_refresh = False
 
         self._cursor_db = self.db().cursor()
         self._initialized = None
@@ -808,6 +808,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # print("rows:", self.rows)
         # self.pendingRows = 0
         self.rows = self.size()
+        self.need_update = False
         # torow = self.rows - 1
         self._column_hints = [120] * len(self.sql_fields)
         self.updateRows()
@@ -947,7 +948,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             self._current_row_index = row
             self._current_row_data = result[0]
-
         return True
 
     def setValuesDict(self, row: int, update_dict: Dict[str, Any]) -> None:
@@ -1313,6 +1313,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @return number of retrieved rows.
         """
+        if not self.need_update and self.rows:
+            return self.rows
 
         size = 0
         mtd = self.metadata()
@@ -1329,12 +1331,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             if self.where_filter.find("ORDER BY") > -1:
                 where_ = self.where_filter[: self.where_filter.find("ORDER BY")]
 
-            q = pnsqlquery.PNSqlQuery(None, self.db())
-            sql = "SELECT COUNT(*) FROM %s WHERE %s" % (self._tablename, where_)
-            q.exec_(sql)
-            if q.first():
-                size = q.value(0)
-
+            # q = pnsqlquery.PNSqlQuery(None, self.db())
+            sql = "SELECT COUNT(%s) FROM %s WHERE %s" % (mtd.primaryKey(), self._tablename, where_)
+            cursor = self.driver_sql().execute_query(sql, self.cursorDB())
+            size = cursor.fetchall()[0][0]
+            # q.exec_(sql)
+            # if q.first():
+            #    size = q.value(0)
         return size
 
     def headerData(

@@ -2018,7 +2018,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if not self.isValid() and self.d.modeAccess_ != self.Insert:
             return False
-
         if self.d.modeAccess_ == self.Insert:
             if not self.commitBufferCursorRelation():
                 return False
@@ -2178,7 +2177,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if emite:
                 self.d._current_changed.emit(self.at())
 
-            return self.refreshBuffer()
+            b = self.refreshBuffer()
 
         return b
 
@@ -2212,7 +2211,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if emite:
                 self.d._current_changed.emit(self.at())
 
-            return self.refreshBuffer()
+            b = self.refreshBuffer()
 
         return b
 
@@ -2238,6 +2237,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         #    row = model.rows
         if not model.seekRow(row):
             return False
+
         row = model._current_row_index
         if self.currentRegister() == row:
             return False
@@ -2249,7 +2249,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             raise Exception("Call setAction first.")
         self._selection.select(new_selection, QtCore.QItemSelectionModel.ClearAndSelect)
         # self.d._current_changed.emit(self.at())
-
         if row < self.size() and row >= 0:
             self.d._currentregister = row
             return True
@@ -2270,12 +2269,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             b = self.move(0)
         else:
             b = True
-
         if b:
             if emite:
                 self.d._current_changed.emit(self.at())
 
-            return self.refreshBuffer()
+            b = self.refreshBuffer()
 
         return b
 
@@ -2295,7 +2293,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if emite:
                 self.d._current_changed.emit(self.at())
 
-            return self.refreshBuffer()
+            b = self.refreshBuffer()
 
         return b
 

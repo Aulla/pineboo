@@ -188,25 +188,6 @@ class PNSqlSchema(object):
         else:
             return "::%s" % type_
 
-    def refreshQuery(
-        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
-    ) -> None:
-        """Set a refresh query for database."""
-        pass
-
-    def refreshFetch(
-        self, number: int, curname: str, table: str, cursor: Any, fields: str, where_filter: str
-    ) -> None:
-        """Return data fetched."""
-        pass
-
-    def fetchAll(
-        self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
-    ) -> List:
-        """Return all fetched data from a query."""
-        ret_: List[str] = []
-        return ret_
-
     def existsTable(self, name: str) -> bool:
         """Return if exists a table specified by name."""
         return True
@@ -264,10 +245,6 @@ class PNSqlSchema(object):
         """Return if constraint exists specified by name."""
         return False
 
-    def queryUpdate(self, name: str, update: str, filter: str) -> str:
-        """Return a database friendly update query."""
-        return ""
-
     def alterTable(
         self,
         mtd1: Union[str, "pntablemetadata.PNTableMetaData"],
@@ -324,7 +301,6 @@ class PNSqlSchema(object):
                 "%s::No se pudo ejecutar la query %s.\n%s" % (__name__, q, traceback.format_exc()),
                 q,
             )
-            logger.warning("AY", stack_info=True)
 
         return cursor
 
@@ -352,11 +328,11 @@ class PNSqlSchema(object):
         except ValueError:
             index = None
 
+        del ret
         return index
 
     def getRow(self, number: int, sql: str, where: str, cursor: Any, tablename: str) -> List:
         """Return a data row."""
-
         sql = "SELECT %s FROM %s WHERE %s LIMIT 1 OFFSET %s" % (sql, tablename, where, number)
         ret_: List[str] = []
         try:
@@ -366,7 +342,6 @@ class PNSqlSchema(object):
             logger.error("getRow: %s", e)
             logger.info("where_filter: %s", where)
             logger.trace("Detalle:", stack_info=True)
-
         return ret_
 
     def getTimeStamp(self) -> str:
