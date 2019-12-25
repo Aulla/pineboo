@@ -966,7 +966,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             #    self._data[row] = list(self._data[row])
             self.seekRow(row)
             # if isinstance(self._current_row_data, tuple):
-            #    self._current_row_data = list(self._current_row_data)
+            self._current_row_data = list(self._current_row_data)
 
             # r = self._vdata[row]
             # if r is None:
