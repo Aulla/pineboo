@@ -10,8 +10,6 @@ from pineboolib.core.utils import logging, utils_base
 
 from pineboolib.application.utils import date_conversion
 
-from . import pnsqlquery
-
 import itertools
 import locale
 import os
