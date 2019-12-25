@@ -374,56 +374,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         else:
             return "::%s" % type_
 
-    def refreshQuery(
-        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
-    ) -> None:
-        """Set a refresh query for database."""
-        sql = "DECLARE %s NO SCROLL CURSOR WITH HOLD FOR SELECT %s FROM %s WHERE %s " % (
-            curname,
-            fields,
-            table,
-            where,
-        )
-        try:
-            cursor.execute(sql)
-        except Exception as e:
-            logger.error("refreshQuery: %s", e)
-            logger.info("SQL: %s", sql)
-            logger.trace("Detalle:", stack_info=True)
-
-    def refreshFetch(
-        self, number: int, curname: str, table: str, cursor: Any, fields: str, where_filter: str
-    ) -> None:
-        """Return data fetched."""
-        sql = "FETCH %d FROM %s" % (number, curname)
-
-        sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % curname
-        cursor.execute(sql_exists)
-        if cursor.fetchone() is None:
-            return
-
-        try:
-            cursor.execute(sql)
-
-        except Exception as e:
-            logger.error("refreshFetch: %s", e)
-            logger.info("SQL: %s", sql)
-            logger.trace("Detalle:", stack_info=True)
-
-    def fetchAll(
-        self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
-    ) -> List:
-        """Return all fetched data from a query."""
-        ret_: List[str] = []
-        try:
-            ret_ = cursor.fetchall()
-        except Exception as e:
-            logger.error("fetchAll: %s", e)
-            logger.info("where_filter: %s", where_filter)
-            logger.trace("Detalle:", stack_info=True)
-
-        return ret_
-
     def existsTable(self, name: str) -> bool:
         """Return if exists a table specified by name."""
         if not self.isOpen():

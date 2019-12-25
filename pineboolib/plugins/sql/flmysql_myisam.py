@@ -15,7 +15,7 @@ from pineboolib.fllegacy import flutil
 from pineboolib import application, logging
 from . import pnsqlschema
 
-from typing import Any, Iterable, Optional, Union, List, Dict, cast, TYPE_CHECKING
+from typing import Any, Iterable, Optional, Union, List, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -26,9 +26,6 @@ logger = logging.getLogger(__name__)
 class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     """MYISAM Driver class."""
 
-    cursorsArray_: Dict[str, Any]  # IApiCursor
-    rowsFetched: Dict[str, List]
-
     def __init__(self):
         """Create empty driver."""
         super().__init__()
@@ -37,12 +34,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self.name_ = "FLMYSQL_MyISAM"
         self.open_ = False
         self.alias_ = "MySQL MyISAM (MYSQLDB)"
-        self.cursorsArray_ = {}
         self.noInnoDB = True
         self.mobile_ = False
         self.pure_python_ = False
         self.defaultPort_ = 3306
-        self.rowsFetched = {}
         self.active_create_index = True
         self.db_ = None
         self.engine_ = None
@@ -474,20 +469,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return True
 
-    def refreshQuery(
-        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
-    ) -> None:
-        """Perform a query."""
-        if curname not in self.cursorsArray_.keys():
-            self.cursorsArray_[curname] = cursor
-
-        sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
-        sql = self.fix_query(sql)
-        try:
-            self.cursorsArray_[curname].execute(sql)
-        except Exception:
-            Qt.qWarning("CursorTableModel.Refresh\n %s" % traceback.format_exc())
-
     def fix_query(self, val: str) -> str:
         """Fix values on SQL."""
         ret_ = val.replace("'true'", "1")
@@ -496,36 +477,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         ret_ = ret_.replace("'1'", "1")
         # ret_ = ret_.replace(";", "")
         return ret_
-
-    def refreshFetch(
-        self, number: int, curname: str, table: str, cursor: Any, fields: str, where_filter: str
-    ) -> None:
-        """Return data fetched."""
-
-        try:
-            self.rowsFetched[curname] = self.cursorsArray_[curname].fetchmany(number)
-
-        except Exception as e:
-            logger.error("refreshFetch: %s", e)
-            # logger.info("SQL: %s", sql)
-            logger.trace("Detalle:", stack_info=True)
-
-    def fetchAll(
-        self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
-    ) -> List[Any]:
-        """Fetch all pending rows on cursor."""
-        ret_: List[List] = []
-        try:
-            ret_ = self.rowsFetched[curname]
-        except Exception:
-            logger.error("%s:: fetchAll:%s", self.name_, traceback.format_exc())
-
-        return ret_
-
-    def rowCount(self, curname: str, cursor: Any) -> int:
-        """Return rowcount fetched."""
-
-        return len(self.rowsFetched[curname])
 
     def existsTable(self, name: str) -> bool:
         """Return if table exists."""

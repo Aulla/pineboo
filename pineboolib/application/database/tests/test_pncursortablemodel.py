@@ -37,8 +37,9 @@ class TestPNCursorTableModel(unittest.TestCase):
         cursor.commitBuffer()
 
         cursor.setSort("string_field ASC")
-        cursor.refresh()
-        cursor.last()
+        self.assertEqual(cursor.currentRegister(), 2)
+        cursor.select()
+        self.assertTrue(cursor.last())
         self.assertEqual(cursor.valueBuffer("string_field"), "zzz")
         self.assertEqual(cursor.valueBuffer("double_field"), 0.01)
         cursor.prev()
