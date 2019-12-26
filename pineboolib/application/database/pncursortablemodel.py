@@ -74,6 +74,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     _current_row_index: int
     _tablename: str
     _order: str
+    grid_row_tmp: Dict[int, List[Any]]
 
     def __init__(self, conn: "iconnection.IConnection", parent: "isqlcursor.ISqlCursor") -> None:
         """
@@ -162,6 +163,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self._cursor_db = self.db().cursor()
         self._initialized = None
+        self.grid_row_tmp = {}
+
         # self.refresh()
 
         if self.metadata().isQuery():
@@ -266,12 +269,23 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         _type = field.type()
         res_color_function: List[str] = []
         if _type != "check":
+
             # r = [x for x in self._data[row]]
             # self._data[row] = r
             # d = r[col]
-            self.seekRow(row)
-            d = self._current_row_data[col]
+            # self.seekRow(row)
+            # d = self._current_row_data[col]
             # d = self._data[row][col]
+            d = None
+            if row not in self.grid_row_tmp.keys():
+                self.grid_row_tmp = {}
+                self.grid_row_tmp[row] = self.driver_sql().getRow(
+                    row, self._curname, self.cursorDB()
+                )
+            tuple = self.grid_row_tmp[row]
+            if tuple:
+                d = tuple[col]
+
         else:
             pK = str(self.value(row, self.metadata().primaryKey()))
             if pK not in self._checkColumn.keys():
@@ -774,8 +788,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.fetchedRows = 0
         self.sql_fields = []
         self.sql_fields_without_check = []
-        self.pkpos = []
-        self.ckpos = []
+        # self.pkpos = []
+        # self.ckpos = []
+
         # self._data = []
 
         self._refresh_field_info()
@@ -790,14 +805,15 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._current_row_index = -1
 
         # SZ_FETCH = max(1000, oldrows)
-        # self.driver_sql().refreshQuery(
-        #    self._curname,
-        #    self.sql_str,
-        #    self._tablename,
-        #    self.where_filter,
-        #    self.cursorDB(),
-        #    self.db(),
-        # )
+        self.driver_sql().declareCursor(
+            self._curname,
+            self.sql_str,
+            self._tablename,
+            self.where_filter,
+            self.cursorDB(),
+            self.db(),
+        )
+        self.grid_row_tmp = {}
 
         # self.refreshFetch(SZ_FETCH)
         # self.need_update = False
@@ -920,7 +936,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if type_ == "check":
             return None
 
-        self.seekRow(row)
+        if self._current_row_index != row:
+            self.seekRow(row)
 
         # campo = self._data[row][col]
         campo: Any = None
@@ -938,14 +955,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def seekRow(self, row: int) -> bool:
         """Seek to a row possition."""
         if row != self._current_row_index:
-            result = self.driver_sql().getRow(
-                row, ",".join(self.sql_fields), self.where_filter, self.cursorDB(), self._tablename
-            )
+            result = self.driver_sql().getRow(row, self._curname, self.cursorDB())
             if not result:
                 return False
 
             self._current_row_index = row
-            self._current_row_data = result[0]
+            self._current_row_data = list(result)
         return True
 
     def setValuesDict(self, row: int, update_dict: Dict[str, Any]) -> None:
@@ -1211,40 +1226,40 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         #    )
         #    return None
         # return self.pkidx[pklist]
-        return self.driver_sql().findRow(
-            self.cursorDB(),
-            self._tablename,
-            self.where_filter,
-            [self.metadata().primaryKey()],
-            list(pklist),
-        )
-
-    def findCKRow(self, cklist: Iterable[Any]) -> Optional[int]:
-        """
-        Retrieve row index from its Composite Key.
-
-        @param cklist. CK list to find.
-        @return row index.
-        """
-        if not isinstance(cklist, (tuple, list)):
-            raise ValueError("findCKRow expects a list as first argument.")
-        # if not self.indexes_valid:
-        #    for n in range(self.rows):
-        #        self.indexUpdateRow(n)
-        #    self.indexes_valid = True
-        cklist = tuple(cklist)
-        if cklist not in self.ckidx:
-            self.logger.warning(
-                "CursorTableModel.%s.findCKRow:: CK not found: %r ", self.metadata().name(), cklist
+        ret = None
+        if self.pK():
+            ret = self.driver_sql().findRow(
+                self.cursorDB(), self._curname, [self.metadata().indexPos(self.pK())], list(pklist)
             )
-            return None
-        return self.driver_sql().findRow(
-            self.cursorDB(),
-            self._tablename,
-            self.where_filter,
-            [self.metadata().primaryKey()],
-            list(cklist),
-        )
+
+        return ret
+
+    # def findCKRow(self, cklist: Iterable[Any]) -> Optional[int]:
+    #    """
+    #    Retrieve row index from its Composite Key.
+
+    #    @param cklist. CK list to find.
+    #    @return row index.
+    #    """
+    #    if not isinstance(cklist, (tuple, list)):
+    #        raise ValueError("findCKRow expects a list as first argument.")
+    # if not self.indexes_valid:
+    #    for n in range(self.rows):
+    #        self.indexUpdateRow(n)
+    #    self.indexes_valid = True
+    #    cklist = tuple(cklist)
+    #    if cklist not in self.ckidx:
+    #        self.logger.warning(
+    #            "CursorTableModel.%s.findCKRow:: CK not found: %r ", self.metadata().name(), cklist
+    #        )
+    #        return None
+    #    return self.driver_sql().findRow(
+    #        self.cursorDB(),
+    #        self._tablename,
+    #        self.where_filter,
+    #        [self.metadata().primaryKey()],
+    #        list(cklist),
+    #    )
 
     def pK(self) -> str:
         """
@@ -1311,6 +1326,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @return number of retrieved rows.
         """
+
         if not self.need_update and self.rows:
             return self.rows
 

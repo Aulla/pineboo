@@ -748,6 +748,69 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         """Return a database friendly update query."""
         return """UPDATE %s SET %s WHERE %s RETURNING *""" % (name, update, filter)
 
+    def declareCursor(
+        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
+    ) -> None:
+        """Set a refresh query for database."""
+        sql = "DECLARE %s CURSOR WITH HOLD FOR SELECT %s FROM %s WHERE %s " % (
+            curname,
+            fields,
+            table,
+            where,
+        )
+        try:
+            cursor.execute(sql)
+        except Exception as e:
+            logger.error("refreshQuery: %s", e)
+            logger.info("SQL: %s", sql)
+            logger.trace("Detalle:", stack_info=True)
+
+    def getRow(self, number: int, curname: str, cursor: Any) -> List:
+        """Return a data row."""
+        sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
+        ret_: List[Any] = []
+        try:
+            cursor.execute(sql)
+            ret_ = cursor.fetchone()
+        except Exception as e:
+            logger.error("getRow: %s", e)
+            logger.trace("Detalle:", stack_info=True)
+        return ret_
+
+    def findRow(
+        self, cursor: Any, curname: str, field_pos: List[int], values_list: List[Any]
+    ) -> Optional[int]:
+        """Return index row."""
+        limit = 0
+        pos: Optional[int] = None
+        try:
+            not_found = True
+            while not_found:
+                sql = "FETCH %s FROM %s" % ("FIRST" if not limit else limit + 10000, curname)
+                cursor.execute(sql)
+                data_ = cursor.fetchall()
+                if not data_:
+                    break
+                for n, line in enumerate(data_):
+                    for pos in field_pos:
+                        if line[pos] != values_list[pos]:
+                            break
+
+                        pos = limit + n
+                        not_found = False
+
+                    if not not_found:
+                        break
+
+                if not_found:
+                    limit += len(data_)
+
+        except Exception as e:
+            logger.error("finRow: %s", e)
+            logger.warning("Detalle:", stack_info=True)
+
+        return pos
+
     def alterTable(
         self,
         mtd1: Union[str, "pntablemetadata.PNTableMetaData"],

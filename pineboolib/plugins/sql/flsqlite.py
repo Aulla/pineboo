@@ -19,7 +19,7 @@ import traceback
 import os
 
 
-from typing import Optional, Union, Any, List, TYPE_CHECKING
+from typing import Optional, Union, Any, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 class FLSQLITE(pnsqlschema.PNSqlSchema):
     """FLSQLITE class."""
 
-    declare: List[Any]
+    sql_query: Dict[str, str]
     db_filename: Optional[str]
     db_name: str
 
@@ -43,7 +43,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.open_ = False
         self.errorList = []
         self.alias_ = "SQLite3 (SQLITE3)"
-        self.declare = []
         self.db_filename = None
         self.db_ = None
         self.parseFromLatin = False
@@ -53,6 +52,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.cursor_ = None
         self.engine_ = None
         self.session_ = None
+        self.sql_query = {}
         self.declarative_base_ = None
         self.lastError_ = None
 
@@ -312,6 +312,59 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return query
 
+    def declareCursor(
+        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
+    ) -> None:
+        """Set a refresh query for database."""
+        sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
+        sql = self.fix_query(sql)
+        self.sql_query[curname] = sql
+
+    def getRow(self, number: int, curname: str, cursor: Any) -> List:
+        """Return a data row."""
+        ret_: List[Any] = []
+        try:
+            cursor.execute("%s LIMIT 1 OFFSET %s" % (self.sql_query[curname], number))
+            ret_ = cursor.fetchone()
+        except Exception as e:
+            logger.error("getRow: %s", e)
+            logger.trace("Detalle:", stack_info=True)
+        return ret_
+
+    def findRow(
+        self, cursor: Any, curname: str, field_pos: List[int], values_list: List[Any]
+    ) -> Optional[int]:
+        """Return index row."""
+        limit = 0
+        pos: Optional[int] = None
+        try:
+            not_found = True
+            while not_found:
+                sql = "%s LIMIT %s OFFSET %s" % (self.sql_query[curname], 100, limit)
+                cursor.execute(sql)
+                data_ = cursor.fetchall()
+                if not data_:
+                    break
+                for n, line in enumerate(data_):
+                    for m, pos in enumerate(field_pos):
+                        if line[pos] != values_list[m]:
+                            break
+
+                        pos = limit + n
+                        not_found = False
+
+                    if not not_found:
+                        break
+
+                if not_found:
+                    limit += len(data_)
+
+        except Exception as e:
+            logger.error("finRow: %s", e)
+            logger.warning("Detalle:", stack_info=True)
+
+        return pos
+
     def rollbackTransaction(self) -> bool:
         """Set a rollback transaction."""
         if not self.isOpen():
@@ -372,11 +425,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Return type definition."""
 
         return " %s(%s)" % (type_.upper(), leng) if leng else " %s" % type_.upper()
-
-    def getRow(self, number: int, sql: str, where: str, cursor: Any, tablename: str) -> List:
-        """Return a data row."""
-        where = self.process_booleans(where)
-        return super().getRow(number, sql, where, cursor, tablename)
 
     def process_booleans(self, where: str) -> str:
         """Process booleans fields."""

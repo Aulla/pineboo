@@ -304,46 +304,6 @@ class PNSqlSchema(object):
 
         return cursor
 
-    def findRow(
-        self, cursor: Any, from_: str, where: str, field_list: List[str], values_list: List[Any]
-    ) -> Optional[int]:
-        """Return index row."""
-
-        # if curname not in self.cursorsArray_.keys():
-        #    self.cursorsArray_[curname] = cursor
-
-        sql = "SELECT %s FROM %s WHERE %s" % (",".join(field_list), from_, where)
-        sql = self.fix_query(sql)
-        try:
-            cursor.execute(sql)
-            ret = cursor.fetchall()
-        except Exception as e:
-            logger.error("getRow: %s", e)
-            logger.warning("Detalle:", stack_info=True)
-
-        index = None
-        try:
-            if ret:
-                index = ret.index(tuple(values_list))
-        except ValueError:
-            index = None
-
-        del ret
-        return index
-
-    def getRow(self, number: int, sql: str, where: str, cursor: Any, tablename: str) -> List:
-        """Return a data row."""
-        sql = "SELECT %s FROM %s WHERE %s LIMIT 1 OFFSET %s" % (sql, tablename, where, number)
-        ret_: List[str] = []
-        try:
-            cursor.execute(sql)
-            ret_ = cursor.fetchall()
-        except Exception as e:
-            logger.error("getRow: %s", e)
-            logger.info("where_filter: %s", where)
-            logger.trace("Detalle:", stack_info=True)
-        return ret_
-
     def getTimeStamp(self) -> str:
         """Return TimeStamp."""
 
