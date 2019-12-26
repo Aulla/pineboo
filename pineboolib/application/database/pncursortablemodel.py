@@ -276,7 +276,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             # self.seekRow(row)
             # d = self._current_row_data[col]
             # d = self._data[row][col]
-            d = None
+            d: Any = None
             if row not in self.grid_row_tmp.keys():
                 self.grid_row_tmp = {}
                 self.grid_row_tmp[row] = self.driver_sql().getRow(
