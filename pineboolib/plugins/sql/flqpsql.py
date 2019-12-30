@@ -792,6 +792,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     if line[field_pos] == value:
                         return limit + n
 
+                limit += len(data_)
+
         except Exception as e:
             logger.error("finRow: %s", e)
             logger.warning("Detalle:", stack_info=True)
