@@ -335,6 +335,7 @@ class FLFormDB(QtWidgets.QDialog):
 
             cast(QtCore.pyqtSignal, self.cursor_.destroyed).disconnect(self.cursorDestroyed)
 
+        self.widget.cursor_ = cursor
         self.cursor_ = cursor
 
         if type(self).__name__ == "FLFormRecodDB":
