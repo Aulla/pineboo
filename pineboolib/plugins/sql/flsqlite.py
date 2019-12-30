@@ -323,8 +323,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     def getRow(self, number: int, curname: str, cursor: Any) -> List:
         """Return a data row."""
         ret_: List[Any] = []
+        sql = "%s LIMIT 1 OFFSET %s" % (self.sql_query[curname], number)
         try:
-            cursor.execute("%s LIMIT 1 OFFSET %s" % (self.sql_query[curname], number))
+            cursor.execute(sql)
             ret_ = cursor.fetchone()
         except Exception as e:
             logger.error("getRow: %s", e)

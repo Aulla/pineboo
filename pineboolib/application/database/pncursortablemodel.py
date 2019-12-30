@@ -153,6 +153,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.sql_str = ""
         self._tablename = ""
         self._order = ""
+        self._curname = ""
 
         # self.timer = QtCore.QTimer()
         # self.timer.timeout.connect(self.updateRows)
@@ -941,28 +942,28 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @param cursor . FLSqlCursor object
         """
-        pKName = self.metadata().primaryKey()
-        mtdfield = self.metadata().field(pKName)
-        if mtdfield is None:
-            raise Exception("PK Field %s not found" % pKName)
-        typePK = mtdfield.type()
-        tableName = self.metadata().name()
+        pk_name = self.pK()
+        pk_type = self.fieldType(pk_name)
+        # tableName = self.metadata().name()
+        pk_value = cursor.buffer().value(pk_name)
+
         val = (
             self.db()
             .connManager()
             .manager()
-            .formatValue(typePK, self.value(cursor.d._currentregister, pKName))
+            .formatValue(pk_type, self.value(cursor.d._currentregister, pk_name))
         )
-        sql = "DELETE FROM %s WHERE %s = %s" % (tableName, pKName, val)
+        sql = "DELETE FROM %s WHERE %s = %s" % (self._tablename, pk_name, val)
         # conn = self._cursorConn.db()
         try:
             self.db().execute_query(sql)
             self.need_update = True
         except Exception:
-            self.logger.exception("CursorTableModel.%s.Delete() :: ERROR:", self.metadata().name())
+            self.logger.exception("CursorTableModel.%s.Delete() :: ERROR:", self._tablename)
             # self._cursor.execute("ROLLBACK")
-            return
+            return False
 
+        return True
         # conn.commit()
 
     def findPKRow(self, pklist: Iterable[Any]) -> Optional[int]:

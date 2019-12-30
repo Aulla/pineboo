@@ -2901,7 +2901,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                 if not c.commitBuffer(False):
                                     return False
 
-            self.d._model.delete(self)
+            if not self.d._model.delete(self):
+                raise Exception("Error deleting row!")
 
             recordDelAfter = "recordDelAfter%s" % self.d.metadata_.name()
             v = application.project.call(recordDelAfter, [self], self.context(), False)
