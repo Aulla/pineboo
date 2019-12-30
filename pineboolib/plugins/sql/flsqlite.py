@@ -331,33 +331,22 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             logger.trace("Detalle:", stack_info=True)
         return ret_
 
-    def findRow(
-        self, cursor: Any, curname: str, field_pos: List[int], values_list: List[Any]
-    ) -> Optional[int]:
+    def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
         """Return index row."""
         limit = 0
         pos: Optional[int] = None
         try:
-            not_found = True
-            while not_found:
-                sql = "%s LIMIT %s OFFSET %s" % (self.sql_query[curname], 100, limit)
+            while True:
+                sql = "%s LIMIT %s OFFSET %s" % (self.sql_query[curname], limit + 100, limit)
                 cursor.execute(sql)
                 data_ = cursor.fetchall()
                 if not data_:
                     break
                 for n, line in enumerate(data_):
-                    for m, pos in enumerate(field_pos):
-                        if line[pos] != values_list[m]:
-                            break
+                    if line[field_pos] == value:
+                        return limit + n
 
-                        pos = limit + n
-                        not_found = False
-
-                    if not not_found:
-                        break
-
-                if not_found:
-                    limit += len(data_)
+                limit += len(data_)
 
         except Exception as e:
             logger.error("finRow: %s", e)

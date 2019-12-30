@@ -523,21 +523,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         Update virtual records managed by its model.
         """
-
-        # ROW_BATCH_COUNT = 200 if self.timer.isActive() else 0
-
         parent = QtCore.QModelIndex()
-        # fromrow = self.rowsLoaded
-        # torow = self.fetchedRows - ROW_BATCH_COUNT - 1
-        # if torow - fromrow < 5:
-        #    if self.canFetchMoreRows:
-        #        self.logger.trace(
-        #            "Updaterows %s (updated:%d)", self.metadata().name(), self.fetchedRows
-        #        )
-        #        self.fetchMore(parent, self.metadata().name(), self.where_filter)
-        #    return
-
-        # self.logger.trace("Updaterows %s (UPDATE:%d)", self.metadata().name(), torow - fromrow + 1)
         torow = self.rows - 1
         self.rowsLoaded = torow + 1
         self.beginInsertRows(parent, 0, torow)
@@ -546,115 +532,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         bottomRight = self.index(torow, self.cols - 1)
         self.dataChanged.emit(topLeft, bottomRight)
         self.indexes_valid = True
-
-    # def fetchMore(
-    #    self,
-    #    index: QtCore.QModelIndex,
-    #    tablename: Optional[str] = None,
-    #    where_filter: Optional[str] = None,
-    #    size_hint: int = 1000,
-    # ) -> None:
-    #    """
-    #    Retrieve new data from DB.
-
-    #    @param index. parent Tableindex.
-    #    @param tablename. Table name to fetch from.
-    #    @param where_filter. Filter to be used to get data.
-    #    """
-    #    if not self.sql_str:
-    #        return
-
-    #    tiempo_inicial = time.time()
-    # ROW_BATCH_COUNT = min(200 + self.rowsLoaded // 10, 1000)
-    #    ROW_BATCH_COUNT = size_hint
-
-    #    parent = index
-    #    fromrow = self.rowsLoaded
-    # FIXME: Hay que borrar luego las que no se cargaron al final...
-    #    torow = self.rowsLoaded + ROW_BATCH_COUNT
-    #    if self.fetchedRows - ROW_BATCH_COUNT - 1 > torow:
-    #        torow = self.fetchedRows - ROW_BATCH_COUNT - 1
-    #    if tablename is None:
-    #        tablename = self.metadata().name()
-
-    #    self.logger.trace(
-    #        "refrescando modelo tabla %r, rows: %d %r" % (tablename, self.rows, (fromrow, torow))
-    #    )
-    #    if torow < fromrow:
-    #        return
-
-    #    cur_db = self.cursorDB()
-    # print("QUERY:", sql)
-    #    if self.fetchedRows <= torow and self.canFetchMoreRows:
-
-    #        if where_filter is None:
-    #            where_filter = self.where_filter
-
-    #        c_all = self.driver_sql().fetchAll(
-    #            cur_db, tablename, where_filter, self.sql_str, self._curname
-    #        )
-
-    #        newrows = len(c_all)  # self._cursor.rowcount
-    #        from_rows = self.rows
-    # self._data += c_all
-    #        self._vdata += [None] * newrows
-    #        self.fetchedRows += newrows
-    #        self.rows += newrows
-    #        self.canFetchMoreRows = bool(newrows > 0)
-    #        self.logger.trace(
-    #            "refrescando modelo tabla %r, new rows: %d  fetched: %d",
-    #            tablename,
-    #            newrows,
-    #            self.fetchedRows,
-    #        )
-
-    #        self.refreshFetch(ROW_BATCH_COUNT)
-
-    #        self.pendingRows = 0
-    #        self.indexUpdateRowRange((from_rows, self.rows))
-
-    #    if torow > self.rows - 1:
-    #        torow = self.rows - 1
-    #    if torow < fromrow:
-    #        return
-    #    self.beginInsertRows(parent, fromrow, torow)
-    #    if fromrow == 0:
-    # data_trunc = self._data[:200]
-    #        data_trunc = c_all[:200]
-    #        for row in data_trunc:
-    #            for r, val in enumerate(row):
-    #                txt = str(val)
-    #                ltxt = len(txt)
-    #                newlen = int(40 + math.tanh(ltxt / 3000.0) * 35000.0)
-    #                self._column_hints[r] += newlen
-    #        for r in range(len(self._column_hints)):
-    # self._column_hints[r] = int(self._column_hints[r] // (len(self._data[:200]) + 1))
-    #            self._column_hints[r] = int(self._column_hints[r] // (len(data_trunc) + 1))
-    # self._column_hints = [int(x) for x in self._column_hints]
-
-    #    self.indexes_valid = True
-    #    self.rowsLoaded = torow + 1
-    #    self.endInsertRows()
-
-    #    if not self.driver_sql().rowCount(
-    #        self._curname, cur_db
-    #    ):  # Si no hay nuevas lineas a la espera, cancelamos refresco
-    #        self.canFetchMoreRows = False
-
-    #    topLeft = self.index(fromrow, 0)
-    #    bottomRight = self.index(torow, self.cols - 1)
-    #    self.dataChanged.emit(topLeft, bottomRight)
-    #    tiempo_final = time.time()
-    #    self.lastFetch = tiempo_final
-
-    #    if tiempo_final - tiempo_inicial > 0.2:
-    #        self.logger.info(
-    #            "fin refresco tabla '%s'  :: rows: %d %r  ::  (%.3fs)",
-    #            self.metadata().name(),
-    #            self.rows,
-    #            (fromrow, torow),
-    #            tiempo_final - tiempo_inicial,
-    #        )
 
     def _refresh_field_info(self) -> None:
         """
@@ -788,10 +665,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.fetchedRows = 0
         self.sql_fields = []
         self.sql_fields_without_check = []
-        # self.pkpos = []
-        # self.ckpos = []
-
-        # self._data = []
 
         self._refresh_field_info()
 
@@ -804,7 +677,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._current_row_data = []
         self._current_row_index = -1
 
-        # SZ_FETCH = max(1000, oldrows)
         self.driver_sql().declareCursor(
             self._curname,
             self.sql_str,
@@ -815,96 +687,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         )
         self.grid_row_tmp = {}
 
-        # self.refreshFetch(SZ_FETCH)
-        # self.need_update = False
-        # self.rows = 0
-        # self.canFetchMoreRows = True
-        # print("rows:", self.rows)
-        # self.pendingRows = 0
         self.rows = self.size()
         self.need_update = False
-        # torow = self.rows - 1
         self._column_hints = [120] * len(self.sql_fields)
         self.updateRows()
-        # self.beginInsertRows(parent, 0, torow)
-        # self.endInsertRows()
-
-        # topLeft = self.index(0, 0)
-        # bottomRight = self.index(torow, self.cols - 1)
-        # self.dataChanged.emit(topLeft, bottomRight)
-
-        # self.color_dict_.clear()  # Limpiamos diccionario de colores
-        # self.fetchMore(parent, self.metadata().name(), self.where_filter, size_hint=SZ_FETCH)
-        # print("%s:: rows: %s" % (self._curname, self.rows))
-
-    # def refreshFetch(self, n: int) -> None:
-    #    """
-    #    Refresh new information from DB for a certain amount of records.
-
-    #    @param n. Number of records to fetch
-    #    """
-    #    self.driver_sql().refreshFetch(
-    #        n,
-    #        self._curname,
-    #        self.metadata().name(),
-    #        self.cursorDB(),
-    #        self.sql_str,
-    #        self.where_filter,
-    #    )
-
-    # def indexUpdateRow(self, rownum: int) -> None:
-    #    """
-    #    Update row index, used to locate virtual registers on TableModel.
-
-    #    @param rownum. Row number
-    #    """
-    # row = self._data[rownum]
-    # if self.pkpos:
-    #    key = tuple([row[x] for x in self.pkpos])
-    #    self.pkidx[key] = rownum
-    # if self.ckpos:
-    #    key = tuple([row[x] for x in self.ckpos])
-    #    self.ckidx[key] = rownum
-    #    self.seekRow(rownum)
-    #    if not self._current_row_data:
-    #        raise Exception("No current_row_data avalible")
-
-    #    if self.pkpos:
-    #        key = tuple([self._current_row_data[x] for x in self.pkpos])
-    #        self.pkidx[key] = rownum
-    #    if self.ckpos:
-    #        key = tuple([self._current_row_data[x] for x in self.ckpos])
-    #        self.ckidx[key] = rownum
-
-    # def indexUpdateRowRange(self, rowrange: Tuple[int, int]) -> None:
-    #    """
-    #    Update index for a range of rows.
-
-    #    Used to locate records in TableModel.
-    #    @param  rowrange. Tuple (from, to)
-    #    """
-    # for row in range(rowrange[0], rowrange[1]):
-    #    print("Actualizando row", row)
-    #    self.indexUpdateRow(row)
-    # for n, row in enumerate(range(rowrange[0], rowrange[1])):
-    #    self.seekRow(row)
-    #    row = self._current_row_data
-    #    if self.pkpos:
-    #        key = tuple([row[x] for x in self.pkpos])
-    #        self.pkidx[key] = n + rowrange[0]
-    #    if self.ckpos:
-    #        key = tuple([row[x] for x in self.ckpos])
-    #        self.ckidx[key] = n + rowrange[0]
-
-    # rows = self._data[rowrange[0] : rowrange[1]]
-    # if self.pkpos:
-    #    for n, row in enumerate(rows):
-    #        key = tuple([row[x] for x in self.pkpos])
-    #        self.pkidx[key] = n + rowrange[0]
-    # if self.ckpos:
-    #    for n, row in enumerate(rows):
-    #        key = tuple([row[x] for x in self.ckpos])
-    #        self.ckidx[key] = n + rowrange[0]
 
     def value(self, row: Optional[int], fieldName: str) -> Any:
         """
@@ -939,7 +725,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if self._current_row_index != row:
             self.seekRow(row)
 
-        # campo = self._data[row][col]
         campo: Any = None
         if self._current_row_data:
             campo = self._current_row_data[col]
@@ -975,17 +760,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             self.logger.info("CursorTableModel.setValuesDict(row %s) = %r", row, update_dict)
 
         try:
-            # if isinstance(self._data[row], tuple):
-            #    self._data[row] = list(self._data[row])
             self.seekRow(row)
-            # if isinstance(self._current_row_data, tuple):
             self._current_row_data = list(self._current_row_data)
 
-            # r = self._vdata[row]
-            # if r is None:
-            # r = [str(x) for x in self._data[row]]
-            #    r = [str(x) for x in self._current_row_data]
-            #    self._vdata[row] = r
             colsnotfound = []
             for fieldname, value in update_dict.items():
                 # col = self.metadata().indexPos(fieldname)
@@ -1200,66 +977,17 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 "findPKRow expects a list as first argument. Enclose PK inside brackets [self.pkvalue]"
             )
 
-        # if not self.indexes_valid:
-        #    for n in range(self.rows):
-        #        self.indexUpdateRow(n)
-        #    self.indexes_valid = True
-
         pklist = tuple(pklist)
         if not pklist or pklist[0] is None:
             raise ValueError("Primary Key can't be null")
 
-        # parent = QtCore.QModelIndex()
-        # while self.canFetchMoreRows and pklist not in self.pkidx:
-        #    self.fetchMore(parent, self.metadata().name(), self.where_filter)
-        #    if not self.indexes_valid:
-        #        for n in range(self.rows):
-        #            self.indexUpdateRow(n)
-        #        self.indexes_valid = True
-
-        # if pklist not in self.pkidx:
-        #    self.logger.info(
-        #        "CursorTableModel.%s.findPKRow:: PK not found: %r (from: %r)",
-        #        self.metadata().name(),
-        #        pklist,
-        #        list(self.pkidx.keys())[:8],
-        #    )
-        #    return None
-        # return self.pkidx[pklist]
         ret = None
         if self.pK():
             ret = self.driver_sql().findRow(
-                self.cursorDB(), self._curname, [self.metadata().indexPos(self.pK())], list(pklist)
+                self.cursorDB(), self._curname, self.sql_fields.index(self.pK()), pklist[0]
             )
 
         return ret
-
-    # def findCKRow(self, cklist: Iterable[Any]) -> Optional[int]:
-    #    """
-    #    Retrieve row index from its Composite Key.
-
-    #    @param cklist. CK list to find.
-    #    @return row index.
-    #    """
-    #    if not isinstance(cklist, (tuple, list)):
-    #        raise ValueError("findCKRow expects a list as first argument.")
-    # if not self.indexes_valid:
-    #    for n in range(self.rows):
-    #        self.indexUpdateRow(n)
-    #    self.indexes_valid = True
-    #    cklist = tuple(cklist)
-    #    if cklist not in self.ckidx:
-    #        self.logger.warning(
-    #            "CursorTableModel.%s.findCKRow:: CK not found: %r ", self.metadata().name(), cklist
-    #        )
-    #        return None
-    #    return self.driver_sql().findRow(
-    #        self.cursorDB(),
-    #        self._tablename,
-    #        self.where_filter,
-    #        [self.metadata().primaryKey()],
-    #        list(cklist),
-    #    )
 
     def pK(self) -> str:
         """
@@ -1326,10 +1054,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @return number of retrieved rows.
         """
-
-        if not self.need_update and self.rows:
-            return self.rows
-
         size = 0
         mtd = self.metadata()
         if mtd:
@@ -1346,9 +1070,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 where_ = self.where_filter[: self.where_filter.find("ORDER BY")]
 
             # q = pnsqlquery.PNSqlQuery(None, self.db())
-            sql = "SELECT COUNT(%s) FROM %s WHERE %s" % (mtd.primaryKey(), self._tablename, where_)
+            sql = "SELECT COUNT(%s) FROM %s WHERE %s" % (self.pK(), self._tablename, where_)
             cursor = self.driver_sql().execute_query(sql, self.cursorDB())
-            size = cursor.fetchall()[0][0]
+            size = cursor.fetchone()[0]
             # q.exec_(sql)
             # if q.first():
             #    size = q.value(0)

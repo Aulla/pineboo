@@ -924,7 +924,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     def size(self) -> int:
         """Get number of records in the cursor."""
-        return self.d._model.size()
+        return self.d._model.rows
 
     def openFormInMode(self, m: int, wait: bool = True, cont: bool = True) -> None:
         """

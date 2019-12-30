@@ -777,33 +777,20 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             logger.trace("Detalle:", stack_info=True)
         return ret_
 
-    def findRow(
-        self, cursor: Any, curname: str, field_pos: List[int], values_list: List[Any]
-    ) -> Optional[int]:
+    def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
         """Return index row."""
         limit = 0
         pos: Optional[int] = None
         try:
-            not_found = True
-            while not_found:
+            while True:
                 sql = "FETCH %s FROM %s" % ("FIRST" if not limit else limit + 10000, curname)
                 cursor.execute(sql)
                 data_ = cursor.fetchall()
                 if not data_:
                     break
                 for n, line in enumerate(data_):
-                    for pos in field_pos:
-                        if line[pos] != values_list[pos]:
-                            break
-
-                        pos = limit + n
-                        not_found = False
-
-                    if not not_found:
-                        break
-
-                if not_found:
-                    limit += len(data_)
+                    if line[field_pos] == value:
+                        return limit + n
 
         except Exception as e:
             logger.error("finRow: %s", e)

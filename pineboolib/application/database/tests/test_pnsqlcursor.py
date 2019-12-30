@@ -99,7 +99,10 @@ class TestDeleteData(unittest.TestCase):
         cursor.commitBuffer()
 
         size_2 = cursor.size()
-        self.assertEqual(size_2, 0)
+        self.assertEqual(size_2, 1)
+        cursor.refresh()
+        size_3 = cursor.size()
+        self.assertEqual(size_3, 0)
 
     @classmethod
     def tearDownClass(cls) -> None:
