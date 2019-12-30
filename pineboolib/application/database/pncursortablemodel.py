@@ -852,7 +852,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 return False
 
             # conn.commit()
-
             return True
         return False
 
@@ -936,7 +935,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         return True
 
-    def delete(self, cursor: "isqlcursor.ISqlCursor") -> None:
+    def delete(self, cursor: "isqlcursor.ISqlCursor") -> bool:
         """
         Delete a row from tableModel.
 
@@ -944,8 +943,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         pk_name = self.pK()
         pk_type = self.fieldType(pk_name)
-        # tableName = self.metadata().name()
-        pk_value = cursor.buffer().value(pk_name)
 
         val = (
             self.db()
