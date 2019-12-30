@@ -4,7 +4,9 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 
 
-class TestTranslations(unittest.TestCase):
+class TestFLUtil(unittest.TestCase):
+    """Test FLUtil class."""
+
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
@@ -160,8 +162,10 @@ class TestTranslations(unittest.TestCase):
         self.assertFalse(util.execSql("SELECT COUNT(*) FROG flareas WHERE '1=1'", "default"))
 
         self.assertTrue(util.sqlDelete("flareas", "idarea ='T'", "default"))
+        cur.refresh()
         self.assertEqual(cur.size(), 1)
         self.assertTrue(util.quickSqlDelete("flareas", "idarea ='G'", "default"))
+        cur.refresh()
         self.assertEqual(cur.size(), 0)
 
     def test_field_functions(self) -> None:

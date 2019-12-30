@@ -72,7 +72,7 @@ class TestSysType(unittest.TestCase):
         qry.setWhere("1=1")
         self.assertTrue(qry.exec_())
         self.assertTrue(qry.first())
-        self.assertEqual(qry.value(0), 148)
+        self.assertEqual(qry.value(0), 146)
 
         qry_2 = qsa.FLSqlQuery()
         qry_2.setTablesList("flfiles")
@@ -182,9 +182,9 @@ class TestSysType(unittest.TestCase):
 
         list_extensions = sys.mvProjectExtensions()
         self.assertEqual(list_extensions, [])
-
-        self.assertEqual(sys.calculateShaGlobal(), "cfc09ed22ee2b16a0c571bb99f383b7dd4113553")
-        self.assertEqual(sys.localChanges(), {"size": 0})
+        self.assertEqual(sys.calculateShaGlobal(), "77c183ecf1a38a449efc20d5bfe62606a3aeffe8")
+        changes = sys.localChanges()
+        self.assertEqual(changes["size"], 96)
         res_ = sys.xmlFilesDefBd()
         self.assertTrue(res_)
 

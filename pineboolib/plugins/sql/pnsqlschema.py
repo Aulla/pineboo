@@ -188,25 +188,6 @@ class PNSqlSchema(object):
         else:
             return "::%s" % type_
 
-    def refreshQuery(
-        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
-    ) -> None:
-        """Set a refresh query for database."""
-        pass
-
-    def refreshFetch(
-        self, number: int, curname: str, table: str, cursor: Any, fields: str, where_filter: str
-    ) -> None:
-        """Return data fetched."""
-        pass
-
-    def fetchAll(
-        self, cursor: Any, tablename: str, where_filter: str, fields: str, curname: str
-    ) -> List:
-        """Return all fetched data from a query."""
-        ret_: List[str] = []
-        return ret_
-
     def existsTable(self, name: str) -> bool:
         """Return if exists a table specified by name."""
         return True
@@ -263,10 +244,6 @@ class PNSqlSchema(object):
     def constraintExists(self, name: str) -> bool:
         """Return if constraint exists specified by name."""
         return False
-
-    def queryUpdate(self, name: str, update: str, filter: str) -> str:
-        """Return a database friendly update query."""
-        return ""
 
     def alterTable(
         self,
@@ -326,11 +303,6 @@ class PNSqlSchema(object):
             )
 
         return cursor
-
-    def rowCount(self, curname: str, cursor: Any) -> int:
-        """Return rowcount fetched."""
-
-        return cursor.rowcount
 
     def getTimeStamp(self) -> str:
         """Return TimeStamp."""

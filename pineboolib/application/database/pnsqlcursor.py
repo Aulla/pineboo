@@ -201,7 +201,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             #    self.assoc_model()
 
         else:
-            self.seek(None)
+            self.seek(self.at())
 
         if self.d.timer_:
             del self.d.timer_
@@ -1863,7 +1863,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if row < 0:
             return -1
 
-        if row >= self.d._model.rows:
+        if row >= self.size():
             return -2
         # logger.debug("%s.Row %s ----> %s" % (self.curName(), row, self))
         return row
@@ -2018,7 +2018,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if not self.isValid() and self.d.modeAccess_ != self.Insert:
             return False
-
         if self.d.modeAccess_ == self.Insert:
             if not self.commitBufferCursorRelation():
                 return False
@@ -2142,25 +2141,25 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         return False
 
     @decorators.pyqtSlot()
-    def seek(self, i, relative: Optional[bool] = False, emite: bool = False) -> bool:
+    def seek(self, index: int, relative: Optional[bool] = False, emite: bool = False) -> bool:
         """
         Simply refreshes the buffer with the FLSqlCursor :: refreshBuffer () method.
 
-        @param i. Not used.
+        @param index. New position.
         @param relative. Not used.
         @param emite If TRUE emits the FLSqlCursor :: currentChanged () signal.
 
         @return True if ok or False.
         """
-        ret_ = False
+        ok = self.move(index)
 
-        if self.buffer():
+        if ok and self.buffer():
             if emite:
                 self.currentChanged.emit(self.at())
 
-            ret_ = self.refreshBuffer()
+            ok = self.refreshBuffer()
 
-        return ret_
+        return ok
 
     @decorators.pyqtSlot()
     @decorators.pyqtSlot(bool)
@@ -2178,7 +2177,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if emite:
                 self.d._current_changed.emit(self.at())
 
-            return self.refreshBuffer()
+            b = self.refreshBuffer()
 
         return b
 
@@ -2212,7 +2211,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if emite:
                 self.d._current_changed.emit(self.at())
 
-            return self.refreshBuffer()
+            b = self.refreshBuffer()
 
         return b
 
@@ -2225,19 +2224,21 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # if row is None:
         #     row = -1
         model = self.d._model
-
         if not model:
             return False
 
         if row < 0:
             row = -1
 
-        while row >= model.rows and model.canFetchMoreRows:
-            model.updateRows()
+        # while row >= model.rows and model.canFetchMoreRows:
+        #    model.updateRows()
 
-        if row >= model.rows:
-            row = model.rows
+        # if row >= model.rows:
+        #    row = model.rows
+        if not model.seekRow(row):
+            return False
 
+        row = model._current_row_index
         if self.currentRegister() == row:
             return False
 
@@ -2248,7 +2249,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             raise Exception("Call setAction first.")
         self._selection.select(new_selection, QtCore.QItemSelectionModel.ClearAndSelect)
         # self.d._current_changed.emit(self.at())
-        if row < model.rows and row >= 0:
+        if row < self.size() and row >= 0:
             self.d._currentregister = row
             return True
         else:
@@ -2268,12 +2269,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             b = self.move(0)
         else:
             b = True
-
         if b:
             if emite:
                 self.d._current_changed.emit(self.at())
 
-            return self.refreshBuffer()
+            b = self.refreshBuffer()
 
         return b
 
@@ -2289,12 +2289,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         #    return False
 
         b = self.move(self.size() - 1)
-
         if b:
             if emite:
                 self.d._current_changed.emit(self.at())
 
-            return self.refreshBuffer()
+            b = self.refreshBuffer()
 
         return b
 
@@ -2806,7 +2805,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 raise ValueError("primery key is not defined!")
             pk_value = self.d.buffer_.value(pk_name)
 
-            self.d._model.Insert(self)
+            self.d._model.insert(self)
             self.d._model.refresh()
             pk_row = self.d._model.findPKRow((pk_value,))
             if pk_row is not None:
@@ -3347,7 +3346,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             dict_update = {fieldName: self.d.buffer_.value(fieldName) for fieldName in lista}
             try:
-                update_successful = self.d._model.updateValuesDB(pKValue, dict_update)
+                update_successful = self.d._model.update(pKValue, dict_update)
             except Exception:
                 logger.exception("PNSqlCursor.update:: Unhandled error on model updateRowDB:: ")
                 update_successful = False
@@ -3363,22 +3362,20 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         )
                     self.d._model.setValuesDict(row, dict_update)
 
-                else:
-                    # Método clásico
-                    logger.warning(
-                        "update :: WARN :: Los indices del CursorTableModel no funcionan o el PKey no existe."
-                    )
-                    row = 0
-                    while row < self.d._model.rowCount():
-                        if self.d._model.value(row, self.d._model.pK()) == pKValue:
-                            for fieldName in lista:
-                                self.d._model.setValue(
-                                    row, fieldName, self.d.buffer_.value(fieldName)
-                                )
+            else:
+                # Método clásico
+                logger.warning(
+                    "update :: WARN :: Los indices del CursorTableModel no funcionan o el PKey no existe."
+                )
+                row = 0
+                while row < self.d._model.rowCount():
+                    if self.d._model.value(row, self.d._model.pK()) == pKValue:
+                        for fieldName in lista:
+                            self.d._model.setValue(row, fieldName, self.d.buffer_.value(fieldName))
 
-                            break
+                        break
 
-                        row = row + 1
+                    row = row + 1
 
             if notify:
                 self.bufferCommited.emit()
