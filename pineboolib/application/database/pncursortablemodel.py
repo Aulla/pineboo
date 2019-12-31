@@ -283,6 +283,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 self.grid_row_tmp[row] = self.driver_sql().getRow(
                     row, self._curname, self.cursorDB()
                 )
+                if not self.grid_row_tmp[row]:  # refresh grid if cursor is deleted.
+                    self.refresh()
+                    return
+
             tuple = self.grid_row_tmp[row]
             if tuple:
                 d = tuple[col]
