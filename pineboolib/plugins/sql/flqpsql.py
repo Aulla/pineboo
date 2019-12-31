@@ -767,8 +767,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
     def getRow(self, number: int, curname: str, cursor: Any) -> List:
         """Return a data row."""
-        sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
+
         ret_: List[Any] = []
+        sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
+        sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % curname
+        cursor.execute(sql_exists)
+        if cursor.fetchone() is None:
+            return ret_
+
         try:
             cursor.execute(sql)
             ret_ = cursor.fetchone()
