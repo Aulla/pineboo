@@ -19,7 +19,7 @@ import traceback
 import os
 
 
-from typing import Optional, Union, Any, List, Dict, TYPE_CHECKING
+from typing import Optional, Union, Any, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
