@@ -30,7 +30,6 @@ logger = logging.getLogger(__name__)
 class FLSQLITE(pnsqlschema.PNSqlSchema):
     """FLSQLITE class."""
 
-    sql_query: Dict[str, str]
     db_filename: Optional[str]
     db_name: str
 
@@ -52,7 +51,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.cursor_ = None
         self.engine_ = None
         self.session_ = None
-        self.sql_query = {}
         self.declarative_base_ = None
         self.lastError_ = None
 
@@ -311,49 +309,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         query = query.replace("'false'", "0")
 
         return query
-
-    def declareCursor(
-        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
-    ) -> None:
-        """Set a refresh query for database."""
-        sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
-        sql = self.fix_query(sql)
-        self.sql_query[curname] = sql
-
-    def getRow(self, number: int, curname: str, cursor: Any) -> List:
-        """Return a data row."""
-        ret_: List[Any] = []
-        sql = "%s LIMIT 1 OFFSET %s" % (self.sql_query[curname], number)
-        try:
-            cursor.execute(sql)
-            ret_ = cursor.fetchone()
-        except Exception as e:
-            logger.error("getRow: %s", e)
-            logger.trace("Detalle:", stack_info=True)
-        return ret_
-
-    def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
-        """Return index row."""
-        limit = 0
-        pos: Optional[int] = None
-        try:
-            while True:
-                sql = "%s LIMIT %s OFFSET %s" % (self.sql_query[curname], limit + 100, limit)
-                cursor.execute(sql)
-                data_ = cursor.fetchall()
-                if not data_:
-                    break
-                for n, line in enumerate(data_):
-                    if line[field_pos] == value:
-                        return limit + n
-
-                limit += len(data_)
-
-        except Exception as e:
-            logger.error("finRow: %s", e)
-            logger.warning("Detalle:", stack_info=True)
-
-        return pos
 
     def rollbackTransaction(self) -> bool:
         """Set a rollback transaction."""
@@ -980,11 +935,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Return a database friendly text."""
 
         return str(text).replace("'", "''")
-
-    def queryUpdate(self, name: str, update: str, filter: str) -> str:
-        """Return a database friendly update query."""
-        sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
-        return sql
 
     def Mr_Proper(self) -> None:
         """Clear all garbage data."""

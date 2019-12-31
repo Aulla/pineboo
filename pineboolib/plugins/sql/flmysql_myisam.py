@@ -326,11 +326,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    def queryUpdate(self, name: str, update: str, filter: str) -> str:
-        """Return a templates UPDATE sql."""
-        sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
-        return sql
-
     def savePoint(self, n: int) -> bool:
         """Perform a transaction savepoint."""
         if n == 0:

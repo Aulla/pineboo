@@ -3,7 +3,7 @@
 from pineboolib import logging
 
 import traceback
-from typing import Iterable, Optional, Union, List, Any, TYPE_CHECKING
+from typing import Iterable, Optional, Union, List, Any, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -30,6 +30,7 @@ class PNSqlSchema(object):
     session_: Any
     declarative_base_: Any
     cursor_: Any
+    sql_query: Dict[str, str]
 
     def __init__(self):
         """Inicialize."""
@@ -48,6 +49,7 @@ class PNSqlSchema(object):
         self.lastError_ = None
         self.cursor_ = None
         self.db_ = None
+        self.sql_query = {}
 
     def useThreads(self) -> bool:
         """Return True if the driver use threads."""
@@ -319,3 +321,51 @@ class PNSqlSchema(object):
             raise Exception("timestamp is empty!")
 
         return time_stamp_
+
+    def declareCursor(
+        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
+    ) -> None:
+        """Set a refresh query for database."""
+        sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
+        sql = self.fix_query(sql)
+        self.sql_query[curname] = sql
+
+    def getRow(self, number: int, curname: str, cursor: Any) -> List:
+        """Return a data row."""
+        ret_: List[Any] = []
+        sql = "%s LIMIT 1 OFFSET %s" % (self.sql_query[curname], number)
+        try:
+            cursor.execute(sql)
+            ret_ = cursor.fetchone()
+        except Exception as e:
+            logger.error("getRow: %s", e)
+            logger.trace("Detalle:", stack_info=True)
+        return ret_
+
+    def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
+        """Return index row."""
+        limit = 0
+        pos: Optional[int] = None
+        try:
+            while True:
+                sql = "%s LIMIT %s OFFSET %s" % (self.sql_query[curname], limit + 100, limit)
+                cursor.execute(sql)
+                data_ = cursor.fetchall()
+                if not data_:
+                    break
+                for n, line in enumerate(data_):
+                    if line[field_pos] == value:
+                        return limit + n
+
+                limit += len(data_)
+
+        except Exception as e:
+            logger.error("finRow: %s", e)
+            logger.warning("Detalle:", stack_info=True)
+
+        return pos
+
+    def queryUpdate(self, name: str, update: str, filter: str) -> str:
+        """Return a database friendly update query."""
+        sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
+        return sql
