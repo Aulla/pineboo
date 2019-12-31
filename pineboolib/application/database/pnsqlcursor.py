@@ -1201,6 +1201,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     and not field.allowNull()
                     and not field.type() in ("serial")
                 ):
+                    print("**", fiName, self.d.buffer_.value(fiName), self.d.buffer_)
                     msg = (
                         msg
                         + "\n"
@@ -2701,7 +2702,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return False
 
         fieldNameCheck = None
-
         if self.modeAccess() in [self.Edit, self.Insert]:
             fieldList = self.d.metadata_.fieldList()
 
@@ -2806,8 +2806,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             pk_value = self.d.buffer_.value(pk_name)
 
             self.d._model.insert(self)
+            self.selection().currentRowChanged.disconnect(
+                self.selection_currentRowChanged
+            )  # Evita vaciado de buffer al hacer removeRows
             self.d._model.refresh()
+            self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
             pk_row = self.d._model.findPKRow((pk_value,))
+
             if pk_row is not None:
                 self.move(pk_row)
 
@@ -2944,7 +2949,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.modeAccess() in (self.Del, self.Edit):
             self.setModeAccess(self.Browse)
 
-        if self.modeAccess() == self.Insert:
+        elif self.modeAccess() == self.Insert:
             self.setModeAccess(self.Edit)
 
         if updated:
@@ -2984,7 +2989,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         activeWidEnabled = False
         activeWid = None
 
-        if self.d.cursorRelation_ is None or self.relation() is None:
+        cursor_relation = self.d.cursorRelation_
+
+        if cursor_relation is None or self.relation() is None:
             return ok
 
         if application.project.DGI.localDesktop():
@@ -2999,41 +3006,33 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 activeWidEnabled = activeWid.isEnabled()
 
         if self.d.modeAccess_ == self.Insert:
-            if (
-                self.d.cursorRelation_.metadata()
-                and self.d.cursorRelation_.modeAccess() == self.Insert
-            ):
-
+            if cursor_relation.metadata() and cursor_relation.modeAccess() == self.Insert:
                 if activeWid and activeWidEnabled:
                     activeWid.setEnabled(False)
-
-                if not self.d.cursorRelation_.commitBuffer():
+                if not cursor_relation.commitBuffer():
                     self.d.modeAccess_ = self.Browse
                     ok = False
                 else:
                     self.setFilter("")
-                    self.d.cursorRelation_.refresh()
-                    self.d.cursorRelation_.setModeAccess(self.Edit)
-                    self.d.cursorRelation_.refreshBuffer()
+                    cursor_relation.refresh()
+                    cursor_relation.setModeAccess(self.Edit)
+                    cursor_relation.refreshBuffer()
 
                 if activeWid and activeWidEnabled:
                     activeWid.setEnabled(True)
 
         elif self.d.modeAccess_ in [self.Browse, self.Edit]:
-            if (
-                self.d.cursorRelation_.metadata()
-                and self.d.cursorRelation_.modeAccess() == self.Insert
-            ):
+            if cursor_relation.metadata() and cursor_relation.modeAccess() == self.Insert:
                 if activeWid and activeWidEnabled:
                     activeWid.setEnabled(False)
 
-                if not self.d.cursorRelation_.commitBuffer():
+                if not cursor_relation.commitBuffer():
                     self.d.modeAccess_ = self.Browse
                     ok = False
                 else:
-                    self.d.cursorRelation_.refresh()
-                    self.d.cursorRelation_.setModeAccess(self.Edit)
-                    self.d.cursorRelation_.refreshBuffer()
+                    cursor_relation.refresh()
+                    cursor_relation.setModeAccess(self.Edit)
+                    cursor_relation.refreshBuffer()
 
                 if activeWid and activeWidEnabled:
                     activeWid.setEnabled(True)
