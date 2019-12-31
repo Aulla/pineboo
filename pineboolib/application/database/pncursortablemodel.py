@@ -719,6 +719,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             if not col:
                 return None
+
         mtdfield = self.metadata().field(fieldName)
         if mtdfield is None:
             raise Exception("fieldName: %s not found" % fieldName)
@@ -728,7 +729,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return None
 
         if self._current_row_index != row:
-            self.seekRow(row)
+            if not self.seekRow(row):
+                return None
 
         campo: Any = None
         if self._current_row_data:
@@ -788,6 +790,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             self.logger.exception(
                 "CursorTableModel.setValuesDict(row %s) = %r :: ERROR:", row, update_dict
             )
+
+        self._current_row_index = -1
 
     def setValue(self, row: int, fieldname: str, value: Any) -> None:
         """
@@ -1074,7 +1078,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             # q = pnsqlquery.PNSqlQuery(None, self.db())
             sql = "SELECT COUNT(%s) FROM %s WHERE %s" % (self.pK(), self._tablename, where_)
             cursor = self.driver_sql().execute_query(sql, self.cursorDB())
-            size = cursor.fetchone()[0]
+            result = cursor.fetchone()
+            if result is not None:
+                size = result[0]
             # q.exec_(sql)
             # if q.first():
             #    size = q.value(0)
