@@ -99,7 +99,7 @@ class TestDeleteData(unittest.TestCase):
         cursor.commitBuffer()
 
         size_2 = cursor.size()
-        self.assertEqual(size_2, 1)
+        self.assertEqual(size_2, 0)
         cursor.refresh()
         size_3 = cursor.size()
         self.assertEqual(size_3, 0)
@@ -859,6 +859,23 @@ class TestCorruption(unittest.TestCase):
         self.assertTrue(cursor.commitBuffer())
         cursor.refresh()
         self.assertEqual(cursor.size(), 99)
+
+        cursor_3 = pnsqlcursor.PNSqlCursor("fltest")
+        cursor_3.select()
+        i = 0
+        size = 99
+        while cursor_3.next():
+            if i == 10:
+                qsa.FLUtil().sqlDelete("fltest", "string_field='Linea 20'")
+                size -= 1
+                i += 1
+            elif i == 20:
+                i += 1
+
+            print("**", i, cursor_3.valueBuffer("string_field"))
+            self.assertTrue(cursor_3.valueBuffer("string_field").find("Linea %s" % i) > -1)
+            self.assertEqual(cursor_3.size(), size)
+            i += 1
 
     @classmethod
     def tearDownClass(cls) -> None:
