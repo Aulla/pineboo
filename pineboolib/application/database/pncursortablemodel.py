@@ -863,26 +863,28 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return True
         return False
 
-    def update(self, pKValue: Any, dict_update: Dict[str, Any]) -> bool:
+    def update(self, pk_value: Any, dict_update: Dict[str, Any]) -> bool:
         """
         Update record data from tableModel into DB.
 
-        @param pKValue. Pirmary Key of the record to be updated
+        @param pk_value. Pirmary Key of the record to be updated
         @param dict_update. Fields to be updated
         """
 
-        self.logger.trace("updateValuesDB: init: pKValue %s, dict_update %s", pKValue, dict_update)
-        row = self.findPKRow([pKValue])
+        self.logger.trace(
+            "updateValuesDB: init: pk_value %s, dict_update %s", pk_value, dict_update
+        )
+        row = self.findPKRow([pk_value])
         # if row is None:
         #    raise AssertionError(
-        #        "Los indices del CursorTableModel no devolvieron un registro (%r)" % (pKValue))
+        #        "Los indices del CursorTableModel no devolvieron un registro (%r)" % (pk_value))
         if row is None:
             return False
 
-        if self.value(row, self.pK()) != pKValue:
+        if self.value(row, self.pK()) != pk_value:
             raise AssertionError(
                 "Los indices del CursorTableModel devolvieron un registro erroneo: %r != %r"
-                % (self.value(row, self.pK()), pKValue)
+                % (self.value(row, self.pK()), pk_value)
             )
 
         self.setValuesDict(row, dict_update)
@@ -892,11 +894,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if mtdfield is None:
             raise Exception("Primary Key %s not found" % pkey_name)
         typePK_ = mtdfield.type()
-        pKValue = self.db().connManager().manager().formatValue(typePK_, pKValue, False)
+        pk_value = self.db().connManager().manager().formatValue(typePK_, pk_value, False)
         # if typePK_ == "string" or typePK_ == "pixmap" or typePK_ == "stringlist" or typePK_ == "time" or typePK_ == "date":
-        # pKValue = str("'" + pKValue + "'")
+        # pk_value = str("'" + pk_value + "'")
 
-        where_filter = "%s = %s" % (pkey_name, pKValue)
+        where_filter = "%s = %s" % (pkey_name, pk_value)
         update_set = []
 
         for key, value in dict_update.items():

@@ -2805,7 +2805,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 raise ValueError("primery key is not defined!")
             pk_value = self.d.buffer_.value(pk_name)
 
-            self.d._model.insert(self)
+            if not (self.d._model.insert(self)):
+                return False
             self.selection().currentRowChanged.disconnect(
                 self.selection_currentRowChanged
             )  # Evita vaciado de buffer al hacer removeRows
@@ -2841,7 +2842,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if self.isModifiedBuffer():
 
                 logger.trace("commitBuffer -- Edit . 22 . ")
-                self.update(False)
+                if not self.update(False):
+                    return False
 
                 logger.trace("commitBuffer -- Edit . 25 . ")
 
@@ -3321,7 +3323,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             raise Exception("self.d.buffer_ is not defined!")
         return self.d.buffer_.field(name)
 
-    def update(self, notify: bool = True) -> None:
+    def update(self, notify: bool = True) -> bool:
         """
         Update tableModel with the buffer.
 
@@ -3329,6 +3331,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
 
         logger.trace("PNSqlCursor.update --- BEGIN:")
+        update_successful = False
         if self.modeAccess() == PNSqlCursor.Edit:
 
             if not self.d.buffer_:
@@ -3381,6 +3384,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 self.bufferCommited.emit()
 
         logger.trace("PNSqlCursor.update --- END")
+        return update_successful
 
     def lastError(self) -> str:
         """
