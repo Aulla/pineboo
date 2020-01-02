@@ -809,5 +809,62 @@ class TestAcos(unittest.TestCase):
         finish_testing()
 
 
+class TestCorruption(unittest.TestCase):
+    """Test Acos class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_basic_1(self) -> None:
+        """Test Populate cursor."""
+
+        from pineboolib.application.database import pnsqlcursor
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
+        for i in range(100):
+            cursor.setModeAccess(cursor.Insert)
+            cursor.refreshBuffer()
+            cursor.setValueBuffer("string_field", "Linea %s" % i)
+            self.assertTrue(cursor.commitBuffer())
+
+    def test_basic_2(self) -> None:
+        """Test Deleteting."""
+
+        from pineboolib.application.database import pnsqlcursor
+        from pineboolib.qsa import qsa
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
+        cursor.select()
+        self.assertEqual(cursor.size(), 100)
+        cursor.select("string_field ='Linea 10'")
+        self.assertEqual(cursor.size(), 1)
+        self.assertTrue(cursor.first())
+        cursor.setModeAccess(cursor.Edit)
+        self.assertTrue(cursor.refreshBuffer())
+        cursor.setValueBuffer("string_field", "Linea 10 m.")
+        qsa.FLUtil().sqlDelete("fltest", "string_field='Linea 10'")
+        cursor_2 = pnsqlcursor.PNSqlCursor("fltest")
+        cursor_2.select()
+        self.assertEqual(cursor_2.size(), 99)
+        self.assertFalse(cursor.commitBuffer())
+
+        cursor.select("string_field ='Linea 9'")
+        self.assertEqual(cursor.size(), 1)
+        self.assertTrue(cursor.first())
+        cursor.setModeAccess(cursor.Edit)
+        self.assertTrue(cursor.refreshBuffer())
+        cursor.setValueBuffer("string_field", "Linea 9 m.")
+        self.assertTrue(cursor.commitBuffer())
+        cursor.refresh()
+        self.assertEqual(cursor.size(), 99)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
+
+
 if __name__ == "__main__":
     unittest.main()
