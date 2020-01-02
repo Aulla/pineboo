@@ -10,8 +10,8 @@ from pineboolib.core import decorators, settings
 from pineboolib.core.utils import utils_base
 
 from pineboolib.application.database import pnsqlcursor
-from . import flformdb
 
+from . import flformdb
 
 from typing import Optional, Union, TYPE_CHECKING
 
@@ -47,27 +47,37 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
     logger = logging.getLogger("FLFormSearchDB")
 
-    def __init__(
-        self, name_or_cursor, parent: Optional[Union[QtWidgets.QWidget, int]] = None
-    ) -> None:
+    def __init__(self, *args) -> None:
         """
         Initialize.
         """
+        action: "pnaction.PNAction"
+        parent: Optional["QtWidgets.QWidget"] = None
+        cursor: "pnsqlcursor.PNSqlCursor"
 
-        if not name_or_cursor:
-            self.logger.warning("Se ha llamado a FLFormSearchDB sin name_or_cursor")
+        if isinstance(args[0], str):
+            action = application.project.conn_manager.manager().action(args[0])
+            cursor = pnsqlcursor.PNSqlCursor(action.table())
+            if len(args) > 1 and args[1]:
+                parent = args[1]
+
+        elif isinstance(args[1], str):
+            action = application.project.conn_manager.manager().action(args[1])
+            cursor = args[0]
+            if len(args) > 2 and args[2]:
+                parent = args[2]
+        else:
+            raise Exception("Wrong size of arguments")
+
+        if not parent:
+            parent = application.project.main_window
+
+        if cursor is None:
+            self.logger.warning("Se ha llamado a FLFormSearchDB sin nombre de action o cursor")
             return
 
         if application.project.conn_manager is None:
             raise Exception("Project is not connected yet")
-
-        # parent = parent or flapplication.aqApp.mainWidget()
-        if isinstance(name_or_cursor, str):
-            action = application.project.conn_manager.manager().action(name_or_cursor)
-            cursor = pnsqlcursor.PNSqlCursor(action.table())
-        else:
-            action = name_or_cursor._action
-            cursor = name_or_cursor
 
         super().__init__(action, parent, load=False)
 
