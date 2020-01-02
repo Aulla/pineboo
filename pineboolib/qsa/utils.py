@@ -312,6 +312,8 @@ def replace(source: str, search: Any, replace: str) -> Union[str, Pattern]:
 
 
 class Number_attr:
+    """Class Number_attr."""
+
     MIN_VALUE = -sys.maxsize - 1
     MAX_VALUE = sys.maxsize
 

@@ -13,7 +13,7 @@ from pineboolib.application.database import pnsqlcursor
 
 from . import flformdb
 
-from typing import Optional, Union, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pnaction

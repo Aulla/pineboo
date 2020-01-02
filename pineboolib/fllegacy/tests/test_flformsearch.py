@@ -1,6 +1,5 @@
 """Test_flformsearchdb module."""
 
-from pineboolib import application
 from . import fixture_path
 
 import unittest
@@ -19,8 +18,8 @@ class TestFLFormsearchDB(unittest.TestCase):
     def test_initialization(self) -> None:
         """Test flformrecord cursor assignment"""
 
-        from pineboolib.qsa import dictmodules
         from pineboolib.qsa import qsa
+        from pineboolib import application
         import os
 
         path = fixture_path("principal.eneboopkg")
@@ -30,7 +29,7 @@ class TestFLFormsearchDB(unittest.TestCase):
         form_search_1 = qsa.FLFormSearchDB("bancos")
         self.assertEqual(form_search_1.cursor().metadata().name(), "bancos")
         self.assertEqual(form_search_1.action().name(), "bancos")
-        self.assertEqual(form_search_1.parent(), None)
+        self.assertEqual(form_search_1.parent(), application.project.main_window)
 
         parent_2 = QtWidgets.QWidget()
 
@@ -52,7 +51,7 @@ class TestFLFormsearchDB(unittest.TestCase):
         form_search_4 = qsa.FLFormSearchDB(cur_4, "proveedores", parent_4)
         self.assertEqual(form_search_4.cursor().metadata().name(), "proveedores")
         self.assertEqual(form_search_4.action().name(), "proveedores")
-        self.assertEqual(form_search_4.parent(), None)
+        self.assertEqual(form_search_4.parent(), application.project.main_window)
         self.assertEqual(form_search_4.cursor(), cur_4)
 
     @classmethod
