@@ -4,6 +4,7 @@ Utility functions for QS files.
 import traceback
 import re
 import math
+import sys
 
 from PyQt5 import QtCore
 from pineboolib.core.utils.utils_base import ustr
@@ -308,3 +309,11 @@ def replace(source: str, search: Any, replace: str) -> Union[str, Pattern]:
         return search.replace(source, replace)
     else:
         return source.replace(search, str(replace))
+
+
+class Number_attr:
+    MIN_VALUE = -sys.maxsize - 1
+    MAX_VALUE = sys.maxsize
+
+
+Number = Number_attr()

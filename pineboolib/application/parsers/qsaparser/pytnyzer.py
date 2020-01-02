@@ -122,6 +122,7 @@ QSA_KNOWN_ATTRS = {
     "Math",
     "MessageBox",
     "NumberEdit",
+    "Number",
     "Object",
     "ObjectNotFoundDGINotLoaded",
     "ObjectNotFoundInCurrentDGI",
@@ -300,38 +301,38 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
         raise ValueError("Dot not allowed in ID for translation")
     if name == "false":
         return "False"
-    if name == "true":
+    elif name == "true":
         return "True"
-    if name == "null":
+    elif name == "null":
         return "None"
-    if name == "unknown":
+    elif name == "unknown":
         return "None"
-    if name == "undefined":
+    elif name == "undefined":
         return "None"
-    if name == "this":
+    elif name == "this":
         return "self"
-    if name == "NaN":
+    elif name == "NaN":
         return 'float("nan")'
 
-    if name == "startsWith":
+    elif name == "startsWith":
         name = "startswith"
-    if name == "endsWith":
+    elif name == "endsWith":
         name = "endswith"
-    if name == "lastIndexOf":
+    elif name == "lastIndexOf":
         name = "rfind"
     # if name == "File":
     #    name = "qsatype.File"
     # if name == "Dir":
     #    name = "qsatype.Dir"
-    if name == "findRev":
+    elif name == "findRev":
         name = "find"
-    if name == "toLowerCase":
+    elif name == "toLowerCase":
         name = "lower"
-    if name == "toUpperCase":
+    elif name == "toUpperCase":
         name = "upper"
-    if name == "indexOf":
+    elif name == "indexOf":
         name = "index"
-    if name in ("argStr", "argInt"):
+    elif name in ("argStr", "argInt"):
         name = "arg"
     # if name == "Process":
     #    name = "qsatype.Process"

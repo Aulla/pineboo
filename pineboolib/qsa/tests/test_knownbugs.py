@@ -269,13 +269,28 @@ res = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
         self.assertEqual(qs2py(two), result_two)
 
     def test_array_functions(self) -> None:
-        """Test funstions array conversion."""
+        """Test functions array conversion."""
 
         one = """var cacheFunsEdi = [];
         cacheFunsEdi["uno"]("dos");"""
 
         result_one = """cacheFunsEdi = qsa.Array()\ncacheFunsEdi["uno"]("dos")\n"""
         self.assertEqual(qs2py(one), result_one)
+
+    def test_number_min_value_and_max_value(self) -> None:
+        """Test number min and max value."""
+        qsa_one = "var min : Number = Number.MIN_VALUE;"
+        result_one = "min = qsa.Number.MIN_VALUE\n"
+        self.assertEqual(qs2py(qsa_one), result_one)
+
+        qsa_two = "var max : Number = Number.MAX_VALUE;"
+        result_two = "max = qsa.Number.MAX_VALUE\n"
+        self.assertEqual(qs2py(qsa_two), result_two)
+
+        from pineboolib.qsa import qsa
+
+        self.assertTrue(qsa.Number.MIN_VALUE < 0)
+        self.assertTrue(qsa.Number.MAX_VALUE > 0)
 
     @classmethod
     def tearDownClass(cls) -> None:
