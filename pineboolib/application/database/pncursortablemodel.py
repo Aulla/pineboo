@@ -41,7 +41,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     rowsLoaded: int
     where_filter: str
     where_filters: Dict[str, str] = {}
-    _metadata: "pntablemetadata.PNTableMetaData"
+    _metadata: Optional["pntablemetadata.PNTableMetaData"]
     _sortOrder = ""
     _disable_refresh: bool
     color_function_ = None
@@ -91,6 +91,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.parent_view = None
 
         metadata = self._parent.d.metadata_
+
+        self.rowsLoaded = 0
+        self.rows = 0
+        self.cols = 0
+        self._metadata = None
 
         if not metadata:
             return
@@ -1079,7 +1084,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             # q = pnsqlquery.PNSqlQuery(None, self.db())
             sql = "SELECT COUNT(%s) FROM %s WHERE %s" % (self.pK(), self._tablename, where_)
-            cursor = self.driver_sql().execute_query(sql, self.cursorDB())
+            cursor = self.driver_sql().execute_query(sql)
             result = cursor.fetchone()
             if result is not None:
                 size = result[0]
@@ -1134,6 +1139,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @return Objeto FLTableMetaData
         """
+        if self._metadata is None:
+            raise Exception("metadata is empty!")
+
         return self._metadata
 
     def driver_sql(self) -> Any:
