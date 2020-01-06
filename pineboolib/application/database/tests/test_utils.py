@@ -86,5 +86,5 @@ class TestUtils(unittest.TestCase):
             utils.quickSqlSelect("fltest3", "string_field", "counter = '%s'" % val_3, "default"),
             "Campo de prueba 2 Modificado",
         )
-        utils.quickSqlDelete("fltest3", " counter ='%s'" % val_1, "default")
+        utils.quickSqlDelete("fltest3", "counter ='%s'" % val_1, "default")
         self.assertTrue(utils.sqlDelete("fltest3", "1=1", "dbAux"))

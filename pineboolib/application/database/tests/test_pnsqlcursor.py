@@ -99,7 +99,7 @@ class TestDeleteData(unittest.TestCase):
         cursor.commitBuffer()
 
         size_2 = cursor.size()
-        self.assertEqual(size_2, 0)
+        self.assertEqual(size_2, 1)
         cursor.refresh()
         size_3 = cursor.size()
         self.assertEqual(size_3, 0)
@@ -848,7 +848,7 @@ class TestCorruption(unittest.TestCase):
         cursor_2 = pnsqlcursor.PNSqlCursor("fltest")
         cursor_2.select()
         self.assertEqual(cursor_2.size(), 99)
-        self.assertFalse(cursor.commitBuffer())
+        self.assertTrue(cursor.commitBuffer())
 
         cursor.select("string_field ='Linea 9'")
         self.assertEqual(cursor.size(), 1)
@@ -869,13 +869,38 @@ class TestCorruption(unittest.TestCase):
                 qsa.FLUtil().sqlDelete("fltest", "string_field='Linea 20'")
                 size -= 1
                 i += 1
-            elif i == 20:
-                i += 1
 
-            print("**", i, cursor_3.valueBuffer("string_field"))
             self.assertTrue(cursor_3.valueBuffer("string_field").find("Linea %s" % i) > -1)
-            self.assertEqual(cursor_3.size(), size)
+            self.assertEqual(cursor_3.size(), 99)
             i += 1
+
+        cursor_3.refresh()
+        self.assertEqual(cursor_3.size(), 98)
+
+    def test_basic_3(self) -> None:
+        """Bad cursor."""
+
+        from pineboolib.application.database import pnsqlcursor
+        from pineboolib.fllegacy import flutil
+
+        cursor = pnsqlcursor.PNSqlCursor("Fltest")
+        self.assertEqual(cursor.metadata().name(), "fltest")
+        cursor.setAction("bad_Action")
+        ac = cursor.action()
+        if ac:
+            self.assertEqual(ac.name(), "bad_action")
+        cursor.select()
+        self.assertEqual(cursor.size(), 0)
+        cursor.setAction("fltest")
+        cursor.select()
+        self.assertEqual(cursor.size(), 98)
+        util = flutil.FLUtil()
+        util.sqlDelete("fltest", "1=1", "dbAux")
+        cursor.first()
+        # while cursor.next():
+        #    print("**", cursor.valueBuffer("string_field"))
+        cursor.refresh()
+        self.assertEqual(cursor.size(), 0)
 
     @classmethod
     def tearDownClass(cls) -> None:
