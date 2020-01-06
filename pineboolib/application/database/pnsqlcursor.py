@@ -925,8 +925,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     def size(self) -> int:
         """Get number of records in the cursor."""
         model = self.model()
-        if model.rows < 50000:  # Si hay menos de 50000 registros devolvemos el size actualizado.
-            model.rows = model.size()
+        # if model.rows <= 50000:  # Si hay menos de 50000 registros devolvemos el size actualizado.
+        #    model.rows = model.size()
+        # else:
+        #    logger.warning("be careful size() not updated (>50000)")
 
         return model.rows
 
@@ -2234,7 +2236,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if row < 0:
             row = -1
-
         # while row >= model.rows and model.canFetchMoreRows:
         #    model.updateRows()
 
