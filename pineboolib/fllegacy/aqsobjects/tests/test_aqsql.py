@@ -27,7 +27,7 @@ class TestAQSql(unittest.TestCase):
         aq_ = aqsql.AQSql()
 
         self.assertTrue(aq_.del_("flareas", "idarea='X'"))
-        self.assertEqual(cur_areas.size(), 0)
+        self.assertEqual(cur_areas.size(), 1)
         cur_areas.refresh()
         self.assertEqual(cur_areas.size(), 0)
 
