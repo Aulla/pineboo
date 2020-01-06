@@ -30,7 +30,8 @@ class PNSqlSchema(object):
     session_: Any
     declarative_base_: Any
     cursor_: Any
-    sql_query: Dict[str, str]
+    rows_cached: Dict[str, List[Any]]
+    init_cached: int = 200
 
     def __init__(self):
         """Inicialize."""
@@ -49,7 +50,9 @@ class PNSqlSchema(object):
         self.lastError_ = None
         self.cursor_ = None
         self.db_ = None
-        self.sql_query = {}
+        self.rows_cached = {}
+        # self.sql_query = {}
+        # self.cursors_dict = {}
 
     def useThreads(self) -> bool:
         """Return True if the driver use threads."""
@@ -282,10 +285,6 @@ class PNSqlSchema(object):
         """Return if use a file like database."""
         return False
 
-    def cursor(self) -> Any:
-        """Return cursor to database."""
-        return None
-
     def execute_query(self, q: str, cursor: Any = None) -> Any:
         """Excecute a query and return result."""
         if not self.isOpen():
@@ -328,44 +327,74 @@ class PNSqlSchema(object):
         """Set a refresh query for database."""
         sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
         sql = self.fix_query(sql)
-        self.sql_query[curname] = sql
+        self.rows_cached[curname] = []
+        try:
+            cursor.execute(sql)
+            data_list = cursor.fetchmany(self.init_cached)
+            for data in data_list:
+                self.rows_cached[curname].append(data)
+
+        except Exception as e:
+            logger.error("declareCursor: %s", e)
+            logger.trace("Detalle:", stack_info=True)
+        # self.sql_query[curname] = sql
 
     def getRow(self, number: int, curname: str, cursor: Any) -> List:
         """Return a data row."""
-        ret_: List[Any] = []
-        sql = "%s LIMIT 1 OFFSET %s" % (self.sql_query[curname], number)
         try:
-            cursor.execute(sql)
-            ret_ = cursor.fetchone()
+            cached_count = len(self.rows_cached[curname])
+            if number >= cached_count:
+
+                data_list = cursor.fetchmany(number - cached_count + 1)
+                for row in data_list:
+                    self.rows_cached[curname].append(row)
+
+                cached_count = len(self.rows_cached[curname])
+
         except Exception as e:
             logger.error("getRow: %s", e)
             logger.trace("Detalle:", stack_info=True)
-        return ret_
+
+        return self.rows_cached[curname][number] if number < cached_count else []
 
     def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
         """Return index row."""
-        limit = 0
-        pos: Optional[int] = None
+        ret_ = None
         try:
-            while True:
-                sql = "%s LIMIT %s OFFSET %s" % (self.sql_query[curname], limit + 100, limit)
-                cursor.execute(sql)
-                data_ = cursor.fetchall()
-                if not data_:
-                    break
-                for n, line in enumerate(data_):
-                    if line[field_pos] == value:
-                        return limit + n
+            for n, row in enumerate(self.rows_cached[curname]):
+                if row[field_pos] == value:
+                    return n
 
-                limit += len(data_)
+            cached_count = len(self.rows_cached[curname])
+
+            while True:
+                data = cursor.fetchone()
+                if not data:
+                    break
+
+                self.rows_cached[curname].append(data)
+                if data[field_pos] == value:
+                    ret_ = cached_count
+                    break
+
+                cached_count += 1
 
         except Exception as e:
             logger.error("finRow: %s", e)
-            logger.warning("Detalle:", stack_info=True)
+            logger.warning("%s %s Detalle:", curname, field_pos, stack_info=True)
 
-        return pos
+        return ret_
 
     def queryUpdate(self, name: str, update: str, filter: str) -> str:
         """Return a database friendly update query."""
         sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
         return sql
+
+    def cursor(self) -> Any:
+        """Return a cursor connection."""
+
+        if self.cursor_ is None:
+            if self.conn_ is None:
+                raise Exception("cursor. self.conn_ is None")
+            self.cursor_ = self.conn_.cursor()
+        return self.cursor_

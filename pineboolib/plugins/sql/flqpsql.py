@@ -45,10 +45,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             {"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"}, False
         )
 
-    def cursor(self):
-        """Get current cursor for db."""
-        return self.conn_.cursor()
-
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
     ) -> Any:

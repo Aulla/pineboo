@@ -60,17 +60,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             {"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"}, False
         )
 
-    def cursor(self) -> Any:
-        """Return a cursor connection."""
-
-        if self.cursor_ is None:
-            if self.conn_ is None:
-                raise Exception("cursor. self.conn_ is None")
-            self.cursor_ = self.conn_.cursor()
-            # self.cursor_.execute("PRAGMA journal_mode = WAL")
-            # self.cursor_.execute("PRAGMA synchronous = NORMAL")
-        return self.cursor_
-
     def desktopFile(self) -> bool:
         """Return if use a file like database."""
 

@@ -125,14 +125,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return self.conn_
 
-    def cursor(self) -> Any:
-        """Get current cursor for db."""
-        if not self.conn_:
-            raise Exception("Not connected")
-        if not self.cursor_:
-            self.cursor_ = self.conn_.cursor()
-        return self.cursor_
-
     def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
         """Format value for database LIKE expression."""
         res = "IS NULL"
@@ -401,22 +393,16 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             logger.warning("%s::rollbackTransaction: Database not open", self.name_)
         self.set_last_error_null()
         cursor = self.cursor()
-        if self.canSavePoint():
-            try:
-                cursor.execute("ROLLBACK")
-            except Exception:
-                self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-                logger.warning(
-                    "%s:: No se pudo deshacer la transacción ROLLBACK\n %s",
-                    self.name_,
-                    traceback.format_exc(),
-                )
-                return False
-        else:
-            Qt.qWarning(
-                "%s:: No se pudo deshacer la transacción ROLLBACK\n %s"
-                % (self.name_, traceback.format_exc())
+        try:
+            cursor.execute("ROLLBACK")
+        except Exception:
+            self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
+            logger.warning(
+                "%s:: No se pudo deshacer la transacción ROLLBACK\n %s",
+                self.name_,
+                traceback.format_exc(),
             )
+            return False
 
         return True
 
