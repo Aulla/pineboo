@@ -17,11 +17,10 @@ class MessageBox(QMessageBox):
         cls, typename, text, button0, button1=None, button2=None, title=None, form=None
     ) -> Any:
         """Return a messageBox."""
+        from pineboolib import application
 
-        from pineboolib.application import project
-
-        if project._splash:
-            project._splash.hide()
+        if application.project._splash:
+            application.project._splash.hide()
 
         if not isinstance(text, str):
             logger.warning("MessageBox help!", stack_info=True)
@@ -56,7 +55,9 @@ class MessageBox(QMessageBox):
         # title = unicode(title,"UTF-8")
         # text = unicode(text,"UTF-8")
         msg = QMessageBox(icon, title, text)
-        msg.setParent(QApplication.activeModalWidget())
+        parent = QApplication.activeModalWidget() or application.project.main_window
+        msg.setParent(parent)
+
         msg.setWindowModality(QtCore.Qt.ApplicationModal)
         msg.setEnabled(True)
         if button0:
