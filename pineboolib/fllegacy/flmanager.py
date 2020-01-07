@@ -159,7 +159,7 @@ class FLManager(QtCore.QObject, IManager):
             acl: Any = None
             key = n.strip()
             stream = None
-            isSysTable = n[0:3] == "sys" or self.isSystemTable(n)
+            isSysTable = self.isSystemTable(n)
 
             if n in self.metadata_cache_fails_:
                 return None
@@ -1535,24 +1535,28 @@ class FLManager(QtCore.QObject, IManager):
         @param n Name of the table.
         @return TRUE if it is a system table
         """
-
-        return table_name.startswith(
-            (
-                "flfiles",
-                "flmetadata",
-                "flmodules",
-                "flareas",
-                "flserial",
-                "flvar",
-                "flsettings",
-                "flseqs",
-                "flupdates",
-                "flacls",
-                "flacos",
-                "flacs",
-                "flgroups",
-                "flusers",
+        return (
+            True
+            if table_name[0:3] == "sys"
+            or table_name.startswith(
+                (
+                    "flfiles",
+                    "flmetadata",
+                    "flmodules",
+                    "flareas",
+                    "flserial",
+                    "flvar",
+                    "flsettings",
+                    "flseqs",
+                    "flupdates",
+                    "flacls",
+                    "flacos",
+                    "flacs",
+                    "flgroups",
+                    "flusers",
+                )
             )
+            else False
         )
 
     def storeLargeValue(
