@@ -6,7 +6,6 @@ from PyQt5 import QtCore
 
 
 from pineboolib.interfaces.cursoraccessmode import CursorAccessMode
-from pineboolib.core.utils import struct
 
 from typing import Any, Optional, Dict, List, Union, TYPE_CHECKING
 
@@ -48,12 +47,12 @@ class ICursorPrivate(QtCore.QObject):
     """
     Mantiene el modo de acceso actual del cursor, ver FLSqlCursor::Mode.
     """
-    modeAccess_ = -1
+    mode_access_ = -1
 
     """
     Cursor relacionado con este.
     """
-    cursorRelation_: Optional["ISqlCursor"]
+    cursor_relation_: Optional["ISqlCursor"]
 
     """
     Relación que determina como se relaciona con el cursor relacionado.
@@ -266,6 +265,8 @@ class ISqlCursor(QtCore.QObject):
 
     _action: Optional["pnaction.PNAction"] = None
 
+    _name: str
+
     transactionBegin: QtCore.pyqtSignal = QtCore.pyqtSignal()
     transactionEnd: QtCore.pyqtSignal = QtCore.pyqtSignal()
     transactionRollBack: QtCore.pyqtSignal = QtCore.pyqtSignal()
@@ -322,7 +323,7 @@ class ISqlCursor(QtCore.QObject):
 
     def __init__(
         self,
-        name: Union[str, struct.TableStruct] = None,
+        name: Optional[str] = None,
         conn_or_autopopulate: Union[bool, str] = True,
         connectionName_or_db: Union[str, "iconnection.IConnection"] = "default",
         cR: Optional["ISqlCursor"] = None,
