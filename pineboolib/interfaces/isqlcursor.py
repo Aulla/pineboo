@@ -193,7 +193,7 @@ class ICursorPrivate(QtCore.QObject):
 
     """ Uso interno """
     isSysTable_: bool
-    rawValues_: bool
+    # rawValues_: bool
 
     md5Tuples_: str
 
