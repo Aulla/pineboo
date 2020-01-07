@@ -55,21 +55,11 @@ class dgi_qt(dgi_schema):
         """Show a message box warning."""
         from pineboolib.q3widgets.messagebox import MessageBox
 
-        if parent is None:
-            parent = (
-                QtWidgets.qApp.focusWidget().parent()
-                if hasattr(QtWidgets.qApp.focusWidget(), "parent")
-                else QtWidgets.qApp.activeWindow()
-            )
-
         logger.warning("%s", t)
-
         if QtWidgets.QApplication.platformName() != "offscreen":
-
-            if parent is not None:
-                MessageBox.warning(
-                    t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
-                )
+            MessageBox.warning(
+                t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
+            )
 
     def msgBoxError(self, t: str, parent: Optional[Any] = None) -> None:
         """Show a message box warning."""
