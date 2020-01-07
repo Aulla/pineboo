@@ -523,6 +523,9 @@ class FLManager(QtCore.QObject, IManager):
         else:
 
             pnaction_ = convert_flaction.convert2FLAction(action_name)
+            if not pnaction_.table():
+                pnaction_.setTable(action_name)
+
             self.cacheAction_[action_name] = pnaction_
 
         return pnaction_
