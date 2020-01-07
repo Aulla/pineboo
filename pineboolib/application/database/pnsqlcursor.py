@@ -103,6 +103,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         private_cursor = self.d
 
         private_cursor.mode_access_ = PNSqlCursor.Browse
+
+        if self.d.cursor_relation_:
+            self.d.cursor_relation_.bufferChanged.disconnect(self.refresh)
+            self.d.cursor_relation_.newBuffer.disconnect(self.refresh)
+            self.d.cursor_relation_.newBuffer.disconnect(self.clearPersistentFilter)
+
         private_cursor.cursor_relation_ = cursor_relation
         private_cursor.relation_ = relation_mtd
 
@@ -1556,7 +1562,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return cursor Name
         """
-        return self.d.curName_
+        return self.d.cursor_name_
 
     """
     Para obtener el filtro por defecto en campos asociados
@@ -3095,20 +3101,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
             self.rollbackOpened(-1, msg)
 
-        bufferNoEmpty = self.buffer() is not None
-
-        bufferBackup = None
-        if bufferNoEmpty:
-            bufferBackup = self.buffer()
+        buffer_backup = None
+        if self.buffer():
+            buffer_backup = self.buffer()
             self.d.buffer_ = None
 
-        # c = FLSqlCursor(None, True, newDB.db())
         self.d.db_ = newDB
-        self.init(self.d.curName_, True, self.cursorRelation(), self.relation())
+        self.init(self.d.cursor_name_, True, self.cursorRelation(), self.relation())
 
-        if bufferNoEmpty:
-            # self.buffer() QSqlCursor::edtiBuffer()
-            self.d.buffer_ = bufferBackup
+        if buffer_backup:
+            self.d.buffer_ = buffer_backup
 
         self.connectionChanged.emit()
 
@@ -3357,7 +3359,7 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         # self.rawValues_ = False
         self.persistentFilter_ = None
         self.db_ = db_
-        self.curName_ = action_.name()
+        self.cursor_name_ = action_.name()
         self._id_acl = ""
         # self.nameCursor = "%s_%s" % (
         #    act_.name(),

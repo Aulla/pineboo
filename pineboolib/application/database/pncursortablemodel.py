@@ -847,7 +847,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     campos = u"%s,%s" % (campos, b.name)
                     valores = u"%s,%s" % (valores, value)
         if campos:
-            sql = """INSERT INTO %s (%s) VALUES (%s)""" % (fl_cursor.d.curName_, campos, valores)
+            sql = """INSERT INTO %s (%s) VALUES (%s)""" % (
+                fl_cursor.d.cursor_name_,
+                campos,
+                valores,
+            )
             # conn = self._cursorConn.db()
             try:
                 # print(sql)

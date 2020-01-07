@@ -160,7 +160,7 @@ class ICursorPrivate(QtCore.QObject):
     """
     Nombre del cursor
     """
-    curName_: str
+    cursor_name_: str
 
     """
     Orden actual
