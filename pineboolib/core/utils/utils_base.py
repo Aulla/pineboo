@@ -267,11 +267,7 @@ def load2xml(form_path_or_str: str) -> ElementTree.ElementTree:
     """
 
     file_ptr: Optional[io.StringIO] = None
-    if (
-        form_path_or_str.find("KugarTemplate") > -1
-        or form_path_or_str.find("DOCTYPE KugarData") > -1
-        or form_path_or_str.find("DOCTYPE svg") > -1
-    ):
+    if form_path_or_str.find("KugarTemplate") > -1 or form_path_or_str.find("DOCTYPE") > -1:
         form_path_or_str = _parse_for_duplicates(form_path_or_str)
         file_ptr = io.StringIO(form_path_or_str)
     elif not os.path.exists(form_path_or_str):
