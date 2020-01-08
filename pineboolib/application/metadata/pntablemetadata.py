@@ -804,6 +804,7 @@ class PNTableMetaDataPrivate:
         self.fieldAliasMap_ = {}
         self.detectLocks_ = True
         self.query_ = ""
+        self.inCache_ = False
         # print("Vaciando field list ahora",  len(self.field_list_))
         if n is None:
             self.inicializeFLTableMetaDataPrivate()
@@ -819,7 +820,6 @@ class PNTableMetaDataPrivate:
         """
 
         self.compoundKey_ = None
-        self.inCache = False
 
     def inicializeNewFLTableMetaDataPrivate(self, name: str, alias: str, query: str = None) -> None:
         """
@@ -837,7 +837,6 @@ class PNTableMetaDataPrivate:
             self.query_ = query
         self.concurWarn_ = False
         self.detectLocks_ = False
-        self.inCache_ = False
 
     def inicializeFLTableMetaDataPrivateS(self, name: str) -> None:
         """
