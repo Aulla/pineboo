@@ -3,6 +3,7 @@
 from pineboolib.core.utils import logging
 
 from typing import Union, cast, TYPE_CHECKING
+from pineboolib import application
 from pineboolib.application.metadata import pnaction
 
 if TYPE_CHECKING:
@@ -20,11 +21,9 @@ def convertFLAction(action: pnaction.PNAction) -> "XMLAction":
     @return XMLAction object.
     """
 
-    from pineboolib.application import project
-
-    if action.name() not in project.actions.keys():
+    if action.name() not in application.project.actions.keys():
         raise KeyError("Action %s not loaded in current project" % action.name())
-    return cast("XMLAction", project.actions[action.name()])
+    return cast("XMLAction", application.project.actions[action.name()])
 
 
 def convert2FLAction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
@@ -40,22 +39,20 @@ def convert2FLAction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
     else:
         action_name = action.name
 
-    from pineboolib.application import project
-
-    if project.conn_manager is None:
+    if application.project.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     logger.trace("convert2action: Load action from db manager")
 
     action_ = None
 
-    cached_actions = project.conn_manager.manager().cacheAction_
+    cached_actions = application.project.conn_manager.manager().cacheAction_
     if action_name in cached_actions.keys():
         action_ = cached_actions[action_name]
     else:
         action_ = pnaction.PNAction(action_name)
-        if action_name in project.actions.keys():
-            xml_action = project.actions[action_name]
+        if action_name in application.project.actions.keys():
+            xml_action = application.project.actions[action_name]
             if xml_action.name:
                 action_.setName(xml_action.name)
             if xml_action.table:
