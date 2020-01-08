@@ -43,8 +43,8 @@ class ModuleActions(object):
         # Ojo: Almacena un arbol con los módulos cargados
         from pineboolib.application.qsadictmodules import QSADictModules
 
-        self.tree = load2xml(self.path)
-        self.root = self.tree.getroot()
+        tree = load2xml(self.path)
+        self.root = tree.getroot()
 
         action = XMLAction(project=self.project, name=self.mod.name)
         if action is None:
