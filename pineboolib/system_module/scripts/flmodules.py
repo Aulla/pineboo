@@ -192,7 +192,7 @@ class FormInternalObj(qsa.FormDBWidget):
     def aceptarLicenciaDelModulo(self, directorio: str) -> bool:
         """Accept license dialog."""
         path_licencia = qsa.Dir.cleanDirPath(qsa.ustr(directorio, u"/COPYING"))
-        if not qsa.File.exists(path_licencia):
+        if not qsa.FileStatic.exists(path_licencia):
             qsa.MessageBox.critical(
                 qsa.util.translate(
                     u"scripts",
@@ -498,7 +498,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     )
                     cursorAreas.first()
                     areaName = cursorAreas.valueBuffer(u"descripcion")
-                    if not qsa.File.exists(
+                    if not qsa.FileStatic.exists(
                         qsa.ustr(directorio, u"/", cursorModules.valueBuffer(u"idmodulo"), u".xpm")
                     ):
                         qsa.sys.write(
@@ -518,7 +518,7 @@ class FormInternalObj(qsa.FormDBWidget):
                                 ),
                             )
                         )
-                    if not qsa.File.exists(
+                    if not qsa.FileStatic.exists(
                         qsa.ustr(directorio, u"/", cursorModules.valueBuffer(u"idmodulo"), u".mod")
                     ):
                         contenido = qsa.ustr(

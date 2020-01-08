@@ -186,7 +186,7 @@ class FormInternalObj(qsa.FormDBWidget):
             qsa.debug(str(e))
             return cadena
 
-        if not qsa.File.exists(nombre_fichero):
+        if not qsa.FileStatic.exists(nombre_fichero):
             return cadena
         fichero = qsa.File(nombre_fichero)
         fichero.open(qsa.File.ReadOnly)

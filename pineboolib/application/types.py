@@ -763,10 +763,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         return QtCore.QFileInfo(self._q_file).lastModified().toString("yyyy-MM-dd-hh:mm:ss")
 
-    def exists(self, name: Optional[str] = None) -> bool:
+    def exists(self) -> bool:  # type: ignore [override] # noqa: F821
         """Return True if exists a file else False."""
 
-        return self._q_file.exists(name)
+        return self._q_file.exists()
 
     name = property(getName)
 
