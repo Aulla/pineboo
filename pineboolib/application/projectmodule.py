@@ -42,7 +42,6 @@ class Project(object):
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
     debugLevel = 100
     options: Values
-    modules: Dict[str, "module.Module"]
 
     # _initModules = None
     main_form: Any = None  # FIXME: How is this used? Which type?
@@ -59,6 +58,13 @@ class Project(object):
     alternative_folder: Optional[str]
     _session_func_: Optional[Callable]
 
+    areas: Dict[str, AreaStruct]
+    files: Dict[Any, Any]
+    tables: Dict[Any, Any]
+    actions: Dict[Any, "ActionStruct"]
+    translator_: List[Any]
+    modules: Dict[str, "module.Module"]
+
     def __init__(self) -> None:
         """Constructor."""
         # self._conn = None
@@ -72,10 +78,12 @@ class Project(object):
         # self.main_form_name: Optional[str] = None
         self.deleteCache = False
         self.parseProject = False
-        self.translator_: List[Any] = []  # FIXME: Add proper type
-        self.actions: Dict[Any, "ActionStruct"] = {}  # FIXME: Add proper type
-        self.tables: Dict[Any, Any] = {}  # FIXME: Add proper type
-        self.files: Dict[Any, Any] = {}  # FIXME: Add proper type
+        self.translator_ = []  # FIXME: Add proper type
+        self.actions = {}  # FIXME: Add proper type
+        self.tables = {}  # FIXME: Add proper type
+        self.files = {}  # FIXME: Add proper type
+        self.areas = {}
+        self.modules = {}
         self.options = Values()
         if self.tmpdir is None:
             self.tmpdir = utils_base.filedir("%s/Pineboo/tempdata" % Path.home())
@@ -240,7 +248,7 @@ class Project(object):
                 self.conn_manager.manager().createSystemTable(table)
 
         cursor_ = self.conn_manager.dbAux().cursor()
-        self.areas: Dict[str, AreaStruct] = {}
+        self.areas = {}
         cursor_.execute(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
         for idarea, descripcion in cursor_:
             self.areas[idarea] = AreaStruct(idarea=idarea, descripcion=descripcion)
@@ -253,7 +261,7 @@ class Project(object):
             % conn.driver().formatValue("bool", "True", False)
         )
 
-        self.modules: Dict[str, "module.Module"] = {}
+        self.modules = {}
 
         for idarea, idmodulo, descripcion, icono in cursor_:
             icono = xpm.cacheXPM(icono)
