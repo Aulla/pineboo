@@ -766,10 +766,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
     def exists(self, name: Optional[str] = None) -> bool:
         """Return True if exists a file else False."""
 
-        if name:
-            return super().exists(name)
-        else:
-            return self._q_file.exists()
+        return self._q_file.exists(name)
 
     name = property(getName)
 
