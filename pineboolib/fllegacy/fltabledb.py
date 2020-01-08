@@ -2040,12 +2040,11 @@ class FLTableDB(QtWidgets.QWidget):
                 field_1 = self.tableRecords_.visual_index_to_field(self.sortColumn_)
                 field_2 = self.tableRecords_.visual_index_to_field(self.sortColumn2_)
                 field_3 = self.tableRecords_.visual_index_to_field(self.sortColumn3_)
-
-                if field_1 is not None:
+                if field_1:
                     s.append("%s %s" % (field_1.name(), "ASC" if self.orderAsc_ else "DESC"))
-                if field_2 is not None:
+                if field_2:
                     s.append("%s %s" % (field_2.name(), "ASC" if self.orderAsc_ else "DESC"))
-                if field_3 is not None:
+                if field_3:
                     s.append("%s %s" % (field_3.name(), "ASC" if self.orderAsc_ else "DESC"))
 
                 id_mod = (
