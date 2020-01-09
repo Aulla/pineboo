@@ -29,7 +29,7 @@ class FLLineEdit(QtWidgets.QLineEdit):
         """Inicialize."""
         super(FLLineEdit, self).__init__(parent)
         self._name = name
-        field_name = getattr(parent, "fieldName_", None)
+        field_name = getattr(parent, "_field_name", None)
         if field_name is not None:
             self._field_name = field_name
             cursor = getattr(parent, "cursor_", None)
