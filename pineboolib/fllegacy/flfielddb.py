@@ -557,10 +557,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
         @param data Text string to update the field
         """
-        # print("Update Value", type(data), type(self.editor_))
-        # if isinstance(data, QString): #Para quitar en el futuro
-        #   data = str(data)
-        if not self.cursor_:
+
+        if not self.cursor_ or self.tableName_:
             return
 
         isNull = False
