@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from pineboolib.q3widgets import formdbwidget  # noqa F401
 
 
-logger = logging.getLogger("application.connections")
+LOGGER = logging.getLogger("application.connections")
 
 
 class ProxySlot:
@@ -63,29 +63,29 @@ def get_expected_kwargs(inspected_function: Callable) -> bool:
     return True if expected_kwargs else False
 
 
-def proxy_fn(wf: weakref.WeakMethod, wr: weakref.ref, slot: str) -> Callable:
+def proxy_fn(wf: weakref.WeakMethod, weak_ref: weakref.ref, slot: str) -> Callable:
     """Create a proxied function, so it does not hold the garbage collector."""
 
     def fn(*args: Any, **kwargs: Any) -> Optional[Any]:
-        f = wf()
-        if not f:
+        function = wf()
+        if not function:
             return None
-        r = wr()
-        if not r:
+        ref = weak_ref()
+        if not ref:
             return None
 
-        args_num = get_expected_args_num(f)
+        args_num = get_expected_args_num(function)
 
         if args_num:
-            return f(*args[0:args_num], **kwargs)
+            return function(*args[0:args_num], **kwargs)
         else:
-            return f()
+            return function()
 
     return fn
 
 
 def slot_done(
-    fn: Callable,
+    function: Callable,
     signal: "QtCore.pyqtSignal",
     sender: "QtWidgets.QWidget",
     caller: Optional["formdbwidget.FormDBWidget"],
@@ -104,15 +104,15 @@ def slot_done(
             args = tuple()
         # args_num = get_expected_args_num(fn)
         try:
-            if get_expected_kwargs(fn):
+            if get_expected_kwargs(function):
                 # res = fn(*args[0:args_num], **kwargs)
-                res = fn(*args, **kwargs)
+                res = function(*args, **kwargs)
             else:
                 # res = fn(*args[0:args_num])
-                res = fn(*args)
+                res = function(*args)
 
         except Exception:
-            logger.exception("Error trying to create a connection")
+            LOGGER.exception("Error trying to create a connection")
 
         if caller is not None:
             try:
@@ -122,7 +122,7 @@ def slot_done(
                     signal_name = original_signal_name[
                         1 : original_signal_name.find("(")
                     ]  # Quitamos el caracter "2" inicial y parámetros
-                    logger.debug(
+                    LOGGER.debug(
                         "Emitir evento test: %s, args:%s kwargs:%s",
                         signal_name,
                         args if args else "",
@@ -130,7 +130,7 @@ def slot_done(
                     )
                     caller.signal_test.emit(signal_name, sender)
             except Exception:
-                logger.trace("Error emitting signal_test", exc_info=True)
+                LOGGER.trace("Error emitting signal_test", exc_info=True)
 
         return res
 
@@ -154,9 +154,9 @@ def connect(
     # slot: 'iface.buscarContacto()'
 
     if caller is not None:
-        logger.trace("* * * Connect:: %s %s %s %s %s", caller, sender, signal, receiver, slot)
+        LOGGER.trace("* * * Connect:: %s %s %s %s %s", caller, sender, signal, receiver, slot)
     else:
-        logger.trace("? ? ? Connect:: %s %s %s %s", sender, signal, receiver, slot)
+        LOGGER.trace("? ? ? Connect:: %s %s %s %s", sender, signal, receiver, slot)
     signal_slot = solve_connection(sender, signal, receiver, slot)
 
     if not signal_slot:
@@ -175,7 +175,7 @@ def connect(
         # MyPy/PyQt5-Stubs misses connect(type=param)
         new_signal.connect(slot_done_fn, type=conntype)  # type: ignore
     except Exception:
-        logger.warning("ERROR Connecting: %s %s %s %s", sender, signal, receiver, slot)
+        LOGGER.warning("ERROR Connecting: %s %s %s %s", sender, signal, receiver, slot)
         return None
 
     signal_slot = new_signal, slot_done_fn
@@ -197,7 +197,7 @@ def disconnect(
     try:
         signal_.disconnect(real_slot)
     except Exception:
-        logger.trace("Error disconnecting %r", (sender, signal, receiver, slot), exc_info=True)
+        LOGGER.trace("Error disconnecting %r", (sender, signal, receiver, slot), exc_info=True)
 
     return signal_slot
 
@@ -207,10 +207,10 @@ def solve_connection(
 ) -> Optional[Tuple[QtCore.pyqtSignal, Callable]]:
     """Try hard to guess which is the correct way of connecting signal to slot. For QSA."""
     # if sender is None:
-    #     logger.error("Connect Error:: %s %s %s %s", sender, signal, receiver, slot)
+    #     LOGGER.error("Connect Error:: %s %s %s %s", sender, signal, receiver, slot)
     #     return None
 
-    m = re.search(r"^(\w+)\.(\w+)(\(.*\))?", slot)
+    match = re.search(r"^(\w+)\.(\w+)(\(.*\))?", slot)
     if slot.endswith("()"):
         slot = slot[:-2]
 
@@ -238,13 +238,15 @@ def solve_connection(
         remote_fn = getattr(receiver, slot, None)
 
     sg_name = re.sub(r" *\(.*\)", "", signal)
-    oSignal = getattr(sender, sg_name, None)
-    if not oSignal and hasattr(sender, "form"):
-        oSignal = getattr(sender.form, sg_name, None)  # type: ignore [attr-defined] # noqa: F821
+    original_signal = getattr(sender, sg_name, None)
+    if not original_signal and hasattr(sender, "form"):
+        original_signal = getattr(
+            sender.form, sg_name, None  # type: ignore [attr-defined] # noqa: F821
+        )
     # if not oSignal and sender.__class__.__name__ == "FormInternalObj":
     #    oSignal = getattr(sender.parent(), sg_name, None)
-    if not oSignal:
-        logger.error(
+    if not original_signal:
+        LOGGER.error(
             "ERROR: No existe la señal %s para la clase %s", signal, sender.__class__.__name__
         )
         return None
@@ -253,27 +255,27 @@ def solve_connection(
         # if receiver.__class__.__name__ in ("FLFormSearchDB", "QDialog") and slot in ("accept", "reject"):
         #    return oSignal, remote_fn
 
-        pS = ProxySlot(remote_fn, receiver, slot)  # type: ignore [arg-type] # noqa F821
-        proxyfn = pS.getProxyFn()
-        return oSignal, proxyfn
-    elif m:
-        remote_obj = getattr(receiver, m.group(1), None)
+        proxy_slot = ProxySlot(remote_fn, receiver, slot)  # type: ignore [arg-type] # noqa F821
+        proxyfn = proxy_slot.getProxyFn()
+        return original_signal, proxyfn
+    elif match:
+        remote_obj = getattr(receiver, match.group(1), None)
         if remote_obj is None:
             raise AttributeError("Object %s not found on %s" % (remote_obj, str(receiver)))
-        remote_fn = getattr(remote_obj, m.group(2), None)
+        remote_fn = getattr(remote_obj, match.group(2), None)
         if remote_fn is None:
             raise AttributeError("Object %s not found on %s" % (remote_fn, remote_obj))
-        return oSignal, remote_fn  # type: ignore [return-value] # noqa F723
+        return original_signal, remote_fn  # type: ignore [return-value] # noqa F723
 
     elif isinstance(receiver, QtCore.QObject):
         if isinstance(slot, str):
-            oSlot = getattr(receiver, slot, None)
-            if not oSlot:
+            original_slot = getattr(receiver, slot, None)
+            if not original_slot:
                 iface = getattr(receiver, "iface", None)
                 if iface:
-                    oSlot = getattr(iface, slot, None)
-            if not oSlot:
-                logger.error(
+                    original_slot = getattr(iface, slot, None)
+            if not original_slot:
+                LOGGER.error(
                     "Al realizar connect %s:%s -> %s:%s ; "
                     "el es QtCore.QObject pero no tiene slot",
                     sender,
@@ -282,8 +284,8 @@ def solve_connection(
                     slot,
                 )
                 return None
-            return oSignal, oSlot
-    # logger.error(
+            return original_signal, original_slot
+    # LOGGER.error(
     #     "Al realizar connect %s:%s -> %s:%s ; "
     #     "el slot no se reconoce y el receptor no es QtCore.QObject.",
     #     sender,
