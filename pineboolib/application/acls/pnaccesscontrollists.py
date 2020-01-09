@@ -94,24 +94,24 @@ class PNAccessControlLists(object):
         # self._access_control_list.setAutoDelete(True)
 
         doc_elem = doc.documentElement()
-        no = doc_elem.firstChild()
+        node = doc_elem.firstChild()
 
-        while not no.isNull():
-            e = no.toElement()
+        while not node.isNull():
+            e = node.toElement()
             if e:
                 if e.tagName() == "name":
                     self._name = e.text()
-                    no = no.nextSibling()
+                    node = node.nextSibling()
                     continue
 
                 ac = pnaccesscontrolfactory.PNAccessControlFactory().create(e.tagName())
                 if ac:
                     ac.set(e)
                     self._access_control_list["%s::%s::%s" % (ac.type(), ac.name(), ac.user())] = ac
-                    no = no.nextSibling()
+                    node = node.nextSibling()
                     continue
 
-            no = no.nextSibling()
+            node = node.nextSibling()
 
     def process(self, obj: Any) -> None:
         """
@@ -223,28 +223,28 @@ class PNAccessControlLists(object):
         if not iduser or not qry or not dom_document:
             return
 
-        ac = pnaccesscontrolfactory.PNAccessControlFactory().create(str(qry.value(1)))
-        if ac:
-            ac.setName(str(qry.value(2)))
-            ac.setUser(iduser)
-            ac.setPerm(str(qry.value(6)))
+        rule = pnaccesscontrolfactory.PNAccessControlFactory().create(str(qry.value(1)))
+        if rule:
+            rule.setName(str(qry.value(2)))
+            rule.setUser(iduser)
+            rule.setPerm(str(qry.value(6)))
 
-            qAcos = pnsqlquery.PNSqlQuery()
-            qAcos.setTablesList("flacos")
-            qAcos.setSelect("nombre,permiso")
-            qAcos.setFrom("flacos")
-            qAcos.setWhere("idac ='%s'" % qry.value(0))
-            qAcos.setForwardOnly(True)
+            qry_acos = pnsqlquery.PNSqlQuery()
+            qry_acos.setTablesList("flacos")
+            qry_acos.setSelect("nombre,permiso")
+            qry_acos.setFrom("flacos")
+            qry_acos.setWhere("idac ='%s'" % qry.value(0))
+            qry_acos.setForwardOnly(True)
 
             acos = []
 
-            if qAcos.exec_():
-                while qAcos.next():
-                    acos.append(str(qAcos.value(0)))
-                    acos.append((qAcos.value(1)))
+            if qry_acos.exec_():
+                while qry_acos.next():
+                    acos.append(str(qry_acos.value(0)))
+                    acos.append((qry_acos.value(1)))
 
-            ac.setAcos(acos)
-            ac.get(dom_document)
+            rule.setAcos(acos)
+            rule.get(dom_document)
 
     def make_rule_group(
         self, qry: pnsqlquery.PNSqlQuery, dom_document: QtXml.QDomDocument, idgroup: str = ""

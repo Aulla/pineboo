@@ -198,26 +198,20 @@ class PNAccessControl(object):
         self._acos_perms = {}
 
         self._perm = element.attribute("perm")
-        no = element.firstChild()
+        node = element.firstChild()
 
-        while not no.isNull():
-            if not no.toElement().isNull():
-                if no.toElement().tagName() == "name":
-                    self._name = no.toElement().text()
-                    no = no.nextSibling()
-                    continue
+        while not node.isNull():
+            if not node.toElement().isNull():
+                if node.toElement().tagName() == "name":
+                    self._name = node.toElement().text()
 
-                elif no.toElement().tagName() == "user":
-                    self._user = no.toElement().text()
-                    no = no.nextSibling()
-                    continue
+                elif node.toElement().tagName() == "user":
+                    self._user = node.toElement().text()
 
-                elif no.toElement().tagName() == "aco":
-                    self._acos_perms[no.toElement().text()] = no.toElement().attribute("perm")
-                    no = no.nextSibling()
-                    continue
+                elif node.toElement().tagName() == "aco":
+                    self._acos_perms[node.toElement().text()] = node.toElement().attribute("perm")
 
-            no = no.nextSibling()
+            node = node.nextSibling()
 
     def get(self, dom_node: "QtXml.QDomDocument") -> None:
         """
