@@ -66,22 +66,22 @@ def get_expected_kwargs(inspected_function: Callable) -> bool:
 def proxy_fn(weak_ref_method: weakref.WeakMethod, weak_ref: weakref.ref, slot: str) -> Callable:
     """Create a proxied function, so it does not hold the garbage collector."""
 
-    def fn(*args: Any, **kwargs: Any) -> Optional[Any]:
-        function = weak_ref_method()
-        if not function:
+    def function(*args: Any, **kwargs: Any) -> Optional[Any]:
+        function_method = weak_ref_method()
+        if not function_method:
             return None
         ref = weak_ref()
         if not ref:
             return None
 
-        args_num = get_expected_args_num(function)
+        args_num = get_expected_args_num(function_method)
 
         if args_num:
-            return function(*args[0:args_num], **kwargs)
+            return function_method(*args[0:args_num], **kwargs)
         else:
-            return function()
+            return function_method()
 
-    return fn
+    return function
 
 
 def slot_done(

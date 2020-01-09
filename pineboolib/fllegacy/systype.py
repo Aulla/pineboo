@@ -1038,7 +1038,7 @@ class SysType(sysbasetype.SysBaseType):
         dirBasePath = FileDialog.getExistingDirectory(types.Dir.home)
         if not dirBasePath:
             return
-        dataBaseName = application.PROJECT.conn_manager.mainConn().db_name_
+        dataBaseName = application.PROJECT.conn_manager.mainConn()._db_name
         dirBasePath = types.Dir.cleanDirPath(
             utils_base.ustr(
                 dirBasePath, u"/modulos_exportados_", dataBaseName[dataBaseName.rfind(u"/") + 1 :]
@@ -1574,7 +1574,7 @@ class SysType(sysbasetype.SysBaseType):
         else:
             db_.savePoint(transaction_level_)
 
-        db_.transaction_ += 1
+        db_._transaction += 1
 
         if self.interactiveGUI():
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
@@ -1595,7 +1595,7 @@ class SysType(sysbasetype.SysBaseType):
                 error_msg_ = self.translate("Error al ejecutar la función")
             error_msg_ = "%s:\n%s" % (error_msg_, error_manager(e))
 
-        db_.transaction_ -= 1
+        db_._transaction -= 1
 
         if roll_back_:  # do RollBack
             if error_msg_ != "":

@@ -12,10 +12,10 @@ if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
     from pineboolib.fllegacy import flmanagermodules
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
-LIMIT_CONNECTIONS = 10  # Limit of connections to use.
-CONNECTIONS_TIME_OUT = 0  # Seconds to wait to eliminate the inactive connections.
+LIMIT_CONNECTIONS: int = 10  # Limit of connections to use.
+CONNECTIONS_TIME_OUT: int = 0  # Seconds to wait to eliminate the inactive connections.
 
 
 class PNConnectionManager(QtCore.QObject):
@@ -23,61 +23,47 @@ class PNConnectionManager(QtCore.QObject):
 
     _manager: "flmanager.FLManager"
     _manager_modules: "flmanagermodules.FLManagerModules"
-    conn_dict: Dict[str, "pnconnection.PNConnection"] = {}
+    connections_dict: Dict[str, "pnconnection.PNConnection"] = {}
 
     def __init__(self):
         """Initialize."""
 
         super().__init__()
-        self.conn_dict = {}
+        self.connections_dict = {}
 
-        logger.info("Initializing PNConnection Manager:")
-        logger.info("LIMIT CONNECTIONS = %s.", LIMIT_CONNECTIONS)
-        logger.info("CONNECTIONS TIME OUT = %s. (0 disabled)", CONNECTIONS_TIME_OUT)
-
-    # def __init__(
-    #    self,
-    #    db_name: str,
-    #    db_host: Optional[str],
-    #    db_port: Optional[int],
-    #    db_user_name: Optional[str],
-    #    db_password: Optional[str],
-    #    driver_alias: str,
-    # ):
-    #    """Initialize."""
-
-    #    super().__init__()
-    #    self.conn_dict["main_conn"] = pnconnection.PNConnection(self, db_name, db_host, db_port, db_user_name, db_password, driver_alias)
+        LOGGER.info("Initializing PNConnection Manager:")
+        LOGGER.info("LIMIT CONNECTIONS = %s.", LIMIT_CONNECTIONS)
+        LOGGER.info("CONNECTIONS TIME OUT = %s. (0 disabled)", CONNECTIONS_TIME_OUT)
 
     def setMainConn(self, main_conn: "pnconnection.PNConnection") -> bool:
         """Set main connection."""
-        if "main_conn" in self.conn_dict:
-            conn_ = self.conn_dict["main_conn"]
+        if "main_conn" in self.connections_dict:
+            conn_ = self.connections_dict["main_conn"]
             if main_conn.conn is not conn_.conn:
                 conn_.conn.close()
                 del conn_
-                del self.conn_dict["main_conn"]
+                del self.connections_dict["main_conn"]
 
-        if main_conn.driver_name_ and main_conn.driverSql.loadDriver(main_conn.driver_name_):
+        if main_conn._driver_name and main_conn._driver_sql.loadDriver(main_conn._driver_name):
             main_conn.conn = main_conn.conectar(
-                main_conn.db_name_,
-                main_conn.db_host_,
-                main_conn.db_port_,
-                main_conn.db_user_name_,
-                main_conn.db_password_,
+                main_conn._db_name,
+                main_conn._db_host,
+                main_conn._db_port,
+                main_conn._db_user_name,
+                main_conn._db_password,
             )
-            main_conn._isOpen = True
+            main_conn._is_open = True
 
-        main_conn.name = "main_conn"
-        self.conn_dict["main_conn"] = main_conn
+        main_conn._name = "main_conn"
+        self.connections_dict["main_conn"] = main_conn
         return True
 
     def mainConn(self) -> "pnconnection.PNConnection":
         """Return main conn."""
         ret_: "pnconnection.PNConnection"
 
-        if "main_conn" in self.conn_dict.keys():
-            ret_ = self.conn_dict["main_conn"]
+        if "main_conn" in self.connections_dict.keys():
+            ret_ = self.connections_dict["main_conn"]
         else:
             raise Exception("main_conn is empty!")
 
@@ -86,19 +72,19 @@ class PNConnectionManager(QtCore.QObject):
     def finish(self) -> None:
         """Set the connection as terminated."""
 
-        for n in list(self.conn_dict.keys()):
-            conn_ = self.conn_dict[n].conn
+        for key in list(self.connections_dict.keys()):
+            conn_ = self.connections_dict[key].conn
             if conn_ is None:
                 continue
 
-            # if "main_conn" in self.conn_dict.keys():
-            #    if self.conn_dict["main_conn"].conn is conn_:
+            # if "main_conn" in self.connections_dict.keys():
+            #    if self.connections_dict["main_conn"].conn is conn_:
             #        continue
-            self.conn_dict[n]._isOpen = False
+            self.connections_dict[key]._is_open = False
             conn_.close()
-            del self.conn_dict[n]
+            del self.connections_dict[key]
 
-        self.conn_dict = {}
+        self.connections_dict = {}
         del self._manager
         del self._manager_modules
         del self
@@ -122,37 +108,37 @@ class PNConnectionManager(QtCore.QObject):
         #    return self
         self.check_alive_connections()
 
-        if name_conn_ in self.conn_dict.keys():
-            connection_ = self.conn_dict[name_conn_]
+        if name_conn_ in self.connections_dict.keys():
+            connection_ = self.connections_dict[name_conn_]
         else:
-            if len(self.conn_dict.keys()) > LIMIT_CONNECTIONS:
+            if len(self.connections_dict.keys()) > LIMIT_CONNECTIONS:
                 raise Exception("Connections limit reached!")
-            # if self.driverSql is None:
+            # if self._driver_sql is None:
             #    raise Exception("No driver selected")
 
             main_conn = self.mainConn()
             if main_conn is None:
                 raise Exception("main_conn is empty!!")
-            connection_ = pnconnection.PNConnection(main_conn.db_name_)
-            connection_.name = name
+            connection_ = pnconnection.PNConnection(main_conn._db_name)
+            connection_._name = name
 
             if name in ["default", "dbAux"]:  # Las abrimos automáticamene!
-                if connection_.driver_name_ and connection_.driverSql.loadDriver(
-                    connection_.driver_name_
+                if connection_._driver_name and connection_._driver_sql.loadDriver(
+                    connection_._driver_name
                 ):
                     connection_.conn = connection_.conectar(
-                        connection_.db_name_,
-                        connection_.db_host_,
-                        connection_.db_port_,
-                        connection_.db_user_name_,
-                        connection_.db_password_,
+                        connection_._db_name,
+                        connection_._db_host,
+                        connection_._db_port,
+                        connection_._db_user_name,
+                        connection_._db_password,
                     )
-                    connection_._isOpen = True
+                    connection_._is_open = True
 
             if connection_.conn is None:
-                logger.warning("Connection %s is closed!", name)
+                LOGGER.warning("Connection %s is closed!", name)
 
-            self.conn_dict[name_conn_] = connection_
+            self.connections_dict[name_conn_] = connection_
 
         return connection_
 
@@ -161,20 +147,11 @@ class PNConnectionManager(QtCore.QObject):
 
         dict_ = {}
         session_name = application.PROJECT.session_id()
-        for n in self.conn_dict.keys():
-            if n.find("|") > -1:
-                connection_data = n.split("|")
+        for key in self.connections_dict.keys():
+            if key.find("|") > -1:
+                connection_data = key.split("|")
                 if connection_data[0] == session_name:
-                    dict_[connection_data[1]] = self.conn_dict[n]
-
-            # if session_name:
-            #    if n.startswith(session_name):
-            #        dict_[n.replace("%s|" % session_name, "")] = self.conn_dict[n]
-            # else:
-            #    if n[0] == "|":
-            #        dict_[n[1:]] = self.conn_dict[n]
-            #    else:
-            #        dict_[n] = self.conn_dict[n]
+                    dict_[connection_data[1]] = self.connections_dict[key]
 
         return dict_
 
@@ -184,16 +161,16 @@ class PNConnectionManager(QtCore.QObject):
         if name.find("|") == -1:
             name_conn_ = "%s|%s" % (application.PROJECT.session_id(), name)
 
-        if name_conn_ in self.conn_dict.keys():
-            self.conn_dict[name_conn_]._isOpen = False
-            conn_ = self.conn_dict[name_conn_].conn
+        if name_conn_ in self.connections_dict.keys():
+            self.connections_dict[name_conn_]._is_open = False
+            conn_ = self.connections_dict[name_conn_].conn
             if conn_ not in [None, self.mainConn().conn]:
                 conn_.close()
 
-            del self.conn_dict[name_conn_]
+            del self.connections_dict[name_conn_]
             return True
         else:
-            logger.warning("An attempt was made to delete an invalid connection named %s" % name)
+            LOGGER.warning("An attempt was made to delete an invalid connection named %s" % name)
             return False
 
     def manager(self) -> "flmanager.FLManager":
@@ -242,31 +219,32 @@ class PNConnectionManager(QtCore.QObject):
     def check_alive_connections(self):
         """Check alive connections."""
 
-        for conn_name in list(self.conn_dict.keys()):
+        for conn_name in list(self.connections_dict.keys()):
             if conn_name.find("|") > -1:
                 if (
-                    not self.conn_dict[conn_name]._isOpen  # Closed connections
-                    and self.conn_dict[conn_name].conn is not None  # Only initialized connections.
+                    not self.connections_dict[conn_name]._is_open  # Closed connections
+                    and self.connections_dict[conn_name].conn
+                    is not None  # Only initialized connections.
                 ) or (
                     CONNECTIONS_TIME_OUT
-                    and self.conn_dict[conn_name].idle_time() > CONNECTIONS_TIME_OUT
+                    and self.connections_dict[conn_name].idle_time() > CONNECTIONS_TIME_OUT
                 ):
                     self.removeConn(conn_name)
 
-    def set_max_connections_limit(self, n: int) -> None:
+    def set_max_connections_limit(self, limit: int) -> None:
         """Set maximum connections limit."""
-        logger.info("New max connections limit %s.", n)
-        LIMIT_CONNECTIONS = n  # noqa: F841
+        LOGGER.info("New max connections limit %s.", limit)
+        LIMIT_CONNECTIONS = limit  # noqa: F841
 
-    def set_max_idle_connections(self, s: int) -> None:
+    def set_max_idle_connections(self, limit: int) -> None:
         """Set maximum connections time idle."""
-        logger.info("New max connections idle time %s.", s)
-        CONNECTIONS_TIME_OUT = s  # noqa: F841
+        LOGGER.info("New max connections idle time %s.", limit)
+        CONNECTIONS_TIME_OUT = limit  # noqa: F841
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""
 
-        if "main_conn" in self.conn_dict.keys():
+        if "main_conn" in self.connections_dict.keys():
             return getattr(self.mainConn(), name, None)
 
         return None

@@ -741,7 +741,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return TRUE if there is one.
         """
         if self.db():
-            if self.db().transaction_ > 0:
+            if self.db()._transaction > 0:
                 return True
 
         return False

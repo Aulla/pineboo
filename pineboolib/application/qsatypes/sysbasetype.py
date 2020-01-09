@@ -178,38 +178,38 @@ class SysBaseType(object):
             conn_db = application.PROJECT.conn_manager.useConn(args[0])
             if not conn_db.isOpen():
                 if (
-                    conn_db.driver_name_
-                    and conn_db.driverSql
-                    and conn_db.driverSql.loadDriver(conn_db.driver_name_)
+                    conn_db._driver_name
+                    and conn_db._driver_sql
+                    and conn_db._driver_sql.loadDriver(conn_db._driver_name)
                 ):
                     main_conn = application.PROJECT.conn_manager.mainConn()
-                    conn_db.driver_ = conn_db.driverSql.driver()
+                    conn_db._driver = conn_db._driver_sql.driver()
                     conn_db.conn = conn_db.conectar(
-                        main_conn.db_name_,
-                        main_conn.db_host_,
-                        main_conn.db_port_,
-                        main_conn.db_user_name_,
-                        main_conn.db_password_,
+                        main_conn._db_name,
+                        main_conn._db_host,
+                        main_conn._db_port,
+                        main_conn._db_user_name,
+                        main_conn._db_password,
                     )
                     if conn_db.conn is False:
                         return False
 
-                    conn_db._isOpen = True
+                    conn_db._is_open = True
 
         else:
             conn_db = application.PROJECT.conn_manager.useConn(args[6])
             if not conn_db.isOpen():
-                if conn_db.driverSql is None:
+                if conn_db._driver_sql is None:
                     raise Exception("driverSql not loaded!")
-                conn_db.driver_name_ = args[0].lower()
-                if conn_db.driver_name_ and conn_db.driverSql.loadDriver(conn_db.driver_name_):
+                conn_db._driver_name = args[0].lower()
+                if conn_db._driver_name and conn_db._driver_sql.loadDriver(conn_db._driver_name):
                     conn_db.conn = conn_db.conectar(args[1], args[4], args[5], args[2], args[3])
 
                     if conn_db.conn is False:
                         return False
 
                     # conn_db.driver().db_ = conn_db
-                    conn_db._isOpen = True
+                    conn_db._is_open = True
                     # conn_db._dbAux = conn_db
 
         return True

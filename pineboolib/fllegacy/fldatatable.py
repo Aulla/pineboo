@@ -334,7 +334,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         self.primarysKeysChecked_.clear()
         model = self.cur.model()
-        for r in model._checkColumn.keys():
+        for r in model._check_column.keys():
             model._checkColumn[r].setChecked(False)
 
     def setPrimaryKeyChecked(self, primaryKeyValue: str, on: bool) -> None:
@@ -352,10 +352,10 @@ class FLDataTable(QtWidgets.QTableView):
                 self.primarysKeysChecked_.remove(primaryKeyValue)
                 self.primaryKeyToggled.emit(primaryKeyValue, False)
 
-        if primaryKeyValue not in model._checkColumn.keys():
-            model._checkColumn[primaryKeyValue] = QtWidgets.QCheckBox()
+        if primaryKeyValue not in model._check_column.keys():
+            model._check_column[primaryKeyValue] = QtWidgets.QCheckBox()
 
-        model._checkColumn[primaryKeyValue].setChecked(on)
+        model._check_column[primaryKeyValue].setChecked(on)
 
     def setShowAllPixmaps(self, s: bool) -> None:
         """

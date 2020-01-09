@@ -97,17 +97,19 @@ class PNAccessControlLists(object):
         node = doc_elem.firstChild()
 
         while not node.isNull():
-            e = node.toElement()
-            if e:
-                if e.tagName() == "name":
-                    self._name = e.text()
+            element = node.toElement()
+            if element:
+                if element.tagName() == "name":
+                    self._name = element.text()
                     node = node.nextSibling()
                     continue
 
-                ac = pnaccesscontrolfactory.PNAccessControlFactory().create(e.tagName())
-                if ac:
-                    ac.set(e)
-                    self._access_control_list["%s::%s::%s" % (ac.type(), ac.name(), ac.user())] = ac
+                rule = pnaccesscontrolfactory.PNAccessControlFactory().create(element.tagName())
+                if rule:
+                    rule.set(element)
+                    self._access_control_list[
+                        "%s::%s::%s" % (rule.type(), rule.name(), rule.user())
+                    ] = rule
                     node = node.nextSibling()
                     continue
 

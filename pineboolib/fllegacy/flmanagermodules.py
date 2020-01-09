@@ -410,7 +410,7 @@ class FLManagerModules(object):
         form_path = file_name if os.path.exists(file_name) else path._path(file_name)
         conn_manager = application.PROJECT.conn_manager
 
-        if "main_conn" in conn_manager.conn_dict.keys():
+        if "main_conn" in conn_manager.connections_dict.keys():
             mng_modules = conn_manager.managerModules()
             if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
                 ret_ui = mng_modules.contentStatic(file_name, True)

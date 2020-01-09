@@ -14,23 +14,23 @@ if TYPE_CHECKING:
 class IConnection:
     """Interface for database cursors which are used to emulate FLSqlCursor."""
 
-    db_name_: str
-    db_host_: Optional[str]
-    db_port_: Optional[int]
-    db_user_name_: Optional[str]
-    db_password_: Optional[str]
+    _db_name: str
+    _db_host: Optional[str]
+    _db_port: Optional[int]
+    _db_user_name: Optional[str]
+    _db_password: Optional[str]
     conn: Any  # connection from the actual driver
-    connAux: Dict[str, "IConnection"]
-    driverSql: Any
-    transaction_: int
-    currentSavePoint_: Optional[Any]  # Optional["PNSqlSavePoint"]
-    stackSavePoints_: List[Any]  # List["PNSqlSavePoint"]
-    queueSavePoints_: List[Any]  # List["PNSqlSavePoint"]
-    interactiveGUI_: bool
-    driver_name_: str
-    name: str
-    _isOpen: bool
-    driver_ = None
+    _conn_aux: Dict[str, "IConnection"]
+    _driver_sql: Any
+    _transaction: int
+    _current_save_point: Optional[Any]  # Optional["PNSqlSavePoint"]
+    _stack_save_points: List[Any]  # List["PNSqlSavePoint"]
+    _queue_save_points: List[Any]  # List["PNSqlSavePoint"]
+    _interactive_gui: bool
+    _driver_name: str
+    _name: str
+    _is_open: bool
+    _driver = None
 
     def connectionName(self) -> str:
         """Get the current connection name for this cursor."""

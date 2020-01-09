@@ -18,13 +18,16 @@ class TestPNSqlDrivers(unittest.TestCase):
 
         conn_ = application.PROJECT.conn_manager.mainConn()
 
-        self.assertEqual(conn_.driverSql.defaultDriverName(), "FLsqlite")
-        self.assertEqual(conn_.driverSql.driverName(), "FLsqlite")
+        self.assertEqual(conn_._driver_sql.defaultDriverName(), "FLsqlite")
+        self.assertEqual(conn_._driver_sql.driverName(), "FLsqlite")
         self.assertTrue(
-            conn_.driverSql.isDesktopFile(conn_.driverSql.nameToAlias(conn_.driverSql.driverName()))
+            conn_._driver_sql.isDesktopFile(
+                conn_._driver_sql.nameToAlias(conn_._driver_sql.driverName())
+            )
         )
         self.assertEqual(
-            conn_.driverSql.port(conn_.driverSql.nameToAlias(conn_.driverSql.driverName())), "0"
+            conn_._driver_sql.port(conn_._driver_sql.nameToAlias(conn_._driver_sql.driverName())),
+            "0",
         )
-        self.assertEqual(conn_.driverSql.aliasToName(""), "FLsqlite")
-        self.assertEqual(conn_.driverSql.aliasToName(), "FLsqlite")
+        self.assertEqual(conn_._driver_sql.aliasToName(""), "FLsqlite")
+        self.assertEqual(conn_._driver_sql.aliasToName(), "FLsqlite")

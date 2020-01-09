@@ -76,7 +76,7 @@ class TestPNConnection(unittest.TestCase):
 
         conn_manager = application.PROJECT.conn_manager
         conn_ = conn_manager.mainConn()
-        self.assertTrue(conn_.interactiveGUI_)
+        self.assertTrue(conn_.interactiveGUI())
         conn_.setInteractiveGUI(False)
         self.assertFalse(conn_.interactiveGUI())
         # self.assertNotEqual(conn_, conn_manager.db())

@@ -31,7 +31,7 @@ ACCEPTABLE_VALUES = (
     decimal.Decimal,
     datetime.timedelta,
 )
-T_VALUE2 = Union[
+ACCEPTABLE_VALUES_WITH_NONE = Union[
     int,
     float,
     str,
@@ -69,7 +69,7 @@ class FieldStruct(object):
         self._original_value = None
         self.generated = field.generated()
 
-    def parse_value_input(self, value: T_VALUE2) -> T_VALUE2:
+    def parse_value_input(self, value: ACCEPTABLE_VALUES_WITH_NONE) -> ACCEPTABLE_VALUES_WITH_NONE:
         """Given an user-provided input, it parses and reformats it suitable for database use."""
         txtvalue: str
         if self.type_ == "double" and value and value not in ("", "-"):
@@ -146,7 +146,7 @@ class FieldStruct(object):
     @return True si ha cambiado, False si es el mismo valor
     """
 
-    def has_changed(self, val: T_VALUE2) -> bool:
+    def has_changed(self, val: ACCEPTABLE_VALUES_WITH_NONE) -> bool:
         """Check if a buffer field has changed in value since it was initially loaded."""
 
         if self.value is None and not val:
@@ -357,7 +357,7 @@ class PNBuffer(object):
 
         return field.value in (None, "")
 
-    def value(self, field_name: Union[str, int]) -> T_VALUE2:
+    def value(self, field_name: Union[str, int]) -> ACCEPTABLE_VALUES_WITH_NONE:
         """
         Return the value of a field.
 
@@ -379,27 +379,27 @@ class PNBuffer(object):
         if field.type_ in ("string", "pixmap", "time", "date", "datetime", "timestamp"):
             try:
                 value = str(field.value)
-            except Exception as e:
-                LOGGER.trace("Error trying to convert %s to string: %s", field.value, e)
+            except Exception as expcetion:
+                LOGGER.trace("Error trying to convert %s to string: %s", field.value, expcetion)
                 value = ""
         elif field.type_ in ("int", "uint", "serial"):
             try:
                 value = int(field.value)
-            except Exception as e:
-                LOGGER.trace("Error trying to convert %s to int: %s", field.value, e)
+            except Exception as expcetion:
+                LOGGER.trace("Error trying to convert %s to int: %s", field.value, expcetion)
                 value = 0
 
         elif field.type_ == "double":
             try:
                 value = float(field.value)
-            except Exception as e:
-                LOGGER.trace("Error trying to convert %s to float: %s", field.value, e)
+            except Exception as expcetion:
+                LOGGER.trace("Error trying to convert %s to float: %s", field.value, expcetion)
                 value = 0.0
 
         # LOGGER.trace("---->retornando %s %s %s",v , type(v), field.value, field.name)
         return value
 
-    def setValue(self, name: str, value: T_VALUE2, mark_: bool = True) -> bool:
+    def setValue(self, name: str, value: ACCEPTABLE_VALUES_WITH_NONE, mark_: bool = True) -> bool:
         """
         Set the value of a field.
 
@@ -489,7 +489,7 @@ class PNBuffer(object):
 
         return list(self.field_dict_.values())
 
-    def field(self, n: Union[str, int]) -> Optional[FieldStruct]:
+    def field(self, field_name: Union[str, int]) -> Optional[FieldStruct]:
         """
         Retrieve a field by ID/position or by name.
 
@@ -497,28 +497,28 @@ class PNBuffer(object):
         Still can raise Exception if called with a bad type.
         """
         try:
-            return self._field(n)
+            return self._field(field_name)
         except (KeyError, ValueError):
             return None
 
-    def _field(self, n: Union[str, int]) -> Optional[FieldStruct]:
+    def _field(self, field_name_or_index: Union[str, int]) -> Optional[FieldStruct]:
         """Fieldstruct of a specified field."""
         mtd_field = None
 
-        if isinstance(n, str):
-            name = n.lower()
+        if isinstance(field_name_or_index, str):
+            name = field_name_or_index.lower()
             if name in self.field_dict_.keys():
                 return self.field_dict_[name]
             else:
                 mtd_field = self.cursor_.metadata().field(name)
-        elif isinstance(n, int):
-            if n >= 0 or n < len(self.fieldsList()):
-                return self.fieldsList()[n]
+        elif isinstance(field_name_or_index, int):
+            if field_name_or_index > 0 and field_name_or_index < len(self.fieldsList()):
+                return self.fieldsList()[field_name_or_index]
             else:
-                mtd_field = self.cursor_.metadata().indexFieldObject(n)
+                mtd_field = self.cursor_.metadata().indexFieldObject(field_name_or_index)
 
         else:
-            raise Exception("Bad call to _field, type not supported %s" % type(n))
+            raise Exception("Bad call to _field, type not supported %s" % type(field_name_or_index))
 
         new_field_struct = None
 

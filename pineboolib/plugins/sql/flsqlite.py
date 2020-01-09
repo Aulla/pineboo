@@ -89,7 +89,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         import sqlite3
 
         main_conn = None
-        if "main_conn" in application.PROJECT.conn_manager.conn_dict.keys():
+        if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
         if main_conn is not None:
             if self.db_filename == main_conn.driver().db_filename and main_conn.conn:
