@@ -4,7 +4,7 @@ Module for MYISAM driver.
 
 import traceback
 
-from PyQt5 import Qt, QtCore, QtWidgets, QtXml
+from PyQt5 import Qt, QtCore, QtWidgets
 
 from pineboolib.core.utils import utils_base
 from pineboolib.application.utils import check_dependencies
@@ -14,6 +14,8 @@ from pineboolib.application.metadata import pnfieldmetadata
 from pineboolib.fllegacy import flutil
 from pineboolib import application, logging
 from . import pnsqlschema
+
+from xml.etree import ElementTree
 
 from typing import Any, Iterable, Optional, Union, List, cast, TYPE_CHECKING
 
@@ -762,16 +764,15 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         old_mtd = None
         new_mtd = None
-        doc = QtXml.QDomDocument("doc")
-        docElem = None
-        if not util.domDocumentSetContent(doc, mtd1):
+
+        if not mtd1:
             print(
                 "FLManager::alterTable : "
                 + util.translate("SqlDriver", "Error al cargar los metadatos.")
             )
         else:
-            docElem = doc.documentElement()
-            old_mtd = self.db_.connManager().manager().metadata(docElem, True)
+            xml = ElementTree.fromstring(mtd1)
+            old_mtd = self.db_.connManager().manager().metadata(xml, True)
 
         if old_mtd and old_mtd.isQuery():
             return True
@@ -779,15 +780,15 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         if old_mtd and self.hasCheckColumn(old_mtd):
             return False
 
-        if not util.domDocumentSetContent(doc, mtd2):
+        if not mtd2:
             print(
                 "FLManager::alterTable : "
                 + util.translate("SqlDriver", "Error al cargar los metadatos.")
             )
             return False
         else:
-            docElem = doc.documentElement()
-            new_mtd = self.db_.connManager().manager().metadata(docElem, True)
+            xml = ElementTree.fromstring(mtd2)
+            new_mtd = self.db_.connManager().manager().metadata(xml, True)
 
         if not old_mtd:
             old_mtd = new_mtd
@@ -1292,10 +1293,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         if isinstance(tablename_or_query, str):
             tablename = tablename_or_query
 
-            doc = QtXml.QDomDocument(tablename)
             stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
-            util = flutil.FLUtil()
-            if not util.domDocumentSetContent(doc, stream):
+            if not stream:
                 logger.warning(
                     "FLManager : "
                     + QtWidgets.QApplication.translate(

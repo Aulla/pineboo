@@ -15,6 +15,7 @@ from pineboolib.fllegacy import flutil
 
 from . import pnsqlschema
 
+from xml.etree import ElementTree
 import traceback
 import os
 
@@ -588,10 +589,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if isinstance(tablename_or_query, str):
             tablename = tablename_or_query
 
-            doc = Qt.QDomDocument(tablename)
             stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
-            util = flutil.FLUtil()
-            if not util.domDocumentSetContent(doc, stream):
+            if not stream:
                 logger.warning(
                     "FLManager : "
                     + QtWidgets.QApplication.translate(
@@ -601,8 +600,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
                 return self.recordInfo2(tablename)
 
-            docElem = doc.documentElement()
-            mtd = self.db_.connManager().manager().metadata(docElem, True)
+            tree = ElementTree.fromstring(stream)
+            mtd = self.db_.connManager().manager().metadata(tree, True)
             if not mtd:
                 return self.recordInfo2(tablename)
             fL = mtd.fieldList()

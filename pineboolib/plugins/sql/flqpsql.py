@@ -1,5 +1,5 @@
 """Flqpsql module."""
-from PyQt5 import QtCore, QtXml, Qt, QtWidgets
+from PyQt5 import QtCore, Qt, QtWidgets
 
 from pineboolib.core.utils.utils_base import text2bool, auto_qt_translate_text
 
@@ -13,7 +13,7 @@ from pineboolib import application, logging
 from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 
-
+from xml.etree import ElementTree
 import traceback
 from typing import Iterable, Optional, Union, List, Dict, Any, cast
 
@@ -619,13 +619,12 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         if isinstance(tablename_or_query, str):
             tablename = tablename_or_query
 
-            doc = QtXml.QDomDocument(tablename)
             if self.db_ is None:
                 raise Exception("recordInfo. self.db_ es Nulo")
 
             stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
             util = flutil.FLUtil()
-            if not util.domDocumentSetContent(doc, stream):
+            if not stream:
                 print(
                     "FLManager : "
                     + util.translate("application", "Error al cargar los metadatos para la tabla")
@@ -996,34 +995,31 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         old_mtd = None
         new_mtd = None
-        doc = QtXml.QDomDocument("doc")
-        docElem = None
 
         if self.db_ is None:
             raise Exception("alterTable2. self.db_ is None")
 
-        if not util.domDocumentSetContent(doc, mtd1):
+        if not mtd1:
             logger.warning(
                 "FLManager::alterTable : "
                 + util.translate("application", "Error al cargar los metadatos.")
             )
         else:
-            docElem = doc.documentElement()
-
-            old_mtd = self.db_.connManager().manager().metadata(docElem, True)
+            xml = ElementTree.fromstring(mtd1)
+            old_mtd = self.db_.connManager().manager().metadata(xml, True)
 
         if old_mtd and old_mtd.isQuery():
             return True
 
-        if not util.domDocumentSetContent(doc, mtd2):
+        if not mtd2:
             logger.warning(
                 "FLManager::alterTable : "
                 + util.translate("application", "Error al cargar los metadatos.")
             )
             return False
         else:
-            docElem = doc.documentElement()
-            new_mtd = self.db_.connManager().manager().metadata(docElem, True)
+            xml = ElementTree.fromstring(mtd2)
+            new_mtd = self.db_.connManager().manager().metadata(xml, True)
 
         if not old_mtd:
             old_mtd = new_mtd
