@@ -294,10 +294,10 @@ class PNSqlSchema(object):
         if cursor is None:
             cursor = self.cursor()
         try:
-            q = self.fix_query(q)
+            # q = self.fix_query(q)
             cursor.execute(q)
         except Exception:
-            # self.logger.error("SQL3Driver:: No se pudo ejecutar la query %s" % q, q)
+            logger.error("SQL3Driver:: No se pudo ejecutar la query %s" % q, q)
             self.setLastError(
                 "%s::No se pudo ejecutar la query %s.\n%s" % (__name__, q, traceback.format_exc()),
                 q,
