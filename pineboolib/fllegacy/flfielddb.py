@@ -2810,7 +2810,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 a.setTable(field_relation.foreignTable())
             c = pnsqlcursor.PNSqlCursor(a.table(), True, self.cursor_.db().connectionName())
             # f = flformsearchdb.FLFormSearchDB(c, a.name(), self.topWidget_)
-            form_search = flformsearchdb.FLFormSearchDB(c, self.topWidget_)
+            form_search = flformsearchdb.FLFormSearchDB(c, a.name(), self.topWidget_)
 
         form_search.setMainWidget()
 
