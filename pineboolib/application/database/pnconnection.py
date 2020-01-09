@@ -10,7 +10,7 @@ from . import pnsqldrivers
 from pineboolib import application
 
 # from .pnsqlsavepoint import PNSqlSavePoint
-from . import db_signals
+from . import DB_SIGNALS
 from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
 import time
@@ -307,7 +307,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 )
             if self.transaction():
                 self._last_active_cursor = cursor
-                db_signals.emitTransactionBegin(cursor)
+                DB_SIGNALS.emitTransactionBegin(cursor)
 
                 # if not self.canSavePoint():
                 #    if self.currentSavePoint_:
@@ -425,7 +425,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 if cancel:
                     cur.select()
 
-                db_signals.emitTransactionRollback(cur)
+                DB_SIGNALS.emitTransactionRollback(cur)
                 return True
             else:
                 logger.warning("doRollback: Fallo al intentar deshacer transacción")
@@ -521,7 +521,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     if notify:
                         cur.setModeAccess(cur.Browse)
 
-                    db_signals.emitTransactionEnd(cur)
+                    DB_SIGNALS.emitTransactionEnd(cur)
                     return True
 
                 else:

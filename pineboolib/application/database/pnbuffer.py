@@ -17,7 +17,7 @@ from typing import Dict, List, Union, Optional, Any, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces import ifieldmetadata, isqlcursor
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 ACCEPTABLE_VALUES = (
     int,
@@ -55,7 +55,7 @@ class FieldStruct(object):
     metadata: Any
     type_: Any
     modified: bool
-    originalValue: Any  # T_VALUE
+    _original_value: Any  # T_VALUE
     generated: bool
 
     def __init__(self, field: "ifieldmetadata.IFieldMetaData"):
@@ -66,7 +66,7 @@ class FieldStruct(object):
         self.metadata = field
         self.type_ = field.type()
         self.modified = False
-        self.originalValue = None
+        self._original_value = None
         self.generated = field.generated()
 
     def parse_value_input(self, value: T_VALUE2) -> T_VALUE2:
@@ -164,7 +164,7 @@ class FieldStruct(object):
             try:
                 return float(self.value) != float(val)  # type: ignore
             except Exception:
-                logger.trace("has_changed: Error converting %s != %s to floats", self.value, val)
+                LOGGER.trace("has_changed: Error converting %s != %s to floats", self.value, val)
                 return True
 
         return True
@@ -218,7 +218,7 @@ class PNBuffer(object):
         @param row = cursor line.
         """
         if self.inicialized_:
-            logger.debug("(%s)PNBuffer. Se inicializa nuevamente el cursor", self.cursor_.curName())
+            LOGGER.debug("(%s)PNBuffer. Se inicializa nuevamente el cursor", self.cursor_.curName())
 
         self.primeUpdate(row)
         self.inicialized_ = True
@@ -232,7 +232,7 @@ class PNBuffer(object):
         self.clear_buffer()
 
         if row == -1:
-            logger.warning(
+            LOGGER.warning(
                 "PrimeUpdate sobre posición inválida de %s, size: %s, filtro: %s, row: %s",
                 self.cursor_.metadata().name(),
                 self.cursor_.size(),
@@ -258,7 +258,7 @@ class PNBuffer(object):
                     value = bytearray(value)
 
             field.value = value
-            field.originalValue = copy.copy(value)
+            field._original_value = copy.copy(value)
         # self.cursor_.bufferChanged.emit(field.name)
         self.setRow(row)
 
@@ -268,7 +268,7 @@ class PNBuffer(object):
         #    field = self.field_dict_[field_key]
         for field in self.fieldsList():
             field.value = None
-            field.modified = field.originalValue is not None
+            field.modified = field._original_value is not None
 
     def row(self) -> int:
         """
@@ -278,13 +278,13 @@ class PNBuffer(object):
         """
         return self.line_
 
-    def setRow(self, l: int) -> None:
+    def setRow(self, row: int) -> None:
         """
         Set the cursor line referenced by the buffer.
 
         @param l = cursor register index.
         """
-        self.line_ = l
+        self.line_ = row
 
     def setNull(self, name) -> bool:
         """
@@ -308,7 +308,7 @@ class PNBuffer(object):
         # return self.field_dict_[name].generated
 
     def setGenerated(
-        self, f: Union[int, str, "ifieldmetadata.IFieldMetaData"], value: bool
+        self, field_name_or_metadata: Union[int, str, "ifieldmetadata.IFieldMetaData"], value: bool
     ) -> None:
         """
         Set that is a generated field.
@@ -316,14 +316,14 @@ class PNBuffer(object):
         @param f = FLField Metadata of the field to be marked.
         @param value = True or False.
         """
-        if not isinstance(f, (str, int)):
-            f = f.name()
+        if not isinstance(field_name_or_metadata, (str, int)):
+            field_name_or_metadata = field_name_or_metadata.name()
 
-        field = self._field(f)
+        field = self._field(field_name_or_metadata)
         if field:
             field.generated = value
         else:
-            raise Exception("Field %s not found!" % f)
+            raise Exception("Field %s not found!" % field_name_or_metadata)
 
     def clearValues(self) -> None:
         """
@@ -343,32 +343,32 @@ class PNBuffer(object):
         """
         return self.inicialized_
 
-    def isNull(self, n: Union[str, int]) -> bool:
+    def isNull(self, field_name: Union[str, int]) -> bool:
         """
         Return if the field is empty.
 
-        @param n = field identification to check if empty.
+        @param field_name = field identification to check if empty.
         @return bool = True or False.
         """
-        field = self.field(n)
+        field = self.field(field_name)
 
         if field is None:
-            raise Exception("PNBuffer.isNull: Field <%s> not found", n)
+            raise Exception("PNBuffer.isNull: Field <%s> not found", field_name)
 
         return field.value in (None, "")
 
-    def value(self, n: Union[str, int]) -> T_VALUE2:
+    def value(self, field_name: Union[str, int]) -> T_VALUE2:
         """
         Return the value of a field.
 
-        @param n field identification.
+        @param field_name field identification.
         @return Any = field value.
         """
-        field = self._field(n)
+        field = self._field(field_name)
         if not field:
-            raise Exception("Field %s not found!" % n)
+            raise Exception("Field %s not found!" % field_name)
 
-        v = field.value
+        value = field.value
 
         if field.type_ in ("bool", "unlock"):
             return field.value in (True, "true")
@@ -378,26 +378,26 @@ class PNBuffer(object):
 
         if field.type_ in ("string", "pixmap", "time", "date", "datetime", "timestamp"):
             try:
-                v = str(field.value)
+                value = str(field.value)
             except Exception as e:
-                logger.trace("Error trying to convert %s to string: %s", field.value, e)
-                v = ""
+                LOGGER.trace("Error trying to convert %s to string: %s", field.value, e)
+                value = ""
         elif field.type_ in ("int", "uint", "serial"):
             try:
-                v = int(field.value)
+                value = int(field.value)
             except Exception as e:
-                logger.trace("Error trying to convert %s to int: %s", field.value, e)
-                v = 0
+                LOGGER.trace("Error trying to convert %s to int: %s", field.value, e)
+                value = 0
 
         elif field.type_ == "double":
             try:
-                v = float(field.value)
+                value = float(field.value)
             except Exception as e:
-                logger.trace("Error trying to convert %s to float: %s", field.value, e)
-                v = 0.0
+                LOGGER.trace("Error trying to convert %s to float: %s", field.value, e)
+                value = 0.0
 
-        # logger.trace("---->retornando %s %s %s",v , type(v), field.value, field.name)
-        return v
+        # LOGGER.trace("---->retornando %s %s %s",v , type(v), field.value, field.name)
+        return value
 
     def setValue(self, name: str, value: T_VALUE2, mark_: bool = True) -> bool:
         """
@@ -415,14 +415,14 @@ class PNBuffer(object):
         field = self.field(name)
 
         if field is None:
-            logger.warning("setValue: no such field %s", name)
+            LOGGER.warning("setValue: no such field %s", name)
             return False
 
         if field.has_changed(value):
             field.value = field.parse_value_input(value)
 
             if mark_:
-                if not field.value == field.originalValue:
+                if not field.value == field._original_value:
                     field.modified = True
                 else:
                     field.modified = False
@@ -467,7 +467,7 @@ class PNBuffer(object):
         for field in self.fieldsList():
             if field.metadata.isPrimaryKey():
                 return field.name
-        logger.warning("PNBuffer.pk(): No se ha encontrado clave Primaria")
+        LOGGER.warning("PNBuffer.pk(): No se ha encontrado clave Primaria")
         return None
 
     def indexField(self, name) -> Optional[int]:
@@ -480,7 +480,7 @@ class PNBuffer(object):
         for i, field in enumerate(self.fieldsList()):
             if field.name == name:
                 return i
-        logger.warning("indexField: %s not found", name)
+        LOGGER.warning("indexField: %s not found", name)
         return None
 
     def fieldsList(self) -> List[FieldStruct]:
