@@ -5,7 +5,7 @@ import pathlib
 import subprocess
 from pineboolib import application
 
-prj_ = application.project
+prj_ = application.PROJECT
 prj_.load_version()
 version_ = prj_.version[prj_.version.find(" v") + 2 :]
 # Create/Update translations
