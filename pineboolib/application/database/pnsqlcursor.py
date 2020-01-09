@@ -376,7 +376,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return
 
         if not self.d.buffer_:
-            logger.warning("%s.setValueBuffer(%s): No buffer" % (self.table(), field_name))
+            # logger.warning("%s.setValueBuffer(%s): No buffer" % (self.table(), field_name))
             return
 
         field = mtd.field(field_name)
@@ -1877,7 +1877,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not self.commitBufferCursorRelation():
                 return False
 
-            if not self.buffer():
+            if not self.d.buffer_:
                 self.d.buffer_ = pnbuffer.PNBuffer(self)
 
             self.setNotGenerateds()
