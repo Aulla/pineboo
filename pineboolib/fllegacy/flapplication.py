@@ -8,7 +8,7 @@ from pineboolib import logging
 from pineboolib.core import decorators, settings
 
 from pineboolib import application
-from pineboolib.application.database import db_signals
+from pineboolib.application import database
 from pineboolib.application.qsatypes import sysbasetype
 from pineboolib.application.acls import pnaccesscontrollists
 
@@ -85,9 +85,9 @@ class FLApplication(QtCore.QObject):
         self.fl_factory_ = None
         self.op_check_update_ = False
         self.window_menu = None
-        db_signals.notify_begin_transaction_ = False
-        db_signals.notify_end_transaction_ = False
-        db_signals.notify_roll_back_transaction_ = False
+        database.DB_SIGNALS.notify_begin_transaction_ = False
+        database.DB_SIGNALS.notify_end_transaction_ = False
+        database.DB_SIGNALS.notify_roll_back_transaction_ = False
         self._ted_output = None
         self.style = False
         self.init_single_fl_large = False
@@ -644,15 +644,15 @@ class FLApplication(QtCore.QObject):
 
     def emitTransactionBegin(self, o: "pnsqlcursor.PNSqlCursor") -> None:
         """Emit signal."""
-        db_signals.emitTransactionBegin(o)
+        database.DB_SIGNALS.emitTransactionBegin(o)
 
     def emitTransactionEnd(self, o: "pnsqlcursor.PNSqlCursor") -> None:
         """Emit signal."""
-        db_signals.emitTransactionEnd(o)
+        database.DB_SIGNALS.emitTransactionEnd(o)
 
     def emitTransactionRollback(self, o: "pnsqlcursor.PNSqlCursor") -> None:
         """Emit signal."""
-        db_signals.emitTransactionRollback(o)
+        database.DB_SIGNALS.emitTransactionRollback(o)
 
     @decorators.NotImplementedWarn
     def gsExecutable(self):
