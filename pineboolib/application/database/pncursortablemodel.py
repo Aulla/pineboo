@@ -1089,6 +1089,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             if self.where_filter.find("ORDER BY") > -1:
                 where_ = self.where_filter[: self.where_filter.find("ORDER BY")]
 
+            where_ = self.driver_sql().fix_query(where_)
             # q = pnsqlquery.PNSqlQuery(None, self.db())
             sql = "SELECT COUNT(%s) FROM %s WHERE %s" % (self.pK(), self._tablename, where_)
             cursor = self.driver_sql().execute_query(sql)
