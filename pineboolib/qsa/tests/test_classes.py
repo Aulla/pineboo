@@ -34,7 +34,7 @@ class TestClasses(unittest.TestCase):
 
         txt_ = "Hola!"
         txt_2 = "Hola de nuevo!"
-        file = qsa.QFile("%s/test_qtextstream.txt" % application.project.tmpdir)
+        file = qsa.QFile("%s/test_qtextstream.txt" % application.PROJECT.tmpdir)
         if not file.open(qsa.File.WriteOnly | qsa.File.Append):
             raise Exception("ay!")
 
@@ -43,11 +43,11 @@ class TestClasses(unittest.TestCase):
         ts.opIn(txt_ + "\n")
         file.close()
 
-        with open("%s/test_qtextstream.txt" % application.project.tmpdir) as f:
+        with open("%s/test_qtextstream.txt" % application.PROJECT.tmpdir) as f:
             read_data = f.read()
             self.assertEqual(read_data, "Hola!\n")
 
-        file_2 = qsa.QFile("%s/test_qtextstream.txt" % application.project.tmpdir)
+        file_2 = qsa.QFile("%s/test_qtextstream.txt" % application.PROJECT.tmpdir)
         if not file_2.open(qsa.File.WriteOnly | qsa.File.Append):
             raise Exception("ay!")
 
@@ -56,7 +56,7 @@ class TestClasses(unittest.TestCase):
         ts.opIn(txt_2 + "\n")
         file_2.close()
 
-        with open("%s/test_qtextstream.txt" % application.project.tmpdir) as f:
+        with open("%s/test_qtextstream.txt" % application.PROJECT.tmpdir) as f:
             read_data = f.read()
             self.assertEqual(read_data, "Hola!\nHola de nuevo!\n")
 

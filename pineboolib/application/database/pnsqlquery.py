@@ -6,7 +6,7 @@ Module for PNSqlQuery class.
 from pineboolib.core.utils import logging
 
 from pineboolib.application.utils import sql_tools
-from pineboolib.application import project
+from pineboolib import application
 from pineboolib.application import types
 
 from PyQt5 import QtWidgets
@@ -121,12 +121,12 @@ class PNSqlQuery(object):
         Initialize a new query.
         """
 
-        if project.conn_manager.mainConn() is None:
+        if application.PROJECT.conn_manager.mainConn() is None:
             raise Exception("Project is not connected yet")
         self._fieldNameToPosDict = None
         self.d = PNSqlQueryPrivate(cx)
         if isinstance(connection_name, str):
-            self.d.db_ = project.conn_manager.useConn(connection_name)
+            self.d.db_ = application.PROJECT.conn_manager.useConn(connection_name)
         else:
             self.d.db_ = connection_name
 
@@ -140,7 +140,7 @@ class PNSqlQuery(object):
 
         retorno_qry = None
         if cx:
-            retorno_qry = project.conn_manager.manager().query(cx, self)
+            retorno_qry = application.PROJECT.conn_manager.manager().query(cx, self)
 
         if retorno_qry:
             self.d = retorno_qry.d

@@ -1,6 +1,8 @@
 import unittest
 from pineboolib.loader.main import init_testing
 
+from pineboolib import application
+
 
 class TestStringField(unittest.TestCase):
     """Test string field."""
@@ -13,9 +15,7 @@ class TestStringField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test collect a field from the pntablemetadata flmodules and check the values"""
 
-        from pineboolib.application import project
-
-        mtd = project.conn_manager.manager().metadata("flmodules")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
         if mtd is None:
             raise Exception
         field = mtd.field("version")
@@ -51,15 +51,14 @@ class TestCopyField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test copy a field data from another."""
 
-        from pineboolib.application import project
-        from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
+        from pineboolib.application.metadata import pnfieldmetadata
 
-        mtd = project.conn_manager.manager().metadata("flmodules")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
         if mtd is None:
             raise Exception
         field_1 = mtd.field("version")
 
-        field_2 = PNFieldMetaData(field_1)
+        field_2 = pnfieldmetadata.PNFieldMetaData(field_1)
 
         self.assertNotEqual(field_2, None)
         self.assertEqual(field_2.name(), "version")
@@ -85,9 +84,7 @@ class TestUintField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test collect a field from the pntablemetadata flseq and check the values"""
 
-        from pineboolib.application import project
-
-        mtd = project.conn_manager.manager().metadata("flseqs")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flseqs")
         if mtd is None:
             raise Exception
         field = mtd.field("seq")
@@ -128,9 +125,7 @@ class TestStringListField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test collect a field from the pntablemetadata flsettings and check the values"""
 
-        from pineboolib.application import project
-
-        mtd = project.conn_manager.manager().metadata("flsettings")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flsettings")
         if mtd is None:
             raise Exception
         field = mtd.field("valor")
@@ -163,9 +158,7 @@ class TestPixmapField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test collect a field from the pntablemetadata flmodules and check the values"""
 
-        from pineboolib.application import project
-
-        mtd = project.conn_manager.manager().metadata("flmodules")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
         if mtd is None:
             raise Exception
 
@@ -198,9 +191,7 @@ class TestUnlockField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test collect a field from the pntablemetadata flmodules and check the values"""
 
-        from pineboolib.application import project
-
-        mtd = project.conn_manager.manager().metadata("flmodules")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
         if mtd is None:
             raise Exception
 
@@ -233,9 +224,7 @@ class TestBoolField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test collect a field from the pntablemetadata flmetadata and check the values"""
 
-        from pineboolib.application import project
-
-        mtd = project.conn_manager.manager().metadata("flmetadata")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flmetadata")
         if mtd is None:
             raise Exception
 
@@ -269,9 +258,7 @@ class TestDateField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test collect a field from the pntablemetadata flupdates and check the values"""
 
-        from pineboolib.application import project
-
-        mtd = project.conn_manager.manager().metadata("flupdates")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flupdates")
         if mtd is None:
             raise Exception
         field = mtd.field("fecha")
@@ -305,9 +292,7 @@ class TestTimeField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test collect a field from the pntablemetadata flupdates and check the values"""
 
-        from pineboolib.application import project
-
-        mtd = project.conn_manager.manager().metadata("flupdates")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flupdates")
         if mtd is None:
             raise Exception
         field = mtd.field("hora")
@@ -341,9 +326,9 @@ class TestDoubleField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test collect a field and check the values"""
 
-        from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
+        from pineboolib.application.metadata import pnfieldmetadata
 
-        field = PNFieldMetaData(
+        field = pnfieldmetadata.PNFieldMetaData(
             "new_double",
             "Nuevo Double",
             False,
@@ -395,9 +380,9 @@ class TestOptionsListField(unittest.TestCase):
     def test_basic(self) -> None:
         """Test collect a field and check the values"""
 
-        from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
+        from pineboolib.application.metadata import pnfieldmetadata
 
-        field = PNFieldMetaData(
+        field = pnfieldmetadata.PNFieldMetaData(
             "new_string",
             "Nuevo String",
             False,

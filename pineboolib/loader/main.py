@@ -16,7 +16,7 @@ from pineboolib.loader.dgi import load_dgi
 from pineboolib.loader.connection import config_dbconn, connect_to_db
 from pineboolib.loader.connection import DEFAULT_SQLITE_CONN, IN_MEMORY_SQLITE_CONN
 from pineboolib import plugins
-from pineboolib.application import project  # FIXME: next time, proper singleton
+from pineboolib import application
 from pineboolib.application.parsers.qsaparser import pytnyzer
 
 if TYPE_CHECKING:
@@ -39,18 +39,18 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     init_logging()
     init_cli(catch_ctrl_c=False)
     pytnyzer.STRICT_MODE = False
-    project.load_version()
-    project.setDebugLevel(1000)
-    project.set_app(qapp)
+    application.PROJECT.load_version()
+    application.PROJECT.setDebugLevel(1000)
+    application.PROJECT.set_app(qapp)
     _DGI = load_dgi("qt", None)
-    project.init_dgi(_DGI)
+    application.PROJECT.init_dgi(_DGI)
     conn_ = connect_to_db(conn)
-    project.init_conn(connection=conn_)
-    project.no_python_cache = True
-    project.run()
-    project.conn_manager.managerModules().loadIdAreas()
-    project.conn_manager.managerModules().loadAllIdModules()
-    project.load_modules()
+    application.PROJECT.init_conn(connection=conn_)
+    application.PROJECT.no_python_cache = True
+    application.PROJECT.run()
+    application.PROJECT.conn_manager.managerModules().loadIdAreas()
+    application.PROJECT.conn_manager.managerModules().loadAllIdModules()
+    application.PROJECT.load_modules()
 
 
 def startup(enable_gui: bool = None) -> None:
@@ -220,11 +220,11 @@ def init_testing() -> None:
     """Initialize Pineboo for testing purposes."""
     config.set_value("application/dbadmin_enabled", True)
 
-    if project._DGI is not None:
+    if application.PROJECT._DGI is not None:
         from pineboolib.application.database import pnconnectionmanager
 
-        del project._conn_manager
-        project._conn_manager = pnconnectionmanager.PNConnectionManager()
+        del application.PROJECT._conn_manager
+        application.PROJECT._conn_manager = pnconnectionmanager.PNConnectionManager()
 
     else:
         qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
@@ -233,24 +233,24 @@ def init_testing() -> None:
         init_cli(catch_ctrl_c=False)
 
         pytnyzer.STRICT_MODE = False
-        project.load_version()
-        project.setDebugLevel(1000)
-        project.set_app(qapp)
+        application.PROJECT.load_version()
+        application.PROJECT.setDebugLevel(1000)
+        application.PROJECT.set_app(qapp)
         _DGI = load_dgi("qt", None)
 
-        project.init_dgi(_DGI)
+        application.PROJECT.init_dgi(_DGI)
 
     conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
-    project.init_conn(connection=conn)
+    application.PROJECT.init_conn(connection=conn)
 
-    project.no_python_cache = True
-    if project.run():
+    application.PROJECT.no_python_cache = True
+    if application.PROJECT.run():
 
         # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
-        project.conn_manager.managerModules().loadIdAreas()
-        project.conn_manager.managerModules().loadAllIdModules()
+        application.PROJECT.conn_manager.managerModules().loadIdAreas()
+        application.PROJECT.conn_manager.managerModules().loadAllIdModules()
 
-        project.load_modules()
+        application.PROJECT.load_modules()
     else:
         raise Exception("Project initialization failed!")
 
@@ -259,21 +259,21 @@ def finish_testing() -> None:
     """Clear data from pineboo project."""
     # import time
 
-    project.conn_manager.manager().cleanupMetaData()
-    project.actions = {}
-    project.areas = {}
-    project.modules = {}
-    project.tables = {}
-    if project.main_window:
-        project.main_window.initialized_mods_ = []
+    application.PROJECT.conn_manager.manager().cleanupMetaData()
+    application.PROJECT.actions = {}
+    application.PROJECT.areas = {}
+    application.PROJECT.modules = {}
+    application.PROJECT.tables = {}
+    if application.PROJECT.main_window:
+        application.PROJECT.main_window.initialized_mods_ = []
 
-    # project.conn.execute_query("DROP DATABASE %s" % IN_MEMORY_SQLITE_CONN.database)
-    project.conn_manager.finish()
-    # project.conn_manager.mainConn().driver_ = None
-    # project.conn_manager.conn.close()
-    # project.conn.conn = None
-    # del project._conn_manager
-    # project._conn_manager = None
+    # application.PROJECT.conn.execute_query("DROP DATABASE %s" % IN_MEMORY_SQLITE_CONN.database)
+    application.PROJECT.conn_manager.finish()
+    # application.PROJECT.conn_manager.mainConn().driver_ = None
+    # application.PROJECT.conn_manager.conn.close()
+    # application.PROJECT.conn.conn = None
+    # del application.PROJECT._conn_manager
+    # application.PROJECT._conn_manager = None
     # time.sleep(0.5)  # Wait until database close ends
 
     from pineboolib.application import qsadictmodules
@@ -281,18 +281,20 @@ def finish_testing() -> None:
     import os
 
     try:
-        shutil.rmtree(project.tmpdir)
+        shutil.rmtree(application.PROJECT.tmpdir)
     except Exception:
-        logger.warning("No se ha podido borrar %s al limpiar cambios del test", project.tmpdir)
+        logger.warning(
+            "No se ha podido borrar %s al limpiar cambios del test", application.PROJECT.tmpdir
+        )
         pass
     qsadictmodules.QSADictModules.clean_all()
-    if not os.path.exists(project.tmpdir):
-        os.mkdir(project.tmpdir)
+    if not os.path.exists(application.PROJECT.tmpdir):
+        os.mkdir(application.PROJECT.tmpdir)
     # needed for delete older virtual database.
 
     # conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
-    # project.init_conn(connection=conn)
-    # project.run()
+    # application.PROJECT.init_conn(connection=conn)
+    # application.PROJECT.run()
 
 
 def exec_main(options: Values) -> int:
@@ -316,17 +318,17 @@ def exec_main(options: Values) -> int:
 
     pytnyzer.STRICT_MODE = False
 
-    project.setDebugLevel(options.debug_level)
+    application.PROJECT.setDebugLevel(options.debug_level)
 
-    project.options = options
+    application.PROJECT.options = options
     if options.enable_gui:
         app_ = QtWidgets.QApplication
         app_.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
-        project.set_app(app_(sys.argv))
-        setup_gui(project.app, options)
+        application.PROJECT.set_app(app_(sys.argv))
+        setup_gui(application.PROJECT.app, options)
     else:
-        project.set_app(QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"]))
+        application.PROJECT.set_app(QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"]))
 
     if options.trace_debug:
         from pineboolib.core.utils.utils_base import traceit
@@ -348,7 +350,7 @@ def exec_main(options: Values) -> int:
     if options.main_form:
         config.set_value("ebcomportamiento/main_form_name", options.main_form)
 
-    project.load_version()
+    application.PROJECT.load_version()
 
     if is_deployed():
         logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -379,7 +381,7 @@ def exec_main(options: Values) -> int:
 
     configdb = config_dbconn(options)
     logger.debug(configdb)
-    project.init_dgi(_DGI)
+    application.PROJECT.init_dgi(_DGI)
 
     from pineboolib.fllegacy.flapplication import aqApp
 
@@ -391,7 +393,7 @@ def exec_main(options: Values) -> int:
     if not configdb and _DGI.useDesktop() and _DGI.localDesktop():
         if not _DGI.mobilePlatform():
 
-            configdb = show_connection_dialog(project.app)
+            configdb = show_connection_dialog(application.PROJECT.app)
             if configdb is None:
                 return 2
         else:
@@ -402,23 +404,23 @@ def exec_main(options: Values) -> int:
         raise ValueError("No connection given. Nowhere to connect. Cannot start.")
 
     conn = connect_to_db(configdb)
-    project.init_conn(connection=conn)
+    application.PROJECT.init_conn(connection=conn)
 
     settings.set_value("DBA/lastDB", conn.DBName())
 
-    project.no_python_cache = options.no_python_cache
+    application.PROJECT.no_python_cache = options.no_python_cache
 
     # if options.test:
-    #    return 0 if project.test() else 1
+    #    return 0 if application.PROJECT.test() else 1
 
     # if _DGI.useDesktop():
     # FIXME: What is happening here? Why dynamic load?
     # import importlib  # FIXME: Delete dynamic import and move this code between Project and DGI plugins
 
-    # project.main_form = (
+    # application.PROJECT.main_form = (
     #    importlib.import_module(
     #        "pineboolib.plugins.mainform.%s.%s"
-    #        % (project.main_form_name, project.main_form_name)
+    #        % (application.PROJECT.main_form_name, application.PROJECT.main_form_name)
     #    )
     #    if _DGI.localDesktop()
     #    else _DGI.mainForm()
@@ -433,16 +435,16 @@ def exec_main(options: Values) -> int:
             % main_form_name
         )
     else:
-        project.main_form = getattr(main_form, main_form_name)
+        application.PROJECT.main_form = getattr(main_form, main_form_name)
 
-    project.main_window = getattr(project.main_form, "mainWindow", None)
-    main_form_ = getattr(project.main_form, "MainForm", None)
+    application.PROJECT.main_window = getattr(application.PROJECT.main_form, "mainWindow", None)
+    main_form_ = getattr(application.PROJECT.main_form, "MainForm", None)
     if main_form_ is not None:
         main_form_.setDebugLevel(options.debug_level)
 
-    project.message_manager().send("splash", "show")
+    application.PROJECT.message_manager().send("splash", "show")
 
-    project.run()
+    application.PROJECT.run()
 
     from pineboolib.application.acls import pnaccesscontrollists
 
@@ -452,7 +454,7 @@ def exec_main(options: Values) -> int:
     if acl._access_control_list:
         aqApp.set_acl(acl)
 
-    conn = project.conn_manager.mainConn()
+    conn = application.PROJECT.conn_manager.mainConn()
 
     if not conn:
         logger.warning("No connection was provided. Aborting Pineboo load.")
@@ -465,18 +467,24 @@ def exec_main(options: Values) -> int:
             mtd_parse(table)
 
     # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
-    project.conn_manager.managerModules().loadIdAreas()
-    project.conn_manager.managerModules().loadAllIdModules()
+    application.PROJECT.conn_manager.managerModules().loadIdAreas()
+    application.PROJECT.conn_manager.managerModules().loadAllIdModules()
 
-    project.load_modules()
+    application.PROJECT.load_modules()
 
     # FIXME: move this code to pineboo.application
-    project.message_manager().send("splash", "showMessage", ["Cargando traducciones ..."])
+    application.PROJECT.message_manager().send(
+        "splash", "showMessage", ["Cargando traducciones ..."]
+    )
     aqApp.loadTranslations()
 
     from .init_project import init_project
 
     ret = init_project(
-        _DGI, options, project, project.main_form if _DGI.useDesktop() else None, project.app
+        _DGI,
+        options,
+        application.PROJECT,
+        application.PROJECT.main_form if _DGI.useDesktop() else None,
+        application.PROJECT.app,
     )
     return ret

@@ -4,7 +4,7 @@ import os
 import os.path
 
 from pineboolib.core.settings import config
-from pineboolib import logging
+from pineboolib import logging, application
 
 logger = logging.getLogger("xpm")
 
@@ -23,13 +23,12 @@ def cacheXPM(value: str) -> str:
 
     xpm_name = value[: value.find("[]")]
     xpm_name = xpm_name[xpm_name.rfind(" ") + 1 :]
-    from pineboolib import application
 
-    conn = application.project.conn_manager.mainConn()
+    conn = application.PROJECT.conn_manager.mainConn()
     if conn is None:
         raise Exception("Project is not connected yet")
 
-    cache_dir = "%s/cache/%s/cacheXPM" % (application.project.tmpdir, conn.DBName())
+    cache_dir = "%s/cache/%s/cacheXPM" % (application.PROJECT.tmpdir, conn.DBName())
     if not os.path.exists(cache_dir):
         os.mkdir(cache_dir)
 

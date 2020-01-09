@@ -366,7 +366,7 @@ class TestGeneral(unittest.TestCase):
 
         cursor = pnsqlcursor.PNSqlCursor("fltest")
         cursor2 = pnsqlcursor.PNSqlCursor(
-            "flareas", True, application.project.conn_manager.mainConn()
+            "flareas", True, application.PROJECT.conn_manager.mainConn()
         )
         self.assertEqual(cursor.table(), "fltest")
         action = cursor.action()

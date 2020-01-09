@@ -2414,10 +2414,10 @@ def file_template(
 
     from pineboolib import application
 
-    application.project.load_version()
+    application.PROJECT.load_version()
 
     yield "line", "# -*- coding: utf-8 -*-"
-    yield "line", "# Translated with pineboolib %s" % application.project.version.split(" ")[1]
+    yield "line", "# Translated with pineboolib %s" % application.PROJECT.version.split(" ")[1]
     yield "line", "from typing import TYPE_CHECKING, Any"
 
     if not STRICT_MODE:

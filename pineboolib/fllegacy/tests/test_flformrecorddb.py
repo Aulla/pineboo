@@ -28,7 +28,7 @@ class TestFLFormrecordCursor(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
-        application.project.actions["flareas"].load()
+        application.PROJECT.actions["flareas"].load()
 
         cursor_1 = pnsqlcursor.PNSqlCursor("flareas")
         cursor_1.select()

@@ -269,9 +269,9 @@ def debug(txt: Union[bool, str, int, float]) -> None:
 
     @param txt. Mensaje.
     """
-    from pineboolib.application import project
+    from pineboolib import application
 
-    project.message_manager().send("debug", None, [ustr(txt)])
+    application.PROJECT.message_manager().send("debug", None, [ustr(txt)])
 
 
 def format_exc(exc: Optional[int] = None) -> str:

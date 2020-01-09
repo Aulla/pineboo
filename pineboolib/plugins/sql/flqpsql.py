@@ -77,10 +77,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 % (db_userName, db_password, db_host, db_port, db_name)
             )
         except psycopg2.OperationalError as e:
-            if application.project._splash:
-                application.project._splash.hide()
+            if application.PROJECT._splash:
+                application.PROJECT._splash.hide()
 
-            if application.project._DGI and not application.project.DGI.localDesktop():
+            if application.PROJECT._DGI and not application.PROJECT.DGI.localDesktop():
                 return False
 
             if "does not exist" in str(e) or "no existe" in str(e):

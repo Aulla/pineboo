@@ -381,8 +381,8 @@ class FLTableDB(QtWidgets.QWidget):
         self.filter_ = ""
 
         self.iconSize = []
-        if application.project._DGI is not None:
-            self.iconSize = application.project.DGI.iconSize()
+        if application.PROJECT._DGI is not None:
+            self.iconSize = application.PROJECT.DGI.iconSize()
 
         self.tabControlLayout = QtWidgets.QHBoxLayout()
         self.tabFilter = QtWidgets.QFrame()  # contiene filtros
@@ -2068,7 +2068,7 @@ class FLTableDB(QtWidgets.QWidget):
                     vars.append(field_3.name())
                     vars.append(self.orderAsc3_)
 
-                ret = application.project.call(function_qsa, vars, None, False)
+                ret = application.PROJECT.call(function_qsa, vars, None, False)
                 logger.debug("functionQSA: %s -> %r" % (function_qsa, ret))
                 if ret and not isinstance(ret, bool):
                     if isinstance(ret, str):
@@ -2714,12 +2714,12 @@ class FLTableDB(QtWidgets.QWidget):
         util.setProgress(tdb_num_rows)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         file_name = "%s/%s%s.ods" % (
-            application.project.tmpdir,
+            application.PROJECT.tmpdir,
             mtd.name(),
             QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz"),
         )
         ods_gen.generateOds(file_name)
-        if not application.project.debugLevel == 1000:  # test
+        if not application.PROJECT.debugLevel == 1000:  # test
             sysbasetype.SysBaseType.openUrl(file_name)
 
         QtWidgets.QApplication.restoreOverrideCursor()
@@ -2793,7 +2793,7 @@ class FLTableDB(QtWidgets.QWidget):
             ret = None
             try:
 
-                ret = application.project.call(functionQSA, vargs, None, False)
+                ret = application.PROJECT.call(functionQSA, vargs, None, False)
                 logger.debug("functionQSA:%s:", functionQSA)
             except Exception:
                 pass

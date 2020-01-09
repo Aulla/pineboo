@@ -25,11 +25,11 @@ class TestFLDataTable(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
-        application.project.actions["flareas"].load()
+        application.PROJECT.actions["flareas"].load()
 
-        application.project.actions["flmodules"].openDefaultForm()
+        application.PROJECT.actions["flmodules"].openDefaultForm()
 
-        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flmodules"
         ].mainform_widget
         # form = flformdb.FLFormDB(None, action)

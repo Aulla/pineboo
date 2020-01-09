@@ -309,7 +309,7 @@ class SqlInspector(object):
                     field_ = field_name[field_name.find(".") + 1 :]
 
                     if field_ == "*":
-                        mtd_table = application.project.conn_manager.manager().metadata(table_)
+                        mtd_table = application.PROJECT.conn_manager.manager().metadata(table_)
                         if mtd_table is not None:
                             for n in mtd_table.fieldListArray():
                                 fl_finish.append(n)
@@ -396,16 +396,15 @@ class SqlInspector(object):
         elif type_ in ("int", "uint", "serial"):
             ret_ = int(ret_)
         elif type_ == "pixmap":
-            from pineboolib.application import project
 
-            if project.conn_manager is None:
+            if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
             metadata = mtd.metadata()
             if metadata is None:
                 raise Exception("Metadata not found")
-            if raw or not project.conn_manager.manager().isSystemTable(metadata.name()):
-                ret_ = project.conn_manager.manager().fetchLargeValue(ret_)
+            if raw or not application.PROJECT.conn_manager.manager().isSystemTable(metadata.name()):
+                ret_ = application.PROJECT.conn_manager.manager().fetchLargeValue(ret_)
         elif type_ == "date":
             from pineboolib.application import types
 
@@ -436,7 +435,7 @@ class SqlInspector(object):
         @param fields_list. fields list.
         @param tables_list. tables list.
         """
-        if application.project.conn_manager is None:
+        if application.PROJECT.conn_manager is None:
             raise Exception("Project is not connected yet")
 
         _filter = ["sum(", "max(", "distint("]
@@ -450,7 +449,7 @@ class SqlInspector(object):
             self._field_list[field_name_org] = number_
             field_name = field_name_org
             for table_name in list(tables_list):
-                mtd_table = application.project.conn_manager.manager().metadata(table_name)
+                mtd_table = application.PROJECT.conn_manager.manager().metadata(table_name)
                 if mtd_table is not None:
                     for fil in _filter:
                         if field_name.startswith(fil):

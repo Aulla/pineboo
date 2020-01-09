@@ -350,7 +350,7 @@ class FormInternalObj(qsa.FormDBWidget):
             self.w_.findChild(QtWidgets.QWidget, "le_temporales").setText(new_dir)
             from pineboolib import application
 
-            application.project.tmpdir = new_dir
+            application.PROJECT.tmpdir = new_dir
 
 
 form = None

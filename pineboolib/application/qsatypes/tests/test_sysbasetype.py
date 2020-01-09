@@ -2,6 +2,8 @@
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
+from pineboolib.application.qsatypes import sysbasetype
+from pineboolib import application
 
 
 class TestSysBaseClassGeneral(unittest.TestCase):
@@ -15,13 +17,11 @@ class TestSysBaseClassGeneral(unittest.TestCase):
     def test_basic(self) -> None:
         """Test basic functions."""
         import platform
-        from pineboolib.application.qsatypes import sysbasetype
         from pineboolib.core.utils.utils_base import filedir
-        from pineboolib import application
+
         import os
 
         base_type = sysbasetype.SysBaseType()
-
         self.assertEqual(base_type.nameUser(), "memory_user")
         self.assertEqual(base_type.interactiveGUI(), "Pineboo")
         self.assertEqual(base_type.isLoadedModule("sys"), True)
@@ -34,8 +34,8 @@ class TestSysBaseClassGeneral(unittest.TestCase):
         self.assertEqual(base_type.osName(), os_name)
         self.assertEqual(base_type.nameBD(), "temp_db")
         self.assertEqual(base_type.installPrefix(), filedir(".."))
-        self.assertEqual(base_type.version(), str(application.project.version))
-        file_path = "%s/test_sysbasetype.txt" % application.project.tmpdir
+        self.assertEqual(base_type.version(), str(application.PROJECT.version))
+        file_path = "%s/test_sysbasetype.txt" % application.PROJECT.tmpdir
 
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -47,13 +47,11 @@ class TestSysBaseClassGeneral(unittest.TestCase):
 
     def test_objects(self) -> None:
         """Test objects functions."""
-        from pineboolib.application.qsatypes import sysbasetype
         from pineboolib.fllegacy import fltabledb
-        from pineboolib import application
 
-        application.project.actions["flareas"].openDefaultForm()
+        application.PROJECT.actions["flareas"].openDefaultForm()
 
-        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ].mainform_widget
         # form = flformdb.FLFormDB(None, action)
@@ -85,19 +83,17 @@ class TestSysBaseClassDataBase(unittest.TestCase):
 
     def test_basic(self) -> None:
         """Test addDatabase and removeDatabase functions."""
-        from pineboolib.application.qsatypes import sysbasetype
-        from pineboolib import application
 
         base_type = sysbasetype.SysBaseType()
 
-        prueba_conn_1 = application.project.conn_manager.useConn("prueba")
+        prueba_conn_1 = application.PROJECT.conn_manager.useConn("prueba")
         self.assertEqual(prueba_conn_1.isOpen(), False)
         self.assertEqual(base_type.addDatabase("prueba"), True)
         self.assertEqual(prueba_conn_1.isOpen(), True)
         self.assertEqual(base_type.removeDatabase("prueba"), True)
         self.assertNotEqual(base_type.idSession(), None)
         self.assertEqual(prueba_conn_1.isOpen(), False)
-        prueba_conn_2 = application.project.conn_manager.useConn("prueba")
+        prueba_conn_2 = application.PROJECT.conn_manager.useConn("prueba")
         self.assertEqual(prueba_conn_2.isOpen(), False)
         self.assertEqual(base_type.addDatabase("prueba"), True)
         self.assertEqual(prueba_conn_2.isOpen(), True)

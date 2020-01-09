@@ -100,7 +100,7 @@ class TestFLFieldDBString(unittest.TestCase):
 
         module_ = dictmodules.from_project("formRecordflmodules")
         parent = module_.widget.parentWidget()
-        table_mtd = application.project.conn_manager.manager().metadata("flmodules")
+        table_mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
         if table_mtd is None:
             raise Exception("table_mtd is empty!.")
         field_mtd = pnfieldmetadata.PNFieldMetaData(

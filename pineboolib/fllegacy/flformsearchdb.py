@@ -56,13 +56,13 @@ class FLFormSearchDB(flformdb.FLFormDB):
         cursor: "pnsqlcursor.PNSqlCursor"
 
         if isinstance(args[0], str):
-            action = application.project.conn_manager.manager().action(args[0])
+            action = application.PROJECT.conn_manager.manager().action(args[0])
             cursor = pnsqlcursor.PNSqlCursor(action.table())
             if len(args) > 1 and args[1]:
                 parent = args[1]
 
         elif isinstance(args[1], str):
-            action = application.project.conn_manager.manager().action(args[1])
+            action = application.PROJECT.conn_manager.manager().action(args[1])
             cursor = args[0]
             if len(args) > 2 and args[2]:
                 parent = args[2]
@@ -70,13 +70,13 @@ class FLFormSearchDB(flformdb.FLFormDB):
             raise Exception("Wrong size of arguments")
 
         if not parent:
-            parent = application.project.main_window
+            parent = application.PROJECT.main_window
 
         if cursor is None:
             self.logger.warning("Se ha llamado a FLFormSearchDB sin nombre de action o cursor")
             return
 
-        if application.project.conn_manager is None:
+        if application.PROJECT.conn_manager is None:
             raise Exception("Project is not connected yet")
 
         super().__init__(action, parent, load=False)

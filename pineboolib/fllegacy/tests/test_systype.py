@@ -23,8 +23,8 @@ class TestSysType(unittest.TestCase):
 
         qsa_sys = systype.SysType()
         txt = "avión, cañita"
-        path_1 = "%s/test_systype_one_iso_8859-15.txt" % application.project.tmpdir
-        path_2 = "%s/test_systype_one_utf-8.txt" % application.project.tmpdir
+        path_1 = "%s/test_systype_one_iso_8859-15.txt" % application.PROJECT.tmpdir
+        path_2 = "%s/test_systype_one_utf-8.txt" % application.PROJECT.tmpdir
 
         if os.path.exists(path_1):
             os.remove(path_1)
@@ -195,7 +195,7 @@ class TestSysType(unittest.TestCase):
         sys = systype.SysType()
         res_1 = sys.xmlModule("flfactppal")
         self.assertTrue(res_1)
-        path_ = application.project.tmpdir
+        path_ = application.PROJECT.tmpdir
         sys.exportModule("flfactppal", path_)
         sys.importModule("%s/flfactppal/flfactppal.mod" % path_)
 
@@ -214,7 +214,7 @@ class TestSysType(unittest.TestCase):
         from pineboolib import application
 
         ad_ = systype.AbanQDbDumper(
-            application.project.conn_manager.useConn("default"), application.project.tmpdir, False
+            application.PROJECT.conn_manager.useConn("default"), application.PROJECT.tmpdir, False
         )
         ad_.initDump()
 

@@ -53,16 +53,16 @@ class FLQPSQL2(FLQPSQL):
                 % (db_userName, db_password, db_host, db_port, db_name)
             )
         except Exception as e:
-            from pineboolib.application import project
+            from pineboolib import application
 
-            if project._DGI and not project.DGI.localDesktop():
+            if application.PROJECT._DGI and not application.PROJECT.DGI.localDesktop():
                 if repr(traceback.format_exc()).find("the database system is starting up") > -1:
                     raise
 
                 return False
 
-            if project._splash:
-                project._splash.hide()
+            if application.PROJECT._splash:
+                application.PROJECT._splash.hide()
             if repr(traceback.format_exc()).find("does not exist") > -1:
                 ret = QMessageBox.warning(
                     QWidget(),

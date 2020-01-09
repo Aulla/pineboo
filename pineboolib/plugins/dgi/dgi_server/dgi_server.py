@@ -82,9 +82,9 @@ class Parser(object):
         dict_: Dict[str, Any] = args[0]  # type: ignore
         func_name = dict_["function"]
         arguments = dict_["arguments"]
-        from pineboolib.application import project
+        from pineboolib import application
 
-        result = project.call(func_name, arguments)
+        result = application.PROJECT.call(func_name, arguments)
         print("Llamada remota: %s(%s) --> %s" % (func_name, ", ".join(arguments), result))
         return result
 
@@ -92,7 +92,7 @@ class Parser(object):
     def dbdata(*args) -> Union[List[Any], str]:
         """Return data from database."""
         dict_: Dict[str, Any] = args[0]  # type: ignore
-        from pineboolib.application import project
+        from pineboolib import application
 
         list_fun: List[str] = dict_["function"].split("__")  # type: ignore
         fun_name = list_fun[1]
@@ -100,14 +100,14 @@ class Parser(object):
         cursor = None
 
         if fun_name == "hello":
-            project.conn_manager.removeConn("%s_remote_client" % id_conn)
+            application.PROJECT.conn_manager.removeConn("%s_remote_client" % id_conn)
             # list_to_delete = []
             for k in list(cursor_dict.keys()):
                 if k.startswith(id_conn):
                     cursor_dict[k] = None
                     del cursor_dict[k]
 
-        conn = project.conn_manager.useConn("%s_remote_client" % id_conn)
+        conn = application.PROJECT.conn_manager.useConn("%s_remote_client" % id_conn)
 
         # print("--->", dict_["function"], dict_["arguments"]["cursor_id"] if "cursor_id" in dict_["arguments"] else None)
 

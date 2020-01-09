@@ -251,8 +251,8 @@ class FLApplication(QtCore.QObject):
 
     def aboutPineboo(self) -> None:
         """Show about Pineboo."""
-        if application.project.DGI.localDesktop():
-            fun_about = getattr(application.project.DGI, "about_pineboo", None)
+        if application.PROJECT.DGI.localDesktop():
+            fun_about = getattr(application.PROJECT.DGI, "about_pineboo", None)
             if fun_about is not None:
                 fun_about()
 
@@ -269,8 +269,8 @@ class FLApplication(QtCore.QObject):
 
     def openMasterForm(self, action_name: str, pix: Optional[QtGui.QPixmap] = None) -> None:
         """Open a tab."""
-        if action_name in application.project.actions.keys():
-            application.project.actions[action_name].openDefaultForm()
+        if action_name in application.PROJECT.actions.keys():
+            application.PROJECT.actions[action_name].openDefaultForm()
 
     @decorators.NotImplementedWarn
     def openDefaultForm(self):
@@ -279,8 +279,8 @@ class FLApplication(QtCore.QObject):
 
     def execMainScript(self, action_name) -> None:
         """Execute main script."""
-        if action_name in application.project.actions.keys():
-            application.project.actions[action_name].execDefaultScript()
+        if action_name in application.PROJECT.actions.keys():
+            application.PROJECT.actions[action_name].execDefaultScript()
 
     @decorators.NotImplementedWarn
     def execDefaultScript(self):
@@ -289,8 +289,8 @@ class FLApplication(QtCore.QObject):
 
     def loadScriptsFromModule(self, idm) -> None:
         """Load scripts from named module."""
-        if idm in application.project.modules.keys():
-            application.project.modules[idm].load()
+        if idm in application.PROJECT.modules.keys():
+            application.PROJECT.modules[idm].load()
 
     def reinit(self) -> None:
         """Cleanup and restart."""
@@ -301,8 +301,8 @@ class FLApplication(QtCore.QObject):
         # self.apAppIdle()
         self._inicializing = True
 
-        if hasattr(application.project.main_form, "mainWindow"):
-            mw = application.project.main_form.mainWindow
+        if hasattr(application.PROJECT.main_form, "mainWindow"):
+            mw = application.PROJECT.main_form.mainWindow
 
             if mw is not None:
                 mw.writeState()
@@ -378,10 +378,10 @@ class FLApplication(QtCore.QObject):
 
     def clearProject(self) -> None:
         """Cleanup."""
-        application.project.actions = {}
-        application.project.areas = {}
-        application.project.modules = {}
-        application.project.tables = {}
+        application.PROJECT.actions = {}
+        application.PROJECT.areas = {}
+        application.PROJECT.modules = {}
+        application.PROJECT.tables = {}
 
     def acl(self) -> Optional[pnaccesscontrollists.PNAccessControlLists]:
         """Return acl."""
@@ -392,7 +392,7 @@ class FLApplication(QtCore.QObject):
         self.acl_ = acl
 
     def reinitP(self) -> None:
-        """Reinitialize application.project."""
+        """Reinitialize application.PROJECT."""
         from pineboolib.application.qsadictmodules import QSADictModules
 
         self.db().managerModules().finish()
@@ -402,26 +402,26 @@ class FLApplication(QtCore.QObject):
 
         self.clearProject()
 
-        if application.project.main_window is None:
-            if application.project.main_form is not None:
-                application.project.main_form.mainWindow = application.project.main_form.MainForm()
-                application.project.main_window = application.project.main_form.mainWindow
-                application.project.main_window.initScript()
+        if application.PROJECT.main_window is None:
+            if application.PROJECT.main_form is not None:
+                application.PROJECT.main_form.mainWindow = application.PROJECT.main_form.MainForm()
+                application.PROJECT.main_window = application.PROJECT.main_form.mainWindow
+                application.PROJECT.main_window.initScript()
 
-        mw = application.project.main_window
+        mw = application.PROJECT.main_window
         if self.main_widget_ is None:
             self.main_widget_ = mw
 
-        if application.project.main_window is not None:
-            application.project.main_window.initialized_mods_ = []
+        if application.PROJECT.main_window is not None:
+            application.PROJECT.main_window.initialized_mods_ = []
 
         QSADictModules.clean_all()
 
-        application.project.run()
+        application.PROJECT.run()
         self.db().managerModules().loadIdAreas()
         self.db().managerModules().loadAllIdModules()
-        # for module_name in application.project.modules.keys():
-        #    application.project.modules[module_name].load()
+        # for module_name in application.PROJECT.modules.keys():
+        #    application.PROJECT.modules[module_name].load()
         self.db().manager().init()
 
         self.db().managerModules()
@@ -447,8 +447,8 @@ class FLApplication(QtCore.QObject):
 
         self._inicializing = False
 
-        if hasattr(application.project.main_window, "reinitSript"):
-            application.project.main_window.reinitSript()
+        if hasattr(application.PROJECT.main_window, "reinitSript"):
+            application.PROJECT.main_window.reinitSript()
 
     def showDocPage(self, url_: str) -> None:
         """Show documentation."""
@@ -499,7 +499,7 @@ class FLApplication(QtCore.QObject):
 
     def call(self, function, argument_list=[], object_content=None, show_exceptions=True) -> Any:
         """Call a QS project function."""
-        return application.project.call(function, argument_list, object_content, show_exceptions)
+        return application.PROJECT.call(function, argument_list, object_content, show_exceptions)
 
     @decorators.NotImplementedWarn
     def setNotExit(self, b):
@@ -518,7 +518,7 @@ class FLApplication(QtCore.QObject):
 
     def setCaptionMainWidget(self, text: str) -> None:
         """Set caption main widget."""
-        application.project.main_form.mainWindow.setCaptionMainWidget(text)
+        application.PROJECT.main_form.mainWindow.setCaptionMainWidget(text)
 
     @decorators.NotImplementedWarn
     def addSysCode(self, code, script_entry_function):
@@ -594,7 +594,7 @@ class FLApplication(QtCore.QObject):
 
     def showConsole(self) -> None:
         """Show application console on GUI."""
-        mw = application.project.main_form.mainWindow
+        mw = application.PROJECT.main_form.mainWindow
         if mw:
             if self._ted_output:
                 self._ted_output.parentWidget().close()
@@ -614,7 +614,7 @@ class FLApplication(QtCore.QObject):
 
     def modMainWidget(self, id_modulo: str) -> Optional[QtWidgets.QWidget]:
         """Set module main widget."""
-        mw = application.project.main_window
+        mw = application.PROJECT.main_window
         mod_widget: Optional[QtWidgets.QWidget] = None
         if hasattr(mw, "_dict_main_widgets"):
             if id_modulo in mw._dict_main_widgets.keys():
@@ -666,7 +666,7 @@ class FLApplication(QtCore.QObject):
 
     def DGI(self) -> Any:
         """Return current DGI."""
-        return application.project._DGI
+        return application.PROJECT._DGI
 
     def singleFLLarge(self) -> bool:
         """
@@ -693,7 +693,7 @@ class FLApplication(QtCore.QObject):
 
     def db(self) -> Any:
         """Return current connection."""
-        return application.project.conn_manager
+        return application.PROJECT.conn_manager
 
     @decorators.NotImplementedWarn
     def classType(self, n):
@@ -703,7 +703,7 @@ class FLApplication(QtCore.QObject):
         return type(n)
 
     # def __getattr__(self, name):
-    #    return getattr(application.project, name, None)
+    #    return getattr(application.PROJECT, name, None)
 
     def mainWidget(self) -> Any:
         """Return current mainWidget."""
@@ -725,7 +725,7 @@ class FLApplication(QtCore.QObject):
             return True
 
         ret = QtWidgets.QMessageBox.information(
-            application.project.main_form.mainWindow,
+            application.PROJECT.main_form.mainWindow,
             self.tr("Salir ..."),
             self.tr("¿ Quiere salir de la aplicación ?"),
             QtWidgets.QMessageBox.Yes,
@@ -890,7 +890,7 @@ class FLApplication(QtCore.QObject):
 
     def modules(self) -> Any:
         """Return loaded modules."""
-        return application.project.modules
+        return application.PROJECT.modules
 
     def commaSeparator(self) -> Any:
         """Return comma separator for floating points on current language."""
@@ -898,15 +898,15 @@ class FLApplication(QtCore.QObject):
 
     def tmp_dir(self) -> Any:
         """Return temporary folder."""
-        return application.project.tmpdir
+        return application.PROJECT.tmpdir
 
     def transactionLevel(self):
         """Return number of concurrent transactions."""
-        return application.project.conn_manager.useConn("default").transactionLevel()
+        return application.PROJECT.conn_manager.useConn("default").transactionLevel()
 
     def version(self):
         """Return app version."""
-        return application.project.version
+        return application.PROJECT.version
 
     def dialogGetFileImage(self) -> Optional[str]:
         """Get image file name."""
@@ -914,7 +914,7 @@ class FLApplication(QtCore.QObject):
         # from . import flpixmapviewer
 
         file_dialog = QtWidgets.QFileDialog(
-            QtWidgets.qApp.focusWidget(), self.tr("Elegir archivo"), application.project.tmpdir, "*"
+            QtWidgets.qApp.focusWidget(), self.tr("Elegir archivo"), application.PROJECT.tmpdir, "*"
         )
         # pixmap_viewer = flpixmapview.FLPixmapView(file_dialog)
 

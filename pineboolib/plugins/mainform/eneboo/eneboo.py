@@ -120,7 +120,7 @@ class DockListView(QtCore.QObject):
         self.lw_.resize(width, height)
         # self.w_.resize(width, height)
 
-        if not application.project.DGI.mobilePlatform():
+        if not application.PROJECT.DGI.mobilePlatform():
             visible = settings.readBoolEntry("%svisible" % key, True)
             if visible:
                 self.w_.show()
@@ -339,7 +339,7 @@ class MainForm(QtWidgets.QMainWindow):
     def createUi(self, ui_file: str) -> None:
         """Create UI from file path."""
 
-        mng = application.project.conn_manager.managerModules()
+        mng = application.PROJECT.conn_manager.managerModules()
         self.w_ = cast(QtWidgets.QMainWindow, mng.createUI(ui_file, None, self))
         self.w_.setObjectName("container")
 
@@ -392,7 +392,7 @@ class MainForm(QtWidgets.QMainWindow):
         settings.writeEntry("%swidth" % key, w.width())
         settings.writeEntry("%sheight" % key, w.height())
 
-        key += "%s/" % application.project.conn_manager.database()
+        key += "%s/" % application.PROJECT.conn_manager.database()
 
         open_actions = []
 
@@ -458,7 +458,7 @@ class MainForm(QtWidgets.QMainWindow):
         if self.ag_menu_:
 
             settings = aqsobjectfactory.AQSettings()
-            key = "MainWindow/%s/" % application.project.conn_manager.database()
+            key = "MainWindow/%s/" % application.PROJECT.conn_manager.database()
 
             open_actions = settings.readListEntry("%sopenActions" % key)
             i = 0
@@ -475,7 +475,7 @@ class MainForm(QtWidgets.QMainWindow):
                 )
                 if not action or not action.isVisible():
                     continue
-                module_name = application.project.conn_manager.managerModules().idModuleOfFile(
+                module_name = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
                     "%s.ui" % action.objectName()
                 )
                 if module_name:
@@ -1330,7 +1330,7 @@ class MainForm(QtWidgets.QMainWindow):
     def setCaptionMainWidget(self, value) -> None:
         """Set application title."""
 
-        self.setWindowTitle("Pineboo %s - %s" % (application.project.version, value))
+        self.setWindowTitle("Pineboo %s - %s" % (application.PROJECT.version, value))
 
 
 mainWindow: MainForm

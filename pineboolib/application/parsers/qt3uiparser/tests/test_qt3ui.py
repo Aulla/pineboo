@@ -17,7 +17,7 @@ class TestQT3UIParser(unittest.TestCase):
     def test_mainForm(self) -> None:
         """Test mainForm widget."""
 
-        mng_modules = application.project.conn_manager.managerModules()
+        mng_modules = application.PROJECT.conn_manager.managerModules()
         from pineboolib.core.utils.utils_base import filedir
 
         file_1 = filedir("./application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui")
@@ -30,7 +30,7 @@ class TestQT3UIParser(unittest.TestCase):
     def test_formRecord(self) -> None:
         """Test formRecord widget."""
 
-        mng_modules = application.project.conn_manager.managerModules()
+        mng_modules = application.PROJECT.conn_manager.managerModules()
         from pineboolib.core.utils.utils_base import filedir
 
         file_1 = filedir("./application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui")

@@ -75,12 +75,12 @@ class PNAccessControlLists(object):
         @param _acl_xml XML content with the definition of the access control list.
         """
         if _acl_xml is None:
-            from pineboolib.application import project
+            from pineboolib import application
 
-            if project.conn_manager is None:
+            if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
-            _acl_xml = project.conn_manager.managerModules().content("acl.xml")
+            _acl_xml = application.PROJECT.conn_manager.managerModules().content("acl.xml")
 
         doc = QDomDocument("ACL")
         if self._access_control_list:
@@ -135,12 +135,12 @@ class PNAccessControlLists(object):
         elif hasattr(obj, "objectName"):
             name = obj.objectName()
 
-        from pineboolib.application import project
+        from pineboolib import application
 
-        if project.conn_manager is None:
+        if application.PROJECT.conn_manager is None:
             raise Exception("Project is not connected yet")
 
-        user = project.conn_manager.mainConn().user()
+        user = application.PROJECT.conn_manager.mainConn().user()
         if type_ == "" or name == "" or user == "":
             return
 
@@ -183,12 +183,14 @@ class PNAccessControlLists(object):
                 self.make_rule(q, doc)
                 # progress.setProgress(++step)
 
-            from pineboolib.application import project
+            from pineboolib import application
 
-            if project.conn_manager is None:
+            if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
-            project.conn_manager.managerModules().setContent("acl.xml", "sys", doc.toString())
+            application.PROJECT.conn_manager.managerModules().setContent(
+                "acl.xml", "sys", doc.toString()
+            )
 
     def make_rule(self, q: PNSqlQuery, d: QDomDocument) -> None:
         """

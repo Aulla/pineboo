@@ -37,54 +37,54 @@ class TestEnebooGUI(unittest.TestCase):
         from pineboolib.plugins.mainform.eneboo import eneboo
         import os
 
-        application.project.main_form = eneboo
+        application.PROJECT.main_form = eneboo
         eneboo.mainWindow = eneboo.MainForm()
         eneboo.mainWindow.initScript()
-        application.project.main_window = eneboo.mainWindow
+        application.PROJECT.main_window = eneboo.mainWindow
 
-        # main_window = application.project.main_form.MainForm()  # type: ignore
+        # main_window = application.PROJECT.main_form.MainForm()  # type: ignore
         # main_window.initScript()
 
         qsa_sys = qsa.sys
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
-        application.project.main_window.triggerAction(
+        application.PROJECT.main_window.triggerAction(
             "triggered():initModule():flfactppal_actiongroup_name"
         )
         qsa_sys.loadModules(path, False)
 
-        application.project.main_window = application.project.main_form.mainWindow  # type: ignore
-        application.project.main_window.show()
-        self.assertTrue(application.project.main_window)
-        application.project.main_window.triggerAction(
+        application.PROJECT.main_window = application.PROJECT.main_form.mainWindow  # type: ignore
+        application.PROJECT.main_window.show()
+        self.assertTrue(application.PROJECT.main_window)
+        application.PROJECT.main_window.triggerAction(
             "triggered():initModule():sys_actiongroup_name"
         )
         # self.assertTrue(False)
-        application.project.main_window.triggerAction("triggered():openDefaultForm():clientes")
-        application.project.main_window.triggerAction(
+        application.PROJECT.main_window.triggerAction("triggered():openDefaultForm():clientes")
+        application.PROJECT.main_window.triggerAction(
             "triggered():openDefaultForm():clientes"
         )  # Remove page and show again.
-        ac = application.project.main_window.findChild(QtWidgets.QAction, "clientes")
-        application.project.main_window.addMark(ac)
+        ac = application.PROJECT.main_window.findChild(QtWidgets.QAction, "clientes")
+        application.PROJECT.main_window.addMark(ac)
 
-        application.project.main_window.ag_mar_.removeAction(ac)
-        application.project.main_window.dck_mar_.update(application.project.main_window.ag_mar_)
+        application.PROJECT.main_window.ag_mar_.removeAction(ac)
+        application.PROJECT.main_window.dck_mar_.update(application.PROJECT.main_window.ag_mar_)
         w = QtWidgets.QDockWidget()
         w.setWidget(QtWidgets.QTreeWidget())
-        application.project.main_window.dck_mar_.initFromWidget(w)
-        application.project.main_window.dck_mar_.change_state(False)
+        application.PROJECT.main_window.dck_mar_.initFromWidget(w)
+        application.PROJECT.main_window.dck_mar_.change_state(False)
 
-        application.project.main_window.removeCurrentPage(0)
-        application.project.main_window.initModule("sys")
+        application.PROJECT.main_window.removeCurrentPage(0)
+        application.PROJECT.main_window.initModule("sys")
 
-        application.project.main_window.initFromWidget(application.project.main_window)
-        application.project.main_window.triggerAction("triggered():shConsole():clientes")
+        application.PROJECT.main_window.initFromWidget(application.PROJECT.main_window)
+        application.PROJECT.main_window.triggerAction("triggered():shConsole():clientes")
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure this class is finished correctly."""
-        del application.project.main_form
-        del application.project.main_window
+        del application.PROJECT.main_form
+        del application.PROJECT.main_window
 
         config.set_value("application/isDebuggerMode", False)
         config.set_value("application/dbadmin_enabled", False)

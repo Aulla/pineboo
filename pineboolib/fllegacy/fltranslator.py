@@ -4,7 +4,7 @@
 import os
 from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core.settings import config
-from pineboolib.application import project
+from pineboolib import application
 
 from PyQt5 import Qt
 from pineboolib import logging
@@ -57,13 +57,13 @@ class FLTranslator(Qt.QTranslator):
         if self._id_module == "sys":
             ts_file = filedir("./system_module/translations/%s.%s" % (self._id_module, self._lang))
         else:
-            if project.conn_manager is None:
+            if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
             ts_file = filedir(
                 "%s/cache/%s/%s/file.ts/%s.%s/%s"
                 % (
-                    project.tmpdir,
-                    project.conn_manager.useConn("default").DBName(),
+                    application.PROJECT.tmpdir,
+                    application.PROJECT.conn_manager.useConn("default").DBName(),
                     self._id_module,
                     self._id_module,
                     self._lang,

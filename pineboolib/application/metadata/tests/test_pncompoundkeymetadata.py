@@ -12,9 +12,9 @@ class TestPNCompoundKeyFromTableMetaData(unittest.TestCase):
 
     def test_basic(self) -> None:
         """Test check that the data is correct in a compound key."""
-        from pineboolib.application import project
+        from pineboolib import application
 
-        mtd = project.conn_manager.manager().metadata("flseqs")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flseqs")
         if mtd is None:
             raise Exception
         field_1 = mtd.field("campo")
@@ -41,10 +41,10 @@ class TestGeneratePNCompoundKey(unittest.TestCase):
 
     def test_basic(self) -> None:
         """Test create a composite key and check its values."""
-        from pineboolib.application import project
+        from pineboolib import application
         from pineboolib.application.metadata.pncompoundkeymetadata import PNCompoundKeyMetaData
 
-        mtd = project.conn_manager.manager().metadata("flfiles")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flfiles")
         if mtd is None:
             raise Exception
 

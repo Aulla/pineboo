@@ -16,7 +16,7 @@ class TestPNSqlDrivers(unittest.TestCase):
         """Test full."""
         from pineboolib import application
 
-        conn_ = application.project.conn_manager.mainConn()
+        conn_ = application.PROJECT.conn_manager.mainConn()
 
         self.assertEqual(conn_.driverSql.defaultDriverName(), "FLsqlite")
         self.assertEqual(conn_.driverSql.driverName(), "FLsqlite")

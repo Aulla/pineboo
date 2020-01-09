@@ -3,6 +3,9 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 
+from pineboolib.application.metadata import pntablemetadata
+from pineboolib import application
+
 
 class TestCreatePNTableMetaData(unittest.TestCase):
     """TestCreatePNTableMetaData Class."""
@@ -68,12 +71,9 @@ class TestCopyPNTableMetaData(unittest.TestCase):
     def test_basic(self) -> None:
         """Test copy a PNTableMetaData from other."""
 
-        from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
-        from pineboolib import application
+        mtd_1 = application.PROJECT.conn_manager.manager().metadata("flgroups")
 
-        mtd_1 = application.project.conn_manager.manager().metadata("flgroups")
-
-        mtd_2 = PNTableMetaData(mtd_1)
+        mtd_2 = pntablemetadata.PNTableMetaData(mtd_1)
 
         self.assertEqual(mtd_2.name(), "flgroups")
         self.assertEqual(mtd_2.alias(), "Grupos de Usuarios")
@@ -98,10 +98,8 @@ class TestPNTableMetaData(unittest.TestCase):
     def test_basic(self) -> None:
         """Test manage a PNTableMetaData."""
 
-        from pineboolib import application
-
-        mtd = application.project.conn_manager.manager().metadata("flgroups")
-        mtd_2 = application.project.conn_manager.manager().metadata("flareas")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flgroups")
+        mtd_2 = application.PROJECT.conn_manager.manager().metadata("flareas")
         if mtd is None:
             raise Exception
         if mtd_2 is None:
@@ -174,9 +172,7 @@ class TestRelationsPNTableMetaData(unittest.TestCase):
     def test_basic(self) -> None:
         """Test Relations M1 and 1M."""
 
-        from pineboolib import application
-
-        mtd_1 = application.project.conn_manager.manager().metadata("flusers")
+        mtd_1 = application.PROJECT.conn_manager.manager().metadata("flusers")
         if mtd_1 is None:
             raise Exception
         self.assertEqual(mtd_1.fieldTableM1("idgroup"), "flgroups")
@@ -199,9 +195,7 @@ class TestCompoundKeyPNTableMetaData(unittest.TestCase):
     def test_basic(self) -> None:
         """Test CompoundKey."""
 
-        from pineboolib import application
-
-        mtd = application.project.conn_manager.manager().metadata("flseqs")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flseqs")
         if mtd is None:
             raise Exception
         field_list = mtd.fieldListOfCompoundKey("campo")

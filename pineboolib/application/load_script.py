@@ -22,7 +22,7 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
 
     from pineboolib import application
 
-    project = application.project
+    project = application.PROJECT
 
     if scriptname:
         scriptname = scriptname.replace(".qs", "")

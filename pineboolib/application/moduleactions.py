@@ -6,6 +6,7 @@ from pineboolib.core.utils import logging
 from pineboolib.core.exceptions import ForbiddenError
 from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.xmlaction import XMLAction
+from pineboolib import application
 
 from typing import Any, TYPE_CHECKING, NoReturn
 
@@ -29,9 +30,8 @@ class ModuleActions(object):
             # To avoid circular dependency on pytype
             self.project = module
         else:
-            from pineboolib.application import project  # FIXME?
+            self.project = application.PROJECT
 
-            self.project = project
         self.mod = module  # application.Module
         self.path = path
         self.module_name = modulename

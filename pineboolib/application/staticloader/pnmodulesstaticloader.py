@@ -324,10 +324,10 @@ class PNStaticLoader(QtCore.QObject):
                     return content_path
                 else:
 
-                    if application.project.conn_manager is None:
+                    if application.PROJECT.conn_manager is None:
                         raise Exception("Project is not connected yet")
 
-                    return application.project.conn_manager.managerModules().contentFS(
+                    return application.PROJECT.conn_manager.managerModules().contentFS(
                         info.path_ + separator + n
                     )
 

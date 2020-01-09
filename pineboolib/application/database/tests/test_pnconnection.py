@@ -17,7 +17,7 @@ class TestPNConnection(unittest.TestCase):
     def test_basic1(self) -> None:
         """Basic test 1."""
 
-        conn_manager = application.project.conn_manager
+        conn_manager = application.PROJECT.conn_manager
 
         self.assertEqual(conn_manager.mainConn().connectionName(), "main_conn")
         conn_default_ = conn_manager.useConn("default")
@@ -40,7 +40,7 @@ class TestPNConnection(unittest.TestCase):
     def test_basic2(self) -> None:
         """Basic test 2."""
 
-        conn_manager = application.project.conn_manager
+        conn_manager = application.PROJECT.conn_manager
         conn_ = conn_manager.mainConn()
         self.assertTrue("flareas" in conn_.tables("Tables"))
         self.assertTrue("sqlite_master" in conn_.tables())
@@ -58,7 +58,7 @@ class TestPNConnection(unittest.TestCase):
 
         from pineboolib.fllegacy import systype
 
-        conn_manager = application.project.conn_manager
+        conn_manager = application.PROJECT.conn_manager
         sys_type = systype.SysType()
         conn_ = conn_manager.mainConn()
 
@@ -74,7 +74,7 @@ class TestPNConnection(unittest.TestCase):
     def test_basic4(self) -> None:
         """Basic test 4."""
 
-        conn_manager = application.project.conn_manager
+        conn_manager = application.PROJECT.conn_manager
         conn_ = conn_manager.mainConn()
         self.assertTrue(conn_.interactiveGUI_)
         conn_.setInteractiveGUI(False)
@@ -105,7 +105,7 @@ class TestPNConnection(unittest.TestCase):
     def test_basic5(self) -> None:
         """Basic test 5."""
 
-        conn_manager = application.project.conn_manager
+        conn_manager = application.PROJECT.conn_manager
         conn_ = conn_manager.mainConn()
         cursor = pnsqlcursor.PNSqlCursor("flareas")
         conn_.doTransaction(cursor)
@@ -143,7 +143,7 @@ class TestPNConnection(unittest.TestCase):
         """Test basic 6."""
         from pineboolib.application.database import pnsqlcursor
 
-        conn_manager = application.project.conn_manager
+        conn_manager = application.PROJECT.conn_manager
         conn_default = conn_manager.useConn("default")
         conn_manager.useConn("test")
         cursor = pnsqlcursor.PNSqlCursor("flsettings")

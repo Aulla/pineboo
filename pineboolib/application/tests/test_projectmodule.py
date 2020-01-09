@@ -21,7 +21,7 @@ class TestProjectModule(unittest.TestCase):
         import shutil
 
         path = fixture_path("flfacturac.qs")
-        tmp_path = "%s/%s" % (application.project.tmpdir, "temp_qs_projectmodule.qs")
+        tmp_path = "%s/%s" % (application.PROJECT.tmpdir, "temp_qs_projectmodule.qs")
         path_py = "%s.qs.py" % tmp_path[:-3]
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
@@ -30,7 +30,7 @@ class TestProjectModule(unittest.TestCase):
             os.remove(path_py)
 
         shutil.copy(path, tmp_path)
-        application.project.parse_script(tmp_path)
+        application.PROJECT.parse_script(tmp_path)
 
         self.assertTrue(os.path.exists(path_py))
 

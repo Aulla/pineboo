@@ -189,7 +189,7 @@ class FLFormDB(QtWidgets.QDialog):
         self._loaded = False
 
         if isinstance(action_or_name, str):
-            self._action = application.project.conn_manager.manager().action(action_or_name)
+            self._action = application.PROJECT.conn_manager.manager().action(action_or_name)
         else:
             self._action = action_or_name
 
@@ -234,15 +234,15 @@ class FLFormDB(QtWidgets.QDialog):
         self.logger.info("init: Action: %s", self._action)
 
         self.script = load_script.load_script(
-            script_name, application.project.actions[self._action.name()]
+            script_name, application.PROJECT.actions[self._action.name()]
         )
         self.widget = self.script.form
         self.widget.form = self
         if hasattr(self.widget, "iface"):
             self.iface = self.widget.iface
 
-        if application.project._DGI is not None:
-            self.iconSize = application.project.DGI.iconSize()
+        if application.PROJECT._DGI is not None:
+            self.iconSize = application.PROJECT.DGI.iconSize()
 
         if load:
             self.load()
@@ -264,10 +264,10 @@ class FLFormDB(QtWidgets.QDialog):
 
         if self._uiName:
 
-            if application.project.conn_manager is None:
+            if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
-            application.project.conn_manager.managerModules().createUI(self._uiName, None, self)
+            application.PROJECT.conn_manager.managerModules().createUI(self._uiName, None, self)
 
         self._loaded = True
 
@@ -299,7 +299,7 @@ class FLFormDB(QtWidgets.QDialog):
 
                     flapplication.aqApp.msgBoxWarning(
                         error_manager(traceback.format_exc(limit=-6, chain=False)),
-                        application.project._DGI,
+                        application.PROJECT._DGI,
                     )
                     return False
 
@@ -553,11 +553,11 @@ class FLFormDB(QtWidgets.QDialog):
     def emitFormClosed(self) -> None:
         """Emit formClosed signal."""
 
-        if application.project.conn_manager is None:
+        if application.PROJECT.conn_manager is None:
             raise Exception("Project is not connected yet")
 
-        if "fltesttest" in application.project.conn_manager.managerModules().listAllIdModules():
-            application.project.call(
+        if "fltesttest" in application.PROJECT.conn_manager.managerModules().listAllIdModules():
+            application.PROJECT.call(
                 "fltesttest.iface.recibeEvento", ["formClosed", self.actionName_], None
             )
 
@@ -605,7 +605,7 @@ class FLFormDB(QtWidgets.QDialog):
                 self.cursor_.setMainFilter(v, False)
 
             # if self._loaded and not self.__class__.__name__ == "FLFormRecordDB":
-            # application.project.conn_manager.managerModules().loadFLTableDBs(self)
+            # application.PROJECT.conn_manager.managerModules().loadFLTableDBs(self)
 
             if self._action.description() not in ("", None):
                 self.setWhatsThis(self._action.description())
@@ -894,13 +894,13 @@ class FLFormDB(QtWidgets.QDialog):
         by default the current main widget.
         """
 
-        if hasattr(application.project.main_window, "_dict_main_widgets"):
-            module_name = application.project.conn_manager.managerModules().activeIdModule()
+        if hasattr(application.PROJECT.main_window, "_dict_main_widgets"):
+            module_name = application.PROJECT.conn_manager.managerModules().activeIdModule()
             if (
                 module_name
-                and module_name in application.project.main_window._dict_main_widgets.keys()
+                and module_name in application.PROJECT.main_window._dict_main_widgets.keys()
             ):
-                module_window = application.project.main_window._dict_main_widgets[module_name]
+                module_window = application.PROJECT.main_window._dict_main_widgets[module_name]
 
                 mdi_area = module_window.centralWidget()
                 if isinstance(mdi_area, QtWidgets.QMdiArea):

@@ -203,9 +203,9 @@ class FLReportEngine(QtCore.QObject):
         if not self.d_.qry_:
             from pineboolib import application
 
-            if application.project.conn_manager is None:
+            if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
-            mgr = application.project.conn_manager.managerModules()
+            mgr = application.PROJECT.conn_manager.managerModules()
 
         else:
             mgr = self.d_.qry_.db().connManager().managerModules()

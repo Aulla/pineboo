@@ -17,7 +17,7 @@ from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import ustr, filedir
 from pineboolib.core.utils import logging
 
-from pineboolib.application import project
+from pineboolib import application
 from pineboolib.application import connections
 
 from pineboolib.application.process import Process
@@ -37,17 +37,17 @@ class SysBaseType(object):
         """Get current database user."""
         ret_ = None
 
-        if project.DGI.use_alternative_credentials():
-            ret_ = project.DGI.get_nameuser()
+        if application.PROJECT.DGI.use_alternative_credentials():
+            ret_ = application.PROJECT.DGI.get_nameuser()
         else:
-            ret_ = project.conn_manager.mainConn().user()
+            ret_ = application.PROJECT.conn_manager.mainConn().user()
 
         return ret_ or ""
 
     @classmethod
     def interactiveGUI(self) -> str:
         """Check if running in GUI mode."""
-        return project.DGI.interactiveGUI()
+        return application.PROJECT.DGI.interactiveGUI()
 
     @classmethod
     def isUserBuild(self) -> bool:
@@ -88,7 +88,7 @@ class SysBaseType(object):
     @classmethod
     def isLoadedModule(self, modulename: str) -> bool:
         """Check if a module has been loaded."""
-        return modulename in project.conn_manager.managerModules().listAllIdModules()
+        return modulename in application.PROJECT.conn_manager.managerModules().listAllIdModules()
 
     @classmethod
     def osName(self) -> str:
@@ -109,7 +109,7 @@ class SysBaseType(object):
     @classmethod
     def nameBD(self) -> str:
         """Get database name."""
-        return project.conn_manager.mainConn().DBName()
+        return application.PROJECT.conn_manager.mainConn().DBName()
 
     @classmethod
     def toUnicode(self, val: str, format: str) -> str:
@@ -124,7 +124,7 @@ class SysBaseType(object):
     @classmethod
     def Mr_Proper(self) -> None:
         """Cleanup database like Mr. Proper."""
-        project.conn_manager.mainConn().Mr_Proper()
+        application.PROJECT.conn_manager.mainConn().Mr_Proper()
 
     @classmethod
     def installPrefix(self) -> str:
@@ -134,15 +134,15 @@ class SysBaseType(object):
     @classmethod
     def version(self) -> str:
         """Get version number as string."""
-        return str(project.version)
+        return str(application.PROJECT.version)
 
     @classmethod
     def processEvents(self) -> None:
         """Process event loop."""
-        if not project._DGI:
-            raise Exception("project._DGI is empty!")
+        if not application.PROJECT._DGI:
+            raise Exception("application.PROJECT._DGI is empty!")
 
-        return project.DGI.processEvents()
+        return application.PROJECT.DGI.processEvents()
 
     @classmethod
     def write(self, encode_: str, dir_: str, contenido: str) -> None:
@@ -156,17 +156,17 @@ class SysBaseType(object):
     @classmethod
     def cleanupMetaData(self, connName: str = "default") -> None:
         """Clean up metadata."""
-        project.conn_manager.manager().cleanupMetaData()
+        application.PROJECT.conn_manager.manager().cleanupMetaData()
 
     @classmethod
     def nameDriver(self, connName: str = "default") -> Any:
         """Get driver name."""
-        return project.conn_manager.useConn(connName).driverName()
+        return application.PROJECT.conn_manager.useConn(connName).driverName()
 
     @classmethod
     def nameHost(self, connName: str = "default") -> Any:
         """Get database host name."""
-        return project.conn_manager.useConn(connName).host()
+        return application.PROJECT.conn_manager.useConn(connName).host()
 
     @classmethod
     def addDatabase(self, *args: Any) -> bool:
@@ -175,14 +175,14 @@ class SysBaseType(object):
         #                 db_password = None, db_host = None, db_port = None, connName="default"):
 
         if len(args) == 1:
-            conn_db = project.conn_manager.useConn(args[0])
+            conn_db = application.PROJECT.conn_manager.useConn(args[0])
             if not conn_db.isOpen():
                 if (
                     conn_db.driver_name_
                     and conn_db.driverSql
                     and conn_db.driverSql.loadDriver(conn_db.driver_name_)
                 ):
-                    main_conn = project.conn_manager.mainConn()
+                    main_conn = application.PROJECT.conn_manager.mainConn()
                     conn_db.driver_ = conn_db.driverSql.driver()
                     conn_db.conn = conn_db.conectar(
                         main_conn.db_name_,
@@ -197,7 +197,7 @@ class SysBaseType(object):
                     conn_db._isOpen = True
 
         else:
-            conn_db = project.conn_manager.useConn(args[6])
+            conn_db = application.PROJECT.conn_manager.useConn(args[6])
             if not conn_db.isOpen():
                 if conn_db.driverSql is None:
                     raise Exception("driverSql not loaded!")
@@ -217,7 +217,7 @@ class SysBaseType(object):
     @classmethod
     def removeDatabase(self, conn_name: str = "default") -> Any:
         """Remove a database."""
-        return project.conn_manager.removeConn(conn_name)
+        return application.PROJECT.conn_manager.removeConn(conn_name)
 
     @classmethod
     def idSession(self) -> str:
@@ -348,7 +348,7 @@ class SysBaseType(object):
             # QtWidgets.QMessageBox.information(
             #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
             # )
-            project.message_manager().send("msgBoxInfo", None, [msg])
+            application.PROJECT.message_manager().send("msgBoxInfo", None, [msg])
         else:
             logger.warning(ustr(u"INFO: ", msg))
 
@@ -364,7 +364,7 @@ class SysBaseType(object):
             # QtWidgets.QMessageBox.warning(
             #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
             # )
-            project.message_manager().send("msgBoxWarning", None, new_list)
+            application.PROJECT.message_manager().send("msgBoxWarning", None, new_list)
         else:
             logger.warning(ustr(u"WARN: ", msg))
 
@@ -377,7 +377,7 @@ class SysBaseType(object):
             # QtWidgets.QMessageBox.critical(
             #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
             # )
-            project.message_manager().send("msgBoxError", None, [msg])
+            application.PROJECT.message_manager().send("msgBoxError", None, [msg])
         else:
             logger.warning(ustr(u"ERROR: ", msg))
 

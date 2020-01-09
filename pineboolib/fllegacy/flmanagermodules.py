@@ -308,10 +308,10 @@ class FLManagerModules(object):
                 for contenido in cursor:
                     sha_key = contenido[0]
 
-        # if not project._DGI:
+        # if not PROJECT._DGI:
         #    raise Exception("DGI not loaded")
 
-        # if project.DGI.alternative_content_cached():
+        # if PROJECT.DGI.alternative_content_cached():
         #    data = project.DGI.content_cached(
         #        project.tmpdir, self.conn_.DBName(), modId, ext_, name_, sha_key
         #    )
@@ -322,13 +322,13 @@ class FLManagerModules(object):
             """Ruta por defecto"""
             if os.path.exists(
                 "%s/cache/%s/%s/file.%s/%s"
-                % (application.project.tmpdir, self.conn_.DBName(), modId, ext_, name_)
+                % (application.PROJECT.tmpdir, self.conn_.DBName(), modId, ext_, name_)
             ):
                 utf8_ = True if ext_ == "kut" else False
                 data = self.contentFS(
                     "%s/cache/%s/%s/file.%s/%s/%s.%s"
                     % (
-                        application.project.tmpdir,
+                        application.PROJECT.tmpdir,
                         self.conn_.DBName(),
                         modId,
                         ext_,
@@ -408,7 +408,7 @@ class FLManagerModules(object):
             file_name += ".ui"
 
         form_path = file_name if os.path.exists(file_name) else path._path(file_name)
-        conn_manager = application.project.conn_manager
+        conn_manager = application.PROJECT.conn_manager
 
         if "main_conn" in conn_manager.conn_dict.keys():
             mng_modules = conn_manager.managerModules()
@@ -858,7 +858,7 @@ class FLManagerModules(object):
         """
 
         if name.endswith(".mtd"):
-            if application.project.conn_manager.manager().isSystemTable(name):
+            if application.PROJECT.conn_manager.manager().isSystemTable(name):
                 return "sys"
 
         cursor = self.conn_.execute_query("SELECT idmodulo FROM flfiles WHERE nombre='%s'" % name)

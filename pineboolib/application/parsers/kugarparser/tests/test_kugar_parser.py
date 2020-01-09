@@ -3,6 +3,7 @@
 import unittest
 from . import fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
+from pineboolib import application
 
 
 class TestParser(unittest.TestCase):
@@ -17,17 +18,17 @@ class TestParser(unittest.TestCase):
         """Test parser."""
 
         from pineboolib.qsa import qsa
-        from pineboolib import application
+
         from pineboolib.plugins.mainform.eneboo import eneboo
         import os
 
-        application.project.main_form = eneboo
+        application.PROJECT.main_form = eneboo
         # application.project.main_form.mainWindow = application.project.main_form.MainForm()
         # application.project.main_form.mainWindow.initScript()
         # application.project.main_window = application.project.main_form.mainWindow
 
-        application.project.main_window = application.project.main_form.MainForm()  # type: ignore
-        application.project.main_window.initScript()
+        application.PROJECT.main_window = application.PROJECT.main_form.MainForm()  # type: ignore
+        application.PROJECT.main_window.initScript()
 
         qsa_sys = qsa.sys
         path = fixture_path("principal.eneboopkg")
@@ -70,7 +71,6 @@ class TestParser(unittest.TestCase):
     def test_parser_tools_1(self) -> None:
         """Test parser tools."""
         from pineboolib.application.parsers.kugarparser import kparsertools
-        from pineboolib import application
         from pineboolib.core.utils.utils_base import load2xml
         from pineboolib.application.database import pnsqlquery, pnsqlcursor
         from pineboolib.qsa import qsa
@@ -115,7 +115,7 @@ class TestParser(unittest.TestCase):
 
             self.assertEqual(
                 parser_tools.parseKey(str(bandera)),
-                os.path.abspath("%s/%s.png" % (application.project.tmpdir, bandera)),
+                os.path.abspath("%s/%s.png" % (application.PROJECT.tmpdir, bandera)),
             )
 
     def test_parser_tools_2(self) -> None:

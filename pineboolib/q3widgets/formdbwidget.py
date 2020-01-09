@@ -177,7 +177,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
             if not self.cursor_:
                 if self._action:
-                    action = application.project.conn_manager.manager().action(self._action.name)
+                    action = application.PROJECT.conn_manager.manager().action(self._action.name)
                     self.cursor_ = pnsqlcursor.PNSqlCursor(action.name())
                 else:
                     raise Exception("_action is empty!.")

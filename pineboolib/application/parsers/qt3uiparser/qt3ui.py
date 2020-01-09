@@ -14,7 +14,7 @@ from pineboolib import logging
 import zlib
 
 from pineboolib.core.utils.utils_base import load2xml
-from pineboolib.application import project
+from pineboolib import application
 from pineboolib.application import connections
 
 from pineboolib.q3widgets import qmainwindow, qlistview
@@ -76,7 +76,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
     if parent is None:
         parent = widget
 
-    # if project.DGI.localDesktop():
+    # if application.PROJECT.DGI.localDesktop():
     widget.hide()
 
     for xmlimage in root.findall("images//image"):
@@ -133,7 +133,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
                 QtCore.QObject, sender_name, QtCore.Qt.FindChildrenRecursively
             )
 
-        # if not project.DGI.localDesktop():
+        # if not application.PROJECT.DGI.localDesktop():
         #    wui = hasattr(widget, "ui_") and sender_name in widget.ui_
         #    if sender is None and wui:
         #        sender = widget.ui_[sender_name]
@@ -153,8 +153,8 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
             receiver = (
                 widget
                 if not isinstance(widget, qmainwindow.QMainWindow)
-                else project.actions[sender_name]
-                if sender_name in project.actions.keys()
+                else application.PROJECT.actions[sender_name]
+                if sender_name in application.PROJECT.actions.keys()
                 else None
             )
             fn_name = slot_name.rstrip("()")
@@ -197,8 +197,8 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
             receiver = SafeQSA.get_any(receiv_name)
 
         if receiver is None and receiv_name == "FLWidgetApplication":
-            if sender_name in project.actions.keys():
-                receiver = project.actions[sender_name]
+            if sender_name in application.PROJECT.actions.keys():
+                receiver = application.PROJECT.actions[sender_name]
             else:
                 logger.debug("Sender action %s not found. Connection skiped", sender_name)
                 continue
@@ -263,8 +263,8 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
         # toolbar = widget.addToolBar(nameTB_)
         loadToolBar(xmltoolbar, widget)
 
-    # if project._DGI and not project.DGI.localDesktop():
-    #    project.DGI.showWidget(widget)
+    # if application.PROJECT._DGI and not application.PROJECT.DGI.localDesktop():
+    #    application.PROJECT.DGI.showWidget(widget)
     # else:
     #    widget.show()
     widget.show()
@@ -529,7 +529,7 @@ class loadWidget:
         del widget
         del origWidget
         del parent
-        # if project.DGI.localDesktop():
+        # if application.PROJECT.DGI.localDesktop():
         #    if not hasattr(origWidget, "ui_"):
         #        origWidget.ui_ = {}
         # else:
@@ -747,7 +747,7 @@ class loadWidget:
             f.setItalic(False)
             new_widget.setFont(f)
 
-        # if not project.DGI.localDesktop():
+        # if not application.PROJECT.DGI.localDesktop():
         #    if nwidget is not None and origWidget.objectName() not in origWidget.ui_:
         #        origWidget.ui_[origWidget.objectName()] = nwidget
 
@@ -900,9 +900,9 @@ class loadWidget:
 
                 loadWidget(c, new_widget, self.parent, self.origWidget)
                 # path = c.find("./property[@name='name']/cstring").text
-                # if not project.DGI.localDesktop():
+                # if not application.PROJECT.DGI.localDesktop():
                 #    origWidget.ui_[path] = new_widget
-                # if project.DGI.localDesktop():
+                # if application.PROJECT.DGI.localDesktop():
                 #    new_widget.show()
                 if mode == "box":
                     try:

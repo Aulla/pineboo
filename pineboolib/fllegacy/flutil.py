@@ -763,7 +763,7 @@ class FLUtil(object):
 
         where = "flkey = '%s'" % key
         found = cls.readDBSettingEntry(key)
-        cursor = application.project.conn_manager.useConn("default").cursor()
+        cursor = application.PROJECT.conn_manager.useConn("default").cursor()
         if found is None:
             sql = "INSERT INTO flsettings (flkey, valor) VALUES ('%s', '%s')" % (key, value)
         else:
@@ -886,7 +886,7 @@ class FLUtil(object):
         @param tS Total number of steps to perform
         """
 
-        return application.project.message_manager().send(
+        return application.PROJECT.message_manager().send(
             "progress_dialog_manager", "create", [title, steps, id_]
         )
 
@@ -896,7 +896,7 @@ class FLUtil(object):
         Destroy the progress dialog.
         """
 
-        application.project.message_manager().send("progress_dialog_manager", "destroy", [id_])
+        application.PROJECT.message_manager().send("progress_dialog_manager", "destroy", [id_])
 
     @classmethod
     def setProgress(cls, step_number: Union[int, float], id_: str = "default") -> None:
@@ -906,7 +906,7 @@ class FLUtil(object):
         @param p Degree of progress
         """
 
-        application.project.message_manager().send(
+        application.PROJECT.message_manager().send(
             "progress_dialog_manager", "setProgress", [step_number, id_]
         )
 
@@ -918,7 +918,7 @@ class FLUtil(object):
         @param l Tag
         """
 
-        application.project.message_manager().send(
+        application.PROJECT.message_manager().send(
             "progress_dialog_manager", "setLabelText", [l, id_]
         )
 
@@ -930,7 +930,7 @@ class FLUtil(object):
         @param ts Total number of steps
         """
 
-        application.project.message_manager().send(
+        application.PROJECT.message_manager().send(
             "progress_dialog_manager", "setTotalSteps", [tS, id_]
         )
 

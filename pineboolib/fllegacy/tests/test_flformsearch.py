@@ -29,7 +29,7 @@ class TestFLFormsearchDB(unittest.TestCase):
         form_search_1 = qsa.FLFormSearchDB("bancos")
         self.assertEqual(form_search_1.cursor().metadata().name(), "bancos")
         self.assertEqual(form_search_1.action().name(), "bancos")
-        self.assertEqual(form_search_1.parent(), application.project.main_window)
+        self.assertEqual(form_search_1.parent(), application.PROJECT.main_window)
 
         parent_2 = QtWidgets.QWidget()
 
@@ -51,7 +51,7 @@ class TestFLFormsearchDB(unittest.TestCase):
         form_search_4 = qsa.FLFormSearchDB(cur_4, "proveedores", parent_4)
         self.assertEqual(form_search_4.cursor().metadata().name(), "proveedores")
         self.assertEqual(form_search_4.action().name(), "proveedores")
-        self.assertEqual(form_search_4.parent(), application.project.main_window)
+        self.assertEqual(form_search_4.parent(), application.PROJECT.main_window)
         self.assertEqual(form_search_4.cursor(), cur_4)
 
     @classmethod

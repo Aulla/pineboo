@@ -377,11 +377,11 @@ def execSql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default")
     Run a query.
     """
 
-    if application.project.conn_manager is None:
+    if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     if isinstance(conn_, str):
-        my_conn = application.project.conn_manager.useConn(conn_)
+        my_conn = application.PROJECT.conn_manager.useConn(conn_)
     else:
         my_conn = conn_
 

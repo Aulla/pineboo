@@ -336,9 +336,9 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
         self.sendStepNumber.emit(step)
         # Adjuntar logo
         if settings.value("email/sendMailLogo", True):
-            logo = settings.value("email/mailLogo", "%s/logo_mail.png" % application.project.tmpdir)
+            logo = settings.value("email/mailLogo", "%s/logo_mail.png" % application.PROJECT.tmpdir)
             if not QtCore.QFile.exists(logo):
-                logo = "%s/logo.png" % application.project.tmpdir
+                logo = "%s/logo.png" % application.PROJECT.tmpdir
                 Qt.QPixmap(pixmap_fromMimeSource("pineboo-logo.png")).save(logo, "PNG")
 
             fp = open(logo, "rb")

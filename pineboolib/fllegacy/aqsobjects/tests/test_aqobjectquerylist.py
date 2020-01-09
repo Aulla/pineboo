@@ -18,11 +18,11 @@ class TestAQObjectQueryList(unittest.TestCase):
         from pineboolib import application
         from pineboolib.qsa import qsa
 
-        application.project.main_form = importlib.import_module(
+        application.PROJECT.main_form = importlib.import_module(
             "pineboolib.plugins.mainform.eneboo.eneboo"
         )
-        application.project.main_window = getattr(application.project.main_form, "mainWindow", None)
-        main_form_ = getattr(application.project.main_form, "MainForm", None)
+        application.PROJECT.main_window = getattr(application.PROJECT.main_form, "mainWindow", None)
+        main_form_ = getattr(application.PROJECT.main_form, "MainForm", None)
         self.assertTrue(main_form_)
         main_w = main_form_()
         main_w.initScript()

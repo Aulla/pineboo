@@ -3,6 +3,7 @@ To resolve file and folder paths.
 """
 
 from pineboolib import logging
+from pineboolib import application
 import os
 from typing import Optional, List
 
@@ -16,7 +17,6 @@ def _dir(*x) -> str:
     @param x. str or array with the folder path.
     @return str with absolute path to a folder.
     """
-    from pineboolib.application import project  # type: ignore
 
     list_: List[str] = list(x)
     if os.name == "nt":
@@ -26,7 +26,7 @@ def _dir(*x) -> str:
 
         list_ = list(new_list)
 
-    return os.path.join(project.tmpdir, *list_)
+    return os.path.join(application.PROJECT.tmpdir, *list_)
 
 
 def coalesce_path(*filenames) -> Optional[str]:
@@ -39,11 +39,10 @@ def coalesce_path(*filenames) -> Optional[str]:
         if filename is None:
             # When the caller specifies None as the last item means that its OK to return None
             return None
-        from pineboolib.application import project
 
-        if filename in project.files:
+        if filename in application.PROJECT.files:
 
-            return project.files[filename].path()
+            return application.PROJECT.files[filename].path()
     logger.error(
         "coalesce_path: Ninguno de los ficheros especificados ha sido encontrado en el proyecto: %s",
         repr(filenames),
@@ -58,10 +57,8 @@ def _path(filename: str, showNotFound: bool = True) -> Optional[str]:
 
     @return path to file.
     """
-    from pineboolib.application import project
-
-    if filename not in project.files:
+    if filename not in application.PROJECT.files:
         if showNotFound:
             logger.error("Fichero %s no encontrado en el proyecto.", filename, stack_info=False)
         return None
-    return project.files[filename].path()
+    return application.PROJECT.files[filename].path()

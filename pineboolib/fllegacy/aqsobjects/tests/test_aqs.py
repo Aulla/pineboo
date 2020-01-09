@@ -21,7 +21,7 @@ class TestAQS(unittest.TestCase):
         from pineboolib.qsa import qsa
 
         cursor = flsqlcursor.FLSqlCursor("flareas")
-        action = application.project.conn_manager.manager().action("flareas")
+        action = application.PROJECT.conn_manager.manager().action("flareas")
         form = flformdb.FLFormDB(action, None)
         self.assertTrue(form)
         form.load()

@@ -36,7 +36,7 @@ class TestMtdParserGeneral(unittest.TestCase):
         from pineboolib import application
         import os
 
-        for table in application.project.conn_manager.useConn("dbAux").tables("Tables"):
+        for table in application.PROJECT.conn_manager.useConn("dbAux").tables("Tables"):
             file_path = pnmtdparser.mtd_parse(table)
             if file_path:
                 self.assertTrue(os.path.exists(file_path))

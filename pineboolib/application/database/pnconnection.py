@@ -66,7 +66,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self.db_name_ = db_name
         self.driverSql = pnsqldrivers.PNSqlDrivers()
 
-        conn_manager = application.project.conn_manager
+        conn_manager = application.PROJECT.conn_manager
         self._conn_manager = conn_manager
         if conn_manager is None:
             raise Exception("conn_manager is not Initialized!")
@@ -302,7 +302,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if self.transaction_ == 0 and self.canTransaction():
             if settings.config.value("application/isDebuggerMode", False):
-                application.project.message_manager().send(
+                application.PROJECT.message_manager().send(
                     "status_help_msg", "send", ["Iniciando Transacción... %s" % self.transaction_]
                 )
             if self.transaction():
@@ -326,7 +326,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         else:
             if settings.config.value("application/isDebuggerMode", False):
-                application.project.message_manager().send(
+                application.PROJECT.message_manager().send(
                     "status_help_msg",
                     "send",
                     ["Creando punto de salvaguarda %s:%s" % (self.name, self.transaction_)],
@@ -373,7 +373,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             and cur.d.askForCancelChanges_
         ):
 
-            if application.project.DGI.localDesktop():
+            if application.PROJECT.DGI.localDesktop():
                 res = QtWidgets.QMessageBox.information(
                     QtWidgets.QApplication.activeWindow(),
                     "Cancelar Cambios",
@@ -407,7 +407,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if self.transaction_ == 0 and self.canTransaction():
             if settings.config.value("application/isDebuggerMode", False):
-                application.project.message_manager().send(
+                application.PROJECT.message_manager().send(
                     "status_help_msg", "send", ["Deshaciendo Transacción... %s" % self.transaction_]
                 )
             if self.rollbackTransaction():
@@ -433,7 +433,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         else:
 
-            application.project.message_manager().send(
+            application.PROJECT.message_manager().send(
                 "status_help_msg",
                 "send",
                 ["Restaurando punto de salvaguarda %s:%s..." % (self.name, self.transaction_)],
@@ -503,7 +503,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if self.transaction_ == 0 and self.canTransaction():
             if settings.config.value("application/isDebuggerMode", False):
-                application.project.message_manager().send(
+                application.PROJECT.message_manager().send(
                     "status_help_msg", "send", ["Terminando Transacción... %s" % self.transaction_]
                 )
             try:
@@ -534,7 +534,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 logger.error("doCommit: Fallo al intentar terminar transacción: %s", e)
                 return False
         else:
-            application.project.message_manager().send(
+            application.PROJECT.message_manager().send(
                 "status_help_msg",
                 "send",
                 ["Liberando punto de salvaguarda %s:%s..." % (self.name, self.transaction_)],

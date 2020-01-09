@@ -8,7 +8,7 @@ import datetime
 import re
 import os
 from xml.etree.ElementTree import Element
-from pineboolib.application import project
+from pineboolib import application
 from pineboolib import logging
 from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.utils.check_dependencies import check_dependencies
@@ -102,10 +102,10 @@ class Kut2FPDF(object):
             self.logger.exception("KUT2FPDF: Problema al procesar xml_data")
             return None
 
-        project.message_manager().send(
+        application.PROJECT.message_manager().send(
             "progress_dialog_manager", "create", ["Pineboo", len(self._xml_data), "kugar"]
         )
-        project.message_manager().send(
+        application.PROJECT.message_manager().send(
             "progress_dialog_manager", "setLabelText", ["Creando informe ...", "kugar"]
         )
 
@@ -177,7 +177,7 @@ class Kut2FPDF(object):
         """Retrieve file name where PDF should be saved."""
         import os
 
-        pdf_name = project.tmpdir
+        pdf_name = application.PROJECT.tmpdir
         pdf_name += "/%s_%s.pdf" % (self.name_, datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
         if os.path.exists(pdf_name):
             os.remove(pdf_name)
@@ -296,14 +296,16 @@ class Kut2FPDF(object):
 
             self.prev_level = level
 
-            project.message_manager().send("progress_dialog_manager", "setProgress", [i, "kugar"])
+            application.PROJECT.message_manager().send(
+                "progress_dialog_manager", "setProgress", [i, "kugar"]
+            )
             i += 1
 
         if not self._no_print_footer and hasattr(self, "last_data_processed"):
             for l in reversed(range(top_level + 1)):
                 self.processData("DetailFooter", self.last_data_processed, l)
 
-        project.message_manager().send("progress_dialog_manager", "destroy", ["kugar"])
+        application.PROJECT.message_manager().send("progress_dialog_manager", "destroy", ["kugar"])
 
     def processData(self, section_name: str, data: Element, data_level: int) -> None:
         """
@@ -588,7 +590,9 @@ class Kut2FPDF(object):
                     try:
                         nodo = self._parser_tools.convertToNode(data_row)
 
-                        ret_ = project.call(function_name, [nodo, field_name], None, False)
+                        ret_ = application.PROJECT.call(
+                            function_name, [nodo, field_name], None, False
+                        )
                         if ret_ is False:
                             return
                         else:
@@ -1048,7 +1052,7 @@ class Kut2FPDF(object):
             return
         from pineboolib.fllegacy.flcodbar import FLCodBar
 
-        file_name = project.tmpdir
+        file_name = application.PROJECT.tmpdir
         file_name += "/%s.png" % (text)
         codbartype = xml.get("CodBarType")
 

@@ -1,5 +1,6 @@
 import unittest
 from pineboolib.loader.main import init_testing
+from pineboolib import application
 
 
 class TestPNRelationMetaData(unittest.TestCase):
@@ -13,9 +14,7 @@ class TestPNRelationMetaData(unittest.TestCase):
     def test_basic(self) -> None:
         """PNRelationMetaData."""
 
-        from pineboolib.application import project
-
-        mtd = project.conn_manager.manager().metadata("flgroups")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flgroups")
         if mtd is None:
             raise Exception
         rel_1 = mtd.relation("idgroup", "idgroup", "flusers")
@@ -38,17 +37,18 @@ class TestCreatePNRelationMetaData(unittest.TestCase):
     def test_basic(self) -> None:
         """PNRelationMetaData."""
 
-        from pineboolib.application import project
-        from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData
+        from pineboolib.application.metadata import pnrelationmetadata
 
-        mtd = project.conn_manager.manager().metadata("flgroups")
+        mtd = application.PROJECT.conn_manager.manager().metadata("flgroups")
         if mtd is None:
             raise Exception
         rel_1 = mtd.relation("idgroup", "idgroup", "flusers")
         if rel_1 is None:
             raise Exception("Relation is empty!.")
-        rel_2 = PNRelationMetaData(rel_1)
-        rel_3 = PNRelationMetaData("flgroups", "idgroup", "M1", True, True, False)
+        rel_2 = pnrelationmetadata.PNRelationMetaData(rel_1)
+        rel_3 = pnrelationmetadata.PNRelationMetaData(
+            "flgroups", "idgroup", "M1", True, True, False
+        )
 
         self.assertEqual(rel_2.foreignField(), "idgroup")
         self.assertEqual(rel_2.foreignTable(), "flusers")

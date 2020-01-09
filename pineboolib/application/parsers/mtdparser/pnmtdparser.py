@@ -10,7 +10,7 @@ functions. See pineboolib/pnobjectsfactory.py
 from pineboolib import logging
 from typing import List, cast
 from pineboolib.application.utils.path import _path
-from pineboolib.application import project
+from pineboolib import application
 from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
 from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
 from pineboolib.core.settings import config
@@ -35,9 +35,9 @@ def mtd_parse(table_name: str) -> Optional[str]:
     if table_name.find("alteredtable") > -1 or table_name.startswith("fllarge_"):
         return None
 
-    if project.conn_manager is None:
+    if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
-    mtd_ = project.conn_manager.manager().metadata(table_name, True)
+    mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
     if mtd_ is None:
         return None
     mtd: PNTableMetaData = cast(PNTableMetaData, mtd_)
@@ -54,7 +54,7 @@ def mtd_parse(table_name: str) -> Optional[str]:
     if dest_file.find("system_module") > -1:
         sys_dir = "%s/cache/%s/sys" % (
             config.value("ebcomportamiento/temp_dir"),
-            project.conn_manager.mainConn().DBName(),
+            application.PROJECT.conn_manager.mainConn().DBName(),
         )
         dest_file = "%s/file.mtd/%s_model.py" % (sys_dir, table_name)
 
@@ -90,11 +90,11 @@ def generate_model(dest_file: str, mtd_table: PNTableMetaData) -> List[str]:
     data.append(
         "from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated, load_model"
     )
-    data.append("from pineboolib.application import project")
+    data.append("from pineboolib import application")
     data.append("")
     # data.append("Base = declarative_base()")
-    data.append("Base = project.conn_manager.mainConn().declarative_base()")
-    data.append("engine = project.conn_manager.mainConn().engine()")
+    data.append("Base = application.PROJECT.conn_manager.mainConn().declarative_base()")
+    data.append("engine = application.PROJECT.conn_manager.mainConn().engine()")
     data.append("")
     # for field in mtd_table.fieldList():
     #    if field.relationM1():
@@ -139,13 +139,13 @@ def generate_model(dest_file: str, mtd_table: PNTableMetaData) -> List[str]:
     data.append("")
     data.append("# --- Relations 1:M ---> ")
     data.append("")
-    if project.conn_manager is None:
+    if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
-    manager = project.conn_manager.manager()
+    manager = application.PROJECT.conn_manager.manager()
     for field in mtd_table.fieldList():  # Creamos relaciones 1M
         for r in field.relationList():
             foreign_table_mtd = manager.metadata(r.foreignTable())
-            # if project.conn.manager().existsTable(r.foreignTable()):
+            # if application.PROJECT.conn.manager().existsTable(r.foreignTable()):
             if foreign_table_mtd:
                 # comprobamos si existe el campo...
                 if foreign_table_mtd.field(r.foreignField()):
@@ -256,10 +256,10 @@ def field_type(field: PNFieldMetaData) -> str:
         ret = "Desconocido %s" % field.type()
 
     if field.relationM1() is not None:
-        if project.conn_manager is None:
+        if application.PROJECT.conn_manager is None:
             raise Exception("Project is not connected yet")
         rel = field.relationM1()
-        if rel and project.conn_manager.manager().existsTable(rel.foreignTable()):
+        if rel and application.PROJECT.conn_manager.manager().existsTable(rel.foreignTable()):
             ret += ", ForeignKey('%s.%s'" % (rel.foreignTable(), rel.foreignField())
             if rel.deleteCascade():
                 ret += ", ondelete='CASCADE'"

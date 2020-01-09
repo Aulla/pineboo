@@ -7,7 +7,7 @@ from pineboolib.core.utils.utils_base import is_deployed
 from pineboolib.core.utils.check_dependencies import get_dependency_errors
 from pineboolib.core.utils.check_dependencies import DependencyCheck, DependencyError
 
-from pineboolib.application import project
+from pineboolib import application
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def check_dependencies(dict_: DependencyCheck, exit: bool = True) -> bool:
             msg += "\n\n\n Use pip3 install -i https://test.pypi.org/simple/ pyfpdf==1.7.3"
 
     if exit:
-        if project.DGI.useDesktop() and project.DGI.localDesktop():
+        if application.PROJECT.DGI.useDesktop() and application.PROJECT.DGI.localDesktop():
             from pineboolib.q3widgets.messagebox import MessageBox
 
             MessageBox.warning(None, "Pineboo - Dependencias Incumplidas -", msg, MessageBox.Ok)

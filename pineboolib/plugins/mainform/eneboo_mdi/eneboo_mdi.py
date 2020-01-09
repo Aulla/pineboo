@@ -79,7 +79,7 @@ class MainForm(QtWidgets.QMainWindow):
     def db(self) -> "pnconnectionmanager.PNConnectionManager":
         """Return the dababase connection."""
 
-        return application.project.conn_manager
+        return application.PROJECT.conn_manager
 
     def createUi(self, ui_file: str) -> None:
         """Create UI from a file."""
@@ -101,7 +101,7 @@ class MainForm(QtWidgets.QMainWindow):
         if self.db() is not None:
             self.container_.setWindowTitle(self.db().mainConn().DBName())
         else:
-            self.container_.setWindowTitle("Pineboo %s" % application.project.version)
+            self.container_.setWindowTitle("Pineboo %s" % application.PROJECT.version)
 
         # FLDiskCache.init(self)
 
@@ -643,9 +643,9 @@ class MainForm(QtWidgets.QMainWindow):
                         slot = itn.namedItem("slot").toElement().text()
                         if receiver == "pncore" and signal == "triggered()":
                             ac = cast(QtWidgets.QAction, w.findChild(QtWidgets.QAction, sender))
-                            if ac is not None and sender in application.project.actions.keys():
+                            if ac is not None and sender in application.PROJECT.actions.keys():
                                 sl = getattr(
-                                    application.project.actions[sender],
+                                    application.PROJECT.actions[sender],
                                     slot[0 : slot.find("(")],
                                     None,
                                 )
@@ -984,7 +984,7 @@ class MainForm(QtWidgets.QMainWindow):
             if self.db() is not None:
                 self.container_.setWindowTitle(self.db().mainConn().DBName())
             else:
-                self.container_.setWindowTitle("Pineboo %s" % application.project.version)
+                self.container_.setWindowTitle("Pineboo %s" % application.PROJECT.version)
 
             return
 

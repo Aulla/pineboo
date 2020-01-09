@@ -72,9 +72,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         elif isinstance(conn_or_autopopulate, bool):
             autopopulate = conn_or_autopopulate
 
-        act_ = application.project.conn_manager.manager().action(name)
+        act_ = application.PROJECT.conn_manager.manager().action(name)
         db_: "iconnection.IConnection" = (
-            application.project.conn_manager.useConn(connection_name_or_db)
+            application.PROJECT.conn_manager.useConn(connection_name_or_db)
             if isinstance(connection_name_or_db, str)
             else connection_name_or_db
         )
@@ -332,7 +332,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             primary_key_value = self.d.buffer_.value(primary_key)
             db_aux.transaction()
 
-            value = application.project.call(
+            value = application.PROJECT.call(
                 functionName, [field_name, self.d.buffer_.value(field_name)], self.context()
             )
 
@@ -360,7 +360,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         self.d.buffer_.setValue(field_name, value)
         self.bufferChanged.emit(field_name)
-        application.project.app.processEvents()
+        application.PROJECT.app.processEvents()
 
     def setValueBuffer(self, field_name: str, v: Any) -> None:
         """
@@ -434,7 +434,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # logger.trace("(%s)bufferChanged.emit(%s)" % (self.curName(),field_name))
 
         self.bufferChanged.emit(field_name)
-        application.project.app.processEvents()
+        application.PROJECT.app.processEvents()
 
     def valueBuffer(self, field_name: str) -> Any:
         """
@@ -679,7 +679,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     #    """
     #    Check if DGI requires models (SqlAlchemy?).
     #    """
-    #    return self.meta_model if application.project.DGI.use_model() else None
+    #    return self.meta_model if application.PROJECT.DGI.use_model() else None
 
     def setContext(self, c: Any = None) -> None:
         """
@@ -864,7 +864,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if m != self.Insert:
                 self.updateBufferCopy()
 
-            application.project.actions[self._action.name()].openDefaultFormRecord(self, wait)
+            application.PROJECT.actions[self._action.name()].openDefaultFormRecord(self, wait)
 
             # if m != self.Insert and self.refreshBuffer():
             #     self.updateBufferCopy()
@@ -2585,7 +2585,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     and hasattr(self.context(), "calculateField")
                     and field.calculated()
                 ):
-                    v = application.project.call(
+                    v = application.PROJECT.call(
                         "calculateField", [field.name()], self.context(), False
                     )
 
@@ -2605,12 +2605,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         # FIXME: module_script is FLFormDB
         module_script = (
-            application.project.actions[idMod].load()
-            if idMod in application.project.actions.keys()
-            else application.project.actions["sys"].load()
+            application.PROJECT.actions[idMod].load()
+            if idMod in application.PROJECT.actions.keys()
+            else application.PROJECT.actions["sys"].load()
         )
         module_iface: Any = getattr(module_script, "iface", None)
-        # if application.project.DGI.use_model():
+        # if application.PROJECT.DGI.use_model():
         #    model_name = "models.%s.%s_def" % (idMod, idMod)
         #    try:
         #        model_module = importlib.import_module(model_name)
@@ -2721,7 +2721,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     self.d.cursor_relation_.setAskForCancelChanges(True)
 
             recordDelBefore = "recordDelBefore%s" % self.d.metadata_.name()
-            v = application.project.call(recordDelBefore, [self], self.context(), False)
+            v = application.PROJECT.call(recordDelBefore, [self], self.context(), False)
             if v and not isinstance(v, bool):
                 return False
 
@@ -2775,7 +2775,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 raise Exception("Error deleting row!")
 
             recordDelAfter = "recordDelAfter%s" % self.d.metadata_.name()
-            v = application.project.call(recordDelAfter, [self], self.context(), False)
+            v = application.PROJECT.call(recordDelAfter, [self], self.context(), False)
 
             updated = True
 
@@ -2859,7 +2859,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if cursor_relation is None or self.relation() is None:
             return ok
 
-        if application.project.DGI.localDesktop():
+        if application.PROJECT.DGI.localDesktop():
 
             activeWid = QtWidgets.QApplication.activeModalWidget()
             if not activeWid:
@@ -3080,7 +3080,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if cur_conn_name == conn_name:
             return
 
-        newDB = application.project.conn_manager.database(conn_name)
+        newDB = application.PROJECT.conn_manager.database(conn_name)
         if cur_conn_name == newDB.connectionName():
             return
 
@@ -3409,7 +3409,7 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
             return
 
         if not self._id_acl:
-            self._id_acl = "%s_%s" % (application.project.session_id(), self.metadata_.name())
+            self._id_acl = "%s_%s" % (application.PROJECT.session_id(), self.metadata_.name())
         if self._id_acl not in self.acl_table_.keys():
             self.acl_table_[self._id_acl] = pnaccesscontrolfactory.PNAccessControlFactory().create(
                 "table"
@@ -3437,7 +3437,7 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
                 )
             elif self.acosCond_ == self.cursor_.Function:
                 condTrue_ = (
-                    application.project.call(self.acosCondName_, [self.cursor_])
+                    application.PROJECT.call(self.acosCondName_, [self.cursor_])
                     == self.acosCondVal_
                 )
 
@@ -3502,4 +3502,4 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         @param throwException. No used.
         """
 
-        application.project.message_manager().send("msgBoxWarning", None, [msg])
+        application.PROJECT.message_manager().send("msgBoxWarning", None, [msg])

@@ -23,10 +23,10 @@ class TestXMLAction(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
-        application.project.actions["flareas"].execMainScript("formareas")
-        application.project.actions["flreinit"].execDefaultScript()
-        application.project.actions["flareas"].formRecordWidget()
-        self.assertTrue(application.project.actions["flareas"].formRecordWidget()._loaded)
+        application.PROJECT.actions["flareas"].execMainScript("formareas")
+        application.PROJECT.actions["flreinit"].execDefaultScript()
+        application.PROJECT.actions["flareas"].formRecordWidget()
+        self.assertTrue(application.PROJECT.actions["flareas"].formRecordWidget()._loaded)
 
     @classmethod
     def tearDownClass(cls) -> None:

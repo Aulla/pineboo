@@ -52,9 +52,9 @@ class dgi_schema(object):
 
     def create_app(self) -> QtWidgets.QApplication:
         """Create an alternative Core.Application."""
-        from pineboolib.application import project
+        from pineboolib import application
 
-        return project.app
+        return application.PROJECT.app
 
     # Establece un lanzador alternativo al de la aplicación
     def alternativeMain(self, options: Any) -> Any:

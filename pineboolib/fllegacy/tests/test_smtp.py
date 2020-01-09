@@ -32,7 +32,7 @@ class TestSmtp(unittest.TestCase):
         self.cli.setFrom(mail_)
         self.cli.setTo(mail_)
         self.cli.setSubject("prueba de correo")
-        self.cli.setBody("Esto es una prueba de Pineboo %s" % application.project.version)
+        self.cli.setBody("Esto es una prueba de Pineboo %s" % application.PROJECT.version)
 
         res: bool = self.cli.startSend()
         self.assertFalse(res)  # assertTrue when login is ok

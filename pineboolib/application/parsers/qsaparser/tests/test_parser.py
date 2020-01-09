@@ -148,7 +148,7 @@ class TestParser(unittest.TestCase):
         import shutil
 
         path = fixture_path("flfacturac.qs")
-        tmp_path = "%s/%s" % (application.project.tmpdir, "temp_qs.qs")
+        tmp_path = "%s/%s" % (application.PROJECT.tmpdir, "temp_qs.qs")
         path_py = "%s.py" % tmp_path[:-3]
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
@@ -157,7 +157,7 @@ class TestParser(unittest.TestCase):
             os.remove(path_py)
 
         shutil.copy(path, tmp_path)
-        application.project.parse_script_list([tmp_path])
+        application.PROJECT.parse_script_list([tmp_path])
 
         self.assertTrue(os.path.exists(path_py))
 

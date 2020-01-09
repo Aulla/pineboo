@@ -183,7 +183,7 @@ class SysType(sysbasetype.SysBaseType):
     def transactionLevel(self) -> int:
         """Return transaction level."""
 
-        return application.project.conn_manager.useConn("default").transactionLevel()
+        return application.PROJECT.conn_manager.useConn("default").transactionLevel()
 
     @classmethod
     def installACL(self, idacl) -> None:
@@ -1038,7 +1038,7 @@ class SysType(sysbasetype.SysBaseType):
         dirBasePath = FileDialog.getExistingDirectory(types.Dir.home)
         if not dirBasePath:
             return
-        dataBaseName = application.project.conn_manager.mainConn().db_name_
+        dataBaseName = application.PROJECT.conn_manager.mainConn().db_name_
         dirBasePath = types.Dir.cleanDirPath(
             utils_base.ustr(
                 dirBasePath, u"/modulos_exportados_", dataBaseName[dataBaseName.rfind(u"/") + 1 :]
@@ -1565,7 +1565,7 @@ class SysType(sysbasetype.SysBaseType):
         error_msg_: str = ""
         valor_: Any
 
-        db_ = application.project.conn_manager.useConn("default")
+        db_ = application.PROJECT.conn_manager.useConn("default")
 
         transaction_level_ = db_.transactionLevel()
         # Create Transaction.
@@ -1723,7 +1723,7 @@ class SysType(sysbasetype.SysBaseType):
 
         w = None
         a = None
-        conn = application.project._conn_manager
+        conn = application.PROJECT._conn_manager
         if conn is None:
             raise Exception("conn is empty!")
 

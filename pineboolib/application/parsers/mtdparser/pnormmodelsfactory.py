@@ -47,7 +47,7 @@ import importlib
 import traceback
 import sys
 import os
-from pineboolib import logging
+from pineboolib import logging, application
 
 from typing import Any
 
@@ -59,9 +59,8 @@ logger = logging.getLogger("PNORMModelsFactory")
 def base_model(name: str) -> Any:
     """Import and return sqlAlchemy model for given table name."""
     # print("Base", name)
-    from pineboolib.application import project
 
-    if project.conn_manager is None:
+    if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     path = _path("%s.mtd" % name, False)
@@ -71,7 +70,10 @@ def base_model(name: str) -> Any:
         path = path.replace(
             "system_module/tables",
             "%s/cache/%s/sys/file.mtd"
-            % (config.value("ebcomportamiento/temp_dir"), project.conn_manager.mainConn().DBName()),
+            % (
+                config.value("ebcomportamiento/temp_dir"),
+                application.PROJECT.conn_manager.mainConn().DBName(),
+            ),
         )
     if path:
         path = "%s_model.py" % path[:-4]
@@ -107,9 +109,8 @@ def load_model(nombre):
     #    mod = base_model(nombre)
     #    if mod:
     #        setattr(qsa_dict_modules, model_name, mod)  # NOTE: Use application.qsadictmodules
-    from pineboolib.application import project
 
-    db_name = project.conn_manager.mainConn().DBName()
+    db_name = application.PROJECT.conn_manager.mainConn().DBName()
 
     module = None
     file_path = filedir(
@@ -153,26 +154,24 @@ def load_model(nombre):
 
 def empty_base():
     """Cleanup sqlalchemy models."""
-    from pineboolib.application import project
 
-    if project.conn_manager is None:
+    if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     # FIXME: Not a good idea to delete from other module
-    del project.conn_manager.mainConn().driver().declarative_base_
-    project.conn_manager.mainConn().driver().declarative_base_ = None
+    del application.PROJECT.conn_manager.mainConn().driver().declarative_base_
+    application.PROJECT.conn_manager.mainConn().driver().declarative_base_ = None
 
 
 def load_models() -> None:
     """Load all sqlAlchemy models."""
 
     from pineboolib.application.qsadictmodules import QSADictModules
-    from pineboolib.application import project
 
-    if project.conn_manager is None:
+    if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    main_conn = project.conn_manager.mainConn()
+    main_conn = application.PROJECT.conn_manager.mainConn()
 
     db_name = main_conn.DBName()
     tables = main_conn.tables()

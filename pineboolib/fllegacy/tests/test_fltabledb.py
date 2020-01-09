@@ -19,9 +19,9 @@ class TestFLTableDB(unittest.TestCase):
     def test_export_to_ods_1(self) -> None:
         """Test export to ods."""
 
-        application.project.actions["flareas"].openDefaultForm()
+        application.PROJECT.actions["flareas"].openDefaultForm()
 
-        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ].mainform_widget
         # form = flformdb.FLFormDB(None, action)
@@ -39,9 +39,9 @@ class TestFLTableDB(unittest.TestCase):
     def test_export_to_ods_2(self) -> None:
         """Test export to ods."""
 
-        application.project.actions["flmodules"].openDefaultForm()
+        application.PROJECT.actions["flmodules"].openDefaultForm()
 
-        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flmodules"
         ].mainform_widget
         # form = flformdb.FLFormDB(None, action)
@@ -59,7 +59,7 @@ class TestFLTableDB(unittest.TestCase):
     def test_order_cols(self) -> None:
         """Test order cols."""
 
-        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ].mainform_widget
 
@@ -102,7 +102,7 @@ class TestFLTableDB(unittest.TestCase):
     def test_sort_order(self) -> None:
         """Test sort orders."""
 
-        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ].mainform_widget
 
@@ -126,7 +126,7 @@ class TestFLTableDB(unittest.TestCase):
     def test_filter_records(self) -> None:
         """Test filterRecords function."""
 
-        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ].mainform_widget
 
@@ -171,7 +171,7 @@ class TestFLTableDB(unittest.TestCase):
     def test_x_edition_flags(self) -> None:
         """Test edition flags."""
 
-        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ].mainform_widget
 
@@ -199,7 +199,7 @@ class TestFLTableDB(unittest.TestCase):
         """Test tab filter."""
 
         # from PyQt5 import QtCore
-        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ].mainform_widget
 
@@ -270,9 +270,9 @@ class TestFLTableDB(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
-        application.project.actions["flareas"].load()
+        application.PROJECT.actions["flareas"].load()
 
-        form = application.project.actions[  # type: ignore [attr-defined] # noqa F821
+        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ].mainform_widget
 

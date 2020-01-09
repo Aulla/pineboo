@@ -31,41 +31,41 @@ class TestEnebooGUI(unittest.TestCase):
 
         # import os
 
-        application.project.main_form = eneboo_mdi
+        application.PROJECT.main_form = eneboo_mdi
         eneboo_mdi.mainWindow = eneboo_mdi.MainForm()
         eneboo_mdi.mainWindow.initScript()
-        application.project.main_window = eneboo_mdi.mainWindow
+        application.PROJECT.main_window = eneboo_mdi.mainWindow
 
         # qsa_sys = qsa.sys
         # path = fixture_path("principal.eneboopkg")
         # self.assertTrue(os.path.exists(path))
         # qsa_sys.loadModules(path, False)
-        application.project.main_window = application.project.main_form.mainWindow  # type: ignore
-        self.assertTrue(application.project.main_window)
+        application.PROJECT.main_window = application.PROJECT.main_form.mainWindow  # type: ignore
+        self.assertTrue(application.PROJECT.main_window)
 
-        application.project.main_window.initToolBar()
-        application.project.main_window.windowMenuAboutToShow()
-        application.project.main_window.show()
-        application.project.main_window.activateModule("sys")
-        for window in application.project.main_window._p_work_space.subWindowList():
+        application.PROJECT.main_window.initToolBar()
+        application.PROJECT.main_window.windowMenuAboutToShow()
+        application.PROJECT.main_window.show()
+        application.PROJECT.main_window.activateModule("sys")
+        for window in application.PROJECT.main_window._p_work_space.subWindowList():
             window.close()
 
-        self.assertFalse(application.project.main_window.existFormInMDI("flusers"))
-        application.project.actions["flusers"].openDefaultForm()
-        application.project.main_window.windowMenuAboutToShow()
-        application.project.main_window.windowMenuActivated(0)
-        self.assertTrue(application.project.main_window.existFormInMDI("flusers"))
-        application.project.main_window.writeState()
-        application.project.main_window.writeStateModule()
-        application.project.main_window.toggleToolBar(True)
-        application.project.main_window.toggleStatusBar(True)
-        application.project.main_window.windowClose()
+        self.assertFalse(application.PROJECT.main_window.existFormInMDI("flusers"))
+        application.PROJECT.actions["flusers"].openDefaultForm()
+        application.PROJECT.main_window.windowMenuAboutToShow()
+        application.PROJECT.main_window.windowMenuActivated(0)
+        self.assertTrue(application.PROJECT.main_window.existFormInMDI("flusers"))
+        application.PROJECT.main_window.writeState()
+        application.PROJECT.main_window.writeStateModule()
+        application.PROJECT.main_window.toggleToolBar(True)
+        application.PROJECT.main_window.toggleStatusBar(True)
+        application.PROJECT.main_window.windowClose()
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure this class is finished correctly."""
-        del application.project.main_form
-        del application.project.main_window
+        del application.PROJECT.main_form
+        del application.PROJECT.main_window
 
         config.set_value("application/isDebuggerMode", False)
         config.set_value("application/dbadmin_enabled", False)

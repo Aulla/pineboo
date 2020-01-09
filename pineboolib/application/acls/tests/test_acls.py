@@ -321,7 +321,7 @@ class TestACLS(unittest.TestCase):
 
         config.set_value("application/dbadmin_enabled", True)
 
-        project = application.project
+        project = application.PROJECT
         project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
         project.main_window = getattr(project.main_form, "mainWindow", None)
         main_form_ = getattr(project.main_form, "MainForm", None)
@@ -359,7 +359,7 @@ class TestACLS(unittest.TestCase):
 
         config.set_value("application/dbadmin_enabled", True)
 
-        project = application.project
+        project = application.PROJECT
         project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
         project.main_window = getattr(project.main_form, "mainWindow", None)
         main_form_ = getattr(project.main_form, "MainForm", None)
@@ -385,7 +385,7 @@ class TestACLS(unittest.TestCase):
         acl.init()
         flapplication.aqApp.set_acl(acl)
 
-        project = application.project
+        project = application.PROJECT
         project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
         project.main_window = getattr(project.main_form, "mainWindow", None)
         main_form_ = getattr(project.main_form, "MainForm", None)

@@ -117,7 +117,7 @@ class PNConnectionManager(QtCore.QObject):
         else:
             name = name_or_conn
 
-        name_conn_: str = "%s|%s" % (application.project.session_id(), name)
+        name_conn_: str = "%s|%s" % (application.PROJECT.session_id(), name)
         # if name in ("default", None):
         #    return self
         self.check_alive_connections()
@@ -160,7 +160,7 @@ class PNConnectionManager(QtCore.QObject):
         """Return dict with own database connections."""
 
         dict_ = {}
-        session_name = application.project.session_id()
+        session_name = application.PROJECT.session_id()
         for n in self.conn_dict.keys():
             if n.find("|") > -1:
                 connection_data = n.split("|")
@@ -182,7 +182,7 @@ class PNConnectionManager(QtCore.QObject):
         """Delete a connection specified by name."""
         name_conn_: str = name
         if name.find("|") == -1:
-            name_conn_ = "%s|%s" % (application.project.session_id(), name)
+            name_conn_ = "%s|%s" % (application.PROJECT.session_id(), name)
 
         if name_conn_ in self.conn_dict.keys():
             self.conn_dict[name_conn_]._isOpen = False

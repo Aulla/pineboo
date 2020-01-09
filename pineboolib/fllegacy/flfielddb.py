@@ -125,7 +125,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         super(FLFieldDB, self).__init__(parent)
         self._loaded = False
-        self.DEBUG = False  # FIXME: debe recoger DEBUG de pineboolib.project
+        self.DEBUG = False  # FIXME: debe recoger DEBUG de pineboolib.PROJECT
         # self.editor_ = QtWidgets.QWidget(parent)
         # self.editor_.hide()
         self.cursor_ = None
@@ -162,7 +162,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self.maxPixImages_ = int(self.maxPixImages_)
         # self.editorImg_ = None
 
-        self.iconSize = application.project.DGI.iconSize()
+        self.iconSize = application.PROJECT.DGI.iconSize()
 
         self.FLLayoutH = QtWidgets.QVBoxLayout(self)
         self.FLLayoutH.setContentsMargins(0, 0, 0, 0)
@@ -1614,7 +1614,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         Start the cursor according to this field either from the source table or from a related table.
         """
-        if application.project.conn_manager is None:
+        if application.PROJECT.conn_manager is None:
             raise Exception("Project is not connected yet")
 
         if self.tableName_ and not self.foreignField_ and not self.fieldRelation_:
@@ -1623,7 +1623,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.cursor_ = pnsqlcursor.PNSqlCursor(
                     self.tableName_,
                     True,
-                    application.project.conn_manager.useConn("default").connectionName(),
+                    application.PROJECT.conn_manager.useConn("default").connectionName(),
                     None,
                     None,
                     self,
@@ -1634,7 +1634,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.cursor_ = pnsqlcursor.PNSqlCursor(
                     self.tableName_,
                     True,
-                    application.project.conn_manager.useConn("default").connectionName(),
+                    application.PROJECT.conn_manager.useConn("default").connectionName(),
                     None,
                     None,
                     self,
@@ -3438,7 +3438,7 @@ class FLFieldDB(QtWidgets.QWidget):
             )
         # self.editor_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
         self.editor_.setMinimumWidth(100)
-        # if application.project.DGI.mobilePlatform():
+        # if application.PROJECT.DGI.mobilePlatform():
         #    self.editor_.setMinimumHeight(60)
 
         if self.FLWidgetFieldDBLayout:
