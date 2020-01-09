@@ -265,30 +265,22 @@ class FLManager(QtCore.QObject, IManager):
                     continue
                 elif child.tag == "name":
                     name = child.text
-                    continue
                 elif child.tag == "query":
                     query = child.text
-                    continue
                 elif child.tag == "alias":
                     alias = util.translate(
                         "Metadata", utils_base.auto_qt_translate_text(child.text)
                     )
-                    continue
                 elif child.tag == "visible":
                     visible = child.text == "true"
-                    continue
                 elif child.tag == "editable":
                     editable = child.text == "true"
-                    continue
                 elif child.tag == "detectLocks":
                     detect_locks = child.text == "true"
-                    continue
                 elif child.tag == "concurWarn":
                     concur_warn = child.text == "true"
-                    continue
                 elif child.tag == "FTSFunction":
                     ftsfun = child.text or ""
-                    continue
 
             table_metadata = pntablemetadata.PNTableMetaData(name, alias, query)
 
