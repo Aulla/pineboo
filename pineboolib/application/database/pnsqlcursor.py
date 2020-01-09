@@ -371,12 +371,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         mtd = self.d.metadata_
 
-        if not field_name or not mtd:
+        if not field_name or mtd is None:
             logger.warning("setValueBuffer(): No fieldName, or no metadata found")
             return
 
         if not self.d.buffer_:
-            logger.warning("setValueBuffer(): No buffer")
+            logger.warning("%s.setValueBuffer(%s): No buffer" % (self.table(), field_name))
             return
 
         field = mtd.field(field_name)
@@ -1564,15 +1564,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         return self.d.cursor_name_
 
-    """
-    Para obtener el filtro por defecto en campos asociados
-
-    @param  fieldName Nombre del campo que tiene campos asociados.
-                    Debe ser el nombre de un campo de este cursor.
-    @param  tableMD   Metadatos a utilizar como tabla foránea.
-                    Si es cero usa la tabla foránea definida por la relación M1 de 'fieldName'
-    """
-
     def filterAssoc(
         self, fieldName: str, tableMD: Optional["pntablemetadata.PNTableMetaData"] = None
     ) -> Optional[str]:
@@ -1822,15 +1813,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         pos = self.atFrom()
         if not self.seek(pos, False, True):
             self.newBuffer.emit()
-        else:
 
-            if self.d.cursor_relation_ and self.d.relation_ and self.d.cursor_relation_.metadata():
-                v = self.valueBuffer(self.d.relation_.field())
+        if self.d.cursor_relation_ and self.d.relation_ and self.d.cursor_relation_.metadata():
+            v = self.valueBuffer(self.d.relation_.field())
+            if v:
                 foreignFieldValueBuffer = self.d.cursor_relation_.valueBuffer(
                     self.d.relation_.foreignField()
                 )
-
-                if foreignFieldValueBuffer != v and foreignFieldValueBuffer is not None:
+                if foreignFieldValueBuffer != v:
                     self.d.cursor_relation_.setValueBuffer(self.d.relation_.foreignField(), v)
 
     def primeInsert(self) -> None:
