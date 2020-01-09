@@ -129,32 +129,32 @@ class PNAccessControl(object):
 
         return self._perm
 
-    def setName(self, n: str) -> None:
+    def setName(self, name: str) -> None:
         """
         Set the name of the high level object.
 
         @param n Object name.
         """
 
-        self._name = n
+        self._name = name
 
-    def setUser(self, u: str) -> None:
+    def setUser(self, user: str) -> None:
         """
         Set the name of the database user.
 
         @param u Name (login) of the user.
         """
 
-        self._user = u
+        self._user = user
 
-    def setPerm(self, p: str) -> None:
+    def setPerm(self, perm: str) -> None:
         """
         Set the general permission.
 
         @param p Text string with the permission identifier.
         """
 
-        self._perm = p
+        self._perm = perm
 
     def clear(self) -> None:
         """
@@ -181,14 +181,14 @@ class PNAccessControl(object):
 
         return None
 
-    def set(self, e: "QtXml.QDomElement") -> None:
+    def set(self, element: "QtXml.QDomElement") -> None:
         """
         Define the access control rule from the information of a DOM node of a given DOM / XML document.
 
         @param e Element corresponding to the DOM node that will be used to define the rule.
         """
 
-        if not e:
+        if not element:
             return
 
         if self._acos_perms:
@@ -197,8 +197,8 @@ class PNAccessControl(object):
 
         self._acos_perms = {}
 
-        self._perm = e.attribute("perm")
-        no = e.firstChild()
+        self._perm = element.attribute("perm")
+        no = element.firstChild()
 
         while not no.isNull():
             if not no.toElement().isNull():
@@ -219,7 +219,7 @@ class PNAccessControl(object):
 
             no = no.nextSibling()
 
-    def get(self, d) -> None:
+    def get(self, dom_node: "QtXml.QDomDocument") -> None:
         """
         From the content of the access control rule create a DOM node.
 
@@ -227,30 +227,31 @@ class PNAccessControl(object):
 
         @param d DOM / XML document where the node built from the access control rule will be inserted.
         """
-        if self.type() is None or d is None:
+        type_ = self.type()
+        if type_ is None or dom_node is None:
             return
 
-        root = d.firstChild().toElement()
-        e = d.createElement(self.type())
-        e.setAttribute("perm", self._perm)
-        root.appendChild(e)
+        root = dom_node.firstChild().toElement()
+        element = dom_node.createElement(type_)
+        element.setAttribute("perm", self._perm)
+        root.appendChild(element)
 
-        name = d.createElement("name")
-        e.appendChild(name)
-        n = d.createTextNode(self._name)
-        name.appendChild(n)
+        name = dom_node.createElement("name")
+        element.appendChild(name)
+        node = dom_node.createTextNode(self._name)
+        name.appendChild(node)
 
-        user = d.createElement("user")
-        e.appendChild(user)
-        u = d.createTextNode(self._user)
-        user.appendChild(u)
+        user = dom_node.createElement("user")
+        element.appendChild(user)
+        node = dom_node.createTextNode(self._user)
+        user.appendChild(node)
 
         for key in self._acos_perms.keys():
-            aco = d.createElement("aco")
+            aco = dom_node.createElement("aco")
             aco.setAttribute("perm", self._acos_perms[key])
-            e.appendChild(aco)
-            t = d.createTextNode(key)
-            aco.appendChild(t)
+            element.appendChild(aco)
+            node = dom_node.createTextNode(key)
+            aco.appendChild(node)
 
     def setAcos(self, acos: List[str]) -> None:
         """

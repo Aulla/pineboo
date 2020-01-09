@@ -59,9 +59,9 @@ class PNBoolFlagStateList(object):
         @return Flag state.
         """
 
-        for d in self.data_list_:
-            if d.modifier_ == data:
-                return d
+        for child in self.data_list_:
+            if child.modifier_ == data:
+                return child
 
         return None
 

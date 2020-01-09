@@ -4,11 +4,9 @@ PNAccessControlList Module.
 
 Manage access lists to limit the application to users..
 """
+from PyQt5 import QtCore, QtXml
 
-from PyQt5.QtXml import QDomDocument  # type: ignore
-from PyQt5 import QtCore  # type: ignore
-
-from pineboolib.application.database.pnsqlquery import PNSqlQuery
+from pineboolib.application.database import pnsqlquery
 from . import pnaccesscontrolfactory
 
 from pineboolib import logging
@@ -18,7 +16,7 @@ if TYPE_CHECKING:
     from . import pnaccesscontrol  # noqa : F401
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class PNAccessControlLists(object):
@@ -82,7 +80,7 @@ class PNAccessControlLists(object):
 
             _acl_xml = application.PROJECT.conn_manager.managerModules().content("acl.xml")
 
-        doc = QDomDocument("ACL")
+        doc = QtXml.QDomDocument("ACL")
         if self._access_control_list:
             self._access_control_list.clear()
 
@@ -95,8 +93,8 @@ class PNAccessControlLists(object):
         self._access_control_list = {}
         # self._access_control_list.setAutoDelete(True)
 
-        docElem = doc.documentElement()
-        no = docElem.firstChild()
+        doc_elem = doc.documentElement()
+        no = doc_elem.firstChild()
 
         while not no.isNull():
             e = no.toElement()
@@ -154,33 +152,33 @@ class PNAccessControlLists(object):
 
         @param idacl Record identifier of the "flacls" table to use to create "acl.xml".
         """
-        doc = QDomDocument("ACL")
+        doc = QtXml.QDomDocument("ACL")
 
         root = doc.createElement("ACL")
         doc.appendChild(root)
 
         name = doc.createElement("name")
         root.appendChild(name)
-        n = doc.createTextNode(idacl)
-        name.appendChild(n)
+        text_node = doc.createTextNode(idacl)
+        name.appendChild(text_node)
 
-        q = PNSqlQuery()
+        qry = pnsqlquery.PNSqlQuery()
 
-        q.setTablesList("flacs")
-        q.setSelect("idac,tipo,nombre,iduser,idgroup,degrupo,permiso")
-        q.setFrom("flacs")
-        q.setWhere("idacl='%s'" % idacl)
-        q.setOrderBy("prioridad DESC, tipo")
-        q.setForwardOnly(True)
+        qry.setTablesList("flacs")
+        qry.setSelect("idac,tipo,nombre,iduser,idgroup,degrupo,permiso")
+        qry.setFrom("flacs")
+        qry.setWhere("idacl='%s'" % idacl)
+        qry.setOrderBy("prioridad DESC, tipo")
+        qry.setForwardOnly(True)
 
-        if q.exec_():
+        if qry.exec_():
             # step = 0
             # progress = util.ProgressDialog(util.tr("Instalando control de acceso..."), None, q.size(), None, None, True)
             # progress.setCaption(util.tr("Instalando ACL"))
             # progress.setMinimumDuration(0)
             # progress.setProgress(++step)
-            while q.next():
-                self.make_rule(q, doc)
+            while qry.next():
+                self.make_rule(qry, doc)
                 # progress.setProgress(++step)
 
             from pineboolib import application
@@ -192,7 +190,7 @@ class PNAccessControlLists(object):
                 "acl.xml", "sys", doc.toString()
             )
 
-    def make_rule(self, q: PNSqlQuery, d: QDomDocument) -> None:
+    def make_rule(self, qry: pnsqlquery.PNSqlQuery, dom_document: QtXml.QDomDocument) -> None:
         """
         Create the corresponding DOM node (s) to a record in the "flacs" table.
 
@@ -204,15 +202,17 @@ class PNAccessControlLists(object):
         @param q Query about the "flacs" table positioned in the register to be used to construct the rule (s).
         @param d DOM / XML document in which you will insert the node (s) that describe the access control rule (s).
         """
-        if not q or not d:
+        if not qry or not dom_document:
             return
 
-        if q.value(5):
-            self.make_rule_group(q, d, str(q.value(4)))
+        if qry.value(5):
+            self.make_rule_group(qry, dom_document, str(qry.value(4)))
         else:
-            self.make_rule_user(q, d, str(q.value(3)))
+            self.make_rule_user(qry, dom_document, str(qry.value(3)))
 
-    def make_rule_user(self, q: PNSqlQuery, d: QDomDocument, iduser: str) -> None:
+    def make_rule_user(
+        self, qry: pnsqlquery.PNSqlQuery, dom_document: QtXml.QDomDocument, iduser: str
+    ) -> None:
         """
         Create a DOM node corresponding to a record in the "flacs" table and for a given user.
 
@@ -220,20 +220,20 @@ class PNAccessControlLists(object):
         @param d DOM / XML document in which you will insert the node that describes the access control rule.
         @param iduser Identifier of the user used in the access control rule.
         """
-        if not iduser or not q or not d:
+        if not iduser or not qry or not dom_document:
             return
 
-        ac = pnaccesscontrolfactory.PNAccessControlFactory().create(str(q.value(1)))
+        ac = pnaccesscontrolfactory.PNAccessControlFactory().create(str(qry.value(1)))
         if ac:
-            ac.setName(str(q.value(2)))
+            ac.setName(str(qry.value(2)))
             ac.setUser(iduser)
-            ac.setPerm(str(q.value(6)))
+            ac.setPerm(str(qry.value(6)))
 
-            qAcos = PNSqlQuery()
+            qAcos = pnsqlquery.PNSqlQuery()
             qAcos.setTablesList("flacos")
             qAcos.setSelect("nombre,permiso")
             qAcos.setFrom("flacos")
-            qAcos.setWhere("idac ='%s'" % q.value(0))
+            qAcos.setWhere("idac ='%s'" % qry.value(0))
             qAcos.setForwardOnly(True)
 
             acos = []
@@ -244,9 +244,11 @@ class PNAccessControlLists(object):
                     acos.append((qAcos.value(1)))
 
             ac.setAcos(acos)
-            ac.get(d)
+            ac.get(dom_document)
 
-    def make_rule_group(self, q: PNSqlQuery, d: Any, idgroup: str = "") -> None:
+    def make_rule_group(
+        self, qry: pnsqlquery.PNSqlQuery, dom_document: QtXml.QDomDocument, idgroup: str = ""
+    ) -> None:
         """
         Create several DOM nodes corresponding to a record in the "flacs" table and for a specific user group.
 
@@ -257,17 +259,17 @@ class PNAccessControlLists(object):
         @param d DOM / XML document in which the nodes that describe the access control rules will be inserted.
         @param idgroup Identifier of the user group.
         """
-        if idgroup == "" or not q or not d:
+        if idgroup == "" or not qry or not dom_document:
             return
 
-        qU = PNSqlQuery()
+        qry_users = pnsqlquery.PNSqlQuery()
 
-        qU.setTablesList("flusers")
-        qU.setSelect("iduser")
-        qU.setFrom("flusers")
-        qU.setWhere("idgroup='%s'" % idgroup)
-        qU.setForwardOnly(True)
+        qry_users.setTablesList("flusers")
+        qry_users.setSelect("iduser")
+        qry_users.setFrom("flusers")
+        qry_users.setWhere("idgroup='%s'" % idgroup)
+        qry_users.setForwardOnly(True)
 
-        if qU.exec_():
-            while qU.next():
-                self.make_rule_user(q, d, str(qU.value(0)))
+        if qry_users.exec_():
+            while qry_users.next():
+                self.make_rule_user(qry, dom_document, str(qry_users.value(0)))

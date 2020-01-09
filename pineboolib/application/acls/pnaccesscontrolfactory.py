@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional, cast
 
 import logging
 
-logger = logging.getLogger("PNAccessControlFactory")
+LOGGER = logging.getLogger(__name__)
 
 
 class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
@@ -39,22 +39,22 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
 
         if self._perm != "":
             for action in list1:
-                a = cast(QtWidgets.QAction, action)
-                if a.objectName() in self._acos_perms.keys():
+                act = cast(QtWidgets.QAction, action)
+                if act.objectName() in self._acos_perms.keys():
                     continue
                 if self._perm in ["-w", "--"]:
-                    a.setVisible(False)
+                    act.setVisible(False)
 
         for a_name, perm in self._acos_perms.items():
-            for ac_ in list1:
-                a_ = cast(QtWidgets.QWidget, ac_)
-                if a_.objectName() == a_name:
+            for child in list1:
+                wid = cast(QtWidgets.QWidget, child)
+                if wid.objectName() == a_name:
                     if perm in ["-w", "--"]:
-                        a_.setVisible(False)
+                        wid.setVisible(False)
 
     def setFromObject(self, object: Any) -> None:
         """Not implemented jet."""
-        logger.warning("PNAccessControlMainWindow::setFromObject %s", "No implementado todavía.")
+        LOGGER.warning("PNAccessControlMainWindow::setFromObject %s", "No implementado todavía.")
 
 
 class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
@@ -67,14 +67,14 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         from PyQt5 import QtGui, QtWidgets
 
         self.pal = QtGui.QPalette()
-        bg = QtGui.QColor(
+        background_color = QtGui.QColor(
             QtWidgets.qApp.palette().color(QtGui.QPalette.Active, QtGui.QPalette.Background)
         )
-        self.pal.setColor(QtGui.QPalette.Foreground, bg)
-        self.pal.setColor(QtGui.QPalette.Text, bg)
-        self.pal.setColor(QtGui.QPalette.ButtonText, bg)
-        self.pal.setColor(QtGui.QPalette.Base, bg)
-        self.pal.setColor(QtGui.QPalette.Background, bg)
+        self.pal.setColor(QtGui.QPalette.Foreground, background_color)
+        self.pal.setColor(QtGui.QPalette.Text, background_color)
+        self.pal.setColor(QtGui.QPalette.ButtonText, background_color)
+        self.pal.setColor(QtGui.QPalette.Base, background_color)
+        self.pal.setColor(QtGui.QPalette.Background, background_color)
 
     def type(self) -> str:
         """Return target type."""
@@ -100,8 +100,8 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
             return
 
         if self._perm != "":
-            for ch in widget.findChildren(QtWidgets.QWidget):
-                child = cast(QtWidgets.QWidget, ch)
+            for children in widget.findChildren(QtWidgets.QWidget):
+                child = cast(QtWidgets.QWidget, children)
                 if child.objectName() in self._acos_perms.keys():
                     continue
 
@@ -128,14 +128,14 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
                     child.setDisabled(True)
 
             else:
-                logger.warning(
+                LOGGER.warning(
                     "PNAccessControlFactory: No se encuentra el control %s para procesar ACLS.",
                     object_name,
                 )
 
     def setFromObject(self, object) -> None:
         """Not implemented jet."""
-        logger.warning("PNAccessControlForm::setFromObject %s No implementado todavía.", object)
+        LOGGER.warning("PNAccessControlForm::setFromObject %s No implementado todavía.", object)
 
 
 class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
@@ -240,7 +240,7 @@ class PNAccessControlFactory(object):
         """Return the type of instance target."""
 
         if obj is None:
-            logger.warning("NO OBJ")
+            LOGGER.warning("NO OBJ")
 
         ret_ = ""
 
