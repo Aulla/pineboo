@@ -89,7 +89,7 @@ class TestFLFieldDBString(unittest.TestCase):
         field = module_.child("fake_control")
         self.assertTrue(field)
         field.showWidget()
-        self.assertEqual(field.pushButtonDB.isHidden(), False)
+        self.assertEqual(field._push_button_db.isHidden(), False)
 
     def test_fldateedit_empty_value(self) -> None:
         """Check if the empty value is 00-00-0000."""
