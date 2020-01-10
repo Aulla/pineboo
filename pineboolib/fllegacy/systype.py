@@ -348,7 +348,7 @@ class SysType(sysbasetype.SysBaseType):
         """Extract a module defition to a QDomDocument."""
 
         doc_ret_ = QtXml.QDomDocument()
-        str_xml_ = utils_db.sqlSelect(u"flupdates", u"modulesdef", "actual")
+        str_xml_ = utils_db.sql_select(u"flupdates", u"modulesdef", "actual")
         if not str_xml_:
             return doc_ret_
         doc = QtXml.QDomDocument()
@@ -1126,7 +1126,7 @@ class SysType(sysbasetype.SysBaseType):
         tag = doc.createElement(u"area")
         tag.appendChild(doc.createTextNode(idArea))
         tagMod.appendChild(tag)
-        areaName = utils_db.sqlSelect(
+        areaName = utils_db.sql_select(
             u"flareas", u"descripcion", utils_base.ustr(u"idarea='", idArea, u"'")
         )
         tag = doc.createElement(u"areaname")
@@ -1196,7 +1196,7 @@ class SysType(sysbasetype.SysBaseType):
             dir.mkdir(utils_base.ustr(dirPath, u"/translations"))
         xmlMod = self.xmlModule(idMod)
         self.fileWriteIso(utils_base.ustr(dirPath, u"/", idMod, u".mod"), xmlMod.toString(2))
-        xpmMod = utils_db.sqlSelect(
+        xpmMod = utils_db.sql_select(
             u"flmodules", u"icono", utils_base.ustr(u"idmodulo='", idMod, u"'")
         )
         self.fileWriteIso(utils_base.ustr(dirPath, u"/", idMod, u".xpm"), xpmMod)
@@ -1682,7 +1682,7 @@ class SysType(sysbasetype.SysBaseType):
         """Return xml with local changes."""
         ret = {}
         ret[u"size"] = 0
-        strXmlUpt = utils_db.sqlSelect("flupdates", "filesdef", "actual='true'")
+        strXmlUpt = utils_db.sql_select("flupdates", "filesdef", "actual='true'")
         if not strXmlUpt:
             return ret
         docUpt = QtXml.QDomDocument()

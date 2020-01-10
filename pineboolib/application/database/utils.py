@@ -15,10 +15,10 @@ if TYPE_CHECKING:
 
     from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401
 
-logger = logging.getLogger("database.utils")
+LOGGER = logging.getLogger("database.utils")
 
 
-def nextCounter(
+def next_counter(
     name_or_series: str,
     cursor_or_name: Union[str, "isqlcursor.ISqlCursor"],
     cursor_: Optional["isqlcursor.ISqlCursor"] = None,
@@ -66,14 +66,14 @@ def nextCounter(
 
         if not isinstance(cursor_or_name, pnsqlcursor.PNSqlCursor):
             raise ValueError
-        return _nextCounter_2(name_or_series, cursor_or_name)
+        return _next_counter2(name_or_series, cursor_or_name)
     else:
         if not isinstance(cursor_or_name, str):
             raise ValueError
-        return _nextCounter_3(name_or_series, cursor_or_name, cursor_)
+        return _next_counter3(name_or_series, cursor_or_name, cursor_)
 
 
-def _nextCounter_2(name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[Union[str, int]]:
+def _next_counter2(name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[Union[str, int]]:
 
     if not cursor_:
         return None
@@ -92,27 +92,27 @@ def _nextCounter_2(name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[Uni
     _len = int(field.length())
     _cadena = None
 
-    q = pnsqlquery.PNSqlQuery(None, cursor_.db().connectionName())
-    q.setForwardOnly(True)
-    q.setTablesList(tmd.name())
-    q.setSelect(name_)
-    q.setFrom(tmd.name())
-    q.setWhere("LENGTH(%s)=%s" % (name_, _len))
-    q.setOrderBy(name_ + " DESC")
+    qry = pnsqlquery.PNSqlQuery(None, cursor_.db().connectionName())
+    qry.setForwardOnly(True)
+    qry.setTablesList(tmd.name())
+    qry.setSelect(name_)
+    qry.setFrom(tmd.name())
+    qry.setWhere("LENGTH(%s)=%s" % (name_, _len))
+    qry.setOrderBy(name_ + " DESC")
 
-    if not q.exec_():
+    if not qry.exec_():
         return None
 
     _max_range: int = 10 ** _len
     _numero: int = _max_range
 
     while _numero >= _max_range:
-        if not q.next():
+        if not qry.next():
             _numero = 1
             break
 
         try:
-            _numero = int(q.value(0))
+            _numero = int(qry.value(0))
             _numero = _numero + 1
         except Exception:
             pass
@@ -131,7 +131,7 @@ def _nextCounter_2(name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[Uni
     return None
 
 
-def _nextCounter_3(serie_: str, name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[str]:
+def _next_counter3(serie_: str, name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[str]:
 
     if not cursor_:
         return None
@@ -153,26 +153,26 @@ def _nextCounter_3(serie_: str, name_: str, cursor_: "isqlcursor.ISqlCursor") ->
         cursor_.db().connManager().manager().formatAssignValueLike(name_, "string", serie_, True),
     )
 
-    q = pnsqlquery.PNSqlQuery(None, cursor_.db().connectionName())
-    q.setForwardOnly(True)
-    q.setTablesList(tmd.name())
-    q.setSelect(name_)
-    q.setFrom(tmd.name())
-    q.setWhere(_where)
-    q.setOrderBy(name_ + " DESC")
+    qry = pnsqlquery.PNSqlQuery(None, cursor_.db().connectionName())
+    qry.setForwardOnly(True)
+    qry.setTablesList(tmd.name())
+    qry.setSelect(name_)
+    qry.setFrom(tmd.name())
+    qry.setWhere(_where)
+    qry.setOrderBy(name_ + " DESC")
 
-    if not q.exec_():
+    if not qry.exec_():
         return None
 
     _max_range: int = 10 ** _len
     _numero: int = _max_range
 
     while _numero >= _max_range:
-        if not q.next():
+        if not qry.next():
             _numero = 1
             break
 
-        _numero = int(q.value(0)[len(serie_) :])
+        _numero = int(qry.value(0)[len(serie_) :])
         _numero = _numero + 1
 
     if _type in ["string", "double"]:
@@ -185,7 +185,7 @@ def _nextCounter_3(serie_: str, name_: str, cursor_: "isqlcursor.ISqlCursor") ->
     return None
 
 
-def sqlSelect(
+def sql_select(
     from_: str,
     select_: str,
     where_: Optional[str] = None,
@@ -225,7 +225,7 @@ def sqlSelect(
     return _qry.value(0) if _qry.first() else False
 
 
-def quickSqlSelect(
+def quick_sql_select(
     from_: str,
     select_: str,
     where_: Optional[str] = None,
@@ -245,7 +245,7 @@ def quickSqlSelect(
     return _qry.value(0) if _qry.first() else False
 
 
-def sqlInsert(
+def sql_insert(
     table_: str,
     field_list_: Union[str, List[str], types.Array],
     value_list_: Union[str, List, bool, int, float, types.Array],
@@ -292,7 +292,7 @@ def sqlInsert(
     return _cursor.commitBuffer()
 
 
-def sqlUpdate(
+def sql_update(
     table_: str,
     field_list_: Union[str, List[str], types.Array],
     value_list_: Union[str, List, bool, int, float, types.Array],
@@ -335,7 +335,7 @@ def sqlUpdate(
     return True
 
 
-def sqlDelete(
+def sql_delete(
     table_: str, where_: str, conn_: Union[str, "iconnection.IConnection"] = "default"
 ) -> bool:
     """
@@ -363,16 +363,16 @@ def sqlDelete(
     return True
 
 
-def quickSqlDelete(
+def quick_sql_delete(
     table_: str, where_: str, conn_: Union[str, "iconnection.IConnection"] = "default"
 ) -> bool:
     """
     Quick version of sqlDelete. Execute the query directly without checking and without committing signals.Use with caution.
     """
-    return execSql("DELETE FROM %s WHERE %s" % (table_, where_), conn_)
+    return exec_sql("DELETE FROM %s WHERE %s" % (table_, where_), conn_)
 
 
-def execSql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default") -> bool:
+def exec_sql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default") -> bool:
     """
     Run a query.
     """
@@ -388,7 +388,7 @@ def execSql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default")
     _cur = my_conn.cursor()
     try:
         last = my_conn.lastError()
-        logger.warning("execSql: Ejecutando la consulta : %s", sql_)
+        LOGGER.warning("execSql: Ejecutando la consulta : %s", sql_)
         # sql = conn_.db().driver().fix_query(sql)
         # cur.execute(sql)
         # conn_.conn.commit()
@@ -397,5 +397,5 @@ def execSql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default")
             return False
         return True
     except Exception as exc:
-        logger.exception("execSql: Error al ejecutar la consulta SQL: %s %s", sql_, exc)
+        LOGGER.exception("execSql: Error al ejecutar la consulta SQL: %s %s", sql_, exc)
         return False

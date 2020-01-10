@@ -5,7 +5,7 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core.utils import logging
 from pineboolib.application.database import pnsqlcursor
 
-logger = logging.getLogger("test")
+LOGGER = logging.getLogger("test")
 
 
 class TestInsertData(unittest.TestCase):
@@ -291,7 +291,7 @@ class TestValues(unittest.TestCase):
         finish_testing()
 
 
-class Test_emits(unittest.TestCase):
+class TestEmits(unittest.TestCase):
     """Test Emits class."""
 
     _transaction_begin: bool
@@ -559,8 +559,8 @@ class TestGeneral(unittest.TestCase):
         cursor.sort()
 
         self.assertFalse(cursor.fieldType("id2"))
-        for f in cursor:
-            self.assertTrue(f)
+        for field in cursor:
+            self.assertTrue(field)
 
         cursor_2 = pnsqlcursor.PNSqlCursor("flareas")
         cursor_2.update(False)
@@ -886,9 +886,9 @@ class TestCorruption(unittest.TestCase):
         cursor = pnsqlcursor.PNSqlCursor("Fltest")
         self.assertEqual(cursor.metadata().name(), "fltest")
         cursor.setAction("bad_Action")
-        ac = cursor.action()
-        if ac:
-            self.assertEqual(ac.name(), "bad_action")
+        action = cursor.action()
+        if action:
+            self.assertEqual(action.name(), "bad_action")
         cursor.select()
         self.assertEqual(cursor.size(), 0)
         cursor.setAction("fltest")

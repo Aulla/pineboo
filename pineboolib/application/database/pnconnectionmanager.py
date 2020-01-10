@@ -14,9 +14,6 @@ if TYPE_CHECKING:
 
 LOGGER = logging.getLogger(__name__)
 
-LIMIT_CONNECTIONS: int = 10  # Limit of connections to use.
-CONNECTIONS_TIME_OUT: int = 0  # Seconds to wait to eliminate the inactive connections.
-
 
 class PNConnectionManager(QtCore.QObject):
     """PNConnectionManager Class."""
@@ -24,6 +21,8 @@ class PNConnectionManager(QtCore.QObject):
     _manager: "flmanager.FLManager"
     _manager_modules: "flmanagermodules.FLManagerModules"
     connections_dict: Dict[str, "pnconnection.PNConnection"] = {}
+    limit_connections: int = 10  # Limit of connections to use.
+    connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
     def __init__(self):
         """Initialize."""
@@ -32,8 +31,8 @@ class PNConnectionManager(QtCore.QObject):
         self.connections_dict = {}
 
         LOGGER.info("Initializing PNConnection Manager:")
-        LOGGER.info("LIMIT CONNECTIONS = %s.", LIMIT_CONNECTIONS)
-        LOGGER.info("CONNECTIONS TIME OUT = %s. (0 disabled)", CONNECTIONS_TIME_OUT)
+        LOGGER.info("LIMIT CONNECTIONS = %s.", self.limit_connections)
+        LOGGER.info("CONNECTIONS TIME OUT = %s. (0 disabled)", self.connections_time_out)
 
     def setMainConn(self, main_conn: "pnconnection.PNConnection") -> bool:
         """Set main connection."""
@@ -111,7 +110,7 @@ class PNConnectionManager(QtCore.QObject):
         if name_conn_ in self.connections_dict.keys():
             connection_ = self.connections_dict[name_conn_]
         else:
-            if len(self.connections_dict.keys()) > LIMIT_CONNECTIONS:
+            if len(self.connections_dict.keys()) > self.limit_connections:
                 raise Exception("Connections limit reached!")
             # if self._driver_sql is None:
             #    raise Exception("No driver selected")
@@ -226,20 +225,20 @@ class PNConnectionManager(QtCore.QObject):
                     and self.connections_dict[conn_name].conn
                     is not None  # Only initialized connections.
                 ) or (
-                    CONNECTIONS_TIME_OUT
-                    and self.connections_dict[conn_name].idle_time() > CONNECTIONS_TIME_OUT
+                    self.connections_time_out
+                    and self.connections_dict[conn_name].idle_time() > self.connections_time_out
                 ):
                     self.removeConn(conn_name)
 
     def set_max_connections_limit(self, limit: int) -> None:
         """Set maximum connections limit."""
         LOGGER.info("New max connections limit %s.", limit)
-        LIMIT_CONNECTIONS = limit  # noqa: F841
+        self.limit_connections = limit  # noqa: F841
 
     def set_max_idle_connections(self, limit: int) -> None:
         """Set maximum connections time idle."""
         LOGGER.info("New max connections idle time %s.", limit)
-        CONNECTIONS_TIME_OUT = limit  # noqa: F841
+        self.connections_time_out = limit  # noqa: F841
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""

@@ -551,7 +551,7 @@ class FLUtil(object):
     ) -> Optional[Union[str, int]]:
         """Return next counter value."""
 
-        return utils.nextCounter(name_or_series, cursor_or_name, cursor_)
+        return utils.next_counter(name_or_series, cursor_or_name, cursor_)
 
     @classmethod
     @decorators.NotImplementedWarn
@@ -818,7 +818,7 @@ class FLUtil(object):
         else:
             size = size_or_conn
 
-        return utils.sqlSelect(f, s, w, tL, size, conn)
+        return utils.sql_select(f, s, w, tL, size, conn)
 
     @classmethod
     def quickSqlSelect(
@@ -826,7 +826,7 @@ class FLUtil(object):
     ) -> Any:
         """Return a value from a quick query."""
 
-        return utils.quickSqlSelect(f, s, w, conn)
+        return utils.quick_sql_select(f, s, w, conn)
 
     @classmethod
     def sqlInsert(
@@ -838,7 +838,7 @@ class FLUtil(object):
     ) -> Any:
         """Insert values to a table."""
 
-        return utils.sqlInsert(t, fL, vL, conn)
+        return utils.sql_insert(t, fL, vL, conn)
 
     @classmethod
     def sqlUpdate(
@@ -851,7 +851,7 @@ class FLUtil(object):
     ) -> bool:
         """Update values to a table."""
 
-        return utils.sqlUpdate(t, fL, vL, w, conn)
+        return utils.sql_update(t, fL, vL, w, conn)
 
     @classmethod
     def sqlDelete(
@@ -859,7 +859,7 @@ class FLUtil(object):
     ) -> bool:
         """Delete a value from a table."""
 
-        return utils.sqlDelete(t, w, conn)
+        return utils.sql_delete(t, w, conn)
 
     @classmethod
     def quickSqlDelete(
@@ -867,13 +867,13 @@ class FLUtil(object):
     ) -> bool:
         """Quick delete a value from a table."""
 
-        return utils.quickSqlDelete(t, w, conn)
+        return utils.quick_sql_delete(t, w, conn)
 
     @classmethod
     def execSql(cls, sql: str, conn: Union[str, "iconnection.IConnection"] = "default") -> bool:
         """Set a query to a database."""
 
-        return utils.execSql(sql, conn)
+        return utils.exec_sql(sql, conn)
 
     @classmethod
     def createProgressDialog(

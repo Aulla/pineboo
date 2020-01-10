@@ -6,7 +6,7 @@ from pineboolib.application.database import pnsqlquery, pnsqlcursor
 from . import fixture_path
 
 
-class TestPNSqlQuery_1(unittest.TestCase):
+class TestPNSqlQuery1(unittest.TestCase):
     """TestPNSqlDrivers Class."""
 
     @classmethod
@@ -27,10 +27,10 @@ class TestPNSqlQuery_1(unittest.TestCase):
         to_param.setValue(1)
         qry.addParameter(from_param)
         qry.addParameter(to_param)
-        d_ = {}
-        d_[from_param.name()] = from_param.value()
-        d_[to_param.name()] = to_param.value()
-        qry.setParameterDict(d_)
+        data = {}
+        data[from_param.name()] = from_param.value()
+        data[to_param.name()] = to_param.value()
+        qry.setParameterDict(data)
 
         self.assertEqual(qry.valueParam("to"), 1)
         qry.setValueParam("to", 2)
@@ -44,8 +44,8 @@ class TestPNSqlQuery_1(unittest.TestCase):
         gr_01 = pngroupbyquery.PNGroupByQuery(0, "string_field")
 
         qry.addGroup(gr_01)
-        g_ = {}
-        g_[gr_01.level()] = gr_01.field()
+        group = {}
+        group[gr_01.level()] = gr_01.field()
 
         qry2 = pnsqlquery.PNSqlQuery("fltest")
         qry2.setSelect(
@@ -53,7 +53,7 @@ class TestPNSqlQuery_1(unittest.TestCase):
         )
         qry2.setFrom("fltest")
         qry2.setWhere("id>='0' AND id<='1'")
-        qry2.setGroupDict(g_)
+        qry2.setGroupDict(group)
 
         self.assertEqual(
             qry2.sql(),
@@ -213,23 +213,23 @@ class TestPNSqlQuery_1(unittest.TestCase):
         self.assertTrue(cursor.commitBuffer())
         cursor.commit()
 
-        q = pnsqlquery.PNSqlQuery()
-        q.setSelect("date_field")
-        q.setFrom("fltest")
-        q.setWhere("1=1")
-        self.assertTrue(q.exec_())
-        self.assertTrue(q.next())
-        self.assertTrue(q.isNull("date_field"))
-        self.assertEqual(q.value(0), "")
-        self.assertEqual(q.value("date_field"), "")
-        self.assertTrue(q.next())
-        self.assertFalse(q.isNull("date_field"))
-        self.assertEqual(str(q.value(0)), "2020-01-01T00:00:00")
-        self.assertEqual(str(q.value("date_field")), "2020-01-01T00:00:00")
-        self.assertTrue(q.next())
-        self.assertTrue(q.isNull("date_field"))
-        self.assertEqual(q.value(0), "")
-        self.assertEqual(q.value("date_field"), "")
+        qry = pnsqlquery.PNSqlQuery()
+        qry.setSelect("date_field")
+        qry.setFrom("fltest")
+        qry.setWhere("1=1")
+        self.assertTrue(qry.exec_())
+        self.assertTrue(qry.next())
+        self.assertTrue(qry.isNull("date_field"))
+        self.assertEqual(qry.value(0), "")
+        self.assertEqual(qry.value("date_field"), "")
+        self.assertTrue(qry.next())
+        self.assertFalse(qry.isNull("date_field"))
+        self.assertEqual(str(qry.value(0)), "2020-01-01T00:00:00")
+        self.assertEqual(str(qry.value("date_field")), "2020-01-01T00:00:00")
+        self.assertTrue(qry.next())
+        self.assertTrue(qry.isNull("date_field"))
+        self.assertEqual(qry.value(0), "")
+        self.assertEqual(qry.value("date_field"), "")
 
     def test_limit_offset(self) -> None:
         """Test limit and offset clausules from a query."""
@@ -255,36 +255,36 @@ class TestPNSqlQuery_1(unittest.TestCase):
         self.assertTrue(cursor.commitBuffer())  # 9 rows total!
         cursor.commit()
 
-        q1 = pnsqlquery.PNSqlQuery()
-        q1.setSelect("date_field")
-        q1.setFrom("fltest")
-        q1.setWhere("1 = 1")
-        q1.setLimit(4)
-        self.assertTrue(q1.exec_())
-        self.assertTrue(q1.sql().lower().find("limit") > -1)
-        self.assertEqual(q1.size(), 4)
+        qry_one = pnsqlquery.PNSqlQuery()
+        qry_one.setSelect("date_field")
+        qry_one.setFrom("fltest")
+        qry_one.setWhere("1 = 1")
+        qry_one.setLimit(4)
+        self.assertTrue(qry_one.exec_())
+        self.assertTrue(qry_one.sql().lower().find("limit") > -1)
+        self.assertEqual(qry_one.size(), 4)
 
-        q2 = pnsqlquery.PNSqlQuery()
-        q2.setSelect("date_field")
-        q2.setFrom("fltest")
-        q2.setWhere("1 = 1")
-        q2.setLimit(100)
-        q2.setOffset(7)
-        self.assertTrue(q2.exec_())
-        self.assertTrue(q2.sql().lower().find("offset") > -1)
-        self.assertEqual(q2.size(), 2)  # 7 + 2 = 9 rows
+        qry_two = pnsqlquery.PNSqlQuery()
+        qry_two.setSelect("date_field")
+        qry_two.setFrom("fltest")
+        qry_two.setWhere("1 = 1")
+        qry_two.setLimit(100)
+        qry_two.setOffset(7)
+        self.assertTrue(qry_two.exec_())
+        self.assertTrue(qry_two.sql().lower().find("offset") > -1)
+        self.assertEqual(qry_two.size(), 2)  # 7 + 2 = 9 rows
 
-        q3 = pnsqlquery.PNSqlQuery()
-        q3.setSelect("date_field")
-        q3.setFrom("fltest")
-        q3.setWhere("1 = 1")
-        q3.setOrderBy("date_field")
-        q3.setOffset(5)
-        self.assertTrue(q3.exec_())
-        sql = q3.sql()
+        qry_tree = pnsqlquery.PNSqlQuery()
+        qry_tree.setSelect("date_field")
+        qry_tree.setFrom("fltest")
+        qry_tree.setWhere("1 = 1")
+        qry_tree.setOrderBy("date_field")
+        qry_tree.setOffset(5)
+        self.assertTrue(qry_tree.exec_())
+        sql = qry_tree.sql()
         self.assertTrue(sql.lower().find("offset") > -1)
         self.assertTrue(sql.lower().find("order by") > -1)
-        self.assertEqual(q3.size(), 4)
+        self.assertEqual(qry_tree.size(), 4)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -292,7 +292,7 @@ class TestPNSqlQuery_1(unittest.TestCase):
         finish_testing()
 
 
-class TestPNSqlQuery_2(unittest.TestCase):
+class TestPNSqlQuery2(unittest.TestCase):
     """TestPNSqlDrivers Class."""
 
     @classmethod

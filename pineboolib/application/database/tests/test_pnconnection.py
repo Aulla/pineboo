@@ -47,10 +47,10 @@ class TestPNConnection(unittest.TestCase):
         self.assertEqual(conn_.tables("SystemTables"), ["sqlite_master"])
         self.assertEqual(conn_.tables("Views"), [])
 
-        db = conn_.database()
-        db_db_aux = conn_manager.database("dbAux")
+        data_base = conn_.database()
+        data_base_aux = conn_manager.database("dbAux")
         self.assertNotEqual(conn_manager.db(), conn_)  # Compares default Vs main_conn
-        self.assertNotEqual(db, db_db_aux)
+        self.assertNotEqual(data_base, data_base_aux)
         self.assertEqual(conn_.DBName(), str(conn_))
 
     def test_basic3(self) -> None:

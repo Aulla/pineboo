@@ -31,17 +31,17 @@ class PNSignals(object):
         self.notify_end_transaction_ = False
         self.notify_roll_back_transaction_ = False
 
-    def emitTransactionBegin(self, o: "isqlcursor.ISqlCursor") -> None:
+    def emitTransactionBegin(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Emit transaction begin signal."""
         if self.notify_begin_transaction_:
-            o.transactionBegin.emit()
+            cursor.transactionBegin.emit()
 
-    def emitTransactionEnd(self, o: "isqlcursor.ISqlCursor") -> None:
+    def emitTransactionEnd(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Emit transaction end signal."""
         if self.notify_end_transaction_:
-            o.transactionEnd.emit()
+            cursor.transactionEnd.emit()
 
-    def emitTransactionRollback(self, o: "isqlcursor.ISqlCursor") -> None:
+    def emitTransactionRollback(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Emit transaction begin rollback."""
         if self.notify_roll_back_transaction_:
-            o.transactionRollBack.emit()
+            cursor.transactionRollBack.emit()

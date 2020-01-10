@@ -1911,7 +1911,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             val = self.db().getTimeStamp()
                             self.d.buffer_.setValue(field_name, val)
                     if field.isCounter():
-                        from pineboolib.application.database.utils import nextCounter
+                        from pineboolib.application.database import utils
 
                         siguiente = None
                         if self._action.scriptFormRecord():
@@ -1920,11 +1920,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             ).iface
                             function_counter = getattr(context_, "calculateCounter", None)
                             if function_counter is None:
-                                siguiente = nextCounter(field_name, self)
+                                siguiente = utils.next_counter(field_name, self)
                             else:
                                 siguiente = function_counter()
                         else:
-                            siguiente = nextCounter(field_name, self)
+                            siguiente = utils.next_counter(field_name, self)
 
                         if siguiente:
                             self.d.buffer_.setValue(field_name, siguiente)

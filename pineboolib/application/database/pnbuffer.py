@@ -31,7 +31,7 @@ ACCEPTABLE_VALUES = (
     decimal.Decimal,
     datetime.timedelta,
 )
-ACCEPTABLE_VALUES_WITH_NONE = Union[
+TYPE_VALUES = Union[
     int,
     float,
     str,
@@ -69,7 +69,7 @@ class FieldStruct(object):
         self._original_value = None
         self.generated = field.generated()
 
-    def parse_value_input(self, value: ACCEPTABLE_VALUES_WITH_NONE) -> ACCEPTABLE_VALUES_WITH_NONE:
+    def parse_value_input(self, value: TYPE_VALUES) -> TYPE_VALUES:
         """Given an user-provided input, it parses and reformats it suitable for database use."""
         txtvalue: str
         if self.type_ == "double" and value and value not in ("", "-"):
@@ -146,7 +146,7 @@ class FieldStruct(object):
     @return True si ha cambiado, False si es el mismo valor
     """
 
-    def has_changed(self, val: ACCEPTABLE_VALUES_WITH_NONE) -> bool:
+    def has_changed(self, val: TYPE_VALUES) -> bool:
         """Check if a buffer field has changed in value since it was initially loaded."""
 
         if self.value is None and not val:
@@ -357,7 +357,7 @@ class PNBuffer(object):
 
         return field.value in (None, "")
 
-    def value(self, field_name: Union[str, int]) -> ACCEPTABLE_VALUES_WITH_NONE:
+    def value(self, field_name: Union[str, int]) -> TYPE_VALUES:
         """
         Return the value of a field.
 
@@ -399,7 +399,7 @@ class PNBuffer(object):
         # LOGGER.trace("---->retornando %s %s %s",v , type(v), field.value, field.name)
         return value
 
-    def setValue(self, name: str, value: ACCEPTABLE_VALUES_WITH_NONE, mark_: bool = True) -> bool:
+    def setValue(self, name: str, value: TYPE_VALUES, mark_: bool = True) -> bool:
         """
         Set the value of a field.
 

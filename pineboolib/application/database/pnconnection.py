@@ -132,19 +132,19 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def tables(self, tables_type: Optional[Union[str, int]] = None) -> List[str]:
         """Return a list of available tables in the database, according to a given filter."""
-        t_ = None
+        result = None
         if tables_type is not None:
             if isinstance(tables_type, int):
                 if tables_type == 1:
-                    t_ = "Tables"
+                    result = "Tables"
                 elif tables_type == 2:
-                    t_ = "SystemTables"
+                    result = "SystemTables"
                 elif tables_type == 3:
-                    t_ = "Views"
+                    result = "Views"
             else:
-                t_ = tables_type
+                result = tables_type
 
-        return self.driver().tables(t_)
+        return self.driver().tables(result)
 
     def DBName(self) -> str:
         """Return the database name."""
@@ -530,8 +530,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     )
                     return False
 
-            except Exception as e:
-                LOGGER.error("doCommit: Fallo al intentar terminar transacción: %s", e)
+            except Exception as exception:
+                LOGGER.error("doCommit: Fallo al intentar terminar transacción: %s", exception)
                 return False
         else:
             application.PROJECT.message_manager().send(

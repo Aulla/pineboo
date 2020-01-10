@@ -11,7 +11,7 @@ from pineboolib.core.utils.singleton import Singleton
 
 from typing import Dict, Any, List
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class PNSqlDrivers(object, metaclass=Singleton):
@@ -50,10 +50,10 @@ class PNSqlDrivers(object, metaclass=Singleton):
             try:
                 mod_ = importlib.import_module("pineboolib.plugins.sql.%s" % file_name)
             except ModuleNotFoundError:
-                logger.debug("Error trying to load driver %s", file_name, exc_info=True)
+                LOGGER.debug("Error trying to load driver %s", file_name, exc_info=True)
                 continue
             except Exception:
-                logger.exception("Unexpected error loading driver %s", file_name)
+                LOGGER.exception("Unexpected error loading driver %s", file_name)
                 continue
 
             if getattr(mod_, file_name.upper(), None) is None:
@@ -85,7 +85,7 @@ class PNSqlDrivers(object, metaclass=Singleton):
 
         if self.driver():
             # self.driverName = driverName
-            logger.info("Driver %s v%s", self.driver().driverName(), self.driver().version())
+            LOGGER.info("Driver %s v%s", self.driver().driverName(), self.driver().version())
             return True
         else:
             return False

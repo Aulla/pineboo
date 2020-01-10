@@ -147,7 +147,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # self._rows_loaded = 0
         # self.pendingRows = 0
         # self.lastFetch = 0.0
-        # self.fetchedRows = 0
+        # self._fetched_rows = 0
         self._show_pixmap = True
         self.color_function_ = None
         # self.color_dict_ = {}
@@ -541,9 +541,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._rows_loaded = torow + 1
         self.beginInsertRows(parent, 0, torow)
         self.endInsertRows()
-        topLeft = self.index(0, 0)
-        bottomRight = self.index(torow, self.cols - 1)
-        self.dataChanged.emit(topLeft, bottomRight)
+        top_left = self.index(0, 0)
+        bottom_right = self.index(torow, self.cols - 1)
+        self.dataChanged.emit(top_left, bottom_right)
         self.indexes_valid = True
 
     def _refresh_field_info(self) -> None:
@@ -571,13 +571,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 if mtd:
                     qry_tables.append((table, mtd))
 
-        for n, field in enumerate(self.metadata().fieldList()):
+        for number, field in enumerate(self.metadata().fieldList()):
             # if field.visibleGrid():
             #    sql_fields.append(field.name())
             if field.isPrimaryKey():
-                self.pkpos.append(n)
+                self.pkpos.append(number)
             if field.isCompoundKey():
-                self.ckpos.append(n)
+                self.ckpos.append(number)
 
             if is_query:
                 if field.name() in qry_fields:
@@ -675,7 +675,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self.rows = 0
         self._rows_loaded = 0
-        self.fetchedRows = 0
+        self._fetched_rows = 0
         self.sql_fields = []
         self.sql_fields_without_check = []
 
@@ -705,32 +705,32 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._column_hints = [120] * len(self.sql_fields)
         self.updateRows()
 
-    def value(self, row: Optional[int], fieldName: str) -> Any:
+    def value(self, row: Optional[int], field_name: str) -> Any:
         """
         Retrieve column value for a row.
 
         @param row. Row number to retrieve
-        @param fieldName. Field name.
+        @param field_name. Field name.
         @return Value
         """
         if row is None or row < 0:
             return None
         col = None
         if not self.metadata().isQuery():
-            col = self.metadata().indexPos(fieldName)
+            col = self.metadata().indexPos(field_name)
         else:
             # Comparo con los campos de la qry, por si hay algun hueco que no se detectaria con indexPos
-            for x, fQ in enumerate(self.sql_fields):
-                if fieldName == fQ[fQ.find(".") + 1 :]:
-                    col = x
+            for number, field in enumerate(self.sql_fields):
+                if field_name == field[field.find(".") + 1 :]:
+                    col = number
                     break
 
             if not col:
                 return None
 
-        mtdfield = self.metadata().field(fieldName)
+        mtdfield = self.metadata().field(field_name)
         if mtdfield is None:
-            raise Exception("fieldName: %s not found" % fieldName)
+            raise Exception("field_name: %s not found" % field_name)
         type_ = mtdfield.type()
 
         if type_ == "check":
@@ -827,27 +827,29 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             raise Exception("Cursor has no buffer")
         campos = ""
         valores = ""
-        for b in buffer.fieldsList():
+        for buffer_field in buffer.fieldsList():
             value: Any = None
-            if buffer.value(b.name) is None:
-                mtdfield = fl_cursor.metadata().field(b.name)
+            if buffer.value(buffer_field.name) is None:
+                mtdfield = fl_cursor.metadata().field(buffer_field.name)
                 if mtdfield is None:
-                    raise Exception("field %s not found" % b.name)
+                    raise Exception("field %s not found" % buffer_field.name)
                 value = mtdfield.defaultValue()
             else:
-                value = buffer.value(b.name)
+                value = buffer.value(buffer_field.name)
 
             if value is not None:  # si el campo se rellena o hay valor default
                 # if b.name == fl_cursor.metadata().primaryKey():
                 #    pKValue = value
-                if b.type_ in ("string", "stringlist") and isinstance(value, str):
+                if buffer_field.type_ in ("string", "stringlist") and isinstance(value, str):
                     value = self.db().normalizeValue(value)
-                value = self.db().connManager().manager().formatValue(b.type_, value, False)
+                value = (
+                    self.db().connManager().manager().formatValue(buffer_field.type_, value, False)
+                )
                 if not campos:
-                    campos = b.name
+                    campos = buffer_field.name
                     valores = value
                 else:
-                    campos = u"%s,%s" % (campos, b.name)
+                    campos = u"%s,%s" % (campos, buffer_field.name)
                     valores = u"%s,%s" % (valores, value)
         if campos:
             sql = """INSERT INTO %s (%s) VALUES (%s)""" % (
@@ -905,9 +907,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         mtdfield = self.metadata().field(pkey_name)
         if mtdfield is None:
             raise Exception("Primary Key %s not found" % pkey_name)
-        typePK_ = mtdfield.type()
-        pk_value = self.db().connManager().manager().formatValue(typePK_, pk_value, False)
-        # if typePK_ == "string" or typePK_ == "pixmap" or typePK_ == "stringlist" or typePK_ == "time" or typePK_ == "date":
+        pkey_type = mtdfield.type()
+        pk_value = self.db().connManager().manager().formatValue(pkey_type, pk_value, False)
+        # if pkey_type == "string" or pkey_type == "pixmap" or pkey_type == "stringlist" or pkey_type == "time" or pkey_type == "date":
         # pk_value = str("'" + pk_value + "'")
 
         where_filter = "%s = %s" % (pkey_name, pk_value)
@@ -1017,28 +1019,28 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         return self.metadata().primaryKey()
 
-    def fieldType(self, fieldName: str) -> str:
+    def fieldType(self, field_name: str) -> str:
         """
         Retrieve field type for a given field name.
 
-        @param fieldName. required field name.
+        @param field_name. required field name.
         @return field type.
         """
-        field = self.metadata().field(fieldName)
+        field = self.metadata().field(field_name)
         if field is None:
-            raise Exception("field %s not found" % fieldName)
+            raise Exception("field %s not found" % field_name)
         return field.type()
 
-    def alias(self, fieldName: str) -> str:
+    def alias(self, field_name: str) -> str:
         """
         Retrieve alias name for a field name.
 
-        @param fieldName. field name requested.
+        @param field_name. field name requested.
         @return alias for the field.
         """
-        field = self.metadata().field(fieldName)
+        field = self.metadata().field(field_name)
         if field is None:
-            raise Exception("field %s not found" % fieldName)
+            raise Exception("field %s not found" % field_name)
         return field.alias()
 
     def columnCount(self, *args: List[Any]) -> int:  # type: ignore [override] # noqa F821
@@ -1129,16 +1131,16 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             str(self.metadata().indexFieldObject(i).alias()) for i in range(self.cols)
         ]
 
-    def field_metadata(self, fieldName: str) -> "pnfieldmetadata.PNFieldMetaData":
+    def field_metadata(self, field_name: str) -> "pnfieldmetadata.PNFieldMetaData":
         """
-        Retrieve FLFieldMetadata for given fieldName.
+        Retrieve FLFieldMetadata for given field name.
 
-        @param fieldName. field name.
+        @param field_name. field name.
         @return FLFieldMetadata
         """
-        field = self.metadata().field(fieldName)
+        field = self.metadata().field(field_name)
         if field is None:
-            raise Exception("fieldName %s not found" % fieldName)
+            raise Exception("field_name %s not found" % field_name)
         return field
 
     def metadata(self) -> "pntablemetadata.PNTableMetaData":

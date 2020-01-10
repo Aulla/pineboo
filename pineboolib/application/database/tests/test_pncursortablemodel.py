@@ -95,7 +95,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         self.assertEqual(
             model.data(model.index(1, 1), QtCore.Qt.TextAlignmentRole), QtCore.Qt.AlignVCenter
         )
-        d = date(2019, 1, 1)
+        system_date = date(2019, 1, 1)
         locale.setlocale(locale.LC_TIME, "")
         if os.name == "nt":
             date_format = "%%d/%%m/%%y"
@@ -104,7 +104,7 @@ class TestPNCursorTableModel(unittest.TestCase):
 
         date_format = date_format.replace("y", "Y")  # Año con 4 dígitos
         date_format = date_format.replace("/", "-")  # Separadores
-        date_ = d.strftime(date_format)
+        date_ = system_date.strftime(date_format)
 
         self.assertEqual(model.data(model.index(0, 2), QtCore.Qt.DisplayRole), date_)
         self.assertEqual(

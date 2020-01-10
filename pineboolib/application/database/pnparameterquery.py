@@ -12,11 +12,11 @@ class PNParameterQuery(object):
     type_: int
     value_: Any
 
-    def __init__(self, n: str, a: str, t: int) -> None:
+    def __init__(self, name: str, alias: str, type_: int) -> None:
         """Specify the name alias and type."""
-        self.name_ = n
-        self.alias_ = a
-        self.type_ = t
+        self.name_ = name
+        self.alias_ = alias
+        self.type_ = type_
         self.value_ = None
 
     def name(self) -> str:
@@ -37,6 +37,6 @@ class PNParameterQuery(object):
 
         return self.value_
 
-    def setValue(self, v: Any) -> None:
+    def setValue(self, value: Any) -> None:
         """Set a value for the parameter."""
-        self.value_ = v
+        self.value_ = value
