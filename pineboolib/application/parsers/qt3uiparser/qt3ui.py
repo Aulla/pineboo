@@ -402,7 +402,6 @@ def loadAction(action: ET.Element, widget: QWidget) -> None:
 
     widget: pre-created widget to store the object.
     """
-    # FIXME: Why there are two loadAction??
     global ICONS
     act_ = QtWidgets.QAction(widget)
     for p in action.findall("property"):
