@@ -91,7 +91,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._parent = parent
         self.parent_view = None
 
-        metadata = self._parent.d.metadata_
+        metadata = self._parent.private_cursor.metadata_
 
         self._rows_loaded = 0
         self.rows = 0
@@ -298,10 +298,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 result = tuple[col]
 
         else:
-            pK = str(self.value(row, self.metadata().primaryKey()))
-            if pK not in self._check_column.keys():
+            primary_key = str(self.value(row, self.metadata().primaryKey()))
+            if primary_key not in self._check_column.keys():
                 result = QtWidgets.QCheckBox()
-                self._check_column[pK] = result
+                self._check_column[primary_key] = result
 
         if self.parent_view and role in [QtCore.Qt.BackgroundRole, QtCore.Qt.ForegroundRole]:
             fun_get_color, iface = self.parent_view.functionGetColor()
@@ -348,8 +348,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # 9 QtCore.Qt.ForegroundRole
 
         if role == QtCore.Qt.CheckStateRole and _type == "check":
-            if pK in self._check_column.keys():
-                if self._check_column[pK].isChecked():
+            if primary_key in self._check_column.keys():
+                if self._check_column[primary_key].isChecked():
                     return QtCore.Qt.Checked
 
             return QtCore.Qt.Unchecked
@@ -492,7 +492,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     result = QtGui.QBrush(QtCore.Qt.red)
 
             elif _type == "check":
-                obj_ = self._check_column[pK]
+                obj_ = self._check_column[primary_key]
                 result = (
                     QtGui.QBrush(QtCore.Qt.green)
                     if obj_.isChecked()
@@ -855,11 +855,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     campos = u"%s,%s" % (campos, buffer_field.name)
                     valores = u"%s,%s" % (valores, value)
         if campos:
-            sql = """INSERT INTO %s (%s) VALUES (%s)""" % (
-                fl_cursor.d.cursor_name_,
-                campos,
-                valores,
-            )
+            sql = """INSERT INTO %s (%s) VALUES (%s)""" % (fl_cursor.curName(), campos, valores)
             # conn = self._cursor_connection.db()
             try:
                 # print(sql)
@@ -975,7 +971,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             self.db()
             .connManager()
             .manager()
-            .formatValue(pk_type, self.value(cursor.d._currentregister, pk_name))
+            .formatValue(pk_type, self.value(cursor.currentRegister(), pk_name))
         )
         sql = "DELETE FROM %s WHERE %s = %s" % (self._tablename, pk_name, val)
         # conn = self._cursor_connection.db()

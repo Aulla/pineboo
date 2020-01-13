@@ -318,7 +318,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 #    self.queueSavePoints_.clear()
 
                 self._transaction = self._transaction + 1
-                cursor.d.transactionsOpened_.insert(0, self._transaction)
+                cursor.private_cursor._transactions_opened.insert(0, self._transaction)
                 return True
             else:
                 LOGGER.warning("doTransaction: Fallo al intentar iniciar la transacción")
@@ -351,10 +351,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             self.savePoint(self._transaction)
 
             self._transaction = self._transaction + 1
-            if cursor.d.transactionsOpened_:
-                cursor.d.transactionsOpened_.insert(0, self._transaction)  # push
+            if cursor.private_cursor._transactions_opened:
+                cursor.private_cursor._transactions_opened.insert(0, self._transaction)  # push
             else:
-                cursor.d.transactionsOpened_.append(self._transaction)
+                cursor.private_cursor._transactions_opened.append(self._transaction)
             return True
 
     def transactionLevel(self) -> int:
@@ -370,7 +370,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             self.interactiveGUI()
             and cur.modeAccess() in (cur.Insert, cur.Edit)
             and cur.isModifiedBuffer()
-            and cur.d.askForCancelChanges_
+            and cur.private_cursor._ask_for_cancel_changes
         ):
 
             if application.PROJECT.DGI.localDesktop():
@@ -387,8 +387,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             cancel = True
 
         if self._transaction > 0:
-            if cur.d.transactionsOpened_:
-                trans = cur.d.transactionsOpened_.pop()
+            if cur.private_cursor._transactions_opened:
+                trans = cur.private_cursor._transactions_opened.pop()
                 if not trans == self._transaction:
                     LOGGER.warning(
                         "FLSqlDatabase: El cursor va a deshacer la transacción %s pero la última que inició es la %s",
@@ -482,8 +482,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             cur.autoCommit.emit()
 
         if self._transaction > 0:
-            if cur.d.transactionsOpened_:
-                trans = cur.d.transactionsOpened_.pop()
+            if cur.private_cursor._transactions_opened:
+                trans = cur.private_cursor._transactions_opened.pop()
                 if not trans == self._transaction:
                     LOGGER.warning(
                         "El cursor va a terminar la transacción %s pero la última que inició es la %s",

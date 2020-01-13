@@ -250,14 +250,14 @@ class FLFieldDB(QtWidgets.QWidget):
             self.cursor_ = self.topWidget_.cursor()
             # print("Hay topWidget en %s", self)
         if self.DEBUG:
-            if self.cursor_ and self.cursor_.d.buffer_:
+            if self.cursor_ and self.cursor_.private_cursor.buffer_:
                 self.logger.info(
                     "*** FLFieldDB::loaded: cursor: %r name: %r at:%r",
                     self.cursor_,
                     self.cursor_.curName(),
                     self.cursor_.at(),
                 )
-                cur_values = [f.value for f in self.cursor_.d.buffer_.fieldsList()]
+                cur_values = [f.value for f in self.cursor_.private_cursor.buffer_.fieldsList()]
                 self.logger.info("*** cursor Buffer: %r", cur_values)
             else:
                 self.logger.warning("*** FLFieldDB::loaded: SIN cursor ??")

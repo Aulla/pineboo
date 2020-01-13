@@ -529,10 +529,10 @@ class TestGeneral(unittest.TestCase):
         if buffer:
             self.assertTrue(buffer.isGenerated("idarea"))
         cursor_2.setEdition(True, "prueba")
-        self.assertTrue(cursor_2.d.edition_states_)
+        self.assertTrue(cursor_2.private_cursor.edition_states_)
         cursor_2.restoreEditionFlag("prueba")
         cursor_2.setBrowse(True, "prueba2")
-        self.assertTrue(cursor_2.d.browse_states_)
+        self.assertTrue(cursor_2.private_cursor.browse_states_)
         cursor_2.restoreBrowseFlag("prueba2")
 
     def test_basic_5(self) -> None:
@@ -550,9 +550,9 @@ class TestGeneral(unittest.TestCase):
 
         cursor_qry = pnsqlcursor.PNSqlCursor("fltest2")
         self.assertTrue(cursor_qry)
-        self.assertFalse(cursor_qry.d.needUpdate())
+        self.assertFalse(cursor_qry.private_cursor.needUpdate())
         cursor = pnsqlcursor.PNSqlCursor("fltest")
-        self.assertFalse(cursor.d.needUpdate())
+        self.assertFalse(cursor.private_cursor.needUpdate())
         self.assertEqual(cursor.primaryKey(), "id")
         self.assertEqual(cursor.fieldType("id"), 100)
         cursor_qry.setNotGenerateds()

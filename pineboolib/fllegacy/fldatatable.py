@@ -572,7 +572,7 @@ class FLDataTable(QtWidgets.QTableView):
                 rel.foreignTable(), True, db.connectionName(), None, None, popup
             )
 
-            if cur.d.metadata_:
+            if cur.private_cursor.metadata_:
                 mtd = cur.metadata()
                 field = mtd.field(rel.foreignField())
                 if field is None:

@@ -37,7 +37,7 @@ class ICursorPrivate(QtCore.QObject):
 
     Aqui se guarda una copia del FLSqlCursor::buffer_ actual mediante el metodo FLSqlCursor::updateBufferCopy().
     """
-    bufferCopy_: Optional["pnbuffer.PNBuffer"] = None
+    _buffer_copy: Optional["pnbuffer.PNBuffer"] = None
 
     """
     Metadatos de la tabla asociada al cursor.
@@ -92,17 +92,17 @@ class ICursorPrivate(QtCore.QObject):
     Cuando esta propiedad es TRUE siempre se pregunta al usuario si quiere cancelar
     cambios al editar un registro del cursor.
     """
-    askForCancelChanges_: bool
+    _ask_for_cancel_changes: bool
 
     """
     Indica si estan o no activos los chequeos de integridad referencial
     """
-    activatedCheckIntegrity_: bool
+    _activated_check_integrity: bool
 
     """
     Indica si estan o no activas las acciones a realiar antes y después del Commit
     """
-    activatedCommitActions_: bool
+    _activated_commit_actions: bool
 
     """
     Contexto de ejecución de scripts.
@@ -127,12 +127,12 @@ class ICursorPrivate(QtCore.QObject):
     """
     Cuando el cursor proviene de una consulta contiene la sentencia sql
     """
-    isQuery_: bool
+    _is_query: bool
 
     """
     Cuando el cursor proviene de una consulta contiene la clausula order by
     """
-    queryOrderBy_: str
+    _query_order_by: str
 
     """
     Base de datos sobre la que trabaja
@@ -142,7 +142,7 @@ class ICursorPrivate(QtCore.QObject):
     """
     Pila de los niveles de transacción que han sido iniciados por este cursor
     """
-    transactionsOpened_: List[int]
+    _transactions_opened: List[int]
 
     """
     Filtro persistente para incluir en el cursor los registros recientemente insertados aunque estos no
@@ -150,7 +150,7 @@ class ICursorPrivate(QtCore.QObject):
     cursor y así poder posicionarse sobre ellos durante los posibles refrescos que puedan producirse en
     el proceso de inserción. Este filtro se agrega a los filtros principales mediante el operador OR.
     """
-    persistentFilter_: Optional[str]
+    _persistent_filter: Optional[str]
 
     """
     Cursor propietario
@@ -169,35 +169,35 @@ class ICursorPrivate(QtCore.QObject):
     """
     Auxiliares para la comprobacion de riesgos de bloqueos
     """
-    inLoopRisksLocks_: bool
-    inRisksLocks_: bool
+    _in_loop_risk_locks: bool
+    _in_risks_locks: bool
 
     """
     Para el control de acceso dinámico en función del contenido de los registros
     """
 
     acl_table_: Dict[str, Any] = {}
-    acPermTable_ = None
-    acPermBackupTable_: Dict[str, str] = {}
-    acosTable_: List[str] = []
-    acosBackupTable_: Dict[str, str] = {}
-    acosCondName_: Optional[str] = None
-    acosCond_: int
-    acosCondVal_ = None
-    lastAt_ = None
-    aclDone_ = False
-    idAc_ = 0
-    idAcos_ = 0
-    idCond_ = 0
+    _ac_perm_table = None
+    _acos_permanent_backup_table: Dict[str, str] = {}
+    _acos_table: List[str] = []
+    _acos_backup_table: Dict[str, str] = {}
+    _acos_cond_name: Optional[str] = None
+    _acos_cond: int
+    _acos_cond_value = None
+    _last_at = None
+    _acl_done = False
+    _id_ac = 0
+    _id_acos = 0
+    _id_cond = 0
     id_ = "000"
 
     """ Uso interno """
-    isSysTable_: bool
+    _is_system_table: bool
     # rawValues_: bool
 
-    md5Tuples_: str
+    _md5_tuples: str
 
-    countRefCursor: int
+    _count_ref_cursor: int
 
     _model: "pncursortablemodel.PNCursorTableModel"
 
@@ -257,7 +257,7 @@ class ISqlCursor(QtCore.QObject):
     RegExp = 1
     Function = 2
 
-    d: "ICursorPrivate"
+    private_cursor: "ICursorPrivate"
 
     _selection: Optional[QtCore.QItemSelectionModel] = None
 
