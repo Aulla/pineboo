@@ -5,7 +5,7 @@ import traceback
 from pineboolib import logging
 from typing import Dict, Any, Callable
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def monkey_patch_connect() -> None:
@@ -16,22 +16,28 @@ def monkey_patch_connect() -> None:
     """
     from PyQt5 import QtCore  # type: ignore
 
-    logger.warning(
+    LOGGER.warning(
         "--trace-signals es experimental. Tiene problemas de memoria y falla en llamadas con un argumento (False)"
     )
-    logger.warning(
+    LOGGER.warning(
         "... se desaconseja su uso excepto para depurar. Puede cambiar el comportamiento del programa."
     )
 
     class BoundSignal:
+        """BoundSignal class."""
+
         _CONNECT = QtCore.pyqtBoundSignal.connect  # type: ignore
         _EMIT = QtCore.pyqtBoundSignal.emit
         _LAST_EMITTED_SIGNAL: Dict[str, Any] = {}
 
         def slot_decorator(self: Any, slot: Callable, connect_stack: Any) -> Callable:
+            """Create Slot decorator."""
+
             selfid = repr(self)
 
             def decorated_slot(*args: Any) -> Any:
+                """Return decorated slot."""
+
                 ret = None
                 if len(args) == 1 and args[0] is False:
                     args = tuple()
@@ -39,15 +45,15 @@ def monkey_patch_connect() -> None:
                     # print("Calling slot: %r %r" % (slot, args))
                     ret = slot(*args)
                 except Exception:
-                    logger.error("Unhandled exception in slot %r (%r): %r" % (slot, self, args))
-                    logger.error("-- Connection --")
-                    logger.error(traceback.format_list(connect_stack)[-2].rstrip())
+                    LOGGER.error("Unhandled exception in slot %r (%r): %r" % (slot, self, args))
+                    LOGGER.error("-- Connection --")
+                    LOGGER.error(traceback.format_list(connect_stack)[-2].rstrip())
                     last_emit_stack = BoundSignal._LAST_EMITTED_SIGNAL.get(selfid, None)
                     if last_emit_stack:
-                        logger.error("-- Last signal emmitted --")
-                        logger.error(traceback.format_list(last_emit_stack)[-2].rstrip())
-                    logger.error("-- Slot traceback --")
-                    logger.error(traceback.format_exc())
+                        LOGGER.error("-- Last signal emmitted --")
+                        LOGGER.error(traceback.format_list(last_emit_stack)[-2].rstrip())
+                    LOGGER.error("-- Slot traceback --")
+                    LOGGER.error(traceback.format_exc())
                 return ret
 
             return decorated_slot

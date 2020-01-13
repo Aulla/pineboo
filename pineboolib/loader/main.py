@@ -22,10 +22,10 @@ from pineboolib.application.parsers.qsaparser import pytnyzer
 if TYPE_CHECKING:
     from pineboolib.loader import projectconfig  # noqa: F401
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
-def startup_no_X() -> None:
+def startup_no_x() -> None:
     """Start Pineboo with no GUI."""
     startup(enable_gui=False)
 
@@ -42,8 +42,8 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     application.PROJECT.load_version()
     application.PROJECT.setDebugLevel(1000)
     application.PROJECT.set_app(qapp)
-    _DGI = load_dgi("qt", None)
-    application.PROJECT.init_dgi(_DGI)
+    dgi = load_dgi("qt", None)
+    application.PROJECT.init_dgi(dgi)
     conn_ = connect_to_db(conn)
     application.PROJECT.init_conn(connection=conn_)
     application.PROJECT.no_python_cache = True
@@ -63,9 +63,9 @@ def startup(enable_gui: bool = None) -> None:
     ):
         sys.exit(32)
 
-    MIN_PYTHON = (3, 6)
-    if sys.version_info < MIN_PYTHON:
-        sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
+    min_python = (3, 6)
+    if sys.version_info < min_python:
+        sys.exit("Python %s.%s or later is required.\n" % min_python)
 
     options = parse_options()
     if enable_gui is not None:
@@ -105,7 +105,7 @@ def init_logging(
         logging.Logger.set_pineboo_default_level(loglevel)
 
     logging.basicConfig(format=log_format, level=app_loglevel)
-    # logger.info("LOG LEVEL: %s", loglevel)
+    # LOGGER.info("LOG LEVEL: %s", loglevel)
     disable_loggers = ["PyQt5.uic.uiparser", "PyQt5.uic.properties", "blib2to3.pgen2.driver"]
     for loggername in disable_loggers:
         modlogger = logging.getLogger(loggername)
@@ -123,15 +123,15 @@ def exec_main_with_profiler(options: Values) -> int:
     import io
     from pstats import SortKey  # type: ignore
 
-    pr = cProfile.Profile()
-    pr.enable()
+    profile = cProfile.Profile()
+    profile.enable()
     ret = exec_main(options)
-    pr.disable()
-    s = io.StringIO()
+    profile.disable()
+    string_io = io.StringIO()
     sortby = SortKey.TIME
-    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-    ps.print_stats(40)
-    print(s.getvalue())
+    print_stats = pstats.Stats(profile, stream=string_io).sort_stats(sortby)
+    print_stats.print_stats(40)
+    print(string_io.getvalue())
     return ret
 
 
@@ -204,14 +204,16 @@ def setup_gui(app: QtWidgets.QApplication, options: Values) -> None:
     style_app: str = config.value("application/style", "Fusion")
     app.setStyle(style_app)  # type: ignore
 
-    fontA = config.value("application/font", None)
-    if fontA is None:
+    default_font = config.value("application/font", None)
+    if default_font is None:
         font = QtGui.QFont("Noto Sans", 9)
         font.setBold(False)
         font.setItalic(False)
     else:
         # FIXME: FLSettings.readEntry does not return an array
-        font = QtGui.QFont(fontA[0], int(fontA[1]), int(fontA[2]), fontA[3] == "true")
+        font = QtGui.QFont(
+            default_font[0], int(default_font[1]), int(default_font[2]), default_font[3] == "true"
+        )
 
     app.setFont(font)
 
@@ -236,9 +238,9 @@ def init_testing() -> None:
         application.PROJECT.load_version()
         application.PROJECT.setDebugLevel(1000)
         application.PROJECT.set_app(qapp)
-        _DGI = load_dgi("qt", None)
+        dgi = load_dgi("qt", None)
 
-        application.PROJECT.init_dgi(_DGI)
+        application.PROJECT.init_dgi(dgi)
 
     conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
     application.PROJECT.init_conn(connection=conn)
@@ -283,7 +285,7 @@ def finish_testing() -> None:
     try:
         shutil.rmtree(application.PROJECT.tmpdir)
     except Exception:
-        logger.warning(
+        LOGGER.warning(
             "No se ha podido borrar %s al limpiar cambios del test", application.PROJECT.tmpdir
         )
         pass
@@ -358,30 +360,30 @@ def exec_main(options: Values) -> int:
 
         download_files()
 
-    _DGI = load_dgi(options.dgi, options.dgi_parameter)
+    dgi = load_dgi(options.dgi, options.dgi_parameter)
     if options.enable_gui:
         init_gui()
 
-    if _DGI.useDesktop() and not options.enable_gui:
-        logger.info(
+    if dgi.useDesktop() and not options.enable_gui:
+        LOGGER.info(
             "Selected DGI <%s> is not compatible with <pineboo-core>. Use <pineboo> instead"
             % options.dgi
         )
 
-    if not _DGI.useDesktop() and options.enable_gui:
-        logger.info(
+    if not dgi.useDesktop() and options.enable_gui:
+        LOGGER.info(
             "Selected DGI <%s> does not need graphical interface. Use <pineboo-core> for better results"
             % options.dgi
         )
 
-    if not _DGI.useMLDefault():
+    if not dgi.useMLDefault():
         # When a particular DGI doesn't want the standard init, we stop loading here
         # and let it take control of the remaining pieces.
-        return _DGI.alternativeMain(options)
+        return dgi.alternativeMain(options)
 
     configdb = config_dbconn(options)
-    logger.debug(configdb)
-    application.PROJECT.init_dgi(_DGI)
+    LOGGER.debug(configdb)
+    application.PROJECT.init_dgi(dgi)
 
     from pineboolib.fllegacy.flapplication import aqApp
 
@@ -390,8 +392,8 @@ def exec_main(options: Values) -> int:
         lang = "es"
     aqApp.loadTranslationFromModule("sys", lang)
 
-    if not configdb and _DGI.useDesktop() and _DGI.localDesktop():
-        if not _DGI.mobilePlatform():
+    if not configdb and dgi.useDesktop() and dgi.localDesktop():
+        if not dgi.mobilePlatform():
 
             configdb = show_connection_dialog(application.PROJECT.app)
             if configdb is None:
@@ -413,7 +415,7 @@ def exec_main(options: Values) -> int:
     # if options.test:
     #    return 0 if application.PROJECT.test() else 1
 
-    # if _DGI.useDesktop():
+    # if dgi.useDesktop():
     # FIXME: What is happening here? Why dynamic load?
     # import importlib  # FIXME: Delete dynamic import and move this code between Project and DGI plugins
 
@@ -422,8 +424,8 @@ def exec_main(options: Values) -> int:
     #        "pineboolib.plugins.mainform.%s.%s"
     #        % (application.PROJECT.main_form_name, application.PROJECT.main_form_name)
     #    )
-    #    if _DGI.localDesktop()
-    #    else _DGI.mainForm()
+    #    if dgi.localDesktop()
+    #    else dgi.mainForm()
     # )
     main_form_name = config.value("ebcomportamiento/main_form_name", "eneboo")
 
@@ -457,7 +459,7 @@ def exec_main(options: Values) -> int:
     conn = application.PROJECT.conn_manager.mainConn()
 
     if not conn:
-        logger.warning("No connection was provided. Aborting Pineboo load.")
+        LOGGER.warning("No connection was provided. Aborting Pineboo load.")
         return -99
 
     if not config.value("ebcomportamiento/orm_parser_disabled", False):
@@ -481,10 +483,10 @@ def exec_main(options: Values) -> int:
     from .init_project import init_project
 
     ret = init_project(
-        _DGI,
+        dgi,
         options,
         application.PROJECT,
-        application.PROJECT.main_form if _DGI.useDesktop() else None,
+        application.PROJECT.main_form if dgi.useDesktop() else None,
         application.PROJECT.app,
     )
     return ret

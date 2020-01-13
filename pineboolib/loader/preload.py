@@ -3,7 +3,7 @@
 from pineboolib import logging
 from typing import Container, Any
 
-logger = logging.getLogger("loader.preload_actions")
+LOGGER = logging.getLogger("loader.preload_actions")
 
 
 def preload_actions(project: Any, forceload: Container = None) -> None:
@@ -14,18 +14,18 @@ def preload_actions(project: Any, forceload: Container = None) -> None:
         actions that match "*forceload*". If None, all actions
         are loaded.
     """
-    logger.info("Precarga ...")
+    LOGGER.info("Precarga ...")
     for action in project.actions:
         if forceload and action not in forceload:
             continue
-        logger.debug("* * * Cargando acción %s . . . " % action)
+        LOGGER.debug("* * * Cargando acción %s . . . " % action)
         try:
             project.actions[action].load()
         except Exception:
-            logger.exception("Failure trying to load action %s", action)
+            LOGGER.exception("Failure trying to load action %s", action)
             project.conn_manager.mainConn().rollback()  # FIXME: Proper transaction handling using with context
         try:
             project.actions[action].loadRecord(None)
         except Exception:
-            logger.exception("Failure trying to loadRecord action %s", action)
+            LOGGER.exception("Failure trying to loadRecord action %s", action)
             project.conn_manager.mainConn().rollback()  # FIXME: Proper transaction handling using with context

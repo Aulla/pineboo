@@ -19,6 +19,8 @@ VERSION_1_0 = VersionNumber("1.0")
 VERSION_1_1 = VersionNumber("1.1")
 VERSION_1_2 = VersionNumber("1.2")
 
+LOGGER = logging.getLogger(__name__)
+
 
 class ProjectConfig:
     """
@@ -26,8 +28,6 @@ class ProjectConfig:
     """
 
     SAVE_VERSION = VERSION_1_2  #: Version for saving
-
-    logger = logging.getLogger("loader.projectConfig")
 
     #: Folder where to read/write project configs.
     profile_dir: str = filedir(
@@ -195,7 +195,7 @@ class ProjectConfig:
 
             # FIXME: Move this to project, or to the connection handler.
             if self.type not in sql_drivers_manager.aliasList():
-                self.logger.warning("Esta versión de pineboo no soporta el driver '%s'" % self.type)
+                LOGGER.warning("Esta versión de pineboo no soporta el driver '%s'" % self.type)
 
         for credentials in root.findall("database-credentials"):
             self.username = self.retrieveCipherSubElement(credentials, "username")
@@ -420,7 +420,7 @@ class ProjectConfig:
             raise ValueError("base de datos no valida")
         if not re.match(r"\d+", port):
             raise ValueError("puerto no valido")
-        cls.logger.debug(
+        LOGGER.debug(
             "user:%s, passwd:%s, driver_alias:%s, host:%s, port:%s, dbname:%s",
             user,
             "*" * len(passwd),

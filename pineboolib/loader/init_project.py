@@ -4,25 +4,25 @@ Finalize pineboo setup and load.
 from pineboolib import logging
 from typing import Any
 
-logger = logging.getLogger("loader.init_project")
+LOGGER = logging.getLogger("loader.init_project")
 
 
-def init_project(DGI: Any, options: Any, project: Any, mainForm: Any, app: Any) -> Any:
+def init_project(dgi: Any, options: Any, project: Any, main_form: Any, app: Any) -> Any:
     """Initialize the project and start it."""
     # from PyQt5 import QtCore  # type: ignore
 
-    # if DGI.useDesktop() and DGI.localDesktop() and splash:
+    # if dgi.useDesktop() and dgi.localDesktop() and splash:
     #     splash.showMessage("Iniciando proyecto ...", QtCore.Qt.AlignLeft, QtCore.Qt.white)
-    #     DGI.processEvents()
+    #     dgi.processEvents()
 
-    logger.info("Iniciando proyecto ...")
+    LOGGER.info("Iniciando proyecto ...")
 
     if options.preload:
         from .preload import preload_actions
 
         preload_actions(project, options.forceload)
 
-        logger.info("Finished preloading")
+        LOGGER.info("Finished preloading")
         return
 
     if options.action:
@@ -45,16 +45,14 @@ def init_project(DGI: Any, options: Any, project: Any, mainForm: Any, app: Any) 
 
     project.message_manager().send("splash", "showMessage", ["Creando interface ..."])
 
-    if mainForm is not None:
-        logger.info("Creando interfaz ...")
-        main_window = mainForm.mainWindow
+    if main_form is not None:
+        LOGGER.info("Creando interfaz ...")
+        main_window = main_form.mainWindow
         main_window.initScript()
         ret = 0
 
-    if mainForm is not None:
         project.message_manager().send("splash", "showMessage", ["Abriendo interfaz ..."])
-
-        logger.info("Abriendo interfaz ...")
+        LOGGER.info("Abriendo interfaz ...")
         main_window.show()
         project.message_manager().send("splash", "showMessage", ["Listo ..."])
         project.message_manager().send("splash", "hide")
@@ -62,13 +60,13 @@ def init_project(DGI: Any, options: Any, project: Any, mainForm: Any, app: Any) 
     # if objaction:
     #     project.openDefaultForm(objaction.form())
 
-    if DGI.localDesktop():
+    if dgi.localDesktop():
         ret = app.exec_()
     else:
-        ret = DGI.exec_()
+        ret = dgi.exec_()
 
-    if mainForm is not None:
-        mainForm.mainWindow = None
+    if main_form is not None:
+        main_form.mainWindow = None
         del main_window
     del project
     return ret

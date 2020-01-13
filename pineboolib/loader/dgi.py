@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from pineboolib.plugins.dgi.dgi_server.dgi_server import dgi_server
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def load_dgi(name: str, param: Any) -> "dgi_schema":
@@ -24,13 +24,13 @@ def load_dgi(name: str, param: Any) -> "dgi_schema":
     try:
         dgi = dgi_entrypoint()  # FIXME: Necesitamos ejecutar código dinámico tan pronto?
     except Exception:
-        logger.exception("Error inesperado al cargar el módulo DGI %s" % name)
+        LOGGER.exception("Error inesperado al cargar el módulo DGI %s" % name)
         raise
 
     if param:
         dgi.setParameter(param)
 
-    logger.info("DGI loaded: %s", name)
+    LOGGER.info("DGI loaded: %s", name)
 
     return dgi
 
