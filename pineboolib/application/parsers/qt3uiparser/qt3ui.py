@@ -291,7 +291,7 @@ def loadToolBar(xml: ET.Element, widget: QtWidgets.QMainWindow) -> None:
             name = a.get("name") or "action"
             ac_ = tb.addAction(name)
             ac_.setObjectName(name)
-            load_action(ac_, widget)
+            clone_action(ac_, widget)
 
             # FIXME!!, meter el icono y resto de datos!!
         elif a.tag == "separator":
@@ -370,14 +370,14 @@ def process_item(
             name_ = x.get("name") or ""
             ac_ = menu_.addAction(name_)
             ac_.setObjectName(name_)
-            load_action(ac_, widget)
+            clone_action(ac_, widget)
         elif x.tag == "item":
             process_item(x, menu_, widget)
 
 
-def load_action(action: QtWidgets.QAction, widget: QWidget) -> None:
+def clone_action(action: QtWidgets.QAction, widget: QWidget) -> None:
     """
-    Load Action into widget.
+    clone action into widget.
 
     widget: pre-created widget to store the object.
     used only on loadToolBar and process_item
@@ -1047,7 +1047,9 @@ def _loadVariant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) -
         return text
     if variant.tag in ["iconset", "pixmap"]:
         global ICONS
-        return ICONS.get(text, text)
+        if text in ICONS.keys():
+
+            return ICONS[text]
     if variant.tag == "string":
         return u(text)
     if variant.tag == "number":
