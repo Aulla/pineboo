@@ -377,7 +377,7 @@ def process_item(
 
 def clone_action(action: QtWidgets.QAction, widget: QWidget) -> None:
     """
-    clone action into widget.
+    Clone action into widget.
 
     widget: pre-created widget to store the object.
     used only on loadToolBar and process_item
