@@ -515,8 +515,6 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
     _file_name: str
     _mode: QIODevice
-    path: Optional[str]
-    extension: str
 
     _encode: str
     _last_seek: int
@@ -529,14 +527,13 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         self._encode = "iso-8859-15"
         self._last_seek = 0
         self._file_name = ""
-        self.extension = ""
         self.eof = False
 
         if file_path is not None:
             self._q_file = QtCore.QFile(file_path)
-            self._file_name, self.extension = os.path.splitext(file_path)
-            self._file_name = "%s%s" % (self._file_name, self.extension)
-            self.path = os.path.dirname(os.path.abspath(file_path))
+            file_name, extension = os.path.splitext(file_path)
+            self._file_name = "%s%s" % (file_name, extension)
+
         if encode is not None:
             self._encode = encode
 
@@ -575,7 +572,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         file_: str
         encode: str
 
-        if self._file_name is None:
+        if not self._file_name:
             raise ValueError("self._file_name is not defined!")
 
         file_ = self._file_name
@@ -605,7 +602,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         @param data. Valores a guardar en el fichero
         @param length. Tamaño de data. (No se usa)
         """
-        if self._file_name is None:
+        if not self._file_name:
             raise ValueError("self._file_name is empty!")
         file_: str = self._file_name
         encode: str = self._encode
@@ -623,7 +620,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
     def writeBlock(self, bytes_array: bytes) -> None:
         """Write a block of data to the file."""
-        if self._file_name is None:
+        if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
         with open(self._file_name, "wb") as file:
@@ -637,11 +634,26 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         @return Nombre del _file_name
         """
-        if self._file_name is None:
+        if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
         _path, file_name = os.path.split(self._file_name)
         return file_name
+
+    def getBaseName(self) -> str:
+        """Return baseName."""
+
+        if not self._file_name:
+            raise ValueError("self._file_name is empty!")
+
+        return os.path.basename(self._file_name.split(".")[0])
+
+    def getExtension(self) -> str:
+        """Return extension."""
+        if not self._file_name:
+            raise ValueError("self._file_name is empty!")
+
+        return os.path.splitext(self._file_name)[1]
 
     def writeLine(self, data: str, len: Optional[int] = None) -> None:
         """
@@ -651,7 +663,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """
         import codecs
 
-        if self._file_name is None:
+        if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
         f = codecs.open(self._file_name, encoding=self._encode, mode="a")
@@ -667,7 +679,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         import codecs
 
-        if self._file_name is None:
+        if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
         f = codecs.open(self._file_name, "r", encoding=self._encode)
@@ -687,7 +699,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         @return array con las lineas del _file_name.
         """
 
-        if self._file_name is None:
+        if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
         ret: List[str]
@@ -715,7 +727,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         @param data_b. Datos a añadir en el _file_name
         """
-        if self._file_name is None:
+        if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
         f = open(self._file_name, "wb")
@@ -749,9 +761,19 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """
         return self._q_file.remove()
 
-    def fullName(self) -> str:
-        """Reurn full name."""
+    def getFullName(self) -> str:
+        """Return full name."""
         return self._file_name or ""
+
+    def getSize(self) -> int:
+        """Return file size."""
+
+        return self._q_file.size()
+
+    def getPath(self) -> str:
+        """Return getPath."""
+
+        return os.path.dirname(self._file_name)
 
     def readable(self) -> bool:
         """Return if file is readable."""
@@ -769,6 +791,11 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         return self._q_file.exists()
 
     name = property(getName)
+    path = property(getPath)
+    fullName = property(getFullName)
+    baseName = property(getBaseName)
+    extension = property(getExtension)
+    size = property(getSize)
 
 
 class FileStatic(FileBaseClass):
