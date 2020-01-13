@@ -29,7 +29,7 @@ class Input(object):
 
     @classmethod
     def getNumber(
-        cls, question: str, value: Union[str, float], part_decimal: int, title: str = "Pineboo"
+        cls, question: str, value: Union[str, float], part_decimal: int = 0, title: str = "Pineboo"
     ) -> float:
         """Return number."""
 
@@ -41,7 +41,11 @@ class Input(object):
             QtWidgets.QLineEdit.Normal,
             str(round(float(value), part_decimal)),
         )
-        return float(text) if ok else 0.00
+        ret: float = 0.00
+        if ok:
+            ret = float(text)
+
+        return ret
 
     @classmethod
     def getItem(
