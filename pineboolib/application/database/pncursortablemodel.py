@@ -681,7 +681,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self._refresh_field_info()
 
-        self._curname = "cur_%s_%08d" % (self.metadata().name(), next(CURSOR_COUNT))
         if self.sql_fields_without_check:
             self.sql_str = ", ".join(self.sql_fields_without_check)
         else:
@@ -690,6 +689,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._current_row_data = []
         self._current_row_index = -1
 
+        if self._curname:
+            self.driver_sql().deleteCursor(self._curname, self.cursorDB())
+
+        self._curname = "cur_%s_%08d" % (self.metadata().name(), next(CURSOR_COUNT))
         self.driver_sql().declareCursor(
             self._curname,
             self.sql_str,

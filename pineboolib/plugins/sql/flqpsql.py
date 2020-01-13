@@ -802,6 +802,19 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         return pos
 
+    def deleteCursor(self, cursor_name: str, cursor: Any) -> None:
+        """Delete cursor."""
+        try:
+            sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % cursor_name
+            cursor.execute(sql_exists)
+            if cursor.fetchone() is None:
+                return
+
+            cursor.execute("CLOSE %s" % cursor_name)
+        except Exception as exception:
+            logger.error("finRow: %s", exception)
+            logger.warning("Detalle:", stack_info=True)
+
     def alterTable(
         self,
         mtd1: Union[str, "pntablemetadata.PNTableMetaData"],

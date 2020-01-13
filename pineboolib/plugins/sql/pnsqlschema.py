@@ -385,6 +385,16 @@ class PNSqlSchema(object):
 
         return ret_
 
+    def deleteCursor(self, cursor_name: str, cursor: Any) -> None:
+        """Delete cursor."""
+        try:
+            del cursor
+            self.rows_cached[cursor_name] = []
+            self.rows_cached.pop(cursor_name)
+        except Exception as exception:
+            logger.error("finRow: %s", exception)
+            logger.warning("Detalle:", stack_info=True)
+
     def queryUpdate(self, name: str, update: str, filter: str) -> str:
         """Return a database friendly update query."""
         sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
