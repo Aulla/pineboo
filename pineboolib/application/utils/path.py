@@ -2,7 +2,7 @@
 To resolve file and folder paths.
 """
 
-from pineboolib import logging
+from pineboolib.core.utils import logging
 from pineboolib import application
 import os
 from typing import Optional, List
