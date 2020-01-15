@@ -15,9 +15,6 @@ from PyQt5 import QtWidgets
 from pineboolib.core.utils import logging, utils_base
 from pineboolib.core.utils.struct import AreaStruct
 from pineboolib.core import exceptions, settings, message_manager
-
-
-from pineboolib.application.parsers.mtdparser import pnormmodelsfactory
 from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.utils import path, xpm
 from pineboolib.application import module, file
@@ -398,6 +395,7 @@ class Project(object):
             "ebcomportamiento/orm_enabled", False
         ) and not settings.config.value("ebcomportamiento/orm_load_disabled", False):
             self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
+            from pineboolib.application.parsers.mtdparser import pnormmodelsfactory
 
             pnormmodelsfactory.load_models()
 
