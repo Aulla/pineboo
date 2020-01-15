@@ -1176,6 +1176,7 @@ class MainForm(QtWidgets.QMainWindow):
 
         conns = root.namedItem("connections").toElement()
         connections = conns.elementsByTagName("connection")
+        mapped_list: List[str] = []
         for i in range(connections.length()):
             itn = connections.at(i).toElement()
             sender = itn.namedItem("sender").toElement().text()
@@ -1189,8 +1190,11 @@ class MainForm(QtWidgets.QMainWindow):
 
                 slot = itn.namedItem("slot").toElement().text()
                 if self.act_sig_map_ is not None:
-                    getattr(ac, signal_fix).connect(self.act_sig_map_.map)
-                    self.act_sig_map_.setMapping(ac, "%s:%s:%s" % (signal, slot, ac.objectName()))
+                    map_name = "%s:%s:%s" % (signal, slot, ac.objectName())
+                    if map_name not in mapped_list:
+                        getattr(ac, signal_fix).connect(self.act_sig_map_.map)
+                        self.act_sig_map_.setMapping(ac, map_name)
+                        mapped_list.append(map_name)
                 # getattr(ac, signal).connect(self.act_sig_map_.map)
                 # ac.triggered.connect(self.triggerAction)
 
