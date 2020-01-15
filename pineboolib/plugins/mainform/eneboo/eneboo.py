@@ -613,8 +613,10 @@ class MainForm(QtWidgets.QMainWindow):
             raise Exception("tw_ is empty!")
 
         for i in range(self.tw_.count()):
-            if cast(flformdb.FLFormDB, self.tw_.widget(i)).action().name() == action_name:
-                self.tw_.widget(i).close()
+            form = self.tw_.widget(i)
+            if isinstance(form, flformdb.FLFormDB):
+                if form.action().name() == action_name:
+                    self.tw_.widget(i).close()
 
         fm = aqsobjectfactory.AQFormDB(action_name, self.tw_)
         fm.setMainWidget()
