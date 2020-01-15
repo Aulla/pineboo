@@ -444,6 +444,13 @@
                <number>2</number>
               </property>
               <item>
+               <widget class="QCheckBox" name="cb_orm_enabled">
+                <property name="text">
+                 <string>Activar ORM SqlAlchemy.</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QCheckBox" name="cb_disable_mtdparser">
                 <property name="text">
                  <string>Desactivar conversor de ficheros MTD a model ORM.</string>

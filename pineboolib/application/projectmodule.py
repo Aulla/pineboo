@@ -320,7 +320,9 @@ class Project(object):
                         continue
 
                 elif file_name.endswith(".mtd"):
-                    if not settings.config.value("ebcomportamiento/orm_parser_disabled", False):
+                    if settings.config.value(
+                        "ebcomportamiento/orm_enabled", False
+                    ) and not settings.config.value("ebcomportamiento/orm_parser_disabled", False):
                         if os.path.exists("%s_model.py" % path._dir("cache", fileobj.filekey[:-4])):
                             continue
                 else:
@@ -392,7 +394,9 @@ class Project(object):
 
             # self.parse_script_lists(list_files)
 
-        if not settings.config.value("ebcomportamiento/orm_load_disabled", False):
+        if settings.config.value(
+            "ebcomportamiento/orm_enabled", False
+        ) and not settings.config.value("ebcomportamiento/orm_load_disabled", False):
             self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
 
             pnormmodelsfactory.load_models()

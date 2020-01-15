@@ -1,7 +1,8 @@
 """Flqpsql2 module."""
 from pineboolib import logging
 from pineboolib.application.utils.check_dependencies import check_dependencies
-from sqlalchemy import create_engine  # type: ignore
+
+from pineboolib.core import settings
 
 from PyQt5.Qt import qWarning  # type: ignore
 from PyQt5.QtWidgets import QMessageBox, QWidget  # type: ignore
@@ -48,10 +49,14 @@ class FLQPSQL2(FLQPSQL):
                 password=db_password,
                 timeout=5,
             )
-            self.engine_ = create_engine(
-                "postgresql+pg8000://%s:%s@%s:%s/%s"
-                % (db_userName, db_password, db_host, db_port, db_name)
-            )
+
+            if settings.config.value("ebcomportamiento/orm_enabled", False):
+                from sqlalchemy import create_engine  # type: ignore
+
+                self.engine_ = create_engine(
+                    "postgresql+pg8000://%s:%s@%s:%s/%s"
+                    % (db_userName, db_password, db_host, db_port, db_name)
+                )
         except Exception as e:
             from pineboolib import application
 

@@ -6,6 +6,8 @@ from PyQt5 import Qt, QtWidgets
 from pineboolib.application.utils import check_dependencies
 from pineboolib import application, logging
 
+from pineboolib.core import settings
+
 from . import flmysql_myisam
 
 import traceback
@@ -56,7 +58,6 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         """Connect to a database."""
         self._dbname = db_name
         check_dependencies.check_dependencies({"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"})
-        from sqlalchemy import create_engine  # type: ignore
         import pymysql
 
         try:
@@ -68,10 +69,14 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
                 charset="utf8",
                 autocommit=True,
             )
-            self.engine_ = create_engine(
-                "mysql+pymysql://%s:%s@%s:%s/%s"
-                % (db_userName, db_password, db_host, db_port, db_name)
-            )
+
+            if settings.config.value("ebcomportamiento/orm_enabled", False):
+                from sqlalchemy import create_engine  # type: ignore
+
+                self.engine_ = create_engine(
+                    "mysql+pymysql://%s:%s@%s:%s/%s"
+                    % (db_userName, db_password, db_host, db_port, db_name)
+                )
         except pymysql.Error as e:
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()

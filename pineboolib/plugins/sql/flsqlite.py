@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets, QtCore, Qt
 
 
 from pineboolib.core.utils.utils_base import auto_qt_translate_text
-from pineboolib.core import decorators
+from pineboolib.core import decorators, settings
 
 from pineboolib.application.utils import check_dependencies, path
 from pineboolib.application.database import pnsqlquery
@@ -71,7 +71,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     ) -> Any:
         """Connec to to database."""
         from pineboolib import application
-        from sqlalchemy import create_engine  # type: ignore
 
         check_dependencies.check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"})
 
@@ -101,7 +100,12 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             sqlalchemy_uri = "sqlite:///%s" % self.db_filename
             if self.db_filename == ":memory:":
                 sqlalchemy_uri = "sqlite://"
-            self.engine_ = create_engine(sqlalchemy_uri)
+
+            if settings.config.value("ebcomportamiento/orm_enabled", False):
+                from sqlalchemy import create_engine  # type: ignore
+
+                self.engine_ = create_engine(sqlalchemy_uri)
+
             self.conn_.isolation_level = None
 
             if db_is_new and self.db_filename not in [":memory:", "temp_db"]:

@@ -99,6 +99,9 @@ class FormInternalObj(qsa.FormDBWidget):
         w.findChild(QtWidgets.QWidget, "cb_dbadmin").setChecked(
             self.leerValorLocal("dbadmin_enabled")
         )
+        w.findChild(QtWidgets.QWidget, "cb_orm_enabled").setChecked(
+            self.leerValorLocal("orm_enabled")
+        )
         w.findChild(QtWidgets.QWidget, "cb_disable_mtdparser").setChecked(
             self.leerValorLocal("orm_parser_disabled")
         )
@@ -171,10 +174,10 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def leerValorLocal(self, valor_name: str) -> Any:
         """Return local value."""
-        from pineboolib.core.settings import config
+        from pineboolib.core import settings
 
         if valor_name in ("isDebuggerMode", "dbadmin_enabled"):
-            valor = config.value("application/%s" % valor_name, False)
+            valor = settings.config.value("application/%s" % valor_name, False)
         else:
             if valor_name in (
                 "ebCallFunction",
@@ -184,7 +187,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 "temp_dir",
                 "git_updates_repo",
             ):
-                valor = config.value("ebcomportamiento/%s" % valor_name, "")
+                valor = settings.config.value("ebcomportamiento/%s" % valor_name, "")
                 if valor_name == "temp_dir" and valor == "":
                     app_ = qsa.aqApp
                     if app_ is None:
@@ -193,7 +196,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     valor = app_.tmp_dir()
 
             else:
-                valor = config.value("ebcomportamiento/%s" % valor_name, False)
+                valor = settings.config.value("ebcomportamiento/%s" % valor_name, False)
         return valor
 
     def grabarValorLocal(self, valor_name: str, value: Union[str, bool]) -> None:
@@ -298,6 +301,9 @@ class FormInternalObj(qsa.FormDBWidget):
         )
         self.grabarValorLocal(
             "dbadmin_enabled", w.findChild(QtWidgets.QWidget, "cb_dbadmin").isChecked()
+        )
+        self.grabarValorLocal(
+            "orm_enabled", w.findChild(QtWidgets.QWidget, "cb_orm_enabled").isChecked()
         )
         self.grabarValorLocal(
             "orm_parser_disabled",

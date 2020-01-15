@@ -2,6 +2,7 @@
 from PyQt5 import QtCore, Qt, QtWidgets
 
 from pineboolib.core.utils.utils_base import text2bool, auto_qt_translate_text
+from pineboolib.core import settings
 
 from pineboolib.application.utils import check_dependencies
 from pineboolib.application.database import pnsqlquery
@@ -56,7 +57,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         )
         import psycopg2  # type: ignore
         from psycopg2.extras import LoggingConnection  # type: ignore
-        from sqlalchemy import create_engine  # type: ignore
 
         logger = logging.getLogger(self.alias_)
         logger.debug = logger.trace  # type: ignore  # Send Debug output to Trace
@@ -72,10 +72,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         try:
             self.conn_ = psycopg2.connect(conninfostr, connection_factory=LoggingConnection)
             self.conn_.initialize(logger)
-            self.engine_ = create_engine(
-                "postgresql+psycopg2://%s:%s@%s:%s/%s"
-                % (db_userName, db_password, db_host, db_port, db_name)
-            )
+
+            if settings.config.value("ebcomportamiento/orm_enabled", False):
+                from sqlalchemy import create_engine  # type: ignore
+
+                self.engine_ = create_engine(
+                    "postgresql+psycopg2://%s:%s@%s:%s/%s"
+                    % (db_userName, db_password, db_host, db_port, db_name)
+                )
         except psycopg2.OperationalError as e:
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()

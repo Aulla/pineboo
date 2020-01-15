@@ -462,7 +462,9 @@ def exec_main(options: Values) -> int:
         LOGGER.warning("No connection was provided. Aborting Pineboo load.")
         return -99
 
-    if not config.value("ebcomportamiento/orm_parser_disabled", False):
+    if config.value("ebcomportamiento/orm_enabled", False) and not config.value(
+        "ebcomportamiento/orm_parser_disabled", False
+    ):
         from pineboolib.application.parsers.mtdparser.pnmtdparser import mtd_parse
 
         for table in conn.tables("Tables"):
