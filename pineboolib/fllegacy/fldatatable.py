@@ -860,7 +860,7 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_:
             return -1
 
-        return self.cursor_.model().size()
+        return self.cursor_.model().rows
 
     def column_name_to_column_index(self, name: str) -> int:
         """
