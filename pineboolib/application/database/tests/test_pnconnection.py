@@ -4,6 +4,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
 from pineboolib.application.database import pnsqlcursor
+from pineboolib.core import settings
 
 
 class TestPNConnection(unittest.TestCase):
@@ -129,9 +130,11 @@ class TestPNConnection(unittest.TestCase):
         self.assertEqual(conn_.tables(2), ["sqlite_master"])
         self.assertEqual(conn_.tables(3), [])
 
-        self.assertTrue(conn_.session())
-        self.assertTrue(conn_.engine())
-        self.assertTrue(conn_.declarative_base())
+        if settings.config.value("ebcomportamiento/orm_enabled", False):
+            self.assertTrue(conn_.session())
+            self.assertTrue(conn_.engine())
+            self.assertTrue(conn_.declarative_base())
+
         self.assertFalse(conn_.port())
         self.assertFalse(conn_.password())
 

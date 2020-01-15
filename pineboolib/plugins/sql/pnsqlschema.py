@@ -4,6 +4,7 @@ from pineboolib import logging
 
 import traceback
 from typing import Iterable, Optional, Union, List, Any, Dict, TYPE_CHECKING
+from pineboolib.core import settings
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -102,7 +103,7 @@ class PNSqlSchema(object):
 
     def session(self) -> Any:
         """Create a sqlAlchemy session."""
-        if self.session_ is None:
+        if settings.config.value("ebcomportamiento/orm_enabled", False) and self.session_ is None:
             from sqlalchemy.orm import sessionmaker  # type: ignore
 
             Session = sessionmaker(bind=self.engine())
@@ -112,7 +113,10 @@ class PNSqlSchema(object):
 
     def declarative_base(self) -> Any:
         """Return sqlAlchemy declarative base."""
-        if self.declarative_base_ is None:
+        if (
+            settings.config.value("ebcomportamiento/orm_enabled", False)
+            and self.declarative_base_ is None
+        ):
             from sqlalchemy.ext.declarative import declarative_base  # type: ignore
 
             self.declarative_base_ = declarative_base()
