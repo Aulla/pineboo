@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtWidgets
 
 from pineboolib import logging
 from pineboolib.core.utils.utils_base import is_deployed
-from pineboolib.core.settings import config, settings
+from pineboolib.core import settings
 from pineboolib.loader.dlgconnect.conn_dialog import show_connection_dialog
 from pineboolib.loader.options import parse_options
 from pineboolib.loader.dgi import load_dgi
@@ -201,10 +201,10 @@ def setup_gui(app: QtWidgets.QApplication, options: Values) -> None:
     for fontfile in noto_fonts:
         QtGui.QFontDatabase.addApplicationFont(filedir("./core/fonts/Noto_Sans", fontfile))
 
-    style_app: str = config.value("application/style", "Fusion")
+    style_app: str = settings.config.value("application/style", "Fusion")
     app.setStyle(style_app)  # type: ignore
 
-    default_font = config.value("application/font", None)
+    default_font = settings.config.value("application/font", None)
     if default_font is None:
         font = QtGui.QFont("Noto Sans", 9)
         font.setBold(False)
@@ -220,7 +220,7 @@ def setup_gui(app: QtWidgets.QApplication, options: Values) -> None:
 
 def init_testing() -> None:
     """Initialize Pineboo for testing purposes."""
-    config.set_value("application/dbadmin_enabled", True)
+    settings.config.set_value("application/dbadmin_enabled", True)
 
     if application.PROJECT._DGI is not None:
         from pineboolib.application.database import pnconnectionmanager
@@ -343,14 +343,17 @@ def exec_main(options: Values) -> int:
 
         monkey_patch_connect()
 
+    if options.orm_disabled:
+        settings.config.set_value("ebcomportamiento/orm_enabled", False)
+
     if options.enable_dbadmin:
-        config.set_value("application/dbadmin_enabled", True)
+        settings.config.set_value("application/dbadmin_enabled", True)
 
     if options.enable_quick:
-        config.set_value("application/dbadmin_enabled", False)
+        settings.config.set_value("application/dbadmin_enabled", False)
 
     if options.main_form:
-        config.set_value("ebcomportamiento/main_form_name", options.main_form)
+        settings.config.set_value("ebcomportamiento/main_form_name", options.main_form)
 
     application.PROJECT.load_version()
 
@@ -399,7 +402,7 @@ def exec_main(options: Values) -> int:
             if configdb is None:
                 return 2
         else:
-            config.set_value("application/dbadmin_enabled", True)
+            settings.config.set_value("application/dbadmin_enabled", True)
             configdb = DEFAULT_SQLITE_CONN
 
     if not configdb:
@@ -408,7 +411,7 @@ def exec_main(options: Values) -> int:
     conn = connect_to_db(configdb)
     application.PROJECT.init_conn(connection=conn)
 
-    settings.set_value("DBA/lastDB", conn.DBName())
+    settings.settings.set_value("DBA/lastDB", conn.DBName())
 
     application.PROJECT.no_python_cache = options.no_python_cache
 
@@ -427,11 +430,11 @@ def exec_main(options: Values) -> int:
     #    if dgi.localDesktop()
     #    else dgi.mainForm()
     # )
-    main_form_name = config.value("ebcomportamiento/main_form_name", "eneboo")
+    main_form_name = settings.config.value("ebcomportamiento/main_form_name", "eneboo")
 
     main_form = getattr(plugins.mainform, main_form_name, None)
     if main_form is None:
-        config.set_value("ebcomportamiento/main_form_name", "eneboo")
+        settings.config.set_value("ebcomportamiento/main_form_name", "eneboo")
         raise Exception(
             "mainForm %s does not exits!!.Use 'pineboo --main_form eneboo' to restore default mainForm"
             % main_form_name
@@ -462,7 +465,7 @@ def exec_main(options: Values) -> int:
         LOGGER.warning("No connection was provided. Aborting Pineboo load.")
         return -99
 
-    if config.value("ebcomportamiento/orm_enabled", False) and not config.value(
+    if settings.config.value("ebcomportamiento/orm_enabled", False) and not settings.config.value(
         "ebcomportamiento/orm_parser_disabled", False
     ):
         from pineboolib.application.parsers.mtdparser.pnmtdparser import mtd_parse
