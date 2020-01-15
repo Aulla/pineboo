@@ -822,7 +822,7 @@ class FLFormDB(QtWidgets.QDialog):
         Capture event show.
         """
         # --> Para mostrar form sin negro previo
-        QtWidgets.QApplication.processEvents()
+        # QtWidgets.QApplication.processEvents()
         # <--
         if not self.loaded():
             return
