@@ -54,6 +54,7 @@ class PrinterColorMode(object):
 
 
 class Events(object):
+    """AQS Events."""
 
     Close = QtGui.QCloseEvent
     Show = QtGui.QShowEvent
