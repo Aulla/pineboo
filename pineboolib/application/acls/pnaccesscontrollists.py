@@ -6,6 +6,8 @@ Manage access lists to limit the application to users..
 """
 from PyQt5 import QtCore, QtXml
 
+from pineboolib import application
+
 from pineboolib.application.database import pnsqlquery
 from . import pnaccesscontrolfactory
 
@@ -73,7 +75,6 @@ class PNAccessControlLists(object):
         @param _acl_xml XML content with the definition of the access control list.
         """
         if _acl_xml is None:
-            from pineboolib import application
 
             if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
@@ -85,9 +86,7 @@ class PNAccessControlLists(object):
             self._access_control_list.clear()
 
         if _acl_xml and not doc.setContent(_acl_xml):
-            QtCore.qWarning(
-                "PNAccessControlList : " + QtCore.QObject().tr("Lista de control de acceso errónea")
-            )
+            LOGGER.warning(QtCore.QObject().tr("Lista de control de acceso errónea"))
             return
 
         self._access_control_list = {}
@@ -114,6 +113,8 @@ class PNAccessControlLists(object):
                     continue
 
             node = node.nextSibling()
+
+        LOGGER.warning(QtCore.QObject().tr("Lista de control de acceso cargada"))
 
     def process(self, obj: Any) -> None:
         """
