@@ -614,21 +614,20 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         Refresh information mananged by this class.
         """
-        # if (
-        #    self._initialized is None and self.parent_view
-        # ):  # Si es el primer refresh y estoy conectado a un FLDatatable()
-        #    self._initialized = True
-        #    QtCore.QTimer.singleShot(1, self.refresh)
-        #    return
+        if (
+            self._initialized is None and self.parent_view
+        ):  # Si es el primer refresh y estoy conectado a un FLDatatable()
+            self._initialized = True
+            QtCore.QTimer.singleShot(1, self.refresh)
+            return
 
-        # if (
-        #    self._initialized
-        # ):  # Si estoy inicializando y no me ha enviado un sender, cancelo el refesh
-        #    obj = self.sender()
-        #    if not obj:
-        #        return
+        if (
+            self._initialized
+        ):  # Si estoy inicializando y no me ha enviado un sender, cancelo el refesh
+            if not self.sender():
+                return
 
-        # self._initialized = False
+        self._initialized = False
 
         # if self._disable_refresh and self.rows > 0:
         #    return
