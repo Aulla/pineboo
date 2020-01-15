@@ -692,6 +692,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             self.driver_sql().deleteCursor(self._curname, self.cursorDB())
 
         self._curname = "cur_%s_%08d" % (self.metadata().name(), next(CURSOR_COUNT))
+
+        self.rows = self.size()
+        if not self.rows:  # Si no hay tamaño, no declara/crea el cursor/consulta
+            return
+
         self.driver_sql().declareCursor(
             self._curname,
             self.sql_str,
@@ -702,7 +707,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         )
         self.grid_row_tmp = {}
 
-        self.rows = self.size()
         self.need_update = False
         self._column_hints = [120] * len(self.sql_fields)
         self.updateRows()
@@ -756,6 +760,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
     def seekRow(self, row: int) -> bool:
         """Seek to a row possition."""
+        if not self.rows:
+            return False
+
         if row != self._current_row_index:
             result = self.driver_sql().getRow(row, self._curname, self.cursorDB())
             if not result:
