@@ -53,7 +53,14 @@ class PrinterColorMode(object):
     PrintColor = 1
 
 
-class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags):
+class Events(object):
+
+    Close = QtGui.QCloseEvent
+    Show = QtGui.QShowEvent
+    ContextMenu = QtGui.QContextMenuEvent
+
+
+class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, Events):
     """AQS Class."""
 
     Box = None
@@ -70,8 +77,10 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags):
 
         if name == "DockLeft":
             name = "LeftDockWidgetArea"
+            return getattr(self, name)
         elif name == "WordBreak":
             name = "TextWordWrap"
+            return getattr(self, name)
 
         ret_ = getattr(QtCore.Qt, "%sOrder" % name, None)
 
@@ -94,7 +103,7 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags):
             ret_ = getattr(aqshttp.AQSHttp(), "Http%s" % name, None)
 
         if ret_ is not None:
-            logger.info("AQS: Looking up attr: %r -> %r  (Please set these in AQS)", name, ret_)
+            logger.warning("AQS: Looking up attr: %r -> %r  (Please set these in AQS)", name, ret_)
             return ret_
 
         logger.warning("AQS: No se encuentra el atributo %s", name)
