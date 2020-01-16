@@ -8,7 +8,8 @@ from PyQt5 import QtCore, QtGui, Qt, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 
-from pineboolib.application.utils import date_conversion
+
+from pineboolib.application.utils import date_conversion, xpm
 
 import itertools
 import locale
@@ -433,7 +434,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         elif role == QtCore.Qt.DecorationRole:
             pixmap = None
-            if _type in ("unlock", "pixmap"):
+            if _type in ("unlock", "pixmap") and self.parent_view:
+                row_height = self.parent_view.rowHeight(row)  # Altura row
+                row_width = self.parent_view.columnWidth(col)
 
                 if _type == "unlock":
                     if result in (True, "1"):
@@ -444,43 +447,29 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                         pixmap = QtGui.QPixmap(
                             utils_base.filedir("./core/images/icons", "lock.png")
                         )
-                    if self.parent_view is not None:
-                        if self.parent_view.showAllPixmap() or row == self.parent_view.cur.at():
-                            if pixmap and not pixmap.isNull() and self.parent_view:
-
-                                row_height = self.parent_view.rowHeight(row)  # Altura row
-                                row_width = self.parent_view.columnWidth(col)
-                                new_pixmap = QtGui.QPixmap(row_width, row_height)  # w , h
-                                center_width = (row_width - pixmap.width()) / 2
-                                center_height = (row_height - pixmap.height()) / 2
-                                new_pixmap.fill(QtCore.Qt.transparent)
-                                painter = Qt.QPainter(new_pixmap)
-                                painter.drawPixmap(
-                                    center_width,
-                                    center_height,
-                                    pixmap.width(),
-                                    pixmap.height(),
-                                    pixmap,
-                                )
-
-                                pixmap = new_pixmap
-
                 else:
-                    if self.parent_view is not None:
-                        if self.parent_view and self.parent_view.showAllPixmap():
-                            if (
-                                not self.db()
-                                .connManager()
-                                .manager()
-                                .isSystemTable(self._parent.table())
-                            ):
-                                result = self.db().connManager().manager().fetchLargeValue(result)
-                            else:
-                                from pineboolib.application.utils.xpm import cacheXPM
+                    if self.parent_view is not None and self.parent_view.showAllPixmap():
+                        if not self._parent.private_cursor._is_system_table:
+                            data = self.db().connManager().manager().fetchLargeValue(result)
+                        else:
+                            data = xpm.cacheXPM(result)
 
-                                result = cacheXPM(result)
-                            if result:
-                                pixmap = QtGui.QPixmap(result)
+                        pixmap = QtGui.QPixmap(data)
+                        if not pixmap.isNull():
+                            pixmap = pixmap.scaled(row_height - 1, row_height - 1)
+
+                if self.parent_view.showAllPixmap() or row == self.parent_view.cur.at():
+                    if pixmap and not pixmap.isNull() and self.parent_view:
+                        new_pixmap = QtGui.QPixmap(row_width, row_height)  # w , h
+                        center_width = (row_width - pixmap.width()) / 2
+                        center_height = (row_height - pixmap.height()) / 2
+                        new_pixmap.fill(QtCore.Qt.transparent)
+                        painter = Qt.QPainter(new_pixmap)
+                        painter.drawPixmap(
+                            center_width, center_height, pixmap.width(), pixmap.height(), pixmap
+                        )
+
+                        pixmap = new_pixmap
 
             return pixmap
 
