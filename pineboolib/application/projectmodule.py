@@ -264,11 +264,6 @@ class Project(object):
             icono = xpm.cacheXPM(icono)
             self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
 
-        print(
-            "**",
-            utils_base.get_base_dir(),
-            utils_base.filedir(utils_base.get_base_dir(), "system_module", "sys.xpm"),
-        )
         file_object = open(
             utils_base.filedir(utils_base.get_base_dir(), "system_module", "sys.xpm"), "r"
         )

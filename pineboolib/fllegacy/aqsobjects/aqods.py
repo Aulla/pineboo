@@ -6,14 +6,15 @@ Generate .ods files (Opendocument Spreadsheet)
 """
 from typing import Union, List, Any, Tuple, Optional, TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from odf.opendocument import OpenDocumentSpreadsheet  # type: ignore
 
 import odf  # type: ignore
 from odf import table, style  # type: ignore
 
 from pineboolib import logging
 from pineboolib.core import decorators
+
+if TYPE_CHECKING:
+    from odf.opendocument import OpenDocumentSpreadsheet  # type: ignore
 
 
 logger = logging.getLogger("AQOds")
