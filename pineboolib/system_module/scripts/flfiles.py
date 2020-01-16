@@ -51,6 +51,12 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def editarFichero(self) -> None:
         """Edit a file."""
+        qsa.MessageBox.warning(
+            qsa.util.translate("scripts", "Opción no disponible"),
+            qsa.MessageBox.Yes,
+            qsa.MessageBox.NoButton,
+        )
+        return
         cursor = self.cursor()
         util = qsa.FLUtil()
         if cursor.checkIntegrity():
@@ -137,7 +143,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 editor.text = contenido
                 dialog.add(editor)
                 dialog.exec_()
-                self.child("contenido").setText(editor.text())
+                self.child("contenido").setText(editor.text)
                 self.setDisabled(False)
 
     def editarFicheroXML(self) -> None:
@@ -156,7 +162,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 temporal = config.value("ebcomportamiento/temp_dir")
             temporal = qsa.ustr(temporal, "/", cursor.valueBuffer(u"nombre"))
             comando = ""
-            contenido = self.child("contenido").text()
+            contenido = self.child("contenido").toPlainText()
             if util.getOS() == "MACX":
                 qsa.FileStatic.write(temporal, qsa.ustr(contenido, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n"))
                 comando = qsa.ustr(qsa.sys.installPrefix(), "/bin/teddy.app/Contents/MacOS/teddy")
