@@ -2766,8 +2766,7 @@ class FLTableDB(QtWidgets.QWidget):
         # if p.endswith("%"): refreshData = True
 
         msec_refresh = 400
-        column = self.tableRecords_.header().logicalIndex(self.sortColumn_)
-        colidx = self.tableRecords_.visual_index_to_column_index(column)
+        colidx = self.tableRecords_.visual_index_to_logical_index(self.sortColumn_)
         if colidx is None:
             raise Exception("Unexpected: Column not found")
         field = self.cursor().model().metadata().indexFieldObject(colidx)
