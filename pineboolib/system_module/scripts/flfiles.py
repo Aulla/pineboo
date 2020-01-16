@@ -13,13 +13,13 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def init(self) -> None:
         """Init function."""
-        fdb_contenido = self.child(u"contenido")
+        fdb_contenido = self.child("contenido")
         if fdb_contenido is None:
             raise Exception("contenido control not found!.")
 
-        fdb_contenido.setText(self.cursor().valueBuffer(u"contenido"))
-        botonEditar = self.child(u"botonEditar")
-        pbXMLEditor = self.child(u"pbXMLEditor")
+        fdb_contenido.setText(self.cursor().valueBuffer("contenido"))
+        botonEditar = self.child("botonEditar")
+        pbXMLEditor = self.child("pbXMLEditor")
 
         if botonEditar is None:
             raise Exception("botonEditar control not found!.")
@@ -32,21 +32,21 @@ class FormInternalObj(qsa.FormDBWidget):
             botonEditar.setEnabled(False)
             pbXMLEditor.setEnabled(False)
         else:
-            self.module_connect(botonEditar, u"clicked()", self, u"editarFichero")
-            nombre = cursor.valueBuffer(u"nombre")
+            self.module_connect(botonEditar, "clicked()", self, "editarFichero")
+            nombre = cursor.valueBuffer("nombre")
             tipo = self.tipoDeFichero(nombre)
-            if tipo in (".ui", ".ts", ".qs"):
+            if tipo in (".ui", ".ts", ".qs", ".py"):
                 pbXMLEditor.setEnabled(False)
             else:
-                self.module_connect(pbXMLEditor, u"clicked()", self, u"editarFicheroXML")
+                self.module_connect(pbXMLEditor, "clicked()", self, "editarFicheroXML")
 
     def acceptedForm(self) -> None:
         """Accept form fuction."""
-        self.cursor().setValueBuffer("contenido", self.child("contenido").text())
+        self.cursor().setValueBuffer("contenido", self.child("contenido").toPlainText())
 
     def tipoDeFichero(self, nombre: str) -> str:
         """Return file type."""
-        posPunto = nombre.rfind(u".")
+        posPunto = nombre.rfind(".")
         return nombre[(len(nombre) - (len(nombre) - posPunto)) :]
 
     def editarFichero(self) -> None:
@@ -54,101 +54,82 @@ class FormInternalObj(qsa.FormDBWidget):
         cursor = self.cursor()
         util = qsa.FLUtil()
         if cursor.checkIntegrity():
-            self.child(u"nombre").setDisabled(True)
-            nombre = cursor.valueBuffer(u"nombre")
+            self.child("nombre").setDisabled(True)
+            nombre = cursor.valueBuffer("nombre")
             tipo = self.tipoDeFichero(nombre)
-            temporal = qsa.System.getenv(u"TMP")
+            temporal = qsa.System.getenv("TMP")
             if temporal == "":
-                temporal = qsa.System.getenv(u"TMPDIR")
+                temporal = qsa.System.getenv("TMPDIR")
             if temporal == "":
-                temporal = qsa.System.getenv(u"HOME")
+                temporal = qsa.System.getenv("HOME")
             if temporal == "":
                 from pineboolib.core.settings import config
 
                 temporal = config.value("ebcomportamiento/temp_dir")
 
-            temporal = qsa.ustr(temporal, u"/", cursor.valueBuffer(u"nombre"))
-            contenido = self.child(u"contenido").text()
+            temporal = qsa.ustr(temporal, "/", cursor.valueBuffer("nombre"))
+            contenido = self.child("contenido").toPlainText()
             comando = ""
-            s01_when = tipo
-            s01_do_work, s01_work_done = False, False
-            if s01_when == u".ui":
-                s01_do_work, s01_work_done = True, True
-            if s01_do_work:
-                if util.getOS() == u"MACX":
+            if tipo == ".ui":
+                if util.getOS() == "MACX":
                     qsa.FileStatic.write(
-                        temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+                        temporal, qsa.ustr(contenido, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
                     )
                     comando = qsa.ustr(
-                        qsa.sys.installPrefix(), u"/bin/designer.app/Contents/MacOS/designer"
+                        qsa.sys.installPrefix(), "/bin/designer.app/Contents/MacOS/designer"
                     )
                 else:
                     qsa.FileStatic.write(temporal, contenido)
-                    comando = qsa.ustr(qsa.sys.installPrefix(), u"/bin/designer")
+                    comando = qsa.ustr(qsa.sys.installPrefix(), "/bin/designer")
 
                 self.setDisabled(True)
                 qsa.ProcessStatic.execute(qsa.Array([comando, temporal]))
-                self.child(u"contenido").text = qsa.FileStatic.read(temporal)
+                self.child(u"contenido").setText(qsa.FileStatic.read(temporal))
                 self.setDisabled(False)
-                s01_do_work = False  # BREAK
-
-            if s01_when == u".ts":
-                s01_do_work, s01_work_done = True, True
-            if s01_do_work:
-                if util.getOS() == u"MACX":
+            elif tipo == ".ts":
+                if util.getOS() == "MACX":
                     qsa.FileStatic.write(
-                        temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+                        temporal, qsa.ustr(contenido, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
                     )
                     comando = qsa.ustr(
-                        qsa.sys.installPrefix(), u"/bin/linguist.app/Contents/MacOS/linguist"
+                        qsa.sys.installPrefix(), "/bin/linguist.app/Contents/MacOS/linguist"
                     )
                 else:
                     qsa.FileStatic.write(temporal, contenido)
-                    comando = qsa.ustr(qsa.sys.installPrefix(), u"/bin/linguist")
+                    comando = qsa.ustr(qsa.sys.installPrefix(), "/bin/linguist")
 
                 self.setDisabled(True)
                 qsa.ProcessStatic.execute(qsa.Array([comando, temporal]))
-                self.child(u"contenido").text = qsa.FileStatic.read(temporal)
+                self.child("contenido").setText(qsa.FileStatic.read(temporal))
                 self.setDisabled(False)
-                s01_do_work = False  # BREAK
-
-            if s01_when == u".kut":
-                s01_do_work, s01_work_done = True, True
-            if s01_do_work:
-                if util.getOS() == u"MACX":
+            elif tipo == ".kut":
+                if util.getOS() == "MACX":
                     qsa.FileStatic.write(
-                        temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+                        temporal, qsa.ustr(contenido, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
                     )
                     comando = qsa.ustr(
-                        qsa.sys.installPrefix(), u"/bin/kudesigner.app/Contents/MacOS/kudesigner"
+                        qsa.sys.installPrefix(), "/bin/kudesigner.app/Contents/MacOS/kudesigner"
                     )
                 else:
                     qsa.FileStatic.write(temporal, contenido)
-                    comando = qsa.ustr(qsa.sys.installPrefix(), u"/bin/kudesigner")
+                    comando = qsa.ustr(qsa.sys.installPrefix(), "/bin/kudesigner")
 
                 self.setDisabled(True)
                 qsa.ProcessStatic.execute(qsa.Array([comando, temporal]))
-                self.child(u"contenido").text = qsa.FileStatic.read(temporal)
+                self.child("contenido").setText(qsa.FileStatic.read(temporal))
                 self.setDisabled(False)
-                s01_do_work = False  # BREAK
 
-            if s01_when == u".qs":
-                s01_do_work, s01_work_done = True, True
-            if s01_do_work:
+            elif tipo in (".qs", ".py"):
                 self.setDisabled(True)
                 editor_ = qsa.FLScriptEditor(nombre)
                 editor_.exec_()
-                self.child(u"contenido").text = editor_.code()
+                self.child("contenido").setText(editor_.code())
                 self.setDisabled(False)
-                s01_do_work = False  # BREAK
-
-            if not s01_work_done:
-                s01_do_work, s01_work_done = True, True
-            if s01_do_work:
+            else:
                 self.setDisabled(True)
                 dialog = qsa.Dialog()
                 dialog.setWidth(600)
-                dialog.cancelButtonText = u""
+                dialog.cancelButtonText = ""
                 editor = qsa.TextEdit()
                 if editor is None:
                     raise Exception("editor is empty!")
@@ -156,7 +137,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 editor.text = contenido
                 dialog.add(editor)
                 dialog.exec_()
-                self.child(u"contenido").setText(editor.text())
+                self.child("contenido").setText(editor.text())
                 self.setDisabled(False)
 
     def editarFicheroXML(self) -> None:
@@ -173,26 +154,26 @@ class FormInternalObj(qsa.FormDBWidget):
                 from pineboolib.core.settings import config
 
                 temporal = config.value("ebcomportamiento/temp_dir")
-            temporal = qsa.ustr(temporal, u"/", cursor.valueBuffer(u"nombre"))
+            temporal = qsa.ustr(temporal, "/", cursor.valueBuffer(u"nombre"))
             comando = ""
-            contenido = self.child(u"contenido").text()
-            if util.getOS() == u"MACX":
-                qsa.FileStatic.write(temporal, qsa.ustr(contenido, u"\n\n\n\n\n\n\n\n\n\n\n\n\n\n"))
-                comando = qsa.ustr(qsa.sys.installPrefix(), u"/bin/teddy.app/Contents/MacOS/teddy")
+            contenido = self.child("contenido").text()
+            if util.getOS() == "MACX":
+                qsa.FileStatic.write(temporal, qsa.ustr(contenido, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n"))
+                comando = qsa.ustr(qsa.sys.installPrefix(), "/bin/teddy.app/Contents/MacOS/teddy")
             else:
                 qsa.FileStatic.write(temporal, contenido)
-                comando = qsa.ustr(qsa.sys.installPrefix(), u"/bin/teddy")
+                comando = qsa.ustr(qsa.sys.installPrefix(), "/bin/teddy")
 
             self.setDisabled(True)
             qsa.ProcessStatic.execute([comando, temporal])
-            self.child(u"contenido").text = qsa.FileStatic.read(temporal)
+            self.child("contenido").setText(qsa.FileStatic.read(temporal))
             self.setDisabled(False)
 
     def calculateField(self, fN: str) -> Any:
         """Return a value."""
-        if fN == u"sha":
+        if fN == "sha":
             util = qsa.FLUtil()
-            return util.sha1(self.cursor().valueBuffer(u"contenido"))
+            return util.sha1(self.cursor().valueBuffer("contenido"))
 
 
 form = None
