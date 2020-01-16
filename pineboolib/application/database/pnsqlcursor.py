@@ -2230,7 +2230,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     @decorators.pyqtSlot()
     def select(
-        self, _filter: Optional[str] = None, sort: Optional[str] = None
+        self, final_filter: str = "", sort: Optional[str] = None
     ) -> bool:  # sort = QtCore.QSqlIndex()
         """
         Execute the filter specified in the cursor and refresh the information of the affected records.
@@ -2244,7 +2244,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.private_cursor.metadata_:
             return False
 
-        finalFilter = _filter or ""
         # bFilter = self.baseFilter()
         # finalFilter = bFilter
         # if _filter:
@@ -2262,9 +2261,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             and self.private_cursor.cursor_relation_.modeAccess() == self.Insert
             and not self.curFilter()
         ):
-            finalFilter = "1 = 0"
+            final_filter = "1 = 0"
 
-        self.setFilter(finalFilter)
+        if final_filter:
+            self.setFilter(final_filter)
 
         if sort:
             self.private_cursor._model.setSortOrder(sort)
@@ -2382,10 +2382,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # self.private_cursor.filter_ = None
 
         finalFilter = _filter
-
         bFilter = self.baseFilter()
-        if bFilter not in [None, ""]:
-            if finalFilter in [None, ""]:
+        if bFilter:
+            if not finalFilter:
                 finalFilter = bFilter
             elif finalFilter in bFilter:
                 finalFilter = bFilter
