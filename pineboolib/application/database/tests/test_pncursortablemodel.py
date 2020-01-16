@@ -112,10 +112,6 @@ class TestPNCursorTableModel(unittest.TestCase):
             QtCore.QLocale.system().toString(float(0.01), "f", 2),
         )
 
-        self.assertTrue(
-            isinstance(model.data(model.index(0, 7), QtCore.Qt.DecorationRole), QtGui.QPixmap)
-        )
-
     def test_basic_4(self) -> None:
         """Test basic 4."""
         from PyQt5 import QtCore, QtGui
