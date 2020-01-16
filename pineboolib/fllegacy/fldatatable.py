@@ -221,7 +221,7 @@ class FLDataTable(QtWidgets.QTableView):
         """
         Set a persistent filter that always applies to the cursor before to refresh.
         """
-        if id_pk is not None:
+        if id_pk is not None and self.numRows():
             pos = self.model().findPKRow((id_pk,))
             if pos is not None and pos != self.cur.currentRegister():
                 self.cur.move(pos)
