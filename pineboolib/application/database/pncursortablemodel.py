@@ -448,15 +448,18 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                             utils_base.filedir("./core/images/icons", "lock.png")
                         )
                 else:
-                    if self.parent_view is not None and self.parent_view.showAllPixmap():
-                        if not self._parent.private_cursor._is_system_table:
-                            data = self.db().connManager().manager().fetchLargeValue(result)
-                        else:
-                            data = xpm.cacheXPM(result)
+                    if not self._parent.private_cursor._is_system_table:
+                        data = self.db().connManager().manager().fetchLargeValue(result)
+                    else:
+                        data = xpm.cacheXPM(result)
 
-                        pixmap = QtGui.QPixmap(data)
-                        if not pixmap.isNull():
-                            pixmap = pixmap.scaled(row_height - 1, row_height - 1)
+                    pixmap = QtGui.QPixmap(data)
+                    if not pixmap.isNull():
+                        new_size = row_height - 1
+                        if new_size > row_width:
+                            new_size = row_width
+
+                        pixmap = pixmap.scaled(new_size, new_size)
 
                 if self.parent_view.showAllPixmap() or row == self.parent_view.cur.at():
                     if pixmap and not pixmap.isNull() and self.parent_view:
