@@ -4,9 +4,10 @@ AQOds package.
 
 Generate .ods files (Opendocument Spreadsheet)
 """
-from typing import Union, List, Any, Tuple, Optional
+from typing import Union, List, Any, Tuple, Optional, TYPE_CHECKING
 
-from odf.opendocument import OpenDocumentSpreadsheet  # type: ignore
+if TYPE_CHECKING:
+    from odf.opendocument import OpenDocumentSpreadsheet  # type: ignore
 
 import odf  # type: ignore
 from odf import table, style  # type: ignore
@@ -94,6 +95,8 @@ class AQOdsSpreadSheet(object):
         """
 
         self.generator_ = generator
+        from odf.opendocument import OpenDocumentSpreadsheet  # Fuera rompe deploy
+
         self.spread_sheet = OpenDocumentSpreadsheet()
         self.generator_.set_doc_(self.spread_sheet)
 

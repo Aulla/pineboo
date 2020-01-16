@@ -264,7 +264,14 @@ class Project(object):
             icono = xpm.cacheXPM(icono)
             self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
 
-        file_object = open(utils_base.filedir(".", "system_module", "sys.xpm"), "r")
+        print(
+            "**",
+            utils_base.get_base_dir(),
+            utils_base.filedir(utils_base.get_base_dir(), "system_module", "sys.xpm"),
+        )
+        file_object = open(
+            utils_base.filedir(utils_base.get_base_dir(), "system_module", "sys.xpm"), "r"
+        )
         icono = file_object.read()
         file_object.close()
         # icono = clearXPM(icono)
@@ -377,7 +384,9 @@ class Project(object):
 
         # Cargar el núcleo común del proyecto
 
-        for root, dirs, files in os.walk(utils_base.filedir(".", "system_module")):
+        for root, dirs, files in os.walk(
+            utils_base.filedir(utils_base.get_base_dir(), "system_module")
+        ):
             # list_files = []
             for nombre in files:
                 if root.find("modulos") == -1:

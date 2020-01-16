@@ -145,7 +145,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 "search_git_updates",
             )
         else:
-            w.findChild(QtWidgets.QWidget, "tbwLocales").setTabEnabled("tab_updates", False)
+            w.findChild(QtWidgets.QWidget, "tbwLocales").setTabEnabled(5, False)
 
         w.findChild(QtWidgets.QWidget, u"leCO").show()
 

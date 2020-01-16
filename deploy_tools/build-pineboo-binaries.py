@@ -83,16 +83,16 @@ if not target:
         sys.exit(2)
 
 # rename al files in scripts for deploy
-path_ = "%s/../pineboolib/system_module/scripts" % os.path.dirname(os.path.abspath(__file__))
-script_files = os.listdir(path_)
-# i = 1
+path_list = ["../pineboolib/system_module/scripts", "../pineboolib/plugins/custom_widgets"]
+for path_ in path_list:
+    path_ = "%s/%s" % (os.path.dirname(os.path.abspath(__file__)), path_)
+    script_files = os.listdir(path_)
+    for file_name in script_files:
+        if str(file_name).endswith(".py"):
+            file_name_dest = file_name.replace(".py", ".py.src")
+            # print(os.path.join(path_, file_name), "->", os.path.join(path_, file_name_dest))
+            shutil.copy(os.path.join(path_, file_name), os.path.join(path_, file_name_dest))
 
-for file_name in script_files:
-    if str(file_name).endswith(".py"):
-        file_name_dest = file_name.replace(".py", ".py.src")
-        shutil.copy(os.path.join(path_, file_name), os.path.join(path_, file_name_dest))
-#    i = i + 1
-# Anchor everything from the directory containing this script.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 sysroot_dir = "sysroots/" + target

@@ -34,6 +34,8 @@ DECIMAL_SEPARATOR = (
     "," if QtCore.QLocale.system().toString(float(0.01), "f", 2).find(",") > -1 else "."
 )
 
+BASE_DIR = None
+
 
 def auto_qt_translate_text(text: Optional[str]) -> str:
     """Remove QT_TRANSLATE from Eneboo XML files. This function does not translate."""
@@ -144,6 +146,7 @@ def copy_dir_recursive(from_dir: str, to_dir: str, replace_on_conflict: bool = F
         to_ = to_dir + file_
         if str(to_).endswith(".src"):
             to_ = str(to_).replace(".src", "")
+            # print("Destino", to_)
 
         if os.path.exists(to_):
             if replace_on_conflict:
@@ -486,14 +489,16 @@ def is_deployed() -> bool:
 
 def get_base_dir() -> str:
     """Obtain pinebolib installation path."""
-    base_dir = os.path.dirname(__file__)
-    base_dir = "%s/../.." % base_dir
+    global BASE_DIR
+    if not BASE_DIR:
+        BASE_DIR = "%s/../.." % os.path.dirname(__file__)
 
-    if is_deployed():
-        if base_dir.startswith(":"):
-            base_dir = ".%s" % base_dir[1:]
+        if is_deployed():
+            if BASE_DIR.startswith(":"):
+                BASE_DIR = os.path.realpath(".%s" % BASE_DIR[1:])
 
-    return os.path.realpath(base_dir)
+            logger.info("BaseDir %s", BASE_DIR)
+    return BASE_DIR
 
 
 def filedir(*path: str) -> str:
