@@ -145,8 +145,8 @@ class TestUtils(unittest.TestCase):
         """Test Timers."""
 
         timer_1 = utils.startTimer(1000, self.my_fun)
-        timer_2 = utils.startTimer(1000, self.my_fun)
-        timer_3 = utils.startTimer(1000, self.my_fun)
+        timer_2 = utils.startTimer(1000, self.my_fun)  # noqa: F841
+        timer_3 = utils.startTimer(1000, self.my_fun)  # noqa: F841
         self.assertEqual(len(utils.TIMERS), 3)
         utils.killTimer(timer_1)
         self.assertEqual(len(utils.TIMERS), 2)
