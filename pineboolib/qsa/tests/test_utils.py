@@ -138,5 +138,5 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(isinstance(replace2, str))
         self.assertEqual(replace2, "pabLo Lopez")
 
-        replace3 = utils.replace(replace2, "o", 6)
+        replace3 = utils.replace(replace2, "o", "6")
         self.assertEqual(replace3, "pabL6 L6pez")

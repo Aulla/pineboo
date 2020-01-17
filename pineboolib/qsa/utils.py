@@ -10,7 +10,7 @@ from PyQt5 import QtCore
 from pineboolib.core.utils.utils_base import ustr
 from pineboolib.core.utils import logging
 
-from typing import Any, Optional, Union, Match, List, Pattern, Generator, Callable
+from typing import Any, Optional, Union, Match, List, Generator, Callable
 
 logger = logging.getLogger("qsa.utils")
 
