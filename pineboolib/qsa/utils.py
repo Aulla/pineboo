@@ -14,6 +14,8 @@ from typing import Any, Optional, Union, Match, List, Generator, Callable
 
 logger = logging.getLogger("qsa.utils")
 
+TIMERS: List[QtCore.QTimer] = []
+
 
 class switch(object):
     """
@@ -251,16 +253,29 @@ def text(obj: Any) -> str:
 
 def startTimer(time: int, fun: Callable) -> "QtCore.QTimer":
     """Create new timer that calls a function."""
+    global TIMERS
     timer = QtCore.QTimer()
     timer.timeout.connect(fun)
     timer.start(time)
+    TIMERS.append(timer)
     return timer
 
 
-def killTimer(t: Optional["QtCore.QTimer"] = None) -> None:
+def killTimer(timer: Optional["QtCore.QTimer"] = None) -> None:
     """Stop a given timer."""
-    if t is not None:
-        t.stop()
+    global TIMERS
+    if timer is not None:
+        timer.stop()
+        TIMERS.remove(timer)
+
+
+def killTimers() -> None:
+    """Stops and deletes all timers that have been created with startTimer()."""
+    global TIMERS
+    for timer in TIMERS:
+        timer.stop()
+
+    TIMERS = []
 
 
 def debug(txt: Union[bool, str, int, float]) -> None:

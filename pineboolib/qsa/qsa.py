@@ -17,7 +17,7 @@ from pineboolib.application.types import FileStatic, DirStatic  # noqa: F401
 from .input import Input  # noqa: F401
 from .utils import switch, qsaRegExp, RegExp, Math, parseFloat, parseString, parseInt  # noqa: F401
 from .utils import startTimer, killTimer, debug, isnan, replace, isNaN, length, text  # noqa: F401
-from .utils import format_exc, Number  # noqa: F401
+from .utils import format_exc, Number, killTimers  # noqa: F401
 from .dictmodules import Application, from_project  # noqa: F401
 
 # QT

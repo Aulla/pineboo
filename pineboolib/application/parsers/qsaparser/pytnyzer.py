@@ -230,6 +230,7 @@ QSA_KNOWN_ATTRS = {
     "inspect",
     "isNaN",
     "killTimer",
+    "killTimers",
     "logger",
     "parseFloat",
     "parseInt",
