@@ -303,12 +303,12 @@ def isnan(n: Any) -> bool:
     return isNaN(n)
 
 
-def replace(source: str, search: Any, replace: str) -> Union[str, Pattern]:
+def replace(source: str, search: Any, replace: str) -> str:
     """Replace for QSA where detects if "search" is a Regexp."""
-    if hasattr(search, "match"):
-        return search.replace(source, replace)
-    else:
+    if isinstance(search, str):
         return source.replace(search, str(replace))
+    else:
+        return search.replace(source, replace)
 
 
 class Number_attr:

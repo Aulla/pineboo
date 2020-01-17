@@ -126,3 +126,17 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(regexp.replace("dog", "l"), "log")
         self.assertEqual(regexp.cap(0), "d")
         self.assertEqual(regexp.cap(1), None)
+
+    def test_replace(self) -> None:
+        """Test replace."""
+        regexp = utils.RegExp("l")
+        name = "pablo lopez"
+        replace = utils.replace(name, regexp, "L")
+        self.assertEqual(replace, "pabLo lopez")
+        regexp.global_ = True
+        replace2 = utils.replace(name, regexp, "L")
+        self.assertTrue(isinstance(replace2, str))
+        self.assertEqual(replace2, "pabLo Lopez")
+
+        replace3 = utils.replace(replace2, "o", 6)
+        self.assertEqual(replace3, "pabL6 L6pez")
