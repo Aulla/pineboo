@@ -142,6 +142,8 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(replace3, "pabL6 L6pez")
 
     def test_timers(self) -> None:
+        """Test Timers."""
+
         timer_1 = utils.startTimer(1000, self.my_fun)
         timer_2 = utils.startTimer(1000, self.my_fun)
         timer_3 = utils.startTimer(1000, self.my_fun)
