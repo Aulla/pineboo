@@ -140,3 +140,17 @@ class TestUtils(unittest.TestCase):
 
         replace3 = utils.replace(replace2, "o", "6")
         self.assertEqual(replace3, "pabL6 L6pez")
+
+    def test_timers(self) -> None:
+        timer_1 = utils.startTimer(1000, self.my_fun)
+        timer_2 = utils.startTimer(1000, self.my_fun)
+        timer_3 = utils.startTimer(1000, self.my_fun)
+        self.assertEqual(len(utils.TIMERS), 3)
+        utils.killTimer(timer_1)
+        self.assertEqual(len(utils.TIMERS), 2)
+        utils.killTimers()
+        self.assertEqual(len(utils.TIMERS), 0)
+
+    def my_fun(self) -> None:
+        """"Callable test function."""
+        print("EY")
