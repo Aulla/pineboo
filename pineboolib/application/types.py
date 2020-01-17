@@ -390,9 +390,6 @@ class Dir(object):
     def cleanDirPath(name: str) -> str:
         """
         Clean path from unnecesary folders.
-
-        @param name. Rtua del ficehro a limpiar
-        @return ruta limpia
         """
         return os.path.normpath(name)
 
@@ -443,6 +440,16 @@ class Dir(object):
             os.stat(name_)
         except Exception:
             os.mkdir(name_)
+
+    def cd(self, path: str) -> None:
+        """Change dir."""
+
+        os.chdir(path)
+
+    def cdUp(self) -> None:
+        """ Changes directory by moving one directory up from the Dir's current directory if possible."""
+
+        os.chdir("..")
 
     def rmdirs(self, name: Optional[str] = None) -> None:
         """Delete a folder."""

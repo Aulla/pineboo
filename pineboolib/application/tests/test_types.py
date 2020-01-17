@@ -299,6 +299,18 @@ class TestDir(unittest.TestCase):
         my_dir.rmdirs("test")
         self.assertFalse(os.path.exists("%s/test" % tmp_dir))
 
+    def test_change_dir(self) -> None:
+        """Test change dir."""
+
+        tmp_dir = config.value("ebcomportamiento/temp_dir")
+        my_dir = Dir(tmp_dir)
+        my_dir.mkdir("test_change_dir")
+        my_dir.cd("%s/test_change_dir" % tmp_dir)
+        self.assertEqual(os.path.realpath(my_dir.current), "%s/test_change_dir" % tmp_dir)
+        my_dir.cdUp()
+        self.assertEqual(os.path.realpath(my_dir.current), tmp_dir)
+        my_dir.rmdirs("test_change_dir")
+
 
 if __name__ == "__main__":
     unittest.main()
