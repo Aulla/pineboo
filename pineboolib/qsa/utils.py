@@ -270,7 +270,7 @@ def killTimer(timer: Optional["QtCore.QTimer"] = None) -> None:
 
 
 def killTimers() -> None:
-    """Stops and deletes all timers that have been created with startTimer()."""
+    """Stop and deletes all timers that have been created with startTimer()."""
     global TIMERS
     for timer in TIMERS:
         timer.stop()

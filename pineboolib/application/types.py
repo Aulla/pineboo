@@ -447,7 +447,7 @@ class Dir(object):
         os.chdir(path)
 
     def cdUp(self) -> None:
-        """ Changes directory by moving one directory up from the Dir's current directory if possible."""
+        """Change directory by moving one directory up from the Dir's current directory if possible."""
 
         os.chdir("..")
 
