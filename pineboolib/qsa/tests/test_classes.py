@@ -17,10 +17,12 @@ class TestClasses(unittest.TestCase):
 
     def test_qdir(self) -> None:
         """Test qdir class."""
-
+        from pineboolib.core.settings import config
         from pineboolib.qsa import qsa
 
+        tmp_dir = config.value("ebcomportamiento/temp_dir")
         dir_ = qsa.QDir(".", "*.py *.pyo")
+        dir_.setPath(tmp_dir)
         path_ = os.path.abspath(dir_.path())
         self.assertTrue(dir_.exists())
         self.assertTrue(dir_.isReadable())
