@@ -56,6 +56,7 @@ QSA_KNOWN_ATTRS = {
     "AQSqlCursor",
     "AQSqlQuery",
     "AQUnpacker",
+    "AQPackager",
     "AQUtil",
     "Any",
     "AnyStr",

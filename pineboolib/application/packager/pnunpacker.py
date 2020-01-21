@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-AQUnpacker package.
+PNUnpacker package.
 
 Extract the files from the .abanq and .eneboopkg packages and save them in the flfiles table
 """
@@ -19,8 +19,8 @@ def AQ_STRERROR(val: str) -> None:
     err_msgs_.append(val)
 
 
-class AQUnpacker(QtCore.QObject):
-    """AQUnpacker Class."""
+class PNUnpacker(QtCore.QObject):
+    """PNUnpacker Class."""
 
     def __init__(self, in_: str) -> None:
         """

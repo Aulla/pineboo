@@ -8,7 +8,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui, QtXml  # noqa: F401
 
 from pineboolib.core.system import System  # noqa: F401
 
-from pineboolib.application.packager.aqunpacker import AQUnpacker  # noqa: F401
+from pineboolib.application.packager.pnunpacker import PNUnpacker as AQUnpacker  # noqa: F401
+from pineboolib.application.packager.pnpackager import PNPackager as AQPackager  # noqa: F401
 
 from pineboolib.fllegacy.systype import SysType
 
