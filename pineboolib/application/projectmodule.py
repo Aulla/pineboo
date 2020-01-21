@@ -339,13 +339,7 @@ class Project(object):
             cur2.execute(sql)
             for (contenido,) in cur2:
 
-                encode_ = "ISO-8859-15"
-                if (
-                    str(nombre).endswith(".kut")
-                    or str(nombre).endswith(".ts")
-                    or str(nombre).endswith(".py")
-                ):
-                    encode_ = "utf-8"
+                encode_ = "utf-8" if str(nombre).endswith((".kut", ".ts", ".py")) else "ISO-8859-15"
 
                 folder = path._dir(
                     "cache",
@@ -588,13 +582,15 @@ class Project(object):
         raise exceptions.CodeDoesNotBelongHereException("Use project.tmpdir instead, please.")
         # return self.tmpdir
 
-    def load_version(self):
+    def load_version(self) -> str:
         """Initialize current version numbers."""
         self.version = "0.67.27"
         if settings.config.value("application/dbadmin_enabled", False):
             self.version = "DBAdmin v%s" % self.version
         else:
             self.version = "Quick v%s" % self.version
+
+        return self.version
 
     def message_manager(self):
         """Return message manager for splash and progress."""
