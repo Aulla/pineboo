@@ -158,10 +158,12 @@ class PNPackager(object):
 
         return data.encode("utf-8")
 
-    def pack(self, module_folder: str) -> bool:
+    def pack(self, module_folder: str, option: bool = True) -> bool:
         """Add files to package."""
         if module_folder.endswith(("/", "\\")):
             module_folder = module_folder[:-1]
+
+        LOGGER.warning("FIXME : ARGUMENT option %s", option)
 
         self._addLog("Creando paquete de módulos de %s" % module_folder)
 
