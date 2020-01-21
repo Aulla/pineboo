@@ -21,7 +21,7 @@ from pineboolib.application import types, process
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
 from pineboolib.application.database import utils as utils_db
 
-from pineboolib.application.packager import aqunpacker
+from pineboolib.application.packager import pnunpacker
 from pineboolib.application.qsatypes import sysbasetype
 
 
@@ -463,7 +463,7 @@ class SysType(sysbasetype.SysBaseType):
 
         if not input_:
             return
-        unpacker = aqunpacker.AQUnpacker(input_)
+        unpacker = pnunpacker.PNUnpacker(input_)
         errors = unpacker.errorMessages()
         if len(errors) != 0:
             msg = self.translate(u"Hubo los siguientes errores al intentar cargar los módulos:")
@@ -718,7 +718,7 @@ class SysType(sysbasetype.SysBaseType):
                 if not self.warnLocalChanges(changes):
                     return
             if ok:
-                unpacker = aqunpacker.AQUnpacker(input_)
+                unpacker = pnunpacker.PNUnpacker(input_)
                 errors = unpacker.errorMessages()
                 if len(errors) != 0:
                     msg = self.translate(
