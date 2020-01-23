@@ -42,6 +42,11 @@ class TestParser(unittest.TestCase):
         )
         self.assertEqual(qs2py('x = File("test").remove()'), 'x = qsa.File("test").remove()\n')
 
+    def test_list_arrays(self) -> None:
+        """Test parsing iterable classes."""
+        self.assertEqual(qs2py("var value = Array().shift()"), "value = qsa.Array().pop(0)\n")
+        self.assertEqual(qs2py("var value = [].shift()"), "value = [].pop(0)\n")
+
     def test_process_class(self) -> None:
         """Test parsing the process class."""
         self.assertEqual(

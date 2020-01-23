@@ -309,7 +309,7 @@ class Array(object):
 
     def __len__(self) -> int:
         """Return size of array."""
-        return len(self._dict)
+        return len(self._dict.keys())
 
     def __str__(self) -> str:
         """Support for str."""
@@ -317,11 +317,22 @@ class Array(object):
 
     def append(self, val: Any) -> None:
         """Append new value."""
-        k = len(self._dict)
+        k = len(self._dict.keys())
         while k in self._dict:
             k += 1
-
         self._dict[k] = val
+
+    def shift(self) -> Any:
+        """Shifts (i.e. removes) the bottom-most (left-most) item off the array and returns it."""
+        return self.pop(0)
+
+    def pop(self, position: int = 0) -> Any:
+        """Return a position value and delte it from list."""
+
+        value = self._dict[position]
+        del self._dict[position]
+
+        return value
 
 
 AttributeDict = StructMyDict

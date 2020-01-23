@@ -1651,6 +1651,7 @@ class Member(ASTPython):
             "match",
             "replace",
             "search",
+            "shift()",
         ]
 
         for member in replace_members:
@@ -1664,6 +1665,8 @@ class Member(ASTPython):
                         part2 = []  # Para los que son últimos y no tienen parte adicional
                     if member == "toString()":
                         arguments = ["qsa.parseString(%s)" % ".".join(part1)] + part2
+                    elif member == "shift()":
+                        arguments = ["%s.pop(0)" % ".".join(part1)] + part2
                     #    arguments = ["str(%s)" % (".".join(part1))] + part2
                     elif member == "isEmpty()":
                         arguments = ["%s == ''" % (".".join(part1))] + part2
