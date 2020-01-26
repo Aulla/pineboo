@@ -126,22 +126,47 @@ if build_sysroot:
     if target == "android-32":
         try:
             os.symlink(
-                "%s/../../src/bzip2-android/lib/include/bzlib.h"
+                "%s/../extra_libs/android-32/bzip/lib/include/bzlib.h"
                 % os.path.abspath(os.path.join(sysroot_dir)),
                 "%s/include/bzlib.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../../src/bzip2-android/lib/lib/armeabi/libbz2.so"
+                "%s/../extra_libs/android-32/bzip/lib/lib/armeabi/libbz2.so"
                 % os.path.abspath(os.path.join(sysroot_dir)),
                 "%s/lib/libbz2.so" % sysroot_dir,
             )
             os.symlink(
-                "%s/../../src/sqlite3-android/build/sqlite3.h"
+                "%s/../extra_libs/android-32/sqlite3/build/sqlite3.h"
                 % os.path.abspath(os.path.join(sysroot_dir)),
                 "%s/include/sqlite3.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../../src/sqlite3-android/obj/local/armeabi-v7a/libsqlite3.so"
+                "%s/../extra_libs/android-32/sqlite3/obj/local/armeabi-v7a/libsqlite3.so"
+                % os.path.abspath(os.path.join(sysroot_dir)),
+                "%s/lib/libsqlite3.so" % sysroot_dir,
+            )
+        except Exception:
+            print(traceback.format_exc())
+
+    elif target == "android-64":
+        try:
+            os.symlink(
+                "%s/../extra_libs/android-64/bzip/lib/include/bzlib.h"
+                % os.path.abspath(os.path.join(sysroot_dir)),
+                "%s/include/bzlib.h" % sysroot_dir,
+            )
+            os.symlink(
+                "%s/../extra_libs/android-64/bzip/lib/lib/armeabi/libbz2.so"
+                % os.path.abspath(os.path.join(sysroot_dir)),
+                "%s/lib/libbz2.so" % sysroot_dir,
+            )
+            os.symlink(
+                "%s/../extra_libs/android-64/sqlite3/build/sqlite3.h"
+                % os.path.abspath(os.path.join(sysroot_dir)),
+                "%s/include/sqlite3.h" % sysroot_dir,
+            )
+            os.symlink(
+                "%s/../extra_libs/android-64/sqlite3/obj/local/armeabi-v7a/libsqlite3.so"
                 % os.path.abspath(os.path.join(sysroot_dir)),
                 "%s/lib/libsqlite3.so" % sysroot_dir,
             )
@@ -151,17 +176,17 @@ if build_sysroot:
     elif target == "linux-64":
         try:
             os.symlink(
-                "%s/../../src/sqlite3-linux-64/sqlite-autoconf-3260000/sqlite3ext.h"
+                "%s/../extra_libs/android-64/sqlite3/sqlite3ext.h"
                 % os.path.abspath(os.path.join(sysroot_dir)),
                 "%s/include/sqlite3ext.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../../src/sqlite3-linux-64/sqlite-autoconf-3260000/sqlite3.h"
+                "%s/../extra_libs/android-64/sqlite3/sqlite3.h"
                 % os.path.abspath(os.path.join(sysroot_dir)),
                 "%s/include/sqlite3.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../../src/sqlite3-linux-64/sqlite-autoconf-3260000/.libs/libsqlite3.so"
+                "%s/../extra_libs/android-64/sqlite3/.libs/libsqlite3.so"
                 % os.path.abspath(os.path.join(sysroot_dir)),
                 "%s/lib/libsqlite3.so" % sysroot_dir,
             )

@@ -16,29 +16,39 @@ if [ -e "sysroots/$TARGET" ]; then
 SYSROOT="--no-sysroot"
 else
 
-cd src
-if [ ! -e "sqlite3-android" ] ; then
-git clone https://github.com/stockrt/sqlite3-android
-cd sqlite3-android
+if [ ! -e "sysroots" ]; then
+mkdir sysroots
+fi
+
+
+if [ ! -e "sysroots/extra_libs" ]; then
+mkdir sysroots/extra_libs
+fi
+
+if [ ! -e "sysroots/extra_libs/$TARGET" ]; then
+mkdir sysroots/extra_libs/$TARGET
+fi
+
+cd sysroots/extra_libs/$TARGET
+if [ ! -e "sqlite3" ] ; then
+git clone https://github.com/stockrt/sqlite3-android sqlite3
+cd sqlite3
 make
 cd ..
 fi
 
-if [ ! -e "bzip2-android" ] ; then
-git clone https://github.com/dmcrystax/cosp-android-bzip2 bzip2-android
-cd bzip2-android
+if [ ! -e "bzip2" ] ; then
+git clone https://github.com/dmcrystax/cosp-android-bzip2 bzip
+cd bzip
 build.sh $ANDROID_NDK_ROOT --prefix=./lib
 cd ..   
 fi
 
 cd ..
+cd ..
+cd ..
+
 fi
-
-
-
-
-
-
 
 python3 ./build-pineboo-binaries.py --target $TARGET $SYSROOT --verbose
 #python3 ./build-demo.py --target $TARGET $SYSROOT --verbose
