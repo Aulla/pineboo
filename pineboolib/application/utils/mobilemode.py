@@ -28,9 +28,11 @@ def check_mobile_mode() -> bool:
     """
     is_mobile = False
     sys_info = QtCore.QSysInfo()
+    product_type = sys_info.productType()
 
-    if sys_info.productType() in ("android", "ios"):
+    if product_type in ("android", "ios"):
         is_mobile = True
+
     else:
         from pineboolib.core import settings
 
