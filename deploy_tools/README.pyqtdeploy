@@ -45,6 +45,28 @@ Ejecutar:
 build_binaries_android-32.sh
 
 
+Compilación cruzada android-64 
+============================================
+https://dl.google.com/android/repository/android-ndk-r19c-linux-x86_64.zip?hl=ES (extraer en ./src)
+https://dl.google.com/dl/android/studio/ide-zips/3.4.0.18/android-studio-ide-183.5452501-linux.tar.gz (en ./src y ejecutar studio.sh. Configurar compiladores y descargar SDK)
+
+configure -> sdk manager -> Appearance & Behavior -> System Settings -> Android SDK -> SDK Tools
+
+.. and make sure you have these installed and up to date:
+
+    Android SDK Build tools
+    Google Play Services
+    Google Repository
+	(Google APIs ARM 64 v8a System Image)
+	
+sudo apt-get install gcc-aarch64-linux-gnu
+
+
+Ejecutar:
+build_binaries_android-64.sh
+
+
+
 Compilación windows-64 (nativa)
 ============================================
 * Python 3.7.2 64 bits.

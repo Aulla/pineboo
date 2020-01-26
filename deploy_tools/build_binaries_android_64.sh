@@ -4,6 +4,7 @@ SYSROOT=""
 LOCALDIR="$(pwd)"
 export ANDROID_SDK_ROOT=~/Android/Sdk
 export ANDROID_NDK_ROOT=$LOCALDIR/src/android-ndk-r19c
+export HOST_TAG=linux-x86_64
 export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
 export PATH=$PATH:$ANDROID_SDK_ROOT/tools
 export PATH=$PATH:$ANDROID_NDK:$ANDROID_NDK_ROOT/build
@@ -30,18 +31,20 @@ mkdir sysroots/extra_libs/$TARGET
 fi
 
 cd sysroots/extra_libs/$TARGET
-if [ ! -e "sqlite3" ] ; then #Revisar
-git clone https://github.com/stockrt/sqlite3-android sqlite3
+if [ ! -e "sqlite3" ] ; then
+git clone https://github.com/aulla/sqlite3-android sqlite3
 cd sqlite3
 make
 cd ..
 fi
 
-if [ ! -e "bzip2" ] ; then
-git clone https://github.com/dmcrystax/cosp-android-bzip2 bzip
+if [ ! -e "bzip2" ] ; then   
+git clone git://sourceware.org/git/bzip2.git bzip
 cd bzip
-build.sh $ANDROID_NDK_ROOT --prefix=./lib
-cd ..   
+export TOOLCHAIN=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_TAG
+make -f Makefile-libbz2_so CC=$TOOLCHAIN/bin/aarch64-linux-android24-clang AR=$TOOLCHAIN/bin/aarch64-linux-android-ar RANLIB=$TOOLCHAIN/bin/aarch64-linux-android-ranlib
+cd ..
+
 fi
 
 cd ..
