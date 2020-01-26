@@ -22,7 +22,7 @@ def is_mobile_mode() -> bool:
 
 def check_mobile_mode() -> bool:
     """
-    Return if you are working in mobile mode, searching local settings or importing Android library.
+    Return if you are working in mobile mode, searching local settings or check QtCore.QSysInfo().productType().
 
     @return True or False.
     """
