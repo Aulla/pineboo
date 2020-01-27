@@ -298,7 +298,10 @@ class KParserTools(object):
         @return Path to ".ttf" or None
         """
         fonts_folders: List[str] = []
-        if sys.platform.find("win") > -1:
+        if sys.platform.find("darwin") > -1:
+            fonts_folders = ["/Library/Fonts", "/System/Library/Fonts", "~/Library/Fonts"]
+
+        elif sys.platform.find("win") > -1:
             windirs = os.environ.get("WINDIR")
             if windirs is None:
                 raise Exception("WINDIR environ not found!")
@@ -313,8 +316,6 @@ class KParserTools(object):
 
             for lin_dir in lindirs.split(":"):
                 fonts_folders.append(os.path.join(lin_dir, "fonts"))
-        elif sys.platform.find("darwin") > -1:
-            fonts_folders = ["/Library/Fonts", "/System/Library/Fonts", "~/Library/Fonts"]
         else:
             self.logger.warning("KUTPARSERTOOLS: Plataforma desconocida %s", sys.platform)
             return None
