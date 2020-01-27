@@ -732,3 +732,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Return the name of the database in text format."""
 
         return self.DBName()
+
+    def close(self):
+        """Close connection."""
+
+        self._is_open = False
+        self.driver().open_ = False
+        self.driver().conn_.close()

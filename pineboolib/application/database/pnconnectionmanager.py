@@ -39,7 +39,7 @@ class PNConnectionManager(QtCore.QObject):
         if "main_conn" in self.connections_dict:
             conn_ = self.connections_dict["main_conn"]
             if main_conn.conn is not conn_.conn:
-                conn_.conn.close()
+                conn_.close()
                 del conn_
                 del self.connections_dict["main_conn"]
 
@@ -72,15 +72,13 @@ class PNConnectionManager(QtCore.QObject):
         """Set the connection as terminated."""
 
         for key in list(self.connections_dict.keys()):
-            conn_ = self.connections_dict[key].conn
-            if conn_ is None:
+            if self.connections_dict[key] is None:
                 continue
 
             # if "main_conn" in self.connections_dict.keys():
             #    if self.connections_dict["main_conn"].conn is conn_:
             #        continue
-            self.connections_dict[key]._is_open = False
-            conn_.close()
+            self.connections_dict[key].close()
             del self.connections_dict[key]
 
         self.connections_dict = {}
@@ -162,9 +160,8 @@ class PNConnectionManager(QtCore.QObject):
 
         if name_conn_ in self.connections_dict.keys():
             self.connections_dict[name_conn_]._is_open = False
-            conn_ = self.connections_dict[name_conn_].conn
-            if conn_ not in [None, self.mainConn().conn]:
-                conn_.close()
+            if self.connections_dict[name_conn_].conn not in [None, self.mainConn().conn]:
+                self.connections_dict[name_conn_].close()
 
             del self.connections_dict[name_conn_]
             return True
