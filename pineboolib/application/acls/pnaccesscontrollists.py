@@ -95,6 +95,9 @@ class PNAccessControlLists(object):
         doc_elem = doc.documentElement()
         node = doc_elem.firstChild()
 
+        if node.isNull():
+            return
+
         while not node.isNull():
             element = node.toElement()
             if element:
