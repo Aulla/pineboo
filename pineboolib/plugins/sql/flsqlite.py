@@ -25,7 +25,7 @@ from typing import Optional, Union, Any, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class FLSQLITE(pnsqlschema.PNSqlSchema):
@@ -38,22 +38,13 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Inicialize."""
         super().__init__()
         self.version_ = "0.7"
-        self.conn_ = None
         self.name_ = "FLsqlite"
-        self.open_ = False
         self.errorList = []
         self.alias_ = "SQLite3 (SQLITE3)"
         self.db_filename = None
         self.db_ = None
         self.parseFromLatin = False
         self.mobile_ = True
-        self.pure_python_ = False
-        self.defaultPort_ = 0
-        self.cursor_ = None
-        self.engine_ = None
-        self.session_ = None
-        self.declarative_base_ = None
-        self.lastError_ = None
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -109,7 +100,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             self.conn_.isolation_level = None
 
             if db_is_new and self.db_filename not in [":memory:", "temp_db"]:
-                logger.warning("La base de datos %s no existe", self.db_filename)
+                LOGGER.warning("La base de datos %s no existe", self.db_filename)
 
         if self.conn_:
             self.open_ = True
@@ -215,7 +206,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         q.setFrom(table)
         q.setWhere("1 = 1")
         if not q.exec_():  # FIXME: exec es palabra reservada
-            logger.warning("not exec sequence")
+            LOGGER.warning("not exec sequence")
         elif q.first():
             old_value = q.value(0)
             if old_value is not None:
@@ -229,18 +220,18 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             return True
 
         if not self.isOpen():
-            logger.warning("%s::savePoint: Database not open", __name__)
+            LOGGER.warning("savePoint: Database not open")
             return False
 
         self.set_last_error_null()
 
         cursor = self.cursor()
         try:
-            logger.debug("Creando savepoint sv_%s" % n)
+            LOGGER.debug("Creando savepoint sv_%s" % n)
             cursor.execute("SAVEPOINT sv_%s" % n)
         except Exception:
             self.setLastError("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % n)
-            logger.error("%s:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s", __name__, n)
+            LOGGER.error("%s:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s", __name__, n)
             return False
 
         return True
@@ -251,7 +242,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             return True
 
         if not self.isOpen():
-            logger.warning("%s::rollbackSavePoint: Database not open", __name__)
+            LOGGER.warning("rollbackSavePoint: Database not open")
             return False
 
         self.set_last_error_null()
@@ -263,7 +254,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             self.setLastError(
                 "No se pudo rollback a punto de salvaguarda", "ROLLBACK TO SAVEPOINTt sv_%s" % n
             )
-            logger.error(
+            LOGGER.error(
                 "%s:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s",
                 __name__,
                 n,
@@ -275,14 +266,16 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     def commitTransaction(self) -> bool:
         """Set commit transaction."""
         if not self.isOpen():
-            logger.warning("%s::commitTransaction: Database not open", __name__)
+            LOGGER.warning("commitTransaction: Database not open")
+            return False
+
         self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("END TRANSACTION")
         except Exception:
             self.setLastError("No se pudo aceptar la transacción", "COMMIT")
-            logger.error(
+            LOGGER.error(
                 "%s:: No se pudo aceptar la transacción COMMIT. %s",
                 __name__,
                 traceback.format_exc(),
@@ -307,7 +300,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     def rollbackTransaction(self) -> bool:
         """Set a rollback transaction."""
         if not self.isOpen():
-            logger.warning("SQL3Driver::rollbackTransaction: Database not open")
+            LOGGER.warning("SQL3Driver::rollbackTransaction: Database not open")
+            return False
 
         self.set_last_error_null()
         cursor = self.cursor()
@@ -315,7 +309,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             cursor.execute("ROLLBACK TRANSACTION")
         except Exception:
             self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-            logger.error("SQL3Driver:: No se pudo deshacer la transacción ROLLBACK")
+            LOGGER.error("SQL3Driver:: No se pudo deshacer la transacción ROLLBACK")
             return False
 
         return True
@@ -323,7 +317,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     def transaction(self) -> bool:
         """Set a new transaction."""
         if not self.isOpen():
-            logger.warning("SQL3Driver::transaction: Database not open")
+            LOGGER.warning("transaction: Database not open")
+            return False
+
         cursor = self.cursor()
         self.set_last_error_null()
 
@@ -331,7 +327,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             cursor.execute("BEGIN TRANSACTION")
         except Exception:
             self.setLastError("No se pudo crear la transacción", "BEGIN")
-            logger.error("SQL3Driver:: No se pudo crear la transacción BEGIN")
+            LOGGER.error("SQL3Driver:: No se pudo crear la transacción BEGIN")
             return False
 
         return True
@@ -342,8 +338,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if n == 0:
             return True
         if not self.isOpen():
-            logger.debug("SQL3Driver::releaseSavePoint: Database not open")
+            LOGGER.warning("releaseSavePoint: Database not open")
             return False
+
         self.set_last_error_null()
 
         cursor = self.cursor()
@@ -353,7 +350,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             self.setLastError(
                 "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % n
             )
-            logger.error(
+            LOGGER.error(
                 "SQL3Driver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s", n
             )
             return False
@@ -373,6 +370,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     def existsTable(self, name: str) -> bool:
         """Return if exists a table specified by name."""
         if not self.isOpen():
+            LOGGER.warning("existsTable: Database not open")
             return False
 
         cursor = self.cursor()
@@ -400,8 +398,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 unlocks = unlocks + 1
 
         if unlocks > 1:
-            logger.debug(u"FLManager : No se ha podido crear la tabla " + tmd.name())
-            logger.debug(u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno.")
+            LOGGER.debug(u"FLManager : No se ha podido crear la tabla " + tmd.name())
+            LOGGER.debug(u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno.")
             return None
 
         i = 1
@@ -442,7 +440,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 if primaryKey is None:
                     sql += " PRIMARY KEY"
                 else:
-                    logger.debug(
+                    LOGGER.debug(
                         QtWidgets.QApplication.tr("FLManager : Tabla-> ")
                         + tmd.name()
                         + QtWidgets.QApplication.tr(
@@ -563,7 +561,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 ret = True
 
         except Exception:
-            logger.error("notEqualsFields %s %s", field1, field2)
+            LOGGER.error("notEqualsFields %s %s", field1, field2)
         return ret
 
     def recordInfo2(self, tablename: str) -> List[List[Any]]:
@@ -595,7 +593,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
             stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
             if not stream:
-                logger.warning(
+                LOGGER.warning(
                     "FLManager : "
                     + QtWidgets.QApplication.translate(
                         "FLSQLite", "Error al cargar los metadatos para la tabla %s" % tablename
@@ -683,7 +681,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #     docElem = None
     #
     #     if not util.domDocumentSetContent(doc, mtd1):
-    #         logger.warning("FLManager::alterTable : " + util.translate("SqlDriver","Error al cargar los metadatos."))
+    #         LOGGER.warning("FLManager::alterTable : " + util.translate("SqlDriver","Error al cargar los metadatos."))
     #     else:
     #         docElem = doc.documentElement()
     #         oldMTD = self.db_.manager().metadata(docElem, True)
@@ -692,7 +690,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #         return True
     #
     #     if not util.domDocumentSetContent(doc, mtd2):
-    #         logger.warning("FLManager::alterTable : " + util.translate("SqlDriver","Error al cargar los metadatos."))
+    #         LOGGER.warning("FLManager::alterTable : " + util.translate("SqlDriver","Error al cargar los metadatos."))
     #         return False
     #     else:
     #         docElem = doc.documentElement()
@@ -705,7 +703,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #         oldMTD = newMTD
     #
     #     if not oldMTD.name() == newMTD.name():
-    #         logger.warning("FLManager::alterTable : " +
+    #         LOGGER.warning("FLManager::alterTable : " +
     # util.translate("SqlDriver","Los nombres de las tablas nueva y vieja difieren."))
     #         if oldMTD and not oldMTD == newMTD:
     #             del oldMTD
@@ -718,7 +716,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #     newPK = newMTD.primaryKey()
     #
     #     if not oldPK == newPK:
-    #         logger.warning("FLManager::alterTable : " +
+    #         LOGGER.warning("FLManager::alterTable : " +
     # util.translate("SqlDriver","Los nombres de las claves primarias difieren."))
     #         if oldMTD and not oldMTD == newMTD:
     #             del oldMTD
@@ -736,7 +734,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #         return True
     #
     #     if not self.db_.manager().existsTable(oldMTD.name()):
-    #         logger.warning(
+    #         LOGGER.warning(
     #             "FLManager::alterTable : " + util.translate("SqlDriver",
     # "La tabla %1 antigua de donde importar los registros no existe.").arg(oldMTD.name())
     #         )
@@ -751,7 +749,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #     oldField = None
     #
     #     if not fieldList:
-    #         logger.warning("FLManager::alterTable : " + util.translate("SqlDriver","Los antiguos metadatos no tienen campos."))
+    #         LOGGER.warning("FLManager::alterTable : " + util.translate("SqlDriver","Los antiguos metadatos no tienen campos."))
     #         if oldMTD and not oldMTD == newMTD:
     #             del oldMTD
     #         if newMTD:
@@ -787,7 +785,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #     if not q.exec_("CREATE TABLE %s AS SELECT * FROM %s;" % (renameOld, oldMTD.name())) or not q.exec_(
     #         "DROP TABLE %s;" % oldMTD.name()
     #     ):
-    #         logger.warning("FLManager::alterTable : " + util.translate("SqlDriver","No se ha podido renombrar la tabla antigua."))
+    #         LOGGER.warning("FLManager::alterTable : " + util.translate("SqlDriver","No se ha podido renombrar la tabla antigua."))
     #
     #         self.db_.dbAux().rollbackTransaction()
     #         if oldMTD and not oldMTD == newMTD:
@@ -824,7 +822,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #     newField = None
     #     # FIXME: newField is never assigned
     #     if not fieldList:
-    #         logger.warning("FLManager::alterTable : " + util.translate("SqlDriver","Los nuevos metadatos no tienen campos."))
+    #         LOGGER.warning("FLManager::alterTable : " + util.translate("SqlDriver","Los nuevos metadatos no tienen campos."))
     #         self.db_.dbAux().rollbackTransaction()
     #         if oldMTD and not oldMTD == newMTD:
     #             del oldMTD
@@ -855,7 +853,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #                         v = defVal
     #
     #                 if not newBuffer.field(newField.name()).type() == newField.type():
-    #                     logger.warning(
+    #                     LOGGER.warning(
     #                         "FLManager::alterTable : "
     #                         + util.translate("SqlDriver","Los tipos del campo %s no son compatibles.
     # Se introducirá un valor nulo." % newField.name())
@@ -931,10 +929,13 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     def Mr_Proper(self) -> None:
         """Clear all garbage data."""
 
-        logger.warning("FLSQLITE: FIXME: Mr_Proper no regenera tablas")
+        LOGGER.warning("FLSQLITE: FIXME: Mr_Proper no regenera tablas")
         util = flutil.FLUtil()
         if self.db_ is None:
-            raise Exception("MR_Proper. self.db_ is None")
+            raise Exception("MR_Proper: self.db_ is None")
+
+        if not self.isOpen():
+            raise Exception("MR_Proper: Cannot proceed: SQLLITE not open")
 
         self.db_.connManager().dbAux().transaction()
         rx = Qt.QRegExp("^.*[\\d][\\d][\\d][\\d].[\\d][\\d].*[\\d][\\d]$")

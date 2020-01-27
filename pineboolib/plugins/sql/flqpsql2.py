@@ -4,13 +4,12 @@ from pineboolib.application.utils.check_dependencies import check_dependencies
 
 from pineboolib.core import settings
 
-from PyQt5.Qt import qWarning  # type: ignore
-from PyQt5.QtWidgets import QMessageBox, QWidget  # type: ignore
+from PyQt5 import QtWidgets
 
 from pineboolib.plugins.sql.flqpsql import FLQPSQL
 from typing import Any, cast
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class FLQPSQL2(FLQPSQL):
@@ -69,13 +68,16 @@ class FLQPSQL2(FLQPSQL):
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
             if repr(traceback.format_exc()).find("does not exist") > -1:
-                ret = QMessageBox.warning(
-                    QWidget(),
+                ret = QtWidgets.QMessageBox.warning(
+                    QtWidgets.QWidget(),
                     "Pineboo",
                     "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
-                    cast(QMessageBox.StandardButtons, QMessageBox.Ok | QMessageBox.No),
+                    cast(
+                        QtWidgets.QMessageBox.StandardButtons,
+                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
+                    ),
                 )
-                if ret == QMessageBox.No:
+                if ret == QtWidgets.QMessageBox.No:
                     return False
                 else:
                     try:
@@ -99,18 +101,21 @@ class FLQPSQL2(FLQPSQL):
                         cursor.close()
                         return self.connect(db_name, db_host, db_port, db_userName, db_password)
                     except Exception:
-                        qWarning(traceback.format_exc())
-                        QMessageBox.information(
-                            QWidget(),
+                        LOGGER.warning(traceback.format_exc())
+                        QtWidgets.QMessageBox.information(
+                            QtWidgets.QWidget(),
                             "Pineboo",
                             "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
-                            QMessageBox.Ok,
+                            QtWidgets.QMessageBox.Ok,
                         )
                         print("ERROR: No se ha podido crear la Base de Datos %s" % db_name)
                         return False
             else:
-                QMessageBox.information(
-                    QWidget(), "Pineboo", "Error de conexión\n%s" % str(e), QMessageBox.Ok
+                QtWidgets.QMessageBox.information(
+                    QtWidgets.QWidget(),
+                    "Pineboo",
+                    "Error de conexión\n%s" % str(e),
+                    QtWidgets.QMessageBox.Ok,
                 )
                 return False
 
@@ -121,13 +126,10 @@ class FLQPSQL2(FLQPSQL):
 
         self.conn_.autocommit = True
 
-        if self.conn_:
-            self.open_ = True
-
         try:
             cursor = self.conn_.cursor()
             cursor.execute("SET CLIENT_ENCODING TO 'UTF8'")
         except Exception:
-            qWarning(traceback.format_exc())
+            LOGGER.warning(traceback.format_exc())
 
         return self.conn_

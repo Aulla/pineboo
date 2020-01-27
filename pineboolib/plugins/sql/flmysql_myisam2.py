@@ -17,7 +17,7 @@ from typing import Any, Dict, cast, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
@@ -29,9 +29,7 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
     def __init__(self):
         """Create empty driver."""
         super().__init__()
-        self.conn_ = None
         self.name_ = "FLMYSQL_MyISAM2"
-        self.open_ = False
         self.alias_ = "MySQL MyISAM (PyMySQL)"
         self.cursorsArray_ = {}
         self.noInnoDB = True
@@ -40,11 +38,6 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         self.defaultPort_ = 3306
         self.rowsFetched = {}
         self.active_create_index = True
-        self.db_ = None
-        self.engine_ = None
-        self.session_ = None
-        self.declarative_base_ = None
-        self.lastError_ = None
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -136,8 +129,8 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
 
         if self.conn_:
             self.open_ = True
-            # self.conn_.autocommit(True)
-            # self.conn_.set_character_set('utf8')
+        # self.conn_.autocommit(True)
+        # self.conn_.set_character_set('utf8')
 
         return self.conn_
 

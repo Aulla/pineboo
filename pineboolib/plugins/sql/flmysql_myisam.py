@@ -23,7 +23,7 @@ from typing import Any, Iterable, Optional, Union, List, cast, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
@@ -33,20 +33,11 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         """Create empty driver."""
         super().__init__()
         self.version_ = "0.9"
-        self.conn_ = None
         self.name_ = "FLMYSQL_MyISAM"
-        self.open_ = False
         self.alias_ = "MySQL MyISAM (MYSQLDB)"
         self.noInnoDB = True
-        self.mobile_ = False
-        self.pure_python_ = False
         self.defaultPort_ = 3306
         self.active_create_index = True
-        self.db_ = None
-        self.engine_ = None
-        self.session_ = None
-        self.declarative_base_ = None
-        self.lastError_ = None
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -99,7 +90,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                         try:
                             cursor.execute("CREATE DATABASE %s" % db_name)
                         except Exception:
-                            logger.exception("ERROR: FLPSQL.connect")
+                            LOGGER.exception("ERROR: FLPSQL.connect")
                             cursor.execute("ROLLBACK")
                             cursor.close()
                             return False
@@ -238,8 +229,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Get next serial value for given table and field."""
         if not self.isOpen():
-            logger.warning("%s::beginTransaction: Database not open", self.name_)
-            return None
+            raise Exception("beginTransaction: Database not open")
 
         # if not self.transaction():
         #    self.setLastError("No se puede iniciar la transacción", "BEGIN WORK")
@@ -255,7 +245,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         q.setFrom(table)
         q.setWhere("1 = 1")
         if not q.exec_():
-            logger.warning("not exec sequence")
+            LOGGER.warning("not exec sequence")
             return None
         elif q.first():
             v = q.value(0)
@@ -277,7 +267,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             if line:
                 cur_max = line[0]
         except Exception:
-            logger.warning(
+            LOGGER.warning(
                 "%s:: La consulta a la base de datos ha fallado", self.name_, traceback.format_exc()
             )
             self.rollbackTransaction()
@@ -309,7 +299,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             try:
                 cursor.execute(strQry)
             except Exception:
-                logger.warning(
+                LOGGER.warning(
                     "%s:: La consulta a la base de datos ha fallado\n %s",
                     self.name_,
                     traceback.format_exc(),
@@ -319,7 +309,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 return
 
         # if not self.commitTransaction():
-        #    Qt.qWarning("%s:: No se puede aceptar la transacción" % self.name_)
+        #    LOGGER.warning("%s:: No se puede aceptar la transacción" % self.name_)
         #    return None
 
         return ret
@@ -330,7 +320,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             return True
 
         if not self.isOpen():
-            logger.warning("%s::savePoint: Database not open", self.name_)
+            LOGGER.warning("savePoint: Database not open")
             return False
 
         self.set_last_error_null()
@@ -339,7 +329,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             cursor.execute("SAVEPOINT sv_%s" % n)
         except Exception:
             self.setLastError("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % n)
-            logger.warning(
+            LOGGER.warning(
                 "MySQLDriver:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s \n %s ",
                 n,
                 traceback.format_exc(),
@@ -354,8 +344,9 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             return True
 
         if not self.isOpen():
-            logger.warning("%s::rollbackSavePoint: Database not open", self.name_)
+            LOGGER.warning("rollbackSavePoint: Database not open")
             return False
+
         self.set_last_error_null()
         cursor = self.cursor()
         try:
@@ -364,7 +355,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             self.setLastError(
                 "No se pudo rollback a punto de salvaguarda", "ROLLBACK TO SAVEPOINTt sv_%s" % n
             )
-            logger.warning(
+            LOGGER.warning(
                 "%s:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s\n %s",
                 self.name_,
                 n,
@@ -377,14 +368,16 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     def commitTransaction(self) -> bool:
         """Commit database transaction."""
         if not self.isOpen():
-            logger.warning("%s::commitTransaction: Database not open", self.name_)
+            LOGGER.warning("commitTransaction: Database not open")
+            return False
+
         self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("COMMIT")
         except Exception:
             self.setLastError("No se pudo aceptar la transacción", "COMMIT")
-            logger.warning(
+            LOGGER.warning(
                 "%s:: No se pudo aceptar la transacción COMMIT\n %s",
                 self.name_,
                 traceback.format_exc(),
@@ -396,14 +389,15 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     def rollbackTransaction(self) -> bool:
         """Rollback database transaction."""
         if not self.isOpen():
-            logger.warning("%s::rollbackTransaction: Database not open", self.name_)
+            LOGGER.warning("rollbackTransaction: Database not open")
+            return False
         self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("ROLLBACK")
         except Exception:
             self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-            logger.warning(
+            LOGGER.warning(
                 "%s:: No se pudo deshacer la transacción ROLLBACK\n %s",
                 self.name_,
                 traceback.format_exc(),
@@ -415,14 +409,16 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     def transaction(self) -> bool:
         """Start new database transaction."""
         if not self.isOpen():
-            logger.warning("%s::transaction: Database not open", self.name_)
+            LOGGER.warning("transaction: Database not open")
+            return False
+
         self.set_last_error_null()
         cursor = self.cursor()
         try:
             cursor.execute("START TRANSACTION")
         except Exception:
             self.setLastError("No se pudo crear la transacción", "BEGIN WORK")
-            logger.warning(
+            LOGGER.warning(
                 "%s:: No se pudo crear la transacción BEGIN\n %s",
                 self.name_,
                 traceback.format_exc(),
@@ -433,12 +429,14 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
     def releaseSavePoint(self, n: int) -> bool:
         """Remove named savepoint from database."""
+
+        if not self.isOpen():
+            LOGGER.warning("releaseSavePoint: Database not open")
+            return False
+
         if n == 0:
             return True
 
-        if not self.isOpen():
-            Qt.qWarning("%s::releaseSavePoint: Database not open" % self.name_)
-            return False
         self.set_last_error_null()
         cursor = self.cursor()
         try:
@@ -447,7 +445,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             self.setLastError(
                 "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % n
             )
-            Qt.qWarning(
+            LOGGER.warning(
                 "MySQLDriver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s\n %s"
                 % (n, traceback.format_exc())
             )
@@ -468,6 +466,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     def existsTable(self, name: str) -> bool:
         """Return if table exists."""
         if not self.isOpen():
+            LOGGER.warning("existsTable: Database not open")
             return False
 
         t = pnsqlquery.PNSqlQuery()
@@ -496,8 +495,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 unlocks += 1
 
         if unlocks > 1:
-            Qt.qWarning(u"%s : No se ha podido crear la tabla %s" % (self.name_, tmd.name()))
-            Qt.qWarning(u"%s : Hay mas de un campo tipo unlock. Solo puede haber uno." % self.name_)
+            LOGGER.warning(u"%s : No se ha podido crear la tabla %s" % (self.name_, tmd.name()))
+            LOGGER.warning(
+                u"%s : Hay mas de un campo tipo unlock. Solo puede haber uno." % self.name_
+            )
             return None
 
         i = 1
@@ -542,7 +543,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                     sql += " PRIMARY KEY"
                     primaryKey = field.name()
                 else:
-                    Qt.qWarning(
+                    LOGGER.warning(
                         QtWidgets.QApplication.tr("FLManager : Tabla-> ")
                         + tmd.name()
                         + QtWidgets.QApplication.tr(
@@ -574,12 +575,15 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         sql += " DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
 
-        Qt.qWarning("NOTICE: CREATE TABLE (%s%s)" % (tmd.name(), engine))
+        LOGGER.warning("NOTICE: CREATE TABLE (%s%s)" % (tmd.name(), engine))
 
         return sql
 
     def Mr_Proper(self) -> None:
         """Cleanup database like mr.proper."""
+        if not self.isOpen():
+            raise Exception("Mr_Proper: Database not open")
+
         util = flutil.FLUtil()
         if not self.db_:
             raise Exception("must be connected")
@@ -659,7 +663,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                         "Intentando regenerarla." % item,
                     )
 
-                    logger.warning("%s", msg)
+                    LOGGER.warning("%s", msg)
                     self.alterTable2(conte, conte, None, True)
 
             steps = steps + 1
@@ -761,6 +765,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
     def alterTable2(self, mtd1: str, mtd2: str, key: Optional[str], force: bool = False) -> bool:
         """Alter a table following mtd instructions."""
+        if not self.isOpen():
+            raise Exception("alterTable2: Database not open")
+            return False
+
         if not self.db_:
             raise Exception("must be connected")
 
@@ -886,7 +894,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         fieldList = new_mtd.fieldList()
 
         if not fieldList:
-            Qt.qWarning(
+            LOGGER.warning(
                 "FLManager::alterTable : "
                 + util.translate("SqlDriver", "Los nuevos metadatos no tienen campos")
             )
@@ -900,9 +908,9 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         q = pnsqlquery.PNSqlQuery(None, "dbAux")
         in_sql = "ALTER TABLE %s RENAME TO %s" % (old_mtd.name(), renameOld)
-        logger.warning(in_sql)
+        LOGGER.warning(in_sql)
         if not q.exec_(in_sql):
-            Qt.qWarning(
+            LOGGER.warning(
                 "FLManager::alterTable : "
                 + util.translate("SqlDriver", "No se ha podido renombrar la tabla antigua.")
             )
@@ -950,14 +958,14 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                         key,
                     )
                 )
-                logger.warning(in_sql)
+                LOGGER.warning(in_sql)
                 q.exec_(in_sql)
 
         ok = False
         if force and fieldNamesOld:
             # sel = fieldNamesOld.join(",")
             # in_sql = "INSERT INTO %s(%s) SELECT %s FROM %s" % (new_mtd.name(), sel, sel, renameOld)
-            # logger.warning(in_sql)
+            # LOGGER.warning(in_sql)
             # ok = q.exec_(in_sql)
             if not ok:
                 self.db_.connManager().dbAux().rollbackTransaction()
@@ -1119,6 +1127,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         if not records:
             return False
+
+        if not self.isOpen():
+            raise Exception("insertMulti: Database not open")
+
         if not self.db_:
             raise Exception("must be connected")
 
@@ -1195,7 +1207,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                     mismatch = True
 
             except Exception:
-                logger.exception("mismatchedTable: Unexpected error")
+                LOGGER.exception("mismatchedTable: Unexpected error")
 
             return mismatch
 
@@ -1205,7 +1217,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     def recordInfo2(self, tablename: str) -> List[list]:
         """Obtain current cursor information on columns."""
         if not self.isOpen():
-            raise Exception("%s: conn not opened" % __name__)
+            raise Exception("recordInfo2: conn not opened")
         if not self.conn_:
             raise Exception("must be connected")
         info = []
@@ -1282,16 +1294,16 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             ret = "timestamp"
 
         else:
-            logger.warning("formato desconocido %s", ret)
+            LOGGER.warning("formato desconocido %s", ret)
 
         return ret
 
     def recordInfo(self, tablename_or_query: str) -> List[list]:
         """Obtain current cursor information on columns."""
         if not self.isOpen():
-            raise Exception("MYISAM2: conn not opened")
+            raise Exception("recordInfo: conn not opened")
         if not self.db_:
-            raise Exception("Must be connected")
+            raise Exception("recordInfo: Must be connected")
         info = []
 
         if isinstance(tablename_or_query, str):
@@ -1299,7 +1311,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
             stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
             if not stream:
-                logger.warning(
+                LOGGER.warning(
                     "FLManager : "
                     + QtWidgets.QApplication.translate(
                         "FLMySQL", "Error al cargar los metadatos para la tabla"

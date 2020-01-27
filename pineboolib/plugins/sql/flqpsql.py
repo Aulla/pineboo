@@ -19,7 +19,7 @@ import traceback
 from typing import Iterable, Optional, Union, List, Dict, Any, cast
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class FLQPSQL(pnsqlschema.PNSqlSchema):
@@ -30,16 +30,9 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         super().__init__()
         self.version_ = "0.9"
         self.name_ = "FLQPSQL"
-        self.open_ = False
         self.errorList = []
         self.alias_ = "PostgreSQL (PSYCOPG2)"
-        self.mobile_ = False
-        self.pure_python_ = False
         self.defaultPort_ = 5432
-        self.engine_ = None
-        self.session_ = None
-        self.declarative_base_ = None
-        self.lastError_ = None
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -58,8 +51,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         import psycopg2  # type: ignore
         from psycopg2.extras import LoggingConnection  # type: ignore
 
-        logger = logging.getLogger(self.alias_)
-        logger.debug = logger.trace  # type: ignore  # Send Debug output to Trace
+        LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
 
         conninfostr = "dbname=%s host=%s port=%s user=%s password=%s connect_timeout=5" % (
             db_name,
@@ -71,7 +63,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         try:
             self.conn_ = psycopg2.connect(conninfostr, connection_factory=LoggingConnection)
-            self.conn_.initialize(logger)
+            self.conn_.initialize(LOGGER)
 
             if settings.config.value("ebcomportamiento/orm_enabled", False):
                 from sqlalchemy import create_engine  # type: ignore
@@ -120,7 +112,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                         cursor.close()
                         return self.connect(db_name, db_host, db_port, db_userName, db_password)
                     except Exception:
-                        Qt.qWarning(traceback.format_exc())
+                        LOGGER.warning(traceback.format_exc())
                         QtWidgets.QMessageBox.information(
                             QtWidgets.QWidget(),
                             "Pineboo",
@@ -148,7 +140,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         try:
             self.conn_.set_client_encoding("UTF8")
         except Exception:
-            Qt.qWarning(traceback.format_exc())
+            LOGGER.warning(traceback.format_exc())
 
         return self.conn_
 
@@ -246,7 +238,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         q.setFrom("")
         q.setWhere("")
         if not q.exec_():
-            Qt.qWarning("not exec sequence")
+            LOGGER.warning("not exec sequence")
         elif q.first():
             return q.value(0)
 
@@ -255,7 +247,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def savePoint(self, n: int) -> bool:
         """Set a savepoint."""
         if not self.isOpen():
-            Qt.qWarning("PSQLDriver::savePoint: Database not open")
+            LOGGER.warning("savePoint: Database not open")
             return False
         self.set_last_error_null()
         cursor = self.conn_.cursor()
@@ -263,9 +255,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             cursor.execute("SAVEPOINT sv_%s" % n)
         except Exception:
             self.setLastError("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % n)
-            Qt.qWarning(
-                "PSQLDriver:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s \n %s "
-                % (n, traceback.format_exc())
+            LOGGER.warning(
+                "PSQLDriver:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s \n %s ",
+                n,
+                traceback.format_exc(),
             )
             return False
 
@@ -274,7 +267,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def rollbackSavePoint(self, n: int) -> bool:
         """Set rollback savepoint."""
         if not self.isOpen():
-            Qt.qWarning("PSQLDriver::rollbackSavePoint: Database not open")
+            LOGGER.warning("rollbackSavePoint: Database not open")
             return False
         self.set_last_error_null()
         cursor = self.conn_.cursor()
@@ -284,9 +277,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             self.setLastError(
                 "No se pudo rollback a punto de salvaguarda", "ROLLBACK TO SAVEPOINTt sv_%s" % n
             )
-            Qt.qWarning(
-                "PSQLDriver:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s\n %s"
-                % (n, traceback.format_exc())
+            LOGGER.warning(
+                "PSQLDriver:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s\n %s",
+                n,
+                traceback.format_exc(),
             )
             return False
 
@@ -295,16 +289,17 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def commitTransaction(self) -> bool:
         """Set commit transaction."""
         if not self.isOpen():
-            Qt.qWarning("PSQLDriver::commitTransaction: Database not open")
+            LOGGER.warning("commitTransaction: Database not open")
+            return False
+
         self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("COMMIT TRANSACTION")
         except Exception:
             self.setLastError("No se pudo aceptar la transacción", "COMMIT")
-            Qt.qWarning(
-                "PSQLDriver:: No se pudo aceptar la transacción COMMIT\n %s"
-                % traceback.format_exc()
+            LOGGER.warning(
+                "PSQLDriver:: No se pudo aceptar la transacción COMMIT\n %s", traceback.format_exc()
             )
             return False
 
@@ -313,16 +308,18 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def rollbackTransaction(self) -> bool:
         """Set a rollback transaction."""
         if not self.isOpen():
-            Qt.qWarning("PSQLDriver::rollbackTransaction: Database not open")
+            LOGGER.warning("rollbackTransaction: Database not open")
+            return False
+
         self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("ROLLBACK TRANSACTION")
         except Exception:
             self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-            Qt.qWarning(
-                "PSQLDriver:: No se pudo deshacer la transacción ROLLBACK\n %s"
-                % traceback.format_exc()
+            LOGGER.warning(
+                "PSQLDriver:: No se pudo deshacer la transacción ROLLBACK\n %s",
+                traceback.format_exc(),
             )
             return False
 
@@ -331,15 +328,16 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def transaction(self) -> bool:
         """Set a new transaction."""
         if not self.isOpen():
-            Qt.qWarning("PSQLDriver::transaction: Database not open")
+            LOGGER.warning("PSQLDriver::transaction: Database not open")
+            return False
         self.set_last_error_null()
         cursor = self.conn_.cursor()
         try:
             cursor.execute("BEGIN TRANSACTION")
         except Exception:
             self.setLastError("No se pudo crear la transacción", "BEGIN")
-            Qt.qWarning(
-                "PSQLDriver:: No se pudo crear la transacción BEGIN\n %s" % traceback.format_exc()
+            LOGGER.warning(
+                "PSQLDriver:: No se pudo crear la transacción BEGIN\n %s", traceback.format_exc()
             )
             return False
 
@@ -349,7 +347,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         """Set release savepoint."""
 
         if not self.isOpen():
-            Qt.qWarning("PSQLDriver::releaseSavePoint: Database not open")
+            LOGGER.warning("PSQLDriver::releaseSavePoint: Database not open")
             return False
         self.set_last_error_null()
         cursor = self.conn_.cursor()
@@ -359,9 +357,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             self.setLastError(
                 "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % n
             )
-            Qt.qWarning(
-                "PSQLDriver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s\n %s"
-                % (n, traceback.format_exc())
+            LOGGER.warning(
+                "PSQLDriver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s\n %s",
+                n,
+                traceback.format_exc(),
             )
 
             return False
@@ -378,6 +377,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def existsTable(self, name: str) -> bool:
         """Return if exists a table specified by name."""
         if not self.isOpen():
+            LOGGER.warning("PSQLDriver::existsTable: Database not open")
             return False
 
         cur_ = self.conn_.cursor()
@@ -404,8 +404,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 unlocks = unlocks + 1
 
         if unlocks > 1:
-            Qt.qWarning(u"FLManager : No se ha podido crear la tabla " + tmd.name())
-            Qt.qWarning(u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno.")
+            LOGGER.warning(u"FLManager : No se ha podido crear la tabla %S ", tmd.name())
+            LOGGER.warning(u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno.")
             return None
 
         i = 1
@@ -457,20 +457,17 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 if primaryKey is None:
                     sql = sql + " PRIMARY KEY"
                 else:
-                    Qt.qWarning(
-                        util.translate("application", "FLManager : Tabla-> ")
-                        + tmd.name()
-                        + util.translate(
+                    LOGGER.warning(
+                        util.translate(
                             "application",
-                            " . Se ha intentado poner una segunda clave primaria para el campo ",
-                        )
-                        + field.name()
-                        + util.translate("application", " , pero el campo ")
-                        + primaryKey
-                        + util.translate(
-                            "application",
-                            " ya es clave primaria. Sólo puede existir una clave primaria en FLTableMetaData, "
-                            "use FLCompoundKey para crear claves compuestas.",
+                            "FLManager : Tabla-> %s . %s %s ,pero el campo %s ya es clave primaria. %s"
+                            % (
+                                tmd.name(),
+                                "Se ha intentado poner una segunda clave primaria para el campo",
+                                field.name(),
+                                primaryKey,
+                                "Sólo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.",
+                            ),
                         )
                     )
                     return None
@@ -548,7 +545,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def recordInfo2(self, tablename: str) -> List[List[Any]]:
         """Return info from a database table."""
         if not self.isOpen():
-            raise Exception("PSQL is not open")
+            raise Exception("recordInfo2: Database not open")
+
         info = []
         stmt = (
             "select pg_attribute.attname, pg_attribute.atttypid, pg_attribute.attnotnull, pg_attribute.attlen, pg_attribute.atttypmod, "
@@ -752,6 +750,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
     ) -> None:
         """Set a refresh query for database."""
+
+        if not self.isOpen():
+            raise Exception("declareCursor: Database not open")
+
         sql = "DECLARE %s CURSOR WITH HOLD FOR SELECT %s FROM %s WHERE %s " % (
             curname,
             fields,
@@ -761,12 +763,15 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         try:
             cursor.execute(sql)
         except Exception as e:
-            logger.error("refreshQuery: %s", e)
-            logger.info("SQL: %s", sql)
-            logger.trace("Detalle:", stack_info=True)
+            LOGGER.error("refreshQuery: %s", e)
+            LOGGER.info("SQL: %s", sql)
+            LOGGER.trace("Detalle:", stack_info=True)
 
     def getRow(self, number: int, curname: str, cursor: Any) -> List:
         """Return a data row."""
+
+        if not self.isOpen():
+            raise Exception("getRow: Database not open")
 
         ret_: List[Any] = []
         sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
@@ -779,14 +784,18 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             cursor.execute(sql)
             ret_ = cursor.fetchone()
         except Exception as e:
-            logger.error("getRow: %s", e)
-            logger.trace("Detalle:", stack_info=True)
+            LOGGER.error("getRow: %s", e)
+            LOGGER.trace("Detalle:", stack_info=True)
         return ret_
 
     def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
         """Return index row."""
         limit = 0
         pos: Optional[int] = None
+
+        if not self.isOpen():
+            raise Exception("findRow: Database not open")
+
         try:
             while True:
                 sql = "FETCH %s FROM %s" % ("FIRST" if not limit else limit + 10000, curname)
@@ -801,13 +810,17 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 limit += len(data_)
 
         except Exception as e:
-            logger.error("finRow: %s", e)
-            logger.warning("Detalle:", stack_info=True)
+            LOGGER.error("finRow: %s", e)
+            LOGGER.warning("Detalle:", stack_info=True)
 
         return pos
 
     def deleteCursor(self, cursor_name: str, cursor: Any) -> None:
         """Delete cursor."""
+
+        if not self.isOpen():
+            raise Exception("deleteCursor: Database not open")
+
         try:
             sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % cursor_name
             cursor.execute(sql_exists)
@@ -816,8 +829,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
             cursor.execute("CLOSE %s" % cursor_name)
         except Exception as exception:
-            logger.error("finRow: %s", exception)
-            logger.warning("Detalle:", stack_info=True)
+            LOGGER.error("finRow: %s", exception)
+            LOGGER.warning("Detalle:", stack_info=True)
 
     def alterTable(
         self,
@@ -1007,17 +1020,20 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         self, mtd1: str, mtd2: Optional[str] = None, key: Optional[str] = None, force: bool = False
     ) -> bool:
         """Modify a table structure."""
-        # logger.warning("alterTable2 FIXME::Me quedo colgado al hacer createTable --> existTable")
+        # LOGGER.warning("alterTable2 FIXME::Me quedo colgado al hacer createTable --> existTable")
         util = flutil.FLUtil()
 
         old_mtd = None
         new_mtd = None
 
+        if not self.isOpen():
+            raise Exception("alterTable2: Database not open")
+
         if self.db_ is None:
             raise Exception("alterTable2. self.db_ is None")
 
         if not mtd1:
-            logger.warning(
+            LOGGER.warning(
                 "FLManager::alterTable : "
                 + util.translate("application", "Error al cargar los metadatos.")
             )
@@ -1029,7 +1045,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             return True
 
         if not mtd2:
-            logger.warning(
+            LOGGER.warning(
                 "FLManager::alterTable : "
                 + util.translate("application", "Error al cargar los metadatos.")
             )
@@ -1042,7 +1058,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             old_mtd = new_mtd
 
         if not old_mtd.name() == new_mtd.name():
-            logger.warning(
+            LOGGER.warning(
                 "FLManager::alterTable : "
                 + util.translate("application", "Los nombres de las tablas nueva y vieja difieren.")
             )
@@ -1057,7 +1073,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         newPK = new_mtd.primaryKey()
 
         if not oldPK == newPK:
-            logger.warning(
+            LOGGER.warning(
                 "FLManager::alterTable : "
                 + util.translate("application", "Los nombres de las claves primarias difieren.")
             )
@@ -1077,12 +1093,13 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             return True
 
         if not self.db_.connManager().manager().existsTable(old_mtd.name()):
-            logger.warning(
+            LOGGER.warning(
                 "FLManager::alterTable : "
                 + util.translate(
-                    "application", "La tabla %s antigua de donde importar los registros no existe."
+                    "application",
+                    "La tabla %s antigua de donde importar los registros no existe."
+                    % (old_mtd.name()),
                 )
-                % (old_mtd.name())
             )
             if old_mtd and not old_mtd == new_mtd:
                 del old_mtd
@@ -1095,7 +1112,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         oldField = None
 
         if not fieldList:
-            logger.warning(
+            LOGGER.warning(
                 "FLManager::alterTable : "
                 + util.translate("application", "Los antiguos metadatos no tienen campos.")
             )
@@ -1150,7 +1167,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         if self.constraintExists(constraintName):
 
-            logger.warning(
+            LOGGER.warning(
                 "FLManager : "
                 + util.translate(
                     "application",
@@ -1183,13 +1200,13 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 )
 
                 if self.constraintExists(constraintName):
-                    logger.warning(
+                    LOGGER.warning(
                         "FLManager : "
                         + util.translate(
                             "application",
-                            "En método alterTable, no se ha podido borrar el índice %s_%s_key de la tabla antigua.",
+                            "En método alterTable, no se ha podido borrar el índice %s_%s_key de la tabla antigua."
+                            % (old_mtd.name(), oldField),
                         )
-                        % (old_mtd.name(), oldField)
                     )
                     self.db_.connManager().dbAux().rollbackTransaction()
                     if old_mtd and not old_mtd == new_mtd:
@@ -1200,7 +1217,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     return False
 
         # if not q.exec_("ALTER TABLE %s RENAME TO %s" % (old_mtd.name(), renameOld)):
-        #    logger.warning(
+        #    LOGGER.warning(
         #        "FLManager::alterTable : "
         #        + util.translate("application", "No se ha podido renombrar la tabla antigua.")
         #    )
@@ -1436,6 +1453,9 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         """Clear all garbage data."""
         util = flutil.FLUtil()
 
+        if not self.isOpen():
+            raise Exception("Mr_Proper: Database not open")
+
         if self.db_ is None:
             raise Exception("Mr_Proper. self.db_ is None")
 
@@ -1514,7 +1534,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                         "Intentando regenerarla." % item,
                     )
 
-                    logger.warning(msg)
+                    LOGGER.warning(msg)
                     self.alterTable2(conte, conte, None, True)
 
             steps = steps + 1
@@ -1581,3 +1601,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         """Fix string."""
         # ret_ = query.replace(";", "")
         return query
+
+    # def isOpen(self):
+    #    return self.conn_.closed == 0

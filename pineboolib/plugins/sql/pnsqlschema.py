@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class PNSqlSchema(object):
@@ -33,12 +33,13 @@ class PNSqlSchema(object):
     cursor_: Any
     rows_cached: Dict[str, List[Any]]
     init_cached: int = 200
+    open_: bool
 
     def __init__(self):
         """Inicialize."""
         self.version_ = ""
         self.name_ = ""
-        self.open_ = False
+        self.conn_ = None
         self.errorList = []
         self.alias_ = ""
         self._dbname = ""
@@ -52,6 +53,7 @@ class PNSqlSchema(object):
         self.cursor_ = None
         self.db_ = None
         self.rows_cached = {}
+        self.open_ = False
         # self.sql_query = {}
         # self.cursors_dict = {}
 
@@ -73,7 +75,13 @@ class PNSqlSchema(object):
 
     def isOpen(self) -> bool:
         """Return if the connection is open."""
-        return self.open_
+        try:
+            cur = self.conn_.cursor()
+            cur.execute("select 1")
+        except Exception:
+            return False
+
+        return True
 
     def pure_python(self) -> bool:
         """Return if the driver is python only."""
@@ -292,7 +300,7 @@ class PNSqlSchema(object):
     def execute_query(self, q: str, cursor: Any = None) -> Any:
         """Excecute a query and return result."""
         if not self.isOpen():
-            logger.warning("%s::execute_query: Database not open", __name__)
+            raise Exception("execute_query: Database not open")
 
         self.set_last_error_null()
         if cursor is None:
@@ -301,16 +309,18 @@ class PNSqlSchema(object):
             # q = self.fix_query(q)
             cursor.execute(q)
         except Exception:
-            logger.error("SQL3Driver:: No se pudo ejecutar la query %s" % q, q)
+            LOGGER.error("No se pudo ejecutar la query %s" % q, q)
             self.setLastError(
-                "%s::No se pudo ejecutar la query %s.\n%s" % (__name__, q, traceback.format_exc()),
-                q,
+                "No se pudo ejecutar la query %s.\n%s" % (q, traceback.format_exc()), q
             )
 
         return cursor
 
     def getTimeStamp(self) -> str:
         """Return TimeStamp."""
+
+        if not self.isOpen():
+            raise Exception("getTimeStamp: Database not open")
 
         sql = "SELECT CURRENT_TIMESTAMP"
 
@@ -329,6 +339,10 @@ class PNSqlSchema(object):
         self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
     ) -> None:
         """Set a refresh query for database."""
+
+        if not self.isOpen():
+            raise Exception("declareCursor: Database not open")
+
         sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
         sql = self.fix_query(sql)
         self.rows_cached[curname] = []
@@ -339,12 +353,16 @@ class PNSqlSchema(object):
                 self.rows_cached[curname].append(data)
 
         except Exception as e:
-            logger.error("declareCursor: %s", e)
-            logger.trace("Detalle:", stack_info=True)
+            LOGGER.error("declareCursor: %s", e)
+            LOGGER.trace("Detalle:", stack_info=True)
         # self.sql_query[curname] = sql
 
     def getRow(self, number: int, curname: str, cursor: Any) -> List:
         """Return a data row."""
+
+        if not self.isOpen():
+            raise Exception("getRow: Database not open")
+
         try:
             cached_count = len(self.rows_cached[curname])
             if number >= cached_count:
@@ -356,13 +374,17 @@ class PNSqlSchema(object):
                 cached_count = len(self.rows_cached[curname])
 
         except Exception as e:
-            logger.error("getRow: %s", e)
-            logger.trace("Detalle:", stack_info=True)
+            LOGGER.error("getRow: %s", e)
+            LOGGER.trace("Detalle:", stack_info=True)
 
         return self.rows_cached[curname][number] if number < cached_count else []
 
     def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
         """Return index row."""
+
+        if not self.isOpen():
+            raise Exception("findRow: Database not open")
+
         ret_ = None
         try:
             for n, row in enumerate(self.rows_cached[curname]):
@@ -384,20 +406,23 @@ class PNSqlSchema(object):
                 cached_count += 1
 
         except Exception as e:
-            logger.error("finRow: %s", e)
-            logger.warning("%s %s Detalle:", curname, field_pos, stack_info=True)
+            LOGGER.error("finRow: %s", e)
+            LOGGER.warning("%s Detalle:", field_pos, stack_info=True)
 
         return ret_
 
     def deleteCursor(self, cursor_name: str, cursor: Any) -> None:
         """Delete cursor."""
+        if not self.isOpen():
+            raise Exception("deleteCursor: Database not open")
+
         try:
             del cursor
             self.rows_cached[cursor_name] = []
             self.rows_cached.pop(cursor_name)
         except Exception as exception:
-            logger.error("finRow: %s", exception)
-            logger.warning("Detalle:", stack_info=True)
+            LOGGER.error("finRow: %s", exception)
+            LOGGER.warning("Detalle:", stack_info=True)
 
     def queryUpdate(self, name: str, update: str, filter: str) -> str:
         """Return a database friendly update query."""
@@ -406,6 +431,9 @@ class PNSqlSchema(object):
 
     def cursor(self) -> Any:
         """Return a cursor connection."""
+
+        if not self.isOpen():
+            raise Exception("cursor: Database not open")
 
         if self.cursor_ is None:
             if self.conn_ is None:
