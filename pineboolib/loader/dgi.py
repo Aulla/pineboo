@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from pineboolib.plugins.dgi.dgi_fcgi.dgi_fcgi import dgi_fcgi
 
     # from pineboolib.plugins.dgi.dgi_jsonrpc.dgi_jsonrpc import dgi_jsonrpc
-    from pineboolib.plugins.dgi.dgi_server.dgi_server import dgi_server
+    # from pineboolib.plugins.dgi.dgi_server.dgi_server import dgi_server
 
 
 LOGGER = logging.getLogger(__name__)
@@ -53,14 +53,6 @@ class DGILoader(object):
         from pineboolib.plugins.dgi.dgi_fcgi import dgi_fcgi as dgi
 
         return dgi.dgi_fcgi()
-
-    @staticmethod
-    def load_dgi_server() -> "dgi_server":
-        """Load dgi server."""
-
-        from pineboolib.plugins.dgi.dgi_server import dgi_server as dgi
-
-        return dgi.dgi_server()
 
     @classmethod
     def load_dgi(cls, name: str) -> Callable:
