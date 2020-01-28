@@ -41,8 +41,4 @@ cd ..
 cd ..
 
 fi
-python3 ./build-pineboo-binaries.py --target $TARGET $SYSROOT 
-
-rm ./builds/$TARGET/*.*
-rm ./builds/$TARGET/Makefile
-rm -Rf ./builds/$TARGET/resources
+python3 ./build-pineboo-binaries.py --target $TARGET $SYSROOT --verbose
