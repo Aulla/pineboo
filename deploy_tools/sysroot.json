@@ -1,7 +1,7 @@
 {
     "Description": "Pineboo",
 
-    "android|win#openssl": {
+    "android|win|macos#openssl": {
         "android#source":   "openssl-1.0.*.tar.gz",
 	"win#source": "openssl-1.1.*.tar.gz",
 	"macos#source": "openssl-1.1.*.tar"
