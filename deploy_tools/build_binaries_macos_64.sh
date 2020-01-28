@@ -39,7 +39,6 @@ fi
 cd ..
 cd ..
 cd ..
-ls
 
 fi
 python3 ./build-pineboo-binaries.py --target $TARGET $SYSROOT 
