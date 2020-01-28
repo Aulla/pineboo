@@ -1,10 +1,9 @@
 {
     "Description": "Pineboo",
 
-    "android|macos|win#openssl": {
+    "android|win#openssl": {
         "android#source":   "openssl-1.0.*.tar.gz",
-	"win#source": "openssl-1.1.*.tar.gz",
-	"macos#source": "openssl-1.1.*.tar"
+	"win#source": "openssl-1.1.*.tar.gz"
     },
 
   "win|ios#zlib": {
@@ -16,8 +15,8 @@
         "android-32#qt_dir":        "/opt/Qt5.12.3/5.12.3/android_armv7",
 	"android-64#qt_dir":        "/opt/Qt5.12.3/5.12.3/android_arm64_v8a",
 	      "linux#qt_dir":       "/opt/Qt5.12.3/5.12.3/gcc_64",
-        "ios#qt_dir":               "/Qt/*/ios",
-	"macos#qt_dir":             "/Qt/*/clang_64",
+        "ios#qt_dir":               "/Users/aulla/Qt/*/ios",
+	"macos#qt_dir":             "/Users/aulla/Qt/*/clang_64",
 	"win#qt_dir":		    "c:/Qt/5.12.3",
         "android|linux#ssl":        "openssl-runtime",
         "ios#ssl":                  "securetransport",
