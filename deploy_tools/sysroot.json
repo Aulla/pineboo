@@ -59,7 +59,7 @@
         ],
         "ios|macos#modules":            [
                 "QtCore", "QtGui", "QtXml","QtNetwork", "QtPrintSupport", "QtWidgets",
-                "QtMacExtras", "QtSerialPort"
+                "QtMacExtras", "QtSerialPort","QtSvg"
         ],
 
         "linux#modules":                [
