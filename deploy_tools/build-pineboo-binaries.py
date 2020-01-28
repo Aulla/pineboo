@@ -240,6 +240,8 @@ if not os.path.exists("builds"):
 pdi = "pyqt-pineboo.pdy"
 if target in ["win-32", "win-64"]:
     pdi = "pyqt-pineboo_win.pdy"
+elif target in ["macos-64", "ios"]:
+    pdi = "pyqt-pineboo_macos.pdy"
 
 run(
     [
