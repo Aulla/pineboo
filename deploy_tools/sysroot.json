@@ -16,8 +16,9 @@
     "qt5": {
         "android-32#qt_dir":        "/opt/Qt5.12.3/5.12.3/android_armv7",
 	"android-64#qt_dir":        "/opt/Qt5.12.3/5.12.3/android_arm64_v8a",
-	"linux#qt_dir":       	    "/opt/Qt5.12.3/5.12.3/gcc_64",
-	"ios|macos#source":         "qt-everywhere-src-5.12.3.tar.xz",
+	      "linux#qt_dir":       "/opt/Qt5.12.3/5.12.3/gcc_64",
+        "ios#qt_dir":               "/Users/aulla/Qt/*/ios",
+	"macos#source":   "qt-everywhere-src-5.12.3.tar.xz",
 	"win#qt_dir":		    "c:/Qt/5.12.3",
         "android|linux#ssl":        "openssl-runtime",
         "ios#ssl":                  "securetransport",
