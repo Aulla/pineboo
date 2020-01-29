@@ -6,7 +6,7 @@ SRC_DIR_SQLLITE="sqlite3"
 
 if [ -e "sysroots/$TARGET" ]; then
 SYSROOT="--no-sysroot"
-else
+else	
 
 if [ ! -e "sysroots" ]; then
 mkdir sysroots
@@ -31,7 +31,9 @@ mkdir $SRC_DIR_SQLLITE
 tar -xvzf $FILE_SQLLITE.tar.gz -C ./sqlite3 > /dev/null
 cd $SRC_DIR_SQLLITE
 cd $FILE_SQLLITE
-./configure --host=arm-apple-darwin --enable-static --enable-dynamic-extensions
+#./configure --host=arm-apple-darwin --enable-static --enable-dynamic-extensions
+./configure --host=arm-apple-darwin CXXFLAGS="—Os -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 -arch arm64 -std=c++14 -stdlib=libc++" CC="clang" CXX="clang++" LD="ld" AR="ar" --disable-shared --enable-static --enable-dynamic-extensions
+
 make
 cd ..
 cd ..
