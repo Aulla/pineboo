@@ -192,7 +192,7 @@ if build_sysroot:
             )
         except Exception:
             print(traceback.format_exc())
-    elif target in ["macos-64", "ios"]:
+    elif target == "macos-64":
         try:
             os.symlink(
                 "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3ext.h"
@@ -208,6 +208,26 @@ if build_sysroot:
                 "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/.libs/libsqlite3.dylib"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/lib/libsqlite3.dylib" % sysroot_dir,
+            )
+        except Exception:
+            print(traceback.format_exc())
+
+    elif target == "ios":
+        try:
+            os.symlink(
+                "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3ext.h"
+                % (os.path.abspath(os.path.join(sysroot_dir)), target),
+                "%s/include/sqlite3ext.h" % sysroot_dir,
+            )
+            os.symlink(
+                "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3.h"
+                % (os.path.abspath(os.path.join(sysroot_dir)), target),
+                "%s/include/sqlite3.h" % sysroot_dir,
+            )
+            os.symlink(
+                "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/.libs/libsqlite3.la"
+                % (os.path.abspath(os.path.join(sysroot_dir)), target),
+                "%s/lib/libsqlite3.la" % sysroot_dir,
             )
         except Exception:
             print(traceback.format_exc())
