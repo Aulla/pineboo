@@ -34,7 +34,7 @@ tar -xvzf $FILE_SQLLITE.tar.gz -C ./sqlite3 > /dev/null
 cd $SRC_DIR_SQLLITE
 cd $FILE_SQLLITE
 #./configure --host=arm-apple-darwin --enable-static --enable-dynamic-extensions
-./configure CXXFLAGS="—Os -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 -arch arm64 -std=c++14 -stdlib=libc++" --disable-shared --enable-static --enable-dynamic-extensions
+./configure CXXFLAGS="-DSQLITE_ENABLE_UNLOCK_NOTIFY=1 -arch arm64" --disable-shared --enable-static --enable-dynamic-extensions
 
 make
 cd ..
