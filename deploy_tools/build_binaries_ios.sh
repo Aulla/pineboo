@@ -31,7 +31,7 @@ mkdir $SRC_DIR_SQLLITE
 tar -xvzf $FILE_SQLLITE.tar.gz -C ./sqlite3 > /dev/null
 cd $SRC_DIR_SQLLITE
 cd $FILE_SQLLITE
-./configure --host=arm-apple-darwin -arch arm64 --enable-static --enable-dynamic-extensions
+./configure --host=arm-apple-darwin --enable-static --enable-dynamic-extensions
 make
 cd ..
 cd ..
