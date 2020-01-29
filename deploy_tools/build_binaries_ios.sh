@@ -4,13 +4,6 @@ SYSROOT=""
 FILE_SQLLITE="sqlite-autoconf-3280000"
 SRC_DIR_SQLLITE="sqlite3"
 
-XCODE_BIN_PATH="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
-CXXFLAGS="—Os -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 -arch arm64 -std=c++14 -stdlib=libc++ -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk"
-CC="$XCODE_BIN_PATH/clang"
-CXX="$XCODE_BIN_PATH/clang++"
-LD="$XCODE_BIN_PATH/ld" 
-AR="$XCODE_BIN_PATH/ar"
-
 if [ -e "sysroots/$TARGET" ]; then
 SYSROOT="--no-sysroot"
 else
@@ -38,7 +31,7 @@ mkdir $SRC_DIR_SQLLITE
 tar -xvzf $FILE_SQLLITE.tar.gz -C ./sqlite3 > /dev/null
 cd $SRC_DIR_SQLLITE
 cd $FILE_SQLLITE
-./configure --host=arm-apple-darwin CXXFLAGS=$CXXFLAGS CC=$CC CXX=$CXX LD=$LD AR=$AR --enable-static --enable-dynamic-extensions
+./configure --host=arm-apple-darwin -arch arm64 --enable-static --enable-dynamic-extensions
 make
 cd ..
 cd ..

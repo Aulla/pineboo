@@ -8,7 +8,7 @@
     },
 
   "win|ios#zlib": {
-        "win#source": "zlib-1.2.11.tar.gz"
+        "win#source": "zlib-1.2.11.tar.gz",
 	"ios#source": "zlib-1.2.11.tar"
     },
 
