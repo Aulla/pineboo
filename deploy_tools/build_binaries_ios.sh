@@ -47,5 +47,4 @@ cd ..
 
 fi
 
-export CFLAGS="-O3 -arch armv7 -arch armv7s -arch arm64 -isysroot $XCODE_ROOT/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS${IPHONE_SDKVERSION}.sdk -mios-version-min=${IPHONE_SDKVERSION}"
 python3 ./build-pineboo-binaries.py --target $TARGET $SYSROOT --verbose
