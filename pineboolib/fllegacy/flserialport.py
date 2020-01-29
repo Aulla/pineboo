@@ -1,6 +1,6 @@
 """Flserial por module."""
 
-from PyQt5 import QtCore, QtSerialPort  # type: ignore
+from PyQt5 import QtCore
 from pineboolib.core import decorators
 
 
@@ -74,6 +74,8 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
     def __init__(self, port_name: str) -> None:
         """Inicialize."""
         super().__init__()
+
+        from PyQt5 import QtSerialPort  # type :ignore
 
         self._obj = QtSerialPort.QSerialPort(port_name)
 

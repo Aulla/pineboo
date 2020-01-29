@@ -61,9 +61,13 @@
                 "PyQt_PrintPreviewWidget", "PyQt_Process",
                 "PyQt_NotBootstrapped"
         ],
-        "ios|macos#modules":            [
+        "macos#modules":            [
                 "QtCore", "QtGui", "QtXml","QtNetwork", "QtPrintSupport", "QtWidgets",
                 "QtMacExtras", "QtSerialPort","QtSvg"
+        ],
+	"ios#modules":            [
+                "QtCore", "QtGui", "QtXml","QtNetwork", "QtPrintSupport", "QtWidgets",
+                "QtMacExtras","QtSvg"
         ],
 
         "linux#modules":                [
