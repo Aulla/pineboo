@@ -8,7 +8,8 @@
     },
 
   "win|ios#zlib": {
-        "win|ios#source": "zlib-1.2.11.tar.gz"
+        "win#source": "zlib-1.2.11.tar.gz"
+	"ios#source": "zlib-1.2.11.tar"
     },
 
 
@@ -40,7 +41,7 @@
     "sip": {
 	"module_name":  "PyQt5.sip",
         "source":   "sip-4.19.16.tar.gz",
-	"macos#source":   "sip-4.19.16.tar"
+	"macos|ios#source":   "sip-4.19.16.tar"
     },
 
     "pyqt5": {
@@ -76,7 +77,7 @@
                 "QtWinExtras", "QtSerialPort", "QtSvg"
         ],
 
-        "android|win|linux|ios#source":                   "PyQt5_*-5.*.tar.gz",
-	"macos#source":                   		  "PyQt5_*-5.*.tar"
+        "android|win|linux#source":                   "PyQt5_*-5.*.tar.gz",
+	"macos|ios#source":                   		  "PyQt5_*-5.*.tar"
     }
 }
