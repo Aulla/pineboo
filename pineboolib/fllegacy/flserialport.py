@@ -2,6 +2,10 @@
 
 from PyQt5 import QtCore
 from pineboolib.core import decorators
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt5 import QtSerialPort
 
 
 class BaudRateType(object):
@@ -69,7 +73,7 @@ class FlowType(object):
 class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopBitType, FlowType):
     """FLSerialPort class."""
 
-    _obj: QtSerialPort.QSerialPort
+    _obj: "QtSerialPort.QSerialPort"
 
     def __init__(self, port_name: str) -> None:
         """Inicialize."""
