@@ -192,7 +192,7 @@ if build_sysroot:
             )
         except Exception:
             print(traceback.format_exc())
-    elif target in ("macos-64", "ios"):
+    elif target in ["macos-64", "ios"]:
         try:
             os.symlink(
                 "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3ext.h"
@@ -240,8 +240,10 @@ if not os.path.exists("builds"):
 pdi = "pyqt-pineboo.pdy"
 if target in ["win-32", "win-64"]:
     pdi = "pyqt-pineboo_win.pdy"
-elif target in ["macos-64", "ios"]:
+elif target in ["macos-64"]:
     pdi = "pyqt-pineboo_macos.pdy"
+elif target in ["ios"]:
+    pdi = "pyqt-pineboo_ios.pdy"
 
 run(
     [

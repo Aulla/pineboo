@@ -74,10 +74,20 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
     def __init__(self, port_name: str) -> None:
         """Inicialize."""
         super().__init__()
+        if QtCore.QSysInfo() == "ios":
+            from pineboolib.q3widgets.messagebox import MessageBox
 
-        from PyQt5 import QtSerialPort  # type :ignore
+            MessageBox.information(
+                self.topWidget,
+                self.tr("Opción deshabilitada"),
+                self.tr("FLSerialPort no está disponible para IOS"),
+                MessageBox.Ok,
+            )
+            return
+        else:
+            from PyQt5 import QtSerialPort  # type :ignore
 
-        self._obj = QtSerialPort.QSerialPort(port_name)
+            self._obj = QtSerialPort.QSerialPort(port_name)
 
     def setBaudRate(self, baud_rate: int) -> None:
         """Set baud rate."""
