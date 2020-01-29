@@ -2,7 +2,10 @@
 TARGET="ios"
 SYSROOT=""
 FILE_SQLLITE="sqlite-autoconf-3280000"
+: ${IPHONE_SDKVERSION:=`xcodebuild -showsdks | grep iphoneos | egrep "[[:digit:]]+\.[[:digit:]]+" -o | tail -1`}
+: ${XCODE_ROOT:=`xcode-select -print-path`}
 SRC_DIR_SQLLITE="sqlite3"
+export CFLAGS="-O3 -arch armv7 -arch armv7s -arch arm64 -isysroot $XCODE_ROOT/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS${IPHONE_SDKVERSION}.sdk -mios-version-min=${IPHONE_SDKVERSION}"
 
 if [ -e "sysroots/$TARGET" ]; then
 SYSROOT="--no-sysroot"
