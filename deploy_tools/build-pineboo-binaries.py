@@ -245,7 +245,7 @@ if build_sysroot:
                 "%s/include/sqlite3.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3.dll"
+                "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3.lib"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/lib/sqlite3.lib" % sysroot_dir,
             )
