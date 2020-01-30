@@ -1,10 +1,10 @@
 
-set TARGET=win-32
-set SYSROOT=
-set SQLITE_VER=sqlite-autoconf-3280000
+set TARGET="win-32"
+set SYSROOT=""
+set SQLITE_VER="sqlite-autoconf-3280000"
 
 if exist .\sysroots\%TARGET% (
-	set SYSROOT=--no-sysroot   
+	set SYSROOT="--no-sysroot"   
 ) else
 (
 if not exist .\sysroots (
