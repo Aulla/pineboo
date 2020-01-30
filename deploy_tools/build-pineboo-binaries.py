@@ -234,6 +234,8 @@ if build_sysroot:
 
     elif target in ["win-32","win-64"]:
         try:
+            print("Creando Enlace simbolico")
+            print("%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3ext.h" % (os.path.abspath(os.path.join(sysroot_dir)), target))
             os.symlink(
                 "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3ext.h"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
@@ -251,6 +253,8 @@ if build_sysroot:
             )
         except Exception:
             print(traceback.format_exc())
+   else:
+       print("NO HAY ACCIONES EXTRA!!!")
 else:
     print("INFO::sysroot-%s ya existe, omitiendo ..." % target)
 # Build the demo.
