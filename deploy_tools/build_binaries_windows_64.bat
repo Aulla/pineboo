@@ -1,7 +1,7 @@
 
-set TARGET="win-64"
-set SYSROOT=""
-set SQLITE_VER="sqlite-autoconf-3280000"
+set TARGET = "win-64"
+set SYSROOT = ""
+set SQLITEVER = "sqlite-autoconf-3280000"
 
 if exist .\sysroots\%TARGET% (
 	set SYSROOT="--no-sysroot"   
@@ -21,10 +21,10 @@ md sysroots/extra_libs/$TARGET
 
 cd sysroots\extra_libs\$TARGET
 md sqlite3
-md sqlite3\%SQLITE_VER%
-cp src\%SQLITE_VER%\* sqlite3\%SQLITE_VER% /E
+md sqlite3\%SQLITEVER%
+cp src\%SQLITEVER%\* sqlite3\%SQLITEVER% /E
 
-cd sqlite3\%SQLITE_VER%
+cd sqlite3\%SQLITEVER%
 cl sqlite3.c -link -dll -out:sqlite3.dll
 
 cd ..
