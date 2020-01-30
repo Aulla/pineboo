@@ -24,7 +24,8 @@ md sqlite3\%SQLITEVER%
 xcopy ..\..\..\src\%SQLITEVER%\*.* sqlite3\%SQLITEVER% /E
 
 cd sqlite3\%SQLITEVER%
-nmake -f Makefile.msc sqlite3.lib
+cl sqlite3.c -link -lib -out:sqlite3.lib
+
 cd ..
 cd ..
 
