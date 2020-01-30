@@ -253,8 +253,8 @@ if build_sysroot:
             )
         except Exception:
             print(traceback.format_exc())
-   else:
-       print("NO HAY ACCIONES EXTRA!!!")
+    else:
+        print("NO HAY ACCIONES EXTRA!!!")
 else:
     print("INFO::sysroot-%s ya existe, omitiendo ..." % target)
 # Build the demo.
