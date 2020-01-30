@@ -3,21 +3,21 @@ set TARGET=win-64
 set SYSROOT=
 set SQLITEVER=sqlite-autoconf-3280000
 
-if exist .\sysroots\%TARGET% (
+if exist sysroots\%TARGET% (
 	%SYSROOT% = --no-sysroot   
 ) 
 
 
-if not exist .\sysroots\%TARGET% (
-if not exist .\sysroots (
+if not exist sysroots\%TARGET% (
+if not exist sysroots (
 md sysroots
 )
 
-if not exist .\sysroots\extra_libs (
+if not exist sysroots\extra_libs (
 md sysroots\extra_libs
 )
 
-if not exist .\sysroots\extra_libs\%TARGET% (
+if not exist sysroots\extra_libs\%TARGET% (
 md sysroots\extra_libs\%TARGET%
 )
 
@@ -39,7 +39,7 @@ cd ..
 cd ..
 )
     
-python build-pineboo-binaries.py --target %TARGET% %SYSROOT% --verbose > prueba3.txt
+python build-pineboo-binaries.py --target %TARGET% %SYSROOT% --verbose
 
 
 

@@ -3,19 +3,19 @@ set TARGET=win-32
 set SYSROOT=
 set SQLITEVER=sqlite-autoconf-3280000
 
-if exist .\sysroots\%TARGET% (
+if exist sysroots\%TARGET% (
 	%SYSROOT% = --no-sysroot   
 )
-if not exist .\sysroots\%TARGET% (
-if not exist .\sysroots (
+if not exist sysroots\%TARGET% (
+if not exist sysroots (
 md sysroots
 )git p
 
-if not exist .\sysroots\extra_libs (
+if not exist sysroots\extra_libs (
 md sysroots\extra_libs
 )
 
-if not exist .\sysroots\extra_libs\%TARGET% (
+if not exist sysroots\extra_libs\%TARGET% (
 md sysroots\extra_libs\%TARGET%
 )
 
