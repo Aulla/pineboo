@@ -24,7 +24,7 @@ md sysroots\extra_libs\%TARGET%
 cd sysroots\extra_libs\%TARGET%
 md sqlite3
 md sqlite3\%SQLITEVER%
-xcopy src\%SQLITEVER%\*.* sqlite3\%SQLITEVER% /E
+xcopy ..\..\..\src\%SQLITEVER%\*.* sqlite3\%SQLITEVER% /E
 
 cd sqlite3\%SQLITEVER%
 cl sqlite3.c -link -dll -out:sqlite3.dll
