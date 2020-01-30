@@ -4,7 +4,7 @@ set SYSROOT = ""
 set SQLITEVER = "sqlite-autoconf-3280000"
 
 if exist .\sysroots\%TARGET% (
-	set SYSROOT="--no-sysroot"   
+	%SYSROOT% = "--no-sysroot"   
 ) else
 (
 if not exist .\sysroots (
@@ -16,10 +16,10 @@ md sysroots\extra_libs
 )
 
 if not exist .\sysroots\extra_libs\%TARGET% (
-md sysroots/extra_libs/$TARGET
+md sysroots\extra_libs\%TARGET%
 )
 
-cd sysroots\extra_libs\$TARGET
+cd sysroots\extra_libs\%TARGET%
 md sqlite3
 md sqlite3\%SQLITEVER%
 cp src\%SQLITEVER%\* sqlite3\%SQLITEVER% /E
