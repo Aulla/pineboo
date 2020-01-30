@@ -1,7 +1,7 @@
 
-set TARGET = win-64
-set SYSROOT =
-set SQLITEVER = sqlite-autoconf-3280000
+set TARGET=win-64
+set SYSROOT=
+set SQLITEVER=sqlite-autoconf-3280000
 
 if exist .\sysroots\%TARGET% (
 	%SYSROOT% = --no-sysroot   
