@@ -1,7 +1,7 @@
 
 set TARGET=win-64
 set SYSROOT=
-set SQLITE·_VER=sqlite-autoconf-3280000
+set SQLITE_VER=sqlite-autoconf-3280000
 
 if exist .\sysroots\%TARGET% (
 	set SYSROOT=--no-sysroot   
