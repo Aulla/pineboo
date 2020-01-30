@@ -39,7 +39,7 @@ cd ..
 cd ..
 )
     
-python build-pineboo-binaries.py --target %TARGET% %SYSROOT% --verbose
+python build-pineboo-binaries.py --target %TARGET% %SYSROOT% --verbose > prueba3.txt
 
 
 
