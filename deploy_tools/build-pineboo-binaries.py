@@ -232,21 +232,21 @@ if build_sysroot:
         except Exception:
             print(traceback.format_exc())
 
-    elif target == "win-32":
+    elif target in ["win-32","win-64"]:
         try:
             os.symlink(
-                "%s/../../src/sqlite3-win32/sqlite-autoconf-3290000/sqlite3ext.h"
-                % os.path.abspath(os.path.join(sysroot_dir)),
+                "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3ext.h"
+                % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/include/sqlite3ext.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../../src/sqlite3-win32/sqlite-autoconf-3290000/sqlite3.h"
-                % os.path.abspath(os.path.join(sysroot_dir)),
+                "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3.h"
+                % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/include/sqlite3.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../../src/sqlite3-win32/sqlite-autoconf-3290000/sqlite3.dll"
-                % os.path.abspath(os.path.join(sysroot_dir)),
+                "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3.dll"
+                % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/lib/sqlite3.dll" % sysroot_dir,
             )
         except Exception:

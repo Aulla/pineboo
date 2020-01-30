@@ -1,5 +1,5 @@
 
-set TARGET=win-32
+set TARGET=win-64
 set SYSROOT=
 set SQLITE·_VER=sqlite-autoconf-3280000
 

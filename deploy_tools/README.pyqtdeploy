@@ -70,16 +70,16 @@ build_binaries_android-64.sh
 Compilación windows-64 (nativa)
 ============================================
 * Python 3.7.2 64 bits.
-* Visual Studio Build Tools 2017 Community (Custom, programming languages)
+* Visual Studio Build Tools 2017 Community (Custom, programming languages) 15.9
 * qt-unified-windows-x86-3.1.0-online.exe (5.12.3)
 * Instalar perl (www.perl.org) 5.28
 * Instalar NASM 2.14.0.2 y meterla en el path de windows
 * Copiar en src:
-	- openssl-1.1.*.tar.gz
-	- zlib-1.*.*.tar.gz
+	- openssl-1.1.0j.tar.gz
+	- zlib-1.2.11.tar.gz
 	- Python-3.7.2.tar.gz
-	- Sip 4.*.tar.gz
-	- PyQt5_gpl 5.12.x.tar.gz
+	- Sip 4.19.16.tar.gz
+	- PyQt5_gpl 5.12.3.tar.gz
 	- https://www.sqlite.org/2019/sqlite-autoconf-3290000.tar.gz 
 	(se extrae ficheros en src/sqlite-win32/sqlite-autoconf-3290000) + cl sqlite3.c -link -dll -out:sqlite3.dll
 
