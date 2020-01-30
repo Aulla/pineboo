@@ -247,7 +247,7 @@ if build_sysroot:
             os.symlink(
                 "%s/../extra_libs/%s/sqlite3/sqlite-autoconf-3280000/sqlite3.dll"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
-                "%s/lib/sqlite3.dll" % sysroot_dir,
+                "%s/lib/sqlite3.lib" % sysroot_dir,
             )
         except Exception:
             print(traceback.format_exc())
