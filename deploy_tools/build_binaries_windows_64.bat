@@ -37,6 +37,7 @@ cd ..
 cd ..
 cd ..
 cd ..
+cd ..
 )
     
 python build-pineboo-binaries.py --target %TARGET% %SYSROOT% --verbose
