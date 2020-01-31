@@ -4,12 +4,14 @@
     "android|win|macos#openssl": {
         "android#source":   "openssl-1.0.2n.tar.gz",
 	"win#source": "openssl-1.1.0j.tar.gz",
-	"macos#source": "openssl-1.1.0j.tar"
+	"macos#source": "openssl-1.1.0j.tar",
+	"win#no_asm":       true
     },
 
   "win|ios#zlib": {
         "win#source": "zlib-1.2.11.tar.gz",
-	"ios#source": "zlib-1.2.11.tar"
+	"ios#source": "zlib-1.2.11.tar",
+	"static_msvc_runtime":  true
     },
 
 
@@ -18,7 +20,9 @@
 	"android-64#qt_dir":        "/opt/Qt5.12.3/5.12.3/android_arm64_v8a",
 	      "linux#qt_dir":       "/opt/Qt5.12.3/5.12.3/gcc_64",
         "ios#qt_dir":               "/Users/aulla/Qt/*/ios",
-	"macos|win#source":   "qt-everywhere-src-5.12.3.tar.xz",
+	"macos#source":   "qt-everywhere-src-5.12.3.tar.xz",
+	"win-32#qt_dir":		    "c:/Qt/5.12.3/msvc2017",
+	"win-64#qt_dir":		    "c:/Qt/5.12.3/msvc2017_64",
         "android|linux#ssl":        "openssl-runtime",
         "ios#ssl":                  "securetransport",
         "macos|win#ssl":            "openssl-linked",
