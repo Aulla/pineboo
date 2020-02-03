@@ -435,7 +435,7 @@ class FLUtil(object):
         return char
 
     @classmethod
-    def dateDMAtoAMD(cls, f) -> Optional[str]:
+    def dateDMAtoAMD(cls, f) -> str:
         """
         Return dates of type DD-MM-YYYY, DD / MM / YYYY or DDMMAAAA to type YYYY-MM-DD.
 
@@ -443,10 +443,10 @@ class FLUtil(object):
         @return Text string with the date transformed.
         """
 
-        return date_conversion.date_dma_to_amd(f)
+        return date_conversion.date_dma_to_amd(f) or ""
 
     @classmethod
-    def dateAMDtoDMA(cls, f) -> Optional[str]:
+    def dateAMDtoDMA(cls, f) -> str:
         """
         Return dates of type YYYY-MM-DD, YYYY-MM-DD or YYYYMMDD to type DD-MM-YYYY.
 
@@ -454,7 +454,7 @@ class FLUtil(object):
         @return Text string with the date transformed
         """
 
-        return date_conversion.date_amd_to_dma(f)
+        return date_conversion.date_amd_to_dma(f) or ""
 
     @classmethod
     @decorators.BetaImplementation
