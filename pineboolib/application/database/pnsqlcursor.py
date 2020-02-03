@@ -341,8 +341,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 self.context(),
             )
 
-            q = pnsqlquery.PNSqlQuery(None, db_aux)
-            ret = q.exec_(
+            qry = pnsqlquery.PNSqlQuery(None, db_aux)
+            ret = qry.exec_(
                 "UPDATE  %s SET %s = %s WHERE %s"
                 % (
                     self.table(),
@@ -367,12 +367,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.bufferChanged.emit(field_name)
         application.PROJECT.app.processEvents()
 
-    def setValueBuffer(self, field_name: str, v: Any) -> None:
+    def setValueBuffer(self, field_name: str, value: Any) -> None:
         """
         Set buffer value for a particular field.
 
         @param field_name field name
-        @param v Value to be set to the buffer field.
+        @param value Value to be set to the buffer field.
         """
         mtd = self.private_cursor.metadata_
 
@@ -395,23 +395,21 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         type_ = field.type()
         buff_field = self.private_cursor.buffer_.field(field_name)
-        if buff_field and not buff_field.has_changed(v):
+        if buff_field and not buff_field.has_changed(value):
             return
 
-        vv = v
-
-        if vv and type_ == "pixmap" and not self.private_cursor._is_system_table:
-            vv = database.normalizeValue(vv)
-            largeValue = manager.storeLargeValue(self.private_cursor.metadata_, vv)
+        if value and type_ == "pixmap" and not self.private_cursor._is_system_table:
+            value = database.normalizeValue(value)
+            largeValue = manager.storeLargeValue(self.private_cursor.metadata_, value)
             if largeValue:
-                vv = largeValue
+                value = largeValue
 
         if (
             field.outTransaction()
             and database is not database.connManager().dbAux()
             and self.modeAccess() != self.Insert
         ):
-            pK = mtd.primaryKey()
+            primary_key = mtd.primaryKey()
 
             if (
                 self.private_cursor.cursor_relation_ is not None
@@ -419,16 +417,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             ):
                 self.private_cursor.cursor_relation_.commit(False)
 
-            if pK:
-                pKV = self.private_cursor.buffer_.value(pK)
-                q = pnsqlquery.PNSqlQuery(None, "dbAux")
-                q.exec_(
+            if primary_key:
+                primary_key_value = self.private_cursor.buffer_.value(primary_key)
+                qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+                qry.exec_(
                     "UPDATE %s SET %s = %s WHERE %s;"
                     % (
                         mtd.name(),
                         field_name,
-                        manager.formatValue(type_, vv),
-                        manager.formatAssignValue(mtd.field(pK), pKV),
+                        manager.formatValue(type_, value),
+                        manager.formatAssignValue(mtd.field(primary_key), primary_key_value),
                     )
                 )
             else:
@@ -437,7 +435,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 )
 
         else:
-            self.private_cursor.buffer_.setValue(field_name, vv)
+            self.private_cursor.buffer_.setValue(field_name, value)
 
         # LOGGER.trace("(%s)bufferChanged.emit(%s)" % (self.curName(),field_name))
 
@@ -560,39 +558,39 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return None
 
         type_ = field.type()
-        bufferCopy = self.bufferCopy()
-        if bufferCopy is None:
+        buffer_copy = self.bufferCopy()
+        if buffer_copy is None:
             raise Exception("no bufferCopy")
-        v: Any = None
-        if bufferCopy.isNull(field_name):
+        value: Any = None
+        if buffer_copy.isNull(field_name):
             if type_ in ("double", "int", "uint"):
-                v = 0
+                value = 0
             elif type_ == "string":
-                v = ""
+                value = ""
         else:
-            v = bufferCopy.value(field_name)
+            value = buffer_copy.value(field_name)
 
-        if v is not None:
+        if value is not None:
             if type_ in ("date"):
 
-                v = types.Date(v)
+                value = types.Date(value)
 
             elif type_ == "pixmap":
                 v_large = None
                 if not self.private_cursor._is_system_table:
-                    v_large = self.db().connManager().manager().fetchLargeValue(v)
+                    v_large = self.db().connManager().manager().fetchLargeValue(value)
                 else:
-                    v_large = xpm.cacheXPM(v)
+                    v_large = xpm.cacheXPM(value)
 
                 if v_large:
-                    v = v_large
+                    value = v_large
         else:
             if type_ in ("string", "stringlist", "date", "timestamp"):
-                v = ""
+                value = ""
             elif type_ in ("double", "int", "uint"):
-                v = 0
+                value = 0
 
-        return v
+        return value
 
     def setEdition(self, b: bool, m: Optional[str] = None) -> None:
         """
@@ -617,12 +615,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not i and state_changes:
             i = pnboolflagstate.PNBoolFlagState()
             i.modifier_ = m
-            i.prevValue_ = self.private_cursor.edition_
+            i.prev_value_ = self.private_cursor.edition_
             self.private_cursor.edition_states_.append(i)
         elif i:
             if state_changes:
                 self.private_cursor.edition_states_.pushOnTop(i)
-                i.prevValue_ = self.private_cursor.edition_
+                i.prev_value_ = self.private_cursor.edition_
             else:
                 self.private_cursor.edition_states_.erase(i)
 
@@ -631,16 +629,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     def restoreEditionFlag(self, m: str) -> None:
         """Restore Edition flag to its previous value."""
-        es = self.private_cursor.edition_states_
-        if es:
+        edition_state = self.private_cursor.edition_states_
+        if edition_state:
 
-            i = es.find(m)
+            i = edition_state.find(m)
 
-            if i and i == es.current():
-                self.private_cursor.edition_ = i.prevValue_
+            if i and i == edition_state.current():
+                self.private_cursor.edition_ = i.prev_value_
 
             if i:
-                es.erase(i)
+                edition_state.erase(i)
 
     def setBrowse(self, b: bool, m: Optional[str] = None) -> None:
         """
@@ -664,12 +662,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not i and state_changes:
             i = pnboolflagstate.PNBoolFlagState()
             i.modifier_ = m
-            i.prevValue_ = self.private_cursor.browse_
+            i.prev_value_ = self.private_cursor.browse_
             self.private_cursor.browse_states_.append(i)
         elif i:
             if state_changes:
                 self.private_cursor.browse_states_.pushOnTop(i)
-                i.prevValue_ = self.private_cursor.browse_
+                i.prev_value_ = self.private_cursor.browse_
             else:
                 self.private_cursor.browse_states_.erase(i)
 
@@ -678,15 +676,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     def restoreBrowseFlag(self, m: str) -> None:
         """Restores browse flag to its previous state."""
-        bs = self.private_cursor.browse_states_
-        if bs:
-            i = bs.find(m)
+        browse_state = self.private_cursor.browse_states_
+        if browse_state:
+            i = browse_state.find(m)
 
-            if i and i == bs.current():
-                self.private_cursor.browse_ = i.prevValue_
+            if i and i == browse_state.current():
+                self.private_cursor.browse_ = i.prev_value_
 
             if i:
-                bs.erase(i)
+                browse_state.erase(i)
 
     # def meta_model(self) -> Callable:
     #    """
@@ -793,11 +791,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return TRUE if success.
         """
 
-        r = self.db().doCommit(self, notify)
-        if r:
+        result = self.db().doCommit(self, notify)
+        if result:
             self.commited.emit()
 
-        return r
+        return result
 
     def size(self) -> int:
         """Get number of records in the cursor."""
@@ -981,96 +979,96 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return Error message
         """
-        msg = ""
+        message = ""
 
         if self.private_cursor.buffer_ is None or self.private_cursor.metadata_ is None:
-            msg = "\nBuffer vacío o no hay metadatos"
-            return msg
+            message = "\nBuffer vacío o no hay metadatos"
+            return message
 
         if self.private_cursor.mode_access_ in [self.Insert, self.Edit]:
             if not self.isModifiedBuffer() and self.private_cursor.mode_access_ == self.Edit:
-                return msg
-            fieldList = self.private_cursor.metadata_.fieldList()
-            checkedCK = False
+                return message
+            field_list = self.private_cursor.metadata_.fieldList()
+            checked_compound_key = False
 
-            if not fieldList:
-                return msg
+            if not field_list:
+                return message
 
-            for field in fieldList:
+            for field in field_list:
                 field_name = field.name()
-                r = field.relationM1()
+                relation_m1 = field.relationM1()
                 if not self.private_cursor.buffer_.isGenerated(field_name):
                     continue
 
-                s = None
+                value = None
                 if not self.private_cursor.buffer_.isNull(field_name):
-                    s = self.private_cursor.buffer_.value(field_name)
+                    value = self.private_cursor.buffer_.value(field_name)
 
-                field_metadata = field.associatedField()
-                if field_metadata and s is not None:
-                    if not r:
-                        msg = (
-                            msg
+                assoc_field_metadata = field.associatedField()
+                if assoc_field_metadata and value is not None:
+                    if not relation_m1:
+                        message = (
+                            message
                             + "\n"
                             + "FLSqlCursor : Error en metadatos, el campo %s tiene un campo asociado pero no existe "
                             "relación muchos a uno:%s" % (self.table(), field_name)
                         )
                         continue
 
-                    if not r.checkIn():
+                    if not relation_m1.checkIn():
                         continue
-                    tMD = self.db().connManager().manager().metadata(r.foreignTable())
-                    if not tMD:
+                    table_metadata = (
+                        self.db().connManager().manager().metadata(relation_m1.foreignTable())
+                    )
+                    if not table_metadata:
                         continue
-                    field_metadata_name = field_metadata.name()
-                    ss = None
+                    field_metadata_name = assoc_field_metadata.name()
+                    assoc_value = None
                     if not self.private_cursor.buffer_.isNull(field_metadata_name):
-                        ss = self.private_cursor.buffer_.value(field_metadata_name)
+                        assoc_value = self.private_cursor.buffer_.value(field_metadata_name)
                         # if not ss:
                         #     ss = None
-                    if ss:
+                    if assoc_value:
                         filter = "%s AND %s" % (
                             self.db()
                             .connManager()
                             .manager()
                             .formatAssignValue(
-                                field.associatedFieldFilterTo(), field_metadata, ss, True
+                                field.associatedFieldFilterTo(),
+                                assoc_field_metadata,
+                                assoc_value,
+                                True,
                             ),
                             self.db()
                             .connManager()
                             .manager()
-                            .formatAssignValue(r.foreignField(), field, s, True),
+                            .formatAssignValue(relation_m1.foreignField(), field, value, True),
                         )
-                        q = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
-                        q.setTablesList(tMD.name())
-                        q.setSelect(field.associatedFieldFilterTo())
-                        q.setFrom(tMD.name())
-                        q.setWhere(filter)
-                        q.setForwardOnly(True)
-                        q.exec_()
-                        if not q.next():
-                            msg = (
-                                msg
-                                + "\n"
-                                + self.table()
-                                + ":"
-                                + field.alias()
-                                + " : %s no pertenece a %s" % (s, ss)
+                        qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                        qry.setTablesList(table_metadata.name())
+                        qry.setSelect(field.associatedFieldFilterTo())
+                        qry.setFrom(table_metadata.name())
+                        qry.setWhere(filter)
+                        qry.setForwardOnly(True)
+                        qry.exec_()
+                        if not qry.next():
+                            message += "\n%s:%s : %s no pertenece a %s" % (
+                                self.table(),
+                                field.alias(),
+                                value,
+                                assoc_value,
                             )
                         else:
-                            self.private_cursor.buffer_.setValue(field_metadata_name, q.value(0))
+                            self.private_cursor.buffer_.setValue(field_metadata_name, qry.value(0))
 
                     else:
-                        msg = (
-                            msg
-                            + "\n"
-                            + self.table()
-                            + ":"
-                            + field.alias()
-                            + " : %s no se puede asociar a un valor NULO" % s
+                        message += "\n%s:%s : %s no se puede asociar aun valor NULO" % (
+                            self.table(),
+                            field.alias(),
+                            value,
                         )
-                    if not tMD.inCache():
-                        del tMD
+                    if not table_metadata.inCache():
+                        del table_metadata
 
                 if self.private_cursor.mode_access_ == self.Edit:
                     if self.private_cursor.buffer_ and self.private_cursor._buffer_copy:
@@ -1084,239 +1082,222 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     and not field.allowNull()
                     and not field.type() in ("serial")
                 ):
-                    msg = msg + "\n" + self.table() + ":" + field.alias() + " : No puede ser nulo"
+                    message += "\n%s:%s : No puede ser nulo" % (self.table(), field.alias())
 
                 if field.isUnique():
-                    pK = self.private_cursor.metadata_.primaryKey()
-                    if not self.private_cursor.buffer_.isNull(pK) and s is not None:
-                        pKV = self.private_cursor.buffer_.value(pK)
-                        field_mtd = self.private_cursor.metadata_.field(pK)
+                    primary_key = self.private_cursor.metadata_.primaryKey()
+                    if not self.private_cursor.buffer_.isNull(primary_key) and value is not None:
+                        value_primary_key = self.private_cursor.buffer_.value(primary_key)
+                        field_mtd = self.private_cursor.metadata_.field(primary_key)
                         if field_mtd is None:
                             raise Exception("pk field is not found!")
-                        q = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
-                        q.setTablesList(self.table())
-                        q.setSelect(field_name)
-                        q.setFrom(self.table())
-                        q.setWhere(
+                        qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                        qry.setTablesList(self.table())
+                        qry.setSelect(field_name)
+                        qry.setFrom(self.table())
+                        qry.setWhere(
                             "%s AND %s <> %s"
                             % (
-                                self.db().connManager().manager().formatAssignValue(field, s, True),
+                                self.db()
+                                .connManager()
+                                .manager()
+                                .formatAssignValue(field, value, True),
                                 self.private_cursor.metadata_.primaryKey(
                                     self.private_cursor._is_query
                                 ),
                                 self.db()
                                 .connManager()
                                 .manager()
-                                .formatValue(field_mtd.type(), pKV),
+                                .formatValue(field_mtd.type(), value_primary_key),
                             )
                         )
-                        q.setForwardOnly(True)
-                        q.exec_()
-                        if q.next():
-                            msg = (
-                                msg
-                                + "\n"
-                                + self.table()
-                                + ":"
-                                + field.alias()
-                                + " : Requiere valores únicos, y ya hay otro registro con el valor %s en este campo"
-                                % s
+                        qry.setForwardOnly(True)
+                        qry.exec_()
+                        if qry.next():
+                            message += (
+                                "\n%s:%s : Requiere valores únicos, y ya hay otro registro con el valor %s en este campo"
+                                % (self.table(), field.alias(), value)
                             )
 
                 if (
                     field.isPrimaryKey()
                     and self.private_cursor.mode_access_ == self.Insert
-                    and s is not None
+                    and value is not None
                 ):
-                    q = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
-                    q.setTablesList(self.table())
-                    q.setSelect(field_name)
-                    q.setFrom(self.table())
-                    q.setWhere(self.db().connManager().manager().formatAssignValue(field, s, True))
-                    q.setForwardOnly(True)
-                    q.exec_()
-                    if q.next():
-                        msg = (
-                            msg
-                            + "\n"
-                            + self.table()
-                            + ":"
-                            + field.alias()
-                            + " : Es clave primaria y requiere valores únicos, y ya hay otro registro con el valor %s en este campo"
-                            % s
+                    qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                    qry.setTablesList(self.table())
+                    qry.setSelect(field_name)
+                    qry.setFrom(self.table())
+                    qry.setWhere(
+                        self.db().connManager().manager().formatAssignValue(field, value, True)
+                    )
+                    qry.setForwardOnly(True)
+                    qry.exec_()
+                    if qry.next():
+                        message += (
+                            "\n%s:%s : Es clave primaria y requiere valores únicos, y ya hay otro registro con el valor %s en este campo"
+                            % (self.table(), field.alias(), value)
                         )
 
-                if r and s:
-                    if r.checkIn() and not r.foreignTable() == self.table():
+                if relation_m1 and value:
+                    if relation_m1.checkIn() and not relation_m1.foreignTable() == self.table():
                         # r = field.relationM1()
-                        tMD = self.db().connManager().manager().metadata(r.foreignTable())
-                        if not tMD:
+                        table_metadata = (
+                            self.db().connManager().manager().metadata(relation_m1.foreignTable())
+                        )
+                        if not table_metadata:
                             continue
-                        q = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
-                        q.setTablesList(tMD.name())
-                        q.setSelect(r.foreignField())
-                        q.setFrom(tMD.name())
-                        q.setWhere(
+                        qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                        qry.setTablesList(table_metadata.name())
+                        qry.setSelect(relation_m1.foreignField())
+                        qry.setFrom(table_metadata.name())
+                        qry.setWhere(
                             self.db()
                             .connManager()
                             .manager()
-                            .formatAssignValue(r.foreignField(), field, s, True)
+                            .formatAssignValue(relation_m1.foreignField(), field, value, True)
                         )
-                        q.setForwardOnly(True)
+                        qry.setForwardOnly(True)
                         LOGGER.debug(
-                            "SQL linea = %s conn name = %s", q.sql(), self.connectionName()
+                            "SQL linea = %s conn name = %s", qry.sql(), self.connectionName()
                         )
-                        q.exec_()
-                        if not q.next():
-                            msg = (
-                                msg
-                                + "\n"
-                                + self.table()
-                                + ":"
-                                + field.alias()
-                                + " : El valor %s no existe en la tabla %s" % (s, r.foreignTable())
+                        qry.exec_()
+                        if not qry.next():
+                            message += "\n%s:%s : El valor %s no existe en la tabla %s" % (
+                                self.table(),
+                                field.alias(),
+                                value,
+                                relation_m1.foreignTable(),
                             )
                         else:
-                            self.private_cursor.buffer_.setValue(field_name, q.value(0))
+                            self.private_cursor.buffer_.setValue(field_name, qry.value(0))
 
-                        if not tMD.inCache():
-                            del tMD
+                        if not table_metadata.inCache():
+                            del table_metadata
 
-                fieldListCK = self.private_cursor.metadata_.fieldListOfCompoundKey(field_name)
+                field_list_compound_key = self.private_cursor.metadata_.fieldListOfCompoundKey(
+                    field_name
+                )
                 if (
-                    fieldListCK
-                    and not checkedCK
+                    field_list_compound_key
+                    and not checked_compound_key
                     and self.private_cursor.mode_access_ == self.Insert
                 ):
-                    if fieldListCK:
-                        filterCK: Optional[str] = None
+                    if field_list_compound_key:
+                        filter_compound_key: Optional[str] = None
                         field_1: Optional[str] = None
-                        valuesFields: Optional[str] = None
-                        for fieldCK in fieldListCK:
-                            sCK = self.private_cursor.buffer_.value(fieldCK.name())
-                            if filterCK is None:
-                                filterCK = (
-                                    self.db()
-                                    .connManager()
-                                    .manager()
-                                    .formatAssignValue(fieldCK, sCK, True)
-                                )
-                            else:
-                                filterCK = "%s AND %s" % (
-                                    filterCK,
-                                    self.db()
-                                    .connManager()
-                                    .manager()
-                                    .formatAssignValue(fieldCK, sCK, True),
-                                )
-                            if field_1 is None:
-                                field_1 = fieldCK.alias()
-                            else:
-                                field_1 = "%s+%s" % (field_1, fieldCK.alias())
-                            if valuesFields is None:
-                                valuesFields = str(sCK)
-                            else:
-                                valuesFields = "%s+%s" % (valuesFields, str(sCK))
-
-                        q = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
-                        q.setTablesList(self.table())
-                        q.setSelect(field_name)
-                        q.setFrom(self.table())
-                        if filterCK is not None:
-                            q.setWhere(filterCK)
-                        q.setForwardOnly(True)
-                        q.exec_()
-                        if q.next():
-                            msg = (
-                                msg
-                                + "\n%s : Requiere valor único, y ya hay otro registro con el valor %s en la tabla %s"
-                                % (field_1, valuesFields, self.table())
+                        values_fields: Optional[str] = None
+                        for field_compound_key in field_list_compound_key:
+                            value_compound_key = self.private_cursor.buffer_.value(
+                                field_compound_key.name()
                             )
 
-                        checkedCK = True
+                            filter_compound_key = "%s AND %s" % (
+                                filter_compound_key,
+                                self.db()
+                                .connManager()
+                                .manager()
+                                .formatAssignValue(field_compound_key, value_compound_key, True),
+                            )
+                            if field_1 is None:
+                                field_1 = field_compound_key.alias()
+                            else:
+                                field_1 = "%s+%s" % (field_1, field_compound_key.alias())
+                            if values_fields is None:
+                                values_fields = str(value_compound_key)
+                            else:
+                                values_fields = "%s+%s" % (values_fields, str(value_compound_key))
+
+                        qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                        qry.setTablesList(self.table())
+                        qry.setSelect(field_name)
+                        qry.setFrom(self.table())
+                        if filter_compound_key is not None:
+                            qry.setWhere(filter_compound_key)
+                        qry.setForwardOnly(True)
+                        qry.exec_()
+                        if qry.next():
+                            message += (
+                                "\n%s : Requiere valor único, y ya hay otro registro con el valor %s en la tabla %s"
+                                % (field_1, values_fields, self.table())
+                            )
+                        checked_compound_key = True
 
         elif self.private_cursor.mode_access_ == self.Del:
-            fieldList = self.private_cursor.metadata_.fieldList()
+            field_list = self.private_cursor.metadata_.fieldList()
             # field_name = None
-            s = None
+            value = None
 
-            for field in fieldList:
+            for field in field_list:
                 # field_name = field.name()
                 if not self.private_cursor.buffer_.isGenerated(field.name()):
                     continue
 
-                s = None
+                value = None
 
                 if not self.private_cursor.buffer_.isNull(field.name()):
-                    s = self.private_cursor.buffer_.value(field.name())
+                    value = self.private_cursor.buffer_.value(field.name())
                     # if s:
                     #    s = None
 
-                if s is None:
+                if value is None:
                     continue
 
-                relationList = field.relationList()
-                if relationList:
-                    for r in relationList:
-                        if not r.checkIn():
-                            continue
-                        mtd = self.db().connManager().manager().metadata(r.foreignTable())
-                        if not mtd:
-                            continue
-                        f = mtd.field(r.foreignField())
-                        if f is not None:
-                            if f.relationM1():
-                                if f.relationM1().deleteCascade():
-                                    if not mtd.inCache():
-                                        del mtd
-                                    continue
-                                if not f.relationM1().checkIn():
-                                    if not mtd.inCache():
-                                        del mtd
-                                    continue
-                            else:
-                                if not mtd.inCache():
-                                    del mtd
+                relation_list = field.relationList()
+                for relation in relation_list:
+                    if not relation.checkIn():
+                        continue
+                    metadata = self.db().connManager().manager().metadata(relation.foreignTable())
+                    if not metadata:
+                        continue
+                    field_metadata = metadata.field(relation.foreignField())
+                    if field_metadata is not None:
+                        if field_metadata.relationM1():
+                            if field_metadata.relationM1().deleteCascade():
+                                if not metadata.inCache():
+                                    del metadata
                                 continue
-
+                            if not field_metadata.relationM1().checkIn():
+                                if not metadata.inCache():
+                                    del metadata
+                                continue
                         else:
-                            msg = (
-                                msg
-                                + "\n"
-                                + "FLSqlCursor : Error en metadatos, %s.%s no es válido.\nCampo relacionado con %s.%s."
-                                % (mtd.name(), r.foreignField(), self.table(), field.name())
-                            )
-                            if not mtd.inCache():
-                                del mtd
+                            if not metadata.inCache():
+                                del metadata
                             continue
 
-                        q = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
-                        q.setTablesList(mtd.name())
-                        q.setSelect(r.foreignField())
-                        q.setFrom(mtd.name())
-                        q.setWhere(
-                            self.db()
-                            .connManager()
-                            .manager()
-                            .formatAssignValue(r.foreignField(), field, s, True)
+                    else:
+                        message += (
+                            "\nFLSqlCursor : Error en metadatos, %s.%s no es válido.\nCampo relacionado con %s.%s."
+                            % (metadata.name(), relation.foreignField(), self.table(), field.name())
                         )
-                        q.setForwardOnly(True)
-                        q.exec_()
-                        if q.next():
-                            msg = (
-                                msg
-                                + "\n"
-                                + self.table()
-                                + ":"
-                                + field.alias()
-                                + " : Con el valor %s hay registros en la tabla %s"
-                                % (s, mtd.name())
-                            )
+                        if not metadata.inCache():
+                            del metadata
+                        continue
 
-                        if not mtd.inCache():
-                            del mtd
+                    qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                    qry.setTablesList(metadata.name())
+                    qry.setSelect(relation.foreignField())
+                    qry.setFrom(metadata.name())
+                    qry.setWhere(
+                        self.db()
+                        .connManager()
+                        .manager()
+                        .formatAssignValue(relation.foreignField(), field, value, True)
+                    )
+                    qry.setForwardOnly(True)
+                    qry.exec_()
+                    if qry.next():
+                        message += "\n%s:%s : Con el valor %s hay registros en la tabla %s" % (
+                            self.table(),
+                            field.alias(),
+                            value,
+                            metadata.name(),
+                        )
+                    if not metadata.inCache():
+                        del metadata
 
-        return msg
+        return message
 
     def checkIntegrity(self, showError: bool = True) -> bool:
         """
@@ -1914,52 +1895,52 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             self.setNotGenerateds()
 
-            fieldList = self.private_cursor.metadata_.fieldList()
-            if fieldList:
-                for field in fieldList:
-                    field_name = field.name()
+            field_list = self.private_cursor.metadata_.fieldList()
 
-                    if self.private_cursor.buffer_ is None:
-                        raise Exception("buffer is empty!")
+            for field in field_list:
+                field_name = field.name()
 
-                    self.private_cursor.buffer_.setNull(field_name)
-                    if not self.private_cursor.buffer_.isGenerated(field_name):
-                        continue
-                    type_ = field.type()
-                    # fltype = FLFieldself.private_cursor.metadata_.flDecodeType(type_)
-                    # fltype = self.private_cursor.metadata_.field(field_name).flDecodeType(type_)
-                    defVal = field.defaultValue()
-                    if defVal is not None:
-                        # defVal.cast(fltype)
-                        self.private_cursor.buffer_.setValue(field_name, defVal)
+                if self.private_cursor.buffer_ is None:
+                    raise Exception("buffer is empty!")
 
-                    if type_ == "serial":
-                        val = self.db().nextSerialVal(self.table(), field_name)
-                        if val is None:
-                            val = 0
+                self.private_cursor.buffer_.setNull(field_name)
+                if not self.private_cursor.buffer_.isGenerated(field_name):
+                    continue
+                type_ = field.type()
+                # fltype = FLFieldself.private_cursor.metadata_.flDecodeType(type_)
+                # fltype = self.private_cursor.metadata_.field(field_name).flDecodeType(type_)
+                defVal = field.defaultValue()
+                if defVal is not None:
+                    # defVal.cast(fltype)
+                    self.private_cursor.buffer_.setValue(field_name, defVal)
+
+                if type_ == "serial":
+                    val = self.db().nextSerialVal(self.table(), field_name)
+                    if val is None:
+                        val = 0
+                    self.private_cursor.buffer_.setValue(field_name, val)
+                elif type_ == "timestamp":
+                    if not field.allowNull():
+                        val = self.db().getTimeStamp()
                         self.private_cursor.buffer_.setValue(field_name, val)
-                    elif type_ == "timestamp":
-                        if not field.allowNull():
-                            val = self.db().getTimeStamp()
-                            self.private_cursor.buffer_.setValue(field_name, val)
-                    if field.isCounter():
-                        from pineboolib.application.database import utils
+                if field.isCounter():
+                    from pineboolib.application.database import utils
 
-                        siguiente = None
-                        if self._action.scriptFormRecord():
-                            context_ = SafeQSA.formrecord(
-                                "formRecord%s" % self._action.scriptFormRecord()[:-3]
-                            ).iface
-                            function_counter = getattr(context_, "calculateCounter", None)
-                            if function_counter is None:
-                                siguiente = utils.next_counter(field_name, self)
-                            else:
-                                siguiente = function_counter()
-                        else:
+                    siguiente = None
+                    if self._action.scriptFormRecord():
+                        context_ = SafeQSA.formrecord(
+                            "formRecord%s" % self._action.scriptFormRecord()[:-3]
+                        ).iface
+                        function_counter = getattr(context_, "calculateCounter", None)
+                        if function_counter is None:
                             siguiente = utils.next_counter(field_name, self)
+                        else:
+                            siguiente = function_counter()
+                    else:
+                        siguiente = utils.next_counter(field_name, self)
 
-                        if siguiente:
-                            self.private_cursor.buffer_.setValue(field_name, siguiente)
+                    if siguiente:
+                        self.private_cursor.buffer_.setValue(field_name, siguiente)
 
             if (
                 self.private_cursor.cursor_relation_ is not None

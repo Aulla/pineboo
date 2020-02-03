@@ -11,7 +11,7 @@ class PNBoolFlagState(object):
     """PNBollFlagState Class."""
 
     modifier_: str
-    prevValue_: bool
+    prev_value_: bool
 
 
 class PNBoolFlagStateList(object):
