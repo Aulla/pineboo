@@ -5,7 +5,7 @@ from pineboolib.core import decorators
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtSerialPort
+    from PyQt5 import QtSerialPort  # type: ignore [attr-defined]
 
 
 class BaudRateType(object):
@@ -78,18 +78,18 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
     def __init__(self, port_name: str) -> None:
         """Inicialize."""
         super().__init__()
-        if QtCore.QSysInfo() == "ios":
+        if str(QtCore.QSysInfo()) == "ios":
             from pineboolib.q3widgets.messagebox import MessageBox
 
             MessageBox.information(
-                self.topWidget,
+                None,
                 self.tr("Opción deshabilitada"),
                 self.tr("FLSerialPort no está disponible para IOS"),
                 MessageBox.Ok,
             )
             return
         else:
-            from PyQt5 import QtSerialPort  # type :ignore
+            from PyQt5 import QtSerialPort  # type: ignore [attr-defined] # noqa: F821
 
             self._obj = QtSerialPort.QSerialPort(port_name)
 
