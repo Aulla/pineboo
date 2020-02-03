@@ -146,6 +146,16 @@ class TestParser(unittest.TestCase):
             qs2py("var sigMap = new AQSignalMapper(this);"), "sigMap = qsa.AQSignalMapper(self)\n"
         )
 
+    def test_replace(self) -> None:
+        """Test replace."""
+
+        self.assertEqual(
+            qs2py(
+                'var listaOutlet:Array = new Array();flfactppal.iface.replace(listaOutlet, ", ", " "," ");'
+            ),
+            'listaOutlet = qsa.Array()\nqsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n',
+        )
+
     def test_pyconvert(self) -> None:
         """Test pyconvert."""
         from pineboolib import application

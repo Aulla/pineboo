@@ -1803,8 +1803,14 @@ class Member(ASTPython):
                                 rep_from_to = rep_from_to[1:-1]
 
                             rep_extra = arguments[2:]
-                            # print(arguments)
-                            arguments = ["qsa.replace(%s, %s)" % (rep_str, rep_from_to)] + rep_extra
+                            for r in rep_extra:
+                                print(r)
+                            if rep_extra and rep_extra[0].startswith("replace"):
+                                continue
+                            else:
+                                arguments = [
+                                    "qsa.replace(%s, %s)" % (rep_str, rep_from_to)
+                                ] + rep_extra
 
                             # Es un regexpr
                         # else:
