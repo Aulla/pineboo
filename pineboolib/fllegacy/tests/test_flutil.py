@@ -103,6 +103,8 @@ class TestFLUtil(unittest.TestCase):
         self.assertEqual(util.daysTo(qsa.Date("2019-07-01"), qsa.Date("2019-11-15")), 137)
         self.assertEqual(util.daysTo(qsa.Date("2019-07-01"), qsa.Date("2019-03-15")), -108)
         self.assertEqual(util.dateAMDtoDMA("2019-12-01"), "01-12-2019")
+        self.assertEqual(util.dateAMDtoDMA("20"), "")
+        self.assertEqual(util.dateDMAtoAMD("20"), "")
 
     def test_basic_2(self) -> None:
         """Test basic 2."""
