@@ -25,11 +25,12 @@ from . import pncompoundkeymetadata
 if TYPE_CHECKING:
     from . import pnrelationmetadata  # noqa
 
+LOGGER = logging.getLogger("CursorTableModel")
+
 
 class PNTableMetaData(ITableMetaData):
     """PNTableMetaData Class."""
 
-    logger = logging.getLogger("CursorTableModel")
     d: "PNTableMetaDataPrivate"
 
     def __init__(self, n, a=None, q: str = None) -> None:
@@ -95,7 +96,7 @@ class PNTableMetaData(ITableMetaData):
                 self.d.primaryKey_ = field.name()
 
             self.d.field_list_.append(field)
-            self.d.fieldNames_.append(field.name())
+            self.d._field_names.append(field.name())
 
             if field.type() == FLFieldMetaData.Unlock:
                 self.d.fieldNamesUnlock_.append(field.name())
@@ -166,7 +167,7 @@ class PNTableMetaData(ITableMetaData):
 
         return True if self.d.query_ else False
 
-    def addFieldMD(self, f: "pnfieldmetadata.PNFieldMetaData") -> None:
+    def addFieldMD(self, field_metadata: "pnfieldmetadata.PNFieldMetaData") -> None:
         """
         Add the description of a field to the list of field descriptions.
 
@@ -175,16 +176,16 @@ class PNTableMetaData(ITableMetaData):
 
         # if f is None:
         #     return
-        if not f.metadata():
-            f.setMetadata(self)
-        self.d.field_list_.append(f)
-        self.d.addFieldName(f.name())
-        self.d.formatAlias(f)
+        if not field_metadata.metadata():
+            field_metadata.setMetadata(self)
+        self.d.field_list_.append(field_metadata)
+        self.d.addFieldName(field_metadata.name())
+        self.d.formatAlias(field_metadata)
 
-        if f.type() == pnfieldmetadata.PNFieldMetaData.Unlock:
-            self.d.fieldNamesUnlock_.append(f.name())
-        if f.d.isPrimaryKey_:
-            self.d.primaryKey_ = f.name().lower()
+        if field_metadata.type() == pnfieldmetadata.PNFieldMetaData.Unlock:
+            self.d.fieldNamesUnlock_.append(field_metadata.name())
+        if field_metadata.isPrimaryKey():
+            self.d.primaryKey_ = field_metadata.name().lower()
 
     def removeFieldMD(self, field_name: str) -> None:
         """
@@ -295,9 +296,7 @@ class PNTableMetaData(ITableMetaData):
                 ret_ = 300
             else:
                 # FIXME: Falta int
-                self.logger.warning(
-                    "FIXME:: No hay definido un valor numérico para el tipo %s", type_
-                )
+                LOGGER.warning("FIXME:: No hay definido un valor numérico para el tipo %s", type_)
 
         return ret_
 
@@ -325,7 +324,7 @@ class PNTableMetaData(ITableMetaData):
             if field_name in self.fieldNames():
                 return self.fieldNames().index(field_name)
 
-        self.logger.warning("FLTableMetaData.fieldIsIndex(%s) No encontrado", field_name)
+        LOGGER.warning("FLTableMetaData.fieldIsIndex(%s) No encontrado", field_name)
         return -1
 
     def fieldIsCounter(self, field_name: Optional[str] = None) -> Optional[bool]:
@@ -595,7 +594,7 @@ class PNTableMetaData(ITableMetaData):
         @return field name list.
         """
 
-        return self.d.fieldNames_
+        return self.d._field_names
 
     def fieldNamesUnlock(self) -> List[str]:
         """
@@ -736,13 +735,13 @@ class PNTableMetaDataPrivate:
     """
     Cadena de texto con los nombre de los campos separados por comas
     """
-    fieldNames_: List[str] = []
+    _field_names: List[str] = []
 
     """
     Mapas alias<->nombre
     """
-    aliasFieldMap_: Dict[str, str]
-    fieldAliasMap_: Dict[str, str]
+    _alias_field_map: Dict[str, str]
+    _field_alias_map: Dict[str, str]
 
     """
     Lista de nombres de campos de la tabla que son del tipo FLFieldMetaData::Unlock
@@ -798,10 +797,10 @@ class PNTableMetaDataPrivate:
         self.name_ = ""
         self.primaryKey_ = None
         self.field_list_ = []
-        self.fieldNames_ = []
+        self._field_names = []
         self.fieldNamesUnlock_ = []
-        self.aliasFieldMap_ = {}
-        self.fieldAliasMap_ = {}
+        self._alias_field_map = {}
+        self._field_alias_map = {}
         self.detectLocks_ = True
         self.query_ = ""
         self.inCache_ = False
@@ -855,7 +854,7 @@ class PNTableMetaDataPrivate:
         @param n Field Name.
         """
 
-        self.fieldNames_.append(n.lower())
+        self._field_names.append(n.lower())
 
     def removeFieldName(self, name: str) -> None:
         """
@@ -864,8 +863,8 @@ class PNTableMetaDataPrivate:
         @param name Field Name
         """
 
-        if name in self.fieldNames_:
-            self.fieldNames_.remove(name)
+        if name in self._field_names:
+            self._field_names.remove(name)
 
         if name in self.fieldNamesUnlock_:
             self.fieldNamesUnlock_.remove(name)
@@ -883,15 +882,13 @@ class PNTableMetaDataPrivate:
             alias = field_object.alias()
             field = field_object.name().lower()
 
-            for aliasF in self.aliasFieldMap_:
-                if aliasF == alias:
-                    alias = "%s(%s)" % (alias, str(len(self.aliasFieldMap_) + 1))
-                    break
+            if alias in self._alias_field_map:
+                alias = "%s(%s)" % (alias, str(len(self._alias_field_map) + 1))
 
-            field_object.d.alias_ = alias
+            field_object.private.alias_ = alias
 
-            self.aliasFieldMap_[alias] = field
-            self.fieldAliasMap_[field] = alias
+            self._alias_field_map[alias] = field
+            self._field_alias_map[field] = alias
 
     def clearFieldList(self) -> None:
         """
@@ -899,4 +896,4 @@ class PNTableMetaDataPrivate:
         """
 
         self.field_list_ = []
-        self.fieldNames_ = []
+        self._field_names = []

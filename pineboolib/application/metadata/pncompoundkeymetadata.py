@@ -22,24 +22,24 @@ class PNCompoundKeyMetaData(object):
     Lista de con los metadatos de los campos que componen la clave
     """
 
-    fieldList_: List["PNFieldMetaData"] = []
+    _field_list: List["PNFieldMetaData"] = []
 
     def __init__(self, other: "PNCompoundKeyMetaData" = None) -> None:
         """Initialize the empty compound key or is copied from another."""
 
         super().__init__()
-        self.fieldList_ = []
+        self._field_list = []
         if other:
             self.copy(other)
 
-    def addFieldMD(self, f: "PNFieldMetaData") -> None:
+    def addFieldMD(self, field_metadata: "PNFieldMetaData") -> None:
         """
         Add the description of a field to the list of fields that make up the key.
 
         @param f PNFieldMetaData object with the description of the field to add
         """
 
-        self.fieldList_.append(f)
+        self._field_list.append(field_metadata)
 
     """
     Obtiene si una campo pertenece a la clave compuesta.
@@ -56,8 +56,8 @@ class PNCompoundKeyMetaData(object):
         @return TRUE if the field is part of the composite key, FALSE otherwise.
         """
 
-        for i in self.fieldList_:
-            if i.name() == str(field_name):
+        for item in self._field_list:
+            if item.name() == str(field_name):
                 return True
 
         return False
@@ -69,7 +69,7 @@ class PNCompoundKeyMetaData(object):
         @return Object with the list of field deficits of the composite key.
         """
 
-        return self.fieldList_
+        return self._field_list
 
     def copy(self, other: "PNCompoundKeyMetaData") -> None:
         """
@@ -80,4 +80,4 @@ class PNCompoundKeyMetaData(object):
 
         if self is other:
             return
-        self.fieldList_ = other.fieldList_[:]
+        self._field_list = other._field_list[:]
