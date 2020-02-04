@@ -3,12 +3,19 @@
 Defines the IConnection class.
 """
 
+from pineboolib.core.utils import logging
+
 from .iapicursor import IApiCursor
+
 
 from typing import Any, List, Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
+    from pineboolib.fllegacy import flmanager
+    from pineboolib.fllegacy import flmanagermodules
+
+LOGGER = logging.getLogger(__name__)
 
 
 class IConnection:
@@ -316,3 +323,13 @@ class IConnection:
         """Return timestamp."""
 
         return ""
+
+    def manager(self) -> "flmanager.FLManager":
+        """Return flmanager instance."""
+
+        return self.connManager().manager()
+
+    def managerModules(self) -> "flmanagermodules.FLManagerModules":
+        """Return flmanager instance."""
+
+        return self.connManager().managerModules()
