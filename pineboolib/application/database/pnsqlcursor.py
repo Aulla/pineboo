@@ -400,9 +400,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if value and type_ == "pixmap" and not self.private_cursor._is_system_table:
             value = database.normalizeValue(value)
-            largeValue = manager.storeLargeValue(self.private_cursor.metadata_, value)
-            if largeValue:
-                value = largeValue
+            value = manager.storeLargeValue(self.private_cursor.metadata_, value) or value
 
         if (
             field.outTransaction()
@@ -1480,7 +1478,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             pos = 0
         return pos
 
-    def atFromBinarySearch(self, field_name: str, v: Any, orderAsc: bool = True) -> int:
+    def atFromBinarySearch(self, field_name: str, value: Any, order_asc: bool = True) -> int:
         """
         Get the position within the cursor of the first record in the indicated field start with the requested value.
 
@@ -1492,7 +1490,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         a record with a certain value is found in a field.
 
         @param field_name Name of the field in which to look for the value
-        @param v Value to look for (using like 'v%')
+        @param value Value to look for (using like 'v%')
         @param orderAsc TRUE (default) if the order is ascending, FALSE if it is descending
         @return Position of the record within the cursor, or 0 if it does not match.
         """
@@ -1500,9 +1498,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         ret = -1
         ini = 0
         fin = self.size() - 1
-        mid = None
-        comp = None
-        midVal = None
 
         if not self.private_cursor.metadata_:
             raise Exception("Metadata is not set")
@@ -1510,15 +1505,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if field_name in self.private_cursor.metadata_.fieldNames():
             while ini <= fin:
                 mid = int((ini + fin) / 2)
-                midVal = str(self.private_cursor._model.value(mid, field_name))
-                if v == midVal:
+                mid_value = str(self.private_cursor._model.value(mid, field_name))
+                if value == mid_value:
                     ret = mid
                     break
 
-                if orderAsc:
-                    comp = v < midVal
-                else:
-                    comp = v > midVal
+                comp = value < mid_value if order_asc else value > mid_value
 
                 if not comp:
                     ini = mid + 1
@@ -1596,27 +1588,32 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not tableMD:
             return None
 
-        fieldAc = field.associatedField()
-        if fieldAc is None:
+        assoc_field = field.associatedField()
+        if assoc_field is None:
             # if ownTMD and not tableMD.inCache():
             # del tableMD
             return None
 
-        fieldBy = field.associatedFieldFilterTo()
+        field_by = field.associatedFieldFilterTo()
 
         if self.private_cursor.buffer_ is None:
             return None
 
-        if not tableMD.field(fieldBy) or self.private_cursor.buffer_.isNull(fieldAc.name()):
+        if not tableMD.field(field_by) or self.private_cursor.buffer_.isNull(assoc_field.name()):
             # if ownTMD and not tableMD.inCache():
             # del tableMD
             return None
 
-        vv = self.private_cursor.buffer_.value(fieldAc.name())
-        if vv:
+        assoc_value = self.private_cursor.buffer_.value(assoc_field.name())
+        if assoc_value:
             # if ownTMD and not tableMD.inCache():
             # del tableMD
-            return self.db().connManager().manager().formatAssignValue(fieldBy, fieldAc, vv, True)
+            return (
+                self.db()
+                .connManager()
+                .manager()
+                .formatAssignValue(field_by, assoc_field, assoc_value, True)
+            )
 
         # if ownTMD and not tableMD.inCache():
         # del rableMD
@@ -1823,14 +1820,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             and self.private_cursor.relation_
             and self.private_cursor.cursor_relation_.metadata()
         ):
-            v = self.valueBuffer(self.private_cursor.relation_.field())
-            if v:
+            value = self.valueBuffer(self.private_cursor.relation_.field())
+            if value:
                 foreignFieldValueBuffer = self.private_cursor.cursor_relation_.valueBuffer(
                     self.private_cursor.relation_.foreignField()
                 )
-                if foreignFieldValueBuffer != v:
+                if foreignFieldValueBuffer != value:
                     self.private_cursor.cursor_relation_.setValueBuffer(
-                        self.private_cursor.relation_.foreignField(), v
+                        self.private_cursor.relation_.foreignField(), value
                     )
 
     def primeInsert(self) -> None:
@@ -1909,10 +1906,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 type_ = field.type()
                 # fltype = FLFieldself.private_cursor.metadata_.flDecodeType(type_)
                 # fltype = self.private_cursor.metadata_.field(field_name).flDecodeType(type_)
-                defVal = field.defaultValue()
-                if defVal is not None:
-                    # defVal.cast(fltype)
-                    self.private_cursor.buffer_.setValue(field_name, defVal)
+                default_value = field.defaultValue()
+                if default_value is not None:
+                    # default_value.cast(fltype)
+                    self.private_cursor.buffer_.setValue(field_name, default_value)
 
                 if type_ == "serial":
                     val = self.db().nextSerialVal(self.table(), field_name)
@@ -2021,15 +2018,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return True if ok or False.
         """
-        ok = self.move(index)
+        result = self.move(index)
 
-        if ok and self.buffer():
+        if result and self.buffer():
             if emite:
                 self.currentChanged.emit(self.at())
 
-            ok = self.refreshBuffer()
+            result = self.refreshBuffer()
 
-        return ok
+        return result
 
     @decorators.pyqtSlot()
     @decorators.pyqtSlot(bool)
@@ -2042,14 +2039,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # if self.private_cursor.mode_access_ == self.Del:
         #    return False
 
-        b = self.moveby(1)
-        if b:
+        result = self.moveby(1)
+        if result:
             if emite:
                 self.private_cursor._current_changed.emit(self.at())
 
-            b = self.refreshBuffer()
+            result = self.refreshBuffer()
 
-        return b
+        return result
 
     def moveby(self, pos: int) -> bool:
         """
@@ -2075,15 +2072,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # if self.private_cursor.mode_access_ == self.Del:
         #    return False
 
-        b = self.moveby(-1)
+        result = self.moveby(-1)
 
-        if b:
+        if result:
             if emite:
                 self.private_cursor._current_changed.emit(self.at())
 
-            b = self.refreshBuffer()
+            result = self.refreshBuffer()
 
-        return b
+        return result
 
     def move(self, row: int = -1) -> bool:
         """
@@ -2111,9 +2108,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.currentRegister() == row:
             return False
 
-        topLeft = model.index(row, 0)
-        bottomRight = model.index(row, model.cols - 1)
-        new_selection = QtCore.QItemSelection(topLeft, bottomRight)
+        top_left = model.index(row, 0)
+        botton_right = model.index(row, model.cols - 1)
+        new_selection = QtCore.QItemSelection(top_left, botton_right)
         if self._selection is None:
             raise Exception("Call setAction first.")
         self._selection.select(new_selection, QtCore.QItemSelectionModel.ClearAndSelect)
@@ -2135,16 +2132,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # if self.private_cursor.mode_access_ == self.Del:
         #    return False
         if not self.currentRegister() == 0:
-            b = self.move(0)
+            result = self.move(0)
         else:
-            b = True
-        if b:
+            result = True
+        if result:
             if emite:
                 self.private_cursor._current_changed.emit(self.at())
 
-            b = self.refreshBuffer()
+            result = self.refreshBuffer()
 
-        return b
+        return result
 
     @decorators.pyqtSlot()
     @decorators.pyqtSlot(bool)
@@ -2157,14 +2154,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # if self.private_cursor.mode_access_ == self.Del:
         #    return False
 
-        b = self.move(self.size() - 1)
-        if b:
+        result = self.move(self.size() - 1)
+        if result:
             if emite:
                 self.private_cursor._current_changed.emit(self.at())
 
-            b = self.refreshBuffer()
+            result = self.refreshBuffer()
 
-        return b
+        return result
 
     @decorators.pyqtSlot()
     def __del__(self, invalidate: bool = True) -> None:
@@ -2179,12 +2176,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         #     if not self.private_cursor.metadata_.inCache():
         #         delMtd = True
 
-        msg = None
+        message = None
 
         if not hasattr(self, "d"):
             return
 
-        mtd = self.private_cursor.metadata_
+        metadata = self.private_cursor.metadata_
 
         # FIXME: Pongo que tiene que haber mas de una trasaccion abierta
         if self.private_cursor._transactions_opened:
@@ -2193,18 +2190,18 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 self.curName(),
                 self.private_cursor._transactions_opened,
             )
-            t = self.curName()
-            if mtd:
-                t = mtd.name()
+            table_name = self.curName()
+            if metadata:
+                table_name = metadata.name()
 
-            msg = (
+            message = (
                 "Se han detectado transacciones no finalizadas en la última operación.\n"
                 "Se van a cancelar las transacciones pendientes.\n"
                 "Los últimos datos introducidos no han sido guardados, por favor\n"
                 "revise sus últimas acciones y repita las operaciones que no\n"
-                "se han guardado.\nSqlCursor::~SqlCursor: %s\n" % t
+                "se han guardado.\nSqlCursor::~SqlCursor: %s\n" % table_name
             )
-            self.rollbackOpened(-1, msg)
+            self.rollbackOpened(-1, message)
 
     #    # self.destroyed.emit()
     #    # self.private_cursor._count_ref_cursor = self.private_cursor._count_ref_cursor - 1     FIXME
@@ -2265,13 +2262,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         return True
 
     @decorators.pyqtSlot()
-    def setSort(self, sortO: str) -> None:
+    def setSort(self, sort_order: str) -> None:
         """
         Specify the sort order in the tablemodel.
 
         @param str. new sort order.
         """
-        self.private_cursor._model.setSortOrder(sortO)
+        self.private_cursor._model.setSortOrder(sort_order)
 
     @decorators.pyqtSlot()
     def baseFilter(self) -> str:
@@ -2281,8 +2278,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return base filter.
         """
 
-        relationFilter = None
-        finalFilter = ""
+        relation_filter = None
+        final_filter = ""
 
         if (
             self.private_cursor.cursor_relation_
@@ -2290,42 +2287,42 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             and self.private_cursor.metadata_
             and self.private_cursor.cursor_relation_.metadata()
         ):
-            fgValue = self.private_cursor.cursor_relation_.valueBuffer(
+            relation_value = self.private_cursor.cursor_relation_.valueBuffer(
                 self.private_cursor.relation_.foreignField()
             )
             field = self.private_cursor.metadata_.field(self.private_cursor.relation_.field())
 
-            if field is not None and fgValue is not None:
+            if field is not None and relation_value is not None:
 
-                relationFilter = (
-                    self.db().connManager().manager().formatAssignValue(field, fgValue, True)
+                relation_filter = (
+                    self.db().connManager().manager().formatAssignValue(field, relation_value, True)
                 )
-                filterAc = self.private_cursor.cursor_relation_.filterAssoc(
+                filter_assoc = self.private_cursor.cursor_relation_.filterAssoc(
                     self.private_cursor.relation_.foreignField(), self.private_cursor.metadata_
                 )
-                if filterAc:
-                    if not relationFilter:
-                        relationFilter = filterAc
+                if filter_assoc:
+                    if not relation_filter:
+                        relation_filter = filter_assoc
                     else:
-                        relationFilter = "%s AND %s" % (relationFilter, filterAc)
+                        relation_filter = "%s AND %s" % (relation_filter, filter_assoc)
 
         if self.mainFilter():
-            finalFilter = self.mainFilter()
+            final_filter = self.mainFilter()
 
-        if relationFilter:
-            if not finalFilter:
-                finalFilter = relationFilter
+        if relation_filter:
+            if not final_filter:
+                final_filter = relation_filter
             else:
-                if relationFilter not in finalFilter:
-                    finalFilter = "%s AND %s" % (finalFilter, relationFilter)
+                if relation_filter not in final_filter:
+                    final_filter = "%s AND %s" % (final_filter, relation_filter)
 
         # if self.filter():
-        #    if finalFilter and self.filter() not in finalFilter:
-        #        finalFilter = "%s AND %s" % (finalFilter, self.filter())
+        #    if final_filter and self.filter() not in final_filter:
+        #        final_filter = "%s AND %s" % (final_filter, self.filter())
         #    else:
-        #        finalFilter = self.filter()
+        #        final_filter = self.filter()
 
-        return finalFilter
+        return final_filter
 
     @decorators.pyqtSlot()
     def curFilter(self) -> str:
@@ -2335,22 +2332,22 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return actual filter.
         """
 
-        f = self.filter()
-        bFilter = self.baseFilter()
-        if f:
-            while f.endswith(";"):
-                f = f[0 : len(f) - 1]
+        filter = self.filter()
+        base_filter = self.baseFilter()
+        if filter:
+            while filter.endswith(";"):
+                filter = filter[0 : len(filter) - 1]
 
-        if not bFilter:
-            return f
+        if not base_filter:
+            return filter
         else:
-            if not f or f in bFilter:
-                return bFilter
+            if not filter or filter in base_filter:
+                return base_filter
             else:
-                if bFilter in f:
-                    return f
+                if base_filter in filter:
+                    return filter
                 else:
-                    return "%s AND %s" % (bFilter, f)
+                    return "%s AND %s" % (base_filter, filter)
 
     @decorators.pyqtSlot()
     def setFilter(self, _filter: str = "") -> None:
@@ -2362,24 +2359,24 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         # self.private_cursor.filter_ = None
 
-        finalFilter = _filter
-        bFilter = self.baseFilter()
-        if bFilter:
-            if not finalFilter:
-                finalFilter = bFilter
-            elif finalFilter in bFilter:
-                finalFilter = bFilter
-            elif bFilter not in finalFilter:
-                finalFilter = bFilter + " AND " + finalFilter
+        final_filter = _filter
+        base_filter = self.baseFilter()
+        if base_filter:
+            if not final_filter:
+                final_filter = base_filter
+            elif final_filter in base_filter:
+                final_filter = base_filter
+            elif base_filter not in final_filter:
+                final_filter = base_filter + " AND " + final_filter
 
         if (
-            finalFilter
+            final_filter
             and self.private_cursor._persistent_filter
-            and self.private_cursor._persistent_filter not in finalFilter
+            and self.private_cursor._persistent_filter not in final_filter
         ):
-            finalFilter = finalFilter + " OR " + self.private_cursor._persistent_filter
+            final_filter = final_filter + " OR " + self.private_cursor._persistent_filter
 
-        self.private_cursor._model.where_filters["filter"] = finalFilter
+        self.private_cursor._model.where_filters["filter"] = final_filter
 
     @decorators.pyqtSlot()
     def insertRecord(self, wait: bool = True) -> None:
@@ -2405,10 +2402,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not self.private_cursor.metadata_:
                 raise Exception("self.private_cursor.metadata_ is not defined!")
 
-            pKN = self.private_cursor.metadata_.primaryKey()
-            pKValue = self.valueBuffer(pKN)
+            primary_key = self.private_cursor.metadata_.primaryKey()
+            primary_key_value = self.valueBuffer(primary_key)
             self.refresh()
-            pos = self.atFromBinarySearch(pKN, pKValue)
+            pos = self.atFromBinarySearch(primary_key, primary_key_value)
             if not pos == self.at():
                 self.seek(pos, False, False)
 
@@ -2426,10 +2423,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.private_cursor.needUpdate():
             if not self.private_cursor.metadata_:
                 raise Exception("self.private_cursor.metadata_ is not defined!")
-            pKN = self.private_cursor.metadata_.primaryKey()
-            pKValue = self.valueBuffer(pKN)
+            primary_key = self.private_cursor.metadata_.primaryKey()
+            primary_key_value = self.valueBuffer(primary_key)
             self.refresh()
-            pos = self.atFromBinarySearch(pKN, pKValue)
+            pos = self.atFromBinarySearch(primary_key, primary_key_value)
             if not pos == self.at():
                 self.seek(pos, False, False)
         self.openFormInMode(self.Browse, wait)
@@ -2464,10 +2461,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         # ifdef AQ_MD5_CHECK
         if self.private_cursor.needUpdate():
-            pkn = self.private_cursor.metadata_.primaryKey()
-            pk_value = self.valueBuffer(pkn)
+            primary_key = self.private_cursor.metadata_.primaryKey()
+            pk_value = self.valueBuffer(primary_key)
             self.refresh()
-            pos = self.atFromBinarySearch(pkn, str(pk_value))
+            pos = self.atFromBinarySearch(primary_key, str(pk_value))
             if pos != self.at():
                 self.seek(pos, False, True)
         # endif
@@ -2511,7 +2508,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         self.recordChoosed.emit()
 
-    def setForwardOnly(self, b: bool) -> None:
+    def setForwardOnly(self, value: bool) -> None:
         """
         Avoid refreshing the associated model.
         """
@@ -2519,10 +2516,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.private_cursor._model:
             return
 
-        self.private_cursor._model.disable_refresh(b)
+        self.private_cursor._model.disable_refresh(value)
 
     @decorators.pyqtSlot()
-    def commitBuffer(self, emite: bool = True, checkLocks: bool = False) -> bool:
+    def commitBuffer(self, emite: bool = True, check_locks: bool = False) -> bool:
         """
         Send the contents of the buffer to the cursor, or perform the appropriate action for the cursor.
 
@@ -2540,7 +2537,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         discounts
 
         @param issues True to emit cursorUpdated signal
-        @param checkLocks True to check block risks for this table and the current record
+        @param check_locks True to check block risks for this table and the current record
         @return TRUE if the buffer could be delivered to the cursor, and FALSE if the delivery failed
         """
 
@@ -2550,7 +2547,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if (
             self.db().interactiveGUI()
             and self.db().canDetectLocks()
-            and (checkLocks or self.private_cursor.metadata_.detectLocks())
+            and (check_locks or self.private_cursor.metadata_.detectLocks())
         ):
             self.checkRisksLocks()
             if self.private_cursor._in_risks_locks:
@@ -2574,13 +2571,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.checkIntegrity():
             return False
 
-        fieldNameCheck = None
+        field_name_check = None
         if self.modeAccess() in [self.Edit, self.Insert]:
             fieldList = self.private_cursor.metadata_.fieldList()
 
             for field in fieldList:
                 if field.isCheck():
-                    fieldNameCheck = field.name()
+                    field_name_check = field.name()
                     self.private_cursor.buffer_.setGenerated(field, False)
 
                     if self.private_cursor._buffer_copy:
@@ -2602,8 +2599,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     if v not in (True, False, None):
                         self.setValueBuffer(field.name(), v)
 
-        functionBefore = None
-        functionAfter = None
+        function_before = None
+        function_after = None
         model_module: Any = None
 
         idMod = self.db().connManager().managerModules().idModuleOfFile("%s.mtd" % self.table())
@@ -2624,8 +2621,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if not self.modeAccess() == PNSqlCursor.Browse and self.activatedCommitActions():
 
-            functionBefore = "beforeCommit_%s" % (self.table())
-            functionAfter = "afterCommit_%s" % (self.table())
+            function_before = "beforeCommit_%s" % (self.table())
+            function_after = "afterCommit_%s" % (self.table())
 
             if model_module is not None:
                 function_model_before = getattr(
@@ -2636,8 +2633,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     if not ret:
                         return False
 
-            if functionBefore:
-                field_name = getattr(module_iface, functionBefore, None)
+            if function_before:
+                field_name = getattr(module_iface, function_before, None)
                 v = None
                 if field_name is not None:
                     try:
@@ -2653,7 +2650,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     if v and not isinstance(v, bool) or v is False:
                         return False
 
-        # pKN = self.private_cursor.metadata_.primaryKey()
+        # primary_key = self.private_cursor.metadata_.primaryKey()
         updated = False
         # savePoint = None
 
@@ -2696,14 +2693,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             # if not db.canSavePoint():
             #    if db.currentSavePoint_:
-            #        db.currentSavePoint_.saveEdit(pKN, self.bufferCopy(), self)
+            #        db.currentSavePoint_.saveEdit(primary_key, self.bufferCopy(), self)
 
-            # if functionAfter and self.private_cursor._activated_commit_actions:
+            # if function_after and self.private_cursor._activated_commit_actions:
             #    if not savePoint:
             #        from . import pnsqlsavepoint
 
             #        savePoint = pnsqlsavepoint.PNSqlSavePoint(None)
-            #    savePoint.saveEdit(pKN, self.bufferCopy(), self)
+            #    savePoint.saveEdit(primary_key, self.bufferCopy(), self)
 
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
                 if self.private_cursor.cursor_relation_.metadata():
@@ -2735,9 +2732,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not self.private_cursor.buffer_:
                 self.primeUpdate()
 
-            fieldList = self.private_cursor.metadata_.fieldList()
+            field_list = self.private_cursor.metadata_.fieldList()
 
-            for field in fieldList:
+            for field in field_list:
 
                 field_name = field.name()
                 if not self.private_cursor.buffer_.isGenerated(field_name):
@@ -2801,8 +2798,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     if not ret:
                         return False
 
-            if functionAfter:
-                field_name = getattr(module_script.iface, functionAfter, None)
+            if function_after:
+                field_name = getattr(module_script.iface, function_after, None)
 
                 if field_name is not None:
                     v = None
@@ -2826,11 +2823,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.setModeAccess(self.Edit)
 
         if updated:
-            if fieldNameCheck:
-                self.private_cursor.buffer_.setGenerated(fieldNameCheck, True)
+            if field_name_check:
+                self.private_cursor.buffer_.setGenerated(field_name_check, True)
 
                 if self.private_cursor._buffer_copy:
-                    self.private_cursor._buffer_copy.setGenerated(fieldNameCheck, True)
+                    self.private_cursor._buffer_copy.setGenerated(field_name_check, True)
 
             self.setFilter("")
             # self.clearMapCalcFields()
@@ -2858,59 +2855,59 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         It makes all changes in the related cursor buffer effective by placing itself in the registry corresponding receiving changes.
         """
 
-        ok = True
-        activeWidEnabled = False
-        activeWid = None
+        result = True
+        active_widget_enabled = False
+        active_widget = None
 
         cursor_relation = self.private_cursor.cursor_relation_
 
         if cursor_relation is None or self.relation() is None:
-            return ok
+            return result
 
         if application.PROJECT.DGI.localDesktop():
 
-            activeWid = QtWidgets.QApplication.activeModalWidget()
-            if not activeWid:
-                activeWid = QtWidgets.QApplication.activePopupWidget()
-            if not activeWid:
-                activeWid = QtWidgets.QApplication.activeWindow()
+            active_widget = QtWidgets.QApplication.activeModalWidget()
+            if not active_widget:
+                active_widget = QtWidgets.QApplication.activePopupWidget()
+            if not active_widget:
+                active_widget = QtWidgets.QApplication.activeWindow()
 
-            if activeWid:
-                activeWidEnabled = activeWid.isEnabled()
+            if active_widget:
+                active_widget_enabled = active_widget.isEnabled()
 
         if self.private_cursor.mode_access_ == self.Insert:
             if cursor_relation.metadata() and cursor_relation.modeAccess() == self.Insert:
-                if activeWid and activeWidEnabled:
-                    activeWid.setEnabled(False)
+                if active_widget and active_widget_enabled:
+                    active_widget.setEnabled(False)
                 if not cursor_relation.commitBuffer():
                     self.private_cursor.mode_access_ = self.Browse
-                    ok = False
+                    result = False
                 else:
                     self.setFilter("")
                     cursor_relation.refresh()
                     cursor_relation.setModeAccess(self.Edit)
                     cursor_relation.refreshBuffer()
 
-                if activeWid and activeWidEnabled:
-                    activeWid.setEnabled(True)
+                if active_widget and active_widget_enabled:
+                    active_widget.setEnabled(True)
 
         elif self.private_cursor.mode_access_ in [self.Browse, self.Edit]:
             if cursor_relation.metadata() and cursor_relation.modeAccess() == self.Insert:
-                if activeWid and activeWidEnabled:
-                    activeWid.setEnabled(False)
+                if active_widget and active_widget_enabled:
+                    active_widget.setEnabled(False)
 
                 if not cursor_relation.commitBuffer():
                     self.private_cursor.mode_access_ = self.Browse
-                    ok = False
+                    result = False
                 else:
                     cursor_relation.refresh()
                     cursor_relation.setModeAccess(self.Edit)
                     cursor_relation.refreshBuffer()
 
-                if activeWid and activeWidEnabled:
-                    activeWid.setEnabled(True)
+                if active_widget and active_widget_enabled:
+                    active_widget.setEnabled(True)
 
-        return ok
+        return result
 
     @decorators.pyqtSlot()
     def transactionLevel(self) -> int:
@@ -2940,7 +2937,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     @decorators.pyqtSlot()
     @decorators.BetaImplementation
-    def rollbackOpened(self, count: int = -1, msg: str = "") -> None:
+    def rollbackOpened(self, count: int = -1, message: str = "") -> None:
         """
         Undo transactions opened by this cursor.
 
@@ -2948,40 +2945,40 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param msg Text string that is displayed in a dialog box before undoing transactions. If it is empty it shows nothing.
         """
 
-        ct: int = len(self.private_cursor._transactions_opened) if count < 0 else count
-        if ct > 0 and msg != "":
-            t: str = self.table() if self.private_cursor.metadata_ else self.curName()
-            m = "%sSqlCursor::rollbackOpened: %s %s" % (msg, ct, t)
-            self.private_cursor.msgBoxWarning(m, False)
-        elif ct > 0:
-            LOGGER.trace("rollbackOpened: %s %s", ct, self.curName())
+        count = len(self.private_cursor._transactions_opened) if count < 0 else count
+        if count > 0 and message != "":
+            table_name: str = self.table() if self.private_cursor.metadata_ else self.curName()
+            message = "%sSqlCursor::rollbackOpened: %s %s" % (message, count, table_name)
+            self.private_cursor.msgBoxWarning(message, False)
+        elif count > 0:
+            LOGGER.trace("rollbackOpened: %s %s", count, self.curName())
 
         i = 0
-        while i < ct:
+        while i < count:
             LOGGER.trace("Deshaciendo transacción abierta", self.transactionLevel())
             self.rollback()
             i = i + 1
 
     @decorators.pyqtSlot()
-    def commitOpened(self, count: int = -1, msg: str = None) -> None:
+    def commitOpened(self, count: int = -1, message: str = None) -> None:
         """
         Complete transactions opened by this cursor.
 
         @param count Number of transactions to finish, -1 all.
         @param msg A text string that is displayed in a dialog box before completing transactions. If it is empty it shows nothing.
         """
-        ct: int = len(self.private_cursor._transactions_opened) if count < 0 else count
-        t: str = self.table() if self.private_cursor.metadata_ else self.curName()
+        count = len(self.private_cursor._transactions_opened) if count < 0 else count
+        table_name: str = self.table() if self.private_cursor.metadata_ else self.curName()
 
-        if ct and msg:
-            m = "%sSqlCursor::commitOpened: %s %s" % (msg, str(count), t)
-            self.private_cursor.msgBoxWarning(m, False)
-            LOGGER.warning(m)
-        elif ct > 0:
+        if count and message:
+            message = "%sSqlCursor::commitOpened: %s %s" % (message, str(count), table_name)
+            self.private_cursor.msgBoxWarning(message, False)
+            LOGGER.warning(message)
+        elif count > 0:
             LOGGER.warning("SqlCursor::commitOpened: %d %s" % (count, self.curName()))
 
         i = 0
-        while i < ct:
+        while i < count:
             LOGGER.warning("Terminando transacción abierta %s", self.transactionLevel())
             self.commit()
             i = i + 1
@@ -3105,21 +3102,21 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return
 
         if self.private_cursor._transactions_opened:
-            mtd = self.private_cursor.metadata_
+            metadata = self.private_cursor.metadata_
             t = None
-            if mtd:
-                t = mtd.name()
+            if metadata:
+                t = metadata.name()
             else:
                 t = self.curName()
 
-            msg = (
+            message = (
                 "Se han detectado transacciones no finalizadas en la última operación.\n"
                 "Se van a cancelar las transacciones pendientes.\n"
                 "Los últimos datos introducidos no han sido guardados, por favor\n"
                 "revise sus últimas acciones y repita las operaciones que no\n"
                 "se han guardado.\n" + "SqlCursor::changeConnection: %s\n" % t
             )
-            self.rollbackOpened(-1, msg)
+            self.rollbackOpened(-1, message)
 
         buffer_backup = None
         if self.buffer():
@@ -3230,24 +3227,26 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if pk_name is None:
                 raise Exception("PrimaryKey is not defined!")
 
-            pKValue = self.private_cursor.buffer_.value(pk_name)
+            primary_key_value = self.private_cursor.buffer_.value(pk_name)
 
             dict_update = {
                 fieldName: self.private_cursor.buffer_.value(fieldName) for fieldName in lista
             }
             try:
-                update_successful = self.private_cursor._model.update(pKValue, dict_update)
+                update_successful = self.private_cursor._model.update(
+                    primary_key_value, dict_update
+                )
             except Exception:
                 LOGGER.exception("PNSqlCursor.update:: Unhandled error on model updateRowDB:: ")
                 update_successful = False
             # TODO: En el futuro, si no se puede conseguir un update, hay que
             # "tirar atrás" todo.
             if update_successful:
-                row = self.private_cursor._model.findPKRow([pKValue])
+                row = self.private_cursor._model.findPKRow([primary_key_value])
                 if row is not None:
                     if (
                         self.private_cursor._model.value(row, self.private_cursor._model.pK())
-                        != pKValue
+                        != primary_key_value
                     ):
                         raise AssertionError(
                             "Los indices del CursorTableModel devolvieron un registro erroneo: %r != %r"
@@ -3255,7 +3254,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                 self.private_cursor._model.value(
                                     row, self.private_cursor._model.pK()
                                 ),
-                                pKValue,
+                                primary_key_value,
                             )
                         )
                     self.private_cursor._model.setValuesDict(row, dict_update)
@@ -3269,7 +3268,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 while row < self.private_cursor._model.rowCount():
                     if (
                         self.private_cursor._model.value(row, self.private_cursor._model.pK())
-                        == pKValue
+                        == primary_key_value
                     ):
                         for fieldName in lista:
                             self.private_cursor._model.setValue(
