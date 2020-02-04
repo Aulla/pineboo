@@ -1822,10 +1822,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         ):
             value = self.valueBuffer(self.private_cursor.relation_.field())
             if value:
-                foreignFieldValueBuffer = self.private_cursor.cursor_relation_.valueBuffer(
+                foreign_field_value_buffer = self.private_cursor.cursor_relation_.valueBuffer(
                     self.private_cursor.relation_.foreignField()
                 )
-                if foreignFieldValueBuffer != value:
+                if foreign_field_value_buffer != value:
                     self.private_cursor.cursor_relation_.setValueBuffer(
                         self.private_cursor.relation_.foreignField(), value
                     )
@@ -2472,15 +2472,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         buffer_aux = self.private_cursor.buffer_
         self.insertRecord()
 
-        for it in field_list:
+        for item in field_list:
 
             if (
-                self.private_cursor.buffer_.isNull(it.name())
-                and not it.isPrimaryKey()
-                and not self.private_cursor.metadata_.fieldListOfCompoundKey(it.name())
-                and not it.calculated()
+                self.private_cursor.buffer_.isNull(item.name())
+                and not item.isPrimaryKey()
+                and not self.private_cursor.metadata_.fieldListOfCompoundKey(item.name())
+                and not item.calculated()
             ):
-                self.private_cursor.buffer_.setValue(it.name(), buffer_aux.value(it.name()))
+                self.private_cursor.buffer_.setValue(item.name(), buffer_aux.value(item.name()))
 
             del buffer_aux
             self.newBuffer.emit()
@@ -2573,9 +2573,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         field_name_check = None
         if self.modeAccess() in [self.Edit, self.Insert]:
-            fieldList = self.private_cursor.metadata_.fieldList()
+            field_list = self.private_cursor.metadata_.fieldList()
 
-            for field in fieldList:
+            for field in field_list:
                 if field.isCheck():
                     field_name_check = field.name()
                     self.private_cursor.buffer_.setGenerated(field, False)
@@ -2592,53 +2592,37 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     and hasattr(self.context(), "calculateField")
                     and field.calculated()
                 ):
-                    v = application.PROJECT.call(
+                    value = application.PROJECT.call(
                         "calculateField", [field.name()], self.context(), False
                     )
 
-                    if v not in (True, False, None):
-                        self.setValueBuffer(field.name(), v)
+                    if value not in (True, False, None):
+                        self.setValueBuffer(field.name(), value)
 
         function_before = None
         function_after = None
-        model_module: Any = None
 
-        idMod = self.db().connManager().managerModules().idModuleOfFile("%s.mtd" % self.table())
+        id_module = self.db().connManager().managerModules().idModuleOfFile("%s.mtd" % self.table())
 
         # FIXME: module_script is FLFormDB
         module_script = (
-            application.PROJECT.actions[idMod].load()
-            if idMod in application.PROJECT.actions.keys()
+            application.PROJECT.actions[id_module].load()
+            if id_module in application.PROJECT.actions.keys()
             else application.PROJECT.actions["sys"].load()
         )
         module_iface: Any = getattr(module_script, "iface", None)
-        # if application.PROJECT.DGI.use_model():
-        #    model_name = "models.%s.%s_def" % (idMod, idMod)
-        #    try:
-        #        model_module = importlib.import_module(model_name)
-        #    except Exception:
-        #        LOGGER.exception("Error trying to import module %s", model_name)
 
         if not self.modeAccess() == PNSqlCursor.Browse and self.activatedCommitActions():
 
             function_before = "beforeCommit_%s" % (self.table())
             function_after = "afterCommit_%s" % (self.table())
 
-            if model_module is not None:
-                function_model_before = getattr(
-                    module_iface, "beforeCommit_%s" % self.table(), None
-                )
-                if function_model_before:
-                    ret = function_model_before(self)
-                    if not ret:
-                        return False
-
             if function_before:
                 field_name = getattr(module_iface, function_before, None)
-                v = None
+                value = None
                 if field_name is not None:
                     try:
-                        v = field_name(self)
+                        value = field_name(self)
                     except Exception:
                         QtWidgets.QMessageBox.warning(
                             QtWidgets.QApplication.focusWidget(),
@@ -2647,7 +2631,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                 traceback.format_exc(limit=-6, chain=False)
                             ),
                         )
-                    if v and not isinstance(v, bool) or v is False:
+                    if value and not isinstance(value, bool) or value is False:
                         return False
 
         # primary_key = self.private_cursor.metadata_.primaryKey()
@@ -2687,8 +2671,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             updated = True
 
         elif self.modeAccess() == self.Edit:
-            db = self.db()
-            if db is None:
+            database = self.db()
+            if database is None:
                 raise Exception("db is not defined!")
 
             # if not db.canSavePoint():
@@ -2724,9 +2708,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if self.private_cursor.cursor_relation_.metadata():
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
 
-            recordDelBefore = "recordDelBefore%s" % self.table()
-            v = application.PROJECT.call(recordDelBefore, [self], self.context(), False)
-            if v and not isinstance(v, bool):
+            value = application.PROJECT.call(
+                "recordDelBefore%s" % self.table(), [self], self.context(), False
+            )
+            if value and not isinstance(value, bool):
                 return False
 
             if not self.private_cursor.buffer_:
@@ -2740,47 +2725,50 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if not self.private_cursor.buffer_.isGenerated(field_name):
                     continue
 
-                s = None
+                result = None
                 if not self.private_cursor.buffer_.isNull(field_name):
-                    s = self.private_cursor.buffer_.value(field_name)
+                    result = self.private_cursor.buffer_.value(field_name)
 
-                if s is None:
+                if result is None:
                     continue
 
-                relationList = field.relationList()
-                if not relationList:
+                relation_list = field.relationList()
+                if not relation_list:
                     continue
                 else:
-                    for r in relationList:
-                        c = PNSqlCursor(r.foreignTable())
-                        foreign_mtd = c.private_cursor.metadata_
+                    for relation in relation_list:
+                        cursor = PNSqlCursor(relation.foreignTable())
+                        foreign_mtd = cursor.private_cursor.metadata_
                         if foreign_mtd is None:
                             continue
-                        f = foreign_mtd.field(r.foreignField())
-                        if f is None:
+                        foreign_field = foreign_mtd.field(relation.foreignField())
+                        if foreign_field is None:
                             continue
 
-                        relation_m1 = f.relationM1()
+                        relation_m1 = foreign_field.relationM1()
 
                         if relation_m1 and relation_m1.deleteCascade():
-                            c.setForwardOnly(True)
-                            c.select(
+                            cursor.setForwardOnly(True)
+                            cursor.select(
                                 self.conn()
                                 .connManager()
                                 .manager()
-                                .formatAssignValue(r.foreignField(), f, s, True)
+                                .formatAssignValue(
+                                    relation.foreignField(), foreign_field, result, True
+                                )
                             )
-                            while c.next():
-                                c.setModeAccess(self.Del)
-                                c.refreshBuffer()
-                                if not c.commitBuffer(False):
+                            while cursor.next():
+                                cursor.setModeAccess(self.Del)
+                                cursor.refreshBuffer()
+                                if not cursor.commitBuffer(False):
                                     return False
 
             if not self.private_cursor._model.delete(self):
                 raise Exception("Error deleting row!")
 
-            recordDelAfter = "recordDelAfter%s" % self.table()
-            v = application.PROJECT.call(recordDelAfter, [self], self.context(), False)
+            application.PROJECT.call(
+                "recordDelAfter%s" % self.table(), [self], self.context(), False
+            )
 
             updated = True
 
@@ -2789,22 +2777,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if not self.modeAccess() == self.Browse and self.activatedCommitActions():
 
-            if model_module is not None:
-                function_model_after = getattr(
-                    model_module.iface, "afterCommit_%s" % self.table(), None
-                )
-                if function_model_after:
-                    ret = function_model_after(self)
-                    if not ret:
-                        return False
-
             if function_after:
                 field_name = getattr(module_script.iface, function_after, None)
 
                 if field_name is not None:
-                    v = None
+                    value = None
                     try:
-                        v = field_name(self)
+                        value = field_name(self)
                     except Exception:
                         QtWidgets.QMessageBox.warning(
                             QtWidgets.QApplication.focusWidget(),
@@ -2813,7 +2792,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                 traceback.format_exc(limit=-6, chain=False)
                             ),
                         )
-                    if v and not isinstance(v, bool) or v is False:
+                    if value and not isinstance(value, bool) or value is False:
                         return False
 
         if self.modeAccess() in (self.Del, self.Edit):
@@ -2834,15 +2813,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             if emite:
                 self.cursorUpdated.emit()
-
-        if model_module is not None:
-            function_model_buffer_commited = getattr(
-                model_module.iface, "bufferCommited_%s" % self.table(), None
-            )
-            if function_model_buffer_commited:
-                ret = function_model_buffer_commited(self)
-                if not ret:
-                    return False
 
         self.bufferCommited.emit()
         return True
@@ -2930,8 +2900,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return The list with the levels of transactions that this cursor has initiated and remain open
         """
         lista = []
-        for it in self.private_cursor._transactions_opened:
-            lista.append(str(it))
+        for item in self.private_cursor._transactions_opened:
+            lista.append(str(item))
 
         return lista
 
@@ -2998,7 +2968,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         return True
 
     @decorators.pyqtSlot()
-    def setAcTable(self, ac):
+    def setAcTable(self, acos) -> None:
         """
         Set the global access for the table, see FLSqlCursor :: setAcosCondition ().
 
@@ -3013,7 +2983,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.private_cursor._id_acos,
             self.private_cursor._id_cond,
         )
-        self.private_cursor._ac_perm_table = ac
+        self.private_cursor._ac_perm_table = acos
 
     @decorators.pyqtSlot()
     def setAcosTable(self, acos):
@@ -3038,7 +3008,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.private_cursor._acos_table = acos
 
     @decorators.pyqtSlot()
-    def setAcosCondition(self, condName: str, cond: int, condVal: Any):
+    def setAcosCondition(self, condition_name: str, condition: int, condition_value: Any):
         """
         Set the condition that must be met to apply access control.
 
@@ -3051,17 +3021,17 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
 
 
-        @param cond Type of evaluation;
+        @param condition Type of evaluation;
                     VALUE compares with a fixed value
                     REGEXP compares with a regular expression
                     FUNCTION compares with the value returned by a script function
 
-        @param condName If it is empty, the condition is not evaluated and the rule is never applied.
+        @param condition_name If it is empty, the condition is not evaluated and the rule is never applied.
                     For VALUE and REGEXP name of a field.
                     For FUNCTION name of a script function. The function is passed as
                     argument the cursor object.
 
-        @param condVal Value that makes the condition true
+        @param condition_value Value that makes the condition true
         """
 
         self.private_cursor._id_cond += 1
@@ -3070,9 +3040,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.private_cursor._id_acos,
             self.private_cursor._id_cond,
         )
-        self.private_cursor._acos_cond_name = condName
-        self.private_cursor._acos_cond = cond
-        self.private_cursor._acos_cond_value = condVal
+        self.private_cursor._acos_cond_name = condition_name
+        self.private_cursor._acos_cond = condition
+        self.private_cursor._acos_cond_value = condition_value
 
     @decorators.pyqtSlot()
     @decorators.NotImplementedWarn
@@ -3097,24 +3067,24 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if cur_conn_name == conn_name:
             return
 
-        newDB = application.PROJECT.conn_manager.database(conn_name)
-        if cur_conn_name == newDB.connectionName():
+        new_database = application.PROJECT.conn_manager.database(conn_name)
+        if cur_conn_name == new_database.connectionName():
             return
 
         if self.private_cursor._transactions_opened:
             metadata = self.private_cursor.metadata_
-            t = None
+            table_name = None
             if metadata:
-                t = metadata.name()
+                table_name = metadata.name()
             else:
-                t = self.curName()
+                table_name = self.curName()
 
             message = (
                 "Se han detectado transacciones no finalizadas en la última operación.\n"
                 "Se van a cancelar las transacciones pendientes.\n"
                 "Los últimos datos introducidos no han sido guardados, por favor\n"
                 "revise sus últimas acciones y repita las operaciones que no\n"
-                "se han guardado.\n" + "SqlCursor::changeConnection: %s\n" % t
+                "se han guardado.\n" + "SqlCursor::changeConnection: %s\n" % table_name
             )
             self.rollbackOpened(-1, message)
 
@@ -3123,7 +3093,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             buffer_backup = self.buffer()
             self.private_cursor.buffer_ = None
 
-        self.private_cursor.db_ = newDB
+        self.private_cursor.db_ = new_database
         self.init(self.private_cursor.cursor_name_, True, self.cursorRelation(), self.relation())
 
         if buffer_backup:
@@ -3152,8 +3122,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             and self.private_cursor._is_query
             and self.private_cursor.buffer_
         ):
-            for f in self.private_cursor.metadata_.fieldList():
-                self.private_cursor.buffer_.setGenerated(f, False)
+            for field in self.private_cursor.metadata_.fieldList():
+                self.private_cursor.buffer_.setGenerated(field, False)
 
     @decorators.NotImplementedWarn
     def setExtraFieldAttributes(self):
@@ -3270,9 +3240,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         self.private_cursor._model.value(row, self.private_cursor._model.pK())
                         == primary_key_value
                     ):
-                        for fieldName in lista:
+                        for field_name in lista:
                             self.private_cursor._model.setValue(
-                                row, fieldName, self.private_cursor.buffer_.value(fieldName)
+                                row, field_name, self.private_cursor.buffer_.value(field_name)
                             )
 
                         break
@@ -3466,22 +3436,24 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
             return
 
         if self._acos_cond_name is not None:
-            condTrue_ = False
+            condition_true = False
 
             if self._acos_cond == self.cursor_.Value:
 
-                condTrue_ = self.cursor_.valueBuffer(self._acos_cond_name) == self._acos_cond_value
+                condition_true = (
+                    self.cursor_.valueBuffer(self._acos_cond_name) == self._acos_cond_value
+                )
             elif self._acos_cond == self.cursor_.RegExp:
-                condTrue_ = QtCore.QRegExp(str(self._acos_cond_value)).exactMatch(
+                condition_true = QtCore.QRegExp(str(self._acos_cond_value)).exactMatch(
                     self.cursor_.valueBuffer(self._acos_cond_name)
                 )
             elif self._acos_cond == self.cursor_.Function:
-                condTrue_ = (
+                condition_true = (
                     application.PROJECT.call(self._acos_cond_name, [self.cursor_])
                     == self._acos_cond_value
                 )
 
-            if condTrue_:
+            if condition_true:
                 if self.acl_table_[self._id_acl].name() != self.id_:
                     self.acl_table_[self._id_acl].clear()
                     self.acl_table_[self._id_acl].setName(self.id_)

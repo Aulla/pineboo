@@ -103,45 +103,45 @@ class PNAction(object):
             )
         )
 
-    def setName(self, n: str) -> None:
+    def setName(self, name: str) -> None:
         """Set the name of the action."""
 
-        self._name = n
+        self._name = name
 
-    def setScriptFormRecord(self, s: str) -> None:
+    def setScriptFormRecord(self, script_form_record: str) -> None:
         """Set the name of the script associated with the record editing form."""
 
-        self._script_form_record = "%s.qs" % s
+        self._script_form_record = "%s.qs" % script_form_record
 
-    def setScriptForm(self, s: str) -> None:
+    def setScriptForm(self, script_form: str) -> None:
         """Set the name of the script associated with the master form."""
 
-        self._script_form = "%s.qs" % s
+        self._script_form = "%s.qs" % script_form
 
-    def setTable(self, t: str) -> None:
+    def setTable(self, table: str) -> None:
         """Set the name of the source table of the master form."""
 
-        self._table = t
+        self._table = table
 
-    def setForm(self, f: str) -> None:
+    def setForm(self, form: str) -> None:
         """Set the name of the master form."""
 
-        self._form = "%s.ui" % f
+        self._form = "%s.ui" % form
 
-    def setFormRecord(self, f: str) -> None:
+    def setFormRecord(self, form_record: str) -> None:
         """Set the name of the record editing form."""
 
-        self._form_record = "%s.ui" % f
+        self._form_record = "%s.ui" % form_record
 
-    def setCaption(self, c: str) -> None:
+    def setCaption(self, caption: str) -> None:
         """Set the text of the title bar of the master form."""
 
-        self._caption = c
+        self._caption = caption
 
-    def setDescription(self, d: str) -> None:
+    def setDescription(self, description: str) -> None:
         """Set description."""
 
-        self._description = d
+        self._description = description
 
     def name(self) -> str:
         """Get the name of the action."""

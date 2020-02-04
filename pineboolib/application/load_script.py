@@ -9,7 +9,7 @@ from pineboolib.core.utils.struct import ActionStruct
 import shutil
 import os
 
-logger = logging.getLogger("load_script")
+LOGGER = logging.getLogger("load_script")
 
 
 def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # returns loaded script
@@ -26,9 +26,9 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
 
     if scriptname:
         scriptname = scriptname.replace(".qs", "")
-        logger.debug("Loading script %s for action %s", scriptname, action_.name)
+        LOGGER.debug("Loading script %s for action %s", scriptname, action_.name)
     else:
-        logger.info("No script to load for action %s", action_.name)
+        LOGGER.info("No script to load for action %s", action_.name)
 
     from pineboolib.qsa import emptyscript  # type: ignore
 
@@ -74,14 +74,14 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
                 script_path_py = script_path_py_static
 
             if script_path_py:
-                logger.info("Loading script PY %s . . . ", scriptname)
+                LOGGER.info("Loading script PY %s . . . ", scriptname)
                 if not os.path.isfile(script_path_py):
                     raise IOError
                 try:
                     loader = machinery.SourceFileLoader(scriptname, script_path_py)
                     script_loaded = loader.load_module()  # type: ignore
                 except Exception:
-                    logger.exception("ERROR al cargar script PY para la accion %s:", action_.name)
+                    LOGGER.exception("ERROR al cargar script PY para la accion %s:", action_.name)
 
         elif script_path_qs:
             script_path_py = "%s.py" % script_path_qs[:-3]
@@ -99,20 +99,20 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
                     os.remove(script_path_py)
 
                 if not os.path.exists(static_flag):  # Marcamos que se ha hecho carga estática.
-                    f = open(static_flag, "w")
-                    f.write(".")
-                    f.close()
+                    file = open(static_flag, "w")
+                    file.write(".")
+                    file.close()
 
             if not os.path.exists(script_path_py):
                 project.parse_script_list([script_path_qs])
 
-            logger.info("Loading script QS %s . . . ", scriptname)
+            LOGGER.info("Loading script QS %s . . . ", scriptname)
             # python_script_path = "%s.py" % script_path_qs[:-3]
             try:
                 loader = machinery.SourceFileLoader(scriptname, script_path_py)
                 script_loaded = loader.load_module()  # type: ignore
             except Exception:
-                logger.exception("ERROR al cargar script QS para la accion %s:", action_.name)
+                LOGGER.exception("ERROR al cargar script QS para la accion %s:", action_.name)
                 if os.path.exists(script_path_py):
                     os.remove(script_path_py)
 
