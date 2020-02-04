@@ -468,15 +468,15 @@ class PNSqlQuery(object):
 
         if self.private_query._group_dict and not self.private_query._order_by:
             res = res + " ORDER BY "
-            initGD = False
+            init_gd = False
             i = 0
             while i < len(self.private_query._group_dict):
-                gD: str = self.private_query._group_dict[i]
-                if not initGD:
-                    res = res + gD
-                    initGD = True
+                group_dict: str = self.private_query._group_dict[i]
+                if not init_gd:
+                    res = res + group_dict
+                    init_gd = True
                 else:
-                    res = res + ", " + gD
+                    res = res + ", " + group_dict
 
                 i = i + 1
 
@@ -496,23 +496,23 @@ class PNSqlQuery(object):
                 LOGGER.warning("It is highly recommended to use order by next to offset")
 
         if self.private_query._parameter_dict:
-            for pD in self.private_query._parameter_dict.keys():
-                v = self.private_query._parameter_dict[pD]
+            for parameter_dict in self.private_query._parameter_dict.keys():
+                value = self.private_query._parameter_dict[parameter_dict]
 
-                if v is None:
+                if value is None:
                     dialog = QtWidgets.QInputDialog()
 
                     if dialog is not None:
-                        v = dialog.getText(
+                        value = dialog.getText(
                             QtWidgets.QApplication.activeWindow(),
                             "Entrada de parámetros de la consulta",
-                            pD,
+                            parameter_dict,
                         )
-                        if v:
-                            v = v[0]
+                        if value:
+                            value = value[0]
 
                 res = res.replace(
-                    "[%s]" % pD, "'%s'" % v
+                    "[%s]" % parameter_dict, "'%s'" % value
                 )  # FIXME: ajustar al tipo de dato pnparameterquery.setValue!!
 
         return res
@@ -616,17 +616,12 @@ class PNSqlQuery(object):
             LOGGER.warning("DEBUG ERROR : No hay campos en la consulta")
             return
 
-        LOGGER.warning("DEBUG: Campos de la consulta : ")
-        for f in self.private_query._field_list:
-            LOGGER.warning("**%s", f)
-
-        LOGGER.warning("DEBUG : Contenido de la consulta : ")
-
         linea = ""
-
-        for it in self.private_query._field_list:
-            linea += "__%s" % self.value(it)
-
+        LOGGER.warning("DEBUG: Campos de la consulta : ")
+        for field in self.private_query._field_list:
+            LOGGER.warning("**%s", field)
+            linea += "__%s" % self.value(field)
+        LOGGER.warning("DEBUG : Contenido de la consulta : ")
         LOGGER.warning(linea)
 
     def value(self, field_name: Union[str, int, None], raw: bool = False) -> Any:
