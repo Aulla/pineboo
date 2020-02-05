@@ -74,7 +74,7 @@ class PNRelationMetaData:
         @param check_integrity Integrity checks on the relation.
         """
 
-        self.d = PNRelationMetaDataPrivate(
+        self.private = PNRelationMetaDataPrivate(
             foreign_table,
             foreign_field,
             relation_cardinality,
@@ -91,7 +91,7 @@ class PNRelationMetaData:
         @param other. original PNRelationMetaData.
         """
 
-        self.d = PNRelationMetaDataPrivate()
+        self.private = PNRelationMetaDataPrivate()
         self.copy(other)
 
     def setField(self, fN: str) -> None:

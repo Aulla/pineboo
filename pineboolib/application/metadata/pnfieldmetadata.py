@@ -972,7 +972,7 @@ class PNFieldMetaDataPrivate(object):
 
         self._field_name = name.lower()
         self.alias_ = alias
-        if c:
+        if calculated:
             self._allow_null = True
         else:
             self._allow_null = allow_null
@@ -1025,13 +1025,13 @@ class PNFieldMetaDataPrivate(object):
             self._part_decimal = 0
         # print("Tipo ", t)
 
-        if not t == "string" and not int(length_) == 0:
+        if not type_ == "string" and not int(length_) == 0:
             self.length_ = 0
 
         # if not t == "int" and not t == "uint" and t == "double" and not int(pI) == 0:
         # self._part_integer = 0
 
-        if t == "double" and not int(part_decimal) >= 0:
+        elif type_ == "double" and not int(part_decimal) >= 0:
             self._part_decimal = 0
 
     def __del_(self):
