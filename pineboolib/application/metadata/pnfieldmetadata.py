@@ -626,8 +626,8 @@ class PNFieldMetaData(IFieldMetaData):
         self.private.clearRelationList()
 
         if other_private._relation_list:
-            for r in other_private._relation_list:
-                self.private._relation_list.append(r)
+            for relation in other_private._relation_list:
+                self.private._relation_list.append(relation)
 
         self.private._field_name = other_private._field_name
         self.private.alias_ = other_private.alias_

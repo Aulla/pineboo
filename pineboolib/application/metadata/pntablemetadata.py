@@ -269,9 +269,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         if field_name:
             field_name = str(field_name)
 
-            for f in self.private._field_list:
-                if f.name() == field_name.lower():
-                    type_ = f.type()
+            for field in self.private._field_list:
+                if field.name() == field_name.lower():
+                    type_ = field.type()
                     break
 
         ret_ = None
@@ -312,9 +312,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name:
-            for f in self.private._field_list:
-                if f.name() == field_name.lower():
-                    return f.isPrimaryKey()
+            for field in self.private._field_list:
+                if field.name() == field_name.lower():
+                    return field.isPrimaryKey()
 
         return None
 
@@ -339,9 +339,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @author Andrés Otón Urbano (baxas@eresmas.com)
         """
         if field_name:
-            for f in self.private._field_list:
-                if f.name() == field_name.lower():
-                    return f.isCounter()
+            for field in self.private._field_list:
+                if field.name() == field_name.lower():
+                    return field.isCounter()
 
         return False
 
@@ -353,9 +353,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name:
-            for f in self.private._field_list:
-                if f.name() == field_name.lower():
-                    return f.allowNull()
+            for field in self.private._field_list:
+                if field.name() == field_name.lower():
+                    return field.allowNull()
 
         return False
 
@@ -366,9 +366,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name.
         """
         if field_name:
-            for f in self.private._field_list:
-                if f.name() == field_name.lower():
-                    return f.isUnique()
+            for field in self.private._field_list:
+                if field.name() == field_name.lower():
+                    return field.isUnique()
 
         return False
 
@@ -383,9 +383,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name:
-            for f in self.fieldList():
-                if f.name() == field_name.lower():
-                    relation_ = f.relationM1()
+            for field in self.fieldList():
+                if field.name() == field_name.lower():
+                    relation_ = field.relationM1()
                     if relation_:
                         return relation_.foreignTable()
 
@@ -401,9 +401,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name:
-            for f in self.fieldList():
-                if f.name() == field_name.lower():
-                    relation_ = f.relationM1()
+            for field in self.fieldList():
+                if field.name() == field_name.lower():
+                    relation_ = field.relationM1()
                     if relation_:
                         return relation_.foreignField()
         return None
@@ -414,16 +414,16 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
         Get the relationship object that defines two fields.
 
-        @param fN Field name of this table that is part of the relationship.
-        @param fFN Name of the foreign field to this table that is part of the relationship.
-        @param fTN Name of the foreign table.
+        @param field_name Field name of this table that is part of the relationship.
+        @param foreign_field Name of the foreign field to this table that is part of the relationship.
+        @param foreign_table Name of the foreign table.
         @return Returns a FLRelationMetaData object with the relationship information, provided
             when it exists If it does not exist, it returns False.
         """
 
-        for f in self.fieldList():
-            if f.name() == field_name.lower():
-                relation_ = f.relationM1()
+        for field in self.fieldList():
+            if field.name() == field_name.lower():
+                relation_ = field.relationM1()
                 if relation_:
                     if (
                         relation_.foreignField() == foreign_field.lower()
@@ -431,7 +431,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
                     ):
                         return relation_
 
-                relation_list = f.relationList()
+                relation_list = field.relationList()
                 for itr in relation_list:
                     if (
                         itr.foreignField() == foreign_field.lower()
@@ -450,9 +450,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name:
-            for f in self.fieldList():
-                if f.name() == field_name.lower():
-                    return f.length()
+            for field in self.fieldList():
+                if field.name() == field_name.lower():
+                    return field.length()
 
         return None
 
@@ -465,9 +465,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name:
-            for f in self.fieldList():
-                if f.name() == field_name.lower():
-                    return f.partInteger()
+            for field in self.fieldList():
+                if field.name() == field_name.lower():
+                    return field.partInteger()
 
         return None
 
@@ -480,9 +480,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name:
-            for f in self.fieldList():
-                if f.name() == field_name.lower():
-                    return f.partDecimal()
+            for field in self.fieldList():
+                if field.name() == field_name.lower():
+                    return field.partDecimal()
 
         return None
 
@@ -494,9 +494,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name:
-            for f in self.fieldList():
-                if f.name() == field_name.lower():
-                    return f.calculated()
+            for field in self.fieldList():
+                if field.name() == field_name.lower():
+                    return field.calculated()
 
         return None
 
@@ -508,9 +508,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name:
-            for f in self.fieldList():
-                if f.name() == field_name.lower():
-                    return f.visible()
+            for field in self.fieldList():
+                if field.name() == field_name.lower():
+                    return field.visible()
 
         return None
 
@@ -525,9 +525,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if field_name:
-            for f in self.private._field_list:
-                if f.name() == field_name.lower():
-                    return f
+            for field in self.private._field_list:
+                if field.name() == field_name.lower():
+                    return field
 
         return None
 

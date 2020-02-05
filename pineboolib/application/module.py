@@ -21,11 +21,11 @@ if TYPE_CHECKING:
     from .file import File
     from pineboolib.core.utils.struct import TableStruct
 
+LOGGER = logging.getLogger(__name__)
+
 
 class Module(object):
     """Information about loaded modules."""
-
-    logger = logging.getLogger("application.Module")
 
     def __init__(self, areaid: str, name: str, description: str, icon: str) -> None:
         """
@@ -74,7 +74,7 @@ class Module(object):
 
         # pathui = _path("%s.ui" % self.name)
         if path_xml is None:
-            self.logger.error("módulo %s: fichero XML no existe", self.name)
+            LOGGER.error("módulo %s: fichero XML no existe", self.name)
             return False
         # if pathui is None:
         #    self.logger.error("módulo %s: fichero UI no existe", self.name)
@@ -83,7 +83,7 @@ class Module(object):
             self.actions = ModuleActions(self, path_xml, self.name)
             self.actions.load()
         except Exception:
-            self.logger.exception("Al cargar módulo %s:", self.name)
+            LOGGER.exception("Al cargar módulo %s:", self.name)
             return False
 
         # TODO: Load Main Script:
@@ -107,13 +107,11 @@ class Module(object):
             try:
                 if contenido is None:
                     continue
-                tableObj = parseTable(name, contenido)
-            except ValueError as e:
-                self.logger.warning(
-                    "No se pudo procesar. Se ignora tabla %s/%s (%s) ", self.name, name, e
+                self.tables[name] = parseTable(name, contenido)
+            except ValueError as exception:
+                LOGGER.warning(
+                    "No se pudo procesar. Se ignora tabla %s/%s (%s) ", self.name, name, exception
                 )
-
-            self.tables[name] = tableObj
 
         self.loaded = True
         return True

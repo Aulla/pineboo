@@ -94,14 +94,14 @@ class PNRelationMetaData:
         self.private = PNRelationMetaDataPrivate()
         self.copy(other)
 
-    def setField(self, fN: str) -> None:
+    def setField(self, field_name: str) -> None:
         """
         Set the name of the related field.
 
         @param fN Related field name.
         """
 
-        self.private.field_ = fN.lower()
+        self.private.field_ = field_name.lower()
 
     def field(self) -> str:
         """
@@ -165,7 +165,7 @@ class PNRelationMetaData:
         Get if the integrity rules on the relationship should be applied.
         """
 
-        return self.private.checkIn_
+        return self.private._check_integrity
 
     @decorators.BetaImplementation
     def copy(self, other: "PNRelationMetaData") -> None:
@@ -183,7 +183,7 @@ class PNRelationMetaData:
         self.private._cardinality = other.private._cardinality
         self.private._delete_cascade = other.private._delete_cascade
         self.private._update_cascade = other.private._update_cascade
-        self.private.checkIn_ = other.private.checkIn_
+        self.private._check_integrity = other.private._check_integrity
 
 
 class PNRelationMetaDataPrivate:
@@ -223,7 +223,7 @@ class PNRelationMetaDataPrivate:
     """
     Indica si se deben aplicar la reglas de integridad en esta relación
     """
-    checkIn_: bool
+    _check_integrity: bool
 
     def __init__(self, *args, **kwargs) -> None:
         """Initialize the class."""
@@ -251,7 +251,7 @@ class PNRelationMetaDataPrivate:
         self._cardinality = relation_cardinality
         self._delete_cascade = delete_cascade
         self._update_cascade = update_cascade
-        self.checkIn_ = check_integrity
+        self._check_integrity = check_integrity
 
     @decorators.BetaImplementation
     def inicializeFLRelationMetaDataPrivate(self):
