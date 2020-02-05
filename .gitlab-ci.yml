@@ -83,8 +83,8 @@ pages:
         # Reset modification time of the files to the original authored time.
         - ./git_reset_mtime.sh
         - cd docs
+	- ./create_docs.sh | ts
 	- ./update_linters.sh | ts
-        - ./create_docs.sh | ts
         - make html | ts
         - cp -R build/html/ ../public/
     artifacts:
