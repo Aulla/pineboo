@@ -1,7 +1,7 @@
 """
 ITableMetadata module.
 """
-from typing import List, Optional, Any, TYPE_CHECKING
+from typing import List, Optional, Any, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData  # noqa
@@ -10,15 +10,20 @@ if TYPE_CHECKING:
 class ITableMetaData:
     """Abstract class for PNTableMetaData."""
 
-    def __init__(self, n: str, a: Optional[str], q: Optional[str]) -> None:
+    def __init__(
+        self,
+        name: Optional[Union["ITableMetaData", str]] = None,
+        alias: Optional[str] = None,
+        qry_name: Optional[str] = None,
+    ) -> None:
         """Create new tablemetadata."""
         return
 
-    def addFieldMD(self, f) -> None:
+    def addFieldMD(self, fielf_metadata) -> None:
         """Add new field to this object."""
         return
 
-    def field(self, fN: str) -> Any:
+    def field(self, field_name: str) -> Any:
         """Retrieve field by name."""
         return
 
@@ -30,11 +35,11 @@ class ITableMetaData:
         """Return list of fields."""
         return
 
-    def fieldListOfCompoundKey(self, fN: str) -> Optional[List["PNFieldMetaData"]]:
+    def fieldListOfCompoundKey(self, field_name: str) -> Optional[List["PNFieldMetaData"]]:
         """Return list of fields for CK."""
         return []
 
-    def fieldNameToAlias(self, fN: Optional[str]) -> Optional[str]:
+    def fieldNameToAlias(self, field_name: Optional[str]) -> Optional[str]:
         """Get alias of field."""
         return ""
 
@@ -58,7 +63,7 @@ class ITableMetaData:
         """Get field position by name."""
         return 0
 
-    def inicializeNewFLTableMetaData(self, n: str, a: str, q: Optional[str]) -> None:
+    def inicializeNewFLTableMetaData(self, name: str, alias: str, qry_name: Optional[str]) -> None:
         """Initialize object."""
         return
 
@@ -70,7 +75,7 @@ class ITableMetaData:
         """Get table name."""
         return ""
 
-    def primaryKey(self, prefixTable: bool) -> str:
+    def primaryKey(self, prefix_table: bool) -> str:
         """Get primary key field."""
         return ""
 
@@ -78,22 +83,22 @@ class ITableMetaData:
         """Get query string."""
         return ""
 
-    def relation(self, fN: str, fFN: str, fTN: str):
+    def relation(self, field_name: str, foreign_field_name: str, foreign_table_name: str):
         """Get relation object."""
         return
 
-    def setCompoundKey(self, cK) -> None:
+    def setCompoundKey(self, compound_key) -> None:
         """Set CK."""
         return
 
-    def setConcurWarn(self, b: bool) -> None:
+    def setConcurWarn(self, state: bool) -> None:
         """Enable concurrency warning."""
         return
 
-    def setDetectLocks(self, b: bool) -> None:
+    def setDetectLocks(self, state: bool) -> None:
         """Enable Lock detection."""
         return
 
-    def setFTSFunction(self, ftsfun: str) -> None:
+    def setFTSFunction(self, full_text_search_function: str) -> None:
         """Set Full-Text-Search function."""
         return

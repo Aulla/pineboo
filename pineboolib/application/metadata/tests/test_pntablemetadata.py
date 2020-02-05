@@ -72,8 +72,9 @@ class TestCopyPNTableMetaData(unittest.TestCase):
         """Test copy a PNTableMetaData from other."""
 
         mtd_1 = application.PROJECT.conn_manager.manager().metadata("flgroups")
-
-        mtd_2 = pntablemetadata.PNTableMetaData(mtd_1)
+        if mtd_1:
+            self.assertEqual(mtd_1.alias(), "Grupos de Usuarios")
+        mtd_2 = pntablemetadata.PNTableMetaData(mtd_1 or "")
 
         self.assertEqual(mtd_2.name(), "flgroups")
         self.assertEqual(mtd_2.alias(), "Grupos de Usuarios")

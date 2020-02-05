@@ -14,11 +14,11 @@ the metadata of a query, see FLTableMetaData :: query ().
 
 from pineboolib.core import decorators
 
-from pineboolib.interfaces.itablemetadata import ITableMetaData
+from pineboolib.interfaces import itablemetadata
 from pineboolib import logging
 import copy
 
-from typing import Optional, List, Dict, TYPE_CHECKING
+from typing import Optional, List, Dict, Union, TYPE_CHECKING
 from . import pnfieldmetadata
 from . import pncompoundkeymetadata
 
@@ -28,59 +28,63 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger("CursorTableModel")
 
 
-class PNTableMetaData(ITableMetaData):
+class PNTableMetaData(itablemetadata.ITableMetaData):
     """PNTableMetaData Class."""
 
-    d: "PNTableMetaDataPrivate"
+    private: "PNTableMetaDataPrivate"
 
-    def __init__(self, n, a=None, q: str = None) -> None:
+    def __init__(
+        self,
+        name_or_metadata: Union[str, "PNTableMetaData"] = "",
+        alias: Optional[str] = None,
+        query_name: Optional[str] = None,
+    ) -> None:
         """
         Collect the data to start.
 
-        @param n Name of the table to define
-        @param a Alias ​​of the table, used in forms
-        @param q (Optional) Name of the query from which you define your metadata
+        @param name_or_metadata Name of the table to define
+        @param alias Alias ​​of the table, used in forms
+        @param query_name (Optional) Name of the query from which you define your metadata
         """
 
-        super().__init__(n, a, q)
+        super().__init__(name_or_metadata, alias, query_name)
         # tmp = None
+        if not isinstance(name_or_metadata, str):
+            self.inicializeFLTableMetaData(name_or_metadata)
 
-        if not a and not q:
-            if isinstance(n, str):
-                # print("FLTableMetaData(%s).init()" % args[0])
-                self.inicializeFLTableMetaDataP(n)
-            else:
-                self.inicializeFLTableMetaData(n)
         else:
-            self.inicializeNewFLTableMetaData(n, a, q)
+            if alias is not None and query_name is not None:
+                self.inicializeNewFLTableMetaData(name_or_metadata, alias, query_name)
+            else:
+                self.inicializeFLTableMetaDataP(name_or_metadata)
 
-    def inicializeFLTableMetaData(self, other: "PNTableMetaData") -> None:
+    def inicializeFLTableMetaData(self, other: Optional["PNTableMetaData"] = None) -> None:
         """
         Initialize the data from another PNTableMetaData.
         """
 
-        self.d = PNTableMetaDataPrivate()
+        self.private = PNTableMetaDataPrivate()
         self.copy(other)
 
-    def inicializeNewFLTableMetaData(self, n, a, q: str = None) -> None:
+    def inicializeNewFLTableMetaData(self, name: str, alias: str, query_name: str = None) -> None:
         """
         Initialize the data with the basic information.
 
-        @param n Name of the table to define
-        @param a Alias ​​of the table, used in forms
-        @param q (Optional) Name of the query from which you define your metadata
+        @param name Name of the table to define
+        @param alias Alias ​​of the table, used in forms
+        @param query_name (Optional) Name of the query from which you define your metadata
 
         """
-        self.d = PNTableMetaDataPrivate(n, a, q)
+        self.private = PNTableMetaDataPrivate(name, alias, query_name)
 
     def inicializeFLTableMetaDataP(self, name: str) -> None:
         """
         Initialize the private part, without data. Just specify the name.
         """
 
-        self.d = PNTableMetaDataPrivate(name)
+        self.private = PNTableMetaDataPrivate(name)
 
-        self.d.compoundKey_ = pncompoundkeymetadata.PNCompoundKeyMetaData()
+        self.private._compound_key = pncompoundkeymetadata.PNCompoundKeyMetaData()
 
         """
         try:
@@ -91,15 +95,15 @@ class PNTableMetaData(ITableMetaData):
         for field in table.fields:
             field.setMetadata(self)
             if field.isCompoundKey():
-                self.d.compoundKey_.addFieldMD(field)
+                self.private._compound_key.addFieldMD(field)
             if field.isPrimaryKey():
-                self.d.primaryKey_ = field.name()
+                self.private._primary_key = field.name()
 
-            self.d.field_list_.append(field)
-            self.d._field_names.append(field.name())
+            self.private._field_list.append(field)
+            self.private._field_names.append(field.name())
 
             if field.type() == FLFieldMetaData.Unlock:
-                self.d.fieldNamesUnlock_.append(field.name())
+                self.private._field_names_unlock.append(field.name())
         """
 
     def name(self) -> str:
@@ -109,35 +113,35 @@ class PNTableMetaData(ITableMetaData):
         @return The name of the table described
         """
 
-        return self.d.name_
+        return self.private._name
 
-    def setName(self, n: str) -> None:
+    def setName(self, name: str) -> None:
         """
         Set the name of the table.
 
-        @param n Table name
+        @param name Table name
         """
 
         # QObject::setName(n);
-        self.d.name_ = n
+        self.private._name = name
 
-    def setAlias(self, a: str) -> None:
+    def setAlias(self, alias: str) -> None:
         """
         Set the alias.
 
         @param a Alias
         """
 
-        self.d.alias_ = a
+        self.private._alias = alias
 
-    def setQuery(self, q: str) -> None:
+    def setQuery(self, query: str) -> None:
         """
         Set the name of the query.
 
         @param q Query name
         """
 
-        self.d.query_ = q
+        self.private._query = query
 
     def alias(self) -> str:
         """
@@ -146,7 +150,7 @@ class PNTableMetaData(ITableMetaData):
         @return Alias.
         """
 
-        return self.d.alias_
+        return self.private._alias
 
     def query(self) -> str:
         """
@@ -158,14 +162,14 @@ class PNTableMetaData(ITableMetaData):
         when referring to several tables.
         """
 
-        return self.d.query_
+        return self.private._query
 
     def isQuery(self) -> bool:
         """
         Get if you define the metadata of a query.
         """
 
-        return True if self.d.query_ else False
+        return True if self.private._query else False
 
     def addFieldMD(self, field_metadata: "pnfieldmetadata.PNFieldMetaData") -> None:
         """
@@ -178,14 +182,14 @@ class PNTableMetaData(ITableMetaData):
         #     return
         if not field_metadata.metadata():
             field_metadata.setMetadata(self)
-        self.d.field_list_.append(field_metadata)
-        self.d.addFieldName(field_metadata.name())
-        self.d.formatAlias(field_metadata)
+        self.private._field_list.append(field_metadata)
+        self.private.addFieldName(field_metadata.name())
+        self.private.formatAlias(field_metadata)
 
         if field_metadata.type() == pnfieldmetadata.PNFieldMetaData.Unlock:
-            self.d.fieldNamesUnlock_.append(field_metadata.name())
+            self.private._field_names_unlock.append(field_metadata.name())
         if field_metadata.isPrimaryKey():
-            self.d.primaryKey_ = field_metadata.name().lower()
+            self.private._primary_key = field_metadata.name().lower()
 
     def removeFieldMD(self, field_name: str) -> None:
         """
@@ -193,12 +197,12 @@ class PNTableMetaData(ITableMetaData):
 
         @param fN Name of the field to be deleted
         """
-        for _field in self.d.field_list_:
+        for _field in self.private._field_list:
             if _field.name().lower() == field_name.lower():
-                self.d.field_list_.remove(_field)
+                self.private._field_list.remove(_field)
                 break
 
-        self.d.removeFieldName(field_name)
+        self.private.removeFieldName(field_name)
 
     def setCompoundKey(self, cK: Optional["pncompoundkeymetadata.PNCompoundKeyMetaData"]) -> None:
         """
@@ -207,7 +211,7 @@ class PNTableMetaData(ITableMetaData):
         @param cK FLCompoundKey object with the description of the composite key
         """
 
-        self.d.compoundKey_ = cK
+        self.private._compound_key = cK
 
     def primaryKey(self, prefixTable=False) -> str:
         """
@@ -216,16 +220,16 @@ class PNTableMetaData(ITableMetaData):
         @param prefixTable If TRUE, a prefix with the name of the table is added; tablename.fieldname
         """
 
-        if not self.d.primaryKey_:
-            raise Exception("No primaryKey in %s" % self.d.name_)
+        if not self.private._primary_key:
+            raise Exception("No primaryKey in %s" % self.private._name)
 
-        if "." in self.d.primaryKey_:
-            return self.d.primaryKey_
+        if "." in self.private._primary_key:
+            return self.private._primary_key
 
         if prefixTable:
-            return str("%s.%s" % (self.d.name_, self.d.primaryKey_))
+            return str("%s.%s" % (self.private._name, self.private._primary_key))
         else:
-            return str(self.d.primaryKey_)
+            return str(self.private._primary_key)
 
     def fieldNameToAlias(self, field_name: Optional[str] = None) -> Optional[str]:
         """
@@ -235,7 +239,7 @@ class PNTableMetaData(ITableMetaData):
         """
 
         if field_name:
-            for key in self.d.field_list_:
+            for key in self.private._field_list:
                 if key.name().lower() == field_name.lower():
                     return key.alias()
 
@@ -249,7 +253,7 @@ class PNTableMetaData(ITableMetaData):
         """
 
         if alias_name:
-            for key in self.d.field_list_:
+            for key in self.private._field_list:
                 if key.alias().lower() == alias_name.lower():
                     return key.name()
 
@@ -265,7 +269,7 @@ class PNTableMetaData(ITableMetaData):
         if field_name:
             field_name = str(field_name)
 
-            for f in self.d.field_list_:
+            for f in self.private._field_list:
                 if f.name() == field_name.lower():
                     type_ = f.type()
                     break
@@ -308,7 +312,7 @@ class PNTableMetaData(ITableMetaData):
         """
 
         if field_name:
-            for f in self.d.field_list_:
+            for f in self.private._field_list:
                 if f.name() == field_name.lower():
                     return f.isPrimaryKey()
 
@@ -335,7 +339,7 @@ class PNTableMetaData(ITableMetaData):
         @author Andrés Otón Urbano (baxas@eresmas.com)
         """
         if field_name:
-            for f in self.d.field_list_:
+            for f in self.private._field_list:
                 if f.name() == field_name.lower():
                     return f.isCounter()
 
@@ -349,7 +353,7 @@ class PNTableMetaData(ITableMetaData):
         """
 
         if field_name:
-            for f in self.d.field_list_:
+            for f in self.private._field_list:
                 if f.name() == field_name.lower():
                     return f.allowNull()
 
@@ -362,7 +366,7 @@ class PNTableMetaData(ITableMetaData):
         @param fN Field name.
         """
         if field_name:
-            for f in self.d.field_list_:
+            for f in self.private._field_list:
                 if f.name() == field_name.lower():
                     return f.isUnique()
 
@@ -521,7 +525,7 @@ class PNTableMetaData(ITableMetaData):
         """
 
         if field_name:
-            for f in self.d.field_list_:
+            for f in self.private._field_list:
                 if f.name() == field_name.lower():
                     return f
 
@@ -534,7 +538,7 @@ class PNTableMetaData(ITableMetaData):
         @return Object with the table field deficits list
         """
 
-        return self.d.field_list_
+        return self.private._field_list
 
     def fieldListArray(self, prefix_table: bool = False) -> List[str]:
         """
@@ -547,14 +551,14 @@ class PNTableMetaData(ITableMetaData):
         listado = []
         cadena = "%s." % self.name() if prefix_table else ""
 
-        for field in self.d.field_list_:
+        for field in self.private._field_list:
             listado.append("%s%s" % (cadena, field.name()))
 
         return listado
 
     # def fieldListObject(self):
-    #    #print("FiledList count", len(self.d.field_list_))
-    #    return self.d.field_list_
+    #    #print("FiledList count", len(self.private._field_list))
+    #    return self.private._field_list
 
     def indexPos(self, field_name: str) -> int:
         """
@@ -579,9 +583,9 @@ class PNTableMetaData(ITableMetaData):
         """
 
         if field_name:
-            if self.d.compoundKey_:
-                if self.d.compoundKey_.hasField(field_name):
-                    return self.d.compoundKey_.fieldList()
+            if self.private._compound_key:
+                if self.private._compound_key.hasField(field_name):
+                    return self.private._compound_key.fieldList()
         return None
 
     def fieldNames(self) -> List[str]:
@@ -594,7 +598,7 @@ class PNTableMetaData(ITableMetaData):
         @return field name list.
         """
 
-        return self.d._field_names
+        return self.private._field_names
 
     def fieldNamesUnlock(self) -> List[str]:
         """
@@ -603,7 +607,7 @@ class PNTableMetaData(ITableMetaData):
         @return field name list.
         """
 
-        return self.d.fieldNamesUnlock_
+        return self.private._field_names_unlock
 
     def concurWarn(self) -> bool:
         """
@@ -612,16 +616,16 @@ class PNTableMetaData(ITableMetaData):
         @return True or False
         """
 
-        return self.d.concurWarn_
+        return self.private._concur_warn
 
-    def setConcurWarn(self, b=True) -> None:
+    def setConcurWarn(self, state: bool = True) -> None:
         """
         Enable concurWarn flag.
 
-        @param b. True or False.
+        @param state. True or False.
         """
 
-        self.d.concurWarn_ = b
+        self.private._concur_warn = state
 
     @decorators.BetaImplementation
     def detectLocks(self) -> bool:
@@ -631,16 +635,16 @@ class PNTableMetaData(ITableMetaData):
         @return b. True or False.
         """
 
-        return self.d.detectLocks_
+        return self.private._detect_locks
 
-    def setDetectLocks(self, b=True) -> None:
+    def setDetectLocks(self, state: bool = True) -> None:
         """
         Enable lock detection flag.
 
         @return b. True or False.
         """
 
-        self.d.detectLocks_ = b
+        self.private._detect_locks = state
 
     def FTSFunction(self) -> str:
         """
@@ -649,7 +653,7 @@ class PNTableMetaData(ITableMetaData):
         @return function name or None.
         """
 
-        return self.d.ftsfun_
+        return self.private.full_text_search_function
 
     def setFTSFunction(self, full_text_search_function: str) -> None:
         """
@@ -658,7 +662,7 @@ class PNTableMetaData(ITableMetaData):
         @param ftsfun. function name.
         """
 
-        self.d.ftsfun_ = full_text_search_function
+        self.private.full_text_search_function = full_text_search_function
 
     def inCache(self) -> bool:
         """
@@ -667,16 +671,16 @@ class PNTableMetaData(ITableMetaData):
         @return True or False.
         """
 
-        return self.d.inCache_ if self.d else False
+        return self.private._in_cache if self.private else False
 
-    def setInCache(self, b=True) -> None:
+    def setInCache(self, state: bool = True) -> None:
         """
         Set the metadata is cached (FLManager :: cacheMetaData_).
 
         @return True or False.
         """
 
-        self.d.inCache_ = b
+        self.private._in_cache = state
 
     def copy(self, other: Optional["PNTableMetaData"] = None) -> None:
         """
@@ -688,7 +692,7 @@ class PNTableMetaData(ITableMetaData):
         if other is None or other == self:
             return
 
-        self.d = copy.copy(other.d)
+        self.private = copy.copy(other.private)
 
     def indexFieldObject(self, position: int) -> "pnfieldmetadata.PNFieldMetaData":
         """
@@ -697,10 +701,10 @@ class PNTableMetaData(ITableMetaData):
         @param i. Position.
         @return PNfieldMetadata.
         """
-        if position < 0 or position >= len(self.d.field_list_):
+        if position < 0 or position >= len(self.private._field_list):
             raise ValueError("Value n:%s out of bounds" % position)
 
-        return self.d.field_list_[position]
+        return self.private._field_list[position]
 
 
 class PNTableMetaDataPrivate:
@@ -710,27 +714,27 @@ class PNTableMetaDataPrivate:
     Nombre de la tabla
     """
 
-    name_: str
+    _name: str
 
     """
     Alias de la tabla
     """
-    alias_: str
+    _alias: str
 
     """
     Lista de campos que tiene esta tabla
     """
-    field_list_: List["pnfieldmetadata.PNFieldMetaData"]
+    _field_list: List["pnfieldmetadata.PNFieldMetaData"]
 
     """
     Clave compuesta que tiene esta tabla
     """
-    compoundKey_: Optional["pncompoundkeymetadata.PNCompoundKeyMetaData"] = None
+    _compound_key: Optional["pncompoundkeymetadata.PNCompoundKeyMetaData"] = None
 
     """
     Nombre de la consulta (fichero .qry) de la que define los metadatos
     """
-    query_: str
+    _query: str
 
     """
     Cadena de texto con los nombre de los campos separados por comas
@@ -746,12 +750,12 @@ class PNTableMetaDataPrivate:
     """
     Lista de nombres de campos de la tabla que son del tipo FLFieldMetaData::Unlock
     """
-    fieldNamesUnlock_: List[str] = []
+    _field_names_unlock: List[str] = []
 
     """
     Clave primaria
     """
-    primaryKey_: Optional[str]
+    _primary_key: Optional[str]
 
     """
     Indica si se debe avisar de colisión de concurrencia entre sesiones.
@@ -762,7 +766,7 @@ class PNTableMetaDataPrivate:
 
     Ver también FLSqlCursor::concurrencyFields().
     """
-    concurWarn_: bool
+    _concur_warn: bool
 
     """
     Indica si se deben comprobar riesgos de bloqueos para esta tabla
@@ -772,53 +776,53 @@ class PNTableMetaDataPrivate:
 
     Ver también FLSqlDatabase::detectRisksLocks
     """
-    detectLocks_: bool
+    _detect_locks: bool
 
     """
     Indica el nombre de función a llamar para la búsqueda con Full Text Search
     """
-    ftsfun_: str
+    full_text_search_function: str
 
     """
     Indica si lo metadatos están en caché (FLManager::cacheMetaData_)
     """
-    inCache_: bool
+    _in_cache: bool
 
     count_ = 0
 
-    def __init__(self, n: str = None, a=None, q: str = None) -> None:
+    def __init__(self, name: str = None, alias=None, qry_name: str = None) -> None:
         """
         Initialize the class.
 
-        @param n metadata name.
-        @param a metadata alias.
-        @param q query string.
+        @param nane metadata name.
+        @param alias metadata alias.
+        @param qry_name query string.
         """
-        self.name_ = ""
-        self.primaryKey_ = None
-        self.field_list_ = []
+        self._name = ""
+        self._primary_key = None
+        self._field_list = []
         self._field_names = []
-        self.fieldNamesUnlock_ = []
+        self._field_names_unlock = []
         self._alias_field_map = {}
         self._field_alias_map = {}
-        self.detectLocks_ = True
-        self.query_ = ""
-        self.inCache_ = False
-        # print("Vaciando field list ahora",  len(self.field_list_))
-        if n is None:
+        self._detect_locks = True
+        self._query = ""
+        self._in_cache = False
+        # print("Vaciando field list ahora",  len(self._field_list))
+        if name is None:
             self.inicializeFLTableMetaDataPrivate()
-        elif n and not a and not q:
-            self.inicializeFLTableMetaDataPrivateS(n)
+        elif name and not alias and not qry_name:
+            self.inicializeFLTableMetaDataPrivateS(name)
         else:
-            self.inicializeNewFLTableMetaDataPrivate(n, a, q)
-        self.count_ = self.count_ + 1
+            self.inicializeNewFLTableMetaDataPrivate(name, alias, qry_name)
+        self.count_ += 1
 
     def inicializeFLTableMetaDataPrivate(self) -> None:
         """
         Initialize class ends with empty data.
         """
 
-        self.compoundKey_ = None
+        self._compound_key = None
 
     def inicializeNewFLTableMetaDataPrivate(self, name: str, alias: str, query: str = None) -> None:
         """
@@ -829,13 +833,13 @@ class PNTableMetaDataPrivate:
         @param query query string.
         """
 
-        self.name_ = name.lower()
-        self.alias_ = alias
-        self.compoundKey_ = None
+        self._name = name.lower()
+        self._alias = alias
+        self._compound_key = None
         if query is not None:
-            self.query_ = query
-        self.concurWarn_ = False
-        self.detectLocks_ = False
+            self._query = query
+        self._concur_warn = False
+        self._detect_locks = False
 
     def inicializeFLTableMetaDataPrivateS(self, name: str) -> None:
         """
@@ -844,17 +848,17 @@ class PNTableMetaDataPrivate:
         @param name metadata name.
         """
 
-        self.name_ = str(name)
-        self.alias_ = self.name_
+        self._name = str(name)
+        self._alias = self._name
 
-    def addFieldName(self, n: str) -> None:
+    def addFieldName(self, name: str) -> None:
         """
         Add the name of a field to the field name string, see fieldNames().
 
-        @param n Field Name.
+        @param name Field Name.
         """
 
-        self._field_names.append(n.lower())
+        self._field_names.append(name.lower())
 
     def removeFieldName(self, name: str) -> None:
         """
@@ -866,10 +870,10 @@ class PNTableMetaDataPrivate:
         if name in self._field_names:
             self._field_names.remove(name)
 
-        if name in self.fieldNamesUnlock_:
-            self.fieldNamesUnlock_.remove(name)
-        if self.primaryKey_ == name:
-            self.primaryKey_ = None
+        if name in self._field_names_unlock:
+            self._field_names_unlock.remove(name)
+        if self._primary_key == name:
+            self._primary_key = None
 
     def formatAlias(self, field_object: Optional["pnfieldmetadata.PNFieldMetaData"] = None) -> None:
         """
@@ -895,5 +899,5 @@ class PNTableMetaDataPrivate:
         Clear the list of field definitions.
         """
 
-        self.field_list_ = []
+        self._field_list = []
         self._field_names = []

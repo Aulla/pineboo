@@ -1,3 +1,7 @@
+"""
+test_pncompoundkeymetadata Module.
+"""
+
 import unittest
 from pineboolib.loader.main import init_testing
 

@@ -1,3 +1,7 @@
+"""
+test_pnrelationmetadata Module.
+"""
+
 import unittest
 from pineboolib.loader.main import init_testing
 from pineboolib import application

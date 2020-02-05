@@ -251,10 +251,10 @@ class FLManager(QtCore.QObject, IManager):
             # QDomDoc
 
             # root = n.getroot()
-            name = None
-            query = None
-            alias = None
-            ftsfun = ""
+            name: str = ""
+            query: str = ""
+            alias: str = ""
+            ftsfun: str = ""
             visible = True
             editable = True
             concur_warn = False
@@ -264,9 +264,9 @@ class FLManager(QtCore.QObject, IManager):
                 if child.tag == "field":
                     continue
                 elif child.tag == "name":
-                    name = child.text
+                    name = child.text or ""
                 elif child.tag == "query":
-                    query = child.text
+                    query = child.text or ""
                 elif child.tag == "alias":
                     alias = util.translate(
                         "Metadata", utils_base.auto_qt_translate_text(child.text)
