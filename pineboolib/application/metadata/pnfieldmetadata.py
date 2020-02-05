@@ -230,13 +230,13 @@ class PNFieldMetaData(IFieldMetaData):
 
         return self.private.calculated_
 
-    def setCalculated(self, c) -> None:
+    def setCalculated(self, calculated) -> None:
         """
         Set if the field is calculated.
 
-        @param c Value TRUE if you want to set the field as calculated, FALSE otherwise.
+        @param calculated Value TRUE if you want to set the field as calculated, FALSE otherwise.
         """
-        self.private.calculated_ = c
+        self.private.calculated_ = calculated
 
     def editable(self) -> bool:
         """
@@ -352,12 +352,12 @@ class PNFieldMetaData(IFieldMetaData):
         @param r FlRelationMetaData object with the definition of the relationship to add.
         """
 
-        isRelM1 = False
+        is_relation_m1 = False
         # print("FLFieldMetadata(%s).addRelationMD(card %s)" % (self.name(), r.cardinality()))
 
         if r.cardinality() == PNRelationMetaData.RELATION_M1:
-            isRelM1 = True
-        if isRelM1 and self.private._relation_m1:
+            is_relation_m1 = True
+        if is_relation_m1 and self.private._relation_m1:
             LOGGER.debug(
                 "addRelationMD: Se ha intentado crear más de una relación muchos a uno para el mismo campo"
             )
@@ -366,7 +366,7 @@ class PNFieldMetaData(IFieldMetaData):
             LOGGER.warning("addRelationMD: no fieldName")
             return
         r.setField(self.private._field_name)
-        if isRelM1:
+        if is_relation_m1:
             self.private._relation_m1 = r
             return
 
@@ -528,14 +528,14 @@ class PNFieldMetaData(IFieldMetaData):
         Return if a field is fully calculated.
         """
 
-        return self.private.fullyCalculated_
+        return self.private._fully_calculated
 
     def setFullyCalculated(self, c: bool) -> None:
         """
         Specify if a field is fully calculated.
         """
 
-        self.private.fullyCalculated_ = c
+        self.private._fully_calculated = c
         if c:
             self.private.generated_ = True
 
@@ -597,18 +597,18 @@ class PNFieldMetaData(IFieldMetaData):
         @return list of different options
         """
 
-        return self.private.searchOptions_
+        return self.private._search_options
 
-    def setSearchOptions(self, ol) -> None:
+    def setSearchOptions(self, options_list: str) -> None:
         """
         Set the list of options for the field.
 
         @param ol Text string with options for the field.
         """
 
-        self.private.searchOptions_ = []
-        for dato in ol.split(","):
-            self.private.searchOptions_.append(dato)
+        self.private._search_options = []
+        for dato in options_list.split(","):
+            self.private._search_options.append(dato)
 
     def copy(self, other: "PNFieldMetaData") -> None:
         """
@@ -618,82 +618,80 @@ class PNFieldMetaData(IFieldMetaData):
         if other is self:
             return
 
-        od = other.private
+        other_private = other.private
 
-        if od._relation_m1:
-            self.private._relation_m1 = od._relation_m1
+        if other_private._relation_m1:
+            self.private._relation_m1 = other_private._relation_m1
 
         self.private.clearRelationList()
 
-        if od._relation_list:
-            for r in od._relation_list:
+        if other_private._relation_list:
+            for r in other_private._relation_list:
                 self.private._relation_list.append(r)
 
-        self.private._field_name = od._field_name
-        self.private.alias_ = od.alias_
-        self.private._allow_null = od._allow_null
-        self.private.is_primary_key = od.is_primary_key
-        self.private.type_ = od.type_
-        self.private.length_ = od.length_
-        self.private.calculated_ = od.calculated_
-        self.private.fullyCalculated_ = od.fullyCalculated_
-        self.private.trimmed_ = od.trimmed_
-        self.private.visible_ = od.visible_
-        self.private.editable_ = od.editable_
-        self.private._part_decimal = od._part_decimal
-        self.private._part_integer = od._part_integer
-        self.private._is_index = od._is_index
-        self.private._is_unique = od._is_unique
-        self.private.contador_ = od.contador_
-        self.private.associated_field_name = od.associated_field_name
-        self.private.associated_field_filter_to = od.associated_field_filter_to
-        self.private._default_value = od._default_value
-        self.private._options_list = od._options_list
-        self.private._out_transaction = od._out_transaction
-        self.private._reg_exp_validator = od._reg_exp_validator
-        self.private._visible_grid = od._visible_grid
-        self.private.generated_ = od.generated_
-        self.private.is_compound_key = od.is_compound_key
+        self.private._field_name = other_private._field_name
+        self.private.alias_ = other_private.alias_
+        self.private._allow_null = other_private._allow_null
+        self.private.is_primary_key = other_private.is_primary_key
+        self.private.type_ = other_private.type_
+        self.private.length_ = other_private.length_
+        self.private.calculated_ = other_private.calculated_
+        self.private._fully_calculated = other_private._fully_calculated
+        self.private.trimmed_ = other_private.trimmed_
+        self.private.visible_ = other_private.visible_
+        self.private.editable_ = other_private.editable_
+        self.private._part_decimal = other_private._part_decimal
+        self.private._part_integer = other_private._part_integer
+        self.private._is_index = other_private._is_index
+        self.private._is_unique = other_private._is_unique
+        self.private.contador_ = other_private.contador_
+        self.private.associated_field_name = other_private.associated_field_name
+        self.private.associated_field_filter_to = other_private.associated_field_filter_to
+        self.private._default_value = other_private._default_value
+        self.private._options_list = other_private._options_list
+        self.private._out_transaction = other_private._out_transaction
+        self.private._reg_exp_validator = other_private._reg_exp_validator
+        self.private._visible_grid = other_private._visible_grid
+        self.private.generated_ = other_private.generated_
+        self.private.is_compound_key = other_private.is_compound_key
 
         # self = copy.deepcopy(other)
 
-    def formatAssignValue(self, fieldName: str, value: Any, upper: bool) -> str:
+    def formatAssignValue(self, field_name: str, value: Any, upper: bool) -> str:
         """
         Return the correct comparison for a given field.
         """
 
-        if value is None or not fieldName:
+        if value is None or not field_name:
             return "1 = 1"
 
-        isText = False
+        is_text = False
         # if isinstance(value, str):
         if self.type() in ("string", "time", "date", "pixmap", "timestamp"):
-            isText = True
+            is_text = True
 
-        formatV: Any = None
+        format_value: Any = None
 
-        if isText:
-            formatV = "'%s'" % value
+        if is_text:
+            format_value = "'%s'" % value
         else:
-            formatV = value
+            format_value = value
 
         # if isinstance(value, (int, float)):
-        # formatV = str(value)
+        # format_value = str(value)
         # else:
-        # formatV = "'" + str(value) + "'"
+        # format_value = "'" + str(value) + "'"
 
-        # print("FORMATV es %s, %s y value era %s" % (formatV, type(formatV), value.toString()))
+        # print("format_value es %s, %s y value era %s" % (format_value, type(format_value), value.toString()))
 
-        # if formatV == None:
+        # if format_value == None:
         #    return "1 = 1"
 
-        if upper and isText:
-            fName = "upper(%s)" % fieldName
-            formatV = formatV.upper()
-        else:
-            fName = fieldName
+        if upper and is_text:
+            field_name = "upper(%s)" % field_name
+            format_value = format_value.upper()
 
-        return "%s = %s" % (fName, formatV)
+        return "%s = %s" % (field_name, format_value)
 
     def __len__(self) -> int:
         """Return the length of a field."""
@@ -747,7 +745,7 @@ class PNFieldMetaDataPrivate(object):
     Esto indica que el valor campo del campo es dinámico y se calcula en cada refresco.
     Un campo totalmente calculado implica que es generado.
     """
-    fullyCalculated_: bool
+    _fully_calculated: bool
 
     """
     Indica que al leer el campo de la base de datos los espacios mas a la derecha
@@ -893,7 +891,7 @@ class PNFieldMetaDataPrivate(object):
     """
     Contiene las distintas opciones de búsqueda
     """
-    searchOptions_: List[str]
+    _search_options: List[str]
 
     """
     Objeto FLTableMetaData al que pertenece
@@ -904,7 +902,7 @@ class PNFieldMetaDataPrivate(object):
         """Initialize the class."""
 
         self._reg_exp_validator = ""
-        self.searchOptions_ = []
+        self._search_options = []
         self._allow_null = False
         self.is_primary_key = False
 
@@ -924,83 +922,83 @@ class PNFieldMetaDataPrivate(object):
 
     def inicialize(
         self,
-        n: str,
-        a: str,
-        aN: bool,
-        iPK: bool,
-        t: Optional[str],
+        name: str,
+        alias: str,
+        allow_null: bool,
+        is_primary_key: bool,
+        type_: Optional[str],
         length_: int,
-        c: bool,
-        v: bool,
-        ed: bool,
-        pI: int,
-        pD: int,
-        iNX: bool,
-        uNI: bool,
+        calculated: bool,
+        visible: bool,
+        editable: bool,
+        part_integer: int,
+        part_decimal: int,
+        is_index: bool,
+        is_unique: bool,
         coun: bool,
-        defValue: Optional[str],
-        oT: bool,
-        rX: Optional[str],
-        vG: bool,
+        default_value: Optional[str],
+        out_transaction: bool,
+        regular_expression: Optional[str],
+        visible_grid: bool,
         gen: bool,
-        iCK: bool,
+        is_compound_key: bool,
     ) -> None:
         """
         Fill in the data with information.
 
-        @param n Field Name.
-        @param to Alias ​​del campo, used in form labels.
-        @param aN TRUE if it allows nulls (NULL), FALSE if it allows them (NOT NULL).
-        @param _isPrimaryKey TRUE if it is a primary key, FALSE if it is not a primary key, be
+        @param name Field Name.
+        @param alias ​​used in form labels.
+        @param allow_null TRUE if it allows nulls (NULL), FALSE if it allows them (NOT NULL).
+        @param is_primary_key TRUE if it is a primary key, FALSE if it is not a primary key, be
                 primary key implies being Index and Unique.
-        @param t Field type.
-        @param l Length of the field in characters, provided it is of type string
+        @param type_ Field type.
+        @param length_ Length of the field in characters, provided it is of type string
                of characters.
-        @param c Indicates if the field is calculated.
-        @param v Indicates if the field is visible.
+        @param calculated Indicates if the field is calculated.
+        @param visible Indicates if the field is visible.
         @param ed Indicates if the field is editable.
-        @param pI Indicates the number of digits of the whole part.
-        @param pD Indicates the number of decimals.
-        @param iNX TRUE if the field is index.
-        @param uNI TRUE if the field determines unique records.
+        @param part_integer Indicates the number of digits of the whole part.
+        @param part_decimal Indicates the number of decimals.
+        @param is_index TRUE if the field is index.
+        @param is_unique TRUE if the field determines unique records.
         @param coun Indicates if it is an accountant. For automatic references.
-        @param defValue Default value for the field.
-        @param oT Indicates if the changes in the field are out of transaction.
-        @param rX Regular expression used as a validation mask.
-        @param vG Indicates if the field is visible in the grid of the table.
+        @param default_value Default value for the field.
+        @param out_transaction Indicates if the changes in the field are out of transaction.
+        @param regular_expression Regular expression used as a validation mask.
+        @param visible_grid Indicates if the field is visible in the grid of the table.
         @param gen Indicates if the field is generated.
-        @param iCK Indicates if it is a composite key.
+        @param is_compound_key Indicates if it is a compound key.
         """
 
-        self._field_name = n.lower()
-        self.alias_ = a
+        self._field_name = name.lower()
+        self.alias_ = alias
         if c:
             self._allow_null = True
         else:
-            self._allow_null = aN
-        self.is_primary_key = iPK
-        self.type_ = t
+            self._allow_null = allow_null
+        self.is_primary_key = is_primary_key
+        self.type_ = type_
         self.length_ = length_
-        self.calculated_ = c
-        self.visible_ = v
-        self.editable_ = ed
-        self._part_integer = pI
-        self._part_decimal = pD
-        self._is_index = iNX
-        self._is_unique = uNI
+        self.calculated_ = calculated
+        self.visible_ = visible
+        self.editable_ = editable
+        self._part_integer = part_integer
+        self._part_decimal = part_decimal
+        self._is_index = is_index
+        self._is_unique = is_unique
         self.contador_ = coun
         self._relation_list = []
         self._relation_m1 = None
         self.associated_field_filter_to = ""
         self.associated_field_name = ""
-        self._default_value = defValue
-        self._out_transaction = oT
-        self._reg_exp_validator = rX
-        self._visible_grid = vG
+        self._default_value = default_value
+        self._out_transaction = out_transaction
+        self._reg_exp_validator = regular_expression
+        self._visible_grid = visible_grid
         self.generated_ = gen
-        self.is_compound_key = iCK
+        self.is_compound_key = is_compound_key
         self.mtd_ = None
-        self.fullyCalculated_ = False
+        self._fully_calculated = False
         self.trimmed_ = False
         self._options_list = []
 
@@ -1021,9 +1019,9 @@ class PNFieldMetaDataPrivate(object):
         if int(length_) < 0:
             self.length_ = 0
 
-        if int(pI) < 0:
+        if int(part_integer) < 0:
             self._part_integer = 0
-        if int(pD) < 0:
+        if int(part_decimal) < 0:
             self._part_decimal = 0
         # print("Tipo ", t)
 
@@ -1033,7 +1031,7 @@ class PNFieldMetaDataPrivate(object):
         # if not t == "int" and not t == "uint" and t == "double" and not int(pI) == 0:
         # self._part_integer = 0
 
-        if t == "double" and not int(pD) >= 0:
+        if t == "double" and not int(part_decimal) >= 0:
             self._part_decimal = 0
 
     def __del_(self):
