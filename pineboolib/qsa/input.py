@@ -20,10 +20,10 @@ class Input(object):
         @return string of collected text.
         """
         parent = QtWidgets.QApplication.activeWindow()
-        text, ok = QtWidgets.QInputDialog.getText(
+        text, result = QtWidgets.QInputDialog.getText(
             parent, title, question, QtWidgets.QLineEdit.Normal, prevtxt
         )
-        if not ok:
+        if not result:
             return None
         return text
 
@@ -34,7 +34,7 @@ class Input(object):
         """Return number."""
 
         parent = QtWidgets.QApplication.activeWindow()
-        text, ok = QtWidgets.QInputDialog.getText(
+        text, result = QtWidgets.QInputDialog.getText(
             parent,
             title,
             question,
@@ -42,7 +42,7 @@ class Input(object):
             str(round(float(value), part_decimal)),
         )
         ret: float = 0.00
-        if ok:
+        if result:
             ret = float(text)
 
         return ret
@@ -64,7 +64,7 @@ class Input(object):
         for i in items_list:
             items.append(i)
 
-        text, ok = QtWidgets.QInputDialog.getItem(parent, title, question, items, 0, editable)
-        if not ok:
+        text, result = QtWidgets.QInputDialog.getItem(parent, title, question, items, 0, editable)
+        if not result:
             return None
         return text

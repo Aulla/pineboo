@@ -12,7 +12,7 @@ from pineboolib.core.utils import logging
 
 from typing import Any, Optional, Union, Match, List, Generator, Callable
 
-logger = logging.getLogger("qsa.utils")
+LOGGER = logging.getLogger(__name__)
 
 TIMERS: List[QtCore.QTimer] = []
 
@@ -52,13 +52,12 @@ class qsaRegExp(object):
     Regexp emulation class.
     """
 
-    logger = logging.getLogger("qsaRegExp")
     result_: Optional[Match[str]]
 
-    def __init__(self, strRE: str, is_global: bool = False):
+    def __init__(self, str_re: str, is_global: bool = False):
         """Create new regexp."""
-        self.strRE_ = strRE
-        self.pattern = re.compile(self.strRE_)
+        self.str_re = str_re
+        self.pattern = re.compile(self.str_re)
         self.is_global = is_global
         self.result_ = None
 
@@ -82,21 +81,21 @@ class qsaRegExp(object):
         try:
             return self.result_.group(i)
         except Exception:
-            self.logger.exception("Error calling cap(%s)" % i)
+            LOGGER.exception("Error calling cap(%s)" % i)
             return None
 
     def get_global(self) -> bool:
         """Return if regex is global."""
         return self.is_global
 
-    def set_global(self, b: bool) -> None:
+    def set_global(self, state: bool) -> None:
         """Set regex global flag."""
-        self.is_global = b
+        self.is_global = state
 
     global_ = property(get_global, set_global)
 
 
-def RegExp(strRE: str) -> qsaRegExp:
+def RegExp(str_re: str) -> qsaRegExp:
     """
     Return qsaRegexp object from search.
 
@@ -104,35 +103,35 @@ def RegExp(strRE: str) -> qsaRegExp:
     @return valor procesado
     """
     is_global = False
-    if strRE[-2:] == "/g":
-        strRE = strRE[:-2]
+    if str_re[-2:] == "/g":
+        str_re = str_re[:-2]
         is_global = True
-    elif strRE[-1:] == "/":
-        strRE = strRE[:-1]
+    elif str_re[-1:] == "/":
+        str_re = str_re[:-1]
 
-    if strRE[:1] == "/":
-        strRE = strRE[1:]
+    if str_re[:1] == "/":
+        str_re = str_re[1:]
 
-    return qsaRegExp(strRE, is_global)
+    return qsaRegExp(str_re, is_global)
 
 
 class Math(object):
     """QSA Math emulation class."""
 
     @staticmethod
-    def abs(x: Union[int, float]) -> Union[int, float]:
+    def abs(value: Union[int, float]) -> Union[int, float]:
         """Get absolute value."""
-        return math.fabs(x)
+        return math.fabs(value)
 
     @staticmethod
-    def ceil(x: float) -> int:
+    def ceil(value: float) -> int:
         """Round number to its ceiling."""
-        return math.ceil(x)
+        return math.ceil(value)
 
     @staticmethod
-    def floor(x: float) -> int:
+    def floor(value: float) -> int:
         """Round number to its floor."""
-        return math.floor(x)
+        return math.floor(value)
 
     @staticmethod
     def pow(base: float, exp: float) -> float:
@@ -140,47 +139,47 @@ class Math(object):
         return math.pow(base, exp)
 
     @staticmethod
-    def round(x: float, y: int = 2) -> float:
+    def round(value_1: float, value_2: int = 2) -> float:
         """Round a number x to y decimal places."""
-        return round(float(x), y)
+        return round(float(value_1), value_2)
 
 
-def parseFloat(x: Any) -> float:
+def parseFloat(value: Any) -> float:
     """
     Convert to float from almost any value.
 
-    @param x. valor a convertir
+    @param value. valor a convertir
     @return Valor tipo float, o parametro x , si no es convertible
     """
     ret = 0.00
     try:
-        if isinstance(x, str) and x.find(":") > -1:
+        if isinstance(value, str) and value.find(":") > -1:
             # Convertimos a horas
-            list_ = x.split(":")
-            x = float(list_[0])  # Horas
-            x += float(list_[1]) / 60  # Minutos a hora
-            x += float(list_[2]) / 3600  # Segundos a hora
+            list_ = value.split(":")
+            value = float(list_[0])  # Horas
+            value += float(list_[1]) / 60  # Minutos a hora
+            value += float(list_[2]) / 3600  # Segundos a hora
 
-        if isinstance(x, str):
+        if isinstance(value, str):
             try:
-                return float(x)
+                return float(value)
             except Exception:
-                x = x.replace(".", "")
-                x = x.replace(",", ".")
+                value = value.replace(".", "")
+                value = value.replace(",", ".")
                 try:
-                    return float(x)
+                    return float(value)
                 except Exception:
                     return float("nan")
 
         else:
-            ret = 0.0 if x in (None, "") else float(x)
+            ret = 0.0 if value in (None, "") else float(value)
 
         if ret == int(ret):
             return int(ret)
 
         return ret
     except Exception:
-        logger.exception("parseFloat: Error converting %s to float", x)
+        LOGGER.exception("parseFloat: Error converting %s to float", value)
         return float("nan")
 
 
@@ -194,7 +193,7 @@ def parseString(obj: Any) -> str:
     return obj.toString() if hasattr(obj, "toString") else str(obj)
 
 
-def parseInt(x: Union[float, int, str], base: int = 10) -> int:
+def parseInt(value: Union[float, int, str], base: int = 10) -> int:
     """
     Convert to int almost any value.
 
@@ -203,14 +202,14 @@ def parseInt(x: Union[float, int, str], base: int = 10) -> int:
     """
     ret_ = 0
 
-    tmp_value = str(x)
+    tmp_value = str(value)
     if tmp_value.find(".") > -1:
         tmp_value = tmp_value[0 : tmp_value.find(".")]
 
     if tmp_value.find(",") > -1:
         tmp_value = tmp_value[0 : tmp_value.find(",")]
 
-    if x is not None:
+    if value is not None:
         # x = float(x)
         ret_ = int(tmp_value, base)
         # ret_ = int(str(x), base)
@@ -294,28 +293,28 @@ def format_exc(exc: Optional[int] = None) -> str:
     return traceback.format_exc(exc)
 
 
-def isNaN(x: Any) -> bool:
+def isNaN(value: Any) -> bool:
     """
     Check if value is NaN.
 
     @param x. Valor numérico
     @return True o False
     """
-    if x in [None, ""]:
+    if value in [None, ""]:
         return True
 
-    if isinstance(x, str) and x.find(":"):
-        x = x.replace(":", "")
+    if isinstance(value, str) and value.find(":"):
+        value = value.replace(":", "")
     try:
-        float(x)
+        float(value)
         return False
     except ValueError:
         return True
 
 
-def isnan(n: Any) -> bool:
+def isnan(value: Any) -> bool:
     """Return if a number is NaN."""
-    return isNaN(n)
+    return isNaN(value)
 
 
 def replace(source: str, search: Any, replace: str) -> str:

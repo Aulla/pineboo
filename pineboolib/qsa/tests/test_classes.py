@@ -38,30 +38,30 @@ class TestClasses(unittest.TestCase):
 
         txt_ = "Hola!"
         txt_2 = "Hola de nuevo!"
-        file = qsa.QFile("%s/test_qtextstream.txt" % application.PROJECT.tmpdir)
-        if not file.open(qsa.File.WriteOnly | qsa.File.Append):
+        file_1 = qsa.QFile("%s/test_qtextstream.txt" % application.PROJECT.tmpdir)
+        if not file_1.open(qsa.File.WriteOnly | qsa.File.Append):
             raise Exception("ay!")
 
-        ts = qsa.QTextStream()
-        ts.setDevice(file.ioDevice())
-        ts.opIn(txt_ + "\n")
-        file.close()
+        text_stream = qsa.QTextStream()
+        text_stream.setDevice(file_1.ioDevice())
+        text_stream.opIn(txt_ + "\n")
+        file_1.close()
 
-        with open("%s/test_qtextstream.txt" % application.PROJECT.tmpdir) as f:
-            read_data = f.read()
+        with open("%s/test_qtextstream.txt" % application.PROJECT.tmpdir) as file_3:
+            read_data = file_3.read()
             self.assertEqual(read_data, "Hola!\n")
 
         file_2 = qsa.QFile("%s/test_qtextstream.txt" % application.PROJECT.tmpdir)
         if not file_2.open(qsa.File.WriteOnly | qsa.File.Append):
             raise Exception("ay!")
 
-        ts = qsa.QTextStream()
-        ts.setDevice(file_2.ioDevice())
-        ts.opIn(txt_2 + "\n")
+        text_stream = qsa.QTextStream()
+        text_stream.setDevice(file_2.ioDevice())
+        text_stream.opIn(txt_2 + "\n")
         file_2.close()
 
-        with open("%s/test_qtextstream.txt" % application.PROJECT.tmpdir) as f:
-            read_data = f.read()
+        with open("%s/test_qtextstream.txt" % application.PROJECT.tmpdir) as file_4:
+            read_data = file_4.read()
             self.assertEqual(read_data, "Hola!\nHola de nuevo!\n")
 
     def test_qsproject(self) -> None:
