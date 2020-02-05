@@ -70,6 +70,7 @@ build_binaries_android-64.sh
 Compilación windows-64 y windows-32 (nativa)
 ============================================
 * Python 3.7.2 64 bits.
+* Python 2.7.17 64 bits.
 * Visual Studio Build Tools 2017 Community (Custom, programming languages) 15.9
 * qt-unified-windows-x86-3.1.0-online.exe (5.12.3)
 * Instalar perl (www.perl.org) 5.28
