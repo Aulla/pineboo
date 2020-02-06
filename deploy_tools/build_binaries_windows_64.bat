@@ -4,7 +4,7 @@ set SYSROOT=
 set SQLITEVER=sqlite-autoconf-3280000
 
 if exist sysroots\%TARGET% (
-	%SYSROOT% =--no-sysroot   
+	%SYSROOT%=--no-sysroot   
 ) else (
 if not exist sysroots (
 md sysroots
