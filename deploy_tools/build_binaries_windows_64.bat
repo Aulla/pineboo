@@ -1,7 +1,7 @@
 
 set TARGET=win-64
 set SYSROOT=
-set SQLITEVER=sqlite-amalgamation-3250200-64
+set SQLITEVER=sqlite-amalgamation-3250200-32
 
 if exist sysroots\%TARGET% (
 	%SYSROOT%=--no-sysroot   

@@ -8,7 +8,7 @@ if exist sysroots\%TARGET% (
 ) else (
 if not exist sysroots (
 md sysroots
-)git p
+)
 
 if not exist sysroots\extra_libs (
 md sysroots\extra_libs

@@ -232,7 +232,7 @@ if build_sysroot:
         except Exception:
             print(traceback.format_exc())
 
-    elif target in ["win-32", "win-64"]:
+    elif target == "win-32":
         try:
             os.symlink(
                 "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3ext.h"
@@ -245,12 +245,32 @@ if build_sysroot:
                 "%s/include/sqlite3.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3.lib"
+                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3_32.lib"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/lib/sqlite3.lib" % sysroot_dir,
             )
         except Exception:
             print(traceback.format_exc())
+    elif target == "win-64":
+        try:
+            os.symlink(
+                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3ext.h"
+                % (os.path.abspath(os.path.join(sysroot_dir)), target),
+                "%s/include/sqlite3ext.h" % sysroot_dir,
+            )
+            os.symlink(
+                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3.h"
+                % (os.path.abspath(os.path.join(sysroot_dir)), target),
+                "%s/include/sqlite3.h" % sysroot_dir,
+            )
+            os.symlink(
+                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3_64.lib"
+                % (os.path.abspath(os.path.join(sysroot_dir)), target),
+                "%s/lib/sqlite3.lib" % sysroot_dir,
+            )
+        except Exception:
+            print(traceback.format_exc())
+
 else:
     print("INFO::sysroot-%s ya existe, omitiendo ..." % target)
 # Build the demo.
