@@ -83,9 +83,9 @@ Compilación windows-64 y windows-32 (nativa)
 	- PyQt5_gpl 5.12.3.tar.gz
 	- sqlite ver (https://gist.github.com/zeljic/d8b542788b225b1bcb5fce169ee28c55)
 		* https://www.sqlite.org/2018/sqlite-amalgamation-3250200.zip
-		* https://www.sqlite.org/2018/sqlite-dll-win64-x64-3250200.zip
+		* https://www.sqlite.org/2018/sqlite-dll-win64-x64-3250200.zip -64
 		o
-		* https://www.sqlite.org/2018/sqlite-dll-win32-x86-3250200.zip
+		* https://www.sqlite.org/2018/sqlite-dll-win32-x86-3250200.zip -32
 		* todo a una carpeta y setearla en SQLITEVER del script.
 
 * 64Bits. Usar Consola "Simbolo de sistema de las herramientas nativas x64 de VS 2017". 

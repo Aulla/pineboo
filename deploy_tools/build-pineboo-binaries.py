@@ -235,17 +235,17 @@ if build_sysroot:
     elif target == "win-32":
         try:
             os.symlink(
-                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3ext.h"
+                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200-32/sqlite3ext.h"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/include/sqlite3ext.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3.h"
+                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200-32/sqlite3.h"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/include/sqlite3.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3_32.lib"
+                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200-32/sqlite3.lib"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/lib/sqlite3.lib" % sysroot_dir,
             )
@@ -254,17 +254,17 @@ if build_sysroot:
     elif target == "win-64":
         try:
             os.symlink(
-                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3ext.h"
+                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200-64/sqlite3ext.h"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/include/sqlite3ext.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3.h"
+                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200-64/sqlite3.h"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/include/sqlite3.h" % sysroot_dir,
             )
             os.symlink(
-                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200/sqlite3_64.lib"
+                "%s/../extra_libs/%s/sqlite3/sqlite-amalgamation-3250200-64/sqlite3.lib"
                 % (os.path.abspath(os.path.join(sysroot_dir)), target),
                 "%s/lib/sqlite3.lib" % sysroot_dir,
             )
