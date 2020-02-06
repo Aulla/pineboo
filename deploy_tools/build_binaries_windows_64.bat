@@ -1,8 +1,7 @@
 
 set TARGET=win-64
 set SYSROOT=
-set SQLITEVER=sqlite-autoconf-3280000
-set LFLAGS += /NODEFAULTLIB:LIBCMT
+set SQLITEVER=sqlite-amalgamation-3250200-64
 
 if exist sysroots\%TARGET% (
 	%SYSROOT%=--no-sysroot   
@@ -25,8 +24,7 @@ md sqlite3\%SQLITEVER%
 xcopy ..\..\..\src\%SQLITEVER%\*.* sqlite3\%SQLITEVER% /E
 
 cd sqlite3\%SQLITEVER%
-cl sqlite3.c -link -dll -out:sqlite3.dll
-lib sqlite3.obj
+lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
 
 cd ..
 cd ..

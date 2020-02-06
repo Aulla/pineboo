@@ -1,7 +1,7 @@
 
 set TARGET=win-32
 set SYSROOT=
-set SQLITEVER=sqlite-autoconf-3280000
+set SQLITEVER=sqlite-amalgamation-3250200-32
 
 if exist sysroots\%TARGET% (
 	%SYSROOT%=--no-sysroot   
@@ -24,8 +24,7 @@ md sqlite3\%SQLITEVER%
 xcopy ..\..\..\src\%SQLITEVER%\*.* sqlite3\%SQLITEVER% /E
 
 cd sqlite3\%SQLITEVER%
-cl sqlite3.c -link -dll -out:sqlite3.dll
-lib sqlite3.obj
+lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x86
 
 cd ..
 cd ..
