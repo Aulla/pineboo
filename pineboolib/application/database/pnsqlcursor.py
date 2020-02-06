@@ -1881,8 +1881,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         ):
             return False
 
-        if not self.isValid() and self.private_cursor.mode_access_ != self.Insert:
-            return False
+        if self.private_cursor.mode_access_ != self.Insert:
+            if not self.isValid():
+                return False
+
         if self.private_cursor.mode_access_ == self.Insert:
             if not self.commitBufferCursorRelation():
                 return False
