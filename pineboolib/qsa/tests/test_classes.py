@@ -88,9 +88,26 @@ class TestClasses(unittest.TestCase):
         btn.clicked.emit()
         self.assertTrue(self._prueba)
 
+    def test_sort(self) -> None:
+        """Test array.sort function."""
+        from pineboolib.qsa import qsa
+
+        array_ = [1, 6, 3, 4, 2, 0, 9]
+        self.assertEqual(sorted(array_), [0, 1, 2, 3, 4, 6, 9])
+        self.assertEqual(qsa.Sort(self.function_sort).sort_(array_), [0, 1, 2, 3, 4, 6, 9])
+
     def saludo(self) -> None:
         """AQGlobalFunction test."""
         self._prueba = True
+
+    def function_sort(self, number_1: int, number_2: int) -> int:
+        """Sorted function."""
+        if number_1 == number_2:
+            return 0
+        elif number_1 > number_2:
+            return 1
+        else:
+            return -1
 
     @classmethod
     def tearDownClass(cls) -> None:

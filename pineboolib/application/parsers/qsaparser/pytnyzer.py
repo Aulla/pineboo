@@ -1760,11 +1760,7 @@ class Member(ASTPython):
                     elif member == "sort":
                         value = arg1[5:]
                         value = value[: len(value) - 1] or ""
-                        filter = ""
-                        if value:
-                            filter = " None if %s >= 0 else reverse=True" % (value)
-
-                        arguments = ["%s.sort(%s)" % (".".join(part1), filter)] + part2
+                        arguments = ["qsa.Sort(%s).sort_(%s)" % (value, ".".join(part1))] + part2
                     elif member == "push":
                         value = arg1[5:]
                         value = value[: len(value) - 1]

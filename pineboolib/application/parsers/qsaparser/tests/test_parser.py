@@ -161,35 +161,20 @@ class TestParser(unittest.TestCase):
 
         self.assertEqual(
             qs2py("var listaOutlet:Array = new Array();listaOutlet.sort();"),
-            "listaOutlet = qsa.Array()\nlistaOutlet.sort()\n",
+            "listaOutlet = qsa.Array()\nqsa.Sort().sort_(listaOutlet)\n",
         )
 
     def test_sort_2(self) -> None:
         """Test replace."""
-        print(
-            qs2py(
-                """
-                var orden:Number = -1;
-                var lista:String ="uno,dos,tres";
-                var aLista= lista.split(", ");
-                var result = aLista.sort(orden);
-
-
-                """
-            )
-        )
 
         self.assertEqual(
             qs2py(
                 """
-                var orden:Number = -1;
-                var lista:String ="uno,dos,tres";
-                var aLista= lista.split(", ");
-                var result = aLista.sort(orden);
+                var aLista:Array = new Array()
+                aLista.sort(parseString);
                 """
             ),
-            """orden = -1\nlista = "uno,dos,tres"\naLista = lista.split(", ")
-result = aLista.sort(None if orden >= 0 else reverse=True)\n""",
+            "aLista = qsa.Array()\nqsa.Sort(qsa.parseString).sort_(aLista)\n",
         )
 
     def test_pyconvert(self) -> None:

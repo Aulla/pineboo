@@ -10,7 +10,7 @@ from PyQt5 import QtCore
 from pineboolib.core.utils.utils_base import ustr
 from pineboolib.core.utils import logging
 
-from typing import Any, Optional, Union, Match, List, Generator, Callable
+from typing import Any, Optional, Union, Match, List, Generator, Callable, Iterable
 
 LOGGER = logging.getLogger(__name__)
 
@@ -323,6 +323,50 @@ def replace(source: str, search: Any, replace: str) -> str:
         return source.replace(search, str(replace))
     else:
         return search.replace(source, replace)
+
+
+class Sort:
+    """Sort Class."""
+
+    _function: Optional[Callable] = None
+
+    def __init__(self, function: Optional[Callable] = None):
+        """Initialize function."""
+        self._function = function
+
+    def sort_(self, array_: Iterable) -> List:
+        """Sort function."""
+
+        new_array_: List = []
+        if self._function is not None:
+            for pos, value in enumerate(array_):
+                found = False
+                for new_pos, new_value in enumerate(list(new_array_)):
+
+                    result = self._function(value, new_value)
+                    # print("Comparando", value, new_value, result, "-->", new_array_)
+                    if result == 0:
+                        # print("Es igual (%s == %s)" % (value, new_value))
+                        new_array_.append(value)
+                        found = True
+                        break
+                    elif result == 1:
+                        # print("Es mayor (%s > %s)" % (value, new_value))
+                        continue
+
+                    elif result == -1:
+                        # print("Es menor (%s < %s)" % (value, new_value))
+                        new_array_.insert(new_pos, value)
+                        found = True
+                        break
+
+                if not found:
+                    new_array_.append(value)
+        else:
+            new_array_ = sorted(array_)
+
+        array_ = new_array_
+        return new_array_
 
 
 class Number_attr:
