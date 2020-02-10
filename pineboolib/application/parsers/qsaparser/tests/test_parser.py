@@ -156,6 +156,42 @@ class TestParser(unittest.TestCase):
             'listaOutlet = qsa.Array()\nqsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n',
         )
 
+    def test_sort_1(self) -> None:
+        """Test replace."""
+
+        self.assertEqual(
+            qs2py("var listaOutlet:Array = new Array();listaOutlet.sort();"),
+            "listaOutlet = qsa.Array()\nlistaOutlet.sort()\n",
+        )
+
+    def test_sort_2(self) -> None:
+        """Test replace."""
+        print(
+            qs2py(
+                """
+                var orden:Number = -1;
+                var lista:String ="uno,dos,tres";
+                var aLista= lista.split(", ");
+                var result = aLista.sort(orden);
+
+
+                """
+            )
+        )
+
+        self.assertEqual(
+            qs2py(
+                """
+                var orden:Number = -1;
+                var lista:String ="uno,dos,tres";
+                var aLista= lista.split(", ");
+                var result = aLista.sort(orden);
+                """
+            ),
+            """orden = -1\nlista = "uno,dos,tres"\naLista = lista.split(", ")
+result = aLista.sort(None if orden >= 0 else reverse=True)\n""",
+        )
+
     def test_pyconvert(self) -> None:
         """Test pyconvert."""
         from pineboolib import application

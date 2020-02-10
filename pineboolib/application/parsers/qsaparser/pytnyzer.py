@@ -1652,6 +1652,7 @@ class Member(ASTPython):
             "replace",
             "search",
             "shift()",
+            "sort",
         ]
 
         for member in replace_members:
@@ -1756,6 +1757,14 @@ class Member(ASTPython):
                         value = arg1[6:]
                         value = value[: len(value) - 1]
                         arguments = ["qsa.re.match(%s, %s)" % (value, ".".join(part1))] + part2
+                    elif member == "sort":
+                        value = arg1[5:]
+                        value = value[: len(value) - 1] or ""
+                        filter = ""
+                        if value:
+                            filter = " None if %s >= 0 else reverse=True" % (value)
+
+                        arguments = ["%s.sort(%s)" % (".".join(part1), filter)] + part2
                     elif member == "push":
                         value = arg1[5:]
                         value = value[: len(value) - 1]

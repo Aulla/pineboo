@@ -3842,8 +3842,8 @@ class FormInternalObj(qsa.FormDBWidget):
         iAF = 0
         longAI = qsa.length(arrayInicial)
         longAF = qsa.length(arrayFinal)
-        arrayInicial.sort(self.iface.compararArrayCoste)
-        arrayFinal.sort(self.iface.compararArrayCoste)
+        arrayInicial.sort(None if self.iface.compararArrayCoste >= 0 else reverse=True)
+        arrayFinal.sort(None if self.iface.compararArrayCoste >= 0 else reverse=True)
         comparacion = 0
         while iAI < longAI or iAF < longAF:
             if iAI < longAI and iAF < longAF:
