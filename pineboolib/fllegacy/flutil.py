@@ -376,7 +376,7 @@ class FLUtil(object):
         return letras[n % 23]
 
     @classmethod
-    def nombreCampos(cls, tablename: str) -> List[Union[str, int]]:
+    def nombreCampos(cls, tablename: str) -> List[str]:
         """
         Return the list of field names from the specified table.
 
@@ -387,7 +387,7 @@ class FLUtil(object):
         """
 
         campos = flapplication.aqApp.db().manager().metadata(tablename).fieldNames()
-        return [len(campos)] + campos
+        return [str(len(campos))] + campos
 
     @classmethod
     def calcularDC(cls, n: int) -> str:
