@@ -21,6 +21,8 @@ from typing import Any, Optional, Union, List, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from fpdf import FPDF  # type: ignore
 
+LOGGER = logging.getLogger(__name__)
+
 
 class Kut2FPDF(object):
     """
@@ -60,7 +62,6 @@ class Kut2FPDF(object):
     def __init__(self) -> None:
         """Constructor."""
 
-        self.logger = logging.getLogger("kut2fpdf")
         check_dependencies({"fpdf": "fpdf2"})
 
         self._parser_tools = kparsertools.KParserTools()
@@ -94,12 +95,12 @@ class Kut2FPDF(object):
         try:
             self._xml = self._parser_tools.loadKut(kut).getroot()
         except Exception:
-            self.logger.exception("KUT2FPDF: Problema al procesar %s.kut", name)
+            LOGGER.exception("KUT2FPDF: Problema al procesar %s.kut", name)
             return None
         try:
             self._xml_data = load2xml(data).getroot()
         except Exception:
-            self.logger.exception("KUT2FPDF: Problema al procesar xml_data")
+            LOGGER.exception("KUT2FPDF: Problema al procesar xml_data")
             return None
 
         application.PROJECT.message_manager().send(
@@ -118,9 +119,9 @@ class Kut2FPDF(object):
 
             self._actual_append_page_no = 0
             self._document = FPDF(self._page_orientation, "pt", self._page_size)
-            for f in self._document.core_fonts:
-                self.logger.debug("KUT2FPDF :: Adding font %s", f)
-                self._avalible_fonts.append(f)
+            for font in self._document.core_fonts:
+                LOGGER.debug("KUT2FPDF :: Adding font %s", font)
+                self._avalible_fonts.append(font)
         else:
             self._document = report
         # Seteamos rutas a carpetas con tipos de letra ...
@@ -160,12 +161,12 @@ class Kut2FPDF(object):
         self.processDetails(not page_break)
 
         # FIXME:Alguno valores no se encuentran
-        for p in self._document.pages.keys():
-            page_content = self._document.pages[p]["content"]
-            for h in self.draws_at_header.keys():
-                page_content = page_content.replace(h, str(self.draws_at_header[h]))
+        for pages in self._document.pages.keys():
+            page_content = self._document.pages[pages]["content"]
+            for header in self.draws_at_header.keys():
+                page_content = page_content.replace(header, str(self.draws_at_header[header]))
 
-            self._document.pages[p]["content"] = page_content
+            self._document.pages[pages]["content"] = page_content
 
         # print(self.draws_at_header.keys())
         self._document.set_title(self.name_)
@@ -599,9 +600,7 @@ class Kut2FPDF(object):
                             text = str(ret_)
 
                     except Exception:
-                        self.logger.exception(
-                            "KUT2FPDF:: Error llamando a function %s", function_name
-                        )
+                        LOGGER.exception("KUT2FPDF:: Error llamando a function %s", function_name)
                         return
                 else:
                     return
@@ -753,7 +752,7 @@ class Kut2FPDF(object):
                 font_found = self._parser_tools.find_font(font_full_name, font_style)
             if font_found:
                 if self.design_mode:
-                    self.logger.warning(
+                    LOGGER.warning(
                         "KUT2FPDF::Añadiendo el tipo de letra %s %s (%s)",
                         font_name,
                         font_style,
@@ -765,7 +764,7 @@ class Kut2FPDF(object):
             else:
                 if font_full_name not in self._unavalible_fonts:
                     if self.design_mode:
-                        self.logger.warning(
+                        LOGGER.warning(
                             "KUT2FPDF:: No se encuentra el tipo de letra %s. Sustituido por helvetica%s."
                             % (font_full_name, font_style)
                         )

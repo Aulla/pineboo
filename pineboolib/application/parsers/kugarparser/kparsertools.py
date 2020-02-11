@@ -112,7 +112,7 @@ class KParserTools(object):
         self,
         value: Any,
         data_type: int,
-        p: Union[bytes, str, SupportsInt] = None,
+        precision: Union[bytes, str, SupportsInt] = None,
         data: Element = None,
     ) -> Any:
         """
@@ -125,7 +125,7 @@ class KParserTools(object):
         @return calculated value.
         """
 
-        p = 0 if p is None else int(p)
+        precision = 0 if precision is None else int(precision)
 
         ret_ = value
         if data_type == 2:  # Double
@@ -133,7 +133,7 @@ class KParserTools(object):
                 return
             from PyQt5 import QtCore  # type: ignore
 
-            ret_ = QtCore.QLocale.system().toString(float(value), "f", p)
+            ret_ = QtCore.QLocale.system().toString(float(value), "f", precision)
         elif data_type == 3:
             if value.find("T") > -1:
                 value = value[: value.find("T")]
@@ -179,10 +179,10 @@ class KParserTools(object):
                 ):  # Si no es FLLarge modo único añadimos sufijo "_nombre" a fllarge
                     table_name += "_%s" % ref_key.split("@")[1]
 
-                q = pnsqlquery.PNSqlQuery()
-                q.exec_("SELECT contenido FROM %s WHERE refkey='%s'" % (table_name, ref_key))
-                if q.next():
-                    value = xpm.cacheXPM(q.value(0))
+                qry = pnsqlquery.PNSqlQuery()
+                qry.exec_("SELECT contenido FROM %s WHERE refkey='%s'" % (table_name, ref_key))
+                if qry.next():
+                    value = xpm.cacheXPM(qry.value(0))
 
                 if value:
                     ret = img_file
@@ -224,71 +224,71 @@ class KParserTools(object):
         @param custom. Where size is (30 or 31), custom is returned.
         @return Array with the size values.
         """
-        r = None
+        result = None
         if size == 0:
-            r = [595, 842]  # "A4"
+            result = [595, 842]  # "A4"
         elif size == 1:
-            r = [709, 499]  # "B5"
+            result = [709, 499]  # "B5"
         elif size == 2:
-            r = [612, 791]  # "LETTER"
+            result = [612, 791]  # "LETTER"
         elif size == 3:
-            r = [612, 1009]  # "legal"
+            result = [612, 1009]  # "legal"
         elif size == 5:
-            r = [2384, 3370]  # "A0"
+            result = [2384, 3370]  # "A0"
         elif size == 6:
-            r = [1684, 2384]  # "A1"
+            result = [1684, 2384]  # "A1"
         elif size == 7:
-            r = [1191, 1684]  # "A2"
+            result = [1191, 1684]  # "A2"
         elif size == 8:
-            r = [842, 1191]  # "A3"
+            result = [842, 1191]  # "A3"
         elif size == 9:
-            r = [420, 595]  # "A5"
+            result = [420, 595]  # "A5"
         elif size == 10:
-            r = [298, 420]  # "A6"
+            result = [298, 420]  # "A6"
         elif size == 11:
-            r = [210, 298]  # "A7"
+            result = [210, 298]  # "A7"
         elif size == 12:
-            r = [147, 210]  # "A8"
+            result = [147, 210]  # "A8"
         elif size == 13:
-            r = [105, 147]  # "A9"
+            result = [105, 147]  # "A9"
         elif size == 14:
-            r = [4008, 2835]  # "B0"
+            result = [4008, 2835]  # "B0"
         elif size == 15:
-            r = [2835, 2004]  # "B1"
+            result = [2835, 2004]  # "B1"
         elif size == 16:
-            r = [125, 88]  # "B10"
+            result = [125, 88]  # "B10"
         elif size == 17:
-            r = [2004, 1417]  # "B2"
+            result = [2004, 1417]  # "B2"
         elif size == 18:
-            r = [1417, 1001]  # "B3"
+            result = [1417, 1001]  # "B3"
         elif size == 19:
-            r = [1001, 709]  # "B4"
+            result = [1001, 709]  # "B4"
         elif size == 20:
-            r = [499, 354]  # "B6"
+            result = [499, 354]  # "B6"
         elif size == 21:
-            r = [324, 249]  # "B7"
+            result = [324, 249]  # "B7"
         elif size == 22:
-            r = [249, 176]  # "B8"
+            result = [249, 176]  # "B8"
         elif size == 23:
-            r = [176, 125]  # "B9"
+            result = [176, 125]  # "B9"
         elif size == 24:
-            r = [649, 459]  # "C5"
+            result = [649, 459]  # "C5"
         elif size == 25:
-            r = [113, 79]  # "C10"
+            result = [113, 79]  # "C10"
         elif size == 28:
-            r = [1255, 791]  # "LEDGER"
+            result = [1255, 791]  # "LEDGER"
         elif size == 29:
-            r = [791, 1255]  # "TABLOID"
+            result = [791, 1255]  # "TABLOID"
         elif size in (30, 31):
-            r = custom  # "CUSTOM"
-        if r is None:
+            result = custom  # "CUSTOM"
+        if result is None:
             self.logger.warning("porcessXML:No se encuentra pagesize para %s. Usando A4" % size)
-            r = [595, 842]
+            result = [595, 842]
 
         # if orientation != 0:
         #    r = [r[1], r[0]]
 
-        return r
+        return result
 
     def find_font(self, font_name: str, font_style: str) -> Optional[str]:
         """
@@ -378,20 +378,20 @@ class KParserTools(object):
         Calculate sum for specified element line.
         """
         val = 0.0
-        for l in xml_list:
-            lev_ = int(l.get("level"))
+        for item in xml_list:
+            lev_ = int(item.get("level"))
             if lev_ == 0:
                 val = 0.0
             if lev_ > level:
-                val += float(l.get(field_name))
-            if l is line:
+                val += float(item.get(field_name))
+            if item is line:
                 break
 
         return str(val)
 
-    def restore_text(self, t: str) -> str:
+    def restore_text(self, text: str) -> str:
         """Un-replace text for special characters."""
-        ret_ = t
+        ret_ = text
         ret_ = ret_.replace("__RPAREN__", ")")
         ret_ = ret_.replace("__LPAREN__", "(")
         ret_ = ret_.replace("__ASTERISK__", "*")

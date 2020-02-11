@@ -66,11 +66,11 @@ class PNPackager(object):
             baseroot = os.path.relpath(root, basedir)
             for pattern in ignored_files:
                 delfiles = fnmatch.filter(files, pattern)
-                for f in delfiles:
-                    files.remove(f)
+                for delete_file in delfiles:
+                    files.remove(delete_file)
                 deldirs = fnmatch.filter(dirs, pattern)
-                for f in deldirs:
-                    dirs.remove(f)
+                for delete_dir in deldirs:
+                    dirs.remove(delete_dir)
             pass_files = [
                 os.path.join(baseroot, filename) for filename in fnmatch.filter(files, glob_pattern)
             ]
