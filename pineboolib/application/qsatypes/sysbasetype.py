@@ -600,28 +600,28 @@ class SysBaseType(object):
         if os_name == "LINUX":
             if self.launchCommand([u"xdg-open", url]):
                 return True
-            if self.launchCommand([u"gnome-open", url]):
+            elif self.launchCommand([u"gnome-open", url]):
                 return True
-            if self.launchCommand([u"kfmclient openURL", url]):
+            elif self.launchCommand([u"kfmclient openURL", url]):
                 return True
-            if self.launchCommand([u"kfmclient exec", url]):
+            elif self.launchCommand([u"kfmclient exec", url]):
                 return True
-            if self.launchCommand([u"firefox", url]):
+            elif self.launchCommand([u"firefox", url]):
                 return True
-            if self.launchCommand([u"mozilla", url]):
+            elif self.launchCommand([u"mozilla", url]):
                 return True
-            if self.launchCommand([u"opera", url]):
+            elif self.launchCommand([u"opera", url]):
                 return True
-            if self.launchCommand([u"google-chrome", url]):
+            elif self.launchCommand([u"google-chrome", url]):
                 return True
             return False
 
-        if os_name == u"WIN32":
+        elif os_name == u"WIN32":
             if url.startswith(u"mailto"):
                 url = url.replace("&", "^&")
             return self.launchCommand([u"cmd.exe", u"/C", u"start", u"", url])
 
-        if os_name == u"MACX":
+        elif os_name == u"MACX":
             return self.launchCommand([u"open", url])
 
         return False
