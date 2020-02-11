@@ -79,7 +79,7 @@ class TestFLUtil(unittest.TestCase):
         self.assertEqual(util.enLetraMonedaEuro(-10), "MENOS DIEZ EUROS")
         self.assertEqual(util.enLetraMonedaEuro(5125), "CINCO MIL CIENTO VEINTICINCO EUROS")
         self.assertEqual(util.letraDni(12345678), "Z")
-        self.assertEqual(util.nombreCampos("flareas"), [3, "bloqueo", "idarea", "descripcion"])
+        self.assertEqual(util.nombreCampos("flareas"), ["3", "bloqueo", "idarea", "descripcion"])
         self.assertEqual(util.calcularDC(30660001), "2")
         self.assertEqual(util.formatoMiles("12345"), "12.345")
         self.assertEqual(util.formatoMiles("-12.05"), "-12,05")
