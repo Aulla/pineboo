@@ -325,7 +325,7 @@ def replace(source: str, search: Any, replace: str) -> str:
         return search.replace(source, replace)
 
 
-def splice(*args) -> Any:
+def splice(*args: Any) -> Any:
     """Splice Iterables."""
 
     real_args = args[1:]
@@ -354,7 +354,6 @@ def splice(*args) -> Any:
 
                 i = 0
                 x = 0
-                new = {}
                 for old_value in array_:
                     if i < pos_ini:
                         new_array_.append(old_value)
