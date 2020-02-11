@@ -236,15 +236,17 @@ class Kut2FPDF(object):
         #        self.processSection("AddOnHeader", str(l))
         pg_headers = self._xml.findall("PageHeader")
 
-        for ph in pg_headers:
-            if self.number_pages() == 1 or ph.get("PrintFrequency") == "1":
-                ph_level = ph.get("Level") if ph.get("Level") is not None else None
+        for page_header in pg_headers:
+            if self.number_pages() == 1 or page_header.get("PrintFrequency") == "1":
+                ph_level = (
+                    page_header.get("Level") if page_header.get("Level") is not None else None
+                )
                 self.processSection("PageHeader", int(ph_level or "0"))
                 break
 
         if add_on_header and not self.number_pages() == 1:
-            for l in range(data_level + 1):
-                self.processSection("AddOnHeader", int(l))
+            for level in range(data_level + 1):
+                self.processSection("AddOnHeader", int(level))
 
         # Por ahora se omite detail header
 
@@ -280,8 +282,8 @@ class Kut2FPDF(object):
                 self.last_detail = True
 
             if level < self.prev_level:
-                for l in range(level + 1, self.prev_level + 1):
-                    self.processData("DetailFooter", self.last_data_processed, l)
+                for lev in range(level + 1, self.prev_level + 1):
+                    self.processData("DetailFooter", self.last_data_processed, lev)
 
             if not str(level) in self.detailn.keys():
                 self.detailn[str(level)] = 0
@@ -303,8 +305,8 @@ class Kut2FPDF(object):
             i += 1
 
         if not self._no_print_footer and hasattr(self, "last_data_processed"):
-            for l in reversed(range(top_level + 1)):
-                self.processData("DetailFooter", self.last_data_processed, l)
+            for lev in reversed(range(top_level + 1)):
+                self.processData("DetailFooter", self.last_data_processed, lev)
 
         application.PROJECT.message_manager().send("progress_dialog_manager", "destroy", ["kugar"])
 
@@ -317,20 +319,20 @@ class Kut2FPDF(object):
         @param data_level. Section level
         """
         self.actual_data_level = data_level
-        listDF = self._xml.findall(section_name)
+        list_sections = self._xml.findall(section_name)
         # data_size = len(listDF)
 
-        for dF in listDF:
-            draw_if = dF.get("DrawIf")
+        for section in list_sections:
+            draw_if = section.get("DrawIf")
             show = True
             if draw_if:
                 show = bool(data.get(draw_if))
 
-            if dF.get("Level") == str(data_level) and show not in ("", "False", "None"):
+            if section.get("Level") == str(data_level) and show not in ("", "False", "None"):
 
                 if section_name in ("DetailHeader", "Detail"):
-                    heightCalculated = (
-                        self._parser_tools.getHeight(dF)
+                    height_calculated = (
+                        self._parser_tools.getHeight(section)
                         + self.topSection()
                         + self.increase_section_size
                     )
@@ -338,29 +340,32 @@ class Kut2FPDF(object):
                     if section_name == "DetailHeader":
                         for detail in self._xml.findall("Detail"):
                             if detail.get("Level") == str(data_level):
-                                heightCalculated += self._parser_tools.getHeight(detail)
+                                height_calculated += self._parser_tools.getHeight(detail)
 
-                    for dFooter in self._xml.findall("DetailFooter"):
-                        if dFooter.get("Level") == str(data_level):
-                            heightCalculated += self._parser_tools.getHeight(dFooter)
+                    for detail_footer in self._xml.findall("DetailFooter"):
+                        if detail_footer.get("Level") == str(data_level):
+                            height_calculated += self._parser_tools.getHeight(detail_footer)
 
                     aof_size = 0
-                    for addFooter in self._xml.findall("AddOnFooter"):
-                        # if addFooter.get("Level") == str(data_level):
-                        aof_size += self._parser_tools.getHeight(addFooter)
-                        heightCalculated += self._parser_tools.getHeight(addFooter)
+                    for add_footer in self._xml.findall("AddOnFooter"):
+                        # if add_footer.get("Level") == str(data_level):
+                        aof_size += self._parser_tools.getHeight(add_footer)
+                        height_calculated += self._parser_tools.getHeight(add_footer)
 
-                    pageFooter: Any = self._xml.get("PageFooter")
-                    if pageFooter is not None and isinstance(pageFooter, Element):
-                        if self._document.page_no() == 1 or pageFooter.get("PrintFrecuency") == "1":
-                            heightCalculated += self._parser_tools.getHeight(pageFooter)
+                    page_footer: Any = self._xml.get("PageFooter")
+                    if isinstance(page_footer, Element):
+                        if (
+                            self._document.page_no() == 1
+                            or page_footer.get("PrintFrecuency") == "1"
+                        ):
+                            height_calculated += self._parser_tools.getHeight(page_footer)
 
-                    heightCalculated += self._bottom_margin
-                    if (heightCalculated + aof_size) > self._document.h:  # Si nos pasamos
+                    height_calculated += self._bottom_margin
+                    if (height_calculated + aof_size) > self._document.h:  # Si nos pasamos
                         self._no_print_footer = True
                         # Vemos el tope por abajo
                         limit_bottom = self._document.h - aof_size
-                        actual_size = self._parser_tools.getHeight(dF) + self.topSection()
+                        actual_size = self._parser_tools.getHeight(section) + self.topSection()
 
                         if (
                             actual_size >= limit_bottom - 2
@@ -369,9 +374,9 @@ class Kut2FPDF(object):
 
                             self.newPage(data_level)
 
-                self.processXML(dF, data)
+                self.processXML(section, data)
 
-                if dF.get("NewPage") == "true" and not self.last_detail:
+                if section.get("NewPage") == "true" and not self.last_detail:
                     self.newPage(data_level, False)
 
                 break  # Se ejecuta una sola instancia
@@ -384,9 +389,10 @@ class Kut2FPDF(object):
         """
         sec_list = self._xml.findall(name)
         sec_ = None
-        for s in sec_list:
-            if s.get("Level") == str(level) or s.get("Level") is None:
-                sec_ = s
+        for section in sec_list:
+            if section.get("Level") == str(level) or section.get("Level") is None:
+                sec_ = section
+                break
 
         if sec_ is not None:
             if (
@@ -441,17 +447,17 @@ class Kut2FPDF(object):
             detail_level = xml.get("Level")
             if detail_level is None:
                 raise Exception("Level tag not found")
-            for df in self._xml.iter("DetailFooter"):
-                if df.get("Level") == detail_level:
-                    for cf in df.iter("CalculatedField"):
-                        if cf.get("DrawAtHeader") == "true":
+            for detail_footer in self._xml.iter("DetailFooter"):
+                if detail_footer.get("Level") == detail_level:
+                    for calculated_filed in detail_footer.iter("CalculatedField"):
+                        if calculated_filed.get("DrawAtHeader") == "true":
                             header_name = "%s_header_%s_%s" % (
                                 self.detailn[detail_level],
                                 detail_level,
-                                cf.get("Field"),
+                                calculated_filed.get("Field"),
                             )
                             self.draws_at_header[header_name] = ""
-                            self.processText(cf, data, fix_height, xml.tag)
+                            self.processText(calculated_filed, data, fix_height, xml.tag)
 
         for line in xml.iter("Line"):
             self.processLine(line, fix_height)
@@ -474,9 +480,9 @@ class Kut2FPDF(object):
         """
 
         color = xml.get("Color")
-        r = 0 if not color else int(color.split(",")[0])
-        g = 0 if not color else int(color.split(",")[1])
-        b = 0 if not color else int(color.split(",")[2])
+        red = 0 if not color else int(color.split(",")[0])
+        green = 0 if not color else int(color.split(",")[1])
+        blue = 0 if not color else int(color.split(",")[2])
 
         style = int(xml.get("Style") or "0")
         width = int(xml.get("Width") or "0")
@@ -493,7 +499,7 @@ class Kut2FPDF(object):
             Y2 = self._parser_tools.ratio_correction_h(Y2)
 
         self._document.set_line_width(self._parser_tools.ratio_correction_h(width))
-        self._document.set_draw_color(r, g, b)
+        self._document.set_draw_color(red, green, blue)
         dash_length = 1
         space_length = 1
         if style == 2:
@@ -507,14 +513,14 @@ class Kut2FPDF(object):
         # else:
         #    self._document.line(X1, Y1, X2, Y2)
 
-    def calculateLeftStart(self, x: Union[str, int, float]) -> int:
+    def calculateLeftStart(self, position: Union[str, int, float]) -> int:
         """
         Check if left margin is exceeded for current page.
 
-        @param x. Position to check.
+        @param position. Position to check.
         @return Revised position.
         """
-        return self._parser_tools.ratio_correction_w(int(x)) + self._left_margin
+        return self._parser_tools.ratio_correction_w(int(position)) + self._left_margin
 
     def calculateWidth(self, width: int, pos_x: int, fix_ratio: bool = True) -> int:
         """
