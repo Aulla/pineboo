@@ -185,7 +185,7 @@ if not __is_deployed():
 
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagState  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagStateList  # noqa: F401
-
+from pineboolib.fllegacy.aqsobjects.aqsbuttongroup import AQSButtonGroup  # noqa: F401
 
 sys = SysType()
 # FIXME: meter todo QSA

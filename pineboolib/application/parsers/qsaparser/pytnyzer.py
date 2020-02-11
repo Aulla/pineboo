@@ -38,6 +38,7 @@ QSA_KNOWN_ATTRS = {
     "Application",
     "AQBoolFlagState",
     "AQBoolFlagStateList",
+    "AQSButtonGroup",
     "AQFormDB",
     "AQObjectQueryList",
     "AQOdsColor",
