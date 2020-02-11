@@ -12,6 +12,8 @@ class AQSButtonGroup(qbuttongroup.QButtonGroup):
     """AQSButtonGroup class."""
 
     def __init__(self, parent: Any, name="", *args):
+        """Initialize."""
+
         super().__init__(parent)
         if name:
             self.setObjectName(name)
