@@ -21,7 +21,7 @@ class TestAQUtil(unittest.TestCase):
         array = util.nombreCampos("flmodules")
         self.assertTrue(qsa.parseInt(array[0]))
         value = array.pop(0)
-        self.assertEqual(value, 6)
+        self.assertEqual(value, "6")
         self.assertEqual(
             str(array),
             str(qsa.Array("bloqueo", "idmodulo", "idarea", "descripcion", "version", "icono")),
