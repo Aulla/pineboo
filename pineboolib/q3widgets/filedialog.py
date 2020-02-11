@@ -9,14 +9,14 @@ class FileDialog(object):
     """FileDialog class."""
 
     @staticmethod
-    def getOpenFileName(path: str, *args: Any) -> Optional[str]:
+    def getOpenFileName(path: str = "", *args: Any) -> Optional[str]:
         """Show a dialog to choose a file."""
 
         obj = QFileDialog.getOpenFileName(QApplication.activeWindow(), path, *args)
         return obj[0] if obj is not None else None
 
     @staticmethod
-    def getOpenFileNames(path: str, *args: Any) -> List[str]:
+    def getOpenFileNames(path: str = "", *args: Any) -> List[str]:
         """Show a dialog to choose a file."""
         obj = QFileDialog.getOpenFileNames(QApplication.activeWindow(), path, *args)
         return obj[0] if obj is not None else []
