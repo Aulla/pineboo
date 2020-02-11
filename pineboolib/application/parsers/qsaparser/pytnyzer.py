@@ -1653,6 +1653,7 @@ class Member(ASTPython):
             "search",
             "shift()",
             "sort",
+            "splice",
         ]
 
         for member in replace_members:
@@ -1761,6 +1762,10 @@ class Member(ASTPython):
                         value = arg1[5:]
                         value = value[: len(value) - 1] or ""
                         arguments = ["qsa.Sort(%s).sort_(%s)" % (value, ".".join(part1))] + part2
+                    elif member == "splice":
+                        value = arg1[7:]
+                        value = value[: len(value) - 1] or ""
+                        arguments = ["qsa.splice(%s, %s)" % (".".join(part1), value)] + part2
                     elif member == "push":
                         value = arg1[5:]
                         value = value[: len(value) - 1]

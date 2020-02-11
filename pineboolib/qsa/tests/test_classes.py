@@ -96,6 +96,17 @@ class TestClasses(unittest.TestCase):
         self.assertEqual(sorted(array_), [0, 1, 2, 3, 4, 6, 9])
         self.assertEqual(qsa.Sort(self.function_sort).sort_(array_), [0, 1, 2, 3, 4, 6, 9])
 
+    def test_splice(self) -> None:
+        """Test splice."""
+        from pineboolib.qsa import qsa
+
+        array_ = [1, 2, 3, 4, 5, 6]
+        qsa.splice(array_, 3, 0, 8, 9)
+        self.assertEqual(array_, [1, 2, 3, 8, 9, 4, 5, 6])
+        qsa.splice(array_, 3, 2)
+        self.assertEqual(array_, [1, 2, 3, 4, 5, 6])
+        qsa.splice(array_, 3, 2, 9, 8)
+
     def saludo(self) -> None:
         """AQGlobalFunction test."""
         self._prueba = True

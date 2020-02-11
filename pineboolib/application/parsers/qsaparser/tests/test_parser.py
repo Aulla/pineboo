@@ -177,6 +177,19 @@ class TestParser(unittest.TestCase):
             "aLista = qsa.Array()\nqsa.Sort(qsa.parseString).sort_(aLista)\n",
         )
 
+    def test_splice(self) -> None:
+        """Test splice."""
+
+        self.assertEqual(
+            qs2py(
+                """
+                var aLista = new Array();
+                aLista.splice(10,1);
+                """
+            ),
+            "aLista = qsa.Array()\nqsa.splice(aLista, 10, 1)\n",
+        )
+
     def test_pyconvert(self) -> None:
         """Test pyconvert."""
         from pineboolib import application

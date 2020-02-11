@@ -325,6 +325,53 @@ def replace(source: str, search: Any, replace: str) -> str:
         return search.replace(source, replace)
 
 
+def splice(*args) -> Any:
+    """Splice Iterables."""
+
+    real_args = args[1:]
+    array_ = args[0]
+    if hasattr(array_, "splice"):
+        array_.splice(real_args)
+    else:
+        if isinstance(array_, list):
+            new_array_ = []
+
+            if len(real_args) == 2:  # Delete
+                pos_ini = real_args[0]
+                length_ = real_args[1]
+                for i in reversed(range(pos_ini, pos_ini + length_)):
+                    array_.pop(i)
+
+            elif len(real_args) > 2 and real_args[1] == 0:  # Insertion
+
+                for value in reversed(real_args[2:]):
+                    array_.insert(real_args[0], value)
+
+            elif len(real_args) > 2 and real_args[1] > 0:  # Replacement
+                pos_ini = real_args[0]
+                replacement_size = real_args[1]
+                new_values = real_args[2:]
+
+                i = 0
+                x = 0
+                new = {}
+                for old_value in array_:
+                    if i < pos_ini:
+                        new_array_.append(old_value)
+                    else:
+                        if x < replacement_size:
+                            if x == 0:
+                                for new_value in new_values:
+                                    new_array_.append(new_value)
+
+                            x += 1
+                        else:
+                            new_array_.append(old_value)
+
+                    i += 1
+                array_ = new_array_
+
+
 class Sort:
     """Sort Class."""
 
