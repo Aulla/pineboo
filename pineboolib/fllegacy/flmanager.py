@@ -633,36 +633,35 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("createTable. self.db_ is empty!")
 
-        if n_or_tmd is None:
-            logger.debug("createTable: Called with no table.")
-            return None
+        if n_or_tmd is not None:
 
-        if isinstance(n_or_tmd, str):
-            tmd = self.metadata(n_or_tmd)
-            if not tmd:
-                return None
+            if isinstance(n_or_tmd, str):
+                tmd = self.metadata(n_or_tmd)
+                if not tmd:
+                    return None
 
-            if self.existsTable(tmd.name()):
-                self.list_tables_.append(n_or_tmd)
-                return tmd
+                if self.existsTable(tmd.name()):
+                    self.list_tables_.append(n_or_tmd)
+                    return tmd
+                else:
+                    if not tmd.isQuery():
+                        logger.warning("FLMAnager :: No existe tabla %s", n_or_tmd)
+
+                return self.createTable(tmd)
             else:
-                if not tmd.isQuery():
-                    logger.warning("FLMAnager :: No existe tabla %s", n_or_tmd)
+                if n_or_tmd.isQuery() or self.existsTable(n_or_tmd.name(), False):
+                    return n_or_tmd
 
-            return self.createTable(tmd)
-        else:
-            if n_or_tmd.isQuery() or self.existsTable(n_or_tmd.name(), False):
-                return n_or_tmd
+                if not self.db_.createTable(n_or_tmd):
+                    logger.warning(
+                        "createTable: %s",
+                        self.tr("No se ha podido crear la tabla ") + n_or_tmd.name(),
+                    )
+                    return None
+                else:
+                    logger.info("createTable: Created new table %r", n_or_tmd.name())
 
-            if not self.db_.createTable(n_or_tmd):
-                logger.warning(
-                    "createTable: %s", self.tr("No se ha podido crear la tabla ") + n_or_tmd.name()
-                )
-                return None
-            else:
-                logger.info("createTable: Created new table %r", n_or_tmd.name())
-
-            return n_or_tmd
+        return n_or_tmd
 
     def formatValueLike(
         self,
@@ -690,12 +689,9 @@ class FLManager(QtCore.QObject, IManager):
             raise Exception("formatValueLike. self.db_ is empty!")
 
         if not isinstance(fmd_or_type, str):
-            if fmd_or_type is None:
-                return ""
+            fmd_or_type = fmd_or_type.type()
 
-            return self.formatValueLike(fmd_or_type.type(), value, upper)
-        else:
-            return self.db_.formatValueLike(fmd_or_type, value, upper)
+        return self.db_.formatValueLike(fmd_or_type, value, upper)
 
     def formatAssignValueLike(self, *args, **kwargs) -> str:
         """
@@ -710,72 +706,66 @@ class FLManager(QtCore.QObject, IManager):
         @param v Value to be formatted for the indicated field
         @param upper If TRUE converts the value to uppercase (if it is a string type)
         """
+        type_: str = ""
+        field_name_: str = ""
+        value_: Any = args[1]
+        upper_: bool = args[2]
+
         if isinstance(args[0], pnfieldmetadata.PNFieldMetaData):
-            # Tipo 1
-            if args[0] is None:
-                return "1 = 1"
 
-            mtd = args[0].metadata()
+            field_name_ = args[0].name()
+            type_ = args[0].type()
 
-            if not mtd:
-                return self.formatAssignValueLike(args[0].name(), args[0].type(), args[1], args[2])
+            mtd_ = args[0].metadata()
+
+            if mtd_ is None:
+                return ""
 
             if args[0].isPrimaryKey():
-                return self.formatAssignValueLike(
-                    mtd.primaryKey(True), args[0].type(), args[1], args[2]
-                )
+                field_name_ = mtd_.primaryKey(True)
 
-            fieldName = args[0].name()
-            if mtd.isQuery() and fieldName.find(".") == -1:
-                qry = pnsqlquery.PNSqlQuery(mtd.query())
+            item_field_name = args[0].name()
+            if mtd_.isQuery() and field_name_.find(".") == -1:
+                qry = pnsqlquery.PNSqlQuery(mtd_.query())
 
                 if qry:
-                    fL = qry.fieldList()
+                    field_list = qry.fieldList()
 
-                for it in fL:
-                    if it.find(".") > -1:
-                        itFieldName = it[it.find(".") + 1 :]
+                for item in field_list:
+                    if item.find(".") > -1:
+                        item_field_name = item[item.find(".") + 1 :]
                     else:
-                        itFieldName = it
+                        item_field_name = item
 
-                    if itFieldName == fieldName:
+                    if item_field_name == field_name_:
                         break
-                # FIXME: deleteLater() is a C++ internal to clear the memory later. Not used in Python
-                # qry.deleteLater()
-            prefixTable = mtd.name()
-            return self.formatAssignValueLike(
-                "%s.%s" % (prefixTable, fieldName), args[0].type(), args[1], args[2]
-            )
+
+            field_name_ = "%s.%s" % (mtd_.name(), item_field_name)
 
         elif isinstance(args[1], pnfieldmetadata.PNFieldMetaData):
-            # tipo 2
-            if args[1] is None:
-                return "1 = 1"
 
-            return self.formatAssignValueLike(args[0], args[1].type(), args[2], args[3])
-
+            field_name_ = args[0]
+            type_ = args[1].type()
         else:
-            # tipo 3
-            # args[0] = fieldName
-            # args[1] = type
-            # args[2] = valor
-            # args[3] = upper
 
-            if args[0] is None or not args[1]:
-                return "1 = 1"
+            field_name_ = args[0]
+            type_ = args[1]
 
-            is_text = args[1] in ["string", "stringlist", "timestamp"]
-            format_value = self.formatValueLike(args[1], args[2], args[3])
+            if len(args) == 4:
+                value_ = args[2]
+                upper_ = args[3]
 
-            if not format_value:
-                return "1 = 1"
+        is_text = type_ in ["string", "stringlist", "timestamp"]
+        format_value_ = self.formatValueLike(type_, value_, upper_)
 
-            field_name = args[0]
-            if is_text:
-                if args[3]:
-                    field_name = "upper(%s)" % args[0]
+        if not format_value_:
+            return "1 = 1"
 
-            return "%s %s" % (field_name, format_value)
+        if is_text:
+            if upper_:
+                field_name_ = "upper(%s)" % field_name_
+
+        return "%s %s" % (field_name_, format_value_)
 
     def formatValue(self, fMD_or_type: str, v: Any, upper: bool = False) -> str:
         """Return format value."""
@@ -787,7 +777,7 @@ class FLManager(QtCore.QObject, IManager):
             raise ValueError("fMD_or_type is required")
 
         if not isinstance(fMD_or_type, str):
-            return self.formatValue(fMD_or_type.type(), v, upper)
+            fMD_or_type = fMD_or_type.type()
 
         return str(self.db_.formatValue(fMD_or_type, v, upper))
 
@@ -798,6 +788,11 @@ class FLManager(QtCore.QObject, IManager):
             # print("FLManager.formatAssignValue(). Primer argumento vacio %s" % args[0])
             return "1 = 1"
 
+        field_name_: str = ""
+        field_type_: str = ""
+        value_: Any = None
+        upper_: bool = False
+
         # print("tipo 0", type(args[0]))
         # print("tipo 1", type(args[1]))
         # print("tipo 2", type(args[2]))]
@@ -805,71 +800,85 @@ class FLManager(QtCore.QObject, IManager):
         if isinstance(args[0], pnfieldmetadata.PNFieldMetaData) and len(args) == 3:
             fMD = args[0]
             mtd = fMD.metadata()
-            if not mtd:
-                return self.formatAssignValue(fMD.name(), fMD.type(), args[1], args[2])
+            if mtd is None:
+                field_name_ = fMD.name()
+                field_type_ = fMD.type()
+                value_ = args[1]
+                upper_ = args[2]
 
-            if fMD.isPrimaryKey():
-                return self.formatAssignValue(mtd.primaryKey(True), fMD.type(), args[1], args[2])
+            elif fMD.isPrimaryKey():
+                field_name_ = mtd.primaryKey(True)
+                field_type_ = fMD.type()
+                value_ = args[1]
+                upper_ = args[2]
+            else:
 
-            fieldName = fMD.name()
-            if mtd.isQuery() and "." not in fieldName:
-                prefixTable = mtd.name()
-                qry = self.query(mtd.query())
+                field_name_ = fMD.name()
+                if mtd.isQuery() and "." not in field_name_:
+                    prefix_table_ = mtd.name()
+                    qry = self.query(mtd.query())
 
-                if qry:
-                    fL = qry.fieldList()
+                    if qry:
 
-                    for f in fL:
-                        # print("fieldName = " + f)
+                        for field in qry.fieldList():
+                            # print("fieldName = " + f)
 
-                        fieldSection = None
-                        pos = f.find(".")
-                        if pos > -1:
-                            prefixTable = f[:pos]
-                            fieldSection = f[pos + 1 :]
-                        else:
-                            fieldSection = f
+                            field_section_ = field
+                            pos = field.find(".")
+                            if pos > -1:
+                                prefix_table_ = field[:pos]
+                                field_section_ = field[pos + 1 :]
+                            else:
+                                field_section_ = field
 
-                        # prefixTable = f.section('.', 0, 0)
-                        # if f.section('.', 1, 1) == fieldName:
-                        if fieldSection == fieldName:
-                            break
+                            # prefixTable = f.section('.', 0, 0)
+                            # if f.section('.', 1, 1) == fieldName:
+                            if field_section_ == field_name_:
+                                break
 
-                    del qry
+                    # fieldName.prepend(prefixTable + ".")
+                    field_name_ = "%s.%s" % (prefix_table_, field_name_)
 
-                # fieldName.prepend(prefixTable + ".")
-                fieldName = prefixTable + "." + fieldName
-
-            return self.formatAssignValue(fieldName, args[0].type(), args[1], args[2])
+                field_type_ = args[0].type()
+                value_ = args[1]
+                upper_ = args[2]
 
         elif isinstance(args[1], pnfieldmetadata.PNFieldMetaData) and isinstance(args[0], str):
-            return self.formatAssignValue(args[0], args[1].type(), args[2], args[3])
+
+            field_name_ = args[0]
+            field_type_ = args[1].type()
+            value_ = args[2]
+            upper_ = args[3]
 
         elif isinstance(args[0], pnfieldmetadata.PNFieldMetaData) and len(args) == 2:
-            return self.formatAssignValue(args[0].name(), args[0], args[1], False)
+
+            field_name_ = args[0].name()
+            field_type_ = args[0].type()
+            value_ = args[1]
+            upper_ = False
+
+        if not field_type_:
+            return "1 = 1"
+
+        format_value_ = self.formatValue(field_type_, value_, upper_)
+        if format_value_ is None:
+            return "1 = 1"
+
+        if not field_name_:
+            field_name_ = args[0] if isinstance(args[0], str) else args[0].name()
+
+        if upper_ and field_type_ in ["string", "stringlist", "timestamp"]:
+            field_name_ = "upper(%s)" % field_name_
+
+        if field_type_ == "string":
+            if format_value_.find("%") > -1:
+                retorno = "%s LIKE %s" % (field_name_, format_value_)
+            else:
+                retorno = "%s = %s" % (field_name_, format_value_)
         else:
-            if args[1] is None:
-                return "1 = 1"
+            retorno = "%s = %s" % (field_name_, format_value_)
 
-            formatV = self.formatValue(args[1], args[2], args[3])
-            if formatV is None:
-                return "1 = 1"
-
-            if len(args) == 4 and args[1] == "string":
-                fName = "upper(%s)" % args[0]
-            else:
-                fName = args[0]
-
-            # print("%s=%s" % (fName, formatV))
-            if args[1] == "string":
-                if formatV.find("%") > -1:
-                    retorno = "%s LIKE %s" % (fName, formatV)
-                else:
-                    retorno = "%s = %s" % (fName, formatV)
-            else:
-                retorno = "%s = %s" % (fName, formatV)
-
-            return retorno
+        return retorno
 
     def metadataField(
         self, field: "ElementTree.Element", v: bool = True, ed: bool = True
@@ -1228,8 +1237,8 @@ class FLManager(QtCore.QObject, IManager):
 
         if not self.list_tables_:
             self.list_tables_ = []
-        else:
-            self.list_tables_.clear()
+
+        self.list_tables_.clear()
 
         self.list_tables_ = self.db_.connManager().dbAux().tables()
 
@@ -1352,48 +1361,44 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("storeLareValue. self.db_ is empty!")
 
-        if largeValue[0:3] == "RK@" or mtd is None:
+        if largeValue[0:3] == "RK@":
             return None
 
         tableName = mtd.name()
-        # if self.isSystemTable(tableName):
-        #    return None
 
-        tableLarge = None
+        tableLarge = "fllarge"
 
-        if flapplication.aqApp.singleFLLarge():
-            tableLarge = "fllarge"
-        else:
+        if not flapplication.aqApp.singleFLLarge():
             tableLarge = "fllarge_%s" % tableName
+
             if not self.existsTable(tableLarge):
                 mtdLarge = pntablemetadata.PNTableMetaData(tableLarge, tableLarge)
-                fieldLarge = pnfieldmetadata.PNFieldMetaData(
+                field_refkey = pnfieldmetadata.PNFieldMetaData(
                     "refkey", "refkey", False, True, "string", 100
                 )
-                mtdLarge.addFieldMD(fieldLarge)
-                fieldLarge2 = pnfieldmetadata.PNFieldMetaData(
-                    "sha", "sha", True, False, "string", 50
-                )
-                mtdLarge.addFieldMD(fieldLarge2)
-                fieldLarge3 = pnfieldmetadata.PNFieldMetaData(
+
+                field_sha = pnfieldmetadata.PNFieldMetaData("sha", "sha", True, False, "string", 50)
+
+                field_contenido = pnfieldmetadata.PNFieldMetaData(
                     "contenido", "contenido", True, False, "stringlist"
                 )
-                mtdLarge.addFieldMD(fieldLarge3)
-                mtdAux = self.createTable(mtdLarge)
-                # mtd.insertChild(mtdLarge)  # type: ignore
-                if not mtdAux:
+
+                mtdLarge.addFieldMD(field_refkey)
+                mtdLarge.addFieldMD(field_sha)
+                mtdLarge.addFieldMD(field_contenido)
+
+                if not self.createTable(mtdLarge):
                     return None
 
         util = flutil.FLUtil()
         sha = str(util.sha1(largeValue))
-        # print("-->", tableName, sha)
         refKey = "RK@%s@%s" % (tableName, sha)
         q = pnsqlquery.PNSqlQuery(None, "dbAux")
         q.setSelect("refkey")
-        q.setFrom("fllarge")
+        q.setFrom(tableLarge)
         q.setWhere(" refkey = '%s'" % refKey)
         if q.exec_() and q.first():
-            if not q.value(0) == sha:
+            if q.value(0) != sha:
                 sql = "UPDATE %s SET contenido = '%s' WHERE refkey ='%s'" % (
                     tableLarge,
                     largeValue,
