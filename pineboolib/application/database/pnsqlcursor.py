@@ -1182,38 +1182,39 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     and self.private_cursor.mode_access_ == self.Insert
                 ):
                     if field_list_compound_key:
-                        filter_compound_key: Optional[str] = None
-                        field_1: Optional[str] = None
-                        values_fields: Optional[str] = None
+                        filter_compound_key: str = ""
+                        field_1: str = ""
+                        values_fields: str = ""
                         for field_compound_key in field_list_compound_key:
                             value_compound_key = self.private_cursor.buffer_.value(
                                 field_compound_key.name()
                             )
+                            if filter_compound_key:
+                                filter_compound_key += " AND "
 
-                            filter_compound_key = "%s AND %s" % (
-                                filter_compound_key,
-                                self.db()
-                                .connManager()
-                                .manager()
-                                .formatAssignValue(field_compound_key, value_compound_key, True),
+                            filter_compound_key += "%s" % self.db().connManager().manager().formatAssignValue(
+                                field_compound_key, value_compound_key, True
                             )
-                            if field_1 is None:
-                                field_1 = field_compound_key.alias()
-                            else:
-                                field_1 = "%s+%s" % (field_1, field_compound_key.alias())
-                            if values_fields is None:
-                                values_fields = str(value_compound_key)
-                            else:
-                                values_fields = "%s+%s" % (values_fields, str(value_compound_key))
+
+                            if field_1:
+                                field_1 += "+"
+
+                            field_1 += "%s" % field_compound_key.alias()
+
+                            if values_fields:
+                                values_fields += "+"
+
+                            values_fields = "%s" % str(value_compound_key)
 
                         qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
                         qry.setTablesList(self.table())
                         qry.setSelect(field_name)
                         qry.setFrom(self.table())
-                        if filter_compound_key is not None:
+                        if filter_compound_key:
                             qry.setWhere(filter_compound_key)
                         qry.setForwardOnly(True)
                         qry.exec_()
+
                         if qry.next():
                             message += (
                                 "\n%s : Requiere valor único, y ya hay otro registro con el valor %s en la tabla %s"
