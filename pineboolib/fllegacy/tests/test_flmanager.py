@@ -35,22 +35,29 @@ class TestFLManager(unittest.TestCase):
 
         cursor = pnsqlcursor.PNSqlCursor("fltest2")
         manager_ = cursor.db().manager()
+        field_mtd = cursor.metadata().field("string_field")
 
-        self.assertEqual(
-            manager_.formatAssignValue(cursor.metadata().field("string_field"), "string", True),
-            "upper(fltest2.string_field) = 'STRING'",
-        )
+        if field_mtd is not None:
 
-        self.assertEqual(
-            manager_.formatAssignValueLike("string_field", "string", "value", True),
-            "upper(string_field) LIKE 'VALUE%%'",
-        )
+            self.assertEqual(
+                manager_.formatAssignValue(field_mtd, "string", True),
+                "upper(fltest2.string_field) = 'STRING'",
+            )
+
+            self.assertEqual(
+                manager_.formatAssignValueLike(field_mtd, "value", True),
+                "upper(fltest2.string_field) LIKE 'VALUE%%'",
+            )
+
+            self.assertEqual(manager_.formatValueLike(field_mtd, "value", True), "LIKE 'VALUE%%'")
 
         mtd_ = manager_.metadata("flvar")
         self.assertTrue(mtd_ is not None)
         if mtd_ is not None:
             self.assertFalse(manager_.checkMetaData(mtd_, cursor.metadata()))
             self.assertTrue(manager_.checkMetaData(mtd_, mtd_))
+
+        # self.assertFalse(manager_.alterTable(mtd_, mtd_, "", False))
 
     @classmethod
     def tearDownClass(cls) -> None:
