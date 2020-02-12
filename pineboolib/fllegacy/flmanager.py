@@ -64,7 +64,7 @@ class FLManager(QtCore.QObject, IManager):
     # Caché de metadatos de talblas del sistema para optimizar lecturas
     cache_metadata_sys_: Dict[str, "pntablemetadata.PNTableMetaData"]
     db_: "iconnection.IConnection"  # Base de datos a utilizar por el manejador
-    init_count_: int  # Indica el número de veces que se ha llamado a FLManager::init()
+    init_count_: int = 0  # Indica el número de veces que se ha llamado a FLManager::init()
     buffer_: Any
     metadata_cache_fails_: List[str]
 
@@ -77,12 +77,12 @@ class FLManager(QtCore.QObject, IManager):
         self.buffer_ = None
         self.list_tables_ = []
         self.dict_key_metadata_ = {}
-        self.init_count_ = 0
         self.cache_metadata_ = {}
         self.cache_metadata_sys_ = {}
         self.cacheAction_ = {}
         QtCore.QTimer.singleShot(100, self.init)
         self.metadata_cache_fails_ = []
+        self.init_count_ += 1
 
     def init(self) -> None:
         """
