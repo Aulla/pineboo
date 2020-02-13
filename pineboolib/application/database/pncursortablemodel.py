@@ -1075,7 +1075,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         size = 0
         mtd = self.metadata()
-        if mtd:
+        if mtd and self.db().isOpen():
             where_ = self.where_filter
             # from_ = self.metadata().name()
 
