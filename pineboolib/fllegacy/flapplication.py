@@ -808,14 +808,14 @@ class FLApplication(QtCore.QObject):
         if enable_ and lang_id_:
             self._multi_lang_id = lang_id_.upper()
 
-    def loadTranslationFromModule(self, idM, lang) -> None:
+    def loadTranslationFromModule(self, id_module: str, lang: str) -> None:
         """
         Load translation from module.
 
         @param idM, Identificador del módulo donde buscar
         @param lang, Lenguaje a buscar
         """
-        self.installTranslator(self.createModTranslator(idM, lang, True))
+        self.installTranslator(self.createModTranslator(id_module, lang, True))
         # self.installTranslator(self.createModTranslator(idM, "mutliLang"))
 
     def installTranslator(self, tor) -> None:
@@ -858,7 +858,7 @@ class FLApplication(QtCore.QObject):
         pass
 
     def createModTranslator(
-        self, id_module, lang, loadDefault=False
+        self, id_module, lang: str, load_default: bool = False
     ) -> Optional["fltranslator.FLTranslator"]:
         """
         Create new translation for module.
@@ -868,7 +868,6 @@ class FLApplication(QtCore.QObject):
         @param loadDefault, Boolean para cargar los datos por defecto
         @return objeto traducción
         """
-
         file_ts = "%s.%s.ts" % (id_module, lang)
         key = None
 
@@ -886,7 +885,7 @@ class FLApplication(QtCore.QObject):
             if key and tor.loadTsContent(key):
                 return tor
 
-        return self.createModTranslator(id_module, "es") if loadDefault else None
+        return self.createModTranslator(id_module, "es") if load_default else None
 
     def modules(self) -> Any:
         """Return loaded modules."""
