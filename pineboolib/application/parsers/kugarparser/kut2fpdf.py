@@ -486,17 +486,17 @@ class Kut2FPDF(object):
 
         style = int(xml.get("Style") or "0")
         width = int(xml.get("Width") or "0")
-        X1 = self.calculateLeftStart(xml.get("X1") or "0")
-        X1 = self.calculateWidth(X1, 0, False)
-        X2 = self.calculateLeftStart(xml.get("X2") or "0")
-        X2 = self.calculateWidth(X2, 0, False)
+        pos_x1 = self.calculateLeftStart(xml.get("X1") or "0")
+        pos_x1 = self.calculateWidth(pos_x1, 0, False)
+        pos_x2 = self.calculateLeftStart(xml.get("X2") or "0")
+        pos_x2 = self.calculateWidth(pos_x2, 0, False)
 
         # Ajustar altura a secciones ya creadas
-        Y1 = int(xml.get("Y1") or "0") + self.topSection()
-        Y2 = int(xml.get("Y2") or "0") + self.topSection()
+        pos_y1 = int(xml.get("Y1") or "0") + self.topSection()
+        pos_y2 = int(xml.get("Y2") or "0") + self.topSection()
         if fix_height:
-            Y1 = self._parser_tools.ratio_correction_h(Y1)
-            Y2 = self._parser_tools.ratio_correction_h(Y2)
+            pos_y1 = self._parser_tools.ratio_correction_h(pos_y1)
+            pos_y2 = self._parser_tools.ratio_correction_h(pos_y2)
 
         self._document.set_line_width(self._parser_tools.ratio_correction_h(width))
         self._document.set_draw_color(red, green, blue)
@@ -509,7 +509,7 @@ class Kut2FPDF(object):
             dash_length = 10
             space_length = 10
 
-        self._document.dashed_line(X1, Y1, X2, Y2, dash_length, space_length)
+        self._document.dashed_line(pos_x1, pos_y1, pos_x2, pos_y2, dash_length, space_length)
         # else:
         #    self._document.line(X1, Y1, X2, Y2)
 
@@ -563,18 +563,18 @@ class Kut2FPDF(object):
         field_name = xml.get("Field") or ""
 
         # x,y,W,H se calcula y corrigen aquí para luego estar correctos en los diferentes destinos posibles
-        W = int(xml.get("Width") or "0")
+        width = int(xml.get("Width") or "0")
 
-        H = self._parser_tools.getHeight(xml)
+        height = self._parser_tools.getHeight(xml)
 
-        x = int(xml.get("X") or "0")
+        pos_x = int(xml.get("X") or "0")
 
-        y = (
+        pos_y = (
             int(xml.get("Y") or "0") + self.topSection()
         )  # Añade la altura que hay ocupada por otras secciones
         if fix_height:
-            y = self._parser_tools.ratio_correction_h(
-                y
+            pos_y = self._parser_tools.ratio_correction_h(
+                pos_y
             )  # Corrige la posición con respecto al kut original
 
         data_type = xml.get("DataType")
@@ -651,9 +651,9 @@ class Kut2FPDF(object):
         # dateFormat = xml.get("DateFormat")
 
         if is_image:
-            self.draw_image(x, y, W, H, xml, text)
+            self.draw_image(pos_x, pos_y, width, height, xml, text)
         elif is_barcode:
-            self.draw_barcode(x, y, W, H, xml, text)
+            self.draw_barcode(pos_x, pos_y, width, height, xml, text)
         elif data_row is not None:
             level = data_row.get("level") or "0"
             if level and str(level) in self.detailn.keys():
@@ -662,7 +662,7 @@ class Kut2FPDF(object):
             if xml.get("DrawAtHeader") == "true" and level:
                 if section_name == "DetailHeader":
                     val = ""
-                    self.drawText(x, y, W, H, xml, val)
+                    self.drawText(pos_x, pos_y, width, height, xml, val)
 
                     # print(level, section_name, val, text)
 
@@ -671,7 +671,7 @@ class Kut2FPDF(object):
                 # print("Añadiendo a", val, text, level)
 
             else:
-                self.drawText(x, y, W, H, xml, text)
+                self.drawText(pos_x, pos_y, width, height, xml, text)
 
     def drawText(self, x: int, y: int, W: int, H: int, xml: Element, txt: str) -> None:
         """
