@@ -673,14 +673,16 @@ class Kut2FPDF(object):
             else:
                 self.drawText(pos_x, pos_y, width, height, xml, text)
 
-    def drawText(self, x: int, y: int, width: int, height: int, xml: Element, txt: str) -> None:
+    def drawText(
+        self, pos_x: int, pos_y: int, width: int, height: int, xml: Element, txt: str
+    ) -> None:
         """
         Draw a text field onto the page.
 
-        @param x. Label X Pos.
-        @param y. Label Y Pos.
-        @param W. Label Width.
-        @param H. Label Height.
+        @param pos_x. Label X Pos.
+        @param pos_y. Label Y Pos.
+        @param width. Label Width.
+        @param height. Label Height.
         @param xml. Related XML Section
         @param txt. Computed text of the label to be created.
         """
@@ -700,13 +702,13 @@ class Kut2FPDF(object):
             resizeable = True
 
         # height_resized = False
-        orig_x = x
-        orig_y = y
+        orig_x = pos_x
+        orig_y = pos_y
         orig_w = width
         orig_h = height
         # Corregimos margenes:
-        x = self.calculateLeftStart(x)
-        width = self.calculateWidth(width, x)
+        pos_x = self.calculateLeftStart(pos_x)
+        width = self.calculateWidth(width, pos_x)
 
         # bg_color = xml.get("BackgroundColor").split(",")
         fg_color = self.get_color(xml.get("ForegroundColor") or "")
@@ -735,17 +737,17 @@ class Kut2FPDF(object):
             font_style += "B"
             font_w = 100
 
-        font_italic = xml.get("FontItalic")
-        font_under = xml.get("FontUnderlined")  # FIXME: hay que ver si es así
+        fontI = xml.get("FontItalic")
+        fontU = xml.get("FontUnderlined")  # FIXME: hay que ver si es así
 
         # background_color = self.get_color(xml.get("BackgroundColor"))
         # if background_color != [255,255,255]: #Los textos que llevan fondo no blanco van en negrita
         #    font_style += "B"
 
-        if font_italic == "1":
+        if fontI == "1":
             font_style += "I"
 
-        if font_under == "1":
+        if fontU == "1":
             font_style += "U"
 
         font_name = font_name.replace(" narrow", "")
@@ -783,8 +785,8 @@ class Kut2FPDF(object):
         self._document.set_font(font_name, font_style, font_size)
         self._document.set_stretching(font_w)
         # Corregir alineación
-        vertical_aligment = xml.get("VAlignment")  # 0 izquierda, 1 centrado,2 derecha
-        horizontal_aligment = xml.get("HAlignment")
+        vertical_alignment = xml.get("VAlignment")  # 0 izquierda, 1 centrado,2 derecha
+        horizontal_alignment = xml.get("HAlignment")
 
         # layout_direction = xml.get("layoutDirection")
 
@@ -818,8 +820,8 @@ class Kut2FPDF(object):
 
                 array_text.append(tl)
 
-        # calculated_h = orig_H * len(array_text)
-        self.drawRect(orig_x, orig_y, orig_w, orig_w, xml)
+        # calculated_h = orig_h * len(array_text)
+        self.drawRect(orig_x, orig_y, orig_w, orig_h, xml)
 
         processed_lines = 0
         extra_size = 0
@@ -830,57 +832,59 @@ class Kut2FPDF(object):
             if processed_lines > 1:
                 extra_size += font_size + 2
 
-            if horizontal_aligment == "1":  # sobre X
+            if horizontal_alignment == "1":  # sobre X
                 # Centrado
-                x = x + (width / 2) - (self._document.get_string_width(actual_text) / 2)
-                # x = x + (W / 2) - (str_width if not height_resized else W / 2)
-            elif horizontal_aligment == "2":
+                pos_x = pos_x + (width / 2) - (self._document.get_string_width(actual_text) / 2)
+                # x = x + (width / 2) - (str_width if not height_resized else width / 2)
+            elif horizontal_alignment == "2":
 
                 # Derecha
-                x = x + width - self._document.get_string_width(actual_text) - 2  # -2 de margen
-                # x = x + W - str_width if not height_resized else W
+                pos_x = (
+                    pos_x + width - self._document.get_string_width(actual_text) - 2
+                )  # -2 de margen
+                # x = x + width - str_width if not height_resized else width
             else:
                 # Izquierda
                 if processed_lines == 1:
-                    x = x + 2
+                    pos_x = pos_x + 2
 
-            if vertical_aligment == "1":  # sobre Y
+            if vertical_alignment == "1":  # sobre Y
                 # Centrado
                 # y = (y + ((H / 2) / processed_lines)) + (((self._document.font_size_pt / 2) / 2) * processed_lines)
-                y = int((orig_y + (orig_h / 2)) + ((self._document.font_size_pt / 2) / 2))
+                pos_y = int((orig_y + (orig_h / 2)) + ((self._document.font_size_pt / 2) / 2))
 
                 if len(array_text) > 1:
-                    y = y - (font_size // 2)
+                    pos_y = pos_y - (font_size // 2)
 
-            elif vertical_aligment == "2":
+            elif vertical_alignment == "2":
                 # Abajo
-                y = orig_y + orig_h - font_size
+                pos_y = orig_y + orig_h - font_size
             else:
                 # Arriba
-                y = orig_y + font_size
+                pos_y = orig_y + font_size
 
-            y = y + extra_size
+            pos_y = pos_y + extra_size
 
             if self.design_mode:
                 self.write_debug(
                     self.calculateLeftStart(orig_x),
-                    y,
+                    pos_y,
                     "Hal:%s, Val:%s, T:%s st:%s"
-                    % (horizontal_aligment, vertical_aligment, txt, font_w),
+                    % (horizontal_alignment, vertical_alignment, txt, font_w),
                     6,
                     "green",
                 )
                 if xml.tag == "CalculatedField":
                     self.write_debug(
                         self.calculateLeftStart(orig_x),
-                        y,
+                        pos_y,
                         "CalculatedField:%s, Field:%s"
                         % (xml.get("FunctionName"), xml.get("Field")),
                         3,
                         "blue",
                     )
 
-            self._document.text(x, y, actual_text)
+            self._document.text(pos_x, pos_y, actual_text)
             result_section_size += start_section_size
 
         result_section_size = result_section_size - start_section_size
@@ -895,50 +899,47 @@ class Kut2FPDF(object):
         list_ = []
         linea_: Optional[str] = None
 
-        for text in texto.split(" "):
-            if linea_ is None and not text:
+        for t in texto.split(" "):
+            if linea_ is None and t == "":
                 continue
 
-            if linea_:
-                if self._document.get_string_width(linea_ + text) > limit_w:
+            if linea_ is not None:
+                if self._document.get_string_width(linea_ + t) > limit_w:
                     list_.append(linea_)
                     linea_ = ""
             else:
                 linea_ = ""
 
-            linea_ += "%s " % text
-
-        if linea_:
+            linea_ += "%s " % t
+        if linea_ is not None:
             list_.append(linea_)
         return list_
 
     def get_color(self, value: str) -> List[int]:
         """Convert color text into [r,g,b] array."""
         lvalue = value.split(",")
-        red: int
-        green: int
-        blue: int
+        r: int
+        g: int
+        b: int
         if len(lvalue) == 3:
-            red = int(lvalue[0])
-            green = int(lvalue[1])
-            blue = int(lvalue[2])
+            r = int(lvalue[0])
+            g = int(lvalue[1])
+            b = int(lvalue[2])
         else:
-            red = int(value[0:2])
-            green = int(value[3:5])
-            blue = int(value[6:8])
+            r = int(value[0:2])
+            g = int(value[3:5])
+            b = int(value[6:8])
 
-        return [red, green, blue]
+        return [r, g, b]
 
-    def drawRect(
-        self, pos_x: int, pos_y: int, width: int, height: int, xml: Element = None
-    ) -> None:
+    def drawRect(self, x: int, y: int, W: int, H: int, xml: Element = None) -> None:
         """
         Draw a rectangle in current page.
 
         @param x. left side
         @param y. top side
-        @param width. width
-        @param height. heigth
+        @param W. width
+        @param H. heigth
         """
         style_ = ""
         border_color = None
@@ -946,12 +947,12 @@ class Kut2FPDF(object):
         line_width = self._document.line_width
         border_width = 0.2
         # Calculamos borde  y restamos del ancho
-        orig_x = pos_x
-        orig_y = pos_y
-        orig_w = width
+        orig_x = x
+        orig_y = y
+        orig_w = W
 
-        pos_x = self.calculateLeftStart(orig_x)
-        width = self.calculateWidth(width, pos_x)
+        x = self.calculateLeftStart(orig_x)
+        W = self.calculateWidth(W, x)
 
         if xml is not None and not self.design_mode:
             if xml.get("BorderStyle") == "1":
@@ -966,14 +967,14 @@ class Kut2FPDF(object):
 
             border_width = int(xml.get("BorderWidth") or "0" if xml.get("BorderWidth") else 0.2)
         else:
-            self.write_cords_debug(pos_x, pos_y, width, height, orig_x, orig_w)
+            self.write_cords_debug(x, y, W, H, orig_x, orig_w)
             style_ = "D"
             self._document.set_draw_color(0, 0, 0)
 
         if style_ != "":
             self._document.set_line_width(border_width)
 
-            self._document.rect(pos_x, pos_y, width, height, style_)
+            self._document.rect(x, y, W, H, style_)
             self._document.set_line_width(line_width)
 
             self._document.set_xy(orig_x, orig_y)
@@ -982,26 +983,19 @@ class Kut2FPDF(object):
 
     def write_cords_debug(
         self,
-        pos_x: Union[float, int],
-        pos_y: Union[float, int],
-        width: Union[float, int],
-        height: Union[float, int],
-        value_ox: Union[float, int],
-        value_ow: Union[float, int],
+        x: Union[float, int],
+        y: Union[float, int],
+        w: Union[float, int],
+        h: Union[float, int],
+        ox: Union[float, int],
+        ow: Union[float, int],
     ) -> None:
         """Debug for Kut coordinated."""
         self.write_debug(
-            int(pos_x),
-            int(pos_y),
+            int(x),
+            int(y),
             "X:%s Y:%s W:%s H:%s orig_x:%s, orig_W:%s"
-            % (
-                round(pos_x, 2),
-                round(pos_y, 2),
-                round(width, 2),
-                round(height, 2),
-                round(value_ox, 2),
-                round(value_ow, 2),
-            ),
+            % (round(x, 2), round(y, 2), round(w, 2), round(h, 2), round(ox, 2), round(ow, 2)),
             2,
             "red",
         )
@@ -1009,42 +1003,40 @@ class Kut2FPDF(object):
     def write_debug(self, x: int, y: int, text: str, h: int, color: Optional[str] = None) -> None:
         """Write debug data into the report."""
         orig_color = self._document.text_color
-        red = None
-        green = None
-        blue = None
+        r = None
+        g = None
+        b = None
         current_font_family = self._document.font_family
         current_font_size = self._document.font_size_pt
         current_font_style = self._document.font_style
         if color == "red":
-            red = 255
-            green = 0
-            blue = 0
+            r = 255
+            g = 0
+            b = 0
         elif color == "green":
-            red = 0
-            green = 255
-            blue = 0
+            r = 0
+            g = 255
+            b = 0
         elif color == "blue":
-            red = 0
-            green = 0
-            blue = 255
+            r = 0
+            g = 0
+            b = 255
 
-        self._document.set_text_color(red, green, blue)
+        self._document.set_text_color(r, g, b)
         self._document.set_font_size(4)
         self._document.text(x, y + h, text)
         self._document.text_color = orig_color
         # self._document.set_xy(orig_x, orig_y)
         self._document.set_font(current_font_family, current_font_style, current_font_size)
 
-    def draw_image(
-        self, x: int, y: int, width: int, height: int, xml: Element, file_name: str
-    ) -> None:
+    def draw_image(self, x: int, y: int, W: int, H: int, xml: Element, file_name: str) -> None:
         """
         Draw image onto current page.
 
         @param x. left position
         @param y. top position
-        @param width. width
-        @param height. heigth
+        @param W. width
+        @param H. heigth
         @param xml. Related XML section
         @param file_name. filename of temp data to use
         """
@@ -1058,13 +1050,11 @@ class Kut2FPDF(object):
 
         if os.path.exists(file_name):
             x = self.calculateLeftStart(x)
-            width = self.calculateWidth(width, x)
+            W = self.calculateWidth(W, x)
 
-            self._document.image(file_name, x, y, width, height, "PNG")
+            self._document.image(file_name, x, y, W, H, "PNG")
 
-    def draw_barcode(
-        self, x: int, y: int, width: int, height: int, xml: Element, text: str
-    ) -> None:
+    def draw_barcode(self, x: int, y: int, W: int, H: int, xml: Element, text: str) -> None:
         """
         Draw barcode onto currrent page.
         """
@@ -1089,7 +1079,7 @@ class Kut2FPDF(object):
             if not pix.isNull():
                 pix.save(file_name, "PNG")
 
-        self.draw_image(x + 10, y, width - 20, height, xml, file_name)
+        self.draw_image(x + 10, y, W - 20, H, xml, file_name)
 
     def setPageFormat(self, xml: Element) -> None:
         """
