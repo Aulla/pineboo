@@ -45,6 +45,16 @@ class TestSysBaseClassGeneral(unittest.TestCase):
         self.assertEqual(base_type.nameDriver(), "FLsqlite")
         self.assertEqual(base_type.nameHost(), None)
 
+    def test_basic_2(self) -> None:
+        """Test Basic functions."""
+        base_type = sysbasetype.SysBaseType()
+        self.assertFalse(base_type.isDeveloperBuild())
+        self.assertFalse(base_type.isNebulaBuild())
+        self.assertFalse(base_type.isCloudMode())
+
+        base_type.Mr_Proper()
+        base_type.cleanupMetaData()
+
     def test_objects(self) -> None:
         """Test objects functions."""
         from pineboolib.fllegacy import fltabledb
@@ -99,6 +109,18 @@ class TestSysBaseClassDataBase(unittest.TestCase):
         self.assertEqual(prueba_conn_2.isOpen(), True)
         self.assertEqual(base_type.removeDatabase("prueba"), True)
         self.assertEqual(prueba_conn_1.isOpen(), False)
+
+        self.assertTrue(
+            base_type.addDatabase(
+                "FLsqlite",
+                ":memory:",
+                prueba_conn_1.user(),
+                prueba_conn_1.returnword(),
+                prueba_conn_1.host(),
+                prueba_conn_1.port(),
+                "extra",
+            )
+        )
 
     @classmethod
     def tearDownClass(cls) -> None:
