@@ -149,13 +149,14 @@ class FieldStruct(object):
     def has_changed(self, val: T_VALUES) -> bool:
         """Check if a buffer field has changed in value since it was initially loaded."""
 
-        if self.value is None and not val:
-            return False
+        if self.value is None:
+            if val is None:
+                return False
+            else:
+                return True
 
-        elif isinstance(self.value, str) and isinstance(val, str):
+        elif self.type_ in ("unlock", "bool"):
             return self.value != val
-        elif isinstance(val, (datetime.date, datetime.time)):
-            return str(self.value) != str(val)
         elif self.type_ in ("string", "stringlist", "timestamp"):
             return self.value != val
         elif self.type_ in ("int", "uint", "serial", "date"):
@@ -166,6 +167,10 @@ class FieldStruct(object):
             except Exception:
                 LOGGER.trace("has_changed: Error converting %s != %s to floats", self.value, val)
                 return True
+        elif isinstance(self.value, str) and isinstance(val, str):
+            return self.value != val
+        elif isinstance(val, (datetime.date, datetime.time)):
+            return str(self.value) != str(val)
 
         return True
 
