@@ -57,6 +57,11 @@ class TestFLManager(unittest.TestCase):
             self.assertFalse(manager_.checkMetaData(mtd_, cursor.metadata()))
             self.assertTrue(manager_.checkMetaData(mtd_, mtd_))
 
+        self.assertEqual(
+            manager_.formatAssignValue("nombre", "string", "prueba.qs", True),
+            "upper(nombre) = 'PRUEBA.QS'",
+        )
+
         # self.assertFalse(manager_.alterTable(mtd_, mtd_, "", False))
 
     @classmethod

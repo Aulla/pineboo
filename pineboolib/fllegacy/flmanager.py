@@ -857,6 +857,12 @@ class FLManager(QtCore.QObject, IManager):
             value_ = args[1]
             upper_ = False
 
+        elif isinstance(args[0], str):
+            field_name_ = args[0]
+            field_type_ = args[1]
+            value_ = args[2]
+            upper_ = args[3]
+
         if not field_type_:
             return "1 = 1"
 

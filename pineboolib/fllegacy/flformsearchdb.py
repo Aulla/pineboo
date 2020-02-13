@@ -70,7 +70,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
             raise Exception("Wrong size of arguments")
 
         if not parent:
-            parent = application.PROJECT.main_window
+            parent = QtWidgets.QApplication.activeModalWidget()
 
         if cursor is None:
             self.logger.warning("Se ha llamado a FLFormSearchDB sin nombre de action o cursor")
