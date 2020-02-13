@@ -43,6 +43,6 @@ def connect_to_db(config: ProjectConfig) -> "PNConnection":
         raise ValueError("type not set")
     port = int(config.port) if config.port else None
     connection = PNConnection(
-        config.database, config.host, port, config.username, config.password, config.type
+        config.database, config.host, port, config.username, config.password or "", config.type
     )
     return connection

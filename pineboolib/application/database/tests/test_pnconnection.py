@@ -136,7 +136,7 @@ class TestPNConnection(unittest.TestCase):
             self.assertTrue(conn_.declarative_base())
 
         self.assertFalse(conn_.port())
-        self.assertFalse(conn_.password())
+        self.assertFalse(conn_.returnword())
 
         # self.assertFalse(conn_.lastActiveCursor())
 

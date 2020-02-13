@@ -25,7 +25,7 @@ class IConnection:
     _db_host: Optional[str]
     _db_port: Optional[int]
     _db_user_name: Optional[str]
-    _db_password: Optional[str]
+    _db_password: str = ""
     conn: Any  # connection from the actual driver
     _conn_aux: Dict[str, "IConnection"]
     _driver_sql: Any

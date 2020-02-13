@@ -31,7 +31,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _db_host: Optional[str]
     _db_port: Optional[int]
     _db_user_name: Optional[str]
-    _db_password: Optional[str]
+    _db_password: str = ""
     conn: Any = None  # Connection from the actual driver
     _driver_sql: "pnsqldrivers.PNSqlDrivers"
     _transaction: int
@@ -54,7 +54,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         db_host: Optional[str] = None,
         db_port: Optional[int] = None,
         db_user_name: Optional[str] = None,
-        db_password: Optional[str] = None,
+        db_password: str = "",
         driver_alias: Optional[str] = None,
     ) -> None:
         """Database connection through a sql driver."""
@@ -189,7 +189,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         db_host: Optional[str],
         db_port: Optional[int],
         db_user_name: Optional[str],
-        db_password: Optional[str],
+        db_password: str = "",
     ) -> Any:
         """Request a connection to the database."""
 
@@ -240,7 +240,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self._db_user_name
 
-    def password(self) -> Optional[str]:
+    def returnword(self) -> str:
         """Return the password used by the database."""
 
         return self._db_password
