@@ -172,7 +172,7 @@ class MainForm(QtWidgets.QMainWindow):
 
         # self.loadScripts()
         self.db().managerModules().setShaLocalFromGlobal()
-        flapplication.aqApp.loadTranslations()
+        # flapplication.aqApp.loadTranslations()
 
         flapplication.aqApp.call("sys.init", [])
         self.initToolBox()
