@@ -1,13 +1,10 @@
 """Flreportviewer module."""
 from PyQt5 import QtWidgets, QtCore, QtXml
-from PyQt5.QtCore import Qt
 
 from pineboolib.core import decorators
 from pineboolib.application.qsatypes.sysbasetype import SysBaseType
 from pineboolib.fllegacy.flutil import FLUtil
 
-from PyQt5.QtWidgets import QFileDialog
-from pineboolib.q3widgets.messagebox import MessageBox
 
 # from pineboolib.fllegacy.flpicture import FLPicture
 from .flsqlquery import FLSqlQuery

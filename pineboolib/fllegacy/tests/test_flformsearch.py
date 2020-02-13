@@ -19,7 +19,6 @@ class TestFLFormsearchDB(unittest.TestCase):
         """Test flformrecord cursor assignment"""
 
         from pineboolib.qsa import qsa
-        from pineboolib import application
         import os
 
         path = fixture_path("principal.eneboopkg")
