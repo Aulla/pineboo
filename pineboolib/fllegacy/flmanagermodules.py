@@ -737,7 +737,7 @@ class FLManagerModules(object):
 
         self.sha_local_ = self.shaGlobal()
 
-    def shaOfFile(self, file_name: str) -> Optional[str]:
+    def shaOfFile(self, file_name: str) -> str:
         """
         Get the sha key associated with a stored file.
 
@@ -759,7 +759,7 @@ class FLManagerModules(object):
             if q.next():
                 return str(q.value(0))
 
-        return None
+        return ""
 
     def loadKeyFiles(self) -> None:
         """
