@@ -228,6 +228,7 @@ class TestBuffer(unittest.TestCase):
 
         self.assertNotEqual(buffer, None)
         self.assertEqual(cursor.valueBuffer("idarea"), "T")
+        self.assertEqual(cursor.valueBufferCopy("descripcion"), "Área de prueba T")
 
         self.assertEqual(buffer.value("idarea"), "T")
         self.assertEqual(buffer_copy.value("idarea"), "T")
