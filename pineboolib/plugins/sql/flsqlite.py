@@ -216,12 +216,12 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def savePoint(self, n: int) -> bool:
         """Set a savepoint."""
-        if n == 0:
-            return True
-
         if not self.isOpen():
             LOGGER.warning("savePoint: Database not open")
             return False
+
+        if n == 0:
+            return True
 
         self.set_last_error_null()
 
@@ -335,11 +335,12 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     def releaseSavePoint(self, n: int) -> bool:
         """Set release savepoint."""
 
-        if n == 0:
-            return True
         if not self.isOpen():
             LOGGER.warning("releaseSavePoint: Database not open")
             return False
+
+        if n == 0:
+            return True
 
         self.set_last_error_null()
 

@@ -32,12 +32,9 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         self.name_ = "FLMYSQL_MyISAM2"
         self.alias_ = "MySQL MyISAM (PyMySQL)"
         self.cursorsArray_ = {}
-        self.noInnoDB = True
         self.mobile_ = True
         self.pure_python_ = True
-        self.defaultPort_ = 3306
         self.rowsFetched = {}
-        self.active_create_index = True
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
