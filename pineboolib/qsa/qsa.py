@@ -56,7 +56,7 @@ from .pncontrolsfactory import FLScriptEditor, FLReportEngine, FLJasperEngine  #
 from .pncontrolsfactory import FileDialog, Color, Label, Line, CheckBox, Dialog  # noqa: F401
 from .pncontrolsfactory import ComboBox, TextEdit, LineEdit, MessageBox, RadioButton  # noqa: F401
 from .pncontrolsfactory import GroupBox, SpinBox, NumberEdit, DateEdit, TimeEdit  # noqa: F401
-from .pncontrolsfactory import Picture, Rect, Size, Pixmap, InputDialog, Font  # noqa: F401
+from .pncontrolsfactory import Picture, Rect, Size, Pixmap, Font  # noqa: F401
 
 
 # AQS

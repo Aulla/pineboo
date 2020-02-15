@@ -115,7 +115,6 @@ QSA_KNOWN_ATTRS = {
     "Function",
     "GroupBox",
     "Input",
-    "InputDialog",
     "Label",
     "Line",
     "LineEdit",
