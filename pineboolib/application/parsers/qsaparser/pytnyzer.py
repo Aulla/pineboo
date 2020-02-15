@@ -1814,9 +1814,14 @@ class Member(ASTPython):
                                 rep_from_to = rep_from_to[1:-1]
 
                             rep_extra = arguments[2:]
-                            for r in rep_extra:
-                                print(r)
-                            if rep_extra and rep_extra[0].startswith("replace"):
+                            # for r in rep_extra:
+                            #    print(r)
+
+                            if (
+                                rep_extra
+                                and rep_extra[0].startswith("replace")
+                                or len(rep_from_to.split(",")) > 2
+                            ):
                                 continue
                             else:
                                 arguments = [

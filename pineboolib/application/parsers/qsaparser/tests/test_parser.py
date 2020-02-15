@@ -70,6 +70,7 @@ class TestParser(unittest.TestCase):
 
     def test_flfacturac(self) -> None:
         """Test conveting fixture flfacturac."""
+        self.maxDiff = None
         flfacturac_qs = fixture_read("flfacturac.qs")
         flfacturac_py = fixture_read("flfacturac.python")
         flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
@@ -89,6 +90,7 @@ class TestParser(unittest.TestCase):
 
     def test_lib_str(self) -> None:
         """Test conveting fixture lib_str."""
+        self.maxDiff = None
         flfacturac_qs = fixture_read("lib_str.qs")
         flfacturac_py = fixture_read("lib_str.python")
         flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
@@ -154,6 +156,13 @@ class TestParser(unittest.TestCase):
                 'var listaOutlet:Array = new Array();flfactppal.iface.replace(listaOutlet, ", ", " "," ");'
             ),
             'listaOutlet = qsa.Array()\nqsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n',
+        )
+
+        self.assertEqual(
+            qs2py(
+                "function pub_replace(cadena, searchValue, newValue) {\nreturn this.replace(cadena, searchValue, newValue);\n}"
+            ),
+            "def pub_replace(self, cadena=None, searchValue=None, newValue=None):\n    return self.replace(cadena, searchValue, newValue)\n",
         )
 
     def test_sort_1(self) -> None:
