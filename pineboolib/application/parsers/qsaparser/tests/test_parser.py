@@ -155,14 +155,16 @@ class TestParser(unittest.TestCase):
             qs2py(
                 'var listaOutlet:Array = new Array();flfactppal.iface.replace(listaOutlet, ", ", " "," ");'
             ),
-            'listaOutlet = qsa.Array()\nqsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n',
+            """listaOutlet = qsa.Array()
+qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         )
 
         self.assertEqual(
             qs2py(
                 "function pub_replace(cadena, searchValue, newValue) {\nreturn this.replace(cadena, searchValue, newValue);\n}"
             ),
-            "def pub_replace(self, cadena=None, searchValue=None, newValue=None):\n    return self.replace(cadena, searchValue, newValue)\n",
+            """def pub_replace(self, cadena=None, searchValue=None, newValue=None):
+    return self.replace(cadena, searchValue, newValue)\n""",
         )
 
     def test_sort_1(self) -> None:
