@@ -520,8 +520,8 @@ class MainForm(QtWidgets.QMainWindow):
         if self._inicializing or flapplication.aqApp._destroying:
             return super().eventFilter(obj, ev)
 
-        if QtWidgets.QApplication.activeModalWidget() or QtWidgets.QApplication.activePopupWidget():
-            return super().eventFilter(obj, ev)
+        # if QtWidgets.QApplication.activeModalWidget() or QtWidgets.QApplication.activePopupWidget():
+        #    return super().eventFilter(obj, ev)
 
         evt = ev.type()
         main_widget = flapplication.aqApp.main_widget_
@@ -604,6 +604,7 @@ class MainForm(QtWidgets.QMainWindow):
 
     def activateModule(self, idm=None) -> None:
         """Initialize module."""
+
         if not idm:
             if self.sender():
                 idm = self.sender().objectName()
@@ -616,7 +617,7 @@ class MainForm(QtWidgets.QMainWindow):
         w = None
         if idm in self.db().managerModules().listAllIdModules():
             w = self._dict_main_widgets[idm] if idm in self._dict_main_widgets.keys() else None
-            if not w:
+            if w is None:
                 w = self.db().managerModules().createUI(file_name="%s.ui" % idm)
                 if not w:
                     return
@@ -784,28 +785,32 @@ class MainForm(QtWidgets.QMainWindow):
 
             windows_opened = settings.settings.value("windowsOpened/Main", [])
 
-            for it in windows_opened:
-                if it in self.db().managerModules().listAllIdModules():
+            for id_module in windows_opened:
+                if id_module in self.db().managerModules().listAllIdModules():
                     w = None
-                    if it in self._dict_main_widgets.keys():
-                        w = self._dict_main_widgets[it]
+                    if id_module in self._dict_main_widgets.keys():
+                        w = self._dict_main_widgets[id_module]
                     if w is None:
                         act = cast(
-                            QtWidgets.QAction, self.container_.findChild(QtWidgets.QAction, it)
+                            QtWidgets.QAction,
+                            self.container_.findChild(QtWidgets.QAction, id_module),
                         )
                         if not act or not act.isVisible():
                             continue
 
-                        w = self.db().managerModules().createUI("%s.ui" % it)
-                        self._dict_main_widgets[it] = w
-                        w.setObjectName(it)
+                        self.activateModule(id_module)
+                        # w = self.db().managerModules().createUI("%s.ui" % it)
+                        # self._dict_main_widgets[it] = w
+
+                        w = self._dict_main_widgets[id_module]
+                        w.setObjectName(id_module)
                         if flapplication.aqApp.acl_:
                             flapplication.aqApp.acl_.process(w)
 
                         self.setCaptionMainWidget(None)
                         self.setMainWidget(w)
-                        flapplication.aqApp.call("%s.init()" % it, [])
-                        self.db().managerModules().setActiveIdModule(it)
+                        flapplication.aqApp.call("%s.init()" % id_module, [])
+                        self.db().managerModules().setActiveIdModule(id_module)
                         self.setMainWidget(w)
                         self.initMainWidget()
 
@@ -896,7 +901,6 @@ class MainForm(QtWidgets.QMainWindow):
     def initView(self) -> None:
         """Initialize view."""
         mw = cast(QtWidgets.QMainWindow, flapplication.aqApp.main_widget_)
-
         if mw is None:
             return
 
