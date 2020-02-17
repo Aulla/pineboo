@@ -932,14 +932,16 @@ class Kut2FPDF(object):
 
         return [red, green, blue]
 
-    def drawRect(self, x: int, y: int, W: int, H: int, xml: Element = None) -> None:
+    def drawRect(
+        self, pos_x: int, pos_y: int, width: int, height: int, xml: Element = None
+    ) -> None:
         """
         Draw a rectangle in current page.
 
-        @param x. left side
-        @param y. top side
-        @param W. width
-        @param H. heigth
+        @param pos_x. left side
+        @param pos_y. top side
+        @param width. width
+        @param height. heigth
         """
         style_ = ""
         border_color = None
@@ -947,12 +949,12 @@ class Kut2FPDF(object):
         line_width = self._document.line_width
         border_width = 0.2
         # Calculamos borde  y restamos del ancho
-        orig_x = x
-        orig_y = y
-        orig_w = W
+        orig_x = pos_x
+        orig_y = pos_y
+        orig_w = width
 
-        x = self.calculateLeftStart(orig_x)
-        W = self.calculateWidth(W, x)
+        pos_x = self.calculateLeftStart(orig_x)
+        width = self.calculateWidth(width, pos_x)
 
         if xml is not None and not self.design_mode:
             if xml.get("BorderStyle") == "1":
@@ -967,14 +969,14 @@ class Kut2FPDF(object):
 
             border_width = int(xml.get("BorderWidth") or "0" if xml.get("BorderWidth") else 0.2)
         else:
-            self.write_cords_debug(x, y, W, H, orig_x, orig_w)
+            self.write_cords_debug(pos_x, pos_y, width, height, orig_x, orig_w)
             style_ = "D"
             self._document.set_draw_color(0, 0, 0)
 
         if style_ != "":
             self._document.set_line_width(border_width)
 
-            self._document.rect(x, y, W, H, style_)
+            self._document.rect(pos_x, pos_y, width, height, style_)
             self._document.set_line_width(line_width)
 
             self._document.set_xy(orig_x, orig_y)
@@ -983,60 +985,65 @@ class Kut2FPDF(object):
 
     def write_cords_debug(
         self,
-        x: Union[float, int],
-        y: Union[float, int],
-        w: Union[float, int],
-        h: Union[float, int],
-        ox: Union[float, int],
-        ow: Union[float, int],
+        pos_x: Union[float, int],
+        pos_y: Union[float, int],
+        width: Union[float, int],
+        height: Union[float, int],
+        orig_x: Union[float, int],
+        orig_w: Union[float, int],
     ) -> None:
         """Debug for Kut coordinated."""
         self.write_debug(
-            int(x),
-            int(y),
+            int(pos_x),
+            int(pos_y),
             "X:%s Y:%s W:%s H:%s orig_x:%s, orig_W:%s"
-            % (round(x, 2), round(y, 2), round(w, 2), round(h, 2), round(ox, 2), round(ow, 2)),
+            % (
+                round(pos_x, 2),
+                round(pos_y, 2),
+                round(width, 2),
+                round(height, 2),
+                round(orig_x, 2),
+                round(orig_w, 2),
+            ),
             2,
             "red",
         )
 
-    def write_debug(self, x: int, y: int, text: str, h: int, color: Optional[str] = None) -> None:
+    def write_debug(
+        self, pos_x: int, pos_y: int, text: str, height: int, color: Optional[str] = None
+    ) -> None:
         """Write debug data into the report."""
         orig_color = self._document.text_color
-        r = None
-        g = None
-        b = None
+        red = 0
+        green = 0
+        blue = 0
         current_font_family = self._document.font_family
         current_font_size = self._document.font_size_pt
         current_font_style = self._document.font_style
         if color == "red":
-            r = 255
-            g = 0
-            b = 0
+            red = 255
         elif color == "green":
-            r = 0
-            g = 255
-            b = 0
+            green = 255
         elif color == "blue":
-            r = 0
-            g = 0
-            b = 255
+            blue = 255
 
-        self._document.set_text_color(r, g, b)
+        self._document.set_text_color(red, green, blue)
         self._document.set_font_size(4)
-        self._document.text(x, y + h, text)
+        self._document.text(pos_x, pos_y + height, text)
         self._document.text_color = orig_color
         # self._document.set_xy(orig_x, orig_y)
         self._document.set_font(current_font_family, current_font_style, current_font_size)
 
-    def draw_image(self, x: int, y: int, W: int, H: int, xml: Element, file_name: str) -> None:
+    def draw_image(
+        self, pos_x: int, pos_y: int, width: int, height: int, xml: Element, file_name: str
+    ) -> None:
         """
         Draw image onto current page.
 
-        @param x. left position
-        @param y. top position
-        @param W. width
-        @param H. heigth
+        @param pos_x. left position
+        @param pos_y. top position
+        @param width. width
+        @param height. heigth
         @param xml. Related XML section
         @param file_name. filename of temp data to use
         """
@@ -1049,18 +1056,20 @@ class Kut2FPDF(object):
             file_name = file_name_
 
         if os.path.exists(file_name):
-            x = self.calculateLeftStart(x)
-            W = self.calculateWidth(W, x)
+            pos_x = self.calculateLeftStart(pos_x)
+            width = self.calculateWidth(width, pos_x)
 
-            self._document.image(file_name, x, y, W, H, "PNG")
+            self._document.image(file_name, pos_x, pos_y, width, height, "PNG")
 
-    def draw_barcode(self, x: int, y: int, W: int, H: int, xml: Element, text: str) -> None:
+    def draw_barcode(
+        self, pos_x: int, pos_y: int, width: int, height: int, xml: Element, text: str
+    ) -> None:
         """
         Draw barcode onto currrent page.
         """
         if text == "None":
             return
-        from pineboolib.fllegacy.flcodbar import FLCodBar
+        from pineboolib.fllegacy import flcodbar
 
         file_name = application.PROJECT.tmpdir
         file_name += "/%s.png" % (text)
@@ -1068,7 +1077,7 @@ class Kut2FPDF(object):
 
         if not os.path.exists(file_name):
 
-            bar_code = FLCodBar(text)  # Code128
+            bar_code = flcodbar.FLCodBar(text)  # Code128
             if codbartype is not None:
                 type: int = bar_code.nameToType(codbartype.lower())
                 bar_code.setType(type)
@@ -1079,7 +1088,7 @@ class Kut2FPDF(object):
             if not pix.isNull():
                 pix.save(file_name, "PNG")
 
-        self.draw_image(x + 10, y, W - 20, H, xml, file_name)
+        self.draw_image(pos_x + 10, pos_y, width - 20, height, xml, file_name)
 
     def setPageFormat(self, xml: Element) -> None:
         """
@@ -1130,22 +1139,28 @@ class Kut2FPDF(object):
         )  # Horizontal inferior
 
     def draw_debug_line(
-        self, X1: int, Y1: int, X2: int, Y2: int, title: Optional[str] = None, color: str = "GREY"
+        self,
+        pos_x1: int,
+        pos_y1: int,
+        pos_x2: int,
+        pos_y2: int,
+        title: Optional[str] = None,
+        color: str = "GREY",
     ) -> None:
         """Draw a debug line on the report."""
         dash_length = 2
         space_length = 2
 
-        r = 0
-        g = 0
-        b = 0
+        red = 0
+        green = 0
+        blue = 0
         if color == "GREY":
-            r = 220
-            g = 220
-            b = 220
+            red = 220
+            green = 220
+            blue = 220
         self._document.set_line_width(1)
-        self._document.set_draw_color(r, g, b)
-        self._document.dashed_line(X1, Y1, X2, Y2, dash_length, space_length)
+        self._document.set_draw_color(red, green, blue)
+        self._document.dashed_line(pos_x1, pos_y1, pos_x2, pos_y1, dash_length, space_length)
 
     def number_pages(self) -> int:
         """Get number of pages on the report."""
