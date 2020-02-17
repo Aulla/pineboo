@@ -2,7 +2,7 @@
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.fllegacy import systype
+from pineboolib.fllegacy import systype, flapplication
 from . import fixture_path
 
 
@@ -212,11 +212,26 @@ class TestSysType(unittest.TestCase):
     def test_project_dump(self) -> None:
         """Test dump class."""
         from pineboolib import application
+        import sys
 
         ad_ = systype.AbanQDbDumper(
             application.PROJECT.conn_manager.useConn("default"), application.PROJECT.tmpdir, False
         )
         ad_.initDump()
+        ad_.buildGui()
+        self.assertTrue(ad_.launchProc(["dir"]))
+        self.assertNotEqual(
+            ad_.proc_.readLine()  # type: ignore[attr-defined] # noqa : F821
+            .data()
+            .decode(sys.getdefaultencoding()),
+            None,
+        )
+        ad_.changeDirBase(".")
+
+    def test_basic_1(self) -> None:
+        """Test basic."""
+        flapplication.aqApp.db().mainConn().setInteractiveGUI(False)
+        systype.SysType().selectModsDialog(["flfactppal", "flfactinfo", "flfactalma"])
 
     @classmethod
     def tearDownClass(cls) -> None:

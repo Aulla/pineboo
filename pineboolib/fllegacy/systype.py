@@ -1349,7 +1349,7 @@ class SysType(sysbasetype.SysBaseType):
                 break
 
         idx = 0
-        if dialog.exec_():
+        if self.interactiveGUI() and dialog.exec_():
             i = 0
             while_pass = True
             while i < len(listFilesMod):
@@ -1976,14 +1976,22 @@ class AbanQDbDumper(QtCore.QObject):
     def readFromStdout(self) -> None:
         """Read data from stdOutput."""
 
-        t = self.proc_.readLine().decode(self.encoding)
+        t = (
+            self.proc_.readLine()  # type: ignore[attr-defined] # noqa : F821
+            .data()
+            .decode(self.encoding)
+        )
         if t not in (None, ""):
             self.funLog_(t)
 
     def readFromStderr(self) -> None:
         """Read data from stdError."""
 
-        t = self.proc_.readLine().decode(self.encoding)
+        t = (
+            self.proc_.readLine()  # type: ignore[attr-defined] # noqa : F821
+            .data()
+            .decode(self.encoding)
+        )
         if t not in (None, ""):
             self.funLog_(t)
 
