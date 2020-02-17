@@ -737,17 +737,17 @@ class Kut2FPDF(object):
             font_style += "B"
             font_w = 100
 
-        fontI = xml.get("FontItalic")
-        fontU = xml.get("FontUnderlined")  # FIXME: hay que ver si es así
+        font_italic = xml.get("FontItalic")
+        font_underlined = xml.get("FontUnderlined")  # FIXME: hay que ver si es así
 
         # background_color = self.get_color(xml.get("BackgroundColor"))
         # if background_color != [255,255,255]: #Los textos que llevan fondo no blanco van en negrita
         #    font_style += "B"
 
-        if fontI == "1":
+        if font_italic == "1":
             font_style += "I"
 
-        if fontU == "1":
+        if font_underlined == "1":
             font_style += "U"
 
         font_name = font_name.replace(" narrow", "")
@@ -798,27 +798,27 @@ class Kut2FPDF(object):
         array_n = []
         text_lines = []
         if txt.find("\n") > -1:
-            for t in txt.split("\n"):
-                array_n.append(t)
+            for line_text in txt.split("\n"):
+                array_n.append(line_text)
         if array_n:  # Hay saltos de lineas ...
             for n in array_n:
                 text_lines.append(n)
         else:  # No hay saltos de lineas
             text_lines.append(txt)
 
-        for tl in text_lines:
-            if len(tl) > 1:
-                if tl[0] == " " and tl[1] != " ":
-                    tl = tl[1:]
-            str_width = self._document.get_string_width(tl)
+        for text_line in text_lines:
+            if len(text_line) > 1:
+                if text_line[0] == " " and text_line[1] != " ":
+                    text_line = text_line[1:]
+            str_width = self._document.get_string_width(text_line)
             if (
                 str_width > width - 10 and xml.tag != "Label" and resizeable
             ):  # Una linea es mas larga que el ancho del campo(Le quito 10 al ancho maximo para que corte parecido a kugar original)
                 # height_resized = True
-                array_text = self.split_text(tl, width - 10)
+                array_text = self.split_text(text_line, width - 10)
             else:
 
-                array_text.append(tl)
+                array_text.append(text_line)
 
         # calculated_h = orig_h * len(array_text)
         self.drawRect(orig_x, orig_y, orig_w, orig_h, xml)
@@ -899,18 +899,18 @@ class Kut2FPDF(object):
         list_ = []
         linea_: Optional[str] = None
 
-        for t in texto.split(" "):
-            if linea_ is None and t == "":
+        for parte in texto.split(" "):
+            if linea_ is None and parte == "":
                 continue
 
             if linea_ is not None:
-                if self._document.get_string_width(linea_ + t) > limit_w:
+                if self._document.get_string_width(linea_ + parte) > limit_w:
                     list_.append(linea_)
                     linea_ = ""
             else:
                 linea_ = ""
 
-            linea_ += "%s " % t
+            linea_ += "%s " % parte
         if linea_ is not None:
             list_.append(linea_)
         return list_
@@ -918,19 +918,19 @@ class Kut2FPDF(object):
     def get_color(self, value: str) -> List[int]:
         """Convert color text into [r,g,b] array."""
         lvalue = value.split(",")
-        r: int
-        g: int
-        b: int
+        red: int
+        green: int
+        blue: int
         if len(lvalue) == 3:
-            r = int(lvalue[0])
-            g = int(lvalue[1])
-            b = int(lvalue[2])
+            red = int(lvalue[0])
+            green = int(lvalue[1])
+            blue = int(lvalue[2])
         else:
-            r = int(value[0:2])
-            g = int(value[3:5])
-            b = int(value[6:8])
+            red = int(value[0:2])
+            green = int(value[3:5])
+            blue = int(value[6:8])
 
-        return [r, g, b]
+        return [red, green, blue]
 
     def drawRect(self, x: int, y: int, W: int, H: int, xml: Element = None) -> None:
         """
