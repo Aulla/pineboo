@@ -120,7 +120,7 @@ class TestArray(unittest.TestCase):
         """Test repr method."""
         test_arr = [3, 4, 5, 6, 7]
         a1 = Array(test_arr)
-        self.assertEqual(repr(a1), "<Array %r>" % test_arr)
+        self.assertEqual(repr(a1), "%r" % test_arr)
 
     def test_iter(self) -> None:
         """Test iterating arrays."""

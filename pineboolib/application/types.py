@@ -247,7 +247,7 @@ class Array(object):
 
     def __repr__(self) -> str:
         """Support for repr."""
-        return "<%s %r>" % (self.__class__.__name__, list(self._dict.values()))
+        return "%r" % (list(self._dict.values()))
 
     def splice(self, *args: Any) -> None:
         """Cut or replace array."""
