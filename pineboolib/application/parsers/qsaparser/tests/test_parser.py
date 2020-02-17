@@ -70,7 +70,6 @@ class TestParser(unittest.TestCase):
 
     def test_flfacturac(self) -> None:
         """Test conveting fixture flfacturac."""
-        self.maxDiff = None
         flfacturac_qs = fixture_read("flfacturac.qs")
         flfacturac_py = fixture_read("flfacturac.python")
         flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
@@ -83,8 +82,8 @@ class TestParser(unittest.TestCase):
         )
 
         # Write onto git so we have an example.
-        with open(fixture_path("flfacturac.qs.python"), "w") as f:
-            f.write(flfacturac_qs_py)
+        with open(fixture_path("flfacturac.qs.python"), "w") as file_:
+            file_.write(flfacturac_qs_py)
 
         self.assertEqual(flfacturac_qs_py, flfacturac_py)
 
@@ -103,8 +102,8 @@ class TestParser(unittest.TestCase):
         )
 
         # Write onto git so we have an example.
-        with open(fixture_path("lib_str.qs.python"), "w") as f:
-            f.write(flfacturac_qs_py)
+        with open(fixture_path("lib_str.qs.python"), "w") as file_:
+            file_.write(flfacturac_qs_py)
 
         self.assertEqual(flfacturac_qs_py, flfacturac_py)
 

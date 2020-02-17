@@ -51,7 +51,7 @@ from pineboolib import logging, application
 
 from typing import Any
 
-logger = logging.getLogger("PNORMModelsFactory")
+LOGGER = logging.getLogger("PNORMModelsFactory")
 
 # processed_: List[str] = []
 
@@ -85,7 +85,7 @@ def base_model(name: str) -> Any:
                 loader = machinery.SourceFileLoader(name, path)
                 return loader.load_module()  # type: ignore
             except Exception as exc:
-                logger.warning("Error recargando model base:\n%s\n%s", exc, traceback.format_exc())
+                LOGGER.warning("Error recargando model base:\n%s\n%s", exc, traceback.format_exc())
                 pass
 
     return None
@@ -138,7 +138,7 @@ def load_model(nombre):
             sys.modules[spec.name] = module
             spec.loader.exec_module(module)
         except Exception as exc:
-            logger.warning("Error cargando módulo:\n%s\n%s", exc, traceback.format_exc())
+            LOGGER.warning("Error cargando módulo:\n%s\n%s", exc, traceback.format_exc())
             pass
             # models_[nombre] = mod
 
@@ -180,14 +180,14 @@ def load_models() -> None:
     QSADictModules.save_other("session", main_conn.session())
     QSADictModules.save_other("engine", main_conn.engine())
 
-    for t in tables:
+    for table in tables:
         try:
-            mod = base_model(t)
+            mod = base_model(table)
         except Exception:
             mod = None
 
         if mod is not None:
-            model_name = "%s%s" % (t[0].upper(), t[1:])
+            model_name = "%s%s" % (table[0].upper(), table[1:])
             class_ = getattr(mod, model_name, None)
             if class_ is not None:
                 QSADictModules.save_other(model_name, class_)

@@ -30,8 +30,8 @@ from typing import Optional, Tuple, Callable, List, Dict, Any, cast, Type, Union
 
 
 ICONS: Dict[str, Any] = {}
-root = None
-logger = logging.getLogger("pnqt3ui")
+ROOT = None
+LOGGER = logging.getLogger("pnqt3ui")
 
 
 class Options:
@@ -51,14 +51,14 @@ class Options:
 
 
 # FIXME: widget is QWidget type but Qt5-Stubs for findChild reports QObject instead of Optional[QObject]
-def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> None:
+def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> None:
     """
     Load Qt3 UI file from eneboo.
 
     widget: Provide a pre-created widget and this function will store UI contents on it.
     parent: Probably deprecated.
     """
-    global ICONS, root
+    global ICONS, ROOT
     # parser = etree.XMLParser(
     #    ns_clean=True,
     #    encoding="UTF-8",
@@ -70,7 +70,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
     if not tree:
         return
 
-    root = tree.getroot()
+    ROOT = tree.getroot()
     ICONS = {}
 
     if parent is None:
@@ -79,26 +79,26 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
     # if application.PROJECT.DGI.localDesktop():
     widget.hide()
 
-    for xmlimage in root.findall("images//image"):
+    for xmlimage in ROOT.findall("images//image"):
         loadIcon(xmlimage)
 
-    for xmlwidget in root.findall("widget"):
+    for xmlwidget in ROOT.findall("widget"):
         loadWidget(xmlwidget, widget, parent)
 
     # print("----------------------------------")
-    # for xmlwidget in root.xpath("actions"):
+    # for xmlwidget in ROOT.xpath("actions"):
     #     loadWidget(xmlwidget, widget, parent)
     # print("----------------------------------")
 
     # Debe estar despues de loadWidget porque queremos el valor del UI de Qt3
     formname = widget.objectName()
-    logger.info("form: %s", formname)
+    LOGGER.info("form: %s", formname)
 
     # Cargamos actions...
-    for action in root.findall("actions//action"):
+    for action in ROOT.findall("actions//action"):
         loadAction(action, widget)
 
-    for xmlconnection in root.findall("connections//connection"):
+    for xmlconnection in ROOT.findall("connections//connection"):
         sender_elem = xmlconnection.find("sender")
         signal_elem = xmlconnection.find("signal")
         receiv_elem = xmlconnection.find("receiver")
@@ -148,7 +148,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
             sl_name = slot_name[: slot_name.find("(")]
 
         if sender is None:
-            logger.warning("Connection sender not found:%s", sender_name)
+            LOGGER.warning("Connection sender not found:%s", sender_name)
         if receiv_name == formname:
             receiver = (
                 widget
@@ -158,7 +158,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
                 else None
             )
             fn_name = slot_name.rstrip("()")
-            logger.trace(
+            LOGGER.trace(
                 "Conectando de UI a QS: (%r.%r -> %r.%r)",
                 sender_name,
                 signal_name,
@@ -176,7 +176,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
                     #    getattr(ifx, fn_name))
                     connections.connect(sender, signal_name, ifx, fn_name)
                 except Exception:
-                    logger.exception(
+                    LOGGER.exception(
                         "Error connecting: %s %s %s %s %s",
                         sender,
                         signal_name,
@@ -200,11 +200,11 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
             if sender_name in application.PROJECT.actions.keys():
                 receiver = application.PROJECT.actions[sender_name]
             else:
-                logger.debug("Sender action %s not found. Connection skiped", sender_name)
+                LOGGER.debug("Sender action %s not found. Connection skiped", sender_name)
                 continue
 
         if receiver is None:
-            logger.debug("Connection receiver not found:%s", receiv_name)
+            LOGGER.debug("Connection receiver not found:%s", receiv_name)
         if sender is None or receiver is None:
             continue
 
@@ -219,10 +219,10 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
             #    )
             #     getattr(sender, sg_name).connect(getattr(iface, sl_name))
             # except Exception:
-            #    logger.exception(
+            #    LOGGER.exception(
             #        "Error connecting: %s:%s %s.iface:%s", sender, signal_name, receiver, slot_name
             #    )
-            logger.debug(
+            LOGGER.debug(
                 "DEPRECATED: This type of connection must be made in the module init: %s %s %s %s",
                 sender_name,
                 signal_name,
@@ -235,11 +235,11 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
             try:
                 getattr(sender, sg_name).connect(getattr(receiver, sl_name))
             except Exception:
-                logger.exception(
+                LOGGER.exception(
                     "Error connecting: %s:%s %s:%s", sender, signal_name, receiver, slot_name
                 )
         else:
-            logger.error(
+            LOGGER.error(
                 "Error connecting: %s:%s %s:%s (no candidate found)",
                 sender,
                 signal_name,
@@ -248,7 +248,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
             )
 
     # Cargamos menubar ...
-    xmlmenubar = root.find("menubar")
+    xmlmenubar = ROOT.find("menubar")
     if xmlmenubar:
         # nameMB_ = xmlmenubar.find("./property[@name='name']/cstring").text
         # bar = widget.menuBar()
@@ -258,7 +258,7 @@ def loadUi(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> Non
         loadMenuBar(xmlmenubar, widget)
 
     # Cargamos toolbars ...
-    for xmltoolbar in root.findall("toolbars//toolbar"):
+    for xmltoolbar in ROOT.findall("toolbars//toolbar"):
         # nameTB_ = xmltoolbar.find("./property[@name='name']/cstring").text
         # toolbar = widget.addToolBar(nameTB_)
         loadToolBar(xmltoolbar, widget)
@@ -444,9 +444,9 @@ class WidgetResolver:
             mod_ = import_module(mod_name_full)
             cls = getattr(mod_, classname, None)
         except ModuleNotFoundError:
-            logger.trace("resolveObject: Module not found %s", mod_name_full)
+            LOGGER.trace("resolveObject: Module not found %s", mod_name_full)
         except Exception:
-            logger.exception("resolveObject: Unable to load module %s", mod_name_full)
+            LOGGER.exception("resolveObject: Unable to load module %s", mod_name_full)
 
         if cls is None:
             mod_name_full = "pineboolib.fllegacy.%s" % classname.lower()
@@ -454,9 +454,9 @@ class WidgetResolver:
                 mod_ = import_module(mod_name_full)
                 cls = getattr(mod_, classname, None)
             except ModuleNotFoundError:
-                logger.trace("resolveObject: Module not found %s", mod_name_full)
+                LOGGER.trace("resolveObject: Module not found %s", mod_name_full)
             except Exception:
-                logger.exception("resolveObject: Unable to load module %s", mod_name_full)
+                LOGGER.exception("resolveObject: Unable to load module %s", mod_name_full)
 
         if cls is None:
             cls = getattr(QtWidgets, classname, None)
@@ -478,7 +478,7 @@ def createWidget(classname: str, parent: Optional[QWidget] = None) -> QtCore.QOb
         cls = WidgetResolver.get_widget_class(classname)
         return cls(parent)
     except AttributeError:
-        logger.warning("WARN: Class name not found in QtWidgets:", classname)
+        LOGGER.warning("WARN: Class name not found in QtWidgets:", classname)
         widgt = QtWidgets.QWidget(parent)
         widgt.setStyleSheet("* { background-color: #fa3; } ")
         return widgt
@@ -509,7 +509,7 @@ class loadWidget:
         """
         Load a random widget from given XML.
         """
-        logger.trace(
+        LOGGER.trace(
             "loadWidget: xml: %s widget: %s parent: %s origWidget: %s",
             xml,
             widget,
@@ -549,7 +549,7 @@ class loadWidget:
 
         for c in xml:
             if c.tag == "layout":
-                # logger.warning("Trying to replace layout. Ignoring. %s, %s", repr(c.tag), widget._layout)
+                # LOGGER.warning("Trying to replace layout. Ignoring. %s, %s", repr(c.tag), widget._layout)
                 classname = c.get("class")
                 if classname is None:
                     raise Exception("Expected class attr")
@@ -651,7 +651,7 @@ class loadWidget:
                 if attrs is not None:
                     attrs[k] = v
                 else:
-                    logger.warning(
+                    LOGGER.warning(
                         "qt3ui: [NOT ASSIGNED] attribute %r => %r" % (k, v),
                         self.widget.__class__,
                         repr(c.tag),
@@ -695,7 +695,7 @@ class loadWidget:
                         lay.addWidget(new_widget)
                 else:
                     if Options.DEBUG_LEVEL > 50:
-                        logger.warning(
+                        LOGGER.warning(
                             "qt3ui: Unknown container widget xml tag",
                             self.widget.__class__,
                             repr(c.tag),
@@ -705,10 +705,10 @@ class loadWidget:
 
             elif c.tag == "action":
                 acName = c.get("name")
-                if root is None:
+                if ROOT is None:
                     raise Exception("No se encuentra root")
 
-                for xmlaction in root.findall("actions//action"):
+                for xmlaction in ROOT.findall("actions//action"):
                     prop_name = xmlaction.find("./property[@name='name']/cstring")
                     if prop_name is not None and prop_name.text == acName:
                         self.process_action(xmlaction, cast(QtWidgets.QToolBar, self.widget))
@@ -732,7 +732,7 @@ class loadWidget:
 
                 continue
 
-            logger.info(
+            LOGGER.info(
                 "%s: Unknown widget xml tag %s %s", __name__, self.widget.__class__, repr(c.tag)
             )
 
@@ -799,7 +799,7 @@ class loadWidget:
             set_fn = getattr(widget, setpname, None)
 
         if set_fn is None:
-            logger.warning("qt3ui: Missing property %s for %r", pname, widget.__class__)
+            LOGGER.warning("qt3ui: Missing property %s for %r", pname, widget.__class__)
             return
 
         value: Any
@@ -838,7 +838,7 @@ class loadWidget:
             value1 = loadVariant(xmlprop, widget)
             # FIXME: Not sure if it should return anyway
             if isinstance(value1, str):
-                logger.warning("Icono %s.%s no encontrado." % (widget.objectName(), value1))
+                LOGGER.warning("Icono %s.%s no encontrado." % (widget.objectName(), value1))
                 return
             else:
                 value = value1
@@ -849,7 +849,7 @@ class loadWidget:
         try:
             set_fn(value)
         except Exception:
-            logger.exception(
+            LOGGER.exception(
                 "Error processing property %s with value %s. Original XML: %s",
                 pname,
                 value,
@@ -907,7 +907,7 @@ class loadWidget:
                     try:
                         widget._layout.addWidget(new_widget)
                     except Exception:
-                        logger.warning(
+                        LOGGER.warning(
                             "qt3ui: No se ha podido añadir %s a %s", new_widget, widget._layout
                         )
 
@@ -917,8 +917,8 @@ class loadWidget:
                     try:
                         widget._layout.addWidget(new_widget, row, col, int(rowSpan), int(colSpan))
                     except Exception:
-                        logger.warning("qt3ui: No se ha podido añadir %s a %s", new_widget, widget)
-                        logger.trace("Detalle:", stack_info=True)
+                        LOGGER.warning("qt3ui: No se ha podido añadir %s a %s", new_widget, widget)
+                        LOGGER.trace("Detalle:", stack_info=True)
 
             elif c.tag == "spacer":
                 # sH = None
@@ -963,7 +963,7 @@ class loadWidget:
                     widget._layout.addItem(new_spacer)
                 # print("Spacer %s.%s --> %s" % (spacer_name, new_spacer, widget.objectName()))
             else:
-                logger.warning("qt3ui: Unknown layout xml tag", repr(c.tag))
+                LOGGER.warning("qt3ui: Unknown layout xml tag", repr(c.tag))
 
         widget.setLayout(widget._layout)
         # widget._layout.setContentsMargins(1, 1, 1, 1)
@@ -978,14 +978,14 @@ def loadIcon(xml: "ET.Element") -> None:
     name = xml.get("name")
     xmldata = xml.find("data")
     if name is None:
-        logger.warning("loadIcon: provided xml lacks attr name")
+        LOGGER.warning("loadIcon: provided xml lacks attr name")
         return
     if xmldata is None:
-        logger.warning("loadIcon: provided xml lacks <data>")
+        LOGGER.warning("loadIcon: provided xml lacks <data>")
         return
     img_format = xmldata.get("format")
     if xmldata.text is None:
-        logger.warning("loadIcon: text is empty")
+        LOGGER.warning("loadIcon: text is empty")
         return
 
     data = unhexlify(xmldata.text.strip())
@@ -1034,7 +1034,7 @@ def b(x: str) -> bool:
         return True
     if x == "off":
         return False
-    logger.warning("Bool?:", repr(x))
+    LOGGER.warning("Bool?:", repr(x))
     return False
 
 
@@ -1103,9 +1103,9 @@ def _loadVariant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) -
                 elif c.tag == "pointsize":
                     p_font.setPointSize(int(value))
                 else:
-                    logger.warning("unknown font style type %s", repr(c.tag))
+                    LOGGER.warning("unknown font style type %s", repr(c.tag))
             except Exception as e:
-                logger.warning(e)
+                LOGGER.warning(e)
         return p_font
 
     elif variant.tag == "set":
@@ -1203,8 +1203,8 @@ def _loadVariant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) -
                     # p.setColor(p.Normal, Qt.QColor(r_, g_, b_))
                     pass
                 else:
-                    logger.warning("Unknown palette state %s", state.tag)
-                logger.debug("pallete color: %s %s %s", r_, g_, b_)
+                    LOGGER.warning("Unknown palette state %s", state.tag)
+                LOGGER.debug("pallete color: %s %s %s", r_, g_, b_)
 
         return pal_
 
@@ -1227,4 +1227,4 @@ def _loadVariant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) -
         return d
 
     if Options.DEBUG_LEVEL > 50:
-        logger.warning("qt3ui: Unknown variant: %s --> %s ", repr(widget), ET.tostring(variant))
+        LOGGER.warning("qt3ui: Unknown variant: %s --> %s ", repr(widget), ET.tostring(variant))

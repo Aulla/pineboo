@@ -464,7 +464,7 @@ class FLManagerModules(object):
 
         logger.info("Procesando %s (v%s)", file_name, UIVersion)
         if UIVersion < "4.0":
-            qt3ui.loadUi(form_path, w_)
+            qt3ui.load_ui(form_path, w_)
         else:
             from PyQt5 import uic  # type: ignore
 

@@ -19,9 +19,9 @@ import os
 
 from typing import Optional
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
-reserved_words = ["pass"]
+RESERVER_WORDS = ["pass"]
 
 
 def mtd_parse(table_name: str) -> Optional[str]:
@@ -47,7 +47,7 @@ def mtd_parse(table_name: str) -> Optional[str]:
     mtd_file = _path("%s.mtd" % table_name)
 
     if mtd_file is None:
-        logger.warning("No se encuentra %s.mtd", table_name)
+        LOGGER.warning("No se encuentra %s.mtd", table_name)
         return None
 
     dest_file = "%s_model.py" % mtd_file[: len(mtd_file) - 4]
@@ -64,18 +64,18 @@ def mtd_parse(table_name: str) -> Optional[str]:
             os.mkdir("%s/file.mtd" % sys_dir)
 
     if not os.path.exists(dest_file):
-        lines = generate_model(dest_file, mtd)
+        lines = generate_model(mtd)
 
         if lines:
-            f = open(dest_file, "w")
+            file_ = open(dest_file, "w")
             for line in lines:
-                f.write("%s\n" % line)
-            f.close()
+                file_.write("%s\n" % line)
+            file_.close()
 
     return dest_file
 
 
-def generate_model(dest_file: str, mtd_table: PNTableMetaData) -> List[str]:
+def generate_model(mtd_table: PNTableMetaData) -> List[str]:
     """
     Create a list of lines from a mtd_table (PNTableMetaData).
     """
@@ -114,14 +114,14 @@ def generate_model(dest_file: str, mtd_table: PNTableMetaData) -> List[str]:
 
     for field in mtd_table.fieldList():  # Crea los campos
         if field.name() in validator_list:
-            logger.warning(
+            LOGGER.warning(
                 "Hay un campo %s duplicado en %s.mtd. Omitido", field.name(), mtd_table.name()
             )
         else:
             field_data = []
             field_data.append("    ")
             field_data.append(
-                "%s" % field.name() + "_" if field.name() in reserved_words else field.name()
+                "%s" % field.name() + "_" if field.name() in RESERVER_WORDS else field.name()
             )
             field_data.append(" = Column('%s', " % field.name())
             field_data.append(field_type(field))
@@ -143,20 +143,26 @@ def generate_model(dest_file: str, mtd_table: PNTableMetaData) -> List[str]:
         raise Exception("Project is not connected yet")
     manager = application.PROJECT.conn_manager.manager()
     for field in mtd_table.fieldList():  # Creamos relaciones 1M
-        for r in field.relationList():
-            foreign_table_mtd = manager.metadata(r.foreignTable())
+        for relation in field.relationList():
+            foreign_table_mtd = manager.metadata(relation.foreignTable())
             # if application.PROJECT.conn.manager().existsTable(r.foreignTable()):
             if foreign_table_mtd:
                 # comprobamos si existe el campo...
-                if foreign_table_mtd.field(r.foreignField()):
+                if foreign_table_mtd.field(relation.foreignField()):
 
-                    foreign_object = "%s%s" % (r.foreignTable()[0].upper(), r.foreignTable()[1:])
+                    foreign_object = "%s%s" % (
+                        relation.foreignTable()[0].upper(),
+                        relation.foreignTable()[1:],
+                    )
                     relation_ = "    %s_%s = relationship('%s'" % (
-                        r.foreignTable(),
-                        r.foreignField(),
+                        relation.foreignTable(),
+                        relation.foreignField(),
                         foreign_object,
                     )
-                    relation_ += ", foreign_keys='%s.%s'" % (foreign_object, r.foreignField())
+                    relation_ += ", foreign_keys='%s.%s'" % (
+                        foreign_object,
+                        relation.foreignField(),
+                    )
                     relation_ += ")"
 
                     data.append(relation_)
@@ -213,7 +219,7 @@ def generate_model(dest_file: str, mtd_table: PNTableMetaData) -> List[str]:
         from pineboolib.core.settings import config
 
         if config.value("application/isDebuggerMode", False):
-            logger.warning(
+            LOGGER.warning(
                 "La tabla %s no tiene definida una clave primaria. No se generará el model."
                 % (mtd_table.name())
             )
