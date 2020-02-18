@@ -170,7 +170,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         if v is None:
             return "NULL"
 
-        if type_ == "bool" or type_ == "unlock":
+        if type_ in ("bool", "unlock"):
             s = utils_base.text2bool(v)
 
         elif type_ == "date":
