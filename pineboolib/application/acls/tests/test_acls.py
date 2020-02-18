@@ -18,7 +18,6 @@ class TestACLS(unittest.TestCase):
         from pineboolib.application.database import pnsqlcursor
 
         cursor_flgroups = pnsqlcursor.PNSqlCursor("flgroups")
-        print("**", cursor_flgroups.db().DBName())
         cursor_flgroups.setModeAccess(cursor_flgroups.Insert)
         cursor_flgroups.refreshBuffer()
         cursor_flgroups.setValueBuffer("idgroup", "usuarios")
