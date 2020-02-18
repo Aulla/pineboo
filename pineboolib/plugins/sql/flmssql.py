@@ -22,14 +22,14 @@ from typing import Iterable, Optional, Union, List, Dict, Any, cast
 LOGGER = logging.getLogger(__name__)
 
 
-class FLQPSQL(pnsqlschema.PNSqlSchema):
+class FLMSSQL(pnsqlschema.PNSqlSchema):
     """FLQPSQL class."""
 
     def __init__(self):
         """Inicialize."""
         super().__init__()
         self.version_ = "0.5"
-        self.name_ = "FLSQLS"
+        self.name_ = "FLMSSQL"
         self.errorList = []
         self.alias_ = "SQL Server (PYODBC)"
         self.defaultPort_ = 1433
@@ -37,7 +37,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
         return check_dependencies.check_dependencies(
-            {"pyodbc": "pyodbc", "sqlalchemy": "sqlAlchemy"}, False
+            {"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"}, False
         )
 
     def connect(
@@ -45,26 +45,29 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     ) -> Any:
         """Connecto to database."""
         self._dbname = db_name
-        check_dependencies.check_dependencies({"pyodbc": "pyodbc", "sqlalchemy": "sqlAlchemy"})
-        import psycopg2  # type: ignore
-        from psycopg2.extras import LoggingConnection  # type: ignore
+        check_dependencies.check_dependencies({"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"})
+        import pymssql  # type: ignore
+
+        # from psycopg2.extras import LoggingConnection  # type: ignore
 
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
 
-        conninfostr = (
-            "DRIVER={ODBC Driver 17 for SQL Server};SERVER='%s,%s';DATABASE='%s':UID='%s';PWD='%s'"
-            % (db_host, db_port, db_name, db_userName, db_password)
-        )
+        # conninfostr = (
+        #    "DRIVER={ODBC Driver 17 for SQL Server};SERVER='%s,%s';DATABASE='%s':UID='%s';PWD='%s'"
+        #    % (db_host, db_port, db_name, db_userName, db_password)
+        # )
 
         try:
-            self.conn_ = psycopg2.connect(conninfostr, connection_factory=LoggingConnection)
+            self.conn_ = pymssql.connect(
+                "%s,%s" % (db_host, db_port), db_userName, db_password, db_name
+            )
             self.conn_.initialize(LOGGER)
 
             if settings.config.value("ebcomportamiento/orm_enabled", False):
                 from sqlalchemy import create_engine  # type: ignore
 
                 self.engine_ = create_engine(
-                    "mssql+pyodbc://%s:%s@%s:%s/%s"
+                    "mssql+pymssql://%s:%s@%s:%s/%s"
                     % (db_userName, db_password, db_host, db_port, db_name)
                 )
         except psycopg2.OperationalError as e:

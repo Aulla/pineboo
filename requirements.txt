@@ -41,3 +41,4 @@ flup
 xmljson
 twine
 fpdf2
+pymssql
