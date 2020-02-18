@@ -492,7 +492,8 @@ class Project(object):
         if fn is None:
             if showException:
                 self.logger.error("No existe la función %s en %s", function_name, aFunction[0])
-            return True  # FIXME: Esto devuelve true? debería ser false, pero igual se usa por el motor para detectar propiedades
+            return True
+            # FIXME: debería ser false, pero igual se usa por el motor para detectar propiedades
 
         try:
             return fn(*aList)

@@ -67,9 +67,8 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         from PyQt5 import QtGui, QtWidgets
 
         self.pal = QtGui.QPalette()
-        background_color = QtGui.QColor(
-            QtWidgets.qApp.palette().color(QtGui.QPalette.Active, QtGui.QPalette.Background)  # type: ignore[misc] # noqa: F821
-        )
+        palette_ = QtWidgets.qApp.palette()  # type: ignore[misc] # noqa: F821
+        background_color = palette_.color(QtGui.QPalette.Active, QtGui.QPalette.Background)
         self.pal.setColor(QtGui.QPalette.Foreground, background_color)
         self.pal.setColor(QtGui.QPalette.Text, background_color)
         self.pal.setColor(QtGui.QPalette.ButtonText, background_color)
