@@ -47,6 +47,12 @@ class TestParser(unittest.TestCase):
         self.assertEqual(qs2py("var value = Array().shift()"), "value = qsa.Array().pop(0)\n")
         self.assertEqual(qs2py("var value = [].shift()"), "value = [].pop(0)\n")
 
+    def test_array(self) -> None:
+        """Test array."""
+
+        self.assertEqual(qs2py("var a = new Array();"), "a = qsa.Array()\n")
+        self.assertEqual(qs2py("var b = new Array(0);"), "b = []\n")
+
     def test_process_class(self) -> None:
         """Test parsing the process class."""
         self.assertEqual(

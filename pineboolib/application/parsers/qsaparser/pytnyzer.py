@@ -1327,6 +1327,11 @@ class Variable(ASTPython):
             for dtype1, data in parse_ast(value, parent=self).generate(isolate=False):
 
                 # if self.elem.get("type",None) == "Array" and data == "[]":
+                if data == "qsa.Array(0)":
+                    yield "expr", "[]"
+                    expr += 1
+                    continue
+
                 if data == "[]":
                     yield "expr", "qsa.Array()"
                     expr += 1
