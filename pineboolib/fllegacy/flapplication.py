@@ -183,7 +183,7 @@ class FLApplication(QtCore.QObject):
     def chooseFont(self) -> None:
         """Open font selector."""
 
-        font_ = QtWidgets.QFontDialog().getFont()
+        font_ = QtWidgets.QFontDialog().getFont()  # type: ignore[misc] # noqa: F821
         if font_:
             QtWidgets.QApplication.setFont(font_[0])
             save_ = [font_[0].family(), font_[0].pointSize(), font_[0].weight(), font_[0].italic()]

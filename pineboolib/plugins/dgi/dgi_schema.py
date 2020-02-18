@@ -121,7 +121,7 @@ class dgi_schema(object):
         """Run Process events."""
         from PyQt5 import QtWidgets  # type: ignore
 
-        QtWidgets.qApp.processEvents()
+        QtWidgets.qApp.processEvents()  # type: ignore[misc] # noqa: F821
 
     def show_object_not_found_warnings(self) -> bool:
         """Return if show warnings when objects not found."""
