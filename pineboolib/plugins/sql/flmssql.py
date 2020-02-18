@@ -70,7 +70,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
                     "mssql+pymssql://%s:%s@%s:%s/%s"
                     % (db_userName, db_password, db_host, db_port, db_name)
                 )
-        except psycopg2.OperationalError as e:
+        except Exception as e:
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
 
@@ -90,14 +90,13 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
                 if ret == QtWidgets.QMessageBox.No:
                     return False
                 else:
-                    conninfostr2 = (
-                        "DRIVER={ODBC Driver 17 for SQL Server};SERVER='%s,%s';DATABASE='%s':UID='sa';PWD='%s'"
-                        % (db_host, db_port, db_name, db_password)
-                    )
-                    try:
-                        tmpConn = psycopg2.connect(conninfostr2)
 
-                        tmpConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+                    try:
+                        tmpConn = pymssql.connect(
+                            "%s,%s" % (db_host, db_port), "sa", db_password, db_name
+                        )
+
+                        # tmpConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
                         cursor = tmpConn.cursor()
                         try:
@@ -130,7 +129,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         # self.conn_.autocommit = True #Posiblemente tengamos que ponerlo a
         # false para que las transacciones funcionen
-        self.conn_.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        # self.conn_.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
         if self.conn_:
             self.open_ = True
