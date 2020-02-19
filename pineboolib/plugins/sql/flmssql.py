@@ -31,7 +31,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         self.version_ = "0.5"
         self.name_ = "FLMSSQL"
         self.errorList = []
-        self.alias_ = "SQL Server (PYODBC)"
+        self.alias_ = "SQL Server (PYMSSQL)"
         self.defaultPort_ = 1433
 
     def safe_load(self) -> bool:
@@ -59,9 +59,13 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         try:
             self.conn_ = pymssql.connect(
-                "%s,%s" % (db_host, db_port), db_userName, db_password, db_name
+                server=db_host,
+                user=db_userName,
+                password=db_password,
+                database=db_name,
+                port=db_port,
             )
-            self.conn_.initialize(LOGGER)
+            # self.conn_.initialize(LOGGER)
 
             if settings.config.value("ebcomportamiento/orm_enabled", False):
                 from sqlalchemy import create_engine  # type: ignore
@@ -90,26 +94,29 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
                 if ret == QtWidgets.QMessageBox.No:
                     return False
                 else:
-
                     try:
                         tmpConn = pymssql.connect(
-                            "%s,%s" % (db_host, db_port), "sa", db_password, db_name
+                            server=db_host, port=db_port, user="SA", password=db_password
                         )
 
                         # tmpConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-
+                        tmpConn.autocommit(True)
                         cursor = tmpConn.cursor()
                         try:
                             cursor.execute("CREATE DATABASE %s" % db_name)
+                            tmpConn.autocommit(False)
                         except Exception:
-                            print("ERROR: FLPSQL.connect", traceback.format_exc())
+                            LOGGER.warning(traceback.format_exc())
                             cursor.execute("ROLLBACK")
                             cursor.close()
+                            tmpConn.autocommit(False)
                             return False
                         cursor.close()
+
                         return self.connect(db_name, db_host, db_port, db_userName, db_password)
                     except Exception:
                         LOGGER.warning(traceback.format_exc())
+
                         QtWidgets.QMessageBox.information(
                             QtWidgets.QWidget(),
                             "Pineboo",
@@ -127,17 +134,17 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
                 )
                 return False
 
-        # self.conn_.autocommit = True #Posiblemente tengamos que ponerlo a
+        self.conn_.autocommit(True)  # Posiblemente tengamos que ponerlo a
         # false para que las transacciones funcionen
         # self.conn_.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
         if self.conn_:
             self.open_ = True
 
-        try:
-            self.conn_.set_client_encoding("UTF8")
-        except Exception:
-            LOGGER.warning(traceback.format_exc())
+        # try:
+        #    self.conn_.set_client_encoding("UTF8")
+        # except Exception:
+        #    LOGGER.warning(traceback.format_exc())
 
         return self.conn_
 
@@ -387,7 +394,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
             return False
 
         cur_ = self.conn_.cursor()
-        cur_.execute("select relname from pg_class where relname = '%s'" % name)
+        cur_.execute("SELECT 1 FROM sys.Tables WHERE  Name = N'%s' AND Type = N'U'" % name)
         result_ = cur_.fetchone()
         ok = False if result_ is None else True
         return ok
