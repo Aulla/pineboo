@@ -698,7 +698,6 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
     def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
         """Return index row."""
-        limit = 0
         pos: Optional[int] = None
 
         if not self.isOpen():
