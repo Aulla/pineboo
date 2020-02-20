@@ -247,7 +247,7 @@ class Project(object):
         cursor_ = self.conn_manager.dbAux().cursor()
         self.areas = {}
         cursor_.execute(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
-        for idarea, descripcion in cursor_:
+        for idarea, descripcion in list(cursor_):
             self.areas[idarea] = AreaStruct(idarea=idarea, descripcion=descripcion)
 
         self.areas["sys"] = AreaStruct(idarea="sys", descripcion="Area de Sistema")
@@ -284,7 +284,7 @@ class Project(object):
 
         list_files: List[str] = []
 
-        for idmodulo, nombre, sha in cursor_:
+        for idmodulo, nombre, sha in list(cursor_):
             if not self._DGI.accept_file(nombre):
                 continue
 
@@ -337,7 +337,7 @@ class Project(object):
                 )
             )
             cur2.execute(sql)
-            for (contenido,) in cur2:
+            for (contenido,) in list(cur2):
 
                 encode_ = "utf-8" if str(nombre).endswith((".kut", ".ts", ".py")) else "ISO-8859-15"
 
