@@ -265,9 +265,7 @@ class FLReportEngine(QtCore.QObject):
             data = self.rd.toString(1)
             self.report_ = self.parser_.parse(self.d_.template_, self.rt, data, self.report_, flags)
 
-            return True if self.report_ else False
-
-        return False
+        return QtWidgets.QWidget()  # return self.pages!
 
         # # print(self.rd.toString(1))
         # """
