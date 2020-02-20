@@ -28,7 +28,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
     def __init__(self):
         """Inicialize."""
         super().__init__()
-        self.version_ = "0.5"
+        self.version_ = "0.6"
         self.name_ = "FLMSSQL"
         self.errorList = []
         self.alias_ = "SQL Server (PYMSSQL)"
