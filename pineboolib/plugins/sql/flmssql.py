@@ -246,14 +246,19 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Return next serial value."""
-        q = pnsqlquery.PNSqlQuery()
-        q.setSelect(u"nextval('" + table + "_" + field + "_seq')")
-        q.setFrom("")
-        q.setWhere("")
-        if not q.exec_():
-            LOGGER.warning("not exec sequence")
-        elif q.first():
-            return q.value(0)
+        # q = pnsqlquery.PNSqlQuery()
+        # q.setSelect(u"nextval('" + table + "_" + field + "_seq')")
+        # q.setFrom("")
+        # q.setWhere("")
+        # if not q.exec_():
+        #    LOGGER.warning("not exec sequence")
+        # elif q.first():
+        #    return q.value(0)
+        cursor = self.conn_.cursor()
+        cursor.execute("SELECT NEXT VALUE FOR %s_%s_seq" % (table, field))
+        result = cursor.fetchone()
+        if result is not None:
+            return result[0]
 
         return None
 
@@ -645,7 +650,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
     def queryUpdate(self, name: str, update: str, filter: str) -> str:
         """Return a database friendly update query."""
-        return """UPDATE %s SET %s WHERE %s RETURNING *""" % (name, update, filter)
+        return """UPDATE %s SET %s WHERE %s""" % (name, update, filter)
 
     def declareCursor(
         self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
@@ -655,7 +660,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         if not self.isOpen():
             raise Exception("declareCursor: Database not open")
 
-        sql = "DECLARE %s CURSOR WITH HOLD FOR SELECT %s FROM %s WHERE %s " % (
+        sql = "DECLARE %s CURSOR STATIC FOR SELECT %s FROM %s WHERE %s " % (
             curname,
             fields,
             table,
@@ -663,6 +668,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         )
         try:
             cursor.execute(sql)
+            cursor.execute("OPEN %s" % curname)
         except Exception as e:
             LOGGER.error("refreshQuery: %s", e)
             LOGGER.info("SQL: %s", sql)
@@ -676,9 +682,9 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         ret_: List[Any] = []
         sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
-        sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % curname
+        sql_exists = "SELECT CURSOR_STATUS('global','%s')" % curname
         cursor.execute(sql_exists)
-        if cursor.fetchone() is None:
+        if cursor.fetchone()[0] < 1:
             return ret_
 
         try:
@@ -687,6 +693,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         except Exception as e:
             LOGGER.error("getRow: %s", e)
             LOGGER.trace("Detalle:", stack_info=True)
+
         return ret_
 
     def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
@@ -698,20 +705,21 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
             raise Exception("findRow: Database not open")
 
         try:
+            n = 0
             while True:
-                sql = "FETCH %s FROM %s" % ("FIRST" if not limit else limit + 10000, curname)
+                sql = "FETCH %s FROM %s" % ("FIRST" if not n else "NEXT", curname)
                 cursor.execute(sql)
-                data_ = cursor.fetchall()
+                data_ = cursor.fetchone()
                 if not data_:
                     break
-                for n, line in enumerate(data_):
-                    if line[field_pos] == value:
-                        return limit + n
-
-                limit += len(data_)
+                if data_[field_pos] == value:
+                    pos = n
+                    break
+                else:
+                    n += 1
 
         except Exception as e:
-            LOGGER.error("finRow: %s", e)
+            LOGGER.warning("finRow: %s", e)
             LOGGER.warning("Detalle:", stack_info=True)
 
         return pos
@@ -723,9 +731,10 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
             raise Exception("deleteCursor: Database not open")
 
         try:
-            sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % cursor_name
+            sql_exists = "SELECT CURSOR_STATUS('global','%s')" % cursor_name
             cursor.execute(sql_exists)
-            if cursor.fetchone() is None:
+
+            if cursor.fetchone()[0] < 1:
                 return
 
             cursor.execute("CLOSE %s" % cursor_name)
