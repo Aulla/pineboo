@@ -259,13 +259,13 @@ class FLReportEngine(QtCore.QObject):
 
     def renderReport(
         self, init_row: int = 0, init_col: int = 0, flags: List[int] = [], pages: Any = None
-    ) -> bool:
+    ) -> "QtCore.QObject":
         """Render report."""
         if self.rd and self.rt and self.rt.find("KugarTemplate") > -1:
             data = self.rd.toString(1)
             self.report_ = self.parser_.parse(self.d_.template_, self.rt, data, self.report_, flags)
 
-        return QtWidgets.QWidget()  # return self.pages!
+        return QtCore.QObject()  # return self.pages!
 
         # # print(self.rd.toString(1))
         # """
