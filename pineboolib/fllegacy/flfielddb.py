@@ -1322,7 +1322,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 if isinstance(v, str):
                     if v.find("static char") > -1:
 
-                        v = xpm.cacheXPM(v)
+                        v = xpm.cache_xpm(v)
 
                 pix = QtGui.QPixmap(v)
                 # if not QtGui.QPixmapCache.find(cs.left(100), pix):
@@ -1546,7 +1546,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if isinstance(v, str):
                 if v.find("static char") > -1:
 
-                    v = xpm.cacheXPM(v)
+                    v = xpm.cache_xpm(v)
 
             pix = QtGui.QPixmap(v)
             # pix.loadFromData(v)

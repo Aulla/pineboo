@@ -261,7 +261,7 @@ class Project(object):
         self.modules = {}
 
         for idarea, idmodulo, descripcion, icono in cursor_:
-            icono = xpm.cacheXPM(icono)
+            icono = xpm.cache_xpm(icono)
             self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
 
         file_object = open(

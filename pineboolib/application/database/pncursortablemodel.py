@@ -451,7 +451,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     if not self._parent.private_cursor._is_system_table:
                         data = self.db().connManager().manager().fetchLargeValue(result)
                     else:
-                        data = xpm.cacheXPM(result)
+                        data = xpm.cache_xpm(result)
 
                     pixmap = QtGui.QPixmap(data)
                     if not pixmap.isNull():

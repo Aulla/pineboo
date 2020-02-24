@@ -154,11 +154,11 @@ class XMLAction(struct.ActionStruct):
         """
         Execute function for main action.
         """
-        a = self.project.conn_manager.manager().action(name)
-        if not a:
+        action = self.project.conn_manager.manager().action(name)
+        if not action:
             self.logger.warning("No existe la acción %s", name)
             return
-        self.project.call("%s.main" % a.name(), [], None, False)
+        self.project.call("%s.main" % action.name(), [], None, False)
 
     def formRecordWidget(self) -> "flformrecorddb.FLFormRecordDB":
         """
@@ -193,24 +193,24 @@ class XMLAction(struct.ActionStruct):
                     return
 
         self.logger.info("Opening default formRecord for Action %s", self.name)
-        w = self.loadRecord(cursor)
+        widget = self.loadRecord(cursor)
         # w.init()
-        if w:
+        if widget:
             if wait:
-                w.show_and_wait()
+                widget.show_and_wait()
             else:
-                w.show()
+                widget.show()
 
     def openDefaultForm(self) -> None:
         """
         Open Main FLForm specified on defaults.
         """
         self.logger.info("Opening default form for Action %s", self.name)
-        w = self.load()
+        widget = self.load()
 
-        if w:
+        if widget:
             if self.project.DGI.localDesktop():
-                w.show()
+                widget.show()
 
     def execDefaultScript(self) -> None:
         """

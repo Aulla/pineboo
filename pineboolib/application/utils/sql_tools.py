@@ -11,7 +11,7 @@ from typing import Dict, Any, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class SqlInspector(object):
@@ -111,14 +111,14 @@ class SqlInspector(object):
 
         return self._table_names
 
-    def set_table_names(self, l_: List[str]) -> None:
+    def set_table_names(self, table_names: List[str]) -> None:
         """
         Set a list with the tables of the query.
 
         @return tables list.
         """
 
-        self._table_names = l_
+        self._table_names = table_names
 
     def sql(self) -> str:
         """
@@ -176,9 +176,9 @@ class SqlInspector(object):
                         return self._field_list[field_name]
                 else:
                     # probando a cambiar tabla por alias
-                    for a in self._alias.keys():
-                        if self._alias[a] == table_name:
-                            field_name = "%s.%s" % (a, field_name)
+                    for alias in self._alias.keys():
+                        if self._alias[alias] == table_name:
+                            field_name = "%s.%s" % (alias, field_name)
                             if field_name in self._field_list.keys():
                                 return self._field_list[field_name]
 
@@ -188,9 +188,9 @@ class SqlInspector(object):
                     if field_name in self._field_list.keys():
                         return self._field_list[field_name]
 
-                    for a in self._alias.keys():
-                        if self._alias[a] == table_name:
-                            field_name = "%s.%s" % (a, name)
+                    for alias in self._alias.keys():
+                        if self._alias[alias] == table_name:
+                            field_name = "%s.%s" % (alias, name)
                             if field_name in self._field_list.keys():
                                 return self._field_list[field_name]
 
@@ -220,38 +220,39 @@ class SqlInspector(object):
                 return  # Se entiende que es una consulta especial
 
             index_from = list_sql.index("from")
-            fl: List[str] = []
+            new_fields_list: List[str] = []
             fields_list = list_sql[1:index_from]
             for field in fields_list:
                 field = field.replace(" ", "")
                 if field.find(",") > -1:
                     extra_fields: List[str] = field.split(",")
-                    fl = fl + extra_fields
+                    new_fields_list = new_fields_list + extra_fields
                 else:
-                    fl.append(field)
+                    new_fields_list.append(field)
 
-            fields_list = fl
-            fl = []
-            for f in list(fields_list):
-                if f == "":
+            fields_list = new_fields_list
+            new_fields_list = []
+            for field in list(fields_list):
+                if field == "":
                     continue
-                fl.append(f)
+                new_fields_list.append(field)
 
+            tables_list = []
             if "where" in list_sql:
                 index_where = list_sql.index("where")
-                tl = list_sql[index_from + 1 : index_where]
+                tables_list = list_sql[index_from + 1 : index_where]
             else:
-                tl = list_sql[index_from + 1 :]
+                tables_list = list_sql[index_from + 1 :]
             tablas: List[str] = []
             self._alias = {}
             jump = 0
             # next_is_alias = None
             prev_ = ""
             last_was_table = False
-            for t in tl:
+            for table in tables_list:
                 if jump > 0:
                     jump -= 1
-                    prev_ = t
+                    prev_ = table
                     last_was_table = False
                     continue
 
@@ -266,13 +267,13 @@ class SqlInspector(object):
                 #    if prev_ not in tablas:
                 #        alias[prev_] = tablas[:-1]
 
-                elif t == "on":
+                elif table == "on":
                     jump = 3
-                    prev_ = t
+                    prev_ = table
                     last_was_table = False
 
-                elif t in ("left", "join", "right", "inner", "outer"):
-                    prev_ = t
+                elif table in ("left", "join", "right", "inner", "outer"):
+                    prev_ = table
                     last_was_table = False
                     continue
 
@@ -280,30 +281,29 @@ class SqlInspector(object):
                 # jump = 3
                 #    prev_ = t
                 #    continue
-                elif t == "as":
+                elif table == "as":
                     #    next_is_alias = True
                     last_was_table = True
                     continue
                 else:
                     if last_was_table:
-                        self._alias[t] = prev_
+                        self._alias[table] = prev_
                         last_was_table = False
                     else:
-                        if t != "":
-                            if t not in tablas:
-                                tablas.append(t)
+                        if table != "":
+                            if table not in tablas:
+                                tablas.append(table)
                             last_was_table = True
-                    prev_ = t
+                    prev_ = table
 
             temp_tl: List[str] = []
-            for t in tablas:
-                temp_tl = temp_tl + t.split(",")
+            for item in tablas:
+                temp_tl = temp_tl + item.split(",")
 
             tablas = temp_tl
 
             fl_finish = []
-            for f in fl:
-                field_name = f
+            for field_name in new_fields_list:
                 if field_name.find(".") > -1:
                     table_ = field_name[0 : field_name.find(".")]
                     field_ = field_name[field_name.find(".") + 1 :]
@@ -311,8 +311,8 @@ class SqlInspector(object):
                     if field_ == "*":
                         mtd_table = application.PROJECT.conn_manager.manager().metadata(table_)
                         if mtd_table is not None:
-                            for n in mtd_table.fieldListArray():
-                                fl_finish.append(n)
+                            for item in mtd_table.fieldListArray():
+                                fl_finish.append(item)
 
                             continue
 
@@ -343,7 +343,7 @@ class SqlInspector(object):
         type_ = "double"
         if pos not in self._mtd_fields.keys():
             if pos not in self._field_list.values():
-                logger.warning(
+                LOGGER.warning(
                     "SQL_TOOLS : resolve_empty_value : No se encuentra la posición %s", pos
                 )
                 return None
@@ -381,7 +381,7 @@ class SqlInspector(object):
         type_ = "double"
         if pos not in self._mtd_fields.keys():
             if pos not in self._field_list.values():
-                logger.warning("SQL_TOOLS : resolve_value : No se encuentra la posición %s", pos)
+                LOGGER.warning("SQL_TOOLS : resolve_value : No se encuentra la posición %s", pos)
                 return None
         else:
             mtd = self._mtd_fields[pos]

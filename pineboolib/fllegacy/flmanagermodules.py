@@ -678,7 +678,7 @@ class FLManagerModules(object):
         mod_obj = self.dict_info_mods_.get(id_module.upper(), None)
         mod_icono = getattr(mod_obj, "icono", None)
         if mod_icono is not None:
-            pix = QtGui.QPixmap(xpm.cacheXPM(mod_icono))
+            pix = QtGui.QPixmap(xpm.cache_xpm(mod_icono))
 
         return pix
 

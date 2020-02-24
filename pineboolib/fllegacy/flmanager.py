@@ -1448,7 +1448,7 @@ class FLManager(QtCore.QObject, IManager):
                 q.setFrom(table_name)
                 q.setWhere("refkey = '%s'" % ref_key)
                 if q.exec_() and q.first():
-                    return xpm.cacheXPM(q.value(0))
+                    return xpm.cache_xpm(q.value(0))
 
         return None
 

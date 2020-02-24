@@ -462,7 +462,7 @@ class FLApplication(QtCore.QObject):
 
         ret_ = QtGui.QPixmap()
 
-        file_name = xpm.cacheXPM(value)
+        file_name = xpm.cache_xpm(value)
         if file_name:
             ret_ = QtGui.QPixmap(file_name)
 

@@ -182,7 +182,7 @@ class KParserTools(object):
                 qry = pnsqlquery.PNSqlQuery()
                 qry.exec_("SELECT contenido FROM %s WHERE refkey='%s'" % (table_name, ref_key))
                 if qry.next():
-                    value = xpm.cacheXPM(qry.value(0))
+                    value = xpm.cache_xpm(qry.value(0))
 
                 if value:
                     ret = img_file

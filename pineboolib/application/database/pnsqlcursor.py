@@ -519,7 +519,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                 else:
 
-                    v_large = xpm.cacheXPM(value)
+                    v_large = xpm.cache_xpm(value)
 
                 if v_large:
                     value = v_large
@@ -578,7 +578,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if not self.private_cursor._is_system_table:
                     v_large = self.db().connManager().manager().fetchLargeValue(value)
                 else:
-                    v_large = xpm.cacheXPM(value)
+                    v_large = xpm.cache_xpm(value)
 
                 if v_large:
                     value = v_large

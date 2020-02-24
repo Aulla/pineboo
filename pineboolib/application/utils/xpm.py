@@ -6,10 +6,10 @@ import os.path
 from pineboolib.core.settings import config
 from pineboolib import logging, application
 
-logger = logging.getLogger("xpm")
+LOGGER = logging.getLogger("xpm")
 
 
-def cacheXPM(value: str) -> str:
+def cache_xpm(value: str) -> str:
     """
     Return a path to a file with the content of the specified string.
 
@@ -18,7 +18,7 @@ def cacheXPM(value: str) -> str:
     """
 
     if not value:
-        logger.warning("the value is empty!")
+        LOGGER.warning("the value is empty!")
         return ""
 
     xpm_name = value[: value.find("[]")]
@@ -38,8 +38,8 @@ def cacheXPM(value: str) -> str:
         file_name = "%s/%s.xpm" % (cache_dir, xpm_name)
 
     if not os.path.exists(file_name) or config.value("ebcomportamiento/no_img_cached", False):
-        f = open(file_name, "w")
-        f.write(value)
-        f.close()
+        file_ = open(file_name, "w")
+        file_.write(value)
+        file_.close()
 
     return file_name
