@@ -45,10 +45,10 @@ class ProcessBaseClass(QtCore.QProcess):
 
         return super().workingDirectory()
 
-    def set_working_directory(self, wd: str) -> None:
+    def set_working_directory(self, working_directory: str) -> None:
         """Set working directory."""
 
-        super().setWorkingDirectory(wd)
+        super().setWorkingDirectory(working_directory)
 
     stdout: str = property(read_std_out, set_std_out)  # type: ignore [assignment] # noqa F821
     stderr: str = property(read_std_error, set_std_error)  # type: ignore [assignment] # noqa F821
@@ -65,8 +65,8 @@ class ProcessStatic(ProcessBaseClass):
         """Execute command no splitted."""
 
         comando_ = []
-        for c in comando:
-            comando_.append(c)
+        for item in comando:
+            comando_.append(item)
 
         # programa = list_[0]
         # arguments = list_[1:]
@@ -165,8 +165,8 @@ class Process(ProcessBaseClass):
         """Execute command no splitted."""
 
         comando_ = []
-        for c in comando:
-            comando_.append(c)
+        for item in comando:
+            comando_.append(item)
 
         # programa = list_[0]
         # arguments = list_[1:]

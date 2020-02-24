@@ -24,8 +24,8 @@ class TestQT3UIParser(unittest.TestCase):
         widget = mng_modules.createUI(file_1)
         self.assertTrue(widget)
 
-        ac = widget.findChild(QtWidgets.QAction, "ebcomportamiento")
-        self.assertTrue(ac)
+        action = widget.findChild(QtWidgets.QAction, "ebcomportamiento")
+        self.assertTrue(action)
 
     def test_formRecord(self) -> None:
         """Test formRecord widget."""

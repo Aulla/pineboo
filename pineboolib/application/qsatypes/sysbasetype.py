@@ -22,7 +22,7 @@ from pineboolib.application import connections
 
 from pineboolib.application.process import Process
 
-logger = logging.getLogger("fllegacy.systype")
+LOGGER = logging.getLogger("fllegacy.systype")
 
 
 class SysBaseType(object):
@@ -149,24 +149,24 @@ class SysBaseType(object):
         """Write to file."""
         from pineboolib.application.types import File
 
-        fileISO = File(dir_, encode_)
-        fileISO.write(contenido)
-        fileISO.close()
+        file_iso = File(dir_, encode_)
+        file_iso.write(contenido)
+        file_iso.close()
 
     @classmethod
-    def cleanupMetaData(self, connName: str = "default") -> None:
+    def cleanupMetaData(self, conn_name: str = "default") -> None:
         """Clean up metadata."""
         application.PROJECT.conn_manager.manager().cleanupMetaData()
 
     @classmethod
-    def nameDriver(self, connName: str = "default") -> Any:
+    def nameDriver(self, conn_name: str = "default") -> Any:
         """Get driver name."""
-        return application.PROJECT.conn_manager.useConn(connName).driverName()
+        return application.PROJECT.conn_manager.useConn(conn_name).driverName()
 
     @classmethod
-    def nameHost(self, connName: str = "default") -> Any:
+    def nameHost(self, conn_name: str = "default") -> Any:
         """Get database host name."""
-        return application.PROJECT.conn_manager.useConn(connName).host()
+        return application.PROJECT.conn_manager.useConn(conn_name).host()
 
     @classmethod
     def addDatabase(self, *args: Any) -> bool:
@@ -243,37 +243,37 @@ class SysBaseType(object):
         return ret
 
     @classmethod
-    def diffXmlFilesDef(self, xmlOld: QtXml.QDomNode, xmlNew: QtXml.QDomNode) -> Dict[str, Any]:
+    def diffXmlFilesDef(self, xml_old: QtXml.QDomNode, xml_new: QtXml.QDomNode) -> Dict[str, Any]:
         """Create a Diff for XML."""
-        arrOld = self.filesDefToArray(xmlOld)
-        arrNew = self.filesDefToArray(xmlNew)
+        array_old = self.filesDefToArray(xml_old)
+        array_new = self.filesDefToArray(xml_new)
         ret: Dict[str, Any] = {}
         size = 0
-        # DEBUG:: FOR-IN: ['key', 'arrOld']
-        for key in arrOld:
-            if key not in arrNew:
-                info = [key, "del", arrOld[key]["shatext"], arrOld[key]["shabinary"], "", ""]
+        # DEBUG:: FOR-IN: ['key', 'array_old']
+        for key in array_old:
+            if key not in array_new:
+                info = [key, "del", array_old[key]["shatext"], array_old[key]["shabinary"], "", ""]
                 ret[key] = "@".join(info)
                 size += 1
-        # DEBUG:: FOR-IN: ['key', 'arrNew']
+        # DEBUG:: FOR-IN: ['key', 'array_new']
 
-        for key in arrNew:
-            if key not in arrOld:
-                info = [key, "new", "", "", arrNew[key]["shatext"], arrNew[key]["shabinary"]]
+        for key in array_new:
+            if key not in array_old:
+                info = [key, "new", "", "", array_new[key]["shatext"], array_new[key]["shabinary"]]
                 ret[key] = "@".join(info)
                 size += 1
             else:
                 if (
-                    arrNew[key]["shatext"] != arrOld[key]["shatext"]
-                    or arrNew[key]["shabinary"] != arrOld[key]["shabinary"]
+                    array_new[key]["shatext"] != array_old[key]["shatext"]
+                    or array_new[key]["shabinary"] != array_old[key]["shabinary"]
                 ):
                     info = [
                         key,
                         "mod",
-                        arrOld[key]["shatext"],
-                        arrOld[key]["shabinary"],
-                        arrNew[key]["shatext"],
-                        arrNew[key]["shabinary"],
+                        array_old[key]["shatext"],
+                        array_old[key]["shabinary"],
+                        array_new[key]["shatext"],
+                        array_new[key]["shabinary"],
                     ]
                     ret[key] = "@".join(info)
                     size += 1
@@ -288,50 +288,41 @@ class SysBaseType(object):
         files = root.childNodes()
         ret = {}
         i = 0
-        while_pass = True
         while i < len(files):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            it = files.item(i)
+            item = files.item(i)
             fil = {
-                "id": it.namedItem(u"name").toElement().text(),
-                "module": it.namedItem(u"module").toElement().text(),
-                "text": it.namedItem(u"text").toElement().text(),
-                "shatext": it.namedItem(u"shatext").toElement().text(),
-                "binary": it.namedItem(u"binary").toElement().text(),
-                "shabinary": it.namedItem(u"shabinary").toElement().text(),
+                "id": item.namedItem(u"name").toElement().text(),
+                "module": item.namedItem(u"module").toElement().text(),
+                "text": item.namedItem(u"text").toElement().text(),
+                "shatext": item.namedItem(u"shatext").toElement().text(),
+                "binary": item.namedItem(u"binary").toElement().text(),
+                "shabinary": item.namedItem(u"shabinary").toElement().text(),
             }
+            i += 1
             if len(fil["id"]) == 0:
                 continue
             ret[fil["id"]] = fil
-            i += 1
-            while_pass = True
-            try:
-                i < len(files)
-            except Exception:
-                break
 
         return ret
 
     @classmethod
     def textPacking(self, ext: str = "") -> bool:
         """Determine if file is text."""
-        return (
-            ext.endswith(".ui")
-            or ext.endswith(".qry")
-            or ext.endswith(".kut")
-            or ext.endswith(".jrxml")
-            or ext.endswith(".ar")
-            or ext.endswith(".mtd")
-            or ext.endswith(".ts")
-            or ext.endswith(".qs")
-            or ext.endswith(".qs.py")
-            or ext.endswith(".xml")
-            or ext.endswith(".xpm")
-            or ext.endswith(".svg")
+        return ext.endswith(
+            (
+                ".ui",
+                ".qry",
+                ".kut",
+                ".jrxml",
+                ".ar",
+                ".mtd",
+                ".ts",
+                ".qs",
+                ".py",
+                ".xml",
+                ".xpm",
+                ".svg",
+            )
         )
 
     @classmethod
@@ -350,7 +341,7 @@ class SysBaseType(object):
             # )
             application.PROJECT.message_manager().send("msgBoxInfo", None, [msg])
         else:
-            logger.warning(ustr(u"INFO: ", msg))
+            LOGGER.warning(ustr(u"INFO: ", msg))
 
     @classmethod
     def warnMsgBox(self, msg: str = "", *buttons: Any) -> None:
@@ -366,7 +357,7 @@ class SysBaseType(object):
             # )
             application.PROJECT.message_manager().send("msgBoxWarning", None, new_list)
         else:
-            logger.warning(ustr(u"WARN: ", msg))
+            LOGGER.warning(ustr(u"WARN: ", msg))
 
     @classmethod
     def errorMsgBox(self, msg: str = None) -> None:
@@ -379,7 +370,7 @@ class SysBaseType(object):
             # )
             application.PROJECT.message_manager().send("msgBoxError", None, [msg])
         else:
-            logger.warning(ustr(u"ERROR: ", msg))
+            LOGGER.warning(ustr(u"ERROR: ", msg))
 
     @classmethod
     def translate(self, text: str, arg2: Optional[str] = None) -> str:
@@ -547,7 +538,7 @@ class SysBaseType(object):
             return None
         c = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
         if not c:
-            logger.warning(ustr(component, u" no existe"))
+            LOGGER.warning(ustr(component, u" no existe"))
             return None
         return c
 
@@ -573,7 +564,7 @@ class SysBaseType(object):
         if m is not None:
             m(param)
         else:
-            logger.warning(ustr(method, u" no existe"))
+            LOGGER.warning(ustr(method, u" no existe"))
 
         return True
 
@@ -593,7 +584,7 @@ class SysBaseType(object):
         if not url:
             return False
         if not isinstance(url, str):
-            logger.warning("openUrl: url should be string")
+            LOGGER.warning("openUrl: url should be string")
             # Assuming url is list.
             url = url[0]
         os_name = self.osName()
@@ -635,5 +626,5 @@ class SysBaseType(object):
             return True
         except Exception:
             e = traceback.format_exc()
-            logger.error(e)
+            LOGGER.error(e)
             return False

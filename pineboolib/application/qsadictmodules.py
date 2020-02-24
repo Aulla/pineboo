@@ -9,7 +9,7 @@ from pineboolib.application.xmlaction import XMLAction
 from pineboolib.application.proxy import DelayedObjectProxyLoader
 from pineboolib.application.safeqsa import SafeQSA
 
-logger = logging.getLogger("qsadictmodules")
+LOGGER = logging.getLogger("qsadictmodules")
 
 
 class QSADictModules:
@@ -69,7 +69,7 @@ class QSADictModules:
         module_name = action.name if action.name != "sys" else "sys_module"
         if cls.action_exists(module_name):
             if module_name != "sys_module":
-                logger.warning("Module found twice, will not be overriden: %s", module_name)
+                LOGGER.warning("Module found twice, will not be overriden: %s", module_name)
             return False
 
         # Se crea la action del módulo
@@ -88,7 +88,7 @@ class QSADictModules:
 
         actionname = "form%s" % name
         if cls.action_exists(actionname):
-            logger.debug(
+            LOGGER.debug(
                 "No se sobreescribe variable de entorno %s. Hay una definición previa en %s",
                 "%s.form%s" % (module.module_name, name),
                 module.module_name,
@@ -111,7 +111,7 @@ class QSADictModules:
             raise ValueError("Action.module must be set before calling")
         actionname = "formRecord" + name
         if cls.action_exists(actionname):
-            logger.debug("No se sobreescribe variable de entorno %s", "formRecord" + name)
+            LOGGER.debug("No se sobreescribe variable de entorno %s", "formRecord" + name)
             return False
         # Se crea la action del formRecord
         delayed_action = DelayedObjectProxyLoader(

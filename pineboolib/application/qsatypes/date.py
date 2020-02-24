@@ -49,10 +49,10 @@ class Date(object):
             if not self.time_:
                 self.time_ = QtCore.QTime(0, 0)
         else:
-            y, m, d = args[0], args[1], args[2]
-            if not isinstance(y, int) or not isinstance(m, int) or not isinstance(d, int):
+            year, month, day = args[0], args[1], args[2]
+            if not isinstance(year, int) or not isinstance(month, int) or not isinstance(day, int):
                 raise ValueError("Expected year, month, day as integers")
-            self.date_ = QtCore.QDate(y, m, d)
+            self.date_ = QtCore.QDate(year, month, day)
             self.time_ = QtCore.QTime(0, 0)
 
     def toString(self, pattern: Optional[str] = None) -> str:
@@ -115,18 +115,19 @@ class Date(object):
         """
         return self.date_.month()
 
-    def setMonth(self, mm: Union[str, int]) -> "Date":
+    def setMonth(self, month: Union[str, int]) -> "Date":
         """
         Set month into current date.
 
         @param mm. Mes a setear
         """
-        mm = str(mm)
-        if len(mm) < 2:
-            mm = "0%s" % mm
+        month = str(month)
+        if len(month) < 2:
+            month = "0%s" % month
 
         self.date_ = QtCore.QDate.fromString(
-            "%s-%s-%s" % (self.date_.toString("yyyy"), mm, self.date_.toString("dd")), "yyyy-MM-dd"
+            "%s-%s-%s" % (self.date_.toString("yyyy"), month, self.date_.toString("dd")),
+            "yyyy-MM-dd",
         )
 
         return self
@@ -139,19 +140,19 @@ class Date(object):
         """
         return self.date_.day()
 
-    def setDay(self, dd: Union[str, int]) -> "Date":
+    def setDay(self, day: Union[str, int]) -> "Date":
         """
         Set given day.
 
         @param dd. Dia a setear
         """
-        dd = str(dd)
+        day = str(day)
 
-        if len(dd) < 2:
-            dd = "0%s" % dd
+        if len(day) < 2:
+            day = "0%s" % day
 
         self.date_ = QtCore.QDate.fromString(
-            "%s-%s-%s" % (self.date_.toString("yyyy"), self.date_.toString("MM"), dd), "yyyy-MM-dd"
+            "%s-%s-%s" % (self.date_.toString("yyyy"), self.date_.toString("MM"), day), "yyyy-MM-dd"
         )
 
         return self
@@ -208,32 +209,32 @@ class Date(object):
 
         return self
 
-    def addDays(self, d: int) -> "Date":
+    def addDays(self, days: int) -> "Date":
         """
         Return result of adding a particular amount of days to current date.
 
         @param d. Dias a sumar (o restar) a la fecha dada
         @return nueva fecha calculada
         """
-        return Date(self.date_.addDays(d).toString("yyyy-MM-dd"))
+        return Date(self.date_.addDays(days).toString("yyyy-MM-dd"))
 
-    def addMonths(self, m: int) -> "Date":
+    def addMonths(self, months: int) -> "Date":
         """
         Return result of adding given number of months to this date.
 
         @param m. Meses a sumar (o restar) a la fecha dada
         @return nueva fecha calculada
         """
-        return Date(self.date_.addMonths(m).toString("yyyy-MM-dd"))
+        return Date(self.date_.addMonths(months).toString("yyyy-MM-dd"))
 
-    def addYears(self, y: int) -> "Date":
+    def addYears(self, years: int) -> "Date":
         """
         Return result of adding given number of years to this date.
 
         @param y. Años a sumar (o restar) a la fecha dada
         @return nueva fecha calculada
         """
-        return Date(self.date_.addYears(y).toString("yyyy-MM-dd"))
+        return Date(self.date_.addYears(years).toString("yyyy-MM-dd"))
 
     @classmethod
     def parse(cls, value: str) -> "Date":
