@@ -364,24 +364,24 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
     def releaseSavePoint(self, n: int) -> bool:
         """Set release savepoint."""
 
-        if not self.isOpen():
-            LOGGER.warning("PSQLDriver::releaseSavePoint: Database not open")
-            return False
-        self.set_last_error_null()
-        cursor = self.conn_.cursor()
-        try:
-            cursor.execute("RELEASE SAVEPOINT sv_%s" % n)
-        except Exception:
-            self.setLastError(
-                "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % n
-            )
-            LOGGER.warning(
-                "PSQLDriver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s\n %s",
-                n,
-                traceback.format_exc(),
-            )
+        # if not self.isOpen():
+        #    LOGGER.warning("PSQLDriver::releaseSavePoint: Database not open")
+        #    return False
+        # self.set_last_error_null()
+        # cursor = self.conn_.cursor()
+        # try:
+        #    cursor.execute("RELEASE SAVEPOINT sv_%s" % n)
+        # except Exception:
+        #    self.setLastError(
+        #        "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % n
+        #    )
+        #    LOGGER.warning(
+        #        "PSQLDriver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s\n %s",
+        #        n,
+        #        traceback.format_exc(),
+        #    )
 
-            return False
+        #    return False
 
         return True
 
