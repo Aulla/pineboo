@@ -80,7 +80,7 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
     widget.hide()
 
     for xmlimage in ROOT.findall("images//image"):
-        loadIcon(xmlimage)
+        load_icon(xmlimage)
 
     for xmlwidget in ROOT.findall("widget"):
         LoadWidget(xmlwidget, widget, parent)
@@ -609,7 +609,7 @@ class LoadWidget:
                             lay_spacing = int(number_elem.text)
                     elif p_name == "sizePolicy":
                         self.widget.setSizePolicy(  # type: ignore [attr-defined] # noqa F821
-                            loadVariant(property, self.widget)
+                            load_variant(property, self.widget)
                         )
 
                 self.widget._layout.setSizeConstraint(  # type: ignore [attr-defined] # noqa F821
@@ -636,7 +636,7 @@ class LoadWidget:
                 else:
                     prop1: Dict[str, Any] = {}
                     for property_2 in item.findall("property"):
-                        key, value = loadProperty(property_2)
+                        key, value = load_property(property_2)
                         prop1[key] = value
 
                     self.widget.addItem(prop1["text"])  # type: ignore [attr-defined] # noqa F821
@@ -644,7 +644,7 @@ class LoadWidget:
 
             elif item.tag == "attribute":
                 key = item.get("name")
-                value = loadVariant(item)
+                value = load_variant(item)
                 attrs = getattr(self.widget, "_attrs", None)
                 if attrs is not None:
                     attrs[key] = value
@@ -671,14 +671,12 @@ class LoadWidget:
                 new_widget.setContentsMargins(0, 0, 0, 0)  # type: ignore [attr-defined] # noqa F821
                 new_widget.show()  # type: ignore [attr-defined] # noqa F821
 
-                gb = isinstance(self.widget, QtWidgets.QGroupBox)
-                wd = isinstance(self.widget, QtWidgets.QWidget)
                 if isinstance(self.widget, QtWidgets.QTabWidget):
                     title = new_widget._attrs.get(  # type: ignore [attr-defined] # noqa F821
                         "title", "UnnamedTab"
                     )
                     self.widget.addTab(cast(QtWidgets.QWidget, new_widget), title)
-                elif gb or wd:
+                elif isinstance(self.widget, (QtWidgets.QGroupBox, QtWidgets.QWidget)):
                     lay = getattr(self.widget, "layout")()
                     if not lay and not isinstance(self.widget, qtoolbar.QToolBar):
                         lay = QtWidgets.QVBoxLayout()
@@ -702,13 +700,13 @@ class LoadWidget:
                 continue
 
             elif item.tag == "action":
-                acName = item.get("name")
+                action_name = item.get("name")
                 if ROOT is None:
                     raise Exception("No se encuentra root")
 
                 for xmlaction in ROOT.findall("actions//action"):
                     prop_name = xmlaction.find("./property[@name='name']/cstring")
-                    if prop_name is not None and prop_name.text == acName:
+                    if prop_name is not None and prop_name.text == action_name:
                         self.process_action(xmlaction, cast(QtWidgets.QToolBar, self.widget))
                         continue
 
@@ -720,7 +718,7 @@ class LoadWidget:
 
             elif item.tag == "column":
                 for property in item.findall("property"):
-                    key, value = loadProperty(property)
+                    key, value = load_property(property)
                     if key == "text":
                         cast(qlistview.QListView, self.widget).setHeaderLabel(value)
                     elif key == "clickable":
@@ -813,19 +811,19 @@ class LoadWidget:
 
         elif pname == "margin":
             try:
-                value = loadVariant(xmlprop)
+                value = load_variant(xmlprop)
             except Exception:
                 value = 0
             value = QtCore.QMargins(value, value, value, value)
 
         elif pname == "paletteBackgroundColor":
             fg_color = widget.palette().color(QtGui.QPalette.Window).name()
-            bg_color = loadVariant(xmlprop).name()
+            bg_color = load_variant(xmlprop).name()
             value = "color: %s; background-color: %s" % (fg_color, bg_color)
 
         elif pname == "paletteForegroundColor":
             bg_color = widget.palette().color(QtGui.QPalette.WindowText).name()
-            fg_color = loadVariant(xmlprop).name()
+            fg_color = load_variant(xmlprop).name()
 
             if bg_color != fg_color:  # Evitamos todo negro
                 value = "color: %s; background-color: %s" % (fg_color, bg_color)
@@ -833,7 +831,7 @@ class LoadWidget:
                 value = "color: %s" % fg_color
 
         elif pname in ["windowIcon", "icon"]:
-            value1 = loadVariant(xmlprop, widget)
+            value1 = load_variant(xmlprop, widget)
             # FIXME: Not sure if it should return anyway
             if isinstance(value1, str):
                 LOGGER.warning("Icono %s.%s no encontrado." % (widget.objectName(), value1))
@@ -842,7 +840,7 @@ class LoadWidget:
                 value = value1
 
         else:
-            value = loadVariant(xmlprop, widget)
+            value = load_variant(xmlprop, widget)
 
         try:
             set_fn(value)
@@ -858,35 +856,35 @@ class LoadWidget:
             # if Options.DEBUG_LEVEL > 50:
             #    print(etree.ET.tostring(xmlprop))
 
-    def process_action(self, xmlaction: ET.Element, toolBar: QtWidgets.QToolBar):
+    def process_action(self, xmlaction: ET.Element, tool_bar: QtWidgets.QToolBar):
         """
         Process a QAction.
         """
         action = cast(QtWidgets.QAction, create_widget("QAction"))
-        for p in xmlaction:
-            pname = p.get("name")
-            if pname in self.translate_properties:
-                pname = self.translate_properties[pname]
+        for item in xmlaction:
+            action_name = item.get("name")
+            if action_name in self.translate_properties:
+                action_name = self.translate_properties[action_name]
 
-            self.process_property(p, action)
-        toolBar.addAction(action)
+            self.process_property(item, action)
+        tool_bar.addAction(action)
         # orig_widget.ui_[action.objectName()] = action
 
     def process_layout_box(self, xmllayout, widget=None, mode="box"):
         """Process layouts from UI."""
         if widget is None:
             widget = self.widget
-        for c in xmllayout:
+        for item in xmllayout:
             try:
-                row = int(c.get("row")) or 0
-                col = int(c.get("column")) or 0
+                row = int(item.get("row")) or 0
+                col = int(item.get("column")) or 0
             except Exception:
                 row = col = 0
 
-            if c.tag == "property":  # Ya se han procesado previamente ...
+            if item.tag == "property":  # Ya se han procesado previamente ...
                 continue
-            elif c.tag == "widget":
-                new_widget = create_widget(c.get("class"), parent=widget)
+            elif item.tag == "widget":
+                new_widget = create_widget(item.get("class"), parent=widget)
                 # FIXME: Should check interfaces.
                 from pineboolib.q3widgets import qbuttongroup, qtoolbutton
 
@@ -895,7 +893,7 @@ class LoadWidget:
                         widget.addButton(new_widget)
                         continue
 
-                LoadWidget(c, new_widget, self.parent, self.orig_widget)
+                LoadWidget(item, new_widget, self.parent, self.orig_widget)
                 # path = c.find("./property[@name='name']/cstring").text
                 # if not application.PROJECT.DGI.localDesktop():
                 #    orig_widget.ui_[path] = new_widget
@@ -910,27 +908,27 @@ class LoadWidget:
                         )
 
                 elif mode == "grid":
-                    rowSpan = c.get("rowspan") or 1
-                    colSpan = c.get("colspan") or 1
+                    row_span = item.get("rowspan") or 1
+                    col_span = item.get("colspan") or 1
                     try:
-                        widget._layout.addWidget(new_widget, row, col, int(rowSpan), int(colSpan))
+                        widget._layout.addWidget(new_widget, row, col, int(row_span), int(col_span))
                     except Exception:
                         LOGGER.warning("qt3ui: No se ha podido añadir %s a %s", new_widget, widget)
                         LOGGER.trace("Detalle:", stack_info=True)
 
-            elif c.tag == "spacer":
+            elif item.tag == "spacer":
                 # sH = None
                 # sV = None
-                hPolicy = QtWidgets.QSizePolicy.Fixed
-                vPolicy = QtWidgets.QSizePolicy.Fixed
+                hor_policy = QtWidgets.QSizePolicy.Fixed
+                ver_policy = QtWidgets.QSizePolicy.Fixed
                 orient_ = None
                 policy_ = QtWidgets.QSizePolicy.Expanding
-                rowSpan = c.get("rowspan") or 1
-                colSpan = c.get("colspan") or 1
+                row_span = item.get("rowspan") or 1
+                col_span = item.get("colspan") or 1
                 # policy_name = None
                 spacer_name = None
-                for p in c.findall("property"):
-                    pname, value = loadProperty(p)
+                for property in item.findall("property"):
+                    pname, value = load_property(property)
                     if pname == "sizeHint":
                         width = value.width()
                         height = value.height()
@@ -948,20 +946,20 @@ class LoadWidget:
                         spacer_name = value  # noqa: F841
 
                 if orient_ == 1:
-                    hPolicy = policy_
+                    hor_policy = policy_
                 else:
-                    vPolicy = policy_
+                    ver_policy = policy_
 
                 # print("Nuevo spacer %s (%s,%s,(%s,%s), %s, %s" % (spacer_name, "Horizontal" if orient_ ==
-                #                                                  1 else "Vertical", policy_name, width, height, hPolicy, vPolicy))
-                new_spacer = QtWidgets.QSpacerItem(width, height, hPolicy, vPolicy)
+                #                                                  1 else "Vertical", policy_name, width, height, hor_policy, ver_policy))
+                new_spacer = QtWidgets.QSpacerItem(width, height, hor_policy, ver_policy)
                 if mode == "grid":
-                    widget._layout.addItem(new_spacer, row, col, int(rowSpan), int(colSpan))
+                    widget._layout.addItem(new_spacer, row, col, int(row_span), int(col_span))
                 else:
                     widget._layout.addItem(new_spacer)
                 # print("Spacer %s.%s --> %s" % (spacer_name, new_spacer, widget.objectName()))
             else:
-                LOGGER.warning("qt3ui: Unknown layout xml tag", repr(c.tag))
+                LOGGER.warning("qt3ui: Unknown layout xml tag", repr(item.tag))
 
         widget.setLayout(widget._layout)
         # widget._layout.setContentsMargins(1, 1, 1, 1)
@@ -969,7 +967,7 @@ class LoadWidget:
         # widget._layout.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
 
 
-def loadIcon(xml: "ET.Element") -> None:
+def load_icon(xml: "ET.Element") -> None:
     """Load Icon from XML."""
     global ICONS
 
@@ -996,28 +994,28 @@ def loadIcon(xml: "ET.Element") -> None:
     ICONS[name] = icon
 
 
-def loadVariant(xml: ET.Element, widget: Optional[QtCore.QObject] = None) -> Any:
+def load_variant(xml: ET.Element, widget: Optional[QtCore.QObject] = None) -> Any:
     """Load Variant from XML."""
     for variant in xml:
-        return _loadVariant(variant, widget)
+        return _load_variant(variant, widget)
     raise ValueError("No property in provided XML")
 
 
-def loadProperty(xml: ET.Element) -> Tuple[Any, Any]:
+def load_property(xml: ET.Element) -> Tuple[Any, Any]:
     """Load a Qt Property from XML."""
     for variant in xml:
-        return (xml.get("name"), _loadVariant(variant))
+        return (xml.get("name"), _load_variant(variant))
     raise ValueError("No property in provided XML")
 
 
-def u(x: Any) -> str:
+def parse_string(x: Any) -> str:
     """Convert x to string."""
     if isinstance(x, str):
         return x
     return str(x)
 
 
-def b(x: str) -> bool:
+def parse_bool(x: str) -> bool:
     """Convert x to bool."""
     x = x.lower()
     if x[0] == "t":
@@ -1036,99 +1034,93 @@ def b(x: str) -> bool:
     return False
 
 
-def _loadVariant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) -> Any:
+def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) -> Any:
     """Load a variant from XM. Internal."""
     text = variant.text or ""
     text = text.strip()
     if variant.tag == "cstring":
         return text
-    if variant.tag in ["iconset", "pixmap"]:
+    elif variant.tag in ["iconset", "pixmap"]:
         global ICONS
         if text in ICONS.keys():
 
             return ICONS[text]
-    if variant.tag == "string":
-        return u(text)
-    if variant.tag == "number":
+    elif variant.tag == "string":
+        return parse_string(text)
+    elif variant.tag == "number":
         if text.find(".") >= 0:
             return float(text)
         return int(text)
-    if variant.tag == "bool":
-        return b(text)
-    if variant.tag == "rect":
-        k = {}
-        for c in variant:
-            k[c.tag] = int((c.text or "0").strip())
-        return QtCore.QRect(k["x"], k["y"], k["width"], k["height"])
+    elif variant.tag == "bool":
+        return parse_bool(text)
+    elif variant.tag == "rect":
+        rect_ = {}
+        for item in variant:
+            rect_[item.tag] = int((item.text or "0").strip())
+        return QtCore.QRect(rect_["x"], rect_["y"], rect_["width"], rect_["height"])
 
-    if variant.tag == "sizepolicy":
+    elif variant.tag == "sizepolicy":
 
-        p = QtWidgets.QSizePolicy()
-        for c in variant:
-            ivalue_policy = cast(QtWidgets.QSizePolicy.Policy, int((c.text or "0").strip()))
-            if c.tag == "hsizetype":
-                p.setHorizontalPolicy(ivalue_policy)
-            if c.tag == "vsizetype":
-                p.setVerticalPolicy(ivalue_policy)
-            if c.tag == "horstretch":
-                p.setHorizontalStretch(ivalue_policy)
-            if c.tag == "verstretch":
-                p.setVerticalStretch(ivalue_policy)
-        return p
+        policy = QtWidgets.QSizePolicy()
+        for item in variant:
+            ivalue_policy = cast(QtWidgets.QSizePolicy.Policy, int((item.text or "0").strip()))
+            if item.tag == "hsizetype":
+                policy.setHorizontalPolicy(ivalue_policy)
+            elif item.tag == "vsizetype":
+                policy.setVerticalPolicy(ivalue_policy)
+            elif item.tag == "horstretch":
+                policy.setHorizontalStretch(ivalue_policy)
+            elif item.tag == "verstretch":
+                policy.setVerticalStretch(ivalue_policy)
+        return policy
     elif variant.tag == "size":
         p_sz = QtCore.QSize()
-        for c in variant:
-            ivalue = int((c.text or "0").strip())
-            if c.tag == "width":
+        for item in variant:
+            ivalue = int((item.text or "0").strip())
+            if item.tag == "width":
                 p_sz.setWidth(ivalue)
-            if c.tag == "height":
+            elif item.tag == "height":
                 p_sz.setHeight(ivalue)
         return p_sz
     elif variant.tag == "font":
         p_font = QtGui.QFont()
-        for c in variant:
-            value = (c.text or "0").strip()
-            bv: bool = False
-            if c.tag not in ("family", "pointsize"):
-                bv = b(value)
+        for item in variant:
+            value = (item.text or "0").strip()
+            bool_value: bool = False
+            if item.tag not in ("family", "pointsize"):
+                bool_value = parse_bool(value)
             try:
-                if c.tag == "bold":
-                    p_font.setBold(bv)
-                elif c.tag == "italic":
-                    p_font.setItalic(bv)
-                elif c.tag == "family":
+                if item.tag == "bold":
+                    p_font.setBold(bool_value)
+                elif item.tag == "italic":
+                    p_font.setItalic(bool_value)
+                elif item.tag == "family":
                     p_font.setFamily(value)
-                elif c.tag == "pointsize":
+                elif item.tag == "pointsize":
                     p_font.setPointSize(int(value))
                 else:
-                    LOGGER.warning("unknown font style type %s", repr(c.tag))
-            except Exception as e:
-                LOGGER.warning(e)
+                    LOGGER.warning("unknown font style type %s", repr(item.tag))
+            except Exception as exc_error:
+                LOGGER.warning(exc_error)
         return p_font
 
     elif variant.tag == "set":
-        v = None
         final = 0
         text = variant.text or "0"
-        libs_1: List[Any] = [QtCore.Qt]
 
         if text.find("WordBreak|") > -1:
             if widget is not None and hasattr(widget, "setWordWrap"):
                 widget.setWordWrap(True)  # type: ignore [attr-defined] # noqa F821
             text = text.replace("WordBreak|", "")
 
-        for lib in libs_1:
-            for t in text.split("|"):
-                v = getattr(lib, t, None)
-                if v is not None:
-                    final = final + v
+        for item_ in text.split("|"):
+            value = getattr(QtCore.Qt, item_, None)
+            if value is not None:
+                final = final + int(value)
 
-            aF = QtCore.Qt.AlignmentFlag(final)
-
-        return aF
+        return QtCore.Qt.AlignmentFlag(final)
 
     elif variant.tag == "enum":
-        v = None
         libs_2: List[Any] = [
             QtCore.Qt,
             QtWidgets.QFrame,
@@ -1136,9 +1128,9 @@ def _loadVariant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) -
             QtWidgets.QTabWidget,
         ]
         for lib in libs_2:
-            v = getattr(lib, text, None)
-            if v is not None:
-                return v
+            value = getattr(lib, text, None)
+            if value is not None:
+                return value
         if text in ["GroupBoxPanel", "LineEditPanel"]:
             return QtWidgets.QFrame.StyledPanel
         if text in ("Single", "SingleRow"):
@@ -1175,54 +1167,43 @@ def _loadVariant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) -
         for state in variant:
             print("FIXME: Procesando palette", state.tag)
             for color in state:
-                r_ = 0
-                g_ = 0
-                b_ = 0
-                for c in color:
-                    if c.text is None:
+                red_ = 0
+                green_ = 0
+                blue_ = 0
+                for item in color:
+                    if item.text is None:
                         continue
-                    if c.tag == "red":
-                        r_ = int(c.text)
-                    elif c.tag == "green":
-                        g_ = int(c.text)
-                    elif c.tag == "blue":
-                        b_ = int(c.text)
+                    if item.tag == "red":
+                        red_ = int(item.text)
+                    elif item.tag == "green":
+                        green_ = int(item.text)
+                    elif item.tag == "blue":
+                        blue_ = int(item.text)
 
-                if state.tag == "active":
-                    # p.setColor(p.Active, Qt.QColor(r_, g_, b_))
-                    pass
-                elif state.tag == "disabled":
-                    # p.setColor(p.Disabled, Qt.QColor(r_, g_, b_))
-                    pass
-                elif state.tag == "inactive":
-                    # p.setColor(p.Inactive, Qt.QColor(r_, g_, b_))
-                    pass
-                elif state.tag == "normal":
-                    # p.setColor(p.Normal, Qt.QColor(r_, g_, b_))
+                if state.tag in ("active", "disabled", "inactive", "normal"):
                     pass
                 else:
                     LOGGER.warning("Unknown palette state %s", state.tag)
-                LOGGER.debug("pallete color: %s %s %s", r_, g_, b_)
+                LOGGER.debug("pallete color: %s %s %s", red_, green_, blue_)
 
         return pal_
 
     elif variant.tag == "date":
 
-        y_ = 2000
-        m_ = 1
-        d_ = 1
-        for v in variant:
-            if v.text is None:
+        year_ = 2000
+        month_ = 1
+        day_ = 1
+        for item_variant in variant:
+            if item_variant.text is None:
                 continue
-            if v.tag == "year":
-                y_ = int(v.text)
-            elif v.tag == "month":
-                m_ = int(v.text)
-            elif v.tag == "day":
-                d_ = int(v.text)
+            if item_variant.tag == "year":
+                year_ = int(item_variant.text)
+            elif item_variant.tag == "month":
+                month_ = int(item_variant.text)
+            elif item_variant.tag == "day":
+                day_ = int(item_variant.text)
 
-        d = QtCore.QDate(y_, m_, d_)
-        return d
+        return QtCore.QDate(year_, month_, day_)
 
     if Options.DEBUG_LEVEL > 50:
         LOGGER.warning("qt3ui: Unknown variant: %s --> %s ", repr(widget), ET.tostring(variant))
