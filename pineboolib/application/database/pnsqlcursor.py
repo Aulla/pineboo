@@ -1811,25 +1811,23 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # self.setFilter(None)
         # if cFilter == self.filter() and self.isValid():
         #    return
+
+        self.setFilter("")
+
         self.select()
         pos = self.atFrom()
         if not self.seek(pos, False, True):
             self.newBuffer.emit()
 
-        if (
-            self.private_cursor.cursor_relation_
-            and self.private_cursor.relation_
-            and self.private_cursor.cursor_relation_.metadata()
-        ):
-            value = self.valueBuffer(self.private_cursor.relation_.field())
+        cur_relation = self.private_cursor.cursor_relation_
+        relation = self.private_cursor.relation_
+
+        if cur_relation and relation and cur_relation.metadata():
+            value = self.valueBuffer(relation.field())
             if value:
-                foreign_field_value_buffer = self.private_cursor.cursor_relation_.valueBuffer(
-                    self.private_cursor.relation_.foreignField()
-                )
-                if foreign_field_value_buffer != value:
-                    self.private_cursor.cursor_relation_.setValueBuffer(
-                        self.private_cursor.relation_.foreignField(), value
-                    )
+                foreign_value = cur_relation.valueBuffer(relation.foreignField())
+                if foreign_value != value:
+                    cur_relation.setValueBuffer(relation.foreignField(), value)
 
     def primeInsert(self) -> None:
         """
@@ -2251,7 +2249,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.private_cursor._model.setSortOrder(sort)
 
         self.private_cursor._model.refresh()
-
         self.private_cursor._currentregister = -1
 
         if self.private_cursor.cursor_relation_ and self.modeAccess() == self.Browse:
