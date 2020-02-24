@@ -9,7 +9,7 @@ from pineboolib.core.utils.check_dependencies import DependencyCheck, Dependency
 
 from pineboolib import application
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def check_dependencies(dict_: DependencyCheck, exit: bool = True) -> bool:
@@ -23,10 +23,10 @@ def check_dependencies(dict_: DependencyCheck, exit: bool = True) -> bool:
     if not dep_error:
         return True
     msg = ""
-    logger.debug("Error trying to import modules:\n%s", "\n\n".join(dep_error.values()))
-    logger.warning("Unmet dependences:")
+    LOGGER.debug("Error trying to import modules:\n%s", "\n\n".join(dep_error.values()))
+    LOGGER.warning("Unmet dependences:")
     for (dep, suggestedpkg), errormsg in dep_error.items():
-        logger.warning("Install package %s for %s", suggestedpkg, dep)
+        LOGGER.warning("Install package %s for %s", suggestedpkg, dep)
         msg += "Instale el paquete %s.\n%s" % (suggestedpkg, errormsg)
         if dep == "pyfpdf":
             msg += "\n\n\n Use pip3 install -i https://test.pypi.org/simple/ pyfpdf==1.7.3"

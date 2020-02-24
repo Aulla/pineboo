@@ -427,7 +427,7 @@ class FLFormDB(QtWidgets.QDialog):
         # else:
         #    geo = QtCore.QSize(pW.width(), pW.height())
 
-        geometry.saveGeometryForm(self.geoName(), geo)
+        geometry.save_geometry_form(self.geoName(), geo)
         return super().saveGeometry()
 
     def setCaptionWidget(self, text: str) -> None:
@@ -839,7 +839,7 @@ class FLFormDB(QtWidgets.QDialog):
 
             self.bindIface()
 
-        size = geometry.loadGeometryForm(self.geoName())
+        size = geometry.load_geometry_form(self.geoName())
         if size:
             self.resize(size)
 

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from PyQt5.QtCore import QSize  # type: ignore
 
 
-def saveGeometryForm(name: str, geo: "QSize") -> None:
+def save_geometry_form(name: str, geo: "QSize") -> None:
     """
     Save the geometry of a window.
 
@@ -26,7 +26,7 @@ def saveGeometryForm(name: str, geo: "QSize") -> None:
     settings.set_value(name, geo)
 
 
-def loadGeometryForm(name: str) -> "QSize":
+def load_geometry_form(name: str) -> "QSize":
     """
     Load the geometry of a window.
 

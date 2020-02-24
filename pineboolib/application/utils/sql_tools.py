@@ -237,7 +237,7 @@ class SqlInspector(object):
                     continue
                 new_fields_list.append(field)
 
-            tables_list = []
+            tables_list: List[str] = []
             if "where" in list_sql:
                 index_where = list_sql.index("where")
                 tables_list = list_sql[index_from + 1 : index_where]
@@ -419,7 +419,7 @@ class SqlInspector(object):
         elif type_ in ("unlock", "bool"):
             from pineboolib.application import types
 
-            ret_ = types.Boolean(ret_)
+            ret_ = types.boolean(ret_)
         elif type_ == "bytearray":
             ret_ = bytearray(ret_)
         else:

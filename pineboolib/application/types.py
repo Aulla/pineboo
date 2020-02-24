@@ -19,30 +19,31 @@ from pineboolib.core.utils.utils_base import StructMyDict, filedir
 
 from pineboolib.application.qsatypes.date import Date  # noqa: F401
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
-def Boolean(x: Union[bool, str, float] = False) -> bool:
+def boolean(value: Union[bool, str, float] = False) -> bool:
     """
     Return boolean from string.
     """
-    if isinstance(x, bool):
-        return x
-    if isinstance(x, str):
-        x = x.lower().strip()[0]
-        if x in ["y", "t"]:
+    if isinstance(value, bool):
+        return value
+    elif isinstance(value, str):
+        value = value.lower().strip()[0]
+        if value in ["y", "t"]:
             return True
-        if x in ["n", "f"]:
+        if value in ["n", "f"]:
             return False
-        raise ValueError("Cannot convert %r to Boolean" % x)
-    if isinstance(x, int):
-        return x != 0
-    if isinstance(x, float):
-        if abs(x) < 0.01:
+        raise ValueError("Cannot convert %r to Boolean" % value)
+    elif isinstance(value, int):
+        return value != 0
+    elif isinstance(value, float):
+        if abs(value) < 0.01:
             return False
         else:
             return True
-    raise ValueError("Cannot convert %r to Boolean" % x)
+    else:
+        raise ValueError("Cannot convert %r to Boolean" % value)
 
 
 class QString(str):
@@ -73,7 +74,7 @@ class QString(str):
         return ret
 
 
-def Function(*args: str) -> Any:
+def function(*args: str) -> Any:
     """
     Load QS string code and create a function from it.
 
@@ -113,10 +114,10 @@ function anon(%s) {
     if os.path.exists(dest_filename):
         os.remove(dest_filename)
 
-    f1 = open(dest_filename, "w", encoding="UTF-8")
+    file_ = open(dest_filename, "w", encoding="UTF-8")
 
-    write_python_file(f1, ast)
-    f1.close()
+    write_python_file(file_, ast)
+    file_.close()
     module = None
     module_path = "tempdata.anon"
 
@@ -135,14 +136,11 @@ function anon(%s) {
     return getattr(forminternalobj(), "anon", None)
 
 
-def Object(x: Optional[Dict[str, Any]] = None) -> StructMyDict:
+def object_(value: Optional[Dict[str, Any]] = None) -> StructMyDict:
     """
     Object type "object".
     """
-    if x is None:
-        x = {}
-
-    return StructMyDict(x)
+    return StructMyDict(value or {})
 
 
 String = QString
@@ -166,27 +164,27 @@ class Array(object):
             return
         elif len(args) == 1:
             if isinstance(args[0], list):
-                for n, f in enumerate(args[0]):
-                    self._dict[n] = f
+                for key, value in enumerate(args[0]):
+                    self._dict[key] = value
 
             elif isinstance(args[0], dict):
                 dict_ = args[0]
-                for k, v in dict_.items():
-                    self._dict[k] = v
+                for key, value in dict_.items():
+                    self._dict[key] = value
 
             elif isinstance(args[0], int):
                 return
 
         elif isinstance(args[0], str):
-            for f in args:
-                self.__setitem__(f, f)
+            for item in args:
+                self.__setitem__(item, item)
 
     def __iter__(self) -> Generator[Any, None, None]:
         """
         Iterate through values.
         """
-        for v in self._dict.values():
-            yield v
+        for value in self._dict.values():
+            yield value
 
     def __setitem__(self, key: Union[str, int], value: Any) -> None:
         """
@@ -209,13 +207,13 @@ class Array(object):
         """
         if isinstance(key, int):
             i = 0
-            for k in self._dict.keys():
+            for key_ in self._dict.keys():
                 if key == i:
-                    return self._dict[k]
+                    return self._dict[key_]
                 i += 1
 
         elif isinstance(key, slice):
-            logger.warning("FIXME: Array __getitem__%s con slice" % key)
+            LOGGER.warning("FIXME: Array __getitem__%s con slice" % key)
         else:
             return self._dict[key] if key in self._dict.keys() else None
 
@@ -225,23 +223,23 @@ class Array(object):
         """Return array size."""
         return len(self._dict)
 
-    def __getattr__(self, k: str) -> Any:
+    def __getattr__(self, value: str) -> Any:
         """Support for attribute style access."""
-        return self._dict[k]
+        return self._dict[value]
 
-    def __setattr__(self, k: str, val: Any) -> None:
+    def __setattr__(self, name: str, value: Any) -> None:
         """Support for attribute style writes."""
-        if k[0] == "_":
-            return super().__setattr__(k, val)
-        self._dict[k] = val
+        if name[0] == "_":
+            return super().__setattr__(name, value)
+        self._dict[name] = value
 
     def __eq__(self, other: Any) -> bool:
         """Support for equality comparisons."""
         if isinstance(other, Array):
             return other._dict == self._dict
-        if isinstance(other, list):
+        elif isinstance(other, list):
             return other == list(self._dict.values())
-        if isinstance(other, dict):
+        elif isinstance(other, dict):
             return other == self._dict
         return False
 
@@ -257,9 +255,9 @@ class Array(object):
             i = 0
             x = 0
             new = {}
-            for m in self._dict.keys():
+            for key in self._dict.keys():
                 if i >= pos_ini and x < length_:
-                    new[m] = self._dict[m]
+                    new[key] = self._dict[key]
                     x += 1
 
                 i += 1
@@ -290,18 +288,18 @@ class Array(object):
             i = 0
             x = 0
             new = {}
-            for m in self._dict.keys():
+            for key in self._dict.keys():
                 if i < pos_ini:
-                    new[m] = self._dict[m]
+                    new[key] = self._dict[key]
                 else:
                     if x < replacement_size:
                         if x == 0:
-                            for n in new_values:
-                                new[n] = n
+                            for new_value in new_values:
+                                new[new_value] = new_value
 
                         x += 1
                     else:
-                        new[m] = self._dict[m]
+                        new[key] = self._dict[key]
 
                 i += 1
 
@@ -315,12 +313,12 @@ class Array(object):
         """Support for str."""
         return repr(list(self._dict.values()))
 
-    def append(self, val: Any) -> None:
+    def append(self, value: Any) -> None:
         """Append new value."""
-        k = len(self._dict.keys())
-        while k in self._dict:
-            k += 1
-        self._dict[k] = val
+        size = len(self._dict.keys())
+        while size in self._dict:
+            size += 1
+        self._dict[size] = value
 
     def shift(self) -> Any:
         """Shifts (i.e. removes) the bottom-most (left-most) item off the array and returns it."""

@@ -227,7 +227,7 @@ class SysType(sysbasetype.SysBaseType):
 
         try:
             with open(fileQSA, "r") as file:
-                fn = types.Function(file.read())
+                fn = types.function(file.read())
                 fn(args)
         except Exception:
             e = traceback.format_exc()

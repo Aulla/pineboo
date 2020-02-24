@@ -493,7 +493,7 @@ class FLManagerModules(object):
         """
 
         if not isinstance(action, pnaction.PNAction):
-            action = convert_flaction.convert2FLAction(action)
+            action = convert_flaction.convert_to_flaction(action)
 
         if action is None:
             raise Exception("action is empty!.")
@@ -527,7 +527,7 @@ class FLManagerModules(object):
         if not isinstance(action, pnaction.PNAction):
             logger.trace("createFormRecord: convert2FLAction")
 
-            action = convert_flaction.convert2FLAction(action)
+            action = convert_flaction.convert_to_flaction(action)
 
         if action is None:
             raise Exception("action is empty!")

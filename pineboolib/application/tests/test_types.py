@@ -6,19 +6,8 @@ import unittest
 import os
 from pineboolib.loader.main import init_cli
 from pineboolib.core.settings import config
-from pineboolib.application.types import (
-    Boolean,
-    QString,
-    Function,
-    Object,
-    Array,
-    Date,
-    File,
-    FileStatic,
-    Dir,
-    DirStatic,
-    String,
-)
+from pineboolib.application import types
+
 
 init_cli()  # FIXME: This should be avoided
 
@@ -28,18 +17,18 @@ class TestBoolean(unittest.TestCase):
 
     def test_true(self) -> None:
         """Test for true."""
-        self.assertEqual(Boolean(1), True)
-        self.assertEqual(Boolean("True"), True)
-        self.assertEqual(Boolean("Yes"), True)
-        self.assertEqual(Boolean(0.8), True)
-        self.assertEqual(Boolean(True), True)
+        self.assertEqual(types.boolean(1), True)
+        self.assertEqual(types.boolean("True"), True)
+        self.assertEqual(types.boolean("Yes"), True)
+        self.assertEqual(types.boolean(0.8), True)
+        self.assertEqual(types.boolean(True), True)
 
     def test_false(self) -> None:
         """Test for false."""
-        self.assertEqual(Boolean(0), False)
-        self.assertEqual(Boolean("False"), False)
-        self.assertEqual(Boolean("No"), False)
-        self.assertEqual(Boolean(False), False)
+        self.assertEqual(types.boolean(0), False)
+        self.assertEqual(types.boolean("False"), False)
+        self.assertEqual(types.boolean("No"), False)
+        self.assertEqual(types.boolean(False), False)
 
 
 class TestQString(unittest.TestCase):
@@ -47,7 +36,7 @@ class TestQString(unittest.TestCase):
 
     def test_basic(self) -> None:
         """Basic testing."""
-        s = QString("hello world")
+        s = types.QString("hello world")
         self.assertEqual(s, "hello world")
         self.assertEqual(s.mid(5), s[5:])
         self.assertEqual(s.mid(5, 2), s[5:7])
@@ -59,7 +48,7 @@ class TestFunction(unittest.TestCase):
     def test_basic(self) -> None:
         """Basic testing."""
         source = "return x + 1"
-        fn = Function("x", source)
+        fn = types.function("x", source)
         self.assertEqual(fn(1), 2)
 
 
@@ -68,14 +57,14 @@ class TestObject(unittest.TestCase):
 
     def test_basic1(self) -> None:
         """Basic testing."""
-        o = Object()
+        o = types.object_()
         o.prop1 = 1
         o.prop2 = 2
         self.assertEqual(o.prop1, o["prop1"])
 
     def test_basic2(self) -> None:
         """Basic testing."""
-        o = Object({"prop1": 1})
+        o = types.object_({"prop1": 1})
         self.assertEqual(o.prop1, o["prop1"])
 
 
@@ -84,15 +73,15 @@ class TestArray(unittest.TestCase):
 
     def test_basic1(self) -> None:
         """Basic testing."""
-        a = Array()
+        a = types.Array()
         a.value = 1
         self.assertEqual(a.value, a["value"])
 
     def test_basic2(self) -> None:
         """Basic testing."""
         test_arr = [0, 1, 2, 3, 4]
-        a = Array(test_arr)
-        b = Array(test_arr)
+        a = types.Array(test_arr)
+        b = types.Array(test_arr)
         self.assertEqual(a[3], 3)
         self.assertEqual(list(a._dict.values()), test_arr)
         self.assertEqual(len(a), len(test_arr))
@@ -101,7 +90,7 @@ class TestArray(unittest.TestCase):
         self.assertNotEqual(a[3], b[0])
 
         test_arr = [3, 4, 2, 1, 0]
-        a = Array(test_arr)
+        a = types.Array(test_arr)
         self.assertEqual(list(a._dict.values()), test_arr)
         a.append(10)
         self.assertEqual(a[5], 10)
@@ -109,7 +98,7 @@ class TestArray(unittest.TestCase):
     def test_basic3(self) -> None:
         """Basic Testing."""
         test_arr = {"key_0": "item_0", "key_1": "item_1", "key_2": "item_2"}
-        a = Array(test_arr)
+        a = types.Array(test_arr)
         self.assertEqual(a["key_0"], "item_0")
         self.assertEqual(a.key_1, a["key_1"])
         self.assertEqual(a.length(), 3)
@@ -119,19 +108,19 @@ class TestArray(unittest.TestCase):
     def test_repr(self) -> None:
         """Test repr method."""
         test_arr = [3, 4, 5, 6, 7]
-        a1 = Array(test_arr)
+        a1 = types.Array(test_arr)
         self.assertEqual(repr(a1), "<Array %r>" % test_arr)
 
     def test_iter(self) -> None:
         """Test iterating arrays."""
 
         test_arr = [3, 4, 5, 6, 7]
-        a1 = Array(test_arr)
+        a1 = types.Array(test_arr)
         a2 = [x for x in a1]
         self.assertEqual(test_arr, a2)
 
         test_arr = [8, 7, 6, 4, 2]
-        a1 = Array(test_arr)
+        a1 = types.Array(test_arr)
         a2 = [x for x in a1]
         self.assertEqual(test_arr, a2)
 
@@ -139,15 +128,15 @@ class TestArray(unittest.TestCase):
         """Test splice."""
 
         test_arr = [3, 4, 5, 6, 7]
-        a1 = Array(test_arr)
+        a1 = types.Array(test_arr)
         a1.splice(1, 2)  # Delete
-        self.assertEqual(str(a1), str(Array([4, 5])))
-        a2 = Array(test_arr)
+        self.assertEqual(str(a1), str(types.Array([4, 5])))
+        a2 = types.Array(test_arr)
         a2.splice(2, 0, 9, 10)  # Insertion
-        self.assertEqual(str(a2), str(Array([3, 4, 5, 9, 10, 6, 7])))
-        a3 = Array(test_arr)
+        self.assertEqual(str(a2), str(types.Array([3, 4, 5, 9, 10, 6, 7])))
+        a3 = types.Array(test_arr)
         a3.splice(2, 1, 9, 10)  # Replace
-        self.assertEqual(str(a3), str(Array([3, 4, 9, 10, 6, 7])))
+        self.assertEqual(str(a3), str(types.Array([3, 4, 9, 10, 6, 7])))
 
 
 class TestDate(unittest.TestCase):
@@ -156,7 +145,7 @@ class TestDate(unittest.TestCase):
     # FIXME: Complete unit tests
     def test_basic1(self) -> None:
         """Basic testing."""
-        d = Date("2001-02-25")
+        d = types.Date("2001-02-25")
         self.assertEqual(d.getDay(), 25)
         self.assertEqual(d.getMonth(), 2)
         self.assertEqual(d.getYear(), 2001)
@@ -168,7 +157,7 @@ class TestString(unittest.TestCase):
     # FIXME: Complete unit tests
     def test_fromCharCode(self) -> None:
         """Test fromCharCode."""
-        temp: str = String.fromCharCode(13, 10)
+        temp: str = types.String.fromCharCode(13, 10)
         self.assertEqual(temp, "\r\n")
 
 
@@ -181,12 +170,12 @@ class TestFile(unittest.TestCase):
         temporal = "%s%s" % (config.value("ebcomportamiento/temp_dir"), u"/test_types_file.txt")
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         contenido_3 = 'QT_TRANSLATE_NOOP("MetaData","Código")'
-        File(temporal).write(contenido)
-        contenido_2 = File(temporal).read()
+        types.File(temporal).write(contenido)
+        contenido_2 = types.File(temporal).read()
         self.assertEqual(contenido, contenido_2)
         os.remove(temporal)
-        File(temporal).write(contenido_3)
-        contenido_4 = File(temporal).read()
+        types.File(temporal).write(contenido_3)
+        contenido_4 = types.File(temporal).read()
         self.assertEqual(contenido_3, contenido_4)
         os.remove(temporal)
 
@@ -198,8 +187,8 @@ class TestFile(unittest.TestCase):
             u"/test_types_file_static.txt",
         )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
-        FileStatic.write(temporal, contenido)
-        contenido_2 = FileStatic.read(temporal)
+        types.FileStatic.write(temporal, contenido)
+        contenido_2 = types.FileStatic.read(temporal)
         self.assertEqual(contenido, contenido_2)
         os.remove(temporal)
 
@@ -211,8 +200,8 @@ class TestFile(unittest.TestCase):
             u"/test_types_file_bytes.txt",
         )
         contenido = "Texto escrito en bytes\n".encode("utf-8")
-        File(temporal).write(contenido)
-        contenido_2 = File(temporal).read(True)
+        types.File(temporal).write(contenido)
+        contenido_2 = types.File(temporal).read(True)
         self.assertEqual(contenido, contenido_2.encode("utf-8"))
         os.remove(temporal)
 
@@ -224,8 +213,8 @@ class TestFile(unittest.TestCase):
             u"/test_types_file_bytes.txt",
         )
         contenido = "Texto\n".encode("utf-8")
-        File(temporal).write(contenido)
-        contenido_2 = File(temporal).read(True)
+        types.File(temporal).write(contenido)
+        contenido_2 = types.File(temporal).read(True)
         self.assertEqual(contenido, contenido_2.encode("utf-8"))
         os.remove(temporal)
 
@@ -237,9 +226,9 @@ class TestFile(unittest.TestCase):
             u"/test_types_file_lines.txt",
         )
         contenido = "Esta es la linea"
-        File(temporal).writeLine("%s 1" % contenido)
-        File(temporal).writeLine("%s 2" % contenido, 4)
-        file_read = File(temporal)
+        types.File(temporal).writeLine("%s 1" % contenido)
+        types.File(temporal).writeLine("%s 2" % contenido, 4)
+        file_read = types.File(temporal)
         linea_1 = file_read.readLine()
         self.assertEqual("%s 1\n" % contenido, linea_1)
         linea_2 = file_read.readLine()
@@ -254,7 +243,7 @@ class TestFile(unittest.TestCase):
             u"/test_types_file_full_name.txt",
         )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
-        file_ = File(temporal)
+        file_ = types.File(temporal)
         file_.write(contenido)
         self.assertEqual(file_.fullName, temporal)
         self.assertTrue(file_.readable())
@@ -264,14 +253,14 @@ class TestFile(unittest.TestCase):
 
         temporal = "%s%s" % (config.value("ebcomportamiento/temp_dir"), u"/test_last_modified.txt")
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
-        file_ = File(temporal)
+        file_ = types.File(temporal)
         file_.write(contenido)
         file_.close()
         self.assertNotEqual(file_.lastModified(), "")
 
     def test_properties(self) -> None:
         temporal = "%s%s" % (config.value("ebcomportamiento/temp_dir"), u"/test_last_modified.txt")
-        file_ = File(temporal)
+        file_ = types.File(temporal)
         self.assertEqual(file_.path, config.value("ebcomportamiento/temp_dir"))
         self.assertEqual(file_.fullName, temporal)
         self.assertEqual(file_.extension, ".txt")
@@ -286,14 +275,14 @@ class TestDir(unittest.TestCase):
     def test_current(self) -> None:
         """Check Dir."""
 
-        self.assertEqual(os.curdir, Dir().current)
-        self.assertEqual(os.curdir, DirStatic.current)
+        self.assertEqual(os.curdir, types.Dir().current)
+        self.assertEqual(os.curdir, types.DirStatic.current)
 
     def test_mkdir_rmdir(self) -> None:
         """Test mkdir and rmdir."""
 
         tmp_dir = config.value("ebcomportamiento/temp_dir")
-        my_dir = Dir(tmp_dir)
+        my_dir = types.Dir(tmp_dir)
         my_dir.mkdir("test")
         self.assertTrue(os.path.exists("%s/test" % tmp_dir))
         my_dir.rmdirs("test")
@@ -303,7 +292,7 @@ class TestDir(unittest.TestCase):
         """Test change dir."""
 
         tmp_dir = config.value("ebcomportamiento/temp_dir")
-        my_dir = Dir(tmp_dir)
+        my_dir = types.Dir(tmp_dir)
         original_dir = my_dir.current
         # my_dir.mkdir("test_change_dir")
         # my_dir.cd("%s/test_change_dir" % tmp_dir)

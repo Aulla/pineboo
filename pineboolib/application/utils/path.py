@@ -7,7 +7,7 @@ from pineboolib import application
 import os
 from typing import Optional, List
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def _dir(*x) -> str:
@@ -43,7 +43,7 @@ def coalesce_path(*filenames) -> Optional[str]:
         if filename in application.PROJECT.files:
 
             return application.PROJECT.files[filename].path()
-    logger.error(
+    LOGGER.error(
         "coalesce_path: Ninguno de los ficheros especificados ha sido encontrado en el proyecto: %s",
         repr(filenames),
         stack_info=False,
@@ -51,14 +51,14 @@ def coalesce_path(*filenames) -> Optional[str]:
     return None
 
 
-def _path(filename: str, showNotFound: bool = True) -> Optional[str]:
+def _path(filename: str, show_not_found: bool = True) -> Optional[str]:
     """
     Return the first existing file in a group of files.
 
     @return path to file.
     """
     if filename not in application.PROJECT.files:
-        if showNotFound:
-            logger.error("Fichero %s no encontrado en el proyecto.", filename, stack_info=False)
+        if show_not_found:
+            LOGGER.error("Fichero %s no encontrado en el proyecto.", filename, stack_info=False)
         return None
     return application.PROJECT.files[filename].path()

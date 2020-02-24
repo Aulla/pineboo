@@ -10,7 +10,11 @@ import re  # noqa: F401
 from pineboolib.fllegacy import flapplication
 
 from pineboolib.core.utils.utils_base import ustr, filedir  # noqa: F401
-from pineboolib.application.types import Boolean, QString, String, Function, Object  # noqa: F401
+from pineboolib.application.types import QString, String  # noqa: F401
+from pineboolib.application.types import boolean as Boolean  # noqa: F401
+from pineboolib.application.types import function as Function  # noqa: F401
+from pineboolib.application.types import object_ as Object  # noqa: F401
+
 from pineboolib.application.types import File, Dir, Array, Date, AttributeDict  # noqa: F401
 from pineboolib.application.types import FileStatic, DirStatic  # noqa: F401
 

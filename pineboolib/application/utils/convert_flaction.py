@@ -10,10 +10,10 @@ if TYPE_CHECKING:
     from pineboolib.application.xmlaction import XMLAction
 
 
-logger = logging.getLogger("application.utils.convert_action_")
+LOGGER = logging.getLogger("application.utils.convert_action_")
 
 
-def convertFLAction(action: pnaction.PNAction) -> "XMLAction":
+def convert_from_flaction(action: pnaction.PNAction) -> "XMLAction":
     """
     Convert a PNAction to XMLAction.
 
@@ -26,7 +26,7 @@ def convertFLAction(action: pnaction.PNAction) -> "XMLAction":
     return cast("XMLAction", application.PROJECT.actions[action.name()])
 
 
-def convert2FLAction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
+def convert_to_flaction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
     """
     Convert a XMLAction to action_.
 
@@ -42,7 +42,7 @@ def convert2FLAction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    logger.trace("convert2action: Load action from db manager")
+    LOGGER.trace("convert2action: Load action from db manager")
 
     action_ = None
 
@@ -73,6 +73,6 @@ def convert2FLAction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
                 action_.setCaption(xml_action.caption)
 
         cached_actions[action_name] = action_
-        logger.trace("convert2FLAction: done")
+        LOGGER.trace("convert2FLAction: done")
 
     return action_

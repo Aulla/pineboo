@@ -4,7 +4,7 @@ Tests for known bugs on qsa.
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.application.types import Function
+from pineboolib.application import types
 from pineboolib.application.parsers.qsaparser.postparse import pythonify_string as qs2py
 
 
@@ -19,7 +19,7 @@ class TestKnownBugs(unittest.TestCase):
     def test_isloadedmodule(self) -> None:
         """Test bug where sys.isLoadedModule seems to be None."""
 
-        fn_test = Function("module", "return sys.isLoadedModule(module);")
+        fn_test = types.function("module", "return sys.isLoadedModule(module);")
         self.assertEqual(fn_test("random_module"), False)
         self.assertEqual(fn_test("sys"), True)
 
