@@ -171,6 +171,9 @@ class Project(object):
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
+        global PENDING_CONVERSIONS_LIST
+
+        PENDING_CONVERSIONS_LIST = []
 
         if self.actions:
             del self.actions
