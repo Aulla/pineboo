@@ -139,9 +139,6 @@ class SysBaseType(object):
     @classmethod
     def processEvents(self) -> None:
         """Process event loop."""
-        if not application.PROJECT._DGI:
-            raise Exception("application.PROJECT._DGI is empty!")
-
         return application.PROJECT.DGI.processEvents()
 
     @classmethod

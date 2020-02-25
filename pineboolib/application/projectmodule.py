@@ -37,15 +37,16 @@ class Project(object):
     logger = logging.getLogger("main.Project")
     _app: Optional[QtWidgets.QApplication] = None
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
-    debugLevel = 100
+    debug_level = 100
     options: Values
 
     # _initModules = None
     main_form: Any = None  # FIXME: How is this used? Which type?
     main_window: Any = None
     acl_ = None
-    _DGI: Optional["dgi_schema"] = None
-    deleteCache = None
+    dgi: Optional["dgi_schema"] = None
+    delete_cache: bool = False
+    parse_project: bool = False
     path = None
     _splash = None
     sql_drivers_manager = None
@@ -65,7 +66,7 @@ class Project(object):
     def __init__(self) -> None:
         """Constructor."""
         # self._conn = None
-        self._DGI = None
+        self.dgi = None
         self.tree = None
         self.root = None
         self.alternative_folder = None
@@ -73,8 +74,8 @@ class Project(object):
         self.tmpdir = settings.config.value("ebcomportamiento/temp_dir")
         self.parser = None
         # self.main_form_name: Optional[str] = None
-        self.deleteCache = False
-        self.parseProject = False
+        self.delete_cache = False
+        self.parse_project = False
         self.translator_ = []  # FIXME: Add proper type
         self.actions = {}  # FIXME: Add proper type
         self.tables = {}  # FIXME: Add proper type
@@ -113,9 +114,9 @@ class Project(object):
     @property
     def DGI(self) -> "dgi_schema":
         """Retrieve current DGI or throw."""
-        if self._DGI is None:
+        if self.dgi is None:
             raise Exception("Project is not initialized")
-        return self._DGI
+        return self.dgi
 
     def init_conn(self, connection: "pnconnection.PNConnection") -> None:
         """Initialize project with a connection."""
@@ -126,18 +127,18 @@ class Project(object):
         self._conn_manager.setMainConn(connection)
         self.apppath = utils_base.filedir("..")
 
-        self.deleteCache = settings.config.value("ebcomportamiento/deleteCache", False)
-        self.parseProject = settings.config.value("ebcomportamiento/parseProject", False)
+        self.delete_cache = settings.config.value("ebcomportamiento/deleteCache", False)
+        self.parse_project = settings.config.value("ebcomportamiento/parseProject", False)
 
-    def init_dgi(self, DGI: "dgi_schema") -> None:
+    def init_dgi(self, dgi: "dgi_schema") -> None:
         """Load and associate the defined DGI onto this project."""
         # FIXME: Actually, DGI should be loaded here, or kind of.
 
-        self._DGI = DGI
+        self.dgi = dgi
 
-        self._msg_mng = message_manager.Manager(DGI)
+        self._msg_mng = message_manager.Manager(dgi)
 
-        self._DGI.extraProjectInit()
+        self.dgi.extraProjectInit()
 
     def load_modules(self) -> None:
         """Load all modules."""
@@ -145,15 +146,15 @@ class Project(object):
             mod_obj.load()
             self.tables.update(mod_obj.tables)
 
-    def setDebugLevel(self, q: int) -> None:
+    def setDebugLevel(self, level: int) -> None:
         """
         Set debug level for application.
 
         @param q Número con el nivel espeficicado
         ***DEPRECATED***
         """
-        Project.debugLevel = q
-        # self._DGI.pnqt3ui.Options.DEBUG_LEVEL = q
+        self.debug_level = level
+        # self.dgi.pnqt3ui.Options.DEBUG_LEVEL = q
 
     # def acl(self) -> Optional[FLAccessControlLists]:
     #     """
@@ -177,7 +178,7 @@ class Project(object):
         self.actions = {}
         self.tables = {}
 
-        if self._DGI is None:
+        if self.dgi is None:
             raise Exception("DGI not loaded")
 
         if not self.conn_manager or "main_conn" not in self.conn_manager.connections_dict.keys():
@@ -190,11 +191,11 @@ class Project(object):
         # TODO: Refactorizar esta función en otras más sencillas
         # Preparar temporal
 
-        if self.deleteCache and os.path.exists(path._dir("cache/%s" % db_name)):
+        if self.delete_cache and os.path.exists(path._dir("cache/%s" % db_name)):
 
             self.message_manager().send("splash", "showMessage", ["Borrando caché ..."])
             self.logger.debug(
-                "DEVELOP: DeleteCache Activado\nBorrando %s", path._dir("cache/%s" % db_name)
+                "DEVELOP: delete_cache Activado\nBorrando %s", path._dir("cache/%s" % db_name)
             )
             for root, dirs, files in os.walk(path._dir("cache/%s" % db_name), topdown=False):
                 for name in files:
@@ -205,14 +206,14 @@ class Project(object):
         else:
             keep_images = settings.config.value("ebcomportamiento/keep_general_cache", False)
             if keep_images is False:
-                for f in os.listdir(self.tmpdir):
-                    if f.find(".") > -1 and not f.endswith("sqlite3"):
-                        pt_ = os.path.join(self.tmpdir, f)
+                for file_name in os.listdir(self.tmpdir):
+                    if file_name.find(".") > -1 and not file_name.endswith("sqlite3"):
+                        file_path = os.path.join(self.tmpdir, file_name)
                         try:
-                            os.remove(pt_)
+                            os.remove(file_path)
                         except Exception:
                             self.logger.warning(
-                                "No se ha podido borrar %s al limpiar la cache", pt_
+                                "No se ha podido borrar %s al limpiar la cache", file_path
                             )
                             pass
 
@@ -285,7 +286,7 @@ class Project(object):
         list_files: List[str] = []
 
         for idmodulo, nombre, sha in list(cursor_):
-            if not self._DGI.accept_file(nombre):
+            if not self.dgi.accept_file(nombre):
                 continue
 
             p = p + 1
@@ -361,7 +362,7 @@ class Project(object):
                     f2.write(txt)
                     f2.close()
 
-            if self.parseProject and nombre.endswith(".qs"):
+            if self.parse_project and nombre.endswith(".qs"):
                 if os.path.exists(file_name):
                     list_files.append(file_name)
 
@@ -383,7 +384,7 @@ class Project(object):
                     self.files[nombre] = fileobj
                     self.modules["sys"].add_project_file(fileobj)
 
-                    # if self.parseProject and nombre.endswith(".qs"):
+                    # if self.parse_project and nombre.endswith(".qs"):
                     # self.parseScript(path._dir(root, nombre))
                     #    list_files.append(path._dir(root, nombre))
 
@@ -521,7 +522,7 @@ class Project(object):
             msg = "Convirtiendo a Python . . . %s.qs %s" % (file_name, txt_)
             self.logger.info(msg)
 
-            # clean_no_python = self._DGI.clean_no_python() # FIXME: No longer needed. Applied on the go.
+            # clean_no_python = self.dgi.clean_no_python() # FIXME: No longer needed. Applied on the go.
 
             try:
                 postparse.pythonify([scriptname], ["--strict"])

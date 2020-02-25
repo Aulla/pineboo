@@ -76,7 +76,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
 
-            if application.PROJECT._DGI and not application.PROJECT.DGI.localDesktop():
+            if not application.PROJECT.DGI.localDesktop():
                 return False
 
             if "does not exist" in str(e) or "no existe" in str(e):

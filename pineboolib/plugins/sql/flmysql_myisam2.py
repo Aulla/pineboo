@@ -71,7 +71,7 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
             if "Unknown database" in str(e):
-                if application.PROJECT._DGI and not application.PROJECT.DGI.localDesktop():
+                if not application.PROJECT.DGI.localDesktop():
                     return False
 
                 ret = QtWidgets.QMessageBox.warning(

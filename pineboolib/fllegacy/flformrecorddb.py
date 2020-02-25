@@ -585,7 +585,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
                     flapplication.aqApp.msgBoxWarning(
                         error_manager(traceback.format_exc(limit=-6, chain=False)),
-                        application.PROJECT._DGI,
+                        application.PROJECT.DGI,
                     )
 
             return ret_ if isinstance(ret_, bool) else True

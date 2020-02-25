@@ -381,8 +381,8 @@ class FLTableDB(QtWidgets.QWidget):
         self.filter_ = ""
 
         self.iconSize = []
-        if application.PROJECT._DGI is not None:
-            self.iconSize = application.PROJECT.DGI.iconSize()
+
+        self.iconSize = application.PROJECT.DGI.iconSize()
 
         self.tabControlLayout = QtWidgets.QHBoxLayout()
         self.tabFilter = QtWidgets.QFrame()  # contiene filtros
@@ -2719,7 +2719,7 @@ class FLTableDB(QtWidgets.QWidget):
             QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz"),
         )
         ods_gen.generateOds(file_name)
-        if not application.PROJECT.debugLevel == 1000:  # test
+        if not application.PROJECT.debug_level == 1000:  # test
             sysbasetype.SysBaseType.openUrl(file_name)
 
         QtWidgets.QApplication.restoreOverrideCursor()

@@ -241,8 +241,7 @@ class FLFormDB(QtWidgets.QDialog):
         if hasattr(self.widget, "iface"):
             self.iface = self.widget.iface
 
-        if application.PROJECT._DGI is not None:
-            self.iconSize = application.PROJECT.DGI.iconSize()
+        self.iconSize = application.PROJECT.DGI.iconSize()
 
         if load:
             self.load()
@@ -299,7 +298,7 @@ class FLFormDB(QtWidgets.QDialog):
 
                     flapplication.aqApp.msgBoxWarning(
                         error_manager(traceback.format_exc(limit=-6, chain=False)),
-                        application.PROJECT._DGI,
+                        application.PROJECT.DGI,
                     )
                     return False
 

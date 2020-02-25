@@ -222,7 +222,7 @@ def init_testing() -> None:
     """Initialize Pineboo for testing purposes."""
     settings.config.set_value("application/dbadmin_enabled", True)
 
-    if application.PROJECT._DGI is not None:
+    if application.PROJECT.dgi is not None:
         from pineboolib.application.database import pnconnectionmanager
 
         del application.PROJECT._conn_manager

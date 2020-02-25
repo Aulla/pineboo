@@ -666,7 +666,7 @@ class FLApplication(QtCore.QObject):
 
     def DGI(self) -> Any:
         """Return current DGI."""
-        return application.PROJECT._DGI
+        return application.PROJECT.DGI
 
     def singleFLLarge(self) -> bool:
         """

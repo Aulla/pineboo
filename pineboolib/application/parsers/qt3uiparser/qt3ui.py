@@ -1008,29 +1008,21 @@ def load_property(xml: ET.Element) -> Tuple[Any, Any]:
     raise ValueError("No property in provided XML")
 
 
-def parse_string(x: Any) -> str:
+def parse_string(value: Any) -> str:
     """Convert x to string."""
-    if isinstance(x, str):
-        return x
-    return str(x)
+    return str(value)
 
 
-def parse_bool(x: str) -> bool:
+def parse_bool(value: str) -> bool:
     """Convert x to bool."""
-    x = x.lower()
-    if x[0] == "t":
+    value = value.lower()
+    if value[0] in ("t", "1", "on"):
         return True
-    if x[0] == "f":
+    elif value[0] in ("f", "0", "off"):
         return False
-    if x[0] == "1":
-        return True
-    if x[0] == "0":
-        return False
-    if x == "on":
-        return True
-    if x == "off":
-        return False
-    LOGGER.warning("Bool?:", repr(x))
+    else:
+        LOGGER.warning("Bool?:", repr(value))
+
     return False
 
 
