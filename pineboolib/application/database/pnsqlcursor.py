@@ -96,6 +96,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         private_cursor = self.private_cursor
 
+        if application.SHOW_CURSOR_EVENTS:
+            LOGGER.warning(
+                "CURSOR_EVENT: Se crea el cursor para la action %s", name, stack_info=True
+            )
+
         if self.setAction(name):
             private_cursor._count_ref_cursor += 1
         else:
@@ -769,6 +774,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return TRUE si la operación tuvo exito
         """
 
+        if application.SHOW_CURSOR_EVENTS:
+            LOGGER.warning("CURSOR_EVENT: TRANSACTION %s", self.table(), stack_info=True)
+
         return self.db().doTransaction(self)
 
     def rollback(self) -> bool:
@@ -777,6 +785,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return TRUE if success.
         """
+
+        if application.SHOW_CURSOR_EVENTS:
+            LOGGER.warning("CURSOR_EVENT: ROLLBACK %s", self.table(), stack_info=True)
 
         return self.db().doRollback(self)
 
@@ -788,6 +799,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
               If FALSE skips and emits autoCommit signal.
         @return TRUE if success.
         """
+
+        if application.SHOW_CURSOR_EVENTS:
+            LOGGER.warning("CURSOR_EVENT: COMMIT %s", self.table(), stack_info=True)
 
         result = self.db().doCommit(self, notify)
         if result:
