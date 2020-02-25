@@ -6,7 +6,6 @@ from pineboolib.application.parsers.qsaparser.postparse import pythonify_string 
 from pineboolib.application.parsers.qsaparser import pytnyzer
 from . import fixture_read, fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
-from time import sleep
 
 NUMERO_MULTI = 0
 
