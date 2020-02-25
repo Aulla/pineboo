@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from pineboolib.application.database import pnconnection
     from pineboolib.core.utils.struct import ActionStruct  # noqa: F401
 
-PENDING_CONVERSIONS_LIST = []
+PENDING_CONVERSIONS_LIST: List[str] = []
 LOGGER = logging.getLogger(__name__)
 
 

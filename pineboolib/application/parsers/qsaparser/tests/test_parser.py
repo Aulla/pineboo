@@ -241,7 +241,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
 
         global NUMERO_MULTI
 
-        timer = QtCore.QTimer()
+        timer = QtCore.QTimer
         timer.singleShot(0, self.convert)
         timer.singleShot(0, self.convert)
         timer.singleShot(0, self.convert)
