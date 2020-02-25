@@ -25,7 +25,6 @@ if TYPE_CHECKING:
     from pineboolib.application.database import pnconnection
     from pineboolib.core.utils.struct import ActionStruct  # noqa: F401
 
-PENDING_CONVERSIONS_LIST: List[str] = []
 LOGGER = logging.getLogger(__name__)
 
 
@@ -65,6 +64,7 @@ class Project(object):
     actions: Dict[Any, "ActionStruct"]
     translator_: List[Any]
     modules: Dict[str, "module.Module"]
+    pending_conversion_list: List[str]
 
     def __init__(self) -> None:
         """Constructor."""
@@ -95,6 +95,7 @@ class Project(object):
 
         self._session_func_ = None
         self._conn_manager = pnconnectionmanager.PNConnectionManager()
+        self.pending_conversion_list = []
 
     @property
     def app(self) -> QtWidgets.QApplication:
@@ -171,9 +172,8 @@ class Project(object):
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
-        global PENDING_CONVERSIONS_LIST
 
-        PENDING_CONVERSIONS_LIST = []
+        self.pending_conversion_list = []
 
         if self.actions:
             del self.actions
@@ -542,8 +542,6 @@ class Project(object):
         from pineboolib.application.parsers import qsaparser
         from pineboolib.application.parsers.qsaparser import pytnyzer, pyconvert
 
-        global PENDING_CONVERSIONS_LIST
-
         if not path_list:
             return
 
@@ -556,13 +554,13 @@ class Project(object):
         itemlist = []
         for num, path_file in enumerate(path_list):
             dest_file_name = "%s.py" % path_file[:-3]
-            if dest_file_name in PENDING_CONVERSIONS_LIST:
+            if dest_file_name in self.pending_conversion_list:
                 LOGGER.warning("The file %s is already being converted. Waiting", dest_file_name)
-                while dest_file_name in PENDING_CONVERSIONS_LIST:
+                while dest_file_name in self.pending_conversion_list:
                     # Esperamos a que el fichero se convierta.
                     QtWidgets.QApplication.processEvents()
             else:
-                PENDING_CONVERSIONS_LIST.append(dest_file_name)
+                self.pending_conversion_list.append(dest_file_name)
                 itemlist.append(
                     pyconvert.PythonifyItem(
                         src=path_file, dst=dest_file_name, n=num, len=len(path_list), known={}
@@ -593,7 +591,7 @@ class Project(object):
                 pycode_list.append(pyconvert.pythonify_item(item))
 
         for item in itemlist:
-            PENDING_CONVERSIONS_LIST.remove(item.dst_path)
+            self.pending_conversion_list.remove(item.dst_path)
 
         if not all(pycode_list):
             LOGGER.warning("Conversion failed for some files")
