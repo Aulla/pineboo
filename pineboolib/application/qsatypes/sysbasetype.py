@@ -345,8 +345,8 @@ class SysBaseType(object):
         """Show Warning message box."""
         new_list = []
         new_list.append("%s.\n" % ustr(msg))
-        for bt in buttons:
-            new_list.append(bt)
+        for button in buttons:
+            new_list.append(button)
 
         if self.interactiveGUI():
             # QtWidgets.QMessageBox.warning(
@@ -387,7 +387,7 @@ class SysBaseType(object):
         msg = ustr(msg)
         caption = self.translate(u"AbanQ Información")
         msg = msg.replace("\n", "<br>")
-        msgHtml = ustr(
+        msg_html = ustr(
             u'<img source="about.png" align="right">',
             u"<b><u>",
             caption,
@@ -395,7 +395,7 @@ class SysBaseType(object):
             msg,
             u"<br>",
         )
-        self._warnHtmlPopup(msgHtml, [])
+        self._warnHtmlPopup(msg_html, [])
 
     @classmethod
     def warnPopup(self, msg: str = "") -> None:
@@ -403,7 +403,7 @@ class SysBaseType(object):
         msg = ustr(msg)
         msg = msg.replace("\n", "<br>")
         caption = self.translate(u"AbanQ Aviso")
-        msgHtml = ustr(
+        msg_html = ustr(
             u'<img source="bug.png" align="right">',
             u"<b><u>",
             caption,
@@ -411,7 +411,7 @@ class SysBaseType(object):
             msg,
             u"<br>",
         )
-        self._warnHtmlPopup(msgHtml, [])
+        self._warnHtmlPopup(msg_html, [])
 
     @classmethod
     def errorPopup(self, msg: str = "") -> None:
@@ -419,7 +419,7 @@ class SysBaseType(object):
         msg = ustr(msg)
         msg = msg.replace("\n", "<br>")
         caption = self.translate(u"AbanQ Error")
-        msgHtml = ustr(
+        msg_html = ustr(
             u'<img source="remove.png" align="right">',
             u"<b><u>",
             caption,
@@ -427,14 +427,14 @@ class SysBaseType(object):
             msg,
             u"<br>",
         )
-        self._warnHtmlPopup(msgHtml, [])
+        self._warnHtmlPopup(msg_html, [])
 
     @classmethod
-    def trTagText(self, tagText: str = "") -> str:
+    def trTagText(self, tag_text: str = "") -> str:
         """Process QT_TRANSLATE_NOOP tags."""
-        if not tagText.startswith(u"QT_TRANSLATE_NOOP"):
-            return tagText
-        txt = tagText[len("QT_TRANSLATE_NOOP") + 1 :]
+        if not tag_text.startswith(u"QT_TRANSLATE_NOOP"):
+            return tag_text
+        txt = tag_text[len("QT_TRANSLATE_NOOP") + 1 :]
         txt = "[%s]" % txt[0 : len(txt) - 1]
         arr = ast.literal_eval(txt)  # FIXME: Don't use "ast.literal_eval"
         return self.translate(arr[0], arr[1])
@@ -453,14 +453,12 @@ class SysBaseType(object):
     @classmethod
     def setObjText(self, container: QtWidgets.QWidget, component: str, value: str = "") -> bool:
         """Set text to random widget."""
-        c = self.testObj(container, component)
-        if c is None:
+        object_ = self.testObj(container, component)
+        if object_ is None:
             return False
-        clase = c.__class__.__name__
+        clase = object_.__class__.__name__
 
-        if clase == u"QPushButton":
-            pass
-        elif clase == u"QToolButton":
+        if clase in ["QPushButton", "QToolButton"]:
             pass
         elif clase == u"QLabel":
             self.runObjMethod(container, component, u"text", value)
@@ -473,11 +471,11 @@ class SysBaseType(object):
     @classmethod
     def disableObj(self, container: QtWidgets.QWidget, component: str) -> bool:
         """Disable random widget."""
-        c = self.testObj(container, component)
-        if not c:
+        object_ = self.testObj(container, component)
+        if not object_:
             return False
 
-        clase = c.__class__.__name__
+        clase = object_.__class__.__name__
 
         if clase in ["QToolButton", "QPushButton"]:
             self.runObjMethod(container, component, u"setEnabled", False)
@@ -491,11 +489,11 @@ class SysBaseType(object):
     @classmethod
     def enableObj(self, container: QtWidgets.QWidget, component: str) -> bool:
         """Enable random widget."""
-        c = self.testObj(container, component)
-        if not c:
+        object_ = self.testObj(container, component)
+        if not object_:
             return False
 
-        clase = c.__class__.__name__
+        clase = object_.__class__.__name__
 
         if clase == u"QPushButton":
             pass
@@ -510,11 +508,11 @@ class SysBaseType(object):
     @classmethod
     def filterObj(self, container: QtWidgets.QWidget, component: str, filter: str = "") -> bool:
         """Apply filter to random widget."""
-        c = self.testObj(container, component)
-        if c is None:
+        object_ = self.testObj(container, component)
+        if object_ is None:
             return False
 
-        clase = c.__class__.__name__
+        clase = object_.__class__.__name__
 
         if clase == u"FLTableDB":
             pass
@@ -533,19 +531,19 @@ class SysBaseType(object):
 
         if not container or container is None:
             return None
-        c = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
-        if not c:
+        object_ = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
+        if not object_:
             LOGGER.warning(ustr(component, u" no existe"))
             return None
-        return c
+        return object_
 
     @classmethod
     def testAndRun(
         self, container: QtWidgets.QWidget, component: str, method: str = "", param: Any = None
     ) -> bool:
         """Test and execute object."""
-        c = self.testObj(container, component)
-        if not c:
+        object_ = self.testObj(container, component)
+        if not object_:
             return False
         if not self.runObjMethod(container, component, method, param):
             return False
@@ -556,10 +554,10 @@ class SysBaseType(object):
         self, container: QtWidgets.QWidget, component: str, method: str, param: Any = None
     ) -> bool:
         """Execute method from object."""
-        c = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
-        m = getattr(c, method, None)
-        if m is not None:
-            m(param)
+        object_ = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
+        attr = getattr(object_, method, None)
+        if attr is not None:
+            attr(param)
         else:
             LOGGER.warning(ustr(method, u" no existe"))
 
@@ -567,12 +565,12 @@ class SysBaseType(object):
 
     @classmethod
     def connectSS(
-        self, ssSender: QtWidgets.QWidget, ssSignal: str, ssReceiver: QtWidgets.QWidget, ssSlot: str
+        self, sender: QtWidgets.QWidget, signal: str, receiver: QtWidgets.QWidget, slot: str
     ) -> bool:
         """Connect signal to slot."""
-        if not ssSender:
+        if not sender:
             return False
-        connections.connect(ssSender, ssSignal, ssReceiver, ssSlot)
+        connections.connect(sender, signal, receiver, slot)
         return True
 
     @classmethod

@@ -284,10 +284,10 @@ class Project(object):
             """ SELECT idmodulo, nombre, sha FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
         )
 
-        f1 = open(path._dir("project.txt"), "w")
+        file_1 = open(path._dir("project.txt"), "w")
         self.files = {}
 
-        p = 0
+        count = 0
 
         list_files: List[str] = []
 
@@ -295,7 +295,7 @@ class Project(object):
             if not self.dgi.accept_file(nombre):
                 continue
 
-            p = p + 1
+            count += 1
             if idmodulo not in self.modules:
                 continue  # I
             fileobj = file.File(idmodulo, nombre, sha, db_name=db_name)
@@ -303,7 +303,7 @@ class Project(object):
                 LOGGER.warning("run: file %s already loaded, overwritting..." % nombre)
             self.files[nombre] = fileobj
             self.modules[idmodulo].add_project_file(fileobj)
-            f1.write(fileobj.filekey + "\n")
+            file_1.write(fileobj.filekey + "\n")
 
             fileobjdir = os.path.dirname(path._dir("cache", fileobj.filekey))
             file_name = path._dir("cache", fileobj.filekey)
@@ -356,23 +356,23 @@ class Project(object):
                     file_name
                 ):  # Borra la carpeta si no existe el fichero destino
                     for root, dirs, files in os.walk(folder):
-                        for f in files:
-                            os.remove(os.path.join(root, f))
+                        for file_item in files:
+                            os.remove(os.path.join(root, file_item))
 
                 if contenido and not os.path.exists(file_name):
                     self.message_manager().send(
                         "splash", "showMessage", ["Volcando a caché %s..." % nombre]
                     )
-                    f2 = open(file_name, "wb")
+                    file_2 = open(file_name, "wb")
                     txt = contenido.encode(encode_, "replace")
-                    f2.write(txt)
-                    f2.close()
+                    file_2.write(txt)
+                    file_2.close()
 
             if self.parse_project and nombre.endswith(".qs"):
                 if os.path.exists(file_name):
                     list_files.append(file_name)
 
-        f1.close()
+        file_1.close()
         self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
 
         if list_files:
@@ -413,51 +413,51 @@ class Project(object):
     def call(
         self,
         function: str,
-        aList: List[Any],
+        args: List[Any],
         object_context: Any = None,
-        showException: bool = True,
+        show_exceptions: bool = True,
     ) -> Optional[Any]:
         """
         Call to a QS project function.
 
         @param function. Nombre de la función a llamar.
-        @param aList. Array con los argumentos.
-        @param objectContext. Contexto en el que se ejecuta la función.
-        @param showException. Boolean que especifica si se muestra los errores.
+        @param args. Array con los argumentos.
+        @param object_context. Contexto en el que se ejecuta la función.
+        @param show_exceptions. Boolean que especifica si se muestra los errores.
         @return Boolean con el resultado.
         """
         # FIXME: No deberíamos usar este método. En Python hay formas mejores
         # de hacer esto.
         LOGGER.trace(
-            "JS.CALL: fn:%s args:%s ctx:%s", function, aList, object_context, stack_info=True
+            "JS.CALL: fn:%s args:%s ctx:%s", function, args, object_context, stack_info=True
         )
 
         # Tipicamente flfactalma.iface.beforeCommit_articulos()
         if function[-2:] == "()":
             function = function[:-2]
 
-        aFunction = function.split(".")
+        array_fun = function.split(".")
 
         if not object_context:
-            if not aFunction[0] in self.actions:
-                if len(aFunction) > 1:
-                    if showException:
+            if not array_fun[0] in self.actions:
+                if len(array_fun) > 1:
+                    if show_exceptions:
                         LOGGER.error(
-                            "No existe la acción %s en el módulo %s", aFunction[1], aFunction[0]
+                            "No existe la acción %s en el módulo %s", array_fun[1], array_fun[0]
                         )
                 else:
-                    if showException:
-                        LOGGER.error("No existe la acción %s", aFunction[0])
+                    if show_exceptions:
+                        LOGGER.error("No existe la acción %s", array_fun[0])
                 return None
 
-            funAction = self.actions[aFunction[0]]
-            if aFunction[1] == "iface" or len(aFunction) == 2:
-                mW = funAction.load()
-                if len(aFunction) == 2:
+            fun_action = self.actions[array_fun[0]]
+            if array_fun[1] == "iface" or len(array_fun) == 2:
+                mW = fun_action.load()
+                if len(array_fun) == 2:
                     object_context = None
-                    if hasattr(mW.widget, aFunction[1]):
+                    if hasattr(mW.widget, array_fun[1]):
                         object_context = mW.widget
-                    if hasattr(mW.iface, aFunction[1]):
+                    if hasattr(mW.iface, array_fun[1]):
                         object_context = mW.iface
 
                     if not object_context:
@@ -466,44 +466,44 @@ class Project(object):
                 else:
                     object_context = mW.iface
 
-            elif aFunction[1] == "widget":
-                fR = funAction.load_script(aFunction[0], None)
-                object_context = fR.iface
+            elif array_fun[1] == "widget":
+                script = fun_action.load_script(array_fun[0], None)
+                object_context = script.iface
             else:
                 return False
 
             if not object_context:
-                if showException:
+                if show_exceptions:
                     LOGGER.error(
                         "No existe el script para la acción %s en el módulo %s",
-                        aFunction[0],
-                        aFunction[0],
+                        array_fun[0],
+                        array_fun[0],
                     )
                 return None
 
-        fn = None
-        if len(aFunction) == 1:  # Si no hay puntos en la llamada a functión
-            function_name = aFunction[0]
+        function_name_object = None
+        if len(array_fun) == 1:  # Si no hay puntos en la llamada a functión
+            function_name = array_fun[0]
 
-        elif len(aFunction) > 2:  # si existe self.iface por ejemplo
-            function_name = aFunction[2]
-        elif len(aFunction) == 2:
-            function_name = aFunction[1]  # si no exite self.iiface
+        elif len(array_fun) > 2:  # si existe self.iface por ejemplo
+            function_name = array_fun[2]
+        elif len(array_fun) == 2:
+            function_name = array_fun[1]  # si no exite self.iiface
         else:
-            if len(aFunction) == 0:
-                fn = object_context
+            if len(array_fun) == 0:
+                function_name_object = object_context
 
-        if not fn:
-            fn = getattr(object_context, function_name, None)
+        if not function_name_object:
+            function_name_object = getattr(object_context, function_name, None)
 
-        if fn is None:
-            if showException:
-                LOGGER.error("No existe la función %s en %s", function_name, aFunction[0])
+        if function_name_object is None:
+            if show_exceptions:
+                LOGGER.error("No existe la función %s en %s", function_name, array_fun[0])
             return True
             # FIXME: debería ser false, pero igual se usa por el motor para detectar propiedades
 
         try:
-            return fn(*aList)
+            return function_name_object(*args)
         except Exception:
             LOGGER.exception("JSCALL: Error executing function %s", stack_info=True)
 
@@ -554,7 +554,7 @@ class Project(object):
         pytnyzer.STRICT_MODE = True
 
         itemlist = []
-        for n, path_file in enumerate(path_list):
+        for num, path_file in enumerate(path_list):
             dest_file_name = "%s.py" % path_file[:-3]
             if dest_file_name in PENDING_CONVERSIONS_LIST:
                 LOGGER.warning("The file %s is already being converted. Waiting", dest_file_name)
@@ -565,7 +565,7 @@ class Project(object):
                 PENDING_CONVERSIONS_LIST.append(dest_file_name)
                 itemlist.append(
                     pyconvert.PythonifyItem(
-                        src=path_file, dst=dest_file_name, n=n, len=len(path_list), known={}
+                        src=path_file, dst=dest_file_name, n=num, len=len(path_list), known={}
                     )
                 )
 
@@ -585,9 +585,9 @@ class Project(object):
         pycode_list: List[bool] = []
 
         if qsaparser.USE_THREADS:
-            with Pool(threads_num) as p:
+            with Pool(threads_num) as thread:
                 # TODO: Add proper signatures to Python files to avoid reparsing
-                pycode_list = p.map(pyconvert.pythonify_item, itemlist, chunksize=2)
+                pycode_list = thread.map(pyconvert.pythonify_item, itemlist, chunksize=2)
         else:
             for item in itemlist:
                 pycode_list.append(pyconvert.pythonify_item(item))
