@@ -6,6 +6,9 @@ from pineboolib.application.parsers.qsaparser.postparse import pythonify_string 
 from pineboolib.application.parsers.qsaparser import pytnyzer
 from . import fixture_read, fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
+from time import sleep
+
+NUMERO_MULTI = 0
 
 
 class TestParser(unittest.TestCase):
@@ -230,6 +233,39 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
 
         if os.path.exists(path_py):
             os.remove(path_py)
+
+    def test_pyconvert_multi(self) -> None:
+        """Test pyconvert simultaneously."""
+
+        from PyQt5 import QtCore, QtWidgets
+
+        global NUMERO_MULTI
+
+        timer = QtCore.QTimer()
+        timer.singleShot(0, self.convert)
+        timer.singleShot(0, self.convert)
+        timer.singleShot(0, self.convert)
+        QtWidgets.QApplication.processEvents()
+        while NUMERO_MULTI < 3:
+            QtWidgets.QApplication.processEvents()
+
+    def convert(self) -> None:
+        """Convert a file."""
+        global NUMERO_MULTI
+        from pineboolib import application
+        import os
+        import shutil
+
+        NUMERO_MULTI += 1
+        print("Inicio", str(NUMERO_MULTI), self)
+
+        path = fixture_path("flfacturac.qs")
+        tmp_path = "%s/%s" % (application.PROJECT.tmpdir, "multi.qs")
+        if not os.path.exists(tmp_path):
+            shutil.copy(path, tmp_path)
+
+        application.PROJECT.parse_script_list([tmp_path])
+        print("Fin", str(NUMERO_MULTI), self)
 
     @classmethod
     def tearDownClass(cls) -> None:

@@ -25,6 +25,9 @@ if TYPE_CHECKING:
     from pineboolib.application.database import pnconnection
     from pineboolib.core.utils.struct import ActionStruct  # noqa: F401
 
+PENDING_CONVERSIONS_LIST = []
+LOGGER = logging.getLogger(__name__)
+
 
 class Project(object):
     """
@@ -34,7 +37,7 @@ class Project(object):
     """
 
     _conn_manager: "pnconnectionmanager.PNConnectionManager"
-    logger = logging.getLogger("main.Project")
+
     _app: Optional[QtWidgets.QApplication] = None
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
     debug_level = 100
@@ -194,7 +197,7 @@ class Project(object):
         if self.delete_cache and os.path.exists(path._dir("cache/%s" % db_name)):
 
             self.message_manager().send("splash", "showMessage", ["Borrando caché ..."])
-            self.logger.debug(
+            LOGGER.debug(
                 "DEVELOP: delete_cache Activado\nBorrando %s", path._dir("cache/%s" % db_name)
             )
             for root, dirs, files in os.walk(path._dir("cache/%s" % db_name), topdown=False):
@@ -212,7 +215,7 @@ class Project(object):
                         try:
                             os.remove(file_path)
                         except Exception:
-                            self.logger.warning(
+                            LOGGER.warning(
                                 "No se ha podido borrar %s al limpiar la cache", file_path
                             )
                             pass
@@ -294,7 +297,7 @@ class Project(object):
                 continue  # I
             fileobj = file.File(idmodulo, nombre, sha, db_name=db_name)
             if nombre in self.files:
-                self.logger.warning("run: file %s already loaded, overwritting..." % nombre)
+                LOGGER.warning("run: file %s already loaded, overwritting..." % nombre)
             self.files[nombre] = fileobj
             self.modules[idmodulo].add_project_file(fileobj)
             f1.write(fileobj.filekey + "\n")
@@ -422,7 +425,7 @@ class Project(object):
         """
         # FIXME: No deberíamos usar este método. En Python hay formas mejores
         # de hacer esto.
-        self.logger.trace(
+        LOGGER.trace(
             "JS.CALL: fn:%s args:%s ctx:%s", function, aList, object_context, stack_info=True
         )
 
@@ -436,12 +439,12 @@ class Project(object):
             if not aFunction[0] in self.actions:
                 if len(aFunction) > 1:
                     if showException:
-                        self.logger.error(
+                        LOGGER.error(
                             "No existe la acción %s en el módulo %s", aFunction[1], aFunction[0]
                         )
                 else:
                     if showException:
-                        self.logger.error("No existe la acción %s", aFunction[0])
+                        LOGGER.error("No existe la acción %s", aFunction[0])
                 return None
 
             funAction = self.actions[aFunction[0]]
@@ -468,7 +471,7 @@ class Project(object):
 
             if not object_context:
                 if showException:
-                    self.logger.error(
+                    LOGGER.error(
                         "No existe el script para la acción %s en el módulo %s",
                         aFunction[0],
                         aFunction[0],
@@ -492,14 +495,14 @@ class Project(object):
 
         if fn is None:
             if showException:
-                self.logger.error("No existe la función %s en %s", function_name, aFunction[0])
+                LOGGER.error("No existe la función %s en %s", function_name, aFunction[0])
             return True
             # FIXME: debería ser false, pero igual se usa por el motor para detectar propiedades
 
         try:
             return fn(*aList)
         except Exception:
-            self.logger.exception("JSCALL: Error executing function %s", stack_info=True)
+            LOGGER.exception("JSCALL: Error executing function %s", stack_info=True)
 
         return None
 
@@ -520,14 +523,14 @@ class Project(object):
             file_name = file_name_l[len(file_name_l) - 2]
 
             msg = "Convirtiendo a Python . . . %s.qs %s" % (file_name, txt_)
-            self.logger.info(msg)
+            LOGGER.info(msg)
 
             # clean_no_python = self.dgi.clean_no_python() # FIXME: No longer needed. Applied on the go.
 
             try:
                 postparse.pythonify([scriptname], ["--strict"])
             except Exception:
-                self.logger.exception("El fichero %s no se ha podido convertir", scriptname)
+                LOGGER.exception("El fichero %s no se ha podido convertir", scriptname)
 
     def parse_script_list(self, path_list: List[str]) -> None:
         """Convert QS scripts list into Python and stores it in the same folders."""
@@ -535,6 +538,8 @@ class Project(object):
         from multiprocessing import Pool
         from pineboolib.application.parsers import qsaparser
         from pineboolib.application.parsers.qsaparser import pytnyzer, pyconvert
+
+        global PENDING_CONVERSIONS_LIST
 
         if not path_list:
             return
@@ -545,14 +550,30 @@ class Project(object):
 
         pytnyzer.STRICT_MODE = True
 
-        itemlist = [
-            pyconvert.PythonifyItem(
-                src=path_file, dst="%s.py" % path_file[:-3], n=n, len=len(path_list), known={}
-            )
-            for n, path_file in enumerate(path_list)
-        ]
+        itemlist = []
+        for n, path_file in enumerate(path_list):
+            dest_file_name = "%s.py" % path_file[:-3]
+            if dest_file_name in PENDING_CONVERSIONS_LIST:
+                LOGGER.warning("The file %s is already being converted. Waiting", dest_file_name)
+                while dest_file_name in PENDING_CONVERSIONS_LIST:
+                    # Esperamos a que el fichero se convierta.
+                    QtWidgets.QApplication.processEvents()
+            else:
+                PENDING_CONVERSIONS_LIST.append(dest_file_name)
+                itemlist.append(
+                    pyconvert.PythonifyItem(
+                        src=path_file, dst=dest_file_name, n=n, len=len(path_list), known={}
+                    )
+                )
+
+        # itemlist = [
+        #    pyconvert.PythonifyItem(
+        #        src=path_file, dst="%s.py" % path_file[:-3], n=n, len=len(path_list), known={}
+        #    )
+        #    for n, path_file in enumerate(path_list)
+        # ]
         msg = "Convirtiendo a Python . . ."
-        self.logger.info(msg)
+        LOGGER.info(msg)
 
         threads_num = pyconvert.CPU_COUNT
         if len(itemlist) < threads_num:
@@ -568,8 +589,11 @@ class Project(object):
             for item in itemlist:
                 pycode_list.append(pyconvert.pythonify_item(item))
 
+        for item in itemlist:
+            PENDING_CONVERSIONS_LIST.remove(item.dst_path)
+
         if not all(pycode_list):
-            self.logger.warning("Conversion failed for some files")
+            LOGGER.warning("Conversion failed for some files")
 
     def get_temp_dir(self) -> str:
         """
