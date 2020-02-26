@@ -211,7 +211,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         LOGGER.info(" * USER NAME : %s", db_user_name)
         LOGGER.info("")
         result = self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
-        LOGGER.warning(
+        LOGGER.info(
             " CONNECTION TO %s %s ",
             self.connectionName(),
             "FAILURE" if isinstance(result, bool) else "ESTABLISHED",
