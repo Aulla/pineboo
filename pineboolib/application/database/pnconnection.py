@@ -201,7 +201,23 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         # if self._db_name:
         #    self.driver().alias_ = self.driverName() + ":" + self._name
         self.driver().db_ = self
-        return self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
+
+        LOGGER.info("**********************************")
+        LOGGER.info(" ESTABLISHING DATABASE CONNECTION ")
+        LOGGER.info(" * CONN NAME : %s", self.connectionName())
+        LOGGER.info(" * HOST      : %s", db_host)
+        LOGGER.info(" * PORT      : %s", db_port)
+        LOGGER.info(" * DB NAME   : %s", db_name)
+        LOGGER.info(" * USER NAME : %s", db_user_name)
+        LOGGER.info("")
+        result = self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
+        LOGGER.warning(
+            " CONNECTION TO %s %s ",
+            self.connectionName(),
+            "FAILURE" if isinstance(result, bool) else "ESTABLISHED",
+        )
+        LOGGER.info("**********************************")
+        return result
 
     def driverName(self) -> str:
         """Return sql driver name."""

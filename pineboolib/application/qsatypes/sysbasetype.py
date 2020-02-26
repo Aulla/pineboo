@@ -202,7 +202,7 @@ class SysBaseType(object):
                 if conn_db._driver_name and conn_db._driver_sql.loadDriver(conn_db._driver_name):
                     conn_db.conn = conn_db.conectar(args[1], args[4], args[5], args[2], args[3])
 
-                    if conn_db.conn is False:
+                    if isinstance(conn_db.conn, bool):
                         return False
 
                     # conn_db.driver().db_ = conn_db

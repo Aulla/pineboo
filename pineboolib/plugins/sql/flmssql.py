@@ -75,6 +75,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
                     % (db_userName, db_password, db_host, db_port, db_name)
                 )
         except Exception as e:
+            LOGGER.warning(e)
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
 

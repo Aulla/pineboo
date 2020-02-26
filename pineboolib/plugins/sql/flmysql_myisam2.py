@@ -1,7 +1,7 @@
 """
 Module for MYISAM2 driver.
 """
-from PyQt5 import Qt, QtWidgets
+from PyQt5 import QtWidgets
 
 from pineboolib.application.utils import check_dependencies
 from pineboolib import application, logging
@@ -68,6 +68,7 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
                     % (db_userName, db_password, db_host, db_port, db_name)
                 )
         except pymysql.Error as e:
+            LOGGER.warning(e)
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
             if "Unknown database" in str(e):
@@ -98,14 +99,14 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
                         try:
                             cursor.execute("CREATE DATABASE %s" % db_name)
                         except Exception:
-                            print("ERROR: FLMYSQL2.connect", traceback.format_exc())
+                            LOGGER.warning(traceback.format_exc())
                             cursor.execute("ROLLBACK")
                             cursor.close()
                             return False
                         cursor.close()
                         return self.connect(db_name, db_host, db_port, db_userName, db_password)
                     except Exception:
-                        Qt.qWarning(traceback.format_exc())
+                        LOGGER.warning(traceback.format_exc())
                         QtWidgets.QMessageBox.information(
                             QtWidgets.QWidget(),
                             "Pineboo",

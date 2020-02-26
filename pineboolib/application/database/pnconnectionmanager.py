@@ -43,6 +43,7 @@ class PNConnectionManager(QtCore.QObject):
                 del conn_
                 del self.connections_dict["main_conn"]
 
+        main_conn._name = "main_conn"
         if main_conn._driver_name and main_conn._driver_sql.loadDriver(main_conn._driver_name):
             main_conn.conn = main_conn.conectar(
                 main_conn._db_name,
@@ -51,9 +52,11 @@ class PNConnectionManager(QtCore.QObject):
                 main_conn._db_user_name,
                 main_conn._db_password,
             )
+            if isinstance(main_conn.conn, bool):
+                return False
+
             main_conn._is_open = True
 
-        main_conn._name = "main_conn"
         self.connections_dict["main_conn"] = main_conn
         return True
 

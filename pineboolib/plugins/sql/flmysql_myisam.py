@@ -66,6 +66,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                     % (db_userName, db_password, db_host, db_port, db_name)
                 )
         except MySQLdb.OperationalError as e:
+            LOGGER.warning(e)
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
             if "Unknown database" in str(e):
@@ -90,20 +91,20 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                         try:
                             cursor.execute("CREATE DATABASE %s" % db_name)
                         except Exception:
-                            LOGGER.exception("ERROR: FLPSQL.connect")
+                            LOGGER.warning(traceback.format_exc())
                             cursor.execute("ROLLBACK")
                             cursor.close()
                             return False
                         cursor.close()
                         return self.connect(db_name, db_host, db_port, db_userName, db_password)
                     except Exception:
+                        LOGGER.warning(traceback.format_exc())
                         QtWidgets.QMessageBox.information(
                             QtWidgets.QWidget(),
                             "Pineboo",
                             "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
                             QtWidgets.QMessageBox.Ok,
                         )
-                        print("ERROR: No se ha podido crear la Base de Datos %s" % db_name)
                         return False
 
             else:

@@ -57,6 +57,7 @@ class FLQPSQL2(FLQPSQL):
                     % (db_userName, db_password, db_host, db_port, db_name)
                 )
         except Exception as e:
+            LOGGER.warning(e)
             from pineboolib import application
 
             if not application.PROJECT.DGI.localDesktop():
@@ -94,7 +95,7 @@ class FLQPSQL2(FLQPSQL):
                         try:
                             cursor.execute("CREATE DATABASE %s" % db_name)
                         except Exception:
-                            print("ERROR: FLPSQL.connect", traceback.format_exc())
+                            LOGGER.warning(traceback.format_exc())
                             cursor.execute("ROLLBACK")
                             cursor.close()
                             return False

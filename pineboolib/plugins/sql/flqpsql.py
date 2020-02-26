@@ -73,6 +73,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     % (db_userName, db_password, db_host, db_port, db_name)
                 )
         except psycopg2.OperationalError as e:
+            LOGGER.warning(e)
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
 
@@ -105,7 +106,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                         try:
                             cursor.execute("CREATE DATABASE %s" % db_name)
                         except Exception:
-                            print("ERROR: FLPSQL.connect", traceback.format_exc())
+                            LOGGER.warning(traceback.format_exc())
                             cursor.execute("ROLLBACK")
                             cursor.close()
                             return False

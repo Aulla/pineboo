@@ -122,17 +122,21 @@ class Project(object):
             raise Exception("Project is not initialized")
         return self.dgi
 
-    def init_conn(self, connection: "pnconnection.PNConnection") -> None:
+    def init_conn(self, connection: "pnconnection.PNConnection") -> bool:
         """Initialize project with a connection."""
         # if self._conn is not None:
         #    del self._conn
         #    self._conn = None
 
-        self._conn_manager.setMainConn(connection)
-        self.apppath = utils_base.filedir("..")
+        result = self._conn_manager.setMainConn(connection)
 
-        self.delete_cache = settings.config.value("ebcomportamiento/deleteCache", False)
-        self.parse_project = settings.config.value("ebcomportamiento/parseProject", False)
+        if result:
+            self.apppath = utils_base.filedir("..")
+
+            self.delete_cache = settings.config.value("ebcomportamiento/deleteCache", False)
+            self.parse_project = settings.config.value("ebcomportamiento/parseProject", False)
+
+        return result
 
     def init_dgi(self, dgi: "dgi_schema") -> None:
         """Load and associate the defined DGI onto this project."""

@@ -45,7 +45,11 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     dgi = load_dgi("qt", None)
     application.PROJECT.init_dgi(dgi)
     conn_ = connect_to_db(conn)
-    application.PROJECT.init_conn(connection=conn_)
+    main_conn_established = application.PROJECT.init_conn(connection=conn_)
+
+    if not main_conn_established:
+        raise Exception("No main connection was established. Aborting Pineboo load.")
+
     application.PROJECT.no_python_cache = True
     application.PROJECT.run()
     application.PROJECT.conn_manager.managerModules().loadIdAreas()
@@ -243,7 +247,10 @@ def init_testing() -> None:
         application.PROJECT.init_dgi(dgi)
 
     conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
-    application.PROJECT.init_conn(connection=conn)
+    main_conn_established = application.PROJECT.init_conn(connection=conn)
+
+    if not main_conn_established:
+        raise Exception("No main connection was established. Aborting Pineboo load.")
 
     application.PROJECT.no_python_cache = True
     if application.PROJECT.run():
@@ -409,7 +416,10 @@ def exec_main(options: Values) -> int:
         raise ValueError("No connection given. Nowhere to connect. Cannot start.")
 
     conn = connect_to_db(configdb)
-    application.PROJECT.init_conn(connection=conn)
+    main_conn_established = application.PROJECT.init_conn(connection=conn)
+    if not main_conn_established:
+        LOGGER.warning("No main connection was provided. Aborting Pineboo load.")
+        return -99
 
     settings.settings.set_value("DBA/lastDB", conn.DBName())
 
@@ -459,11 +469,11 @@ def exec_main(options: Values) -> int:
     if acl._access_control_list:
         aqApp.set_acl(acl)
 
-    conn = application.PROJECT.conn_manager.mainConn()
+    # conn = application.PROJECT.conn_manager.mainConn()
 
-    if not conn:
-        LOGGER.warning("No connection was provided. Aborting Pineboo load.")
-        return -99
+    # if not conn:
+    #    LOGGER.warning("No connection was provided. Aborting Pineboo load.")
+    #    return -99
 
     if settings.config.value("ebcomportamiento/orm_enabled", False) and not settings.config.value(
         "ebcomportamiento/orm_parser_disabled", False
