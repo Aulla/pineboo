@@ -46,14 +46,14 @@ class TestParser(unittest.TestCase):
 
     def test_list_arrays(self) -> None:
         """Test parsing iterable classes."""
-        self.assertEqual(qs2py("var value = Array().shift()"), "value = qsa.Array().pop(0)\n")
-        self.assertEqual(qs2py("var value = [].shift()"), "value = [].pop(0)\n")
+        self.assertEqual(qs2py("var value = Array().shift()"), "value: Any = qsa.Array().pop(0)\n")
+        self.assertEqual(qs2py("var value = [].shift()"), "value: Any = [].pop(0)\n")
 
     def test_array(self) -> None:
         """Test array."""
 
-        self.assertEqual(qs2py("var a = new Array();"), "a = qsa.Array()\n")
-        self.assertEqual(qs2py("var b = new Array(0);"), "b = []\n")
+        self.assertEqual(qs2py("var a = new Array();"), "a: Any = qsa.Array()\n")
+        self.assertEqual(qs2py("var b = new Array(0);"), "b: Any = []\n")
 
     def test_process_class(self) -> None:
         """Test parsing the process class."""
@@ -120,12 +120,12 @@ class TestParser(unittest.TestCase):
 
     def test_parse_int(self) -> None:
         """Test parseInt function."""
-        self.assertEqual(qs2py('var value = parseInt("21");'), 'value = qsa.parseInt("21")\n')
+        self.assertEqual(qs2py('var value = parseInt("21");'), 'value: Any = qsa.parseInt("21")\n')
         self.assertEqual(
-            qs2py("var value = parseInt(2000.21 , 10);"), "value = qsa.parseInt(2000.21, 10)\n"
+            qs2py("var value = parseInt(2000.21 , 10);"), "value: Any = qsa.parseInt(2000.21, 10)\n"
         )
         self.assertEqual(
-            qs2py('var value = parseInt("0xA0", 16);'), 'value = qsa.parseInt("0xA0", 16)\n'
+            qs2py('var value = parseInt("0xA0", 16);'), 'value: Any = qsa.parseInt("0xA0", 16)\n'
         )
 
     def test_qdir(self) -> None:
@@ -134,13 +134,13 @@ class TestParser(unittest.TestCase):
             qs2py(
                 'var rutaImp:String = "."; var impDir = new QDir(rutaImp, "c*.csv C*.csv c*.CSV C*.CSV");'
             ),
-            'rutaImp = "."\nimpDir = qsa.QDir(rutaImp, "c*.csv C*.csv c*.CSV C*.CSV")\n',
+            'rutaImp = "."\nimpDir: Any = qsa.QDir(rutaImp, "c*.csv C*.csv c*.CSV C*.CSV")\n',
         )
 
     def test_qobject(self) -> None:
         """Test QObject translation."""
 
-        self.assertEqual(qs2py("var prueba = new QObject;"), "prueba = qsa.QObject()\n")
+        self.assertEqual(qs2py("var prueba = new QObject;"), "prueba: Any = qsa.QObject()\n")
 
     def test_inicialize_float(self) -> None:
         """Test float inicialization."""
@@ -151,7 +151,8 @@ class TestParser(unittest.TestCase):
         """Test AQSignalmapper."""
 
         self.assertEqual(
-            qs2py("var sigMap = new AQSignalMapper(this);"), "sigMap = qsa.AQSignalMapper(self)\n"
+            qs2py("var sigMap = new AQSignalMapper(this);"),
+            "sigMap: Any = qsa.AQSignalMapper(self)\n",
         )
 
     def test_replace(self) -> None:
@@ -204,8 +205,13 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
                 aLista.splice(10,1);
                 """
             ),
-            "aLista = qsa.Array()\nqsa.splice(aLista, 10, 1)\n",
+            "aLista: Any = qsa.Array()\nqsa.splice(aLista, 10, 1)\n",
         )
+
+    def test_all_any(self) -> None:
+        """Test variable parse."""
+
+        self.assertEqual(qs2py('var prueba = "hola";'), 'prueba: Any = "hola"\n')
 
     def test_pyconvert(self) -> None:
         """Test pyconvert."""

@@ -16,13 +16,13 @@ class FormInternalObj(qsa.FormDBWidget):
     def entry_point(self, user=None, verb=None, model=None, params=None, method=None):
         qsa.debug("Hola")
         return
-        f = self.get_api_function(verb, model, method)
+        f: Any = self.get_api_function(verb, model, method)
         if not f:
             return False
         try:
             qsa.debug(qsa.ustr("f = ", f))
             return
-            response_data = f(user, params)
+            response_data: Any = f(user, params)
             return response_data
 
         except Exception:
@@ -31,7 +31,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition get */
     def get_api_function(self, verb=None, model=None, method=None):
-        f = False
+        f: Any = False
         for case in qsa.switch(model):
             if case("gt_tareas"):
                 for case in qsa.switch(verb):

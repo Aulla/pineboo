@@ -1203,7 +1203,7 @@ class FormInternalObj(qsa.FormDBWidget):
             datosAsiento = self.iface.regenerarAsiento(curFactura, valoresDefecto)
             if datosAsiento.error:
                 raise Exception(util.translate("scripts", "Error al regenerar el asiento"))
-            ctaCliente = self.iface.datosCtaCliente(curFactura, valoresDefecto)
+            ctaCliente: Any = self.iface.datosCtaCliente(curFactura, valoresDefecto)
             if ctaCliente.error != 0:
                 raise Exception(util.translate("scripts", "Error al leer los datos de subcuenta de cliente"))
             if not self.iface.generarPartidasCliente(curFactura, datosAsiento.idasiento, valoresDefecto, ctaCliente):
@@ -1407,7 +1407,7 @@ class FormInternalObj(qsa.FormDBWidget):
             haber = util.roundFieldValue(haber, "co_partidas", "haber")
             haberME = util.roundFieldValue(haberME, "co_partidas", "haberme")
             if qsa.parseFloat(haber) != 0:
-                ctaRecargo = self.iface.datosCtaIVA("IVARRE", valoresDefecto.codejercicio, qryIva.value(5))
+                ctaRecargo: Any = self.iface.datosCtaIVA("IVARRE", valoresDefecto.codejercicio, qryIva.value(5))
                 if ctaRecargo.error != 0:
                     qsa.MessageBox.warning(
                         util.translate(
@@ -1769,7 +1769,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 )
                 asiento.error = True
                 return asiento
-            curPartidas = qsa.FLSqlCursor("co_partidas")
+            curPartidas: Any = qsa.FLSqlCursor("co_partidas")
             curPartidas.select(qsa.ustr("idasiento = ", idAsiento))
             idP = 0
             while curPartidas.next():
@@ -2233,7 +2233,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 haber = debe
                 haberME = debeME
                 codCuentaEspIVA = "IVARUE"
-                ctaIvaSop = self.iface.datosCtaIVA("IVARUE", valoresDefecto.codejercicio, qryIva.value(5))
+                ctaIvaSop: Any = self.iface.datosCtaIVA("IVARUE", valoresDefecto.codejercicio, qryIva.value(5))
                 if ctaIvaSop.error != 0:
                     return False
                 curPartida = qsa.FLSqlCursor("co_partidas")
@@ -2885,7 +2885,7 @@ class FormInternalObj(qsa.FormDBWidget):
         if qrySubcuenta.value("s.idcuenaesp") == idTipoEsp or qrySubcuenta.value("c.idcuentaesp") == idTipoEsp:
             qsa.debug(4)
             return True
-        codCuenta = qrySubcuenta.value("c.codcuenta")
+        codCuenta: Any = qrySubcuenta.value("c.codcuenta")
         qryTipoEsp = qsa.FLSqlQuery()
         qryTipoEsp.setTablesList("co_cuentasesp")
         qryTipoEsp.setSelect("codcuenta, codsubcuenta")
@@ -3032,7 +3032,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 tipo = "FC"
                 tabla = "facturascli"
 
-        idSec = util.sqlSelect(
+        idSec: Any = util.sqlSelect(
             "secuenciasejercicios", "id", qsa.ustr("codserie = '", serie, "' AND codejercicio = '", ejercicio, "'")
         )
         if idSec:
@@ -3179,7 +3179,7 @@ class FormInternalObj(qsa.FormDBWidget):
             curPartida.setValueBuffer("factura", curFactura.valueBuffer("numero"))
 
     def oficial_siGenerarRecibosCli(self, curFactura=None, masCampos=None):
-        camposAcomprobar = qsa.Array("codcliente", "total", "codpago", "fecha")
+        camposAcomprobar: Any = qsa.Array("codcliente", "total", "codpago", "fecha")
         i = 0
         while_pass = True
         while i < qsa.length(camposAcomprobar):
@@ -3221,8 +3221,8 @@ class FormInternalObj(qsa.FormDBWidget):
         util = qsa.FLUtil()
         if not codCliente:
             return True
-        regimenIva = util.sqlSelect("clientes", "regimeniva", qsa.ustr("codcliente = '", codCliente, "'"))
-        aplicarRecargo = util.sqlSelect("clientes", "recargo", qsa.ustr("codcliente = '", codCliente, "'"))
+        regimenIva: Any = util.sqlSelect("clientes", "regimeniva", qsa.ustr("codcliente = '", codCliente, "'"))
+        aplicarRecargo: Any = util.sqlSelect("clientes", "recargo", qsa.ustr("codcliente = '", codCliente, "'"))
         q = qsa.FLSqlQuery()
         q.setTablesList(tabla)
         q.setSelect("iva,recargo")
@@ -3310,8 +3310,8 @@ class FormInternalObj(qsa.FormDBWidget):
         util = qsa.FLUtil()
         if not codProveedor:
             return True
-        regimenIva = util.sqlSelect("proveedores", "regimeniva", qsa.ustr("codproveedor = '", codProveedor, "'"))
-        aplicarRecargo = util.sqlSelect("empresa", "recequivalencia", "1 = 1")
+        regimenIva: Any = util.sqlSelect("proveedores", "regimeniva", qsa.ustr("codproveedor = '", codProveedor, "'"))
+        aplicarRecargo: Any = util.sqlSelect("empresa", "recequivalencia", "1 = 1")
         q = qsa.FLSqlQuery()
         q.setTablesList(tabla)
         q.setSelect("iva,recargo")
@@ -3780,7 +3780,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def oficial_liberarPresupuestoCli(self, idPresupuesto=None):
         if idPresupuesto:
-            curPresupuesto = qsa.FLSqlCursor("presupuestoscli")
+            curPresupuesto: Any = qsa.FLSqlCursor("presupuestoscli")
             curPresupuesto.select(qsa.ustr("idpresupuesto = ", idPresupuesto))
             if not curPresupuesto.first():
                 return False
@@ -3925,12 +3925,12 @@ class FormInternalObj(qsa.FormDBWidget):
         return valor
 
     def oficial_formateaCadena(self, cIn=None):
-        cOut = ""
-        equivA = "ÑñÇçÁáÉéÍíÓóÚúÀàÈèÌìÒòÙùÂâÊêÎîÔôÛûÄäËëÏïÖöÜüº"
-        equivB = "NnCcAaEeIiOoUuAaEeIiOoUuAaEeIiOoUuAaEeIiOoUu "
-        validos = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ /-?+:,.'()"
+        cOut: Any = ""
+        equivA: Any = "ÑñÇçÁáÉéÍíÓóÚúÀàÈèÌìÒòÙùÂâÊêÎîÔôÛûÄäËëÏïÖöÜüº"
+        equivB: Any = "NnCcAaEeIiOoUuAaEeIiOoUuAaEeIiOoUuAaEeIiOoUu "
+        validos: Any = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ /-?+:,.'()"
         iEq: Any = None
-        i = 0
+        i: Any = 0
         while_pass = True
         while i < qsa.length(cIn):
             if not while_pass:

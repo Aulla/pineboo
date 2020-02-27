@@ -1317,22 +1317,25 @@ class Variable(ASTPython):
         yield "expr", self.local_var(name, is_member=True)
         values = 0
         # for value in self.elem.findall("Value|Expression"):
+        dtype: Optional[str] = self.elem.get("type", None)
         for value in self.elem:
             if value.tag not in ("Value", "Expression"):
                 continue
             value.set("parent_", self.elem)  # type: ignore
             values += 1
+            if dtype is None and name != "iface":
+                yield "expr", ": Any"
+
             yield "expr", "="
             expr = 0
             for dtype1, data in parse_ast(value, parent=self).generate(isolate=False):
-
                 # if self.elem.get("type",None) == "Array" and data == "[]":
                 if data == "qsa.Array(0)":
                     yield "expr", "[]"
                     expr += 1
                     continue
 
-                if data == "[]":
+                elif data == "[]":
                     yield "expr", "qsa.Array()"
                     expr += 1
                     continue
@@ -1343,21 +1346,21 @@ class Variable(ASTPython):
             if expr == 0:
                 yield "expr", "None"
 
-        dtype: Optional[str] = self.elem.get("type", None)
-        if (values == 0) and force_value:
+        if force_value:
+            if values == 0:
 
-            if dtype is None:
-                yield "expr", ": Any = None"
-            else:
-                yield "expr", "="
-                if dtype == "String":
-                    yield "expr", '""'
-                elif dtype == "Number":
-                    yield "expr", "0"
-                elif dtype in ("FLSqlCursor", "FLTableDB"):
-                    yield "expr", "None"
+                if dtype is None:
+                    yield "expr", ": Any = None"
                 else:
-                    yield "expr", "%s()" % self.local_var(dtype)
+                    yield "expr", "="
+                    if dtype == "String":
+                        yield "expr", '""'
+                    elif dtype == "Number":
+                        yield "expr", "0"
+                    elif dtype in ("FLSqlCursor", "FLTableDB"):
+                        yield "expr", "None"
+                    else:
+                        yield "expr", "%s()" % self.local_var(dtype)
 
         self.source.locals.add(name)
         # if dtype and force_value == False: yield "debug", "Variable %s:%s" % (name,dtype)
