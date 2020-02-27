@@ -7,4 +7,3 @@ from .projectmodule import Project
 
 PROJECT = Project()
 SHOW_CURSOR_EVENTS: bool = False
-WAIT_FIRST: bool = False

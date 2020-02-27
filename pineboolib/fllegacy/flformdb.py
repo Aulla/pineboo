@@ -280,7 +280,6 @@ class FLFormDB(QtWidgets.QDialog):
         """
         Call the "init" function of the masterprocess script associated with the form.
         """
-
         if self._loaded:
             if not getattr(self.widget, "iface", None):
                 self.iface = (

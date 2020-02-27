@@ -208,7 +208,7 @@ class ICursorPrivate(QtCore.QObject):
     _currentregister: int
 
     def __init__(
-        self, cursor_: "ISqlCursor", action_: "pnaction.PNAction", db_: "iconnection.IConnection"
+        self, cursor_: "ISqlCursor", action_name: str, db_: "iconnection.IConnection"
     ) -> None:
         """
         Initialize the private part of the cursor.
@@ -747,6 +747,13 @@ class ISqlCursor(QtCore.QObject):
         Choose the order of the main columns.
 
         @return sort order.
+        """
+
+        return ""
+
+    def id(self) -> str:
+        """
+        Return cursor identifier.
         """
 
         return ""

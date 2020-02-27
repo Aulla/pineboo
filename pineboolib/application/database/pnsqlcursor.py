@@ -22,6 +22,7 @@ from . import pncursortablemodel
 
 import weakref
 import traceback
+import datetime
 
 from typing import Any, Optional, List, Dict, Union, cast, TYPE_CHECKING
 
@@ -78,28 +79,21 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             autopopulate = conn_or_autopopulate
 
         act_ = application.PROJECT.conn_manager.manager().action(name)
-        db_: "iconnection.IConnection" = (
+        db_connection: "iconnection.IConnection" = (
             application.PROJECT.conn_manager.useConn(connection_name_or_db)
             if isinstance(connection_name_or_db, str)
             else connection_name_or_db
         )
 
-        if application.WAIT_FIRST:
-            conn_name = db_.connectionName()
-            if conn_name not in CONNECTION_CURSORS.keys():
-                CONNECTION_CURSORS[db_.connectionName()] = []
+        self.private_cursor = PNCursorPrivate(self, act_.name(), db_connection)
 
-            while act_.name() in CONNECTION_CURSORS[conn_name]:
-                if application.SHOW_CURSOR_EVENTS:
-                    LOGGER.info("Waiting %s.%s to close", act_.name(), conn_name)
-                QtWidgets.QApplication.processEvents()
+        id_conn = "%s|%s" % (application.PROJECT.session_id(), db_connection.connectionName())
 
-            if application.SHOW_CURSOR_EVENTS:
-                LOGGER.info("Adding %s to %s", act_.name(), conn_name)
+        if id_conn not in CONNECTION_CURSORS.keys():
+            CONNECTION_CURSORS[id_conn] = []
 
-            CONNECTION_CURSORS[db_.connectionName()].append(act_.name())
+        CONNECTION_CURSORS[id_conn].append(self.id())
 
-        self.private_cursor = PNCursorPrivate(self, act_, db_)
         self.init(act_.name(), autopopulate, cursor_relation, relation_mtd)
 
     def init(
@@ -118,7 +112,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if application.SHOW_CURSOR_EVENTS:
             LOGGER.warning(
-                "CURSOR_EVENT: Se crea el cursor para la action %s", name, stack_info=True
+                "CURSOR_EVENT: Se crea el cursor (%s) para la action %s",
+                self.id(),
+                name,
+                stack_info=True,
             )
 
         if self.setAction(name):
@@ -2205,24 +2202,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @param invalidate. Not used.
         """
+        global CONNECTION_CURSORS
         # LOGGER.trace("FLSqlCursor(%s). Eliminando cursor" % self.curName(), self)
         # delMtd = None
         # if self.private_cursor.metadata_:
         #     if not self.private_cursor.metadata_.inCache():
         #         delMtd = True
-        global CONNECTION_CURSORS
         message = None
 
         if not hasattr(self, "private_cursor"):
             return
-
-        conn_name = self.conn().connectionName()
-
-        if conn_name in CONNECTION_CURSORS.keys():
-            if self.actionName() in CONNECTION_CURSORS[conn_name]:
-                if application.SHOW_CURSOR_EVENTS:
-                    LOGGER.info("Deleting %s from %s", self.actionName(), conn_name)
-                CONNECTION_CURSORS[conn_name].remove(self.actionName())
 
         metadata = self.private_cursor.metadata_
 
@@ -2245,6 +2234,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 "se han guardado.\nSqlCursor::~SqlCursor: %s\n" % table_name
             )
             self.rollbackOpened(-1, message)
+
+        id_conn = "%s|%s" % (application.PROJECT.session_id(), self.conn().connectionName())
+
+        # if not id_conn in CONNECTION_CURSORS.keys():
+        #    CONNECTION_CURSORS[id_conn] = []
+        if self.id() in CONNECTION_CURSORS[id_conn]:
+            CONNECTION_CURSORS[id_conn].remove(self.id())
+
+        # for name in CONNECTION_CURSORS[id_conn]:
+        #    print("*", name, self.parent())
 
     #    # self.destroyed.emit()
     #    # self.private_cursor._count_ref_cursor = self.private_cursor._count_ref_cursor - 1     FIXME
@@ -3370,18 +3369,25 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         self.private_cursor._persistent_filter = None
 
+    def id(self) -> str:
+        """
+        Return cursor identifier.
+        """
+
+        return self.private_cursor.id_
+
 
 class PNCursorPrivate(isqlcursor.ICursorPrivate):
     """PNCursorPrivate class."""
 
     def __init__(
-        self, cursor_: "PNSqlCursor", action_: "pnaction.PNAction", db_: "iconnection.IConnection"
+        self, cursor_: "PNSqlCursor", action_name: str, db_: "iconnection.IConnection"
     ) -> None:
         """
         Initialize the private part of the cursor.
         """
 
-        super().__init__(cursor_, action_, db_)
+        super().__init__(cursor_, action_name, db_)
         self.metadata_ = None
         self._count_ref_cursor = 0
         self._currentregister = -1
@@ -3398,7 +3404,8 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         self._id_ac = 0
         self._id_acos = 0
         self._id_cond = 0
-        self.id_ = "000"
+        self.cursor_name_ = action_name
+        self.id_ = "%s@%s" % (self.cursor_name_, datetime.datetime.now().strftime("%Y%m%d%H%M%S%f"))
         self._acl_done = False
         self.edition_ = True
         self.browse_ = True
@@ -3411,7 +3418,7 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         # self.rawValues_ = False
         self._persistent_filter = None
         self.db_ = db_
-        self.cursor_name_ = action_.name()
+
         self._id_acl = ""
         # self.nameCursor = "%s_%s" % (
         #    act_.name(),

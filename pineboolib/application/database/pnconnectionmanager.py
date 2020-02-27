@@ -6,7 +6,7 @@ from pineboolib import application
 from pineboolib.interfaces import iconnection
 from . import pnconnection
 
-from typing import Dict, Union, TYPE_CHECKING
+from typing import Dict, Union, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
@@ -239,6 +239,29 @@ class PNConnectionManager(QtCore.QObject):
         """Set maximum connections time idle."""
         LOGGER.info("New max connections idle time %s.", limit)
         self.connections_time_out = limit  # noqa: F841
+
+    def active_pncursors(self, only_name: bool = False, all_sessions: bool = False) -> List[str]:
+        """Return a user cursor opened list."""
+
+        from pineboolib.application.database import pnsqlcursor
+
+        session_name = "%s|" % application.PROJECT.session_id()
+
+        result = []
+        for session_id in pnsqlcursor.CONNECTION_CURSORS.keys():
+            if session_id.startswith(session_name) or all_sessions:
+                for cursor_name in pnsqlcursor.CONNECTION_CURSORS[session_id]:
+                    name = cursor_name
+                    if only_name:
+                        name = name.split("@")[0]
+                    result.append(name)
+
+        return result
+
+    def session_id(self) -> str:
+        """Return session identifier."""
+
+        return application.PROJECT.session_id()
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""
