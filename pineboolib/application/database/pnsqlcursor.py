@@ -37,6 +37,7 @@ if TYPE_CHECKING:
 
 CONNECTION_CURSORS: Dict[str, List[str]] = {}
 
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -83,17 +84,18 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             else connection_name_or_db
         )
 
-        if db_.connectionName() not in CONNECTION_CURSORS.keys():
-            CONNECTION_CURSORS[db_.connectionName()] = []
+        if application.WAIT_FIRST:
+            conn_name = db_.connectionName()
+            if conn_name not in CONNECTION_CURSORS.keys():
+                CONNECTION_CURSORS[db_.connectionName()] = []
 
-        conn_name = db_.connectionName()
-        if parent is None and application.PROJECT.session_id():
-            if application.SHOW_CURSOR_EVENTS:
-                LOGGER.info("Adding %s to %s", act_.name(), conn_name)
             while act_.name() in CONNECTION_CURSORS[conn_name]:
                 if application.SHOW_CURSOR_EVENTS:
                     LOGGER.info("Waiting %s.%s to close", act_.name(), conn_name)
                 QtWidgets.QApplication.processEvents()
+
+            if application.SHOW_CURSOR_EVENTS:
+                LOGGER.info("Adding %s to %s", act_.name(), conn_name)
 
             CONNECTION_CURSORS[db_.connectionName()].append(act_.name())
 
