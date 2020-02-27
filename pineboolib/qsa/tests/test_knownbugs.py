@@ -83,7 +83,7 @@ class TestKnownBugs(unittest.TestCase):
         value_3 = 'qsa.sys.AQTimer.singleShot(0, qsa.from_project("flfactppal").iface.test)\n'
         self.assertEqual(qs2py("sys.AQTimer.singleShot(0, flfactppal.iface.test);"), value_3)
 
-        value_4 = '_fP = qsa.from_project("flfactppal").iface\n'
+        value_4 = '_fP: Any = qsa.from_project("flfactppal").iface\n'
         self.assertEqual(qs2py("var _fP = flfactppal.iface;"), value_4)
 
     def test_multiples_if(self) -> None:
@@ -249,7 +249,7 @@ class TestKnownBugs(unittest.TestCase):
         )
 
         cadena_result = """qryRecargo = qsa.FLSqlQuery()
-res = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
+res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
     str(qryRecargo.value("f.codigo")),
     str(qryRecargo.value("f.nombrecliente")),\n)\n"""
 
@@ -259,12 +259,12 @@ res = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
         """Test argStr and argInt."""
 
         one = """var res= util.translate("scripts", "Hola %1").argStr("Uno");"""
-        result_one = """res = qsa.util.translate("scripts", "Hola %s") % (str("Uno"))\n"""
+        result_one = """res: Any = qsa.util.translate("scripts", "Hola %s") % (str("Uno"))\n"""
 
         self.assertEqual(qs2py(one), result_one)
 
         two = """var res= util.translate("scripts", "Hola %1").argInt("Dos");"""
-        result_two = """res = qsa.util.translate("scripts", "Hola %s") % (str("Dos"))\n"""
+        result_two = """res: Any = qsa.util.translate("scripts", "Hola %s") % (str("Dos"))\n"""
 
         self.assertEqual(qs2py(two), result_two)
 
@@ -274,7 +274,7 @@ res = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
         one = """var cacheFunsEdi = [];
         cacheFunsEdi["uno"]("dos");"""
 
-        result_one = """cacheFunsEdi = qsa.Array()\ncacheFunsEdi["uno"]("dos")\n"""
+        result_one = """cacheFunsEdi: Any = qsa.Array()\ncacheFunsEdi["uno"]("dos")\n"""
         self.assertEqual(qs2py(one), result_one)
 
     def test_number_min_value_and_max_value(self) -> None:
