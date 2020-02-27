@@ -23,7 +23,7 @@ from . import pncursortablemodel
 import weakref
 import traceback
 
-from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
+from typing import Any, Optional, List, Dict, Union, cast, TYPE_CHECKING
 
 
 from pineboolib.application.acls import pnboolflagstate
@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pnaction  # noqa: F401
     from pineboolib.interfaces import iconnection  # noqa: F401
 
+CONNECTION_CURSORS: Dict[str, List[str]] = {}
 
 LOGGER = logging.getLogger(__name__)
 
@@ -57,6 +58,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         super().__init__(
             name, conn_or_autopopulate, connection_name_or_db, cursor_relation, relation_mtd, parent
         )
+
+        global CONNECTION_CURSORS
+
         self._name = ""
         self._valid = False
         if name is None:
@@ -78,6 +82,20 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if isinstance(connection_name_or_db, str)
             else connection_name_or_db
         )
+
+        if db_.connectionName() not in CONNECTION_CURSORS.keys():
+            CONNECTION_CURSORS[db_.connectionName()] = []
+
+        conn_name = db_.connectionName()
+        if parent is None and application.PROJECT.session_id():
+            if application.SHOW_CURSOR_EVENTS:
+                LOGGER.info("Adding %s to %s", act_.name(), conn_name)
+            while act_.name() in CONNECTION_CURSORS[conn_name]:
+                if application.SHOW_CURSOR_EVENTS:
+                    LOGGER.info("Waiting %s.%s to close", act_.name(), conn_name)
+                QtWidgets.QApplication.processEvents()
+
+            CONNECTION_CURSORS[db_.connectionName()].append(act_.name())
 
         self.private_cursor = PNCursorPrivate(self, act_, db_)
         self.init(act_.name(), autopopulate, cursor_relation, relation_mtd)
@@ -2190,11 +2208,19 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # if self.private_cursor.metadata_:
         #     if not self.private_cursor.metadata_.inCache():
         #         delMtd = True
-
+        global CONNECTION_CURSORS
         message = None
 
-        if not hasattr(self, "d"):
+        if not hasattr(self, "private_cursor"):
             return
+
+        conn_name = self.conn().connectionName()
+
+        if conn_name in CONNECTION_CURSORS.keys():
+            if self.actionName() in CONNECTION_CURSORS[conn_name]:
+                if application.SHOW_CURSOR_EVENTS:
+                    LOGGER.info("Deleting %s from %s", self.actionName(), conn_name)
+                CONNECTION_CURSORS[conn_name].remove(self.actionName())
 
         metadata = self.private_cursor.metadata_
 
