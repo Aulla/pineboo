@@ -95,8 +95,6 @@ class TestPNConnectionManager(unittest.TestCase):
         while "flfiles" in conn_manager.active_pncursors(True):
             QtWidgets.QApplication.processEvents()
 
-        self.assertTrue(False)
-
     def threaded_function(self) -> None:
         """Threaded function."""
 
