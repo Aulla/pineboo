@@ -613,7 +613,7 @@ class Project(object):
 
     def load_version(self) -> str:
         """Initialize current version numbers."""
-        self.version = "0.68.26"
+        self.version = "0.68.27"
         if settings.config.value("application/dbadmin_enabled", False):
             self.version = "DBAdmin v%s" % self.version
         else:
@@ -633,4 +633,4 @@ class Project(object):
     def session_id(self) -> str:
         """Return id if use pineboo like framework."""
 
-        return str(self._session_func_()) if self._session_func_ is not None else ""
+        return str(self._session_func_()) if self._session_func_ is not None else "auto"
