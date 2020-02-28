@@ -49,7 +49,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     def __init__(
         self,
-        name: Optional[str] = None,
+        name: str = "",
         conn_or_autopopulate: Union[bool, str] = True,
         connection_name_or_db: Union[str, "iconnection.IConnection"] = "default",
         cursor_relation: Optional["isqlcursor.ISqlCursor"] = None,
@@ -57,13 +57,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         parent=None,
     ) -> None:
         """Create a new cursor."""
+        global CONNECTION_CURSORS
+
+        identifier = application.PROJECT.session_id()
+        if identifier not in CONNECTION_CURSORS.keys():
+            CONNECTION_CURSORS[identifier] = []
+
         super().__init__(
             name, conn_or_autopopulate, connection_name_or_db, cursor_relation, relation_mtd, parent
         )
-
-        global CONNECTION_CURSORS
-
-        db_connection: "iconnection.IConnection"
 
         if not name:
             LOGGER.warning(
@@ -71,6 +73,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 self,
             )
             return
+
+        id_cursor = "%s@%s" % (name, datetime.datetime.now().strftime("%Y%m%d%H%M%S%f"))
+        CONNECTION_CURSORS[identifier].append(id_cursor)
+        if application.SHOW_CURSOR_EVENTS:
+            LOGGER.warning("CURSOR_EVENT: %s añadido al pool de cursores %s", id_cursor, identifier)
 
         autopopulate = True
         # act_ = application.PROJECT.conn_manager.manager().action(name)
@@ -80,25 +87,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         elif isinstance(conn_or_autopopulate, str):
             connection_name_or_db = conn_or_autopopulate
 
-        if isinstance(connection_name_or_db, str):
-            db_connection = application.PROJECT.conn_manager.useConn(connection_name_or_db)
-        else:
-            db_connection = connection_name_or_db
-
-        id_conn = "%s|%s" % (application.PROJECT.session_id(), db_connection.connectionName())
-
-        if id_conn not in CONNECTION_CURSORS.keys():
-            CONNECTION_CURSORS[id_conn] = []
-
-        self.private_cursor = PNCursorPrivate(self, name, db_connection)  # Antes del self.id()
-
-        CONNECTION_CURSORS[id_conn].append(self.id())
-        if application.SHOW_CURSOR_EVENTS:
-            LOGGER.warning("CURSOR_EVENT: %s añadido al pool de cursores %s", self.id(), id_conn)
+        db_connection: "iconnection.IConnection" = application.PROJECT.conn_manager.useConn(
+            connection_name_or_db
+        ) if isinstance(connection_name_or_db, str) else connection_name_or_db
 
         self._name = ""
         self._valid = False
 
+        self.private_cursor = PNCursorPrivate(self, name, db_connection)
+        self.private_cursor.id_ = id_cursor
         self.init(name, autopopulate, cursor_relation, relation_mtd)
 
     def init(
@@ -2240,7 +2237,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
             self.rollbackOpened(-1, message)
 
-        # id_conn = "%s|%s" % (application.PROJECT.session_id(), self.conn().connectionName())
         for id_conn in CONNECTION_CURSORS.keys():
             for name in CONNECTION_CURSORS[id_conn]:
                 if name == self.id():
@@ -3418,7 +3414,6 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         self._id_acos = 0
         self._id_cond = 0
         self.cursor_name_ = action_name
-        self.id_ = "%s@%s" % (self.cursor_name_, datetime.datetime.now().strftime("%Y%m%d%H%M%S%f"))
         self._acl_done = False
         self.edition_ = True
         self.browse_ = True

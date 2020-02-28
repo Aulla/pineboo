@@ -5,6 +5,7 @@ from pineboolib.core.utils import logging
 from pineboolib import application
 from pineboolib.interfaces import iconnection
 from . import pnconnection
+from . import pnsqlcursor
 
 from typing import Dict, Union, List, TYPE_CHECKING
 
@@ -243,21 +244,16 @@ class PNConnectionManager(QtCore.QObject):
     def active_pncursors(self, only_name: bool = False, all_sessions: bool = False) -> List[str]:
         """Return a user cursor opened list."""
 
-        from pineboolib.application.database import pnsqlcursor
-
         QtWidgets.QApplication.processEvents()
 
-        session_name = "%s|" % self.session_id()
+        identifier = self.session_id()
 
         result = []
 
-        for session_id in pnsqlcursor.CONNECTION_CURSORS.keys():
-            if session_id.startswith(session_name) or all_sessions:
-                for cursor_name in pnsqlcursor.CONNECTION_CURSORS[session_id]:
-                    name = cursor_name
-                    if only_name:
-                        name = name.split("@")[0]
-                    result.append(name)
+        for key in pnsqlcursor.CONNECTION_CURSORS.keys():
+            if key == identifier or all_sessions:
+                for cursor_name in pnsqlcursor.CONNECTION_CURSORS[key]:
+                    result.append(cursor_name.split("@")[0] if only_name else cursor_name)
 
         return result
 
