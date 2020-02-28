@@ -1,5 +1,5 @@
 """PNConnection_manager module."""
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.core.utils import logging
 from pineboolib import application
@@ -245,9 +245,12 @@ class PNConnectionManager(QtCore.QObject):
 
         from pineboolib.application.database import pnsqlcursor
 
-        session_name = "%s|" % application.PROJECT.session_id()
+        QtWidgets.QApplication.processEvents()
+
+        session_name = "%s|" % self.session_id()
 
         result = []
+
         for session_id in pnsqlcursor.CONNECTION_CURSORS.keys():
             if session_id.startswith(session_name) or all_sessions:
                 for cursor_name in pnsqlcursor.CONNECTION_CURSORS[session_id]:

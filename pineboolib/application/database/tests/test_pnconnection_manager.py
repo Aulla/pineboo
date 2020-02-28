@@ -5,6 +5,10 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
 from pineboolib.application.database import pnsqlcursor
 
+from pineboolib.core.utils import logging
+
+LOGGER = logging.getLogger(__name__)
+
 USER_ID: str
 
 
