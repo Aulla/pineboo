@@ -297,7 +297,7 @@ class PNSqlSchema(object):
         """Return if use a file like database."""
         return False
 
-    def execute_query(self, q: str, cursor: Any = None) -> Any:
+    def execute_query(self, query: str, cursor: Any = None) -> Any:
         """Excecute a query and return result."""
         if not self.isOpen():
             raise Exception("execute_query: Database not open")
@@ -307,11 +307,11 @@ class PNSqlSchema(object):
             cursor = self.cursor()
         try:
             # q = self.fix_query(q)
-            cursor.execute(q)
+            cursor.execute(query)
         except Exception:
-            LOGGER.error("No se pudo ejecutar la query %s" % q, q)
+            LOGGER.error("No se pudo ejecutar la query %s", query)
             self.setLastError(
-                "No se pudo ejecutar la query %s.\n%s" % (q, traceback.format_exc()), q
+                "No se pudo ejecutar la query %s.\n%s" % (query, traceback.format_exc()), query
             )
 
         return cursor
