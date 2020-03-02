@@ -124,6 +124,54 @@ class Math(object):
         return math.fabs(value)
 
     @staticmethod
+    def acos(value: Union[float, int]) -> float:
+        """Return the arc cosine."""
+
+        return math.acos(value)
+
+    @staticmethod
+    def cos(value: Union[float, int]) -> float:
+        """Return the cosine of value."""
+
+        return math.cos(value)
+
+    @staticmethod
+    def asin(value: Union[float, int]) -> float:
+        """Return the arc sine of value."""
+
+        return math.asin(value)
+
+    @staticmethod
+    def sin(value: Union[float, int]) -> float:
+        """Return the sine of value."""
+
+        return math.sin(value)
+
+    @staticmethod
+    def atan(value: Union[float, int]) -> float:
+        """Return the arc tangent of value."""
+
+        return math.atan(value)
+
+    @staticmethod
+    def atan2(value_y: Union[float, int], value_x: Union[float, int]) -> float:
+        """Return the arc tangent."""
+
+        return math.atan2(value_y, value_x)
+
+    @staticmethod
+    def tan(value: Union[float, int]) -> float:
+        """Return the tangent of value."""
+
+        return math.tan(value)
+
+    @staticmethod
+    def exp(value: Union[float, int]) -> float:
+        """Return e raised to the power of value."""
+
+        return math.exp(value)
+
+    @staticmethod
     def ceil(value: float) -> int:
         """Round number to its ceiling."""
         return math.ceil(value)
@@ -134,6 +182,31 @@ class Math(object):
         return math.floor(value)
 
     @staticmethod
+    def log(value: Union[float, int]) -> float:
+        """Return the logarithm of value to the given base."""
+
+        return math.log(value)
+
+    @staticmethod
+    def random() -> float:
+        """Return a pseudo-random floating point number between 0 and 1"""
+        import random
+
+        return random.random()
+
+    @staticmethod
+    def max(number1: Union[float, int], number2: Union[float, int]) -> Union[float, int]:
+        """Returns the largest of number1 and number2."""
+
+        return max([number1, number2])
+
+    @staticmethod
+    def min(number1: Union[float, int], number2: Union[float, int]) -> Union[float, int]:
+        """Returns the smallest of number1 and number2."""
+
+        return min([number1, number2])
+
+    @staticmethod
     def pow(base: float, exp: float) -> float:
         """Raise base to the power of exp."""
         return math.pow(base, exp)
@@ -142,6 +215,12 @@ class Math(object):
     def round(value_1: float, value_2: int = 2) -> float:
         """Round a number x to y decimal places."""
         return round(float(value_1), value_2)
+
+    @staticmethod
+    def sqrt(value: Union[float, int]) -> float:
+        """Return the square root of the number passed in the parameter."""
+
+        return math.sqrt(value)
 
 
 def parseFloat(value: Any) -> float:

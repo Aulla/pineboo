@@ -52,6 +52,15 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(math_.round(0.9698, 2), 0.97)
         self.assertEqual(math_.round(123.969899, 4), 123.9699)
 
+        self.assertTrue(math_.random() > 0)
+        self.assertTrue(math_.max(1, 2) == 2)
+        self.assertTrue(math_.min(50, 33) == 33)
+        self.assertTrue(math_.min(50, 50.01) == 50)
+        self.assertTrue(math_.sqrt(64) == 8)
+        self.assertEqual(math_.tan(20), 2.237160944224742)
+        self.assertEqual(math_.cos(20), 0.40808206181339196)
+        self.assertEqual(math_.acos(0.4), 1.1592794807274085)
+
     def test_parse_int(self) -> None:
         """Test parse_int function."""
 
