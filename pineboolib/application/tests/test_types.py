@@ -36,10 +36,10 @@ class TestQString(unittest.TestCase):
 
     def test_basic(self) -> None:
         """Basic testing."""
-        s = types.QString("hello world")
-        self.assertEqual(s, "hello world")
-        self.assertEqual(s.mid(5), s[5:])
-        self.assertEqual(s.mid(5, 2), s[5:7])
+        text = types.QString("hello world")
+        self.assertEqual(text, "hello world")
+        self.assertEqual(text.mid(5), text[5:])
+        self.assertEqual(text.mid(5, 2), text[5:7])
 
 
 class TestFunction(unittest.TestCase):
@@ -48,8 +48,8 @@ class TestFunction(unittest.TestCase):
     def test_basic(self) -> None:
         """Basic testing."""
         source = "return x + 1"
-        fn = types.function("x", source)
-        self.assertEqual(fn(1), 2)
+        fun_ = types.function("x", source)
+        self.assertEqual(fun_(1), 2)
 
 
 class TestObject(unittest.TestCase):
@@ -57,15 +57,15 @@ class TestObject(unittest.TestCase):
 
     def test_basic1(self) -> None:
         """Basic testing."""
-        o = types.object_()
-        o.prop1 = 1
-        o.prop2 = 2
-        self.assertEqual(o.prop1, o["prop1"])
+        object_ = types.object_()
+        object_.prop1 = 1
+        object_.prop2 = 2
+        self.assertEqual(object_.prop1, object_["prop1"])
 
     def test_basic2(self) -> None:
         """Basic testing."""
-        o = types.object_({"prop1": 1})
-        self.assertEqual(o.prop1, o["prop1"])
+        object_ = types.object_({"prop1": 1})
+        self.assertEqual(object_.prop1, object_["prop1"])
 
 
 class TestArray(unittest.TestCase):
@@ -73,70 +73,70 @@ class TestArray(unittest.TestCase):
 
     def test_basic1(self) -> None:
         """Basic testing."""
-        a = types.Array()
-        a.value = 1
-        self.assertEqual(a.value, a["value"])
+        array_ = types.Array()
+        array_.value = 1
+        self.assertEqual(array_.value, array_["value"])
 
     def test_basic2(self) -> None:
         """Basic testing."""
         test_arr = [0, 1, 2, 3, 4]
-        a = types.Array(test_arr)
-        b = types.Array(test_arr)
-        self.assertEqual(a[3], 3)
-        self.assertEqual(list(a._dict.values()), test_arr)
-        self.assertEqual(len(a), len(test_arr))
-        self.assertEqual(a, test_arr)
-        self.assertEqual(a[3], b[3])
-        self.assertNotEqual(a[3], b[0])
+        array_ = types.Array(test_arr)
+        array_b = types.Array(test_arr)
+        self.assertEqual(array_[3], 3)
+        self.assertEqual(list(array_._dict.values()), test_arr)
+        self.assertEqual(len(array_), len(test_arr))
+        self.assertEqual(array_, test_arr)
+        self.assertEqual(array_[3], array_b[3])
+        self.assertNotEqual(array_[3], array_b[0])
 
         test_arr = [3, 4, 2, 1, 0]
-        a = types.Array(test_arr)
-        self.assertEqual(list(a._dict.values()), test_arr)
-        a.append(10)
-        self.assertEqual(a[5], 10)
+        array_ = types.Array(test_arr)
+        self.assertEqual(list(array_._dict.values()), test_arr)
+        array_.append(10)
+        self.assertEqual(array_[5], 10)
 
     def test_basic3(self) -> None:
         """Basic Testing."""
         test_arr = {"key_0": "item_0", "key_1": "item_1", "key_2": "item_2"}
-        a = types.Array(test_arr)
-        self.assertEqual(a["key_0"], "item_0")
-        self.assertEqual(a.key_1, a["key_1"])
-        self.assertEqual(a.length(), 3)
-        self.assertEqual(a[2], "item_2")
-        self.assertEqual(list(a._dict.values()), ["item_0", "item_1", "item_2"])
+        array_ = types.Array(test_arr)
+        self.assertEqual(array_["key_0"], "item_0")
+        self.assertEqual(array_.key_1, array_["key_1"])
+        self.assertEqual(array_.length(), 3)
+        self.assertEqual(array_[2], "item_2")
+        self.assertEqual(list(array_._dict.values()), ["item_0", "item_1", "item_2"])
 
     def test_repr(self) -> None:
         """Test repr method."""
         test_arr = [3, 4, 5, 6, 7]
-        a1 = types.Array(test_arr)
-        self.assertEqual(repr(a1), "<Array %r>" % test_arr)
+        array_ = types.Array(test_arr)
+        self.assertEqual(repr(array_), "<Array %r>" % test_arr)
 
     def test_iter(self) -> None:
         """Test iterating arrays."""
 
         test_arr = [3, 4, 5, 6, 7]
-        a1 = types.Array(test_arr)
-        a2 = [x for x in a1]
-        self.assertEqual(test_arr, a2)
+        array_ = types.Array(test_arr)
+        array_2 = [x for x in array_]
+        self.assertEqual(test_arr, array_2)
 
         test_arr = [8, 7, 6, 4, 2]
-        a1 = types.Array(test_arr)
-        a2 = [x for x in a1]
-        self.assertEqual(test_arr, a2)
+        array_ = types.Array(test_arr)
+        array_2 = [x for x in array_]
+        self.assertEqual(test_arr, array_2)
 
     def test_splice(self) -> None:
         """Test splice."""
 
         test_arr = [3, 4, 5, 6, 7]
-        a1 = types.Array(test_arr)
-        a1.splice(1, 2)  # Delete
-        self.assertEqual(str(a1), str(types.Array([4, 5])))
-        a2 = types.Array(test_arr)
-        a2.splice(2, 0, 9, 10)  # Insertion
-        self.assertEqual(str(a2), str(types.Array([3, 4, 5, 9, 10, 6, 7])))
-        a3 = types.Array(test_arr)
-        a3.splice(2, 1, 9, 10)  # Replace
-        self.assertEqual(str(a3), str(types.Array([3, 4, 9, 10, 6, 7])))
+        array_ = types.Array(test_arr)
+        array_.splice(1, 2)  # Delete
+        self.assertEqual(str(array_), str(types.Array([4, 5])))
+        array_2 = types.Array(test_arr)
+        array_2.splice(2, 0, 9, 10)  # Insertion
+        self.assertEqual(str(array_2), str(types.Array([3, 4, 5, 9, 10, 6, 7])))
+        array_3 = types.Array(test_arr)
+        array_3.splice(2, 1, 9, 10)  # Replace
+        self.assertEqual(str(array_3), str(types.Array([3, 4, 9, 10, 6, 7])))
 
 
 class TestDate(unittest.TestCase):
@@ -145,10 +145,10 @@ class TestDate(unittest.TestCase):
     # FIXME: Complete unit tests
     def test_basic1(self) -> None:
         """Basic testing."""
-        d = types.Date("2001-02-25")
-        self.assertEqual(d.getDay(), 25)
-        self.assertEqual(d.getMonth(), 2)
-        self.assertEqual(d.getYear(), 2001)
+        date_ = types.Date("2001-02-25")
+        self.assertEqual(date_.getDay(), 25)
+        self.assertEqual(date_.getMonth(), 2)
+        self.assertEqual(date_.getYear(), 2001)
 
 
 class TestString(unittest.TestCase):

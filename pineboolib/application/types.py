@@ -253,12 +253,12 @@ class Array(object):
             pos_ini = args[0]
             length_ = args[1]
             i = 0
-            x = 0
+            pos_x = 0
             new = {}
             for key in self._dict.keys():
-                if i >= pos_ini and x < length_:
+                if i >= pos_ini and pos_x < length_:
                     new[key] = self._dict[key]
-                    x += 1
+                    pos_x += 1
 
                 i += 1
 
@@ -286,18 +286,18 @@ class Array(object):
             new_values = args[2:]
 
             i = 0
-            x = 0
+            pos_x = 0
             new = {}
             for key in self._dict.keys():
                 if i < pos_ini:
                     new[key] = self._dict[key]
                 else:
-                    if x < replacement_size:
-                        if x == 0:
+                    if pos_x < replacement_size:
+                        if pos_x == 0:
                             for new_value in new_values:
                                 new[new_value] = new_value
 
-                        x += 1
+                        pos_x += 1
                     else:
                         new[key] = self._dict[key]
 
@@ -380,8 +380,8 @@ class Dir(object):
                 for file in os.listdir(self.path):
                     if fnmatch.fnmatch(file, patron):
                         retorno.append(file)
-        except Exception as e:
-            print("Dir_Class.entryList:", e)
+        except Exception as exception:
+            print("Dir_Class.entryList:", exception)
 
         return retorno
 
@@ -555,10 +555,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         self._mode = self.ReadWrite
 
-    def open(self, m: QIODevice) -> bool:
+    def open(self, mode: QIODevice) -> bool:
         """Open file."""
 
-        self._mode = m
+        self._mode = mode
         self.eof = False
         if self._q_file is not None:
             self._q_file.open(self._mode)
@@ -598,12 +598,12 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if file_ is None:
             raise ValueError("file is empty!")
 
-        f = codecs.open(file_, "r" if not bytes else "rb", encoding=encode)
+        file_obj = codecs.open(file_, "r" if not bytes else "rb", encoding=encode)
         ret = ""
-        for l in f:
-            ret = ret + l
+        for line_ in file_obj:
+            ret += line_
 
-        f.close()
+        file_obj.close()
         self.eof = True
         return ret
 
@@ -682,9 +682,9 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
-        f = codecs.open(self._file_name, encoding=self._encode, mode="a")
-        f.write("%s\n" % data if len is None else data[0:len])
-        f.close()
+        file_ = codecs.open(self._file_name, encoding=self._encode, mode="a")
+        file_.write("%s\n" % data if len is None else data[0:len])
+        file_.close()
 
     def readLine(self) -> str:
         """
@@ -698,13 +698,13 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
-        f = codecs.open(self._file_name, "r", encoding=self._encode)
-        f.seek(self._last_seek)
-        ret = f.readline(self._last_seek)
+        file_ = codecs.open(self._file_name, "r", encoding=self._encode)
+        file_.seek(self._last_seek)
+        ret = file_.readline(self._last_seek)
         self._last_seek += len(ret)
         self.eof = True if ret else False
 
-        f.close()
+        file_.close()
 
         return ret
 
@@ -721,10 +721,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         ret: List[str]
         import codecs
 
-        f = codecs.open(self._file_name, encoding=self._encode, mode="a")
-        f.seek(self._last_seek)
-        ret = f.readlines()
-        f.close()
+        file_ = codecs.open(self._file_name, encoding=self._encode, mode="a")
+        file_.seek(self._last_seek)
+        ret = file_.readlines()
+        file_.close()
         return ret
 
     def readbytes(self) -> bytes:
@@ -746,28 +746,28 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
-        f = open(self._file_name, "wb")
-        f.write(data_b)
-        f.close()
+        file_ = open(self._file_name, "wb")
+        file_.write(data_b)
+        file_.close()
 
     def readByte(self) -> bytes:
         """Read a byte from file."""
         if not self.eof:
-            with open(self._file_name, "rb") as f:
-                f.seek(self._last_seek)
+            with open(self._file_name, "rb") as file_:
+                file_.seek(self._last_seek)
                 self._last_seek += 1
-                ret = f.read(1)
+                ret = file_.read(1)
                 self.eof = True if not ret else False
                 return ret
 
         return b""
 
-    def writeByte(self, b: bytes) -> None:
+    def writeByte(self, data: bytes) -> None:
         """Write a byte to file."""
-        with open(self._file_name, "wb") as f:
-            f.seek(self._last_seek)
+        with open(self._file_name, "wb") as file_:
+            file_.seek(self._last_seek)
             self._last_seek += 1
-            f.write(b)
+            file_.write(data)
 
     def remove(self) -> bool:
         """
@@ -838,8 +838,8 @@ class FileStatic(FileBaseClass):
         @return contenido del fichero
         """
 
-        with codecs.open(file_, "r" if not bytes else "rb", encoding="ISO-8859-15") as f:
-            ret = f.read()
+        with codecs.open(file_, "r" if not bytes else "rb", encoding="ISO-8859-15") as file_obj:
+            ret = file_obj.read()
 
         return ret
 
