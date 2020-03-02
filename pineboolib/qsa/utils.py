@@ -189,20 +189,20 @@ class Math(object):
 
     @staticmethod
     def random() -> float:
-        """Return a pseudo-random floating point number between 0 and 1"""
+        """Return a pseudo-random floating point number between 0 and 1."""
         import random
 
         return random.random()
 
     @staticmethod
     def max(number1: Union[float, int], number2: Union[float, int]) -> Union[float, int]:
-        """Returns the largest of number1 and number2."""
+        """Return the largest of number1 and number2."""
 
         return max([number1, number2])
 
     @staticmethod
     def min(number1: Union[float, int], number2: Union[float, int]) -> Union[float, int]:
-        """Returns the smallest of number1 and number2."""
+        """Return the smallest of number1 and number2."""
 
         return min([number1, number2])
 
