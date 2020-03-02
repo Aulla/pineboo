@@ -44,6 +44,10 @@ class PNConnectionManager(QtCore.QObject):
                 del conn_
                 del self.connections_dict["main_conn"]
 
+        if hasattr(pnsqlcursor, "CONNECTION_CURSORS"):
+            del pnsqlcursor.CONNECTION_CURSORS
+            pnsqlcursor.CONNECTION_CURSORS = {}
+
         main_conn._name = "main_conn"
         if main_conn._driver_name and main_conn._driver_sql.loadDriver(main_conn._driver_name):
             main_conn.conn = main_conn.conectar(
