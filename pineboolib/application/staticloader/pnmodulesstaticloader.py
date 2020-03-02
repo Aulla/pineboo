@@ -25,7 +25,7 @@ from typing import Any, List, Optional, cast, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces import iconnection
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class AQStaticDirInfo(object):
@@ -59,10 +59,10 @@ class AQStaticBdInfo(object):
         self.key_ = "StaticLoader/%s/" % self.db_
         self.enabled_ = settings.config.value("%senabled" % self.key_, False)
 
-    def findPath(self, p: str) -> Optional[AQStaticDirInfo]:
-        """Find if path "p" is managed in this class."""
+    def findPath(self, path: str) -> Optional[AQStaticDirInfo]:
+        """Find if path "path" is managed in this class."""
         for info in self.dirs_:
-            if info.path_ == p:
+            if info.path_ == path:
                 return info
 
         return None
@@ -116,8 +116,8 @@ class FLStaticLoaderWarning(QtCore.QObject):
 
         msg = '<p><img source="about.png" align="right"><b><u>CARGA ESTATICA ACTIVADA</u></b><br><br><font face="Monospace">'
 
-        for it in self.warns_:
-            msg += "%s<br>" % it
+        for item in self.warns_:
+            msg += "%s<br>" % item
 
         msg += "</font><br></p>"
         self.warns_.clear()
@@ -131,13 +131,13 @@ warn_: Optional[FLStaticLoaderWarning] = None
 class PNStaticLoader(QtCore.QObject):
     """Perform static loading of scripts from filesystem."""
 
-    def __init__(self, b: "AQStaticBdInfo", ui: QtWidgets.QDialog) -> None:
+    def __init__(self, info: "AQStaticBdInfo", dialog: QtWidgets.QDialog) -> None:
         """Create a new FLStaticLoader."""
 
         super(PNStaticLoader, self).__init__()
 
-        self.ui_ = ui
-        self.b_ = b
+        self._dialog = dialog
+        self._info = info
         if self.pixOn is None:
             raise Exception("pixOn not found!.")
         self.pixOn.setVisible(False)
@@ -160,9 +160,9 @@ class PNStaticLoader(QtCore.QObject):
     @decorators.pyqtSlot()
     def load(self) -> None:
         """Load and initialize the object."""
-        self.b_.readSettings()
-        cast(QtWidgets.QLabel, self.lblBdTop).setText(self.b_.db_)
-        cast(QtWidgets.QCheckBox, self.chkEnabled).setChecked(self.b_.enabled_)
+        self._info.readSettings()
+        cast(QtWidgets.QLabel, self.lblBdTop).setText(self._info.db_)
+        cast(QtWidgets.QCheckBox, self.chkEnabled).setChecked(self._info.enabled_)
         # tbl_dir = cast(QtWidgets.QTableView, self.tblDirs)
         # if self.b_.dirs_:
         #    n_rows = tbl_dir.numRows()
@@ -262,12 +262,12 @@ class PNStaticLoader(QtCore.QObject):
     #    tbl_dir.removeRow(cur_row)
 
     @decorators.pyqtSlot(bool)
-    def setEnabled(self, on: bool) -> None:
+    def setEnabled(self, state: bool) -> None:
         """Enable or disable this object."""
-        self.b_.enabled_ = on
+        self._info.enabled_ = state
 
     @decorators.pyqtSlot(bool)
-    def setChecked(self, on: bool) -> None:
+    def setChecked(self, state: bool) -> None:
         """Set checked this object."""
 
     #    tbl_dir = cast(QtWidgets.QTableView, self.tblDirs)
@@ -286,22 +286,22 @@ class PNStaticLoader(QtCore.QObject):
     #        info.active_ = on
 
     @staticmethod
-    def setup(b: "AQStaticBdInfo", ui: QtWidgets.QDialog) -> None:
+    def setup(info: "AQStaticBdInfo", dialog: QtWidgets.QDialog) -> None:
         """Configure user interface from given widget."""
 
     #    diag_setup = PNStaticLoader(b, ui)
-    #    if QtWidgets.QDialog.Accepted == diag_setup.ui_.exec_():
+    #    if QtWidgets.QDialog.Accepted == diag_setup._dialog.exec_():
     #        b.writeSettings()
 
     @staticmethod
-    def content(n: str, b: "AQStaticBdInfo", only_path: bool = False) -> Any:
+    def content(name: str, info: "AQStaticBdInfo", only_path: bool = False) -> Any:
         """Get content from given path."""
         global warn_
-        b.readSettings()
+        info.readSettings()
         separator = "\\" if sysbasetype.SysBaseType.osName().find("WIN") > -1 else "/"
-        for info in b.dirs_:
-            content_path = info.path_ + separator + n
-            if info.active_ and os.path.exists(content_path):
+        for info_item in info.dirs_:
+            content_path = "%s%s%s" % (info_item.path_, separator, name)
+            if info_item.active_ and os.path.exists(content_path):
                 if not warn_:
                     warn_ = FLStaticLoaderWarning()
 
@@ -312,13 +312,13 @@ class PNStaticLoader(QtCore.QObject):
                 # if not warn_.paths_:
                 #    timer.singleShot(1500, warn_.updateScripts)
 
-                msg = "%s -> ...%s" % (n, info.path_[0:40])
+                msg = "%s -> ...%s" % (name, info_item.path_[0:40])
 
                 if msg not in warn_.warns_:
                     warn_.warns_.append(msg)
-                    warn_.paths_.append("%s:%s" % (n, info.path_))
+                    warn_.paths_.append("%s:%s" % (name, info_item.path_))
                     if settings.config.value("ebcomportamiento/SLConsola", False):
-                        logger.warning("CARGA ESTATICA ACTIVADA:%s -> %s", n, info.path_)
+                        LOGGER.warning("CARGA ESTATICA ACTIVADA:%s -> %s", name, info_item.path_)
 
                 if only_path:
                     return content_path
@@ -328,11 +328,11 @@ class PNStaticLoader(QtCore.QObject):
                         raise Exception("Project is not connected yet")
 
                     return application.PROJECT.conn_manager.managerModules().contentFS(
-                        info.path_ + separator + n
+                        info_item.path_ + separator + name
                     )
 
         return None
 
     def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Emulate child properties as if they were inserted into the object."""
-        return cast(QtWidgets.QWidget, self.ui_.findChild(QtWidgets.QWidget, name))
+        return cast(QtWidgets.QWidget, self._dialog.findChild(QtWidgets.QWidget, name))

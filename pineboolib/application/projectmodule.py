@@ -456,19 +456,19 @@ class Project(object):
 
             fun_action = self.actions[array_fun[0]]
             if array_fun[1] == "iface" or len(array_fun) == 2:
-                mW = fun_action.load()
+                main_window = fun_action.load()
                 if len(array_fun) == 2:
                     object_context = None
-                    if hasattr(mW.widget, array_fun[1]):
-                        object_context = mW.widget
-                    if hasattr(mW.iface, array_fun[1]):
-                        object_context = mW.iface
+                    if hasattr(main_window.widget, array_fun[1]):
+                        object_context = main_window.widget
+                    if hasattr(main_window.iface, array_fun[1]):
+                        object_context = main_window.iface
 
                     if not object_context:
-                        object_context = mW
+                        object_context = main_window
 
                 else:
-                    object_context = mW.iface
+                    object_context = main_window.iface
 
             elif array_fun[1] == "widget":
                 script = fun_action.load_script(array_fun[0], None)

@@ -620,6 +620,5 @@ class SysBaseType(object):
             proc.execute(comando)
             return True
         except Exception:
-            e = traceback.format_exc()
-            LOGGER.error(e)
+            LOGGER.error(traceback.format_exc())
             return False
