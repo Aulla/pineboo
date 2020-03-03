@@ -1497,7 +1497,7 @@ class InstructionFlow(ASTPython):
         """Generate python code."""
 
         arguments = []
-        for n, arg in enumerate(self.elem):
+        for number, arg in enumerate(self.elem):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -1507,32 +1507,32 @@ class InstructionFlow(ASTPython):
                     yield dtype, data
             if len(expr) == 0:
                 arguments.append("unknownarg")
-                yield "debug", "Argument %d not understood" % n
+                yield "debug", "Argument %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
 
         ctype = self.elem.get("type")
-        kw = ctype
+        kw_ = ctype
         if ctype == "RETURN":
-            kw = "return"
+            kw_ = "return"
         if ctype == "BREAK":
-            kw = "break"
-            yield "break", kw + " " + ", ".join(arguments)
+            kw_ = "break"
+            yield "break", kw_ + " " + ", ".join(arguments)
 
             # if break_mode:
-            #     yield "break", kw + " " + ", ".join(arguments)
+            #     yield "break", kw_ + " " + ", ".join(arguments)
             #     return
         if ctype == "CONTINUE":
-            kw = "continue"
+            kw_ = "continue"
 
         if ctype == "THROW":
             yield "line", "raise Exception(" + ", ".join(arguments) + ")"
             return
-        if kw is None:
+        if kw_ is None:
             logger.error("Failed parsing AST. Ctype is None.")
             return
-        yield "line", kw + " " + ", ".join(arguments)
+        yield "line", kw_ + " " + ", ".join(arguments)
 
 
 class Member(ASTPython):
@@ -1543,18 +1543,18 @@ class Member(ASTPython):
 
         arguments = []
         arg_expr = []
-        funs = None
-        for n, arg in enumerate(self.elem):
+        # funs = None
+        for number, arg in enumerate(self.elem):
             expr = []
             arg.set("parent_", self.elem)  # type: ignore
-            for dtype, data in parse_ast(arg, parent=self).generate(is_member=n > 0):
+            for dtype, data in parse_ast(arg, parent=self).generate(is_member=number > 0):
                 if dtype == "expr":
                     expr.append(data)
                 else:
                     yield dtype, data
             if len(expr) == 0:
                 txtarg = "unknownarg"
-                yield "debug", "Argument %d not understood" % n
+                yield "debug", "Argument %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 txtarg = " ".join(expr)
@@ -1579,17 +1579,17 @@ class Member(ASTPython):
             # From: self.iface.__function()
             # to: super(className, self.iface).function()
             parent = cast(ElementTree.Element, self.elem.get("parent_"))
-            funs = None
-            p_ = parent
-            while p_:
-                if p_.tag == "Function":
-                    funs = p_
+            # funs = None
+            # p_ = parent
+            while parent:
+                if parent.tag == "Function":
+                    # funs = p_
                     break
-                p_ = cast(ElementTree.Element, p_.get("parent_"))
+                parent = cast(ElementTree.Element, parent.get("parent_"))
 
-            if funs:
+            if parent:
                 # fun = funs[-1]
-                fun = funs
+                fun = parent
                 full_fun_name = fun.get("name", "unnamed_function")
                 fun_name = arguments[2][2:]
                 if fun_name.find("(") > -1:
@@ -1610,16 +1610,17 @@ class Member(ASTPython):
             # From: self.iface.__function()
             # to: super(className, self.iface).function()
             parent = cast(ElementTree.Element, self.elem.get("parent_"))
-            funs = None
-            p_ = parent
-            while p_:
-                if p_.tag == "Function":
-                    funs = p_
+            # funs = None
+            # p_ = parent
+            while parent:
+                if parent.tag == "Function":
+                    # funs = parent
                     break
-                p_ = cast(ElementTree.Element, p_.get("parent_"))
-            if funs:
+                parent = cast(ElementTree.Element, parent.get("parent_"))
+
+            if parent:
                 # fun = funs[-1]
-                fun = funs
+                fun = parent
                 # name_parts = fun.get("name").split("_")
                 full_fun_name = fun.get("name", "unnamed_function")
                 fun_name = arguments[1][2:]
@@ -1702,9 +1703,9 @@ class Member(ASTPython):
                             if (value.find("(") < value.find(",")) and value.find(")") < value.find(
                                 ","
                             ):
-                                si, sk = value.split(",")
+                                si_, sk_ = value.split(",")
                                 arguments = [
-                                    "%s[%s:%s + %s]" % (".".join(part1), si, si, sk)
+                                    "%s[%s:%s + %s]" % (".".join(part1), si_, si_, sk_)
                                 ] + part2
                                 continue
                             # if (len(value.split(",")) == 2 and value.find("(") == -1) or value.find("(") < value.find(","):
@@ -1713,14 +1714,14 @@ class Member(ASTPython):
                             #        i = "%s)" % i
                             #        l = l.repalce(")", "")
                             else:
-                                si = "0"
-                                sk = value
+                                si_ = "0"
+                                sk_ = value
 
                         else:
-                            si = "0"
-                            sk = value
+                            si_ = "0"
+                            sk_ = value
 
-                        value = "%s + %s:" % (si, sk)
+                        value = "%s + %s:" % (si_, sk_)
                         arguments = ["%s[%s]" % (".".join(part1), value)] + part2
 
                     elif member == "length":
@@ -1745,19 +1746,21 @@ class Member(ASTPython):
                     elif member == "arg":
                         value = arg1[4:]
                         value = value[: len(value) - 1]
-                        sPart1 = ".".join(part1)
+                        new_part_1 = ".".join(part1)
                         strValue = "str(" + value + ")"
-                        if sPart1.find(strValue) > -1:
-                            arguments = [sPart1]
+                        if new_part_1.find(strValue) > -1:
+                            arguments = [new_part_1]
                         else:
-                            sPart2 = ""
+                            new_part_2 = ""
                             if len(part2) > 0:
                                 for i in range(len(part2)):
 
                                     part2[i] = str(part2[i]).replace("arg(", "str(")
-                                sPart2 = ", " + ", ".join(part2)
-                            sPart1 = re.sub(r"%\d", "%s", sPart1)
-                            arguments = ["%s %% (str(%s" % (sPart1, value + ")" + sPart2 + ")")]
+                                new_part_2 = ", " + ", ".join(part2)
+                            new_part_1 = re.sub(r"%\d", "%s", new_part_1)
+                            arguments = [
+                                "%s %% (str(%s" % (new_part_1, value + ")" + new_part_2 + ")")
+                            ]
                     elif member == "join":
                         value = arg1[5:]
                         value = value[: len(value) - 1] or '""'
@@ -1855,11 +1858,11 @@ class ArrayMember(ASTPython):
         """Generate python code."""
 
         arguments = []
-        for n, arg in enumerate(self.elem):
+        for number, arg in enumerate(self.elem):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(
-                isolate=False, is_member=(n == 0)
+                isolate=False, is_member=(number == 0)
             ):
                 # if data.find(".") > -1:
                 #    l = data.split(".")
@@ -1872,7 +1875,7 @@ class ArrayMember(ASTPython):
 
             if len(expr) == 0:
                 arguments.append("unknownarg")
-                yield "debug", "Argument %d not understood" % n
+                yield "debug", "Argument %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
@@ -2083,15 +2086,15 @@ class New(ASTPython):
                     data = data + "()"
                 ident = data[: data.find("(")]
                 if ident.find(".") == -1:
-                    parentClass_ = cast(ElementTree.Element, self.elem.get("parent_"))
+                    parent_class = cast(ElementTree.Element, self.elem.get("parent_"))
                     # classIdent_ = False
-                    while parentClass_ is not None:
-                        if parentClass_.tag == "Source":
-                            for m in parentClass_.findall("Class"):
-                                if m.get("name") == ident:
+                    while parent_class is not None:
+                        if parent_class.tag == "Source":
+                            for item in parent_class.findall("Class"):
+                                if item.get("name") == ident:
                                     # classIdent_ = True
                                     break
-                        parentClass_ = cast(ElementTree.Element, parentClass_.get("parent_"))
+                        parent_class = cast(ElementTree.Element, parent_class.get("parent_"))
 
                 yield dtype, data
 
@@ -2131,7 +2134,7 @@ class Constant(ASTPython):
 
                 elif child.tag == "CallArguments":
                     arguments = []
-                    for n, arg in enumerate(child):
+                    for number, arg in enumerate(child):
                         expr = []
                         for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
                             if dtype == "expr":
@@ -2140,7 +2143,7 @@ class Constant(ASTPython):
                                 yield dtype, data
                         if len(expr) == 0:
                             arguments.append("unknownarg")
-                            yield "debug", "Argument %d not understood" % n
+                            yield "debug", "Argument %d not understood" % number
                             yield "debug", ElementTree.tostring(arg)  # type: ignore
                         else:
                             arguments.append(" ".join(expr))
@@ -2516,7 +2519,7 @@ def write_python_file(
     fobj: TextIO, ast: ElementTree.Element, import_refs: Dict[str, Tuple[str, str]] = {}
 ) -> None:
     """Write python file."""
-    TEMPLATE_LIST: Dict[
+    template_list: Dict[
         str, Callable[[ElementTree.Element, Dict[str, Tuple[str, str]]], ASTGenerator]
     ] = {"file_template": file_template, "expression_template": expression_template}
     indent: List[str] = []
@@ -2526,7 +2529,7 @@ def write_python_file(
     ASTPython.numline = 1
     last_dtype = None
 
-    parser_template = TEMPLATE_LIST[ast.get("parser-template", default="file_template")]
+    parser_template = template_list[ast.get("parser-template", default="file_template")]
 
     for dtype, data in parser_template(ast, import_refs):
         # if isinstance(data, bytes):
@@ -2592,9 +2595,9 @@ def pythonize(filename: str, destfilename: str, debugname: Optional[str] = None)
         raise
     ast = ast_tree.getroot()
 
-    f1 = open(destfilename, "w", encoding="UTF-8")
-    write_python_file(f1, ast)
-    f1.close()
+    file_ = open(destfilename, "w", encoding="UTF-8")
+    write_python_file(file_, ast)
+    file_.close()
     if black:
         try:
             new_code = black.format_file_contents(
@@ -2604,9 +2607,9 @@ def pythonize(filename: str, destfilename: str, debugname: Optional[str] = None)
             # The file we saved earlier is already good.
             return
 
-        f1 = open(destfilename, "w", encoding="UTF-8")
-        f1.write(new_code)
-        f1.close()
+        file_ = open(destfilename, "w", encoding="UTF-8")
+        file_.write(new_code)
+        file_.close()
 
 
 def pythonize2(root_ast: ElementTree.Element, known_refs: Dict[str, Tuple[str, str]] = {}) -> str:
@@ -2624,9 +2627,9 @@ def pythonize2(root_ast: ElementTree.Element, known_refs: Dict[str, Tuple[str, s
             if name in known_refs:
                 ident_set.add(name)
     known_refs_found: Dict[str, Tuple[str, str]] = {k: known_refs[k] for k in ident_set}
-    f1 = StringIO()
-    write_python_file(f1, root_ast, import_refs=known_refs_found)
-    unformatted_code = f1.getvalue()
+    file_ = StringIO()
+    write_python_file(file_, root_ast, import_refs=known_refs_found)
+    unformatted_code = file_.getvalue()
     if unformatted_code and black:
         try:
             new_code = black.format_file_contents(unformatted_code, fast=True, mode=BLACK_FILEMODE)

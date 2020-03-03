@@ -340,7 +340,7 @@ class PNStaticLoader(QtCore.QObject):
 
                 msg = "%s -> ...%s" % (name, info_item.path_[0:40])
 
-                if msg not in warn_.warns_:
+                if msg not in WARN_.warns_:
                     WARN_.warns_.append(msg)
                     WARN_.paths_.append("%s:%s" % (name, info_item.path_))
                     if settings.config.value("ebcomportamiento/SLConsola", False):
