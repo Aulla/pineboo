@@ -10,18 +10,19 @@ from xml.etree import ElementTree
 from xml.dom import minidom  # type: ignore
 import logging
 import importlib
+from importlib import machinery
 from . import pytnyzer
 from . import flscriptparse
 from typing import List, Type, Optional, Dict, Tuple, Any, Callable, cast, Iterable
 
-sm = pytnyzer.STRICT_MODE
+STRICT_MODE = pytnyzer.STRICT_MODE
 importlib.reload(pytnyzer)
-pytnyzer.STRICT_MODE = sm
+pytnyzer.STRICT_MODE = STRICT_MODE
 
 
 TreeData = Dict[str, Any]
 
-logger = logging.getLogger("flparser.postparse")
+LOGGER = logging.getLogger(__name__)
 
 USEFUL_TOKENS = "ID,ICONST,FCONST,SCONST,CCONST,RXCONST".split(",")
 
@@ -29,40 +30,41 @@ KNOWN_PARSERS: Dict[str, Type["TagObjectBase"]] = {}
 UNKNOWN_PARSERS = {}
 
 
-def parse_for(*tagnames: str) -> Callable:
+def parse_for(*tag_names: str) -> Callable:
     """Decorate functions for registering tags."""
     global KNOWN_PARSERS
 
-    def decorator(fn: Type["TagObjectBase"]) -> Type["TagObjectBase"]:
-        for n in tagnames:
-            KNOWN_PARSERS[n] = fn
-        return fn
+    def decorator(func: Type["TagObjectBase"]) -> Type["TagObjectBase"]:
+        for tag_name in tag_names:
+            KNOWN_PARSERS[tag_name] = func
+        return func
 
     return decorator
 
 
-def parse(tagname: str, treedata: TreeData) -> "TagObject":
+def parse(tag_name: str, tree_data: TreeData) -> "TagObject":
     """Excecute registered function for given tagname on treedata."""
     global KNOWN_PARSERS, UNKNOWN_PARSERS
-    if tagname not in KNOWN_PARSERS:
-        UNKNOWN_PARSERS[tagname] = 1
-        fn = parse_unknown
+    if tag_name not in KNOWN_PARSERS:
+        UNKNOWN_PARSERS[tag_name] = 1
+        func = parse_unknown
     else:
-        fn = KNOWN_PARSERS[tagname]
-    return fn(tagname, treedata)
+        func = KNOWN_PARSERS[tag_name]
+    return func(tag_name, tree_data)
 
 
-def getxmltagname(tagname: str) -> str:
+def getxmltagname(tag_name: str) -> str:
     """Transform tag names."""
-    if tagname == "source":
+    if tag_name == "source":
         return "Source"
-    if tagname == "funcdeclaration":
+    elif tag_name == "funcdeclaration":
         return "Function"
-    if tagname == "classdeclaration":
+    elif tag_name == "classdeclaration":
         return "Class"
-    if tagname == "vardeclaration":
+    elif tag_name == "vardeclaration":
         return "Variable"
-    return "Unknown.%s" % tagname
+    else:
+        return "Unknown.%s" % tag_name
 
 
 class TagObjectBase:
@@ -89,7 +91,7 @@ class TagObjectBase:
         """Abstract function for adding other types of data."""
 
 
-xml_class_types: List[Type[TagObjectBase]] = []
+XML_CLASS_TYPES: List[Type[TagObjectBase]] = []
 
 
 class TagObjectFactory(type):
@@ -97,9 +99,9 @@ class TagObjectFactory(type):
 
     def __init__(cls, name: str, bases: Any, dct: Any) -> None:
         """Register a new class as tag processor."""
-        global xml_class_types
+        global XML_CLASS_TYPES
         if issubclass(cls, TagObjectBase):
-            xml_class_types.append(cast(Type[TagObjectBase], cls))
+            XML_CLASS_TYPES.append(cast(Type[TagObjectBase], cls))
         else:
             raise Exception("This metaclass must be used as a subclass of TagObjectBase")
         super().__init__(name, bases, dct)
@@ -664,7 +666,7 @@ class Unknown(TagObject):
 def create_xml(tagname) -> Optional[TagObject]:
     """Create processor for tagname by inspecting first known processor that fits."""
     classobj = None
-    for cls in xml_class_types:
+    for cls in XML_CLASS_TYPES:
         if cls.can_process_tag(tagname):
             classobj = cls
             break
@@ -681,17 +683,18 @@ def parse_unknown(tagname, treedata):
     xmlelem = create_xml(tagname)
     if xmlelem is None:
         raise Exception("No class for parsing tagname %s" % tagname)
-    i = 0
-    for k, v in treedata["content"]:
-        if type(v) is dict:
-            instruction = parse(k, v)
-            xmlelem.add_subelem(i, instruction)
-        elif k in USEFUL_TOKENS:
-            xmlelem.add_value(i, k, v)
-        else:
-            xmlelem.add_other(i, k, v)
 
-        i += 1
+    position = 0
+    for key, value in treedata["content"]:
+        if type(value) is dict:
+            instruction = parse(key, value)
+            xmlelem.add_subelem(position, instruction)
+        elif key in USEFUL_TOKENS:
+            xmlelem.add_value(position, key, value)
+        else:
+            xmlelem.add_other(position, key, value)
+        position += 1
+
     return xmlelem.polish()
 
 
@@ -712,30 +715,24 @@ class Module(object):
 
     def loadModule(self):
         """Import and return Python file."""
-        fp = None
         try:
-            import imp  # FIXME: imp module is deprecated in favor of importlib
 
-            description = (".py", "U", imp.PY_SOURCE)
-            # description = ('.pyc', 'U', PY_COMPILED)
-            pathname = os.path.join(self.path, self.name)
-            fp = open(pathname)
             name = self.name[: self.name.find(".")]
-            # fp, pathname, description = imp.find_module(self.name,[self.path])
-            self.module = imp.load_module(name, fp, pathname, description)
+            loader = machinery.SourceFileLoader(name, os.path.join(self.path, self.name))
+            self.module = loader.load_module()  # type: ignore[call-arg] # noqa: F821
             result = True
+
         except FileNotFoundError:
-            logger.error("Fichero %r no encontrado" % self.name)
+            LOGGER.error("Fichero %r no encontrado" % self.name)
             result = False
         except Exception:
-            logger.exception("Unexpected exception on loadModule")
+            LOGGER.exception("Unexpected exception on loadModule")
             result = False
-        if fp:
-            fp.close()
+
         return result
 
 
-def parseArgs(argv: List[str]) -> Tuple[Any, List[str]]:
+def parse_args(argv: List[str]) -> Tuple[Any, List[str]]:
     """Define parsing arguments for the program."""
     parser = OptionParser()
     parser.add_option(
@@ -823,7 +820,7 @@ def main() -> None:
     blib_logger = logging.getLogger("blib2to3.pgen2.driver")
     blib_logger.setLevel(logging.WARNING)
 
-    options, args = parseArgs(sys.argv[1:])
+    options, args = parse_args(sys.argv[1:])
     execute(options, args)
 
 
@@ -831,7 +828,7 @@ def pythonify(filelist: List[str], arguments: List[str] = []) -> None:
     """Convert to python the files included in the list."""
     if not isinstance(filelist, list):
         raise ValueError("First argument must be a list")
-    options, args = parseArgs(arguments)
+    options, args = parse_args(arguments)
     options.full = True
     execute(options, filelist)
 
@@ -882,23 +879,23 @@ def execute(options: Any, args: List[str]) -> None:
         options.exec_python = False
         options.full = False
         options.toxml = True
-        logger.info("Pass 1 - Parse and write XML file . . .")
+        LOGGER.info("Pass 1 - Parse and write XML file . . .")
         try:
             execute(options, args)
         except Exception:
-            logger.exception("Error parseando:")
+            LOGGER.exception("Error parseando:")
 
         options.toxml = False
         options.topython = True
-        logger.info("Pass 2 - Pythonize and write PY file . . .")
+        LOGGER.info("Pass 2 - Pythonize and write PY file . . .")
         try:
             execute(options, [arg + ".xml" for arg in args])
         except Exception:
-            logger.exception("Error convirtiendo:")
+            LOGGER.exception("Error convirtiendo:")
 
         if execpython:
             options.exec_python = execpython
-            logger.info("Pass 3 - Test PY file load . . .")
+            LOGGER.info("Pass 3 - Test PY file load . . .")
             options.topython = False
             try:
                 execute(
@@ -906,8 +903,8 @@ def execute(options: Any, args: List[str]) -> None:
                     [(arg + ".xml.py").replace(".qs.xml.py", options.python_ext) for arg in args],
                 )
             except Exception:
-                logger.exception("Error al ejecutar Python:")
-        logger.debug("Done.")
+                LOGGER.exception("Error al ejecutar Python:")
+        LOGGER.debug("Done.")
 
     elif options.exec_python:
         # import qsatype
@@ -915,12 +912,12 @@ def execute(options: Any, args: List[str]) -> None:
             realpath = os.path.realpath(filename)
             path, name = os.path.split(realpath)
             if not os.path.exists(realpath):
-                logger.error("Fichero no existe: %s" % name)
+                LOGGER.error("Fichero no existe: %s" % name)
                 continue
 
             mod = Module(name, path)
             if not mod.loadModule():
-                logger.error("Error cargando modulo %s" % name)
+                LOGGER.error("Error cargando modulo %s" % name)
 
     elif options.topython:
         from .pytnyzer import pythonize
@@ -936,7 +933,7 @@ def execute(options: Any, args: List[str]) -> None:
             ]
 
         nfs = len(args)
-        for nf, filename in enumerate(args):
+        for nf_, filename in enumerate(args):
             bname = os.path.basename(filename)
             if options.storepath:
                 destname = os.path.join(options.storepath, bname + ".py")
@@ -944,11 +941,11 @@ def execute(options: Any, args: List[str]) -> None:
                 destname = filename + ".py"
             destname = destname.replace(".qs.xml.py", options.python_ext)
             if not os.path.exists(filename):
-                logger.error("Fichero %r no encontrado" % filename)
+                LOGGER.error("Fichero %r no encontrado" % filename)
                 continue
-            logger.debug(
+            LOGGER.debug(
                 "Pythonizing File: %-35s . . . .        (%.1f%%)"
-                % (bname, 100.0 * (nf + 1.0) / nfs)
+                % (bname, 100.0 * (nf_ + 1.0) / nfs)
             )
             old_stderr = sys.stdout
             stream = io.StringIO()
@@ -956,11 +953,11 @@ def execute(options: Any, args: List[str]) -> None:
             try:
                 pythonize(filename, destname, destname + ".debug")
             except Exception:
-                logger.exception("Error al pythonificar %r:" % filename)
+                LOGGER.exception("Error al pythonificar %r:" % filename)
             sys.stdout = old_stderr
             text = stream.getvalue()
             if len(text) > 2:
-                logger.info("%s: " % bname + ("\n%s: " % bname).join(text.splitlines()))
+                LOGGER.info("%s: " % bname + ("\n%s: " % bname).join(text.splitlines()))
 
     else:
         if options.cache:
@@ -971,22 +968,22 @@ def execute(options: Any, args: List[str]) -> None:
                 or os.path.getmtime(x) > os.path.getctime(x + ".xml")
             ]
         nfs = len(args)
-        for nf, filename in enumerate(args):
+        for nf_, filename in enumerate(args):
             bname = os.path.basename(filename)
-            logger.debug(
-                "Parsing File: %-35s . . . .        (%.1f%%)" % (bname, 100.0 * (nf + 1.0) / nfs)
+            LOGGER.debug(
+                "Parsing File: %-35s . . . .        (%.1f%%)" % (bname, 100.0 * (nf_ + 1.0) / nfs)
             )
             try:
                 filecontent = open(filename, "r", encoding="latin-1").read()
             except Exception:
-                logger.exception("Error: No se pudo abrir fichero %s", filename)
+                LOGGER.exception("Error: No se pudo abrir fichero %s", filename)
                 continue
             prog = flscriptparse.parse(filecontent)
             if not prog:
-                logger.error("Error: No se pudo abrir %s" % (repr(filename)))
+                LOGGER.error("Error: No se pudo abrir %s" % (repr(filename)))
                 continue
             if prog["error_count"] > 0:
-                logger.error(
+                LOGGER.error(
                     "Encontramos %d errores parseando: %-35s"
                     % (prog["error_count"], repr(filename))
                 )
@@ -999,14 +996,14 @@ def execute(options: Any, args: List[str]) -> None:
             try:
                 tree_data = flscriptparse.calctree(prog, alias_mode=0)
             except Exception:
-                logger.exception("Error al convertir a XML %r:" % bname)
+                LOGGER.exception("Error al convertir a XML %r:" % bname)
 
             if not tree_data:
-                logger.error("No se pudo parsear %s" % (repr(filename)))
+                LOGGER.error("No se pudo parsear %s" % (repr(filename)))
                 continue
             ast = post_parse(tree_data)
             if ast is None:
-                logger.error("No se pudo analizar %s" % (repr(filename)))
+                LOGGER.error("No se pudo analizar %s" % (repr(filename)))
                 continue
             if options.storepath:
                 destname = os.path.join(options.storepath, bname + ".xml")
@@ -1014,8 +1011,8 @@ def execute(options: Any, args: List[str]) -> None:
                 destname = filename + ".xml"
 
             xml_str = minidom.parseString(ElementTree.tostring(ast)).toprettyxml(indent="   ")
-            with open(destname, "w", encoding="UTF-8") as f:
-                f.write(xml_str)
+            with open(destname, "w", encoding="UTF-8") as file_:
+                file_.write(xml_str)
 
 
 if __name__ == "__main__":

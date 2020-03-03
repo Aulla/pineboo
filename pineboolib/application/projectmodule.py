@@ -567,7 +567,7 @@ class Project(object):
                 self.pending_conversion_list.append(dest_file_name)
                 itemlist.append(
                     pyconvert.PythonifyItem(
-                        src=path_file, dst=dest_file_name, n=num, len=len(path_list), known={}
+                        src=path_file, dst=dest_file_name, number=num, len=len(path_list), known={}
                     )
                 )
 

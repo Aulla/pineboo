@@ -15,14 +15,14 @@ from pineboolib.core.utils.struct import ActionStruct
 from pineboolib.application.parsers import qsaparser
 from pineboolib.application.parsers.qsaparser import postparse, pytnyzer
 
+LOGGER = logging.getLogger(__name__)
+
 
 class Action(ActionStruct):
     """Represent actions from XML."""
 
     modname: str = ""
 
-
-logger = logging.getLogger("pyconvert")
 
 ModPath = TypeVar("ModPath", bound=str)
 ModName = TypeVar("ModName", bound=str)
@@ -34,7 +34,7 @@ CPU_COUNT: int = os.cpu_count() or 1
 def _touch(path: str) -> bool:
     """Create a file if does not exist."""
     if not os.path.exists(path):
-        logger.info("Creating empty file %r", path)
+        LOGGER.info("Creating empty file %r", path)
         open(path, "a").close()
         return True
     return False
@@ -43,20 +43,20 @@ def _touch(path: str) -> bool:
 def _touch_dir(path: str) -> bool:
     """Create a folder if does not exist."""
     if not os.path.exists(path):
-        logger.info("Creating folder %r", path)
+        LOGGER.info("Creating folder %r", path)
         os.mkdir(path)
         return True
     return False
 
 
-def get_modules(frompath: str = ".") -> ModList:
+def get_modules(from_path: str = ".") -> ModList:
     """Read folders ignoring anything suspiciuos."""
-    rootdir: str = os.path.abspath(frompath)
+    rootdir: str = os.path.abspath(from_path)
     module_files: ModList = []
-    for root, subFolders, files in os.walk(rootdir):
-        for n, subf in reversed(list(enumerate(subFolders))):
+    for root, sub_folders, files in os.walk(rootdir):
+        for number, subf in reversed(list(enumerate(sub_folders))):
             if subf[0] < "a" or subf[0] > "z":
-                del subFolders[n]
+                del sub_folders[number]
         root = root.replace(rootdir, "")
         if root.startswith("/"):
             root = root[1:]
@@ -66,20 +66,20 @@ def get_modules(frompath: str = ".") -> ModList:
     return module_files
 
 
-def mod_xml_parse(path: str, modname: str) -> Optional[Dict[str, Action]]:
+def mod_xml_parse(path: str, mod_name: str) -> Optional[Dict[str, Action]]:
     """Parse Module XML and retrieve actions."""
     try:
         tree = ET.parse(source=codecs.open(path, "r", encoding="iso-8859-15"))
     except Exception:
-        logger.exception("Error trying to parse %r", path)
+        LOGGER.exception("Error trying to parse %r", path)
         return None
     root = tree.getroot()
     actions: Dict[str, Action] = {}
     for xmlaction in root:
         action = Action(xmlaction)
-        action.modname = modname
+        action.modname = mod_name
         if action.name in actions:
-            logger.warning("Found duplicate action in %r for %r. Will override.", path, action.name)
+            LOGGER.warning("Found duplicate action in %r for %r. Will override.", path, action.name)
         actions[action.name] = action
     return actions
 
@@ -89,15 +89,17 @@ class PythonifyItem(object):
 
     src_path: str = ""
     dst_path: str = ""
-    n: int = 0
+    number: int = 0
     len: int = 1
     known: Dict[str, Tuple[str, str]] = {}
 
-    def __init__(self, src: str, dst: str, n: int, len: int, known: Dict[str, Tuple[str, str]]):
+    def __init__(
+        self, src: str, dst: str, number: int, len: int, known: Dict[str, Tuple[str, str]]
+    ):
         """Create object just from args."""
         self.src_path = src
         self.dst_path = dst
-        self.n = n
+        self.number = number
         self.len = len
         self.known = known
 
@@ -105,14 +107,14 @@ class PythonifyItem(object):
 def pythonify_item(o: PythonifyItem) -> bool:
     """Parse QS into Python. For multiprocessing.map."""
     if qsaparser.USE_THREADS:
-        logger.info("(%.2f%%) Parsing QS %r", 100 * o.n / o.len, o.src_path)
+        LOGGER.info("(%.2f%%) Parsing QS %r", 100 * o.number / o.len, o.src_path)
     try:
         pycode = postparse.pythonify2(o.src_path, known_refs=o.known)
     except Exception:
-        logger.exception("El fichero %s no se ha podido convertir", o.src_path)
+        LOGGER.exception("El fichero %s no se ha podido convertir", o.src_path)
         return False
-    with open(o.dst_path, "w", encoding="UTF-8") as f1:
-        f1.write(pycode)
+    with open(o.dst_path, "w", encoding="UTF-8") as file_:
+        file_.write(pycode)
 
     return True
 
@@ -127,7 +129,7 @@ def main() -> None:
     logging.basicConfig(format=log_format, level=0)
     blib_logger = logging.getLogger("blib2to3.pgen2.driver")
     blib_logger.setLevel(logging.WARNING)
-    logger.info("Cpu count %d", CPU_COUNT)
+    LOGGER.info("Cpu count %d", CPU_COUNT)
     source_folder = "."
     package_name = "pymodules"
     src_path = os.path.abspath(source_folder)
@@ -137,10 +139,10 @@ def main() -> None:
     _touch(os.path.join(dst_path, "__init__.py"))
     mypy_ini = os.path.join(src_path, "mypy.ini")
     if not os.path.exists(mypy_ini):
-        with open(mypy_ini, "w") as f1:
-            f1.write("[mypy]\n")
-            f1.write("python_version = 3.7\n")
-            f1.write("check_untyped_defs = True\n")
+        with open(mypy_ini, "w") as file_:
+            file_.write("[mypy]\n")
+            file_.write("python_version = 3.7\n")
+            file_.write("check_untyped_defs = True\n")
 
     # Step 2 - Create module folders
     module_files_in: ModList = get_modules(src_path)
@@ -149,12 +151,12 @@ def main() -> None:
     for mpath, mname in module_files_in:
         xml_name = os.path.join(mpath, "%s.xml" % mname)
         if not os.path.exists(os.path.join(src_path, xml_name)):
-            logger.warn("File not found %r. Ignoring module." % xml_name)
+            LOGGER.warn("File not found %r. Ignoring module." % xml_name)
             continue
         if os.sep in mpath:
             mpath_list = mpath.split(os.sep)
             if len(mpath_list) > 2:
-                logger.warn("Path %r is not supported, maximum is depth 2" % mpath)
+                LOGGER.warn("Path %r is not supported, maximum is depth 2" % mpath)
                 continue
             mpath_parent = mpath_list[0]
             _touch_dir(os.path.join(dst_path, mpath_parent))
@@ -189,16 +191,16 @@ def main() -> None:
         for alias, (path, name) in known_modules.items():
             if filter_mod not in path and filter_mod not in name:
                 continue
-            logger.debug("from %s import %s as %s", path, name, alias)
+            LOGGER.debug("from %s import %s as %s", path, name, alias)
 
     # Step 4 - Retrieve QS file list for conversion
-    logger.info("Retrieving QS File list...")
+    LOGGER.info("Retrieving QS File list...")
     qs_files: List[Tuple[str, str]] = []
     for mpath, mname in module_files_ok:
         if filter_mod is not None and filter_mod not in mpath and filter_mod not in mname:
             continue
         rootdir = os.path.join(src_path, mpath)
-        for root, subFolders, files in os.walk(rootdir):
+        for root, sub_folders, files in os.walk(rootdir):
 
             def get_fname_pair(fname: str) -> Tuple[str, str]:
                 src_filename = os.path.join(root, fname)
@@ -210,19 +212,19 @@ def main() -> None:
             qs_files += [get_fname_pair(fname) for fname in files if fname.endswith(".qs")]
 
     # Step 5 - Convert QS into Python
-    logger.info("Converting %d QS files...", len(qs_files))
+    LOGGER.info("Converting %d QS files...", len(qs_files))
 
     itemlist = [
-        PythonifyItem(src=src, dst=dst, n=n, len=len(qs_files), known=known_modules)
-        for n, (src, dst) in enumerate(qs_files)
+        PythonifyItem(src=src, dst=dst, number=number, len=len(qs_files), known=known_modules)
+        for number, (src, dst) in enumerate(qs_files)
     ]
 
     pycode_list: List[bool] = []
 
     if qsaparser.USE_THREADS:
-        with Pool(CPU_COUNT) as p:
+        with Pool(CPU_COUNT) as cpu:
             # TODO: Add proper signatures to Python files to avoid reparsing
-            pycode_list = p.map(pythonify_item, itemlist, chunksize=2)
+            pycode_list = cpu.map(pythonify_item, itemlist, chunksize=2)
     else:
         for item in itemlist:
             pycode_list.append(pythonify_item(item))

@@ -121,7 +121,7 @@ class FLStaticLoaderWarning(QtCore.QObject):
         # flapplication.aqApp.popupWarn(msg) #FIXME
 
 
-warn_: Optional[FLStaticLoaderWarning] = None
+WARN_: Optional[FLStaticLoaderWarning] = None
 
 
 class PNStaticLoader(QtCore.QObject):
@@ -322,14 +322,14 @@ class PNStaticLoader(QtCore.QObject):
     @staticmethod
     def content(name: str, info: "AQStaticBdInfo", only_path: bool = False) -> Any:
         """Get content from given path."""
-        global warn_
+        global WARN_
         info.readSettings()
         separator = "\\" if sysbasetype.SysBaseType.osName().find("WIN") > -1 else "/"
         for info_item in info.dirs_:
             content_path = "%s%s%s" % (info_item.path_, separator, name)
             if info_item.active_ and os.path.exists(content_path):
-                if not warn_:
-                    warn_ = FLStaticLoaderWarning()
+                if not WARN_:
+                    WARN_ = FLStaticLoaderWarning()
 
                 # timer = QtCore.QTimer
                 # if not warn_.warns_ and config.value("ebcomportamiento/SLInterface", True):
@@ -341,8 +341,8 @@ class PNStaticLoader(QtCore.QObject):
                 msg = "%s -> ...%s" % (name, info_item.path_[0:40])
 
                 if msg not in warn_.warns_:
-                    warn_.warns_.append(msg)
-                    warn_.paths_.append("%s:%s" % (name, info_item.path_))
+                    WARN_.warns_.append(msg)
+                    WARN_.paths_.append("%s:%s" % (name, info_item.path_))
                     if settings.config.value("ebcomportamiento/SLConsola", False):
                         LOGGER.warning("CARGA ESTATICA ACTIVADA:%s -> %s", name, info_item.path_)
 

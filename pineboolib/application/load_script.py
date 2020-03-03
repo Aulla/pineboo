@@ -79,7 +79,7 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
                     raise IOError
                 try:
                     loader = machinery.SourceFileLoader(scriptname, script_path_py)
-                    script_loaded = loader.load_module()  # type: ignore
+                    script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
                 except Exception:
                     LOGGER.exception("ERROR al cargar script PY para la accion %s:", action_.name)
 
@@ -110,7 +110,7 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
             # python_script_path = "%s.py" % script_path_qs[:-3]
             try:
                 loader = machinery.SourceFileLoader(scriptname, script_path_py)
-                script_loaded = loader.load_module()  # type: ignore
+                script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
             except Exception:
                 LOGGER.exception("ERROR al cargar script QS para la accion %s:", action_.name)
                 if os.path.exists(script_path_py):

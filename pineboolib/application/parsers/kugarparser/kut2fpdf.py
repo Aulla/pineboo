@@ -801,8 +801,8 @@ class Kut2FPDF(object):
             for line_text in txt.split("\n"):
                 array_n.append(line_text)
         if array_n:  # Hay saltos de lineas ...
-            for n in array_n:
-                text_lines.append(n)
+            for line_ in array_n:
+                text_lines.append(line_)
         else:  # No hay saltos de lineas
             text_lines.append(txt)
 
