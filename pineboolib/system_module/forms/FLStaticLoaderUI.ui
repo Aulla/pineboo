@@ -175,7 +175,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QTableView" name="tblDirs"/>
+       <widget class="QTableWidget" name="tblDirs"/>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
