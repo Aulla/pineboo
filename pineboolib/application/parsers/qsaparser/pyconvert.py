@@ -104,16 +104,16 @@ class PythonifyItem(object):
         self.known = known
 
 
-def pythonify_item(o: PythonifyItem) -> bool:
+def pythonify_item(item: PythonifyItem) -> bool:
     """Parse QS into Python. For multiprocessing.map."""
     if qsaparser.USE_THREADS:
-        LOGGER.info("(%.2f%%) Parsing QS %r", 100 * o.number / o.len, o.src_path)
+        LOGGER.info("(%.2f%%) Parsing QS %r", 100 * item.number / item.len, item.src_path)
     try:
-        pycode = postparse.pythonify2(o.src_path, known_refs=o.known)
+        pycode = postparse.pythonify2(item.src_path, known_refs=item.known)
     except Exception:
-        LOGGER.exception("El fichero %s no se ha podido convertir", o.src_path)
+        LOGGER.exception("El fichero %s no se ha podido convertir", item.src_path)
         return False
-    with open(o.dst_path, "w", encoding="UTF-8") as file_:
+    with open(item.dst_path, "w", encoding="UTF-8") as file_:
         file_.write(pycode)
 
     return True
