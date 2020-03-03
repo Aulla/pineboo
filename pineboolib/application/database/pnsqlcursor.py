@@ -2238,18 +2238,20 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.rollbackOpened(-1, message)
 
         for id_conn in CONNECTION_CURSORS.keys():
-            for name in CONNECTION_CURSORS[id_conn]:
-                if name == self.id():
-                    CONNECTION_CURSORS[id_conn].remove(name)
+            if self.id() in CONNECTION_CURSORS[id_conn]:
+                CONNECTION_CURSORS[id_conn].remove(self.id())
 
-                    if application.SHOW_CURSOR_EVENTS:
-                        LOGGER.warning(
-                            "CURSOR_EVENT: %s eliminado pool de cursores %s", self.id(), id_conn
-                        )
-                        return
+                if application.SHOW_CURSOR_EVENTS:
+                    LOGGER.warning(
+                        "CURSOR_EVENT: %s eliminado pool de cursores %s.", self.id(), id_conn
+                    )
+                    return
 
         if application.SHOW_CURSOR_EVENTS:
-            LOGGER.warning("CURSOR_EVENT: No se ha encontrado %s en el pool de cursores", self.id())
+            LOGGER.warning(
+                "CURSOR_EVENT: No se ha eliminado %s del pool de cursores, porque no se ha encontrado.",
+                self.id(),
+            )
 
         # for name in CONNECTION_CURSORS[id_conn]:
         #    print("*", name, self.parent())
