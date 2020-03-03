@@ -9,7 +9,6 @@ from PyQt5 import QtCore, QtXml, QtWidgets
 from pineboolib import application
 
 from pineboolib.application.database import pnsqlquery
-from pineboolib.application.metadata import pntablemetadata
 
 from . import pnaccesscontrolfactory
 
@@ -18,6 +17,7 @@ from typing import Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from . import pnaccesscontrol  # noqa : F401
+    from pineboolib.application.metadata import pntablemetadata  # noqa : F401
 
 
 LOGGER = logging.getLogger(__name__)
@@ -137,10 +137,10 @@ class PNAccessControlLists(object):
             return
         type_: str = pnaccesscontrolfactory.PNAccessControlFactory().type(obj)
 
-        if isinstance(obj, (pntablemetadata.PNTableMetaData, QtWidgets.QDialog)):
-            name_ = obj.name()
+        if hasattr(obj, "name"):
+            name_ = obj.name()  # type: ignore[union-attr] # noqa: F821
         else:
-            name_ = obj.objectName()
+            name_ = obj.objectName()  # type: ignore[union-attr] # noqa: F821
 
         if application.PROJECT.conn_manager is None:
             raise Exception("Project is not connected yet")
