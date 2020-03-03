@@ -10,7 +10,7 @@ from pineboolib.application.metadata import pntablemetadata
 from . import pnaccesscontrol
 
 
-from typing import Dict, Any, Optional, cast
+from typing import Dict, Optional, Union, cast
 
 import logging
 
@@ -32,7 +32,6 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
 
     def processObject(self, main_window: Optional[QtWidgets.QMainWindow]) -> None:
         """Process the object."""
-
         if main_window is None:
             return
         list1 = main_window.findChildren(QtWidgets.QAction)
@@ -52,9 +51,11 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
                     if perm in ["-w", "--"]:
                         wid.setVisible(False)
 
-    def setFromObject(self, object: Any) -> None:
+    def setFromObject(self, object: QtWidgets.QMainWindow) -> None:
         """Not implemented jet."""
-        LOGGER.warning("PNAccessControlMainWindow::setFromObject %s", "No implementado todavía.")
+        LOGGER.warning(
+            "PNAccessControlMainWindow::setFromObject %s", "No implementado todavía.", object
+        )
 
 
 class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
@@ -132,9 +133,9 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
                     object_name,
                 )
 
-    def setFromObject(self, object) -> None:
+    def setFromObject(self, widget: QtWidgets.QWidget) -> None:
         """Not implemented jet."""
-        LOGGER.warning("PNAccessControlForm::setFromObject %s No implementado todavía.", object)
+        LOGGER.warning("PNAccessControlForm::setFromObject %s No implementado todavía.", widget)
 
 
 class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
@@ -153,7 +154,6 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
 
     def processObject(self, table_metadata: "pntablemetadata.PNTableMetaData") -> None:
         """Process pntablemetadata.PNTableMetaData belonging to a table."""
-
         mask_perm = 0
         has_acos = True if self._acos_perms else False
 
@@ -235,7 +235,9 @@ class PNAccessControlFactory(object):
 
         raise ValueError("type_ %r unknown" % type_)
 
-    def type(self, obj: Any) -> str:
+    def type(
+        self, obj: Optional[Union[QtWidgets.QWidget, pntablemetadata.PNTableMetaData]] = None
+    ) -> str:
         """Return the type of instance target."""
 
         if obj is None:

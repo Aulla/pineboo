@@ -4,15 +4,17 @@ PNAccessControlList Module.
 
 Manage access lists to limit the application to users..
 """
-from PyQt5 import QtCore, QtXml
+from PyQt5 import QtCore, QtXml, QtWidgets
 
 from pineboolib import application
 
 from pineboolib.application.database import pnsqlquery
+from pineboolib.application.metadata import pntablemetadata
+
 from . import pnaccesscontrolfactory
 
 from pineboolib import logging
-from typing import Any, Dict, Optional, TYPE_CHECKING
+from typing import Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from . import pnaccesscontrol  # noqa : F401
@@ -29,7 +31,7 @@ class PNAccessControlLists(object):
 
     Generalmente corresponderá con el identificador del registro de la tabla "flacls" que se utilizó para crear "acl.xml".
     """
-    _name: Optional[str]
+    _name: str
 
     """
     Diccionario (lista) que mantiene los objetos de las reglas de control de acceso establecidas.
@@ -44,11 +46,11 @@ class PNAccessControlLists(object):
 
     _access_control_list: Dict[str, "pnaccesscontrol.PNAccessControl"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the class."""
 
-        self._name = None
-        self._access_control_list = {}
+        self._name = ""
+        self._access_control_list: Dict[str, "pnaccesscontrolfactory.PNAccessControlFactory"] = {}
 
     def __del__(self) -> None:
         """Process when destroying the class."""
@@ -119,7 +121,9 @@ class PNAccessControlLists(object):
 
         LOGGER.warning(QtCore.QObject().tr("Lista de control de acceso cargada"))
 
-    def process(self, obj: Any) -> None:
+    def process(
+        self, obj: Optional[Union[QtWidgets.QWidget, "pntablemetadata.PNTableMetaData"]] = None
+    ) -> None:
         """
         Process a high-level object according to the established access control list.
 
@@ -131,24 +135,22 @@ class PNAccessControlLists(object):
 
         if not self._access_control_list:
             return
-        type_ = pnaccesscontrolfactory.PNAccessControlFactory().type(obj)
-        name = ""
+        type_: str = pnaccesscontrolfactory.PNAccessControlFactory().type(obj)
 
-        if hasattr(obj, "name"):
-            name = obj.name()
-        elif hasattr(obj, "objectName"):
-            name = obj.objectName()
-
-        from pineboolib import application
+        if isinstance(obj, (pntablemetadata.PNTableMetaData, QtWidgets.QDialog)):
+            name_ = obj.name()
+        else:
+            name_ = obj.objectName()
 
         if application.PROJECT.conn_manager is None:
             raise Exception("Project is not connected yet")
 
-        user = application.PROJECT.conn_manager.mainConn().user()
-        if type_ == "" or name == "" or user == "":
+        user_ = application.PROJECT.conn_manager.mainConn().user()
+
+        if "" in (type_, name_, user_):
             return
 
-        key = "%s::%s::%s" % (type_, name, user)
+        key = "%s::%s::%s" % (type_, name_, user_)
         if key in self._access_control_list.keys():
             self._access_control_list[key].processObject(obj)
 
