@@ -62,11 +62,6 @@ retrasada.
 
 La API de QSA y Eneboo está en desarrollo. En la API aún existente son
 funciones y clases "fake", que desde el script, parece que funcionen pero no
-realizan ningÃºn trabajo. Esto permite ejecutar los scripts, pero no opera correctamente.
-
-
-La API de QSA y Eneboo está en desarrollo. En la API aún existente son
-funciones y clases "fake", que desde el script, parece que funcionen pero no
 realizan ningún trabajo. Esto permite ejecutar los scripts, pero no opera correctamente.
 
 ¿Si cargo Pineboo en mi base de datos de producción, puedo perder datos?
