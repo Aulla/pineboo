@@ -24,6 +24,15 @@ class TestMain(unittest.TestCase):
         mock_exec_main.assert_called_once()
         mock_sys_exit.assert_called_once()
 
+    # def test_framework(self) -> None:
+    #    """Test startup_framework."""
+
+    #    from pineboolib.loader.connection import IN_MEMORY_SQLITE_CONN
+    #    from pineboolib import application
+
+    #    main.startup_framework(IN_MEMORY_SQLITE_CONN)
+    #    self.assertEqual(application.PROJECT.conn_manager.db().connectionName(), "default")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -44,17 +44,24 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     application.PROJECT.set_app(qapp)
     dgi = load_dgi("qt", None)
     application.PROJECT.init_dgi(dgi)
+    LOGGER.info("STARTUP_FRAMEWORK:(1/6) Setting profile data.")
     conn_ = connect_to_db(conn)
+    LOGGER.info("STARTUP_FRAMEWORK:(2/6) Establishing connection.")
     main_conn_established = application.PROJECT.init_conn(connection=conn_)
 
     if not main_conn_established:
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
     application.PROJECT.no_python_cache = True
+    LOGGER.info("STARTUP_FRAMEWORK:(3/6) Loading database.")
     application.PROJECT.run()
+    LOGGER.info("STARTUP_FRAMEWORK:(4/6) Loading area definitions.")
     application.PROJECT.conn_manager.managerModules().loadIdAreas()
+    LOGGER.info("STARTUP_FRAMEWORK:(5/6) Loading module definitions.")
     application.PROJECT.conn_manager.managerModules().loadAllIdModules()
+    LOGGER.info("STARTUP_FRAMEWORK:(6/6) Loading modules. Making QSA Tree.")
     application.PROJECT.load_modules()
+    LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
 
 
 def startup(enable_gui: bool = None) -> None:
@@ -87,7 +94,7 @@ def startup(enable_gui: bool = None) -> None:
     # setup()
     # exec_()
     gc.collect()
-    print("Closing Pineboo...")
+    LOGGER.info("Closing Pineboo...")
     if ret:
         sys.exit(ret)
     else:

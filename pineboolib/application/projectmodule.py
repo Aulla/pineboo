@@ -177,6 +177,8 @@ class Project(object):
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
 
+        LOGGER.info("RUN: Loading project data.")
+
         self.pending_conversion_list = []
 
         if self.actions:
@@ -228,9 +230,11 @@ class Project(object):
                             pass
 
         if not os.path.exists(path._dir("cache")):
+            LOGGER.info("RUN: Creating %s folder.", path._dir("cache"))
             os.makedirs(path._dir("cache"))
 
         if not os.path.exists(path._dir("cache/%s" % db_name)):
+            LOGGER.info("RUN: Creating %s folder.", path._dir("cache/%s" % db_name))
             os.makedirs(path._dir("cache/%s" % db_name))
 
         # Conectar:
@@ -294,7 +298,7 @@ class Project(object):
         count = 0
 
         list_files: List[str] = []
-
+        LOGGER.info("RUN: Processing modules.")
         for idmodulo, nombre, sha in list(cursor_):
             if not self.dgi.accept_file(nombre):
                 continue
@@ -380,6 +384,7 @@ class Project(object):
         self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
 
         if list_files:
+            LOGGER.info("RUN: Parsing QSA files. (%s)", len(list_files))
             self.parse_script_list(list_files)
 
         # Cargar el núcleo común del proyecto
