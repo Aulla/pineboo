@@ -272,6 +272,35 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         application.PROJECT.parse_script_list([tmp_path])
         print("Fin", str(NUMERO_MULTI), self)
 
+    def test_raise_qsa_errors(self) -> None:
+        """Test RAISE_QSA_ERRORS flag."""
+        from pineboolib.core import error_manager
+        from pineboolib.qsa import qsa
+        import traceback
+
+        lazanda = False
+        with self.assertRaises(Exception):
+
+            error_manager.RAISE_QSA_ERRORS = True
+            try:
+                qsa.from_project("formprueba").iface.test()
+            except Exception:
+                lanzada = True
+                error_manager.error_manager(traceback.format_exc(limit=-6, chain=False))
+
+        self.assertTrue(lanzada)
+        lanzada = False
+        error_manager.RAISE_QSA_ERRORS = False
+        try:
+            qsa.from_project("formprueba").iface.test()
+        except Exception:
+            try:
+                error_manager.error_manager(traceback.format_exc(limit=-6, chain=False))
+            except Exception:
+                lanzada = True
+
+        self.assertFalse(lanzada)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
