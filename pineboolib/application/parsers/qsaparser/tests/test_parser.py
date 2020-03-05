@@ -274,12 +274,12 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
 
     def test_raise_qsa_errors(self) -> None:
         """Test RAISE_QSA_ERRORS flag."""
-        from pineboolib.core import error_manager
+        from pineboolib.core import error_manager, exceptions
         from pineboolib.qsa import qsa
         import traceback
 
-        lazanda = False
-        with self.assertRaises(Exception):
+        lanzada = False
+        with self.assertRaises(exceptions.QSAError):
 
             error_manager.RAISE_QSA_ERRORS = True
             try:
@@ -296,7 +296,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         except Exception:
             try:
                 error_manager.error_manager(traceback.format_exc(limit=-6, chain=False))
-            except Exception:
+            except exceptions.QSAError:
                 lanzada = True
 
         self.assertFalse(lanzada)

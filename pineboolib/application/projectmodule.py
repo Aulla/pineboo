@@ -14,11 +14,10 @@ from PyQt5 import QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 from pineboolib.core.utils.struct import AreaStruct
-from pineboolib.core import exceptions, settings, message_manager
+from pineboolib.core import exceptions, settings, message_manager, decorators
 from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.utils import path, xpm
 from pineboolib.application import module, file
-
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.dgi_schema import dgi_schema
@@ -605,12 +604,12 @@ class Project(object):
         if not all(pycode_list):
             LOGGER.warning("Conversion failed for some files")
 
+    @decorators.deprecated
     def get_temp_dir(self) -> str:
         """
         Return temporary folder defined for pineboo.
 
         @return ruta a la carpeta temporal
-        ***DEPRECATED***
         """
         # FIXME: anti-pattern in Python. Getters for plain variables are wrong.
         raise exceptions.CodeDoesNotBelongHereException("Use project.tmpdir instead, please.")

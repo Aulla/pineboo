@@ -8,6 +8,7 @@ so error and tracebacks are easy to follow and fit better on GUI
 
 import re
 from .utils import logging
+from . import exceptions
 
 LOGGER = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ def error_manager(error_str: str) -> str:
     text += process_error(error_str)
     LOGGER.error(text)
     if RAISE_QSA_ERRORS:
-        raise Exception("")
+        raise exceptions.QSAError("QSA script error detected.")
 
     return text
 

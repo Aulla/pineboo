@@ -20,3 +20,7 @@ class NotConnectedError(Exception):
 
 class ForbiddenError(Exception):
     """Action attempted is not allowed."""
+
+
+class QSAError(Exception):
+    """QSA script error."""

@@ -228,10 +228,10 @@ def pyqt_slot(*args: Any) -> Callable[[TYPE_FN], TYPE_FN]:
     Please use this one instead of QtCore.pyQtSlot().
     """
 
-    def _pyqtSlot(fn: TYPE_FN) -> TYPE_FN:
+    def _pyqt_slot(fn: TYPE_FN) -> TYPE_FN:
         return cast(TYPE_FN, QtCore.pyqtSlot(*args)(fn))
 
-    return _pyqtSlot
+    return _pyqt_slot
 
 
 # NOTE: Does not work with Python 3.6 or newer :-(
