@@ -15,9 +15,7 @@ import ply.lex as lex  # type: ignore
 
 from . import flex
 
-TreeData = Dict[str, Any]
-
-tempDir = tempfile.gettempdir()
+TEMP_DIR = tempfile.gettempdir()
 
 # Get the token map
 tokens = flex.tokens
@@ -31,9 +29,10 @@ endoffile = None
 hashes: List[Tuple[str, str]] = []
 ranges: List[List[Any]] = []
 
-seen_tokens = []
-tokelines: Dict[int, int] = {}
-last_lexspan = None
+SEEN_TOKENS = []
+TOKE_LINES: Dict[int, int] = {}
+LAST_LEXSPAN = None
+INPUT_DATA: str = ""
 
 precedence = (
     ("nonassoc", "EQUALS", "TIMESEQUAL", "DIVEQUAL", "MODEQUAL", "PLUSEQUAL", "MINUSEQUAL"),
@@ -47,11 +46,11 @@ precedence = (
     ("left", "OR", "AND", "XOR", "LSHIFT", "RSHIFT"),
 )
 
-last_ok_token: Any = None
-error_count = 0
-last_error_token: Any = None
-last_error_line = -1
-ok_count = 0
+LAST_OK_TOKEN: Any = None
+ERROR_COUNT = 0
+LAST_ERROR_TOKEN: Any = None
+LAST_ERROR_LINE = -1
+OK_COUNT = 0
 
 
 def cleanNoPython(data: str) -> str:
@@ -79,7 +78,7 @@ def cnvrt(val: str) -> str:
 
 def p_parse(token: Any) -> None:
     """Parse a single token."""
-    global input_data
+    global INPUT_DATA
 
     lexspan: List[int] = list(token.lexspan(0))
     # data = str(token.lexer.lexdata[lexspan[0]:lexspan[1]])
@@ -127,76 +126,78 @@ def p_parse(token: Any) -> None:
     lexspan[1] = rspan
 
     # if str(token.slice[0]) == 'regexbody':
-    #    token[0] = { "00-toktype": str(token.slice[0]) , "02-size" : lexspan,  "50-contents" :  input_data[lexspan[0]:lexspan[1]+1] }
+    #    token[0] = { "00-toktype": str(token.slice[0]) , "02-size" : lexspan,  "50-contents" :  INPUT_DATA[lexspan[0]:lexspan[1]+1] }
 
     # if str(token.slice[0]) == 'regex':
-    #    print "\r\n",str(token.slice[0]) ,":" , input_data[lexspan[0]:lexspan[1]+1]
+    #    print "\r\n",str(token.slice[0]) ,":" , INPUT_DATA[lexspan[0]:lexspan[1]+1]
     #    print "      " + "\n      ".join([ "%s(%r): %r" % (s.type, token.lexspan(n+1), s.value) for n,s in enumerate(token.slice[1:]) ])
-    global seen_tokens, last_ok_token
-    last_ok_token = token
-    seen_tokens.append(
-        (str(token.slice[0]), token.lineno(0), input_data[lexspan[0] : lexspan[1] + 1])
+    global SEEN_TOKENS, LAST_OK_TOKEN
+    LAST_OK_TOKEN = token
+    SEEN_TOKENS.append(
+        (str(token.slice[0]), token.lineno(0), INPUT_DATA[lexspan[0] : lexspan[1] + 1])
     )
-    global ok_count
-    ok_count += 1
-    if lexspan[0] not in tokelines:
-        tokelines[lexspan[0]] = token.lexer.lineno
-    global last_lexspan
-    last_lexspan = lexspan
+    global OK_COUNT
+    OK_COUNT += 1
+    if lexspan[0] not in TOKE_LINES:
+        TOKE_LINES[lexspan[0]] = token.lexer.lineno
+    global LAST_LEXSPAN
+    LAST_LEXSPAN = lexspan
 
 
-def p_error(t: Any) -> Any:
+def p_error(text: Any) -> Any:
     """Process and report errors in parsing."""
-    global error_count
-    global ok_count
-    global last_error_token
-    global last_error_line, seen_tokens, last_ok_token
+    global ERROR_COUNT
+    global OK_COUNT
+    global LAST_ERROR_TOKEN
+    global LAST_ERROR_LINE, SEEN_TOKENS, LAST_OK_TOKEN
     debug = False  # Poner a True para toneladas de debug.
-    # if error_count == 0: print
-    if t is not None:
-        if last_error_token is None or t.lexpos != getattr(last_error_token, "lexpos", None):
-            if abs(last_error_line - t.lineno) > 4 and ok_count > 1 and error_count < 4:
-                error_count += 1
+    # if ERROR_COUNT == 0: print
+    if text is not None:
+        if LAST_ERROR_TOKEN is None or text.lexpos != getattr(LAST_ERROR_TOKEN, "lexpos", None):
+            if abs(LAST_ERROR_LINE - text.lineno) > 4 and OK_COUNT > 1 and ERROR_COUNT < 4:
+                ERROR_COUNT += 1
                 try:
-                    print_context(t)
+                    print_context(text)
                 except Exception:
                     pass
                 if debug:
-                    error_count += 20  # no imprimir mas de un error en debug.
+                    ERROR_COUNT += 20  # no imprimir mas de un error en debug.
                     print()
-                    for tokname, tokln, tokdata in seen_tokens[-32:]:
-                        if tokln == t.lineno:
+                    for tokname, tokln, tokdata in SEEN_TOKENS[-32:]:
+                        if tokln == text.lineno:
                             print(tokname, tokdata)
-                    if last_ok_token:
-                        print(repr(last_ok_token[0]))
-                        for s in last_ok_token.slice[:]:
-                            print(">>>", s.lineno, repr(s), pprint.pformat(s.value, depth=3))
-                last_error_line = t.lineno
-            elif abs(last_error_line - t.lineno) > 1 and ok_count > 1:
-                last_error_line = t.lineno
+                    if LAST_OK_TOKEN:
+                        print(repr(LAST_OK_TOKEN[0]))
+                        for sli_ in LAST_OK_TOKEN.slice[:]:
+                            print(
+                                ">>>", sli_.lineno, repr(sli_), pprint.pformat(sli_.value, depth=3)
+                            )
+                LAST_ERROR_LINE = text.lineno
+            elif abs(LAST_ERROR_LINE - text.lineno) > 1 and OK_COUNT > 1:
+                LAST_ERROR_LINE = text.lineno
             parser.errok()
-            ok_count = 0
+            OK_COUNT = 0
             return
 
-    ok_count = 0
-    if t is None:
-        if last_error_token != "EOF":
+    OK_COUNT = 0
+    if text is None:
+        if LAST_ERROR_TOKEN != "EOF":
             print("ERROR: End of the file reached.")
             global endoffile
             print("Last data:", endoffile)
 
-            if last_lexspan:
+            if LAST_LEXSPAN:
                 try:
-                    print("HINT: Last lexspan:", last_lexspan)
-                    print("HINT: Last line:", tokelines[last_lexspan[0]])
+                    print("HINT: Last lexspan:", LAST_LEXSPAN)
+                    print("HINT: Last line:", TOKE_LINES[LAST_LEXSPAN[0]])
                 except Exception as e:
                     print("ERROR:", e)
-        last_error_token = "EOF"
-        return t
-    t = parser.token()
+        LAST_ERROR_TOKEN = "EOF"
+        return text
+    text = parser.token()
     parser.restart()
-    last_error_token = t
-    return t
+    LAST_ERROR_TOKEN = text
+    return text
 
 
 p_parse.__doc__ = """
@@ -562,32 +563,30 @@ parser = yacc.yacc(
     debug=0,
     optimize=1,
     write_tables=1,
-    debugfile="%s/yaccdebug.txt" % tempDir,
-    outputdir="%s/" % tempDir,
+    debugfile="%s/yaccdebug.txt" % TEMP_DIR,
+    outputdir="%s/" % TEMP_DIR,
 )
 
 # parser = yacc.yacc(method='LALR', debug=1,
-#                   optimize=0, write_tables=0, debugfile='%s/yaccdebug.txt' % tempDir, outputdir='%s/' % tempDir)
+#                   optimize=0, write_tables=0, debugfile='%s/yaccdebug.txt' % TEMP_DIR, outputdir='%s/' % TEMP_DIR)
 
 # profile.run("yacc.yacc(method='LALR')")
-
-input_data = ""
 
 
 def print_context(token: Any) -> None:
     """Report errors in console when parsing fails."""
-    global input_data
+    global INPUT_DATA
     if token is None:
         return
-    last_cr = input_data.rfind("\n", 0, token.lexpos)
-    next_cr = input_data.find("\n", token.lexpos)
+    last_cr = INPUT_DATA.rfind("\n", 0, token.lexpos)
+    next_cr = INPUT_DATA.find("\n", token.lexpos)
     column = token.lexpos - last_cr
     column1 = token.lexpos - last_cr
     while column1 < 16:
         column1 = token.lexpos - last_cr
-        last_cr = input_data.rfind("\n", 0, last_cr - 1)
+        last_cr = INPUT_DATA.rfind("\n", 0, last_cr - 1)
 
-    print(input_data[last_cr:next_cr].replace("\t", " "))
+    print(INPUT_DATA[last_cr:next_cr].replace("\t", " "))
     print((" " * (column - 1)) + "^", column, "#ERROR#", token)
 
 
@@ -625,7 +624,7 @@ def calctree(
     num: List[str] = [],
     otype: str = "source",
     alias_mode: int = 1,
-) -> TreeData:
+) -> Dict[str, Any]:
     """Extract parsed AST and generate a custom structure for later XML generation."""
     # if depth > 5: return
     # source_data = [
@@ -830,25 +829,25 @@ def printtree(
 
 def parse(data: str, clean: bool = True) -> Optional[Dict[str, Any]]:
     """Parse QS String."""
-    global input_data
-    global error_count
-    global seen_tokens
+    global INPUT_DATA
+    global ERROR_COUNT
+    global SEEN_TOKENS
 
     if clean:
         data = cleanNoPythonNever(data)
         data = cleanNoPython(data)
-    seen_tokens[:] = []
+    SEEN_TOKENS[:] = []
     parser.error = 0
-    input_data = data
+    INPUT_DATA = data
     flex.lexer.lineno = 1
-    error_count = 0
+    ERROR_COUNT = 0
     p = parser.parse(data, debug=0, tracking=1, tokenfunc=my_tokenfunc)
-    if error_count > 0:
-        print("ERRORS (%d)" % error_count)
+    if ERROR_COUNT > 0:
+        print("ERRORS (%d)" % ERROR_COUNT)
     if p is None:
         return p
     try:
-        p["error_count"] = error_count
+        p["error_count"] = ERROR_COUNT
     except Exception as e:
         print(e)
         return None

@@ -12,8 +12,6 @@ Additionally it can be used for the definition of
 the metadata of a query, see FLTableMetaData :: query ().
 """
 
-from pineboolib.core import decorators
-
 from pineboolib.interfaces import itablemetadata
 from pineboolib import logging
 import copy
@@ -627,7 +625,6 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
         self.private._concur_warn = state
 
-    @decorators.BetaImplementation
     def detectLocks(self) -> bool:
         """
         Return lock detection flag.

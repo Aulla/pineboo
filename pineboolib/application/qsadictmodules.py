@@ -9,7 +9,7 @@ from pineboolib.application.xmlaction import XMLAction
 from pineboolib.application.proxy import DelayedObjectProxyLoader
 from pineboolib.application.safeqsa import SafeQSA
 
-LOGGER = logging.getLogger("qsadictmodules")
+LOGGER = logging.getLogger(__name__)
 
 
 class QSADictModules:
@@ -39,7 +39,11 @@ class QSADictModules:
         """
         module_name = scriptname if scriptname != "sys" else "sys_module"
 
-        return getattr(cls.qsa_dict_modules(), module_name, None)
+        ret_ = getattr(cls.qsa_dict_modules(), module_name, None)
+        if ret_ is None:
+            LOGGER.warning("Module %s not found!", module_name)
+
+        return ret_
 
     @classmethod
     def action_exists(cls, scriptname: str) -> bool:

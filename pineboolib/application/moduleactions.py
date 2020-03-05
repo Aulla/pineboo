@@ -1,22 +1,21 @@
 """
 ModuleActions module.
 """
-from pineboolib.core.utils import logging
 
-from pineboolib.core.exceptions import ForbiddenError
-from pineboolib.core.utils.utils_base import load2xml
-from pineboolib.application.xmlaction import XMLAction
+from pineboolib.core import exceptions
+from pineboolib.core.utils import utils_base, logging
+from pineboolib.application import xmlaction
 from pineboolib import application
 
 from typing import Any, TYPE_CHECKING, NoReturn
+
+LOGGER = logging.getLogger(__name__)
 
 
 class ModuleActions(object):
     """
     Generate tree with actions from modules.
     """
-
-    logger = logging.getLogger("application.ModuleActions")
 
     def __init__(self, module: Any, path: str, modulename: str) -> None:
         """
@@ -36,17 +35,17 @@ class ModuleActions(object):
         self.path = path
         self.module_name = modulename
         if not self.path:
-            self.logger.error("El módulo no tiene un path válido %s", self.module_name)
+            LOGGER.error("El módulo no tiene un path válido %s", self.module_name)
 
     def load(self) -> None:
         """Load module actions into project."""
         # Ojo: Almacena un arbol con los módulos cargados
         from pineboolib.application.qsadictmodules import QSADictModules
 
-        tree = load2xml(self.path)
+        tree = utils_base.load2xml(self.path)
         self.root = tree.getroot()
 
-        action = XMLAction(project=self.project, name=self.mod.name)
+        action = xmlaction.XMLAction(project=self.project, name=self.mod.name)
         if action is None:
             raise Exception("action is empty!")
 
@@ -61,8 +60,8 @@ class ModuleActions(object):
         ] = action  # FIXME: Actions should be loaded to their parent, not the singleton
         QSADictModules.save_action_for_root_module(action)
 
-        for xmlaction in self.root:
-            action_xml = XMLAction(xmlaction, project=self.project)
+        for xmlaction_item in self.root:
+            action_xml = xmlaction.XMLAction(xmlaction_item, project=self.project)
             action_xml.mod = self
             name = action_xml.name
             if not name or name == "unnamed":
@@ -100,5 +99,5 @@ class ModuleActions(object):
         @param name. Nombre de la action
         @param action_. Action a añadir a la propiedad del módulo
         """
-        raise ForbiddenError("Actions are not writable!")
+        raise exceptions.ForbiddenError("Actions are not writable!")
         # self.project.actions[name] = action_

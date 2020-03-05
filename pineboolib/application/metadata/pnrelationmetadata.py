@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """PNRelationMetaData manages relations between tables."""
 
-from pineboolib.core import decorators
-
 from typing import Union
 
 
@@ -83,7 +81,6 @@ class PNRelationMetaData:
             check_integrity,
         )
 
-    @decorators.BetaImplementation
     def inicializeFromFLRelationMetaData(self, other: "PNRelationMetaData"):
         """
         Fill in the data from another relation.
@@ -139,7 +136,6 @@ class PNRelationMetaData:
 
         return self.private._cardinality
 
-    @decorators.BetaImplementation
     def deleteCascade(self) -> bool:
         """
         Get if the relationship implies cascaded deletions, it is only taken into account in M1 cardinalities.
@@ -149,7 +145,6 @@ class PNRelationMetaData:
 
         return self.private._delete_cascade and self.private._cardinality == self.RELATION_M1
 
-    @decorators.BetaImplementation
     def updateCascade(self) -> bool:
         """
         Get if the relationship involves cascade modifications, it is only taken into account in M1 cardinalities.
@@ -159,7 +154,6 @@ class PNRelationMetaData:
 
         return self.private._update_cascade and self.private._cardinality == self.RELATION_M1
 
-    @decorators.BetaImplementation
     def checkIn(self) -> bool:
         """
         Get if the integrity rules on the relationship should be applied.
@@ -167,7 +161,6 @@ class PNRelationMetaData:
 
         return self.private._check_integrity
 
-    @decorators.BetaImplementation
     def copy(self, other: "PNRelationMetaData") -> None:
         """Copy a PNRelationMetaData to another."""
 
@@ -253,8 +246,7 @@ class PNRelationMetaDataPrivate:
         self._update_cascade = update_cascade
         self._check_integrity = check_integrity
 
-    @decorators.BetaImplementation
-    def inicializeFLRelationMetaDataPrivate(self):
+    def inicializeFLRelationMetaDataPrivate(self) -> None:
         """Initialize the empty class."""
 
-        return
+        pass

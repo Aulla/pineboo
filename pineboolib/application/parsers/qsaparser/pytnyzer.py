@@ -15,7 +15,7 @@ from typing import Any, Generator, Tuple, Type, List, Dict, Set, cast, Optional,
 from pathlib import Path
 from pineboolib.core.utils import logging
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 ASTGenerator = Generator[Tuple[str, str], None, None]
 
 try:
@@ -384,8 +384,8 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
         return name
 
 
-cont_switch = 0
-cont_do_while = 0
+CONT_SWITCH = 0
+CONT_DO_WHILE = 0
 
 
 class ASTPythonBase(object):
@@ -482,12 +482,12 @@ class ASTPython(ASTPythonBase, metaclass=ASTPythonFactory):
             if ASTPython._last_retlen == retlen + 1 and self.DEBUGFILE_LEVEL < 10:
                 ASTPython._last_retlen = retlen
                 return
-            sp = " " * (splen - 1) + "<" + "-" * retlen
+            spaces = " " * (splen - 1) + "<" + "-" * retlen
         else:
-            sp = " " * splen
+            spaces = " " * splen
         ASTPython._last_retlen = retlen
         cname = self.__class__.__name__
-        self.debug_file.write("%04d%s%s: %s\n" % (ASTPython.numline, sp, cname, text))
+        self.debug_file.write("%04d%s%s: %s\n" % (ASTPython.numline, spaces, cname, text))
 
     def _generate(self, **kwargs: Any) -> ASTGenerator:
         """Debugging version of generate method."""
@@ -608,12 +608,12 @@ class Function(ASTPython):
             grandparent = cast(Optional[ElementTree.Element], parent.get("parent_"))  # FIXME
 
         if grandparent is not None and grandparent.get("name") == "FormInternalObj":
-            className = name.split("_")[0]
-            if className not in classesDefined:
-                if className == "":
-                    className = "FormInternalObj"
-                yield "line", "# /** @class_definition %s */" % className
-                classesDefined.append(className)
+            class_name = name.split("_")[0]
+            if class_name not in classesDefined:
+                if class_name == "":
+                    class_name = "FormInternalObj"
+                yield "line", "# /** @class_definition %s */" % class_name
+                classesDefined.append(class_name)
         # returns = self.elem.get("returns", None)
 
         arguments = []
@@ -626,7 +626,7 @@ class Function(ASTPython):
             else:
                 arguments.append("self")
         id_list: Set[str] = set()
-        for n, arg in enumerate(self.elem.findall("Arguments/*")):
+        for number, arg in enumerate(self.elem.findall("Arguments/*")):
             expr = []
             # FIXME: ElementTree.Element.set expects a string not Element.
             arg.set("parent_", self.elem)  # type: ignore
@@ -638,7 +638,7 @@ class Function(ASTPython):
                     yield dtype, data
             if len(expr) == 0:
                 arguments.append("unknownarg")
-                yield "debug", "Argument %d not understood" % n
+                yield "debug", "Argument %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 if len(expr) == 1:
@@ -699,12 +699,12 @@ class FunctionCall(ASTPython):
         if parent is not None:
             if parent.tag == "InstructionCall":
                 class_ = None
-                p_: Optional[ElementTree.Element] = parent
-                while p_ is not None:
-                    if p_.tag == "Class":
-                        class_ = p_
+                class_parent: Optional[ElementTree.Element] = parent
+                while class_parent is not None:
+                    if class_parent.tag == "Class":
+                        class_ = class_parent
                         break
-                    p_ = cast(ElementTree.Element, p_.get("parent_"))
+                    class_parent = cast(ElementTree.Element, class_parent.get("parent_"))
 
                 if class_ is not None:
                     extends = class_.get("extends")
@@ -713,14 +713,14 @@ class FunctionCall(ASTPython):
 
                 if not name.find("["):  # if don't search a array
                     functions = parent.findall('Function[@name="%s"]' % name)
-                    for f in functions:
+                    for func_element in functions:
                         # yield "debug", "Function to:" + ElementTree.tostring(f)
                         name = "self.%s" % name
                         break
 
         arguments = []
 
-        for n, arg in enumerate(self.elem.findall("CallArguments/*")):
+        for number, arg in enumerate(self.elem.findall("CallArguments/*")):
             # FIXME:
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
@@ -732,7 +732,7 @@ class FunctionCall(ASTPython):
                     yield dtype, data
             if len(expr) == 0:
                 arguments.append("unknownarg")
-                yield "debug", "Argument %d not understood" % n
+                yield "debug", "Argument %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arg1 = " ".join(expr)
@@ -762,7 +762,7 @@ class If(ASTPython):
         """Generate python code."""
 
         main_expr = []
-        for n, arg in enumerate(self.elem.findall("Condition/*")):
+        for number, arg in enumerate(self.elem.findall("Condition/*")):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             condition_yield = []
@@ -779,12 +779,12 @@ class If(ASTPython):
             if condition_yield:
                 yield "debug", "Unexpected IF condition: %r" % condition_yield
 
-            for t, d in condition_yield:
-                yield t, d
+            for type_, data_ in condition_yield:
+                yield type_, data_
 
             if len(expr) == 0:
                 main_expr.append("False")
-                yield "debug", "Expression %d not understood" % n
+                yield "debug", "Expression %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 if len(expr) == 3:
@@ -872,7 +872,7 @@ class While(ASTPython):
         """Generate python code."""
 
         main_expr = []
-        for n, arg in enumerate(self.elem.findall("Condition/*")):
+        for number, arg in enumerate(self.elem.findall("Condition/*")):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -882,7 +882,7 @@ class While(ASTPython):
                     yield dtype, data
             if len(expr) == 0:
                 main_expr.append("False")
-                yield "debug", "Expression %d not understood" % n
+                yield "debug", "Expression %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
@@ -903,7 +903,7 @@ class DoWhile(ASTPython):
         """Generate python code."""
 
         main_expr = []
-        for n, arg in enumerate(self.elem.findall("Condition/*")):
+        for number, arg in enumerate(self.elem.findall("Condition/*")):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -913,14 +913,14 @@ class DoWhile(ASTPython):
                     yield dtype, data
             if len(expr) == 0:
                 main_expr.append("False")
-                yield "debug", "Expression %d not understood" % n
+                yield "debug", "Expression %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
         # TODO .....
-        global cont_do_while
-        cont_do_while += 1
-        key = "%02x" % cont_do_while
+        global CONT_DO_WHILE
+        CONT_DO_WHILE += 1
+        key = "%02x" % CONT_DO_WHILE
         name1st = "s%s_dowhile_1stloop" % key
         yield "line", "%s = True" % (name1st)
 
@@ -941,7 +941,7 @@ class For(ASTPython):
         """Generate python code."""
 
         init_expr = []
-        for n, arg in enumerate(self.elem.findall("ForInitialize/*")):
+        for arg in self.elem.findall("ForInitialize/*"):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -959,7 +959,7 @@ class For(ASTPython):
 
         incr_expr = []
         incr_lines = []
-        for n, arg in enumerate(self.elem.findall("ForIncrement/*")):
+        for arg in self.elem.findall("ForIncrement/*"):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -973,7 +973,7 @@ class For(ASTPython):
                 incr_expr.append(" ".join(expr))
 
         main_expr = []
-        for n, arg in enumerate(self.elem.findall("ForCompare/*")):
+        for arg in self.elem.findall("ForCompare/*"):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -1027,13 +1027,13 @@ class ForIn(ASTPython):
 
         list_elem, main_list = "None", "None"
         myelems = []
-        for e in self.elem:
-            if e.tag == "Source":
+        for elem in self.elem:
+            if elem.tag == "Source":
                 break
-            if e.tag == "ForInitialize":
-                e = list(e)[0]
+            if elem.tag == "ForInitialize":
+                elem = list(elem)[0]
             expr = []
-            for dtype, data in parse_ast(e, parent=self).generate(isolate=False, is_member=True):
+            for dtype, data in parse_ast(elem, parent=self).generate(isolate=False, is_member=True):
                 if dtype == "expr":
                     expr.append(data)
                 else:
@@ -1057,14 +1057,14 @@ class OldSwitch(ASTPython):
     def generate(self, **kwargs: Any) -> ASTGenerator:
         """Generate python code."""
 
-        global cont_switch
-        cont_switch += 1
-        key = "%02x" % cont_switch
+        global CONT_SWITCH
+        CONT_SWITCH += 1
+        key = "%02x" % CONT_SWITCH
         name = "s%s_when" % key
         name_pr = "s%s_do_work" % key
         name_pr2 = "s%s_work_done" % key
         main_expr = []
-        for n, arg in enumerate(self.elem.findall("Condition/*")):
+        for number, arg in enumerate(self.elem.findall("Condition/*")):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -1074,7 +1074,7 @@ class OldSwitch(ASTPython):
                     yield dtype, data
             if len(expr) == 0:
                 main_expr.append("False")
-                yield "debug", "Expression %d not understood" % n
+                yield "debug", "Expression %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
@@ -1083,7 +1083,7 @@ class OldSwitch(ASTPython):
         for scase in self.elem.findall("Case"):
             scase.set("parent_", self.elem)  # type: ignore
             value_expr = []
-            for n, arg in enumerate(scase.findall("Value")):
+            for number, arg in enumerate(scase.findall("Value")):
                 arg.set("parent_", self.elem)  # type: ignore
                 expr = []
                 for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -1093,7 +1093,7 @@ class OldSwitch(ASTPython):
                         yield dtype, data
                 if len(expr) == 0:
                     value_expr.append("False")
-                    yield "debug", "Expression %d not understood" % n
+                    yield "debug", "Expression %d not understood" % number
                     yield "debug", ElementTree.tostring(arg)  # type: ignore
                 else:
                     value_expr.append(" ".join(expr))
@@ -1167,7 +1167,7 @@ class Switch(ASTPython):
         """
 
         main_expr = []
-        for n, arg in enumerate(self.elem.findall("Condition/*")):
+        for number, arg in enumerate(self.elem.findall("Condition/*")):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -1177,7 +1177,7 @@ class Switch(ASTPython):
                     yield dtype, data
             if len(expr) == 0:
                 main_expr.append("False")
-                yield "debug", "Expression %d not understood" % n
+                yield "debug", "Expression %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
@@ -1186,7 +1186,7 @@ class Switch(ASTPython):
         for scase in self.elem.findall("Case"):
             scase.set("parent_", self.elem)  # type: ignore
             value_expr = []
-            for n, arg in enumerate(scase.findall("Value")):
+            for number, arg in enumerate(scase.findall("Value")):
                 arg.set("parent_", self.elem)  # type: ignore
                 expr = []
                 for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -1196,7 +1196,7 @@ class Switch(ASTPython):
                         yield dtype, data
                 if len(expr) == 0:
                     value_expr.append("False")
-                    yield "debug", "Expression %d not understood" % n
+                    yield "debug", "Expression %d not understood" % number
                     yield "debug", ElementTree.tostring(arg)  # type: ignore
                 else:
                     value_expr.append(" ".join(expr))
@@ -1286,15 +1286,15 @@ class With(ASTPython):
             else:
                 obj_1 = obj[1]
 
-            for t in self.python_keywords:
-                if obj_1.startswith(t):
+            for text in self.python_keywords:
+                if obj_1.startswith(text):
                     obj_1 = "%s.%s" % (" ".join(var_expr), obj_1)
-                elif obj_1.startswith("connect(%s" % t):
+                elif obj_1.startswith("connect(%s" % text):
                     obj_1 = obj_1.replace(
-                        "connect(%s" % t, "connect(%s.%s" % (" ".join(var_expr), t)
+                        "connect(%s" % text, "connect(%s.%s" % (" ".join(var_expr), text)
                     )
-                elif obj_1.find(".") == -1 and obj_1.find(t) > -1:
-                    obj_1 = obj_1.replace(t, "%s.%s" % (" ".join(var_expr), t))
+                elif obj_1.find(".") == -1 and obj_1.find(text) > -1:
+                    obj_1 = obj_1.replace(text, "%s.%s" % (" ".join(var_expr), text))
 
             if not obj_:
                 obj_ = (obj[0], obj_1)
@@ -1374,11 +1374,11 @@ class InstructionUpdate(ASTPython):
 
         arguments = []
         identifier = None
-        for n, arg in enumerate(self.elem):
+        for number, arg in enumerate(self.elem):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(
-                isolate=False, is_member=(n == 0)
+                isolate=False, is_member=(number == 0)
             ):
                 if dtype == "expr":
                     if data is None:
@@ -1391,10 +1391,10 @@ class InstructionUpdate(ASTPython):
 
             if len(expr) == 0:
                 arguments.append("unknownarg")
-                yield "debug", "Argument %d not understood" % n
+                yield "debug", "Argument %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
-                if n == 0 and len(expr) == 1:
+                if number == 0 and len(expr) == 1:
                     identifier = expr[0]
                 arguments.append(" ".join(expr))
 
@@ -1410,7 +1410,7 @@ class InlineUpdate(ASTPython):
         """Generate python code."""
 
         arguments = []
-        for n, arg in enumerate(self.elem):
+        for number, arg in enumerate(self.elem):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate(isolate=False):
@@ -1420,7 +1420,7 @@ class InlineUpdate(ASTPython):
                     yield dtype, data
             if len(expr) == 0:
                 arguments.append("unknownarg")
-                yield "debug", "Argument %d not understood" % n
+                yield "debug", "Argument %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
@@ -1447,7 +1447,7 @@ class InstructionCall(ASTPython):
         """Generate python code."""
 
         arguments = []
-        for n, arg in enumerate(self.elem):
+        for number, arg in enumerate(self.elem):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate():
@@ -1457,7 +1457,7 @@ class InstructionCall(ASTPython):
                     yield dtype, data
             if len(expr) == 0:
                 arguments.append("unknownarg")
-                yield "debug", "Argument %d not understood" % n
+                yield "debug", "Argument %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
@@ -1471,7 +1471,7 @@ class Instruction(ASTPython):
         """Generate python code."""
 
         arguments = []
-        for n, arg in enumerate(self.elem):
+        for number, arg in enumerate(self.elem):
             arg.set("parent_", self.elem)  # type: ignore
             expr = []
             for dtype, data in parse_ast(arg, parent=self).generate():
@@ -1481,7 +1481,7 @@ class Instruction(ASTPython):
                     yield dtype, data
             if len(expr) == 0:
                 arguments.append("unknownarg")
-                yield "debug", "Argument %d not understood" % n
+                yield "debug", "Argument %d not understood" % number
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
@@ -1530,7 +1530,7 @@ class InstructionFlow(ASTPython):
             yield "line", "raise Exception(" + ", ".join(arguments) + ")"
             return
         if kw_ is None:
-            logger.error("Failed parsing AST. Ctype is None.")
+            LOGGER.error("Failed parsing AST. Ctype is None.")
             return
         yield "line", kw_ + " " + ", ".join(arguments)
 
@@ -1577,7 +1577,7 @@ class Member(ASTPython):
             and "__undef__" not in arguments[0]
         ):
             # From: self.iface.__function()
-            # to: super(className, self.iface).function()
+            # to: super(class_name, self.iface).function()
             parent = cast(ElementTree.Element, self.elem.get("parent_"))
             # funs = None
             # p_ = parent
@@ -1596,19 +1596,20 @@ class Member(ASTPython):
                     fun_name = fun_name[: fun_name.find("(")]
 
                 if full_fun_name.find("_%s" % fun_name):
-                    classname = full_fun_name.replace("_%s" % fun_name, "")
+                    class_name = full_fun_name.replace("_%s" % fun_name, "")
                 else:
-                    classname = full_fun_name.split("_")[0]
+                    class_name = full_fun_name.split("_")[0]
 
                 arguments[2] = arguments[2][2:]
                 arguments[0:2] = [
-                    'super(getattr(self._module, "%s"), %s)' % (classname, ".".join(arguments[0:2]))
+                    'super(getattr(self._module, "%s"), %s)'
+                    % (class_name, ".".join(arguments[0:2]))
                 ]
 
         # Lectura del self.iface.__init() al nuevo estilo yeboyebo
         if len(arguments) >= 2 and arguments[0:1] == ["_i"] and arguments[1].startswith("__"):
             # From: self.iface.__function()
-            # to: super(className, self.iface).function()
+            # to: super(class_name, self.iface).function()
             parent = cast(ElementTree.Element, self.elem.get("parent_"))
             # funs = None
             # p_ = parent
@@ -1628,12 +1629,13 @@ class Member(ASTPython):
                     fun_name = fun_name[: fun_name.find("(")]
 
                 if full_fun_name.find("_%s" % fun_name):
-                    classname = full_fun_name.replace("_%s" % fun_name, "")
+                    class_name = full_fun_name.replace("_%s" % fun_name, "")
                 else:
-                    classname = full_fun_name.split("_")[0]
+                    class_name = full_fun_name.split("_")[0]
                 arguments[1] = arguments[1][2:]
                 arguments[0:1] = [
-                    'super(getattr(self._module, "%s"), %s)' % (classname, ".".join(arguments[0:1]))
+                    'super(getattr(self._module, "%s"), %s)'
+                    % (class_name, ".".join(arguments[0:1]))
                 ]
         if arguments[0] == "qsa.File":
             arguments[0] = "qsa.FileStatic"
@@ -1747,8 +1749,8 @@ class Member(ASTPython):
                         value = arg1[4:]
                         value = value[: len(value) - 1]
                         new_part_1 = ".".join(part1)
-                        strValue = "str(" + value + ")"
-                        if new_part_1.find(strValue) > -1:
+                        str_value = "str(" + value + ")"
+                        if new_part_1.find(str_value) > -1:
                             arguments = [new_part_1]
                         else:
                             new_part_2 = ""
@@ -2263,7 +2265,7 @@ class regexchar(ASTPython):
                 val_l: str = val.split(":")[1]
                 ret = val_l.replace("'", "")
             else:
-                logger.warning("regexchar:: item desconocido %s", val)
+                LOGGER.warning("regexchar:: item desconocido %s", val)
         if ret:
             yield "exp", ret
 
@@ -2471,7 +2473,7 @@ def file_template(
 
     sourceclasses = ElementTree.Element("Source")
     for cls in ast.findall("Class"):
-        # logger.warning("Element %s type(%s)", cls, type(cls))
+        # LOGGER.warning("Element %s type(%s)", cls, type(cls))
         # cls.set("parent_", cast(str, ast))  # FIXME: AST is an XML Element, not a string.
         sourceclasses.append(cast(ElementTree.Element, cls))
 
