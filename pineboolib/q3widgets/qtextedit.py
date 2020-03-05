@@ -29,12 +29,12 @@ class QTextEdit(QtWidgets.QTextEdit):
         """Return text."""
         return super().toPlainText()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def getTextFormat(self) -> int:
         """Return text format."""
         return -1
 
-    @decorators.Incomplete
+    @decorators.incomplete
     def setTextFormat(self, value: int) -> None:
         """Set text format."""
         if value == 0:  # LogText

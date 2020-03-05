@@ -48,17 +48,17 @@ class QDialog(QtWidgets.QDialog):
 
         self.setEnabled(enable_)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def accept(self) -> None:
         """Call accept."""
         super().accept()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def reject(self) -> None:
         """Call reject."""
         super().reject()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def close(self) -> bool:
         """Call close."""
         return super().close()

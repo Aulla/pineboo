@@ -386,7 +386,7 @@ class FLManager(QtCore.QObject, IManager):
 
             return table_metadata
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def metadataDev(self, n: str, quick: bool = False) -> bool:
         """Deprecated."""
         return True
@@ -1187,7 +1187,7 @@ class FLManager(QtCore.QObject, IManager):
             check_integrity,
         )
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def queryParameter(self, parameter: QtXml.QDomElement) -> Any:
         """
         Create an FLParameterQuery object from an XML element.
@@ -1202,7 +1202,7 @@ class FLManager(QtCore.QObject, IManager):
         """
         return True
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def queryGroup(self, group: QtXml.QDomElement) -> Any:
         """
         Create a FLGroupByQuery object from an XML element.

@@ -8,7 +8,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core.settings import config, settings
 from pineboolib.core.utils import logging
-from pineboolib.core.decorators import pyqtSlot
+from pineboolib.core import decorators
 from pineboolib.loader.projectconfig import ProjectConfig, PasswordMismatchError
 
 from typing import Optional, cast, Dict, Any
@@ -144,7 +144,7 @@ class DlgConnect(QtWidgets.QWidget):
         if last_profile:
             self._user_interface.cbProfiles.setCurrentText(last_profile)
 
-    @pyqtSlot()
+    @decorators.pyqt_slot()
     def toggleOptions(self) -> None:
         """Show/Hide Options."""
         self.showOptions(not self._options_showed)
@@ -170,7 +170,7 @@ class DlgConnect(QtWidgets.QWidget):
 
         self._options_showed = show_options
 
-    @pyqtSlot()
+    @decorators.pyqt_slot()
     def open(self) -> None:
         """
         Open the selected connection.
@@ -183,7 +183,7 @@ class DlgConnect(QtWidgets.QWidget):
         settings.set_value("DBA/last_profile", current_profile)
         self.close()
 
-    @pyqtSlot()
+    @decorators.pyqt_slot()
     def saveProfile(self) -> None:
         """
         Save the connection.
@@ -253,7 +253,7 @@ class DlgConnect(QtWidgets.QWidget):
         self.loadProfiles()
         self._user_interface.cbProfiles.setCurrentText(pconf.description)
 
-    @pyqtSlot()
+    @decorators.pyqt_slot()
     def deleteProfile(self) -> None:
         """
         Delete the selected connection.
@@ -298,7 +298,7 @@ class DlgConnect(QtWidgets.QWidget):
                 return None
         return pconf
 
-    @pyqtSlot()
+    @decorators.pyqt_slot()
     def editProfile(self) -> None:
         """
         Edit the selected connection.
@@ -333,7 +333,7 @@ class DlgConnect(QtWidgets.QWidget):
 
         self.edit_mode = True
 
-    @pyqtSlot(int)
+    @decorators.pyqt_slot(int)
     def updatePort(self) -> None:
         """
         Update to the driver default port.
@@ -342,7 +342,7 @@ class DlgConnect(QtWidgets.QWidget):
             self.sql_drivers.port(self._user_interface.cbDBType.currentText())
         )
 
-    @pyqtSlot(int)
+    @decorators.pyqt_slot(int)
     def enablePassword(self, enable: Optional[int] = None) -> None:
         """
         Check if the profile requires password to login or not.
@@ -363,7 +363,7 @@ class DlgConnect(QtWidgets.QWidget):
             self._user_interface.leDescription.text().replace(" ", "_")
         )
 
-    @pyqtSlot(int)
+    @decorators.pyqt_slot(int)
     def cbAutoLogin_checked(self) -> None:
         """
         Process checked event from AutoLogin checkbox.

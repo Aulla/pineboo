@@ -74,7 +74,7 @@ class QTable(Q3TableWidget):
         """Emit simple clicked signal."""
         cast(pyqtSignal, self.clicked).emit(f, c)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setResizePolicy(self, pol: QtWidgets.QSizePolicy) -> None:
         """Set resize polizy."""
         self.resize_policy = pol
@@ -308,7 +308,7 @@ class QTable(Q3TableWidget):
                         )
                     )
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setLeftMargin(self, n: int):
         """Set left margin."""
         pass

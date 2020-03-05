@@ -31,7 +31,7 @@ class QToolButton(QtWidgets.QToolButton):
 
         self.setDown(value)
 
-    @decorators.Deprecated
+    @decorators.deprecated
     def setUsesBigPixmap(self, value: bool):
         """Set uses big pixmap."""
 
@@ -49,7 +49,7 @@ class QToolButton(QtWidgets.QToolButton):
         """Set checked."""
         self.setChecked(value)
 
-    @decorators.Deprecated
+    @decorators.deprecated
     def setUsesTextLabel(self, value: bool):
         """Set uses text label."""
         pass

@@ -327,13 +327,13 @@ class FLFormSearchDB(flformdb.FLFormDB):
         else:
             self.reject()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def callInitScript(self) -> None:
         """Call the "init" function of the "masterprocess" script associated with the form."""
 
         pass
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def hide(self) -> None:
         """Redefined for convenience."""
 
@@ -346,7 +346,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
         super().hide()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def accept(self) -> None:
         """Activate pressing the accept button."""
 
@@ -367,7 +367,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         if isinstance(parent, QtWidgets.QMdiSubWindow):
             parent.hide()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def reject(self) -> None:
         """Activate pressing the accept button."""
 
@@ -382,7 +382,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         self.acceptingRejecting_ = True
         self.hide()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def show(self) -> None:
         """Redefined for convenience."""
         self.exec_()

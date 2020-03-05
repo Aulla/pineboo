@@ -46,7 +46,7 @@ class QLabel(QtWidgets.QLabel):
             pix = pix.pixmap(32, 32)
         super(QLabel, self).setPixmap(pix)
 
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot(bool)
     def setShown(self, b: bool):
         """Set visible."""
 

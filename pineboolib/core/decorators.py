@@ -11,20 +11,20 @@ from .utils import logging
 from PyQt5 import QtCore  # type: ignore
 from typing import Callable, Any, Dict, TypeVar, cast
 
-T_FN = TypeVar("T_FN", bound=Callable[..., Any])
+TYPE_FN = TypeVar("TYPE_FN", bound=Callable[..., Any])
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 MSG_EMITTED: Dict[str, float] = {}
 CLEAN_REGEX = re.compile(r"\s*object\s+at\s+0x[0-9a-zA-Z]{6,38}", re.VERBOSE)
 MINIMUM_TIME_FOR_REPRINT = 300
 
 
-def clean_repr(x: Any) -> str:
+def clean_repr(obj: Any) -> str:
     """Clean up error texts to make them easier to read on GUI (Internal use only)."""
-    return CLEAN_REGEX.sub("", repr(x))
+    return CLEAN_REGEX.sub("", repr(obj))
 
 
-def NotImplementedWarn(fn: T_FN) -> T_FN:
+def not_implemented_warn(fn: TYPE_FN) -> TYPE_FN:
     """
     Mark function as not implemented. Its contents do almost nothing at all. Emits a Warning.
 
@@ -43,8 +43,8 @@ def NotImplementedWarn(fn: T_FN) -> T_FN:
         now = time.time()
         if keyname not in MSG_EMITTED or now - MSG_EMITTED[keyname] > MINIMUM_TIME_FOR_REPRINT:
             MSG_EMITTED[keyname] = now
-            logger.warning("Not yet impl.: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
-            logger.trace(
+            LOGGER.warning("Not yet impl.: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
+            LOGGER.trace(
                 "Not yet impl.: %s(%s) -> %s",
                 fn.__name__,
                 ", ".join(x_args),
@@ -53,11 +53,11 @@ def NotImplementedWarn(fn: T_FN) -> T_FN:
             )
         return ret
 
-    mock_fn: T_FN = cast(T_FN, newfn)  # type: ignore
+    mock_fn: TYPE_FN = cast(TYPE_FN, newfn)  # type: ignore
     return mock_fn
 
 
-def NotImplementedDebug(fn: T_FN) -> T_FN:
+def not_implemented_debug(fn: TYPE_FN) -> TYPE_FN:
     """
     Mark function as not implemented. Its contents do almost nothing at all. Emits a Debug.
 
@@ -76,14 +76,14 @@ def NotImplementedDebug(fn: T_FN) -> T_FN:
         now = time.time()
         if keyname not in MSG_EMITTED or now - MSG_EMITTED[keyname] > MINIMUM_TIME_FOR_REPRINT:
             MSG_EMITTED[keyname] = now
-            logger.debug("Not yet impl.: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
+            LOGGER.debug("Not yet impl.: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
         return ret
 
-    mock_fn: T_FN = cast(T_FN, newfn)  # type: ignore
+    mock_fn: TYPE_FN = cast(TYPE_FN, newfn)  # type: ignore
     return mock_fn
 
 
-def WorkingOnThis(fn: T_FN) -> T_FN:
+def working_on_this(fn: TYPE_FN) -> TYPE_FN:
     """Emit a message to tell other devs that someone is already working on this function."""
 
     @functools.wraps(fn)
@@ -97,16 +97,16 @@ def WorkingOnThis(fn: T_FN) -> T_FN:
         now = time.time()
         if keyname not in MSG_EMITTED or now - MSG_EMITTED[keyname] > MINIMUM_TIME_FOR_REPRINT:
             MSG_EMITTED[keyname] = now
-            logger.info(
+            LOGGER.info(
                 "WARN: In Progress: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret)
             )
         return ret
 
-    mock_fn: T_FN = cast(T_FN, newfn)  # type: ignore
+    mock_fn: TYPE_FN = cast(TYPE_FN, newfn)  # type: ignore
     return mock_fn
 
 
-def BetaImplementation(fn: T_FN) -> T_FN:
+def beta_implementation(fn: TYPE_FN) -> TYPE_FN:
     """Mark function as beta. This means that more or less works but it might need more tweaking or errors may arise."""
 
     @functools.wraps(fn)
@@ -120,14 +120,14 @@ def BetaImplementation(fn: T_FN) -> T_FN:
         now = time.time()
         if keyname not in MSG_EMITTED or now - MSG_EMITTED[keyname] > MINIMUM_TIME_FOR_REPRINT:
             MSG_EMITTED[keyname] = now
-            logger.info("WARN: Beta impl.: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
+            LOGGER.info("WARN: Beta impl.: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
         return ret
 
-    mock_fn: T_FN = cast(T_FN, newfn)  # type: ignore
+    mock_fn: TYPE_FN = cast(TYPE_FN, newfn)  # type: ignore
     return mock_fn
 
 
-def Empty(fn: T_FN) -> T_FN:
+def empty(fn: TYPE_FN) -> TYPE_FN:
     """
     Mark function as Empty, not doing anything. Similar to NotImplemented* but does no add traceback.
 
@@ -145,14 +145,14 @@ def Empty(fn: T_FN) -> T_FN:
         now = time.time()
         if keyname not in MSG_EMITTED or now - MSG_EMITTED[keyname] > MINIMUM_TIME_FOR_REPRINT:
             MSG_EMITTED[keyname] = now
-            logger.info("WARN: Empty: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
+            LOGGER.info("WARN: Empty: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
         return ret
 
-    mock_fn: T_FN = cast(T_FN, newfn)  # type: ignore
+    mock_fn: TYPE_FN = cast(TYPE_FN, newfn)  # type: ignore
     return mock_fn
 
 
-def Incomplete(fn: T_FN) -> T_FN:
+def incomplete(fn: TYPE_FN) -> TYPE_FN:
     """Mark the function as Incomplete, meaning that functionaility is still missing."""
 
     @functools.wraps(fn)
@@ -166,14 +166,14 @@ def Incomplete(fn: T_FN) -> T_FN:
         now = time.time()
         if keyname not in MSG_EMITTED or now - MSG_EMITTED[keyname] > MINIMUM_TIME_FOR_REPRINT:
             MSG_EMITTED[keyname] = now
-            logger.info("WARN: Incomplete: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
+            LOGGER.info("WARN: Incomplete: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
         return ret
 
-    mock_fn: T_FN = cast(T_FN, newfn)  # type: ignore
+    mock_fn: TYPE_FN = cast(TYPE_FN, newfn)  # type: ignore
     return mock_fn
 
 
-def needRevision(fn: T_FN) -> T_FN:
+def need_revision(fn: TYPE_FN) -> TYPE_FN:
     """Mark the function as needs to be revised. Some bug might have been found and needs help from other devs."""
 
     def newfn(*args: Any, **kwargs: Any) -> Any:
@@ -186,14 +186,14 @@ def needRevision(fn: T_FN) -> T_FN:
         now = time.time()
         if keyname not in MSG_EMITTED or now - MSG_EMITTED[keyname] > MINIMUM_TIME_FOR_REPRINT:
             MSG_EMITTED[keyname] = now
-            logger.info("WARN: Needs help: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
+            LOGGER.info("WARN: Needs help: %s(%s) -> %s", fn.__name__, ", ".join(x_args), repr(ret))
         return ret
 
-    mock_fn: T_FN = cast(T_FN, newfn)  # type: ignore
+    mock_fn: TYPE_FN = cast(TYPE_FN, newfn)  # type: ignore
     return mock_fn
 
 
-def Deprecated(fn: T_FN) -> T_FN:
+def deprecated(fn: TYPE_FN) -> TYPE_FN:
     """Mark functionality as deprecated in favor of other one."""
 
     @functools.wraps(fn)
@@ -207,7 +207,7 @@ def Deprecated(fn: T_FN) -> T_FN:
         now = time.time()
         if keyname not in MSG_EMITTED or now - MSG_EMITTED[keyname] > MINIMUM_TIME_FOR_REPRINT:
             MSG_EMITTED[keyname] = now
-            logger.info(
+            LOGGER.info(
                 "WARN: Deprecated: %s(%s) -> %s",
                 fn.__name__,
                 ", ".join(x_args),
@@ -216,11 +216,11 @@ def Deprecated(fn: T_FN) -> T_FN:
             )
         return ret
 
-    mock_fn: T_FN = cast(T_FN, newfn)  # type: ignore
+    mock_fn: TYPE_FN = cast(TYPE_FN, newfn)  # type: ignore
     return mock_fn
 
 
-def pyqtSlot(*args: Any) -> Callable[[T_FN], T_FN]:
+def pyqt_slot(*args: Any) -> Callable[[TYPE_FN], TYPE_FN]:
     """
     Create Qt Slot from class method.
 
@@ -228,8 +228,8 @@ def pyqtSlot(*args: Any) -> Callable[[T_FN], T_FN]:
     Please use this one instead of QtCore.pyQtSlot().
     """
 
-    def _pyqtSlot(fn: T_FN) -> T_FN:
-        return cast(T_FN, QtCore.pyqtSlot(*args)(fn))
+    def _pyqtSlot(fn: TYPE_FN) -> TYPE_FN:
+        return cast(TYPE_FN, QtCore.pyqtSlot(*args)(fn))
 
     return _pyqtSlot
 

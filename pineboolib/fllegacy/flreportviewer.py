@@ -165,7 +165,7 @@ class FLReportViewer(QtWidgets.QWidget):
         # self.loop_ = True
         # self.clearWFlags(Qt.WShowModal) # FIXME
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def csvData(self) -> str:
         """Return csv data."""
 
@@ -246,36 +246,36 @@ class FLReportViewer(QtWidgets.QWidget):
 
         return False
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def sizeHint(self) -> QtCore.QSize:
         """Return sizeHint."""
         return self.rptViewer_.sizeHint()
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setNumCopies(self, numCopies: int) -> None:
         """Set number of copies."""
         self.rptViewer_.setNumCopies(numCopies)
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setPrinterName(self, pName: str) -> None:
         """Set printer name."""
         self.rptViewer_.setPrinterName(pName)
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def reportPrinted(self) -> bool:
         """Return if report was printed."""
         return self.reportPrinted_
 
-    @decorators.pyqtSlot(int)
-    @decorators.BetaImplementation
+    @decorators.pyqt_slot(int)
+    @decorators.beta_implementation
     def setResolution(self, dpi: int) -> None:
         """Set resolution."""
         util = FLUtil()
         util.writeSettingEntry("rptViewer/dpi", str(dpi))
         self.rptViewer_.setResolution(dpi)
 
-    @decorators.pyqtSlot(int)
-    @decorators.BetaImplementation
+    @decorators.pyqt_slot(int)
+    @decorators.beta_implementation
     def setPixel(self, relDpi: int) -> None:
         """Set pixel size."""
         util = FLUtil()
@@ -283,7 +283,7 @@ class FLReportViewer(QtWidgets.QWidget):
         if self.rptEngine_:
             self.rptEngine_.setRelDpi(relDpi / 10.0)
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setDefaults(self) -> None:
         """Set default values."""
         import platform
@@ -299,7 +299,7 @@ class FLReportViewer(QtWidgets.QWidget):
             # FIXME
             pass
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def updateReport(self) -> None:
         """Update report."""
         self.requestUpdateReport.emit()
@@ -325,7 +325,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
         self.updateDisplay()
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def getCurrentPage(self) -> Any:
         """Return curent page."""
         # FIXME: self.report_ is just a List[]
@@ -333,7 +333,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getCurrentPage(), self)
         return 0
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def getFirstPage(self) -> Any:
         """Return first page."""
         # FIXME: self.report_ is just a List[]
@@ -341,7 +341,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getFirstPage(), self)
         return 0
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def getPreviousPage(self) -> Any:
         """Return previous page."""
         # FIXME: self.report_ is just a List[]
@@ -349,7 +349,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getPreviousPage(), self)
         return 0
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def getNextPage(self) -> Any:
         """Return next page."""
         # FIXME: self.report_ is just a List[]
@@ -357,7 +357,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getNextPage(), self)
         return 0
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def getLastPage(self) -> Any:
         """Return last page."""
         # FIXME: self.report_ is just a List[]
@@ -365,7 +365,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getLastPage(), self)
         return 0
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def getPageAt(self, i: int) -> Any:
         """Return actual page."""
         # FIXME: self.report_ is just a List[]
@@ -373,12 +373,12 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getPageAt(i), self)
         return 0
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def updateDisplay(self) -> None:
         """Update display."""
         self.rptViewer_.slotUpdateDisplay()
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def clearPages(self) -> None:
         """Clear report pages."""
         # FIXME: self.report_ is just a List[]
@@ -386,7 +386,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.clear()
         pass
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def appendPage(self) -> None:
         """Add a new page."""
         # FIXME: self.report_ is just a List[]
@@ -394,7 +394,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.appendPage()
         pass
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def getCurrentIndex(self) -> int:
         """Return current index position."""
 
@@ -403,7 +403,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return self.report_.getCurrentIndex()
         return -1
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setCurrentPage(self, idx: int) -> None:
         """Set current page index."""
         # FIXME: self.report_ is just a List[]
@@ -411,7 +411,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.setCurrentPage(idx)
         pass
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setPageSize(self, w: Union[QtCore.QSize, int], h: Optional[int] = None) -> None:
         """Set page size."""
         # FIXME: self.report_ is just a List[]
@@ -419,7 +419,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.setPageSize(s)
         pass
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setPageOrientation(self, o: int) -> None:
         """Set page orientation."""
         # FIXME: self.report_ is just a List[]
@@ -427,7 +427,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.setPageOrientation(o)
         pass
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setPageDimensions(self, dim: QtCore.QSize) -> None:
         """Set page dimensions."""
         # FIXME: self.report_ is just a List[]
@@ -435,7 +435,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.setPageDimensions(dim)
         pass
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def pageSize(self) -> QtCore.QSize:
         """Return page size."""
         # FIXME: self.report_ is just a List[]
@@ -443,7 +443,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return self.report_.pageSize()
         return -1
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def pageOrientation(self) -> int:
         """Return page orientation."""
         # FIXME: self.report_ is just a List[]
@@ -463,12 +463,12 @@ class FLReportViewer(QtWidgets.QWidget):
             return self.rptViewer_.rptEngine_.number_pages()
         return -1
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setStyleName(self, style: str) -> None:
         """Set style name."""
         self.styleName_ = style
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setReportPages(self, pgs: Any) -> None:
         """Add pages to actual report."""
         self.setReportEngine(None)
@@ -477,23 +477,23 @@ class FLReportViewer(QtWidgets.QWidget):
         self.rptViewer_.setReportPages(pgs.pageCollection() if pgs else 0)
         self.report_ = self.rptViewer_.reportPages()
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setColorMode(self, c: QColor) -> None:
         """Set color mode."""
 
         self.rptViewer_.setColorMode(c)
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def colorMode(self) -> QColor:
         """Return color mode."""
         return self.rptViewer_.colorMode()
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setName(self, n: str) -> None:
         """Set report name."""
         self.name_ = n
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def name(self) -> str:
         """Return report name."""
         return self.name_

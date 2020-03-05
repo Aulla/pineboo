@@ -12,17 +12,17 @@ class FLTable(qtable.QTable):
 
     AlwaysOff: bool
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setColumnMovingEnabled(self, b: bool) -> None:
         """Set that columns can be moved."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setVScrollBarMode(self, mode: Any) -> None:
         """Set the vertical scroll bar mode."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setHScrollBarMode(self, mode: Any) -> None:
         """Set the horizontal scroll bar mode."""
         pass

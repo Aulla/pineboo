@@ -38,7 +38,7 @@ class FLNetwork(QtCore.QObject):
         # self.data.connect(self._slotNetWorkData)
         # self.dataTransferProgress.connect(self._slotNetworkProgress)
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def get(self, location: str) -> None:
         """Get value from a location."""
 
@@ -54,7 +54,7 @@ class FLNetwork(QtCore.QObject):
 
         cast(QtCore.pyqtSignal, self.reply.downloadProgress).connect(self._slotNetworkProgress)
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def put(self, data: Any, location: str) -> None:
         """Send data to a location."""
 
@@ -69,7 +69,7 @@ class FLNetwork(QtCore.QObject):
             pass
         cast(QtCore.pyqtSignal, self.reply.uploadProgress).connect(self._slotNetworkProgress)
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def copy(self, fromLocation: str, toLocation: str) -> None:
         """Copy data from a location to another."""
 
@@ -77,19 +77,19 @@ class FLNetwork(QtCore.QObject):
         data = self.manager.get(self.request)
         self.put(data.readAll(), toLocation)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def _slotNetworkStart(self) -> None:
         """Emit start signal."""
 
         self.start.emit()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def _slotNetworkFinished(self, reply: Any = None) -> None:
         """Emit finished signal."""
 
         self.finished.emit()
 
-    # @decorators.pyqtSlot(QtCore.QByteArray)
+    # @decorators.pyqt_slot(QtCore.QByteArray)
     # def _slotNetWorkData(self, b):
     #    buffer = b
     #    self.data.emit(b)

@@ -58,28 +58,28 @@ class TestQHttp(unittest.TestCase):
         finish_testing()
 
 
-@decorators.pyqtSlot(int, int)
+@decorators.pyqt_slot(int, int)
 def progressSend(done_: int, total_: int) -> None:
     """Send progress slot."""
 
     print("Enviando", done_, total_)
 
 
-@decorators.pyqtSlot(int, int)
+@decorators.pyqt_slot(int, int)
 def progressRead(done_: int, total_: int) -> None:
     """Send progress slot."""
 
     print("Recibiendo", done_, total_)
 
 
-@decorators.pyqtSlot(int)
+@decorators.pyqt_slot(int)
 def startRequest(id_: int) -> None:
     """Send progress slot."""
 
     print("Iniciando petición", id_)
 
 
-@decorators.pyqtSlot(int, bool)
+@decorators.pyqt_slot(int, bool)
 def finishRequest(id_: int, error_: bool) -> None:
     """Send progress slot."""
     resultado = "OK" if not error_ else "ERROR"
@@ -87,7 +87,7 @@ def finishRequest(id_: int, error_: bool) -> None:
     print("Finalizando petición", id_, resultado)
 
 
-@decorators.pyqtSlot(bool)
+@decorators.pyqt_slot(bool)
 def allDone(error_: bool) -> None:
     """Send progress slot."""
     resultado = "OK" if not error_ else "ERROR"
@@ -95,7 +95,7 @@ def allDone(error_: bool) -> None:
     print("Comunicación realizada", resultado)
 
 
-@decorators.pyqtSlot(int)
+@decorators.pyqt_slot(int)
 def changeState(state_: int) -> None:
     """State Changed slot."""
     print("changeState to", state_)

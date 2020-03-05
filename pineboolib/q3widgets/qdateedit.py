@@ -50,7 +50,7 @@ class QDateEdit(QtWidgets.QDateEdit):
 
     date: str = property(getDate, setDate)  # type: ignore[assignment] # noqa : F821
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setAutoAdvance(self, b: bool) -> None:
         """Set auto advance."""
         pass

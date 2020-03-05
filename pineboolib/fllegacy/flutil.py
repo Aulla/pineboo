@@ -162,7 +162,7 @@ class FLUtil(object):
             raise ValueError("Parameter 'n' must be a positive integer")
 
     @staticmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def utf8(s: str) -> str:
         """
         Return a string to utf-8 encoding.
@@ -310,7 +310,7 @@ class FLUtil(object):
         return buffer.upper()
 
     @classmethod
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def enLetraMoneda(cls, n: Union[int, str, float], m: str) -> str:
         """
         Return the expression in text of how a monetary amount is stated, in Spanish and in any currency indicated.
@@ -349,7 +349,7 @@ class FLUtil(object):
         return res.upper()
 
     @classmethod
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def enLetraMonedaEuro(cls, n: Union[int, float]) -> str:
         """
         Return the expression in text of how a monetary amount is stated, in Spanish and in Euros.
@@ -457,7 +457,7 @@ class FLUtil(object):
         return date_conversion.date_amd_to_dma(date_str) or ""
 
     @classmethod
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def formatoMiles(cls, s: str) -> str:
         """
         Format a text string by placing thousands separators.
@@ -554,7 +554,7 @@ class FLUtil(object):
         return utils.next_counter(name_or_series, cursor_or_name, cursor_)
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def nextSequence(cls, nivel: int, secuencia: str, ultimo: str) -> str:
         """
         Return the next value of the sequence according to the depth indicated by level.
@@ -985,7 +985,7 @@ class FLUtil(object):
         return st.upper()
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def usha1(cls, data, _len):
         """
         Return the SHA1 key of a data.
@@ -996,7 +996,7 @@ class FLUtil(object):
         pass
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def snapShotUI(cls, n):
         """
         Return the image or screenshot of a form.
@@ -1006,7 +1006,7 @@ class FLUtil(object):
         pass
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def saveSnapShotUI(cls, n, pathFile):
         """
         Save the image or screenshot of a form in a PNG format file.
@@ -1017,7 +1017,7 @@ class FLUtil(object):
         pass
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def flDecodeType(cls, fltype):
         """
         Decode a type of AbanQ to a QVariant type.
@@ -1028,7 +1028,7 @@ class FLUtil(object):
         pass
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def saveIconFile(cls, data, pathFile):
         """
         Save the icon image of a button on a form in a png file. Used for documentation.
@@ -1054,7 +1054,7 @@ class FLUtil(object):
         return sysbasetype.SysBaseType.osName()
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def serialLettertoNumber(cls, letter: str) -> str:
         """
         Convert a string that is a series of letters into its corresponding numerical value.
@@ -1065,7 +1065,7 @@ class FLUtil(object):
         return ""
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def serialNumbertoLetter(cls, number: Union[int, float]) -> str:
         """
         Convert a number to its corresponding sequence of letters.
@@ -1106,7 +1106,7 @@ class FLUtil(object):
         return files_found
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def savePixmap(cls, data: str, filename: str, format_: str) -> None:
         """
         Save Pixmap image on a specific path.

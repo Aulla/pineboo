@@ -496,8 +496,8 @@ class FLFieldDB(QtWidgets.QWidget):
                     return True
         return False
 
-    @decorators.pyqtSlot()
-    @decorators.pyqtSlot(int)
+    @decorators.pyqt_slot()
+    @decorators.pyqt_slot(int)
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
         """
         Process Qt events for keypresses.
@@ -552,7 +552,7 @@ class FLFieldDB(QtWidgets.QWidget):
         else:
             return False
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def updateValue(self, data: Any = None):
         """
         Update the value of the field with a text string.
@@ -1020,8 +1020,8 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         return self._auto_com_mode
 
-    @decorators.pyqtSlot()
-    @decorators.pyqtSlot("QString")
+    @decorators.pyqt_slot()
+    @decorators.pyqt_slot("QString")
     def refresh(self, fN: Optional[str] = None) -> None:
         """
         Refresh the content of the field with the cursor values ​​of the source table.
@@ -1428,7 +1428,7 @@ class FLFieldDB(QtWidgets.QWidget):
     Refresco rápido
     """
 
-    @decorators.pyqtSlot("QString")
+    @decorators.pyqt_slot("QString")
     def refreshQuick(self, fN: Optional[str] = None) -> None:
         """Refresh value quick."""
         if not fN or not fN == self._field_name or not self.cursor_:
@@ -2419,7 +2419,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
             self.cursor_.setValueBuffer(self._field_name, None)
 
-    @decorators.pyqtSlot(QtWidgets.QAction)
+    @decorators.pyqt_slot(QtWidgets.QAction)
     def savePixmap(self, f: QtWidgets.QAction) -> None:
         """
         Save image in Pixmap type fields.
@@ -2447,7 +2447,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
             QtWidgets.QApplication.restoreOverrideCursor()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def toggleAutoCompletion(self) -> None:
         """
         Show / Hide the auto-completion wizard.
@@ -2655,7 +2655,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self._field_relation, cur.valueBuffer(self._auto_com_field_relation)
                 )
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def openFormRecordRelation(self) -> None:
         """
         Open an edit form for the value selected in its corresponding action.
@@ -2726,8 +2726,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
         c.openFormInMode(self.modeAccess, False)
 
-    @decorators.pyqtSlot()
-    @decorators.pyqtSlot(int)
+    @decorators.pyqt_slot()
+    @decorators.pyqt_slot(int)
     def searchValue(self) -> None:
         """
         Open a dialog to search the related table.
@@ -2846,7 +2846,7 @@ class FLFieldDB(QtWidgets.QWidget):
             # self.setValue("")
             self.setValue(v)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def searchPixmap(self) -> None:
         """
         Open a dialog to search for an image file.
@@ -2989,7 +2989,7 @@ class FLFieldDB(QtWidgets.QWidget):
         #    QtGui.QPixmapCache.insert(s.left(100), pix)
         self.updateValue(s)
 
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot(bool)
     def setPixmapFromClipboard(self) -> None:
         """
         Upload an image from the clipboard into the pixmap type field.
@@ -3044,7 +3044,7 @@ class FLFieldDB(QtWidgets.QWidget):
         #    QtGui.QPixmapCache.insert(s.left(100), pix)
         self.updateValue(s)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def pixmap(self) -> QtGui.QPixmap:
         """
         Return the image object associated with the field.
@@ -3060,7 +3060,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         self.lostFocus.emit()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def setNoShowed(self) -> None:
         """Set the control is not shown."""
 
@@ -3069,7 +3069,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if self.isVisible():
                 self.showWidget()
 
-    @decorators.pyqtSlot(str)
+    @decorators.pyqt_slot(str)
     def setMapValue(self, v: Optional[str] = None) -> None:
         """
         Set the value of this field based on the result of the query.
@@ -3142,7 +3142,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         # self.setValue("")
                         self.setValue(q.value(0))
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def emitKeyF2Pressed(self) -> None:
         """
         Emit the keyF2Pressed signal.
@@ -3152,14 +3152,14 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         self.keyF2Pressed.emit()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def emitLabelClicked(self) -> None:
         """
         Emit the labelClicked signal. It is used in the M1 fields to edit the edition form of the selected value.
         """
         self.labelClicked.emit()
 
-    @decorators.pyqtSlot(str)
+    @decorators.pyqt_slot(str)
     def emitTextChanged(self, t: str) -> None:
         """
         Emit the textChanged signal.
@@ -3169,7 +3169,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         self.textChanged.emit(t)
 
-    # @decorators.pyqtSlot(int)
+    # @decorators.pyqt_slot(int)
     # def ActivatedAccel(self, identifier: int) -> None:
     #    """
     #    Emit the activatedAccel (int) signal.

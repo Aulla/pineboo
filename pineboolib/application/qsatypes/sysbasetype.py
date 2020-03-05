@@ -70,7 +70,7 @@ class SysBaseType(object):
         return bool(config.value("application/isDebuggerMode", False))
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def isCloudMode(self) -> bool:
         """Check if running on cloud mode."""
         return False

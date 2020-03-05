@@ -204,12 +204,12 @@ class PNPackager(object):
         self._addLog("Paquete creado. Extensiones ignoradas: %s " % "".join(self._ignored_ext))
         return True
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def unpack(self, folder: str) -> bool:
         """Extract files from package."""
         return False
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def output(self) -> str:
         """Return output messages."""
 
@@ -220,13 +220,13 @@ class PNPackager(object):
 
         return self._dest_file
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setEncodeUtf8(self, enconde_bool: bool = True) -> None:
         """Encode data with Utf8 charset."""
 
         self._encode_utf8 = enconde_bool
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setFilter(self, filter: str = "") -> None:
         """Set a filter."""
 

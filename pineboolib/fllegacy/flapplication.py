@@ -126,32 +126,32 @@ class FLApplication(QtCore.QObject):
         ret = rpt_.reportData()
         return ret
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def checkForUpdate(self):
         """Not used in Pineboo."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def checkForUpdateFinish(self, op):
         """Not used in pineboo."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def initfcgi(self):
         """Init for fast cgi."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def addObjectFactory(self, new_object_factory):
         """Add object onctructor. unused."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def callfcgi(self, call_function, argument_list):
         """Perform fastcgi call."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def endfcgi(self):
         """End fastcgi call signal."""
         pass
@@ -160,7 +160,7 @@ class FLApplication(QtCore.QObject):
         """Return locale of the system."""
         return self.locale_system_
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def openQSWorkbench(self):
         """Open debugger. Unused."""
         pass
@@ -175,7 +175,7 @@ class FLApplication(QtCore.QObject):
         QtWidgets.QApplication.setActiveWindow(w)
         self.main_widget_ = w
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def makeStyle(self, style_):
         """Apply specified style."""
         pass
@@ -197,7 +197,7 @@ class FLApplication(QtCore.QObject):
         # if self.style:
         #    self.style.exec_()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def showToggleBars(self):
         """Show toggle bars."""
         pass
@@ -234,12 +234,12 @@ class FLApplication(QtCore.QObject):
 
         self.style = True
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def getTabWidgetPages(self, wn, n):
         """Get tabs."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def getWidgetList(self, wn, c):
         """Get widgets."""
         pass
@@ -272,7 +272,7 @@ class FLApplication(QtCore.QObject):
         if action_name in application.PROJECT.actions.keys():
             application.PROJECT.actions[action_name].openDefaultForm()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def openDefaultForm(self):
         """Open a default form."""
         pass
@@ -282,7 +282,7 @@ class FLApplication(QtCore.QObject):
         if action_name in application.PROJECT.actions.keys():
             application.PROJECT.actions[action_name].execDefaultScript()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def execDefaultScript(self):
         """Execute default script."""
         pass
@@ -501,17 +501,17 @@ class FLApplication(QtCore.QObject):
         """Call a QS project function."""
         return application.PROJECT.call(function, argument_list, object_content, show_exceptions)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setNotExit(self, b):
         """Protect against window close."""
         self._not_exit = b
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def printTextEdit(self, editor_):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setPrintProgram(self, print_program_):
         """Not implemented."""
         pass
@@ -520,7 +520,7 @@ class FLApplication(QtCore.QObject):
         """Set caption main widget."""
         application.PROJECT.main_form.mainWindow.setCaptionMainWidget(text)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def addSysCode(self, code, script_entry_function):
         """Not implemented."""
         pass
@@ -529,7 +529,7 @@ class FLApplication(QtCore.QObject):
         """Set which QS function to call on startup."""
         self.script_entry_function_ = script_enttry_function
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setDatabaseLockDetection(
         self, on, msec_lapsus, lim_checks, show_warn, msg_warn, connection_name
     ):
@@ -569,17 +569,17 @@ class FLApplication(QtCore.QObject):
             QtCore.QTimer.singleShot(4000, wi.hideText)
             QtWidgets.QApplication.processEvents()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def checkDatabaseLocks(self, timer_):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def saveGeometryForm(self, name, geo):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def geometryForm(self, name):
         """Not implemented."""
         pass
@@ -654,12 +654,12 @@ class FLApplication(QtCore.QObject):
         """Emit signal."""
         database.DB_SIGNALS.emitTransactionRollback(o)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def gsExecutable(self):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def evalueateProject(self):
         """Not implemented."""
         pass
@@ -686,7 +686,7 @@ class FLApplication(QtCore.QObject):
         """Display warning."""
         _gui.msgBoxWarning(t)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def showDebug(self):
         """Return if debug is shown."""
         return self.show_debug_
@@ -695,7 +695,7 @@ class FLApplication(QtCore.QObject):
         """Return current connection."""
         return application.PROJECT.conn_manager
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def classType(self, n):
         """Return class for object."""
 
@@ -781,7 +781,7 @@ class FLApplication(QtCore.QObject):
             else:
                 del it
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def trMulti(self, s, l):
         """
         Lookup translation for certain language.
@@ -846,7 +846,7 @@ class FLApplication(QtCore.QObject):
                     del t
                     break
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def createSysTranslator(self, lang, loadDefault):
         """
         Create SYS Module translation.

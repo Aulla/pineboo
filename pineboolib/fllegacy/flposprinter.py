@@ -56,7 +56,7 @@ class FLPosPrinter(object):
 
         return self.printerName_
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def metric(self, m: Any):
         """Not implemented."""
 
@@ -67,7 +67,7 @@ class FLPosPrinter(object):
 
         self.printerName_ = name
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def cleanup(self) -> None:
         """Clean buffer values."""
 
@@ -79,32 +79,32 @@ class FLPosPrinter(object):
 
         self.idxBuffer = []
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def flush(self):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def send(self, str_: str, col: int = -1, row: int = -1):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def sendStr(self, c: str, col: int, row: int):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def sendEsc(self, e: str, col: int, row: int):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def cmd(self, c: str, paint: Any, p: Any):
         """Not implemented."""
         pass
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def paperWidthToCols(self) -> int:
         """Return the number of columns from the paper width."""
 
@@ -117,12 +117,12 @@ class FLPosPrinter(object):
             ret = 55
         return ret
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def initFile(self):
         """Not implemented."""
         pass
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def initStrBuffer(self) -> None:
         """Initialize the strBuffer buffer."""
 
@@ -131,7 +131,7 @@ class FLPosPrinter(object):
         else:
             self.strBuffer.clear()
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def initEscBuffer(self) -> None:
         """Initialize the escBuffer buffer."""
         if not self.escBuffer:
@@ -139,7 +139,7 @@ class FLPosPrinter(object):
         else:
             self.escBuffer.clear()
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def parsePrinterName(self) -> None:
         """Resolve values ​​from the printer name."""
 

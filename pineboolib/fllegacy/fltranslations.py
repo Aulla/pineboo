@@ -46,7 +46,7 @@ class FLTranslations(object):
             self.logger.warning("For some reason, I cannot load '%s'", ts_file_name)
         return ok
 
-    @decorators.Deprecated
+    @decorators.deprecated
     def releaseTsFile(self, ts_file_name: str, verbose: bool, stripped: bool) -> None:
         """
         Free the .ts file.

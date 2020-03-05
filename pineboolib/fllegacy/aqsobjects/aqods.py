@@ -414,7 +414,7 @@ class AQOdsStyle(object):
         bold_style.addElement(style.TextProperties(fontweight="bold"))
         return bold_style
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def textUnderline(self) -> style.Style:
         """
         Return text bold property.

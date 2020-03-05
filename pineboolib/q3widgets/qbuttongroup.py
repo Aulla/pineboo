@@ -21,7 +21,7 @@ class QButtonGroup(qgroupbox.QGroupBox):
         self.bg_ = QtWidgets.QButtonGroup(self)
         self.selectedId = -1
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setLineWidth(self, w: int):
         """Set line width."""
         pass

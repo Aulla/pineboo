@@ -426,7 +426,7 @@ class QHttp(HttpState, HttpError):
         # self._state = self.Connected
         # cast(QtCore.pyqtSignal, self._reply.downloadProgress).connect(self._slotNetworkProgressRead)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def head(self, path_: str) -> None:
         """Set head."""
         return None
@@ -488,7 +488,7 @@ class QHttp(HttpState, HttpError):
         self._current_id = request_header._id
         self.requestStarted.emit(request_header._id)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def closeConnection(self) -> None:
         """Close Connection."""
         self._state = self.Closing
@@ -502,7 +502,7 @@ class QHttp(HttpState, HttpError):
         else:
             return self._reply.size()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def readBlock(self, data_: str, max_length_: int) -> None:
         """Read block."""
 
@@ -520,31 +520,31 @@ class QHttp(HttpState, HttpError):
 
         return self._current_id
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def currentSourceDevice(self) -> QtCore.QIODevice:
         """Return current source device."""
 
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def currentDestinationDevice(self) -> QtCore.QIODevice:
         """Return current destination device."""
 
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def currentRequest(self) -> None:
         """Return current request."""
 
         return None
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def hasPendingRequests(self) -> bool:
         """Return if pendidng reuqest exists."""
 
         return True
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def clearPendingRequests(self) -> None:
         """Clear pending requests."""
 

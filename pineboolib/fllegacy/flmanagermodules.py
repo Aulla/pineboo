@@ -148,7 +148,7 @@ class FLManagerModules(object):
     # """
     # Acciones de inicialización del sistema de módulos.
     # """
-    # @decorators.NotImplementedWarn
+    # @decorators.not_implemented_warn
     # def init(self):
     #    pass
 
@@ -207,7 +207,7 @@ class FLManagerModules(object):
 
         return None
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def byteCodeToStr(self, file_name: str) -> str:
         """
         Get the contents of a script file.
@@ -221,7 +221,7 @@ class FLManagerModules(object):
         """
         return ""
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def contentCode(self, file_name: str) -> str:
         """
         Return the contents of a script file.
@@ -841,7 +841,7 @@ class FLManagerModules(object):
         if "sys" not in self.list_id_areas_:
             self.list_id_areas_.append("sys")
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def checkSignatures(self):
         """
         Check the signatures for a given module.

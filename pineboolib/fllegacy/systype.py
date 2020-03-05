@@ -1281,15 +1281,15 @@ class SysType(sysbasetype.SysBaseType):
         key = utils_base.ustr(u"scripts/sys/modLastDirModules_", self.nameBD())
         dirAnt = settings.settings.value(key)
 
-        dirMods = FileDialog.getExistingDirectory(
+        dir_modules = FileDialog.getExistingDirectory(
             str(dirAnt) if dirAnt else None, self.translate(u"Directorio de Módulos")
         )
-        if not dirMods:
+        if not dir_modules:
             return
-        dirMods = types.Dir.cleanDirPath(dirMods)
-        dirMods = types.Dir.convertSeparators(dirMods)
-        QtCore.QDir.setCurrent(dirMods)  # change current directory
-        listFilesMod = self.selectModsDialog(flutil.FLUtil.findFiles(dirMods, u"*.mod", False))
+        dir_modules = types.Dir.cleanDirPath(dir_modules)
+        dir_modules = types.Dir.convertSeparators(dir_modules)
+        QtCore.QDir.setCurrent(dir_modules)  # change current directory
+        listFilesMod = self.selectModsDialog(flutil.FLUtil.findFiles(dir_modules, u"*.mod", False))
         flutil.FLUtil.createProgressDialog(self.translate(u"Importando"), len(listFilesMod))
         flutil.FLUtil.setProgress(1)
         i = 0
@@ -1313,7 +1313,7 @@ class SysType(sysbasetype.SysBaseType):
                 break
 
         flutil.FLUtil.destroyProgressDialog()
-        flutil.FLUtil.writeSettingEntry(key, dirMods)
+        flutil.FLUtil.writeSettingEntry(key, dir_modules)
         self.infoMsgBox(self.translate(u"Importación de módulos finalizada."))
         AQTimer.singleShot(0, self.reinit)
 
@@ -1663,7 +1663,7 @@ class SysType(sysbasetype.SysBaseType):
         return flapplication.aqApp.db().qsaExceptions()
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def serverTime(self) -> str:
         """Return time from database."""
 

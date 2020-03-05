@@ -66,7 +66,7 @@ class QGroupBox(QtWidgets.QGroupBox):
 
         self.setDisabled(not b)
 
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot(bool)
     def setShown(self, b: bool) -> None:
         """Set shown."""
         self.setVisible(b)
@@ -79,19 +79,19 @@ class QGroupBox(QtWidgets.QGroupBox):
         else:
             super().__setattr__(name, value)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setFrameShadow(self, fs: None) -> None:
         """Set frame shadow."""
 
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setFrameShape(self, fs: None) -> None:
         """Set frame shape."""
 
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def newColumn(self) -> None:
         """Create a new column."""
 

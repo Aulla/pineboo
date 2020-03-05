@@ -20,18 +20,18 @@ class QPushButton(QtWidgets.QPushButton):
         """Set text label."""
         self.setText(text)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setTextPosition(self, pos: int) -> None:
         """Set text position."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setUsesBigPixmap(self, b: bool) -> None:
         """Set use big pixmap."""
 
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setUsesTextLabel(self, b: bool) -> None:
         """Set use text label."""
         pass

@@ -517,13 +517,13 @@ class FLDataTable(QtWidgets.QTableView):
 
         return super(FLDataTable, self).eventFilter(o, e)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def paintCell(self, p: Any, row: int, col: int, cr: Any, selected: bool, cg: Any) -> None:
         """Paint the cell."""
 
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def paintField(self, p: Any, field: str, cr: Any, selected: bool) -> None:
         """Paint the field."""
         pass
@@ -739,7 +739,7 @@ class FLDataTable(QtWidgets.QTableView):
 
     # @decorators.pyqtSlot()
     # @decorators.pyqtSlot(int)
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def ensureRowSelectedVisible(self, position: Optional[int] = None) -> None:
         """Ensure row selected visible."""
 

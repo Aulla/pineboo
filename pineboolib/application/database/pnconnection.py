@@ -269,7 +269,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.conn.seek(offs, whence)
 
-    # @decorators.NotImplementedWarn
+    # @decorators.not_implemented_warn
     # def md5TuplesStateTable(self, curname: str) -> bool:
     #    """
     #    Return the sum md5 with the total records inserted, deleted and modified in the database so far.
@@ -284,7 +284,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         self._interactive_gui = b
 
-    # @decorators.NotImplementedWarn
+    # @decorators.not_implemented_warn
     # def setQsaExceptions(self, b: bool) -> None:
     #    """See properties of the qsa exceptions."""
     #    pass
@@ -728,7 +728,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().canRegenTables()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def regenTable(self, table_name: str, mtd: "pntablemetadata.PNTableMetaData") -> None:
         """Regenerate a table."""
 

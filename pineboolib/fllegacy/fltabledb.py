@@ -761,7 +761,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         self.initSearch_ = iS
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setOrderCols(self, fields: List[str]):
         """
         Set the order of the columns in the table.
@@ -820,7 +820,7 @@ class FLTableDB(QtWidgets.QWidget):
         else:
             self.refreshDelayed()
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def orderCols(self) -> List[str]:
         """
         Return the list of fields sorted by their columns in the table from left to right.
@@ -891,7 +891,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         self.checkColumnEnabled_ = b
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def aliasCheckColumn(self) -> Optional[str]:
         """
         Obtain the header label text for the selection column.
@@ -920,7 +920,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         return self.findHidden_
 
-    @decorators.Deprecated
+    @decorators.deprecated
     def setFindHidden(self, h: bool) -> None:
         """
         Hide or show the search frame.
@@ -941,7 +941,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         return self.filterHidden_
 
-    @decorators.Deprecated
+    @decorators.deprecated
     def setFilterHidden(self, h: bool) -> None:
         """
         Hide or show the frame to switch between data and filter.
@@ -1005,7 +1005,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         return self.reqOnlyTable_
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setAutoSortColumn(self, on: bool = True):
         """
         Set auto sort mode.
@@ -1390,7 +1390,7 @@ class FLTableDB(QtWidgets.QWidget):
             self.tableRecords_.recordChoosed.connect(self.recordChoosedSlot)
             self.cursor().newBuffer.connect(self.currentChangedSlot)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def recordChoosedSlot(self) -> None:
         """Perform operations when selecting a record."""
         if isinstance(self.topWidget, flformsearchdb.FLFormSearchDB) and self.topWidget.inExec_:
@@ -1398,7 +1398,7 @@ class FLTableDB(QtWidgets.QWidget):
         else:
             self.cursor().chooseRecord()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def currentChangedSlot(self) -> None:
         """Emit current changed signal."""
         self.currentChanged.emit()
@@ -1890,7 +1890,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         return where
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def initFakeEditor(self) -> None:
         """
         Initialize a false and non-functional editor.
@@ -1929,9 +1929,9 @@ class FLTableDB(QtWidgets.QWidget):
 
             self.fakeEditor_.setText(prty)
 
-    @decorators.pyqtSlot()
-    @decorators.pyqtSlot(bool)
-    @decorators.pyqtSlot(bool, bool)
+    @decorators.pyqt_slot()
+    @decorators.pyqt_slot(bool)
+    @decorators.pyqt_slot(bool, bool)
     def refresh(self, *args) -> None:
         """
         Update the recordset.
@@ -2199,7 +2199,7 @@ class FLTableDB(QtWidgets.QWidget):
         if row > -1:
             self.setCurrentRow(row)
 
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot(bool)
     def insertRecord(self, wait: bool = True) -> None:
         """Call method FLSqlCursor.insertRecord."""
 
@@ -2224,7 +2224,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self.cursor():
             self.cursor().insertRecord(wait)
 
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot(bool)
     def editRecord(self, wait: bool = True) -> None:
         """
         Call method FLSqlCursor.editRecord.
@@ -2249,7 +2249,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self.cursor():
             self.cursor().editRecord()
 
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot(bool)
     def browseRecord(self, wait: bool = True) -> None:
         """
         Call method FLSqlCursor.browseRecord.
@@ -2268,7 +2268,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self.cursor():
             self.cursor().browseRecord(wait)
 
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot(bool)
     def deleteRecord(self, wait: bool = True) -> None:
         """
         Call method FLSqlCursor.deleteRecord.
@@ -2295,7 +2295,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self.cursor():
             self.cursor().deleteRecord(wait)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def copyRecord(self):
         """
         Call method FLSqlCursor.copyRecord.
@@ -2321,8 +2321,8 @@ class FLTableDB(QtWidgets.QWidget):
         if self.cursor():
             self.cursor().copyRecord()
 
-    @decorators.pyqtSlot(int)
-    @decorators.pyqtSlot(str)
+    @decorators.pyqt_slot(int)
+    @decorators.pyqt_slot(str)
     def putFirstCol(self, col: Union[int, str]) -> None:
         """
         Place the column first by passing the name of the field.
@@ -2359,8 +2359,8 @@ class FLTableDB(QtWidgets.QWidget):
             QtCore.Qt.AscendingOrder if self.orderAsc_ else QtCore.Qt.DescendingOrder,
         )
 
-    @decorators.pyqtSlot(int)
-    @decorators.pyqtSlot(str)
+    @decorators.pyqt_slot(int)
+    @decorators.pyqt_slot(str)
     def putSecondCol(self, col: Union[int, str]) -> None:
         """
         Place the column as second by passing the name of the field.
@@ -2385,7 +2385,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         self.moveCol(_index, self.sortColumn2_)
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def moveCol(self, from_: int, to: int, firstSearch: bool = True) -> None:
         """
         Move a column from one source field to the column in another destination field.
@@ -2484,7 +2484,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         self.refresh(True, False)
 
-    # @decorators.BetaImplementation
+    # @decorators.beta_implementation
     # def seekCursor(self) -> None:
     #    """
     #    Position the cursor on a valid record.
@@ -2544,14 +2544,14 @@ class FLTableDB(QtWidgets.QWidget):
         t.selectRow(r)
         t.scrollTo(t.cur.model().index(r, 0))
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def columnWidth(self, c: int) -> None:
         """
         Return Column width.
         """
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setRowHeight(self, row: int, h: int) -> None:
         """
         Set the height of a row.
@@ -2561,7 +2561,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def rowHeight(self, row: int) -> None:
         """
         Return height in the row.
@@ -2743,7 +2743,7 @@ class FLTableDB(QtWidgets.QWidget):
 
             self.setSortOrder(self.orderAsc_, self.sortColumn_)
 
-    @decorators.pyqtSlot(str)
+    @decorators.pyqt_slot(str)
     def filterRecords(self, p: str) -> None:
         """
         Filter the records in the table using the first field, according to the given pattern.
@@ -2842,7 +2842,7 @@ class FLTableDB(QtWidgets.QWidget):
         return self.orderAsc_
 
     def setActionName(self, name: str):
-        """Set action Name to the cursor (Deprecated)."""
+        """Set action Name to the cursor (deprecated)."""
         pass
 
     def activeTabData(self, b: bool) -> None:

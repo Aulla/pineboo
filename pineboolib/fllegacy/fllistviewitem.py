@@ -107,7 +107,7 @@ class FLListViewItem(Qt.QStandardItem):
 
         return str(ret)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setPixmap(self, *args):
         """Set pixmap."""
         pass

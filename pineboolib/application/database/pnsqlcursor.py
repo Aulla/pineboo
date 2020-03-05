@@ -1558,7 +1558,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     # Redefinido por conveniencia
     # """
 
-    # @decorators.NotImplementedWarn
+    # @decorators.not_implemented_warn
     # def exec_(self, query: str) -> bool:
     # if query:
     #    LOGGER.debug("ejecutando consulta " + query)
@@ -1654,7 +1654,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return None
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def aqWasDeleted(self) -> bool:
         """
         Indicate if the cursor has been deleted.
@@ -1663,7 +1663,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         return False
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def calculateField(self, name: str) -> bool:
         """
         Indicate if the field is calculated.
@@ -1688,9 +1688,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         return self._selection
 
-    @decorators.pyqtSlot(QtCore.QModelIndex, QtCore.QModelIndex)
-    @decorators.pyqtSlot(int, int)
-    @decorators.pyqtSlot(int)
+    @decorators.pyqt_slot(QtCore.QModelIndex, QtCore.QModelIndex)
+    @decorators.pyqt_slot(int, int)
+    @decorators.pyqt_slot(int)
     def selection_currentRowChanged(self, current: Any, previous: Any = None) -> None:
         """
         Update the current record pointed to by the tablemodel.
@@ -1768,8 +1768,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         else:
             return False
 
-    @decorators.pyqtSlot()
-    @decorators.pyqtSlot(str)
+    @decorators.pyqt_slot()
+    @decorators.pyqt_slot(str)
     def refresh(self, field_name: Optional[str] = None) -> None:
         """
         Refresh the cursor content.
@@ -1816,7 +1816,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     self.private_cursor.buffer_.clear_buffer()
                 self.newBuffer.emit()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def refreshDelayed(self, msec: int = 50) -> None:  # keep > 50ms
         """
         Update the recordset with a delay.
@@ -1885,7 +1885,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.private_cursor.buffer_.primeUpdate(self.at())
         return self.private_cursor.buffer_
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def refreshBuffer(self) -> bool:
         """
         Refresh the buffer according to the established access mode.
@@ -2024,7 +2024,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return True
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def setEditMode(self) -> bool:
         """
         Change the cursor to Edit mode.
@@ -2041,7 +2041,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return False
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def seek(self, index: int, relative: Optional[bool] = False, emite: bool = False) -> bool:
         """
         Simply refreshes the buffer with the FLSqlCursor :: refreshBuffer () method.
@@ -2062,8 +2062,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return result
 
-    @decorators.pyqtSlot()
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot()
+    @decorators.pyqt_slot(bool)
     def next(self, emite: bool = True) -> bool:
         """
         Move the position to which the +1 position and execute refreshBuffer.
@@ -2095,8 +2095,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return self.move(pos)
 
-    @decorators.pyqtSlot()
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot()
+    @decorators.pyqt_slot(bool)
     def prev(self, emite: bool = True) -> bool:
         """
         Move the position to which the -1 position and execute refreshBuffer.
@@ -2155,8 +2155,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         else:
             return False
 
-    @decorators.pyqtSlot()
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot()
+    @decorators.pyqt_slot(bool)
     def first(self, emite: bool = True) -> bool:
         """
         Move the position to which the first position and execute refreshBuffer.
@@ -2177,8 +2177,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return result
 
-    @decorators.pyqtSlot()
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot()
+    @decorators.pyqt_slot(bool)
     def last(self, emite: bool = True) -> bool:
         """
         Move the position to which the last position and execute refreshBuffer.
@@ -2197,7 +2197,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return result
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def __del__(self, invalidate: bool = True) -> None:
         """
         Check if it is deleted in cascade, if so, also delete related records in 1M cardinality.
@@ -2259,7 +2259,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     #    # self.destroyed.emit()
     #    # self.private_cursor._count_ref_cursor = self.private_cursor._count_ref_cursor - 1     FIXME
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def select(
         self, final_filter: str = "", sort: Optional[str] = None
     ) -> bool:  # sort = QtCore.QSqlIndex()
@@ -2313,7 +2313,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return True
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def setSort(self, sort_order: str) -> None:
         """
         Specify the sort order in the tablemodel.
@@ -2322,7 +2322,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         self.private_cursor._model.setSortOrder(sort_order)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def baseFilter(self) -> str:
         """
         Return the base filter.
@@ -2376,7 +2376,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return final_filter
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def curFilter(self) -> str:
         """
         Return the actual filter.
@@ -2401,7 +2401,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 else:
                     return "%s AND %s" % (base_filter, filter)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def setFilter(self, _filter: str = "") -> None:
         """
         Specify the cursor filter.
@@ -2430,7 +2430,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         self.private_cursor._model.where_filters["filter"] = final_filter
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def insertRecord(self, wait: bool = True) -> None:
         """
         Open the form record in insert mode.
@@ -2441,7 +2441,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         LOGGER.trace("insertRecord %s", self._action and self._action.name())
         self.openFormInMode(self.Insert, wait)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def editRecord(self, wait: bool = True) -> None:
         """
         Open the form record in edit mode.
@@ -2463,7 +2463,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         self.openFormInMode(self.Edit, wait)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def browseRecord(self, wait: bool = True) -> None:
         """
         Open the form record in browse mode.
@@ -2483,7 +2483,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 self.seek(pos, False, False)
         self.openFormInMode(self.Browse, wait)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def deleteRecord(self, wait: bool = True) -> None:
         """
         Open the form record in insert mode.Ask for confirmation to delete the record.
@@ -2537,7 +2537,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             del buffer_aux
             self.newBuffer.emit()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def chooseRecord(self, wait: bool = True) -> None:
         """
         Perform the action associated with choosing a cursor record.
@@ -2570,7 +2570,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         self.private_cursor._model.disable_refresh(value)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def commitBuffer(self, emite: bool = True, check_locks: bool = False) -> bool:
         """
         Send the contents of the buffer to the cursor, or perform the appropriate action for the cursor.
@@ -2869,7 +2869,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.bufferCommited.emit()
         return True
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def commitBufferCursorRelation(self) -> bool:
         """
         Send the contents of the cursor buffer related to that cursor.
@@ -2931,7 +2931,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return result
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def transactionLevel(self) -> int:
         """
         Transaction level.
@@ -2944,7 +2944,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         else:
             return 0
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def transactionsOpened(self) -> List[str]:
         """
         Transactions opened by this cursor.
@@ -2957,8 +2957,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return lista
 
-    @decorators.pyqtSlot()
-    @decorators.BetaImplementation
+    @decorators.pyqt_slot()
+    @decorators.beta_implementation
     def rollbackOpened(self, count: int = -1, message: str = "") -> None:
         """
         Undo transactions opened by this cursor.
@@ -2981,7 +2981,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.rollback()
             i = i + 1
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def commitOpened(self, count: int = -1, message: str = None) -> None:
         """
         Complete transactions opened by this cursor.
@@ -3005,8 +3005,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.commit()
             i = i + 1
 
-    @decorators.pyqtSlot()
-    @decorators.NotImplementedWarn
+    @decorators.pyqt_slot()
+    @decorators.not_implemented_warn
     def checkRisksLocks(self, terminate: bool = False) -> bool:
         """
         Enter a lockout risk loop for this table and the current record.
@@ -3019,7 +3019,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return True
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def setAcTable(self, acos) -> None:
         """
         Set the global access for the table, see FLSqlCursor :: setAcosCondition ().
@@ -3037,7 +3037,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         )
         self.private_cursor._ac_perm_table = acos
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def setAcosTable(self, acos):
         """
         Set the access control list (ACOs) for the fields in the table, see FLSqlCursor :: setAcosCondition ().
@@ -3059,7 +3059,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         )
         self.private_cursor._acos_table = acos
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def setAcosCondition(self, condition_name: str, condition: int, condition_value: Any):
         """
         Set the condition that must be met to apply access control.
@@ -3096,8 +3096,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.private_cursor._acos_cond = condition
         self.private_cursor._acos_cond_value = condition_value
 
-    @decorators.pyqtSlot()
-    @decorators.NotImplementedWarn
+    @decorators.pyqt_slot()
+    @decorators.not_implemented_warn
     def concurrencyFields(self) -> List[str]:
         """
         Check if there is a collision of fields edited by two sessions simultaneously.
@@ -3107,7 +3107,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return []
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def changeConnection(self, conn_name: str) -> None:
         """
         Change the cursor to another database connection.
@@ -3153,7 +3153,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         self.connectionChanged.emit()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def populateCursor(self) -> None:
         """
         If the cursor comes from a query, perform the process of adding the deficit from the fields to it.
@@ -3177,7 +3177,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             for field in self.private_cursor.metadata_.fieldList():
                 self.private_cursor.buffer_.setGenerated(field, False)
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setExtraFieldAttributes(self):
         """Deprecated."""
 
@@ -3186,7 +3186,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     # def clearMapCalcFields(self):
     #    self.private_cursor.mapCalcFields_ = []
 
-    # @decorators.NotImplementedWarn
+    # @decorators.not_implemented_warn
     # def valueBufferRaw(self, field_name: str) -> Any:
     #    """Deprecated."""
 
@@ -3201,7 +3201,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return self.private_cursor._model.getSortOrder()
 
-    # @decorators.NotImplementedWarn
+    # @decorators.not_implemented_warn
     # def list(self):
     #    return None
 
@@ -3372,7 +3372,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     # destroyed = QtCore.pyqtSignal()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def clearPersistentFilter(self):
         """
         Clear persistent filters.

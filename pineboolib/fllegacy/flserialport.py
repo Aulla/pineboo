@@ -150,22 +150,22 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
         """Return if port is closed."""
         return self._obj.close()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def writeText(self, data: str) -> None:
         """Send string data."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def getch(self) -> int:
         """Return int char readed from port."""
         return 0
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def putch(self, ch: int) -> int:
         """Send a char."""
         return 0
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def ungetch(self, ch: int) -> int:
         """Return unsigned char?."""
         return 0
@@ -178,7 +178,7 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
         """Flush data."""
         return self._obj.flush()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def readBlock(self) -> int:
         """Read data block."""
         return 0

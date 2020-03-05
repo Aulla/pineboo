@@ -226,7 +226,7 @@ class FLReportEngine(QtCore.QObject):
         """Return report template name."""
         return self.d_.template_
 
-    @decorators.BetaImplementation
+    @decorators.beta_implementation
     def setReportTemplate(self, t: Any):
         """Set template to report."""
 
@@ -243,13 +243,13 @@ class FLReportEngine(QtCore.QObject):
         """Return report template."""
         return self.rt if self.rt else QtXml.QDomDocument()
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def csvData(self) -> str:
         """Return csv data."""
         # FIXME: Should return the report converted to CSV
         return ""
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def exportToOds(self, pages: Any):
         """Return report exported to odf."""
         if not pages or not pages.pageCollection():

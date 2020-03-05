@@ -6,7 +6,7 @@ class FLSqlConnections(object):
     """FLSqlConnections class."""
 
     @classmethod
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def database(cls):
         """Not implemented."""
         return True

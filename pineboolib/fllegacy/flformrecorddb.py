@@ -644,7 +644,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             except Exception:
                 pass
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def accept(self) -> None:
         """
         Activate pressing the accept button.
@@ -681,7 +681,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         self.close()
         self.accepting = False
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def acceptContinue(self) -> None:
         """
         Activate pressing the accept and continue button.
@@ -721,7 +721,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         self.accepting = False
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def reject(self) -> None:
         """
         Activate pressing the cancel button.
@@ -730,8 +730,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
         self.canceledForm()
         self.close()
 
-    @decorators.pyqtSlot()
-    @decorators.NotImplementedWarn
+    @decorators.pyqt_slot()
+    @decorators.not_implemented_warn
     def script(self) -> None:
         """
         Return the script associated with the form.
@@ -739,7 +739,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         pass
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def firstRecord(self) -> None:
         """
         Go to the first record.
@@ -761,7 +761,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     self.setCaptionWidget()
                     self.initScript()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def previousRecord(self) -> None:
         """
         Go to the previous record.
@@ -787,7 +787,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     self.setCaptionWidget()
                     self.initScript()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def nextRecord(self) -> None:
         """
         Go to the next record.
@@ -813,7 +813,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     self.setCaptionWidget()
                     self.initScript()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def lastRecord(self) -> None:
         """
         Go to the last record.
@@ -835,7 +835,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     self.setCaptionWidget()
                     self.initScript()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def disablePushButtonCancel(self) -> None:
         """
         Turn off the cancel button.

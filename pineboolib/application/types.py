@@ -403,7 +403,7 @@ class Dir(object):
         return os.path.normpath(name)
 
     @staticmethod
-    @decorators.Deprecated
+    @decorators.deprecated
     def convertSeparators(filename: str) -> str:
         """
         Convert path from backslash to slashes or viceversa.

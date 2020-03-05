@@ -176,7 +176,7 @@ class PNStaticLoader(QtCore.QObject):
         ).clicked.connect(self._dialog.accept)
         cast(QtWidgets.QCheckBox, self.chkEnabled).toggled.connect(self.setEnabled)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def load(self) -> None:
         """Load and initialize the object."""
         info = self._info
@@ -209,7 +209,7 @@ class PNStaticLoader(QtCore.QObject):
 
             tbl_dir.setCurrentCell(n_rows, 0)
 
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot(bool)
     def addDir(self) -> None:
         """Ask user for adding a new folder for static loading."""
 
@@ -241,7 +241,7 @@ class PNStaticLoader(QtCore.QObject):
 
             self._info.dirs_.append(AQStaticDirInfo(True, dir))
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def modDir(self) -> None:
         """Ask user for a folder to change."""
 
@@ -265,7 +265,7 @@ class PNStaticLoader(QtCore.QObject):
             item.setTextAlignment(QtCore.Qt.AlignVCenter + QtCore.Qt.AlignLeft)
             tbl_dir.setItem(cur_row, 0, item)
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def delDir(self) -> None:
         """Ask user for folder to delete."""
 
@@ -289,14 +289,14 @@ class PNStaticLoader(QtCore.QObject):
 
         tbl_dir.removeRow(cur_row)
 
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot(bool)
     def setEnabled(self, state: bool) -> None:
         """Enable or disable this object."""
         self._info.enabled_ = state
         self._dialog.pixOn.setVisible(state)  # type: ignore[attr-defined] # noqa: F821
         self._dialog.pixOff.setVisible(not state)  # type: ignore[attr-defined] # noqa: F821
 
-    @decorators.pyqtSlot(bool)
+    @decorators.pyqt_slot(bool)
     def setChecked(self, state: bool) -> None:
         """Set checked this object."""
 

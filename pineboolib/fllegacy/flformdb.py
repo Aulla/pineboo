@@ -275,7 +275,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         return self._loaded
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def initScript(self) -> bool:
         """
         Call the "init" function of the masterprocess script associated with the form.
@@ -462,7 +462,7 @@ class FLFormDB(QtWidgets.QDialog):
         """Hide control."""
         super().hide()
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def close(self) -> bool:
         """
         Close the form.
@@ -476,21 +476,21 @@ class FLFormDB(QtWidgets.QDialog):
         self.isClosing_ = False
         return True
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def accept(self) -> None:
         """
         Activated by pressing the accept button.
         """
         pass
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def reject(self) -> None:
         """
         Activated by pressing the cancel button.
         """
         pass
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def showForDocument(self) -> None:
         """
         Show the form without calling the script "init".
@@ -503,8 +503,8 @@ class FLFormDB(QtWidgets.QDialog):
             self.resize(self.mainWidget_.size())
         super().show()
 
-    @decorators.pyqtSlot()
-    @decorators.NotImplementedWarn
+    @decorators.pyqt_slot()
+    @decorators.not_implemented_warn
     def debugScript(self) -> bool:
         """
         Show the script associated with the form in the Workbench to debug.
@@ -512,7 +512,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         return True
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def get_script(self) -> Optional[str]:
         """
         Return the script associated with the form.
@@ -525,7 +525,7 @@ class FLFormDB(QtWidgets.QDialog):
 
     # private slots:
 
-    @decorators.pyqtSlot()
+    @decorators.pyqt_slot()
     def callInitScript(self) -> None:
         """Call QS Script related to this control."""
         if not self.initScript():
@@ -961,7 +961,7 @@ class FLFormDB(QtWidgets.QDialog):
     # else:
     #    qWarning("%s (%s):No se encuentra el atributo %s" % (self, self.iface, name))
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def exportToXml(self, b: bool) -> None:
         """Export this widget into an xml."""
         from pineboolib.fllegacy.aqsobjects.aqs import AQS

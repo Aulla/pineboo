@@ -661,7 +661,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def alterTable(
         self,
         mtd1: Union[str, "pntablemetadata.PNTableMetaData"],

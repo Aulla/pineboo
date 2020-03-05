@@ -128,7 +128,7 @@ class QListView(QtWidgets.QWidget):
         style_ = "QTreeView::item#%s { border: 0px; padding: %spx; }" % (self.objectName(), s)
         self._tree.setStyleSheet(style_)
 
-    # @decorators.NotImplementedWarn
+    # @decorators.not_implemented_warn
     # def resizeEvent(self, e: QtCore.QEvent) -> None:
     #    """Process resize event."""
     #    if self._resizeable:
@@ -139,12 +139,12 @@ class QListView(QtWidgets.QWidget):
 
         self._cols_labels = []
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def defaultRenameAction(self) -> bool:
         """Return default_rename_action enabled."""
         return self._default_rename_action
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setDefaultRenameAction(self, b: bool) -> None:
         """Set default_rename_action enabled."""
         self._default_rename_action = b

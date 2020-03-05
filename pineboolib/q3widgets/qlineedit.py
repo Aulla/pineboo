@@ -47,22 +47,22 @@ class QLineEdit(QtWidgets.QLineEdit):
 
     text: str = property(getText, setText)  # type: ignore [assignment] # noqa F821
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setBackgroundOrigin(self, bgo: Any):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setLineWidth(self, w: int):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setFrameShape(self, f: int):
         """Not implemented."""
         pass
 
-    @decorators.NotImplementedWarn
+    @decorators.not_implemented_warn
     def setFrameShadow(self, f: int):
         """Not implemented."""
         pass
