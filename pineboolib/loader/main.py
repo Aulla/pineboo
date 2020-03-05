@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtWidgets
 
 from pineboolib import logging
 from pineboolib.core.utils.utils_base import is_deployed
-from pineboolib.core import settings
+from pineboolib.core import settings, error_manager
 from pineboolib.loader.dlgconnect.conn_dialog import show_connection_dialog
 from pineboolib.loader.options import parse_options
 from pineboolib.loader.dgi import load_dgi
@@ -39,6 +39,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     init_logging()
     init_cli(catch_ctrl_c=False)
     pytnyzer.STRICT_MODE = False
+    error_manager.RAISE_QSA_ERRORS = True
     application.PROJECT.load_version()
     application.PROJECT.setDebugLevel(1000)
     application.PROJECT.set_app(qapp)

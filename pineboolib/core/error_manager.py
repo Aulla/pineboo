@@ -9,7 +9,9 @@ so error and tracebacks are easy to follow and fit better on GUI
 import re
 from .utils import logging
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
+
+RAISE_QSA_ERRORS = False
 
 
 def translate(mod: str, txt: str) -> str:
@@ -18,18 +20,23 @@ def translate(mod: str, txt: str) -> str:
     return txt
 
 
-def error_manager(e: str) -> str:
+def error_manager(error_str: str) -> str:
     """Process an error text and return a better version for GUI."""
-    from pineboolib.core.settings import config
+    from pineboolib.core import settings
 
-    tmpdir = config.value("ebcomportamiento/temp_dir")
-    e = e.replace(tmpdir, "...")
-    e = re.sub(r"/[0-9a-f]{35,60}\.qs\.py", ".qs.py", e)
+    global RAISE_QSA_ERRORS
+
+    tmpdir = settings.config.value("ebcomportamiento/temp_dir")
+    error_str = error_str.replace(tmpdir, "...")
+    error_str = re.sub(r"/[0-9a-f]{35,60}\.qs\.py", ".qs.py", error_str)
 
     text = translate("scripts", "Error ejecutando un script")
-    text += ":\n%s" % e
-    text += process_error(e)
-    logger.error(text)
+    text += ":\n%s" % error_str
+    text += process_error(error_str)
+    LOGGER.error(text)
+    if RAISE_QSA_ERRORS:
+        raise Exception("")
+
     return text
 
 
