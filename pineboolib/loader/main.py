@@ -247,6 +247,7 @@ def init_testing() -> None:
         init_cli(catch_ctrl_c=False)
 
         pytnyzer.STRICT_MODE = False
+        error_manager.RAISE_QSA_ERRORS = True
         application.PROJECT.load_version()
         application.PROJECT.setDebugLevel(1000)
         application.PROJECT.set_app(qapp)
@@ -275,7 +276,7 @@ def init_testing() -> None:
 def finish_testing() -> None:
     """Clear data from pineboo project."""
     # import time
-
+    error_manager.RAISE_QSA_ERRORS = False
     application.PROJECT.conn_manager.manager().cleanupMetaData()
     application.PROJECT.actions = {}
     application.PROJECT.areas = {}
