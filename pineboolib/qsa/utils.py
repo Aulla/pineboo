@@ -115,112 +115,146 @@ def RegExp(str_re: str) -> qsaRegExp:
     return qsaRegExp(str_re, is_global)
 
 
-class Math(object):
+class Math_class(object):
     """QSA Math emulation class."""
 
-    @staticmethod
-    def abs(value: Union[int, float]) -> Union[int, float]:
+    def abs(self, value: Union[int, float]) -> Union[int, float]:
         """Get absolute value."""
         return math.fabs(value)
 
-    @staticmethod
-    def acos(value: Union[float, int]) -> float:
+    def acos(self, value: Union[float, int]) -> float:
         """Return the arc cosine."""
 
         return math.acos(value)
 
-    @staticmethod
-    def cos(value: Union[float, int]) -> float:
+    def cos(self, value: Union[float, int]) -> float:
         """Return the cosine of value."""
 
         return math.cos(value)
 
-    @staticmethod
-    def asin(value: Union[float, int]) -> float:
+    def asin(self, value: Union[float, int]) -> float:
         """Return the arc sine of value."""
 
         return math.asin(value)
 
-    @staticmethod
-    def sin(value: Union[float, int]) -> float:
+    def sin(self, value: Union[float, int]) -> float:
         """Return the sine of value."""
 
         return math.sin(value)
 
-    @staticmethod
-    def atan(value: Union[float, int]) -> float:
+    def atan(self, value: Union[float, int]) -> float:
         """Return the arc tangent of value."""
 
         return math.atan(value)
 
-    @staticmethod
-    def atan2(value_y: Union[float, int], value_x: Union[float, int]) -> float:
+    def atan2(self, value_y: Union[float, int], value_x: Union[float, int]) -> float:
         """Return the arc tangent."""
 
         return math.atan2(value_y, value_x)
 
-    @staticmethod
-    def tan(value: Union[float, int]) -> float:
+    def tan(self, value: Union[float, int]) -> float:
         """Return the tangent of value."""
 
         return math.tan(value)
 
-    @staticmethod
-    def exp(value: Union[float, int]) -> float:
+    def exp(self, value: Union[float, int]) -> float:
         """Return e raised to the power of value."""
 
         return math.exp(value)
 
-    @staticmethod
-    def ceil(value: float) -> int:
+    def ceil(self, value: float) -> int:
         """Round number to its ceiling."""
         return math.ceil(value)
 
-    @staticmethod
-    def floor(value: float) -> int:
+    def floor(self, value: float) -> int:
         """Round number to its floor."""
         return math.floor(value)
 
-    @staticmethod
-    def log(value: Union[float, int]) -> float:
+    def log(self, value: Union[float, int]) -> float:
         """Return the logarithm of value to the given base."""
 
         return math.log(value)
 
-    @staticmethod
-    def random() -> float:
+    def random(self) -> float:
         """Return a pseudo-random floating point number between 0 and 1."""
         import random
 
         return random.random()
 
-    @staticmethod
-    def max(number1: Union[float, int], number2: Union[float, int]) -> Union[float, int]:
+    def max(self, number1: Union[float, int], number2: Union[float, int]) -> Union[float, int]:
         """Return the largest of number1 and number2."""
 
         return max([number1, number2])
 
-    @staticmethod
-    def min(number1: Union[float, int], number2: Union[float, int]) -> Union[float, int]:
+    def min(self, number1: Union[float, int], number2: Union[float, int]) -> Union[float, int]:
         """Return the smallest of number1 and number2."""
 
         return min([number1, number2])
 
-    @staticmethod
-    def pow(base: float, exp: float) -> float:
+    def pow(self, base: float, exp: float) -> float:
         """Raise base to the power of exp."""
         return math.pow(base, exp)
 
-    @staticmethod
-    def round(value_1: float, value_2: int = 2) -> float:
+    def round(self, value_1: float, value_2: int = 2) -> float:
         """Round a number x to y decimal places."""
         return round(float(value_1), value_2)
 
-    @staticmethod
-    def sqrt(value: Union[float, int]) -> float:
+    def sqrt(self, value: Union[float, int]) -> float:
         """Return the square root of the number passed in the parameter."""
 
         return math.sqrt(value)
+
+    def _get_pi(self) -> float:
+        """Return PI value."""
+
+        return 3.141592653589793
+
+    def _get_eulen(self) -> float:
+        """Return eulers constant. The base for natural logarithms."""
+
+        return 2.718281828459045
+
+    def _get_ln2(self) -> float:
+        """Return natural logarithm of 2."""
+
+        return 0.6931471805599453
+
+    def _get_ln10(self) -> float:
+        """Return natural logarithm of 10."""
+
+        return 2.302585092994046
+
+    def _get_log2e(self) -> float:
+        """Return base 2 logarithm of E."""
+
+        return 1.44269504089
+
+    def _get_log10e(self) -> float:
+        """Return base 2 logarithm of E."""
+
+        return 0.4342944819
+
+    def _get_sqrt1_2(self) -> float:
+        """Return square root of 1/2."""
+
+        return 0.7071067811865476
+
+    def _get_sqrt2(self) -> float:
+        """Return square root of 2."""
+
+        return 1.4142135623730951
+
+    PI = property(_get_pi)
+    E = property(_get_eulen)
+    LN2 = property(_get_ln2)
+    LN10 = property(_get_ln10)
+    LOG2E = property(_get_log2e)
+    LOG10E = property(_get_log10e)
+    SQRT1_2 = property(_get_sqrt1_2)
+    SQRT2 = property(_get_sqrt2)
+
+
+Math = Math_class()
 
 
 def parseFloat(value: Any) -> float:
