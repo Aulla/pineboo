@@ -1,8 +1,18 @@
 """Picture module."""
-from PyQt5 import QtGui
+from PyQt5 import QtGui, Qt
+
+from typing import Callable
 
 
 class Picture(QtGui.QPicture):
     """Picture class."""
 
-    pass
+    def __getattr__(self, name: str) -> Callable:
+        """Return painter attributes."""
+
+        painter = Qt.QPainter(new_pixmap)
+        ret = getattr(painter, name, None)
+        if ret is None:
+            raise AttributeError("Attribute %s not found!" % name)
+
+        return ret
