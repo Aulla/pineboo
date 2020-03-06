@@ -10,7 +10,7 @@ class Picture(QtGui.QPicture):
     def __getattr__(self, name: str) -> Callable:
         """Return painter attributes."""
 
-        painter = Qt.QPainter(new_pixmap)
+        painter = Qt.QPainter(self)
         ret = getattr(painter, name, None)
         if ret is None:
             raise AttributeError("Attribute %s not found!" % name)
