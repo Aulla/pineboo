@@ -93,9 +93,8 @@ class QSADictModules:
         actionname = "form%s" % name
         if cls.action_exists(actionname):
             LOGGER.debug(
-                "No se sobreescribe variable de entorno %s. Hay una definición previa en %s",
+                "No se sobreescribe variable de entorno %s. Hay una definición previa.",
                 "%s.form%s" % (module.module_name, name),
-                module.module_name,
             )
             return False
         # Se crea la action del form
@@ -115,7 +114,10 @@ class QSADictModules:
             raise ValueError("Action.module must be set before calling")
         actionname = "formRecord" + name
         if cls.action_exists(actionname):
-            LOGGER.debug("No se sobreescribe variable de entorno %s", "formRecord" + name)
+            LOGGER.debug(
+                "No se sobreescribe variable de entorno %s. Hay una definición previa.",
+                "%s.formRecord%s" % (module.module_name, name),
+            )
             return False
         # Se crea la action del formRecord
         delayed_action = DelayedObjectProxyLoader(
