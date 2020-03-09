@@ -50,17 +50,17 @@ def auto_qt_translate_text(text: Optional[str]) -> str:
     return text
 
 
-aqtt = auto_qt_translate_text
+AQTT = auto_qt_translate_text
 
 
-def one(x: List[T1], default: Any = None) -> Optional[T1]:
+def one(list_: List[T1], default: Any = None) -> Optional[T1]:
     """
     Retrieve first element of the list or None/default.
 
     Useful to avoid try/except cluttering and clean code.
     """
     try:
-        return x[0]
+        return list_[0]
     except IndexError:
         return default
 
@@ -115,12 +115,12 @@ class TraceBlock:
         sys.settrace(None)  # noqa: DUO111
 
 
-def trace_function(f: Callable) -> Callable:
+def trace_function(func_: Callable) -> Callable:
     """Add tracing to decorated function."""
 
     def wrapper(*args: Any) -> Any:
         with TraceBlock():
-            return f(*args)
+            return func_(*args)
 
     return wrapper
 
@@ -174,64 +174,45 @@ def copy_dir_recursive(from_dir: str, to_dir: str, replace_on_conflict: bool = F
 
 def text2bool(text: str) -> bool:
     """Convert input text into boolean, if possible."""
-    text = str(text).strip().lower()
-    if text.startswith("t"):
+
+    if text.lower().startswith(("t", "y", "1", "on", "s")):
         return True
-    if text.startswith("f"):
+    elif text.lower().startswith(("f", "n", "0", "off")):
         return False
 
-    if text.startswith("y"):
-        return True
-    if text.startswith("n"):
-        return False
-
-    if text.startswith("1"):
-        return True
-    if text.startswith("0"):
-        return False
-
-    if text == "on":
-        return True
-    if text == "off":
-        return False
-
-    if text.startswith("s"):
-        return True
     raise ValueError("Valor booleano no comprendido '%s'" % text)
 
 
-def ustr(*t1: Union[bytes, str, int, "Date", None, float]) -> str:
+def ustr(*full_text: Union[bytes, str, int, "Date", None, float]) -> str:
     """Convert and concatenate types to text."""
 
-    def ustr1(t: Union[bytes, str, int, "Date", None, float]) -> str:
+    def ustr1(text_: Union[bytes, str, int, "Date", None, float]) -> str:
 
-        if isinstance(t, str):
-            return t
+        if isinstance(text_, str):
+            return text_
 
-        if isinstance(t, float):
-            t_float = t
+        elif isinstance(text_, float):
+            t_float = text_
             try:
-                t = int(t)
+                text_ = int(text_)
 
-                if not t_float == t:
-                    t = str(t_float)
+                if not t_float == text_:
+                    text_ = str(t_float)
 
             except Exception:
                 pass
 
-        # if isinstance(t, QtCore.QString): return str(t)
-        if isinstance(t, bytes):
-            return str(t, "UTF-8")
-        try:
-            if t is None:
-                t = ""
+            return str(text_)
 
-            return "%s" % t
-        except Exception:
-            LOGGER.exception("ERROR Coercing to string: %s", repr(t))
-            return repr(t)
+        elif isinstance(text_, bytes):
+            return str(text_, "UTF-8")
 
-    return "".join([ustr1(t) for t in t1])
+        elif text_ is None:
+            return ""
+        else:
+            return repr(text_)
+
+    return "".join([ustr1(text) for text in full_text])
 
 
 class StructMyDict(dict):
@@ -241,8 +222,8 @@ class StructMyDict(dict):
         """Get property."""
         try:
             return self[name]
-        except KeyError as e:
-            raise AttributeError(e)
+        except KeyError as error:
+            raise AttributeError(error)
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Set property."""
@@ -386,25 +367,25 @@ def pretty_print_xml(elem: ElementTree.Element, level: int = 0) -> None:
             elem.tail = i
 
 
-def format_double(d: Union[int, str, float], part_integer: int, part_decimal: int) -> str:
+def format_double(value: Union[int, str, float], part_integer: int, part_decimal: int) -> str:
     """Convert number into string with fixed point style."""
-    if isinstance(d, str) and d == "":
-        return d
+    if isinstance(value, str) and value == "":
+        return value
     # import locale
     # p_int = field_meta.partInteger()
     # p_decimal = field_meta.partDecimal()
     comma_ = "."
-    d = str(d)
-    found_comma = True if d.find(comma_) > -1 else False
+    value = str(value)
+    found_comma = True if value.find(comma_) > -1 else False
     # if aqApp.commaSeparator() == comma_:
     #    d = d.replace(",", "")
     # else:
     #    d = d.replace(".","")
     #    d = d.replace(",",".")
 
-    d = round(float(d), part_decimal)
+    value = round(float(value), part_decimal)
 
-    str_d = str(d)
+    str_d = str(value)
     str_integer = str_d[0 : str_d.find(comma_)] if str_d.find(comma_) > -1 else str_d
     str_decimal = "" if str_d.find(comma_) == -1 else str_d[str_d.find(comma_) + 1 :]
 
@@ -530,18 +511,18 @@ def download_files() -> None:
         os.mkdir(tmp_dir)
 
 
-def pixmap_fromMimeSource(name: str) -> Any:
+def pixmap_from_mime_source(name: str) -> Any:
     """Convert mime source into a pixmap."""
     file_name = filedir("./core/images/icons", name)
     return QtGui.QPixmap(file_name) if os.path.exists(file_name) else None
 
 
-def sha1(x: str) -> str:
+def sha1(text_: str) -> str:
     """Get SHA1 hash from string in hex form."""
-    return hashlib.sha1(str(x).encode("UTF-8")).hexdigest()
+    return hashlib.sha1(str(text_).encode("UTF-8")).hexdigest()
 
 
 def print_stack(maxsize: int = 1) -> None:
     """Print Python stack, like a traceback."""
-    for tb in traceback.format_list(traceback.extract_stack())[1:-2][-maxsize:]:
-        print(tb.rstrip())
+    for item in traceback.format_list(traceback.extract_stack())[1:-2][-maxsize:]:
+        print(item.rstrip())

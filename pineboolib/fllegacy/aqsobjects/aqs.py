@@ -206,9 +206,9 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, 
         @return QtGui.QPixmap
         """
 
-        from pineboolib.core.utils.utils_base import pixmap_fromMimeSource
+        from pineboolib.core.utils import utils_base
 
-        return pixmap_fromMimeSource(name)
+        return utils_base.pixmap_from_mime_source(name)
 
     Pixmap_fromMineSource = pixmap_fromMimeSource
 

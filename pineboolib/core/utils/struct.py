@@ -7,8 +7,8 @@ Used to avoid creating specific classes for each possible type.
 """
 
 from typing import Any, List, Optional, Dict, Callable
-from xml.etree.ElementTree import Element
-from .utils_base import aqtt
+from xml.etree import ElementTree as ET
+from . import utils_base
 
 
 class Struct(object):
@@ -38,7 +38,7 @@ class XMLStruct(Struct):
     Can be easily accessed by properties.
     """
 
-    def __init__(self, xmlobj: Optional[Element] = None) -> None:
+    def __init__(self, xmlobj: Optional[ET.Element] = None) -> None:
         """
         Build instance from parsed xml.
         """
@@ -53,7 +53,7 @@ class XMLStruct(Struct):
                     # from pineboolib.pnqt3ui import loadProperty
                     # key, text = loadProperty(child)
                 else:
-                    text = aqtt(child.text)
+                    text = utils_base.AQTT(child.text)
                     key = child.tag
                 if isinstance(text, str):
                     text = text.strip()

@@ -32,8 +32,12 @@ class TestUtilsBase(unittest.TestCase):
 
         self.assertEqual(utils_base.ustr(1.01), "1.01")
         self.assertEqual(utils_base.ustr(6.00), "6")
+        self.assertEqual(utils_base.ustr(0.21), "0.21")
+        self.assertEqual(utils_base.ustr(22.0001), "22.0001")
         self.assertEqual(utils_base.ustr(b"hola"), "hola")
         self.assertEqual(utils_base.ustr(), "")
+        self.assertEqual(utils_base.ustr("vale ", 0.21), "vale 0.21")
+        self.assertEqual(utils_base.ustr("test ", 7.00, " pvp"), "test 7 pvp")
 
     def test_format_numbers(self) -> None:
         """Test format double."""

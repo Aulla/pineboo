@@ -299,7 +299,7 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
     def startSend(self) -> bool:
         """Start send mail."""
 
-        from pineboolib.core.utils.utils_base import pixmap_fromMimeSource
+        from pineboolib.core.utils import utils_base
         from pineboolib.core import settings
         from pineboolib import application
 
@@ -341,7 +341,7 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
             )
             if not QtCore.QFile.exists(logo):
                 logo = "%s/logo.png" % application.PROJECT.tmpdir
-                Qt.QPixmap(pixmap_fromMimeSource("pineboo-logo.png")).save(logo, "PNG")
+                Qt.QPixmap(utils_base.pixmap_from_mime_source("pineboo-logo.png")).save(logo, "PNG")
 
             fp = open(logo, "rb")
             logo_part = MIMEImage(fp.read())

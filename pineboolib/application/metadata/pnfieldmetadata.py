@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Manage the data of a field in a table."""
 
-from pineboolib.core.utils.utils_base import aqtt
+from pineboolib.core.utils import utils_base
 
 from pineboolib.core.utils import logging
 from pineboolib.interfaces import IFieldMetaData
@@ -163,7 +163,7 @@ class PNFieldMetaData(IFieldMetaData):
         @return Alias Name.
         """
 
-        return aqtt(self.private.alias_)
+        return utils_base.AQTT(self.private.alias_)
 
     def allowNull(self) -> bool:
         """
@@ -501,10 +501,10 @@ class PNFieldMetaData(IFieldMetaData):
         self.private._options_list = []
         if ol.find("QT_TRANSLATE") != -1:
             for componente in ol.split(";"):
-                self.private._options_list.append(aqtt(componente))
+                self.private._options_list.append(utils_base.AQTT(componente))
         else:
             for componente in ol.split(","):
-                self.private._options_list.append(aqtt(componente))
+                self.private._options_list.append(utils_base.AQTT(componente))
 
     def isCheck(self) -> bool:
         """
