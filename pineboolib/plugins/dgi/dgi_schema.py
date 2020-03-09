@@ -7,7 +7,7 @@ from PyQt5 import QtCore, QtWidgets
 from pineboolib.application.utils.mobilemode import is_mobile_mode
 from pineboolib import logging
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class dgi_schema(object):
@@ -175,11 +175,11 @@ class dgi_schema(object):
             # FIXME: Please, no.
             mod_ = import_module(mod_name_full)
             cls = getattr(mod_, name, None)
-            logger.trace("resolveObject: Loaded module %s", mod_name_full)
+            LOGGER.trace("resolveObject: Loaded module %s", mod_name_full)
         except ModuleNotFoundError:
-            logger.trace("resolveObject: Module not found %s", mod_name_full)
+            LOGGER.trace("resolveObject: Module not found %s", mod_name_full)
         except Exception:
-            logger.exception("resolveObject: Unable to load module %s", mod_name_full)
+            LOGGER.exception("resolveObject: Unable to load module %s", mod_name_full)
         return cast(Optional[QtCore.QObject], cls)
 
     def sys_mtds(self) -> List[str]:
@@ -196,7 +196,7 @@ class dgi_schema(object):
 
     def debug(self, txt: str):
         """Show debug message."""
-        logger.warning("---> %s" % txt)
+        LOGGER.warning("---> %s" % txt)
 
     def content_cached(
         self,

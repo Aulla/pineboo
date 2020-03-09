@@ -25,8 +25,8 @@ class Struct(object):
 
     def __init__(self, **kwargs: Any) -> None:
         """Construct a new object using the arguments provided."""
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 
 class XMLStruct(Struct):

@@ -53,7 +53,7 @@ de AbanQ.
 @author InfoSiAL S.L.
 """
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FLInfoMod(object):
@@ -247,7 +247,7 @@ class FLManagerModules(object):
         try:
             return str(open(path_name, "rb").read(), encode_)
         except Exception:
-            logger.warn("Error trying to read %r", path_name, exc_info=True)
+            LOGGER.warn("Error trying to read %r", path_name, exc_info=True)
             return ""
 
     def contentCached(self, file_name: str, sha_key=None) -> Optional[str]:
@@ -420,7 +420,7 @@ class FLManagerModules(object):
 
         if form_path is None:
             # raise AttributeError("File %r not found in project" % n)
-            logger.debug("createUI: No se encuentra el fichero %s", file_name)
+            LOGGER.debug("createUI: No se encuentra el fichero %s", file_name)
 
             return QtWidgets.QWidget()
 
@@ -462,7 +462,7 @@ class FLManagerModules(object):
         else:
             w_ = parent
 
-        logger.info("Procesando %s (v%s)", file_name, UIVersion)
+        LOGGER.info("Procesando %s (v%s)", file_name, UIVersion)
         if UIVersion < "4.0":
             qt3ui.load_ui(form_path, w_)
         else:
@@ -470,7 +470,7 @@ class FLManagerModules(object):
 
             qtWidgetPlugings = utils_base.filedir("plugins/custom_widgets")
             if qtWidgetPlugings not in uic.widgetPluginPath:
-                logger.warning("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
+                LOGGER.warning("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
                 uic.widgetPluginPath.append(qtWidgetPlugings)
             uic.loadUi(form_path, w_)
 
@@ -521,18 +521,18 @@ class FLManagerModules(object):
         @param name. FormRecord name
         """
 
-        logger.trace("createFormRecord: init")
+        LOGGER.trace("createFormRecord: init")
 
         # Falta implementar conector y name
         if not isinstance(action, pnaction.PNAction):
-            logger.trace("createFormRecord: convert2FLAction")
+            LOGGER.trace("createFormRecord: convert2FLAction")
 
             action = convert_flaction.convert_to_flaction(action)
 
         if action is None:
             raise Exception("action is empty!")
 
-        logger.trace("createFormRecord: load FormRecordDB")
+        LOGGER.trace("createFormRecord: load FormRecordDB")
         return flformrecorddb.FLFormRecordDB(action, parent_or_cursor, load=False)
 
     def setActiveIdModule(self, id_module: Optional[str] = None) -> None:

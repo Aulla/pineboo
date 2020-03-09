@@ -12,7 +12,7 @@ from pineboolib.core.utils import logging
 
 from typing import Any, Optional, Union, Match, List, Generator, Callable, Iterable
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 TIMERS: List[QtCore.QTimer] = []
 

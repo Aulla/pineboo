@@ -8,7 +8,7 @@ import os.path
 import sys
 from xml.etree import ElementTree
 from xml.dom import minidom  # type: ignore
-import logging
+from pineboolib import logging
 import importlib
 from importlib import machinery
 from . import pytnyzer
@@ -22,7 +22,7 @@ pytnyzer.STRICT_MODE = STRICT_MODE
 
 TreeData = Dict[str, Any]
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 USEFUL_TOKENS = "ID,ICONST,FCONST,SCONST,CCONST,RXCONST".split(",")
 
@@ -817,7 +817,7 @@ def main() -> None:
     """Run the program from command line."""
     log_format = "%(asctime)s - %(levelname)s: %(name)s: %(message)s"
     logging.basicConfig(format=log_format, level=0)
-    blib_logger = logging.getLogger("blib2to3.pgen2.driver")
+    blib_logger = logging.get_logger("blib2to3.pgen2.driver")
     blib_logger.setLevel(logging.WARNING)
 
     options, args = parse_args(sys.argv[1:])

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor
 
-logger = logging.getLogger(__name__)
+logger = logging.get_logger(__name__)
 
 
 class FormInternalObj(qsa.FormDBWidget):

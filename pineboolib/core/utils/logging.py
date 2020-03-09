@@ -58,7 +58,7 @@ class Logger(python_logging.Logger):
 python_logging.Logger.manager.loggerClass = Logger  # type: ignore
 
 
-def getLogger(name: str = None) -> Logger:
+def get_logger(name: str = None) -> Logger:
     """
     Return a logger with the specified name, creating it if necessary.
 
@@ -78,23 +78,23 @@ def getLogger(name: str = None) -> Logger:
         raise Exception("Pineboo getLogger does not allow for root logger")
 
 
-def _addLoggingLevel(levelName: str, levelNum: int) -> None:
+def _add_logging_level(levelName: str, levelNum: int) -> None:
     methodName = levelName.lower()
 
     # This method was inspired by the answers to Stack Overflow post
     # http://stackoverflow.com/q/2183233/2988730, especially
     # http://stackoverflow.com/a/13638084/2988730
-    def logForLevel(self: Any, message: str, *args: Any, **kwargs: Any) -> None:
+    def log_for_level(self: Any, message: str, *args: Any, **kwargs: Any) -> None:
         if self.isEnabledFor(levelNum):
             self._log(levelNum, message, args, **kwargs)
 
     python_logging.addLevelName(levelNum, levelName)
     setattr(python_logging, levelName, levelNum)
     if not hasattr(python_logging.getLoggerClass(), methodName):
-        setattr(python_logging.getLoggerClass(), methodName, logForLevel)
+        setattr(python_logging.getLoggerClass(), methodName, log_for_level)
 
 
-_addLoggingLevel("TRACE", TRACE)
-_addLoggingLevel("NOTICE", NOTICE)
-_addLoggingLevel("HINT", HINT)
-_addLoggingLevel("MESSAGE", MESSAGE)
+_add_logging_level("TRACE", TRACE)
+_add_logging_level("NOTICE", NOTICE)
+_add_logging_level("HINT", HINT)
+_add_logging_level("MESSAGE", MESSAGE)

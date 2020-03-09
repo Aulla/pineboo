@@ -11,7 +11,7 @@ from pineboolib.core.utils.singleton import Singleton
 
 from typing import Dict, Any, List
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class PNSqlDrivers(object, metaclass=Singleton):

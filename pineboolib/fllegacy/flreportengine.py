@@ -8,6 +8,8 @@ from pineboolib import logging
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
 from typing import Any, Optional, Dict, Union
 
+LOGGER = logging.get_logger(__name__)
+
 
 class FLReportEngine(QtCore.QObject):
     """FLReportEngine class."""
@@ -24,7 +26,7 @@ class FLReportEngine(QtCore.QObject):
         self.report_ = None
         self.rt = ""
         self.rd: Optional[QtXml.QDomDocument] = None
-        self.logger = logging.getLogger("FLReportEngine")
+
         from pineboolib.application.parsers.kugarparser.kut2fpdf import Kut2FPDF
 
         self.parser_: Kut2FPDF = Kut2FPDF()
@@ -213,7 +215,7 @@ class FLReportEngine(QtCore.QObject):
         self.rt = mgr.contentCached("%s.kut" % t)
 
         if not self.rt:
-            self.logger.error("FLReportEngine::No se ha podido cargar %s.kut", t)
+            LOGGER.error("FLReportEngine::No se ha podido cargar %s.kut", t)
             return False
 
         return True

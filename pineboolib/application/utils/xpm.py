@@ -6,7 +6,7 @@ import os.path
 from pineboolib.core import settings
 from pineboolib import logging, application
 
-LOGGER = logging.getLogger("xpm")
+LOGGER = logging.get_logger(__name__)
 
 
 def cache_xpm(value: str) -> str:

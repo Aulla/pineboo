@@ -7,6 +7,8 @@ import unittest
 
 
 class TestUtilsBase(unittest.TestCase):
+    """TestUtilsBase class."""
+
     def test_basics(self) -> None:
         """Test basic functions."""
 

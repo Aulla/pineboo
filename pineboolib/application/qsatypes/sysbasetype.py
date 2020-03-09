@@ -22,7 +22,7 @@ from pineboolib.application import connections
 
 from pineboolib.application.process import Process
 
-LOGGER = logging.getLogger("fllegacy.systype")
+LOGGER = logging.get_logger(__name__)
 
 
 class SysBaseType(object):

@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from .pnparameterquery import PNParameterQuery  # noqa: F401
     from .pngroupbyquery import PNGroupByQuery  # noqa: F401
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class PNSqlQueryPrivate(object):

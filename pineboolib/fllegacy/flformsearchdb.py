@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pnaction
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FLFormSearchDB(flformdb.FLFormDB):

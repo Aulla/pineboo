@@ -11,7 +11,7 @@ from typing import Dict, Any, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class SqlInspector(object):

@@ -19,7 +19,7 @@ import traceback
 from typing import Iterable, Optional, Union, List, Dict, Any, cast
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FLMSSQL(pnsqlschema.PNSqlSchema):

@@ -25,6 +25,8 @@ from typing import Any, Union, Dict, Optional, Tuple, Type, cast, Callable, TYPE
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor
 
+LOGGER = logging.get_logger(__name__)
+
 
 class FLFormDB(QtWidgets.QDialog):
     """
@@ -164,7 +166,6 @@ class FLFormDB(QtWidgets.QDialog):
 
     loop: bool
     _action: "pnaction.PNAction"
-    logger = logging.getLogger("FLFormDB")
 
     def __init__(
         self,
@@ -231,7 +232,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         self.idMDI_ = self._action.name()
 
-        self.logger.info("init: Action: %s", self._action)
+        LOGGER.info("init: Action: %s", self._action)
 
         self.script = load_script.load_script(
             script_name, application.PROJECT.actions[self._action.name()]
@@ -804,7 +805,7 @@ class FLFormDB(QtWidgets.QDialog):
             self.script = None
         except Exception:
 
-            self.logger.error(
+            LOGGER.error(
                 "El FLFormDB %s no se cerró correctamente:\n%s",
                 self.formName(),
                 traceback.format_exc(),
@@ -931,7 +932,7 @@ class FLFormDB(QtWidgets.QDialog):
             qt_rectangle.moveCenter(center_point)
             self.move(qt_rectangle.topLeft())
         # if settings.readBoolEntry("application/isDebuggerMode", False):
-        #    self.logger.warning("INFO:: Tiempo de carga de %s: %.3fs %s (iface %s)" %
+        #    LOGGER.warning("INFO:: Tiempo de carga de %s: %.3fs %s (iface %s)" %
         #                     (self.actionName_, tiempo_fin - self.tiempo_ini, self, self.iface))
         # self.tiempo_ini = None
 

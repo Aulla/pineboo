@@ -13,13 +13,14 @@ if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor
     from . import projectmodule
 
+LOGGER = logging.get_logger(__name__)
+
 
 class XMLAction(struct.ActionStruct):
     """
     Information related to actions specified in XML modules.
     """
 
-    logger = logging.getLogger("main.XMLAction")
     mod: Optional["moduleactions.ModuleActions"]
     alias: str
 
@@ -85,14 +86,14 @@ class XMLAction(struct.ActionStruct):
             #    self.formrecord_widget.iface = self.formrecord_widget.widget.iface
             #    self.formrecord_widget._loaded = True
             # self.formrecord_widget.setWindowModality(Qt.ApplicationModal)
-            self.logger.debug("Loading record action %s . . . ", self.name)
+            LOGGER.debug("Loading record action %s . . . ", self.name)
             self.formrecord_widget = cast(
                 flformrecorddb.FLFormRecordDB,
                 self.project.conn_manager.managerModules().createFormRecord(
                     action=self, parent_or_cursor=cursor
                 ),
             )
-            self.logger.debug(
+            LOGGER.debug(
                 "End of record action load %s (iface:%s ; widget:%s)",
                 self.name,
                 getattr(self.formrecord_widget, "iface", None),
@@ -116,13 +117,13 @@ class XMLAction(struct.ActionStruct):
                 self.mainform_widget.widget.doCleanUp()
 
             # if self.project.DGI.useDesktop():
-            #    self.logger.info("Loading action %s (createForm). . . ", self.name)
+            #    LOGGER.info("Loading action %s (createForm). . . ", self.name)
             #    self.mainform_widget = cast(
             #        flformdb.FLFormDB,
             #        self.project.conn_manager.managerModules().createForm(action=self),
             #    )
             # else:
-            #    self.logger.info(
+            #    LOGGER.info(
             #        "Loading action %s (load_script %s). . . ", self.name, self.scriptform
             #    )
             #    script = load_script.load_script(self.scriptform, self)
@@ -133,13 +134,13 @@ class XMLAction(struct.ActionStruct):
             #    self.mainform_widget.iface = self.mainform_widget.widget.iface
             #    self.mainform_widget._loaded = True
 
-            self.logger.info("Loading action %s (createForm). . . ", self.name)
+            LOGGER.info("Loading action %s (createForm). . . ", self.name)
             self.mainform_widget = cast(
                 flformdb.FLFormDB,
                 self.project.conn_manager.managerModules().createForm(action=self),
             )
 
-            self.logger.debug(
+            LOGGER.debug(
                 "End of action load %s (iface:%s ; widget:%s)",
                 self.name,
                 getattr(self.mainform_widget, "iface", None),
@@ -156,7 +157,7 @@ class XMLAction(struct.ActionStruct):
         """
         action = self.project.conn_manager.manager().action(name)
         if not action:
-            self.logger.warning("No existe la acción %s", name)
+            LOGGER.warning("No existe la acción %s", name)
             return
         self.project.call("%s.main" % action.name(), [], None, False)
 
@@ -192,7 +193,7 @@ class XMLAction(struct.ActionStruct):
                     )
                     return
 
-        self.logger.info("Opening default formRecord for Action %s", self.name)
+        LOGGER.info("Opening default formRecord for Action %s", self.name)
         widget = self.loadRecord(cursor)
         # w.init()
         if widget:
@@ -205,7 +206,7 @@ class XMLAction(struct.ActionStruct):
         """
         Open Main FLForm specified on defaults.
         """
-        self.logger.info("Opening default form for Action %s", self.name)
+        LOGGER.info("Opening default form for Action %s", self.name)
         widget = self.load()
 
         if widget:
@@ -216,7 +217,7 @@ class XMLAction(struct.ActionStruct):
         """
         Execute script specified on default.
         """
-        self.logger.info("Executing default script for Action %s", self.name)
+        LOGGER.info("Executing default script for Action %s", self.name)
         script = load_script.load_script(self.scriptform, self)
 
         self.mainform_widget = script.form
@@ -244,4 +245,4 @@ class XMLAction(struct.ActionStruct):
 
     def unknownSlot(self) -> None:
         """Log error for actions with unknown slots or scripts."""
-        self.logger.error("Executing unknown script for Action %s", self.name)
+        LOGGER.error("Executing unknown script for Action %s", self.name)

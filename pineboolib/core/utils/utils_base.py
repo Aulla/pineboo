@@ -26,7 +26,7 @@ from xml.etree import ElementTree
 if TYPE_CHECKING:
     from pineboolib.application.qsatypes.date import Date  # noqa: F401
 
-logger = utils.logging.getLogger(__name__)
+LOGGER = utils.logging.get_logger(__name__)
 T1 = TypeVar("T1")
 
 # FIXME: Move commaSeparator to Pineboo internals, not aqApp
@@ -228,7 +228,7 @@ def ustr(*t1: Union[bytes, str, int, "Date", None, float]) -> str:
 
             return "%s" % t
         except Exception:
-            logger.exception("ERROR Coercing to string: %s", repr(t))
+            LOGGER.exception("ERROR Coercing to string: %s", repr(t))
             return repr(t)
 
     return "".join([ustr1(t) for t in t1])
@@ -284,7 +284,7 @@ def load2xml(form_path_or_str: str) -> ElementTree.ElementTree:
             parser = ElementTree.XMLParser(encoding="ISO-8859-15")
             return ElementTree.parse(file_ptr or form_path_or_str, parser)
         except Exception:
-            logger.exception(
+            LOGGER.exception(
                 "Error cargando UI después de intentar con UTF8 e ISO \n%s", form_path_or_str
             )
             raise
@@ -497,7 +497,7 @@ def get_base_dir() -> str:
             if BASE_DIR.startswith(":"):
                 BASE_DIR = os.path.realpath(".%s" % BASE_DIR[1:])
 
-            logger.info("BaseDir %s", BASE_DIR)
+            LOGGER.info("BaseDir %s", BASE_DIR)
     return BASE_DIR
 
 

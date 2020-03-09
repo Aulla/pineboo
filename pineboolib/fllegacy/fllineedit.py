@@ -5,7 +5,7 @@ from PyQt5 import QtCore, QtWidgets
 from pineboolib import logging
 from typing import Any
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FLLineEdit(QtWidgets.QLineEdit):

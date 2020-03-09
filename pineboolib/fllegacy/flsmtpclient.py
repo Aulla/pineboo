@@ -14,7 +14,7 @@ from email.mime.image import MIMEImage
 
 from typing import List, Optional, Any, Dict
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class State(object):
@@ -220,7 +220,7 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
                     self.map_attach_cid_[attach] = cid
         else:
             err_msg_ = self.tr("El fichero %s no existe o no se puede leer\n\n" % attach)
-            logger.warning(err_msg_)
+            LOGGER.warning(err_msg_)
             self.changeStatus(err_msg_, State.AttachError)
 
     def addTextPart(self, text: Optional[str], mime_type: str = "text/plain") -> None:
@@ -358,7 +358,7 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
                     part["Content-Disposition"] = 'attachment; filename="%s"' % basename(att)
                     outer.attach(part)
             except IOError:
-                logger.warning("Error al adjuntar el fichero %s." % att)
+                LOGGER.warning("Error al adjuntar el fichero %s." % att)
                 return False
 
         # Envio mail

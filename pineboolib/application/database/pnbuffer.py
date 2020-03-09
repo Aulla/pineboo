@@ -17,7 +17,7 @@ from typing import Dict, List, Union, Optional, Any, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces import ifieldmetadata, isqlcursor
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 ACCEPTABLE_VALUES = (
     int,

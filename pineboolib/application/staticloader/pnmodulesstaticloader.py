@@ -21,7 +21,7 @@ from typing import Any, List, Optional, cast, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces import iconnection
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class AQStaticDirInfo(object):

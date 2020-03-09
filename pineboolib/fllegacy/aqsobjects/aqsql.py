@@ -16,7 +16,7 @@ from typing import Union, Any, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces import iconnection, isqlcursor
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class TableType(Enum):

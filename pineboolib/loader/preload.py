@@ -3,7 +3,7 @@
 from pineboolib import logging
 from typing import Container, Any
 
-LOGGER = logging.getLogger("loader.preload_actions")
+LOGGER = logging.get_logger(__name__)
 
 
 def preload_actions(project: Any, forceload: Container = None) -> None:

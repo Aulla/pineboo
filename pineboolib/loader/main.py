@@ -22,7 +22,7 @@ from pineboolib.application.parsers.qsaparser import pytnyzer
 if TYPE_CHECKING:
     from pineboolib.loader import projectconfig  # noqa: F401
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 def startup_no_x() -> None:
@@ -120,11 +120,11 @@ def init_logging(
     # LOGGER.info("LOG LEVEL: %s", loglevel)
     disable_loggers = ["PyQt5.uic.uiparser", "PyQt5.uic.properties", "blib2to3.pgen2.driver"]
     for loggername in disable_loggers:
-        modlogger = logging.getLogger(loggername)
+        modlogger = logging.get_logger(loggername)
         modlogger.setLevel(logging.WARN)
 
     for loggername in trace_loggers:
-        modlogger = logging.getLogger(loggername)
+        modlogger = logging.get_logger(loggername)
         modlogger.setLevel(logging.TRACE)
 
 

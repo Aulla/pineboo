@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from pineboolib.application.database import pnconnection
     from pineboolib.core.utils.struct import ActionStruct  # noqa: F401
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class Project(object):

@@ -6,7 +6,7 @@ from typing import Union, Any
 
 from pineboolib import logging
 
-logger = logging.getLogger("FLTextEditOputput")
+LOGGER = logging.get_logger("FLTextEditOputput")
 
 
 class FLTextEditOutput(QtWidgets.QPlainTextEdit):

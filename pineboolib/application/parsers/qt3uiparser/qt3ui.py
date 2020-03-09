@@ -27,7 +27,7 @@ from typing import Optional, Tuple, Callable, List, Dict, Any, cast, Type, Union
 
 ICONS: Dict[str, Any] = {}
 ROOT = None
-LOGGER = logging.getLogger("pnqt3ui")
+LOGGER = logging.get_logger(__name__)
 
 
 class Options:

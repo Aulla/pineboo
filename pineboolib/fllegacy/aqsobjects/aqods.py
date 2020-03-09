@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from odf.opendocument import OpenDocumentSpreadsheet  # type: ignore
 
 
-logger = logging.getLogger("AQOds")
+LOGGER = logging.get_logger(__name__)
 
 """
 Generador de ficheros ODS
@@ -279,7 +279,7 @@ class AQOdsRow(object):
                     self.sheet_.spread_sheet_parent_.automaticstyles.addElement(opt)
                     self.style_cell_text_ = opt
                 else:
-                    logger.warning("%s:Parámetro desconocido %s", __name__, opt.tagName)
+                    LOGGER.warning("%s:Parámetro desconocido %s", __name__, opt.tagName)
 
     def __newCell__(self) -> Tuple[table.TableCell, style.Style]:
         """

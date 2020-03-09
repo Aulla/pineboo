@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from pineboolib.application.database import pnsqlquery  # noqa: F401
     from PyQt5 import QtXml  # noqa: F401
 
-LOGGER = logging.getLogger("FLApplication")
+LOGGER = logging.get_logger(__name__)
 
 
 class FLPopupWarn(QtCore.QObject):

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
     from . import pnconnectionmanager
 
-LOGGER = utils.logging.getLogger(__name__)
+LOGGER = utils.logging.get_logger(__name__)
 
 
 class PNConnection(QtCore.QObject, iconnection.IConnection):

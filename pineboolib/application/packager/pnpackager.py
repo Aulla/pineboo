@@ -16,7 +16,7 @@ import fnmatch
 
 from typing import List, Any, Set
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class PNPackager(object):

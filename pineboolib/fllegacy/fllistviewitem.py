@@ -10,7 +10,7 @@ from typing import Any, Optional, cast, TYPE_CHECKING
 if TYPE_CHECKING:
     from PyQt5 import QtWidgets  # noqa: F401
 
-logger = logging.getLogger("FLListViewItem")
+LOGGER = logging.get_logger("FLListViewItem")
 
 
 class FLListViewItem(Qt.QStandardItem):
@@ -78,7 +78,7 @@ class FLListViewItem(Qt.QStandardItem):
         """Set text."""
 
         # print("Seteando", args, self.parent())
-        # logger.warning("Seteo texto %s" , args, stack_info = True )
+        # LOGGER.warning("Seteo texto %s" , args, stack_info = True )
         col = 0
         if len(args) == 1:
             value = args[0]

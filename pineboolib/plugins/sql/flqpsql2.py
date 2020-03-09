@@ -9,7 +9,7 @@ from PyQt5 import QtWidgets
 from pineboolib.plugins.sql.flqpsql import FLQPSQL
 from typing import Any, cast
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FLQPSQL2(FLQPSQL):

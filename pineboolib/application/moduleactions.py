@@ -9,7 +9,7 @@ from pineboolib import application
 
 from typing import Any, TYPE_CHECKING, NoReturn
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class ModuleActions(object):

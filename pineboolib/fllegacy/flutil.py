@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from PyQt5 import QtXml
     from pineboolib.interfaces import isqlcursor, iconnection  # noqa : F401
 
-logger = logging.getLogger(__name__)
+logger = logging.get_logger(__name__)
 
 
 class FLUtil(object):

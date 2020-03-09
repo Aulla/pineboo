@@ -21,7 +21,7 @@ from typing import Any, Optional, Union, List, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from fpdf import FPDF  # type: ignore
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class Kut2FPDF(object):

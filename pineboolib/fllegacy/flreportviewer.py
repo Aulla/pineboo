@@ -16,6 +16,7 @@ from pineboolib import logging
 from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable
 from PyQt5.QtGui import QColor
 
+LOGGER = logging.get_logger(__name__)
 
 AQ_USRHOME = "."  # FIXME
 
@@ -96,7 +97,7 @@ class FLReportViewer(QtWidgets.QWidget):
         """Inicialize."""
 
         super(FLReportViewer, self).__init__(parent)
-        self.logger = logging.getLogger("FLReportViewer")
+
         self.loop_ = False
         self.eventloop = QtCore.QEventLoop()
         self.reportPrinted_ = False

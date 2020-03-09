@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets  # type: ignore
 from pineboolib import logging
 from typing import Optional, Union
 
-logger = logging.getLogger(__name__)
+logger = logging.get_logger(__name__)
 
 
 class QTabWidget(QtWidgets.QTabWidget):

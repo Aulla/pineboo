@@ -6,7 +6,7 @@ from .utils.struct import TableStruct
 from io import StringIO
 from xml.etree import ElementTree as ET
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 def parse_table(nombre: str, contenido: str) -> TableStruct:

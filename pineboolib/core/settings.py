@@ -21,7 +21,7 @@ from PyQt5.QtCore import QSettings, QSize
 
 from typing import Dict, List, Any, Union, Tuple, Type
 
-LOGGER = logging.getLogger("core.settings")
+LOGGER = logging.get_logger(__name__)
 
 
 class PinebooSettings(QSettings):

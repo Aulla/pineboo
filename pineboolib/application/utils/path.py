@@ -7,7 +7,7 @@ from pineboolib import application
 import os
 from typing import Optional, List
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 def _dir(*x) -> str:

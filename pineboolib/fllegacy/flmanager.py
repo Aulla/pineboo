@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pnaction
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 # FIXME: This class is emulating Eneboo, but the way is set up it is a core part of Pineboo now.
 # ... we should probably create our own one. Not this one.

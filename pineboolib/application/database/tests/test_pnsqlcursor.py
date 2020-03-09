@@ -5,7 +5,7 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core.utils import logging
 from pineboolib.application.database import pnsqlcursor
 
-LOGGER = logging.getLogger("test")
+LOGGER = logging.get_logger("test")
 
 
 class TestInsertData(unittest.TestCase):

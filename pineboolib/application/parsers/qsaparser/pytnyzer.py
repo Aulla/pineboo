@@ -15,7 +15,7 @@ from typing import Any, Generator, Tuple, Type, List, Dict, Set, cast, Optional,
 from pathlib import Path
 from pineboolib.core.utils import logging
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 ASTGenerator = Generator[Tuple[str, str], None, None]
 
 try:

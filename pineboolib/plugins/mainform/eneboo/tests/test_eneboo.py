@@ -10,7 +10,7 @@ from pineboolib import application
 from . import fixture_path
 from pineboolib import logging
 
-logger = logging.getLogger("eneboo_%s" % __name__)
+logger = logging.get_logger("eneboo_%s" % __name__)
 
 
 class TestEnebooGUI(unittest.TestCase):

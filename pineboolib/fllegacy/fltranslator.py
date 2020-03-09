@@ -13,7 +13,7 @@ from typing import Dict, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from PyQt5 import QtWidgets  # noqa: F401
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FLTranslator(Qt.QTranslator):

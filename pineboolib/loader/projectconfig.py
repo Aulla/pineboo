@@ -19,7 +19,7 @@ VERSION_1_0 = VersionNumber("1.0")
 VERSION_1_1 = VersionNumber("1.1")
 VERSION_1_2 = VersionNumber("1.2")
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class ProjectConfig:

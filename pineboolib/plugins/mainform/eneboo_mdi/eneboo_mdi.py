@@ -19,7 +19,7 @@ from typing import Any, cast, List, Optional, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.application.database import pnconnectionmanager
 
-logger = logging.getLogger(__name__)
+logger = logging.get_logger(__name__)
 
 
 class MainForm(QtWidgets.QMainWindow):

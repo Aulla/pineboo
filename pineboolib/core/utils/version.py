@@ -11,7 +11,7 @@ SubVersionAppendedText = str
 SubVersionTuple = Tuple[SubVersionNumber, SubVersionAppendedText]
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class VersionNumber:
@@ -114,7 +114,7 @@ class VersionNumber:
     def check(cls, mod_name: str, mod_ver: str, min_ver: str) -> bool:
         """Compare two version numbers and raise a warning if "minver" is not met."""
         if cls.normalize(mod_ver) < cls.normalize(min_ver):
-            logger.warning(
+            LOGGER.warning(
                 "La version de <%s> es %s. La mínima recomendada es %s.", mod_name, mod_ver, min_ver
             )
             return False

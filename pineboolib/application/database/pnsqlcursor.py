@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 CONNECTION_CURSORS: Dict[str, List[str]] = {}
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class PNSqlCursor(isqlcursor.ISqlCursor):

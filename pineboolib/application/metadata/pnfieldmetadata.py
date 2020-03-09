@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
 
 
-LOGGER = logging.getLogger("PNFieldMetadata")
+LOGGER = logging.get_logger(__name__)
 
 
 class PNFieldMetaData(IFieldMetaData):

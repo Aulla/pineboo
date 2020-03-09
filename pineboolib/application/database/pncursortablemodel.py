@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
 DEBUG = False
 CURSOR_COUNT = itertools.count()
+LOGGER = logging.get_logger("CursorTableModel")
 
 
 class PNCursorTableModel(QtCore.QAbstractTableModel):
@@ -35,7 +36,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     Link between FLSqlCursor and database.
     """
 
-    logger = logging.getLogger("CursorTableModel")
     rows: int
     cols: int
     _use_timer = True
@@ -109,7 +109,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         # if not self._use_timer:
         #    self._use_timer = True
-        #    self.logger.warning("SQL Driver supports neither Timer, defaulting to Timer")
+        #    LOGGER.warning("SQL Driver supports neither Timer, defaulting to Timer")
         # self._use_timer = True
 
         self._rows_loaded = 0
@@ -222,7 +222,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     order_list.append(column_name)
 
             if not found_:
-                self.logger.debug(
+                LOGGER.debug(
                     "%s. Se intenta ordernar por una columna (%s) que no está definida en el order by previo (%s). "
                     "El order by previo se perderá" % (__name__, col_name, self._sort_order)
                 )
@@ -410,7 +410,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     except AttributeError:
                         import platform
 
-                        self.logger.warning(
+                        LOGGER.warning(
                             "locale specific date format is not yet implemented for %s",
                             platform.system(),
                         )
@@ -588,7 +588,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                             raise Exception("The qry is empty!")
 
                         # NOTE: Esto podría ser por ejemplo porque no entendemos los campos computados.
-                        self.logger.error(
+                        LOGGER.error(
                             "CursorTableModel.refresh(): Omitiendo campo '%s' referenciado en query %s. El campo no existe en %s ",
                             field.name(),
                             self.metadata().name(),
@@ -625,9 +625,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         #    return
 
         if not self.metadata():
-            self.logger.warning(
-                "ERROR: CursorTableModel :: No hay tabla %s", self.metadata().name()
-            )
+            LOGGER.warning("ERROR: CursorTableModel :: No hay tabla %s", self.metadata().name())
             return
 
         """ FILTRO WHERE """
@@ -746,7 +744,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             if campo not in (None, "None"):
                 campo = int(campo)
             elif campo == "None":
-                self.logger.warning("Campo no deberia ser un string 'None'")
+                LOGGER.warning("Campo no deberia ser un string 'None'")
 
         return campo
 
@@ -773,7 +771,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
 
         if DEBUG:
-            self.logger.info("CursorTableModel.setValuesDict(row %s) = %r", row, update_dict)
+            LOGGER.info("CursorTableModel.setValuesDict(row %s) = %r", row, update_dict)
 
         try:
             self.seekRow(row)
@@ -790,13 +788,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 except ValueError:
                     colsnotfound.append(fieldname)
             if colsnotfound:
-                self.logger.warning(
+                LOGGER.warning(
                     "CursorTableModel.setValuesDict:: columns not found: %r", colsnotfound
                 )
             # self.indexUpdateRow(row)
 
         except Exception:
-            self.logger.exception(
+            LOGGER.exception(
                 "CursorTableModel.setValuesDict(row %s) = %r :: ERROR:", row, update_dict
             )
 
@@ -864,7 +862,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
                 self.need_update = True
             except Exception:
-                self.logger.exception(
+                LOGGER.exception(
                     "CursorTableModel.%s.Insert() :: SQL: %s", self.metadata().name(), sql
                 )
                 # self._cursor.execute("ROLLBACK")
@@ -882,9 +880,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         @param dict_update. Fields to be updated
         """
 
-        self.logger.trace(
-            "updateValuesDB: init: pk_value %s, dict_update %s", pk_value, dict_update
-        )
+        LOGGER.trace("updateValuesDB: init: pk_value %s, dict_update %s", pk_value, dict_update)
         row = self.findPKRow([pk_value])
         # if row is None:
         #    raise AssertionError(
@@ -935,7 +931,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         try:
             self.db().execute_query(sql)
         except Exception:
-            self.logger.exception("ERROR: CursorTableModel.Update %s:", self.metadata().name())
+            LOGGER.exception("ERROR: CursorTableModel.Update %s:", self.metadata().name())
             # self._cursor.execute("ROLLBACK")
             return False
 
@@ -948,9 +944,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     self.setValuesDict(row, dict_update)
 
         except Exception:
-            self.logger.exception(
-                "updateValuesDB: Error al assignar los valores de vuelta al buffer"
-            )
+            LOGGER.exception("updateValuesDB: Error al assignar los valores de vuelta al buffer")
 
         self.need_update = True
 
@@ -977,7 +971,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             self.db().execute_query(sql)
             self.need_update = True
         except Exception:
-            self.logger.exception("CursorTableModel.%s.Delete() :: ERROR:", self._tablename)
+            LOGGER.exception("CursorTableModel.%s.Delete() :: ERROR:", self._tablename)
             # self._cursor.execute("ROLLBACK")
             return False
 
@@ -1047,7 +1041,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         @return Number of columns present.
         """
         # if args:
-        #    self.logger.warning("columnCount%r: wrong arg count", args, stack_info=True)
+        #    LOGGER.warning("columnCount%r: wrong arg count", args, stack_info=True)
         return self.cols
 
     def updateColumnsCount(self) -> None:

@@ -50,7 +50,7 @@ if TYPE_CHECKING:
     from pineboolib.interfaces import iconnection, isqlcursor
 
 
-logger = logging.getLogger("fllegacy.systype")
+LOGGER = logging.get_logger(__name__)
 
 
 class AQTimer(QtCore.QTimer):
@@ -231,7 +231,7 @@ class SysType(sysbasetype.SysBaseType):
                 fn(args)
         except Exception:
             e = traceback.format_exc()
-            logger.warning(e)
+            LOGGER.warning(e)
             return
 
     @staticmethod
@@ -628,7 +628,7 @@ class SysType(sysbasetype.SysBaseType):
 
             # except Exception:
             #    e = traceback.format_exc()
-            #    logger.error(e)
+            #    LOGGER.error(e)
 
         qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"idmodulo,icono")
@@ -881,7 +881,7 @@ class SysType(sysbasetype.SysBaseType):
         txt += self.translate(u"- Nombre del proyecto a cargar: %s\n\n") % (str(proName))
         txt += u"\n\n"
         if not self.interactiveGUI():
-            logger.warning(txt)
+            LOGGER.warning(txt)
             return False
         txt += self.translate(u"¿Desea continuar?")
         return MessageBox.Yes == MessageBox.warning(
@@ -1151,7 +1151,7 @@ class SysType(sysbasetype.SysBaseType):
         fileISO = types.File(file_name, "ISO8859-15")
         fileISO.write(content.encode("ISO8859-15", "ignore"))
         # if not fileISO.open(types.File.WriteOnly):
-        #    logger.warning(utils_base.ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
+        #    LOGGER.warning(utils_base.ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
         #    return False
         # tsISO = QtCore.QTextStream(fileISO)
         # tsISO.setCodec(AQS.TextCodec_codecForName(u"ISO8859-15"))
@@ -1167,7 +1167,7 @@ class SysType(sysbasetype.SysBaseType):
         fileUTF = types.File(file_name, "UTF-8")
         fileUTF.write(content)
         # if not fileUTF.open(types.File.WriteOnly):
-        #    logger.warning(utils_base.ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
+        #    LOGGER.warning(utils_base.ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
         #    return False
         # tsUTF = QtCore.QTextStream(fileUTF.ioDevice)
         # tsUTF.setCodec(AQS.TextCodec_codecForName(u"utf8"))
@@ -1945,7 +1945,7 @@ class AbanQDbDumper(QtCore.QObject):
         if self.showGui_ and self.tedLog_ is not None:
             self.tedLog_.append(msg)
         else:
-            logger.warning(msg)
+            LOGGER.warning(msg)
 
     def setState(self, ok: int, msg: str) -> None:
         """Set state."""

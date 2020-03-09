@@ -9,7 +9,7 @@ from pineboolib.application.xmlaction import XMLAction
 from pineboolib.application.proxy import DelayedObjectProxyLoader
 from pineboolib.application.safeqsa import SafeQSA
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class QSADictModules:

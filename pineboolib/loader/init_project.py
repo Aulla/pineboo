@@ -6,7 +6,7 @@ from typing import Any
 
 from pineboolib.core import settings
 
-LOGGER = logging.getLogger("loader.init_project")
+LOGGER = logging.get_logger(__name__)
 
 
 def init_project(dgi: Any, options: Any, project: Any, main_form: Any, app: Any) -> Any:

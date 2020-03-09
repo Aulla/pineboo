@@ -4,7 +4,7 @@ from pineboolib.qsa import qsa
 from pineboolib import logging
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FormInternalObj(qsa.FormDBWidget):

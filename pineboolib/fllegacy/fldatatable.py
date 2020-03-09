@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
     from pineboolib.interfaces import isqlcursor
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FLDataTable(QtWidgets.QTableView):
@@ -923,16 +923,16 @@ class FLDataTable(QtWidgets.QTableView):
         """
 
         # if pos_ is None:
-        #     logger.warning("visual_index_to_field: pos is None")
+        #     LOGGER.warning("visual_index_to_field: pos is None")
         #     return None
         colIdx = self.visual_index_to_column_index(pos_)
         if colIdx is None:
-            logger.warning("visual_index_to_field: colIdx is None")
+            LOGGER.warning("visual_index_to_field: colIdx is None")
             return None
 
         logIdx = self.logical_index_to_visual_index(colIdx)
         # if logIdx is None:
-        #     logger.warning("visual_index_to_field: logIdx is None")
+        #     LOGGER.warning("visual_index_to_field: logIdx is None")
         #     return None
         model: pncursortablemodel.PNCursorTableModel = self.model()
         mtd = model.metadata()

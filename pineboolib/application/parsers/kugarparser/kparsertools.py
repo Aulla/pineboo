@@ -18,7 +18,7 @@ from PyQt5 import QtXml
 
 from pineboolib.application.database import pnsqlquery
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class KParserTools(object):

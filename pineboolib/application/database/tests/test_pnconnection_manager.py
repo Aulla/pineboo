@@ -9,7 +9,7 @@ from pineboolib.core.utils import logging
 from threading import Thread
 import time
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 USER_ID: str
 

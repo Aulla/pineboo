@@ -22,6 +22,8 @@ if TYPE_CHECKING:
 
 DEBUG = False
 
+LOGGER = logging.get_logger("FLFormRecordDB")
+
 
 class FLFormRecordDB(flformdb.FLFormDB):
     """
@@ -42,7 +44,6 @@ class FLFormRecordDB(flformdb.FLFormDB):
     @author InfoSiAL S.L.
     """
 
-    logger = logging.getLogger("FLFormRecordDB")
     """
     Boton Aceptar
     """
@@ -103,7 +104,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         """
         Inicialize.
         """
-        self.logger.trace(
+        LOGGER.trace(
             "__init__: parent_or_cursor=%s, action=%s, load=%s", parent_or_cursor, action, load
         )
 
@@ -121,7 +122,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         if cursor:
             self.setCursor(cursor)
-        self.logger.trace("__init__: load formRecord")
+        LOGGER.trace("__init__: load formRecord")
         self._uiName = action.formRecord()
         self._scriptForm = action.scriptFormRecord() or "emptyscript"
         self.bottomToolbar = None
@@ -139,11 +140,11 @@ class FLFormRecordDB(flformdb.FLFormDB):
         if self.cursor_:
             self.initialModeAccess = self.cursor_.modeAccess()
 
-        self.logger.trace("__init__: load form")
+        LOGGER.trace("__init__: load form")
         self.load()
-        self.logger.trace("__init__: init form")
+        LOGGER.trace("__init__: init form")
         self.initForm()
-        self.logger.trace("__init__: done")
+        LOGGER.trace("__init__: done")
         self.loop = False
 
     def setCaptionWidget(self, text: Optional[str] = None) -> None:

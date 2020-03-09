@@ -25,7 +25,7 @@ from typing import Optional, Union, Any, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FLSQLITE(pnsqlschema.PNSqlSchema):

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     # from pineboolib.plugins.dgi.dgi_server.dgi_server import dgi_server
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 def load_dgi(name: str, param: Any) -> "dgi_schema":

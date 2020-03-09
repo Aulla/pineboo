@@ -10,7 +10,7 @@ from pineboolib import logging
 
 from typing import Any
 
-logger = logging.getLogger("QGroupBox")
+logger = logging.get_logger(__name__)
 
 
 class QGroupBox(QtWidgets.QGroupBox):

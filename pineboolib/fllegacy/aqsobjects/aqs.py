@@ -13,7 +13,7 @@ from typing import Any, Optional, Union
 
 from . import aqshttp, aqods
 
-logger = logging.getLogger("AQS")
+LOGGER = logging.get_logger(__name__)
 
 
 class SMTP(object):
@@ -104,10 +104,10 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, 
             ret_ = getattr(aqshttp.AQSHttp(), "Http%s" % name, None)
 
         if ret_ is not None:
-            logger.warning("AQS: Looking up attr: %r -> %r  (Please set these in AQS)", name, ret_)
+            LOGGER.warning("AQS: Looking up attr: %r -> %r  (Please set these in AQS)", name, ret_)
             return ret_
 
-        logger.warning("AQS: No se encuentra el atributo %s", name)
+        LOGGER.warning("AQS: No se encuentra el atributo %s", name)
 
     @staticmethod
     def ColorDialog_getColor(

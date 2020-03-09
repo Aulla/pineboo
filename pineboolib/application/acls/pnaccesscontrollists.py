@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa : F401
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class PNAccessControlLists(object):

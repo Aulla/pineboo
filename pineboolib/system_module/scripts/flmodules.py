@@ -1,10 +1,16 @@
 """Flmodules module."""
 # -*- coding: utf-8 -*-
+from pineboolib import logging
 from pineboolib.qsa import qsa
+
+
 from typing import TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from PyQt5 import QtWidgets
+
+LOGGER = logging.get_logger(__name__)
 
 
 class FormInternalObj(qsa.FormDBWidget):
@@ -159,7 +165,7 @@ class FormInternalObj(qsa.FormDBWidget):
             try:
                 value = qsa.File(path_, encode).read()
             except UnicodeDecodeError:
-                self.logger.warning("The file %s has a incorrect encode (%s)" % (path_, encode))
+                LOGGER.warning("The file %s has a incorrect encode (%s)" % (path_, encode))
                 encode = "UTF8" if encode == "ISO-8859-1" else "ISO-8859-1"
                 value = qsa.File(path_, encode).read()
 

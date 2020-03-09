@@ -7,13 +7,13 @@ from typing import Optional
 
 from .utils.path import _dir
 
+LOGGER = logging.get_logger(__name__)
+
 
 class File(object):
     """
     Manage files from a module.
     """
-
-    logger = logging.getLogger("application.File")
 
     def __init__(
         self,

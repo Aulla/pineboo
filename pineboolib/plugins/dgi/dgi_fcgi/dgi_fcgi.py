@@ -9,7 +9,7 @@ from pineboolib import application
 from typing import Any, Mapping
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class dgi_fcgi(dgi_schema):
@@ -34,9 +34,9 @@ class dgi_fcgi(dgi_schema):
         """Process alternative main."""
         from flup.server.fcgi import WSGIServer  # type: ignore
 
-        logger.info("=============================================")
-        logger.info("FCGI:INFO: Listening socket %s", self._fcgiSocket)
-        logger.info("FCGI:INFO: Sending queries to %s", self._fcgiCall)
+        LOGGER.info("=============================================")
+        LOGGER.info("FCGI:INFO: Listening socket %s", self._fcgiSocket)
+        LOGGER.info("FCGI:INFO: Sending queries to %s", self._fcgiCall)
         par_ = parser(main_, self._fcgiCall)
         WSGIServer(par_.call, bindAddress=self._fcgiSocket).run()
 
@@ -77,12 +77,12 @@ class parser(object):
 
             qsa_sys = SysType()
 
-            logger.info(self._callScript, environ["QUERY_STRING"])
+            LOGGER.info(self._callScript, environ["QUERY_STRING"])
             retorno_ = (
                 """<html><head><title>Pineboo %s - FastCGI - </title></head><body><h1>Function %s not found!</h1></body></html>"""
                 % (qsa_sys.version(), self._callScript)
             )
             pass
-        logger.info("FCGI:INFO: Processing '%s' ...", environ["QUERY_STRING"])
+        LOGGER.info("FCGI:INFO: Processing '%s' ...", environ["QUERY_STRING"])
 
         return retorno_

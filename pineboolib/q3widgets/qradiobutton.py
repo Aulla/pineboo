@@ -9,7 +9,7 @@ from .qbuttongroup import QButtonGroup
 from typing import Optional, cast
 from PyQt5.QtCore import pyqtSignal
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class QRadioButton(QtWidgets.QRadioButton):

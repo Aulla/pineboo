@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QMessageBox, QApplication  # type: ignore
 from pineboolib.core.utils import logging
 from typing import Any
 
-logger = logging.getLogger("messageBox")
+LOGGER = logging.get_logger(__name__)
 
 
 class MessageBox(QMessageBox):
@@ -23,7 +23,7 @@ class MessageBox(QMessageBox):
             application.PROJECT._splash.hide()
 
         if not isinstance(text, str):
-            logger.warning("MessageBox help!", stack_info=True)
+            LOGGER.warning("MessageBox help!", stack_info=True)
             # temp = text
             text = button1
             button1 = title
@@ -32,7 +32,7 @@ class MessageBox(QMessageBox):
             button2 = None
 
         if form:
-            logger.warning("MessageBox: Se intentó usar form, y no está implementado.")
+            LOGGER.warning("MessageBox: Se intentó usar form, y no está implementado.")
         icon = QMessageBox.NoIcon
         if not title:
             title = "Pineboo"

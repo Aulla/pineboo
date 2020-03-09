@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets
 from pineboolib.loader.projectconfig import ProjectConfig
 from typing import Optional
 
-LOGGER = logging.getLogger("loader.conn_dialog")
+LOGGER = logging.get_logger("loader.conn_dialog")
 
 
 def show_connection_dialog(app: QtWidgets.QApplication) -> Optional[ProjectConfig]:

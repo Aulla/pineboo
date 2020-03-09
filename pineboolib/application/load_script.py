@@ -9,7 +9,7 @@ from pineboolib.core.utils.struct import ActionStruct
 import shutil
 import os
 
-LOGGER = logging.getLogger("load_script")
+LOGGER = logging.get_logger(__name__)
 
 
 def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # returns loaded script

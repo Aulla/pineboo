@@ -13,7 +13,7 @@ from typing import Callable, Any, Dict, TypeVar, cast
 
 TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 MSG_EMITTED: Dict[str, float] = {}
 CLEAN_REGEX = re.compile(r"\s*object\s+at\s+0x[0-9a-zA-Z]{6,38}", re.VERBOSE)
 MINIMUM_TIME_FOR_REPRINT = 300

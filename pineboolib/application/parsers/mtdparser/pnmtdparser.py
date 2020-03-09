@@ -16,7 +16,7 @@ from pineboolib.core import settings
 
 import os
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 RESERVER_WORDS = ["pass"]
 

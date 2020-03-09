@@ -15,7 +15,7 @@ ErrorString = str
 DependencyCheck = Dict[ModuleName, SuggestedPackageNameForInstall]
 DependencyError = Dict[Tuple[ModuleName, SuggestedPackageNameForInstall], ErrorString]
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 DEPENDENCIES_CHECKED: Dict[ModuleName, ModuleVersion] = {}
 
 MINIMUM_VERSION = {
@@ -77,7 +77,7 @@ def get_dependency_errors(dict_: DependencyCheck) -> DependencyError:
             VersionNumber.check(key, version, MINIMUM_VERSION[key])
 
         DEPENDENCIES_CHECKED[key] = version
-        logger.debug("Dependency checked %s: %s", key, version)
+        LOGGER.debug("Dependency checked %s: %s", key, version)
     return error
 
 
@@ -92,9 +92,9 @@ def check_dependencies_cli(dict_: DependencyCheck) -> bool:
     if not dep_error:
         return True
 
-    logger.warning("Unmet dependences:")
+    LOGGER.warning("Unmet dependences:")
     for (dep, suggestedpkg), errormsg in dep_error.items():
-        logger.warning("... Error trying to import module %s:\n%s", dep, errormsg)
-        logger.warning("... Install package %s for %s", suggestedpkg, dep)
+        LOGGER.warning("... Error trying to import module %s:\n%s", dep, errormsg)
+        LOGGER.warning("... Install package %s for %s", suggestedpkg, dep)
 
     return False

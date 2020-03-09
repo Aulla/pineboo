@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from pineboolib.application.xmlaction import XMLAction
 
 
-LOGGER = logging.getLogger("application.utils.convert_action_")
+LOGGER = logging.get_logger(__name__)
 
 
 def convert_from_flaction(action: pnaction.PNAction) -> "XMLAction":

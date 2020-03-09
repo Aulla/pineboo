@@ -8,11 +8,11 @@ Use the resources of pineboolib.fllegacy.flutil.FLUtil.
 from pineboolib import logging
 from pineboolib.fllegacy.flutil import FLUtil
 
+LOGGER = logging.get_logger(__name__)
+
 
 class AQUtil(FLUtil):
     """AQUtil Class."""
 
     def __init__(self) -> None:
         """Initialize a new instance."""
-
-        self._logger = logging.getLogger(__name__)

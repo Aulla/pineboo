@@ -40,11 +40,12 @@ from typing import Any, Optional, cast, Union, List, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor
 
+LOGGER = logging.get_logger(__name__)
+
 
 class FLFieldDB(QtWidgets.QWidget):
     """FLFieldDB class."""
 
-    logger = logging.getLogger("FLFieldDB")
     _loaded: bool
     _parent: QtWidgets.QWidget
 
@@ -251,16 +252,16 @@ class FLFieldDB(QtWidgets.QWidget):
             # print("Hay topWidget en %s", self)
         if self.DEBUG:
             if self.cursor_ and self.cursor_.private_cursor.buffer_:
-                self.logger.info(
+                LOGGER.info(
                     "*** FLFieldDB::loaded: cursor: %r name: %r at:%r",
                     self.cursor_,
                     self.cursor_.curName(),
                     self.cursor_.at(),
                 )
                 cur_values = [f.value for f in self.cursor_.private_cursor.buffer_.fieldsList()]
-                self.logger.info("*** cursor Buffer: %r", cur_values)
+                LOGGER.info("*** cursor Buffer: %r", cur_values)
             else:
-                self.logger.warning("*** FLFieldDB::loaded: SIN cursor ??")
+                LOGGER.warning("*** FLFieldDB::loaded: SIN cursor ??")
 
         self._cursor_backup = None
         self._partDecimal = 0
@@ -648,18 +649,18 @@ class FLFieldDB(QtWidgets.QWidget):
         Return a report with the control status.
         """
 
-        self.logger.info("****************STATUS**************")
-        self.logger.info("FLField:", self._field_name)
-        self.logger.info("FieldAlias:", self._field_alias)
-        self.logger.info("FieldRelation:", self._field_relation)
-        self.logger.info("Cursor:", self.cursor_)
-        self.logger.info("CurName:", self.cursor().curName() if self.cursor_ else None)
-        self.logger.info(
+        LOGGER.info("****************STATUS**************")
+        LOGGER.info("FLField:", self._field_name)
+        LOGGER.info("FieldAlias:", self._field_alias)
+        LOGGER.info("FieldRelation:", self._field_relation)
+        LOGGER.info("Cursor:", self.cursor_)
+        LOGGER.info("CurName:", self.cursor().curName() if self.cursor_ else None)
+        LOGGER.info(
             "Editor: %s, EditorImg: %s"
             % (getattr(self, "editor_", None), getattr(self, "_editor_img", None))
         )
-        self.logger.info("RefreshLaterEditor:", self._refreshLaterEditor)
-        self.logger.info("************************************")
+        LOGGER.info("RefreshLaterEditor:", self._refreshLaterEditor)
+        LOGGER.info("************************************")
 
     def setValue(self, v: Any) -> None:
         """
@@ -669,7 +670,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
 
         if not self.cursor_:
-            self.logger.error(
+            LOGGER.error(
                 "FLFieldDB(%s):ERROR: El control no tiene cursor todavía. (%s)",
                 self._field_name,
                 self,
@@ -687,7 +688,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         field = tMD.field(self._field_name)
         if field is None:
-            self.logger.warning("FLFieldDB::setValue(%s) : No existe el campo ", self._field_name)
+            LOGGER.warning("FLFieldDB::setValue(%s) : No existe el campo ", self._field_name)
             return
 
         type_ = field.type()
@@ -699,7 +700,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 if v in field.optionsList():
                     idxItem = field.optionsList().index(v)
                 else:
-                    self.logger.warning(
+                    LOGGER.warning(
                         "No se encuentra el valor %s en las opciones %s", v, field.optionsList()
                     )
             if idxItem == -1:
@@ -809,9 +810,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         field = tMD.field(self._field_name)
         if field is None:
-            self.logger.warning(
-                self.tr("FLFieldDB::value() : No existe el campo %s" % self._field_name)
-            )
+            LOGGER.warning(self.tr("FLFieldDB::value() : No existe el campo %s" % self._field_name))
             return None
 
         v: Any = None
@@ -1033,7 +1032,7 @@ class FLFieldDB(QtWidgets.QWidget):
         @param fN Name of a field
         """
         if not self.cursor_ or not isinstance(self.cursor_, pnsqlcursor.PNSqlCursor):
-            self.logger.debug("FLField.refresh() Cancelado")
+            LOGGER.debug("FLField.refresh() Cancelado")
             return
         tMD = self.cursor_.metadata()
         if not tMD:
@@ -1083,9 +1082,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     return
 
                 if not field.relationM1():
-                    self.logger.info(
-                        "FLFieldDB :El campo de la relación debe estar relacionado en M1"
-                    )
+                    LOGGER.info("FLFieldDB :El campo de la relación debe estar relacionado en M1")
                     return
 
                 v = self.cursor_.valueBuffer(self._field_relation)
@@ -1148,7 +1145,7 @@ class FLFieldDB(QtWidgets.QWidget):
         # if isinstance(v , QString): #Para quitar
         # v = str(v)
         if self.DEBUG:
-            self.logger.info(
+            LOGGER.info(
                 "FLFieldDB:: refresh fN:%r fieldName:%r v:%s" % (fN, self._field_name, repr(v)[:64])
             )
 
@@ -1171,7 +1168,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_dbl.textChanged).disconnect(self.updateValue)
             except Exception:
-                self.logger.debug("Error al desconectar señal textChanged", exc_info=True)
+                LOGGER.debug("Error al desconectar señal textChanged", exc_info=True)
             s = None
 
             if nulo and v is None:
@@ -1207,7 +1204,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     cast(QtCore.pyqtSignal, editor_str.textChanged).disconnect(self.updateValue)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal textChanged")
+                    LOGGER.exception("Error al desconectar señal textChanged")
             else:
                 editor_cb = cast(qcombobox.QComboBox, self.editor_)
 
@@ -1240,7 +1237,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_str.textChanged).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal textChanged")
+                LOGGER.exception("Error al desconectar señal textChanged")
 
             if v is not None:
                 editor_str.setText(v)
@@ -1258,7 +1255,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_int.textChanged).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal textChanged")
+                LOGGER.exception("Error al desconectar señal textChanged")
 
             if nulo and not v:
                 dv = field.defaultValue()
@@ -1284,7 +1281,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_serial.textChanged).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal textChanged")
+                LOGGER.exception("Error al desconectar señal textChanged")
             editor_serial.setText(str(0))
 
             cast(QtCore.pyqtSignal, editor_serial.textChanged).connect(self.updateValue)
@@ -1353,7 +1350,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     cast(QtCore.pyqtSignal, editor_date.dateChanged).disconnect(self.updateValue)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal textChanged")
+                    LOGGER.exception("Error al desconectar señal textChanged")
 
                 if v:
                     util = flutil.FLUtil()
@@ -1380,7 +1377,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     cast(QtCore.pyqtSignal, editor_time.timeChanged).disconnect(self.updateValue)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal timeChanged")
+                    LOGGER.exception("Error al desconectar señal timeChanged")
 
                 if v is not None:
                     editor_time.setTime(v)
@@ -1392,7 +1389,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_sl.textChanged).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal timeChanged")
+                LOGGER.exception("Error al desconectar señal timeChanged")
             if v is not None:
                 editor_sl.setText(v)
             else:
@@ -1405,7 +1402,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_bool.toggled).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal toggled")
+                LOGGER.exception("Error al desconectar señal toggled")
 
             if v is not None:
 
@@ -1465,7 +1462,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_le.textChanged).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal textChanged")
+                LOGGER.exception("Error al desconectar señal textChanged")
 
             if not nulo:
                 v = round(v, self._partDecimal)
@@ -1517,7 +1514,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_le.textChanged).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal textChanged")
+                LOGGER.exception("Error al desconectar señal textChanged")
 
             if not nulo:
                 editor_le.setText(v)
@@ -1564,7 +1561,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_d.dateChanged).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal dateChanged")
+                LOGGER.exception("Error al desconectar señal dateChanged")
             editor_d.setDate(v)
             cast(QtCore.pyqtSignal, editor_d.dateChanged).connect(self.updateValue)
 
@@ -1576,7 +1573,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_t.timeChanged).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal")
+                LOGGER.exception("Error al desconectar señal")
 
             if v is None:
                 v = "00:00:00"
@@ -1592,7 +1589,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_sl.textChanged).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal")
+                LOGGER.exception("Error al desconectar señal")
 
             editor_sl.setText(v)
             cast(QtCore.pyqtSignal, editor_sl.textChanged).connect(self.updateValue)
@@ -1605,7 +1602,7 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 cast(QtCore.pyqtSignal, editor_b.toggled).disconnect(self.updateValue)
             except Exception:
-                self.logger.exception("Error al desconectar señal")
+                LOGGER.exception("Error al desconectar señal")
 
             editor_b.setChecked(v)
             cast(QtCore.pyqtSignal, editor_b.toggled).connect(self.updateValue)
@@ -1644,7 +1641,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     self.cursor_.cursorUpdated.disconnect(self.refresh)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
             self.cursor_.cursorUpdated.connect(self.refresh)
             return
         else:
@@ -1653,7 +1650,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     if self.cursor_ is not None:
                         self.cursor_.cursorUpdated.disconnect(self.refresh)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
                 self.cursor_ = self._cursor_backup
                 self._cursor_backup = None
 
@@ -1666,19 +1663,19 @@ class FLFieldDB(QtWidgets.QWidget):
                     try:
                         self.cursor_.bufferChanged.disconnect(self.refresh)
                     except Exception:
-                        self.logger.exception("Error al desconectar señal")
+                        LOGGER.exception("Error al desconectar señal")
                 self.cursor_.bufferChanged.connect(self.refresh)
 
             if self.showed:
                 try:
                     self.cursor_.newBuffer.disconnect(self.refresh)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
 
                 try:
                     self.cursor_.bufferChanged.disconnect(self.refreshQuick)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
 
             self.cursor_.newBuffer.connect(self.refresh)
             self.cursor_.bufferChanged.connect(self.refreshQuick)
@@ -1726,7 +1723,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 )
 
                 fMD.addRelationMD(rMD)
-                self.logger.trace(
+                LOGGER.trace(
                     "FLFieldDB : La relación entre la tabla del formulario ( %s ) y la tabla ( %s ) de este campo ( %s ) no existe, "
                     "pero sin embargo se han indicado los campos de relación( %s, %s)",
                     curName,
@@ -1735,7 +1732,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self._field_relation,
                     self._foreign_field,
                 )
-                self.logger.trace(
+                LOGGER.trace(
                     "FLFieldDB : Creando automáticamente %s.%s --1M--> %s.%s",
                     self._table_name,
                     self._field_relation,
@@ -1743,7 +1740,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self._foreign_field,
                 )
             else:
-                self.logger.trace(
+                LOGGER.trace(
                     "FLFieldDB : El campo ( %s ) indicado en la propiedad fieldRelation no se encuentra en la tabla ( %s )",
                     self._field_relation,
                     self._table_name,
@@ -1761,12 +1758,12 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     self.cursor_.newBuffer.disconnect(self.refresh)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
 
                 try:
                     self.cursor_.bufferChanged.disconnect(self.refreshQuick)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
 
             self.cursor_.newBuffer.connect(self.refresh)
             self.cursor_.bufferChanged.connect(self.refreshQuick)
@@ -1777,7 +1774,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     self.cursor_.newBuffer.disconnect(self.setNoShowed)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
             self.cursor_.newBuffer.connect(self.setNoShowed)
 
         self.cursor_.setModeAccess(pnsqlcursor.PNSqlCursor.Browse)
@@ -1785,12 +1782,12 @@ class FLFieldDB(QtWidgets.QWidget):
             try:
                 self.cursor_.newBuffer.disconnect(self.refresh)
             except Exception:
-                self.logger.exception("Error al desconectar señal")
+                LOGGER.exception("Error al desconectar señal")
 
             try:
                 self.cursor_.bufferChanged.disconnect(self.refreshQuick)
             except Exception:
-                self.logger.exception("Error al desconectar señal")
+                LOGGER.exception("Error al desconectar señal")
 
         self.cursor_.newBuffer.connect(self.refresh)
         self.cursor_.bufferChanged.connect(self.refreshQuick)
@@ -1907,7 +1904,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     self.editor_.textChanged.disconnect(self.updateValue)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
             self.editor_.textChanged.connect(self.updateValue)
 
         elif type_ == "pixmap":
@@ -1956,18 +1953,18 @@ class FLFieldDB(QtWidgets.QWidget):
                         #    try:
                         #        self._pbaux3.clicked.disconnect(self.searchPixmap)
                         #    except Exception:
-                        #        self.logger.exception("Error al desconectar señal")
+                        #        LOGGER.exception("Error al desconectar señal")
                         self._pbaux3.clicked.connect(self.searchPixmap)
                         if not hasPushButtonDB:
                             if self.showed:
                                 try:
                                     self.keyF2Pressed.disconnect(self._pbaux3.animateClick)
                                 except Exception:
-                                    self.logger.exception("Error al desconectar señal")
+                                    LOGGER.exception("Error al desconectar señal")
                             try:
                                 self.keyF2Pressed.connect(self._pbaux3.animateClick)
                             except Exception:
-                                self.logger.exception("Error al desconectar señal")
+                                LOGGER.exception("Error al desconectar señal")
 
                         self._pbaux3.setFocusPolicy(QtCore.Qt.StrongFocus)
                         self._pbaux3.installEventFilter(self)
@@ -1989,7 +1986,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         #    try:
                         #        self._pbaux4.clicked.disconnect(self.setPixmapFromClipboard)
                         #    except Exception:
-                        #        self.logger.exception("Error al desconectar señal")
+                        #        LOGGER.exception("Error al desconectar señal")
                         self._pbaux4.clicked.connect(self.setPixmapFromClipboard)
 
                 if not self._pbaux:
@@ -2009,7 +2006,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         #    try:
                         #        self._pbaux.clicked.disconnect(self.clearPixmap)
                         #    except Exception:
-                        #        self.logger.exception("Error al desconectar señal")
+                        #        LOGGER.exception("Error al desconectar señal")
                         self._pbaux.clicked.connect(self.clearPixmap)
 
                 if not self._pbaux2:
@@ -2036,7 +2033,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         #    try:
                         #        savepixmap_.triggered.disconnect(self.savePixmap)
                         #    except Exception:
-                        #        self.logger.exception("Error al desconectar señal")
+                        #        LOGGER.exception("Error al desconectar señal")
                         triggered = cast(QtCore.pyqtSignal, savepixmap_.triggered)
                         triggered.connect(self.savePixmap)
 
@@ -2091,7 +2088,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     cast(QtCore.pyqtSignal, self.editor_.dateChanged).disconnect(self.updateValue)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
 
             cast(QtCore.pyqtSignal, self.editor_.dateChanged).connect(self.updateValue)
             if (
@@ -2122,7 +2119,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     cast(QtCore.pyqtSignal, self.editor_.timeChanged).disconnect(self.updateValue)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
 
             cast(QtCore.pyqtSignal, self.editor_.timeChanged).connect(self.updateValue)
             if (
@@ -2169,7 +2166,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     cast(QtCore.pyqtSignal, self.editor_.textChanged).disconnect(self.updateValue)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
 
             cast(QtCore.pyqtSignal, self.editor_.textChanged).connect(self.updateValue)
 
@@ -2211,7 +2208,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     self.editor_.toggled.disconnect(self.updateValue)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
             self.editor_.toggled.connect(self.updateValue)
 
         if hasattr(self, "editor_"):
@@ -2293,7 +2290,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 try:
                     cast(QtCore.pyqtSignal, self.editor_.activated).disconnect(self.updateValue)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
             cast(QtCore.pyqtSignal, self.editor_.activated).connect(self.updateValue)
 
         else:
@@ -2371,7 +2368,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self.editor_.textChanged.disconnect(self.updateValue)
                     self.editor_.textChanged.disconnect(self.emitTextChanged)
                 except Exception:
-                    self.logger.exception("Error al desconectar señal")
+                    LOGGER.exception("Error al desconectar señal")
 
             self.editor_.lostFocus.connect(self.emitLostFocus)
             self.editor_.textChanged.connect(self.updateValue)
@@ -2383,7 +2380,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self.keyF2Pressed.disconnect(self._push_button_db.animateClick)
                         self.labelClicked.disconnect(self.openFormRecordRelation)
                     except Exception:
-                        self.logger.exception("Error al desconectar señal")
+                        LOGGER.exception("Error al desconectar señal")
 
                 self.keyF2Pressed.connect(self._push_button_db.animateClick)  # FIXME
                 self.labelClicked.connect(self.openFormRecordRelation)
@@ -2677,7 +2674,7 @@ class FLFieldDB(QtWidgets.QWidget):
         field_relation = field.relationM1()
 
         if field_relation is None:
-            self.logger.info("FLFieldDB : El campo de búsqueda debe tener una relación M1")
+            LOGGER.info("FLFieldDB : El campo de búsqueda debe tener una relación M1")
             return
 
         fMD = field.associatedField()
@@ -2748,7 +2745,7 @@ class FLFieldDB(QtWidgets.QWidget):
         field_relation = field.relationM1()
 
         if not field_relation:
-            self.logger.info("FLFieldDB : El campo de búsqueda debe tener una relación M1")
+            LOGGER.info("FLFieldDB : El campo de búsqueda debe tener una relación M1")
             return
 
         fMD = field.associatedField()
@@ -2759,7 +2756,7 @@ class FLFieldDB(QtWidgets.QWidget):
             fmd_relation = fMD.relationM1()
 
             if fmd_relation is None:
-                self.logger.info("FLFieldDB : El campo asociado debe tener una relación M1")
+                LOGGER.info("FLFieldDB : El campo asociado debe tener una relación M1")
                 return
             v = self.cursor_.valueBuffer(fMD.name())
             if v is None or self.cursor_.bufferIsNull(fMD.name()):

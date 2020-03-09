@@ -10,12 +10,12 @@ import codecs
 import xml.etree.ElementTree as ET
 from multiprocessing import Pool
 from typing import List, Tuple, TypeVar, cast, Dict, Optional
-from pineboolib.core.utils import logging
+from pineboolib import logging
 from pineboolib.core.utils.struct import ActionStruct
 from pineboolib.application.parsers import qsaparser
 from pineboolib.application.parsers.qsaparser import postparse, pytnyzer
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class Action(ActionStruct):
@@ -127,7 +127,7 @@ def main() -> None:
     pytnyzer.STRICT_MODE = False
     log_format = "%(levelname)s: %(name)s: %(message)s"
     logging.basicConfig(format=log_format, level=0)
-    blib_logger = logging.getLogger("blib2to3.pgen2.driver")
+    blib_logger = logging.get_logger("blib2to3.pgen2.driver")
     blib_logger.setLevel(logging.WARNING)
     LOGGER.info("Cpu count %d", CPU_COUNT)
     source_folder = "."

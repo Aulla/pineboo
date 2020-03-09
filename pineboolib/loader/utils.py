@@ -5,7 +5,7 @@ import traceback
 from pineboolib import logging
 from typing import Dict, Any, Callable
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 def monkey_patch_connect() -> None:

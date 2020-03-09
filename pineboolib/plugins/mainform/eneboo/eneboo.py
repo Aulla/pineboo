@@ -20,7 +20,7 @@ from typing import Any, Dict, Optional, List, cast, Union
 
 
 qsa_sys = systype.SysType()
-logger = logging.getLogger("mainForm_%s" % __name__)
+logger = logging.get_logger(__name__)
 
 
 class DockListView(QtCore.QObject):

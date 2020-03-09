@@ -5,7 +5,7 @@ from pineboolib.q3widgets import qbuttongroup
 
 from typing import Any
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class AQSButtonGroup(qbuttongroup.QButtonGroup):

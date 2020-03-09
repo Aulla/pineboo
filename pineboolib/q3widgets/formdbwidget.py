@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # noqa: F401
     from pineboolib.interfaces import isqlcursor
 
+LOGGER = logging.get_logger(__name__)
+
 
 class FormDBWidget(QtWidgets.QWidget):
     """FormDBWidget class."""
@@ -25,8 +27,6 @@ class FormDBWidget(QtWidgets.QWidget):
     form: Any
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
-
-    logger = logging.getLogger("q3widgets.formdbwidget.FormDBWidget")
 
     def __init__(self, action: Optional["xmlaction.XMLAction"] = None):
         """Inicialize."""
@@ -107,7 +107,7 @@ class FormDBWidget(QtWidgets.QWidget):
             self._action = getattr(self.parent(), "_action")
 
         if self._action is not None:
-            self.logger.debug("closeEvent para accion %r", self._action.name)
+            LOGGER.debug("closeEvent para accion %r", self._action.name)
         self.closed.emit()
         event.accept()  # let the window close
         self.doCleanUp()
@@ -140,9 +140,9 @@ class FormDBWidget(QtWidgets.QWidget):
         for signal, slot in self._formconnections:
             try:
                 signal.disconnect(slot)
-                self.logger.debug("Señal desconectada al limpiar: %s %s" % (signal, slot))
+                LOGGER.debug("Señal desconectada al limpiar: %s %s" % (signal, slot))
             except Exception:
-                # self.logger.exception("Error al limpiar una señal: %s %s" % (signal, slot))
+                # LOGGER.exception("Error al limpiar una señal: %s %s" % (signal, slot))
                 pass
         self._formconnections.clear()
 
@@ -201,7 +201,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
                 ret_ = getattr(flapplication.aqApp, name, None)
                 if ret_ is not None:
-                    self.logger.warning(
+                    LOGGER.warning(
                         "FormDBWidget: Coearcing attribute %r from aqApp (should be avoided)" % name
                     )
 

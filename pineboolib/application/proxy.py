@@ -8,6 +8,8 @@ from typing import Any, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flformdb import FLFormDB  # noqa: F401
 
+LOGGER = logging.get_logger(__name__)
+
 
 class DelayedObjectProxyLoader(object):
     """
@@ -21,15 +23,13 @@ class DelayedObjectProxyLoader(object):
     QSA Code should avoid calling directly "formclientes" and instead use QSADictModules or SafeQSA
     """
 
-    logger = logging.getLogger("application.DelayedObjectProxyLoader")
-
     def __init__(
         self, obj: Callable[..., "FLFormDB"], name: Optional[str] = None, *args: str, **kwargs: str
     ) -> None:
         """
         Constructor.
         """
-        self.logger.trace("obj: %r", obj)
+        LOGGER.trace("obj: %r", obj)
         self._name: str = name or "unnamed-loader"
         self._obj = obj
         self._args = args
@@ -46,7 +46,7 @@ class DelayedObjectProxyLoader(object):
             self.loaded_obj is not None and self.loaded_obj._loaded
         ):  # Si no está _loaded lo sobrecarga también
             return self.loaded_obj
-        self.logger.debug(
+        LOGGER.debug(
             "DelayedObjectProxyLoader: loading %s %s( *%s **%s)",
             self._name,
             self._obj,
@@ -55,7 +55,7 @@ class DelayedObjectProxyLoader(object):
         )
 
         self.loaded_obj = self._obj(*self._args, **self._kwargs)
-        self.logger.trace("loaded object: %r", self.loaded_obj)
+        LOGGER.trace("loaded object: %r", self.loaded_obj)
         if self.loaded_obj is None:
             raise Exception("Failed to load object")
         return self.loaded_obj

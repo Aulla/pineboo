@@ -10,7 +10,7 @@ import re
 from .utils import logging
 from . import exceptions, translate
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 RAISE_QSA_ERRORS = False
 

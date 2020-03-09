@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from .file import File
     from pineboolib.core.utils.struct import TableStruct
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class Module(object):

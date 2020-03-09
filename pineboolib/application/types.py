@@ -18,7 +18,7 @@ from pineboolib.core.utils.utils_base import StructMyDict, filedir
 
 from pineboolib.application.qsatypes.date import Date  # noqa: F401
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 def boolean(value: Union[bool, str, float] = False) -> bool:

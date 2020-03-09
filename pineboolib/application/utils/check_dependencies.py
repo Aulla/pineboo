@@ -9,7 +9,7 @@ from pineboolib.core.utils.check_dependencies import DependencyCheck, Dependency
 
 from pineboolib import application
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 def check_dependencies(dict_: DependencyCheck, exit: bool = True) -> bool:

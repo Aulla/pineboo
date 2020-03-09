@@ -12,7 +12,7 @@ from .dgi_objects.progress_dialog_manager import ProgressDialogManager
 from .dgi_objects.status_help_msg import StatusHelpMsg
 from typing import Any, Optional
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class dgi_qt(dgi_schema):
@@ -55,7 +55,7 @@ class dgi_qt(dgi_schema):
         """Show a message box warning."""
         from pineboolib.q3widgets.messagebox import MessageBox
 
-        logger.warning("%s", t)
+        LOGGER.warning("%s", t)
         if QtWidgets.QApplication.platformName() != "offscreen":
             MessageBox.warning(
                 t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
@@ -72,7 +72,7 @@ class dgi_qt(dgi_schema):
                 else QtWidgets.qApp.activeWindow()
             )
 
-        logger.warning("%s", t)
+        LOGGER.warning("%s", t)
 
         if QtWidgets.QApplication.platformName() != "offscreen":
 
@@ -92,7 +92,7 @@ class dgi_qt(dgi_schema):
                 else QtWidgets.qApp.activeWindow()
             )
 
-        logger.warning("%s", t)
+        LOGGER.warning("%s", t)
 
         if QtWidgets.QApplication.platformName() != "offscreen":
 

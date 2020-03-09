@@ -9,7 +9,7 @@ import threading
 import time
 import gc
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:

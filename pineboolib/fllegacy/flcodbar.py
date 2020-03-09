@@ -10,7 +10,7 @@ from pineboolib import logging
 import barcode  # type: ignore # pip3 install python-barcode
 from typing import Dict, Any, cast, Optional
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 BARCODE_ANY: int = 0
 BARCODE_EAN: int = 1
@@ -278,7 +278,7 @@ class FLCodBar(object):
         elif n == "gtin":
             return BARCODE_GTIN
         else:
-            logger.warning(
+            LOGGER.warning(
                 "Formato no soportado (%s)\nSoportados: %s." % (n, barcode.PROVIDED_BARCODES)
             )
             return BARCODE_ANY
@@ -329,7 +329,7 @@ class FLCodBar(object):
         if self.barcode["value"] == "":
             return
         if self.barcode["type"] == BARCODE_ANY:
-            logger.warning("Usando %s por defecto" % self.typeToName(BARCODE_128))
+            LOGGER.warning("Usando %s por defecto" % self.typeToName(BARCODE_128))
             self.barcode["type"] = BARCODE_128
 
         type_ = self.typeToName(self.barcode["type"])
@@ -371,7 +371,7 @@ class FLCodBar(object):
             svg_w = 3.779 * float(xwidth[0:6])
             svg_h = 3.779 * float(xheight[0:6])
         else:
-            logger.warning("width or height missing")
+            LOGGER.warning("width or height missing")
             svg_w = 0.0
             svg_h = 0.0
         self.p = QtGui.QPixmap(int(svg_w), int(svg_h))

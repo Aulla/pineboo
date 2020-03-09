@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
     from pineboolib.fllegacy import flmanagermodules
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class IConnection:

@@ -13,7 +13,7 @@ from pineboolib.loader.projectconfig import ProjectConfig, PasswordMismatchError
 
 from typing import Optional, cast, Dict, Any
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class DlgConnect(QtWidgets.QWidget):

@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
     from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401
 
-LOGGER = logging.getLogger("database.utils")
+LOGGER = logging.get_logger(__name__)
 
 
 def next_counter(

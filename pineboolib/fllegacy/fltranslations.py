@@ -12,6 +12,7 @@ from typing import Any, Union
 """
 Esta clase gestiona las diferenetes trducciones de módulos y aplicación
 """
+LOGGER = logging.get_logger(__name__)
 
 
 class FLTranslations(object):
@@ -25,7 +26,6 @@ class FLTranslations(object):
         """Initialize."""
 
         super(FLTranslations, self).__init__()
-        self.logger = logging.getLogger("FLTranslations")
 
     def loadTsFile(self, tor: Any, ts_file_name: Union[bytes, int, str], verbose) -> bool:
         """
@@ -43,7 +43,7 @@ class FLTranslations(object):
             ok = tor.load(ts_file_name)
 
         if not ok:
-            self.logger.warning("For some reason, I cannot load '%s'", ts_file_name)
+            LOGGER.warning("For some reason, I cannot load '%s'", ts_file_name)
         return ok
 
     @decorators.deprecated
@@ -82,7 +82,7 @@ class FLTranslations(object):
 
         f = Qt.QFile(ts_input_file)
         if not f.open(QtCore.QIODevice.ReadOnly):
-            self.logger.warning("Cannot open file '%s'", ts_input_file)
+            LOGGER.warning("Cannot open file '%s'", ts_input_file)
             return
 
         t = Qt.QTextStream(f)
@@ -108,6 +108,4 @@ class FLTranslations(object):
                         self.releaseTsFile(t, verbose, stripped)
 
             if not metTranslations:
-                self.logger.warning(
-                    "Met no 'TRANSLATIONS' entry in project file '%s'", ts_input_file
-                )
+                LOGGER.warning("Met no 'TRANSLATIONS' entry in project file '%s'", ts_input_file)

@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from pineboolib.q3widgets import formdbwidget  # noqa F401
 
 
-LOGGER = logging.getLogger("application.connections")
+LOGGER = logging.get_logger(__name__)
 
 
 class ProxySlot:

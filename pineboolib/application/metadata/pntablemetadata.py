@@ -23,7 +23,7 @@ from . import pncompoundkeymetadata
 if TYPE_CHECKING:
     from . import pnrelationmetadata  # noqa
 
-LOGGER = logging.getLogger("CursorTableModel")
+LOGGER = logging.get_logger(__name__)
 
 
 class PNTableMetaData(itablemetadata.ITableMetaData):
