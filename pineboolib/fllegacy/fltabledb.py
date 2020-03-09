@@ -2585,7 +2585,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         if settings.CONFIG.value("ebcomportamiento/FLTableExport2Calc", False):
             QtWidgets.QMessageBox.information(
-                self.topWidget,
+                QtWidgets.QApplication.activeModalWidget(),
                 self.tr("Opción deshabilitada"),
                 self.tr("Esta opción ha sido deshabilitada por el administrador"),
                 QtWidgets.QMessageBox.Ok,
