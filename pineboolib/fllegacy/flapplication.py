@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from pineboolib.application.database import pnsqlquery  # noqa: F401
     from PyQt5 import QtXml  # noqa: F401
 
-logger = logging.getLogger("FLApplication")
+LOGGER = logging.getLogger("FLApplication")
 
 
 class FLPopupWarn(QtCore.QObject):
@@ -188,7 +188,7 @@ class FLApplication(QtCore.QObject):
             QtWidgets.QApplication.setFont(font_[0])
             save_ = [font_[0].family(), font_[0].pointSize(), font_[0].weight(), font_[0].italic()]
 
-            settings.config.set_value("application/font", save_)
+            settings.CONFIG.set_value("application/font", save_)
 
     def showStyles(self) -> None:
         """Open style selector."""
@@ -204,7 +204,7 @@ class FLApplication(QtCore.QObject):
 
     def setStyle(self, style_: str) -> None:
         """Change application style."""
-        settings.config.set_value("application/style", style_)
+        settings.CONFIG.set_value("application/style", style_)
         QtWidgets.QApplication.setStyle(style_)
 
     def initStyles(self) -> None:
@@ -212,7 +212,7 @@ class FLApplication(QtCore.QObject):
 
         self.style_mapper = QtCore.QSignalMapper()
         self.style_mapper.mapped[str].connect(self.setStyle)  # type: ignore
-        style_read = settings.config.value("application/style", None)
+        style_read = settings.CONFIG.value("application/style", None)
         if not style_read:
             style_read = "Fusion"
 
@@ -259,8 +259,8 @@ class FLApplication(QtCore.QObject):
     def statusHelpMsg(self, text) -> None:
         """Show help message."""
 
-        if settings.config.value("application/isDebuggerMode", False):
-            logger.warning("StatusHelpMsg: %s", text)
+        if settings.CONFIG.value("application/isDebuggerMode", False):
+            LOGGER.warning("StatusHelpMsg: %s", text)
 
         if not self.main_widget_:
             return
@@ -374,7 +374,7 @@ class FLApplication(QtCore.QObject):
 
         # FIXME: Missing _gui parameter
         # self.msgBoxWarning(msg)
-        logger.warning("%s\n", msg)
+        LOGGER.warning("%s\n", msg)
 
     def clearProject(self) -> None:
         """Cleanup."""

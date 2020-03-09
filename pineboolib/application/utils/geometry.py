@@ -2,7 +2,7 @@
 Manage form sizes.
 """
 
-from pineboolib.core.settings import settings
+from pineboolib.core import settings
 from pineboolib import application
 
 from typing import TYPE_CHECKING
@@ -23,7 +23,7 @@ def save_geometry_form(name: str, geo: "QSize") -> None:
         raise Exception("Project is not connected yet")
 
     name = "geo/%s/%s" % (application.PROJECT.conn_manager.mainConn().DBName(), name)
-    settings.set_value(name, geo)
+    settings.SETTINGS.set_value(name, geo)
 
 
 def load_geometry_form(name: str) -> "QSize":
@@ -37,4 +37,4 @@ def load_geometry_form(name: str) -> "QSize":
         raise Exception("Project is not connected yet")
 
     name = "geo/%s/%s" % (application.PROJECT.conn_manager.mainConn().DBName(), name)
-    return settings.value(name, None)
+    return settings.SETTINGS.value(name, None)

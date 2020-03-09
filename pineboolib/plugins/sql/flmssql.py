@@ -67,7 +67,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
             )
             # self.conn_.initialize(LOGGER)
 
-            if settings.config.value("ebcomportamiento/orm_enabled", False):
+            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
                 from sqlalchemy import create_engine  # type: ignore
 
                 self.engine_ = create_engine(

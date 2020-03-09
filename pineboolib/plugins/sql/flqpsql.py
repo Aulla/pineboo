@@ -65,7 +65,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             self.conn_ = psycopg2.connect(conninfostr, connection_factory=LoggingConnection)
             self.conn_.initialize(LOGGER)
 
-            if settings.config.value("ebcomportamiento/orm_enabled", False):
+            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
                 from sqlalchemy import create_engine  # type: ignore
 
                 self.engine_ = create_engine(

@@ -3,7 +3,7 @@
 
 import os
 from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 from pineboolib import application
 
 from PyQt5 import Qt
@@ -12,6 +12,8 @@ from typing import Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PyQt5 import QtWidgets  # noqa: F401
+
+LOGGER = logging.getLogger(__name__)
 
 
 class FLTranslator(Qt.QTranslator):
@@ -33,7 +35,7 @@ class FLTranslator(Qt.QTranslator):
     ) -> None:
         """Inicialize."""
         super(FLTranslator, self).__init__()
-        self.logger = logging.getLogger("FLTranslator")
+
         self._prj = parent
         if not name:
             raise Exception("Name is mandatory")
@@ -42,7 +44,9 @@ class FLTranslator(Qt.QTranslator):
         self._multi_lang = multiLang
         self._sys_trans = sysTrans
         self._ts_translation_contexts = {}
-        self._translation_from_qm = config.value("ebcomportamiento/translations_from_qm", False)
+        self._translation_from_qm = settings.CONFIG.value(
+            "ebcomportamiento/translations_from_qm", False
+        )
 
     def loadTsContent(self, key: str) -> bool:
         """
@@ -76,7 +80,7 @@ class FLTranslator(Qt.QTranslator):
         if not self._translation_from_qm:
             ret_ = self.load_ts("%s.ts" % ts_file)
             if not ret_:
-                self.logger.warning("For some reason, i cannot load '%s.ts'", ts_file)
+                LOGGER.warning("For some reason, i cannot load '%s.ts'", ts_file)
         else:
 
             qm_file = "%s.qm" % ts_file
@@ -92,7 +96,7 @@ class FLTranslator(Qt.QTranslator):
 
             ret_ = self.load(qm_file)
             if not ret_:
-                self.logger.warning("For some reason, i cannot load '%s'", qm_file)
+                LOGGER.warning("For some reason, i cannot load '%s'", qm_file)
 
         return ret_
 
@@ -125,7 +129,7 @@ class FLTranslator(Qt.QTranslator):
             for context in root_.findall("context"):
                 name_elem = context.find("name")
                 if name_elem is None:
-                    self.logger.warning("load_ts: <name> not found, skipping")
+                    LOGGER.warning("load_ts: <name> not found, skipping")
                     continue
                 context_dict_key = name_elem.text
                 if not context_dict_key:

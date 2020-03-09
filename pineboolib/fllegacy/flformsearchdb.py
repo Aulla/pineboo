@@ -19,6 +19,9 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pnaction
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class FLFormSearchDB(flformdb.FLFormDB):
     """
     Subclass of the FLFormDB class, designed to search for a record in a table.
@@ -44,8 +47,6 @@ class FLFormSearchDB(flformdb.FLFormDB):
     """
 
     acceptingRejecting_: bool
-
-    logger = logging.getLogger("FLFormSearchDB")
 
     def __init__(self, *args) -> None:
         """
@@ -73,7 +74,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
             parent = QtWidgets.QApplication.activeModalWidget()
 
         if cursor is None:
-            self.logger.warning("Se ha llamado a FLFormSearchDB sin nombre de action o cursor")
+            LOGGER.warning("Se ha llamado a FLFormSearchDB sin nombre de action o cursor")
             return
 
         if application.PROJECT.conn_manager is None:
@@ -135,7 +136,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         sizePolicy.setHeightForWidth(True)
 
         pbSize = self.iconSize
-        if settings.config.value("application/isDebuggerMode", False):
+        if settings.CONFIG.value("application/isDebuggerMode", False):
 
             pushButtonExport = QtWidgets.QToolButton(self)
             pushButtonExport.setObjectName("pushButtonExport")
@@ -152,7 +153,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
             self.bottomToolbar.layout().addWidget(pushButtonExport)
             pushButtonExport.clicked.connect(self.exportToXml)
 
-            if settings.config.value("ebcomportamiento/show_snaptshop_button", False):
+            if settings.CONFIG.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton(self)
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
                 push_button_snapshot.setSizePolicy(sizePolicy)

@@ -155,8 +155,8 @@ class FLFieldDB(QtWidgets.QWidget):
         self._first_refresh = False
         self._field_map_value = None
 
-        self.maxPixImages_ = settings.config.value("ebcomportamiento/maxPixImages", None)
-        self._auto_com_mode = settings.config.value("ebcomportamiento/autoComp", "OnDemandF4")
+        self.maxPixImages_ = settings.CONFIG.value("ebcomportamiento/maxPixImages", None)
+        self._auto_com_mode = settings.CONFIG.value("ebcomportamiento/autoComp", "OnDemandF4")
         if self.maxPixImages_ in (None, ""):
             self.maxPixImages_ = 600
         self.maxPixImages_ = int(self.maxPixImages_)
@@ -3492,7 +3492,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         if not self._init_not_null_color:
             self._init_not_null_color = True
-        self._not_null_color = settings.config.value(
+        self._not_null_color = settings.CONFIG.value(
             "ebcomportamiento/colorObligatorio", QtGui.QColor(255, 233, 173).name()
         )
 

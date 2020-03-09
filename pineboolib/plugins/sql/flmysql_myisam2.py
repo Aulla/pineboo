@@ -60,7 +60,7 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
                 autocommit=True,
             )
 
-            if settings.config.value("ebcomportamiento/orm_enabled", False):
+            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
                 from sqlalchemy import create_engine  # type: ignore
 
                 self.engine_ = create_engine(

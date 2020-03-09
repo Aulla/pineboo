@@ -53,7 +53,7 @@ class AQStaticBdInfo(object):
         self.db_ = database.DBName()
         self.dirs_ = []
         self.key_ = "StaticLoader/%s/" % self.db_
-        self.enabled_ = settings.config.value("%senabled" % self.key_, False)
+        self.enabled_ = settings.CONFIG.value("%senabled" % self.key_, False)
 
     def findPath(self, path: str) -> Optional[AQStaticDirInfo]:
         """Find if path "path" is managed in this class."""
@@ -65,9 +65,9 @@ class AQStaticBdInfo(object):
 
     def readSettings(self) -> None:
         """Read settings for staticloader."""
-        self.enabled_ = settings.config.value("%senabled" % self.key_, False)
+        self.enabled_ = settings.CONFIG.value("%senabled" % self.key_, False)
         self.dirs_.clear()
-        dirs = settings.config.value("%sdirs" % self.key_, [])
+        dirs = settings.CONFIG.value("%sdirs" % self.key_, [])
         i = 0
 
         while i < len(dirs):
@@ -79,7 +79,7 @@ class AQStaticBdInfo(object):
 
     def writeSettings(self) -> None:
         """Write settings for staticloader."""
-        settings.config.set_value("%senabled" % self.key_, self.enabled_)
+        settings.CONFIG.set_value("%senabled" % self.key_, self.enabled_)
         dirs: List[Union[bool, str]] = []
         active_dirs = []
 
@@ -89,8 +89,8 @@ class AQStaticBdInfo(object):
             if info.active_:
                 active_dirs.append(info.path_)
 
-        settings.config.set_value("%sdirs" % self.key_, dirs)
-        settings.config.set_value("%sactiveDirs" % self.key_, ",".join(active_dirs))
+        settings.CONFIG.set_value("%sdirs" % self.key_, dirs)
+        settings.CONFIG.set_value("%sactiveDirs" % self.key_, ",".join(active_dirs))
 
 
 class FLStaticLoaderWarning(QtCore.QObject):
@@ -343,7 +343,7 @@ class PNStaticLoader(QtCore.QObject):
                 if msg not in WARN_.warns_:
                     WARN_.warns_.append(msg)
                     WARN_.paths_.append("%s:%s" % (name, info_item.path_))
-                    if settings.config.value("ebcomportamiento/SLConsola", False):
+                    if settings.CONFIG.value("ebcomportamiento/SLConsola", False):
                         LOGGER.warning("CARGA ESTATICA ACTIVADA:%s -> %s", name, info_item.path_)
 
                 if only_path:

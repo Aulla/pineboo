@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional, List, Union, cast
 
 from PyQt5 import QtCore, QtWidgets, QtXml
 
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import ustr, filedir
 from pineboolib.core.utils import logging
@@ -67,7 +67,7 @@ class SysBaseType(object):
     @classmethod
     def isDebuggerMode(self) -> bool:
         """Check if running in debugger mode."""
-        return bool(config.value("application/isDebuggerMode", False))
+        return bool(settings.CONFIG.value("application/isDebuggerMode", False))
 
     @classmethod
     @decorators.not_implemented_warn
@@ -78,7 +78,7 @@ class SysBaseType(object):
     @classmethod
     def isDebuggerEnabled(self) -> bool:
         """Check if this debugger is on."""
-        return bool(config.value("application/dbadmin_enabled", False))
+        return bool(settings.CONFIG.value("application/dbadmin_enabled", False))
 
     @classmethod
     def isQuickBuild(self) -> bool:

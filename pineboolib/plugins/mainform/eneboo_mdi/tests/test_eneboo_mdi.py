@@ -4,7 +4,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
 
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 
 # from . import fixture_path
 
@@ -17,10 +17,12 @@ class TestEnebooGUI(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
-        config.set_value("application/isDebuggerMode", True)
-        config.set_value("application/dbadmin_enabled", True)
-        cls.prev_main_window_name = config.value("ebcomportamiento/main_form_name", "eneboo")
-        config.set_value("ebcomportamiento/main_form_name", "eneboo_mdi")
+        settings.CONFIG.set_value("application/isDebuggerMode", True)
+        settings.CONFIG.set_value("application/dbadmin_enabled", True)
+        cls.prev_main_window_name = settings.CONFIG.value(
+            "ebcomportamiento/main_form_name", "eneboo"
+        )
+        settings.CONFIG.set_value("ebcomportamiento/main_form_name", "eneboo_mdi")
 
         init_testing()
 
@@ -67,8 +69,8 @@ class TestEnebooGUI(unittest.TestCase):
         del application.PROJECT.main_form
         del application.PROJECT.main_window
 
-        config.set_value("application/isDebuggerMode", False)
-        config.set_value("application/dbadmin_enabled", False)
-        config.set_value("ebcomportamiento/main_form_name", cls.prev_main_window_name)
+        settings.CONFIG.set_value("application/isDebuggerMode", False)
+        settings.CONFIG.set_value("application/dbadmin_enabled", False)
+        settings.CONFIG.set_value("ebcomportamiento/main_form_name", cls.prev_main_window_name)
 
         finish_testing()

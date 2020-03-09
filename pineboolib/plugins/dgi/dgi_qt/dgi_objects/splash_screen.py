@@ -1,7 +1,7 @@
 """Splash_screen module."""
 from PyQt5 import QtGui, QtCore, QtWidgets  # type: ignore
 from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 
 
 class splashscreen(object):
@@ -13,7 +13,7 @@ class splashscreen(object):
         """Inicialize."""
         splash_path = filedir(
             "./core/images/splashscreen/%s240.png"
-            % ("dbadmin" if config.value("application/dbadmin_enabled") else "quick")
+            % ("dbadmin" if settings.CONFIG.value("application/dbadmin_enabled") else "quick")
         )
 
         splash_pix = QtGui.QPixmap(splash_path)

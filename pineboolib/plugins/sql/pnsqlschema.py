@@ -111,7 +111,7 @@ class PNSqlSchema(object):
 
     def session(self) -> Any:
         """Create a sqlAlchemy session."""
-        if settings.config.value("ebcomportamiento/orm_enabled", False) and self.session_ is None:
+        if settings.CONFIG.value("ebcomportamiento/orm_enabled", False) and self.session_ is None:
             from sqlalchemy.orm import sessionmaker  # type: ignore
 
             Session = sessionmaker(bind=self.engine())
@@ -122,7 +122,7 @@ class PNSqlSchema(object):
     def declarative_base(self) -> Any:
         """Return sqlAlchemy declarative base."""
         if (
-            settings.config.value("ebcomportamiento/orm_enabled", False)
+            settings.CONFIG.value("ebcomportamiento/orm_enabled", False)
             and self.declarative_base_ is None
         ):
             from sqlalchemy.ext.declarative import declarative_base  # type: ignore

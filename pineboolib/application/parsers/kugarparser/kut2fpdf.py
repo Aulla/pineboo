@@ -13,7 +13,7 @@ from pineboolib import logging
 from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.utils.check_dependencies import check_dependencies
 from pineboolib.application.parsers.kugarparser import kparsertools
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 
 
 from typing import Any, Optional, Union, List, Dict, TYPE_CHECKING
@@ -68,7 +68,7 @@ class Kut2FPDF(object):
         self._avalible_fonts = []
         self._page_top: Dict[int, int] = {}
         self._unavalible_fonts = []
-        self.design_mode = config.value("ebcomportamiento/kugar_debug_mode", False)
+        self.design_mode = settings.CONFIG.value("ebcomportamiento/kugar_debug_mode", False)
         self._actual_data_line = None
         self._no_print_footer = False
         self.increase_section_size = 0
@@ -638,9 +638,8 @@ class Kut2FPDF(object):
                 return
 
         if text is not None:
-            from pineboolib.core.settings import config
 
-            temporal = config.value("ebcomportamiento/temp_dir")
+            temporal = settings.CONFIG.value("ebcomportamiento/temp_dir")
             if text.startswith(temporal):
                 is_image = True
 

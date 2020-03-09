@@ -6,7 +6,7 @@ from pathlib import Path
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core.settings import config, settings
+from pineboolib.core import settings
 from pineboolib.core.utils import logging
 from pineboolib.core import decorators
 from pineboolib.loader.projectconfig import ProjectConfig, PasswordMismatchError
@@ -139,7 +139,7 @@ class DlgConnect(QtWidgets.QWidget):
         for name in sorted(self.profiles.keys()):
             self._user_interface.cbProfiles.addItem(name)
 
-        last_profile = settings.value("DBA/last_profile", None)
+        last_profile = settings.SETTINGS.value("DBA/last_profile", None)
 
         if last_profile:
             self._user_interface.cbProfiles.setCurrentText(last_profile)
@@ -180,7 +180,7 @@ class DlgConnect(QtWidgets.QWidget):
         if pconf is None:
             return
         self.selected_project_config = pconf
-        settings.set_value("DBA/last_profile", current_profile)
+        settings.SETTINGS.set_value("DBA/last_profile", current_profile)
         self.close()
 
     @decorators.pyqt_slot()
@@ -389,7 +389,7 @@ class DlgConnect(QtWidgets.QWidget):
         )
 
         if new_dir and new_dir is not self.profile_dir:
-            config.set_value("ebcomportamiento/profiles_folder", new_dir)
+            settings.CONFIG.set_value("ebcomportamiento/profiles_folder", new_dir)
             self.profile_dir = new_dir
             ProjectConfig.profile_dir = new_dir
             self.loadProfiles()

@@ -73,7 +73,7 @@ class Project(object):
         self.root = None
         self.alternative_folder = None
         self.apppath = ""
-        self.tmpdir = settings.config.value("ebcomportamiento/temp_dir")
+        self.tmpdir = settings.CONFIG.value("ebcomportamiento/temp_dir")
         self.parser = None
         # self.main_form_name: Optional[str] = None
         self.delete_cache = False
@@ -87,7 +87,7 @@ class Project(object):
         self.options = Values()
         if self.tmpdir is None:
             self.tmpdir = utils_base.filedir("%s/Pineboo/tempdata" % Path.home())
-            settings.config.set_value("ebcomportamiento/temp_dir", self.tmpdir)
+            settings.CONFIG.set_value("ebcomportamiento/temp_dir", self.tmpdir)
 
         if not os.path.exists(self.tmpdir):
             Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
@@ -132,8 +132,8 @@ class Project(object):
         if result:
             self.apppath = utils_base.filedir("..")
 
-            self.delete_cache = settings.config.value("ebcomportamiento/deleteCache", False)
-            self.parse_project = settings.config.value("ebcomportamiento/parseProject", False)
+            self.delete_cache = settings.CONFIG.value("ebcomportamiento/deleteCache", False)
+            self.parse_project = settings.CONFIG.value("ebcomportamiento/parseProject", False)
 
         return result
 
@@ -215,7 +215,7 @@ class Project(object):
                     os.rmdir(os.path.join(root, name))
 
         else:
-            keep_images = settings.config.value("ebcomportamiento/keep_general_cache", False)
+            keep_images = settings.CONFIG.value("ebcomportamiento/keep_general_cache", False)
             if keep_images is False:
                 for file_name in os.listdir(self.tmpdir):
                     if file_name.find(".") > -1 and not file_name.endswith("sqlite3"):
@@ -333,9 +333,9 @@ class Project(object):
                         continue
 
                 elif file_name.endswith(".mtd"):
-                    if settings.config.value(
+                    if settings.CONFIG.value(
                         "ebcomportamiento/orm_enabled", False
-                    ) and not settings.config.value("ebcomportamiento/orm_parser_disabled", False):
+                    ) and not settings.CONFIG.value("ebcomportamiento/orm_parser_disabled", False):
                         if os.path.exists("%s_model.py" % path._dir("cache", fileobj.filekey[:-4])):
                             continue
                 else:
@@ -404,9 +404,9 @@ class Project(object):
 
             # self.parse_script_lists(list_files)
 
-        if settings.config.value(
+        if settings.CONFIG.value(
             "ebcomportamiento/orm_enabled", False
-        ) and not settings.config.value("ebcomportamiento/orm_load_disabled", False):
+        ) and not settings.CONFIG.value("ebcomportamiento/orm_load_disabled", False):
             self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
             from pineboolib.application.parsers.mtdparser import pnormmodelsfactory
 
@@ -618,7 +618,7 @@ class Project(object):
     def load_version(self) -> str:
         """Initialize current version numbers."""
         self.version = "0.68.46"
-        if settings.config.value("application/dbadmin_enabled", False):
+        if settings.CONFIG.value("application/dbadmin_enabled", False):
             self.version = "DBAdmin v%s" % self.version
         else:
             self.version = "Quick v%s" % self.version

@@ -1,11 +1,11 @@
 """
 Module for getTableObj.
 """
-from xml.etree.ElementTree import Element, ElementTree
+from xml.etree import ElementTree as ET
 from .struct import TableStruct
 
 
-def getTableObj(tree: ElementTree, root: Element) -> TableStruct:
+def get_table_object(tree: ET.ElementTree, root: ET.Element) -> TableStruct:
     """Retrieve a basic table object for a given parsed XML."""
     table = TableStruct()
     table.xmltree = tree

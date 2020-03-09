@@ -3,7 +3,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.fllegacy import flapplication, systype
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 from pineboolib.application.acls import pnaccesscontrollists
 
 
@@ -318,7 +318,7 @@ class TestACLS(unittest.TestCase):
         acl.init()
         flapplication.aqApp.set_acl(acl)
 
-        config.set_value("application/dbadmin_enabled", True)
+        settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
         project = application.PROJECT
         project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
@@ -356,7 +356,7 @@ class TestACLS(unittest.TestCase):
         acl.init()
         flapplication.aqApp.set_acl(acl)
 
-        config.set_value("application/dbadmin_enabled", True)
+        settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
         project = application.PROJECT
         project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
@@ -488,5 +488,5 @@ class TestACLS(unittest.TestCase):
         flapplication.aqApp.db().manager().cacheMetaData_ = {}
         flapplication.aqApp.acl_ = None
 
-        config.set_value("application/dbadmin_enabled", cls.db_admin)
+        settings.CONFIG.set_value("application/dbadmin_enabled", cls.db_admin)
         """

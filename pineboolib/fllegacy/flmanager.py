@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pnaction
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 # FIXME: This class is emulating Eneboo, but the way is set up it is a core part of Pineboo now.
 # ... we should probably create our own one. Not this one.
@@ -147,7 +147,7 @@ class FLManager(QtCore.QObject, IManager):
             raise Exception("metadata. self.db_ is empty!")
 
         if quick is None:
-            dbadmin = settings.config.value("application/dbadmin_enabled", False)
+            dbadmin = settings.CONFIG.value("application/dbadmin_enabled", False)
             quick = not bool(dbadmin)
 
         if isinstance(metadata_name_or_xml, str):
@@ -178,7 +178,7 @@ class FLManager(QtCore.QObject, IManager):
 
                 if not stream:
                     if metadata_name_or_xml.find("alteredtable") == -1:
-                        logger.info(
+                        LOGGER.info(
                             "FLManager : "
                             + util.translate(
                                 "FLManager",
@@ -192,7 +192,7 @@ class FLManager(QtCore.QObject, IManager):
                 # doc = QtXml.QDomDocument(n)
 
                 if not stream:
-                    logger.info(
+                    LOGGER.info(
                         "FLManager : "
                         + util.translate(
                             "FLManager",
@@ -229,13 +229,13 @@ class FLManager(QtCore.QObject, IManager):
                         "La estructura de los metadatos de la tabla '%s' y su estructura interna en la base de datos no coinciden.\n"
                         "Regenerando la base de datos." % metadata_name_or_xml,
                     )
-                    logger.warning(msg)
+                    LOGGER.warning(msg)
 
                     must_alter = self.db_.mismatchedTable(metadata_name_or_xml, ret)
                     if must_alter:
                         # if not self.alterTable(stream, stream, "", True):
                         if not self.alterTable(stream, stream, "", True):
-                            logger.warning(
+                            LOGGER.warning(
                                 "La regeneración de la tabla %s ha fallado", metadata_name_or_xml
                             )
 
@@ -645,7 +645,7 @@ class FLManager(QtCore.QObject, IManager):
                     return tmd
                 else:
                     if not tmd.isQuery():
-                        logger.warning("FLMAnager :: No existe tabla %s", n_or_tmd)
+                        LOGGER.warning("FLMAnager :: No existe tabla %s", n_or_tmd)
 
                 return self.createTable(tmd)
             else:
@@ -653,13 +653,13 @@ class FLManager(QtCore.QObject, IManager):
                     return n_or_tmd
 
                 if not self.db_.createTable(n_or_tmd):
-                    logger.warning(
+                    LOGGER.warning(
                         "createTable: %s",
                         self.tr("No se ha podido crear la tabla ") + n_or_tmd.name(),
                     )
                     return None
                 else:
-                    logger.info("createTable: Created new table %r", n_or_tmd.name())
+                    LOGGER.info("createTable: Created new table %r", n_or_tmd.name())
 
         return n_or_tmd
 
@@ -1113,7 +1113,7 @@ class FLManager(QtCore.QObject, IManager):
         check_integrity = True
 
         if isinstance(relation, QtXml.QDomElement):
-            logger.warning(
+            LOGGER.warning(
                 "QtXml.QDomElement is deprecated for declare metadata relation. Please use xml.etree.ElementTree.ElementTree instead"
             )
             no = relation.firstChild()
@@ -1298,7 +1298,7 @@ class FLManager(QtCore.QObject, IManager):
             if not self.existsTable(table):
                 self.createTable(table)
             if not tmd:
-                logger.warning(
+                LOGGER.warning(
                     "FLManager::cleanupMetaData %s",
                     flutil.FLUtil().translate(
                         "application", "No se ha podido crear los metadatatos para la tabla %s"
@@ -1411,7 +1411,7 @@ class FLManager(QtCore.QObject, IManager):
                     refKey,
                 )
                 if not util.execSql(sql, "dbAux"):
-                    logger.warning(
+                    LOGGER.warning(
                         "FLManager::ERROR:StoreLargeValue.Update %s.%s", tableLarge, refKey
                     )
                     return None
@@ -1422,7 +1422,7 @@ class FLManager(QtCore.QObject, IManager):
                 refKey,
             )
             if not util.execSql(sql, "dbAux"):
-                logger.warning("FLManager::ERROR:StoreLargeValue.Insert %s.%s", tableLarge, refKey)
+                LOGGER.warning("FLManager::ERROR:StoreLargeValue.Insert %s.%s", tableLarge, refKey)
                 return None
 
         return refKey

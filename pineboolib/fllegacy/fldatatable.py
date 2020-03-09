@@ -463,7 +463,7 @@ class FLDataTable(QtWidgets.QTableView):
             if key_event.key() == QtCore.Qt.Key_Space:
                 self.setChecked(self.model().index(r, c))
 
-            if not settings.config.value("ebcomportamiento/FLTableShortCut", False):
+            if not settings.CONFIG.value("ebcomportamiento/FLTableShortCut", False):
                 if key_event.key() == QtCore.Qt.Key_A and not self.popup_:
                     if (
                         self.cursor_

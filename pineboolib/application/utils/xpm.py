@@ -3,7 +3,7 @@
 import os
 import os.path
 
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 from pineboolib import logging, application
 
 LOGGER = logging.getLogger("xpm")
@@ -37,7 +37,9 @@ def cache_xpm(value: str) -> str:
     else:
         file_name = "%s/%s.xpm" % (cache_dir, xpm_name)
 
-    if not os.path.exists(file_name) or config.value("ebcomportamiento/no_img_cached", False):
+    if not os.path.exists(file_name) or settings.CONFIG.value(
+        "ebcomportamiento/no_img_cached", False
+    ):
         file_ = open(file_name, "w")
         file_.write(value)
         file_.close()

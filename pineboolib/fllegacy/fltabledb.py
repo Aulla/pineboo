@@ -1241,7 +1241,7 @@ class FLTableDB(QtWidgets.QWidget):
         self.pbOdf.setWhatsThis("Exportar a hoja de cálculo")
         self.buttonsLayout.addWidget(self.pbOdf)
         self.pbOdf.clicked.connect(self.exportToOds)
-        if settings.config.value("ebcomportamiento/FLTableExport2Calc", "false") == "true":
+        if settings.CONFIG.value("ebcomportamiento/FLTableExport2Calc", "false") == "true":
             self.pbOdf.setDisabled(True)
 
         self.pbClean = QtWidgets.QPushButton(self)
@@ -2582,14 +2582,13 @@ class FLTableDB(QtWidgets.QWidget):
         if self.cursor().sort():
             filter_ += " ORDER BY %s" % self.cursor().sort()
         cursor.select(filter_)
-        from pineboolib.q3widgets.messagebox import MessageBox as QMessageBox
 
-        if settings.config.value("ebcomportamiento/FLTableExport2Calc", False):
-            QMessageBox.information(
+        if settings.CONFIG.value("ebcomportamiento/FLTableExport2Calc", False):
+            QtWidgets.QMessageBox.information(
                 self.topWidget,
                 self.tr("Opción deshabilitada"),
                 self.tr("Esta opción ha sido deshabilitada por el administrador"),
-                QMessageBox.Ok,
+                QtWidgets.QMessageBox.Ok,
             )
             return
 

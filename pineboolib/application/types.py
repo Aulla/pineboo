@@ -11,10 +11,9 @@ from os.path import expanduser
 from PyQt5 import QtCore  # type: ignore
 from PyQt5.Qt import QIODevice  # type: ignore
 
-from pineboolib.core import decorators
+from pineboolib.core import decorators, settings
 
 from pineboolib.core.utils import logging
-from pineboolib.core.settings import config
 from pineboolib.core.utils.utils_base import StructMyDict, filedir
 
 from pineboolib.application.qsatypes.date import Date  # noqa: F401
@@ -109,7 +108,7 @@ function anon(%s) {
         raise ValueError("Failed to convert to Python")
     tree_data = flscriptparse.calctree(prog, alias_mode=0)
     ast = postparse.post_parse(tree_data)
-    dest_filename = "%s/anon.py" % config.value("ebcomportamiento/temp_dir")
+    dest_filename = "%s/anon.py" % settings.CONFIG.value("ebcomportamiento/temp_dir")
     # f1 = io.StringIO()
     if os.path.exists(dest_filename):
         os.remove(dest_filename)

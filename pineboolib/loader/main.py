@@ -211,12 +211,12 @@ def setup_gui(app: QtWidgets.QApplication, options: Values) -> None:
         "NotoSans-Regular.ttf",
     ]
     for fontfile in noto_fonts:
-        QtGui.QFontDatabase.addApplicationFont(filedir("./core/fonts/Noto_Sans", fontfile))
+        QtGui.QFontDatabase.addApplicationFont(filedir("./core/fonts/noto_sans", fontfile))
 
-    style_app: str = settings.config.value("application/style", "Fusion")
+    style_app: str = settings.CONFIG.value("application/style", "Fusion")
     app.setStyle(style_app)  # type: ignore
 
-    default_font = settings.config.value("application/font", None)
+    default_font = settings.CONFIG.value("application/font", None)
     if default_font is None:
         font = QtGui.QFont("Noto Sans", 9)
         font.setBold(False)
@@ -232,7 +232,7 @@ def setup_gui(app: QtWidgets.QApplication, options: Values) -> None:
 
 def init_testing() -> None:
     """Initialize Pineboo for testing purposes."""
-    settings.config.set_value("application/dbadmin_enabled", True)
+    settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
     if application.PROJECT.dgi is not None:
         from pineboolib.application.database import pnconnectionmanager
@@ -360,16 +360,16 @@ def exec_main(options: Values) -> int:
         monkey_patch_connect()
 
     if options.orm_disabled:
-        settings.config.set_value("ebcomportamiento/orm_enabled", False)
+        settings.CONFIG.set_value("ebcomportamiento/orm_enabled", False)
 
     if options.enable_dbadmin:
-        settings.config.set_value("application/dbadmin_enabled", True)
+        settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
     if options.enable_quick:
-        settings.config.set_value("application/dbadmin_enabled", False)
+        settings.CONFIG.set_value("application/dbadmin_enabled", False)
 
     if options.main_form:
-        settings.config.set_value("ebcomportamiento/main_form_name", options.main_form)
+        settings.CONFIG.set_value("ebcomportamiento/main_form_name", options.main_form)
 
     application.PROJECT.load_version()
 
@@ -418,7 +418,7 @@ def exec_main(options: Values) -> int:
             if configdb is None:
                 return 2
         else:
-            settings.config.set_value("application/dbadmin_enabled", True)
+            settings.CONFIG.set_value("application/dbadmin_enabled", True)
             configdb = DEFAULT_SQLITE_CONN
 
     if not configdb:
@@ -430,7 +430,7 @@ def exec_main(options: Values) -> int:
         LOGGER.warning("No main connection was provided. Aborting Pineboo load.")
         return -99
 
-    settings.settings.set_value("DBA/lastDB", conn.DBName())
+    settings.SETTINGS.set_value("DBA/lastDB", conn.DBName())
 
     application.PROJECT.no_python_cache = options.no_python_cache
 
@@ -449,11 +449,11 @@ def exec_main(options: Values) -> int:
     #    if dgi.localDesktop()
     #    else dgi.mainForm()
     # )
-    main_form_name = settings.config.value("ebcomportamiento/main_form_name", "eneboo")
+    main_form_name = settings.CONFIG.value("ebcomportamiento/main_form_name", "eneboo")
 
     main_form = getattr(plugins.mainform, main_form_name, None)
     if main_form is None:
-        settings.config.set_value("ebcomportamiento/main_form_name", "eneboo")
+        settings.CONFIG.set_value("ebcomportamiento/main_form_name", "eneboo")
         raise Exception(
             "mainForm %s does not exits!!.Use 'pineboo --main_form eneboo' to restore default mainForm"
             % main_form_name
@@ -484,7 +484,7 @@ def exec_main(options: Values) -> int:
     #    LOGGER.warning("No connection was provided. Aborting Pineboo load.")
     #    return -99
 
-    if settings.config.value("ebcomportamiento/orm_enabled", False) and not settings.config.value(
+    if settings.CONFIG.value("ebcomportamiento/orm_enabled", False) and not settings.CONFIG.value(
         "ebcomportamiento/orm_parser_disabled", False
     ):
         from pineboolib.application.parsers.mtdparser.pnmtdparser import mtd_parse

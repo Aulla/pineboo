@@ -317,7 +317,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Make a transaction or savePoint according to transaction level."""
 
         if self._transaction == 0 and self.canTransaction():
-            if settings.config.value("application/isDebuggerMode", False):
+            if settings.CONFIG.value("application/isDebuggerMode", False):
                 application.PROJECT.message_manager().send(
                     "status_help_msg", "send", ["Iniciando Transacción... %s" % self._transaction]
                 )
@@ -341,7 +341,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 return False
 
         else:
-            if settings.config.value("application/isDebuggerMode", False):
+            if settings.CONFIG.value("application/isDebuggerMode", False):
                 application.PROJECT.message_manager().send(
                     "status_help_msg",
                     "send",
@@ -424,7 +424,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             return True
 
         if self._transaction == 0 and self.canTransaction():
-            if settings.config.value("application/isDebuggerMode", False):
+            if settings.CONFIG.value("application/isDebuggerMode", False):
                 application.PROJECT.message_manager().send(
                     "status_help_msg", "send", ["Deshaciendo Transacción... %s" % self._transaction]
                 )
@@ -522,7 +522,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             return True
 
         if self._transaction == 0 and self.canTransaction():
-            if settings.config.value("application/isDebuggerMode", False):
+            if settings.CONFIG.value("application/isDebuggerMode", False):
                 application.PROJECT.message_manager().send(
                     "status_help_msg", "send", ["Terminando Transacción... %s" % self._transaction]
                 )

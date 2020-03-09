@@ -300,7 +300,7 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
         """Start send mail."""
 
         from pineboolib.core.utils.utils_base import pixmap_fromMimeSource
-        from pineboolib.core.settings import settings
+        from pineboolib.core import settings
         from pineboolib import application
 
         self.sendStarted.emit()
@@ -335,8 +335,10 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
         step += 1
         self.sendStepNumber.emit(step)
         # Adjuntar logo
-        if settings.value("email/sendMailLogo", True):
-            logo = settings.value("email/mailLogo", "%s/logo_mail.png" % application.PROJECT.tmpdir)
+        if settings.SETTINGS.value("email/sendMailLogo", True):
+            logo = settings.SETTINGS.value(
+                "email/mailLogo", "%s/logo_mail.png" % application.PROJECT.tmpdir
+            )
             if not QtCore.QFile.exists(logo):
                 logo = "%s/logo.png" % application.PROJECT.tmpdir
                 Qt.QPixmap(pixmap_fromMimeSource("pineboo-logo.png")).save(logo, "PNG")

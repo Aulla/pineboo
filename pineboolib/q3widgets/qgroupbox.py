@@ -27,7 +27,7 @@ class QGroupBox(QtWidgets.QGroupBox):
 
         super(QGroupBox, self).__init__(*args, **kwargs)
 
-        if not settings.config.value("ebcomportamiento/spacerLegacy", False):
+        if not settings.CONFIG.value("ebcomportamiento/spacerLegacy", False):
             self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 
         self.setContentsMargins(0, 2, 0, 2)

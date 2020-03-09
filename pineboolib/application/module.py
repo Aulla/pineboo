@@ -12,7 +12,7 @@ is stored within. Its composed of a name and description; and they contain code,
 import os.path
 from pineboolib.core.utils import logging
 
-from pineboolib.core.parsetable import parseTable
+from pineboolib.core import parsetable
 from .utils.path import _path
 
 from typing import Dict, TYPE_CHECKING
@@ -107,7 +107,7 @@ class Module(object):
             try:
                 if contenido is None:
                     continue
-                self.tables[name] = parseTable(name, contenido)
+                self.tables[name] = parsetable.parse_table(name, contenido)
             except ValueError as exception:
                 LOGGER.warning(
                     "No se pudo procesar. Se ignora tabla %s/%s (%s) ", self.name, name, exception

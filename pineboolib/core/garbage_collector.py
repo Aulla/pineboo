@@ -3,6 +3,14 @@ Module for garbage collector checks.
 """
 from typing import Any, Callable, List
 
+from .utils import logging
+
+import threading
+import time
+import gc
+
+LOGGER = logging.getLogger(__name__)
+
 
 def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
     """
@@ -10,11 +18,8 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
 
     Great for checking and tracing memory leaks.
     """
-    import threading
-    import time
 
     def checkfn() -> None:
-        import gc
 
         time.sleep(2)
         gc.collect()
@@ -25,14 +30,14 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
         # ..... alguna referencia a un formulario (o similar) que impide que se destruya
         # ..... cuando se deja de usar. Causando que los connects no se destruyan tampoco
         # ..... y que se llamen referenciando al código antiguo y fallando.
-        # print("HINT: Objetos referenciando %r::%r (%r) :" % (typename, obj, name))
+        LOGGER.debug("HINT: Objetos referenciando %r::%r (%r) :", typename, obj, name)
         for ref in gc.get_referrers(obj):
             if isinstance(ref, dict):
-                x: List[str] = []
-                for k, v in ref.items():
-                    if v is obj:
-                        k = "(**)" + k
-                        x.insert(0, k)
+                list_: List[str] = []
+                for key, value in ref.items():
+                    if value is obj:
+                        key = "(**)" + key
+                        list_.insert(0, key)
                 # print(" - dict:", repr(x), gc.get_referrers(ref))
             else:
                 if "<frame" in str(repr(ref)):

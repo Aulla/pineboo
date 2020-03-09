@@ -12,11 +12,13 @@ from typing import Any, Iterable, Optional, SupportsInt, Union, List
 from pineboolib import logging
 from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.utils import date_conversion, xpm
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 
 from PyQt5 import QtXml
 
 from pineboolib.application.database import pnsqlquery
+
+LOGGER = logging.getLogger(__name__)
 
 
 class KParserTools(object):
@@ -28,7 +30,7 @@ class KParserTools(object):
 
     def __init__(self) -> None:
         """Create base class for tools."""
-        self.logger = logging.getLogger("ParseTools")
+
         self.pagina = 0
         self._fix_ratio_h = 0.927  # Corrector de altura 0.927
         self._fix_ratio_w = 0.92
@@ -97,7 +99,7 @@ class KParserTools(object):
         @param page_num. PAge number if it is "PageNo" type.
         @return Required value.
         """
-        self.logger.debug("%s:getSpecial %s" % (__name__, name))
+        LOGGER.debug("%s:getSpecial %s" % (__name__, name))
         ret = "None"
         if name[0] == "[":
             name = name[1:-1]
@@ -161,7 +163,7 @@ class KParserTools(object):
             from PyQt5.QtGui import QPixmap
 
             value = None
-            tmp_dir = config.value("ebcomportamiento/temp_dir")
+            tmp_dir = settings.CONFIG.value("ebcomportamiento/temp_dir")
             img_file = "%s/%s.png" % (tmp_dir, ref_key)
 
             if not os.path.exists(img_file) and ref_key[0:3] == "RK@":
@@ -188,7 +190,7 @@ class KParserTools(object):
                     ret = img_file
                     pix = QPixmap(value)
                     if not pix.save(img_file):
-                        self.logger.warning(
+                        LOGGER.warning(
                             "%s:refkey2cache No se ha podido guardar la imagen %s"
                             % (__name__, img_file)
                         )
@@ -199,7 +201,7 @@ class KParserTools(object):
                 pix = QPixmap(ref_key)
                 img_file = ref_key.replace(".xpm", ".png")
                 if not pix.save(img_file):
-                    self.logger.warning(
+                    LOGGER.warning(
                         "%s:refkey2cache No se ha podido guardar la imagen %s"
                         % (__name__, img_file)
                     )
@@ -282,7 +284,7 @@ class KParserTools(object):
         elif size in (30, 31):
             result = custom  # "CUSTOM"
         if result is None:
-            self.logger.warning("porcessXML:No se encuentra pagesize para %s. Usando A4" % size)
+            LOGGER.warning("porcessXML:No se encuentra pagesize para %s. Usando A4" % size)
             result = [595, 842]
 
         # if orientation != 0:
@@ -317,7 +319,7 @@ class KParserTools(object):
             for lin_dir in lindirs.split(":"):
                 fonts_folders.append(os.path.join(lin_dir, "fonts"))
         else:
-            self.logger.warning("KUTPARSERTOOLS: Plataforma desconocida %s", sys.platform)
+            LOGGER.warning("KUTPARSERTOOLS: Plataforma desconocida %s", sys.platform)
             return None
 
         font_name = font_name.replace(" ", "_")

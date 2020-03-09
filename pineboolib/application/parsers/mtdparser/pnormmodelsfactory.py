@@ -38,7 +38,7 @@ Ejemplo de uso:
 """
 from pineboolib.application.utils.path import _path
 from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 from importlib import machinery
 
 from sqlalchemy import String  # type: ignore
@@ -71,7 +71,7 @@ def base_model(name: str) -> Any:
             "system_module/tables",
             "%s/cache/%s/sys/file.mtd"
             % (
-                config.value("ebcomportamiento/temp_dir"),
+                settings.CONFIG.value("ebcomportamiento/temp_dir"),
                 application.PROJECT.conn_manager.mainConn().DBName(),
             ),
         )
@@ -114,7 +114,7 @@ def load_model(nombre):
 
     module = None
     file_path = filedir(
-        config.value("ebcomportamiento/temp_dir"),
+        settings.CONFIG.value("ebcomportamiento/temp_dir"),
         "cache",
         db_name,
         "models",
@@ -193,7 +193,7 @@ def load_models() -> None:
                 QSADictModules.save_other(model_name, class_)
 
     for root, dirs, files in os.walk(
-        filedir(config.value("ebcomportamiento/temp_dir"), "cache", db_name, "models")
+        filedir(settings.CONFIG.value("ebcomportamiento/temp_dir"), "cache", db_name, "models")
     ):
         for nombre in files:  # Buscamos los presonalizados
             if nombre.endswith("pyc"):

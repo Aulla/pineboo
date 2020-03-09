@@ -1112,7 +1112,7 @@ class MainForm(QtWidgets.QMainWindow):
 
         w.hide()
 
-        reduced = settings.config.value("ebcomportamiento/ActionsMenuRed", False)
+        reduced = settings.CONFIG.value("ebcomportamiento/ActionsMenuRed", False)
         root = doc.documentElement().toElement()
         ag = QtWidgets.QActionGroup(parent)
         ag.setObjectName("%sActions" % parent.objectName())

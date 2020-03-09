@@ -1,7 +1,7 @@
 """Test_static_loader module."""
 
 import unittest
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 from pineboolib.loader.main import init_testing, finish_testing
 
 
@@ -15,8 +15,10 @@ class TestStaticLoader(unittest.TestCase):
 
         db_name = "temp_db"
         dirs = [True, filedir("./application/staticloader/tests/fixtures")]
-        config.set_value("StaticLoader/%s/enabled" % (db_name), True)  # Para activar carga estática
-        config.set_value("StaticLoader/%s/dirs" % db_name, dirs)
+        settings.CONFIG.set_value(
+            "StaticLoader/%s/enabled" % (db_name), True
+        )  # Para activar carga estática
+        settings.CONFIG.set_value("StaticLoader/%s/dirs" % db_name, dirs)
         init_testing()
 
     def test_script_overload(self) -> None:
@@ -34,7 +36,7 @@ class TestStaticLoader(unittest.TestCase):
         """Ensure test clear all data."""
         finish_testing()
         db_name = "temp_db"
-        config.set_value(
+        settings.CONFIG.set_value(
             "StaticLoader/%s/enabled" % (db_name), False
         )  # Para activar carga estática
-        config.set_value("StaticLoader/%s/dirs" % db_name, [])
+        settings.CONFIG.set_value("StaticLoader/%s/dirs" % db_name, [])

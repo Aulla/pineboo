@@ -4,6 +4,8 @@ Finalize pineboo setup and load.
 from pineboolib import logging
 from typing import Any
 
+from pineboolib.core import settings
+
 LOGGER = logging.getLogger("loader.init_project")
 
 
@@ -37,9 +39,7 @@ def init_project(dgi: Any, options: Any, project: Any, main_form: Any, app: Any)
         else:
             raise ValueError("Action name %s not found" % options.action)
 
-    from pineboolib.core.settings import settings
-
-    call_function = settings.value("application/callFunction", None)
+    call_function = settings.SETTINGS.value("application/callFunction", None)
     if call_function:
         project.call(call_function, [])
 

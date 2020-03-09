@@ -12,7 +12,7 @@ from fernet import Fernet  # type: ignore
 
 from pineboolib import logging
 from pineboolib.core.utils.version import VersionNumber
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 from pineboolib.core.utils.utils_base import filedir, pretty_print_xml
 
 VERSION_1_0 = VersionNumber("1.0")
@@ -31,7 +31,9 @@ class ProjectConfig:
 
     #: Folder where to read/write project configs.
     profile_dir: str = filedir(
-        config.value("ebcomportamiento/profiles_folder", "%s/Pineboo/profiles" % Path.home())
+        settings.CONFIG.value(
+            "ebcomportamiento/profiles_folder", "%s/Pineboo/profiles" % Path.home()
+        )
     )
 
     version: VersionNumber  #: Version number for the profile read.

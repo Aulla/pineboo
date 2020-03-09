@@ -984,7 +984,7 @@ class SysType(sysbasetype.SysBaseType):
         key = u"QuestionMsgBox/"
         valRemember = False
         if keyRemember:
-            valRemember = settings.settings.value(key + keyRemember)
+            valRemember = settings.SETTINGS.value(key + keyRemember)
             if valRemember and not forceShow:
                 return MessageBox.Yes
         if not self.interactiveGUI():
@@ -1028,7 +1028,7 @@ class SysType(sysbasetype.SysBaseType):
             lay.addWidget(chkRemember)
         ret = MessageBox.No if (diag.exec_() == 0) else MessageBox.Yes
         if chkRemember is not None:
-            settings.settings.set_value(key + keyRemember, chkRemember.isChecked())
+            settings.SETTINGS.set_value(key + keyRemember, chkRemember.isChecked())
         return ret
 
     @classmethod
@@ -1279,7 +1279,7 @@ class SysType(sysbasetype.SysBaseType):
                 return
 
         key = utils_base.ustr(u"scripts/sys/modLastDirModules_", self.nameBD())
-        dirAnt = settings.settings.value(key)
+        dirAnt = settings.SETTINGS.value(key)
 
         dir_modules = FileDialog.getExistingDirectory(
             str(dirAnt) if dirAnt else None, self.translate(u"Directorio de Módulos")
@@ -1534,13 +1534,13 @@ class SysType(sysbasetype.SysBaseType):
 
         if not self.isLoadedModule(u"flar2kut"):
             return False
-        if settings.settings.value(u"scripts/sys/conversionAr") != u"true":
+        if settings.SETTINGS.value(u"scripts/sys/conversionAr") != u"true":
             return False
         content = self.toUnicode(content, u"UTF-8")
         content = SafeQSA.root_module("flar2kut").iface.pub_ar2kut(content)
         file_path_ = utils_base.ustr(file_path_[0 : len(file_path_) - 3], u".kut")
         if content:
-            localEnc = settings.settings.value(u"scripts/sys/conversionArENC")
+            localEnc = settings.SETTINGS.value(u"scripts/sys/conversionArENC")
             if not localEnc:
                 localEnc = u"ISO-8859-15"
             content = self.fromUnicode(content, localEnc)
@@ -1625,7 +1625,7 @@ class SysType(sysbasetype.SysBaseType):
             return
 
         if not url:
-            url = settings.settings.value(
+            url = settings.SETTINGS.value(
                 "ebcomportamiento/git_updates_repo", "https://github.com/Aulla/pineboo.git"
             )
 

@@ -1,6 +1,6 @@
 """Flsettings module."""
 # -*- coding: utf-8 -*-
-from pineboolib.core.settings import settings
+from pineboolib.core import settings
 
 
 from typing import List, Union, Any
@@ -10,7 +10,7 @@ from typing import SupportsFloat
 class FLSettings(object):
     """FLSettings class."""
 
-    s = settings
+    s = settings.SETTINGS
 
     def readListEntry(self, key: str) -> List[str]:
         """Return a value list."""

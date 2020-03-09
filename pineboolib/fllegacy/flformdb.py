@@ -653,7 +653,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         pbSize = self.iconSize
 
-        if settings.config.value("application/isDebuggerMode", False):
+        if settings.CONFIG.value("application/isDebuggerMode", False):
 
             pushButtonExport = QtWidgets.QToolButton()
             pushButtonExport.setObjectName("pushButtonExport")
@@ -674,7 +674,7 @@ class FLFormDB(QtWidgets.QDialog):
             self.bottomToolbar.layout().addWidget(pushButtonExport)
             pushButtonExport.clicked.connect(self.exportToXml)
 
-            if settings.config.value("ebcomportamiento/show_snaptshop_button", False):
+            if settings.CONFIG.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton()
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
                 push_button_snapshot.setSizePolicy(sizePolicy)

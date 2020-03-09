@@ -1,24 +1,22 @@
 """Module for parseTable function."""
 from .utils import logging
-from .utils.get_table_obj import getTableObj
+from .utils.get_table_obj import get_table_object
 from .utils.struct import TableStruct
 
-logger = logging.getLogger("core.parsetable")
+from io import StringIO
+from xml.etree import ElementTree as ET
+
+LOGGER = logging.getLogger(__name__)
 
 
-def parseTable(
-    nombre: str, contenido: str, encoding: str = "UTF-8", remove_blank_text: bool = True
-) -> TableStruct:
+def parse_table(nombre: str, contenido: str) -> TableStruct:
     """Parse MTD and convert to table object."""
-
-    from io import StringIO
-    from xml import etree
 
     file_alike = StringIO(contenido)
     try:
-        tree = etree.ElementTree.parse(file_alike)
+        tree = ET.parse(file_alike)
     except Exception:
-        logger.exception("Error al procesar tabla: %s", nombre)
+        LOGGER.exception("Error al procesar tabla: %s", nombre)
         raise
 
     root = tree.getroot()
@@ -26,15 +24,15 @@ def parseTable(
     query = root.find("query")
     if query:
         if query.text != nombre:
-            logger.warning(
+            LOGGER.warning(
                 "WARN: Nombre de query %s no coincide con el nombre declarado en el XML %s (se prioriza el nombre de query)"
                 % (query.text, nombre)
             )
             query.text = nombre
     elif obj_name and obj_name.text != nombre:
-        logger.warning(
+        LOGGER.warning(
             "WARN: Nombre de tabla %s no coincide con el nombre declarado en el XML %s (se prioriza el nombre de tabla)"
             % (obj_name.text, nombre)
         )
         obj_name.text = nombre
-    return getTableObj(tree, root)
+    return get_table_object(tree, root)

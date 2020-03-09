@@ -524,7 +524,7 @@ def download_files() -> None:
 
     copy_dir_recursive(":/pineboolib", filedir("../pineboolib"))
 
-    tmp_dir = settings.config.value("ebcomportamiento/temp_dir")
+    tmp_dir = settings.CONFIG.value("ebcomportamiento/temp_dir")
 
     if not os.path.exists(tmp_dir):
         os.mkdir(tmp_dir)

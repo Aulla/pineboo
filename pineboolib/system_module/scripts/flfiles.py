@@ -3,6 +3,8 @@
 from pineboolib.qsa import qsa
 from typing import Any
 
+from pineboolib.core import settings
+
 
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
@@ -69,9 +71,8 @@ class FormInternalObj(qsa.FormDBWidget):
             if temporal == "":
                 temporal = qsa.System.getenv("HOME")
             if temporal == "":
-                from pineboolib.core.settings import config
 
-                temporal = config.value("ebcomportamiento/temp_dir")
+                temporal = settings.CONFIG.value("ebcomportamiento/temp_dir")
 
             temporal = qsa.ustr(temporal, "/", cursor.valueBuffer("nombre"))
             contenido = self.child("contenido").toPlainText()
@@ -157,9 +158,8 @@ class FormInternalObj(qsa.FormDBWidget):
             if temporal == "":
                 temporal = qsa.System.getenv(u"HOME")
             if temporal == "":
-                from pineboolib.core.settings import config
 
-                temporal = config.value("ebcomportamiento/temp_dir")
+                temporal = settings.CONFIG.value("ebcomportamiento/temp_dir")
             temporal = qsa.ustr(temporal, "/", cursor.valueBuffer(u"nombre"))
             comando = ""
             contenido = self.child("contenido").toPlainText()

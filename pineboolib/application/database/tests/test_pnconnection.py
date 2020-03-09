@@ -130,7 +130,7 @@ class TestPNConnection(unittest.TestCase):
         self.assertEqual(conn_.tables(2), ["sqlite_master"])
         self.assertEqual(conn_.tables(3), [])
 
-        if settings.config.value("ebcomportamiento/orm_enabled", False):
+        if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
             self.assertTrue(conn_.session())
             self.assertTrue(conn_.engine())
             self.assertTrue(conn_.declarative_base())

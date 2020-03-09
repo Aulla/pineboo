@@ -4,6 +4,8 @@ To detect if we are in mobile mode.
 
 from PyQt5 import QtCore
 
+from pineboolib.core import settings
+
 MOBILE_MODE = None
 
 
@@ -34,8 +36,7 @@ def check_mobile_mode() -> bool:
         is_mobile = True
 
     else:
-        from pineboolib.core import settings
 
-        is_mobile = settings.config.value(u"ebcomportamiento/mobileMode", False)
+        is_mobile = settings.CONFIG.value(u"ebcomportamiento/mobileMode", False)
 
     return is_mobile

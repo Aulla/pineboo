@@ -21,7 +21,7 @@ from PyQt5.QtCore import QSettings, QSize
 
 from typing import Dict, List, Any, Union, Tuple, Type
 
-logger = logging.getLogger("core.settings")
+LOGGER = logging.getLogger("core.settings")
 
 
 class PinebooSettings(QSettings):
@@ -65,45 +65,45 @@ class PinebooSettings(QSettings):
                 raise ValueError("Unknown classname %r" % classname)
         return value
 
-    def value(self, key: str, defaultValue: Any = None, type: Type = None) -> Any:
+    def value(self, key: str, def_value: Any = None, type: Type = None) -> Any:
         """Get a value from INI for the specified key."""
         curtime = time.time()
-        cachedVal = self.cache.get(key, None)
+        cached_value = self.cache.get(key, None)
 
-        if cachedVal:
-            if curtime - cachedVal[0] > self.CACHE_TIME_SEC:
+        if cached_value:
+            if curtime - cached_value[0] > self.CACHE_TIME_SEC:
                 del self.cache[key]
             else:
-                if cachedVal[1] is not None:
-                    return cachedVal[1]
+                if cached_value[1] is not None:
+                    return cached_value[1]
 
         val = self._value(key)
 
         if val is not None:
             self.cache[key] = (curtime, val)
         else:
-            val = defaultValue
+            val = def_value
         return val
 
     def _value(self, key: str, default: Any = None) -> Any:
         value = super().value(key, None)
         if value is None:
-            logger.debug(
+            LOGGER.debug(
                 "%s.value(%s) -> Default: %s %r", self.application, key, type(default), default
             )
             return default
         try:
             ret = self.load_value(value)
-            logger.debug("%s.value(%s) -> Loaded: %s %r", self.application, key, type(ret), ret)
+            LOGGER.debug("%s.value(%s) -> Loaded: %s %r", self.application, key, type(ret), ret)
             return ret
         except Exception as exc:
             # No format, just string
-            logger.debug("Error trying to parse json for %s: %s (%s)", key, exc, value)
+            LOGGER.debug("Error trying to parse json for %s: %s (%s)", key, exc, value)
             return value
 
     def set_value(self, key: str, value: Union[QSize, str, bool, int, List[Any]]) -> None:
         """Set a value into INI file for specified key."""
-        logger.debug("%s.set_value(%s) <- %s %r", self.application, key, type(value), value)
+        LOGGER.debug("%s.set_value(%s) <- %s %r", self.application, key, type(value), value)
         curtime = time.time()
         self.cache[key] = (curtime, value)
         return super().setValue(key, self.dump_value(value))
@@ -111,5 +111,5 @@ class PinebooSettings(QSettings):
     setValue = set_value
 
 
-config = PinebooSettings("Config")
-settings = PinebooSettings("Settings")
+CONFIG = PinebooSettings("Config")
+SETTINGS = PinebooSettings("Settings")

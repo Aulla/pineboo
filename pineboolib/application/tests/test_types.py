@@ -5,7 +5,7 @@ Tests for application.types module.
 import unittest
 import os
 from pineboolib.loader.main import init_cli
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 from pineboolib.application import types
 
 
@@ -167,7 +167,10 @@ class TestFile(unittest.TestCase):
     def test_write_read_values_1(self) -> None:
         """Check that you read the same as you write."""
 
-        temporal = "%s%s" % (config.value("ebcomportamiento/temp_dir"), u"/test_types_file.txt")
+        temporal = "%s%s" % (
+            settings.CONFIG.value("ebcomportamiento/temp_dir"),
+            u"/test_types_file.txt",
+        )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         contenido_3 = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         types.File(temporal).write(contenido)
@@ -183,7 +186,7 @@ class TestFile(unittest.TestCase):
         """Check that you read the same as you write."""
 
         temporal = "%s%s" % (
-            config.value("ebcomportamiento/temp_dir"),
+            settings.CONFIG.value("ebcomportamiento/temp_dir"),
             u"/test_types_file_static.txt",
         )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
@@ -196,7 +199,7 @@ class TestFile(unittest.TestCase):
         """Check that you read the same as you write."""
 
         temporal = "%s%s" % (
-            config.value("ebcomportamiento/temp_dir"),
+            settings.CONFIG.value("ebcomportamiento/temp_dir"),
             u"/test_types_file_bytes.txt",
         )
         contenido = "Texto escrito en bytes\n".encode("utf-8")
@@ -209,7 +212,7 @@ class TestFile(unittest.TestCase):
         """Check that you read the same as you write."""
 
         temporal = "%s%s" % (
-            config.value("ebcomportamiento/temp_dir"),
+            settings.CONFIG.value("ebcomportamiento/temp_dir"),
             u"/test_types_file_bytes.txt",
         )
         contenido = "Texto\n".encode("utf-8")
@@ -222,7 +225,7 @@ class TestFile(unittest.TestCase):
         """Check that you read the same as you write."""
 
         temporal = "%s%s" % (
-            config.value("ebcomportamiento/temp_dir"),
+            settings.CONFIG.value("ebcomportamiento/temp_dir"),
             u"/test_types_file_lines.txt",
         )
         contenido = "Esta es la linea"
@@ -239,7 +242,7 @@ class TestFile(unittest.TestCase):
         """Check fullName"""
 
         temporal = "%s%s" % (
-            config.value("ebcomportamiento/temp_dir"),
+            settings.CONFIG.value("ebcomportamiento/temp_dir"),
             u"/test_types_file_full_name.txt",
         )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
@@ -251,7 +254,10 @@ class TestFile(unittest.TestCase):
     def test_last_modified(self) -> None:
         """Test lastModified."""
 
-        temporal = "%s%s" % (config.value("ebcomportamiento/temp_dir"), u"/test_last_modified.txt")
+        temporal = "%s%s" % (
+            settings.CONFIG.value("ebcomportamiento/temp_dir"),
+            u"/test_last_modified.txt",
+        )
         contenido = 'QT_TRANSLATE_NOOP("MetaData","Código")'
         file_ = types.File(temporal)
         file_.write(contenido)
@@ -259,9 +265,12 @@ class TestFile(unittest.TestCase):
         self.assertNotEqual(file_.lastModified(), "")
 
     def test_properties(self) -> None:
-        temporal = "%s%s" % (config.value("ebcomportamiento/temp_dir"), u"/test_last_modified.txt")
+        temporal = "%s%s" % (
+            settings.CONFIG.value("ebcomportamiento/temp_dir"),
+            u"/test_last_modified.txt",
+        )
         file_ = types.File(temporal)
-        self.assertEqual(file_.path, config.value("ebcomportamiento/temp_dir"))
+        self.assertEqual(file_.path, settings.CONFIG.value("ebcomportamiento/temp_dir"))
         self.assertEqual(file_.fullName, temporal)
         self.assertEqual(file_.extension, ".txt")
         self.assertEqual(file_.baseName, "test_last_modified")
@@ -281,7 +290,7 @@ class TestDir(unittest.TestCase):
     def test_mkdir_rmdir(self) -> None:
         """Test mkdir and rmdir."""
 
-        tmp_dir = config.value("ebcomportamiento/temp_dir")
+        tmp_dir = settings.CONFIG.value("ebcomportamiento/temp_dir")
         my_dir = types.Dir(tmp_dir)
         my_dir.mkdir("test")
         self.assertTrue(os.path.exists("%s/test" % tmp_dir))
@@ -291,7 +300,7 @@ class TestDir(unittest.TestCase):
     def test_change_dir(self) -> None:
         """Test change dir."""
 
-        tmp_dir = config.value("ebcomportamiento/temp_dir")
+        tmp_dir = settings.CONFIG.value("ebcomportamiento/temp_dir")
         my_dir = types.Dir(tmp_dir)
         original_dir = my_dir.current
         # my_dir.mkdir("test_change_dir")

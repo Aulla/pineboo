@@ -2,7 +2,7 @@
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 
 
 class TestMtdParserGeneral(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestMtdParserGeneral(unittest.TestCase):
 
         file = filedir(
             "%s/cache/temp_db/sys/file.mtd/flmodules_model.py"
-            % config.value("ebcomportamiento/temp_dir")
+            % settings.CONFIG.value("ebcomportamiento/temp_dir")
         )
         if os.path.exists(file):
             os.remove(file)

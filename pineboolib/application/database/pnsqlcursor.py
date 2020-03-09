@@ -6,7 +6,7 @@ Module for PNSqlCursor class.
 from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.core.utils import logging
-from pineboolib.core import error_manager, decorators
+from pineboolib.core import error_manager, decorators, settings
 
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.utils import xpm
@@ -2546,9 +2546,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         indicates TRUE, if it indicates FALSE this method does nothing
         """
 
-        from pineboolib.core.settings import config
-
-        if not config.value("ebcomportamiento/FLTableDoubleClick", False):
+        if not settings.CONFIG.value("ebcomportamiento/FLTableDoubleClick", False):
             if self.private_cursor.edition_:
                 self.editRecord(wait)
             else:

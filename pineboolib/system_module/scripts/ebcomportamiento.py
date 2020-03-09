@@ -4,6 +4,8 @@ from pineboolib.qsa import qsa
 from typing import Any, Union
 from PyQt5 import QtWidgets, QtCore
 
+from pineboolib.core import settings
+
 
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
@@ -174,10 +176,10 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def leerValorLocal(self, valor_name: str) -> Any:
         """Return local value."""
-        from pineboolib.core import settings
 
         if valor_name in ("isDebuggerMode", "dbadmin_enabled"):
-            valor = settings.config.value("application/%s" % valor_name, False)
+
+            valor = settings.CONFIG.value("application/%s" % valor_name, False)
         else:
             if valor_name in (
                 "ebCallFunction",
@@ -187,7 +189,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 "temp_dir",
                 "git_updates_repo",
             ):
-                valor = settings.config.value("ebcomportamiento/%s" % valor_name, "")
+                valor = settings.CONFIG.value("ebcomportamiento/%s" % valor_name, "")
                 if valor_name == "temp_dir" and valor == "":
                     app_ = qsa.aqApp
                     if app_ is None:
@@ -196,19 +198,18 @@ class FormInternalObj(qsa.FormDBWidget):
                     valor = app_.tmp_dir()
 
             else:
-                valor = settings.config.value("ebcomportamiento/%s" % valor_name, False)
+                valor = settings.CONFIG.value("ebcomportamiento/%s" % valor_name, False)
         return valor
 
     def grabarValorLocal(self, valor_name: str, value: Union[str, bool]) -> None:
         """Set local value."""
-        from pineboolib.core.settings import config
 
         if valor_name in ("isDebuggerMode", "dbadmin_enabled"):
-            config.set_value("application/%s" % valor_name, value)
+            settings.CONFIG.set_value("application/%s" % valor_name, value)
         else:
             if valor_name == "maxPixImages" and value is None:
                 value = 600
-            config.set_value("ebcomportamiento/%s" % valor_name, value)
+            settings.CONFIG.set_value("ebcomportamiento/%s" % valor_name, value)
 
     def initEventFilter(self) -> None:
         """Inicialize event filter."""

@@ -17,13 +17,9 @@ from pineboolib.core.utils.utils_base import load2xml
 from pineboolib import application
 from pineboolib.application import connections
 
-from pineboolib.q3widgets import qmainwindow, qlistview
-from pineboolib.q3widgets import qtoolbar
-from pineboolib.q3widgets import qmenu
-from pineboolib.q3widgets import qaction
-from pineboolib.q3widgets import qspinbox
+from pineboolib.q3widgets import qmainwindow, qlistview, qtoolbar, qmenu, qaction, qspinbox
 
-from pineboolib.core.settings import config
+from pineboolib.core import settings
 
 
 from typing import Optional, Tuple, Callable, List, Dict, Any, cast, Type, Union
@@ -937,7 +933,10 @@ class LoadWidget:
 
                     elif pname == "sizeType":
                         # print("Convirtiendo %s a %s" % (p.find("enum").text, value))
-                        if config.value("ebcomportamiento/spacerLegacy", False) or orient_ == 1:
+                        if (
+                            settings.CONFIG.value("ebcomportamiento/spacerLegacy", False)
+                            or orient_ == 1
+                        ):
                             policy_ = QtWidgets.QSizePolicy.Policy(value)
                         else:
                             policy_ = QtWidgets.QSizePolicy.Expanding  # Siempre Expanding

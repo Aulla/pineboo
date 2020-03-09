@@ -92,7 +92,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             if self.db_filename == ":memory:":
                 sqlalchemy_uri = "sqlite://"
 
-            if settings.config.value("ebcomportamiento/orm_enabled", False):
+            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
                 from sqlalchemy import create_engine  # type: ignore
 
                 self.engine_ = create_engine(sqlalchemy_uri)

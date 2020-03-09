@@ -8,16 +8,13 @@ functions. See pineboolib/pnobjectsfactory.py
 """
 
 from pineboolib import logging
-from typing import List, cast
+from typing import List, cast, Optional
 from pineboolib.application.utils.path import _path
 from pineboolib import application
-from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData
-from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
-from pineboolib.core.settings import config
+from pineboolib.application.metadata import pnfieldmetadata, pntablemetadata
+from pineboolib.core import settings
 
 import os
-
-from typing import Optional
 
 LOGGER = logging.getLogger(__name__)
 
@@ -40,7 +37,7 @@ def mtd_parse(table_name: str) -> Optional[str]:
     mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
     if mtd_ is None:
         return None
-    mtd: PNTableMetaData = cast(PNTableMetaData, mtd_)
+    mtd: pntablemetadata.PNTableMetaData = cast(pntablemetadata.PNTableMetaData, mtd_)
     if mtd.isQuery():
         return None
 
@@ -53,7 +50,7 @@ def mtd_parse(table_name: str) -> Optional[str]:
     dest_file = "%s_model.py" % mtd_file[: len(mtd_file) - 4]
     if dest_file.find("system_module") > -1:
         sys_dir = "%s/cache/%s/sys" % (
-            config.value("ebcomportamiento/temp_dir"),
+            settings.CONFIG.value("ebcomportamiento/temp_dir"),
             application.PROJECT.conn_manager.mainConn().DBName(),
         )
         dest_file = "%s/file.mtd/%s_model.py" % (sys_dir, table_name)
@@ -75,9 +72,9 @@ def mtd_parse(table_name: str) -> Optional[str]:
     return dest_file
 
 
-def generate_model(mtd_table: PNTableMetaData) -> List[str]:
+def generate_model(mtd_table: pntablemetadata.PNTableMetaData) -> List[str]:
     """
-    Create a list of lines from a mtd_table (PNTableMetaData).
+    Create a list of lines from a mtd_table (pntablemetadata.PNTableMetaData).
     """
     data = []
     pk_found = False
@@ -216,9 +213,8 @@ def generate_model(mtd_table: PNTableMetaData) -> List[str]:
     # data.append("    %s%s.__table__.create(engine)" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
 
     if not pk_found:
-        from pineboolib.core.settings import config
 
-        if config.value("application/isDebuggerMode", False):
+        if settings.CONFIG.value("application/isDebuggerMode", False):
             LOGGER.warning(
                 "La tabla %s no tiene definida una clave primaria. No se generará el model."
                 % (mtd_table.name())
@@ -228,9 +224,9 @@ def generate_model(mtd_table: PNTableMetaData) -> List[str]:
     return data
 
 
-def field_type(field: PNFieldMetaData) -> str:
+def field_type(field: pnfieldmetadata.PNFieldMetaData) -> str:
     """
-    Get text representation for sqlAlchemy of a field type given its PNFieldMetaData.
+    Get text representation for sqlAlchemy of a field type given its pnfieldmetadata.PNFieldMetaData.
     """
     ret = "String"
     if field.type() in ("int, serial"):

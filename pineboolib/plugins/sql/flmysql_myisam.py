@@ -58,7 +58,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         try:
             self.conn_ = MySQLdb.connect(db_host, db_userName, db_password, db_name)
-            if settings.config.value("ebcomportamiento/orm_enabled", False):
+            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
                 from sqlalchemy import create_engine  # type: ignore
 
                 self.engine_ = create_engine(
