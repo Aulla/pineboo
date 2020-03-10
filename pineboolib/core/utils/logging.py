@@ -78,20 +78,20 @@ def get_logger(name: str = None) -> Logger:
         raise Exception("Pineboo getLogger does not allow for root logger")
 
 
-def _add_logging_level(levelName: str, levelNum: int) -> None:
-    methodName = levelName.lower()
+def _add_logging_level(level_name: str, level_num: int) -> None:
+    method_name = level_name.lower()
 
     # This method was inspired by the answers to Stack Overflow post
     # http://stackoverflow.com/q/2183233/2988730, especially
     # http://stackoverflow.com/a/13638084/2988730
     def log_for_level(self: Any, message: str, *args: Any, **kwargs: Any) -> None:
-        if self.isEnabledFor(levelNum):
-            self._log(levelNum, message, args, **kwargs)
+        if self.isEnabledFor(level_num):
+            self._log(level_num, message, args, **kwargs)
 
-    python_logging.addLevelName(levelNum, levelName)
-    setattr(python_logging, levelName, levelNum)
-    if not hasattr(python_logging.getLoggerClass(), methodName):
-        setattr(python_logging.getLoggerClass(), methodName, log_for_level)
+    python_logging.addLevelName(level_num, level_name)
+    setattr(python_logging, level_name, level_num)
+    if not hasattr(python_logging.getLoggerClass(), method_name):
+        setattr(python_logging.getLoggerClass(), method_name, log_for_level)
 
 
 _add_logging_level("TRACE", TRACE)

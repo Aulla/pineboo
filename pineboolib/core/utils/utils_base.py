@@ -287,21 +287,21 @@ def _parse_for_duplicates(text: str) -> str:
         # print("--->", section_orig)
         ret2_ = ""
         section = ""
-        for a in section_orig.split(" "):
+        for action in section_orig.split(" "):
 
-            c = a.count("=")
-            if c > 1:
+            count_ = action.count("=")
+            if count_ > 1:
                 # part_ = ""
-                text_to_process = a
-                for m in range(c):
+                text_to_process = action
+                for item in range(count_):
                     pos_ini = text_to_process.find('"')
                     pos_fin = text_to_process[pos_ini + 1 :].find('"')
-                    # print("Duplicado", m, pos_ini, pos_fin, text_to_process, "***" , text_to_process[0:pos_ini + 2 + pos_fin])
+                    # print("Duplicado", item, pos_ini, pos_fin, text_to_process, "***" , text_to_process[0:pos_ini + 2 + pos_fin])
                     ret2_ += " %s " % text_to_process[0 : pos_ini + 2 + pos_fin]
                     text_to_process = text_to_process[pos_ini + 2 + pos_fin :]
 
             else:
-                ret2_ += "%s " % a
+                ret2_ += "%s " % action
 
         section += ret2_
         if section.endswith(" "):
