@@ -1,0 +1,129 @@
+# -*- coding: utf-8 -*-
+from typing import TYPE_CHECKING, Any
+from pineboolib.qsa import qsa
+
+# /** @file */
+
+
+# /** @class_declaration interna */
+class interna(object):
+    ctx = qsa.Object()
+
+    def __init__(self, context=None):
+        self.ctx = context
+
+    def init(self):
+        return self.ctx.interna_init()
+
+    def calculateField(self, fN=None):
+        return self.ctx.interna_calculateField(fN)
+
+    def validateForm(self):
+        return self.ctx.interna_validateForm()
+
+
+# /** @class_declaration oficial */
+class oficial(interna):
+    def __init__(self, context=None):
+        super(oficial, self).__init__(context)
+
+    def bufferChanged(self, fN=None):
+        return self.ctx.oficial_bufferChanged(fN)
+
+    def habilitaPorClave(self):
+        return self.ctx.oficial_habilitaPorClave()
+
+
+# /** @class_declaration head */
+class head(oficial):
+    def __init__(self, context=None):
+        super(head, self).__init__(context)
+
+
+# /** @class_declaration ifaceCtx */
+class ifaceCtx(head):
+    def __init__(self, context=None):
+        super(ifaceCtx, self).__init__(context)
+
+
+# /** @class_declaration FormInternalObj */
+class FormInternalObj(qsa.FormDBWidget):
+    iface: ifaceCtx
+    form: qsa.FormDBWidget
+
+    # /** @class_definition FormInternalObj */
+    def _class_init(self):
+        self.form = self
+        self.iface = ifaceCtx(self)
+
+    # /** @class_definition interna */
+    def interna_init(self):
+        _i: Any = self.iface
+        util: Any = qsa.FLUtil()
+        cursor: Any = self.cursor()
+        self.module_connect(cursor, "bufferChanged(QString)", _i, "bufferChanged")
+        _i.habilitaPorClave()
+
+    def interna_calculateField(self, fN=None):
+        util: Any = qsa.FLUtil()
+        cursor: Any = self.cursor()
+        valor: Any = None
+        for case in qsa.switch(fN):
+            if case("X"):
+                break
+        return valor
+
+    def interna_validateForm(self):
+        return True
+
+    # /** @class_definition oficial */
+    def oficial_bufferChanged(self, fN=None):
+        _i: Any = self.iface
+        cursor: Any = self.cursor()
+        for case in qsa.switch(fN):
+            if case("operacion"):
+                _i.habilitaPorClave()
+                break
+
+    def oficial_habilitaPorClave(self):
+        _i: Any = self.iface
+        cursor: Any = self.cursor()
+        for case in qsa.switch(cursor.valueBuffer("operacion")):
+            if case("R"):
+                self.child("gbxInmueble").enabled = True
+                break
+            if case("Z"):
+                pass
+            if case("1"):
+                pass
+            if case("2"):
+                pass
+            if case("3"):
+                pass
+            if case("4"):
+                pass
+            if case("5"):
+                pass
+            if case("6"):
+                pass
+            if case("7"):
+                pass
+            if case("8"):
+                self.child("gbxCriterioCaja").enabled = True
+                break
+            if case():
+                self.child("gbxInmueble").enabled = False
+                self.child("fdbRefCatastral").setValue("")
+                self.child("fdbCodSituInmueble").setValue("")
+                self.child("gbxCriterioCaja").enabled = False
+                self.child("fdbFechaCobro").setValue("")
+                self.child("fdbImporteCobrado").setValue(0)
+                self.child("fdbMedioCobro").setValue("")
+                self.child("fdbCuentaBancaria").setValue("")
+
+
+if TYPE_CHECKING:
+    form: FormInternalObj = FormInternalObj()
+    iface = form.iface
+else:
+    form = None

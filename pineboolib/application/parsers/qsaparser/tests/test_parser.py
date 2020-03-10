@@ -195,6 +195,27 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
             "aLista = qsa.Array()\nqsa.Sort(qsa.parseString).sort_(aLista)\n",
         )
 
+    def test_form2(self) -> None:
+        """Test replace."""
+
+        """Test conveting fixture flfacturac_2."""
+        flfacturac_qs = fixture_read("flfacturac_2.qs")
+        flfacturac_py = fixture_read("flfacturac_2.python")
+        flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
+
+        # Delete version translator tag.
+        pos_ini = flfacturac_qs_py.find("# Translated with pineboolib v")
+        pos_fin = flfacturac_qs_py[pos_ini:].find("\n")
+        flfacturac_qs_py = flfacturac_qs_py.replace(
+            flfacturac_qs_py[pos_ini : pos_ini + pos_fin + 1], ""
+        )
+
+        # Write onto git so we have an example.
+        with open(fixture_path("flfacturac_2.qs.python"), "w") as file_:
+            file_.write(flfacturac_qs_py)
+
+        self.assertEqual(flfacturac_qs_py, flfacturac_py)
+
     def test_splice(self) -> None:
         """Test splice."""
 
