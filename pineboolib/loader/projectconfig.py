@@ -189,11 +189,11 @@ class ProjectConfig:
 
         sql_drivers_manager = PNSqlDrivers()
         self.database = self.retrieveCipherSubElement(root, "database-name")
-        for db in root.findall("database-server"):
-            self.host = self.retrieveCipherSubElement(db, "host")
-            port_text = self.retrieveCipherSubElement(db, "port")
+        for item in root.findall("database-server"):
+            self.host = self.retrieveCipherSubElement(item, "host")
+            port_text = self.retrieveCipherSubElement(item, "port")
             self.port = int(port_text) if port_text else None
-            self.type = self.retrieveCipherSubElement(db, "type")
+            self.type = self.retrieveCipherSubElement(item, "type")
 
             # FIXME: Move this to project, or to the connection handler.
             if self.type not in sql_drivers_manager.aliasList():
@@ -336,7 +336,7 @@ class ProjectConfig:
         if not overwrite_existing and os.path.exists(filename):
             raise ProfileAlreadyExistsError
 
-        passwDB = self.password or ""
+        passw_db = self.password or ""
 
         profile_user = ET.SubElement(profile, "profile-data")
         profile_password = ET.SubElement(profile_user, "password")
@@ -350,7 +350,7 @@ class ProjectConfig:
             self.fernet = Fernet(key64)
         else:
             # Mask the password if no cipher is used!
-            passwDB = base64.b64encode(passwDB.encode()).decode()
+            passw_db = base64.b64encode(passw_db.encode()).decode()
             self.fernet = None
         name = ET.SubElement(profile, "name")
         name.text = description
@@ -361,7 +361,7 @@ class ProjectConfig:
 
         dbc = ET.SubElement(profile, "database-credentials")
         self.createCipherSubElement(dbc, "username", text=self.username or "")
-        self.createCipherSubElement(dbc, "password", text=passwDB)
+        self.createCipherSubElement(dbc, "password", text=passw_db)
 
         self.createCipherSubElement(profile, "database-name", text=self.database)
 
@@ -396,8 +396,8 @@ class ProjectConfig:
 
         uphpstring = connstring[: connstring.rindex("/")]
         dbname = connstring[connstring.rindex("/") + 1 :]
-        up, hp = uphpstring.split("@")
-        conn_list = [None, None, up, hp]
+        up_, hp_ = uphpstring.split("@")
+        conn_list = [None, None, up_, hp_]
         _user_pass, _host_port = conn_list[-2], conn_list[-1]
 
         if _user_pass:
