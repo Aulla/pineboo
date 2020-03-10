@@ -1036,6 +1036,7 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
         if text in ICONS.keys():
 
             return ICONS[text]
+        return
     elif variant.tag == "string":
         return parse_string(text)
     elif variant.tag == "number":
