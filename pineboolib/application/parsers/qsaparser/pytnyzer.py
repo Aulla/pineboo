@@ -1323,7 +1323,7 @@ class Variable(ASTPython):
                 continue
             value.set("parent_", self.elem)  # type: ignore
             values += 1
-            if dtype is None and name != "iface":
+            if dtype is None and name not in ("iface", "form"):
                 yield "expr", ": Any"
 
             yield "expr", "="
