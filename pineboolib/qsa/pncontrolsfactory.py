@@ -8,6 +8,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui, QtXml  # noqa: F401
 
 from pineboolib.core.system import System  # noqa: F401
 
+from .utils import MathClass, NumberAttr
+
 from pineboolib.application.packager.pnunpacker import PNUnpacker as AQUnpacker  # noqa: F401
 from pineboolib.application.packager.pnpackager import PNPackager as AQPackager  # noqa: F401
 
@@ -186,7 +188,12 @@ from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagState  # no
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagStateList  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsbuttongroup import AQSButtonGroup  # noqa: F401
 
-sys = SysType()
+
+QSA_SYS = SysType()
+
+QS_PROJECT = AQSSProject()
+MATH = MathClass()
+NUMBER_ATT = NumberAttr()
 # FIXME: meter todo QSA
 # from pineboolib.fllegacy.aqsobjects.aqsobjectfactory import *
 

@@ -6,6 +6,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application import types
 from pineboolib.application.parsers.qsaparser.postparse import pythonify_string as qs2py
+from pineboolib.qsa import qsa
 
 
 class TestKnownBugs(unittest.TestCase):
@@ -34,8 +35,6 @@ class TestKnownBugs(unittest.TestCase):
 
     def test_system_get_env(self) -> None:
         """Check that qsa.System.getenv () works correctly."""
-
-        from pineboolib.qsa import qsa
 
         qsa.System.setenv("TEST_PINEBOO", "¡hola!")
 
@@ -215,14 +214,11 @@ class TestKnownBugs(unittest.TestCase):
 
     def test_from_project_2(self) -> None:
         """Test from_project('sys')."""
-        from pineboolib.qsa import qsa
 
         self.assertTrue(hasattr(qsa.from_project("sys"), "iface"))
 
     def test_flsqlquery_date_null(self) -> None:
         """Test FLSqlQuery date null."""
-
-        from pineboolib.qsa import qsa
 
         cursor = qsa.FLSqlCursor("fltest")
         cursor.setModeAccess(cursor.Insert)
@@ -240,7 +236,7 @@ class TestKnownBugs(unittest.TestCase):
 
     def test_args(self) -> None:
         """Test translate with args parse."""
-        self.maxDiff = None
+
         cadena = qs2py(
             """var qryRecargo: FLSqlQuery = new FLSqlQuery;
         var res = util.translate("scripts", "Uno %1 para %2. ¿Desea continuar?")
@@ -286,8 +282,6 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
         qsa_two = "var max : Number = Number.MAX_VALUE;"
         result_two = "max = qsa.Number.MAX_VALUE\n"
         self.assertEqual(qs2py(qsa_two), result_two)
-
-        from pineboolib.qsa import qsa
 
         self.assertTrue(qsa.Number.MIN_VALUE < 0)
         self.assertTrue(qsa.Number.MAX_VALUE > 0)

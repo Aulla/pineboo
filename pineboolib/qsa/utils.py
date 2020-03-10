@@ -17,7 +17,7 @@ LOGGER = logging.get_logger(__name__)
 TIMERS: List[QtCore.QTimer] = []
 
 
-class switch(object):
+class Switch(object):
     """
     Switch emulation class.
 
@@ -47,7 +47,7 @@ class switch(object):
             return False
 
 
-class qsaRegExp(object):
+class QsaRegExp(object):
     """
     Regexp emulation class.
     """
@@ -95,7 +95,7 @@ class qsaRegExp(object):
     global_ = property(get_global, set_global)
 
 
-def RegExp(str_re: str) -> qsaRegExp:
+def RegExp(str_re: str) -> QsaRegExp:
     """
     Return qsaRegexp object from search.
 
@@ -112,10 +112,10 @@ def RegExp(str_re: str) -> qsaRegExp:
     if str_re[:1] == "/":
         str_re = str_re[1:]
 
-    return qsaRegExp(str_re, is_global)
+    return QsaRegExp(str_re, is_global)
 
 
-class Math_class(object):
+class MathClass(object):
     """QSA Math emulation class."""
 
     def abs(self, value: Union[int, float]) -> Union[int, float]:
@@ -254,10 +254,7 @@ class Math_class(object):
     SQRT2 = property(_get_sqrt2)
 
 
-Math = Math_class()
-
-
-def parseFloat(value: Any) -> float:
+def parse_float(value: Any) -> float:
     """
     Convert to float from almost any value.
 
@@ -296,7 +293,7 @@ def parseFloat(value: Any) -> float:
         return float("nan")
 
 
-def parseString(obj: Any) -> str:
+def parse_string(obj: Any) -> str:
     """
     Convert to string almost any value.
 
@@ -306,7 +303,7 @@ def parseString(obj: Any) -> str:
     return obj.toString() if hasattr(obj, "toString") else str(obj)
 
 
-def parseInt(value: Union[float, int, str], base: int = 10) -> int:
+def parse_int(value: Union[float, int, str], base: int = 10) -> int:
     """
     Convert to int almost any value.
 
@@ -363,7 +360,7 @@ def text(obj: Any) -> str:
         return obj.text
 
 
-def startTimer(time: int, fun: Callable) -> "QtCore.QTimer":
+def start_timer(time: int, fun: Callable) -> "QtCore.QTimer":
     """Create new timer that calls a function."""
     global TIMERS
     timer = QtCore.QTimer()
@@ -373,7 +370,7 @@ def startTimer(time: int, fun: Callable) -> "QtCore.QTimer":
     return timer
 
 
-def killTimer(timer: Optional["QtCore.QTimer"] = None) -> None:
+def kill_timer(timer: Optional["QtCore.QTimer"] = None) -> None:
     """Stop a given timer."""
     global TIMERS
     if timer is not None:
@@ -381,7 +378,7 @@ def killTimer(timer: Optional["QtCore.QTimer"] = None) -> None:
         TIMERS.remove(timer)
 
 
-def killTimers() -> None:
+def kill_timers() -> None:
     """Stop and deletes all timers that have been created with startTimer()."""
     global TIMERS
     for timer in TIMERS:
@@ -406,7 +403,7 @@ def format_exc(exc: Optional[int] = None) -> str:
     return traceback.format_exc(exc)
 
 
-def isNaN(value: Any) -> bool:
+def is_nan(value: Any) -> bool:
     """
     Check if value is NaN.
 
@@ -427,7 +424,7 @@ def isNaN(value: Any) -> bool:
 
 def isnan(value: Any) -> bool:
     """Return if a number is NaN."""
-    return isNaN(value)
+    return is_nan(value)
 
 
 def replace(source: str, search: Any, replace: str) -> str:
@@ -465,22 +462,22 @@ def splice(*args: Any) -> Any:
                 replacement_size = real_args[1]
                 new_values = real_args[2:]
 
-                i = 0
-                x = 0
+                count_1 = 0
+                count_2 = 0
                 for old_value in array_:
-                    if i < pos_ini:
+                    if count_1 < pos_ini:
                         new_array_.append(old_value)
                     else:
-                        if x < replacement_size:
-                            if x == 0:
+                        if count_2 < replacement_size:
+                            if count_2 == 0:
                                 for new_value in new_values:
                                     new_array_.append(new_value)
 
-                            x += 1
+                            count_2 += 1
                         else:
                             new_array_.append(old_value)
 
-                    i += 1
+                    count_1 += 1
                 array_ = new_array_
 
 
@@ -528,11 +525,8 @@ class Sort:
         return new_array_
 
 
-class Number_attr:
+class NumberAttr:
     """Class Number_attr."""
 
     MIN_VALUE = -sys.maxsize - 1
     MAX_VALUE = sys.maxsize
-
-
-Number = Number_attr()

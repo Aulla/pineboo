@@ -19,12 +19,22 @@ from pineboolib.application.types import File, Dir, Array, Date, AttributeDict  
 from pineboolib.application.types import FileStatic, DirStatic  # noqa: F401
 
 from .input import Input  # noqa: F401
-from .utils import switch, qsaRegExp, RegExp, Math, parseFloat, parseString, parseInt  # noqa: F401
-from .utils import startTimer, killTimer, debug, isnan, replace, isNaN, length, text  # noqa: F401
-from .utils import format_exc, Number, killTimers, Sort, splice  # noqa: F401
+from .utils import RegExp  # noqa: F401
+from .utils import parse_float as parseFloat  # noqa: F401
+from .utils import parse_string as parseString  # noqa: F401
+from .utils import parse_int as parseInt  # noqa: F401
+from .utils import start_timer as startTimer  # noqa: F401
+from .utils import kill_timer as killTimer  # noqa: F401
+from .utils import kill_timers as killTimers  # noqa: F401
+from .utils import is_nan as isNaN  # noqa: F401
+from .utils import debug, isnan, replace, length, text  # noqa: F401
+from .utils import format_exc, Sort, splice  # noqa: F401
+from .utils import Switch as switch  # noqa: F401
+from .utils import QsaRegExp as qsaRegExp  # noqa: F401
 from .dictmodules import Application, from_project  # noqa: F401
 
 # QT
+from .pncontrolsfactory import QS_PROJECT, QSA_SYS, MATH, NUMBER_ATT
 from .pncontrolsfactory import QComboBox, QTable, QLayoutWidget, QToolButton  # noqa: F401
 from .pncontrolsfactory import QTabWidget, QLabel, QGroupBox, QListView, QImage  # noqa: F401
 from .pncontrolsfactory import QTextEdit, QLineEdit, QDateEdit, QTimeEdit  # noqa: F401
@@ -81,13 +91,19 @@ from .pncontrolsfactory import AQBoolFlagState, AQBoolFlagStateList  # noqa: F40
 
 from .pncontrolsfactory import FormDBWidget  # noqa: F401
 from pineboolib.application.process import Process, ProcessStatic  # noqa: F401
-from .pncontrolsfactory import SysType, sys, System  # noqa: F401
+from .pncontrolsfactory import SysType, System  # noqa: F401
+
+
+QSProject = QS_PROJECT
+sys = QSA_SYS
+Math = MATH
+Number = NUMBER_ATT
 
 
 QFile = File
 util = FLUtil
 print_ = print
-QSProject = AQSSProject()
+
 
 undefined = None
 LogText = 0
