@@ -45,7 +45,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>../../core/images/icons/lock.png</pixmap>
+           <pixmap>../../../core/images/icons/lock.png</pixmap>
           </property>
          </widget>
         </item>
@@ -55,7 +55,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>../../core/images/icons/unlock.png</pixmap>
+           <pixmap>../../../core/images/icons/unlock.png</pixmap>
           </property>
          </widget>
         </item>
@@ -101,7 +101,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>../../core/images/icons/insert.png</normaloff>../../core/images/icons/insert.png</iconset>
+            <normaloff>../../../core/images/icons/insert.png</normaloff>../../../core/images/icons/insert.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -133,7 +133,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>../../core/images/icons/edit.png</normaloff>../../core/images/icons/edit.png</iconset>
+            <normaloff>../../../core/images/icons/edit.png</normaloff>../../../core/images/icons/edit.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -162,7 +162,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>../../core/images/icons/delete.png</normaloff>../../core/images/icons/delete.png</iconset>
+            <normaloff>../../../core/images/icons/delete.png</normaloff>../../../core/images/icons/delete.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -211,7 +211,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>../../core/images/icons/ok.png</normaloff>../../core/images/icons/ok.png</iconset>
+            <normaloff>../../../core/images/icons/ok.png</normaloff>../../../core/images/icons/ok.png</iconset>
           </property>
          </widget>
         </item>
@@ -234,7 +234,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>../../core/images/icons/cancel.png</normaloff>../../core/images/icons/cancel.png</iconset>
+            <normaloff>../../../core/images/icons/cancel.png</normaloff>../../../core/images/icons/cancel.png</iconset>
           </property>
          </widget>
         </item>

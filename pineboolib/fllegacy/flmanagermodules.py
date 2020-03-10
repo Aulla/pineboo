@@ -974,6 +974,6 @@ class FLManagerModules(object):
         """
         ui = cast(
             QtWidgets.QDialog,
-            self.createUI(utils_base.filedir("./system_module/forms/FLStaticLoaderUI.ui")),
+            self.createUI(utils_base.filedir("./application/staticloader/ui/static_loader.ui")),
         )
         pnmodulesstaticloader.PNStaticLoader.setup(self.static_db_info_, ui)
