@@ -10,7 +10,7 @@ from pineboolib import application
 from . import fixture_path
 from pineboolib import logging
 
-logger = logging.get_logger("eneboo_%s" % __name__)
+LOGGER = logging.get_logger("eneboo_%s" % __name__)
 
 
 class TestEnebooGUI(unittest.TestCase):
@@ -66,14 +66,14 @@ class TestEnebooGUI(unittest.TestCase):
         application.PROJECT.main_window.triggerAction(
             "triggered():openDefaultForm():clientes"
         )  # Remove page and show again.
-        ac = application.PROJECT.main_window.findChild(QtWidgets.QAction, "clientes")
-        application.PROJECT.main_window.addMark(ac)
+        action = application.PROJECT.main_window.findChild(QtWidgets.QAction, "clientes")
+        application.PROJECT.main_window.addMark(action)
 
-        application.PROJECT.main_window.ag_mar_.removeAction(ac)
+        application.PROJECT.main_window.ag_mar_.removeAction(action)
         application.PROJECT.main_window.dck_mar_.update(application.PROJECT.main_window.ag_mar_)
-        w = QtWidgets.QDockWidget()
-        w.setWidget(QtWidgets.QTreeWidget())
-        application.PROJECT.main_window.dck_mar_.initFromWidget(w)
+        doc_widget = QtWidgets.QDockWidget()
+        doc_widget.setWidget(QtWidgets.QTreeWidget())
+        application.PROJECT.main_window.dck_mar_.initFromWidget(doc_widget)
         application.PROJECT.main_window.dck_mar_.change_state(False)
 
         application.PROJECT.main_window.removeCurrentPage(0)

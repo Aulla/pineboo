@@ -7,9 +7,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui, Qt, QtXml  # type: ignore
 from pineboolib import logging
 from pineboolib.plugins.dgi.dgi_schema import dgi_schema
 from pineboolib.application.parsers.qt3uiparser import qt3ui
-from .dgi_objects.splash_screen import splashscreen
-from .dgi_objects.progress_dialog_manager import ProgressDialogManager
-from .dgi_objects.status_help_msg import StatusHelpMsg
+from .dgi_objects import splash_screen, progress_dialog_manager, status_help_msg
 from typing import Any, Optional
 
 LOGGER = logging.get_logger(__name__)
@@ -29,9 +27,9 @@ class dgi_qt(dgi_schema):
         self._alias = "Qt5"
 
         self.pnqt3ui = qt3ui
-        self.splash = splashscreen()
-        self.progress_dialog_manager = ProgressDialogManager()
-        self.status_help_msg = StatusHelpMsg()
+        self.splash = splash_screen.SplashScreen()
+        self.progress_dialog_manager = progress_dialog_manager.ProgressDialogManager()
+        self.status_help_msg = status_help_msg.StatusHelpMsg()
 
     def __getattr__(self, name):
         """Return a specific DGI object."""

@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 """About_pineboo module."""
 
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
+
+from pineboolib.core.utils import check_dependencies
+
+import platform
+
 from typing import Any
 
 
@@ -22,22 +27,19 @@ class AboutPineboo(QtWidgets.QDialog):
 
         dlg_ = filedir("plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui")
         version_ = application.PROJECT.version
-        self.ui: Any = application.PROJECT.conn_manager.managerModules().createUI(dlg_, None, self)
-        if self.ui is None:
+        self.ui_: Any = application.PROJECT.conn_manager.managerModules().createUI(dlg_, None, self)
+        if self.ui_ is None:
             raise Exception("Error creating UI About Dialog")
-        self.ui.lbl_version.setText("Pineboo %s" % str(version_))
-        self.ui.btn_close.clicked.connect(self.ui.close)
-        self.ui.btn_clipboard.clicked.connect(self.to_clipboard)
-        self.ui.show()
 
-        self.ui.lbl_librerias.setText(self.load_components())
+        self.ui_.lbl_version.setText("Pineboo %s" % str(version_))
+        self.ui_.btn_close.clicked.connect(self.ui_.close)
+        self.ui_.btn_clipboard.clicked.connect(self.to_clipboard)
+        self.ui_.show()
+
+        self.ui_.lbl_librerias.setText(self.load_components())
 
     def load_components(self) -> str:
         """Resume libraries loaded."""
-
-        from PyQt5 import QtCore  # type: ignore
-        import platform
-        from pineboolib.core.utils.check_dependencies import DEPENDENCIES_CHECKED
 
         components = "Versiones de componentes:\n\n"
         components += "S.O.: %s %s %s\n" % (
@@ -45,25 +47,18 @@ class AboutPineboo(QtWidgets.QDialog):
             platform.release(),
             platform.version(),
         )
-        # py_ver = sys.version
-        # if py_ver.find("(") > -1:
-        #    py_ver = py_ver[:py_ver.find("(")]
 
-        # components += "Python: %s\n" % py_ver
-
-        if "PyQt5.QtCore" not in DEPENDENCIES_CHECKED.keys():
+        if "PyQt5.QtCore" not in check_dependencies.DEPENDENCIES_CHECKED.keys():
             components += "PyQt5.QtCore: %s\n" % QtCore.QT_VERSION_STR
 
-        for k in DEPENDENCIES_CHECKED.keys():
-            components += "%s: %s\n" % (k, DEPENDENCIES_CHECKED[k])
+        for k in check_dependencies.DEPENDENCIES_CHECKED.keys():
+            components += "%s: %s\n" % (k, check_dependencies.DEPENDENCIES_CHECKED[k])
 
         return components
 
     def to_clipboard(self) -> None:
         """Copy resume libraries loaded into clipboard."""
 
-        from PyQt5.QtWidgets import QApplication  # type: ignore
-
-        clip_board = QApplication.clipboard()
+        clip_board = QtWidgets.QApplication.clipboard()
         clip_board.clear()
         clip_board.setText(self.load_components())

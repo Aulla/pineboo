@@ -26,55 +26,41 @@ class ProgressDialogManager(object):
             pd_widget.show()
             pd_widget.setMinimumDuration(100)
 
-            return pd_widget
-
-        return None
+        return pd_widget
 
     def destroy(self, id_: str) -> None:
         """Destroy a specific progress dialog."""
-        pd_widget = self.progress_dialog_stack[-1]
 
         if id_ != "default":
-            for w in self.progress_dialog_stack:
-                if w.objectName() == id_:
-                    pd_widget = w
-                    break
-
-        pd_widget.close()
-        self.progress_dialog_stack.remove(pd_widget)
+            for dialog in self.progress_dialog_stack:
+                if dialog.objectName() == id_:
+                    dialog.close()
+                    self.progress_dialog_stack.remove(dialog)
+                    return
 
     def setProgress(self, step_number: int, id_: str) -> None:
         """Set progress into a specific prores dialog."""
-        pd_widget = self.progress_dialog_stack[-1]
 
         if id_ != "default":
-            for w in self.progress_dialog_stack:
-                if w.objectName() == id_:
-                    pd_widget = w
-                    break
+            for dialog in self.progress_dialog_stack:
+                if dialog.objectName() == id_:
+                    dialog.setValue(step_number)
+                    return
 
-        pd_widget.setValue(step_number)
-
-    def setLabelText(self, l: str, id_: str) -> None:
+    def setLabelText(self, label: str, id_: str) -> None:
         """Set label text to a specific progres dialog."""
-        pd_widget = self.progress_dialog_stack[-1]
 
         if id_ != "default":
-            for w in self.progress_dialog_stack:
-                if w.objectName() == id_:
-                    pd_widget = w
-                    break
+            for dialog in self.progress_dialog_stack:
+                if dialog.objectName() == id_:
+                    dialog.setLabelText(str(label))
+                    return
 
-        pd_widget.setLabelText(str(l))
-
-    def setTotalSteps(self, tS: int, id_: str) -> None:
+    def setTotalSteps(self, total_steps: int, id_: str) -> None:
         """Set total steps to a specific proress dialog."""
-        pd_widget = self.progress_dialog_stack[-1]
 
         if id_ != "default":
-            for w in self.progress_dialog_stack:
-                if w.objectName() == id_:
-                    pd_widget = w
-                    break
-
-        pd_widget.setRange(0, tS)
+            for dialog in self.progress_dialog_stack:
+                if dialog.objectName() == id_:
+                    dialog.setRange(0, total_steps)
+                    return

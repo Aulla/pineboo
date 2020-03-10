@@ -19,17 +19,17 @@ from pineboolib import logging, application
 from typing import Any, Dict, Optional, List, cast, Union
 
 
-qsa_sys = systype.SysType()
-logger = logging.get_logger(__name__)
+QSA_SYS = systype.SysType()
+LOGGER = logging.get_logger(__name__)
+AQS = aqsobjectfactory.AQS
 
 
 class DockListView(QtCore.QObject):
     """DockListWiew class."""
 
-    w_: QtWidgets.QDockWidget
-    lw_: QtWidgets.QTreeWidget
-    ag_: QtWidgets.QActionGroup
-    _name: str
+    doc_widget: QtWidgets.QDockWidget
+    tree_widget: QtWidgets.QTreeWidget
+    action_group: QtWidgets.QActionGroup
     set_visible = QtCore.pyqtSignal(bool)
     Close = QtCore.pyqtSignal(bool)
 
@@ -39,26 +39,21 @@ class DockListView(QtCore.QObject):
         super(DockListView, self).__init__(parent)
         if parent is None:
             return
-        self.AQS = aqsobjectfactory.AQS
-        self._name = name
-        self.w_ = QtWidgets.QDockWidget(name, parent)
-        self.w_.setObjectName("%sListView" % name)
-        self.lw_ = QtWidgets.QTreeWidget(self.w_)
-        self.lw_.setObjectName(self._name)
-        # this.lw_.addColumn("");
-        # this.lw_.addColumn("");
-        self.lw_.setColumnCount(2)
-        self.lw_.setHeaderLabels(["", ""])
-        self.lw_.headerItem().setHidden(True)
-        # this.lw_.setSorting(-1);
-        # this.lw_.rootIsDecorated = true;
-        # this.lw_.setColumnWidthMode(1, 0);
-        self.lw_.hideColumn(1)
-        # self.lw_.headerItem().hide()
-        # self.lw_.headerItem().setResizeEnabled(false, 1)
 
-        self.w_.setWidget(self.lw_)
-        self.w_.setWindowTitle(title)
+        self.setObjectName(name)
+
+        self.doc_widget = QtWidgets.QDockWidget(name, parent)
+        self.doc_widget.setObjectName("%sListView" % name)
+
+        self.tree_widget = QtWidgets.QTreeWidget(self.doc_widget)
+        self.tree_widget.setObjectName(self.objectName())
+        self.tree_widget.setColumnCount(2)
+        self.tree_widget.setHeaderLabels(["", ""])
+        self.tree_widget.headerItem().setHidden(True)
+        self.tree_widget.hideColumn(1)
+
+        self.doc_widget.setWidget(self.tree_widget)
+        self.doc_widget.setWindowTitle(title)
 
         """
         w.resizeEnabled = true;
@@ -66,48 +61,48 @@ class DockListView(QtCore.QObject):
         w.setFixedExtentWidth(300);
         """
 
-        self.lw_.doubleClicked.connect(self.activateAction)
+        self.tree_widget.doubleClicked.connect(self.activateAction)
 
     def writeState(self) -> None:
         """Save the state and geometry."""
 
-        if self.w_ is None:
-            raise Exception("self.w_ is empty!")
+        if self.doc_widget is None:
+            raise Exception("self.doc_widget is empty!")
 
         settings = aqsobjectfactory.AQSettings()
-        key = "MainWindow/%s/" % self.w_.objectName()
+        key = "MainWindow/%s/" % self.doc_widget.objectName()
         # FIXME
-        # settings.writeEntry("%splace" % key, self.w_.place())  # Donde está emplazado
+        # settings.writeEntry("%splace" % key, self.doc_widget.place())  # Donde está emplazado
 
-        settings.writeEntry("%svisible" % key, self.w_.isVisible())
-        settings.writeEntry("%sx" % key, self.w_.x())
-        settings.writeEntry("%sy" % key, self.w_.y())
-        settings.writeEntry("%swidth" % key, self.w_.width())
-        settings.writeEntry("%sheight" % key, self.w_.height())
+        settings.writeEntry("%svisible" % key, self.doc_widget.isVisible())
+        settings.writeEntry("%sx" % key, self.doc_widget.x())
+        settings.writeEntry("%sy" % key, self.doc_widget.y())
+        settings.writeEntry("%swidth" % key, self.doc_widget.width())
+        settings.writeEntry("%sheight" % key, self.doc_widget.height())
         # FIXME
         # settings.writeEntry("%soffset", key, self.offset())
         # area = self.area()
-        # settings.writeEntry("%sindex" % key, area.findDockWindow(self.w_) if area else None)
+        # settings.writeEntry("%sindex" % key, area.findDockWindow(self.doc_widget) if area else None)
 
     def readState(self) -> None:
         """Read the state and geometry."""
 
-        if self.w_ is None:
-            raise Exception("self.w_ is empty!")
+        if self.doc_widget is None:
+            raise Exception("self.doc_widget is empty!")
 
-        if self.lw_ is None:
-            raise Exception("self.lw_ is empty!")
+        if self.tree_widget is None:
+            raise Exception("self.tree_widget is empty!")
 
         settings = aqsobjectfactory.AQSettings()
-        key = "MainWindow/%s/" % self.w_.objectName()
+        key = "MainWindow/%s/" % self.doc_widget.objectName()
         # FIXME
-        # place = settings.readNumEntry("%splace" % key, self.AQS.InDock)
-        # if place == self.AQS.OutSideDock:
-        #    self.w_.setFloating(True)
-        #    self.w_.move(settings.readNumEntry("%sx" % key, self.w_.x()),
-        #                 settings.readNumEntry("%sy" % key, self.w_.y()))
+        # place = settings.readNumEntry("%splace" % key, AQS.InDock)
+        # if place == AQS.OutSideDock:
+        #    self.doc_widget.setFloating(True)
+        #    self.doc_widget.move(settings.readNumEntry("%sx" % key, self.doc_widget.x()),
+        #                 settings.readNumEntry("%sy" % key, self.doc_widget.y()))
 
-        # self.w_.offset = settings.readNumEntry("%soffset" % key, self.offset)
+        # self.doc_widget.offset = settings.readNumEntry("%soffset" % key, self.offset)
         # index = settings.readNumEntry("%sindex" % key, None)
         # FIXME
         # if index is not None:
@@ -115,57 +110,57 @@ class DockListView(QtCore.QObject):
         #    if area:
         #        area.moveDockWindow(w, index)
 
-        width = settings.readNumEntry("%swidth" % key, self.w_.width())
-        height = settings.readNumEntry("%sheight" % key, self.w_.height())
-        self.lw_.resize(width, height)
-        # self.w_.resize(width, height)
+        width = settings.readNumEntry("%swidth" % key, self.doc_widget.width())
+        height = settings.readNumEntry("%sheight" % key, self.doc_widget.height())
+        self.tree_widget.resize(width, height)
+        # self.doc_widget.resize(width, height)
 
         if not application.PROJECT.DGI.mobilePlatform():
             visible = settings.readBoolEntry("%svisible" % key, True)
             if visible:
-                self.w_.show()
+                self.doc_widget.show()
 
             else:
-                self.w_.hide()
+                self.doc_widget.hide()
 
-            self.set_visible.emit(not self.w_.isHidden())
+            self.set_visible.emit(not self.doc_widget.isHidden())
         else:
-            self.w_.hide()
+            self.doc_widget.hide()
             self.set_visible.emit(False)
-            self.w_.close()
+            self.doc_widget.close()
 
-    def initFromWidget(self, w) -> None:
+    def initFromWidget(self, doc_widget) -> None:
         """Initialize the internal widget."""
 
-        self.w_ = w
-        self.lw_ = w.widget()
-        if self.lw_ and self.lw_.doubleClicked:
-            self.lw_.doubleClicked.connect(self.activateAction)
+        self.doc_widget = doc_widget
+        self.tree_widget = doc_widget.widget()
+        if self.tree_widget and self.tree_widget.doubleClicked:
+            self.tree_widget.doubleClicked.connect(self.activateAction)
 
-    def change_state(self, s: bool) -> None:
+    def change_state(self, state: bool) -> None:
         """Change the display status."""
-        if self.w_ is None:
+        if self.doc_widget is None:
             raise Exception("not initialized")
-        if s:
-            self.w_.show()
+        if state:
+            self.doc_widget.show()
         else:
-            self.w_.close()
+            self.doc_widget.close()
 
     def activateAction(self, item) -> None:
         """Activate the action associated with the active item."""
 
-        if item is None or not self.ag_:
+        if item is None or not self.action_group:
             return
 
         action_name = item.sibling(item.row(), 1).data()
         if action_name == "":
             return
 
-        ac: QtWidgets.QAction = cast(
-            QtWidgets.QAction, self.ag_.findChild(QtWidgets.QAction, action_name)
+        action: QtWidgets.QAction = cast(
+            QtWidgets.QAction, self.action_group.findChild(QtWidgets.QAction, action_name)
         )
-        if ac:
-            ac.triggered.emit()
+        if action:
+            action.triggered.emit()
 
     def update(
         self, action_group: Optional[QtWidgets.QActionGroup] = None, reverse: bool = False
@@ -174,16 +169,18 @@ class DockListView(QtCore.QObject):
         if not action_group:
             return
 
-        self.ag_ = action_group
+        self.action_group = action_group
 
-        if not self.lw_:
+        if not self.tree_widget:
             return
 
-        self.lw_.clear()
+        self.tree_widget.clear()
 
-        self.buildListView(self.lw_, self.AQS.toXml(self.ag_), self.ag_, reverse)
+        self.buildListView(
+            self.tree_widget, AQS.toXml(self.action_group), self.action_group, reverse
+        )
 
-    def buildListView(self, parent_item, parent_element, ag, reverse: bool) -> None:
+    def buildListView(self, parent_item, parent_element, action_group_, reverse: bool) -> None:
         """Build the tree of available options."""
 
         this_item = None
@@ -203,7 +200,9 @@ class DockListView(QtCore.QObject):
             class_name = node.attribute("class")
             if class_name.startswith("QAction"):
                 if class_name == "QActionGroup":
-                    act_group = ag.findChild(QtWidgets.QActionGroup, node.attribute("objectName"))
+                    act_group = action_group_.findChild(
+                        QtWidgets.QActionGroup, node.attribute("objectName")
+                    )
                     if act_group and not act_group.isVisible():
                         node = (
                             node.previousSibling().toElement()
@@ -225,7 +224,7 @@ class DockListView(QtCore.QObject):
                     else:
                         this_item = parent_item
 
-                    self.buildListView(this_item, node, ag, reverse)
+                    self.buildListView(this_item, node, action_group_, reverse)
                     node = (
                         node.previousSibling().toElement()
                         if reverse
@@ -239,17 +238,17 @@ class DockListView(QtCore.QObject):
                 ):
 
                     action_name = node.attribute("objectName")
-                    ac = ag.findChild(QtWidgets.QAction, action_name)
+                    action = action_group_.findChild(QtWidgets.QAction, action_name)
 
-                    action_group = ag.findChild(
+                    action_group = action_group_.findChild(
                         QtWidgets.QActionGroup, parent_element.attribute("objectName")
                     )
                     if action_group is not None:  # ¢heck if is visible
                         ac_orig = action_group.findChild(QtWidgets.QAction, action_name)
                         if ac_orig and not ac_orig.isVisible():
-                            ac = None
+                            action = None
 
-                    if ac is not None:
+                    if action is not None:
 
                         if action_name.endswith("actiongroup_name"):
                             this_item = (
@@ -261,11 +260,11 @@ class DockListView(QtCore.QObject):
                             this_item = QtWidgets.QTreeWidgetItem(parent_item)
 
                         if this_item is not None:
-                            this_item.setIcon(0, ac.icon())
+                            this_item.setIcon(0, action.icon())
                             this_item.setText(1, action_name)
                             this_item.setText(0, node.attribute("text").replace("&", ""))
 
-                self.buildListView(this_item, node, ag, reverse)
+                self.buildListView(this_item, node, action_group_, reverse)
 
             node = node.previousSibling().toElement() if reverse else node.nextSibling().toElement()
 
@@ -296,7 +295,6 @@ class MainForm(QtWidgets.QMainWindow):
         """Construct Eneboo-alike UI."""
         super().__init__()
 
-        self.qsa_sys = systype.SysType()
         self.AQS = aqsobjectfactory.AQS
         self.ag_menu_ = None
         self.ag_rec_ = None
@@ -305,24 +303,26 @@ class MainForm(QtWidgets.QMainWindow):
     def eventFilter(self, o: QtCore.QObject, e: QtCore.QEvent) -> bool:
         """Process GUI events."""
 
-        if isinstance(e, self.AQS.ContextMenu):
-            if o == getattr(self.dck_mod_, "w_", None):
-                return self.addMarkFromItem(self.dck_mod_.lw_.currentItem(), e.globalPos())
-            elif o == getattr(self.dck_rec_, "w_", None):
-                return self.addMarkFromItem(self.dck_rec_.lw_.currentItem(), e.globalPos())
-            elif o == getattr(self.dck_mar_, "w_", None):
-                return self.removeMarkFromItem(self.dck_mar_.lw_.currentItem(), e.globalPos())
+        if isinstance(e, AQS.ContextMenu):
+            if o == getattr(self.dck_mod_, "doc_widget", None):
+                return self.addMarkFromItem(self.dck_mod_.tree_widget.currentItem(), e.globalPos())
+            elif o == getattr(self.dck_rec_, "doc_widget", None):
+                return self.addMarkFromItem(self.dck_rec_.tree_widget.currentItem(), e.globalPos())
+            elif o == getattr(self.dck_mar_, "doc_widget", None):
+                return self.removeMarkFromItem(
+                    self.dck_mar_.tree_widget.currentItem(), e.globalPos()
+                )
 
-            # pinebooMenu = self.w_.child("pinebooMenu")
+            # pinebooMenu = self.main_widget.child("pinebooMenu")
             # pinebooMenu.exec_(e.globalPos)
             return True
 
-        elif isinstance(e, self.AQS.Close):
+        elif isinstance(e, AQS.Close):
             if isinstance(o, MainForm):
-                self.w_.setDisabled(True)
+                self.main_widget.setDisabled(True)
                 ret = self.exit()
                 if not ret:
-                    self.w_.setDisabled(False)
+                    self.main_widget.setDisabled(False)
                     e.ignore()
 
                 return True
@@ -330,7 +330,7 @@ class MainForm(QtWidgets.QMainWindow):
             elif isinstance(o, QtWidgets.QDockWidget):
                 cast(QtCore.pyqtSignal, o.topLevelChanged).emit(False)
 
-        elif isinstance(e, self.AQS.Show):
+        elif isinstance(e, AQS.Show):
             if isinstance(o, flformdb.FLFormDB):
                 return True
 
@@ -340,8 +340,8 @@ class MainForm(QtWidgets.QMainWindow):
         """Create UI from file path."""
 
         mng = application.PROJECT.conn_manager.managerModules()
-        self.w_ = cast(QtWidgets.QMainWindow, mng.createUI(ui_file, None, self))
-        self.w_.setObjectName("container")
+        self.main_widget = cast(QtWidgets.QMainWindow, mng.createUI(ui_file, None, self))
+        self.main_widget.setObjectName("container")
 
     def exit(self) -> bool:
         """Process exit events."""
@@ -355,7 +355,7 @@ class MainForm(QtWidgets.QMainWindow):
         doExit = True if res == qmessagebox.QMessageBox.Yes else False
         if doExit:
             self.writeState()
-            self.w_.removeEventFilter(self.w_)
+            self.main_widget.removeEventFilter(self.main_widget)
             self.removeAllPages()
 
         return doExit
@@ -368,7 +368,7 @@ class MainForm(QtWidgets.QMainWindow):
     def writeState(self) -> None:
         """Save settings."""
 
-        w = self.w_
+        w = self.main_widget
 
         if self.dck_rec_ is None:
             raise Exception("Recent dockListView is missing!")
@@ -403,14 +403,14 @@ class MainForm(QtWidgets.QMainWindow):
         settings.writeEntry("%scurrentPageIndex" % key, self.tw_.currentIndex())
 
         recent_actions = []
-        root_recent = self.dck_rec_.lw_.invisibleRootItem()
+        root_recent = self.dck_rec_.tree_widget.invisibleRootItem()
         count_recent = root_recent.childCount()
         for i in range(count_recent):
             recent_actions.append(root_recent.child(i).text(1))
         settings.writeEntryList("%srecentActions" % key, recent_actions)
 
         mark_actions = []
-        root_mark = self.dck_mar_.lw_.invisibleRootItem()
+        root_mark = self.dck_mar_.tree_widget.invisibleRootItem()
         count_mark = root_mark.childCount()
         for i in range(count_mark):
             mark_actions.append(root_mark.child(i).text(1))
@@ -418,7 +418,7 @@ class MainForm(QtWidgets.QMainWindow):
 
     def readState(self) -> None:
         """Read settings."""
-        w = self.w_
+        w = self.main_widget
 
         if self.dck_rec_ is None:
             raise Exception("Recent dockListView is missing!")
@@ -441,7 +441,7 @@ class MainForm(QtWidgets.QMainWindow):
         if not maximized:
             x = settings.readNumEntry("%sx" % key)
             y = settings.readNumEntry("%sy" % key)
-            if self.qsa_sys.osName() == "MACX" and y < 20:
+            if QSA_SYS.osName() == "MACX" and y < 20:
                 y = 20
             w.move(x, y)
             w.resize(
@@ -501,10 +501,10 @@ class MainForm(QtWidgets.QMainWindow):
 
     def init(self) -> None:
         """Initialize UI."""
-        self.w_.statusBar().hide()
+        self.main_widget.statusBar().hide()
         self.main_widgets_ = {}
         self.initialized_mods_ = []
-        self.act_sig_map_ = QtCore.QSignalMapper(self.w_)
+        self.act_sig_map_ = QtCore.QSignalMapper(self.main_widget)
         self.act_sig_map_.setObjectName("pinebooActSignalMap")
         self.act_sig_map_.mapped[str].connect(self.triggerAction)  # type: ignore
         self.initTabWidget()
@@ -516,10 +516,10 @@ class MainForm(QtWidgets.QMainWindow):
 
     def initFromWidget(self, w: "QtWidgets.QMainWindow") -> None:
         """Initialize UI from a base widget."""
-        self.w_ = w
+        self.main_widget = w
         self.main_widgets_ = {}
         self.initialized_mods_ = []
-        self.act_sig_map_ = QtCore.QSignalMapper(self.w_)
+        self.act_sig_map_ = QtCore.QSignalMapper(self.main_widget)
         self.act_sig_map_.setObjectName("pinebooActSignalMap")
         self.tw_ = cast(QtWidgets.QTabWidget, w.findChild(QtWidgets.QTabWidget, "tabWidget"))
         self.agMenu_ = cast(
@@ -529,41 +529,41 @@ class MainForm(QtWidgets.QMainWindow):
         self.dck_mod_.initFromWidget(
             cast(
                 QtWidgets.QDockWidget,
-                self.w_.findChild(QtWidgets.QDockWidget, "pinebooDockModulesListView"),
+                self.main_widget.findChild(QtWidgets.QDockWidget, "pinebooDockModulesListView"),
             )
         )
         self.dck_rec_ = DockListView()
         self.dck_rec_.initFromWidget(
             cast(
                 QtWidgets.QDockWidget,
-                self.w_.findChild(QtWidgets.QDockWidget, "pinebooDockRecentListView"),
+                self.main_widget.findChild(QtWidgets.QDockWidget, "pinebooDockRecentListView"),
             )
         )
         self.dck_mar_ = DockListView()
         self.dck_mar_.initFromWidget(
             cast(
                 QtWidgets.QDockWidget,
-                self.w_.findChild(QtWidgets.QDockWidget, "pinebooDockMarksListView"),
+                self.main_widget.findChild(QtWidgets.QDockWidget, "pinebooDockMarksListView"),
             )
         )
         self.initEventFilter()
 
     def initEventFilter(self) -> None:
         """Install event filters."""
-        # w = self.w_
-        # self.w_.eventFilterFunction = (
+        # w = self.main_widget
+        # self.main_widget.eventFilterFunction = (
         #    "flapplication.flapplication.aqApp.Script.mainWindow_.eventFilter"
         # )
 
-        # self.w_.allow_events = [self.AQS.ContextMenu, self.AQS.Close]
+        # self.main_widget.allow_events = [AQS.ContextMenu, AQS.Close]
 
-        self.w_.installEventFilter(self)
-        if self.dck_mod_ and self.dck_mod_.w_:
-            self.dck_mod_.w_.installEventFilter(self)
-        if self.dck_rec_ and self.dck_rec_.w_:
-            self.dck_rec_.w_.installEventFilter(self)
-        if self.dck_mar_ and self.dck_mar_.w_:
-            self.dck_mar_.w_.installEventFilter(self)
+        self.main_widget.installEventFilter(self)
+        if self.dck_mod_ and self.dck_mod_.doc_widget:
+            self.dck_mod_.doc_widget.installEventFilter(self)
+        if self.dck_rec_ and self.dck_rec_.doc_widget:
+            self.dck_rec_.doc_widget.installEventFilter(self)
+        if self.dck_mar_ and self.dck_mar_.doc_widget:
+            self.dck_mar_.doc_widget.installEventFilter(self)
 
     def initModule(self, module: str) -> None:
         """Initialize main module."""
@@ -634,7 +634,7 @@ class MainForm(QtWidgets.QMainWindow):
         fm.show()
 
         self.tw_.setCurrentWidget(fm)
-        fm.installEventFilter(self.w_)
+        fm.installEventFilter(self.main_widget)
 
     def addRecent(self, action: QtWidgets.QAction) -> None:
         """Add new entry to recent list."""
@@ -642,11 +642,11 @@ class MainForm(QtWidgets.QMainWindow):
             return
 
         if not self.ag_rec_:
-            self.ag_rec_ = QtWidgets.QActionGroup(self.w_)
+            self.ag_rec_ = QtWidgets.QActionGroup(self.main_widget)
 
         check_max = True
 
-        new_ag_rec_ = QtWidgets.QActionGroup(self.w_)
+        new_ag_rec_ = QtWidgets.QActionGroup(self.main_widget)
         new_ag_rec_.setObjectName("pinebooAgRec")
 
         self.cloneAction(action, new_ag_rec_)
@@ -661,7 +661,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.ag_rec_ = new_ag_rec_
         if self.dck_rec_ is None:
             return
-        lw = self.dck_rec_.lw_
+        lw = self.dck_rec_.tree_widget
         if lw is None:
             return
         if check_max and lw.topLevelItemCount() >= self.MAX_RECENT:
@@ -679,9 +679,9 @@ class MainForm(QtWidgets.QMainWindow):
             return
 
         if not self.ag_mar_:
-            self.ag_mar_ = QtWidgets.QActionGroup(self.w_)
+            self.ag_mar_ = QtWidgets.QActionGroup(self.main_widget)
 
-        new_ag_mar = QtWidgets.QActionGroup(self.w_)
+        new_ag_mar = QtWidgets.QActionGroup(self.main_widget)
         new_ag_mar.setObjectName("pinebooAgMar")
 
         for ac in self.ag_mar_.actions():
@@ -720,7 +720,10 @@ class MainForm(QtWidgets.QMainWindow):
         """Add a new item to the Bookmarks docket."""
         if not item or not self.ag_mar_ or self.dck_mar_ is None:
             return False
-        if self.dck_mar_.lw_ is None or self.dck_mar_.lw_.invisibleRootItem().childCount() == 0:
+        if (
+            self.dck_mar_.tree_widget is None
+            or self.dck_mar_.tree_widget.invisibleRootItem().childCount() == 0
+        ):
             return False
         if item.text(1) is None:
             return True
@@ -789,7 +792,9 @@ class MainForm(QtWidgets.QMainWindow):
         """Update the main menu and dockers."""
         # FIXME: Duplicated piece of code
         self.updateActionGroup()
-        pinebooMenu = cast(QtWidgets.QMenu, self.w_.findChild(QtWidgets.QMenu, "menuPineboo"))
+        pinebooMenu = cast(
+            QtWidgets.QMenu, self.main_widget.findChild(QtWidgets.QMenu, "menuPineboo")
+        )
         pinebooMenu.clear()
 
         if self.ag_menu_ is None:
@@ -797,16 +802,16 @@ class MainForm(QtWidgets.QMainWindow):
 
         self.updateMenu(self.ag_menu_, pinebooMenu)
 
-        flapplication.aqApp.setMainWidget(self.w_)
+        flapplication.aqApp.setMainWidget(self.main_widget)
 
         if self.ag_menu_ is None:
             raise Exception("ag_menu_ is empty!")
 
         if not self.ag_rec_:
-            self.ag_rec_ = QtWidgets.QActionGroup(self.w_)
+            self.ag_rec_ = QtWidgets.QActionGroup(self.main_widget)
 
         if not self.ag_mar_:
-            self.ag_mar_ = QtWidgets.QActionGroup(self.w_)
+            self.ag_mar_ = QtWidgets.QActionGroup(self.main_widget)
 
         if self.dck_rec_ is None:
             raise Exception("Recent dockListView is missing!")
@@ -821,22 +826,22 @@ class MainForm(QtWidgets.QMainWindow):
         self.dck_rec_.update(self.ag_rec_)
         self.dck_mar_.update(self.ag_mar_)
         cast(
-            QtWidgets.QAction, self.w_.findChild(QtWidgets.QAction, "aboutQtAction")
+            QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "aboutQtAction")
         ).triggered.connect(flapplication.aqApp.aboutQt)
         cast(
-            QtWidgets.QAction, self.w_.findChild(QtWidgets.QAction, "aboutPinebooAction")
+            QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "aboutPinebooAction")
         ).triggered.connect(flapplication.aqApp.aboutPineboo)
         cast(
-            QtWidgets.QAction, self.w_.findChild(QtWidgets.QAction, "fontAction")
+            QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "fontAction")
         ).triggered.connect(flapplication.aqApp.chooseFont)
-        cast(QtWidgets.QAction, self.w_.findChild(QtWidgets.QMenu, "style")).triggered.connect(
-            flapplication.aqApp.showStyles
-        )
         cast(
-            QtWidgets.QAction, self.w_.findChild(QtWidgets.QAction, "helpIndexAction")
+            QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QMenu, "style")
+        ).triggered.connect(flapplication.aqApp.showStyles)
+        cast(
+            QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "helpIndexAction")
         ).triggered.connect(flapplication.aqApp.helpIndex)
         cast(
-            QtWidgets.QAction, self.w_.findChild(QtWidgets.QAction, "urlPinebooAction")
+            QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "urlPinebooAction")
         ).triggered.connect(flapplication.aqApp.urlPineboo)
 
     def updateActionGroup(self) -> None:
@@ -852,7 +857,7 @@ class MainForm(QtWidgets.QMainWindow):
             self.ag_menu_.deleteLater()
             del self.ag_menu_
 
-        self.ag_menu_ = QtWidgets.QActionGroup(self.w_)
+        self.ag_menu_ = QtWidgets.QActionGroup(self.main_widget)
         self.ag_menu_.setObjectName("pinebooActionGroup")
         ac_name = QtWidgets.QAction(self.ag_menu_)
         ac_name.setObjectName("pinebooActionGroup_actiongroup_name")
@@ -865,22 +870,22 @@ class MainForm(QtWidgets.QMainWindow):
             raise Exception("self.act_sig_map_ is empty!")
 
         for area in areas:
-            if not self.qsa_sys.isDebuggerEnabled() and area == "sys":
+            if not QSA_SYS.isDebuggerEnabled() and area == "sys":
                 break
             ag = QtWidgets.QActionGroup(self.ag_menu_)
             ag.setObjectName(area)
             ag_action = QtWidgets.QAction(ag)
             ag_action.setObjectName("%s_actiongroup_name" % ag.objectName())
             ag_action.setText(mng.idAreaToDescription(ag.objectName()))
-            ag_action.setIcon(QtGui.QIcon(self.AQS.pixmap_fromMimeSource("folder.png")))
+            ag_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("folder.png")))
 
             modules = mng.listIdModules(ag.objectName())
             for module in modules:
-                if module == "sys" and self.qsa_sys.isUserBuild():
+                if module == "sys" and QSA_SYS.isUserBuild():
                     continue
                 ac: Union[QtWidgets.QAction, QtWidgets.QActionGroup] = QtWidgets.QActionGroup(ag)
                 ac.setObjectName(module)
-                if self.qsa_sys.isQuickBuild():
+                if QSA_SYS.isQuickBuild():
                     if module == "sys":
                         continue
                 actions = self.widgetActions("%s.ui" % ac.objectName(), ac)
@@ -902,12 +907,12 @@ class MainForm(QtWidgets.QMainWindow):
                     ac_action, "triggered():initModule():%s_actiongroup_name" % ac.objectName()
                 )
                 if ac.objectName() == "sys" and ag.objectName() == "sys":
-                    if self.qsa_sys.isDebuggerMode():
+                    if QSA_SYS.isDebuggerMode():
                         staticLoad = QtWidgets.QAction(ag)
                         staticLoad.setObjectName("staticLoaderSetupAction")
                         staticLoad.setText(self.tr("Configurar carga estática"))
                         staticLoad.setIcon(
-                            QtGui.QIcon(self.AQS.pixmap_fromMimeSource("folder_update.png"))
+                            QtGui.QIcon(AQS.pixmap_fromMimeSource("folder_update.png"))
                         )
                         staticLoad.triggered.connect(self.act_sig_map_.map)
                         self.act_sig_map_.setMapping(
@@ -918,7 +923,7 @@ class MainForm(QtWidgets.QMainWindow):
                         reInit = QtWidgets.QAction(ag)
                         reInit.setObjectName("reinitAction")
                         reInit.setText(self.tr("Recargar scripts"))
-                        reInit.setIcon(QtGui.QIcon(self.AQS.pixmap_fromMimeSource("reload.png")))
+                        reInit.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("reload.png")))
                         reInit.triggered.connect(self.act_sig_map_.map)
                         self.act_sig_map_.setMapping(
                             reInit, "triggered():reinit():%s" % reInit.objectName()
@@ -927,7 +932,7 @@ class MainForm(QtWidgets.QMainWindow):
         shConsole = QtWidgets.QAction(self.ag_menu_)
         shConsole.setObjectName("shConsoleAction")
         shConsole.setText(self.tr("Mostrar Consola de mensajes"))
-        shConsole.setIcon(QtGui.QIcon(self.AQS.pixmap_fromMimeSource("consola.png")))
+        shConsole.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("consola.png")))
         shConsole.triggered.connect(self.act_sig_map_.map)
         self.act_sig_map_.setMapping(
             shConsole, "triggered():shConsole():%s" % shConsole.objectName()
@@ -936,13 +941,15 @@ class MainForm(QtWidgets.QMainWindow):
         exit = QtWidgets.QAction(self.ag_menu_)
         exit.setObjectName("exitAction")
         exit.setText(self.tr("&Salir"))
-        exit.setIcon(QtGui.QIcon(self.AQS.pixmap_fromMimeSource("exit.png")))
+        exit.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("exit.png")))
         exit.triggered.connect(self.act_sig_map_.map)
         self.act_sig_map_.setMapping(exit, "triggered():exit():%s" % exit.objectName())
 
     def initTabWidget(self) -> None:
         """Initialize the TabWidget."""
-        self.tw_ = cast(QtWidgets.QTabWidget, self.w_.findChild(QtWidgets.QTabWidget, "tabWidget"))
+        self.tw_ = cast(
+            QtWidgets.QTabWidget, self.main_widget.findChild(QtWidgets.QTabWidget, "tabWidget")
+        )
         if self.tw_ is None:
             raise Exception("no tabWidget found")
         self.tw_.setTabsClosable(True)
@@ -952,62 +959,66 @@ class MainForm(QtWidgets.QMainWindow):
         tb = self.tw_corner = QToolButton(tw, "tabWidgetCorner")
         tb.autoRaise = False
         tb.setFixedSize(16, 16)
-        tb.setIconSet(self.iconset16x16(self.AQS.pixmap_fromMimeSource("file_close.png")))
+        tb.setIconSet(self.iconset16x16(AQS.pixmap_fromMimeSource("file_close.png")))
         tb.clicked.connect(self.removeCurrentPage)
-        tw.setCornerWidget(tb, self.AQS.TopRight)
-        self.AQS.toolTip_add(tb, self.tr("Cerrar pestaña"))
+        tw.setCornerWidget(tb, AQS.TopRight)
+        AQS.toolTip_add(tb, self.tr("Cerrar pestaña"))
         tb.hide()
         """
 
     def initHelpMenu(self) -> None:
         """Initialize help menu."""
 
-        aboutQt = cast(QtWidgets.QAction, self.w_.findChild(QtWidgets.QAction, "aboutQtAction"))
-        aboutQt.setIcon(self.iconSet16x16(self.AQS.pixmap_fromMimeSource("aboutqt.png")))
+        aboutQt = cast(
+            QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "aboutQtAction")
+        )
+        aboutQt.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("aboutqt.png")))
         # aboutQt.triggered.connect(flapplication.aqApp.aboutQt)
 
         aboutPineboo = cast(
-            QtWidgets.QAction, self.w_.findChild(QtWidgets.QAction, "aboutPinebooAction")
+            QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "aboutPinebooAction")
         )
-        aboutPineboo.setIcon(
-            self.iconSet16x16(self.AQS.pixmap_fromMimeSource("pineboo-logo-32.png"))
-        )
+        aboutPineboo.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("pineboo-logo-32.png")))
         # aboutPineboo.triggered.connect(flapplication.aqApp.aboutPineboo)
 
-        helpIndex = cast(QtWidgets.QAction, self.w_.findChild(QtWidgets.QAction, "helpIndexAction"))
-        helpIndex.setIcon(self.iconSet16x16(self.AQS.pixmap_fromMimeSource("help_index.png")))
+        helpIndex = cast(
+            QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "helpIndexAction")
+        )
+        helpIndex.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("help_index.png")))
         # helpIndex.triggered.connect(flapplication.aqApp.helpIndex)
 
         urlPineboo = cast(
-            QtWidgets.QAction, self.w_.findChild(QtWidgets.QAction, "urlPinebooAction")
+            QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "urlPinebooAction")
         )
-        urlPineboo.setIcon(self.iconSet16x16(self.AQS.pixmap_fromMimeSource("pineboo-logo-32.png")))
+        urlPineboo.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("pineboo-logo-32.png")))
         # urlPineboo.triggered.connect(flapplication.aqApp.urlPineboo)
 
     def initConfigMenu(self) -> None:
         """Initialize config menu."""
-        font = cast(QtWidgets.QAction, self.w_.findChild(QtWidgets.QAction, "fontAction"))
-        font.setIcon(self.iconSet16x16(self.AQS.pixmap_fromMimeSource("font.png")))
+        font = cast(QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "fontAction"))
+        font.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("font.png")))
         # font.triggered.connect(flapplication.aqApp.chooseFont)
 
-        style = cast(QtWidgets.QMenu, self.w_.findChild(QtWidgets.QMenu, "style"))
+        style = cast(QtWidgets.QMenu, self.main_widget.findChild(QtWidgets.QMenu, "style"))
 
         flapplication.aqApp.initStyles()
-        style.setIcon(self.iconSet16x16(self.AQS.pixmap_fromMimeSource("estilo.png")))
+        style.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("estilo.png")))
         # style.triggered.connect(flapplication.aqApp.showStyles)
 
     def initTextLabels(self) -> None:
         """Initialize the tags in the mainForm base."""
 
-        text_label = cast(QtWidgets.QLabel, self.w_.findChild(QtWidgets.QLabel, "tLabel"))
-        text_label2 = cast(QtWidgets.QLabel, self.w_.findChild(QtWidgets.QLabel, "tLabel2"))
+        text_label = cast(QtWidgets.QLabel, self.main_widget.findChild(QtWidgets.QLabel, "tLabel"))
+        text_label2 = cast(
+            QtWidgets.QLabel, self.main_widget.findChild(QtWidgets.QLabel, "tLabel2")
+        )
         texto = aqsobjectfactory.AQUtil.sqlSelect("flsettings", "valor", "flkey='verticalName'")
         if texto and texto != "False":
             text_label.setText(texto)
 
         if aqsobjectfactory.AQUtil.sqlSelect("flsettings", "valor", "flkey='PosInfo'") == "True":
-            text_ = "%s@%s" % (self.qsa_sys.nameUser(), self.qsa_sys.nameBD())
-            if self.qsa_sys.osName() == "MACX":
+            text_ = "%s@%s" % (QSA_SYS.nameUser(), QSA_SYS.nameBD())
+            if QSA_SYS.osName() == "MACX":
                 text_ += "     "
 
             text_label2.setText(text_)
@@ -1015,26 +1026,28 @@ class MainForm(QtWidgets.QMainWindow):
     def initDocks(self) -> None:
         """Initialize the 3 available docks."""
 
-        self.dck_mar_ = DockListView(self.w_, "pinebooDockMarks", self.tr("Marcadores"))
-        self.w_.addDockWidget(self.AQS.DockLeft, self.dck_mar_.w_)
-        self.dck_rec_ = DockListView(self.w_, "pinebooDockRecent", self.tr("Recientes"))
-        self.w_.addDockWidget(self.AQS.DockLeft, self.dck_rec_.w_)
-        self.dck_mod_ = DockListView(self.w_, "pinebooDockModules", self.tr("Módulos"))
-        self.w_.addDockWidget(self.AQS.DockLeft, self.dck_mod_.w_)
+        self.dck_mar_ = DockListView(self.main_widget, "pinebooDockMarks", self.tr("Marcadores"))
+        self.main_widget.addDockWidget(AQS.DockLeft, self.dck_mar_.doc_widget)
+        self.dck_rec_ = DockListView(self.main_widget, "pinebooDockRecent", self.tr("Recientes"))
+        self.main_widget.addDockWidget(AQS.DockLeft, self.dck_rec_.doc_widget)
+        self.dck_mod_ = DockListView(self.main_widget, "pinebooDockModules", self.tr("Módulos"))
+        self.main_widget.addDockWidget(AQS.DockLeft, self.dck_mod_.doc_widget)
 
-        windowMenu = cast(QtWidgets.QMenu, self.w_.findChild(QtWidgets.QMenu, "windowMenu"))
+        windowMenu = cast(
+            QtWidgets.QMenu, self.main_widget.findChild(QtWidgets.QMenu, "windowMenu")
+        )
         sub_menu = windowMenu.addMenu(self.tr("&Vistas"))
 
-        docks = cast(List[DockListView], self.w_.findChildren(DockListView))
+        docks = cast(List[DockListView], self.main_widget.findChildren(DockListView))
         for dock in docks:
-            ac = sub_menu.addAction(dock.w_.windowTitle())
+            ac = sub_menu.addAction(dock.doc_widget.windowTitle())
             ac.setCheckable(True)
             # FIXME: Comprobar si estoy visible o no
-            # ac.setChecked(dock.w_.isVisible())
+            # ac.setChecked(dock.doc_widget.isVisible())
             dock.set_visible.connect(ac.setChecked)
             ac.triggered.connect(dock.change_state)
-            cast(QtCore.pyqtSignal, dock.w_.topLevelChanged).connect(ac.setChecked)
-            # dock.w_.Close.connect(ac.setChecked)
+            cast(QtCore.pyqtSignal, dock.doc_widget.topLevelChanged).connect(ac.setChecked)
+            # dock.doc_widget.Close.connect(ac.setChecked)
 
     def cloneAction(self, act, parent) -> Any:
         """Clone one action into another."""
@@ -1088,7 +1101,7 @@ class MainForm(QtWidgets.QMainWindow):
         cc = mng.contentCached(ui_file)
         if not cc or not doc.setContent(cc):
             if cc:
-                logger.warning("No se ha podido cargar %s" % (ui_file))
+                LOGGER.warning("No se ha podido cargar %s" % (ui_file))
             return None
 
         w = mng.createUI(ui_file)
@@ -1107,7 +1120,7 @@ class MainForm(QtWidgets.QMainWindow):
 
         # flapplication.aqApp.setMainWidget(w)
 
-        # if (self.qsa_sys.isNebulaBuild()):
+        # if (QSA_SYS.isNebulaBuild()):
         #    w.show()
 
         w.hide()
@@ -1145,7 +1158,7 @@ class MainForm(QtWidgets.QMainWindow):
                 menu_ag_name = QtWidgets.QAction(menu_ag)
                 menu_ag_name.setObjectName("%s_actiongroup_name" % ag.objectName())
                 menu_ag_name.setText(self.tr("Mas"))
-                menu_ag_name.setIcon(QtGui.QIcon(self.AQS.pixmap_fromMimeSource("plus.png")))
+                menu_ag_name.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("plus.png")))
             else:
                 menu_ag = QtWidgets.QActionGroup(ag)
                 menu_ag.setObjectName(ag.objectName())
@@ -1170,7 +1183,7 @@ class MainForm(QtWidgets.QMainWindow):
 
                 sub_menu_ag_name = QtWidgets.QAction(sub_menu_ag)
                 sub_menu_ag_name.setObjectName("%s_actiongroup_name" % sub_menu_ag.objectName())
-                sub_menu_ag_name.setText(self.qsa_sys.toUnicode(text, "iso-8859-1"))
+                sub_menu_ag_name.setText(QSA_SYS.toUnicode(text, "iso-8859-1"))
 
                 self.addWidgetActions(itn, sub_menu_ag, w)
 
@@ -1240,7 +1253,9 @@ class MainForm(QtWidgets.QMainWindow):
 
     def reinitSript(self) -> None:
         """Re-start process."""
-        main_wid = flapplication.aqApp.mainWidget() if self.w_ is None else self.w_
+        main_wid = (
+            flapplication.aqApp.mainWidget() if self.main_widget is None else self.main_widget
+        )
         if main_wid is None or main_wid.objectName() != "container":
             return
 
@@ -1249,10 +1264,10 @@ class MainForm(QtWidgets.QMainWindow):
         mw.writeState()
         mw.removeAllPages()
         cast(
-            QtWidgets.QAction, mw.w_.findChild(QtWidgets.QAction, "aboutQtAction")
+            QtWidgets.QAction, mw.main_widget.findChild(QtWidgets.QAction, "aboutQtAction")
         ).triggered.disconnect(flapplication.aqApp.aboutQt)
         cast(
-            QtWidgets.QAction, mw.w_.findChild(QtWidgets.QAction, "aboutPinebooAction")
+            QtWidgets.QAction, mw.main_widget.findChild(QtWidgets.QAction, "aboutPinebooAction")
         ).triggered.disconnect(flapplication.aqApp.aboutPineboo)
         mw.updateMenuAndDocks()
         mw.initModule("sys")
@@ -1269,7 +1284,7 @@ class MainForm(QtWidgets.QMainWindow):
             QtWidgets.QAction, mw.ag_menu_.findChild(QtWidgets.QAction, sgt[2])
         )
         if ac is None:
-            logger.debug("triggerAction: Action not Found: %s" % signature)
+            LOGGER.debug("triggerAction: Action not Found: %s" % signature)
             return
 
         signal = sgt[0]
@@ -1277,7 +1292,7 @@ class MainForm(QtWidgets.QMainWindow):
             if not ac.isVisible() or not ac.isEnabled():
                 return
         else:
-            logger.debug("triggerAction: Unhandled signal: %s" % signature)
+            LOGGER.debug("triggerAction: Unhandled signal: %s" % signature)
             return
 
         fn_ = sgt[1]
@@ -1293,25 +1308,25 @@ class MainForm(QtWidgets.QMainWindow):
             flapplication.aqApp.execMainScript(ac.objectName())
 
         elif fn_ == "loadModules()":
-            self.qsa_sys.loadModules()
+            QSA_SYS.loadModules()
 
         elif fn_ == "exportModules()":
-            self.qsa_sys.exportModules()
+            QSA_SYS.exportModules()
 
         elif fn_ == "importModules()":
-            self.qsa_sys.importModules()
+            QSA_SYS.importModules()
 
         elif fn_ == "updatePineboo()":
-            self.qsa_sys.updatePineboo()
+            QSA_SYS.updatePineboo()
 
         elif fn_ == "staticLoaderSetup()":
             flapplication.aqApp.staticLoaderSetup()
 
         elif fn_ == "reinit()":
-            self.qsa_sys.reinit()
+            QSA_SYS.reinit()
 
         elif fn_ == "mrProper()":
-            self.qsa_sys.Mr_Proper()
+            QSA_SYS.Mr_Proper()
 
         elif fn_ == "shConsole()":
             flapplication.aqApp.showConsole()
@@ -1320,7 +1335,7 @@ class MainForm(QtWidgets.QMainWindow):
             self.close()
 
         else:
-            logger.debug("tiggerAction: Unhandled slot : %s" % signature)
+            LOGGER.debug("tiggerAction: Unhandled slot : %s" % signature)
 
     @classmethod
     def setDebugLevel(self, q: int) -> None:
@@ -1331,7 +1346,7 @@ class MainForm(QtWidgets.QMainWindow):
     def child(self, name: str) -> Optional[QtCore.QObject]:
         """Find a child widget."""
 
-        return self.w_.findChild(QtWidgets.QWidget, name)
+        return self.main_widget.findChild(QtWidgets.QWidget, name)
 
     def setCaptionMainWidget(self, value) -> None:
         """Set application title."""
