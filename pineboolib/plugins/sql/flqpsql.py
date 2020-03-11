@@ -354,85 +354,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    def recordInfo(self, tablename_or_query: Any) -> List[list]:
-        """Return info from  a record fields."""
-        info: List[list] = []
-        if not self.isOpen():
-            return info
-
-        if isinstance(tablename_or_query, str):
-            tablename = tablename_or_query
-
-            if self.db_ is None:
-                raise Exception("recordInfo. self.db_ es Nulo")
-
-            stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
-            util = flutil.FLUtil()
-            if not stream:
-                print(
-                    "FLManager : "
-                    + util.translate("application", "Error al cargar los metadatos para la tabla")
-                    + tablename
-                )
-
-                return self.recordInfo2(tablename)
-
-            # docElem = doc.documentElement()
-            mtd = self.db_.connManager().manager().metadata(tablename, True)
-            if not mtd:
-                return self.recordInfo2(tablename)
-            fL = mtd.fieldList()
-            if not fL:
-                del mtd
-                return self.recordInfo2(tablename)
-
-            for f in mtd.fieldNames():
-                field = mtd.field(f)
-                info.append(
-                    [
-                        field.name(),
-                        field.type(),
-                        not field.allowNull(),
-                        field.length(),
-                        field.partDecimal(),
-                        field.defaultValue(),
-                        field.isPrimaryKey(),
-                    ]
-                )
-
-            del mtd
-
-        return info
-
-    def notEqualsFields(self, field1: List[Any], field2: List[Any]) -> bool:
-        """Return if a field has canged."""
-        ret = False
-        try:
-            if not field1[2] == field2[2] and not field2[6]:
-                ret = True
-
-            if field1[1] == "stringlist" and not field2[1] in ("stringlist", "pixmap"):
-                ret = True
-
-            elif field1[1] == "string" and (
-                not field2[1] in ("string", "time", "date") or not field1[3] == field2[3]
-            ):
-                if field1[1] == "string" and field2[3] != 0:
-                    ret = True
-            elif field1[1] == "uint" and not field2[1] in ("int", "uint", "serial"):
-                ret = True
-            elif field1[1] == "bool" and not field2[1] in ("bool", "unlock"):
-                ret = True
-            elif field1[1] == "double" and not field2[1] == "double":
-                ret = True
-            elif field1[1] == "timestamp" and not field2[1] == "timestamp":
-                ret = True
-
-        except Exception:
-            print(traceback.format_exc())
-
-        return ret
-
     def tables(self, typeName: Optional[str] = None) -> List[str]:
         """Return a tables list specified by type."""
         tl: List[str] = []
@@ -464,10 +385,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         del t
         return tl
-
-    def normalizeValue(self, text: str) -> str:
-        """Return a database friendly text."""
-        return str(text).replace("'", "''")
 
     def constraintExists(self, name: str) -> bool:
         """Return if constraint exists specified by name."""

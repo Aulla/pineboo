@@ -6,7 +6,7 @@ import traceback
 
 from PyQt5 import Qt, QtCore, QtWidgets
 
-from pineboolib.core import settings
+from pineboolib.core import settings, decorators
 from pineboolib.application.utils import check_dependencies
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
 from pineboolib.application.metadata import pnfieldmetadata
@@ -17,7 +17,7 @@ from . import pnsqlschema
 
 from xml.etree import ElementTree
 
-from typing import Any, Iterable, Optional, Union, List, cast, TYPE_CHECKING
+from typing import Any, Optional, Union, List, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -131,6 +131,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return self.conn_
 
+    @decorators.incomplete
     def tables(self, type_name: Optional[str] = None) -> list:
         """Introspect tables in database."""
 
@@ -233,15 +234,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         #    return None
 
         return ret
-
-    def fix_query(self, val: str) -> str:
-        """Fix values on SQL."""
-        ret_ = val.replace("'true'", "1")
-        ret_ = ret_.replace("'false'", "0")
-        ret_ = ret_.replace("'0'", "0")
-        ret_ = ret_.replace("'1'", "1")
-        # ret_ = ret_.replace(";", "")
-        return ret_
 
     def existsTable(self, name: str) -> bool:
         """Return if table exists."""
@@ -902,49 +894,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return True
 
-    def insertMulti(self, table_name: str, records: Iterable) -> bool:
-        """Insert several rows at once."""
-
-        if not records:
-            return False
-
-        if not self.isOpen():
-            raise Exception("insertMulti: Database not open")
-
-        if not self.db_:
-            raise Exception("must be connected")
-
-        mtd = self.db_.connManager().manager().metadata(table_name)
-        fList = []
-        vList = []
-        cursor_ = self.cursor()
-        for f in records:
-            field = mtd.field(f[0])
-            if field.generated():
-                fList.append(field.name())
-                value = f[5]
-                if field.type() in ("string", "stringlist"):
-                    value = self.normalizeValue(value)
-                value = self.formatValue(field.type(), value, False)
-                vList.append(value)
-
-        sql = """INSERT INTO %s(%s) values (%s)""" % (
-            table_name,
-            ", ".join(fList),
-            ", ".join(map(str, vList)),
-        )
-
-        if not fList:
-            return False
-
-        try:
-            cursor_.execute(sql)
-        except Exception as exc:
-            print(sql, "\n", exc)
-            return False
-
-        return True
-
     def recordInfo2(self, tablename: str) -> List[list]:
         """Obtain current cursor information on columns."""
         if not self.isOpen():
@@ -1026,88 +975,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         else:
             LOGGER.warning("formato desconocido %s", ret)
-
-        return ret
-
-    def recordInfo(self, tablename_or_query: str) -> List[list]:
-        """Obtain current cursor information on columns."""
-        if not self.isOpen():
-            raise Exception("recordInfo: conn not opened")
-        if not self.db_:
-            raise Exception("recordInfo: Must be connected")
-        info = []
-
-        if isinstance(tablename_or_query, str):
-            tablename = tablename_or_query
-
-            stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
-            if not stream:
-                LOGGER.warning(
-                    "FLManager : "
-                    + QtWidgets.QApplication.translate(
-                        "FLMySQL", "Error al cargar los metadatos para la tabla"
-                    )
-                    + tablename
-                )
-
-                return self.recordInfo2(tablename)
-
-            # docElem = doc.documentElement()
-            mtd = self.db_.connManager().manager().metadata(tablename, True)
-            if not mtd:
-                return self.recordInfo2(tablename)
-            fL = mtd.fieldList()
-            if not fL:
-                del mtd
-                return self.recordInfo2(tablename)
-
-            for f in mtd.fieldNames():
-                field = mtd.field(f)
-                info.append(
-                    [
-                        field.name(),
-                        field.type(),
-                        not field.allowNull(),
-                        field.length(),
-                        field.partDecimal(),
-                        field.defaultValue(),
-                        field.isPrimaryKey(),
-                    ]
-                )
-
-            del mtd
-
-        return info
-
-    def notEqualsFields(self, field1: List[Any], field2: List[Any]) -> bool:
-        """Check if two field definitions are equal."""
-        # print("comparando", field1, field1[1], field2, field2[1])
-        ret = False
-        try:
-            if not field1[2] == field2[2] and not field2[6]:
-                ret = True
-
-            if field1[1] == "stringlist" and not field2[1] in ("stringlist", "pixmap"):
-                ret = True
-
-            elif field1[1] == "string" and (
-                not field2[1] in ("string", "time", "date") or not field1[3] == field2[3]
-            ):
-                if field1[3] == 0 and field2[3] == 255:
-                    pass
-                else:
-                    ret = True
-            elif field1[1] == "uint" and not field2[1] in ("int", "uint", "serial"):
-                ret = True
-            elif field1[1] == "bool" and not field2[1] in ("bool", "unlock"):
-                ret = True
-            elif field1[1] == "double" and not field2[1] == "double":
-                ret = True
-            elif field1[1] == "timestamp" and not field2[1] == "timestamp":
-                ret = True
-
-        except Exception:
-            print(traceback.format_exc())
 
         return ret
 

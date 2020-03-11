@@ -88,14 +88,6 @@ class PNSqlSchema(object):
         # self.sql_query = {}
         # self.cursors_dict = {}
 
-    def useThreads(self) -> bool:
-        """Return True if the driver use threads."""
-        return False
-
-    def useTimer(self) -> bool:
-        """Return True if the driver use Timer."""
-        return True
-
     def version(self) -> str:
         """Return version number."""
         return self.version_
@@ -486,13 +478,87 @@ class PNSqlSchema(object):
         """Return the specific field type."""
         return ""
 
-    def recordInfo(self, tablename_or_query: Any) -> List[list]:
-        """Return info from  a record fields."""
-        return []
+    def recordInfo(self, tablename_or_query: str) -> List[list]:
+        """Obtain current cursor information on columns."""
+        if not self.isOpen():
+            raise Exception("recordInfo: conn not opened")
+        if not self.db_:
+            raise Exception("recordInfo: Must be connected")
+        info = []
+        util = flutil.FLUtil()
+
+        if isinstance(tablename_or_query, str):
+            tablename = tablename_or_query
+
+            stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
+            if not stream:
+                LOGGER.warning(
+                    "FLManager : "
+                    + util.translate("FLMySQL", "Error al cargar los metadatos para la tabla")
+                    + tablename
+                )
+
+                return self.recordInfo2(tablename)
+
+            # docElem = doc.documentElement()
+            mtd = self.db_.connManager().manager().metadata(tablename, True)
+            if not mtd:
+                return self.recordInfo2(tablename)
+            fL = mtd.fieldList()
+            if not fL:
+                del mtd
+                return self.recordInfo2(tablename)
+
+            for f in mtd.fieldNames():
+                field = mtd.field(f)
+                info.append(
+                    [
+                        field.name(),
+                        field.type(),
+                        not field.allowNull(),
+                        field.length(),
+                        field.partDecimal(),
+                        field.defaultValue(),
+                        field.isPrimaryKey(),
+                    ]
+                )
+
+            del mtd
+
+        return info
 
     def notEqualsFields(self, field1: List[Any], field2: List[Any]) -> bool:
-        """Return if a field has canged."""
-        return False
+        """Return if a field has changed."""
+        ret = False
+        try:
+            if not field1[2] == field2[2] and not field2[6]:
+                ret = True
+
+            if field1[1] == "stringlist" and not field2[1] in ("stringlist", "pixmap"):
+                ret = True
+
+            elif field1[1] == "string" and (
+                field2[1] not in ("string", "time", "date") or field1[3] != field2[3]
+            ):
+                if field2[1] in ("time", "date") and field1[3] == 20:
+                    ret = False
+                elif field1[1] == "string" and field2[3] != 0:
+                    ret = True
+                else:
+                    ret = True
+            elif field1[1] == "uint" and not field2[1] in ("int", "uint", "serial"):
+                ret = True
+            elif field1[1] == "bool" and not field2[1] in ("bool", "unlock"):
+                ret = True
+            elif field1[1] == "double" and not field2[1] == "double":
+                ret = True
+            elif field1[1] == "timestamp" and not field2[1] == "timestamp":
+                ret = True
+
+        except Exception:
+            LOGGER.error("notEqualsFields %s %s", field1, field2)
+
+        return ret
 
     def tables(self, typeName: Optional[str] = None) -> List[str]:
         """Return a tables list specified by type."""
@@ -500,7 +566,8 @@ class PNSqlSchema(object):
 
     def normalizeValue(self, text: str) -> str:
         """Return a database friendly text."""
-        return text
+
+        return str(text).replace("'", "''")
 
     def hasCheckColumn(self, mtd: "pntablemetadata.PNTableMetaData") -> bool:
         """Retrieve if MTD has a check column."""
@@ -540,10 +607,13 @@ class PNSqlSchema(object):
         """Return if can detect locks."""
         return True
 
-    def fix_query(self, query: str) -> str:
-        """Fix string."""
-        # ret_ = query.replace(";", "")
-        return query
+    def fix_query(self, val: str) -> str:
+        """Fix values on SQL."""
+        ret_ = val.replace("'true'", "1")
+        ret_ = ret_.replace("'false'", "0")
+        ret_ = ret_.replace("'0'", "0")
+        ret_ = ret_.replace("'1'", "1")
+        return ret_
 
     def desktopFile(self) -> bool:
         """Return if use a file like database."""
