@@ -204,23 +204,28 @@ class PNSqlQuery(object):
             raise Exception("The query is empty!")
 
         self._last_query = sql
-        try:
+        # try:
 
-            self._cursor = self.db().cursor()
-            if self._cursor is None:
-                raise Exception("self._cursor is empty!")
-            LOGGER.trace("exec_: Ejecutando consulta: <%s> en <%s>", sql, self._cursor)
-            self.db().execute_query(sql, self._cursor)
+        self._cursor = self.db().cursor()
+        if self._cursor is None:
+            raise Exception("self._cursor is empty!")
+        LOGGER.trace("exec_: Ejecutando consulta: <%s> en <%s>", sql, self._cursor)
+        self.db().execute_query(sql, self._cursor)
+        try:
             self._datos = self._cursor.fetchall()
-            self._posicion = -1
-        except Exception as exc:
-            LOGGER.error(exc)
-            LOGGER.info("Error ejecutando consulta: <%s>", sql)
-            LOGGER.trace("Detalle:", stack_info=True)
+        except Exception:
+            self._datos = []
+
+        self._posicion = -1
+        # except Exception as exc:
+        # LOGGER.error(exc)
+        # LOGGER.info("Error ejecutando consulta: <%s>", sql)
+        # LOGGER.trace("Detalle:", stack_info=True)
         if self.db().lastError():
-            LOGGER.warning("Error ejecutando consulta: <%s>\n%s", sql, self.db().lastError())
+            LOGGER.error("Error ejecutando consulta: <%s>\n%s", sql, self.db().lastError())
             self._invalid_tables_list = True
-            LOGGER.trace("Detalle:", stack_info=True)
+
+            # LOGGER.trace("Detalle:", stack_info=True)
             return False
 
         self._is_active = True
