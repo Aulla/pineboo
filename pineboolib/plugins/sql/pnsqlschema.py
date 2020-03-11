@@ -101,7 +101,8 @@ class PNSqlSchema(object):
         try:
             cur = self.conn_.cursor()
             cur.execute("select 1")
-        except Exception:
+        except Exception as exc_:
+            LOGGER.error("raise an exception %s", exc_)
             return False
 
         return True
@@ -340,9 +341,9 @@ class PNSqlSchema(object):
     def rollbackTransaction(self) -> bool:
         """Set a rollback transaction."""
 
-        if not self.isOpen():
-            LOGGER.warning("%s::rollbackTransaction: Database not open", __name__)
-            return False
+        # if not self.isOpen():
+        #    LOGGER.warning("%s::rollbackTransaction: Database not open", __name__)
+        #    return False
 
         self.set_last_error_null()
         cursor = self.cursor()
@@ -394,7 +395,8 @@ class PNSqlSchema(object):
             )
             LOGGER.error(
                 "%s:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s",
-                (number, __name__),
+                __name__,
+                number,
             )
             return False
 
@@ -621,6 +623,7 @@ class PNSqlSchema(object):
 
     def execute_query(self, query: str, cursor: Any = None) -> Any:
         """Excecute a query and return result."""
+
         if not self.isOpen():
             raise Exception("execute_query: Database not open")
 
@@ -631,7 +634,7 @@ class PNSqlSchema(object):
             # q = self.fix_query(q)
             cursor.execute(query)
         except Exception:
-            LOGGER.error("No se pudo ejecutar la query %s", query)
+            self.rollbackTransaction()
             self.setLastError(
                 "No se pudo ejecutar la query %s.\n%s" % (query, traceback.format_exc()), query
             )
@@ -754,8 +757,8 @@ class PNSqlSchema(object):
     def cursor(self) -> Any:
         """Return a cursor connection."""
 
-        if not self.isOpen():
-            raise Exception("cursor: Database not open")
+        # if not self.isOpen():
+        #    raise Exception("cursor: Database not open")
 
         return self.conn_.cursor()
 
