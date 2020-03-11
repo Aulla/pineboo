@@ -617,7 +617,7 @@ class Project(object):
 
     def load_version(self) -> str:
         """Initialize current version numbers."""
-        self.version = "0.68.56"
+        self.version = "0.68.57"
         if settings.CONFIG.value("application/dbadmin_enabled", False):
             self.version = "DBAdmin v%s" % self.version
         else:
