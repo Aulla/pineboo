@@ -760,7 +760,7 @@ class PNSqlSchema(object):
         # if not self.isOpen():
         #    raise Exception("cursor: Database not open")
 
-        return self.conn_.cursor()
+        return self.conn_.cursor() if self.conn_ is not None else False
 
     def insertMulti(self, table_name: str, records: Iterable) -> bool:
         """Insert several rows at once."""
