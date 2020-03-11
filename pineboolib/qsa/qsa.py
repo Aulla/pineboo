@@ -19,7 +19,7 @@ from pineboolib.application.types import File, Dir, Array, Date, AttributeDict  
 from pineboolib.application.types import FileStatic, DirStatic  # noqa: F401
 
 from .input import Input  # noqa: F401
-from .utils import RegExp  # noqa: F401
+from .utils import regExp as RegExp  # noqa: F401
 from .utils import parse_float as parseFloat  # noqa: F401
 from .utils import parse_string as parseString  # noqa: F401
 from .utils import parse_int as parseInt  # noqa: F401

@@ -95,7 +95,7 @@ class QsaRegExp(object):
     global_ = property(get_global, set_global)
 
 
-def RegExp(str_re: str) -> QsaRegExp:
+def regExp(str_re: str) -> QsaRegExp:
     """
     Return qsaRegexp object from search.
 
