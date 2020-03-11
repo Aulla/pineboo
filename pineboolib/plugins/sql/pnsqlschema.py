@@ -1,10 +1,16 @@
 """PNSqlSchema module."""
 
+from PyQt5 import QtCore
+
 from pineboolib import logging
+
+from pineboolib.core.utils import utils_base
 
 import traceback
 from typing import Iterable, Optional, Union, List, Any, Dict, TYPE_CHECKING
 from pineboolib.core import settings
+
+from pineboolib.fllegacy import flutil
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -34,6 +40,19 @@ class PNSqlSchema(object):
     rows_cached: Dict[str, List[Any]]
     init_cached: int = 200
     open_: bool
+    desktop_file: bool
+    savepoint_command: str
+    rollback_savepoint_command: str
+    rollback_transaction_command: str
+    commit_transaction_command: str
+    transaction_command: str
+    release_savepoint_command: str
+    _true: Any
+    _false: Any
+    _like_true: Any
+    _like_false: Any
+    _null: str
+    _text_like: str
 
     def __init__(self):
         """Inicialize."""
@@ -50,10 +69,22 @@ class PNSqlSchema(object):
         self.session_ = None
         self.declarative_base_ = None
         self.lastError_ = None
-        self.cursor_ = None
         self.db_ = None
         self.rows_cached = {}
         self.open_ = False
+        self.desktop_file = False
+        self.savepoint_command = "SAVEPOINT"
+        self.rollback_savepoint_command = "ROLLBACK TRANSACTION TO SAVEPOINT"
+        self.commit_transaction_command = "END TRANSACTION"
+        self.rollback_transaction_command = "ROLLBACK TRANSACTION"
+        self.transaction_command = "BEGIN TRANSACTION"
+        self.release_savepoint_command = "RELEASE SAVEPOINT"
+        self._true = "1"
+        self._false = "0"
+        self._like_true = "1"
+        self._like_false = "0"
+        self._null = "Null"
+        self._text_like = "::text "
         # self.sql_query = {}
         # self.cursors_dict = {}
 
@@ -133,13 +164,84 @@ class PNSqlSchema(object):
 
     def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
         """Return a string with the format value like."""
+        util = flutil.FLUtil()
+        res = "IS NULL"
 
-        return ""
+        if type_ == "bool":
+            s = str(v[0]).upper()
+            if s == str(util.translate("application", "Sí")[0]).upper():
+                res = "=%s" % self._like_true
+            else:
+                res = "=%s" % self._like_false
+
+        elif type_ == "date":
+            dateamd = util.dateDMAtoAMD(str(v))
+            if dateamd is None:
+                dateamd = ""
+            res = self._text_like + "LIKE '%%" + dateamd + "'"
+
+        elif type_ == "time":
+            t = v.toTime()
+            res = self._text_like + "LIKE '" + t.toString(QtCore.Qt.ISODate) + "%%'"
+
+        else:
+            res = str(v)
+            if upper:
+                res = "%s" % res.upper()
+
+            res = self._text_like + "LIKE '" + res + "%%'"
+
+        return res
 
     def formatValue(self, type_: str, v: Any, upper: bool) -> Optional[Union[int, str, bool]]:
         """Return a string with the format value."""
+        util = flutil.FLUtil()
 
-        return ""
+        s: Any = None
+
+        # if v is None:
+        #    return "NULL"
+
+        if type_ == "pixmap":
+            if v.find("'") > -1:
+                s = "'%s'" % self.normalizeValue(v)
+            else:
+                s = "'%s'" % v
+
+        elif type_ in ("bool", "unlock"):
+            if isinstance(v, bool):
+                s = self._true if v else self._false
+            else:
+                s = self._true if utils_base.text2bool(v) else self._false
+
+        elif type_ == "date":
+            if len(str(v).split("-")[0]) < 3:
+                date_ = str(util.dateDMAtoAMD(v))
+            else:
+                date_ = "%s" % v
+
+            s = "'%s'" % date_
+
+        elif type_ == "time":
+            s = "'%s'" % v if v else ""
+
+        elif type_ in ("uint", "int", "double", "serial"):
+            s = v or 0
+
+        elif type_ in ("string", "stringlist", "timestamp"):
+            if not v:
+                s = self._null
+            else:
+                if type_ == "string":
+                    v = utils_base.auto_qt_translate_text(v)
+                    if upper:
+                        v = v.upper()
+
+            s = "'%s'" % v
+        else:
+            s = v
+
+        return str(s)
 
     def canOverPartition(self) -> bool:
         """Return can override partition option ready."""
@@ -154,8 +256,28 @@ class PNSqlSchema(object):
 
         return None
 
-    def savePoint(self, n: int) -> bool:
+    def savePoint(self, number: int) -> bool:
         """Set a savepoint."""
+        if not self.isOpen():
+            LOGGER.warning("savePoint: Database not open")
+            return False
+
+        if not number:
+            return True
+
+        self.set_last_error_null()
+
+        cursor = self.cursor()
+        try:
+            LOGGER.debug("Creando savepoint sv_%s" % number)
+            cursor.execute("%s sv_%s" % (self.savepoint_command, number))
+        except Exception:
+            self.setLastError("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % number)
+            LOGGER.error(
+                "%s:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s", __name__, number
+            )
+            return False
+
         return True
 
     def canSavePoint(self) -> bool:
@@ -166,8 +288,32 @@ class PNSqlSchema(object):
         """Return if can do transaction."""
         return True
 
-    def rollbackSavePoint(self, n: int) -> bool:
+    def rollbackSavePoint(self, number: int) -> bool:
         """Set rollback savepoint."""
+        if not number:
+            return True
+
+        if not self.isOpen():
+            LOGGER.warning("rollbackSavePoint: Database not open")
+            return False
+
+        self.set_last_error_null()
+
+        cursor = self.cursor()
+        try:
+            cursor.execute("%s sv_%s" % (self.rollback_savepoint_command, number))
+        except Exception:
+            self.setLastError(
+                "No se pudo rollback a punto de salvaguarda",
+                "ROLLBACK TO SAVEPOINTt sv_%s" % number,
+            )
+            LOGGER.error(
+                "%s:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s",
+                __name__,
+                number,
+            )
+            return False
+
         return True
 
     def set_last_error_null(self) -> None:
@@ -184,18 +330,82 @@ class PNSqlSchema(object):
 
     def commitTransaction(self) -> bool:
         """Set commit transaction."""
+        if not self.isOpen():
+            LOGGER.warning("%s::commitTransaction: Database not open", __name__)
+            return False
+
+        self.set_last_error_null()
+        cursor = self.cursor()
+        try:
+            cursor.execute("%s" % self.commit_transaction_command)
+        except Exception:
+            self.setLastError("No se pudo aceptar la transacción", "COMMIT")
+            LOGGER.error("%s:: No se pudo aceptar la transacción COMMIT.", __name__)
+            return False
+
         return True
 
     def rollbackTransaction(self) -> bool:
         """Set a rollback transaction."""
+
+        if not self.isOpen():
+            LOGGER.warning("%s::rollbackTransaction: Database not open", __name__)
+            return False
+
+        self.set_last_error_null()
+        cursor = self.cursor()
+        try:
+            cursor.execute("%s" % self.rollback_transaction_command)
+        except Exception:
+            self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
+            LOGGER.error("%s:: No se pudo deshacer la transacción ROLLBACK", __name__)
+            return False
+
         return True
 
     def transaction(self) -> bool:
         """Set a new transaction."""
+        if not self.isOpen():
+            LOGGER.warning("%s::transaction: Database not open", __name__)
+            return False
+
+        cursor = self.cursor()
+        self.set_last_error_null()
+
+        try:
+            cursor.execute("%s" % self.transaction_command)
+        except Exception:
+            self.setLastError("No se pudo crear la transacción", "BEGIN")
+            LOGGER.error("%s:: No se pudo crear la transacción BEGIN", __name__)
+            return False
+
         return True
 
-    def releaseSavePoint(self, n: int) -> bool:
+    def releaseSavePoint(self, number: int) -> bool:
         """Set release savepoint."""
+
+        if not self.isOpen():
+            LOGGER.warning("%s::releaseSavePoint: Database not open", __name__)
+            return False
+
+        if not number:
+            return True
+
+        self.set_last_error_null()
+
+        cursor = self.cursor()
+        try:
+            cursor.execute("%s sv_%s" % (self.release_savepoint_command, number))
+        except Exception:
+            self.setLastError(
+                "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % number
+            )
+            LOGGER.error(
+                "%s:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s",
+                (number, __name__),
+            )
+            return False
+
         return True
 
     def setType(self, type_: str, leng: Optional[Union[str, int]] = None) -> str:
@@ -220,7 +430,53 @@ class PNSqlSchema(object):
         db_: Optional[Any] = None,
     ) -> bool:
         """Return if a table is mismatched."""
-        return False
+
+        if db_ is None:
+            db_ = self.db_
+
+        if isinstance(tmd_or_table2, str):
+            mtd = db_.connManager().manager().metadata(tmd_or_table2, True)
+            if not mtd:
+                return False
+
+            mismatch = False
+            processed_fields = []
+            try:
+                rec_mtd = self.recordInfo(tmd_or_table2)
+                rec_db = self.recordInfo2(table1)
+                # fieldBd = None
+                if rec_mtd is None:
+                    raise ValueError("recordInfo no ha retornado valor")
+
+                for field_mtd in rec_mtd:
+                    # fieldBd = None
+                    found = False
+                    for field_db in rec_db:
+                        if field_db[0] == field_mtd[0]:
+                            processed_fields.append(field_db[0])
+                            found = True
+                            if self.notEqualsFields(field_db, field_mtd):
+
+                                mismatch = True
+
+                            rec_db.remove(field_db)
+                            break
+
+                    if not found:
+                        if field_mtd[0] not in processed_fields:
+                            mismatch = True
+                            break
+
+                if len(rec_db) > 0:
+                    mismatch = True
+
+            except Exception:
+                print(traceback.format_exc())
+
+            return mismatch
+
+        else:
+            return self.mismatchedTable(table1, tmd_or_table2.name(), db_)
 
     def recordInfo2(self, tablename: str) -> List[List[Any]]:
         """Return info from a database table."""
@@ -272,10 +528,6 @@ class PNSqlSchema(object):
         """Modify a table structure."""
         return False
 
-    def insertMulti(self, table_name: str, records: Iterable) -> bool:
-        """Insert multiple registers into a table."""
-        return False
-
     def Mr_Proper(self) -> None:
         """Clear all garbage data."""
         pass
@@ -295,7 +547,7 @@ class PNSqlSchema(object):
 
     def desktopFile(self) -> bool:
         """Return if use a file like database."""
-        return False
+        return self.desktop_file
 
     def execute_query(self, query: str, cursor: Any = None) -> Any:
         """Excecute a query and return result."""
@@ -435,8 +687,49 @@ class PNSqlSchema(object):
         if not self.isOpen():
             raise Exception("cursor: Database not open")
 
-        if self.cursor_ is None:
-            if self.conn_ is None:
-                raise Exception("cursor. self.conn_ is None")
-            self.cursor_ = self.conn_.cursor()
-        return self.cursor_
+        return self.conn_.cursor()
+
+    def insertMulti(self, table_name: str, records: Iterable) -> bool:
+        """Insert several rows at once."""
+
+        if not records:
+            return False
+
+        if not self.isOpen():
+            raise Exception("insertMulti: Database not open")
+
+        if not self.db_:
+            raise Exception("must be connected")
+
+        mtd = self.db_.connManager().manager().metadata(table_name)
+        fList = []
+        vList = []
+        cursor_ = self.cursor()
+        for f in records:
+            field = mtd.field(f[0])
+            if field.generated():
+                fList.append(field.name())
+                value = f[5]
+                if field.type() in ("string", "stringlist"):
+                    value = self.normalizeValue(value)
+                value = self.formatValue(field.type(), value, False)
+                if field.type() in ("string", "stringlist") and value in ["Null", "NULL"]:
+                    value = "''"
+                vList.append(value)
+
+        sql = """INSERT INTO %s(%s) values (%s)""" % (
+            table_name,
+            ", ".join(fList),
+            ", ".join(map(str, vList)),
+        )
+
+        if not fList:
+            return False
+
+        try:
+            cursor_.execute(sql)
+        except Exception:
+            LOGGER.error("%s\n", sql)
+            return False
+
+        return True

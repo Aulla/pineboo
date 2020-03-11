@@ -1,9 +1,6 @@
 """Flsqlite module."""
 
-from PyQt5 import QtWidgets, QtCore, Qt
-
-
-from pineboolib.core.utils.utils_base import auto_qt_translate_text
+from PyQt5 import QtWidgets, Qt
 from pineboolib.core import decorators, settings
 
 from pineboolib.application.utils import check_dependencies, path
@@ -16,7 +13,6 @@ from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 
 from xml.etree import ElementTree
-import traceback
 import os
 
 
@@ -45,17 +41,15 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.db_ = None
         self.parseFromLatin = False
         self.mobile_ = True
+        self.desktop_file = True
+        self._null = ""
+        self._text_like = ""
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
         return check_dependencies.check_dependencies(
             {"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"}, False
         )
-
-    def desktopFile(self) -> bool:
-        """Return if use a file like database."""
-
-        return True
 
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
@@ -110,91 +104,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return self.conn_
 
-    def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
-        """Return a string with the format value like."""
-        res = "IS NULL"
-
-        if type_ == "bool":
-            s = str(v[0]).upper()
-            if s == str(QtWidgets.QApplication.translate("FLSQLite", "Sí")[0]).upper():
-                res = "=1"
-            elif str(QtWidgets.QApplication.translate("FLSQLite", "No")[0]).upper():
-                res = "=0"
-
-        elif type_ == "date":
-            util = flutil.FLUtil()
-            dateamd = util.dateDMAtoAMD(str(v))
-            if dateamd is None:
-                dateamd = ""
-            res = "LIKE '%%" + dateamd + "'"
-
-        elif type_ == "time":
-            t = v.toTime()
-            res = "LIKE '" + t.toString(QtCore.Qt.ISODate) + "%%'"
-
-        else:
-            res = str(v)
-            if upper:
-                res = "%s" % res.upper()
-
-            res = "LIKE '" + res + "%%'"
-
-        return res
-
-    def formatValue(self, type_: str, v: Any, upper: bool) -> Optional[Union[int, str, bool]]:
-        """Return a string with the format value."""
-
-        util = flutil.FLUtil()
-
-        s: Any = None
-        # TODO: psycopg2.mogrify ???
-        if type_ == "pixmap" and v.find("'") > -1:
-            v = self.normalizeValue(v)
-
-        if type_ in ("bool", "unlock"):
-            if isinstance(v, str):
-                if v[0].lower() == "t":
-                    s = 1
-                else:
-                    s = 0
-            elif isinstance(v, bool):
-                if v:
-                    s = 1
-                else:
-                    s = 0
-
-        elif type_ == "date":
-            s = "'%s'" % util.dateDMAtoAMD(v)
-
-        elif type_ == "time":
-            if v:
-                s = "'%s'" % v
-            else:
-                s = ""
-
-        elif type_ in ("uint", "int", "double", "serial"):
-            s = v or 0
-
-        else:
-            if v and type_ == "string":
-                v = auto_qt_translate_text(v)
-                if upper:
-                    v = v.upper()
-
-            s = "'%s'" % v
-
-            # if type_ in ("string", "stringlist", "timestamp"):
-            #    if v is None:
-            #        s = "NULL"
-            #    else:
-            #        if type_ == "string":
-            #            v = auto_qt_translate_text(v)
-            #            if upper:
-            #                v = v.upper()
-            #        # v = v.encode("UTF-8")
-            #        s = "'%s'" % v
-        return s
-
     def DBName(self) -> str:
         """Return database name."""
         return self.db_name or ""
@@ -214,76 +123,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return None
 
-    def savePoint(self, n: int) -> bool:
-        """Set a savepoint."""
-        if not self.isOpen():
-            LOGGER.warning("savePoint: Database not open")
-            return False
-
-        if n == 0:
-            return True
-
-        self.set_last_error_null()
-
-        cursor = self.cursor()
-        try:
-            LOGGER.debug("Creando savepoint sv_%s" % n)
-            cursor.execute("SAVEPOINT sv_%s" % n)
-        except Exception:
-            self.setLastError("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % n)
-            LOGGER.error("%s:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s", __name__, n)
-            return False
-
-        return True
-
-    def rollbackSavePoint(self, n: int) -> bool:
-        """Set rollback savepoint."""
-        if n == 0:
-            return True
-
-        if not self.isOpen():
-            LOGGER.warning("rollbackSavePoint: Database not open")
-            return False
-
-        self.set_last_error_null()
-
-        cursor = self.cursor()
-        try:
-            cursor.execute("ROLLBACK TRANSACTION TO SAVEPOINT sv_%s" % n)
-        except Exception:
-            self.setLastError(
-                "No se pudo rollback a punto de salvaguarda", "ROLLBACK TO SAVEPOINTt sv_%s" % n
-            )
-            LOGGER.error(
-                "%s:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s",
-                __name__,
-                n,
-            )
-            return False
-
-        return True
-
-    def commitTransaction(self) -> bool:
-        """Set commit transaction."""
-        if not self.isOpen():
-            LOGGER.warning("commitTransaction: Database not open")
-            return False
-
-        self.set_last_error_null()
-        cursor = self.cursor()
-        try:
-            cursor.execute("END TRANSACTION")
-        except Exception:
-            self.setLastError("No se pudo aceptar la transacción", "COMMIT")
-            LOGGER.error(
-                "%s:: No se pudo aceptar la transacción COMMIT. %s",
-                __name__,
-                traceback.format_exc(),
-            )
-            return False
-
-        return True
-
     # def inTransaction(self) -> bool:
     #    """Return if the conn is on transaction."""
     #    if self.conn_ is None:
@@ -296,67 +135,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         query = query.replace("'false'", "0")
 
         return query
-
-    def rollbackTransaction(self) -> bool:
-        """Set a rollback transaction."""
-        if not self.isOpen():
-            LOGGER.warning("SQL3Driver::rollbackTransaction: Database not open")
-            return False
-
-        self.set_last_error_null()
-        cursor = self.cursor()
-        try:
-            cursor.execute("ROLLBACK TRANSACTION")
-        except Exception:
-            self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-            LOGGER.error("SQL3Driver:: No se pudo deshacer la transacción ROLLBACK")
-            return False
-
-        return True
-
-    def transaction(self) -> bool:
-        """Set a new transaction."""
-        if not self.isOpen():
-            LOGGER.warning("transaction: Database not open")
-            return False
-
-        cursor = self.cursor()
-        self.set_last_error_null()
-
-        try:
-            cursor.execute("BEGIN TRANSACTION")
-        except Exception:
-            self.setLastError("No se pudo crear la transacción", "BEGIN")
-            LOGGER.error("SQL3Driver:: No se pudo crear la transacción BEGIN")
-            return False
-
-        return True
-
-    def releaseSavePoint(self, n: int) -> bool:
-        """Set release savepoint."""
-
-        if not self.isOpen():
-            LOGGER.warning("releaseSavePoint: Database not open")
-            return False
-
-        if n == 0:
-            return True
-
-        self.set_last_error_null()
-
-        cursor = self.cursor()
-        try:
-            cursor.execute("RELEASE SAVEPOINT sv_%s" % n)
-        except Exception:
-            self.setLastError(
-                "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % n
-            )
-            LOGGER.error(
-                "SQL3Driver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s", n
-            )
-            return False
-
-        return True
 
     def setType(self, type_: str, leng: Optional[Union[str, int]] = None) -> str:
         """Return type definition."""
@@ -483,56 +261,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         sql += create_index
 
         return sql
-
-    def mismatchedTable(
-        self,
-        table1: str,
-        tmd_or_table2: Union["pntablemetadata.PNTableMetaData", str],
-        db_: Optional[Any] = None,
-    ) -> bool:
-        """Return if a table is mismatched."""
-        if db_ is None:
-            db_ = self.db_
-
-        if isinstance(tmd_or_table2, str):
-            mtd = db_.connManager().manager().metadata(tmd_or_table2, True)
-            if not mtd:
-                return False
-
-            mismatch = False
-            processed_fields = []
-            try:
-                recMtd = self.recordInfo(tmd_or_table2)
-                recBd = self.recordInfo2(table1)
-                # fieldBd = None
-                for fieldMtd in recMtd:
-                    # fieldBd = None
-                    found = False
-                    for field in recBd:
-                        if field[0] == fieldMtd[0]:
-                            processed_fields.append(field[0])
-                            found = True
-                            if self.notEqualsFields(field, fieldMtd):
-                                mismatch = True
-
-                            recBd.remove(field)
-                            break
-
-                    if not found:
-                        if fieldMtd[0] not in processed_fields:
-                            mismatch = True
-                            break
-
-                if len(recBd) > 0:
-                    mismatch = True
-
-            except Exception:
-                print(traceback.format_exc())
-
-            return mismatch
-
-        else:
-            return self.mismatchedTable(table1, tmd_or_table2.name(), db_)
 
     def notEqualsFields(self, field1: List[Any], field2: List[Any]) -> bool:
         """Return if a field has canged."""

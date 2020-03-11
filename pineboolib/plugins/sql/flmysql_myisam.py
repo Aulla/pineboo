@@ -6,7 +6,6 @@ import traceback
 
 from PyQt5 import Qt, QtCore, QtWidgets
 
-from pineboolib.core.utils import utils_base
 from pineboolib.core import settings
 from pineboolib.application.utils import check_dependencies
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
@@ -38,6 +37,15 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self.noInnoDB = True
         self.defaultPort_ = 3306
         self.active_create_index = True
+        self.rollback_savepoint_command = "ROLLBACK TO SAVEPOINT"
+        self.commit_transaction_command = "COMMIT"
+        self.rollback_transaction_command = "ROLLBACK"
+        self.transaction_command = "START TRANSACTION"
+        self._true = True
+        self._false = False
+        self._like_true = "1"
+        self._like_false = "0"
+        self._text_like = " "
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -122,95 +130,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             self.conn_.set_character_set("utf8")
 
         return self.conn_
-
-    def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
-        """Format value for database LIKE expression."""
-        res = "IS NULL"
-
-        if v:
-            if type_ == "bool":
-                from pineboolib.fllegacy.flapplication import aqApp
-
-                s = str(v[0]).upper()
-                if s == aqApp.tr("Sí")[0].upper():
-                    res = "=1"
-                elif aqApp.tr("No")[0].upper():
-                    res = "=0"
-
-            elif type_ == "date":
-                from pineboolib.application.utils.date_conversion import date_dma_to_amd
-
-                amd_date = date_dma_to_amd(str(v)) or ""
-
-                res = " LIKE '%" + amd_date + "'"
-
-            elif type_ == "time":
-                t = v.toTime()
-                res = " LIKE '" + t.toString(QtCore.Qt.ISODate) + "%'"
-
-            else:
-                res = str(v)
-                if upper:
-                    res = res.upper()
-
-                res = " LIKE '" + res + "%'"
-
-        return res
-
-    def formatValue(self, type_: str, v: Any, upper: bool) -> Union[bool, str, None]:
-        """Format value for database WHERE comparison."""
-
-        # util = flutil.FLUtil()
-
-        s: Union[bool, str, None] = None
-
-        # if v == None:
-        #    v = ""
-        # TODO: psycopg2.mogrify ???
-
-        if v is None:
-            return "NULL"
-
-        if type_ in ("bool", "unlock"):
-            s = utils_base.text2bool(v)
-
-        elif type_ == "date":
-            # val = util.dateDMAtoAMD(v)
-            val = v
-            if val is None:
-                s = "Null"
-            else:
-                s = "'%s'" % val
-
-        elif type_ == "time":
-            s = "'%s'" % v
-
-        elif type_ in ("uint", "int", "double", "serial"):
-            if s == "Null":
-                s = "0"
-            else:
-                s = v
-
-        elif type_ in ("string", "stringlist", "timestamp"):
-            if v == "":
-                s = "Null"
-            else:
-                if type_ == "string":
-                    v = utils_base.auto_qt_translate_text(v)
-                    if upper:
-                        v = v.upper()
-
-                s = "'%s'" % v
-
-        elif type_ == "pixmap":
-            if v.find("'") > -1:
-                v = self.normalizeValue(v)
-            s = "'%s'" % v
-
-        else:
-            s = v
-        # print ("PNSqlDriver(%s).formatValue(%s, %s) = %s" % (self.name_, type_, v, s))
-        return s
 
     def tables(self, type_name: Optional[str] = None) -> list:
         """Introspect tables in database."""
@@ -314,146 +233,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         #    return None
 
         return ret
-
-    def savePoint(self, n: int) -> bool:
-        """Perform a transaction savepoint."""
-        if n == 0:
-            return True
-
-        if not self.isOpen():
-            LOGGER.warning("savePoint: Database not open")
-            return False
-
-        self.set_last_error_null()
-        cursor = self.cursor()
-        try:
-            cursor.execute("SAVEPOINT sv_%s" % n)
-        except Exception:
-            self.setLastError("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % n)
-            LOGGER.warning(
-                "MySQLDriver:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s \n %s ",
-                n,
-                traceback.format_exc(),
-            )
-            return False
-
-        return True
-
-    def rollbackSavePoint(self, n: int) -> bool:
-        """Rollback transaction to last savepoint."""
-        if n == 0:
-            return True
-
-        if not self.isOpen():
-            LOGGER.warning("rollbackSavePoint: Database not open")
-            return False
-
-        self.set_last_error_null()
-        cursor = self.cursor()
-        try:
-            cursor.execute("ROLLBACK TO SAVEPOINT sv_%s" % n)
-        except Exception:
-            self.setLastError(
-                "No se pudo rollback a punto de salvaguarda", "ROLLBACK TO SAVEPOINTt sv_%s" % n
-            )
-            LOGGER.warning(
-                "%s:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s\n %s",
-                self.name_,
-                n,
-                traceback.format_exc(),
-            )
-            return False
-
-        return True
-
-    def commitTransaction(self) -> bool:
-        """Commit database transaction."""
-        if not self.isOpen():
-            LOGGER.warning("commitTransaction: Database not open")
-            return False
-
-        self.set_last_error_null()
-        cursor = self.cursor()
-        try:
-            cursor.execute("COMMIT")
-        except Exception:
-            self.setLastError("No se pudo aceptar la transacción", "COMMIT")
-            LOGGER.warning(
-                "%s:: No se pudo aceptar la transacción COMMIT\n %s",
-                self.name_,
-                traceback.format_exc(),
-            )
-            return False
-
-        return True
-
-    def rollbackTransaction(self) -> bool:
-        """Rollback database transaction."""
-        if not self.isOpen():
-            LOGGER.warning("rollbackTransaction: Database not open")
-            return False
-        self.set_last_error_null()
-        cursor = self.cursor()
-        try:
-            cursor.execute("ROLLBACK")
-        except Exception:
-            self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-            LOGGER.warning(
-                "%s:: No se pudo deshacer la transacción ROLLBACK\n %s",
-                self.name_,
-                traceback.format_exc(),
-            )
-            return False
-
-        return True
-
-    def transaction(self) -> bool:
-        """Start new database transaction."""
-        if not self.isOpen():
-            LOGGER.warning("transaction: Database not open")
-            return False
-
-        self.set_last_error_null()
-        cursor = self.cursor()
-        try:
-            cursor.execute("START TRANSACTION")
-        except Exception:
-            self.setLastError("No se pudo crear la transacción", "BEGIN WORK")
-            LOGGER.warning(
-                "%s:: No se pudo crear la transacción BEGIN\n %s",
-                self.name_,
-                traceback.format_exc(),
-            )
-            return False
-
-        return True
-
-    def releaseSavePoint(self, n: int) -> bool:
-        """Remove named savepoint from database."""
-
-        if not self.isOpen():
-            LOGGER.warning("releaseSavePoint: Database not open")
-            return False
-
-        if n == 0:
-            return True
-
-        self.set_last_error_null()
-        cursor = self.cursor()
-        try:
-            cursor.execute("RELEASE SAVEPOINT sv_%s" % n)
-        except Exception:
-            self.setLastError(
-                "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % n
-            )
-            LOGGER.warning(
-                "MySQLDriver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s\n %s"
-                % (n, traceback.format_exc())
-            )
-
-            return False
-
-        return True
 
     def fix_query(self, val: str) -> str:
         """Fix values on SQL."""
@@ -1165,55 +944,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             return False
 
         return True
-
-    def mismatchedTable(
-        self, table1, tmd_or_table2: Union["pntablemetadata.PNTableMetaData", str], db_=None
-    ) -> bool:
-        """Check if table does not match MTD with database schema."""
-        if db_ is None:
-            db_ = self.db_
-
-        if isinstance(tmd_or_table2, str):
-            mtd = db_.connManager().manager().metadata(tmd_or_table2, True)
-            if not mtd:
-                return False
-
-            mismatch = False
-            processed_fields = []
-            try:
-                recMtd = self.recordInfo(tmd_or_table2)
-                recBd = self.recordInfo2(table1)
-                if recMtd is None:
-                    raise Exception("Error obtaining recordInfo for %s" % tmd_or_table2)
-                # fieldBd = None
-                for fieldMtd in recMtd:
-                    # fieldBd = None
-                    found = False
-                    for field in recBd:
-                        if field[0] == fieldMtd[0]:
-                            processed_fields.append(field[0])
-                            found = True
-                            if self.notEqualsFields(field, fieldMtd):
-                                mismatch = True
-
-                            recBd.remove(field)
-                            break
-
-                    if not found:
-                        if fieldMtd[0] not in processed_fields:
-                            mismatch = True
-                            break
-
-                if len(recBd) > 0:
-                    mismatch = True
-
-            except Exception:
-                LOGGER.exception("mismatchedTable: Unexpected error")
-
-            return mismatch
-
-        else:
-            return self.mismatchedTable(table1, tmd_or_table2.name(), db_)
 
     def recordInfo2(self, tablename: str) -> List[list]:
         """Obtain current cursor information on columns."""

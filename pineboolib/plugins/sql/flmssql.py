@@ -1,7 +1,7 @@
 """Flsqls module."""
 from PyQt5 import QtCore, Qt, QtWidgets
 
-from pineboolib.core.utils.utils_base import auto_qt_translate_text
+from pineboolib.core import decorators
 from pineboolib.core import settings
 
 from pineboolib.application.utils import check_dependencies
@@ -16,7 +16,7 @@ from . import pnsqlschema
 
 from xml.etree import ElementTree
 import traceback
-from typing import Iterable, Optional, Union, List, Dict, Any, cast
+from typing import Optional, Union, List, Dict, Any, cast
 
 
 LOGGER = logging.get_logger(__name__)
@@ -33,6 +33,11 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         self.errorList = []
         self.alias_ = "SQL Server (PYMSSQL)"
         self.defaultPort_ = 1433
+        self.savepoint_command = "SAVE TRANSACTION"
+        self.rollback_savepoint_command = "ROLLBACK TRANSACTION"
+        self.commit_transaction_command = "COMMIT"
+        self._like_true = "'t'"
+        self._like_false = "'f'"
 
     def safe_load(self) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -149,102 +154,6 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         return self.conn_
 
-    def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
-        """Return a string with the format value like."""
-        util = flutil.FLUtil()
-        res = "IS NULL"
-
-        if type_ == "bool":
-            s = str(v[0]).upper()
-            if s == str(util.translate("application", "Sí")[0]).upper():
-                res = "='t'"
-            elif str(util.translate("application", "No")[0]).upper():
-                res = "='f'"
-
-        elif type_ == "date":
-            dateamd = util.dateDMAtoAMD(str(v))
-            if dateamd is None:
-                dateamd = ""
-            res = "::text LIKE '%%" + dateamd + "'"
-
-        elif type_ == "time":
-            t = v.toTime()
-            res = "::text LIKE '" + t.toString(QtCore.Qt.ISODate) + "%%'"
-
-        else:
-            res = str(v)
-            if upper:
-                res = "%s" % res.upper()
-
-            res = "::text LIKE '" + res + "%%'"
-
-        return res
-
-    def formatValue(self, type_: str, v: Any, upper: bool) -> Optional[Union[int, str, bool]]:
-        """Return a string with the format value."""
-
-        util = flutil.FLUtil()
-
-        s: Any = None
-
-        # if v == None:
-        #    v = ""
-        # TODO: psycopg2.mogrify ???
-
-        if v is None:
-            return "NULL"
-
-        if type_ in ("bool", "unlock"):
-            if isinstance(v, str):
-                if v[0].lower() == "t":
-                    s = 1
-                else:
-                    s = 0
-            elif isinstance(v, bool):
-                if v:
-                    s = 1
-                else:
-                    s = 0
-
-        elif type_ == "date":
-            if s != "Null":
-                if len(str(v).split("-")[0]) < 3:
-                    val = util.dateDMAtoAMD(v)
-                else:
-                    val = v
-
-                s = "'%s'" % val
-
-        elif type_ == "time":
-            s = "'%s'" % v
-
-        elif type_ in ("uint", "int", "double", "serial"):
-            if s == "Null":
-                s = "0"
-            else:
-                s = v
-
-        elif type_ in ("string", "stringlist", "timestamp"):
-            if v == "":
-                s = "Null"
-            else:
-                if type_ == "string":
-                    v = auto_qt_translate_text(v)
-                    if upper:
-                        v = v.upper()
-
-                s = "'%s'" % v
-
-        elif type_ == "pixmap":
-            if v.find("'") > -1:
-                v = self.normalizeValue(v)
-            s = "'%s'" % v
-
-        else:
-            s = v
-        # print ("PNSqlDriver(%s).formatValue(%s, %s) = %s" % (self.name_, type_, v, s))
-        return s
-
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Return next serial value."""
         # q = pnsqlquery.PNSqlQuery()
@@ -263,126 +172,8 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         return None
 
-    def savePoint(self, n: int) -> bool:
-        """Set a savepoint."""
-        if not self.isOpen():
-            LOGGER.warning("savePoint: Database not open")
-            return False
-        self.set_last_error_null()
-        cursor = self.conn_.cursor()
-        try:
-            cursor.execute("SAVE TRANSACTION sv_%s" % n)
-        except Exception:
-            self.setLastError("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % n)
-            LOGGER.warning(
-                "PSQLDriver:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s \n %s ",
-                n,
-                traceback.format_exc(),
-            )
-            return False
-
-        return True
-
-    def rollbackSavePoint(self, n: int) -> bool:
-        """Set rollback savepoint."""
-        if not self.isOpen():
-            LOGGER.warning("rollbackSavePoint: Database not open")
-            return False
-        self.set_last_error_null()
-        cursor = self.conn_.cursor()
-        try:
-            cursor.execute("ROLLBACK TRANSACTION sv_%s" % n)
-        except Exception:
-            self.setLastError(
-                "No se pudo rollback a punto de salvaguarda", "ROLLBACK TO SAVEPOINTt sv_%s" % n
-            )
-            LOGGER.warning(
-                "PSQLDriver:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s\n %s",
-                n,
-                traceback.format_exc(),
-            )
-            return False
-
-        return True
-
-    def commitTransaction(self) -> bool:
-        """Set commit transaction."""
-        if not self.isOpen():
-            LOGGER.warning("commitTransaction: Database not open")
-            return False
-
-        self.set_last_error_null()
-        cursor = self.conn_.cursor()
-        try:
-            cursor.execute("COMMIT")
-        except Exception:
-            self.setLastError("No se pudo aceptar la transacción", "COMMIT")
-            LOGGER.warning(
-                "PSQLDriver:: No se pudo aceptar la transacción COMMIT\n %s", traceback.format_exc()
-            )
-            return False
-
-        return True
-
-    def rollbackTransaction(self) -> bool:
-        """Set a rollback transaction."""
-        if not self.isOpen():
-            LOGGER.warning("rollbackTransaction: Database not open")
-            return False
-
-        self.set_last_error_null()
-        cursor = self.conn_.cursor()
-        try:
-            cursor.execute("ROLLBACK TRANSACTION")
-        except Exception:
-            self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-            LOGGER.warning(
-                "PSQLDriver:: No se pudo deshacer la transacción ROLLBACK\n %s",
-                traceback.format_exc(),
-            )
-            return False
-
-        return True
-
-    def transaction(self) -> bool:
-        """Set a new transaction."""
-        if not self.isOpen():
-            LOGGER.warning("PSQLDriver::transaction: Database not open")
-            return False
-        self.set_last_error_null()
-        cursor = self.conn_.cursor()
-        try:
-            cursor.execute("BEGIN TRANSACTION")
-        except Exception:
-            self.setLastError("No se pudo crear la transacción", "BEGIN")
-            LOGGER.warning(
-                "PSQLDriver:: No se pudo crear la transacción BEGIN\n %s", traceback.format_exc()
-            )
-            return False
-
-        return True
-
     def releaseSavePoint(self, n: int) -> bool:
         """Set release savepoint."""
-
-        # if not self.isOpen():
-        #    LOGGER.warning("PSQLDriver::releaseSavePoint: Database not open")
-        #    return False
-        # self.set_last_error_null()
-        # cursor = self.conn_.cursor()
-        # try:
-        #    cursor.execute("RELEASE SAVEPOINT sv_%s" % n)
-        # except Exception:
-        #    self.setLastError(
-        #        "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % n
-        #    )
-        #    LOGGER.warning(
-        #        "PSQLDriver:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s\n %s",
-        #        n,
-        #        traceback.format_exc(),
-        #    )
-
-        #    return False
 
         return True
 
@@ -504,6 +295,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         return sql
 
+    @decorators.not_implemented_warn
     def mismatchedTable(
         self,
         table1: str,
@@ -1274,53 +1066,6 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
             del old_mtd
         if new_mtd:
             del new_mtd
-
-        return True
-
-    def insertMulti(self, table_name: str, records: Iterable) -> bool:
-        """Insert multiple registers into a table."""
-
-        if not records:
-            return False
-
-        if self.db_ is None:
-            raise Exception("insertMulti. self.db_ is None")
-
-        mtd = self.db_.connManager().manager().metadata(table_name)
-        fList = []
-        vList = []
-        cursor_ = self.conn_.cursor()
-        for f in records:
-            field = mtd.field(f[0])
-            if field.generated():
-
-                value = f[5]
-                if field.type() in ("string", "stringlist") and value:
-                    value = self.normalizeValue(value)
-                value = self.formatValue(field.type(), value, False)
-                if field.type() in ("string", "stringlist") and value in ["Null", "NULL"]:
-                    value = "''"
-                #    value = self.db_.normalizeValue(value)
-                # if value is None and field.allowNull():
-                #    continue
-                fList.append(field.name())
-                vList.append(value)
-
-        sql = """INSERT INTO %s(%s) values (%s)""" % (
-            table_name,
-            ", ".join(fList),
-            ", ".join(map(str, vList)),
-        )
-
-        if not fList:
-            return False
-
-        try:
-            cursor_.execute(sql)
-        except Exception as exc:
-            print(sql[:200], "\n", exc)
-            raise Exception("EOo!")
-            return False
 
         return True
 
