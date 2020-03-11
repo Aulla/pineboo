@@ -10,7 +10,7 @@ from pineboolib import logging
 LOGGER = logging.get_logger(__name__)
 
 
-class dgi_schema(object):
+class DgiSchema(object):
     """dgi_schema class."""
 
     _desktopEnabled: bool

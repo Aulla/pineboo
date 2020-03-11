@@ -6,7 +6,7 @@ Just an assortment of functions that don't depend on externals and don't fit oth
 """
 
 
-from PyQt5 import QtGui, QtCore
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 from pineboolib.core import utils, settings
 
@@ -466,6 +466,11 @@ def format_int(value: Union[str, int, float, None], part_integer: int = None) ->
 def is_deployed() -> bool:
     """Return wether we're running inside a PyInstaller bundle."""
     return getattr(sys, "frozen", False)
+
+
+def is_library() -> bool:
+    """Return if pineboolib is used as external library."""
+    return QtWidgets.QApplication.platformName() != "offscreen"
 
 
 def get_base_dir() -> str:

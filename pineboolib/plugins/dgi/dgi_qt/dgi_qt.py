@@ -5,15 +5,19 @@ from importlib import import_module
 from PyQt5 import QtWidgets, QtCore, QtGui, Qt, QtXml  # type: ignore
 
 from pineboolib import logging
-from pineboolib.plugins.dgi.dgi_schema import dgi_schema
+from pineboolib.plugins.dgi import dgi_schema
 from pineboolib.application.parsers.qt3uiparser import qt3ui
+
+from pineboolib.q3widgets import messagebox
+from .dgi_objects.dlg_about import about_pineboo
+
 from .dgi_objects import splash_screen, progress_dialog_manager, status_help_msg
 from typing import Any, Optional
 
 LOGGER = logging.get_logger(__name__)
 
 
-class dgi_qt(dgi_schema):
+class DgiQt(dgi_schema.DgiSchema):
     """dgi_qt class."""
 
     pnqt3ui: Any
@@ -22,7 +26,7 @@ class dgi_qt(dgi_schema):
 
     def __init__(self):
         """Inicialize."""
-        super(dgi_qt, self).__init__()  # desktopEnabled y mlDefault a True
+        super().__init__()  # desktopEnabled y mlDefault a True
         self._name = "qt"
         self._alias = "Qt5"
 
@@ -49,19 +53,22 @@ class dgi_qt(dgi_schema):
 
         return cls
 
-    def msgBoxWarning(self, t: str, parent: Optional[Any] = None) -> None:
+    def msgBoxWarning(self, text: str, parent: Optional[Any] = None) -> None:
         """Show a message box warning."""
-        from pineboolib.q3widgets.messagebox import MessageBox
 
-        LOGGER.warning("%s", t)
+        LOGGER.warning("%s", text)
         if QtWidgets.QApplication.platformName() != "offscreen":
-            MessageBox.warning(
-                t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
+            messagebox.MessageBox.warning(
+                text,
+                messagebox.MessageBox.Ok,
+                messagebox.MessageBox.NoButton,
+                messagebox.MessageBox.NoButton,
+                "Pineboo",
+                parent,
             )
 
-    def msgBoxError(self, t: str, parent: Optional[Any] = None) -> None:
+    def msgBoxError(self, text: str, parent: Optional[Any] = None) -> None:
         """Show a message box warning."""
-        from pineboolib.q3widgets.messagebox import MessageBox
 
         if parent is None:
             parent = (
@@ -70,18 +77,22 @@ class dgi_qt(dgi_schema):
                 else QtWidgets.qApp.activeWindow()
             )
 
-        LOGGER.warning("%s", t)
+        LOGGER.warning("%s", text)
 
         if QtWidgets.QApplication.platformName() != "offscreen":
 
             if parent is not None:
-                MessageBox.critical(
-                    t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
+                messagebox.MessageBox.critical(
+                    text,
+                    messagebox.MessageBox.Ok,
+                    messagebox.MessageBox.NoButton,
+                    messagebox.MessageBox.NoButton,
+                    "Pineboo",
+                    parent,
                 )
 
-    def msgBoxInfo(self, t: str, parent: Optional[Any] = None) -> None:
+    def msgBoxInfo(self, text: str, parent: Optional[Any] = None) -> None:
         """Show a message box warning."""
-        from pineboolib.q3widgets.messagebox import MessageBox
 
         if parent is None:
             parent = (
@@ -90,18 +101,22 @@ class dgi_qt(dgi_schema):
                 else QtWidgets.qApp.activeWindow()
             )
 
-        LOGGER.warning("%s", t)
+        LOGGER.warning("%s", text)
 
         if QtWidgets.QApplication.platformName() != "offscreen":
 
             if parent is not None:
-                MessageBox.information(
-                    t, MessageBox.Ok, MessageBox.NoButton, MessageBox.NoButton, "Pineboo", parent
+                messagebox.MessageBox.information(
+                    text,
+                    messagebox.MessageBox.Ok,
+                    messagebox.MessageBox.NoButton,
+                    messagebox.MessageBox.NoButton,
+                    "Pineboo",
+                    parent,
                 )
 
     def about_pineboo(self) -> None:
         """Show about pineboo dialog."""
-        from .dgi_objects.dlg_about.about_pineboo import AboutPineboo
 
-        about_ = AboutPineboo()
+        about_ = about_pineboo.AboutPineboo()
         about_.show()

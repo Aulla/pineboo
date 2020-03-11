@@ -19,7 +19,7 @@ from typing import Any, cast, List, Optional, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.application.database import pnconnectionmanager
 
-logger = logging.get_logger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class MainForm(QtWidgets.QMainWindow):
@@ -29,12 +29,12 @@ class MainForm(QtWidgets.QMainWindow):
     is_closing_: bool
     mdi_enable_: bool
     container_: Optional[QtWidgets.QMainWindow]
-    w_: QtWidgets.QMainWindow
+    main_window: QtWidgets.QMainWindow
     exit_button: QtWidgets.QPushButton
     _p_work_space: Any
     mdi_toolbuttons: List[QtWidgets.QToolButton]
     _dict_main_widgets: Dict[str, QtWidgets.QWidget]
-    debugLevel: int
+    debug_level: int
     tool_box_: Any
     toogle_bars_: Any
     last_text_caption_: str
@@ -64,9 +64,9 @@ class MainForm(QtWidgets.QMainWindow):
             self._dict_main_widgets = {}
 
     @classmethod
-    def setDebugLevel(self, q: int) -> None:
+    def setdebug_level(self, level: int) -> None:
         """Set a new debug level."""
-        MainForm.debugLevel = q
+        MainForm.debug_level = level
 
     def initScript(self) -> None:
         """Inicialize main script."""
@@ -84,9 +84,10 @@ class MainForm(QtWidgets.QMainWindow):
     def createUi(self, ui_file: str) -> None:
         """Create UI from a file."""
 
-        mng = self.db().managerModules()
-        self.w_ = cast(QtWidgets.QMainWindow, mng.createUI(ui_file, None, self))
-        self.w_.setObjectName("container")
+        self.main_window = cast(
+            QtWidgets.QMainWindow, self.db().managerModules().createUI(ui_file, None, self)
+        )
+        self.main_window.setObjectName("container")
 
     def init(self) -> None:
         """Initialize FLApplication."""
@@ -133,12 +134,12 @@ class MainForm(QtWidgets.QMainWindow):
         self.modules_menu.setObjectName("modulesMenu")
         # self.modules_menu.setCheckable(False)
 
-        w = QtWidgets.QWidget(self.container_)
-        w.setObjectName("widgetContainer")
-        vl = QtWidgets.QVBoxLayout(w)
+        widget = QtWidgets.QWidget(self.container_)
+        widget.setObjectName("widgetContainer")
+        vbox_layout = QtWidgets.QVBoxLayout(widget)
 
         self.exit_button = QtWidgets.QPushButton(
-            QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("exit.png")), self.tr("Salir"), w
+            QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("exit.png")), self.tr("Salir"), widget
         )
         self.exit_button.setObjectName("pbSalir")
         self.exit_button.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+Q")))
@@ -150,12 +151,12 @@ class MainForm(QtWidgets.QMainWindow):
         self.exit_button.setWhatsThis(self.tr("Salir de la aplicación (Ctrl+Q)"))
         self.exit_button.clicked.connect(self.exit_button_clicked)
 
-        self.tool_box_ = QtWidgets.QToolBox(w)
+        self.tool_box_ = QtWidgets.QToolBox(widget)
         self.tool_box_.setObjectName("toolBox")
 
-        vl.addWidget(self.exit_button)
-        vl.addWidget(self.tool_box_)
-        self.container_.setCentralWidget(w)
+        vbox_layout.addWidget(self.exit_button)
+        vbox_layout.addWidget(self.tool_box_)
+        self.container_.setCentralWidget(widget)
 
         self.db().manager().init()
 
@@ -183,8 +184,7 @@ class MainForm(QtWidgets.QMainWindow):
 
     def exit_button_clicked(self):
         """Event when exit button is clicked. Closes the container."""
-        ret = self.generalExit(True)
-        if ret:
+        if self.generalExit(True):
             self.is_closing_ = True
             self.close()
 
@@ -198,20 +198,21 @@ class MainForm(QtWidgets.QMainWindow):
     def initToolBar(self) -> None:
         """Initialize toolbar."""
 
-        mw: Optional[QtWidgets.QMainWindow] = cast(
-            QtWidgets.QMainWindow, flapplication.aqApp.main_widget_
-        )
-        if mw is None:
+        if flapplication.aqApp.main_widget_ is None:
             return
 
-        tb = mw.menuBar()
-        if tb is None:
-            logger.warning("No se encuentra toolbar en %s", mw.objectName())
+        menu_bar = (
+            flapplication.aqApp.main_widget_.menuBar()  # type: ignore [attr-defined] # noqa: F821
+        )
+        if menu_bar is None:
+            LOGGER.warning(
+                "No se encuentra toolbar en %s", flapplication.aqApp.main_widget_.objectName()
+            )
             return
 
         # tb.setMovingEnabled(False)
 
-        tb.addSeparator()
+        menu_bar.addSeparator()
         # what_this_button = QWhatsThis(tb)
 
         if not self.toogle_bars_:
@@ -222,27 +223,33 @@ class MainForm(QtWidgets.QMainWindow):
             # ag = QtWidgets.QActionGroup(self.container_)
             # ag.setObjectName("agToggleBars")
 
-            a = QtWidgets.QAction(self.tr("Barra de Herramientas"), self.container_)
-            a.setObjectName("Herramientas")
-            a.setCheckable(True)
-            a.setChecked(True)
-            a.triggered.connect(self.toggleToolBar)
-            self.toogle_bars_.addAction(a)
+            tools_action = QtWidgets.QAction(self.tr("Barra de Herramientas"), self.container_)
+            tools_action.setObjectName("Herramientas")
+            tools_action.setCheckable(True)
+            tools_action.setChecked(True)
+            tools_action.triggered.connect(self.toggleToolBar)
+            self.toogle_bars_.addAction(tools_action)
 
-            b = QtWidgets.QAction(self.tr("Barra de Estado"), self.container_)
-            b.setObjectName("Estado")
-            b.setCheckable(True)
-            b.setChecked(True)
-            b.triggered.connect(self.toggleStatusBar)
-            self.toogle_bars_.addAction(b)
+            status_action = QtWidgets.QAction(self.tr("Barra de Estado"), self.container_)
+            status_action.setObjectName("Estado")
+            status_action.setCheckable(True)
+            status_action.setChecked(True)
+            status_action.triggered.connect(self.toggleStatusBar)
+            self.toogle_bars_.addAction(status_action)
 
-            mw.menuBar().addMenu(self.toogle_bars_)
+            flapplication.aqApp.main_widget_.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
+                self.toogle_bars_
+            )
 
-        ac = mw.menuBar().addMenu(self.toogle_bars_)
-        ac.setText(self.tr("&Ver"))
+        view_action = flapplication.aqApp.main_widget_.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
+            self.toogle_bars_
+        )
+        view_action.setText(self.tr("&Ver"))
 
-        ac = mw.menuBar().addMenu(self.modules_menu)
-        ac.setText(self.tr("&Módulos"))
+        modules_action = flapplication.aqApp.main_widget_.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
+            self.modules_menu
+        )
+        modules_action.setText(self.tr("&Módulos"))
 
     def windowMenuAboutToShow(self) -> None:
         """Signal called before window menu is shown."""
@@ -266,13 +273,13 @@ class MainForm(QtWidgets.QMainWindow):
             self.window_menu.addSeparator()
 
         for window in self._p_work_space.subWindowList():
-            ac = self.window_menu.addAction(window.windowTitle())
-            ac.setCheckable(True)
+            action = self.window_menu.addAction(window.windowTitle())
+            action.setCheckable(True)
 
             if window == self._p_work_space.activeSubWindow():
-                ac.setChecked(True)
+                action.setChecked(True)
 
-            ac.triggered.connect(window.setFocus)
+            action.triggered.connect(window.setFocus)
 
     def windowMenuActivated(self, id) -> None:
         """Signal called when user clicks on menu."""
@@ -283,14 +290,13 @@ class MainForm(QtWidgets.QMainWindow):
         if window_list_:
             window_list_[id].setFocus()
 
-    def existFormInMDI(self, id: str) -> bool:
+    def existFormInMDI(self, form_name: str) -> bool:
         """Return if named FLFormDB is open."""
-        if id is None or not self._p_work_space:
+        if form_name is None or not self._p_work_space:
             return False
 
         for window in self._p_work_space.subWindowList():
-            s = window.findChild(flformdb.FLFormDB)
-            if s.idMDI() == id:
+            if window.findChild(flformdb.FLFormDB).idMDI() == form_name:
                 window.showNormal()
                 window.setFocus()
                 return True
@@ -327,20 +333,20 @@ class MainForm(QtWidgets.QMainWindow):
             return
 
         self.modules_menu.clear()
-        for n in reversed(range(self.tool_box_.count())):
-            item = self.tool_box_.widget(n)
+        for number in reversed(range(self.tool_box_.count())):
+            item = self.tool_box_.widget(number)
             if isinstance(item, QtWidgets.QToolBar):
                 item.clear()
 
-            self.tool_box_.removeItem(n)
+            self.tool_box_.removeItem(number)
 
-        for tb in self.mdi_toolbuttons:
-            self.mdi_toolbuttons.remove(tb)
+        for button in self.mdi_toolbuttons:
+            self.mdi_toolbuttons.remove(button)
 
         del self.mdi_toolbuttons
         self.mdi_toolbuttons = []
 
-        c = 65
+        char_num = 65
 
         for it in self.db().managerModules().listIdAreas():
             descript_area = self.db().managerModules().idAreaToDescription(it)
@@ -350,8 +356,8 @@ class MainForm(QtWidgets.QMainWindow):
             new_area_bar.setOrientation(QtCore.Qt.Vertical)
             new_area_bar.layout().setSpacing(3)
             self.tool_box_.addItem(new_area_bar, self.tr(descript_area))
-            ag = QtWidgets.QActionGroup(new_area_bar)
-            ag.setObjectName(descript_area)
+            action_group = QtWidgets.QActionGroup(new_area_bar)
+            action_group.setObjectName(descript_area)
             # ac = QtWidgets.QAction(ag)
             # ac.setText(descript_area)
             # ac.setUsesDropDown(True)
@@ -360,71 +366,78 @@ class MainForm(QtWidgets.QMainWindow):
             list_modules.sort()
 
             for mod in list_modules:
-                if str(chr(c)) == "Q":
-                    c += 1
+                if str(chr(char_num)) == "Q":
+                    char_num += 1
                     continue
 
                 if mod == "sys":
                     if settings.CONFIG.value("application/isDebuggerMode", False):
 
                         descript_module = "%s: %s" % (
-                            str(chr(c)),
+                            str(chr(char_num)),
                             self.tr("Carga Estática desde Disco Duro"),
                         )
                         new_module_action = QtWidgets.QAction(new_area_bar)
                         new_module_action.setObjectName("StaticLoadAction")
                         new_module_action.setText(self.tr(descript_module))
-                        new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
+                        new_module_action.setShortcut(
+                            getattr(QtCore.Qt, "Key_%s" % str(chr(char_num)))
+                        )
                         new_module_action.setIcon(
                             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("folder_update.png"))
                         )
                         new_area_bar.addAction(new_module_action)
                         new_module_action.triggered.connect(flapplication.aqApp.staticLoaderSetup)
-                        ag.addAction(new_module_action)
-                        c += 1
+                        action_group.addAction(new_module_action)
+                        char_num += 1
 
-                        descript_module = "%s: %s" % (str(chr(c)), self.tr("Reiniciar Script"))
+                        descript_module = "%s: %s" % (
+                            str(chr(char_num)),
+                            self.tr("Reiniciar Script"),
+                        )
                         new_module_action = QtWidgets.QAction(new_area_bar)
                         new_module_action.setObjectName("reinitScriptAction")
                         new_module_action.setText(self.tr(descript_module))
-                        new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
+                        new_module_action.setShortcut(
+                            getattr(QtCore.Qt, "Key_%s" % str(chr(char_num)))
+                        )
                         new_module_action.setIcon(
                             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("reload.png"))
                         )
                         new_area_bar.addAction(new_module_action)
                         new_module_action.triggered.connect(flapplication.aqApp.reinit)
-                        ag.addAction(new_module_action)
-                        c += 1
+                        action_group.addAction(new_module_action)
+                        char_num += 1
 
                     descript_module = "%s: %s" % (
-                        str(chr(c)),
+                        str(chr(char_num)),
                         self.tr("Mostrar Consola de mensajes"),
                     )
                     new_module_action = QtWidgets.QAction(new_area_bar)
                     new_module_action.setObjectName("shConsoleAction")
                     new_module_action.setText(self.tr(descript_module))
-                    new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
+                    new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(char_num))))
                     new_module_action.setIcon(
                         QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("consola.png"))
                     )
                     new_area_bar.addAction(new_module_action)
                     new_module_action.triggered.connect(flapplication.aqApp.showConsole)
-                    ag.addAction(new_module_action)
-                    c += 1
+                    action_group.addAction(new_module_action)
+                    char_num += 1
 
                 descript_module = "%s: %s" % (
-                    str(chr(c)),
+                    str(chr(char_num)),
                     self.db().managerModules().idModuleToDescription(mod),
                 )
                 new_module_action = QtWidgets.QAction(new_area_bar)
                 new_module_action.setObjectName(mod)
                 new_module_action.setText(self.tr(descript_module))
-                new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
+                new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(char_num))))
                 new_module_action.setIcon(QtGui.QIcon(self.db().managerModules().iconModule(mod)))
                 new_area_bar.addAction(new_module_action)
                 new_module_action.triggered.connect(self.activateModule)
-                ag.addAction(new_module_action)
-                c += 1
+                action_group.addAction(new_module_action)
+                char_num += 1
 
             # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
 
@@ -435,8 +448,8 @@ class MainForm(QtWidgets.QMainWindow):
                     lay.setAlignment(child, QtCore.Qt.AlignCenter)
 
             a_menu = self.modules_menu.addMenu(descript_area)
-            for a in ag.actions():
-                a_menu.addAction(a)
+            for action in action_group.actions():
+                a_menu.addAction(action)
 
         descript_area = "Configuración"
         config_tool_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
@@ -454,7 +467,7 @@ class MainForm(QtWidgets.QMainWindow):
         font_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("font.png")))
         config_tool_bar.addAction(font_action)
         font_action.triggered.connect(flapplication.aqApp.chooseFont)
-        ag.addAction(font_action)
+        action_group.addAction(font_action)
 
         descript_module = self.tr("Estilo")
         style_action = QtWidgets.QAction(new_area_bar)
@@ -464,7 +477,7 @@ class MainForm(QtWidgets.QMainWindow):
         style_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("estilo.png")))
         config_tool_bar.addAction(style_action)
         style_action.triggered.connect(flapplication.aqApp.showStyles)
-        ag.addAction(style_action)
+        action_group.addAction(style_action)
 
         descript_module = self.tr("Indice")
         help_action = QtWidgets.QAction(new_area_bar)
@@ -474,7 +487,7 @@ class MainForm(QtWidgets.QMainWindow):
         help_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("help_index.png")))
         config_tool_bar.addAction(help_action)
         help_action.triggered.connect(flapplication.aqApp.helpIndex)
-        ag.addAction(help_action)
+        action_group.addAction(help_action)
 
         descript_module = self.tr("Acerca de Pineboo")
         about_pineboo_action = QtWidgets.QAction(new_area_bar)
@@ -484,7 +497,7 @@ class MainForm(QtWidgets.QMainWindow):
         about_pineboo_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("about.png")))
         config_tool_bar.addAction(about_pineboo_action)
         about_pineboo_action.triggered.connect(flapplication.aqApp.aboutPineboo)
-        ag.addAction(about_pineboo_action)
+        action_group.addAction(about_pineboo_action)
 
         descript_module = self.tr("Visita Eneboo.org")
         visit_pineboo_action = QtWidgets.QAction(new_area_bar)
@@ -494,7 +507,7 @@ class MainForm(QtWidgets.QMainWindow):
         visit_pineboo_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("about.png")))
         config_tool_bar.addAction(visit_pineboo_action)
         visit_pineboo_action.triggered.connect(flapplication.aqApp.urlPineboo)
-        ag.addAction(visit_pineboo_action)
+        action_group.addAction(visit_pineboo_action)
 
         descript_module = self.tr("Acerca de Qt")
         about_qt_action = QtWidgets.QAction(new_area_bar)
@@ -504,7 +517,7 @@ class MainForm(QtWidgets.QMainWindow):
         about_qt_action.setIcon(QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("aboutqt.png")))
         config_tool_bar.addAction(about_qt_action)
         about_qt_action.triggered.connect(flapplication.aqApp.aboutQt)
-        ag.addAction(about_qt_action)
+        action_group.addAction(about_qt_action)
 
         lay = config_tool_bar.layout()
         for child in config_tool_bar.children():
@@ -515,25 +528,25 @@ class MainForm(QtWidgets.QMainWindow):
         if flapplication.aqApp.acl_:
             flapplication.aqApp.acl_.process(self.container_)
 
-    def eventFilter(self, obj, ev) -> Any:
+    def eventFilter(self, obj_, event) -> Any:
         """React to user events."""
         if self._inicializing or flapplication.aqApp._destroying:
-            return super().eventFilter(obj, ev)
+            return super().eventFilter(obj_, obj_)
 
         # if QtWidgets.QApplication.activeModalWidget() or QtWidgets.QApplication.activePopupWidget():
-        #    return super().eventFilter(obj, ev)
+        #    return super().eventFilter(obj, event)
 
-        evt = ev.type()
+        event_type = event.type()
         main_widget = flapplication.aqApp.main_widget_
-        if obj != main_widget and not isinstance(obj, QtWidgets.QMainWindow):
-            return super().eventFilter(obj, ev)
+        if obj_ != main_widget and not isinstance(obj_, QtWidgets.QMainWindow):
+            return super().eventFilter(obj_, event)
 
         # aw = None
         # if self._p_work_space is not None:
         #    aw = QtWidgets.QApplication.setActiveWindow(self._p_work_space)
-        # if aw is not None and aw != obj and evt not in (QEvent.Resize, QEvent.Close):
+        # if aw is not None and aw != obj and event_type not in (QEvent.Resize, QEvent.Close):
         #     obj.removeEventFilter(self)
-        #     if evt == QEvent.WindowActivate:
+        #     if event_type == QEvent.WindowActivate:
         #         if obj == self.container_:
         #             self.activateModule(None)
         #         else:
@@ -545,45 +558,45 @@ class MainForm(QtWidgets.QMainWindow):
         #
         #     obj.installEventFilter(self)
 
-        if evt == QtCore.QEvent.KeyPress:
-            if obj == self.container_:
-                ke = ev
+        if event_type == QtCore.QEvent.KeyPress:
+            if obj_ == self.container_:
+                key_ = event
 
-            elif obj == main_widget:
-                ke = ev
-                if ke.key() == QtCore.Qt.Key_Shift and (ke.state() == QtCore.Qt.Key_Control):
+            elif obj_ == main_widget:
+                key_ = event
+                if key_.key() == QtCore.Qt.Key_Shift and (key_.state() == QtCore.Qt.Key_Control):
                     self.activateModule(None)
                     return True
-                if ke.key() == QtCore.Qt.Key_Q and (ke.state() == QtCore.Qt.Key_Control):
+                elif key_.key() == QtCore.Qt.Key_Q and (key_.state() == QtCore.Qt.Key_Control):
                     self.generalExit()
                     return True
-                if ke.key() == QtCore.Qt.Key_W and (
-                    ke.state() in (QtCore.Qt.Key_Control, QtCore.Qt.Key_Alt)
+                elif key_.key() == QtCore.Qt.Key_W and (
+                    key_.state() in (QtCore.Qt.Key_Control, QtCore.Qt.Key_Alt)
                 ):
-                    print("????")
+                    LOGGER.warning("unknown key presset!.")
                     return True
-                if ke.key() == QtCore.Qt.Key_Escape:
-                    obj.hide()
+                elif key_.key() == QtCore.Qt.Key_Escape:
+                    obj_.hide()
                     return True
 
-        elif evt == QtCore.QEvent.Close:
-            if obj is self and not self.is_closing_:
+        elif event_type == QtCore.QEvent.Close:
+            if obj_ is self and not self.is_closing_:
                 ret = self.generalExit()
                 if not ret:
-                    obj.setDisabled(False)
-                    ev.ignore()
+                    obj_.setDisabled(False)
+                    event.ignore()
 
             return True
 
-        elif evt == QtCore.QEvent.WindowActivate:
-            if obj == self.container_:
+        elif event_type == QtCore.QEvent.WindowActivate:
+            if obj_ == self.container_:
                 self.activateModule(None)
                 return True
             else:
-                self.activateModule(obj.objectName())
+                self.activateModule(obj_.objectName())
                 return True
 
-        # elif evt == QtCore.QEvent.MouseButtonPress:
+        # elif event_type == QtCore.QEvent.MouseButtonPress:
         #    if self.modules_menu:
         #        me = ev
         #        if me.button() == QtCore.Qt.RightButton:
@@ -594,13 +607,13 @@ class MainForm(QtWidgets.QMainWindow):
         #    else:
         #        return False
 
-        elif evt == QtCore.QEvent.Resize and obj is self:
-            for bt in self.mdi_toolbuttons:
-                bt.setMinimumWidth(obj.width() - 10)
+        elif event_type == QtCore.QEvent.Resize and obj_ is self:
+            for tool_button in self.mdi_toolbuttons:
+                tool_button.setMinimumWidth(obj_.width() - 10)
 
             return True
 
-        return super().eventFilter(obj, ev)
+        return super().eventFilter(obj_, event)
 
     def activateModule(self, idm=None) -> None:
         """Initialize module."""
@@ -628,7 +641,7 @@ class MainForm(QtWidgets.QMainWindow):
                     cc = self.db().managerModules().contentCached(ui_file)
                     if not cc or not doc.setContent(cc):
                         if cc:
-                            logger.warning("No se ha podido cargar %s" % (ui_file))
+                            LOGGER.warning("No se ha podido cargar %s" % (ui_file))
                             return None
 
                     root = doc.documentElement().toElement()
@@ -652,7 +665,7 @@ class MainForm(QtWidgets.QMainWindow):
                                 )
                                 ac.triggered.connect(sl)
                             else:
-                                logger.warning("Action %s not found", sender)
+                                LOGGER.warning("Action %s not found", sender)
 
                 w.setWindowModality(QtCore.Qt.WindowModal)
                 self._dict_main_widgets[idm] = w

@@ -6,8 +6,8 @@ from typing import Callable, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.dgi_schema import dgi_schema
-    from pineboolib.plugins.dgi.dgi_qt.dgi_qt import dgi_qt
-    from pineboolib.plugins.dgi.dgi_fcgi.dgi_fcgi import dgi_fcgi
+    from pineboolib.plugins.dgi.dgi_qt import dgi_qt
+    from pineboolib.plugins.dgi.dgi_fcgi import dgi_fcgi
 
     # from pineboolib.plugins.dgi.dgi_jsonrpc.dgi_jsonrpc import dgi_jsonrpc
     # from pineboolib.plugins.dgi.dgi_server.dgi_server import dgi_server
@@ -39,20 +39,20 @@ class DGILoader(object):
     """DGILoader Class."""
 
     @staticmethod
-    def load_dgi_qt() -> "dgi_qt":
+    def load_dgi_qt() -> "dgi_qt.DgiQt":
         """Load dgi qt."""
 
         from pineboolib.plugins.dgi.dgi_qt import dgi_qt as dgi
 
-        return dgi.dgi_qt()
+        return dgi.DgiQt()
 
     @staticmethod
-    def load_dgi_fcgi() -> "dgi_fcgi":
+    def load_dgi_fcgi() -> "dgi_fcgi.DgiFcgi":
         """Load dgi fcgi."""
 
         from pineboolib.plugins.dgi.dgi_fcgi import dgi_fcgi as dgi
 
-        return dgi.dgi_fcgi()
+        return dgi.DgiFcgi()
 
     @classmethod
     def load_dgi(cls, name: str) -> Callable:
