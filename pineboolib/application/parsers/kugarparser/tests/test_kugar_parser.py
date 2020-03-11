@@ -34,8 +34,8 @@ class TestParser(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
-        qsa.from_project("flfactppal").iface.valoresIniciales()
 
+        qsa.from_project("flfactppal").iface.valoresIniciales()
         cur_paises = qsa.FLSqlCursor("paises")
         """
         cur_paises.setModeAccess(cur_paises.Insert)
