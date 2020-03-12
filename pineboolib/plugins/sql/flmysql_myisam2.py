@@ -27,7 +27,6 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         self.alias_ = "MySQL MyISAM (PyMySQL)"
         self.mobile_ = True
         self.pure_python_ = True
-        self.rowsFetched = {}
         self._safe_load = {"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"}
         self._default_charset = "DEFAULT CHARACTER SET = UTF8MB4 COLLATE = UTF8MB4_BIN"
 
