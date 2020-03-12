@@ -172,7 +172,7 @@ class PNSqlQuery(object):
 
         return self._sql_inspector
 
-    def exec_(self, sql: Optional[str] = None) -> bool:
+    def exec_(self, sql: Optional[str] = "") -> bool:
         """
         Run a query.
 
@@ -181,10 +181,8 @@ class PNSqlQuery(object):
         @return True or False return if the execution is successful.
         """
         self._is_active = False
-        if not sql:
-            sql = self.sql()
-        else:
-            self._invalid_tables_list = False
+
+        sql = sql if sql else self.sql()
 
         if not sql:
             LOGGER.warning("exec_: no sql provided and PNSqlQuery.sql() also returned empty")
@@ -193,18 +191,11 @@ class PNSqlQuery(object):
         self.sql_inspector.set_sql(sql)
         self.sql_inspector.resolve()
 
-        if self._invalid_tables_list:
-            LOGGER.error("exec_: invalid tables list found")
+        if not self.isValid():
+            LOGGER.error("exec_: invalid tables list found on query * %s *", sql)
             return False
 
-        # self._sql_inspector = sql_tools.SqlInspector(sql.lower())
-
-        # sql = self.db().driver().fix_query(sql)
-        if sql is None:
-            raise Exception("The query is empty!")
-
         self._last_query = sql
-        # try:
 
         self._cursor = self.db().cursor()
         if self._cursor is None:
@@ -828,8 +819,13 @@ class PNSqlQuery(object):
 
         @return True or False.
         """
+        value_inspector = True
+        if self.sql_inspector is not None:
+            value_inspector = len(self.sql_inspector._invalid_tables) == 0
 
-        return False if self._invalid_tables_list else True
+        value_invalid_tables_list = not self._invalid_tables_list
+
+        return value_invalid_tables_list and value_inspector
 
     def isActive(self) -> bool:
         """
