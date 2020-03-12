@@ -405,7 +405,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return
 
         if not self.private_cursor.buffer_:
-            # LOGGER.warning("%s.setValueBuffer(%s): No buffer" % (self.table(), field_name))
+            LOGGER.warning("%s.setValueBuffer(%s): No buffer", self.table(), field_name)
             return
 
         field = mtd.field(field_name)
