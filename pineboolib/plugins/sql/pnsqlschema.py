@@ -1,14 +1,15 @@
 """PNSqlSchema module."""
 
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtWidgets
 
-from pineboolib import logging
+from pineboolib import logging, application
 
 from pineboolib.core.utils import utils_base
+from pineboolib.application.utils import check_dependencies
 
 import traceback
-from typing import Iterable, Optional, Union, List, Any, Dict, TYPE_CHECKING
-from pineboolib.core import settings
+from typing import Iterable, Optional, Union, List, Any, Dict, cast, TYPE_CHECKING
+from pineboolib.core import settings, decorators
 
 from pineboolib.fllegacy import flutil
 
@@ -27,7 +28,7 @@ class PNSqlSchema(object):
     name_: str
     alias_: str
     errorList: List[str]
-    lastError_: Optional[str]
+    lastError_: str
     db_: Any
     _dbname: str
     mobile_: bool
@@ -53,6 +54,8 @@ class PNSqlSchema(object):
     _like_false: Any
     _null: str
     _text_like: str
+    _safe_load: Dict[str, str]
+    _database_not_found_keywords: List[str]
 
     def __init__(self):
         """Inicialize."""
@@ -68,7 +71,7 @@ class PNSqlSchema(object):
         self.engine_ = None
         self.session_ = None
         self.declarative_base_ = None
-        self.lastError_ = None
+        self.lastError_ = ""
         self.db_ = None
         self.rows_cached = {}
         self.open_ = False
@@ -85,8 +88,117 @@ class PNSqlSchema(object):
         self._like_false = "0"
         self._null = "Null"
         self._text_like = "::text "
+        self._safe_load = {}
+        self._database_not_found_keywords = ["does not exist", "no existe"]
         # self.sql_query = {}
         # self.cursors_dict = {}
+
+    def safe_load(self, exit: bool = False) -> bool:
+        """Return if the driver can loads dependencies safely."""
+        return check_dependencies.check_dependencies(self._safe_load, exit)
+
+    def connect(
+        self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str
+    ) -> Any:
+        """Connect to database."""
+
+        self.setDBName(db_name)
+        self.safe_load(True)
+        LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
+        self.conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password)
+        print("*", self.conn_)
+        if self.conn_ is None:  # Si no existe la conexión
+            if application.PROJECT._splash:
+                application.PROJECT._splash.hide()
+            if not application.PROJECT.DGI.localDesktop():
+                return False
+
+            last_error = self.lastError()
+            found = False
+            for key in self._database_not_found_keywords:
+                if key in last_error:
+                    found = True
+                    break
+
+            if found:
+                ret = QtWidgets.QMessageBox.warning(
+                    QtWidgets.QWidget(),
+                    "Pineboo",
+                    "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
+                    cast(
+                        QtWidgets.QMessageBox.StandardButtons,
+                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
+                    ),
+                )
+                if ret == QtWidgets.QMessageBox.No:
+                    return False
+                else:
+                    try:
+                        tmp_conn = self.getAlternativeConn(
+                            db_name, db_host, db_port, db_user_name, db_password
+                        )
+                        if tmp_conn is not None:
+                            tmp_cursor = tmp_conn.cursor()
+                            try:
+                                tmp_cursor.execute("CREATE DATABASE %s" % db_name)
+                            except Exception as error:
+                                self.setLastError(str(error), "LOGGIN")
+                                tmp_cursor.execute("ROLLBACK")
+                                tmp_cursor.close()
+                                return False
+
+                            tmp_cursor.close()
+                            self.conn_ = self.getConn(
+                                db_name, db_host, db_port, db_user_name, db_password
+                            )
+                    except Exception as error:
+                        LOGGER.warning(error)
+                        QtWidgets.QMessageBox.information(
+                            QtWidgets.QWidget(),
+                            "Pineboo",
+                            "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
+                            QtWidgets.QMessageBox.Ok,
+                        )
+                        LOGGER.error("ERROR: No se ha podido crear la Base de Datos %s", db_name)
+                        return False
+
+        if self.conn_ is not None:
+            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
+                self.engine_ = self.getEngine(db_name, db_host, db_port, db_user_name, db_password)
+
+            self.open_ = True
+            self.loadSpecialConfig()
+
+        return self.conn_
+
+    def setDBName(self, name: str) -> None:
+        """Set DB Name."""
+
+        self._dbname = name
+
+    @decorators.not_implemented_warn
+    def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
+
+        return None
+
+    @decorators.not_implemented_warn
+    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
+
+        return None
+
+    @decorators.not_implemented_warn
+    def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
+
+        return ""
+
+    @decorators.not_implemented_warn
+    def loadSpecialConfig(self) -> None:
+        """Set special config."""
+
+        pass
 
     def version(self) -> str:
         """Return version number."""
@@ -111,10 +223,6 @@ class PNSqlSchema(object):
         """Return if the driver is python only."""
         return self.pure_python_
 
-    def safe_load(self) -> bool:
-        """Return if the driver can loads dependencies safely."""
-        return False
-
     def mobile(self) -> bool:
         """Return if the driver is mobile ready."""
         return self.mobile_
@@ -122,12 +230,6 @@ class PNSqlSchema(object):
     def DBName(self) -> str:
         """Return database name."""
         return self._dbname
-
-    def connect(
-        self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
-    ) -> Any:
-        """Connec to to database."""
-        return None
 
     def engine(self) -> Any:
         """Return sqlAlchemy ORM engine."""
@@ -311,13 +413,13 @@ class PNSqlSchema(object):
 
     def set_last_error_null(self) -> None:
         """Set lastError flag Null."""
-        self.lastError_ = None
+        self.lastError_ = ""
 
     def setLastError(self, text: str, command: str) -> None:
         """Set last error."""
         self.lastError_ = "%s (%s)" % (text, command)
 
-    def lastError(self) -> Optional[str]:
+    def lastError(self) -> str:
         """Return last error."""
         return self.lastError_
 
@@ -465,7 +567,7 @@ class PNSqlSchema(object):
                     mismatch = True
 
             except Exception:
-                print(traceback.format_exc())
+                LOGGER.error(traceback.format_exc())
 
             return mismatch
 

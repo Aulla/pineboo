@@ -1,18 +1,15 @@
 """
 Module for MYISAM2 driver.
 """
-from PyQt5 import QtWidgets
 
-from pineboolib.application.utils import check_dependencies
-from pineboolib import application, logging
 
-from pineboolib.core import settings
+from pineboolib import logging
+
 
 from . import flmysql_myisam
 
-import traceback
 
-from typing import Any, Dict, cast, List, TYPE_CHECKING
+from typing import Any, Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -35,102 +32,43 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         self.mobile_ = True
         self.pure_python_ = True
         self.rowsFetched = {}
+        self._safe_load = {"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"}
 
-    def safe_load(self) -> bool:
-        """Return if the driver can loads dependencies safely."""
-        return check_dependencies.check_dependencies(
-            {"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"}, False
-        )
+    def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return sqlAlchemy connection."""
+        from sqlalchemy import create_engine  # type: ignore
 
-    def connect(
-        self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
-    ) -> Any:
-        """Connect to a database."""
-        self._dbname = db_name
-        check_dependencies.check_dependencies({"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"})
-        import pymysql
+        return create_engine("mysql+pymysql://%s:%s@%s:%s/%s" % (usern, passw_, host, port, name))
 
+    def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
+
+        import pymysql  # type: ignore
+
+        conn_ = None
         try:
-            self.conn_ = pymysql.connect(
-                host=db_host,
-                user=db_userName,
-                password=db_password,
-                db=db_name,
-                charset="utf8",
-                autocommit=True,
+            conn_ = pymysql.connect(
+                host=host, user=usern, password=passw_, db=name, charset="utf8", autocommit=True
             )
+        except pymysql.Error as error:
+            self.setLastError(str(error), "CONNECT")
 
-            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
-                from sqlalchemy import create_engine  # type: ignore
+        return conn_
 
-                self.engine_ = create_engine(
-                    "mysql+pymysql://%s:%s@%s:%s/%s"
-                    % (db_userName, db_password, db_host, db_port, db_name)
-                )
-        except pymysql.Error as e:
-            LOGGER.warning(e)
-            if application.PROJECT._splash:
-                application.PROJECT._splash.hide()
-            if "Unknown database" in str(e):
-                if not application.PROJECT.DGI.localDesktop():
-                    return False
+    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
 
-                ret = QtWidgets.QMessageBox.warning(
-                    QtWidgets.QWidget(),
-                    "Pineboo",
-                    "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
-                    cast(
-                        QtWidgets.QMessageBox.StandardButtons,
-                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
-                    ),
-                )
-                if ret == QtWidgets.QMessageBox.No:
-                    return False
-                else:
-                    try:
-                        tmpConn = pymysql.connect(
-                            host=db_host,
-                            user=db_userName,
-                            password=db_password,
-                            charset="utf8",
-                            autocommit=True,
-                        )
-                        cursor = tmpConn.cursor()
-                        try:
-                            cursor.execute("CREATE DATABASE %s" % db_name)
-                        except Exception:
-                            LOGGER.warning(traceback.format_exc())
-                            cursor.execute("ROLLBACK")
-                            cursor.close()
-                            return False
-                        cursor.close()
-                        return self.connect(db_name, db_host, db_port, db_userName, db_password)
-                    except Exception:
-                        LOGGER.warning(traceback.format_exc())
-                        QtWidgets.QMessageBox.information(
-                            QtWidgets.QWidget(),
-                            "Pineboo",
-                            "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
-                            QtWidgets.QMessageBox.Ok,
-                        )
-                        print("ERROR: No se ha podido crear la Base de Datos %s" % db_name)
-                        return False
+        import pymysql  # type: ignore
 
-            else:
-                QtWidgets.QMessageBox.information(
-                    QtWidgets.QWidget(),
-                    "Pineboo",
-                    "Error de conexión\n%s" % str(e),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                return False
+        conn_ = None
+        try:
+            conn_ = pymysql.connect(
+                host=host, user=usern, password=passw_, charset="utf8", autocommit=True
+            )
+        except pymysql.Error as error:
+            self.setLastError(str(error), "CONNECT")
 
-        if self.conn_:
-            self.open_ = True
-        # self.conn_.autocommit(True)
-        # self.conn_.set_character_set('utf8')
-
-        return self.conn_
+        return conn_
 
     def dict_cursor(self) -> Any:
         """Return dict cursor."""

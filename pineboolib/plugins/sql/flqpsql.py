@@ -1,22 +1,18 @@
 """Flqpsql module."""
 from PyQt5 import QtCore, Qt, QtWidgets
 
-
-from pineboolib.core import settings
-
-from pineboolib.application.utils import check_dependencies
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.metadata import pnfieldmetadata
 from pineboolib.application.metadata import pntablemetadata
-from pineboolib import application, logging
+from pineboolib import logging
 
 from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 
 from xml.etree import ElementTree
 import traceback
-from typing import Optional, Union, List, Dict, Any, cast
+from typing import Optional, Union, List, Dict, Any
 
 
 LOGGER = logging.get_logger(__name__)
@@ -39,117 +35,59 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         self._false = False
         self._like_true = "'t'"
         self._like_false = "'f'"
+        self._safe_load = {"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"}
+        self._database_not_found_keywords = ["does not exist", "no existe"]
 
-    def safe_load(self) -> bool:
-        """Return if the driver can loads dependencies safely."""
-        return check_dependencies.check_dependencies(
-            {"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"}, False
-        )
+    def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
 
-    def connect(
-        self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
-    ) -> Any:
-        """Connecto to database."""
-        self._dbname = db_name
-        check_dependencies.check_dependencies(
-            {"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"}
-        )
         import psycopg2  # type: ignore
         from psycopg2.extras import LoggingConnection  # type: ignore
 
-        LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
-
-        conninfostr = "dbname=%s host=%s port=%s user=%s password=%s connect_timeout=5" % (
-            db_name,
-            db_host,
-            db_port,
-            db_userName,
-            db_password,
+        conn_ = None
+        conn_info_str = "dbname=%s host=%s port=%s user=%s password=%s connect_timeout=5" % (
+            name,
+            host,
+            port,
+            usern,
+            passw_,
         )
 
         try:
-            self.conn_ = psycopg2.connect(conninfostr, connection_factory=LoggingConnection)
-            self.conn_.initialize(LOGGER)
+            conn_ = psycopg2.connect(conn_info_str, connection_factory=LoggingConnection)
+        except psycopg2.OperationalError as error:
+            self.setLastError(str(error), "CONNECT")
 
-            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
-                from sqlalchemy import create_engine  # type: ignore
+        return conn_
 
-                self.engine_ = create_engine(
-                    "postgresql+psycopg2://%s:%s@%s:%s/%s"
-                    % (db_userName, db_password, db_host, db_port, db_name)
-                )
-        except psycopg2.OperationalError as e:
-            LOGGER.warning(e)
-            if application.PROJECT._splash:
-                application.PROJECT._splash.hide()
+    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
+        import psycopg2
 
-            if not application.PROJECT.DGI.localDesktop():
-                return False
+        conn_ = self.getConn("postgres", host, port, usern, passw_)
+        if conn_ is not None:
+            conn_.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
-            if "does not exist" in str(e) or "no existe" in str(e):
-                ret = QtWidgets.QMessageBox.warning(
-                    QtWidgets.QWidget(),
-                    "Pineboo",
-                    "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
-                    cast(
-                        QtWidgets.QMessageBox.StandardButtons,
-                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
-                    ),
-                )
-                if ret == QtWidgets.QMessageBox.No:
-                    return False
-                else:
-                    conninfostr2 = (
-                        "dbname=postgres host=%s port=%s user=%s password=%s connect_timeout=5"
-                        % (db_host, db_port, db_userName, db_password)
-                    )
-                    try:
-                        tmpConn = psycopg2.connect(conninfostr2)
+        return conn_
 
-                        tmpConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+    def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return sqlAlchemy connection."""
+        from sqlalchemy import create_engine  # type: ignore
 
-                        cursor = tmpConn.cursor()
-                        try:
-                            cursor.execute("CREATE DATABASE %s" % db_name)
-                        except Exception:
-                            LOGGER.warning(traceback.format_exc())
-                            cursor.execute("ROLLBACK")
-                            cursor.close()
-                            return False
-                        cursor.close()
-                        return self.connect(db_name, db_host, db_port, db_userName, db_password)
-                    except Exception:
-                        LOGGER.warning(traceback.format_exc())
-                        QtWidgets.QMessageBox.information(
-                            QtWidgets.QWidget(),
-                            "Pineboo",
-                            "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
-                            QtWidgets.QMessageBox.Ok,
-                        )
-                        print("ERROR: No se ha podido crear la Base de Datos %s" % db_name)
-                        return False
-            else:
-                QtWidgets.QMessageBox.information(
-                    QtWidgets.QWidget(),
-                    "Pineboo",
-                    "Error de conexión\n%s" % str(e),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                return False
+        return create_engine(
+            "postgresql+psycopg2://%s:%s@%s:%s/%s" % (usern, passw_, host, port, name)
+        )
 
-        # self.conn_.autocommit = True #Posiblemente tengamos que ponerlo a
-        # false para que las transacciones funcionen
+    def loadSpecialConfig(self) -> None:
+        """Set special config."""
+        import psycopg2
+
+        self.conn_.initialize(LOGGER)
         self.conn_.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-
-        if self.conn_:
-            self.open_ = True
-
         try:
             self.conn_.set_client_encoding("UTF8")
         except Exception:
             LOGGER.warning(traceback.format_exc())
-
-        return self.conn_
 
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Return next serial value."""

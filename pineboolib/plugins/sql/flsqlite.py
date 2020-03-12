@@ -1,12 +1,12 @@
 """Flsqlite module."""
 
 from PyQt5 import QtWidgets, Qt
-from pineboolib.core import decorators, settings
+from pineboolib.core import decorators
 
-from pineboolib.application.utils import check_dependencies, path
+from pineboolib.application.utils import path
 from pineboolib.application.database import pnsqlquery
 
-from pineboolib import logging
+from pineboolib import logging, application
 
 from pineboolib.fllegacy import flutil
 
@@ -44,65 +44,66 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.desktop_file = True
         self._null = ""
         self._text_like = ""
+        self._safe_load = {"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"}
 
-    def safe_load(self) -> bool:
-        """Return if the driver can loads dependencies safely."""
-        return check_dependencies.check_dependencies(
-            {"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"}, False
-        )
+    def setDBName(self, name: str):
+        """Set DB Name."""
 
-    def connect(
-        self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
-    ) -> Any:
-        """Connec to to database."""
-        from pineboolib import application
-
-        check_dependencies.check_dependencies({"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"})
-
-        self.db_name = db_name
-        if db_name == ":memory:":
+        self.db_name = name
+        if name == ":memory:":
             self.db_name = "temp_db"
-            self.db_filename = db_name
+            self.db_filename = name
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
         else:
             self.db_filename = path._dir("%s.sqlite3" % self.db_name)
 
-        db_is_new = not os.path.exists("%s" % self.db_filename)
+    def loadSpecialConfig(self) -> None:
+        """Set special config."""
+
+        self.conn_.isolation_level = None
+        if self.parseFromLatin:
+            self.conn_.text_factory = lambda x: str(x, "latin1")
+
+    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
+
+        return None
+
+    def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
 
         import sqlite3
 
+        conn_ = None
         main_conn = None
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
         if main_conn is not None:
             if self.db_filename == main_conn.driver().db_filename and main_conn.conn:
 
-                self.conn_ = main_conn.conn
+                conn_ = main_conn.conn
 
-        if self.conn_ is None:
-            self.conn_ = sqlite3.connect("%s" % self.db_filename)
-            sqlalchemy_uri = "sqlite:///%s" % self.db_filename
-            if self.db_filename == ":memory:":
-                sqlalchemy_uri = "sqlite://"
+        if conn_ is None:
+            conn_ = sqlite3.connect("%s" % self.db_filename)
 
-            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
-                from sqlalchemy import create_engine  # type: ignore
-
-                self.engine_ = create_engine(sqlalchemy_uri)
-
-            self.conn_.isolation_level = None
-
-            if db_is_new and self.db_filename not in [":memory:", "temp_db"]:
+            if not os.path.exists("%s" % self.db_filename) and self.db_filename not in [
+                ":memory:",
+                "temp_db",
+            ]:
                 LOGGER.warning("La base de datos %s no existe", self.db_filename)
 
-        if self.conn_:
-            self.open_ = True
+        return conn_
 
-        if self.parseFromLatin:
-            self.conn_.text_factory = lambda x: str(x, "latin1")
+    def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return sqlAlchemy connection."""
+        from sqlalchemy import create_engine  # type: ignore
 
-        return self.conn_
+        sqlalchemy_uri = "sqlite:///%s" % self.db_filename
+        if self.db_filename == ":memory:":
+            sqlalchemy_uri = "sqlite://"
+
+        return create_engine(sqlalchemy_uri)
 
     def DBName(self) -> str:
         """Return database name."""

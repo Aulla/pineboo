@@ -2,21 +2,20 @@
 from PyQt5 import QtCore, Qt, QtWidgets
 
 from pineboolib.core import decorators
-from pineboolib.core import settings
 
-from pineboolib.application.utils import check_dependencies
+
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.metadata import pnfieldmetadata
 from pineboolib.application.metadata import pntablemetadata
-from pineboolib import application, logging
+from pineboolib import logging
 
 from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 
 from xml.etree import ElementTree
 import traceback
-from typing import Optional, Union, List, Dict, Any, cast
+from typing import Optional, Union, List, Dict, Any
 
 
 LOGGER = logging.get_logger(__name__)
@@ -38,121 +37,52 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         self.commit_transaction_command = "COMMIT"
         self._like_true = "'t'"
         self._like_false = "'f'"
+        self._safe_load = {"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"}
+        self._database_not_found_keywords = ["does not exist", "no existe"]
 
-    def safe_load(self) -> bool:
-        """Return if the driver can loads dependencies safely."""
-        return check_dependencies.check_dependencies(
-            {"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"}, False
-        )
+    def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return sqlAlchemy connection."""
+        from sqlalchemy import create_engine  # type: ignore
 
-    def connect(
-        self, db_name: str, db_host: str, db_port: int, db_userName: str, db_password: str
-    ) -> Any:
-        """Connecto to database."""
-        self._dbname = db_name
-        check_dependencies.check_dependencies({"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"})
+        return create_engine("mssql+pymssql://%s:%s@%s:%s/%s" % (usern, passw_, host, port, name))
+
+    def loadSpecialConfig(self) -> None:
+        """Set special config."""
+
+        self.conn_.autocommit(True)
+
+    def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
+
         import pymssql  # type: ignore
 
-        # from psycopg2.extras import LoggingConnection  # type: ignore
-
-        LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
-
-        # conninfostr = (
-        #    "DRIVER={ODBC Driver 17 for SQL Server};SERVER='%s,%s';DATABASE='%s':UID='%s';PWD='%s'"
-        #    % (db_host, db_port, db_name, db_userName, db_password)
-        # )
+        conn_ = None
 
         try:
-            self.conn_ = pymssql.connect(
-                server=db_host,
-                user=db_userName,
-                password=db_password,
-                database=db_name,
-                port=db_port,
+            conn_ = pymssql.connect(
+                server=host, user=usern, password=passw_, database=name, port=port
             )
-            # self.conn_.initialize(LOGGER)
+        except Exception as error:
+            self.setLastError(str(error), "CONNECT")
 
-            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
-                from sqlalchemy import create_engine  # type: ignore
+        return conn_
 
-                self.engine_ = create_engine(
-                    "mssql+pymssql://%s:%s@%s:%s/%s"
-                    % (db_userName, db_password, db_host, db_port, db_name)
-                )
-        except Exception as e:
-            LOGGER.warning(e)
-            if application.PROJECT._splash:
-                application.PROJECT._splash.hide()
+    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
 
-            if not application.PROJECT.DGI.localDesktop():
-                return False
+        import pymssql  # type: ignore
 
-            if "does not exist" in str(e) or "no existe" in str(e):
-                ret = QtWidgets.QMessageBox.warning(
-                    QtWidgets.QWidget(),
-                    "Pineboo",
-                    "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
-                    cast(
-                        QtWidgets.QMessageBox.StandardButtons,
-                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
-                    ),
-                )
-                if ret == QtWidgets.QMessageBox.No:
-                    return False
-                else:
-                    try:
-                        tmpConn = pymssql.connect(
-                            server=db_host, port=db_port, user="SA", password=db_password
-                        )
+        conn_ = None
 
-                        # tmpConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-                        tmpConn.autocommit(True)
-                        cursor = tmpConn.cursor()
-                        try:
-                            cursor.execute("CREATE DATABASE %s" % db_name)
-                            tmpConn.autocommit(False)
-                        except Exception:
-                            LOGGER.warning(traceback.format_exc())
-                            cursor.execute("ROLLBACK")
-                            cursor.close()
-                            tmpConn.autocommit(False)
-                            return False
-                        cursor.close()
+        try:
+            conn_ = pymssql.connect(
+                server=host, user="SA", password=passw_, database=name, port=port
+            )
+            conn_.autocommit(True)
+        except Exception as error:
+            self.setLastError(str(error), "CONNECT")
 
-                        return self.connect(db_name, db_host, db_port, db_userName, db_password)
-                    except Exception:
-                        LOGGER.warning(traceback.format_exc())
-
-                        QtWidgets.QMessageBox.information(
-                            QtWidgets.QWidget(),
-                            "Pineboo",
-                            "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
-                            QtWidgets.QMessageBox.Ok,
-                        )
-                        print("ERROR: No se ha podido crear la Base de Datos %s" % db_name)
-                        return False
-            else:
-                QtWidgets.QMessageBox.information(
-                    QtWidgets.QWidget(),
-                    "Pineboo",
-                    "Error de conexión\n%s" % str(e),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                return False
-
-        self.conn_.autocommit(True)  # Posiblemente tengamos que ponerlo a
-        # false para que las transacciones funcionen
-        # self.conn_.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-
-        if self.conn_:
-            self.open_ = True
-
-        # try:
-        #    self.conn_.set_client_encoding("UTF8")
-        # except Exception:
-        #    LOGGER.warning(traceback.format_exc())
-
-        return self.conn_
+        return conn_
 
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Return next serial value."""
