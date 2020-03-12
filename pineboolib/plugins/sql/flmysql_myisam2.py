@@ -20,15 +20,11 @@ LOGGER = logging.get_logger(__name__)
 class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
     """MYISAM2 Driver class."""
 
-    cursorsArray_: Dict[str, Any]  # IApiCursor
-    rowsFetched: Dict[str, List]
-
     def __init__(self):
         """Create empty driver."""
         super().__init__()
         self.name_ = "FLMYSQL_MyISAM2"
         self.alias_ = "MySQL MyISAM (PyMySQL)"
-        self.cursorsArray_ = {}
         self.mobile_ = True
         self.pure_python_ = True
         self.rowsFetched = {}

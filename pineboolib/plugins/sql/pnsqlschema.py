@@ -349,6 +349,15 @@ class PNSqlSchema(object):
         """Return if can regenerate tables."""
         return True
 
+    def canSavePoint(self) -> bool:
+        """Return if can do save point."""
+        return True
+
+    def canTransaction(self) -> bool:
+        """Return if can do transaction."""
+        return True
+
+    @decorators.not_implemented_warn
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Return next serial value."""
 
@@ -376,14 +385,6 @@ class PNSqlSchema(object):
             )
             return False
 
-        return True
-
-    def canSavePoint(self) -> bool:
-        """Return if can do save point."""
-        return True
-
-    def canTransaction(self) -> bool:
-        """Return if can do transaction."""
         return True
 
     def rollbackSavePoint(self, number: int) -> bool:
@@ -507,17 +508,21 @@ class PNSqlSchema(object):
 
         return True
 
+    @decorators.not_implemented_warn
     def setType(self, type_: str, leng: Optional[Union[str, int]] = None) -> str:
         """Return type definition."""
-        if leng:
-            return "::%s(%s)" % (type_, leng)
-        else:
-            return "::%s" % type_
+        # if leng:
+        #    return "::%s(%s)" % (type_, leng)
+        # else:
+        #    return "::%s" % type_
+        return ""
 
+    @decorators.not_implemented_warn
     def existsTable(self, name: str) -> bool:
         """Return if exists a table specified by name."""
         return True
 
+    @decorators.not_implemented_warn
     def sqlCreateTable(self, tmd: "pntablemetadata.PNTableMetaData") -> Optional[str]:
         """Return a create table query."""
         return ""
@@ -581,6 +586,7 @@ class PNSqlSchema(object):
         """Return info from a database table."""
         return []
 
+    @decorators.not_implemented_warn
     def decodeSqlType(self, type_: str) -> str:
         """Return the specific field type."""
         return ""
@@ -689,10 +695,12 @@ class PNSqlSchema(object):
 
         return False
 
+    @decorators.not_implemented_warn
     def constraintExists(self, name: str) -> bool:
         """Return if constraint exists specified by name."""
         return False
 
+    @decorators.not_implemented_warn
     def alterTable(
         self,
         mtd1: Union[str, "pntablemetadata.PNTableMetaData"],
@@ -703,6 +711,7 @@ class PNSqlSchema(object):
         """Modify a table structure."""
         return False
 
+    @decorators.not_implemented_warn
     def Mr_Proper(self) -> None:
         """Clear all garbage data."""
         pass
