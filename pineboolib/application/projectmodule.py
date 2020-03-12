@@ -73,7 +73,7 @@ class Project(object):
         self.root = None
         self.alternative_folder = None
         self.apppath = ""
-        self.tmpdir = settings.CONFIG.value("ebcomportamiento/temp_dir")
+        self.tmpdir = settings.CONFIG.value("ebcomportamiento/temp_dir", "")
         self.parser = None
         # self.main_form_name: Optional[str] = None
         self.delete_cache = False
@@ -85,7 +85,7 @@ class Project(object):
         self.areas = {}
         self.modules = {}
         self.options = Values()
-        if self.tmpdir is None:
+        if not self.tmpdir:
             self.tmpdir = utils_base.filedir("%s/Pineboo/tempdata" % Path.home())
             settings.CONFIG.set_value("ebcomportamiento/temp_dir", self.tmpdir)
 
@@ -93,6 +93,7 @@ class Project(object):
             Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
 
         self._session_func_ = None
+        LOGGER.debug("Initializing connection manager for the application.PROJECT %s", self)
         self._conn_manager = pnconnectionmanager.PNConnectionManager()
         self.pending_conversion_list = []
 
