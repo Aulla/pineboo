@@ -9,7 +9,7 @@ from pineboolib import logging
 from . import flmysql_myisam
 
 
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401

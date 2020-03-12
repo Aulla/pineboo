@@ -1,21 +1,16 @@
 """Flsqls module."""
-from PyQt5 import QtCore, Qt, QtWidgets
+
 
 from pineboolib.core import decorators
 
-
-from pineboolib.application.database import pnsqlquery
-from pineboolib.application.database import pnsqlcursor
-from pineboolib.application.metadata import pnfieldmetadata
 from pineboolib.application.metadata import pntablemetadata
 from pineboolib import logging
 
 from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 
-from xml.etree import ElementTree
 import traceback
-from typing import Optional, Union, List, Dict, Any
+from typing import Optional, Union, List, Any
 
 
 LOGGER = logging.get_logger(__name__)
