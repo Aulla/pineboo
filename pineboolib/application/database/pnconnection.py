@@ -128,7 +128,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def isOpen(self) -> bool:
         """Indicate if a connection is open."""
 
-        return self._is_open
+        return self._is_open and self.driver().isOpen()
 
     def tables(self, tables_type: Optional[Union[str, int]] = None) -> List[str]:
         """Return a list of available tables in the database, according to a given filter."""
