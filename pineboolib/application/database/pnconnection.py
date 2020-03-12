@@ -130,21 +130,20 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self._is_open and self.driver().isOpen()
 
-    def tables(self, tables_type: Optional[Union[str, int]] = None) -> List[str]:
+    def tables(self, tables_type: Optional[Union[str, int]] = "") -> List[str]:
         """Return a list of available tables in the database, according to a given filter."""
-        result = None
-        if tables_type is not None:
-            if isinstance(tables_type, int):
-                if tables_type == 1:
-                    result = "Tables"
-                elif tables_type == 2:
-                    result = "SystemTables"
-                elif tables_type == 3:
-                    result = "Views"
-            else:
-                result = tables_type
 
-        return self.driver().tables(result)
+        if isinstance(tables_type, int):
+            if tables_type == 1:
+                tables_type = "Tables"
+            elif tables_type == 2:
+                tables_type = "SystemTables"
+            elif tables_type == 3:
+                tables_type = "Views"
+            else:
+                tables_type = ""
+
+        return self.driver().tables(tables_type)
 
     def DBName(self) -> str:
         """Return the database name."""
