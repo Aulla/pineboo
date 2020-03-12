@@ -821,7 +821,12 @@ class PNSqlQuery(object):
         """
         value_inspector = True
         if self.sql_inspector is not None:
-            value_inspector = len(self.sql_inspector._invalid_tables) == 0
+            if self.sql_inspector._invalid_tables:
+                real_tables = self.db().tables()
+                for table_name in self.sql_inspector._invalid_tables:
+                    if table_name not in real_tables:
+                        value_inspector = False
+                        break
 
         value_invalid_tables_list = not self._invalid_tables_list
 
