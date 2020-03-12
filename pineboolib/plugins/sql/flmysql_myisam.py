@@ -28,6 +28,8 @@ LOGGER = logging.get_logger(__name__)
 class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     """MYISAM Driver class."""
 
+    _default_charset: str
+
     def __init__(self):
         """Create empty driver."""
         super().__init__()
@@ -48,6 +50,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self._text_like = " "
         self._safe_load = {"MySQLdb": "mysqlclient", "sqlalchemy": "sqlAlchemy"}
         self._database_not_found_keywords = ["Unknown database"]
+        self._default_charset = "DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
 
     def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
         """Return sqlAlchemy connection."""
@@ -102,6 +105,37 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             tl.append(q_tables.value(0))
 
         return tl
+
+    def tables(self, type_name: Optional[str] = "") -> List[str]:
+        """Return a tables list specified by type."""
+        table_list: List[str] = []
+        result_list = []
+        if self.isOpen():
+
+            if type_name in ("Tables", ""):
+                cursor = self.execute_query(
+                    "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE LIKE 'BASE TABLE' AND TABLE_SCHEMA LIKE '%s'"
+                    % self.DBName()
+                )
+                result_list += cursor.fetchall()
+
+            if type_name in ("Views", ""):
+                cursor = self.execute_query(
+                    "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE LIKE 'VIEW' AND TABLE_SCHEMA LIKE '%s'"
+                    % self.DBName()
+                )
+                result_list += cursor.fetchall()
+
+            if type_name in ("SystemTables", ""):
+                cursor = self.execute_query(
+                    "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE LIKE 'SYSTEM VIEW'"
+                )
+                result_list += cursor.fetchall()
+
+        for item in result_list:
+            table_list.append(item[0])
+
+        return table_list
 
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Get next serial value for given table and field."""
@@ -301,7 +335,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         engine = ") ENGINE=INNODB" if not self.noInnoDB else ") ENGINE=MyISAM"
         sql += engine
 
-        sql += " DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
+        sql += " %s" % self._default_charset
 
         LOGGER.warning("NOTICE: CREATE TABLE (%s%s)" % (tmd.name(), engine))
 
@@ -912,8 +946,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         if t in ["char", "varchar", "text"]:
             ret = "string"
-        elif t == "int":
+        elif t == "int unsigned":
             ret = "uint"
+        elif t == "int":
+            ret = "int"
         elif t == "date":
             ret = "date"
         elif t == "mediumtext":

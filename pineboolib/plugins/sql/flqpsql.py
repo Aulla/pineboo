@@ -53,8 +53,11 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             passw_,
         )
 
+        LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
+
         try:
             conn_ = psycopg2.connect(conn_info_str, connection_factory=LoggingConnection)
+            conn_.initialize(LOGGER)
         except psycopg2.OperationalError as error:
             self.setLastError(str(error), "CONNECT")
 
@@ -292,37 +295,33 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    def tables(self, typeName: Optional[str] = None) -> List[str]:
+    def tables(self, type_name: Optional[str] = "") -> List[str]:
         """Return a tables list specified by type."""
-        tl: List[str] = []
-        if not self.isOpen():
-            return tl
+        table_list: List[str] = []
+        result_list = []
+        if self.isOpen():
 
-        t = pnsqlquery.PNSqlQuery()
-        t.setForwardOnly(True)
+            if type_name in ("Tables", ""):
+                cursor = self.execute_query(
+                    "select relname from pg_class where ( relkind = 'r' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ) "
+                )
+                result_list += cursor.fetchall()
 
-        if not typeName or typeName == "Tables":
-            t.exec_(
-                "select relname from pg_class where ( relkind = 'r' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ) "
-            )
-            while t.next():
-                tl.append(str(t.value(0)))
+            if type_name in ("Views", ""):
+                cursor = self.execute_query(
+                    "select relname from pg_class where ( relkind = 'v' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ) "
+                )
+                result_list += cursor.fetchall()
+            if type_name in ("SystemTables", ""):
+                cursor = self.execute_query(
+                    "select relname from pg_class where ( relkind = 'r' ) AND ( relname like 'pg_%' ) "
+                )
+                result_list += cursor.fetchall()
 
-        if not typeName or typeName == "Views":
-            t.exec_(
-                "select relname from pg_class where ( relkind = 'v' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ) "
-            )
-            while t.next():
-                tl.append(str(t.value(0)))
-        if not typeName or typeName == "SystemTables":
-            t.exec_(
-                "select relname from pg_class where ( relkind = 'r' ) AND ( relname like 'pg_%' ) "
-            )
-            while t.next():
-                tl.append(str(t.value(0)))
+        for item in result_list:
+            table_list.append(item[0])
 
-        del t
-        return tl
+        return table_list
 
     def constraintExists(self, name: str) -> bool:
         """Return if constraint exists specified by name."""

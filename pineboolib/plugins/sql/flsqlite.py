@@ -363,33 +363,32 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Modify a table structure."""
         raise Exception("not implemented")
 
-    def tables(self, type_name: Optional[str] = None) -> List[str]:
+    def tables(self, type_name: Optional[str] = "All") -> List[str]:
         """Return a tables list specified by type."""
 
-        tl: List[str] = []
-        if not self.isOpen():
-            return tl
+        table_list: List[str] = []
+        result_list = []
+        if self.isOpen():
 
-        t = pnsqlquery.PNSqlQuery()
-        t.setForwardOnly(True)
+            if type_name in ("Tables", ""):
+                cursor = self.execute_query(
+                    "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC"
+                )
+                result_list += cursor.fetchall()
 
-        if type_name is None:
-            t.exec_(
-                "SELECT name FROM sqlite_master WHERE type='table' OR type='view' ORDER BY name ASC"
-            )
-        elif type_name == "Tables":
-            t.exec_("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC")
-        elif type_name == "Views":
-            t.exec_("SELECT name FROM sqlite_master WHERE type='view' ORDER BY name ASC")
+            if type_name in ("Views", ""):
+                cursor = self.execute_query(
+                    "SELECT name FROM sqlite_master WHERE type='view' ORDER BY name ASC"
+                )
+                result_list += cursor.fetchall()
 
-        if type_name != "SystemTables":
-            while t.next():
-                tl.append(str(t.value(0)))
+            if type_name in ("SystemTables", ""):
+                table_list.append("sqlite_master")
 
-        if type_name in ["SystemTables", None]:
-            tl.append("sqlite_master")
+        for item in result_list:
+            table_list.append(item[0])
 
-        return tl
+        return table_list
 
     def Mr_Proper(self) -> None:
         """Clear all garbage data."""

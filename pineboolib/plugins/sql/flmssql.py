@@ -75,9 +75,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         conn_ = None
 
         try:
-            conn_ = pymssql.connect(
-                server=host, user="SA", password=passw_, database=name, port=port
-            )
+            conn_ = pymssql.connect(server=host, user="SA", password=passw_, port=port)
             conn_.autocommit(True)
         except Exception as error:
             self.setLastError(str(error), "CONNECT")
@@ -262,31 +260,28 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    def tables(self, typeName: Optional[str] = None) -> List[str]:
+    def tables(self, type_name: Optional[str] = "") -> List[str]:
         """Return a tables list specified by type."""
-        tl: List[str] = []
-        if not self.isOpen():
-            return tl
+        table_list: List[str] = []
+        result_list = []
+        if self.isOpen():
 
-        t = pnsqlquery.PNSqlQuery()
-        t.setForwardOnly(True)
+            if type_name in ("Tables", ""):
+                cursor = self.execute_query("SELECT * FROM SYSOBJECTS WHERE xtype ='U'")
+                result_list += cursor.fetchall()
 
-        if not typeName or typeName == "Tables":
-            t.exec_("SELECT * FROM SYSOBJECTS WHERE xtype ='U'")
-            while t.next():
-                tl.append(str(t.value(0)))
+            if type_name in ("Views", ""):
+                cursor = self.execute_query("SELECT * FROM SYSOBJECTS WHERE xtype ='V'")
+                result_list += cursor.fetchall()
 
-        if not typeName or typeName == "Views":
-            t.exec_("SELECT * FROM SYSOBJECTS WHERE xtype ='V'")
-            while t.next():
-                tl.append(str(t.value(0)))
-        if not typeName or typeName == "SystemTables":
-            t.exec_("SELECT * FROM SYSOBJECTS WHERE xtype ='S'")
-            while t.next():
-                tl.append(str(t.value(0)))
+            if type_name in ("SystemTables", ""):
+                cursor = self.execute_query("SELECT * FROM SYSOBJECTS WHERE xtype ='S'")
+                result_list += cursor.fetchall()
 
-        del t
-        return tl
+        for item in result_list:
+            table_list.append(item[0])
+
+        return table_list
 
     def queryUpdate(self, name: str, update: str, filter: str) -> str:
         """Return a database friendly update query."""

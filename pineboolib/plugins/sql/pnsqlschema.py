@@ -168,6 +168,9 @@ class PNSqlSchema(object):
 
             self.open_ = True
             self.loadSpecialConfig()
+        else:
+            LOGGER.error("connect: %s", self.lastError())
+            return False
 
         return self.conn_
 
@@ -214,7 +217,7 @@ class PNSqlSchema(object):
             cur = self.conn_.cursor()
             cur.execute("select 1")
         except Exception as exc_:
-            LOGGER.error("raise an exception %s", exc_)
+            LOGGER.error("isOpen raise an exception %s", exc_)
             return False
 
         return True
@@ -567,7 +570,7 @@ class PNSqlSchema(object):
                     mismatch = True
 
             except Exception:
-                LOGGER.error(traceback.format_exc())
+                LOGGER.error("mismatchedTable : %s", traceback.format_exc())
 
             return mismatch
 
@@ -664,6 +667,7 @@ class PNSqlSchema(object):
 
         return ret
 
+    @decorators.not_implemented_warn
     def tables(self, typeName: Optional[str] = None) -> List[str]:
         """Return a tables list specified by type."""
         return []
@@ -736,8 +740,8 @@ class PNSqlSchema(object):
             # q = self.fix_query(q)
             cursor.execute(query)
         except Exception as error:
-            LOGGER.error(error)
             self.setLastError("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
+            LOGGER.error("execute_query : %s", self.lastError())
 
         return cursor
 
@@ -902,7 +906,7 @@ class PNSqlSchema(object):
         try:
             cursor_.execute(sql)
         except Exception:
-            LOGGER.error("%s\n", sql)
+            LOGGER.error("insertMulti: %s", sql)
             return False
 
         return True

@@ -33,6 +33,7 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         self.pure_python_ = True
         self.rowsFetched = {}
         self._safe_load = {"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"}
+        self._default_charset = "DEFAULT CHARACTER SET = UTF8MB4 COLLATE = UTF8MB4_BIN"
 
     def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
         """Return sqlAlchemy connection."""
@@ -48,7 +49,7 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         conn_ = None
         try:
             conn_ = pymysql.connect(
-                host=host, user=usern, password=passw_, db=name, charset="utf8", autocommit=True
+                host=host, user=usern, password=passw_, db=name, charset="UTF8MB4", autocommit=True
             )
         except pymysql.Error as error:
             self.setLastError(str(error), "CONNECT")
@@ -63,12 +64,17 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         conn_ = None
         try:
             conn_ = pymysql.connect(
-                host=host, user=usern, password=passw_, charset="utf8", autocommit=True
+                host=host, user=usern, password=passw_, charset="UTF8MB4", autocommit=True
             )
         except pymysql.Error as error:
             self.setLastError(str(error), "CONNECT")
 
         return conn_
+
+    def loadSpecialConfig(self) -> None:
+        """Set special config."""
+
+        pass
 
     def dict_cursor(self) -> Any:
         """Return dict cursor."""
