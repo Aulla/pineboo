@@ -106,7 +106,7 @@ class PNSqlSchema(object):
         self.safe_load(True)
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
         self.conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password)
-        print("*", self.conn_)
+
         if self.conn_ is None:  # Si no existe la conexión
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
@@ -735,11 +735,9 @@ class PNSqlSchema(object):
         try:
             # q = self.fix_query(q)
             cursor.execute(query)
-        except Exception:
-            self.rollbackTransaction()
-            self.setLastError(
-                "No se pudo ejecutar la query %s.\n%s" % (query, traceback.format_exc()), query
-            )
+        except Exception as error:
+            LOGGER.error(error)
+            self.setLastError("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
 
         return cursor
 
