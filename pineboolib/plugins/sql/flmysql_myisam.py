@@ -6,8 +6,6 @@ import traceback
 
 from PyQt5 import Qt, QtCore, QtWidgets
 
-from pineboolib.core import decorators
-
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
 from pineboolib.application.metadata import pnfieldmetadata
 
@@ -90,26 +88,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self.conn_.autocommit(True)
         self.conn_.set_character_set("utf8")
 
-    @decorators.incomplete
-    def tables(self, type_name: Optional[str] = None) -> list:
-        """Introspect tables in database."""
-
-        # FIXME type_name.
-        tl: List[str] = []
-        if not self.isOpen():
-            return tl
-
-        q_tables = pnsqlquery.PNSqlQuery()
-        q_tables.exec_("show tables")
-        while q_tables.next():
-            tl.append(q_tables.value(0))
-
-        return tl
-
     def tables(self, type_name: Optional[str] = "") -> List[str]:
         """Return a tables list specified by type."""
         table_list: List[str] = []
-        result_list = []
+        result_list: List[Any] = []
         if self.isOpen():
 
             if type_name in ("Tables", ""):

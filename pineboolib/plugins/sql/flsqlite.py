@@ -367,7 +367,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Return a tables list specified by type."""
 
         table_list: List[str] = []
-        result_list = []
+        result_list: List[Any] = []
         if self.isOpen():
 
             if type_name in ("Tables", ""):
