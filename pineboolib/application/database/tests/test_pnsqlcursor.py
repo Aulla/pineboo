@@ -740,6 +740,18 @@ class TestRelations(unittest.TestCase):
         cur_modulos.setModeAccess(cur_modulos.Edit)
         self.assertTrue(cur_modulos.commitBufferCursorRelation())
 
+    def test_basic_relations_3(self) -> None:
+        """Test basic relations 3."""
+
+        cursor = pnsqlcursor.PNSqlCursor("flmodules")
+        cursor.select()
+        cursor.setModeAccess(cursor.Insert)
+        cursor.setValueBuffer("idarea", "")
+        cursor.setValueBuffer("idmodulo", "WWW")
+        cursor.setValueBuffer("descripcion", "TEST")
+        cursor.setValueBuffer("version", "0.0")
+        self.assertFalse(cursor.commitBuffer())
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
