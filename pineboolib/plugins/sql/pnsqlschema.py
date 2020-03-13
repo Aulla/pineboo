@@ -509,12 +509,8 @@ class PNSqlSchema(object):
         return True
 
     @decorators.not_implemented_warn
-    def setType(self, type_: str, leng: Optional[Union[str, int]] = None) -> str:
+    def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
-        # if leng:
-        #    return "::%s(%s)" % (type_, leng)
-        # else:
-        #    return "::%s" % type_
         return ""
 
     @decorators.not_implemented_warn
@@ -523,7 +519,9 @@ class PNSqlSchema(object):
         return True
 
     @decorators.not_implemented_warn
-    def sqlCreateTable(self, tmd: "pntablemetadata.PNTableMetaData") -> Optional[str]:
+    def sqlCreateTable(
+        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
+    ) -> Optional[str]:
         """Return a create table query."""
         return ""
 

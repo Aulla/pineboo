@@ -208,118 +208,118 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         return ret
 
     def existsTable(self, name: str) -> bool:
-        """Return if table exists."""
+        """Return if exists a table specified by name."""
         if not self.isOpen():
             LOGGER.warning("existsTable: Database not open")
             return False
 
-        t = pnsqlquery.PNSqlQuery()
-        t.setForwardOnly(True)
-        ok = t.exec_("SHOW TABLES LIKE '%s'" % name)
-        if ok:
-            ok = t.next()
+        cursor = self.cursor()
 
-        return ok
+        cursor.execute("SHOW TABLES LIKE '%s'" % name)
 
-    def sqlCreateTable(self, tmd: "pntablemetadata.PNTableMetaData") -> Optional[str]:
+        result = cursor.fetchall()
+
+        return True if result else False
+
+    def setType(self, type_: str, leng: int = 0) -> str:
+        """Return type definition."""
+        res_ = ""
+        type_ = type_.lower()
+        if type_ == "int":
+            res_ = "INTEGER"
+        elif type_ in ["uint", "serial"]:
+            res_ = "INT UNSIGNED"
+        elif type_ in ("bool", "unlock"):
+            res_ = "BOOL"
+        elif type_ == "double":
+            res_ = "DECIMAL"
+        elif type_ == "time":
+            res_ = "TIME"
+        elif type_ == "date":
+            res_ = "DATE"
+        elif type_ in ["pixmap", "stringlist"]:
+            res_ = "MEDIUMTEXT"
+        elif type_ == "string":
+            if leng > 255:
+                res_ = "VARCHAR"
+            else:
+                res_ = "CHAR"
+        elif type_ == "bytearray":
+            res_ = "LONGBLOB"
+        elif type_ == "timestamp":
+            res_ = "TIMESTAMP"
+        else:
+            LOGGER.warning("seType: unknown type %s", type_)
+            leng = 0
+
+        return "%s(%s)" % (res_, leng) if leng else res_
+
+    def sqlCreateTable(
+        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
+    ) -> Optional[str]:
         """Create a table from given MTD."""
-        # util = flutil.FLUtil()
-        if not tmd:
-            return None
 
-        primaryKey = None
+        util = flutil.FLUtil()
+        primary_key = ""
         sql = "CREATE TABLE %s (" % tmd.name()
         # seq = None
 
-        fieldList = tmd.fieldList()
+        field_list = tmd.fieldList()
 
         unlocks = 0
-        for field in fieldList:
+        for number, field in enumerate(field_list):
+            type_ = field.type()
+            leng_ = field.length()
             if field.type() == "unlock":
                 unlocks += 1
 
-        if unlocks > 1:
-            LOGGER.warning(u"%s : No se ha podido crear la tabla %s" % (self.name_, tmd.name()))
-            LOGGER.warning(
-                u"%s : Hay mas de un campo tipo unlock. Solo puede haber uno." % self.name_
-            )
-            return None
+                if unlocks > 1:
+                    LOGGER.debug(u"FLManager : No se ha podido crear la tabla " + tmd.name())
+                    LOGGER.debug(
+                        u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno."
+                    )
+                    return None
 
-        i = 1
-        for field in fieldList:
-            sql = sql + field.name()
-            if field.type() == "int":
-                sql += " INT"
-            elif field.type() in ["uint", "serial"]:
-                sql += " INT UNSIGNED"
-            elif field.type() in ("bool", "unlock"):
-                sql += " BOOL"
-            elif field.type() == "double":
+            sql += field.name()
+            if type_ == "double":
                 sql += " DECIMAL(%s,%s)" % (
                     field.partInteger() + field.partDecimal() + 5,
                     field.partDecimal() + 5,
                 )
-            elif field.type() == "time":
-                sql += " TIME"
-            elif field.type() == "date":
-                sql += " DATE"
-            elif field.type() in ["pixmap", "stringlist"]:
-                sql += " MEDIUMTEXT"
-            elif field.type() == "string":
-                if field.length() > 0:
-                    if field.length() > 255:
-                        sql += " VARCHAR"
-                    else:
-                        sql += " CHAR"
 
-                    sql += "(%s)" % field.length()
-                else:
-                    sql += " CHAR(255)"
+            else:
+                if type_ == "string" and leng_ == 0:
+                    leng_ = 255
 
-            elif field.type() == "bytearray":
-                sql = sql + " LONGBLOB"
-
-            elif field.type() == "timestamp":
-                sql = sql + " TIMESTAMP"
+                sql += " %s" % self.setType(type_, leng_)
 
             if field.isPrimaryKey():
-                if primaryKey is None:
+                if not primary_key:
                     sql += " PRIMARY KEY"
-                    primaryKey = field.name()
+                    primary_key = field.name()
                 else:
                     LOGGER.warning(
-                        QtWidgets.QApplication.tr("FLManager : Tabla-> ")
-                        + tmd.name()
-                        + QtWidgets.QApplication.tr(
-                            " . Se ha intentado poner una segunda clave primaria para el campo "
-                        )
-                        + field.name()
-                        + QtWidgets.QApplication.tr(" , pero el campo ")
-                        + primaryKey
-                        + QtWidgets.QApplication.tr(
-                            " ya es clave primaria. Sólo puede existir una clave primaria en FLTableMetaData,"
-                            " use FLCompoundKey para crear claves compuestas."
+                        util.translate(
+                            "application",
+                            "FLManager : Tabla-> %s ." % tmd.name()
+                            + "Se ha intentado poner una segunda clave primaria para el campo %s ,pero el campo %s ya es clave primaria."
+                            % (primary_key, field.name())
+                            + "Sólo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.",
                         )
                     )
                     return None
             else:
-                if field.isUnique():
-                    sql += " UNIQUE"
-                if not field.allowNull():
-                    sql += " NOT NULL"
-                else:
-                    sql += " NULL"
 
-            if not i == len(fieldList):
+                sql += " UNIQUE" if field.isUnique() else ""
+                sql += " NULL" if field.allowNull() else " NOT NULL"
+
+            if number != len(field_list) - 1:
                 sql += ","
-                i = i + 1
 
         engine = ") ENGINE=INNODB" if not self.noInnoDB else ") ENGINE=MyISAM"
         sql += engine
 
         sql += " %s" % self._default_charset
-
-        LOGGER.warning("NOTICE: CREATE TABLE (%s%s)" % (tmd.name(), engine))
 
         return sql
 

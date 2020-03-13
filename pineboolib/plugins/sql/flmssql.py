@@ -9,7 +9,6 @@ from pineboolib import logging
 from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 
-import traceback
 from typing import Optional, Union, List, Any
 
 
@@ -30,8 +29,8 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         self.savepoint_command = "SAVE TRANSACTION"
         self.rollback_savepoint_command = "ROLLBACK TRANSACTION"
         self.commit_transaction_command = "COMMIT"
-        self._like_true = "'t'"
-        self._like_false = "'f'"
+        self._like_true = "1"
+        self._like_false = "0"
         self._safe_load = {"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"}
         self._database_not_found_keywords = ["does not exist", "no existe"]
 
@@ -100,12 +99,35 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         return True
 
-    def setType(self, type_: str, leng: Optional[Union[str, int]] = None) -> str:
+    def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
-        if leng:
-            return "::%s(%s)" % (type_, leng)
+        type_ = type_.lower()
+        res_ = ""
+        if type_ in ("int", "serial"):
+            res_ = "INT"
+        elif type_ == "uint":
+            res_ = "BIGINT"
+        elif type_ in ("bool", "unlock"):
+            res_ = "BIT"
+        elif type_ == "double":
+            res_ = "DECIMAL"
+        elif type_ == "time":
+            res_ = "TIME"
+        elif type_ == "date":
+            res_ = "DATE"
+        elif type_ in ("pixmap", "stringlist"):
+            res_ = "TEXT"
+        elif type_ == "string":
+            res_ = "VARCHAR"
+        elif type_ == "bytearray":
+            res_ = "NVARCHAR"
+        elif type_ == "timestamp":
+            res_ = "DATETIME2"
         else:
-            return "::%s" % type_
+            LOGGER.warning("seType: unknown type %s", type_)
+            leng = 0
+
+        return "%s(%s)" % (res_, leng) if leng else res_
 
     def existsTable(self, name: str) -> bool:
         """Return if exists a table specified by name."""
@@ -119,102 +141,78 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         ok = False if result_ is None else True
         return ok
 
-    def sqlCreateTable(self, tmd: "pntablemetadata.PNTableMetaData") -> Optional[str]:
+    def sqlCreateTable(
+        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
+    ) -> Optional[str]:
         """Return a create table query."""
         util = flutil.FLUtil()
-        if not tmd:
-            return None
 
-        primaryKey = None
+        primary_key = ""
         sql = "CREATE TABLE %s (" % tmd.name()
         seq = None
 
-        fieldList = tmd.fieldList()
+        field_list = tmd.fieldList()
 
         unlocks = 0
-        for field in fieldList:
-            if field.type() == "unlock":
-                unlocks = unlocks + 1
+        for number, field in enumerate(field_list):
 
-        if unlocks > 1:
-            LOGGER.warning(u"FLManager : No se ha podido crear la tabla %S ", tmd.name())
-            LOGGER.warning(u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno.")
-            return None
-
-        i = 1
-        for field in fieldList:
             sql += field.name()
             type_ = field.type()
-            if type_ == "int":
-                sql += " INT"
-            elif type_ == "uint":
-                sql += " BIGINT"
-            elif type_ in ("bool", "unlock"):
-                sql += " BIT"
+            if type_ == "serial":
+                seq = "%s_%s_seq" % (tmd.name(), field.name())
+                if self.isOpen() and create_index:
+                    try:
+                        self.execute_query("CREATE SEQUENCE %s START WITH 1 INCREMENT BY 1" % seq)
+                    except Exception as error:
+                        LOGGER.error("%s::sqlCreateTable:%s", __name__, str(error))
+
+                    sql += " INT"
+
             elif type_ == "double":
-                sql += " DECIMAL"
-                sql += "(%s,%s)" % (
+                sql += " DECIMAL(%s,%s)" % (
                     int(field.partInteger()) + int(field.partDecimal()),
                     int(field.partDecimal()),
                 )
-            elif type_ == "time":
-                sql += " TIME"
-            elif type_ == "date":
-                sql += " DATE"
-            elif type_ in ("pixmap", "stringlist"):
-                sql += " TEXT"
-            elif type_ == "string":
-                sql += " VARCHAR"
-            elif type_ == "bytearray":
-                sql += " NVARCHAR"
-            elif type_ == "timestamp":
-                sql += " DATETIME2"
-            elif type_ == "serial":
-                seq = "%s_%s_seq" % (tmd.name(), field.name())
-                cursor = self.conn_.cursor()
-                # self.transaction()
-                try:
-                    cursor.execute("CREATE SEQUENCE %s START WITH 1 INCREMENT BY 1" % seq)
-                except Exception:
-                    print("FLQPSQL::sqlCreateTable:\n", traceback.format_exc())
 
-                sql += " INT"
+            else:
+                if type_ == "unlock":
+                    unlocks += 1
 
-            longitud = field.length()
-            if longitud > 0:
-                sql = sql + "(%s)" % longitud
+                    if unlocks > 1:
+                        LOGGER.warning(
+                            u"FLManager : No se ha podido crear la tabla %s ", tmd.name()
+                        )
+                        LOGGER.warning(
+                            u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno."
+                        )
+                        return None
+
+                sql += " %s" % self.setType(type_, field.length())
 
             if field.isPrimaryKey():
-                if primaryKey is None:
+                if not primary_key:
                     sql = sql + " PRIMARY KEY"
+                    primary_key = field.name()
                 else:
                     LOGGER.warning(
                         util.translate(
                             "application",
-                            "FLManager : Tabla-> %s . %s %s ,pero el campo %s ya es clave primaria. %s"
-                            % (
-                                tmd.name(),
-                                "Se ha intentado poner una segunda clave primaria para el campo",
-                                field.name(),
-                                primaryKey,
-                                "Sólo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.",
-                            ),
+                            "FLManager : Tabla-> %s ." % tmd.name()
+                            + "Se ha intentado poner una segunda clave primaria para el campo %s ,pero el campo %s ya es clave primaria."
+                            % (primary_key, field.name())
+                            + "Sólo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.",
                         )
                     )
                     return None
             else:
-                if field.isUnique():
-                    sql = sql + " UNIQUE"
-                if not field.allowNull():
-                    sql = sql + " NOT NULL"
-                else:
-                    sql = sql + " NULL"
 
-            if not i == len(fieldList):
-                sql = sql + ","
-                i = i + 1
+                sql += " UNIQUE" if field.isUnique() else ""
+                sql += " NULL" if field.allowNull() else " NOT NULL"
 
-        sql = sql + ")"
+            if number != len(field_list) - 1:
+                sql += ","
+
+        sql += ")"
 
         return sql
 

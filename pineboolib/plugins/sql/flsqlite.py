@@ -28,7 +28,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     """FLSQLITE class."""
 
     db_filename: Optional[str]
-    db_name: str
 
     def __init__(self):
         """Inicialize."""
@@ -49,14 +48,14 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     def setDBName(self, name: str):
         """Set DB Name."""
 
-        self.db_name = name
+        self._dbname = name
         if name == ":memory:":
-            self.db_name = "temp_db"
+            self._dbname = "temp_db"
             self.db_filename = name
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
         else:
-            self.db_filename = path._dir("%s.sqlite3" % self.db_name)
+            self.db_filename = path._dir("%s.sqlite3" % self._dbname)
 
     def loadSpecialConfig(self) -> None:
         """Set special config."""
@@ -105,10 +104,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return create_engine(sqlalchemy_uri)
 
-    def DBName(self) -> str:
-        """Return database name."""
-        return self.db_name or ""
-
     def nextSerialVal(self, table: str, field: str) -> Optional[int]:
         """Return next serial value."""
         q = pnsqlquery.PNSqlQuery()
@@ -130,10 +125,37 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     #        raise Exception("inTransaction. self.conn_ is None")
     #    return self.conn_.in_transaction
 
-    def setType(self, type_: str, leng: Optional[Union[str, int]] = None) -> str:
+    def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
+        res_ = ""
+        type_ = type_.lower()
+        if type_ == "int":
+            res_ = "INTEGER"
+        elif type_ == "uint":
+            res_ = "INTEGER"
+        elif type_ in ("bool", "unlock"):
+            res_ = "BOOLEAN"
+        elif type_ == "double":
+            res_ = "FLOAT"
+        elif type_ == "time":
+            res_ = "VARCHAR(20)"
+        elif type_ == "date":
+            res_ = "VARCHAR(20)"
+        elif type_ == "pixmap":
+            res_ = "TEXT"
+        elif type_ == "string":
+            res_ = "VARCHAR"
+        elif type_ == "stringlist":
+            res_ = "TEXT"
+        elif type_ == "bytearray":
+            res_ = "CLOB"
+        elif type_ == "timestamp":
+            res_ = "DATETIME"
+        else:
+            LOGGER.warning("seType: unknown type %s", type_)
+            leng = 0
 
-        return " %s(%s)" % (type_.upper(), leng) if leng else " %s" % type_.upper()
+        return "%s(%s)" % (res_, leng) if leng else res_
 
     def process_booleans(self, where: str) -> str:
         """Process booleans fields."""
@@ -154,105 +176,67 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return True if result else False
 
-    def sqlCreateTable(self, tmd: "pntablemetadata.PNTableMetaData") -> Optional[str]:
+    def sqlCreateTable(
+        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
+    ) -> Optional[str]:
         """Return a create table query."""
 
-        if not tmd:
-            return None
-
-        primaryKey = None
+        util = flutil.FLUtil()
+        primary_key = ""
         sql = "CREATE TABLE %s (" % tmd.name()
 
-        fieldList = tmd.fieldList()
+        field_list = tmd.fieldList()
 
         unlocks = 0
-        for field in fieldList:
-            if field.type() == "unlock":
-                unlocks = unlocks + 1
+        for number, field in enumerate(field_list):
+            type_ = field.type()
 
-        if unlocks > 1:
-            LOGGER.debug(u"FLManager : No se ha podido crear la tabla " + tmd.name())
-            LOGGER.debug(u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno.")
-            return None
-
-        i = 1
-        for field in fieldList:
             sql += field.name()
-            if field.type() == "int":
-                sql += " INTEGER"
-            elif field.type() == "uint":
-                sql += " INTEGER"
-            elif field.type() in ("bool", "unlock"):
-                sql += " BOOLEAN"
-            elif field.type() == "double":
-                sql += " FLOAT"
-            elif field.type() == "time":
-                sql += " VARCHAR(20)"
-            elif field.type() == "date":
-                sql += " VARCHAR(20)"
-            elif field.type() == "pixmap":
-                sql += " TEXT"
-            elif field.type() == "string":
-                sql += " VARCHAR"
-            elif field.type() == "stringlist":
-                sql += " TEXT"
-            elif field.type() == "bytearray":
-                sql += " CLOB"
-            elif field.type() == "timestamp":
-                sql += " DATETIME"
-            elif field.type() == "serial":
+
+            if type_ == "serial":
                 sql += " INTEGER"
                 if not field.isPrimaryKey():
                     sql += " PRIMARY KEY"
+            else:
+                if type_ == "unlock":
+                    unlocks = unlocks + 1
 
-            longitud = field.length()
-            if longitud > 0:
-                sql = sql + "(%s)" % longitud
+                    if unlocks > 1:
+                        LOGGER.debug(u"FLManager : No se ha podido crear la tabla " + tmd.name())
+                        LOGGER.debug(
+                            u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno."
+                        )
+                        return None
+
+                sql += " %s" % self.setType(type_, field.length())
 
             if field.isPrimaryKey():
-                if primaryKey is None:
+                if not primary_key:
                     sql += " PRIMARY KEY"
+                    primary_key = field.name()
                 else:
-                    LOGGER.debug(
-                        QtWidgets.QApplication.tr("FLManager : Tabla-> ")
-                        + tmd.name()
-                        + QtWidgets.QApplication.tr(
-                            " . Se ha intentado poner una segunda clave primaria para el campo "
-                        )
-                        + field.name()
-                        + QtWidgets.QApplication.tr(" , pero el campo ")
-                        + primaryKey
-                        + QtWidgets.QApplication.tr(
-                            " ya es clave primaria. Sólo puede existir una clave primaria en FLTableMetaData, "
-                            "use FLCompoundKey para crear claves compuestas."
+                    LOGGER.warning(
+                        util.translate(
+                            "application",
+                            "FLManager : Tabla-> %s ." % tmd.name()
+                            + "Se ha intentado poner una segunda clave primaria para el campo %s ,pero el campo %s ya es clave primaria."
+                            % (primary_key, field.name())
+                            + "Sólo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.",
                         )
                     )
                     return None
             else:
-                if field.isUnique():
-                    sql = sql + " UNIQUE"
-                if not field.allowNull():
-                    sql = sql + " NOT NULL"
-                else:
-                    sql = sql + " NULL"
 
-            if not i == len(fieldList):
-                sql = sql + ","
-                i = i + 1
+                sql += " UNIQUE" if field.isUnique() else ""
+                sql += " NULL" if field.allowNull() else " NOT NULL"
 
-        sql = sql + ");"
-        create_index = ""
-        if tmd.primaryKey():
-            create_index = "CREATE INDEX %s_pkey ON %s (%s)" % (
-                tmd.name(),
-                tmd.name(),
-                tmd.primaryKey(),
-            )
+            if number != len(field_list) - 1:
+                sql += ","
 
-        # q = pnsqlquery.PNSqlQuery()
-        # q.setForwardOnly(True)
-        # q.exec_(createIndex)
-        sql += create_index
+        sql += ");"
+
+        if tmd.primaryKey() and create_index:
+            sql += "CREATE INDEX %s_pkey ON %s (%s)" % (tmd.name(), tmd.name(), tmd.primaryKey())
 
         return sql
 

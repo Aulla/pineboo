@@ -105,12 +105,35 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         return None
 
-    def setType(self, type_: str, leng: Optional[Union[str, int]] = None) -> str:
+    def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
-        if leng:
-            return "::%s(%s)" % (type_, leng)
+        type_ = type_.lower()
+        res_ = ""
+        if type_ == "int":
+            res_ = "INT2"
+        elif type_ == "uint":
+            res_ = "INT4"
+        elif type_ in ("bool", "unlock"):
+            res_ = "BOOLEAN"
+        elif type_ == "double":
+            res_ = "FLOAT8"
+        elif type_ == "time":
+            res_ = "TIME"
+        elif type_ == "date":
+            res_ = "DATE"
+        elif type_ in ("pixmap", "stringlist"):
+            res_ = "TEXT"
+        elif type_ == "string":
+            res_ = "VARCHAR"
+        elif type_ == "bytearray":
+            res_ = "BYTEA"
+        elif type_ == "timestamp":
+            res_ = "TIMESTAMPTZ"
         else:
-            return "::%s" % type_
+            LOGGER.warning("seType: unknown type %s", type_)
+            leng = 0
+
+        return "%s(%s)" % (res_, leng) if leng else res_
 
     def existsTable(self, name: str) -> bool:
         """Return if exists a table specified by name."""
@@ -124,104 +147,74 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         ok = False if result_ is None else True
         return ok
 
-    def sqlCreateTable(self, tmd: "pntablemetadata.PNTableMetaData") -> Optional[str]:
+    def sqlCreateTable(
+        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
+    ) -> Optional[str]:
         """Return a create table query."""
+
         util = flutil.FLUtil()
-        if not tmd:
-            return None
-
-        primaryKey = None
+        primary_key = ""
         sql = "CREATE TABLE %s (" % tmd.name()
-        seq = None
 
-        fieldList = tmd.fieldList()
+        field_list = tmd.fieldList()
 
         unlocks = 0
-        for field in fieldList:
-            if field.type() == "unlock":
-                unlocks = unlocks + 1
+        for number, field in enumerate(field_list):
 
-        if unlocks > 1:
-            LOGGER.warning(u"FLManager : No se ha podido crear la tabla %S ", tmd.name())
-            LOGGER.warning(u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno.")
-            return None
-
-        i = 1
-        for field in fieldList:
             sql += field.name()
             type_ = field.type()
-            if type_ == "int":
-                sql += " INT2"
-            elif type_ == "uint":
-                sql += " INT4"
-            elif type_ in ("bool", "unlock"):
-                sql += " BOOLEAN"
-            elif type_ == "double":
-                sql += " FLOAT8"
-            elif type_ == "time":
-                sql += " TIME"
-            elif type_ == "date":
-                sql += " DATE"
-            elif type_ in ("pixmap", "stringlist"):
-                sql += " TEXT"
-            elif type_ == "string":
-                sql += " VARCHAR"
-            elif type_ == "bytearray":
-                sql += " BYTEA"
-            elif type_ == "timestamp":
-                sql += " TIMESTAMPTZ"
-            elif type_ == "serial":
+            if type_ == "serial":
                 seq = "%s_%s_seq" % (tmd.name(), field.name())
-                q = pnsqlquery.PNSqlQuery()
-                q.setForwardOnly(True)
-                q.exec_("SELECT relname FROM pg_class WHERE relname='%s'" % seq)
-                if not q.next():
-                    cursor = self.conn_.cursor()
-                    # self.transaction()
-                    try:
-                        cursor.execute("CREATE SEQUENCE %s" % seq)
-                    except Exception:
-                        print("FLQPSQL::sqlCreateTable:\n", traceback.format_exc())
-                    # self.commitTransaction()
+                if self.isOpen() and create_table:
+                    cursor = self.execute_query(
+                        "SELECT relname FROM pg_class WHERE relname='%s'" % seq
+                    )
+                    if not cursor.fetchone():
+                        try:
+                            self.execute_query("CREATE SEQUENCE %s" % seq)
+                        except Exception as error:
+                            LOGGER.error("%s::sqlCreateTable:%s", __name__, str(error))
 
-                sql = sql + " INT4 DEFAULT NEXTVAL('%s')" % seq
-                del q
+                sql += " INT4 DEFAULT NEXTVAL('%s')" % seq
+            else:
+                if type_ == "unlock":
+                    unlocks += 1
 
-            longitud = field.length()
-            if longitud > 0:
-                sql = sql + "(%s)" % longitud
+                    if unlocks > 1:
+                        LOGGER.warning(
+                            u"FLManager : No se ha podido crear la tabla %s ", tmd.name()
+                        )
+                        LOGGER.warning(
+                            u"FLManager : Hay mas de un campo tipo unlock. Solo puede haber uno."
+                        )
+                        return None
+
+                sql += " %s" % self.setType(type_, field.length())
 
             if field.isPrimaryKey():
-                if primaryKey is None:
+                if not primary_key:
                     sql = sql + " PRIMARY KEY"
+                    primary_key = field.name()
                 else:
                     LOGGER.warning(
                         util.translate(
                             "application",
-                            "FLManager : Tabla-> %s . %s %s ,pero el campo %s ya es clave primaria. %s"
-                            % (
-                                tmd.name(),
-                                "Se ha intentado poner una segunda clave primaria para el campo",
-                                field.name(),
-                                primaryKey,
-                                "Sólo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.",
-                            ),
+                            "FLManager : Tabla-> %s ." % tmd.name()
+                            + "Se ha intentado poner una segunda clave primaria para el campo %s ,pero el campo %s ya es clave primaria."
+                            % (primary_key, field.name())
+                            + "Sólo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.",
                         )
                     )
                     return None
             else:
-                if field.isUnique():
-                    sql = sql + " UNIQUE"
-                if not field.allowNull():
-                    sql = sql + " NOT NULL"
-                else:
-                    sql = sql + " NULL"
 
-            if not i == len(fieldList):
-                sql = sql + ","
-                i = i + 1
+                sql += " UNIQUE" if field.isUnique() else ""
+                sql += " NULL" if field.allowNull() else " NOT NULL"
 
-        sql = sql + ")"
+            if number != len(field_list) - 1:
+                sql += ","
+
+        sql += ")"
 
         return sql
 
