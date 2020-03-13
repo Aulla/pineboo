@@ -44,9 +44,8 @@ class PNConnectionManager(QtCore.QObject):
                 del conn_
                 del self.connections_dict["main_conn"]
 
-        if hasattr(pnsqlcursor, "CONNECTION_CURSORS"):
-            del pnsqlcursor.CONNECTION_CURSORS
-            pnsqlcursor.CONNECTION_CURSORS = {}
+        del pnsqlcursor.CONNECTION_CURSORS
+        pnsqlcursor.CONNECTION_CURSORS = {}
 
         main_conn._name = "main_conn"
         if main_conn._driver_name and main_conn._driver_sql.loadDriver(main_conn._driver_name):
@@ -127,7 +126,7 @@ class PNConnectionManager(QtCore.QObject):
             connection_ = pnconnection.PNConnection(main_conn._db_name)
             connection_._name = name
 
-            if name in ["default", "dbAux"]:  # Las abrimos automáticamene!
+            if name in ["default", "dbAux", "Aux"]:  # Las abrimos automáticamene!
                 if connection_._driver_name and connection_._driver_sql.loadDriver(
                     connection_._driver_name
                 ):
