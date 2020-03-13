@@ -165,7 +165,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             type_ = field.type()
             if type_ == "serial":
                 seq = "%s_%s_seq" % (tmd.name(), field.name())
-                if self.isOpen() and create_table:
+                if self.isOpen() and create_index:
                     cursor = self.execute_query(
                         "SELECT relname FROM pg_class WHERE relname='%s'" % seq
                     )
