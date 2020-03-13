@@ -34,7 +34,7 @@ class Project(object):
     Can be accessed with pineboolib.project from anywhere.
     """
 
-    _conn_manager: "pnconnectionmanager.PNConnectionManager"
+    _conn_manager: Optional["pnconnectionmanager.PNConnectionManager"]
 
     _app: Optional[QtWidgets.QApplication] = None
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
@@ -91,10 +91,9 @@ class Project(object):
 
         if not os.path.exists(self.tmpdir):
             Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
-
+        self._conn_manager = None
         self._session_func_ = None
         LOGGER.debug("Initializing connection manager for the application.PROJECT %s", self)
-        self._conn_manager = pnconnectionmanager.PNConnectionManager()
         self.pending_conversion_list = []
 
     @property
@@ -112,7 +111,8 @@ class Project(object):
     def conn_manager(self) -> "pnconnectionmanager.PNConnectionManager":
         """Retrieve current connection or throw."""
         if self._conn_manager is None:
-            raise Exception("Project is not initialized")
+            self._conn_manager = pnconnectionmanager.PNConnectionManager()
+
         return self._conn_manager
 
     @property
@@ -128,7 +128,7 @@ class Project(object):
         #    del self._conn
         #    self._conn = None
 
-        result = self._conn_manager.setMainConn(connection)
+        result = self.conn_manager.setMainConn(connection)
 
         if result:
             self.apppath = utils_base.filedir("..")
