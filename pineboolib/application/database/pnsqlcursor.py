@@ -1170,7 +1170,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             % (self.table(), field.alias(), value)
                         )
 
-                if relation_m1 and value:
+                if relation_m1 and value is not None:
                     if relation_m1.checkIn() and not relation_m1.foreignTable() == self.table():
                         # r = field.relationM1()
                         table_metadata = (
@@ -1189,9 +1189,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             .formatAssignValue(relation_m1.foreignField(), field, value, True)
                         )
                         qry.setForwardOnly(True)
-                        LOGGER.debug(
-                            "SQL linea = %s conn name = %s", qry.sql(), self.connectionName()
-                        )
+                        # LOGGER.debug(
+                        #    "SQL linea = %s conn name = %s", qry.sql(), self.connectionName()
+                        # )
                         qry.exec_()
                         if not qry.next():
                             message += "\n%s:%s : El valor %s no existe en la tabla %s" % (
