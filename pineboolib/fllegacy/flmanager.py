@@ -156,12 +156,12 @@ class FLManager(QtCore.QObject, IManager):
             acl: Any = None
             key = metadata_name_or_xml.strip()
             stream = None
-            isSysTable = self.isSystemTable(metadata_name_or_xml)
+            is_system_table = self.isSystemTable(metadata_name_or_xml)
 
             if metadata_name_or_xml in self.metadata_cache_fails_:
                 return None
 
-            elif isSysTable:
+            elif is_system_table:
                 if key in self.cache_metadata_sys_.keys():
                     ret = self.cache_metadata_sys_[key]
             else:
@@ -189,19 +189,6 @@ class FLManager(QtCore.QObject, IManager):
                     self.metadata_cache_fails_.append(metadata_name_or_xml)
                     return None
 
-                # doc = QtXml.QDomDocument(n)
-
-                if not stream:
-                    LOGGER.info(
-                        "FLManager : "
-                        + util.translate(
-                            "FLManager",
-                            "Error al cargar los metadatos para la tabla %s" % metadata_name_or_xml,
-                        )
-                    )
-                    self.metadata_cache_fails_.append(metadata_name_or_xml)
-                    return None
-
                 # docElem = doc.documentElement()
                 # tree = utils_base.load2xml(stream)
                 tree = ElementTree.fromstring(stream)
@@ -212,14 +199,14 @@ class FLManager(QtCore.QObject, IManager):
                 if not ret.isQuery() and not self.existsTable(metadata_name_or_xml):
                     self.createTable(ret)
 
-                if not isSysTable:
+                if not is_system_table:
                     self.cache_metadata_[key] = ret
                 else:
                     self.cache_metadata_sys_[key] = ret
 
                 if (
                     not quick
-                    and not isSysTable
+                    and not is_system_table
                     and not ret.isQuery()
                     and self.db_.mismatchedTable(metadata_name_or_xml, ret)
                     and self.existsTable(metadata_name_or_xml)
@@ -231,13 +218,13 @@ class FLManager(QtCore.QObject, IManager):
                     )
                     LOGGER.warning(msg)
 
-                    must_alter = self.db_.mismatchedTable(metadata_name_or_xml, ret)
-                    if must_alter:
-                        # if not self.alterTable(stream, stream, "", True):
-                        if not self.alterTable(stream, stream, "", True):
-                            LOGGER.warning(
-                                "La regeneración de la tabla %s ha fallado", metadata_name_or_xml
-                            )
+                    # must_alter = self.db_.mismatchedTable(metadata_name_or_xml, ret)
+                    # if must_alter:
+                    # if not self.alterTable(stream, stream, "", True):
+                    if not self.alterTable(stream, stream, "", True):
+                        LOGGER.warning(
+                            "La regeneración de la tabla %s ha fallado", metadata_name_or_xml
+                        )
 
                 # throwMsgWarning(self.db_, msg)
 
