@@ -553,7 +553,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             elif type_ in ("double", "int", "uint"):
                 value = 0
 
-            self.private_cursor.buffer_.setValue(field_name, value)
+            # self.private_cursor.buffer_.setValue(field_name, value)
 
         return value
 
