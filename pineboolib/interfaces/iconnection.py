@@ -312,9 +312,7 @@ class IConnection:
 
         return ""
 
-    def alterTable(
-        self, mtd_1: "PNTableMetaData", mtd_2: "PNTableMetaData", key: str, force: bool = False
-    ) -> bool:
+    def alterTable(self, table_metadata: "PNTableMetaData") -> bool:
         """Modify the fields of a table in the database based on the differences of two PNTableMetaData."""
 
         return False

@@ -688,7 +688,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def mismatchedTable(self, tablename: str, tmd: "pntablemetadata.PNTableMetaData") -> bool:
         """Compare an existing table with a PNTableMetaData and return if there are differences."""
 
-        return self.connManager().dbAux().driver().mismatchedTable(tablename, tmd, self)
+        return self.connManager().dbAux().driver().mismatchedTable(tablename, tmd)
 
     def normalizeValue(self, text: str) -> Optional[str]:
         """Return the value of a correctly formatted string to the database type from a string."""
@@ -711,16 +711,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().execute_query(qry, cursor)
 
-    def alterTable(
-        self,
-        mtd_1: "pntablemetadata.PNTableMetaData",
-        mtd_2: "pntablemetadata.PNTableMetaData",
-        key: str,
-        force: bool = False,
-    ) -> bool:
+    def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify the fields of a table in the database based on the differences of two PNTableMetaData."""
 
-        return self.connManager().dbAux().driver().alterTable(mtd_1, mtd_2, key, force)
+        return self.connManager().dbAux().driver().alterTable(new_metadata)
 
     def canRegenTables(self) -> bool:
         """Return if can regenerate tables."""

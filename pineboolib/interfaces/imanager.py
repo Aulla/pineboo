@@ -41,13 +41,7 @@ class IManager(object):
         """Retrieve action object by name."""
         raise Exception("must be implemented")
 
-    def alterTable(
-        self,
-        mtd1: "pntablemetadata.PNTableMetaData",
-        mtd2: "pntablemetadata.PNTableMetaData",
-        key: str,
-        force: bool = False,
-    ) -> bool:
+    def alterTable(self, metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Issue an alter table to db."""
         return False
 

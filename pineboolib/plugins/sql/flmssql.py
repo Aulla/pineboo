@@ -76,23 +76,18 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         return conn_
 
-    def nextSerialVal(self, table: str, field: str) -> Any:
+    def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
-        # q = pnsqlquery.PNSqlQuery()
-        # q.setSelect(u"nextval('" + table + "_" + field + "_seq')")
-        # q.setFrom("")
-        # q.setWhere("")
-        # if not q.exec_():
-        #    LOGGER.warning("not exec sequence")
-        # elif q.first():
-        #    return q.value(0)
-        cursor = self.conn_.cursor()
-        cursor.execute("SELECT NEXT VALUE FOR %s_%s_seq" % (table, field))
-        result = cursor.fetchone()
-        if result is not None:
-            return result[0]
 
-        return None
+        if self.isOpen():
+            cur = self.execute_query("SELECT NEXT VALUE FOR %s_%s_seq" % (table_name, field_name))
+            result = cur.fetchone()
+            if not result:
+                LOGGER.warning("not exec sequence")
+            else:
+                return result[0]
+
+        return 0
 
     def releaseSavePoint(self, n: int) -> bool:
         """Set release savepoint."""
@@ -129,17 +124,15 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         return "%s(%s)" % (res_, leng) if leng else res_
 
-    def existsTable(self, name: str) -> bool:
+    def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""
-        if not self.isOpen():
-            LOGGER.warning("PSQLDriver::existsTable: Database not open")
-            return False
 
-        cur_ = self.conn_.cursor()
-        cur_.execute("SELECT 1 FROM sys.Tables WHERE  Name = N'%s' AND Type = N'U'" % name)
-        result_ = cur_.fetchone()
-        ok = False if result_ is None else True
-        return ok
+        cur = self.execute_query(
+            "SELECT 1 FROM sys.Tables WHERE  Name = N'%s' AND Type = N'U'" % table_name
+        )
+        result = cur.fetchone()
+
+        return True if result else False
 
     def sqlCreateTable(
         self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
@@ -215,20 +208,6 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         sql += ")"
 
         return sql
-
-    @decorators.not_implemented_warn
-    def mismatchedTable(
-        self,
-        table1: str,
-        tmd_or_table2: Union["pntablemetadata.PNTableMetaData", str],
-        db_: Optional[Any] = None,
-    ) -> bool:
-        """Return if a table is mismatched."""
-
-        if db_ is None:
-            db_ = self.db_
-
-        return False
 
     def decodeSqlType(self, type_: Union[int, str]) -> str:
         """Return the specific field type."""
@@ -374,5 +353,8 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         # ret_ = query.replace(";", "")
         return query
 
-    # def isOpen(self):
-    #    return self.conn_.closed == 0
+    @decorators.not_implemented_warn
+    def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
+        """Modify a table structure."""
+
+        return True

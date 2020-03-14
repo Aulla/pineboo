@@ -1,7 +1,6 @@
 """Flsqlite module."""
 
-from PyQt5 import QtWidgets, Qt
-from pineboolib.core import decorators
+from PyQt5 import Qt
 
 from pineboolib.application.utils import path
 from pineboolib.application.database import pnsqlquery
@@ -12,11 +11,11 @@ from pineboolib.fllegacy import flutil
 
 from . import pnsqlschema
 
-from xml.etree import ElementTree
+
 import os
 
 
-from typing import Optional, Union, Any, List, TYPE_CHECKING
+from typing import Optional, Any, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
@@ -104,27 +103,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return create_engine(sqlalchemy_uri)
 
-    def nextSerialVal(self, table: str, field: str) -> Optional[int]:
-        """Return next serial value."""
-        q = pnsqlquery.PNSqlQuery()
-        q.setSelect("max(%s)" % field)
-        q.setFrom(table)
-        q.setWhere("1 = 1")
-        if not q.exec_():  # FIXME: exec es palabra reservada
-            LOGGER.warning("not exec sequence")
-        elif q.first():
-            old_value = q.value(0)
-            if old_value is not None:
-                return int(old_value) + 1
-
-        return None
-
-    # def inTransaction(self) -> bool:
-    #    """Return if the conn is on transaction."""
-    #    if self.conn_ is None:
-    #        raise Exception("inTransaction. self.conn_ is None")
-    #    return self.conn_.in_transaction
-
     def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
         res_ = ""
@@ -164,15 +142,11 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def existsTable(self, name: str) -> bool:
         """Return if exists a table specified by name."""
-        if not self.isOpen():
-            LOGGER.warning("existsTable: Database not open")
-            return False
 
-        cursor = self.cursor()
-
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='%s'" % name)
-
-        result = cursor.fetchall()
+        cur = self.execute_query(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='%s'" % name
+        )
+        result = cur.fetchone()
 
         return True if result else False
 
@@ -240,82 +214,35 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return sql
 
-    def recordInfo2(self, tablename: str) -> List[List[Any]]:
+    def recordInfo2(self, table_name: str) -> List[List]:
         """Return info from a database table."""
-        if not self.isOpen():
-            raise Exception("recordInfo2: Cannot proceed: SQLLITE not open")
 
-        if self.conn_ is None:
-            raise Exception("recordInfo2. self.conn_ is None")
+        info = []
+        sql = "PRAGMA table_info('%s')" % table_name
 
-        sql = "PRAGMA table_info('%s')" % tablename
-        conn = self.conn_
-        cursor = conn.execute(sql)
+        cursor = self.execute_query(sql)
         res = cursor.fetchall()
-        return self.recordInfo(res)
 
-    def recordInfo(self, tablename_or_query: Any) -> List[list]:
-        """Return info from  a record fields."""
-        if not self.isOpen():
-            return []
+        for columns in res:
+            field_name = columns[1]
+            field_type = columns[2]
+            field_size = 0
+            field_allow_null = columns[3] == 0
+            field_primary_key = columns[5] == 1
+            if field_type.find("VARCHAR(") > -1:
+                field_size = field_type[field_type.find("(") + 1 : len(field_type) - 1]
 
-        info: List[Any] = []
+            info.append(
+                [
+                    field_name,
+                    self.decodeSqlType(field_type),
+                    not field_allow_null,
+                    int(field_size),
+                    field_primary_key,
+                ]
+            )
 
-        if self.db_ is None:
-            raise Exception("recordInfo. self.db_ is None")
-
-        if isinstance(tablename_or_query, str):
-            tablename = tablename_or_query
-
-            stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
-            if not stream:
-                LOGGER.warning(
-                    "FLManager : "
-                    + QtWidgets.QApplication.translate(
-                        "FLSQLite", "Error al cargar los metadatos para la tabla %s" % tablename
-                    )
-                )
-
-                return self.recordInfo2(tablename)
-
-            tree = ElementTree.fromstring(stream)
-            mtd = self.db_.connManager().manager().metadata(tree, True)
-            if not mtd:
-                return self.recordInfo2(tablename)
-            fL = mtd.fieldList()
-            if not fL:
-                del mtd
-                return self.recordInfo2(tablename)
-
-            for f in mtd.fieldNames():
-                field = mtd.field(f)
-                info.append(
-                    [
-                        field.name(),
-                        field.type(),
-                        not field.allowNull(),
-                        field.length(),
-                        field.partDecimal(),
-                        field.defaultValue(),
-                        field.isPrimaryKey(),
-                    ]
-                )
-
-            del mtd
-            return info
-
-        else:
-            for columns in tablename_or_query:
-                fName = columns[1]
-                fType = columns[2]
-                fSize = 0
-                fAllowNull = columns[3] == 0
-                if fType.find("VARCHAR(") > -1:
-                    fSize = int(fType[fType.find("(") + 1 : len(fType) - 1])
-
-                info.append([fName, self.decodeSqlType(fType), not fAllowNull, fSize])
-
-            return info
+        return info
 
     def decodeSqlType(self, type_: str) -> str:
         """Return the specific field type."""
@@ -335,17 +262,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             ret = "timestamp"
 
         return ret
-
-    @decorators.not_implemented_warn
-    def alterTable(
-        self,
-        mtd1: Union[str, "pntablemetadata.PNTableMetaData"],
-        mtd2: Optional[str] = None,
-        key: Optional[str] = None,
-        force: bool = False,
-    ) -> bool:
-        """Modify a table structure."""
-        raise Exception("not implemented")
 
     def tables(self, type_name: Optional[str] = "All") -> List[str]:
         """Return a tables list specified by type."""

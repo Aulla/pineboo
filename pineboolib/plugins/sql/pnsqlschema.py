@@ -6,8 +6,9 @@ from pineboolib import logging, application
 
 from pineboolib.core.utils import utils_base
 from pineboolib.application.utils import check_dependencies
+from pineboolib.application.database import pnsqlquery
 
-import traceback
+
 from typing import Iterable, Optional, Union, List, Any, Dict, cast, TYPE_CHECKING
 from pineboolib.core import settings, decorators
 
@@ -15,6 +16,7 @@ from pineboolib.fllegacy import flutil
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
+    from pineboolib.interfaces import iconnection  # noqa: F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -216,8 +218,8 @@ class PNSqlSchema(object):
         try:
             cur = self.conn_.cursor()
             cur.execute("select 1")
-        except Exception as exc_:
-            LOGGER.error("isOpen raise an exception %s", exc_)
+        except Exception as error:
+            LOGGER.error("isOpen raise an exception %s", error, stack_info=True)
             return False
 
         return True
@@ -357,11 +359,52 @@ class PNSqlSchema(object):
         """Return if can do transaction."""
         return True
 
-    @decorators.not_implemented_warn
-    def nextSerialVal(self, table: str, field: str) -> Any:
+    def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
 
-        return None
+        table_max = 0
+        flseq_max = 0
+        res_ = 0
+
+        cur = self.execute_query("SELECT max(%s) FROM %s WHERE 1=1" % (field_name, table_name))
+        result = cur.fetchone()
+
+        if result:
+            table_max = result[0] or 0
+
+        cur = self.execute_query(
+            "SELECT seq FROM flseqs WHERE tabla = '%s' AND campo ='%s'" % (table_name, field_name)
+        )
+        result = cur.fetchone()
+        if result:
+            flseq_max = result[0] or 0
+
+        res_ = flseq_max if flseq_max else table_max
+        res_ += 1
+
+        str_qry = ""
+        if flseq_max:
+            if res_ > flseq_max:
+                str_qry = "UPDATE flseqs SET seq=%s WHERE tabla = '%s' AND campo = '%s'" % (
+                    res_,
+                    table_name,
+                    field_name,
+                )
+        else:
+            str_qry = "INSERT INTO flseqs (tabla,campo,seq) VALUES('%s','%s',%s)" % (
+                table_name,
+                field_name,
+                res_,
+            )
+
+        if str_qry:
+            try:
+                self.execute_query(str_qry)
+            except Exception as error:
+                LOGGER.error("nextSerialVal: %s", str(error))
+                self.rollbackTransaction()
+
+        return res_
 
     def savePoint(self, number: int) -> bool:
         """Set a savepoint."""
@@ -526,117 +569,70 @@ class PNSqlSchema(object):
         return ""
 
     def mismatchedTable(
-        self,
-        table1: str,
-        tmd_or_table2: Union["pntablemetadata.PNTableMetaData", str],
-        db_: Optional[Any] = None,
+        self, table1_name: str, table2_metadata: "pntablemetadata.PNTableMetaData"
     ) -> bool:
         """Return if a table is mismatched."""
 
-        if db_ is None:
-            db_ = self.db_
+        mismatch = False
+        processed_fields = []
 
-        if isinstance(tmd_or_table2, str):
-            mtd = db_.connManager().manager().metadata(tmd_or_table2, True)
-            if not mtd:
-                return False
+        rec_metadata = self.recordInfo(table2_metadata)
+        rec_database = self.recordInfo2(table1_name)
 
-            mismatch = False
-            processed_fields = []
-            try:
-                rec_mtd = self.recordInfo(tmd_or_table2)
-                rec_db = self.recordInfo2(table1)
-                # fieldBd = None
-                if rec_mtd is None:
-                    raise ValueError("recordInfo no ha retornado valor")
-
-                for field_mtd in rec_mtd:
-                    # fieldBd = None
-                    found = False
-                    for field_db in rec_db:
-                        if field_db[0] == field_mtd[0]:
-                            processed_fields.append(field_db[0])
-                            found = True
-                            if self.notEqualsFields(field_db, field_mtd):
-
-                                mismatch = True
-
-                            rec_db.remove(field_db)
-                            break
-
-                    if not found:
-                        if field_mtd[0] not in processed_fields:
-                            mismatch = True
-                            break
-
-                if len(rec_db) > 0:
-                    mismatch = True
-
-            except Exception:
-                LOGGER.error("mismatchedTable : %s", traceback.format_exc())
-
-            return mismatch
-
+        if rec_metadata is None:
+            raise ValueError("recordInfo no ha retornado valor")
         else:
-            return self.mismatchedTable(table1, tmd_or_table2.name(), db_)
+            for field_metadata in rec_metadata:
+                found = False
+                for field_database in rec_database:
+                    if field_database[0] == field_metadata[0]:
+                        processed_fields.append(field_database[0])
+                        found = True
+                        if self.notEqualsFields(field_database, field_metadata):
+                            print(1)
+                            mismatch = True
 
+                        rec_database.remove(field_database)
+                        break
+
+                if not found:
+                    if field_metadata[0] not in processed_fields:
+                        mismatch = True
+                        break
+
+            if len(rec_database) > 0:
+                mismatch = True
+
+        return mismatch
+
+    @decorators.not_implemented_warn
     def recordInfo2(self, tablename: str) -> List[List[Any]]:
         """Return info from a database table."""
         return []
+
+    def recordInfo(self, table_metadata: "pntablemetadata.PNTableMetaData") -> List[list]:
+        """Obtain current cursor information on columns."""
+
+        info = []
+
+        for field in table_metadata.fieldList():
+            info.append(
+                [
+                    field.name(),
+                    field.type(),
+                    not field.allowNull(),
+                    field.length(),
+                    field.partDecimal(),
+                    field.defaultValue(),
+                    field.isPrimaryKey(),
+                ]
+            )
+        return info
 
     @decorators.not_implemented_warn
     def decodeSqlType(self, type_: str) -> str:
         """Return the specific field type."""
         return ""
-
-    def recordInfo(self, tablename_or_query: str) -> List[list]:
-        """Obtain current cursor information on columns."""
-        if not self.isOpen():
-            raise Exception("recordInfo: conn not opened")
-        if not self.db_:
-            raise Exception("recordInfo: Must be connected")
-        info = []
-        util = flutil.FLUtil()
-
-        if isinstance(tablename_or_query, str):
-            tablename = tablename_or_query
-
-            stream = self.db_.connManager().managerModules().contentCached("%s.mtd" % tablename)
-            if not stream:
-                LOGGER.warning(
-                    "FLManager : "
-                    + util.translate("FLMySQL", "Error al cargar los metadatos para la tabla")
-                    + tablename
-                )
-
-                return self.recordInfo2(tablename)
-
-            # docElem = doc.documentElement()
-            mtd = self.db_.connManager().manager().metadata(tablename, True)
-            if not mtd:
-                return self.recordInfo2(tablename)
-            fL = mtd.fieldList()
-            if not fL:
-                del mtd
-                return self.recordInfo2(tablename)
-
-            for f in mtd.fieldNames():
-                field = mtd.field(f)
-                info.append(
-                    [
-                        field.name(),
-                        field.type(),
-                        not field.allowNull(),
-                        field.length(),
-                        field.partDecimal(),
-                        field.defaultValue(),
-                        field.isPrimaryKey(),
-                    ]
-                )
-
-            del mtd
-
-        return info
 
     def notEqualsFields(self, field1: List[Any], field2: List[Any]) -> bool:
         """Return if a field has changed."""
@@ -681,13 +677,10 @@ class PNSqlSchema(object):
 
         return str(text).replace("'", "''")
 
-    def hasCheckColumn(self, mtd: "pntablemetadata.PNTableMetaData") -> bool:
+    def hasCheckColumn(self, metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Retrieve if MTD has a check column."""
-        field_list = mtd.fieldList()
-        if not field_list:
-            return False
 
-        for field in field_list:
+        for field in metadata.fieldList():
             if field.isCheck() or field.name().endswith("_check_column"):
                 return True
 
@@ -698,16 +691,93 @@ class PNSqlSchema(object):
         """Return if constraint exists specified by name."""
         return False
 
-    @decorators.not_implemented_warn
-    def alterTable(
-        self,
-        mtd1: Union[str, "pntablemetadata.PNTableMetaData"],
-        mtd2: Optional[str] = None,
-        key: Optional[str] = None,
-        force: bool = False,
-    ) -> bool:
+    def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify a table structure."""
-        return False
+
+        if self.hasCheckColumn(new_metadata):
+            return False
+
+        field_list = new_metadata.fieldList()
+        if not field_list:
+            return False
+
+        util = flutil.FLUtil()
+        table_name = new_metadata.name()
+
+        renamed_table = "%salteredtable%s" % (
+            table_name,
+            QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
+        )
+
+        # constraint_name = "%s_key" % table_name
+
+        query = pnsqlquery.PNSqlQuery(None, "dbAux")
+        query.db().transaction()
+
+        # if self.constraintExists(constraint_name):
+        #    sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (table_name, constraint_name)
+        #    if not query.exec_(sql):
+        #        query.db().rollbackTransaction()
+        #        return False
+
+        # for field in field_list:
+        #    if field.isUnique():
+        #        constraint_name = "%s_%s_key" % table_name, field.name()
+        #        if self.constraintExists(constraint_name):
+        #            sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (
+        #                table_name,
+        #                constraint_name,
+        #            )
+        #            if not query.exec_(sql):
+        #                query.db().rollbackTransaction()
+        #                return False
+
+        if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
+            query.db().rollbackTransaction()
+            return False
+
+        if not self.db_.connManager().manager().createTable(new_metadata):
+            query.db().rollbackTransaction()
+            return False
+
+        cur = self.execute_query("SELECT * FROM %s WHERE 1=1" % renamed_table)
+        old_data_list = cur.fetchall()
+        # old_cursor = pnsqlcursor.PNSqlCursor(renamed_table, True, "dbAux")
+        # old_cursor.setModeAccess(old_cursor.Browse)
+        # old_cursor.select()
+        util.createProgressDialog(
+            util.translate("application", "Reestructurando registros para %s...")
+            % new_metadata.alias(),
+            len(old_data_list),
+        )
+
+        util.setLabelText(util.translate("application", "Tabla modificada"))
+
+        old_columns_info = self.recordInfo2(table_name)
+        new_field_names = new_metadata.fieldNames()
+        list_records = []
+        for number_progress, old_data in enumerate(old_data_list):
+            new_buffer = []
+            for number, column in enumerate(old_columns_info):
+                field = new_metadata.field(column[0])
+                if field:
+                    value = (
+                        old_data[number] if column[0] in new_field_names else field.defaultValue()
+                    )
+                    new_buffer.append([field, value])
+
+            list_records.append(new_buffer)
+            util.setProgress(number_progress)
+
+        util.destroyProgressDialog()
+        if not self.insertMulti(table_name, list_records):
+            query.db().rollbackTransaction()
+            return False
+        else:
+            self.db_.connManager().dbAux().commit()
+
+        query.exec_("DROP TABLE %s CASCADE" % renamed_table)
+        return True
 
     @decorators.not_implemented_warn
     def Mr_Proper(self) -> None:
@@ -873,47 +943,37 @@ class PNSqlSchema(object):
 
         return self.conn_.cursor() if self.conn_ is not None else False
 
-    def insertMulti(self, table_name: str, records: Iterable) -> bool:
+    def insertMulti(self, table_name: str, list_records: Iterable = []) -> bool:
         """Insert several rows at once."""
 
-        if not records:
-            return False
+        sql = ""
+        for line in list_records:
+            field_names = []
+            field_values = []
+            for data in line:
+                field = data[0]
+                value: Any = ""
+                if field.generated():
+                    value = data[1]
+                    if field.type() in ("string", "stringlist"):
+                        value = self.normalizeValue(value)
+                    value = self.formatValue(field.type(), value, False)
+                    if field.type() in ("string", "stringlist") and value in ["Null", "NULL"]:
+                        value = "''"
 
-        if not self.isOpen():
-            raise Exception("insertMulti: Database not open")
+                field_names.append(field.name())
+                field_values.append(value)
 
-        if not self.db_:
-            raise Exception("must be connected")
-
-        mtd = self.db_.connManager().manager().metadata(table_name)
-        fList = []
-        vList = []
-        cursor_ = self.cursor()
-        for f in records:
-            field = mtd.field(f[0])
-            if field.generated():
-                fList.append(field.name())
-                value = f[5]
-                if field.type() in ("string", "stringlist"):
-                    value = self.normalizeValue(value)
-                value = self.formatValue(field.type(), value, False)
-                if field.type() in ("string", "stringlist") and value in ["Null", "NULL"]:
-                    value = "''"
-                vList.append(value)
-
-        sql = """INSERT INTO %s(%s) values (%s)""" % (
-            table_name,
-            ", ".join(fList),
-            ", ".join(map(str, vList)),
-        )
-
-        if not fList:
-            return False
+            sql += """INSERT INTO %s(%s) values (%s);""" % (
+                table_name,
+                ", ".join(field_names),
+                ", ".join(map(str, field_values)),
+            )
 
         try:
-            cursor_.execute(sql)
-        except Exception:
-            LOGGER.error("insertMulti: %s", sql)
+            self.execute_query(sql)
+        except Exception as error:
+            LOGGER.error("insertMulti: %s %s", sql, str(error))
             return False
 
         return True

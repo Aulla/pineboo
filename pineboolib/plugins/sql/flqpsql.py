@@ -1,18 +1,17 @@
 """Flqpsql module."""
-from PyQt5 import QtCore, Qt, QtWidgets
+from PyQt5 import QtCore, Qt
 
 from pineboolib.application.database import pnsqlquery
-from pineboolib.application.database import pnsqlcursor
-from pineboolib.application.metadata import pnfieldmetadata
+
 from pineboolib.application.metadata import pntablemetadata
 from pineboolib import logging
 
 from pineboolib.fllegacy import flutil
+
 from . import pnsqlschema
 
-from xml.etree import ElementTree
 import traceback
-from typing import Optional, Union, List, Dict, Any
+from typing import Optional, Union, List, Any
 
 
 LOGGER = logging.get_logger(__name__)
@@ -92,18 +91,18 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         except Exception:
             LOGGER.warning(traceback.format_exc())
 
-    def nextSerialVal(self, table: str, field: str) -> Any:
+    def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
-        q = pnsqlquery.PNSqlQuery()
-        q.setSelect(u"nextval('" + table + "_" + field + "_seq')")
-        q.setFrom("")
-        q.setWhere("")
-        if not q.exec_():
-            LOGGER.warning("not exec sequence")
-        elif q.first():
-            return q.value(0)
 
-        return None
+        if self.isOpen():
+            cur = self.execute_query("SELECT nextval('%s_%s_seq')" % (table_name, field_name))
+            result = cur.fetchone()
+            if not result:
+                LOGGER.warning("not exec sequence")
+            else:
+                return result[0]
+
+        return 0
 
     def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
@@ -135,17 +134,13 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         return "%s(%s)" % (res_, leng) if leng else res_
 
-    def existsTable(self, name: str) -> bool:
+    def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""
-        if not self.isOpen():
-            LOGGER.warning("PSQLDriver::existsTable: Database not open")
-            return False
 
-        cur_ = self.conn_.cursor()
-        cur_.execute("select relname from pg_class where relname = '%s'" % name)
-        result_ = cur_.fetchone()
-        ok = False if result_ is None else True
-        return ok
+        cur = self.execute_query("SELECT relname FROM pg_class WHERE relname = '%s'" % table_name)
+        result = cur.fetchone()
+
+        return True if result else False
 
     def sqlCreateTable(
         self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
@@ -220,47 +215,53 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
     def recordInfo2(self, tablename: str) -> List[List[Any]]:
         """Return info from a database table."""
-        if not self.isOpen():
-            raise Exception("recordInfo2: Database not open")
-
         info = []
-        stmt = (
+        sql = (
             "select pg_attribute.attname, pg_attribute.atttypid, pg_attribute.attnotnull, pg_attribute.attlen, pg_attribute.atttypmod, "
             "pg_attrdef.adsrc from pg_class, pg_attribute "
             "left join pg_attrdef on (pg_attrdef.adrelid = pg_attribute.attrelid and pg_attrdef.adnum = pg_attribute.attnum)"
             " where lower(pg_class.relname) = '%s' and pg_attribute.attnum > 0 and pg_attribute.attrelid = pg_class.oid "
             "and pg_attribute.attisdropped = false order by pg_attribute.attnum" % tablename.lower()
         )
-        cursor = self.conn_.cursor()
-        cursor.execute(stmt)
-        rows = cursor.fetchall()
-        for row in rows:
-            len_ = row[3]
-            precision = row[4]
-            name = row[0]
-            type_ = row[1]
-            allowNull = row[2]
-            defVal = row[5]
+        cursor = self.execute_query(sql)
+        res = cursor.fetchall()
+        for columns in res:
+            field_size = columns[3]
+            field_precision = columns[4]
+            field_name = columns[0]
+            field_type = columns[1]
+            field_allow_null = columns[2]
+            field_default_value = columns[5]
 
-            if isinstance(defVal, str) and defVal is not None:
-                if defVal.find("::character varying") > -1:
-                    defVal = defVal[0 : defVal.find("::character varying")]
+            if isinstance(field_default_value, str) and field_default_value:
+                if field_default_value.find("::character varying") > -1:
+                    field_default_value = field_default_value[
+                        0 : field_default_value.find("::character varying")
+                    ]
 
-            if len_ == -1 and precision and precision > -1:
-                len_ = precision - 4
-                precision = -1
+            if field_size == -1 and field_precision > -1:
+                field_size = field_precision - 4
+                field_precision = -1
 
-            if len_ == -1:
-                len_ = 0
+            if field_size < 0:
+                field_size = 0
 
-            if precision == -1:
-                precision = 0
+            if field_precision < 0:
+                field_precision = 0
 
-            if defVal and defVal[0] == "'":
-                defVal = defVal[1 : len(defVal) - 2]
+            if field_default_value and field_default_value[0] == "'":
+                field_default_value = field_default_value[1 : len(field_default_value) - 2]
 
             info.append(
-                [name, self.decodeSqlType(type_), allowNull, len_, precision, defVal, int(type_)]
+                [
+                    field_name,
+                    self.decodeSqlType(field_type),
+                    field_allow_null,
+                    field_size,
+                    field_precision,
+                    field_default_value,
+                    int(field_type),
+                ]
             )
 
         return info
@@ -323,13 +324,9 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             "SELECT constraint_name FROM information_schema.table_constraints where constraint_name='%s'"
             % name
         )
-
-        if self.db_ is None:
-            raise Exception("constraintExists. self.db_ is None")
-
-        q = pnsqlquery.PNSqlQuery(None, "dbAux")
-
-        return q.exec_(sql) and q.size() > 0
+        cur = self.execute_query(sql)
+        result = cur.fetchone()
+        return True if result else False
 
     def queryUpdate(self, name: str, update: str, filter: str) -> str:
         """Return a database friendly update query."""
@@ -421,574 +418,94 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             LOGGER.error("finRow: %s", exception)
             LOGGER.warning("Detalle:", stack_info=True)
 
-    def alterTable(
-        self,
-        mtd1: Union[str, "pntablemetadata.PNTableMetaData"],
-        mtd2: Optional[str] = None,
-        key: Optional[str] = None,
-        force: bool = False,
-    ) -> bool:
+    def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify a table structure."""
 
-        if isinstance(mtd1, pntablemetadata.PNTableMetaData):
-            return self.alterTable3(mtd1)
-        else:
-            return self.alterTable2(mtd1, mtd2, key, force)
+        if self.hasCheckColumn(new_metadata):
+            return False
 
-    def alterTable3(self, new_mtd: "pntablemetadata.PNTableMetaData") -> bool:
-        """Modify a table structure."""
-        if self.hasCheckColumn(new_mtd):
+        field_list = new_metadata.fieldList()
+        if not field_list:
             return False
 
         util = flutil.FLUtil()
+        table_name = new_metadata.name()
 
-        old_mtd = new_mtd
-        fieldList = old_mtd.fieldList()
-
-        renameOld = "%salteredtable%s" % (
-            old_mtd.name()[0:5],
+        renamed_table = "%salteredtable%s" % (
+            table_name,
             QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
         )
 
-        if self.db_ is None:
-            raise Exception("alterTable3. self.db_ is None")
+        constraint_name = "%s_key" % table_name
 
-        self.db_.connManager().dbAux().transaction()
+        query = pnsqlquery.PNSqlQuery(None, "dbAux")
+        query.db().transaction()
 
-        q = pnsqlquery.PNSqlQuery(None, self.db_.connManager().dbAux())
-
-        constraintName = "%s_key" % old_mtd.name()
-
-        if self.constraintExists(constraintName) and not q.exec_(
-            "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (old_mtd.name(), constraintName)
-        ):
-            self.db_.connManager().dbAux().rollbackTransaction()
-            return False
-
-        for oldField in fieldList:
-            if oldField.isCheck():
+        if self.constraintExists(constraint_name):
+            sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (table_name, constraint_name)
+            if not query.exec_(sql):
+                query.db().rollbackTransaction()
                 return False
-            if oldField.isUnique():
-                constraintName = "%s_%s_key" % (old_mtd.name(), oldField.name())
-                if self.constraintExists(constraintName) and not q.exec_(
-                    "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (old_mtd.name(), constraintName)
-                ):
-                    self.db_.connManager().dbAux().rollbackTransaction()
-                    return False
 
-        if not q.exec_("ALTER TABLE %s RENAME TO %s" % (old_mtd.name(), renameOld)):
-            self.db_.connManager().dbAux().rollbackTransaction()
-            return False
-
-        if not self.db_.connManager().manager().createTable(new_mtd):
-            self.db_.connManager().dbAux().rollbackTransaction()
-            return False
-
-        oldCursor = pnsqlcursor.PNSqlCursor(renameOld, True, "dbAux")
-        oldCursor.setModeAccess(oldCursor.Browse)
-        oldCursor.select()
-
-        fieldList = new_mtd.fieldList()
-
-        if not fieldList:
-            self.db_.connManager().dbAux().rollbackTransaction()
-            return False
-
-        oldCursor.select()
-        totalSteps = oldCursor.size()
-        progress = QtWidgets.QProgressDialog(
-            util.translate("application", "Reestructurando registros para %s...")
-            % (new_mtd.alias()),
-            util.translate("application", "Cancelar"),
-            0,
-            totalSteps,
-        )
-        progress.setLabelText(util.translate("application", "Tabla modificada"))
-
-        step = 0
-        newBuffer = None
-        newField = None
-        listRecords = []
-        newBufferInfo = self.recordInfo2(new_mtd.name())
-        oldFieldsList = {}
-        newFieldsList = {}
-        defValues: Dict[str, Any] = {}
-        v = None
-
-        for newField in fieldList:
-            old_field: Optional["pnfieldmetadata.PNFieldMetaData"] = old_mtd.field(newField.name())
-
-            defValues[str(step)] = None
-            if not old_field or not oldCursor.field(old_field.name()):
-                if not old_field:
-                    old_field = newField
-                if not newField.type() == "serial":
-                    v = newField.defaultValue()
-                    defValues[str(step)] = v
-
-            newFieldsList[str(step)] = newField
-            oldFieldsList[str(step)] = old_field
-            step = step + 1
-
-        ok = True
-        while oldCursor.next():
-            newBuffer = newBufferInfo
-
-            for reg in defValues.keys():
-                newField = newFieldsList[reg]
-                oldField = oldFieldsList[reg]
-                if defValues[reg]:
-                    v = defValues[reg]
-                else:
-                    v = oldCursor.valueBuffer(newField.name())
-                    if (
-                        (not oldField.allowNull or not newField.allowNull())
-                        and not v
-                        and not newField.type() == "serial"
-                    ):
-                        defVal = newField.defaultValue()
-                        if defVal is not None:
-                            v = defVal
-
-                    # FIXME: newBuffer is an array from recordInfo2()
-                    """if v is not None and not newBuffer.field(newField.name()).type() == newField.type():
-                        print(
-                            "FLManager::alterTable : "
-                            + util.translate("application", "Los tipos del campo %1 no son compatibles. Se introducirá un valor nulo.").arg(
-                                newField.name()
-                            )
-                        )
-
-                    if v is not None and newField.type() == "string" and newField.length() > 0:
-                        v = str(v)[0 : newField.length()]
-
-                    if (not oldField.allowNull() or not newField.allowNull()) and v is None:
-                        if oldField.type() == "serial":
-                            v = int(self.nextSerialVal(new_mtd.name(), newField.name()))
-                        elif oldField.type() in ("int", "uint", "bool", "unlock"):
-                            v = 0
-                        elif oldField.type() == "double":
-                            v = 0.0
-                        elif oldField.type() == "time":
-                            v = QtCore.QTime().currentTime()
-                        elif oldField.type() == "date":
-                            v = QtCore.QDate().currentDate()
-                        else:
-                            v = "NULL"[0 : newField.length()]
-
-                    # FIXME: newBuffer is an array from recordInfo2()
-                    newBuffer.setValue(newField.name(), v)
-                    """
-
-                listRecords.append(newBuffer)
-
-            # if not self.insertMulti(new_mtd.name(), listRecords):
-            #    ok = False
-            #    listRecords.clear()
-            #    break
-
-            # listRecords.clear()
-
-        if len(listRecords) > 0:
-            if not self.insertMulti(new_mtd.name(), listRecords):
-                ok = False
-            listRecords.clear()
-
-        if ok:
-            self.db_.connManager().dbAux().commit()
-        else:
-            self.db_.connManager().dbAux().rollbackTransaction()
-            return False
-
-        force = False  # FIXME
-        if force and ok:
-            q.exec_("DROP TABLE %s CASCADE" % renameOld)
-        return True
-
-    def alterTable2(
-        self, mtd1: str, mtd2: Optional[str] = None, key: Optional[str] = None, force: bool = False
-    ) -> bool:
-        """Modify a table structure."""
-        # LOGGER.warning("alterTable2 FIXME::Me quedo colgado al hacer createTable --> existTable")
-        util = flutil.FLUtil()
-
-        old_mtd = None
-        new_mtd = None
-
-        if not self.isOpen():
-            raise Exception("alterTable2: Database not open")
-
-        if self.db_ is None:
-            raise Exception("alterTable2. self.db_ is None")
-
-        if not mtd1:
-            LOGGER.warning(
-                "FLManager::alterTable : "
-                + util.translate("application", "Error al cargar los metadatos.")
-            )
-        else:
-            xml = ElementTree.fromstring(mtd1)
-            old_mtd = self.db_.connManager().manager().metadata(xml, True)
-
-        if old_mtd and old_mtd.isQuery():
-            return True
-
-        if not mtd2:
-            LOGGER.warning(
-                "FLManager::alterTable : "
-                + util.translate("application", "Error al cargar los metadatos.")
-            )
-            return False
-        else:
-            xml = ElementTree.fromstring(mtd2)
-            new_mtd = self.db_.connManager().manager().metadata(xml, True)
-
-        if not old_mtd:
-            old_mtd = new_mtd
-
-        if not old_mtd.name() == new_mtd.name():
-            LOGGER.warning(
-                "FLManager::alterTable : "
-                + util.translate("application", "Los nombres de las tablas nueva y vieja difieren.")
-            )
-            if old_mtd and not old_mtd == new_mtd:
-                del old_mtd
-            if new_mtd:
-                del new_mtd
-
-            return False
-
-        oldPK = old_mtd.primaryKey()
-        newPK = new_mtd.primaryKey()
-
-        if not oldPK == newPK:
-            LOGGER.warning(
-                "FLManager::alterTable : "
-                + util.translate("application", "Los nombres de las claves primarias difieren.")
-            )
-            if old_mtd and not old_mtd == new_mtd:
-                del old_mtd
-            if new_mtd:
-                del new_mtd
-
-            return False
-
-        if not self.db_.connManager().manager().checkMetaData(old_mtd, new_mtd):
-            if old_mtd and not old_mtd == new_mtd:
-                del old_mtd
-            if new_mtd:
-                del new_mtd
-
-            return True
-
-        if not self.db_.connManager().manager().existsTable(old_mtd.name()):
-            LOGGER.warning(
-                "FLManager::alterTable : "
-                + util.translate(
-                    "application",
-                    "La tabla %s antigua de donde importar los registros no existe."
-                    % (old_mtd.name()),
-                )
-            )
-            if old_mtd and not old_mtd == new_mtd:
-                del old_mtd
-            if new_mtd:
-                del new_mtd
-
-            return False
-
-        fieldList = old_mtd.fieldList()
-        oldField = None
-
-        if not fieldList:
-            LOGGER.warning(
-                "FLManager::alterTable : "
-                + util.translate("application", "Los antiguos metadatos no tienen campos.")
-            )
-            if old_mtd and not old_mtd == new_mtd:
-                del old_mtd
-            if new_mtd:
-                del new_mtd
-
-            return False
-
-        renameOld = "%salteredtable%s" % (
-            old_mtd.name()[0:5],
-            QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
-        )
-
-        if not self.db_.connManager().dbAux():
-            if old_mtd and not old_mtd == new_mtd:
-                del old_mtd
-            if new_mtd:
-                del new_mtd
-
-            return False
-
-        self.db_.connManager().dbAux().transaction()
-
-        if key and len(key) == 40:
-            c = pnsqlcursor.PNSqlCursor("flfiles", True, "dbAux")
-            c.setForwardOnly(True)
-            c.setFilter("nombre = '%s.mtd'" % renameOld)
-            c.select()
-            if not c.next():
-                c.setModeAccess(c.Insert)
-                c.refreshBuffer()
-                c.setValueBuffer("nombre", "%s.mtd" % renameOld)
-                c.setValueBuffer("contenido", mtd1)
-                c.setValueBuffer("sha", key)
-                c.commitBuffer()
-                # c.primeInsert()
-                # buffer = c.buffer()
-                # if buffer is not None:
-                #    buffer.setValue("nombre", "%s.mtd" % renameOld)
-                #    buffer.setValue("contenido", mtd1)
-                #    buffer.setValue("sha", key)
-                #    c.insert()
-
-        # q = pnsqlquery.PNSqlQuery(None, self.db_.dbAux())
-        constraintName = "%s_pkey" % old_mtd.name()
-        c1 = self.db_.connManager().dbAux().cursor()
-        c1.execute(
-            "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (old_mtd.name(), constraintName)
-        )  # FIXME CASCADE is correct?
-
-        if self.constraintExists(constraintName):
-
-            LOGGER.warning(
-                "FLManager : "
-                + util.translate(
-                    "application",
-                    "En método alterTable, no se ha podido borrar el índice %s_pkey de la tabla antigua."
-                    % old_mtd.name(),
-                )
-            )
-            self.db_.connManager().dbAux().rollbackTransaction()
-            if old_mtd and not old_mtd == new_mtd:
-                del old_mtd
-            if new_mtd:
-                del new_mtd
-
-            return False
-
-        fieldNamesOld = []
-        record_info = self.recordInfo2(old_mtd.name())
-        for f in record_info:
-            fieldNamesOld.append(f[0])
-
-        for it in fieldList:
-            # if new_mtd.field(it.name()) is not None:
-            #    fieldNamesOld.append(it.name())
-
-            if it.isUnique():
-                constraintName = "%s_%s_key" % (old_mtd.name(), it.name())
-                c2 = self.db_.connManager().dbAux().cursor()
-                c2.execute(
-                    "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (old_mtd.name(), constraintName)
-                )
-
-                if self.constraintExists(constraintName):
-                    LOGGER.warning(
-                        "FLManager : "
-                        + util.translate(
-                            "application",
-                            "En método alterTable, no se ha podido borrar el índice %s_%s_key de la tabla antigua."
-                            % (old_mtd.name(), oldField),
-                        )
+        for field in field_list:
+            if field.isUnique():
+                constraint_name = "%s_%s_key" % (table_name, field.name())
+                if self.constraintExists(constraint_name):
+                    sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (
+                        table_name,
+                        constraint_name,
                     )
-                    self.db_.connManager().dbAux().rollbackTransaction()
-                    if old_mtd and not old_mtd == new_mtd:
-                        del old_mtd
-                    if new_mtd:
-                        del new_mtd
+                    if not query.exec_(sql):
+                        query.db().rollbackTransaction()
+                        return False
 
-                    return False
-
-        # if not q.exec_("ALTER TABLE %s RENAME TO %s" % (old_mtd.name(), renameOld)):
-        #    LOGGER.warning(
-        #        "FLManager::alterTable : "
-        #        + util.translate("application", "No se ha podido renombrar la tabla antigua.")
-        #    )
-
-        #    self.db_.dbAux().rollbackTransaction()
-        #    if old_mtd and not old_mtd == new_mtd:
-        #        del old_mtd
-        #    if new_mtd:
-        #        del new_mtd
-
-        #    return False
-        c3 = self.db_.connManager().dbAux().cursor()
-        c3.execute("ALTER TABLE %s RENAME TO %s" % (old_mtd.name(), renameOld))
-        if not self.db_.connManager().manager().createTable(new_mtd):
-            self.db_.connManager().dbAux().rollbackTransaction()
-            if old_mtd and not old_mtd == new_mtd:
-                del old_mtd
-            if new_mtd:
-                del new_mtd
-
+        if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
+            query.db().rollbackTransaction()
             return False
 
-        v = None
-        ok = False
+        if not self.db_.connManager().manager().createTable(new_metadata):
+            query.db().rollbackTransaction()
+            return False
 
-        if not force and not fieldNamesOld:
-            self.db_.connManager().dbAux().rollbackTransaction()
-            if old_mtd and not old_mtd == new_mtd:
-                del old_mtd
-            if new_mtd:
-                del new_mtd
+        cur = self.execute_query("SELECT * FROM %s WHERE 1=1" % renamed_table)
+        old_data_list = cur.fetchall()
+        # old_cursor = pnsqlcursor.PNSqlCursor(renamed_table, True, "dbAux")
+        # old_cursor.setModeAccess(old_cursor.Browse)
+        # old_cursor.select()
+        util.createProgressDialog(
+            util.translate("application", "Reestructurando registros para %s...")
+            % new_metadata.alias(),
+            len(old_data_list),
+        )
 
-            return self.alterTable2(mtd1, mtd2, key, True)
+        util.setLabelText(util.translate("application", "Tabla modificada"))
 
-        if not ok:
-            old_cursor = self.db_.connManager().dbAux().cursor()
-            old_cursor.execute(
-                "SELECT %s FROM %s WHERE 1 = 1" % (", ".join(fieldNamesOld), renameOld)
-            )
-            result_set = old_cursor.fetchall()
-            totalSteps = len(result_set)
-            util.createProgressDialog(
-                util.translate(
-                    "application", "Reestructurando registros para %s..." % new_mtd.alias()
-                ),
-                totalSteps,
-            )
-            util.setLabelText(util.translate("application", "Tabla modificada"))
+        old_columns_info = self.recordInfo2(table_name)
+        new_field_names = new_metadata.fieldNames()
+        list_records = []
+        for number_progress, old_data in enumerate(old_data_list):
+            new_buffer = []
+            for number, column in enumerate(old_columns_info):
+                new_field = new_metadata.field(column[0])
+                if new_field:
+                    value = (
+                        old_data[number]
+                        if column[0] in new_field_names
+                        else new_field.defaultValue()
+                    )
+                    new_buffer.append([new_field, value])
 
-            step = 0
-            newBuffer = None
-            newField = None
-            listRecords = []
-            newBufferInfo = self.recordInfo2(new_mtd.name())
-            vector_fields = {}
-            default_values = {}
-            v = None
-
-            for it2 in fieldList:
-                oldField = old_mtd.field(it2.name())
-
-                if oldField is None or not result_set:
-                    if oldField is None:
-                        oldField = it2
-                    if it2.type() != pnfieldmetadata.PNFieldMetaData.Serial:
-                        v = it2.defaultValue()
-                        step += 1
-                        default_values[str(step)] = v
-
-                step += 1
-                vector_fields[str(step)] = it2
-                step += 1
-                vector_fields[str(step)] = oldField
-
-            # step2 = 0
-            ok = True
-            x = 0
-            for row in result_set:
-                x += 1
-                newBuffer = newBufferInfo
-
-                i = 0
-
-                while i < step:
-                    v = None
-                    if str(i + 1) in default_values.keys():
-                        i += 1
-                        v = default_values[str(i)]
-                        i += 1
-                        newField = vector_fields[str(i)]
-                        i += 1
-                        oldField = vector_fields[str(i)]
-
-                    else:
-                        i += 1
-                        newField = vector_fields[str(i)]
-                        i += 1
-                        oldField = vector_fields[str(i)]
-                        pos = 0
-                        for field_name in fieldNamesOld:
-                            if newField.name() == field_name:
-                                v = row[pos]
-                                break
-                            pos += 1
-
-                        if (
-                            (not oldField.allowNull() or not newField.allowNull())
-                            and (v is None)
-                            and newField.type() != pnfieldmetadata.PNFieldMetaData.Serial
-                        ):
-                            defVal = newField.defaultValue()
-                            if defVal is not None:
-                                v = defVal
-
-                    if v is not None and newField.type() == "string" and newField.length() > 0:
-                        v = str(v)[: newField.length()]
-
-                    if (not oldField.allowNull() or not newField.allowNull()) and v in (
-                        None,
-                        "None",
-                    ):
-                        if oldField.type() == pnfieldmetadata.PNFieldMetaData.Serial:
-                            v = int(self.nextSerialVal(new_mtd.name(), newField.name()))
-                        elif oldField.type() in ["int", "uint"]:
-                            v = 0
-                        elif oldField.type() in ["bool", "unlock"]:
-                            v = False
-                        elif oldField.type() == "double":
-                            v = 0.0
-                        elif oldField.type() == "time":
-                            v = QtCore.QTime.currentTime()
-                        elif oldField.type() == "date":
-                            v = QtCore.QDate.currentDate()
-                        else:
-                            v = "NULL"[: newField.length()]
-
-                    # new_b = []
-                    for buffer_ in newBuffer:
-                        if buffer_[0] == newField.name():
-                            new_buffer = []
-                            new_buffer.append(buffer_[0])
-                            new_buffer.append(buffer_[1])
-                            new_buffer.append(newField.allowNull())
-                            new_buffer.append(buffer_[3])
-                            new_buffer.append(buffer_[4])
-                            new_buffer.append(v)
-                            new_buffer.append(buffer_[6])
-                            listRecords.append(new_buffer)
-                            break
-                    # newBuffer.setValue(newField.name(), v)
-
-                if listRecords:
-                    if not self.insertMulti(new_mtd.name(), listRecords):
-                        ok = False
-                    listRecords = []
-
-            util.setProgress(totalSteps)
+            list_records.append(new_buffer)
+            util.setProgress(number_progress)
 
         util.destroyProgressDialog()
-        c_drop = self.db_.connManager().dbAux().cursor()
-        if ok:
+        if not self.insertMulti(table_name, list_records):
+            self.db_.connManager().dbAux().rollbackTransaction()
+            return False
+        else:
             self.db_.connManager().dbAux().commit()
 
-            if force:
-                c_drop.execute("DROP TABLE %s CASCADE" % renameOld)
-        else:
-            self.db_.connManager().dbAux().rollbackTransaction()
-
-            c_drop.execute("DROP TABLE %s CASCADE" % old_mtd.name())
-            c_drop.execute("ALTER TABLE %s RENAME TO %s" % (renameOld, old_mtd.name()))
-
-            if old_mtd and old_mtd != new_mtd:
-                del old_mtd
-            if new_mtd:
-                del new_mtd
-            return False
-
-        if old_mtd and old_mtd != new_mtd:
-            del old_mtd
-        if new_mtd:
-            del new_mtd
-
+        query.exec_("DROP TABLE %s CASCADE" % renamed_table)
         return True
 
     def Mr_Proper(self) -> None:
@@ -1067,8 +584,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             util.setLabelText(util.translate("application", "Comprobando tabla %s" % item))
             mustAlter = self.mismatchedTable(item, item)
             if mustAlter:
-                conte = self.db_.connManager().managerModules().content("%s.mtd" % item)
-                if conte:
+                # conte = self.db_.connManager().managerModules().content("%s.mtd" % item)
+                metadata = self.db_.connManager().manager().metadata(item)
+
+                if metadata:
                     msg = util.translate(
                         "application",
                         "La estructura de los metadatos de la tabla '%s' y su "
@@ -1077,7 +596,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     )
 
                     LOGGER.warning(msg)
-                    self.alterTable2(conte, conte, None, True)
+                    self.alterTable(metadata)
 
             steps = steps + 1
             util.setProgress(steps)

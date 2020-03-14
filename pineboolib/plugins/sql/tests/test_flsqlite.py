@@ -42,7 +42,7 @@ class TestFLSqlite(unittest.TestCase):
         )
 
     def test_basic_2(self) -> None:
-        """Basics test 1."""
+        """Basics test 2."""
         from pineboolib.application.database import pnsqlcursor
 
         cursor = pnsqlcursor.PNSqlCursor("fltest")
@@ -60,6 +60,17 @@ class TestFLSqlite(unittest.TestCase):
 
         self.assertEqual(sql, driver.sqlCreateTable(cursor.metadata()))
         self.assertEqual(sql2, driver.sqlCreateTable(cursor.metadata(), False))
+
+    def test_basic_3(self) -> None:
+        """Basics test 3."""
+
+        from pineboolib.application.database import pnsqlcursor
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
+        conn_ = cursor.db()
+        ret = conn_.driver().recordInfo2("fltest")
+        self.assertEqual(["id", "uint", False, 0, True], ret[0])
+        self.assertTrue(conn_.alterTable(cursor.metadata()))
 
     @classmethod
     def tearDownClass(cls) -> None:

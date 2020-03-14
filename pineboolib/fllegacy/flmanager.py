@@ -221,7 +221,7 @@ class FLManager(QtCore.QObject, IManager):
                     # must_alter = self.db_.mismatchedTable(metadata_name_or_xml, ret)
                     # if must_alter:
                     # if not self.alterTable(stream, stream, "", True):
-                    if not self.alterTable(stream, stream, "", True):
+                    if not self.alterTable(ret):
                         LOGGER.warning(
                             "La regeneración de la tabla %s ha fallado", metadata_name_or_xml
                         )
@@ -582,13 +582,7 @@ class FLManager(QtCore.QObject, IManager):
 
             return True
 
-    def alterTable(
-        self,
-        mtd1: "pntablemetadata.PNTableMetaData",
-        mtd2: "pntablemetadata.PNTableMetaData",
-        key: str,
-        force: bool = False,
-    ) -> bool:
+    def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """
         Modify the structure or metadata of a table. Preserving the possible data that can contain.
 
@@ -605,7 +599,7 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("alterTable. self.db_ is empty!")
 
-        return self.db_.connManager().dbAux().alterTable(mtd1, mtd2, key, force)
+        return self.db_.connManager().dbAux().alterTable(new_metadata)
 
     def createTable(
         self, n_or_tmd: Union[str, "pntablemetadata.PNTableMetaData", None]
