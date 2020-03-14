@@ -255,10 +255,6 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         return table_list
 
-    def queryUpdate(self, name: str, update: str, filter: str) -> str:
-        """Return a database friendly update query."""
-        return """UPDATE %s SET %s WHERE %s""" % (name, update, filter)
-
     def declareCursor(
         self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
     ) -> None:
