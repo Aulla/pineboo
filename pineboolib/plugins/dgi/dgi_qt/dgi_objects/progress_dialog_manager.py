@@ -19,15 +19,15 @@ class ProgressDialogManager(object):
             str(title), str(QtWidgets.QApplication.translate("scripts", "Cancelar")), 0, steps
         )
         if pd_widget is not None:
+            self.progress_dialog_stack.append(pd_widget)
             pd_widget.setObjectName(id_)
             pd_widget.setWindowModality(QtCore.Qt.WindowModal)
             pd_widget.setWindowTitle(str(title))
-            self.progress_dialog_stack.append(pd_widget)
+
             pd_widget.show()
             # pd_widget.setMinimumDuration(100)
             QtWidgets.QApplication.processEvents()
 
-        self.progress_dialog_stack.append(pd_widget)
         return pd_widget
 
     def destroy(self, id_: str = "default") -> None:
@@ -36,8 +36,8 @@ class ProgressDialogManager(object):
         for dialog in self.progress_dialog_stack:
 
             if dialog.objectName() == id_:
-                dialog.close()
                 self.progress_dialog_stack.remove(dialog)
+                del dialog
                 return
 
     def setProgress(self, step_number: int, id_: str = "default") -> None:
