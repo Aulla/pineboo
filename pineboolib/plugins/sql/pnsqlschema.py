@@ -573,35 +573,21 @@ class PNSqlSchema(object):
     ) -> bool:
         """Return if a table is mismatched."""
 
-        processed_fields = []
+        dict_metadata = {}
+        dict_database = {}
 
-        rec_metadata = self.recordInfo(table2_metadata)
-        rec_database = self.recordInfo2(table1_name)
+        for rec_m in self.recordInfo(table2_metadata):
+            dict_metadata[rec_m[0]] = rec_m
+        for rec_d in self.recordInfo2(table1_name):
+            dict_database[rec_d[0]] = rec_d
 
-        if len(rec_metadata) != len(rec_database):
+        diff = list(set(list(dict_database.keys())) - set(list(dict_metadata.keys())))
+
+        if diff:
             return True
-        else:
-            dict_metadata = {}
-            dict_database = {}
 
-            for rec_m in rec_metadata:
-                dict_metadata[rec_m[0]] = rec_m
-            for rec_d in rec_metadata:
-                dict_database[rec_d[0]] = rec_d
-
-            database_fields = list(dict_database.keys())
-
-            for name in dict_metadata.keys():
-                if name in database_fields:
-                    if self.notEqualsFields(dict_database[name], dict_metadata[name]):
-                        return True
-                    else:
-                        database_fields.remove(name)
-
-                else:
-                    return True
-
-            if database_fields:
+        for name in dict_metadata.keys():
+            if self.notEqualsFields(dict_database[name], dict_metadata[name]):
                 return True
 
         return False
