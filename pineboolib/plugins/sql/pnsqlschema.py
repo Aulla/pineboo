@@ -573,37 +573,38 @@ class PNSqlSchema(object):
     ) -> bool:
         """Return if a table is mismatched."""
 
-        mismatch = False
         processed_fields = []
 
         rec_metadata = self.recordInfo(table2_metadata)
         rec_database = self.recordInfo2(table1_name)
 
-        if rec_metadata is None:
-            raise ValueError("recordInfo no ha retornado valor")
+        if len(rec_metadata) != len(rec_database):
+            return True
         else:
-            for field_metadata in rec_metadata:
-                found = False
-                for field_database in rec_database:
-                    if field_database[0] == field_metadata[0]:
-                        processed_fields.append(field_database[0])
-                        found = True
-                        if self.notEqualsFields(field_database, field_metadata):
-                            print(1)
-                            mismatch = True
+            dict_metadata = {}
+            dict_database = {}
 
-                        rec_database.remove(field_database)
-                        break
+            for rec_m in rec_metadata:
+                dict_metadata[rec_m[0]] = rec_m
+            for rec_d in rec_metadata:
+                dict_database[rec_d[0]] = rec_d
 
-                if not found:
-                    if field_metadata[0] not in processed_fields:
-                        mismatch = True
-                        break
+            database_fields = list(dict_database.keys())
 
-            if len(rec_database) > 0:
-                mismatch = True
+            for name in dict_metadata.keys():
+                if name in database_fields:
+                    if self.notEqualsFields(dict_database[name], dict_metadata[name]):
+                        return True
+                    else:
+                        database_fields.remove(name)
 
-        return mismatch
+                else:
+                    return True
+
+            if database_fields:
+                return True
+
+        return False
 
     @decorators.not_implemented_warn
     def recordInfo2(self, tablename: str) -> List[List[Any]]:
