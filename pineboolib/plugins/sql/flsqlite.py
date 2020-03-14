@@ -1,9 +1,7 @@
 """Flsqlite module."""
 
-from PyQt5 import Qt
 
 from pineboolib.application.utils import path
-from pineboolib.application.database import pnsqlquery
 
 from pineboolib import logging, application
 
@@ -289,76 +287,3 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             table_list.append(item[0])
 
         return table_list
-
-    def Mr_Proper(self) -> None:
-        """Clear all garbage data."""
-
-        LOGGER.warning("FLSQLITE: FIXME: Mr_Proper no regenera tablas")
-        util = flutil.FLUtil()
-        if self.db_ is None:
-            raise Exception("MR_Proper: self.db_ is None")
-
-        if not self.isOpen():
-            raise Exception("MR_Proper: Cannot proceed: SQLLITE not open")
-
-        self.db_.connManager().dbAux().transaction()
-        rx = Qt.QRegExp("^.*[\\d][\\d][\\d][\\d].[\\d][\\d].*[\\d][\\d]$")
-        rx2 = Qt.QRegExp("^.*alteredtable[\\d][\\d][\\d][\\d].*$")
-        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
-        qry2 = pnsqlquery.PNSqlQuery(None, "dbAux")
-        qry3 = pnsqlquery.PNSqlQuery(None, "dbAux")
-        steps = 0
-        item = ""
-
-        rx3 = Qt.QRegExp("^.*\\d{6,9}$")
-        # listOldBks = self.tables("").grep(rx3)
-        listOldBks_prev = self.tables("Tables")
-
-        listOldBks = []
-
-        for l in listOldBks_prev:
-            if rx3.indexIn(l) > -1:
-                listOldBks.append(l)
-
-        qry.exec_("select nombre from flfiles")
-        util.createProgressDialog(
-            util.translate("SqlDriver", "Borrando backups"), len(listOldBks) + qry.size() + 5
-        )
-        while qry.next():
-            item = qry.value(0)
-            if rx.indexIn(item) > -1 or rx2.indexIn(item) > -1:
-                util.setLabelText(util.translate("SqlDriver", "Borrando regisro %s" % item))
-                qry2.exec_("delete from flfiles where nombre = '%s'" % item)
-                if item.find("alteredtable") > -1:
-                    if item.replace(".mtd", "") in self.tables(""):
-                        util.setLabelText(util.translate("SqlDriver", "Borrando tabla %s" % item))
-                        qry2.exec_("drop table %s" % item.replace(".mtd", ""))
-
-            steps = steps + 1
-            util.setProgress(steps)
-
-        for item in listOldBks:
-            if item in self.tables(""):
-                util.translate("SqlDriver", "Borrando tabla %s" % item)
-                util.setLabelText(util.translate("SqlDriver", "Borrando tabla %s" % item))
-                qry2.exec_("drop table %s" % item)
-
-            steps = steps + 1
-            util.setProgress(steps)
-
-        util.setLabelText(util.translate("SqlDriver", "Inicializando cachés"))
-        steps = steps + 1
-        util.setProgress(steps)
-
-        qry.exec_("delete from flmetadata")
-        qry.exec_("delete from flvar")
-        self.db_.connManager().manager().cleanupMetaData()
-        self.db_.connManager().dbAux().commit()
-
-        util.setLabelText(util.translate("SqlDriver", "Vacunando base de datos"))
-        steps = steps + 1
-        util.setProgress(steps)
-        qry3.exec_("vacuum")
-        steps = steps + 1
-        util.setProgress(steps)
-        util.destroyProgressDialog()

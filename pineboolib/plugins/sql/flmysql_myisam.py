@@ -2,9 +2,6 @@
 Module for MYISAM driver.
 """
 
-from PyQt5 import Qt, QtWidgets
-
-from pineboolib.application.database import pnsqlcursor, pnsqlquery
 from pineboolib.fllegacy import flutil
 from pineboolib import logging
 from . import pnsqlschema
@@ -223,8 +220,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return sql
 
+    """
     def Mr_Proper(self) -> None:
-        """Cleanup database like mr.proper."""
         if not self.isOpen():
             raise Exception("Mr_Proper: Database not open")
 
@@ -385,6 +382,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         self.active_create_index = False
         util.destroyProgressDialog()
+    """
 
     def dict_cursor(self) -> Any:
         """Return dict cursor."""

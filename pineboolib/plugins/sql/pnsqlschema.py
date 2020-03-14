@@ -14,6 +14,8 @@ from pineboolib.core import settings, decorators
 
 from pineboolib.fllegacy import flutil
 
+import re
+
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
     from pineboolib.interfaces import iconnection  # noqa: F401
@@ -766,11 +768,6 @@ class PNSqlSchema(object):
         query.exec_("DROP TABLE %s CASCADE" % renamed_table)
         return True
 
-    @decorators.not_implemented_warn
-    def Mr_Proper(self) -> None:
-        """Clear all garbage data."""
-        pass
-
     def cascadeSupport(self) -> bool:
         """Return True if the driver support cascade."""
         return True
@@ -964,3 +961,98 @@ class PNSqlSchema(object):
             return False
 
         return True
+
+    def Mr_Proper(self) -> None:
+        """Clear all garbage data."""
+
+        util = flutil.FLUtil()
+        conn_dbaux = self.db_.connManager().dbAux()
+
+        tables = self.tables("Tables")
+        altered_tables = []
+        for table_name in tables:
+            if table_name.find("alteredtable") > -1:
+                altered_tables.append(table_name)
+
+        conn_dbaux.transaction()
+
+        # query = pnsqlquery.PNSqlQuery(None,conn_dbaux)
+        cursor = conn_dbaux.execute_query(
+            "select nombre from flfiles where nombre "
+            + self.formatValueLike("string", "%%.mtd", False)
+        )
+        list_mtds = []
+        for data in cursor.fetchall():
+            list_mtds.append(data[0])
+
+        reg_exp = re.compile("^.*\\d{6,9}$")
+        bad_list_mtds = list(filter(reg_exp.match, list_mtds))
+
+        util.createProgressDialog(
+            util.translate("application", "Borrando backups"), len(bad_list_mtds)
+        )
+
+        for number, mtd_name in enumerate(bad_list_mtds):
+            util.setLabelText(util.translate("application", "Borrando registro %s" % mtd_name))
+            conn_dbaux.execute_query("DELETE FROM flfiles WHERE nombre ='%s'" % mtd_name)
+            util.setProgress(number)
+
+        util.setTotalSteps(len(altered_tables))
+
+        for number, altered_table_name in enumerate(altered_tables):
+            util.setLabelText(
+                util.translate("application", "Borrando registro %s" % altered_table_name)
+            )
+            if self.existsTable(altered_table_name):
+                util.setLabelText(
+                    util.translate("application", "Borrando tabla %s" % altered_table_name)
+                )
+                conn_dbaux.execute_query("DROP TABLE %s CASCADE" % altered_table_name)
+
+            util.setProgress(number)
+
+        util.destroyProgressDialog()
+
+        tables = self.tables("Tables")
+
+        util.createProgressDialog(
+            util.translate("application", "Comprobando base de datos"), len(tables) + 2
+        )
+        for number, table_name in enumerate(tables):
+            util.setLabelText(util.translate("application", "Comprobando tabla %s" % table_name))
+            metadata = conn_dbaux.connManager().manager().metadata(table_name)
+            if self.mismatchedTable(table_name, metadata):
+                if metadata:
+                    msg = util.translate(
+                        "application",
+                        "La estructura de los metadatos de la tabla '%s' y su "
+                        "estructura interna en la base de datos no coinciden. "
+                        "Intentando regenerarla." % table_name,
+                    )
+
+                    LOGGER.warning(msg)
+                    self.alterTable(metadata)
+
+            util.setProgress(number)
+
+        # FIXME eliminar indices.
+
+        # FIXME comprobar y vaciar pixmaps.
+
+        conn_dbaux.execute_query("delete from flmetadata")
+        conn_dbaux.execute_query("delete from flvar")
+        conn_dbaux.connManager().manager().cleanupMetaData()
+        conn_dbaux.commit()
+
+        util.setLabelText(util.translate("application", "Vacunando base de datos"))
+        util.setProgress(len(tables) + 1)
+        self.vacuum()
+
+        util.setProgress(len(tables) + 2)
+        util.destroyProgressDialog()
+        print("*")
+
+    def vacuum(self):
+        """Vacuum tables."""
+
+        self.execute_query("vacuum")

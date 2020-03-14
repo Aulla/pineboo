@@ -1,5 +1,5 @@
 """Flqpsql module."""
-from PyQt5 import QtCore, Qt
+from PyQt5 import QtCore
 
 from pineboolib.application.database import pnsqlquery
 
@@ -508,8 +508,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         query.exec_("DROP TABLE %s CASCADE" % renamed_table)
         return True
 
+    """
     def Mr_Proper(self) -> None:
-        """Clear all garbage data."""
         util = flutil.FLUtil()
 
         if not self.isOpen():
@@ -657,6 +657,13 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             util.setProgress(steps)
 
         util.destroyProgressDialog()
+    """
+
+    def vacuum(self):
+        """Vacuum tables."""
+        table_names = self.tables("Tables")
+        for table_name in table_names:
+            self.execute_query("VACUUM ANALYZE %s" % table_name)
 
     def fix_query(self, query: str) -> str:
         """Fix string."""
