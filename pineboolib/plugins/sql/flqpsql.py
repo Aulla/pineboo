@@ -662,8 +662,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def vacuum(self):
         """Vacuum tables."""
         table_names = self.tables("Tables")
+
         for table_name in table_names:
-            self.execute_query("VACUUM ANALYZE %s" % table_name)
+            if self.db_.connManager().manager().metadata(table_name) is not None:
+                self.execute_query("VACUUM ANALYZE %s" % table_name)
 
     def fix_query(self, query: str) -> str:
         """Fix string."""

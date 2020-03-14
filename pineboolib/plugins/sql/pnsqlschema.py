@@ -982,8 +982,11 @@ class PNSqlSchema(object):
             + self.formatValueLike("string", "%%.mtd", False)
         )
         list_mtds = []
-        for data in cursor.fetchall():
-            list_mtds.append(data[0])
+        try:
+            for data in cursor.fetchall():
+                list_mtds.append(data[0])
+        except Exception as error:
+            LOGGER.error("Mr_Proper: %s", error)
 
         reg_exp = re.compile("^.*\\d{6,9}$")
         bad_list_mtds = list(filter(reg_exp.match, list_mtds))
@@ -1021,17 +1024,18 @@ class PNSqlSchema(object):
         for number, table_name in enumerate(tables):
             util.setLabelText(util.translate("application", "Comprobando tabla %s" % table_name))
             metadata = conn_dbaux.connManager().manager().metadata(table_name)
-            if self.mismatchedTable(table_name, metadata):
-                if metadata:
-                    msg = util.translate(
-                        "application",
-                        "La estructura de los metadatos de la tabla '%s' y su "
-                        "estructura interna en la base de datos no coinciden. "
-                        "Intentando regenerarla." % table_name,
-                    )
+            if metadata is not None:
+                if self.mismatchedTable(table_name, metadata):
+                    if metadata:
+                        msg = util.translate(
+                            "application",
+                            "La estructura de los metadatos de la tabla '%s' y su "
+                            "estructura interna en la base de datos no coinciden. "
+                            "Intentando regenerarla." % table_name,
+                        )
 
-                    LOGGER.warning(msg)
-                    self.alterTable(metadata)
+                        LOGGER.warning(msg)
+                        self.alterTable(metadata)
 
             util.setProgress(number)
 
@@ -1050,7 +1054,6 @@ class PNSqlSchema(object):
 
         util.setProgress(len(tables) + 2)
         util.destroyProgressDialog()
-        print("*")
 
     def vacuum(self):
         """Vacuum tables."""
