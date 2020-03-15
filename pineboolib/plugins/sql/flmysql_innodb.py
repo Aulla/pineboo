@@ -12,3 +12,4 @@ class FLMYSQL_INNODB(FLMYSQL_MYISAM):
         self.name_ = "FLMYSQL_INNODB"
         self.alias_ = "MySQL INNODB (MYSQLDB)"
         self.noInnoDB = False
+        self._default_charset = "DEFAULT CHARACTER SET = UTF8MB4 COLLATE = UTF8MB4_BIN"

@@ -259,8 +259,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     field_allow_null,
                     field_size,
                     field_precision,
-                    field_default_value,
-                    int(field_type),
+                    None,  # defualt_value
+                    None,  # is_pk
                 ]
             )
 

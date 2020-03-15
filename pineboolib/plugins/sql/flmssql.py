@@ -21,7 +21,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
     def __init__(self):
         """Inicialize."""
         super().__init__()
-        self.version_ = "0.6"
+        self.version_ = "0.9"
         self.name_ = "FLMSSQL"
         self.errorList = []
         self.alias_ = "SQL Server (PYMSSQL)"
@@ -33,6 +33,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         self._like_false = "0"
         self._safe_load = {"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"}
         self._database_not_found_keywords = ["does not exist", "no existe"]
+        self._text_like = ""
 
     def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
         """Return sqlAlchemy connection."""
@@ -211,23 +212,23 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
     def decodeSqlType(self, type_: Union[int, str]) -> str:
         """Return the specific field type."""
-        ret = str(type_)
+        ret = str(type_).lower()
 
-        if type_ == 16:
+        if type_ == "bit":
             ret = "bool"
-        elif type_ == 23:
+        elif type_ == "bigint":
             ret = "uint"
-        elif type_ == 25:
-            ret = "stringlist"
-        elif type_ == 701:
+        elif type_ == "decimal":
             ret = "double"
-        elif type_ == 1082:
+        elif type_ == "date":
             ret = "date"
-        elif type_ == 1083:
+        elif type_ == "time":
             ret = "time"
-        elif type_ == 1043:
+        elif type_ == "varchar":
             ret = "string"
-        elif type_ == 1184:
+        elif type_ == "text":
+            ret = "stringlist"
+        elif type_ == "datetime2":
             ret = "timestamp"
 
         return ret
@@ -354,3 +355,40 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         """Modify a table structure."""
 
         return True
+
+    def recordInfo2(self, tablename: str) -> List[List[Any]]:
+        """Return info from a database table."""
+        info = []
+        sql = (
+            "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT, NUMERIC_PRECISION_RADIX,"
+            + " CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s'"
+            % tablename.lower()
+        )
+
+        cursor = self.execute_query(sql)
+        res = cursor.fetchall()
+        for columns in res:
+            field_size = int(columns[5]) if columns[5] else 0
+            # field_precision = columns[4] or 0
+            field_name = columns[0]
+            field_type = self.decodeSqlType(columns[1])
+            field_allow_null = columns[2] == "YES"
+            field_default_value = columns[3]
+
+            info.append(
+                [
+                    field_name,
+                    field_type,
+                    not field_allow_null,
+                    field_size,
+                    None,
+                    field_default_value,
+                    None,  # field_pk
+                ]
+            )
+        return info
+
+    def vacuum(self) -> None:
+        """Vacuum tables."""
+
+        return

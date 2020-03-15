@@ -28,7 +28,7 @@ class FLMYSQL_MYISAM2(flmysql_myisam.FLMYSQL_MYISAM):
         self.mobile_ = True
         self.pure_python_ = True
         self._safe_load = {"pymysql": "PyMySQL", "sqlalchemy": "sqlAlchemy"}
-        self._default_charset = "DEFAULT CHARACTER SET = UTF8MB4 COLLATE = UTF8MB4_BIN"
+        self._default_charset = "DEFAULT CHARACTER SET = UTF8MB3 COLLATE = UTF8MB3_BIN"
 
     def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
         """Return sqlAlchemy connection."""

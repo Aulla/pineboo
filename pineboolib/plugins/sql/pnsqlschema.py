@@ -60,6 +60,8 @@ class PNSqlSchema(object):
     _text_like: str
     _safe_load: Dict[str, str]
     _database_not_found_keywords: List[str]
+    _transaction: int
+    _single_conn: bool
 
     def __init__(self):
         """Inicialize."""
@@ -94,12 +96,18 @@ class PNSqlSchema(object):
         self._text_like = "::text "
         self._safe_load = {}
         self._database_not_found_keywords = ["does not exist", "no existe"]
+        self._transaction = 0
+        self._single_conn = False
         # self.sql_query = {}
         # self.cursors_dict = {}
 
     def safe_load(self, exit: bool = False) -> bool:
         """Return if the driver can loads dependencies safely."""
         return check_dependencies.check_dependencies(self._safe_load, exit)
+
+    def singleConnection(self) -> bool:
+        """Return if driver uses a single connection."""
+        return self._single_conn
 
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str
@@ -423,10 +431,13 @@ class PNSqlSchema(object):
         try:
             LOGGER.debug("Creando savepoint sv_%s" % number)
             cursor.execute("%s sv_%s" % (self.savepoint_command, number))
-        except Exception:
+        except Exception as error:
             self.setLastError("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % number)
             LOGGER.error(
-                "%s:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s", __name__, number
+                "%s:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s: %s",
+                __name__,
+                number,
+                str(error),
             )
             return False
 
@@ -446,15 +457,16 @@ class PNSqlSchema(object):
         cursor = self.cursor()
         try:
             cursor.execute("%s sv_%s" % (self.rollback_savepoint_command, number))
-        except Exception:
+        except Exception as error:
             self.setLastError(
                 "No se pudo rollback a punto de salvaguarda",
                 "ROLLBACK TO SAVEPOINTt sv_%s" % number,
             )
             LOGGER.error(
-                "%s:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s",
+                "%s:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s: %s",
                 __name__,
                 number,
+                str(error),
             )
             return False
 
@@ -482,9 +494,9 @@ class PNSqlSchema(object):
         cursor = self.cursor()
         try:
             cursor.execute("%s" % self.commit_transaction_command)
-        except Exception:
+        except Exception as error:
             self.setLastError("No se pudo aceptar la transacción", "COMMIT")
-            LOGGER.error("%s:: No se pudo aceptar la transacción COMMIT.", __name__)
+            LOGGER.error("%s:: No se pudo aceptar la transacción COMMIT: %s", __name__, str(error))
             return False
 
         return True
@@ -500,15 +512,18 @@ class PNSqlSchema(object):
         cursor = self.cursor()
         try:
             cursor.execute("%s" % self.rollback_transaction_command)
-        except Exception:
+        except Exception as error:
             self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-            LOGGER.error("%s:: No se pudo deshacer la transacción ROLLBACK", __name__)
+            LOGGER.error(
+                "%s:: No se pudo deshacer la transacción ROLLBACK: %s", __name__, str(error)
+            )
             return False
 
         return True
 
     def transaction(self) -> bool:
         """Set a new transaction."""
+
         if not self.isOpen():
             LOGGER.warning("%s::transaction: Database not open", __name__)
             return False
@@ -518,9 +533,15 @@ class PNSqlSchema(object):
 
         try:
             cursor.execute("%s" % self.transaction_command)
-        except Exception:
+        except Exception as error:
             self.setLastError("No se pudo crear la transacción", "BEGIN")
-            LOGGER.error("%s:: No se pudo crear la transacción BEGIN", __name__)
+            LOGGER.error(
+                "%s:: No se pudo crear la transacción %s BEGIN : %s",
+                __name__,
+                self._transaction,
+                str(error),
+                stack_info=True,
+            )
             return False
 
         return True
@@ -540,14 +561,15 @@ class PNSqlSchema(object):
         cursor = self.cursor()
         try:
             cursor.execute("%s sv_%s" % (self.release_savepoint_command, number))
-        except Exception:
+        except Exception as error:
             self.setLastError(
                 "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % number
             )
             LOGGER.error(
-                "%s:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s",
+                "%s:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s : %s",
                 __name__,
                 number,
+                str(error),
             )
             return False
 
@@ -625,12 +647,14 @@ class PNSqlSchema(object):
 
     def notEqualsFields(self, field1: List[Any], field2: List[Any]) -> bool:
         """Return if a field has changed."""
+
         ret = False
         try:
             if not field1[2] == field2[2] and not field2[6]:
                 ret = True
 
             if field1[1] == "stringlist" and not field2[1] in ("stringlist", "pixmap"):
+
                 ret = True
 
             elif field1[1] == "string" and (
@@ -639,9 +663,10 @@ class PNSqlSchema(object):
                 if field2[1] in ("time", "date") and field1[3] == 20:
                     ret = False
                 elif field1[1] == "string" and field2[3] != 0:
-                    ret = True
-                else:
-                    ret = True
+                    if field1[3] == 1 and field2[3] == 0:
+                        ret = False
+                    else:
+                        ret = True
             elif field1[1] == "uint" and not field2[1] in ("int", "uint", "serial"):
                 ret = True
             elif field1[1] == "bool" and not field2[1] in ("bool", "unlock"):
@@ -653,6 +678,9 @@ class PNSqlSchema(object):
 
         except Exception:
             LOGGER.error("notEqualsFields %s %s", field1, field2)
+
+        if ret:
+            LOGGER.warning("Falla database: %s, metadata: %s", field1, field2)
 
         return ret
 

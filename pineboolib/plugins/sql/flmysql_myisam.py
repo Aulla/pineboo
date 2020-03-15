@@ -411,7 +411,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             if columns[1].find("(") > -1:
                 field_type = self.decodeSqlType(columns[1][: columns[1].find("(")])
                 if field_type not in ["uint", "int", "double"]:
-                    field_size = columns[1][columns[1].find("(") : columns[1].find(")")]
+                    field_size = columns[1][columns[1].find("(") + 1 : columns[1].find(")")]
                 else:
                     pos_comma = field_size.find(",")
                     if pos_comma > -1:
@@ -419,7 +419,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                         field_precision = int(list_number[1])
                         field_size = list_number[0]
 
-            if field_size == "255" and field_type == "string":
+            else:
+                field_type = self.decodeSqlType(columns[1])
+
+            if field_type == "string" and field_size == "255":
                 field_size = "0"
 
             info.append(
@@ -472,3 +475,11 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         import MySQLdb
 
         return MySQLdb.escape_string(text).decode("utf-8")
+
+    def vacuum(self):
+        """Vacuum tables."""
+        table_names = self.tables("Tables")
+
+        for table_name in table_names:
+            if self.db_.connManager().manager().metadata(table_name) is not None:
+                self.execute_query("ANALYZE TABLE %s" % table_name)

@@ -29,7 +29,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
     def __init__(self):
         """Inicialize."""
         super().__init__()
-        self.version_ = "0.7"
+        self.version_ = "0.9"
         self.name_ = "FLsqlite"
         self.errorList = []
         self.alias_ = "SQLite3 (SQLITE3)"
@@ -41,6 +41,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self._null = ""
         self._text_like = ""
         self._safe_load = {"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"}
+        self._single_conn = True
 
     def setDBName(self, name: str):
         """Set DB Name."""
@@ -72,6 +73,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         import sqlite3
 
         conn_ = None
+
         main_conn = None
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
@@ -236,6 +238,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                     self.decodeSqlType(field_type),
                     not field_allow_null,
                     int(field_size),
+                    None,  # field_precision
+                    None,  # default value
                     field_primary_key,
                 ]
             )

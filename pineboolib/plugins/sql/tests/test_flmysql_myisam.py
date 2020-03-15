@@ -40,7 +40,7 @@ class TestFLSqlite(unittest.TestCase):
         sql = (
             "CREATE TABLE fltest (id INT UNSIGNED PRIMARY KEY,string_field CHAR(255) NULL,date_field DATE NULL,time_field TIME NULL,"
             + "double_field DECIMAL(13,7) NULL,bool_field BOOL NULL,uint_field INT UNSIGNED NULL,bloqueo BOOL NOT NULL)"
-            + " ENGINE=MyISAM DEFAULT CHARACTER SET = UTF8MB4 COLLATE = UTF8MB4_BIN"
+            + " ENGINE=MyISAM DEFAULT CHARACTER SET = UTF8MB3 COLLATE = UTF8MB3_BIN"
         )
 
         driver = flmysql_myisam2.FLMYSQL_MYISAM2()
