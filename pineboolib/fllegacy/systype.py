@@ -9,7 +9,7 @@ import re
 
 from PyQt5 import QtCore, QtWidgets, QtGui, QtXml
 
-from pineboolib.core.error_manager import error_manager
+
 from pineboolib.core.system import System
 from pineboolib.core.utils import utils_base, logging
 
@@ -1588,12 +1588,12 @@ class SysType(sysbasetype.SysBaseType):
                 roll_back_ = True
 
         except Exception:
-            e = traceback.format_exc(limit=-6, chain=False)
+            error = traceback.format_exc(limit=-6, chain=False)
             roll_back_ = True
             valor_ = False
             if error_msg_ == "":
                 error_msg_ = self.translate("Error al ejecutar la función")
-            error_msg_ = "%s:\n%s" % (error_msg_, error_manager(e))
+            raise Exception("%s: %s" % (error_msg_, error))
 
         db_.driver()._transaction -= 1
 

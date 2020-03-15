@@ -6,7 +6,7 @@ Module for PNSqlCursor class.
 from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.core.utils import logging
-from pineboolib.core import error_manager, decorators, settings
+from pineboolib.core import decorators, settings
 
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.utils import xpm
@@ -21,7 +21,6 @@ from . import pncursortablemodel
 
 
 import weakref
-import traceback
 import datetime
 
 from typing import Any, Optional, List, Dict, Union, cast, TYPE_CHECKING
@@ -2669,18 +2668,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             if function_before:
                 field_name = getattr(module_iface, function_before, None)
-                value = None
                 if field_name is not None:
-                    try:
-                        value = field_name(self)
-                    except Exception:
-                        QtWidgets.QMessageBox.warning(
-                            QtWidgets.QApplication.focusWidget(),
-                            "Error",
-                            error_manager.error_manager(
-                                traceback.format_exc(limit=-6, chain=False)
-                            ),
-                        )
+                    value = field_name(self)
                     if value and not isinstance(value, bool) or value is False:
                         return False
 
@@ -2831,17 +2820,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 field_name = getattr(module_script.iface, function_after, None)
 
                 if field_name is not None:
-                    value = None
-                    try:
-                        value = field_name(self)
-                    except Exception:
-                        QtWidgets.QMessageBox.warning(
-                            QtWidgets.QApplication.focusWidget(),
-                            "Error",
-                            error_manager.error_manager(
-                                traceback.format_exc(limit=-6, chain=False)
-                            ),
-                        )
+                    value = field_name(self)
                     if value and not isinstance(value, bool) or value is False:
                         return False
 

@@ -14,8 +14,6 @@ from . import flformdb, flapplication, flfielddb
 
 from typing import cast, Union, Optional, TYPE_CHECKING
 
-import traceback
-
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pnaction
     from pineboolib.interfaces import isqlcursor  # noqa : F401
@@ -576,18 +574,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
         ):
             ret_ = True
             fun_ = getattr(self.iface, "validateForm", None)
-            if fun_ is not None and fun_ != self.validateForm:
-                try:
-                    ret_ = fun_()
-                except Exception:
-                    # script_name = self.iface.__module__
-                    from pineboolib.core.error_manager import error_manager
-                    from pineboolib import application
-
-                    flapplication.aqApp.msgBoxWarning(
-                        error_manager(traceback.format_exc(limit=-6, chain=False)),
-                        application.PROJECT.DGI,
-                    )
+            if fun_ is not self.validateForm:
+                ret_ = fun_()
 
             return ret_ if isinstance(ret_, bool) else True
         return True
@@ -601,10 +589,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
         """
 
         if self.iface:
-            try:
-                self.iface.acceptedForm()
-            except Exception:
-                pass
+            fun_ = getattr(self.iface, "acceptedForm", None)
+            if fun_ is not None and fun_ is not self.acceptedForm:
+                fun_.acceptedForm()
 
     def afterCommitBuffer(self) -> None:
         """

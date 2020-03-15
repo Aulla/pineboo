@@ -291,16 +291,7 @@ class FLFormDB(QtWidgets.QDialog):
                 self.widget.clear_connections()
 
             if hasattr(self.iface, "init"):
-                try:
-                    self.iface.init()
-                except Exception:
-                    from pineboolib.core.error_manager import error_manager
-
-                    flapplication.aqApp.msgBoxWarning(
-                        error_manager(traceback.format_exc(limit=-6, chain=False)),
-                        application.PROJECT.DGI,
-                    )
-                    return False
+                self.iface.init()
 
             return True
 
