@@ -72,6 +72,14 @@ class TestFLSqlite(unittest.TestCase):
         self.assertEqual(["id", "uint", False, 0, None, None, True], ret[0])
         self.assertTrue(conn_.alterTable(cursor.metadata()))
 
+    def test_mismatched(self) -> None:
+        """Test mismatched table."""
+
+        from pineboolib.application.database import pnsqlcursor
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
+        self.assertFalse(cursor.db().driver().mismatchedTable("fltest", cursor.metadata()))
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

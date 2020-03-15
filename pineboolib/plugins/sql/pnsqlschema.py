@@ -607,11 +607,14 @@ class PNSqlSchema(object):
 
         diff = list(set(list(dict_database.keys())) - set(list(dict_metadata.keys())))
 
-        if diff:
+        if len(diff) > 0:
             return True
 
         for name in dict_metadata.keys():
-            if self.notEqualsFields(dict_database[name], dict_metadata[name]):
+            if name in dict_database.keys():
+                if self.notEqualsFields(dict_database[name], dict_metadata[name]):
+                    return True
+            else:
                 return True
 
         return False
