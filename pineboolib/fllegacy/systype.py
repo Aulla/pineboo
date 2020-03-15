@@ -1574,7 +1574,7 @@ class SysType(sysbasetype.SysBaseType):
         else:
             db_.savePoint(transaction_level_)
 
-        db_._transaction += 1
+        db_.driver()._transaction += 1
 
         if self.interactiveGUI():
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
@@ -1595,7 +1595,7 @@ class SysType(sysbasetype.SysBaseType):
                 error_msg_ = self.translate("Error al ejecutar la función")
             error_msg_ = "%s:\n%s" % (error_msg_, error_manager(e))
 
-        db_._transaction -= 1
+        db_.driver()._transaction -= 1
 
         if roll_back_:  # do RollBack
             if error_msg_ != "":

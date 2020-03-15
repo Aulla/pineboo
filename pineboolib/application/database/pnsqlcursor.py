@@ -777,7 +777,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return TRUE if there is one.
         """
         if self.db():
-            if self.db()._transaction > 0:
+            if self.db().driver()._transaction > 0:
                 return True
 
         return False

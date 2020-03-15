@@ -29,7 +29,6 @@ class IConnection:
     conn: Any  # connection from the actual driver
     _conn_aux: Dict[str, "IConnection"]
     _driver_sql: Any
-    _transaction: int
     _current_save_point: Optional[Any]  # Optional["PNSqlSavePoint"]
     _stack_save_points: List[Any]  # List["PNSqlSavePoint"]
     _queue_save_points: List[Any]  # List["PNSqlSavePoint"]
@@ -331,3 +330,7 @@ class IConnection:
         """Return flmanager instance."""
 
         return self.connManager().managerModules()
+
+    def singleConnection(self) -> bool:
+        """Return if driver uses a single connection."""
+        return False

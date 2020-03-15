@@ -34,7 +34,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _db_password: str = ""
     conn: Any = None  # Connection from the actual driver
     _driver_sql: "pnsqldrivers.PNSqlDrivers"
-    _transaction: int
     _driver_name: str
     # currentSavePoint_: Optional[PNSqlSavePoint]
     # stackSavePoints_: List[PNSqlSavePoint]
@@ -90,7 +89,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         self._driver_name = self._driver_sql.aliasToName(driver_alias)
 
-        self._transaction = 0
+        # self.driver()._transaction = 0
         # self.stackSavePoints_ = []
         # self.queueSavePoints_ = []
         self._interactive_gui = True
@@ -315,10 +314,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def doTransaction(self, cursor: "isqlcursor.ISqlCursor") -> bool:
         """Make a transaction or savePoint according to transaction level."""
 
-        if self._transaction == 0 and self.canTransaction():
+        if self.driver()._transaction == 0 and self.canTransaction():
             if settings.CONFIG.value("application/isDebuggerMode", False):
                 application.PROJECT.message_manager().send(
-                    "status_help_msg", "send", ["Iniciando Transacción... %s" % self._transaction]
+                    "status_help_msg",
+                    "send",
+                    ["Iniciando Transacción... %s" % self.driver()._transaction],
                 )
             if self.transaction():
                 self._last_active_cursor = cursor
@@ -332,8 +333,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 #    self.stackSavePoints_.clear()
                 #    self.queueSavePoints_.clear()
 
-                self._transaction = self._transaction + 1
-                cursor.private_cursor._transactions_opened.insert(0, self._transaction)
+                self.driver()._transaction = +1
+                cursor.private_cursor._transactions_opened.insert(0, self.driver()._transaction)
                 return True
             else:
                 LOGGER.warning("doTransaction: Fallo al intentar iniciar la transacción")
@@ -344,10 +345,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 application.PROJECT.message_manager().send(
                     "status_help_msg",
                     "send",
-                    ["Creando punto de salvaguarda %s:%s" % (self._name, self._transaction)],
+                    [
+                        "Creando punto de salvaguarda %s:%s"
+                        % (self._name, self.driver()._transaction)
+                    ],
                 )
             # if not self.canSavePoint():
-            #    if self._transaction == 0:
+            #    if self.driver()._transaction == 0:
             #        if self.currentSavePoint_:
             #            del self.currentSavePoint_
             #            self.currentSavePoint_ = None
@@ -361,21 +365,23 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             #        else:
             #            self.stackSavePoints_.append(self.currentSavePoint_)
 
-            #    self.currentSavePoint_ = PNSqlSavePoint(self._transaction)
+            #    self.currentSavePoint_ = PNSqlSavePoint(self.driver()._transaction)
             # else:
-            self.savePoint(self._transaction)
+            self.savePoint(self.driver()._transaction)
 
-            self._transaction = self._transaction + 1
+            self.driver()._transaction = self.driver()._transaction + 1
             if cursor.private_cursor._transactions_opened:
-                cursor.private_cursor._transactions_opened.insert(0, self._transaction)  # push
+                cursor.private_cursor._transactions_opened.insert(
+                    0, self.driver()._transaction
+                )  # push
             else:
-                cursor.private_cursor._transactions_opened.append(self._transaction)
+                cursor.private_cursor._transactions_opened.append(self.driver()._transaction)
             return True
 
     def transactionLevel(self) -> int:
         """Indicate the level of transaction."""
 
-        return self._transaction
+        return self.driver()._transaction
 
     def doRollback(self, cur: "isqlcursor.ISqlCursor") -> bool:
         """Drop a transaction or savepoint depending on the transaction level."""
@@ -401,31 +407,33 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             cancel = True
 
-        if self._transaction > 0:
+        if self.driver()._transaction > 0:
             if cur.private_cursor._transactions_opened:
                 trans = cur.private_cursor._transactions_opened.pop()
-                if not trans == self._transaction:
+                if not trans == self.driver()._transaction:
                     LOGGER.warning(
                         "FLSqlDatabase: El cursor %s va a deshacer la transacción %s pero la última que inició es la %s",
                         cur.curName(),
-                        self._transaction,
+                        self.driver()._transaction,
                         trans,
                         stack_info=True,
                     )
             else:
                 LOGGER.warning(
                     "FLSqlDatabaser : El cursor va a deshacer la transacción %s pero no ha iniciado ninguna",
-                    self._transaction,
+                    self.driver()._transaction,
                 )
 
-            self._transaction = self._transaction - 1
+            self.driver()._transaction = self.driver()._transaction - 1
         else:
             return True
 
-        if self._transaction == 0 and self.canTransaction():
+        if self.driver()._transaction == 0 and self.canTransaction():
             if settings.CONFIG.value("application/isDebuggerMode", False):
                 application.PROJECT.message_manager().send(
-                    "status_help_msg", "send", ["Deshaciendo Transacción... %s" % self._transaction]
+                    "status_help_msg",
+                    "send",
+                    ["Deshaciendo Transacción... %s" % self.driver()._transaction],
                 )
             if self.rollbackTransaction():
                 self._last_active_cursor = None
@@ -453,7 +461,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             application.PROJECT.message_manager().send(
                 "status_help_msg",
                 "send",
-                ["Restaurando punto de salvaguarda %s:%s..." % (self._name, self._transaction)],
+                [
+                    "Restaurando punto de salvaguarda %s:%s..."
+                    % (self._name, self.driver()._transaction)
+                ],
             )
             # if not self.canSavePoint():
             #    tam_queue = len(self.queueSavePoints_)
@@ -461,7 +472,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             #        temp_save_point = self.queueSavePoints_.pop()
             #        temp_id = temp_save_point.id()
 
-            #        if temp_id > self._transaction or self._transaction == 0:
+            #        if temp_id > self.driver()._transaction or self.driver()._transaction == 0:
             #            temp_save_point.undo()
             #            del temp_save_point
             #        else:
@@ -473,7 +484,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             #        if self.stackSavePoints_:
             #            self.currentSavePoint_ = self.stackSavePoints_.pop()
 
-            #    if self._transaction == 0:
+            #    if self.driver()._transaction == 0:
             #        if self.currentSavePoint_:
             #            del self.currentSavePoint_
             #            self.currentSavePoint_ = None
@@ -482,7 +493,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             #        self.queueSavePoints_.clear()
 
             # else:
-            self.rollbackSavePoint(self._transaction)
+            self.rollbackSavePoint(self.driver()._transaction)
 
             cur.setModeAccess(cur.Browse)
             return True
@@ -498,32 +509,34 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if not notify:
             cur.autoCommit.emit()
 
-        if self._transaction > 0:
+        if self.driver()._transaction > 0:
             if cur.private_cursor._transactions_opened:
                 trans = cur.private_cursor._transactions_opened.pop()
-                if not trans == self._transaction:
+                if not trans == self.driver()._transaction:
                     LOGGER.warning(
                         "El cursor %s va a terminar la transacción %s pero la última que inició es la %s",
                         cur.curName(),
-                        self._transaction,
+                        self.driver()._transaction,
                         trans,
                         stack_info=True,
                     )
             else:
                 LOGGER.warning(
                     "El cursor va a terminar la transacción %s pero no ha iniciado ninguna",
-                    self._transaction,
+                    self.driver()._transaction,
                 )
 
-            self._transaction = self._transaction - 1
+            self.driver()._transaction = self.driver()._transaction - 1
         else:
 
             return True
 
-        if self._transaction == 0 and self.canTransaction():
+        if self.driver()._transaction == 0 and self.canTransaction():
             if settings.CONFIG.value("application/isDebuggerMode", False):
                 application.PROJECT.message_manager().send(
-                    "status_help_msg", "send", ["Terminando Transacción... %s" % self._transaction]
+                    "status_help_msg",
+                    "send",
+                    ["Terminando Transacción... %s" % self.driver()._transaction],
                 )
             try:
                 if self.commit():
@@ -545,7 +558,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
                 else:
                     LOGGER.error(
-                        "doCommit: Fallo al intentar terminar transacción: %s" % self._transaction
+                        "doCommit: Fallo al intentar terminar transacción: %s"
+                        % self.driver()._transaction
                     )
                     return False
 
@@ -556,10 +570,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             application.PROJECT.message_manager().send(
                 "status_help_msg",
                 "send",
-                ["Liberando punto de salvaguarda %s:%s..." % (self._name, self._transaction)],
+                [
+                    "Liberando punto de salvaguarda %s:%s..."
+                    % (self._name, self.driver()._transaction)
+                ],
             )
-            if (self._transaction == 1 and self.canTransaction()) or (
-                self._transaction == 0 and not self.canTransaction()
+            if (self.driver()._transaction == 1 and self.canTransaction()) or (
+                self.driver()._transaction == 0 and not self.canTransaction()
             ):
                 # if not self.canSavePoint():
                 #    if self.currentSavePoint_:
@@ -569,7 +586,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 #    self.stackSavePoints_.clear()
                 #    self.queueSavePoints_.clear()
                 # else:
-                self.releaseSavePoint(self._transaction)
+                self.releaseSavePoint(self.driver()._transaction)
                 if notify:
                     cur.setModeAccess(cur.Browse)
 
@@ -578,7 +595,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             #    tam_queue = len(self.queueSavePoints_)
             #    for i in range(tam_queue):
             #        temp_save_point = self.queueSavePoints_.pop()
-            #        temp_save_point.setId(self._transaction - 1)
+            #        temp_save_point.setId(self.driver()._transaction - 1)
             #        self.queueSavePoints_.append(temp_save_point)
 
             #    if self.currentSavePoint_:
@@ -587,7 +604,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             #        if self.stackSavePoints_:
             #            self.currentSavePoint_ = self.stackSavePoints_.pop()
             # else:
-            self.releaseSavePoint(self._transaction)
+            self.releaseSavePoint(self.driver()._transaction)
 
             if notify:
                 cur.setModeAccess(cur.Browse)
@@ -662,12 +679,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         sql = self.connManager().dbAux().driver().sqlCreateTable(tmd)
         if not sql:
             return False
-        if self._transaction == 0:
+        if self.driver()._transaction == 0:
             do_transaction = True
 
         if do_transaction:
             self.transaction()
-            self._transaction += 1
+            self.driver()._transaction += 1
 
         for single_sql in sql.split(";"):
             try:
@@ -681,7 +698,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if do_transaction:
             self.commitTransaction()
-            self._transaction -= 1
+            self.driver()._transaction -= 1
 
         return True
 
@@ -752,3 +769,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._is_open = False
         self.driver().open_ = False
         self.driver().conn_.close()
+
+    def singleConnection(self) -> bool:
+        """Return if driver uses a single connection."""
+        return self.driver().singleConnection()
