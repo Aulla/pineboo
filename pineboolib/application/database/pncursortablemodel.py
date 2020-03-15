@@ -554,9 +554,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             qry = self.db().connManager().manager().query(qry_file)
             if qry is None:
                 LOGGER.error(
-                    "Could not load the file %s.qry for an unknown reason. This table is a view"
+                    "Could not load the file %s.qry for an unknown reason. This table is a view",
+                    qry_file,
                 )
-                raise Exception(" The query %s return empty value" % qry_file)
+                raise Exception(
+                    "Could not load the file %s.qry for an unknown reason. This table is a view"
+                    % qry_file
+                )
             qry_select = [x.strip() for x in (qry.select()).split(",")]
             qry_fields: Dict[str, str] = {
                 fieldname.split(".")[-1]: fieldname for fieldname in qry_select
