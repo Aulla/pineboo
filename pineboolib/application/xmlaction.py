@@ -3,7 +3,7 @@ XMLAction module.
 """
 from PyQt5 import QtWidgets
 
-from pineboolib.core.utils import logging, struct
+from pineboolib.core.utils import logging, struct, utils_base
 from . import load_script
 from pineboolib.fllegacy import flformdb, flformrecorddb
 from typing import Optional, cast, TYPE_CHECKING
@@ -67,32 +67,31 @@ class XMLAction(struct.ActionStruct):
                 self.formrecord_widget.widget.doCleanUp()
                 # self.formrecord_widget.widget = None
 
-            # if self.project.DGI.useDesktop():
-            # FIXME: looks like code duplication. Bet both sides of the IF do the same.
-            #    self.formrecord_widget = cast(
-            #        flformrecorddb.FLFormRecordDB,
-            #        self.project.conn_manager.managerModules().createFormRecord(
-            #            action=self, parent_or_cursor=cursor
-            #        ),
-            #    )
-            # else:
-            # self.script = getattr(self, "script", None)
-            # if isinstance(self.script, str) or self.script is None:
-            #    script = load_script.load_script(self.scriptformrecord, self)
-            #    self.formrecord_widget = script.form
-            #    if self.formrecord_widget is None:
-            #        raise Exception("After loading script, no form was loaded")
-            #    self.formrecord_widget.widget = self.formrecord_widget
-            #    self.formrecord_widget.iface = self.formrecord_widget.widget.iface
-            #    self.formrecord_widget._loaded = True
-            # self.formrecord_widget.setWindowModality(Qt.ApplicationModal)
-            LOGGER.debug("Loading record action %s . . . ", self.name)
-            self.formrecord_widget = cast(
-                flformrecorddb.FLFormRecordDB,
-                self.project.conn_manager.managerModules().createFormRecord(
-                    action=self, parent_or_cursor=cursor
-                ),
-            )
+            if not utils_base.is_library():
+                self.formrecord_widget = cast(
+                    flformrecorddb.FLFormRecordDB,
+                    self.project.conn_manager.managerModules().createFormRecord(
+                        action=self, parent_or_cursor=cursor
+                    ),
+                )
+            else:
+                self.script = getattr(self, "script", None)
+                if isinstance(self.script, str) or self.script is None:
+                    script = load_script.load_script(self.scriptformrecord, self)
+                self.formrecord_widget = script.form
+                if self.formrecord_widget is None:
+                    raise Exception("After loading script, no form was loaded")
+                self.formrecord_widget.widget = self.formrecord_widget
+                self.formrecord_widget.iface = self.formrecord_widget.widget.iface
+                self.formrecord_widget._loaded = True
+
+            # LOGGER.debug("Loading record action %s . . . ", self.name)
+            # self.formrecord_widget = cast(
+            #    flformrecorddb.FLFormRecordDB,
+            #    self.project.conn_manager.managerModules().createFormRecord(
+            #        action=self, parent_or_cursor=cursor
+            #    ),
+            # )
             LOGGER.debug(
                 "End of record action load %s (iface:%s ; widget:%s)",
                 self.name,
@@ -116,29 +115,27 @@ class XMLAction(struct.ActionStruct):
             if self.mainform_widget is not None and getattr(self.mainform_widget, "widget", None):
                 self.mainform_widget.widget.doCleanUp()
 
-            # if self.project.DGI.useDesktop():
-            #    LOGGER.info("Loading action %s (createForm). . . ", self.name)
-            #    self.mainform_widget = cast(
-            #        flformdb.FLFormDB,
-            #        self.project.conn_manager.managerModules().createForm(action=self),
-            #    )
-            # else:
-            #    LOGGER.info(
-            #        "Loading action %s (load_script %s). . . ", self.name, self.scriptform
-            #    )
-            #    script = load_script.load_script(self.scriptform, self)
-            #    self.mainform_widget = script.form  # FormDBWidget FIXME: Add interface for types
-            #    if self.mainform_widget is None:
-            #        raise Exception("After loading script, no form was loaded")
-            #    self.mainform_widget.widget = self.mainform_widget
-            #    self.mainform_widget.iface = self.mainform_widget.widget.iface
-            #    self.mainform_widget._loaded = True
+            if not utils_base.is_library():
+                LOGGER.info("Loading action %s (createForm). . . ", self.name)
+                self.mainform_widget = cast(
+                    flformdb.FLFormDB,
+                    self.project.conn_manager.managerModules().createForm(action=self),
+                )
+            else:
+                LOGGER.info("Loading action %s (load_script %s). . . ", self.name, self.scriptform)
+                script = load_script.load_script(self.scriptform, self)
+                self.mainform_widget = script.form  # FormDBWidget FIXME: Add interface for types
+                if self.mainform_widget is None:
+                    raise Exception("After loading script, no form was loaded")
+                self.mainform_widget.widget = self.mainform_widget
+                self.mainform_widget.iface = self.mainform_widget.widget.iface
+                self.mainform_widget._loaded = True
 
-            LOGGER.info("Loading action %s (createForm). . . ", self.name)
-            self.mainform_widget = cast(
-                flformdb.FLFormDB,
-                self.project.conn_manager.managerModules().createForm(action=self),
-            )
+            # LOGGER.info("Loading action %s (createForm). . . ", self.name)
+            # self.mainform_widget = cast(
+            #    flformdb.FLFormDB,
+            #    self.project.conn_manager.managerModules().createForm(action=self),
+            # )
 
             LOGGER.debug(
                 "End of action load %s (iface:%s ; widget:%s)",
