@@ -118,7 +118,7 @@ class FLManager(QtCore.QObject, IManager):
         del self
 
     def metadata(
-        self, metadata_name_or_xml: Union[str, "ElementTree.Element"], quick: Optional[bool] = None
+        self, metadata_name_or_xml: Union[str, "ElementTree.Element"], quick: bool = False
     ) -> Optional["pntablemetadata.PNTableMetaData"]:
         """
         To obtain definition of a database table, from an XML file.

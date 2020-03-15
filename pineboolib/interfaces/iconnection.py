@@ -334,3 +334,8 @@ class IConnection:
     def singleConnection(self) -> bool:
         """Return if driver uses a single connection."""
         return False
+
+    def sqlLength(self, field_name: str, size: int) -> str:
+        """Return length formated."""
+
+        return ""

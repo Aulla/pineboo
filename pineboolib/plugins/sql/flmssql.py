@@ -392,3 +392,8 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         """Vacuum tables."""
 
         return
+
+    def sqlLength(self, field_name: str, size: int) -> str:
+        """Return length formated."""
+
+        return "LEN(%s)=%s" % (field_name, size)

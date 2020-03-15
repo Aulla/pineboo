@@ -665,6 +665,8 @@ class PNSqlSchema(object):
                 elif field1[1] == "string" and field2[3] != 0:
                     if field1[3] == 1 and field2[3] == 0:
                         ret = False
+                    elif field1[3] == 0 and field2[3] == 255:  # mysql
+                        ret = False
                     else:
                         ret = True
             elif field1[1] == "uint" and not field2[1] in ("int", "uint", "serial"):
@@ -830,7 +832,7 @@ class PNSqlSchema(object):
             cursor.execute(query)
         except Exception as error:
             self.setLastError("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
-            LOGGER.error("execute_query : %s", self.lastError())
+            LOGGER.error("execute_query : %s", self.lastError(), stack_info=True)
 
         return cursor
 
@@ -996,11 +998,102 @@ class PNSqlSchema(object):
         util = flutil.FLUtil()
         conn_dbaux = self.db_.connManager().dbAux()
 
+        multi_fllarge = False
+        fllarge_tables_list: List[str] = []
+        fllarge_to_delete: Dict[str, List[str]] = {}
+        sql = "SELECT valor FROM flsettings where flkey=%s" % self.formatValue(
+            "string", "FLLargeMode", False
+        )
+        cursor = conn_dbaux.execute_query(sql)
+        try:
+            result = cursor.fetchone()
+            if result:
+                multi_fllarge = utils_base.text2bool(str(result[0]))
+        except Exception as error:
+            LOGGER.warning("Mr_Proper: %s" % str(error))
+
+        if not multi_fllarge:
+            fllarge_tables_list.append("fllarge")
+
         tables = self.tables("Tables")
         altered_tables = []
         for table_name in tables:
             if table_name.find("alteredtable") > -1:
                 altered_tables.append(table_name)
+            elif multi_fllarge and table_name.startswith("fllarge_"):
+                fllarge_tables_list.append(table_name)
+
+        LOGGER.debug(
+            "Tablas fllarge. Modo multiple: %s Lista : %s sql : %s",
+            multi_fllarge,
+            fllarge_tables_list,
+            sql,
+        )
+
+        util.createProgressDialog(
+            util.translate("application", "Revisando tablas fllarge"), len(fllarge_tables_list)
+        )
+
+        for number, table_fllarge in enumerate(fllarge_tables_list):
+            util.setLabelText(util.translate("application", "Revisando tabla %s" % table_fllarge))
+
+            sql = "SELECT refkey FROM %s WHERE 1 = 1" % table_fllarge
+            cursor = conn_dbaux.execute_query(sql)
+            old_target = ""
+            metadata_target = None
+
+            for line in list(cursor):
+
+                target = line[0].split("@")[1]
+                found = False
+                if target != old_target:
+                    metadata_target = self.db_.connManager().manager().metadata(target)
+                    old_target = target
+
+                if metadata_target is None:
+                    LOGGER.warning("Error limpiando fllarge: %s no tiene un metdata válido", target)
+                    return
+                else:
+                    for field in metadata_target.fieldList():
+                        if found:
+                            break
+                        if field.type() == "pixmap":
+                            sql = "SELECT %s FROM %s WHERE 1 = 1" % (
+                                field.name(),
+                                target,
+                            )  # 1 a 1 , si busco especifico me da problemas mssql
+
+                            cursor_finder = conn_dbaux.execute_query(sql, conn_dbaux.cursor())
+                            for result_finder in list(cursor_finder):
+                                if result_finder[0] == line[0]:
+                                    found = True
+                                    break
+
+                    if not found:
+                        if table_fllarge not in fllarge_to_delete.keys():
+                            fllarge_to_delete[table_fllarge] = []
+                        fllarge_to_delete[table_fllarge].append(line[0])
+
+            util.setProgress(number)
+
+        util.destroyProgressDialog()
+
+        util.createProgressDialog(
+            util.translate("application", "Limpiando tablas fllarge"), len(fllarge_to_delete)
+        )
+        for number, key in enumerate(fllarge_to_delete.keys()):
+            for ref_key in fllarge_to_delete[key]:
+                LOGGER.debug("Eliminado %s.%s", key, ref_key)
+                util.setLabelText(util.translate("application", "Limpiando tabla fllarge %s" % key))
+                sql = "DELETE FROM %s WHERE refkey = %s" % (
+                    key,
+                    self.formatValue("string", ref_key, False),
+                )
+                conn_dbaux.execute_query(sql)
+
+            util.setProgress(number)
+
+        util.destroyProgressDialog()
 
         conn_dbaux.transaction()
 
@@ -1011,7 +1104,7 @@ class PNSqlSchema(object):
         )
         list_mtds = []
         try:
-            for data in cursor.fetchall():
+            for data in list(cursor):
                 list_mtds.append(data[0])
         except Exception as error:
             LOGGER.error("Mr_Proper: %s", error)
@@ -1067,23 +1160,37 @@ class PNSqlSchema(object):
 
             util.setProgress(number)
 
-        # FIXME eliminar indices.
+        util.destroyProgressDialog()
+        self.checkSequences()
 
-        # FIXME comprobar y vaciar pixmaps.
-
+        util.createProgressDialog(util.translate("application", "Comprobando base de datos"), 4)
+        util.setLabelText(util.translate("application", "Borrando flmetadata"))
+        util.setProgress(1)
         conn_dbaux.execute_query("delete from flmetadata")
+        util.setLabelText(util.translate("application", "Borrando flvar"))
+        util.setProgress(2)
         conn_dbaux.execute_query("delete from flvar")
         conn_dbaux.connManager().manager().cleanupMetaData()
         conn_dbaux.commit()
 
         util.setLabelText(util.translate("application", "Vacunando base de datos"))
-        util.setProgress(len(tables) + 1)
+        util.setProgress(3)
         self.vacuum()
 
-        util.setProgress(len(tables) + 2)
+        util.setProgress(4)
         util.destroyProgressDialog()
 
     def vacuum(self):
         """Vacuum tables."""
 
         self.execute_query("vacuum")
+
+    def sqlLength(self, field_name: str, size: int) -> str:
+        """Return length formated."""
+
+        return "LENGTH(%s)=%s" % (field_name, size)
+
+    def checkSequences(self) -> None:
+        """Check sequences."""
+
+        return

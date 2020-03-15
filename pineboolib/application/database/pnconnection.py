@@ -773,3 +773,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def singleConnection(self) -> bool:
         """Return if driver uses a single connection."""
         return self.driver().singleConnection()
+
+    def sqlLength(self, field_name: str, size: int) -> str:
+        """Return length formated."""
+
+        return self.driver().sqlLength(field_name, size)

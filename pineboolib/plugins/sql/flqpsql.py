@@ -672,5 +672,27 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         # ret_ = query.replace(";", "")
         return query
 
-    # def isOpen(self):
-    #    return self.conn_.closed == 0
+    def checkSequences(self) -> None:
+        """Check sequences."""
+        util = flutil.FLUtil()
+        conn_dbaux = self.db_.connManager().dbAux()
+        sql = (
+            "select relname from pg_class where ( relkind = 'r' ) " + "and ( relname !~ '^Inv' ) "
+            "and ( relname !~ '^pg_' ) and ( relname !~ '^sql_' )"
+        )
+        cur_sequences = self.execute_query(sql, conn_dbaux.cursor())
+        data_list = list(cur_sequences)
+        util.createProgressDialog(
+            util.translate("application", "Comprobando indices"), len(data_list)
+        )
+
+        for number, data in enumerate(data_list):
+            table_name = data[0]
+            util.setLabelText(util.translate("application", "Creando índices para %s" % table_name))
+            util.setProgress(number)
+            metadata = self.db_.connManager().manager().metadata(table_name)
+            if metadata is None:
+                LOGGER.error("checkSequences: %s metadata not found!", table_name)
+
+        util.destroyProgressDialog()
+        return

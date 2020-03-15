@@ -92,12 +92,13 @@ def _next_counter2(name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[Uni
     _len = int(field.length())
     _cadena = None
 
-    qry = pnsqlquery.PNSqlQuery(None, cursor_.db().connectionName())
+    qry = pnsqlquery.PNSqlQuery(None, cursor_.db())
     qry.setForwardOnly(True)
     qry.setTablesList(tmd.name())
     qry.setSelect(name_)
     qry.setFrom(tmd.name())
-    qry.setWhere("LENGTH(%s)=%s" % (name_, _len))
+
+    qry.setWhere(cursor_.db().sqlLength(name_, _len))
     qry.setOrderBy(name_ + " DESC")
 
     if not qry.exec_():
