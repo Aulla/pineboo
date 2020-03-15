@@ -78,7 +78,18 @@ class TestFLSqlite(unittest.TestCase):
         from pineboolib.application.database import pnsqlcursor
 
         cursor = pnsqlcursor.PNSqlCursor("fltest")
-        self.assertFalse(cursor.db().driver().mismatchedTable("fltest", cursor.metadata()))
+        cursor2 = pnsqlcursor.PNSqlCursor("fltest3")
+
+        metadata = cursor.metadata()
+        metadata2 = cursor2.metadata()
+
+        self.assertFalse(cursor.db().driver().mismatchedTable("fltest", metadata))
+        self.assertTrue(cursor.db().driver().mismatchedTable("fltest2", metadata))
+        self.assertTrue(cursor.db().driver().mismatchedTable("fltest3", metadata))
+        metadata.removeFieldMD("date_field")
+        self.assertTrue(cursor.db().driver().mismatchedTable("fltest", metadata))
+        self.assertTrue(cursor.db().driver().mismatchedTable("fltest", metadata2))
+        self.assertFalse(cursor.db().driver().mismatchedTable("fltest3", metadata2))
 
     @classmethod
     def tearDownClass(cls) -> None:
