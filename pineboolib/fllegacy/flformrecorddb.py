@@ -573,8 +573,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
             or self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Edit
         ):
             ret_ = True
-            fun_ = getattr(self.iface, "validateForm", None)
-            if fun_ is not self.validateForm:
+            fun_ = getattr(self.iface, "validateForm", self.validateForm)
+            if fun_ != self.validateForm:
                 ret_ = fun_()
 
             return ret_ if isinstance(ret_, bool) else True
@@ -589,9 +589,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
         """
 
         if self.iface:
-            fun_ = getattr(self.iface, "acceptedForm", None)
-            if fun_ is not None and fun_ is not self.acceptedForm:
-                fun_.acceptedForm()
+            fun_ = getattr(self.iface, "acceptedForm", self.acceptedForm)
+            if fun_ != self.acceptedForm:
+                fun_()
 
     def afterCommitBuffer(self) -> None:
         """
