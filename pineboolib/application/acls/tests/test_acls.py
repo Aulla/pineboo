@@ -4,6 +4,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.fllegacy import flapplication, systype
 from pineboolib.core import settings
+from pineboolib.core.utils import utils_base
 from pineboolib.application.acls import pnaccesscontrollists
 
 
@@ -14,6 +15,7 @@ class TestACLS(unittest.TestCase):
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
         init_testing()
+        utils_base.FORCE_DESKTOP = True
         # install acls
         from pineboolib.application.database import pnsqlcursor
 

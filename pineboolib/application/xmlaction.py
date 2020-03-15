@@ -67,7 +67,7 @@ class XMLAction(struct.ActionStruct):
                 self.formrecord_widget.widget.doCleanUp()
                 # self.formrecord_widget.widget = None
 
-            if not utils_base.is_library():
+            if not utils_base.is_library() and self.formrecord:
                 self.formrecord_widget = cast(
                     flformrecorddb.FLFormRecordDB,
                     self.project.conn_manager.managerModules().createFormRecord(
@@ -115,7 +115,7 @@ class XMLAction(struct.ActionStruct):
             if self.mainform_widget is not None and getattr(self.mainform_widget, "widget", None):
                 self.mainform_widget.widget.doCleanUp()
 
-            if not utils_base.is_library():
+            if not utils_base.is_library() and self.form:
                 LOGGER.info("Loading action %s (createForm). . . ", self.name)
                 self.mainform_widget = cast(
                     flformdb.FLFormDB,

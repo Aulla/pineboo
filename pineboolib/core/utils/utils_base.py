@@ -35,6 +35,7 @@ DECIMAL_SEPARATOR = (
 )
 
 BASE_DIR = None
+FORCE_DESKTOP = False
 
 
 def auto_qt_translate_text(text: Optional[str]) -> str:
@@ -470,7 +471,10 @@ def is_deployed() -> bool:
 
 def is_library() -> bool:
     """Return if pineboolib is used as external library."""
-    return QtWidgets.QApplication.platformName() != "offscreen"
+    if FORCE_DESKTOP:
+        LOGGER.warning("is_library: Force Desktop is Activated!")
+        return False
+    return QtWidgets.QApplication.platformName() == "offscreen"
 
 
 def get_base_dir() -> str:
