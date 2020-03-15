@@ -545,14 +545,18 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         If any field does not exist it gets marked as ommitted.
         """
         is_query = self.metadata().isQuery()
+        qry_file = self.metadata().query()
         qry_tables = []
         qry = None
         # if qry is None:
         #    return
         if is_query:
-            qry = self.db().connManager().manager().query(self.metadata().query())
+            qry = self.db().connManager().manager().query(qry_file)
             if qry is None:
-                raise Exception(" The query %s return empty value" % self.metadata().query())
+                LOGGER.error(
+                    "Could not load the file %s.qry for an unknown reason. This table is a view"
+                )
+                raise Exception(" The query %s return empty value" % qry_file)
             qry_select = [x.strip() for x in (qry.select()).split(",")]
             qry_fields: Dict[str, str] = {
                 fieldname.split(".")[-1]: fieldname for fieldname in qry_select
