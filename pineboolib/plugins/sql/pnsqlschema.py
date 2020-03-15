@@ -615,6 +615,13 @@ class PNSqlSchema(object):
                 if self.notEqualsFields(dict_database[name], dict_metadata[name]):
                     return True
             else:
+                LOGGER.warning(
+                    "Esto no debería de pasar :( database: %s metadata: %s key : %s",
+                    dict_database,
+                    dict_metadata,
+                    name,
+                    stack_info=True,
+                )
                 return True
 
         return False
