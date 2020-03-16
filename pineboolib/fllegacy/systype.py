@@ -43,11 +43,12 @@ from pineboolib.q3widgets.qhboxlayout import QHBoxLayout
 from pineboolib.q3widgets.qpushbutton import QPushButton
 from pineboolib.q3widgets.filedialog import FileDialog
 
-from typing import cast, Optional, List, Any, Dict, Callable, TYPE_CHECKING
+from typing import cast, Optional, List, Any, Dict, Callable, Union, TYPE_CHECKING
 from pineboolib.fllegacy import flfielddb, fltabledb
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import iconnection, isqlcursor
+    from pineboolib.fllegacy import flformrecorddb, flformdb  # noqa: F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -1721,7 +1722,7 @@ class SysType(sysbasetype.SysBaseType):
         if obj_class is None:
             raise Exception("obj_class is empty!")
 
-        w = None
+        widget: Optional[Union["flformrecorddb.FLFormRecordDB", "flformdb.FLFormDB"]] = None
         a = None
         conn = application.PROJECT._conn_manager
         if conn is None:
@@ -1731,22 +1732,22 @@ class SysType(sysbasetype.SysBaseType):
             action_ = container[10:]
             a = conn.manager().action(action_)
             if a.formRecord():
-                w = conn.managerModules().createFormRecord(a)
+                widget = conn.managerModules().createFormRecord(a)
         elif container[0:10] == "formSearch":
             action_ = container[10:]
             a = conn.manager().action(action_)
             if a.form():
-                w = conn.managerModules().createForm(a)
+                widget = conn.managerModules().createForm(a)
         else:
             action_ = container[4:]
             a = conn.manager().action(action_)
             if a.form():
-                w = conn.managerModules().createForm(a)
+                widget = conn.managerModules().createForm(a)
 
-        if w is None:
+        if widget is None:
             return ""
 
-        object_list = w.findChildren(obj_class)
+        object_list = widget.findChildren(obj_class)
         retorno_: str = ""
         for obj in object_list:
             name_ = obj.objectName()

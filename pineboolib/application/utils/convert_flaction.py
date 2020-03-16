@@ -37,7 +37,7 @@ def convert_to_flaction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
     if isinstance(action, str):
         action_name = action
     else:
-        action_name = action.name
+        action_name = action._name
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
@@ -53,24 +53,14 @@ def convert_to_flaction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
         action_ = pnaction.PNAction(action_name)
         if action_name in application.PROJECT.actions.keys():
             xml_action = application.PROJECT.actions[action_name]
-            if xml_action.name:
-                action_.setName(xml_action.name)
-            if xml_action.table:
-                action_.setTable(xml_action.table)
-            if xml_action.form:
-                action_.setForm(xml_action.form)
-            if xml_action.formrecord:
-                action_.setFormRecord(xml_action.formrecord)
-            if xml_action.scriptform:
-                action_.setScriptForm(xml_action.scriptform)
-            if xml_action.scriptformrecord:
-                action_.setScriptFormRecord(xml_action.scriptformrecord)
-            if xml_action.description:
-                action_.setDescription(xml_action.description)
-            if xml_action.alias:
-                action_.setCaption(xml_action.alias)
-            elif xml_action.caption:
-                action_.setCaption(xml_action.caption)
+            action_.setName(xml_action._name)
+            action_.setTable(xml_action._table)
+            action_.setForm(xml_action._master_form)
+            action_.setFormRecord(xml_action._record_form)
+            action_.setScriptForm(xml_action._master_script)
+            action_.setScriptFormRecord(xml_action._record_script)
+            action_.setDescription(xml_action._description)
+            action_.setCaption(xml_action._alias if xml_action._alias else xml_action._caption)
 
         cached_actions[action_name] = action_
         LOGGER.trace("convert2FLAction: done")

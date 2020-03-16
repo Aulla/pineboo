@@ -106,24 +106,14 @@ class ActionStruct(XMLStruct):
     Struct version for Actions.
     """
 
-    alias: str = ""
-    form: Optional[str] = None
-    name: str = ""
-    description: Optional[str] = None
-    caption: Optional[str] = None
-    scriptform: Optional[str] = None
-    table: Optional[str] = None
-    mainform: Optional[str] = None
-    mainscript: Optional[str] = None
-    formrecord: Optional[str] = None
-    scriptformrecord: Optional[str] = None
+    _alias: str = ""
+    _name: str = ""
+    _table: str = ""
+    _description: str = ""
+    _caption: str = ""
+    _master_form: str = ""
+    _master_script: str = ""
+    _record_form: str = ""
+    _record_script: str = ""
 
-    # FIXME: Those methods are here to avoid projectmodule from loading XMLAction and qsa.*
     load: Callable
-    load_script: Callable
-    openDefaultForm: Callable
-    execDefaultScript: Callable
-    execMainScript: Callable
-    openDefaultFormRecord: Callable
-    formRecordWidget: Callable
-    mod: Any

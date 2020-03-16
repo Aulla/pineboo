@@ -5,7 +5,7 @@ from PyQt5 import QtWidgets, QtCore
 from pineboolib.application.database import pnsqlcursor
 
 # from pineboolib.fllegacy import flapplication
-from pineboolib import application, logging
+from pineboolib import logging
 
 
 from typing import Set, Tuple, Optional, Any, TYPE_CHECKING
@@ -27,6 +27,7 @@ class FormDBWidget(QtWidgets.QWidget):
     form: Any
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
+    _loaded: bool
 
     def __init__(self, action: Optional["xmlaction.XMLAction"] = None):
         """Inicialize."""
@@ -37,6 +38,7 @@ class FormDBWidget(QtWidgets.QWidget):
         self._action = action
         self.iface = None
         self.cursor_ = None
+        self._loaded = False
         # self.parent_ = parent or QtWidgets.QWidget()
 
         # if parent and hasattr(parent, "parentWidget"):
@@ -107,7 +109,7 @@ class FormDBWidget(QtWidgets.QWidget):
             self._action = getattr(self.parent(), "_action")
 
         if self._action is not None:
-            LOGGER.debug("closeEvent para accion %r", self._action.name)
+            LOGGER.debug("closeEvent para accion %r", self._action._name)
         self.closed.emit()
         event.accept()  # let the window close
         self.doCleanUp()
@@ -123,15 +125,15 @@ class FormDBWidget(QtWidgets.QWidget):
             check_gc_referrers(
                 "FormDBWidget.iface:" + iface.__class__.__name__,
                 weakref.ref(self.iface),
-                self._action.name,
+                self._action._name,
             )
 
             delattr(self.iface, "ctx")
 
-            del self._action.formrecord_widget
+            del self._action._record_widget
 
             self.iface = None
-            self._action.formrecord_widget = None
+            self._action._record_widget = None
 
     def clear_connections(self) -> None:
         """Clear al conecctions established on the module."""
@@ -171,30 +173,26 @@ class FormDBWidget(QtWidgets.QWidget):
     def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
         """Return cursor associated."""
 
-        if not self.cursor_:
-            if self.form is not None:
-                self.cursor_ = self.form.cursor_
+        cursor = None
 
-            if not self.cursor_:
-                if self._action:
-                    action = application.PROJECT.conn_manager.manager().action(self._action.name)
-                    self.cursor_ = pnsqlcursor.PNSqlCursor(action.name())
-                else:
-                    raise Exception("_action is empty!.")
+        if self._action:
+            if self._action._cursor is None:
+                self._action._cursor = pnsqlcursor.PNSqlCursor(self._action._name)
 
-        return self.cursor_
+            cursor = self._action._cursor
+        else:
+            raise Exception("_action is empty!.")
+
+        return cursor
 
     def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Guess if attribute can be found in other related objects."""
-        print("**", name, self.parent())
-        ret_ = getattr(self.cursor_, name, None)
-        if ret_ is None and self.parent():
-            parent_ = self.parent()
-            ret_ = getattr(parent_, name, None)
-            if ret_ is None:
-                script = getattr(parent_, "script", None)
-                if script is not None:
-                    ret_ = getattr(script, name, None)
+        print("****", name, self.form, self, self.iface)
+        cursor = self.cursor()
+        ret_ = getattr(cursor, name, None)
+
+        if ret_ is None:
+            ret_ = getattr(self.form, name, None)
 
         if ret_ is None and not TYPE_CHECKING:
             # FIXME: q3widgets should not interact with fllegacy

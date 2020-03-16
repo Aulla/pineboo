@@ -10,7 +10,7 @@ from pineboolib.core import decorators, settings
 
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.utils import xpm
-from pineboolib.application import types
+from pineboolib.application import types, actions_slots
 
 from pineboolib import application
 
@@ -908,7 +908,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if m != self.Insert:
                 self.updateBufferCopy()
 
-            application.PROJECT.actions[self._action.name()].openDefaultFormRecord(self, wait)
+            action = application.PROJECT.actions[self._action.name()]
+            actions_slots.open_default_form_record(action, self, wait)
 
             # if m != self.Insert and self.refreshBuffer():
             #     self.updateBufferCopy()
@@ -2654,11 +2655,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         id_module = self.db().connManager().managerModules().idModuleOfFile("%s.mtd" % self.table())
 
         # FIXME: module_script is FLFormDB
-        module_script = (
-            application.PROJECT.actions[id_module].load()
-            if id_module in application.PROJECT.actions.keys()
-            else application.PROJECT.actions["sys"].load()
-        )
+        action = application.PROJECT.actions[
+            id_module if id_module in application.PROJECT.actions.keys() else "sys"
+        ]
+
+        module_script = action.load()
+
         module_iface: Any = getattr(module_script, "iface", None)
 
         if not self.modeAccess() == PNSqlCursor.Browse and self.activatedCommitActions():

@@ -2,6 +2,7 @@
 
 from pineboolib.fllegacy import fltabledb
 from pineboolib import application
+from pineboolib.application import actions_slots
 from . import fixture_path
 
 import unittest
@@ -19,7 +20,7 @@ class TestFLTableDB(unittest.TestCase):
     def test_export_to_ods_1(self) -> None:
         """Test export to ods."""
 
-        application.PROJECT.actions["flareas"].openDefaultForm()
+        actions_slots.open_default_form(application.PROJECT.actions["flareas"])
 
         form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
@@ -39,7 +40,7 @@ class TestFLTableDB(unittest.TestCase):
     def test_export_to_ods_2(self) -> None:
         """Test export to ods."""
 
-        application.PROJECT.actions["flmodules"].openDefaultForm()
+        actions_slots.open_default_form(application.PROJECT.actions["flmodules"])
 
         form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flmodules"

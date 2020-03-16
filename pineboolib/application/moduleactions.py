@@ -45,34 +45,31 @@ class ModuleActions(object):
         tree = utils_base.load2xml(self.path)
         self.root = tree.getroot()
 
-        action = xmlaction.XMLAction(project=self.project, name=self.mod.name)
+        action = xmlaction.XMLAction(self, self.mod.name)
         if action is None:
             raise Exception("action is empty!")
 
-        action.mod = self
-        action.alias = self.mod.name
+        # action._mod = self
+        # action.alias = self.mod.name
         # action.form = self.mod.name
-        action.form = None
-        action.table = None
-        action.scriptform = self.mod.name
+        # action._form = None
+        # action.table = None
+        # action.scriptform = self.mod.name
         self.project.actions[
-            action.name
+            action._name
         ] = action  # FIXME: Actions should be loaded to their parent, not the singleton
         QSADictModules.save_action_for_root_module(action)
 
         for xmlaction_item in self.root:
-            action_xml = xmlaction.XMLAction(xmlaction_item, project=self.project)
-            action_xml.mod = self
-            name = action_xml.name
-            if not name or name == "unnamed":
+            action_xml = xmlaction.XMLAction(self, xmlaction_item)
+            name = action_xml._name
+            if name in ("unnamed", ""):
                 continue
 
             if QSADictModules.save_action_for_mainform(action_xml):
-
                 self.project.actions[
                     name
                 ] = action_xml  # FIXME: Actions should be loaded to their parent, not the singleton
-
             QSADictModules.save_action_for_formrecord(action_xml)
 
     def __contains__(self, k) -> bool:

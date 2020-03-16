@@ -457,14 +457,10 @@ class FLManagerModules(object):
             if parent is None:
                 raise Exception("xclass not found %s" % xclass)
 
-        if hasattr(parent, "widget"):
-            w_ = parent.widget  # type: ignore [attr-defined] # noqa F821
-        else:
-            w_ = parent
-
+        LOGGER.warning("CARANDO %s --> %s , %s", parent, hasattr(parent, "widget"), UIVersion)
         LOGGER.info("Procesando %s (v%s)", file_name, UIVersion)
         if UIVersion < "4.0":
-            qt3ui.load_ui(form_path, w_)
+            qt3ui.load_ui(form_path, parent)
         else:
             from PyQt5 import uic  # type: ignore
 
@@ -472,9 +468,9 @@ class FLManagerModules(object):
             if qtWidgetPlugings not in uic.widgetPluginPath:
                 LOGGER.warning("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
                 uic.widgetPluginPath.append(qtWidgetPlugings)
-            uic.loadUi(form_path, w_)
+            uic.loadUi(form_path, parent)
 
-        return w_
+        return parent
 
     def createForm(
         self,
@@ -482,7 +478,7 @@ class FLManagerModules(object):
         connector: Optional["iconnection.IConnection"] = None,
         parent: Optional["QtWidgets.QWidget"] = None,
         name: Optional[str] = None,
-    ) -> "QtWidgets.QWidget":
+    ) -> "flformdb.FLFormDB":
         """
         Create the master form of an action from its description file.
 
@@ -511,7 +507,7 @@ class FLManagerModules(object):
         connector: Optional["iconnection.IConnection"] = None,
         parent_or_cursor: Optional[Union["isqlcursor.ISqlCursor", "QtWidgets.QWidget"]] = None,
         name: Optional[str] = None,
-    ) -> "QtWidgets.QWidget":
+    ) -> "flformrecorddb.FLFormRecordDB":
         """
         Create the record editing form of an action from its description file.
 

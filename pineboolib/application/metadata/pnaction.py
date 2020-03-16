@@ -74,17 +74,12 @@ class PNAction(object):
             self.setName(action)
 
         elif isinstance(action, ActionStruct):
-            self.setName(action.name)
-            if action.mainscript is not None:
-                self.setScriptForm(action.mainscript)
-            if action.scriptformrecord is not None:
-                self.setScriptFormRecord(action.scriptformrecord)
-            if action.mainform is not None:
-                self.setForm(action.mainform)
-            if action.form is not None:
-                self.setFormRecord(action.form)
-            if action.alias is not None:
-                self.setCaption(action.alias)
+            self.setName(action._name)
+            self.setScriptForm(action._master_script)
+            self.setScriptFormRecord(action._record_script)
+            self.setForm(action._master_form)
+            self.setFormRecord(action._record_form)
+            self.setCaption(action._alias)
         else:
             raise Exception("Unsupported action %r" % action)
 
@@ -111,12 +106,12 @@ class PNAction(object):
     def setScriptFormRecord(self, script_form_record: str) -> None:
         """Set the name of the script associated with the record editing form."""
 
-        self._script_form_record = "%s.qs" % script_form_record
+        self._script_form_record = "%s.qs" % script_form_record if script_form_record else ""
 
     def setScriptForm(self, script_form: str) -> None:
         """Set the name of the script associated with the master form."""
 
-        self._script_form = "%s.qs" % script_form
+        self._script_form = "%s.qs" % script_form if script_form else ""
 
     def setTable(self, table: str) -> None:
         """Set the name of the source table of the master form."""
@@ -126,12 +121,12 @@ class PNAction(object):
     def setForm(self, form: str) -> None:
         """Set the name of the master form."""
 
-        self._form = "%s.ui" % form
+        self._form = "%s.ui" % form if form else ""
 
     def setFormRecord(self, form_record: str) -> None:
         """Set the name of the record editing form."""
 
-        self._form_record = "%s.ui" % form_record
+        self._form_record = "%s.ui" % form_record if form_record else ""
 
     def setCaption(self, caption: str) -> None:
         """Set the text of the title bar of the master form."""

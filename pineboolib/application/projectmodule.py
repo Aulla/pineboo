@@ -22,7 +22,7 @@ from pineboolib.application import module, file, load_script
 if TYPE_CHECKING:
     from pineboolib.interfaces.dgi_schema import dgi_schema
     from pineboolib.application.database import pnconnection
-    from pineboolib.application import xmlaction
+    from pineboolib.application import xmlaction  # noqa: F401
 
 LOGGER = logging.get_logger(__name__)
 

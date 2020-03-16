@@ -15,7 +15,8 @@ import zlib
 
 from pineboolib.core.utils.utils_base import load2xml
 from pineboolib import application
-from pineboolib.application import connections
+from pineboolib.application import connections, actions_slots
+
 
 from pineboolib.q3widgets import qmainwindow, qlistview, qtoolbar, qmenu, qaction, qspinbox
 
@@ -23,7 +24,6 @@ from pineboolib.core import settings
 
 
 from typing import Optional, Tuple, Callable, List, Dict, Any, cast, Type, Union
-
 
 ICONS: Dict[str, Any] = {}
 ROOT = None

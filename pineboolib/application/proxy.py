@@ -7,6 +7,7 @@ from typing import Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flformdb import FLFormDB  # noqa: F401
+    from pineboolib.q3widgets import formdbwidget
 
 LOGGER = logging.get_logger(__name__)
 
@@ -24,7 +25,11 @@ class DelayedObjectProxyLoader(object):
     """
 
     def __init__(
-        self, obj: Callable[..., "FLFormDB"], name: Optional[str] = None, *args: str, **kwargs: str
+        self,
+        obj: Callable[..., "formdbwidget.FormDBWidget"],
+        name: Optional[str] = None,
+        *args: str,
+        **kwargs: str
     ) -> None:
         """
         Constructor.
@@ -34,9 +39,9 @@ class DelayedObjectProxyLoader(object):
         self._obj = obj
         self._args = args
         self._kwargs = kwargs
-        self.loaded_obj: Optional["FLFormDB"] = None
+        self.loaded_obj: Optional["formdbwidget.FormDBWidget"] = None
 
-    def __load(self) -> "FLFormDB":
+    def __load(self) -> "formdbwidget.FormDBWidget":
         """
         Load a new object.
 
@@ -69,4 +74,4 @@ class DelayedObjectProxyLoader(object):
         """
 
         obj_ = self.__load()
-        return getattr(obj_, name, getattr(obj_.widget, name, None))
+        return getattr(obj_, name, getattr(obj_, name, None))

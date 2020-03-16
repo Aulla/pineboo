@@ -70,7 +70,7 @@ class QSADictModules:
     def save_action_for_root_module(cls, action: XMLAction) -> bool:
         """Save a new module as an action."""
 
-        module_name = action.name if action.name != "sys" else "sys_module"
+        module_name = action._name if action._name != "sys" else "sys_module"
         if cls.action_exists(module_name):
             if module_name != "sys_module":
                 LOGGER.warning("Module found twice, will not be overriden: %s", module_name)
@@ -85,8 +85,8 @@ class QSADictModules:
     @classmethod
     def save_action_for_mainform(cls, action: XMLAction):
         """Save a new mainform."""
-        name = action.name
-        module = action.mod
+        name = action._name
+        module = action._mod
         if module is None:
             raise ValueError("Action.module must be set before calling")
 
@@ -108,8 +108,8 @@ class QSADictModules:
     @classmethod
     def save_action_for_formrecord(cls, action: XMLAction):
         """Save a new formrecord."""
-        name = action.name
-        module = action.mod
+        name = action._name
+        module = action._mod
         if module is None:
             raise ValueError("Action.module must be set before calling")
         actionname = "formRecord" + name
@@ -121,8 +121,7 @@ class QSADictModules:
             return False
         # Se crea la action del formRecord
         delayed_action = DelayedObjectProxyLoader(
-            action.formRecordWidget,
-            name="QSA.Module.%s.Action.formRecord%s" % (module.mod.name, name),
+            action.load_record, name="QSA.Module.%s.Action.formRecord%s" % (module.mod.name, name)
         )
 
         cls.save_action(actionname, delayed_action)

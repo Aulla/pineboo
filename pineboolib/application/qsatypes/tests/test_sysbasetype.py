@@ -58,12 +58,13 @@ class TestSysBaseClassGeneral(unittest.TestCase):
     def test_objects(self) -> None:
         """Test objects functions."""
         from pineboolib.fllegacy import fltabledb
+        from pineboolib.application import actions_slots
 
-        application.PROJECT.actions["flareas"].openDefaultForm()
+        actions_slots.open_default_form(application.PROJECT.actions["flareas"])
 
         form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
-        ].mainform_widget
+        ]._master_widget
         # form = flformdb.FLFormDB(None, action)
         # self.assertTrue(form)
         # form.load()

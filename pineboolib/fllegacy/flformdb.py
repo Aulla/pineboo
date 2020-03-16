@@ -11,7 +11,7 @@ from pineboolib.core.utils import utils_base
 
 from pineboolib.application.utils import geometry
 from pineboolib.application.metadata import pnaction
-from pineboolib.application import load_script
+
 
 from pineboolib.application.database import pnsqlcursor
 
@@ -24,6 +24,8 @@ from typing import Any, Union, Dict, Optional, Tuple, Type, cast, Callable, TYPE
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor
+    from pineboolib.q3widgets import formdbwidget
+
 
 LOGGER = logging.get_logger(__name__)
 
@@ -50,8 +52,6 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Cursor, con los registros, utilizado por el formulario
     """
-
-    cursor_: Optional["isqlcursor.ISqlCursor"]
 
     """
     Nombre de la tabla, contiene un valor no vacío cuando
@@ -128,7 +128,7 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Interface para scripts
     """
-    iface: Any
+    # iface: Any
 
     """
     Tamaño de icono por defecto
@@ -196,15 +196,20 @@ class FLFormDB(QtWidgets.QDialog):
 
         self.known_instances[(self.__class__, self._action.name())] = self
 
-        self.actionName_ = script_name = self._action.name()
+        self.actionName_ = self._action.name()
 
         if self._action.table():
             if type(self).__name__ == "FLFormRecordDB":
                 self.actionName_ = "formRecord%s" % self.actionName_
-                script_name = self._action.scriptFormRecord()
+                # script_name = self._action.scriptFormRecord()
+                # self.action_widget = application.PROJECT.actions[self._action.name()]._record_widget
             else:
                 self.actionName_ = "form%s" % self.actionName_
-                script_name = self._action.scriptForm()
+                # script_name = self._action.scriptForm()
+                # self.action_widget = application.PROJECT.actions[self._action.name()]._master_widget
+            self._uiName = self._action.form()
+        else:
+            self._uiName = self._action.name()
 
         # self.mod = self._action.mod
         self.loop = False
@@ -216,11 +221,11 @@ class FLFormDB(QtWidgets.QDialog):
         self.layout_.setContentsMargins(1, 1, 1, 1)
         self.layout_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
         self.setLayout(self.layout_)
-        self._uiName = self._action.form()
+
         self.pushButtonCancel = None
         self.toolButtonClose = None
         self.bottomToolbar = None
-        self.cursor_ = None
+        # self.cursor_ = None
         self.initFocusWidget_ = None
         self.showed = False
         self.isClosing_ = False
@@ -231,17 +236,6 @@ class FLFormDB(QtWidgets.QDialog):
         self.oldCursorCtxt = None
 
         self.idMDI_ = self._action.name()
-
-        LOGGER.info("init: Action: %s", self._action)
-
-        self.script = load_script.load_script(
-            script_name, application.PROJECT.actions[self._action.name()]
-        )
-        self.widget = self.script.form
-        self.widget.form = self
-        if hasattr(self.widget, "iface"):
-            self.iface = self.widget.iface
-
         self.iconSize = application.PROJECT.DGI.iconSize()
 
         if load:
@@ -257,17 +251,24 @@ class FLFormDB(QtWidgets.QDialog):
         if self.layout_ is None:
             return
 
-        self.layout_.insertWidget(0, self.widget)
+        if not self._action.form() and not self._action.formRecord():
+            widget = QtWidgets.QMainWindow()
+        else:
+            widget = QtWidgets.QDialog()
+
+        # LOGGER.warning("previo %s %s %s", self._action.form(), self._action.formRecord(), widget)
+
+        self.layout_.insertWidget(0, widget)
         self.layout_.setSpacing(1)
         self.layout_.setContentsMargins(1, 1, 1, 1)
         self.layout_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
-
+        LOGGER.warning("CARGANDO UI %s", self._uiName)
         if self._uiName:
 
             if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
-            application.PROJECT.conn_manager.managerModules().createUI(self._uiName, None, self)
+            application.PROJECT.conn_manager.managerModules().createUI(self._uiName, None, widget)
 
         self._loaded = True
 
@@ -282,16 +283,13 @@ class FLFormDB(QtWidgets.QDialog):
         Call the "init" function of the masterprocess script associated with the form.
         """
         if self._loaded:
-            if not getattr(self.widget, "iface", None):
-                self.iface = (
-                    self.widget
-                )  # Es posible que no tenga ifaceCtx, así hacemos que sea polivalente
 
-            if self.widget:
-                self.widget.clear_connections()
+            if self.action_widget:
+                self.action_widget.clear_connections()
 
-            if hasattr(self.iface, "init"):
-                self.iface.init()
+            iface = getattr(self.action_widget, "iface", None)
+            if hasattr(iface, "init"):
+                iface.init()
 
             return True
 
@@ -325,7 +323,7 @@ class FLFormDB(QtWidgets.QDialog):
 
             cast(QtCore.pyqtSignal, self.cursor_.destroyed).disconnect(self.cursorDestroyed)
 
-        self.widget.cursor_ = cursor
+        # self.widget.cursor_ = cursor
         self.cursor_ = cursor
 
         if type(self).__name__ == "FLFormRecodDB":
@@ -552,8 +550,11 @@ class FLFormDB(QtWidgets.QDialog):
             )
 
         self.formClosed.emit()
-        if self.widget:
-            self.widget.closed.emit()
+
+        widget = self.action_widget
+
+        if widget is not None:
+            self.action_widget.closed.emit()
 
     def action(self) -> "pnaction.PNAction":
         """Get form PNAction."""
@@ -776,9 +777,10 @@ class FLFormDB(QtWidgets.QDialog):
             # if hasattr(self.script, "form"):
             #    print("Borrando self.script.form", self.script.form)
             #    self.script.form = None
-            if self.widget is not None and type(self).__name__ != "FLFormSearchDB":
-                self.widget.close()
-                self.widget = None
+            widget = self.action_widget
+            if widget is not None and type(self).__name__ != "FLFormSearchDB":
+                widget.close()
+                application.PROJECT.actions[self._action.name()]._record_widget = None
                 # del self.widget
 
             # self.iface = None
@@ -793,7 +795,7 @@ class FLFormDB(QtWidgets.QDialog):
 
             # if hasattr(self, "script"):
             #    print("Borrando self.script", self.script)
-            self.script = None
+            # self.script = None
         except Exception:
 
             LOGGER.error(
@@ -961,3 +963,41 @@ class FLFormDB(QtWidgets.QDialog):
         xml = AQS.toXml(self, True, True)
         print(xml.toString(2))
         pass
+
+    def get_action_widget(self) -> "formdbwidget.FormDBWidget":
+
+        action = application.PROJECT.actions[self._action.name()]
+        widget = (
+            action._record_widget
+            if self.actionName_.startswith("formRecord")
+            else action._master_widget
+        )
+        if widget is None:
+            raise Exception("action_widget is empty!")
+        else:
+            return widget
+
+    def set_action_widget(self, obj_: "formdbwidget.FormDBWidget"):
+        action = application.PROJECT.actions[self._action.name()]
+        if self.actionName_.startswith("formRecord"):
+            action._record_widget = obj_
+        else:
+            action._master_widget = obj_
+
+    def get_cursor(self) -> "isqlcursor.ISqlCursor":
+        return application.PROJECT.actions[self._action.name()]._cursor
+
+    def set_cursor(self, cursor: "isqlcursor.ISqlCursor") -> None:
+        application.PROJECT.actions[self._action.name()]._cursor = cursor
+
+    @decorators.pyqt_slot()
+    @decorators.not_implemented_warn
+    def script(self) -> "str":
+        """
+        Return the script associated with the form.
+        """
+
+        return ""
+
+    action_widget = property(get_action_widget, set_action_widget)
+    cursor_ = property(get_cursor, set_cursor)

@@ -2,7 +2,6 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
-from . import fixture_path
 
 
 class TestXMLAction(unittest.TestCase):
@@ -16,17 +15,21 @@ class TestXMLAction(unittest.TestCase):
     def test_basic(self) -> None:
         """Test basic."""
 
-        from pineboolib.fllegacy import systype
-        import os
+        action = application.PROJECT.actions["flareas"]
+        self.assertEqual(action._name, "flareas")
+        self.assertEqual(action._table, "flareas")
+        self.assertEqual(action._master_form, "master")
+        self.assertEqual(action._record_form, "flareas")
+        self.assertEqual(action._master_script, "")
+        self.assertEqual(action._record_script, "")
 
-        qsa_sys = systype.SysType()
-        path = fixture_path("principal.eneboopkg")
-        self.assertTrue(os.path.exists(path))
-        qsa_sys.loadModules(path, False)
-        application.PROJECT.actions["flareas"].execMainScript("formareas")
-        application.PROJECT.actions["flreinit"].execDefaultScript()
-        application.PROJECT.actions["flareas"].formRecordWidget()
-        self.assertTrue(application.PROJECT.actions["flareas"].formRecordWidget()._loaded)
+        action2 = application.PROJECT.actions["flmodules"]
+        self.assertEqual(action2._name, "flmodules")
+        self.assertEqual(action2._table, "flmodules")
+        self.assertEqual(action2._master_form, "master")
+        self.assertEqual(action2._record_form, "flmodules")
+        self.assertEqual(action2._master_script, "")
+        self.assertEqual(action2._record_script, "flmodules")
 
     @classmethod
     def tearDownClass(cls) -> None:

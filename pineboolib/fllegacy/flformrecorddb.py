@@ -719,15 +719,6 @@ class FLFormRecordDB(flformdb.FLFormDB):
         self.close()
 
     @decorators.pyqt_slot()
-    @decorators.not_implemented_warn
-    def script(self) -> None:
-        """
-        Return the script associated with the form.
-        """
-
-        pass
-
-    @decorators.pyqt_slot()
     def firstRecord(self) -> None:
         """
         Go to the first record.

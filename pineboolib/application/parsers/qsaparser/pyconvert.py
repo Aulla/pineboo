@@ -78,9 +78,11 @@ def mod_xml_parse(path: str, mod_name: str) -> Optional[Dict[str, Action]]:
     for xmlaction in root:
         action = Action(xmlaction)
         action.modname = mod_name
-        if action.name in actions:
-            LOGGER.warning("Found duplicate action in %r for %r. Will override.", path, action.name)
-        actions[action.name] = action
+        if action._name in actions:
+            LOGGER.warning(
+                "Found duplicate action in %r for %r. Will override.", path, action._name
+            )
+        actions[action._name] = action
     return actions
 
 
@@ -174,17 +176,17 @@ def main() -> None:
         if actions is None:
             continue
         for action in actions.values():
-            if action.scriptform:
-                module_pubname = "form%s" % action.name
+            if action._master_script:
+                module_pubname = "form%s" % action._name
                 known_modules[module_pubname] = (
                     package_name + "." + mpath.replace(os.sep, "."),
-                    action.scriptform,
+                    action._master_script,
                 )
-            if action.scriptformrecord:
-                module_pubname = "formRecord%s" % action.name
+            if action._record_script:
+                module_pubname = "formRecord%s" % action._name
                 known_modules[module_pubname] = (
                     package_name + "." + mpath.replace(os.sep, "."),
-                    action.scriptformrecord,
+                    action._record_script,
                 )
 
     if filter_mod is not None:

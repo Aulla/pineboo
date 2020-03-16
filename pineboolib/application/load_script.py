@@ -26,9 +26,9 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
 
     if scriptname:
         scriptname = scriptname.replace(".qs", "")
-        LOGGER.debug("Loading script %s for action %s", scriptname, action_.name)
+        LOGGER.debug("Loading script %s for action %s", scriptname, action_._name)
     else:
-        LOGGER.info("No script to load for action %s", action_.name)
+        LOGGER.info("No script to load for action %s", action_._name)
 
     from pineboolib.qsa import emptyscript  # type: ignore
 
@@ -81,7 +81,7 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
                     loader = machinery.SourceFileLoader(scriptname, script_path_py)
                     script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
                 except Exception:
-                    LOGGER.exception("ERROR al cargar script PY para la accion %s:", action_.name)
+                    LOGGER.exception("ERROR al cargar script PY para la accion %s:", action_._name)
 
         elif script_path_qs:
             script_path_py = "%s.py" % script_path_qs[:-3]
@@ -112,7 +112,7 @@ def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # ret
                 loader = machinery.SourceFileLoader(scriptname, script_path_py)
                 script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
             except Exception:
-                LOGGER.exception("ERROR al cargar script QS para la accion %s:", action_.name)
+                LOGGER.exception("ERROR al cargar script QS para la accion %s:", action_._name)
                 if os.path.exists(script_path_py):
                     os.remove(script_path_py)
 

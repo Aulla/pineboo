@@ -19,6 +19,7 @@ class TestFLDataTable(unittest.TestCase):
     def test_basic1(self):
         """Test basic functions."""
         from pineboolib.fllegacy import systype
+        from pineboolib.application import actions_slots
         import os
 
         qsa_sys = systype.SysType()
@@ -27,7 +28,7 @@ class TestFLDataTable(unittest.TestCase):
         qsa_sys.loadModules(path, False)
         application.PROJECT.actions["flareas"].load()
 
-        application.PROJECT.actions["flmodules"].openDefaultForm()
+        actions_slots.open_default_form(application.PROJECT.actions["flmodules"])
 
         form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flmodules"

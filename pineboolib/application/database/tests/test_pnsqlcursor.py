@@ -573,6 +573,7 @@ class TestGeneral(unittest.TestCase):
         cursor.db().doRollback(cursor)
         cursor.setForwardOnly(True)
 
+        print("***", qsa.from_project("formRecordflareas").reject)
         cursor_3 = pnsqlcursor.PNSqlCursor("flareas")
         cursor_3.select()
         self.assertTrue(cursor_3.first())
