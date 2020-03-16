@@ -17,12 +17,12 @@ from pineboolib.core.utils.struct import AreaStruct
 from pineboolib.core import exceptions, settings, message_manager, decorators
 from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.utils import path, xpm
-from pineboolib.application import module, file
+from pineboolib.application import module, file, load_script
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.dgi_schema import dgi_schema
     from pineboolib.application.database import pnconnection
-    from pineboolib.core.utils.struct import ActionStruct  # noqa: F401
+    from pineboolib.application import xmlaction
 
 LOGGER = logging.get_logger(__name__)
 
@@ -60,7 +60,7 @@ class Project(object):
     areas: Dict[str, AreaStruct]
     files: Dict[Any, Any]
     tables: Dict[Any, Any]
-    actions: Dict[Any, "ActionStruct"]
+    actions: Dict[Any, "xmlaction.XMLAction"]
     translator_: List[Any]
     modules: Dict[str, "module.Module"]
     pending_conversion_list: List[str]
@@ -464,8 +464,8 @@ class Project(object):
                 main_window = fun_action.load()
                 if len(array_fun) == 2:
                     object_context = None
-                    if hasattr(main_window.widget, array_fun[1]):
-                        object_context = main_window.widget
+                    if hasattr(main_window, array_fun[1]):
+                        object_context = main_window
                     if hasattr(main_window.iface, array_fun[1]):
                         object_context = main_window.iface
 
@@ -476,7 +476,7 @@ class Project(object):
                     object_context = main_window.iface
 
             elif array_fun[1] == "widget":
-                script = fun_action.load_script(array_fun[0], None)
+                script = load_script.load_script(array_fun[0], fun_action)
                 object_context = script.iface
             else:
                 return False
@@ -618,7 +618,7 @@ class Project(object):
 
     def load_version(self) -> str:
         """Initialize current version numbers."""
-        self.version = "0.70.12"
+        self.version = "0.70.13"
         if settings.CONFIG.value("application/dbadmin_enabled", False):
             self.version = "DBAdmin v%s" % self.version
         else:
