@@ -186,6 +186,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
     def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Guess if attribute can be found in other related objects."""
+        print("**", name, self.parent())
         ret_ = getattr(self.cursor_, name, None)
         if ret_ is None and self.parent():
             parent_ = self.parent()
@@ -195,15 +196,15 @@ class FormDBWidget(QtWidgets.QWidget):
                 if script is not None:
                     ret_ = getattr(script, name, None)
 
-            if ret_ is None and not TYPE_CHECKING:
-                # FIXME: q3widgets should not interact with fllegacy
-                from pineboolib.fllegacy import flapplication
+        if ret_ is None and not TYPE_CHECKING:
+            # FIXME: q3widgets should not interact with fllegacy
+            from pineboolib.fllegacy import flapplication
 
-                ret_ = getattr(flapplication.aqApp, name, None)
-                if ret_ is not None:
-                    LOGGER.warning(
-                        "FormDBWidget: Coearcing attribute %r from aqApp (should be avoided)" % name
-                    )
+            ret_ = getattr(flapplication.aqApp, name, None)
+            if ret_ is not None:
+                LOGGER.warning(
+                    "FormDBWidget: Coearcing attribute %r from aqApp (should be avoided)" % name
+                )
 
         if ret_ is None:
             raise AttributeError("FormDBWidget: Attribute does not exist: %r" % name)
