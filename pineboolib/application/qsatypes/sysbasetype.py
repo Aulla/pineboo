@@ -578,12 +578,9 @@ class SysBaseType(object):
         """Open given URL in a browser."""
         if not url:
             return False
+
         if isinstance(url, List):
             url = url[0]
-
-        if not isinstance(url, str):
-            LOGGER.warning("openUrl: url should be string, but is %s", type(url))
-            return False
 
         os_name = self.osName()
         if os_name == "LINUX":
