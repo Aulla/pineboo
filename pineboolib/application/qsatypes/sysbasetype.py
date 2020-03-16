@@ -578,10 +578,13 @@ class SysBaseType(object):
         """Open given URL in a browser."""
         if not url:
             return False
-        if not isinstance(url, str):
-            LOGGER.warning("openUrl: url should be string")
-            # Assuming url is list.
+        if isinstance(url, List):
             url = url[0]
+
+        if not isinstance(url, str):
+            LOGGER.warning("openUrl: url should be string, but is %s", type(url))
+            return False
+
         os_name = self.osName()
         if os_name == "LINUX":
             if self.launchCommand([u"xdg-open", url]):
