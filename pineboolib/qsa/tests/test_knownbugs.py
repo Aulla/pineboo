@@ -286,6 +286,14 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
         self.assertTrue(qsa.Number.MIN_VALUE < 0)
         self.assertTrue(qsa.Number.MAX_VALUE > 0)
 
+    def test_execMainScript(self) -> None:
+        """Test aqApp.execMainScript."""
+
+        from pineboolib.qsa import qsa
+
+        fun_ = qsa.from_project("sys").iface.execMainScript
+        self.assertTrue(fun_ is not None)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
