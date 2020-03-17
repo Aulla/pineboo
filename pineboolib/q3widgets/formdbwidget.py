@@ -3,6 +3,7 @@
 from PyQt5 import QtWidgets, QtCore
 
 from pineboolib.application.database import pnsqlcursor
+from pineboolib.application import connections
 
 # from pineboolib.fllegacy import flapplication
 from pineboolib import logging
@@ -57,9 +58,6 @@ class FormDBWidget(QtWidgets.QWidget):
     def module_connect(self, sender: Any, signal: str, receiver: Any, slot: str) -> None:
         """Connect two objects."""
 
-        # print(" > > > connect:", sender, " signal ", str(signal))
-        from pineboolib.application import connections
-
         signal_slot = connections.connect(sender, signal, receiver, slot, caller=self)
         if not signal_slot:
             return
@@ -70,7 +68,6 @@ class FormDBWidget(QtWidgets.QWidget):
         """Disconnect two objects."""
 
         # print(" > > > disconnect:", self)
-        from pineboolib.application import connections
 
         signal_slot = connections.disconnect(sender, signal, receiver, slot, caller=self)
         if not signal_slot:
