@@ -198,7 +198,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         self.known_instances[(self.__class__, self._action.name())] = self
 
-        self.actionName_ = self._action.name()
+        self._uiName = self.actionName_ = self._action.name()
 
         if self._action.table():
             if type(self).__name__ == "FLFormRecordDB":
@@ -211,7 +211,8 @@ class FLFormDB(QtWidgets.QDialog):
                 # self.action_widget = application.PROJECT.actions[self._action.name()]._master_widget
             self._uiName = self._action.form()
         else:
-            self._uiName = self._action.name()
+            if self._action.scriptForm() or self._action.scriptFormRecord():
+                self._uiName = ""
 
         # self.mod = self._action.mod
         self.loop = False
@@ -785,7 +786,7 @@ class FLFormDB(QtWidgets.QDialog):
             # if hasattr(self.script, "form"):
             #    print("Borrando self.script.form", self.script.form)
             #    self.script.form = None
-            widget = self.action_widget.form
+            widget = getattr(self.action_widget, "form", None)
             if widget is not None and type(self).__name__ != "FLFormSearchDB":
                 widget.close()
                 # application.PROJECT.actions[self._action.name()]._record_widget.form = None
@@ -976,13 +977,14 @@ class FLFormDB(QtWidgets.QDialog):
 
     def get_action_widget(self) -> Optional["formdbwidget.FormDBWidget"]:
         """Return main_widget."""
-
-        action = application.PROJECT.actions[self._action.name()]
-        widget = (
-            action._record_widget
-            if self.actionName_.startswith("formRecord")
-            else action._master_widget
-        )
+        widget = None
+        if self._action.name() in application.PROJECT.actions.keys():
+            action = application.PROJECT.actions[self._action.name()]
+            widget = (
+                action._record_widget
+                if self.actionName_.startswith("formRecord")
+                else action._master_widget
+            )
 
         return widget
 
