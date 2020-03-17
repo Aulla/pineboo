@@ -173,9 +173,12 @@ def connect(
     try:
         slot_done_fn: Callable = slot_done(new_slot, new_signal, sender, caller)
         # MyPy/PyQt5-Stubs misses connect(type=param)
+
         new_signal.connect(slot_done_fn, type=conntype)  # type: ignore
-    except Exception:
-        LOGGER.warning("ERROR Connecting: %s %s %s %s", sender, signal, receiver, slot)
+    except Exception as error:
+        LOGGER.warning(
+            "ERROR Connecting: %s %s %s %s error:%s", sender, signal, receiver, slot, error
+        )
         return None
 
     signal_slot = new_signal, slot_done_fn
@@ -230,7 +233,6 @@ def solve_connection(
         remote_fn = receiver
         for slot_ in slot_list:
             remote_fn = getattr(remote_fn, slot_, None)
-
             if remote_fn is None:
                 break
 
@@ -254,7 +256,6 @@ def solve_connection(
     if remote_fn:
         # if receiver.__class__.__name__ in ("FLFormSearchDB", "QDialog") and slot in ("accept", "reject"):
         #    return oSignal, remote_fn
-
         proxy_slot = ProxySlot(remote_fn, receiver, slot)  # type: ignore [arg-type] # noqa F821
         proxyfn = proxy_slot.getProxyFn()
         return original_signal, proxyfn
