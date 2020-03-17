@@ -459,7 +459,7 @@ def exec_main(options: Values) -> int:
         application.PROJECT.main_form = getattr(main_form, main_form_name)
 
     application.PROJECT.main_window = getattr(application.PROJECT.main_form, "mainWindow", None)
-    main_form_ = getattr(application.PROJECT.main_form, "MainForm", None)
+    # main_form_ = getattr(application.PROJECT.main_form, "MainForm", None)
 
     application.PROJECT.message_manager().send("splash", "show")
 

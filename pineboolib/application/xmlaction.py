@@ -161,7 +161,6 @@ class XMLAction(struct.ActionStruct):
 
                 LOGGER.info("init: Action: %s", self._name)
                 script = load_script.load_script(self._record_script, self)
-                LOGGER.warning("* %s widget: %s", script, script.form)
                 self._record_widget = script.form
 
             if self._record_widget is None:
@@ -240,11 +239,11 @@ class XMLAction(struct.ActionStruct):
 
     def formRecordWidget(self) -> "formdbwidget.FormDBWidget":
         """
-            Return formrecord widget.
+        Return formrecord widget.
 
-            This is needed because sometimes there isn't a FLFormRecordDB initialized yet.
-            @return wigdet del formRecord.
-            """
+        This is needed because sometimes there isn't a FLFormRecordDB initialized yet.
+        @return wigdet del formRecord.
+        """
 
         if self._record_widget is None or not self._record_widget._loaded:
             ret = self.load_record()
@@ -254,7 +253,6 @@ class XMLAction(struct.ActionStruct):
         return ret
 
     def execMainScript(self, action_name: str) -> None:
-
         """
         Execute function for main action.
         """
@@ -262,7 +260,6 @@ class XMLAction(struct.ActionStruct):
         application.PROJECT.call("%s.main" % action_name, [], None, False)
 
     def execDefaultScript(self):
-
         """
         Execute script specified on default.
         """

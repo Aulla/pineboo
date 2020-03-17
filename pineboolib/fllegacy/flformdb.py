@@ -233,7 +233,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.isClosing_ = False
         self.accepted_ = False
         self.mainWidget_ = None
-        self.iface = None
+        # self.iface = None
         self.oldFormObj = None
         self.oldCursorCtxt = None
 
@@ -290,7 +290,7 @@ class FLFormDB(QtWidgets.QDialog):
             if self.action_widget:
                 self.action_widget.clear_connections()
 
-            iface = getattr(self.action_widget, "iface", None)
+            iface = self.iface
             if hasattr(iface, "init"):
                 iface.init()
 
@@ -319,7 +319,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         if self.cursor_ is not cursor:
 
-            if type(self).__name__ == "FLFormRecodDB":
+            if self.cursor_ is not None and type(self).__name__ == "FLFormRecodDB":
                 self.cursor_.restoreEditionFlag(self.objectName())
                 self.cursor_.restoreBrowseFlag(self.objectName())
 
@@ -335,7 +335,7 @@ class FLFormDB(QtWidgets.QDialog):
                 self.cursor_.setBrowse(False, self.objectName())
 
             # cast(QtCore.pyqtSignal, self.cursor_.destroyed).connect(self.cursorDestroyed)
-            iface = getattr(self.action_widget, "iface", None)
+            iface = self.iface
 
             if iface is not None and self.cursor_ is not None:
                 self.oldCursorCtxt = self.cursor_.context()
@@ -974,7 +974,8 @@ class FLFormDB(QtWidgets.QDialog):
         print(xml.toString(2))
         pass
 
-    def get_action_widget(self) -> "formdbwidget.FormDBWidget":
+    def get_action_widget(self) -> Optional["formdbwidget.FormDBWidget"]:
+        """Return main_widget."""
 
         action = application.PROJECT.actions[self._action.name()]
         widget = (
@@ -986,6 +987,8 @@ class FLFormDB(QtWidgets.QDialog):
         return widget
 
     def set_action_widget(self, obj_: "formdbwidget.FormDBWidget"):
+        """Set main widget."""
+
         action = application.PROJECT.actions[self._action.name()]
         if self.actionName_.startswith("formRecord"):
             action._record_widget = obj_
@@ -993,9 +996,13 @@ class FLFormDB(QtWidgets.QDialog):
             action._master_widget = obj_
 
     def get_cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
+        """Return action cursor."""
+
         return application.PROJECT.actions[self._action.name()].cursor()
 
     def set_cursor(self, cursor: "isqlcursor.ISqlCursor") -> None:
+        """Set action cursor."""
+
         application.PROJECT.actions[self._action.name()].setCursor(cursor)
 
     @decorators.pyqt_slot()
@@ -1007,5 +1014,11 @@ class FLFormDB(QtWidgets.QDialog):
 
         return ""
 
+    def get_iface(self) -> Callable:
+        """Return script iface."""
+
+        return getattr(self.action_widget, "iface", None)
+
     action_widget = property(get_action_widget, set_action_widget)
     cursor_ = property(get_cursor, set_cursor)  # type: ignore [assignment] # noqa: F821
+    iface = property(get_iface)
