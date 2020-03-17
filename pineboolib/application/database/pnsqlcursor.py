@@ -2205,37 +2205,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param invalidate. Not used.
         """
         global CONNECTION_CURSORS
-        # LOGGER.trace("FLSqlCursor(%s). Eliminando cursor" % self.curName(), self)
-        # delMtd = None
-        # if self.private_cursor.metadata_:
-        #     if not self.private_cursor.metadata_.inCache():
-        #         delMtd = True
-        message = None
-
-        if not hasattr(self, "private_cursor"):
-            return
-
-        metadata = self.private_cursor.metadata_
-
-        # FIXME: Pongo que tiene que haber mas de una trasaccion abierta
-        if self.private_cursor._transactions_opened:
-            LOGGER.warning(
-                "FLSqlCursor(%s).Transacciones abiertas!! %s",
-                self.curName(),
-                self.private_cursor._transactions_opened,
-            )
-            table_name = self.curName()
-            if metadata:
-                table_name = metadata.name()
-
-            message = (
-                "Se han detectado transacciones no finalizadas en la última operación.\n"
-                "Se van a cancelar las transacciones pendientes.\n"
-                "Los últimos datos introducidos no han sido guardados, por favor\n"
-                "revise sus últimas acciones y repita las operaciones que no\n"
-                "se han guardado.\nSqlCursor::~SqlCursor: %s\n" % table_name
-            )
-            self.rollbackOpened(-1, message)
 
         for id_conn in CONNECTION_CURSORS.keys():
             if self.id() in CONNECTION_CURSORS[id_conn]:
@@ -2252,12 +2221,30 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 "CURSOR_EVENT: No se ha eliminado %s del pool de cursores, porque no se ha encontrado.",
                 self.id(),
             )
+        # FIXME: Pongo que tiene que haber mas de una trasaccion abierta
+        try:
+            message = None
 
-        # for name in CONNECTION_CURSORS[id_conn]:
-        #    print("*", name, self.parent())
+            if not hasattr(self, "private_cursor"):
+                return
 
-    #    # self.destroyed.emit()
-    #    # self.private_cursor._count_ref_cursor = self.private_cursor._count_ref_cursor - 1     FIXME
+            if self.private_cursor._transactions_opened:
+                LOGGER.warning(
+                    "FLSqlCursor(%s).Transacciones abiertas!! %s",
+                    self.curName(),
+                    self.private_cursor._transactions_opened,
+                )
+
+                message = (
+                    "Se han detectado transacciones no finalizadas en la última operación.\n"
+                    "Se van a cancelar las transacciones pendientes.\n"
+                    "Los últimos datos introducidos no han sido guardados, por favor\n"
+                    "revise sus últimas acciones y repita las operaciones que no\n"
+                    "se han guardado.\nSqlCursor::~SqlCursor: %s\n" % self.table()
+                )
+                self.rollbackOpened(-1, message)
+        except Exception as error:
+            LOGGER.warning("__del__: %s", error)
 
     @decorators.pyqt_slot()
     def select(

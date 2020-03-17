@@ -299,30 +299,30 @@ class FLFormDB(QtWidgets.QDialog):
 
         return False
 
-    def __del__(self) -> None:
-        """
-        Destroyer.
-        """
-        # TODO: Esto hay que moverlo al closeEvent o al close()
-        # ..... los métodos __del__ de python son muy poco fiables.
-        # ..... Se lanzan o muy tarde, o nunca.
-        # (De todos modos creo que ya hice lo mismo a mano en el closeEvent en commits anteriores)
-
-        self.unbindIface()
+    # def __del__(self) -> None:
+    #    """
+    #    Destroyer.
+    #    """
+    #    # TODO: Esto hay que moverlo al closeEvent o al close()
+    #    # ..... los métodos __del__ de python son muy poco fiables.
+    #    # ..... Se lanzan o muy tarde, o nunca.
+    #    # (De todos modos creo que ya hice lo mismo a mano en el closeEvent en commits anteriores)
+    #
+    #    self.unbindIface()
 
     def setCursor(self, cursor: "isqlcursor.ISqlCursor" = None) -> None:  # type: ignore
         """Change current cursor binded to this control."""
         if cursor is None:
             return
 
-        if cursor is not self.cursor_ and self.cursor_ and self.oldCursorCtxt:
-            self.cursor_.setContext(self.oldCursorCtxt)
+        if cursor is not self.cursor_:
+            if self.cursor_ is not None:
+                if self.oldCursorCtxt:
+                    self.cursor_.setContext(self.oldCursorCtxt)
 
-        if self.cursor_ is not cursor:
-
-            if self.cursor_ is not None and type(self).__name__ == "FLFormRecodDB":
-                self.cursor_.restoreEditionFlag(self.objectName())
-                self.cursor_.restoreBrowseFlag(self.objectName())
+                if type(self).__name__ == "FLFormRecodDB":
+                    self.cursor_.restoreEditionFlag(self.objectName())
+                    self.cursor_.restoreBrowseFlag(self.objectName())
 
             # if self.cursor_:
 
@@ -733,32 +733,32 @@ class FLFormDB(QtWidgets.QDialog):
         # FIXME: What this should do exactly?
         return self.formName()
 
-    def bindIface(self) -> None:
-        """
-        Join the script interface to the form object.
-        """
+    # def bindIface(self) -> None:
+    #    """
+    #    Join the script interface to the form object.
+    #    """
 
-        if self.iface:
-            self.oldFormObj = self.iface
+    #    if self.iface:
+    #        self.oldFormObj = self.iface
 
-    def unbindIface(self) -> None:
-        """
-        Disconnect the script interface to the form object.
-        """
-        if not self.iface:
-            return
+    # def unbindIface(self) -> None:
+    #    """
+    #    Disconnect the script interface to the form object.
+    #    """
+    #    if not self.iface:
+    #        return
 
-        self.iface = self.oldFormObj
+    #    self.iface = self.oldFormObj
 
-    def isIfaceBind(self) -> bool:
-        """
-        Indicate if the script interface is attached to the form object.
-        """
+    # def isIfaceBind(self) -> bool:
+    #    """
+    #    Indicate if the script interface is attached to the form object.
+    #    """
 
-        if self.iface:
-            return True
-        else:
-            return False
+    #    if self.iface:
+    #        return True
+    #    else:
+    #        return False
 
     def closeEvent(self, e: Any) -> None:
         """
@@ -768,7 +768,8 @@ class FLFormDB(QtWidgets.QDialog):
         self.frameGeometry()
 
         self.saveGeometry()
-        self.setCursor(None)
+
+        # self.setCursor(None)
         # self.closed.emit()
         self.hide()
         self.emitFormClosed()
@@ -776,6 +777,11 @@ class FLFormDB(QtWidgets.QDialog):
         # self._action.mainform_widget = None
         self.deleteLater()
         self._loaded = False
+        # print("Marcando", self, "como", self._loaded, type(self).__name__)
+        # if type(self).__name__ == "FLFormRecordDB":
+        #    application.PROJECT.actions[self.action().name()]._record_widget.form._loaded = False
+        # elif type(self).__name__ == "FLFormDB":
+        #    application.PROJECT.actions[self.action().name()]._record_widget.form._loaded = False
 
         # from PyQt5.QtWidgets import qApp
 
@@ -786,9 +792,9 @@ class FLFormDB(QtWidgets.QDialog):
             # if hasattr(self.script, "form"):
             #    print("Borrando self.script.form", self.script.form)
             #    self.script.form = None
-            widget = getattr(self.action_widget, "form", None)
-            if widget is not None and type(self).__name__ != "FLFormSearchDB":
-                widget.close()
+            # widget = getattr(self.action_widget, "form", None)
+            if type(self).__name__ != "FLFormSearchDB":
+                super().close()
                 # application.PROJECT.actions[self._action.name()]._record_widget.form = None
                 # application.PROJECT.actions[self._action.name()]._record_widget = None
 
@@ -840,7 +846,7 @@ class FLFormDB(QtWidgets.QDialog):
             if not self._loaded:
                 return
 
-            self.bindIface()
+            # self.bindIface()
 
         size = geometry.load_geometry_form(self.geoName())
         if size:
@@ -886,8 +892,8 @@ class FLFormDB(QtWidgets.QDialog):
         """
 
         super().focusInEvent(f)
-        if not self.isIfaceBind():
-            self.bindIface()
+        # if not self.isIfaceBind():
+        #    self.bindIface()
 
     def show(self) -> None:
         """
@@ -947,10 +953,8 @@ class FLFormDB(QtWidgets.QDialog):
 
     def child(self, child_name: str) -> QtWidgets.QWidget:
         """Get child by name."""
-        ret = cast(
-            QtWidgets.QWidget,
-            self.findChild(QtWidgets.QWidget, child_name, QtCore.Qt.FindChildrenRecursively),
-        )
+        ret: Any = self.findChild(QtWidgets.QWidget, child_name)
+
         if ret is not None:
             from . import flfielddb, fltabledb
 
@@ -999,12 +1003,10 @@ class FLFormDB(QtWidgets.QDialog):
 
     def get_cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
         """Return action cursor."""
-
         return application.PROJECT.actions[self._action.name()].cursor()
 
     def set_cursor(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Set action cursor."""
-
         application.PROJECT.actions[self._action.name()].setCursor(cursor)
 
     @decorators.pyqt_slot()

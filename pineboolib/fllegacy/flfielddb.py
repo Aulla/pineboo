@@ -503,6 +503,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         Process Qt events for keypresses.
         """
+
         if obj is None:
             return True
 

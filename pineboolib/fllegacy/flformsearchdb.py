@@ -96,6 +96,18 @@ class FLFormSearchDB(flformdb.FLFormDB):
         self.initForm()
         self.setFocusPolicy(QtCore.Qt.NoFocus)
 
+    def load(self):
+
+        super().load()
+        cursor = self.cursor()
+        action = application.PROJECT.actions[self._action.name()]
+        # print("**", action)
+        widget = (
+            action.load()
+        )  # para evitaar el eseteo de cursor que hace al inicializar un master_form en el caso de que no exista
+        self.setCursor(cursor)
+        widget.form = self
+
     def setAction(self, a: "pnaction.PNAction") -> None:
         """Set a action."""
 

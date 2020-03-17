@@ -10,6 +10,7 @@ from . import load_script
 from typing import Optional, Union, TYPE_CHECKING
 
 from pineboolib import application
+from pineboolib.application.database import pnsqlcursor
 
 if TYPE_CHECKING:
     from . import moduleactions  # noqa : F401
@@ -69,6 +70,8 @@ class XMLAction(struct.ActionStruct):
 
     def cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
         """Return xmlAction cursor."""
+        if not self._cursor and self._table:
+            self._cursor = pnsqlcursor.PNSqlCursor(self._name)
 
         return self._cursor
 
@@ -76,27 +79,28 @@ class XMLAction(struct.ActionStruct):
         """
         Load master form.
         """
+
         loaded = False
         if self._master_widget is not None:
             loaded = (
                 self._master_widget.form._loaded if self._master_widget.form is not None else False
             )
 
-        # LOGGER.warning("PROCESSING %s (%s) loaded: %s", self._name, self._master_widget, loaded)
         if not loaded:
+            # print("RECARGANDO MAESTRO", self._name)
             if self._master_widget is not None:
                 self._master_widget.doCleanUp()
                 # del self._master_widget
 
             # LOGGER.info("init: Action: %s", self._name)
-            else:
-                script_name = self._name
-                if self._table:
-                    script_name = self._master_script
 
-                script = load_script.load_script(script_name, self)
+            script_name = self._name
+            if self._table:
+                script_name = self._master_script
 
-                self._master_widget = script.form
+            script = load_script.load_script(script_name, self)
+
+            self._master_widget = script.form
             # LOGGER.warning("PROCESSING 2 %s loaded: %s", self._master_widget, loaded)
             if self._master_widget is None:
                 raise Exception("After loading script, no master_widget was loaded")
@@ -154,14 +158,15 @@ class XMLAction(struct.ActionStruct):
             )
 
         if not loaded:
+            # print("RECARGANDO REGISTRO", self._name)
             if self._record_widget is not None:
                 self._record_widget.doCleanUp()
-                # del self._record_widget
-            else:
+                del self._record_widget
+                self._record_widget = None
 
-                LOGGER.info("init: Action: %s", self._name)
-                script = load_script.load_script(self._record_script, self)
-                self._record_widget = script.form
+            LOGGER.info("init: Action: %s", self._name)
+            script = load_script.load_script(self._record_script, self)
+            self._record_widget = script.form
 
             if self._record_widget is None:
                 raise Exception("After loading script, no record_widget was loaded")

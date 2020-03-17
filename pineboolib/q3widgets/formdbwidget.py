@@ -2,10 +2,9 @@
 # # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtCore
 
-from pineboolib.application.database import pnsqlcursor
 from pineboolib.application import connections
-
-# from pineboolib.fllegacy import flapplication
+from pineboolib.application.database import pnsqlcursor
+from pineboolib.core.garbage_collector import check_gc_referrers
 from pineboolib import logging
 
 
@@ -30,7 +29,7 @@ class FormDBWidget(QtWidgets.QWidget):
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
     _loaded: bool
 
-    def __init__(self, action: Optional["xmlaction.XMLAction"] = None):
+    def __init__(self, action: Optional["xmlaction.XMLAction"] = None) -> None:
         """Inicialize."""
 
         super().__init__()
@@ -115,18 +114,23 @@ class FormDBWidget(QtWidgets.QWidget):
         """Cleanup gabange and connections."""
 
         self.clear_connections()
-        iface = getattr(self, "iface", None)
-        if iface is not None and self._action is not None:
-            from pineboolib.core.garbage_collector import check_gc_referrers
+        action = self._action
 
-            check_gc_referrers(
-                "FormDBWidget.iface:" + iface.__class__.__name__,
-                weakref.ref(self.iface),
-                self._action._name,
-            )
+        if action is not None:
+            if self is action._record_widget:
+                action._record_widget = None
 
-            if hasattr(self.iface, "ctx"):
-                delattr(self.iface, "ctx")
+            iface = getattr(self, "iface", None)
+
+            if iface is not None:
+                check_gc_referrers(
+                    "FormDBWidget.iface:" + self.iface.__class__.__name__,
+                    weakref.ref(self.iface),
+                    action._name,
+                )
+
+                if hasattr(self.iface, "ctx"):
+                    delattr(self.iface, "ctx")
 
             # del self._action._record_widget
 
@@ -170,17 +174,13 @@ class FormDBWidget(QtWidgets.QWidget):
 
     def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
         """Return cursor associated."""
-
-        cursor = None
-
-        if self._action:
-            cursor = self._action.cursor()
-            if cursor is None:
-                cursor = pnsqlcursor.PNSqlCursor(self._action._name)
-                self._action.setCursor(cursor)
-        else:
-            raise Exception("_action is empty!.")
-
+        action = self._action
+        if action is None:
+            raise Exception("action is empty!!")
+        cursor = action.cursor()
+        if cursor is None:
+            cursor = pnsqlcursor.PNSqlCursor(action._name)
+            action.setCursor(cursor)
         return cursor
 
     def __getattr__(self, name: str) -> QtWidgets.QWidget:

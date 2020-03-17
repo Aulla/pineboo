@@ -47,10 +47,10 @@ class DelayedObjectProxyLoader(object):
 
         @return objeto nuevo o si ya existe , cacheado
         """
-        if (
-            self.loaded_obj is not None and self.loaded_obj._loaded
-        ):  # Si no está _loaded lo sobrecarga también
-            return self.loaded_obj
+        # if (
+        #    self.loaded_obj is not None and self.loaded_obj._loaded
+        # ):  # Si no está _loaded lo sobrecarga también
+        #    return self.loaded_obj
         LOGGER.debug(
             "DelayedObjectProxyLoader: loading %s %s( *%s **%s)",
             self._name,

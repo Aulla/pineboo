@@ -39,7 +39,9 @@ class TestFLFormsearchDB(unittest.TestCase):
 
         parent_3 = QtWidgets.QWidget()
         cur_3 = qsa.FLSqlCursor("proveedores")
+        print(1, cur_3)
         form_search_3 = qsa.FLFormSearchDB(cur_3, "proveedores", parent_3)
+        print(2, cur_3)
         self.assertEqual(form_search_3.cursor().metadata().name(), "proveedores")
         self.assertEqual(form_search_3.action().name(), "proveedores")
         self.assertEqual(form_search_3.parent(), parent_3)

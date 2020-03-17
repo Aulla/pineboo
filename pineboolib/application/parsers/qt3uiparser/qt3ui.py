@@ -117,7 +117,7 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
         if slot_name is None:
             raise ValueError("no se encuentra slot_name")
 
-        receiver = None
+        receiver: Any = None
         if isinstance(widget, qmainwindow.QMainWindow):
             if signal_name == "activated()":
                 signal_name = "triggered()"
@@ -144,23 +144,26 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
             sl_name = slot_name[: slot_name.find("(")]
 
         if sender is None:
-            LOGGER.warning("Connection sender not found:%s", sender_name)
+            LOGGER.debug("Connection sender not found:%s", sender_name)
+
         if receiv_name == formname:
-            receiver = (
-                widget
-                if not isinstance(widget, qmainwindow.QMainWindow)
-                else application.PROJECT.actions[sender_name]
-                if sender_name in application.PROJECT.actions.keys()
-                else None
-            )
             fn_name = slot_name.rstrip("()")
-            LOGGER.trace(
+            LOGGER.debug(
                 "Conectando de UI a QS: (%r.%r -> %r.%r)",
                 sender_name,
                 signal_name,
                 receiv_name,
                 fn_name,
             )
+
+            ifx = None
+            if not isinstance(widget, qmainwindow.QMainWindow):
+                parent = widget.parent()
+                if parent:
+                    ifx = getattr(parent, "iface", None)
+            else:
+                if sender_name in application.PROJECT.actions.keys():
+                    receiver = application.PROJECT.actions[sender_name]._master_widget
 
             ifx = widget
             # if hasattr(widget, "iface"):
@@ -172,7 +175,7 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
                     #    getattr(ifx, fn_name))
                     connections.connect(sender, signal_name, ifx, fn_name)
                 except Exception:
-                    LOGGER.exception(
+                    LOGGER.debug(
                         "Error connecting: %s %s %s %s %s",
                         sender,
                         signal_name,
@@ -201,6 +204,7 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
 
         if receiver is None:
             LOGGER.debug("Connection receiver not found:%s", receiv_name)
+
         if sender is None or receiver is None:
             continue
 
