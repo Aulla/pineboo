@@ -514,6 +514,7 @@ class Project(object):
         try:
             return function_name_object(*args)
         except Exception:
+
             LOGGER.exception("JSCALL: Error executing function %s", function_name, stack_info=True)
 
         return None

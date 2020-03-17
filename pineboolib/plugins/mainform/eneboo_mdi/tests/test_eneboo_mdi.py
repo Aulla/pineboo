@@ -30,7 +30,6 @@ class TestEnebooGUI(unittest.TestCase):
         """Test GUI initialize."""
         # from pineboolib.qsa import qsa
         from pineboolib.plugins.mainform.eneboo_mdi import eneboo_mdi
-        from pineboolib.application import actions_slots
 
         # import os
 
@@ -54,7 +53,7 @@ class TestEnebooGUI(unittest.TestCase):
             window.close()
 
         self.assertFalse(application.PROJECT.main_window.existFormInMDI("flusers"))
-        actions_slots.open_default_form(application.PROJECT.actions["flusers"])
+        application.PROJECT.actions["flusers"].openDefaultForm()
         application.PROJECT.main_window.windowMenuAboutToShow()
         application.PROJECT.main_window.windowMenuActivated(0)
         self.assertTrue(application.PROJECT.main_window.existFormInMDI("flusers"))

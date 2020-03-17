@@ -78,7 +78,7 @@ class TestFLFieldDBString(unittest.TestCase):
         from pineboolib.qsa import dictmodules
 
         module_ = dictmodules.from_project("formRecordflmodules")
-        parent = module_.widget.parentWidget()
+        parent = module_.parent()
         new_field = flfielddb.FLFieldDB(parent)
         new_field.setObjectName("fake_control")
         new_field.setFieldName("tes_field")
@@ -99,7 +99,7 @@ class TestFLFieldDBString(unittest.TestCase):
         from pineboolib import application
 
         module_ = dictmodules.from_project("formRecordflmodules")
-        parent = module_.widget.parentWidget()
+        parent = module_.parent()
         table_mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
         if table_mtd is None:
             raise Exception("table_mtd is empty!.")

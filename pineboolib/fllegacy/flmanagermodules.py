@@ -457,7 +457,6 @@ class FLManagerModules(object):
             if parent is None:
                 raise Exception("xclass not found %s" % xclass)
 
-        LOGGER.warning("CARANDO %s --> %s , %s", parent, hasattr(parent, "widget"), UIVersion)
         LOGGER.info("Procesando %s (v%s)", file_name, UIVersion)
         if UIVersion < "4.0":
             qt3ui.load_ui(form_path, parent)

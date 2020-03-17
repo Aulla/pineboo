@@ -2,8 +2,9 @@
 
 from pineboolib.fllegacy import fltabledb
 from pineboolib import application
-from pineboolib.application import actions_slots
 from . import fixture_path
+
+from typing import Any
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
@@ -20,15 +21,23 @@ class TestFLTableDB(unittest.TestCase):
     def test_export_to_ods_1(self) -> None:
         """Test export to ods."""
 
-        actions_slots.open_default_form(application.PROJECT.actions["flareas"])
+        application.PROJECT.actions["flareas"].openDefaultForm()
 
-        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
+        widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
-        ].mainform_widget
+        ]._master_widget
         # form = flformdb.FLFormDB(None, action)
         # self.assertTrue(form)
         # form.load()
-        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        if widget is None:
+            self.assertTrue(widget)
+            return
+
+        form = widget.form
+        if form is None:
+            self.assertTrue(form)
+            return
+        fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
         self.assertTrue(fltable)
         fltable.exportToOds()
         # self.assertTrue(form._loaded)
@@ -40,15 +49,24 @@ class TestFLTableDB(unittest.TestCase):
     def test_export_to_ods_2(self) -> None:
         """Test export to ods."""
 
-        actions_slots.open_default_form(application.PROJECT.actions["flmodules"])
+        application.PROJECT.actions["flmodules"].openDefaultForm()
 
-        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
+        widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flmodules"
-        ].mainform_widget
+        ]._master_widget
+
+        if widget is None:
+            self.assertTrue(widget)
+            return
+
+        form = widget.form
+        if form is None:
+            self.assertTrue(form)
+            return
         # form = flformdb.FLFormDB(None, action)
         # self.assertTrue(form)
         # form.load()
-        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
         self.assertTrue(fltable)
         fltable.exportToOds()
         # self.assertTrue(form._loaded)
@@ -60,11 +78,20 @@ class TestFLTableDB(unittest.TestCase):
     def test_order_cols(self) -> None:
         """Test order cols."""
 
-        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
+        widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
-        ].mainform_widget
+        ]._master_widget
 
-        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        if widget is None:
+            self.assertTrue(widget)
+            return
+
+        form = widget.form
+        if form is None:
+            self.assertTrue(form)
+            return
+
+        fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
         fltable.setOrderCols(["descripcion", "idarea", "bloqueo"])
         self.assertEqual(fltable.orderCols(), ["descripcion", "idarea", "bloqueo"])
         fltable.setOrderCols(["idarea"])
@@ -103,11 +130,20 @@ class TestFLTableDB(unittest.TestCase):
     def test_sort_order(self) -> None:
         """Test sort orders."""
 
-        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
+        widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
-        ].mainform_widget
+        ]._master_widget
 
-        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        if widget is None:
+            self.assertTrue(widget)
+            return
+
+        form = widget.form
+        if form is None:
+            self.assertTrue(form)
+            return
+
+        fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
         cursor = fltable.cursor()
         fltable.setSortOrder(0, 2)
         self.assertEqual(cursor.sort(), "bloqueo DESC")
@@ -127,11 +163,20 @@ class TestFLTableDB(unittest.TestCase):
     def test_filter_records(self) -> None:
         """Test filterRecords function."""
 
-        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
+        widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
-        ].mainform_widget
+        ]._master_widget
 
-        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        if widget is None:
+            self.assertTrue(widget)
+            return
+
+        form = widget.form
+        if form is None:
+            self.assertTrue(form)
+            return
+
+        fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
         cursor = fltable.cursor()
 
         cursor.setModeAccess(cursor.Insert)
@@ -172,11 +217,20 @@ class TestFLTableDB(unittest.TestCase):
     def test_x_edition_flags(self) -> None:
         """Test edition flags."""
 
-        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
+        widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
-        ].mainform_widget
+        ]._master_widget
 
-        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        if widget is None:
+            self.assertTrue(widget)
+            return
+
+        form = widget.form
+        if form is None:
+            self.assertTrue(form)
+            return
+
+        fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
 
         self.assertFalse(fltable.readOnly())
         fltable.setReadOnly(True)
@@ -200,11 +254,20 @@ class TestFLTableDB(unittest.TestCase):
         """Test tab filter."""
 
         # from PyQt5 import QtCore
-        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
+        widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
-        ].mainform_widget
+        ]._master_widget
 
-        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        if widget is None:
+            self.assertTrue(widget)
+            return
+
+        form = widget.form
+        if form is None:
+            self.assertTrue(form)
+            return
+
+        fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
         fltable.filter_ = None
         fltable.activeTabFilter(True)
         fltable.tdbFilterClear()
@@ -273,13 +336,20 @@ class TestFLTableDB(unittest.TestCase):
         qsa_sys.loadModules(path, False)
         application.PROJECT.actions["flareas"].load()
 
-        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
+        widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
-        ].mainform_widget
+        ]._master_widget
 
-        self.assertTrue(form)
+        if widget is None:
+            self.assertTrue(widget)
+            return
 
-        table_ = fltabledb.FLTableDB(form, "new_fltable")
+        form = widget.form
+        if form is None:
+            self.assertTrue(form)
+            return
+
+        table_: Any = fltabledb.FLTableDB(form, "new_fltable")
         table_.cursor_ = form.cursor()
         table_.setTableName("flmodules")
         cursor = form.cursor()

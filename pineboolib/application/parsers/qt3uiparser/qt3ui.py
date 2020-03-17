@@ -15,7 +15,7 @@ import zlib
 
 from pineboolib.core.utils.utils_base import load2xml
 from pineboolib import application
-from pineboolib.application import connections, actions_slots
+from pineboolib.application import connections
 
 
 from pineboolib.q3widgets import qmainwindow, qlistview, qtoolbar, qmenu, qaction, qspinbox

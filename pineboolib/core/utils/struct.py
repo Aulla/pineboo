@@ -117,3 +117,12 @@ class ActionStruct(XMLStruct):
     _record_script: str = ""
 
     load: Callable
+    load_record: Callable
+    openDefaultForm: Callable
+    openDefaultFormRecord: Callable
+    formRecordWidget: Callable
+    execMainScript: Callable
+    execDefaultScript: Callable
+    unknownSlot: Callable
+    setCursor: Callable
+    cursor: Callable

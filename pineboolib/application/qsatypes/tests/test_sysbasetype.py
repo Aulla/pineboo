@@ -5,6 +5,8 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.qsatypes import sysbasetype
 from pineboolib import application
 
+from typing import Any
+
 
 class TestSysBaseClassGeneral(unittest.TestCase):
     """TestSysBaseClassGeneral Class."""
@@ -58,9 +60,8 @@ class TestSysBaseClassGeneral(unittest.TestCase):
     def test_objects(self) -> None:
         """Test objects functions."""
         from pineboolib.fllegacy import fltabledb
-        from pineboolib.application import actions_slots
 
-        actions_slots.open_default_form(application.PROJECT.actions["flareas"])
+        application.PROJECT.actions["flareas"].openDefaultForm()
 
         form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
@@ -68,7 +69,11 @@ class TestSysBaseClassGeneral(unittest.TestCase):
         # form = flformdb.FLFormDB(None, action)
         # self.assertTrue(form)
         # form.load()
-        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        if form is None:
+            self.assertTrue(form)
+            return
+
+        fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
 
         base_type = sysbasetype.SysBaseType()
 

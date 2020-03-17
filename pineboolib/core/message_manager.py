@@ -24,6 +24,7 @@ class Manager(object):
         """Send a progress event to the manager."""
         if self._dgi is None:
             return None
+
         obj_ = getattr(self._dgi, type_, None)
         ret_ = None
         if obj_:

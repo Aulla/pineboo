@@ -2,8 +2,10 @@
 """PNAction Module."""
 
 from pineboolib.core.utils.struct import ActionStruct
-
+from pineboolib import logging
 from typing import Union
+
+LOGGER = logging.get_logger(__name__)
 
 
 class PNAction(object):

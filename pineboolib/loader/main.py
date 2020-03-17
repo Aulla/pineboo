@@ -460,8 +460,6 @@ def exec_main(options: Values) -> int:
 
     application.PROJECT.main_window = getattr(application.PROJECT.main_form, "mainWindow", None)
     main_form_ = getattr(application.PROJECT.main_form, "MainForm", None)
-    if main_form_ is not None:
-        main_form_.setDebugLevel(options.debug_level)
 
     application.PROJECT.message_manager().send("splash", "show")
 

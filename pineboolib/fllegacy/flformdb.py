@@ -12,6 +12,7 @@ from pineboolib.core.utils import utils_base
 from pineboolib.application.utils import geometry
 from pineboolib.application.metadata import pnaction
 
+from pineboolib.q3widgets import qmainwindow
 
 from pineboolib.application.database import pnsqlcursor
 
@@ -52,6 +53,7 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Cursor, con los registros, utilizado por el formulario
     """
+    cursor_: Optional["isqlcursor.ISqlCursor"]
 
     """
     Nombre de la tabla, contiene un valor no vacío cuando
@@ -225,7 +227,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.pushButtonCancel = None
         self.toolButtonClose = None
         self.bottomToolbar = None
-        # self.cursor_ = None
+        self.cursor_ = None
         self.initFocusWidget_ = None
         self.showed = False
         self.isClosing_ = False
@@ -251,8 +253,10 @@ class FLFormDB(QtWidgets.QDialog):
         if self.layout_ is None:
             return
 
-        if not self._action.form() and not self._action.formRecord():
-            widget = QtWidgets.QMainWindow()
+        widget: Union["qmainwindow.QMainWindow", "QtWidgets.QDialog"]
+
+        if not self._action.table():
+            widget = qmainwindow.QMainWindow()
         else:
             widget = QtWidgets.QDialog()
 
@@ -262,7 +266,6 @@ class FLFormDB(QtWidgets.QDialog):
         self.layout_.setSpacing(1)
         self.layout_.setContentsMargins(1, 1, 1, 1)
         self.layout_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
-        LOGGER.warning("CARGANDO UI %s", self._uiName)
         if self._uiName:
 
             if application.PROJECT.conn_manager is None:
@@ -308,32 +311,35 @@ class FLFormDB(QtWidgets.QDialog):
 
     def setCursor(self, cursor: "isqlcursor.ISqlCursor" = None) -> None:  # type: ignore
         """Change current cursor binded to this control."""
+        if cursor is None:
+            return
+
         if cursor is not self.cursor_ and self.cursor_ and self.oldCursorCtxt:
             self.cursor_.setContext(self.oldCursorCtxt)
 
-        if not cursor:
-            return
+        if self.cursor_ is not cursor:
 
-        if self.cursor_ and self.cursor_ is not cursor:
             if type(self).__name__ == "FLFormRecodDB":
                 self.cursor_.restoreEditionFlag(self.objectName())
                 self.cursor_.restoreBrowseFlag(self.objectName())
 
-        if self.cursor_:
+            # if self.cursor_:
 
-            cast(QtCore.pyqtSignal, self.cursor_.destroyed).disconnect(self.cursorDestroyed)
+            #    cast(QtCore.pyqtSignal, self.cursor_.destroyed).disconnect(self.cursorDestroyed)
 
-        # self.widget.cursor_ = cursor
-        self.cursor_ = cursor
+            # self.widget.cursor_ = cursor
+            self.cursor_ = cursor
 
-        if type(self).__name__ == "FLFormRecodDB":
-            self.cursor_.setEdition(False, self.objectName())
-            self.cursor_.setBrowse(False, self.objectName())
+            if type(self).__name__ == "FLFormRecodDB":
+                self.cursor_.setEdition(False, self.objectName())
+                self.cursor_.setBrowse(False, self.objectName())
 
-        cast(QtCore.pyqtSignal, self.cursor_.destroyed).connect(self.cursorDestroyed)
-        if self.iface and self.cursor_:
-            self.oldCursorCtxt = self.cursor_.context()
-            self.cursor_.setContext(self.iface)
+            # cast(QtCore.pyqtSignal, self.cursor_.destroyed).connect(self.cursorDestroyed)
+            iface = getattr(self.action_widget, "iface", None)
+
+            if iface is not None and self.cursor_ is not None:
+                self.oldCursorCtxt = self.cursor_.context()
+                self.cursor_.setContext(self.iface)
 
     def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
         """
@@ -757,6 +763,7 @@ class FLFormDB(QtWidgets.QDialog):
         """
         Capture event close.
         """
+
         self.frameGeometry()
 
         self.saveGeometry()
@@ -768,6 +775,7 @@ class FLFormDB(QtWidgets.QDialog):
         # self._action.mainform_widget = None
         self.deleteLater()
         self._loaded = False
+
         # from PyQt5.QtWidgets import qApp
 
         # qApp.processEvents() #Si se habilita pierde mucho tiempo!
@@ -777,10 +785,12 @@ class FLFormDB(QtWidgets.QDialog):
             # if hasattr(self.script, "form"):
             #    print("Borrando self.script.form", self.script.form)
             #    self.script.form = None
-            widget = self.action_widget
+            widget = self.action_widget.form
             if widget is not None and type(self).__name__ != "FLFormSearchDB":
                 widget.close()
-                application.PROJECT.actions[self._action.name()]._record_widget = None
+                # application.PROJECT.actions[self._action.name()]._record_widget.form = None
+                # application.PROJECT.actions[self._action.name()]._record_widget = None
+
                 # del self.widget
 
             # self.iface = None
@@ -841,15 +851,15 @@ class FLFormDB(QtWidgets.QDialog):
                 parent.resize(size)
                 parent.repaint()
 
-    def cursorDestroyed(self, obj_: Optional[Any] = None) -> None:
-        """Clean up. Called when cursor has been deleted."""
-        if not obj_:
-            obj_ = self.sender()
+    # def cursorDestroyed(self, obj_: Optional[Any] = None) -> None:
+    #    """Clean up. Called when cursor has been deleted."""
+    #    if not obj_:
+    #        obj_ = self.sender()
 
-        if not obj_ or obj_ is self.cursor_:
-            return
+    #    if not obj_ or obj_ is self.cursor_:
+    #        return
 
-        del self.cursor_
+    #    del self.cursor_
 
     """
     Captura evento ocultar
@@ -972,10 +982,8 @@ class FLFormDB(QtWidgets.QDialog):
             if self.actionName_.startswith("formRecord")
             else action._master_widget
         )
-        if widget is None:
-            raise Exception("action_widget is empty!")
-        else:
-            return widget
+
+        return widget
 
     def set_action_widget(self, obj_: "formdbwidget.FormDBWidget"):
         action = application.PROJECT.actions[self._action.name()]
@@ -984,11 +992,11 @@ class FLFormDB(QtWidgets.QDialog):
         else:
             action._master_widget = obj_
 
-    def get_cursor(self) -> "isqlcursor.ISqlCursor":
-        return application.PROJECT.actions[self._action.name()]._cursor
+    def get_cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
+        return application.PROJECT.actions[self._action.name()].cursor()
 
     def set_cursor(self, cursor: "isqlcursor.ISqlCursor") -> None:
-        application.PROJECT.actions[self._action.name()]._cursor = cursor
+        application.PROJECT.actions[self._action.name()].setCursor(cursor)
 
     @decorators.pyqt_slot()
     @decorators.not_implemented_warn
@@ -1000,4 +1008,4 @@ class FLFormDB(QtWidgets.QDialog):
         return ""
 
     action_widget = property(get_action_widget, set_action_widget)
-    cursor_ = property(get_cursor, set_cursor)
+    cursor_ = property(get_cursor, set_cursor)  # type: ignore [assignment] # noqa: F821

@@ -4,6 +4,8 @@ from pineboolib.fllegacy import fltabledb
 from pineboolib import application
 from . import fixture_path
 
+from typing import Any
+
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 
@@ -19,7 +21,6 @@ class TestFLDataTable(unittest.TestCase):
     def test_basic1(self):
         """Test basic functions."""
         from pineboolib.fllegacy import systype
-        from pineboolib.application import actions_slots
         import os
 
         qsa_sys = systype.SysType()
@@ -28,15 +29,21 @@ class TestFLDataTable(unittest.TestCase):
         qsa_sys.loadModules(path, False)
         application.PROJECT.actions["flareas"].load()
 
-        actions_slots.open_default_form(application.PROJECT.actions["flmodules"])
+        application.PROJECT.actions["flmodules"].openDefaultForm()
 
-        form = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
-            "flmodules"
-        ].mainform_widget
-        # form = flformdb.FLFormDB(None, action)
-        # self.assertTrue(form)
-        # form.load()
-        fltable = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
+        widget = application.PROJECT.actions["flmodules"]._master_widget
+
+        if widget is None:
+            self.assertTrue(widget)
+            return
+
+        form = widget.form
+
+        if form is None:
+            self.assertTrue(form)
+            return
+
+        fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
         self.assertTrue(fltable)
 
         fldatatable = fltable.tableRecords()

@@ -1,12 +1,11 @@
 """
 XMLAction module.
 """
-
+from PyQt5 import QtWidgets
 
 from pineboolib.core.utils import logging, struct, utils_base
 
 from . import load_script
-from . import actions_slots
 
 from typing import Optional, Union, TYPE_CHECKING
 
@@ -15,8 +14,8 @@ from pineboolib import application
 if TYPE_CHECKING:
     from . import moduleactions  # noqa : F401
     from pineboolib.interfaces import isqlcursor  # noqa: F401
-    from xml.etree import ElementTree as ET
-    from pineboolib.q3widgets import formdbwidget
+    from xml.etree import ElementTree as ET  # noqa: F401
+    from pineboolib.q3widgets import formdbwidget  # noqa: F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -61,17 +60,17 @@ class XMLAction(struct.ActionStruct):
 
         self._cursor = None
 
-        # print("*****************************************")
-        # print("Name          :", self._name)
-        # print("Alias         :", self._alias)
-        # print("Description   :", self._description)
-        # print("Caption       :", self._caption)
-        # print("Master Form   :", self._master_form)
-        # print("Master Script :", self._master_script)
-        # print("Record Form   :", self._record_form)
-        # print("Record Script :", self._record_script)
-        # print("Table         :", self._table)
-        # print("Module        :", self._mod)
+    def setCursor(self, cursor: Optional["isqlcursor.ISqlCursor"] = None):
+        """Set xmlAction cursor."""
+
+        if cursor is not self._cursor:
+            del self._cursor
+            self._cursor = cursor
+
+    def cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
+        """Return xmlAction cursor."""
+
+        return self._cursor
 
     def load(self) -> "formdbwidget.FormDBWidget":
         """
@@ -86,20 +85,18 @@ class XMLAction(struct.ActionStruct):
         # LOGGER.warning("PROCESSING %s (%s) loaded: %s", self._name, self._master_widget, loaded)
         if not loaded:
             if self._master_widget is not None:
-                if self._master_widget is not None:
-                    self._master_widget.doCleanUp()
-                del self._master_widget
+                self._master_widget.doCleanUp()
+                # del self._master_widget
 
             # LOGGER.info("init: Action: %s", self._name)
+            else:
+                script_name = self._name
+                if self._table:
+                    script_name = self._master_script
 
-            script_name = self._master_script if self._table else self._name
+                script = load_script.load_script(script_name, self)
 
-            if not script_name:
-                scrip_name = self._name
-
-            script = load_script.load_script(script_name, self)
-
-            self._master_widget = script.form
+                self._master_widget = script.form
             # LOGGER.warning("PROCESSING 2 %s loaded: %s", self._master_widget, loaded)
             if self._master_widget is None:
                 raise Exception("After loading script, no master_widget was loaded")
@@ -126,10 +123,10 @@ class XMLAction(struct.ActionStruct):
             # LOGGER.warning("PROCESSING 2 %s (%s) loaded: %s", self._master_widget, script, loaded)
             widget = self._master_widget
 
-            LOGGER.warning(
-                "End of action load %s (iface:%s ; form_widget:%s)",
+            LOGGER.debug(
+                "End of action load %s (master_widget:%s ; master_form:%s)",
                 self._name,
-                getattr(widget, "iface", None),
+                widget,
                 getattr(widget, "form", None),
             )
 
@@ -150,26 +147,25 @@ class XMLAction(struct.ActionStruct):
         @return widget con form inicializado
         """
         loaded = False
+
         if self._record_widget is not None:
             loaded = (
                 self._record_widget.form._loaded if self._record_widget.form is not None else False
             )
 
-        LOGGER.warning(
-            "PROCESSING 1 %s loaded: %s name: %s", self._record_widget, loaded, self._name
-        )
         if not loaded:
             if self._record_widget is not None:
-                if self._record_widget is not None:
-                    self._record_widget.doCleanUp()
-                del self._record_widget
+                self._record_widget.doCleanUp()
+                # del self._record_widget
+            else:
 
-            LOGGER.info("init: Action: %s", self._name)
-            script = load_script.load_script(self._record_script, self)
-            self._record_widget = script.form
-            LOGGER.warning("PROCESSING 2 %s loaded: %s", self._record_widget, loaded)
+                LOGGER.info("init: Action: %s", self._name)
+                script = load_script.load_script(self._record_script, self)
+                LOGGER.warning("* %s widget: %s", script, script.form)
+                self._record_widget = script.form
+
             if self._record_widget is None:
-                raise Exception("After loading script, no master_widget was loaded")
+                raise Exception("After loading script, no record_widget was loaded")
 
             if not utils_base.is_library() and self._record_form:
                 LOGGER.info("Loading action %s (createFormRecord). . . ", self._name)
@@ -192,10 +188,10 @@ class XMLAction(struct.ActionStruct):
 
             widget = self._record_widget
 
-            LOGGER.warning(
-                "End of action load %s (iface:%s ; form_widget:%s)",
+            LOGGER.debug(
+                "End of action load %s (record_widget:%s ; record_form:%s)",
                 self._name,
-                getattr(widget, "iface", None),
+                widget,
                 getattr(widget, "form", None),
             )
 
@@ -209,7 +205,10 @@ class XMLAction(struct.ActionStruct):
         """
         Open Main FLForm specified on defaults.
         """
-        actions_slots.open_default_form(self)
+        LOGGER.info("Opening default form for Action %s", self._name)
+        self.load()
+        if self._master_widget is not None and self._master_widget.form is not None:
+            self._master_widget.form.show()
 
     def openDefaultFormRecord(self, cursor: "isqlcursor.ISqlCursor", wait: bool = True) -> None:
         """
@@ -217,25 +216,50 @@ class XMLAction(struct.ActionStruct):
 
         @param cursor. Cursor a usar por el FLFormRecordDB
         """
-        actions_slots.open_default_form_record(self, cursor, wait)
 
-    def formRecordWidget(self) -> None:
+        if self._record_widget is not None:
+            form = getattr(self._record_widget, "form", None)
+            if form is not None and form._loaded and form.showed:
+                QtWidgets.QMessageBox.information(
+                    QtWidgets.QApplication.activeWindow(),
+                    "Aviso",
+                    "Ya hay abierto un formulario de edición de resgistro para esta tabla.\n"
+                    "No se abrirán mas para evitar ciclos repetitivos de edición de registros.",
+                    QtWidgets.QMessageBox.Yes,
+                )
+                return
+
+        LOGGER.info("Opening default formRecord for Action %s", self._name)
+        self.load_record(cursor)
+
+        if self._record_widget is not None and self._record_widget.form is not None:
+            if wait:
+                self._record_widget.form.show_and_wait()
+            else:
+                self._record_widget.form.show()
+
+    def formRecordWidget(self) -> "formdbwidget.FormDBWidget":
         """
-        Return formrecord widget.
+            Return formrecord widget.
 
-        This is needed because sometimes there isn't a FLFormRecordDB initialized yet.
-        @return wigdet del formRecord.
-        """
+            This is needed because sometimes there isn't a FLFormRecordDB initialized yet.
+            @return wigdet del formRecord.
+            """
 
-        return actions_slots.form_record_widget(self)
+        if self._record_widget is None or not self._record_widget._loaded:
+            ret = self.load_record()
+        else:
+            ret = self._record_widget
 
-    def execMainScript(self, name: str) -> None:
+        return ret
+
+    def execMainScript(self, action_name: str) -> None:
 
         """
         Execute function for main action.
         """
 
-        actions_slots.exec_main_script(name)
+        application.PROJECT.call("%s.main" % action_name, [], None, False)
 
     def execDefaultScript(self):
 
@@ -243,9 +267,29 @@ class XMLAction(struct.ActionStruct):
         Execute script specified on default.
         """
 
-        actions_slots.exec_default_script(self)
+        if self._record_widget is None:
+            LOGGER.info("Executing default script for Action %s", self._name)
+            script = load_script.load_script(self._master_script, self)
+            self._record_widget = script.form
 
-    def unknownSlot() -> None:
+        if self._record_widget is None:
+            raise Exception("Unexpected: No form loaded")
+
+        main = None
+        iface = getattr(self._record_widget, "iface", None)
+
+        if iface is not None:
+            main = getattr(iface, "main", None)
+
+        if main is None:
+            main = getattr(self._record_widget, "main", None)
+
+        if main is None:
+            raise Exception("main function not found!")
+        else:
+            main()
+
+    def unknownSlot(self) -> None:
         """Log error for actions with unknown slots or scripts."""
 
-        actions_slots.unknown_slot(self)
+        LOGGER.error("Executing unknown script for Action %s", self._name)

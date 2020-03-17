@@ -10,7 +10,7 @@ from pineboolib.core import decorators, settings
 
 from pineboolib.application.database import pnsqlquery
 from pineboolib.application.utils import xpm
-from pineboolib.application import types, actions_slots
+from pineboolib.application import types
 
 from pineboolib import application
 
@@ -909,7 +909,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 self.updateBufferCopy()
 
             action = application.PROJECT.actions[self._action.name()]
-            actions_slots.open_default_form_record(action, self, wait)
+            action.openDefaultFormRecord(self, wait)
 
             # if m != self.Insert and self.refreshBuffer():
             #     self.updateBufferCopy()

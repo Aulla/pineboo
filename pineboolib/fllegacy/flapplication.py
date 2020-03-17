@@ -8,7 +8,7 @@ from pineboolib import logging
 from pineboolib.core import decorators, settings
 
 from pineboolib import application
-from pineboolib.application import database, actions_slots
+from pineboolib.application import database
 from pineboolib.application.qsatypes import sysbasetype
 from pineboolib.application.acls import pnaccesscontrollists
 
@@ -270,7 +270,7 @@ class FLApplication(QtCore.QObject):
     def openMasterForm(self, action_name: str, pix: Optional[QtGui.QPixmap] = None) -> None:
         """Open a tab."""
         if action_name in application.PROJECT.actions.keys():
-            actions_slots.open_default_form(application.PROJECT.actions[action_name])
+            application.PROJECT.actions[action_name].openDefaultForm()
 
     @decorators.not_implemented_warn
     def openDefaultForm(self) -> None:
@@ -280,7 +280,7 @@ class FLApplication(QtCore.QObject):
     def execMainScript(self, action_name) -> None:
         """Execute main script."""
         if action_name in application.PROJECT.actions.keys():
-            actions_slots.exec_main_script(action_name)
+            application.PROJECT.actions[action_name].execMainScript(action_name)
 
     @decorators.not_implemented_warn
     def execDefaultScript(self) -> None:

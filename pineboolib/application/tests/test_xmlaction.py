@@ -20,14 +20,14 @@ class TestXMLAction(unittest.TestCase):
         self.assertEqual(action._table, "flareas")
         self.assertEqual(action._master_form, "master")
         self.assertEqual(action._record_form, "flareas")
-        self.assertEqual(action._master_script, "")
+        self.assertEqual(action._master_script, "flmasterareas")
         self.assertEqual(action._record_script, "")
 
         action2 = application.PROJECT.actions["flmodules"]
         self.assertEqual(action2._name, "flmodules")
         self.assertEqual(action2._table, "flmodules")
         self.assertEqual(action2._master_form, "master")
-        self.assertEqual(action2._record_form, "flmodules")
+        self.assertEqual(action2._record_form, "flmodulos")
         self.assertEqual(action2._master_script, "")
         self.assertEqual(action2._record_script, "flmodules")
 

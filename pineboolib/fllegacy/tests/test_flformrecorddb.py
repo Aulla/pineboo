@@ -52,7 +52,7 @@ class TestFLFormrecordCursor(unittest.TestCase):
         module_ = dictmodules.from_project("formRecordflareas")
         form = module_.form
         form.close()
-        cursor = module_.widget.cursor()
+        cursor = module_.form.cursor()
         cursor.select()
 
         # self.assertFalse(module_.showed)

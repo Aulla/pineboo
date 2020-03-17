@@ -44,7 +44,7 @@ class FormDBWidget(QtWidgets.QWidget):
         # if parent and hasattr(parent, "parentWidget"):
         #    self.parent_ = parent.parentWidget()
 
-        self.form = None  # Limpiar self.form al inicializar... Luego flformdb se asigna..
+        self._form = None  # Limpiar self.form al inicializar... Luego flformdb se asigna..
         # from pineboolib.fllegacy import flformdb
 
         # if isinstance(parent, flformdb.FLFormDB):
@@ -92,7 +92,7 @@ class FormDBWidget(QtWidgets.QWidget):
     def parent(self) -> QtWidgets.QWidget:
         """Return parent widget."""
 
-        return self.parentWidget()
+        return self.form
 
     def _class_init(self) -> None:
         """Initialize the class."""
@@ -128,12 +128,13 @@ class FormDBWidget(QtWidgets.QWidget):
                 self._action._name,
             )
 
-            delattr(self.iface, "ctx")
+            if hasattr(self.iface, "ctx"):
+                delattr(self.iface, "ctx")
 
-            del self._action._record_widget
+            # del self._action._record_widget
 
-            self.iface = None
-            self._action._record_widget = None
+            # self.iface = None
+            # self._action._record_widget = None
 
     def clear_connections(self) -> None:
         """Clear al conecctions established on the module."""
@@ -151,9 +152,9 @@ class FormDBWidget(QtWidgets.QWidget):
     def child(self, child_name: str) -> Any:
         """Return child from name."""
         ret = None
+
         if self.form:
             ret = self.form.child(child_name)
-
             if ret is None:
                 if child_name == super().objectName():
                     return self.form
@@ -176,10 +177,10 @@ class FormDBWidget(QtWidgets.QWidget):
         cursor = None
 
         if self._action:
-            if self._action._cursor is None:
-                self._action._cursor = pnsqlcursor.PNSqlCursor(self._action._name)
-
-            cursor = self._action._cursor
+            cursor = self._action.cursor()
+            if cursor is None:
+                cursor = pnsqlcursor.PNSqlCursor(self._action._name)
+                self._action.setCursor(cursor)
         else:
             raise Exception("_action is empty!.")
 
@@ -187,7 +188,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
     def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Guess if attribute can be found in other related objects."""
-        print("****", name, self.form, self, self.iface)
+        # print("****", name, self.form, self, self.iface)
         cursor = self.cursor()
         ret_ = getattr(cursor, name, None)
 
@@ -209,33 +210,10 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return ret_
 
-    # def __hasattr__(self, name: str) -> bool:
-    #    """Guess if attribute can be found in other related objects."""
+    def _set_form(self, form):
+        self._form = form
 
-    #    ret_ = hasattr(self.cursor_, name)
-    #    if not ret_:
-    #        parent_ = self.parent()
-    #        ret_ = hasattr(parent_, name)
-    #        if not ret_:
-    #            script = getattr(parent_, "script", None)
-    #            if script is not None:
-    #                ret_ = hasattr(script, name)
+    def _get_form(self):
+        return self._form
 
-    #    return ret_
-
-    # def __iter__(self) -> Any:
-    #    """Return iter."""
-
-    #    self._iter_current = -1
-    #    return self
-
-    # def __next__(self) -> Any:
-    #    """Return next."""
-
-    #    self._iter_current = 0 if self._iter_current == -1 else self._iter_current + 1
-
-    #    list_ = [attr for attr in dir(self) if not attr[0] == "_"]
-    #    if self._iter_current >= len(list_):
-    #        raise StopIteration
-
-    #    return list_[self._iter_current]
+    form = property(_get_form, _set_form)
