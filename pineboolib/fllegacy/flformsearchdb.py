@@ -97,6 +97,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         self.setFocusPolicy(QtCore.Qt.NoFocus)
 
     def load(self):
+        """Load control."""
 
         super().load()
         cursor = self.cursor()
