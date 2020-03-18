@@ -161,7 +161,7 @@ class XMLAction(struct.ActionStruct):
                 else:
                     form._loaded = True
 
-            self._master_widget._form = form
+            self._master_widget._form = form  # type: ignore [assignment] # noqa: F821
 
     def load_record_form(self, cursor: Optional["isqlcursor.ISqlCursor"] = None) -> None:
         """Load record_widget.form."""
@@ -191,7 +191,7 @@ class XMLAction(struct.ActionStruct):
                         self._record_form,
                     )
 
-            self._record_widget._form = form
+            self._record_widget._form = form  # type: ignore [assignment] # noqa: F821
 
     def openDefaultForm(self) -> None:
         """
