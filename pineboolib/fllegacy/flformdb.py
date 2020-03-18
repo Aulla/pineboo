@@ -228,7 +228,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.pushButtonCancel = None
         self.toolButtonClose = None
         self.bottomToolbar = None
-        self.cursor_ = None
+        # self.cursor_ = None
         self.initFocusWidget_ = None
         self.showed = False
         self.isClosing_ = False

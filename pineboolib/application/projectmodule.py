@@ -461,7 +461,7 @@ class Project(object):
 
             fun_action = self.actions[array_fun[0]]
             if array_fun[1] == "iface" or len(array_fun) == 2:
-                main_window = fun_action.load()
+                main_window = fun_action.load_master_widget()
                 if len(array_fun) == 2:
                     object_context = None
                     if hasattr(main_window, array_fun[1]):

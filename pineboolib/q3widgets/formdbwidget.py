@@ -12,6 +12,7 @@ from typing import Set, Tuple, Optional, Any, TYPE_CHECKING
 import weakref
 import sys
 
+
 if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # noqa: F401
     from pineboolib.interfaces import isqlcursor
@@ -129,8 +130,8 @@ class FormDBWidget(QtWidgets.QWidget):
                     action._name,
                 )
 
-                if hasattr(self.iface, "ctx"):
-                    delattr(self.iface, "ctx")
+                # if hasattr(self.iface, "ctx"):
+                #    delattr(self.iface, "ctx")
 
             # del self._action._record_widget
 
@@ -153,14 +154,14 @@ class FormDBWidget(QtWidgets.QWidget):
     def child(self, child_name: str) -> Any:
         """Return child from name."""
         ret = None
-
-        if self.form:
-            ret = self.form.child(child_name)
+        form = self.form
+        if form:
+            ret = form.child(child_name)
             if ret is None:
                 if child_name == super().objectName():
-                    return self.form
+                    return form
                 else:
-                    ret = getattr(self.form, child_name, None)
+                    ret = getattr(form, child_name, None)
 
         if ret is None:
             parent = self.parent()
@@ -168,7 +169,7 @@ class FormDBWidget(QtWidgets.QWidget):
                 ret = getattr(parent, child_name, None)
 
         if ret is None:
-            raise Exception("control %s not found!" % child_name)
+            raise Exception("control %s not found!, form: %s" % (child_name, form))
 
         return ret
 
@@ -185,12 +186,19 @@ class FormDBWidget(QtWidgets.QWidget):
 
     def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Guess if attribute can be found in other related objects."""
-        # print("****", name, self.form, self, self.iface)
-        cursor = self.cursor()
-        ret_ = getattr(cursor, name, None)
+
+        ret_ = None
+        if self._action is not None and self._action._table:
+            cursor = self.cursor()
+            ret_ = getattr(cursor, name, None)
 
         if ret_ is None:
-            ret_ = getattr(self.form, name, None)
+            if name == "form":
+                ret_ = self._get_form()
+            else:
+                form = self._get_form()
+                if not isinstance(form, FormDBWidget):
+                    ret_ = getattr(form, name, None)
 
         if ret_ is None and not TYPE_CHECKING:
             # FIXME: q3widgets should not interact with fllegacy
@@ -208,9 +216,21 @@ class FormDBWidget(QtWidgets.QWidget):
         return ret_
 
     def _set_form(self, form):
+        """Set form widget."""
         self._form = form
 
     def _get_form(self):
+        """Return form widget."""
+
+        if self._form is None:
+            if self._action is not None:
+                if self is self._action._master_widget:
+                    if self._action._master_form:
+                        self._action.load_master_form()
+
+                elif self is self._action._record_widget and self._action._record_form:
+                    self._action.load_record_form()
+
         return self._form
 
     form = property(_get_form, _set_form)

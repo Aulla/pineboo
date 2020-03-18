@@ -65,7 +65,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         super().__init__(
             name, conn_or_autopopulate, connection_name_or_db, cursor_relation, relation_mtd, parent
         )
-
+        # LOGGER.warning("CURSOR! %s", name)
         if not name:
             LOGGER.warning(
                 "Se está iniciando un cursor Huerfano (%s). Posiblemente sea una declaración en un qsa parseado",
@@ -2646,7 +2646,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             id_module if id_module in application.PROJECT.actions.keys() else "sys"
         ]
 
-        module_script = action.load()
+        module_script = action.load_master_widget
 
         module_iface: Any = getattr(module_script, "iface", None)
 
@@ -2806,7 +2806,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.modeAccess() == self.Browse and self.activatedCommitActions():
 
             if function_after:
-                field_name = getattr(module_script.iface, function_after, None)
+
+                field_name = getattr(module_iface, function_after, None)
 
                 if field_name is not None:
                     value = field_name(self)

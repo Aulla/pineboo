@@ -100,14 +100,10 @@ class FLFormSearchDB(flformdb.FLFormDB):
         """Load control."""
 
         super().load()
-        cursor = self.cursor()
+
         action = application.PROJECT.actions[self._action.name()]
-        # print("**", action)
-        widget = (
-            action.load()
-        )  # para evitaar el eseteo de cursor que hace al inicializar un master_form en el caso de que no exista
-        self.setCursor(cursor)
-        widget.form = self
+        action.load_master_widget()
+        action._master_widget.form = self
 
     def setAction(self, a: "pnaction.PNAction") -> None:
         """Set a action."""

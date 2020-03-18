@@ -334,7 +334,7 @@ class TestFLTableDB(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
-        application.PROJECT.actions["flareas"].load()
+        application.PROJECT.actions["flareas"].load_master_widget()
 
         widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
