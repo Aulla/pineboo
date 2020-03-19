@@ -21,7 +21,7 @@ from pineboolib.application.utils import path, xpm
 from pineboolib.application import module, file, load_script
 
 from pineboolib.application.parsers import qsaparser
-from pineboolib.application.parsers.qsaparser import pytnyzer, pyconvert, postparse
+
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.dgi_schema import dgi_schema
@@ -516,6 +516,7 @@ class Project(object):
 
         @param scriptname, Nombre del script a convertir
         """
+        from pineboolib.application.parsers.qsaparser import postparse
 
         # Intentar convertirlo a Python primero con flscriptparser2
         if not os.path.isfile(scriptname):
@@ -542,6 +543,7 @@ class Project(object):
 
     def parse_script_list(self, path_list: List[str]) -> bool:
         """Convert QS scripts list into Python and stores it in the same folders."""
+        from pineboolib.application.parsers.qsaparser import pytnyzer, pyconvert
 
         if not path_list:
             return True
@@ -597,7 +599,7 @@ class Project(object):
         if not all(pycode_list):
             LOGGER.warning("Conversion failed for some files")
             return False
-
+        # LOGGER.warning("Parseados %s", path_list)
         return True
 
     @decorators.deprecated
