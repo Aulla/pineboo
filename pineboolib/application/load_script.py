@@ -49,7 +49,6 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
 
         mng_modules = application.PROJECT.conn_manager.managerModules()
         if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
-
             script_path_py_static = pnmodulesstaticloader.PNStaticLoader.content(
                 "%s.py" % script_name, mng_modules.static_db_info_, True
             )  # Con True solo devuelve el path
@@ -103,7 +102,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
 
                         if not os.path.exists(script_path_py):
                             raise Exception(
-                                "El fichero convertido %s no existe, pero el parser dice que todo está ok"
+                                "El fichero convertido con carga estática %s no existe, pero el parser dice que todo está ok"
                                 % script_path_py
                             )
 
@@ -111,12 +110,21 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                         my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
                         file_ = open(static_flag, "wb")
                         file_.write(my_data)
+            else:
+                if not application.PROJECT.parse_script_list([script_path_qs]):
+                    if not os.path.exists(script_path_py):
+                        raise Exception(
+                            "El fichero convertido %s no existe, pero el parser dice que todo está ok"
+                            % script_path_py
+                        )
 
             LOGGER.warning("Loading script QS %s . . . ", script_name)
             try:
                 if os.path.exists(script_path_py):
                     loader = machinery.SourceFileLoader(script_name, script_path_py)
                     script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
+                else:
+                    LOGGER.warning("The file %s does not exists!", script_path_py, stack_info=True)
 
             except Exception as error:
                 LOGGER.exception(
