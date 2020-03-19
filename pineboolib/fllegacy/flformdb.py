@@ -775,7 +775,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.emitFormClosed()
         # super().closeEvent(e)
         # self._action.mainform_widget = None
-        self.deleteLater()
+        # self.deleteLater()
         self._loaded = False
         # print("Marcando", self, "como", self._loaded, type(self).__name__)
         # if type(self).__name__ == "FLFormRecordDB":
