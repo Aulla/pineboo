@@ -5,6 +5,7 @@ import os
 from optparse import Values
 from pathlib import Path
 
+import multiprocessing
 
 from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
 
@@ -18,6 +19,9 @@ from pineboolib.core import exceptions, settings, message_manager, decorators
 from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.utils import path, xpm
 from pineboolib.application import module, file, load_script
+
+from pineboolib.application.parsers import qsaparser
+from pineboolib.application.parsers.qsaparser import pytnyzer, pyconvert, postparse
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.dgi_schema import dgi_schema
@@ -369,7 +373,9 @@ class Project(object):
 
         if list_files:
             LOGGER.info("RUN: Parsing QSA files. (%s)", len(list_files))
-            self.parse_script_list(list_files)
+            if not self.parse_script_list(list_files):
+                LOGGER.warning("Failed QSA conversion !.See debug for mode information.")
+                return False
 
         # Cargar el núcleo común del proyecto
 
@@ -504,13 +510,12 @@ class Project(object):
 
         return None
 
-    def parse_script(self, scriptname: str, txt_: str = "") -> None:
+    def parse_script(self, scriptname: str, txt_: str = "") -> bool:
         """
         Convert QS script into Python and stores it in the same folder.
 
         @param scriptname, Nombre del script a convertir
         """
-        from pineboolib.application.parsers.qsaparser import postparse
 
         # Intentar convertirlo a Python primero con flscriptparser2
         if not os.path.isfile(scriptname):
@@ -527,18 +532,19 @@ class Project(object):
 
             try:
                 postparse.pythonify([scriptname], ["--strict"])
-            except Exception:
-                LOGGER.exception("El fichero %s no se ha podido convertir", scriptname)
+            except Exception as error:
+                LOGGER.exception(
+                    "El fichero %s no se ha podido convertir: %s", scriptname, str(error)
+                )
+                return False
 
-    def parse_script_list(self, path_list: List[str]) -> None:
+        return True
+
+    def parse_script_list(self, path_list: List[str]) -> bool:
         """Convert QS scripts list into Python and stores it in the same folders."""
 
-        from multiprocessing import Pool
-        from pineboolib.application.parsers import qsaparser
-        from pineboolib.application.parsers.qsaparser import pytnyzer, pyconvert
-
         if not path_list:
-            return
+            return True
 
         for file_path in path_list:
             if not os.path.isfile(file_path):
@@ -578,7 +584,7 @@ class Project(object):
         pycode_list: List[bool] = []
 
         if qsaparser.USE_THREADS:
-            with Pool(threads_num) as thread:
+            with multiprocessing.Pool(threads_num) as thread:
                 # TODO: Add proper signatures to Python files to avoid reparsing
                 pycode_list = thread.map(pyconvert.pythonify_item, itemlist, chunksize=2)
         else:
@@ -590,6 +596,9 @@ class Project(object):
 
         if not all(pycode_list):
             LOGGER.warning("Conversion failed for some files")
+            return False
+
+        return True
 
     @decorators.deprecated
     def get_temp_dir(self) -> str:
