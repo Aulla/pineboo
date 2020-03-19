@@ -323,6 +323,11 @@ class Project(object):
                 os.makedirs(fileobjdir)
 
             if os.path.exists(file_name):
+                if file_name.endswith(".py"):
+                    static_flag = "%s/static.xml" % os.path.dirname(file_name)
+                    if os.path.exists(static_flag):
+                        os.remove(static_flag)
+
                 if file_name.endswith(".mtd"):
                     if settings.CONFIG.value(
                         "ebcomportamiento/orm_enabled", False

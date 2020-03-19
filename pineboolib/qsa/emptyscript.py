@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """emptyscript module."""
 
-from pineboolib.qsa import formdbwidget
+from . import formdbwidget
 
 
 class interna(object):

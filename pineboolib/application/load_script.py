@@ -2,7 +2,6 @@
 
 from pineboolib.core.utils import logging
 from .utils.path import _path
-from pineboolib.qsa import emptyscript
 
 from typing import TYPE_CHECKING
 
@@ -28,6 +27,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     """
     Transform QS script into Python and starts it up.
     """
+
     # print("load_script", script_name)
     if script_name:
         script_name = script_name.replace(".qs", "")
@@ -35,33 +35,49 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     else:
         LOGGER.info("No script to load for action %s", action_._name)
 
-    script_loaded = emptyscript
-
-    script_path_py: str = ""
-    script_path_py_static: str = ""
-    script_path_qs: str = ""
-    script_path_qs_static: str = ""
+    script_loaded = None
 
     if script_name:
 
-        script_path_qs = _path("%s.qs" % script_name, False) or ""
-        script_path_py = _path("%s.py" % script_name, False) or ""
+        script_path_qs: str = _path("%s.qs" % script_name, False) or ""
+        script_path_py: str = _path("%s.py" % script_name, False) or ""
+        script_path_py_static: str = ""
+        script_path_qs_static: str = ""
+        static_flag = ""
+        old_script_path_py = ""
+
+        if script_path_qs:
+            static_flag = "%s/static.xml" % os.path.dirname(script_path_qs)
 
         mng_modules = application.PROJECT.conn_manager.managerModules()
         if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
             script_path_py_static = pnmodulesstaticloader.PNStaticLoader.content(
                 "%s.py" % script_name, mng_modules.static_db_info_, True
             )  # Con True solo devuelve el path
-
             if not script_path_py_static:
                 script_path_qs_static = pnmodulesstaticloader.PNStaticLoader.content(
                     "%s.qs" % script_name, mng_modules.static_db_info_, True
                 )  # Con True solo devuelve el path
             else:
+                old_script_path_py = script_path_py
                 script_path_py = script_path_py_static
 
         if script_path_py:
-            LOGGER.info("Loading script PY %s . . . ", script_name)
+
+            if os.path.exists(static_flag):
+                os.remove(static_flag)
+
+            if old_script_path_py:  # si es carga estática lo marco:
+
+                static_flag = "%s/static.xml" % os.path.dirname(old_script_path_py)
+                if os.path.exists(static_flag):
+                    os.remove(static_flag)
+                xml_data = get_static_flag(old_script_path_py, script_path_py)
+                my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
+                file_ = open(static_flag, "wb")
+                file_.write(my_data)
+
+            LOGGER.warning("Loading script PY %s -> %s", script_name, script_path_py)
             if not os.path.isfile(script_path_py):
                 raise IOError
             try:
@@ -74,18 +90,17 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
             if not os.path.isfile(script_path_qs):
                 raise IOError
 
-            static_flag = "%s/static.xml" % os.path.dirname(script_path_qs)
+            need_parse = True
             script_path_py = "%spy" % script_path_qs[:-2]
 
             if script_path_qs_static:
-                static_flag = "%s/static.xml" % os.path.dirname(script_path_qs)
                 replace_static = True
                 if os.path.exists(static_flag):
                     tree = ET.parse(static_flag)
                     root = tree.getroot()
                     if root.get("path_legacy") != script_path_qs:
                         replace_static = True
-                    elif root.get("date_static") != str(
+                    elif root.get("last_modified_remote") != str(
                         time.ctime(os.path.getmtime(script_path_qs_static))
                     ):
                         replace_static = True
@@ -98,19 +113,14 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                     if os.path.exists(script_path_py):  # Borramos el py existente
                         os.remove(script_path_py)
 
-                    if application.PROJECT.parse_script_list([script_path_qs]):
+                    xml_data = get_static_flag(script_path_qs, script_path_qs_static)
+                    my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
+                    file_ = open(static_flag, "wb")
+                    file_.write(my_data)
+                else:
+                    need_parse = False
 
-                        if not os.path.exists(script_path_py):
-                            raise Exception(
-                                "El fichero convertido con carga estática %s no existe, pero el parser dice que todo está ok"
-                                % script_path_py
-                            )
-
-                        xml_data = get_static_flag(script_path_qs, script_path_qs_static)
-                        my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
-                        file_ = open(static_flag, "wb")
-                        file_.write(my_data)
-            else:
+            if need_parse:
                 if not application.PROJECT.parse_script_list([script_path_qs]):
                     if not os.path.exists(script_path_py):
                         raise Exception(
@@ -118,7 +128,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                             % script_path_py
                         )
 
-            LOGGER.warning("Loading script QS %s . . . ", script_name)
+            LOGGER.warning("Loading script QS %s -> %s", script_name, script_path_py)
             try:
                 if os.path.exists(script_path_py):
                     loader = machinery.SourceFileLoader(script_name, script_path_py)
@@ -133,9 +143,16 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
 
                 if os.path.exists(script_path_py):
                     os.remove(script_path_py)
+                if os.path.exists(static_flag):
+                    os.remove(static_flag)
+
+    if script_loaded is None:
+        from pineboolib.qsa import emptyscript
+
+        script_loaded = emptyscript
 
     # script_loaded.form = script_loaded.FormInternalObj(action_)
-    return script_loaded.FormInternalObj(action_)
+    return script_loaded.FormInternalObj(action_)  # type: ignore[attr-defined] # noqa: F821
 
 
 def get_static_flag(database_path: str, static_path: str) -> "ET.Element":
@@ -143,5 +160,6 @@ def get_static_flag(database_path: str, static_path: str) -> "ET.Element":
 
     xml_data = ET.Element("data")
     xml_data.set("path_legacy", database_path)
-    xml_data.set("date_static", str(time.ctime(os.path.getmtime(static_path))))
+    xml_data.set("path_remote", static_path)
+    xml_data.set("last_modified_remote", str(time.ctime(os.path.getmtime(static_path))))
     return xml_data
