@@ -101,6 +101,12 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
 
                     if application.PROJECT.parse_script_list([script_path_qs]):
 
+                        if not os.path.exists(script_path_py):
+                            raise Exception(
+                                "El fichero convertido %s no existe, pero el parser dice que todo está ok"
+                                % script_path_py
+                            )
+
                         xml_data = get_static_flag(script_path_qs, script_path_qs_static)
                         my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
                         file_ = open(static_flag, "wb")
@@ -111,6 +117,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                 if os.path.exists(script_path_py):
                     loader = machinery.SourceFileLoader(script_name, script_path_py)
                     script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
+
             except Exception as error:
                 LOGGER.exception(
                     "ERROR al cargar script QS para la accion %s: %s", action_._name, str(error)
