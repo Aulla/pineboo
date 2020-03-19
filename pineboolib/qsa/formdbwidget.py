@@ -25,7 +25,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
     closed = QtCore.pyqtSignal()
     cursor_: Optional["isqlcursor.ISqlCursor"]
-    form: Any
+    _form: Optional[QtWidgets.QDialog]
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
     _loaded: bool
@@ -215,11 +215,11 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return ret_
 
-    def _set_form(self, form):
+    def _set_form(self, form: Optional[QtWidgets.QDialog]) -> None:
         """Set form widget."""
         self._form = form
 
-    def _get_form(self):
+    def _get_form(self) -> Optional[QtWidgets.QDialog]:
         """Return form widget."""
 
         if self._form is None:

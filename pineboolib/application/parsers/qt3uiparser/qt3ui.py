@@ -157,7 +157,7 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
             )
 
             ifx = None
-            if not isinstance(widget, qmainwindow.QMainWindow):
+            if not widget.inherits("QMainWindow"):
                 parent = widget.parent()
                 if parent:
                     ifx = getattr(parent, "iface", None)

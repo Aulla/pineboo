@@ -319,28 +319,12 @@ class Project(object):
                 os.makedirs(fileobjdir)
 
             if os.path.exists(file_name):
-                if file_name.endswith(".qs"):
-                    folder_path = os.path.dirname(file_name)
-                    static_flag = "%s/STATIC" % folder_path
-                    file_name_py = "%s.py" % file_name[:-3]
-                    if os.path.exists(static_flag):
-                        os.remove(static_flag)
-                        if os.path.exists(file_name):
-                            os.remove(file_name)
-                        if os.path.exists(file_name_py):
-                            os.remove(file_name_py)
-
-                    elif os.path.exists(file_name_py):
-                        continue
-
-                elif file_name.endswith(".mtd"):
+                if file_name.endswith(".mtd"):
                     if settings.CONFIG.value(
                         "ebcomportamiento/orm_enabled", False
                     ) and not settings.CONFIG.value("ebcomportamiento/orm_parser_disabled", False):
                         if os.path.exists("%s_model.py" % path._dir("cache", fileobj.filekey[:-4])):
                             continue
-                else:
-                    continue
 
             cur2 = self.conn_manager.useConn("dbAux").cursor()
             sql = (
@@ -377,7 +361,7 @@ class Project(object):
                     file_2.close()
 
             if self.parse_project and nombre.endswith(".qs"):
-                if os.path.exists(file_name):
+                if os.path.exists(file_name) and not os.path.exists("%spy" % file_name[:-2]):
                     list_files.append(file_name)
 
         file_1.close()
@@ -466,6 +450,7 @@ class Project(object):
                     object_context = None
                     if hasattr(main_window, array_fun[1]):
                         object_context = main_window
+
                     if hasattr(main_window.iface, array_fun[1]):
                         object_context = main_window.iface
 
@@ -477,7 +462,7 @@ class Project(object):
 
             elif array_fun[1] == "widget":
                 script = load_script.load_script(array_fun[0], fun_action)
-                object_context = script.iface
+                object_context = getattr(script, "iface", None)
             else:
                 return False
 

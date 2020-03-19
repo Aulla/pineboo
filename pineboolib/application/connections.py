@@ -19,7 +19,7 @@ import types
 from typing import Callable, Any, Dict, Tuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.q3widgets import formdbwidget  # noqa F401
+    from pineboolib.qsa import formdbwidget  # noqa F401
 
 
 LOGGER = logging.get_logger(__name__)

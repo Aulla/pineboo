@@ -320,7 +320,7 @@ class PNStaticLoader(QtCore.QObject):
             info.writeSettings()
 
     @staticmethod
-    def content(name: str, info: "AQStaticBdInfo", only_path: bool = False) -> Any:
+    def content(name: str, info: "AQStaticBdInfo", only_path: bool = False) -> str:
         """Get content from given path."""
         global WARN_
         info.readSettings()
@@ -357,7 +357,7 @@ class PNStaticLoader(QtCore.QObject):
                         info_item.path_ + separator + name
                     )
 
-        return None
+        return ""
 
     def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Emulate child properties as if they were inserted into the object."""

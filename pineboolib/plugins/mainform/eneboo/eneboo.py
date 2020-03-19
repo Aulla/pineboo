@@ -1249,15 +1249,14 @@ class MainForm(QtWidgets.QMainWindow):
 
         flapplication.aqApp.main_widget_ = self
 
-        mw = self
-        mw.createUi(utils_base.filedir("plugins/mainform/eneboo/mainform.ui"))
+        self.createUi(utils_base.filedir("plugins/mainform/eneboo/mainform.ui"))
 
-        mw.init()
+        self.init()
 
-        mw.updateMenuAndDocks()
-        mw.initModule("sys")
-        mw.show()
-        mw.readState()
+        self.updateMenuAndDocks()
+        self.initModule("sys")
+        self.show()
+        self.readState()
 
     def reinitSript(self) -> None:
         """Re-start process."""

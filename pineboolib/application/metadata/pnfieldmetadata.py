@@ -1,23 +1,19 @@
 # -*- coding: utf-8 -*-
 """Manage the data of a field in a table."""
-
-from pineboolib.core.utils import utils_base
-
-from pineboolib.core.utils import logging
-from pineboolib.interfaces import IFieldMetaData
+from pineboolib.core.utils import logging, utils_base
+from pineboolib import interfaces
 
 from typing import List, Optional, Union, Any, TYPE_CHECKING
 
-from .pnrelationmetadata import PNRelationMetaData
+from . import pnrelationmetadata
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
-
+    from . import pntablemetadata
 
 LOGGER = logging.get_logger(__name__)
 
 
-class PNFieldMetaData(IFieldMetaData):
+class PNFieldMetaData(interfaces.IFieldMetaData):
     """PNFieldMetaData Class."""
 
     Serial = "serial"
@@ -143,8 +139,6 @@ class PNFieldMetaData(IFieldMetaData):
 
         @return Field Name.
         """
-        if self.private._field_name is None:
-            return ""
         return self.private._field_name
 
     def setName(self, name: str) -> None:
@@ -153,7 +147,6 @@ class PNFieldMetaData(IFieldMetaData):
 
         @param n Field Name
         """
-
         self.private._field_name = name
 
     def alias(self) -> str:
@@ -199,9 +192,7 @@ class PNFieldMetaData(IFieldMetaData):
         @return TRUE if it is a composite key, FALSE otherwise
         """
 
-        if self.private.is_compound_key is None:
-            return False
-        return self.private.is_compound_key
+        return self.private.is_compound_key or False
 
     def type(self) -> str:
         """
@@ -209,8 +200,7 @@ class PNFieldMetaData(IFieldMetaData):
 
         @return The field type.
         """
-
-        return str(self.private.type_)
+        return self.private.type_
 
     def length(self) -> int:
         """
@@ -221,7 +211,7 @@ class PNFieldMetaData(IFieldMetaData):
 
         return int(self.private.length_ or 0)
 
-    def calculated(self) -> Any:
+    def calculated(self) -> bool:
         """
         Get if the field is calculated.
 
@@ -230,7 +220,7 @@ class PNFieldMetaData(IFieldMetaData):
 
         return self.private.calculated_
 
-    def setCalculated(self, calculated) -> None:
+    def setCalculated(self, calculated: bool) -> None:
         """
         Set if the field is calculated.
 
@@ -244,7 +234,7 @@ class PNFieldMetaData(IFieldMetaData):
 
         @return TRUE if the field is editable, FALSE otherwise
         """
-        return self.private.editable_ if self.private.editable_ is not None else False
+        return self.private.editable_ or False
 
     def setEditable(self, editable: bool) -> None:
         """
@@ -340,7 +330,7 @@ class PNFieldMetaData(IFieldMetaData):
         """
         return self.private._is_unique
 
-    def addRelationMD(self, r: "PNRelationMetaData") -> None:
+    def addRelationMD(self, r: "pnrelationmetadata.PNRelationMetaData") -> None:
         """
         Add a relationship with another table for this field.
 
@@ -355,14 +345,14 @@ class PNFieldMetaData(IFieldMetaData):
         is_relation_m1 = False
         # print("FLFieldMetadata(%s).addRelationMD(card %s)" % (self.name(), r.cardinality()))
 
-        if r.cardinality() == PNRelationMetaData.RELATION_M1:
+        if r.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_M1:
             is_relation_m1 = True
         if is_relation_m1 and self.private._relation_m1:
             LOGGER.debug(
                 "addRelationMD: Se ha intentado crear más de una relación muchos a uno para el mismo campo"
             )
             return
-        if self.private._field_name is None:
+        if not self.private._field_name:
             LOGGER.warning("addRelationMD: no fieldName")
             return
         r.setField(self.private._field_name)
@@ -375,7 +365,7 @@ class PNFieldMetaData(IFieldMetaData):
 
         self.private._relation_list.append(r)
 
-    def relationList(self) -> List["PNRelationMetaData"]:
+    def relationList(self) -> List["pnrelationmetadata.PNRelationMetaData"]:
         """
         To get the list of relationship definitions.
 
@@ -386,7 +376,7 @@ class PNFieldMetaData(IFieldMetaData):
 
         return self.private._relation_list
 
-    def relationM1(self) -> Optional["PNRelationMetaData"]:
+    def relationM1(self) -> Optional["pnrelationmetadata.PNRelationMetaData"]:
         """
         Get the many-to-one relationship for this field.
 
@@ -396,7 +386,9 @@ class PNFieldMetaData(IFieldMetaData):
         """
         return self.private._relation_m1
 
-    def setAssociatedField(self, r_or_name: Union[str, IFieldMetaData], f: str) -> None:
+    def setAssociatedField(
+        self, r_or_name: Union[str, "interfaces.IFieldMetaData"], f: str
+    ) -> None:
         """
         Set an associated field for this field, and the name of the foreign table field to use to filter.
 
@@ -462,7 +454,7 @@ class PNFieldMetaData(IFieldMetaData):
 
         @return TRUE if the field is modified out of transaction, FALSE otherwise
         """
-        return self.private._out_transaction if self.private._out_transaction is not None else False
+        return self.private._out_transaction or False
 
     def regExpValidator(self) -> Optional[str]:
         """
@@ -549,13 +541,13 @@ class PNFieldMetaData(IFieldMetaData):
 
         self.private.trimmed_ = t
 
-    def setMetadata(self, mtd: "PNTableMetaData") -> None:
+    def setMetadata(self, mtd: "pntablemetadata.PNTableMetaData") -> None:
         """
         Set the PNTableMetaData object to which it belongs.
         """
         self.private.mtd_ = mtd
 
-    def metadata(self) -> Optional["PNTableMetaData"]:
+    def metadata(self) -> Optional["pntablemetadata.PNTableMetaData"]:
         """
         Get the FLTableMetaData object to which it belongs.
         """
@@ -696,7 +688,7 @@ class PNFieldMetaData(IFieldMetaData):
     def __len__(self) -> int:
         """Return the length of a field."""
 
-        return self.private.length_ if self.private.length_ is not None else 0
+        return int(self.private.length_ or 0)
 
 
 class PNFieldMetaDataPrivate(object):
@@ -706,13 +698,13 @@ class PNFieldMetaDataPrivate(object):
     Nombre del campo en la tabla
     """
 
-    _field_name = None
+    _field_name: str
 
     """
     Alias o mote para el campo, usado como
     etiqueta de campos en los formularios
     """
-    alias_ = None
+    alias_: str
 
     """
     Almacena si el campo permite ser nulo
@@ -727,12 +719,12 @@ class PNFieldMetaDataPrivate(object):
     """
     Tipo del campo
     """
-    type_ = None
+    type_: str
 
     """
     Longitud del campo
     """
-    length_ = None
+    length_: int
 
     """
     Indica si el campo es calculado de forma diferida.
@@ -761,17 +753,17 @@ class PNFieldMetaDataPrivate(object):
     """
     Indica si el campo es editable
     """
-    editable_ = None
+    editable_: bool
 
     """
     Indica el número de dígitos de la parte entera
     """
-    _part_integer = None
+    _part_integer: int
 
     """
     Indica el númeor de dígitos de la parte decimal
     """
-    _part_decimal = None
+    _part_decimal: int
 
     """
     Indica si el campo es índice
@@ -795,13 +787,13 @@ class PNFieldMetaDataPrivate(object):
     """
     Lista de relaciones para este campo
     """
-    _relation_list: List["PNRelationMetaData"] = []
+    _relation_list: List["pnrelationmetadata.PNRelationMetaData"]
 
     """
     Mantiene, si procede, la relación M1 (muchos a uno)
     para el campo (solo puede haber una relacion de este tipo para un campo)
     """
-    _relation_m1: Any = None
+    _relation_m1: Optional["pnrelationmetadata.PNRelationMetaData"]
 
     """
     Asocia este campo con otro, para efectuar filtros en búsquedas.
@@ -823,7 +815,7 @@ class PNFieldMetaDataPrivate(object):
     (ver FLFieldMetaData::associated_field_filter_to) sea igual al valor de la empresa origen
     elegida (codemporig)
     """
-    associated_field_name = ""
+    associated_field_name: str
 
     """
     Nombre del campo que se debe filtra según el campo asociado.
@@ -840,12 +832,12 @@ class PNFieldMetaDataPrivate(object):
     los almacenes cuyo código de empresa (el campo indicado de filtro ) sea igual al valor de la empresa
     origen elegida (codemporig)
     """
-    associated_field_filter_to = ""
+    associated_field_filter_to: str
 
     """
     Valor por defecto para el campo
     """
-    _default_value = None
+    _default_value: Any
 
     """
     Lista de opciones para el campo
@@ -866,45 +858,50 @@ class PNFieldMetaDataPrivate(object):
     en el y siempre permanecera en la base de datos la ultima modificacion efectuada en
     el campo.
     """
-    _out_transaction = None
+    _out_transaction: bool
 
     """
     Almacena la expresion regular que sirve como mascara de validacion para el campo.
     """
-    _reg_exp_validator = None
-
-    """
-    Indica si el campo debe ser visible en la rejilla de la tabla.
-    """
-    _visible_grid = True
-
-    """
-    Indica si el campo es generado, es decir, se incluye en las consultas
-    """
-    generated_ = False
-
-    """
-    Almacena si el campo es clave compuesta
-    """
-    is_compound_key = None
-
-    """
-    Contiene las distintas opciones de búsqueda
-    """
+    _reg_exp_validator: Any
+    _visible_grid: bool  # true
+    generated_: bool
+    is_compound_key: bool
     _search_options: List[str]
-
-    """
-    Objeto FLTableMetaData al que pertenece
-    """
-    mtd_: Optional["PNTableMetaData"] = None
+    mtd_: Optional["pntablemetadata.PNTableMetaData"]
 
     def __init__(self, *args, **kwargs) -> None:
         """Initialize the class."""
 
-        self._reg_exp_validator = ""
-        self._search_options = []
+        self._field_name = ""
+        self.alias_ = ""
         self._allow_null = False
         self.is_primary_key = False
+        self.type_ = ""
+        self.length_ = 0
+        self.calculated_ = False
+        self._fully_calculated = False
+        self.trimmed_ = False
+        self.visible_ = False
+        self.editable_ = False
+        self._part_integer = 0
+        self._part_decimal = 0
+        self._is_index = False
+        self._is_unique = False
+        self.contador_ = False
+        self._relation_list = []
+        self._relation_m1 = None
+        self.associated_field_name = ""
+        self.associated_field_filter_to = ""
+        self._default_value = None
+        self._options_list = []
+        self._out_transaction = False
+        self._reg_exp_validator = ""
+        self._visible_grid = True
+        self.generated_ = False
+        self.is_compound_key = False
+        self._search_options = []
+        self.mtd_ = None
 
         if not args:
             self.inicializeEmpty()
@@ -926,7 +923,7 @@ class PNFieldMetaDataPrivate(object):
         alias: str,
         allow_null: bool,
         is_primary_key: bool,
-        type_: Optional[str],
+        type_: str,
         length_: int,
         calculated: bool,
         visible: bool,
@@ -1002,7 +999,7 @@ class PNFieldMetaDataPrivate(object):
         self.trimmed_ = False
         self._options_list = []
 
-        if self.type_ is None:
+        if not self.type_:
             if self._part_decimal > 0:
                 self.type_ = "double"
             elif self.length_ > 0:
@@ -1028,9 +1025,6 @@ class PNFieldMetaDataPrivate(object):
         if not type_ == "string" and not int(length_) == 0:
             self.length_ = 0
 
-        # if not t == "int" and not t == "uint" and t == "double" and not int(pI) == 0:
-        # self._part_integer = 0
-
         elif type_ == "double" and not int(part_decimal) >= 0:
             self._part_decimal = 0
 
@@ -1039,8 +1033,7 @@ class PNFieldMetaDataPrivate(object):
         Delete properties when deleted.
         """
         self.clearRelationList()
-        if self._relation_m1 and self._relation_m1.deref():
-            self._relation_m1 = None
+        self._relation_m1 = None
 
     def clearRelationList(self) -> None:
         """

@@ -2,120 +2,128 @@
 
 from pineboolib.core.utils import logging
 from .utils.path import _path
+from pineboolib.qsa import emptyscript
+
+from typing import TYPE_CHECKING
+
+from pineboolib.application.staticloader import pnmodulesstaticloader
+from pineboolib import application
+
+import xml.etree.ElementTree as ET
+from importlib import machinery
 
 
-from typing import Optional, Any
-from pineboolib.core.utils.struct import ActionStruct
 import shutil
+import time
 import os
+
+if TYPE_CHECKING:
+    from pineboolib.qsa import formdbwidget
+    from pineboolib.application import xmlaction
 
 LOGGER = logging.get_logger(__name__)
 
 
-def load_script(scriptname: Optional[str], action_: ActionStruct) -> Any:  # returns loaded script
+def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidget.FormDBWidget":
     """
     Transform QS script into Python and starts it up.
-
-    @param scriptname. Nombre del script a convertir
-    @param parent. Objecto al que carga el script, si no se especifica es a self.script
     """
-
-    from pineboolib import application
-
-    project = application.PROJECT
-
-    if scriptname:
-        scriptname = scriptname.replace(".qs", "")
-        LOGGER.debug("Loading script %s for action %s", scriptname, action_._name)
+    # print("load_script", script_name)
+    if script_name:
+        script_name = script_name.replace(".qs", "")
+        LOGGER.debug("Loading script %s for action %s", script_name, action_._name)
     else:
         LOGGER.info("No script to load for action %s", action_._name)
 
-    from pineboolib.qsa import emptyscript  # type: ignore
+    script_loaded = emptyscript
 
-    script_loaded: Any = emptyscript
+    script_path_py: str = ""
+    script_path_py_static: str = ""
+    script_path_qs: str = ""
+    script_path_qs_static: str = ""
 
-    script_path_py: Optional[str] = None
-    script_path_py_static: Optional[str] = None
-    script_path_qs: Optional[str] = None
-    script_path_qs_static: Optional[str] = None
+    if script_name:
 
-    if scriptname is not None:
+        script_path_qs = _path("%s.qs" % script_name, False) or ""
+        script_path_py = _path("%s.py" % script_name, False) or ""
 
-        from importlib import machinery
-
-        # if project.alternative_folder:
-        #    import glob
-
-        #    for file_name in glob.iglob(
-        #        "%s/legacy/**/%s" % (project.alternative_folder, scriptname), recursive=True
-        #    ):
-        #        if file_name.endswith(scriptname):
-        #            script_path_py = file_name
-        #            break
-
-        script_path_qs = _path("%s.qs" % scriptname, False)
-        script_path_py = _path("%s.py" % scriptname, False)
-
-        mng_modules = project.conn_manager.managerModules()
+        mng_modules = application.PROJECT.conn_manager.managerModules()
         if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
-            from pineboolib.application.staticloader.pnmodulesstaticloader import PNStaticLoader
 
-            script_path_py_static = PNStaticLoader.content(
-                "%s.py" % scriptname, mng_modules.static_db_info_, True
+            script_path_py_static = pnmodulesstaticloader.PNStaticLoader.content(
+                "%s.py" % script_name, mng_modules.static_db_info_, True
             )  # Con True solo devuelve el path
 
-            if script_path_py_static is None:
-                script_path_qs_static = PNStaticLoader.content(
-                    "%s.qs" % scriptname, mng_modules.static_db_info_, True
+            if not script_path_py_static:
+                script_path_qs_static = pnmodulesstaticloader.PNStaticLoader.content(
+                    "%s.qs" % script_name, mng_modules.static_db_info_, True
                 )  # Con True solo devuelve el path
-
-        if script_path_py is not None or script_path_py_static:
-            if script_path_py_static:
+            else:
                 script_path_py = script_path_py_static
 
-            if script_path_py:
-                LOGGER.info("Loading script PY %s . . . ", scriptname)
-                if not os.path.isfile(script_path_py):
-                    raise IOError
-                try:
-                    loader = machinery.SourceFileLoader(scriptname, script_path_py)
-                    script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
-                except Exception:
-                    LOGGER.exception("ERROR al cargar script PY para la accion %s:", action_._name)
-
-        elif script_path_qs:
-            script_path_py = "%s.py" % script_path_qs[:-3]
-            folder_path = os.path.dirname(script_path_qs)
-            static_flag = "%s/STATIC" % folder_path
-            if script_path_qs_static:
-                # Recogemos el .qs de carga estática.
-                if not os.path.exists(script_path_qs):
-                    raise Exception("The destination file %s does not exist!" % script_path_qs)
-
-                shutil.copy(script_path_qs_static, script_path_qs)  # Lo copiamos en tempdata
-                if script_path_py and os.path.exists(
-                    script_path_py
-                ):  # Si existe el py en tempdata se elimina
-                    os.remove(script_path_py)
-
-                if not os.path.exists(static_flag):  # Marcamos que se ha hecho carga estática.
-                    file = open(static_flag, "w")
-                    file.write(".")
-                    file.close()
-
-            if not os.path.exists(script_path_py):
-                project.parse_script_list([script_path_qs])
-
-            LOGGER.info("Loading script QS %s . . . ", scriptname)
-            # python_script_path = "%s.py" % script_path_qs[:-3]
+        if script_path_py:
+            LOGGER.info("Loading script PY %s . . . ", script_name)
+            if not os.path.isfile(script_path_py):
+                raise IOError
             try:
-                loader = machinery.SourceFileLoader(scriptname, script_path_py)
+                loader = machinery.SourceFileLoader(script_name, script_path_py)
                 script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
             except Exception:
-                LOGGER.exception("ERROR al cargar script QS para la accion %s:", action_._name)
+                LOGGER.exception("ERROR al cargar script PY para la accion %s:", action_._name)
+
+        elif script_path_qs:
+            if not os.path.isfile(script_path_qs):
+                raise IOError
+
+            static_flag = "%s/static.xml" % os.path.dirname(script_path_qs)
+            script_path_py = "%spy" % script_path_qs[:-2]
+
+            if script_path_qs_static:
+                static_flag = "%s/static.xml" % os.path.dirname(script_path_qs)
+                replace_static = True
+                if os.path.exists(static_flag):
+                    tree = ET.parse(static_flag)
+                    root = tree.getroot()
+                    if root.get("path_legacy") != script_path_qs:
+                        replace_static = True
+                    elif root.get("date_static") != str(
+                        time.ctime(os.path.getmtime(script_path_qs_static))
+                    ):
+                        replace_static = True
+                    else:
+                        replace_static = False
+
+                if replace_static:
+
+                    shutil.copy(script_path_qs_static, script_path_qs)  # Lo copiamos en tempdata
+                    if os.path.exists(script_path_py):  # Borramos el py existente
+                        os.remove(script_path_py)
+
+                    application.PROJECT.parse_script_list([script_path_qs])
+                    xml_data = get_static_flag(script_path_qs, script_path_qs_static)
+                    my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
+                    file_ = open(static_flag, "wb")
+                    file_.write(my_data)
+
+            LOGGER.info("Loading script QS %s . . . ", script_name)
+            try:
+                loader = machinery.SourceFileLoader(script_name, script_path_py)
+                script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
+            except Exception as error:
+                LOGGER.exception(
+                    "ERROR al cargar script QS para la accion %s: %s", action_._name, str(error)
+                )
                 if os.path.exists(script_path_py):
                     os.remove(script_path_py)
 
-    script_loaded.form = script_loaded.FormInternalObj(action_)
+    # script_loaded.form = script_loaded.FormInternalObj(action_)
+    return script_loaded.FormInternalObj(action_)
 
-    return script_loaded
+
+def get_static_flag(database_path: str, static_path: str) -> "ET.Element":
+    """Return static_info."""
+
+    xml_data = ET.Element("data")
+    xml_data.set("path_legacy", database_path)
+    xml_data.set("date_static", str(time.ctime(os.path.getmtime(static_path))))
+    return xml_data

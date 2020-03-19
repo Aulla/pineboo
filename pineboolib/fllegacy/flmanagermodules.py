@@ -270,7 +270,7 @@ class FLManagerModules(object):
 
         if not sys_table and self.static_db_info_ and self.static_db_info_.enabled_:
             str_ret = self.contentStatic(file_name)
-            if str_ret is not None:
+            if str_ret:
                 return str_ret
 
         if file_name in self.filesCached_.keys():
@@ -413,12 +413,11 @@ class FLManagerModules(object):
         if "main_conn" in conn_manager.connections_dict.keys():
             mng_modules = conn_manager.managerModules()
             if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
-                ret_ui = mng_modules.contentStatic(file_name, True)
+                static_path = mng_modules.contentStatic(file_name, True)
+                if static_path:
+                    form_path = static_path
 
-                if ret_ui is not None:
-                    form_path = ret_ui
-
-        if form_path is None:
+        if not form_path:
             # raise AttributeError("File %r not found in project" % n)
             LOGGER.debug("createUI: No se encuentra el fichero %s", file_name)
 
@@ -919,7 +918,7 @@ class FLManagerModules(object):
             ):
                 self.setActiveIdModule(None)
 
-    def contentStatic(self, file_name: str, only_path: bool = False) -> Optional[str]:
+    def contentStatic(self, file_name: str, only_path: bool = False) -> str:
         """
         Return the contents of a file by static loading from the local disk.
 
@@ -930,7 +929,7 @@ class FLManagerModules(object):
         str_ret = pnmodulesstaticloader.PNStaticLoader.content(
             file_name, self.static_db_info_, only_path
         )
-        if str_ret is not None:
+        if str_ret:
 
             s = ""
             util = flutil.FLUtil()
@@ -939,7 +938,7 @@ class FLManagerModules(object):
                 s = self.dict_key_files_[file_name]
 
             if s == sha:
-                return None
+                return ""
 
             elif self.dict_key_files_ and file_name.find(".qs") > -1:
                 self.dict_key_files_[file_name] = sha

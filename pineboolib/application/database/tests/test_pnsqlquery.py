@@ -322,8 +322,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         cur_clientes.setValueBuffer("codserie", "A")
         self.assertTrue(cur_clientes.commitBuffer())
         cur_clientes.commit()
-        cur_clientes.conn().doTransaction(cur_clientes)
-
+        # cur_clientes.conn().doTransaction(cur_clientes)
         mtd_tareas = pntablemetadata.PNTableMetaData("tareas")
         field_01 = pnfieldmetadata.PNFieldMetaData(
             "idtarea",

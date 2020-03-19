@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from . import moduleactions  # noqa : F401
     from pineboolib.interfaces import isqlcursor  # noqa: F401
     from xml.etree import ElementTree as ET  # noqa: F401
-    from pineboolib.q3widgets import formdbwidget  # noqa: F401
+    from pineboolib.qsa import formdbwidget  # noqa: F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -81,15 +81,7 @@ class XMLAction(struct.ActionStruct):
     def load_widget(self, script_name: str) -> "formdbwidget.FormDBWidget":
         """Return widget."""
 
-        script = load_script.load_script(script_name, self)
-        widget = script.form
-        if widget is None:
-            raise Exception(
-                "After loading script, no widget was loaded. action: %s script: %s"
-                % (self._name, script_name)
-            )
-
-        return widget
+        return load_script.load_script(script_name, self)
 
     def clear_widget(self, widget: Optional["formdbwidget.FormDBWidget"]) -> None:
         """Clear old widget."""
@@ -119,11 +111,17 @@ class XMLAction(struct.ActionStruct):
         Load master form.
         """
         if not self.is_form_loaded(self._master_widget):
-            self.clear_widget(self._master_widget)
+            load = False
+            if not self._table:
+                if self._master_widget is None:
+                    load = True
+            else:
+                load = True
 
-            self._master_widget = self.load_widget(
-                self._master_script if self._table else self._name
-            )
+            if load:
+                self._master_widget = self.load_widget(
+                    self._master_script if self._table else self._name
+                )
 
         if self._master_widget is None:
             raise Exception("After load_master_widget, no widget was loaded")

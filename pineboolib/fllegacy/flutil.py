@@ -947,7 +947,7 @@ class FLUtil(object):
         @return FALSE if there was a failure, TRUE otherwise.
         """
         if not content:
-            logger.warning("Se ha intentado cargar un fichero XML vacío", stack_info=False)
+            logger.warning("Se ha intentado cargar un fichero XML vacío", stack_info=True)
             return False
 
         ErrMsg = ""

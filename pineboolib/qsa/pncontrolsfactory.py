@@ -98,7 +98,7 @@ from PyQt5.QtXml import QDomElement as FLDomElement  # noqa: F401
 from PyQt5.QtXml import QDomNode as FLDomNode  # noqa: F401
 from PyQt5.QtXml import QDomNodeList as FLDomNodeList  # noqa: F401
 
-from pineboolib.q3widgets.formdbwidget import FormDBWidget  # noqa: F401
+from pineboolib.qsa.formdbwidget import FormDBWidget  # noqa: F401
 
 from pineboolib.fllegacy.fltable import FLTable  # noqa: F401
 from pineboolib.fllegacy.fllineedit import FLLineEdit  # noqa: F401

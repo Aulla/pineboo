@@ -7,7 +7,7 @@ from typing import Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flformdb import FLFormDB  # noqa: F401
-    from pineboolib.q3widgets import formdbwidget
+    from pineboolib.qsa import formdbwidget
 
 LOGGER = logging.get_logger(__name__)
 

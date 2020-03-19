@@ -310,9 +310,8 @@ class TestACLS(unittest.TestCase):
     def test_mainwindow_flacos(self) -> None:
         """Test mainwindow flacos."""
         from PyQt5 import QtWidgets
-
+        from pineboolib.plugins.mainform.eneboo import eneboo
         from pineboolib import application
-        import importlib
 
         sys_type = systype.SysType()
         sys_type.installACL("cuarta")
@@ -323,7 +322,7 @@ class TestACLS(unittest.TestCase):
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
         project = application.PROJECT
-        project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
+        project.main_form = eneboo
         project.main_window = getattr(project.main_form, "mainWindow", None)
         main_form_ = getattr(project.main_form, "MainForm", None)
         self.assertTrue(main_form_)
@@ -348,9 +347,8 @@ class TestACLS(unittest.TestCase):
         """Test mainwindow global."""
 
         from PyQt5 import QtWidgets
-
+        from pineboolib.plugins.mainform.eneboo import eneboo
         from pineboolib import application
-        import importlib
 
         sys_type = systype.SysType()
         sys_type.installACL("cuarta")
@@ -361,7 +359,7 @@ class TestACLS(unittest.TestCase):
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
         project = application.PROJECT
-        project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
+        project.main_form = eneboo
         project.main_window = getattr(project.main_form, "mainWindow", None)
         main_form_ = getattr(project.main_form, "MainForm", None)
         self.assertTrue(main_form_)
@@ -378,7 +376,7 @@ class TestACLS(unittest.TestCase):
         """Test form acls globals."""
         from pineboolib.qsa import qsa
         from pineboolib import application
-        import importlib
+        from pineboolib.plugins.mainform.eneboo import eneboo
 
         sys_type = systype.SysType()
         sys_type.installACL("tercera")
@@ -387,7 +385,7 @@ class TestACLS(unittest.TestCase):
         flapplication.aqApp.set_acl(acl)
 
         project = application.PROJECT
-        project.main_form = importlib.import_module("pineboolib.plugins.mainform.eneboo.eneboo")
+        project.main_form = eneboo
         project.main_window = getattr(project.main_form, "mainWindow", None)
         main_form_ = getattr(project.main_form, "MainForm", None)
         self.assertTrue(main_form_)
