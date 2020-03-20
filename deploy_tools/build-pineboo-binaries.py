@@ -326,7 +326,7 @@ else:
                 "bundled",
                 "--android-platform",
                 os.environ.get("ANDROID_NDK_PLATFORM"),
-                "--gradle",
+                "--gradle"
             ]
         )
 

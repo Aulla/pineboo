@@ -16,13 +16,13 @@
 
 
     "qt5": {
-        "android-32#qt_dir":        "/opt/Qt5.12.3/5.12.3/android_armv7",
-	"android-64#qt_dir":        "/opt/Qt5.12.3/5.12.3/android_arm64_v8a",
-	      "linux#qt_dir":       "/opt/Qt5.12.3/5.12.3/gcc_64",
+        "android-32#qt_dir":        "/opt/Qt5.12.7/5.12.7/android_armv7",
+	"android-64#qt_dir":        "/opt/Qt5.12.7/5.12.7/android_arm64_v8a",
+	      "linux#qt_dir":       "/opt/Qt5.14.1/5.14.1/gcc_64",
         "ios#qt_dir":               "/Users/aulla/Qt/*/ios",
-	"macos#source":   "qt-everywhere-src-5.12.3.tar.xz",
-	"win-32#qt_dir":		    "c:/Qt/5.12.3/msvc2017",
-	"win-64#qt_dir":		    "c:/Qt/5.12.3/msvc2017_64",
+	"macos#source":   "qt-everywhere-src-5.14.1.tar.xz",
+	"win-32#qt_dir":		    "c:/Qt/5.14.1/msvc2017",
+	"win-64#qt_dir":		    "c:/Qt/5.14.1/msvc2017_64",
         "android|linux#ssl":        "openssl-runtime",
         "ios#ssl":                  "securetransport",
         "macos|win#ssl":            "openssl-linked",
@@ -43,8 +43,8 @@
 
     "sip": {
 	"module_name":  "PyQt5.sip",
-        "source":   "sip-4.19.16.tar.gz",
-	"macos|ios#source":   "sip-4.19.16.tar"
+        "source":   "sip-4.19.21.tar.gz",
+	"macos|ios#source":   "sip-4.19.21.tar"
     },
 
     "pyqt5": {
@@ -84,7 +84,7 @@
                 "QtWinExtras", "QtSerialPort", "QtSvg"
         ],
 
-        "android|win|linux#source":                   "PyQt5_*-5.*.tar.gz",
-	"macos|ios#source":                   		  "PyQt5_*-5.*.tar"
+        "android|win|linux#source":                   "PyQt5-5.*.*.tar.gz",
+	"macos|ios#source":                   		  "PyQt5-5.*.*.tar"
     }
 }
