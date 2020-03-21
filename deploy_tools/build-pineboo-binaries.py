@@ -312,9 +312,17 @@ else:
     run([make])
 
     if target.startswith("android"):
+        from shutil import copyfile
+
         run([make, "INSTALL_ROOT=deploy", "install"])
-        # os.symlink("%s/../../build_android.xml" % os.path.abspath("deploy"),"%s/build.xml" % os.path.abspath("deploy"))
-        # os.symlink("%s/../../project.properties" % os.path.abspath("deploy"), "%s/project.properties" % os.path.abspath("deploy"))
+        os.symlink(
+            "%s/../../../android_template/build.gradle" % os.path.abspath("deploy"),
+            "%s/build.gradle" % os.path.abspath("deploy"),
+        )
+        os.symlink(
+            "%s/../../../android_template/AndroidManifest.xml" % os.path.abspath("deploy"),
+            "%s/AndroidManifest_pineboo.xml" % os.path.abspath("deploy"),
+        )
         run(
             [
                 os.path.join(host_bin_dir, "androiddeployqt"),
@@ -326,7 +334,7 @@ else:
                 "bundled",
                 "--android-platform",
                 os.environ.get("ANDROID_NDK_PLATFORM"),
-                "--gradle"
+                "--gradle",
             ]
         )
 
