@@ -2,7 +2,7 @@
 To detect if we are in mobile mode.
 """
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 
 from pineboolib.core import settings
 
