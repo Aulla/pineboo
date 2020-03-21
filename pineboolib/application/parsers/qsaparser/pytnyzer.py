@@ -2387,7 +2387,7 @@ class DeclarationBlock(ASTPython):
 
                 if expr[0] in list(self.source.locals):
                     if expr[0] not in ["form", "iface"]:
-                        LOGGER.warning("Pasando de %s", expr[0])
+                        # LOGGER.warning("Pasando de %s", expr[0])
                         continue
 
                 expr[0] = "self." + expr[0]

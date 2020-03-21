@@ -199,7 +199,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                         )
                     )
                     raise Exception(
-                        "Mutiple primary key error making table %s -> %s" % mtd.name(), sql
+                        "Mutiple primary key error making table %s -> %s" % tmd.name(), sql
                     )
             else:
 
