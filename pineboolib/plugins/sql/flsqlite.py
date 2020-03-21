@@ -198,7 +198,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                             + "Sólo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.",
                         )
                     )
-                    return None
+                    raise Exception(
+                        "Mutiple primary key error making table %s -> %s" % mtd.name(), sql
+                    )
             else:
 
                 sql += " UNIQUE" if field.isUnique() else ""
