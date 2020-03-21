@@ -97,6 +97,7 @@ class TestParser(unittest.TestCase):
 
     def test_lib_str(self) -> None:
         """Test conveting fixture lib_str."""
+        self.maxDiff = None
         flfacturac_qs = fixture_read("lib_str.qs")
         flfacturac_py = fixture_read("lib_str.python")
         flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
@@ -199,6 +200,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         """Test replace."""
 
         """Test conveting fixture flfacturac_2."""
+        self.maxDiff = None
         flfacturac_qs = fixture_read("flfacturac_2.qs")
         flfacturac_py = fixture_read("flfacturac_2.python")
         flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
@@ -283,7 +285,6 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         import shutil
 
         NUMERO_MULTI += 1
-        print("Inicio", str(NUMERO_MULTI), self)
 
         path = fixture_path("flfacturac.qs")
         tmp_path = "%s/%s" % (application.PROJECT.tmpdir, "multi.qs")
@@ -291,7 +292,38 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
             shutil.copy(path, tmp_path)
 
         application.PROJECT.parse_script_list([tmp_path])
-        print("Fin", str(NUMERO_MULTI), self)
+
+    def test_pyconvert_2(self) -> None:
+        """Test conveting fixture lib_str."""
+
+        from pineboolib import application
+        import os
+        import shutil
+
+        self.maxDiff = None
+        simple_qs_path = fixture_path("simple.qs")
+        tmp_path = "%s/%s" % (application.PROJECT.tmpdir, "simple.qs")
+        if not os.path.exists(tmp_path):
+            shutil.copy(simple_qs_path, tmp_path)
+
+        print("Convirtiendo", tmp_path, "existe", os.path.exists(tmp_path))
+        self.assertTrue(application.PROJECT.parse_script_list([tmp_path]))
+        simple_py = fixture_read("simple.python")
+        simple_qs_py_path = "%spy" % tmp_path[:-2]
+        self.assertTrue(os.path.exists(simple_qs_py_path))
+        file_ = open(simple_qs_py_path, "r", encoding="utf-8")
+        simple_qs_py = file_.read()
+
+        # Delete version translator tag.
+        pos_ini = simple_qs_py.find("# Translated with pineboolib v")
+        pos_fin = simple_qs_py[pos_ini:].find("\n")
+        simple_qs_py = simple_qs_py.replace(simple_qs_py[pos_ini : pos_ini + pos_fin + 1], "")
+
+        # Write onto git so we have an example.
+        with open(fixture_path("simple.qs.python"), "w") as file_:
+            file_.write(simple_qs_py)
+
+        self.assertEqual(simple_qs_py, simple_py)
 
     @classmethod
     def tearDownClass(cls) -> None:

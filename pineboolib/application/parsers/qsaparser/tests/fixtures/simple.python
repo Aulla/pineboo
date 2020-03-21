@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+from typing import TYPE_CHECKING, Any
+from pineboolib.qsa import qsa
+
+# /** @file */
+
+
+# /** @class_declaration FormInternalObj */
+class FormInternalObj(qsa.FormDBWidget):
+    TYPE_SEL_: Any = 300
+    TYPE_UNLOCK_: Any = 200
+    TYPE_SERIAL_: Any = 100
+    TYPE_TIME_: Any = 27
+    TYPE_DATE_: Any = 26
+    TYPE_DOUBLE_: Any = 19
+    TYPE_BOOL_: Any = 18
+    TYPE_UINT_: Any = 17
+    TYPE_INT_: Any = 16
+    TYPE_STRING_: Any = 3
+
+    # /** @class_definition FormInternalObj */
+    def _class_init(self):
+        pass
+
+
+if TYPE_CHECKING:
+    form: FormInternalObj = FormInternalObj()
+    iface = form.iface
+else:
+    form = None

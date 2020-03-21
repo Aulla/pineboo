@@ -1318,9 +1318,11 @@ class Variable(ASTPython):
         values = 0
         # for value in self.elem.findall("Value|Expression"):
         dtype: Optional[str] = self.elem.get("type", None)
+
         for value in self.elem:
             if value.tag not in ("Value", "Expression"):
                 continue
+
             value.set("parent_", self.elem)  # type: ignore
             values += 1
             if dtype is None and name not in ("iface", "form"):
@@ -2370,7 +2372,6 @@ class DeclarationBlock(ASTPython):
         # mode = self.elem.get("mode")
         is_constructor = self.elem.get("constructor")
         is_definition = True if self.elem.get("definition") else False
-
         # if mode == "CONST": yield "debug", "Const Declaration:"
         for var in self.elem:
             var.set("parent_", self.elem)  # type: ignore
@@ -2383,7 +2384,15 @@ class DeclarationBlock(ASTPython):
                 else:
                     yield dtype, data
             if is_constructor:
+
+                if expr[0] in list(self.source.locals):
+                    if expr[0] not in ["form", "iface"]:
+                        LOGGER.warning("Pasando de %s", expr[0])
+                        continue
+
                 expr[0] = "self." + expr[0]
+                # print(1, expr[0], self.elem.get("parent_").tag, self.source.locals)
+                # print(2, data)
             if is_definition:
                 if expr[0] == "form" and expr[2] == "self":
                     expr[1] = ":"
@@ -2392,7 +2401,10 @@ class DeclarationBlock(ASTPython):
                 # To: ['iface', ':', 'ifaceCtx']
                 else:
                     if len(expr) > 2:
-                        expr[1] = ":"
+                        if expr[2] == "=":
+                            expr[1] = " : Any"
+                        else:
+                            expr[1] = " :"
                         expr[2] = expr[2].replace("(self)", "")
 
             yield "line", " ".join(expr)
