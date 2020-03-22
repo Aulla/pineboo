@@ -345,7 +345,7 @@ class Project(object):
                 )
             )
             cur2.execute(sql)
-            LOGGER.info("RUN: Caching files.")
+            LOGGER.info("RUN: Populating cache.")
             for (contenido,) in list(cur2):
 
                 encode_ = "utf-8" if str(nombre).endswith((".kut", ".ts", ".py")) else "ISO-8859-15"
@@ -354,22 +354,25 @@ class Project(object):
                     "cache",
                     "/".join(fileobj.filekey.split("/")[: len(fileobj.filekey.split("/")) - 1]),
                 )
-                if os.path.exists(folder) and not os.path.exists(
-                    file_name
-                ):  # Borra la carpeta si no existe el fichero destino
-                    for root, dirs, files in os.walk(folder):
-                        for file_item in files:
-                            os.remove(os.path.join(root, file_item))
 
-                if contenido and not os.path.exists(file_name):
-                    LOGGER.info("RUN: caching %s", nombre)
-                    self.message_manager().send(
-                        "splash", "showMessage", ["Volcando a caché %s..." % nombre]
-                    )
-                    file_2 = open(file_name, "wb")
-                    txt = contenido.encode(encode_, "replace")
-                    file_2.write(txt)
-                    file_2.close()
+                if os.path.exists(folder):
+                    if not os.path.exists(
+                        file_name
+                    ):  # Borra la carpeta si no existe el fichero destino
+                        for root, dirs, files in os.walk(folder):
+                            for file_item in files:
+                                os.remove(os.path.join(root, file_item))
+
+                if not os.path.exists(file_name):
+                    if contenido:
+                        LOGGER.info("RUN: caching %s", nombre)
+                        self.message_manager().send(
+                            "splash", "showMessage", ["Volcando a caché %s..." % nombre]
+                        )
+                        file_2 = open(file_name, "wb")
+                        txt = contenido.encode(encode_, "replace")
+                        file_2.write(txt)
+                        file_2.close()
 
             if self.parse_project and nombre.endswith(".qs"):
                 if os.path.exists(file_name) and not os.path.exists("%spy" % file_name[:-2]):
