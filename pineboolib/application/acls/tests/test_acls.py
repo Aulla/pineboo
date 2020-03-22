@@ -350,6 +350,8 @@ class TestACLS(unittest.TestCase):
         from pineboolib.plugins.mainform.eneboo import eneboo
         from pineboolib import application
 
+        settings.CONFIG.set_value("ebcomportamiento/main_form_name", "eneboo")
+
         sys_type = systype.SysType()
         sys_type.installACL("cuarta")
         acl = pnaccesscontrollists.PNAccessControlLists()
