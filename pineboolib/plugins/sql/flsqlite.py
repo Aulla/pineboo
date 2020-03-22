@@ -47,13 +47,18 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Set DB Name."""
 
         self._dbname = name
+
         if name == ":memory:":
             self._dbname = "temp_db"
-            self.db_filename = name
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
-        else:
-            self.db_filename = path._dir("%s.sqlite3" % self._dbname)
+
+        if application.VIRTUAL_DB:
+            if name == ":memory:":
+                self.db_filename = name
+                return
+
+        self.db_filename = path._dir("sqlite_databases/%s.sqlite3" % self._dbname)
 
     def loadSpecialConfig(self) -> None:
         """Set special config."""
@@ -83,6 +88,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 conn_ = main_conn.conn
 
         if conn_ is None:
+
+            if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):
+                os.mkdir("%s/sqlite_databases/" % application.PROJECT.tmpdir)
+
             conn_ = sqlite3.connect("%s" % self.db_filename)
 
             if not os.path.exists("%s" % self.db_filename) and self.db_filename not in [
