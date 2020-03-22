@@ -36,6 +36,7 @@ class SqlInspector(object):
         self._field_list = {}
         self._table_names = []
         self._mtd_fields = {}
+        self._invalid_tables = []
         # self.set_sql(sql_text)
         # self.resolve()
 
@@ -285,6 +286,10 @@ class SqlInspector(object):
                     #    next_is_alias = True
                     last_was_table = True
                     continue
+                elif table == "and":
+                    jump = 3
+                    last_was_table = False
+
                 else:
                     if last_was_table:
                         self._alias[table] = prev_

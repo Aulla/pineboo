@@ -483,6 +483,24 @@ class TestPNSqlQuery2(unittest.TestCase):
         self.assertEqual(qry.value("fechaini"), "")
         self.assertNotEqual(qry.value("fechafinal"), "")
 
+    def test_invalid_tables(self) -> None:
+        """Test invalid tables."""
+
+        qry = pnsqlquery.PNSqlQuery()
+        qry.setSelect("area.idarea,modulo.idmodelo")
+        qry.setFrom(
+            "flareas area\n\tINNER JOIN flmodules modulo ON (area.idarea = CAST(modulo.idarea AS STRING) AND modulo.bloqueado = False"
+        )
+        qry.setWhere("NOT modulo.bloqueado")
+
+        qry.sql_inspector.set_sql(qry.sql())
+        qry.sql_inspector.resolve()
+        self.assertFalse(qry.sql_inspector._invalid_tables)
+        self.assertTrue(qry.isValid())
+
+        qry.exec_("select 1")
+        self.assertTrue(qry.isValid())
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
