@@ -469,7 +469,7 @@ class MainForm(QtWidgets.QMainWindow):
             for i in range(self.tab_widget.count()):
                 self.tab_widget.widget(i).close()
 
-            actions_opened = []
+            actions_opened: List[str] = []
             for open_action in open_actions:
 
                 if open_action in actions_opened:

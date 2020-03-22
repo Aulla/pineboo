@@ -82,6 +82,22 @@ class TestEnebooGUI(unittest.TestCase):
         application.PROJECT.main_window.initFromWidget(application.PROJECT.main_window)
         application.PROJECT.main_window.triggerAction("triggered():shConsole():clientes")
 
+    def test_load_tabs(self) -> None:
+        """Ensure load only one tab."""
+
+        main_window = application.PROJECT.main_window
+
+        for i in range(main_window.tab_widget.count()):
+            main_window.tab_widget.widget(i).close()
+
+        key = "MainWindow/%s/" % application.PROJECT.conn_manager.database()
+        settings.SETTINGS.set_value(
+            "%sopenActions" % key,
+            ["flmodules", "flmodules", "flareas", "flmodules", "flusers", "flmodules", "flareas"],
+        )
+        main_window.loadTabs()
+        self.assertEqual(main_window.tab_widget.count(), 5)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure this class is finished correctly."""
