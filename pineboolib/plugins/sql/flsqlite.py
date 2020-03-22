@@ -215,7 +215,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if tmd.primaryKey() and create_index:
             sql += "CREATE INDEX %s_pkey ON %s (%s)" % (tmd.name(), tmd.name(), tmd.primaryKey())
 
-        LOGGER.warning(sql)
         return sql
 
     def recordInfo2(self, table_name: str) -> List[List]:
