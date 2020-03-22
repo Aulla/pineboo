@@ -77,7 +77,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                 file_ = open(static_flag, "wb")
                 file_.write(my_data)
 
-            LOGGER.warning("Loading script PY %s -> %s", script_name, script_path_py)
+            LOGGER.debug("Loading script PY %s -> %s", script_name, script_path_py)
             if not os.path.isfile(script_path_py):
                 raise IOError
             try:
@@ -128,7 +128,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                             % script_path_py
                         )
 
-            LOGGER.warning("Loading script QS %s -> %s", script_name, script_path_py)
+            LOGGER.debug("Loading script QS %s -> %s", script_name, script_path_py)
             try:
                 if os.path.exists(script_path_py):
                     loader = machinery.SourceFileLoader(script_name, script_path_py)
