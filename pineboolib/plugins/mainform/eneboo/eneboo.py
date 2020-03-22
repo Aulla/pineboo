@@ -469,7 +469,14 @@ class MainForm(QtWidgets.QMainWindow):
             for i in range(self.tab_widget.count()):
                 self.tab_widget.widget(i).close()
 
+            actions_opened = []
             for open_action in open_actions:
+
+                if open_action in actions_opened:
+                    continue
+                else:
+                    actions_opened.append(open_action)
+
                 action = cast(
                     QtWidgets.QAction, self.ag_menu_.findChild(QtWidgets.QAction, open_action)
                 )
