@@ -197,7 +197,10 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
                             + "Sólo puede existir una clave primaria en FLTableMetaData, use FLCompoundKey para crear claves compuestas.",
                         )
                     )
-                    return None
+                    raise Exception(
+                        "A primary key (%s) has been defined before the field %s.%s -> %s"
+                        % (primary_key, tmd.name(), field.name(), sql)
+                    )
             else:
 
                 sql += " UNIQUE" if field.isUnique() else ""

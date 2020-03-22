@@ -199,7 +199,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                         )
                     )
                     raise Exception(
-                        "Mutiple primary key error making table %s -> %s" % (tmd.name(), sql)
+                        "A primary key (%s) has been defined before the field %s.%s -> %s"
+                        % (primary_key, tmd.name(), field.name(), sql)
                     )
             else:
 
@@ -214,6 +215,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if tmd.primaryKey() and create_index:
             sql += "CREATE INDEX %s_pkey ON %s (%s)" % (tmd.name(), tmd.name(), tmd.primaryKey())
 
+        LOGGER.warning(sql)
         return sql
 
     def recordInfo2(self, table_name: str) -> List[List]:
@@ -293,3 +295,12 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             table_list.append(item[0])
 
         return table_list
+
+    def remove_index(self, metadata: "pntablemetadata.PNTableMetaData") -> bool:
+        """Remove olds index."""
+
+        self.execute_query("DROP INDEX IF EXISTS %s_pkey" % metadata.name())
+        if self.lastError():
+            return False
+
+        return True

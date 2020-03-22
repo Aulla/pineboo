@@ -720,6 +720,11 @@ class PNSqlSchema(object):
         """Return if constraint exists specified by name."""
         return False
 
+    def remove_index(self, metadata: "pntablemetadata.PNTableMetaData") -> bool:
+        """Remove olds index."""
+
+        return True
+
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify a table structure."""
 
@@ -765,6 +770,8 @@ class PNSqlSchema(object):
             query.db().rollbackTransaction()
             return False
 
+        self.remove_index(new_metadata)
+
         if not self.db_.connManager().manager().createTable(new_metadata):
             query.db().rollbackTransaction()
             return False
@@ -806,6 +813,7 @@ class PNSqlSchema(object):
             self.db_.connManager().dbAux().commit()
 
         query.exec_("DROP TABLE %s CASCADE" % renamed_table)
+
         return True
 
     def cascadeSupport(self) -> bool:

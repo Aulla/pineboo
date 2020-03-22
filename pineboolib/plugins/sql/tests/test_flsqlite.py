@@ -91,6 +91,15 @@ class TestFLSqlite(unittest.TestCase):
         self.assertTrue(cursor.db().driver().mismatchedTable("fltest", metadata2))
         self.assertFalse(cursor.db().driver().mismatchedTable("fltest3", metadata2))
 
+    def test_invalid_metadata(self) -> None:
+        """Test invalid metadata."""
+        from pineboolib.application.database import pnsqlcursor
+
+        with self.assertRaises(Exception):
+            pnsqlcursor.PNSqlCursor("fltest5").metadata()
+
+        pnsqlcursor.PNSqlCursor("fltest").metadata()
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

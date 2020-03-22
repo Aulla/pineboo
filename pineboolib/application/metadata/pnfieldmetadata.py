@@ -330,7 +330,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         """
         return self.private._is_unique
 
-    def addRelationMD(self, r: "pnrelationmetadata.PNRelationMetaData") -> None:
+    def addRelationMD(self, relation: "pnrelationmetadata.PNRelationMetaData") -> None:
         """
         Add a relationship with another table for this field.
 
@@ -345,25 +345,25 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         is_relation_m1 = False
         # print("FLFieldMetadata(%s).addRelationMD(card %s)" % (self.name(), r.cardinality()))
 
-        if r.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_M1:
+        if relation.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_M1:
             is_relation_m1 = True
-        if is_relation_m1 and self.private._relation_m1:
-            LOGGER.debug(
-                "addRelationMD: Se ha intentado crear más de una relación muchos a uno para el mismo campo"
-            )
-            return
+            if self.private._relation_m1:
+                LOGGER.debug(
+                    "addRelationMD: Se ha intentado crear más de una relación muchos a uno para el mismo campo"
+                )
+                return
         if not self.private._field_name:
             LOGGER.warning("addRelationMD: no fieldName")
             return
-        r.setField(self.private._field_name)
+
+        relation.setField(self.private._field_name)
         if is_relation_m1:
-            self.private._relation_m1 = r
-            return
+            self.private._relation_m1 = relation
+        else:
+            if not self.private._relation_list:
+                self.private._relation_list = []
 
-        if not self.private._relation_list:
-            self.private._relation_list = []
-
-        self.private._relation_list.append(r)
+            self.private._relation_list.append(relation)
 
     def relationList(self) -> List["pnrelationmetadata.PNRelationMetaData"]:
         """
