@@ -345,6 +345,7 @@ class Project(object):
                 )
             )
             cur2.execute(sql)
+            LOGGER.info("RUN: Caching files.")
             for (contenido,) in list(cur2):
 
                 encode_ = "utf-8" if str(nombre).endswith((".kut", ".ts", ".py")) else "ISO-8859-15"
@@ -361,6 +362,7 @@ class Project(object):
                             os.remove(os.path.join(root, file_item))
 
                 if contenido and not os.path.exists(file_name):
+                    LOGGER.info("RUN: caching %s", nombre)
                     self.message_manager().send(
                         "splash", "showMessage", ["Volcando a caché %s..." % nombre]
                     )
