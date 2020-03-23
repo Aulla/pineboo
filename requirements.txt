@@ -42,3 +42,4 @@ xmljson
 twine
 fpdf2
 pymssql
+clipboard
