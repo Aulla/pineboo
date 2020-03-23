@@ -51,7 +51,7 @@ class MessageBox:
                 title = "Pineboo"
 
             if typename == "question":
-                message_box = getattr(dgi_, "msbBoxQuestion", None)
+                message_box = getattr(dgi_, "msgBoxQuestion", None)
             elif typename == "information":
                 message_box = getattr(dgi_, "msgBoxInfo", None)
             elif typename == "warning":
@@ -60,7 +60,6 @@ class MessageBox:
                 message_box = getattr(dgi_, "msgBoxError", None)
 
         if message_box is not None:
-
             return message_box(text, None, title)
 
         return None

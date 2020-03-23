@@ -725,7 +725,7 @@ class FLApplication(QtCore.QObject):
         if not sysbasetype.SysBaseType.interactiveGUI():
             return True
 
-        ret = QtWidgets.QMessageBox.information(
+        ret = QtWidgets.QMessageBox.question(
             application.PROJECT.main_form.mainWindow,
             self.tr("Salir ..."),
             self.tr("¿ Quiere salir de la aplicación ?"),

@@ -355,6 +355,7 @@ class MainForm(QtWidgets.QMainWindow):
             None,
             "Pineboo",
         )
+
         do_exit = res == qmessagebox.QMessageBox.Yes
         if do_exit:
             self.writeState()

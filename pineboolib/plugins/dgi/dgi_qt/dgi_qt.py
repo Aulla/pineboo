@@ -84,9 +84,8 @@ class DgiQt(dgi_schema.DgiSchema):
                 text,
                 cast(
                     QtWidgets.QMessageBox.StandardButton,
-                    QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
+                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                 ),
-                QtWidgets.QMessageBox.No,
             )
 
         return None
