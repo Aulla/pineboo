@@ -1,23 +1,33 @@
 """Messagebox module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMessageBox, QApplication  # type: ignore
+from PyQt5 import QtWidgets
+
+from pineboolib import application
 from pineboolib.core.utils import logging
-from typing import Any
+
+import clipboard  # type: ignore [import] # noqa: F821
+
+from typing import Optional
 
 LOGGER = logging.get_logger(__name__)
 
 
-class MessageBox(QMessageBox):
+class MessageBox:
     """MessageBox class."""
+
+    Yes = QtWidgets.QMessageBox.Yes
+    No = QtWidgets.QMessageBox.No
+    NoButton = QtWidgets.QMessageBox.NoButton
+    Ok = QtWidgets.QMessageBox.Ok
 
     @classmethod
     def msgbox(
         cls, typename, text, button0, button1=None, button2=None, title=None, form=None
-    ) -> Any:
+    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Return a messageBox."""
-        from pineboolib import application
+        if not application.PROJECT.main_form:
+            return None
 
         if application.PROJECT._splash:
             application.PROJECT._splash.hide()
@@ -31,77 +41,55 @@ class MessageBox(QMessageBox):
             button0 = button2
             button2 = None
 
-        if form:
-            LOGGER.warning("MessageBox: Se intentó usar form, y no está implementado.")
-        icon = QMessageBox.NoIcon
-        if not title:
-            title = "Pineboo"
-        if typename == "question":
-            icon = QMessageBox.Question
-            if not title:
-                title = "Question"
-        elif typename == "information":
-            icon = QMessageBox.Information
-            if not title:
-                title = "Information"
-        elif typename == "warning":
-            icon = QMessageBox.Warning
-            if not title:
-                title = "Warning"
-        elif typename == "critical":
-            icon = QMessageBox.Critical
-            if not title:
-                title = "Critical"
-        # title = unicode(title,"UTF-8")
-        # text = unicode(text,"UTF-8")
-        msg = QMessageBox(icon, title, text)
-        parent = QApplication.activeModalWidget() or application.PROJECT.main_window
-        msg.setParent(parent)
+        dgi_ = application.PROJECT.dgi
 
-        msg.setWindowModality(QtCore.Qt.ApplicationModal)
-        msg.setEnabled(True)
-        if button0:
-            msg.addButton(button0)
-        if button1:
-            msg.addButton(button1)
-        if button2:
-            msg.addButton(button2)
+        if dgi_ is not None:
 
-        # size = msg.sizeHint()
-        # screen_rect = QDesktopWidget().screenGeometry(parent)
-        # screen_num = QDesktopWidget().screenNumber(parent)
-        # geo = QDesktopWidget().availableGeometry(screen_num)
-        # print("*", geo, geo.x(), geo.y())
-        # msg.move(QPoint(geo.x() + ( geo.width() / 2 ) + 100, geo.y() + ( geo.height() / 2 )))
+            message_box = None
 
-        return msg.exec_()
+            if not title:
+                title = "Pineboo"
+
+            if typename == "question":
+                message_box = getattr(dgi_, "msbBoxQuestion", None)
+            elif typename == "information":
+                message_box = getattr(dgi_, "msgBoxInfo", None)
+            elif typename == "warning":
+                message_box = getattr(dgi_, "msgBoxWarning", None)
+            else:
+                message_box = getattr(dgi_, "msgBoxError", None)
+
+        if message_box is not None:
+
+            return message_box(text, None, title)
+
+        return None
 
     @classmethod
-    def question(cls, *args) -> QMessageBox.StandardButton:
+    def question(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Return an question messageBox."""
 
         return cls.msgbox("question", *args)
 
     @classmethod
-    def information(cls, *args) -> QMessageBox.StandardButton:
+    def information(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Return an information messageBox."""
         return cls.msgbox("question", *args)
 
     @classmethod
-    def warning(cls, *args) -> QMessageBox.StandardButton:
+    def warning(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Return an warning messageBox."""
-        clip_board = QApplication.clipboard()
-        clip_board.clear()
+
         text_ = args[0] if isinstance(args[0], str) else args[2]
-        clip_board.setText(text_)
+        clipboard.copy(str(text_))
 
         return cls.msgbox("warning", *args)
 
     @classmethod
-    def critical(cls, *args) -> QMessageBox.StandardButton:
+    def critical(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Return an critical messageBox."""
-        clip_board = QApplication.clipboard()
-        clip_board.clear()
+
         text_ = args[0] if isinstance(args[0], str) else args[2]
-        clip_board.setText(text_)
+        clipboard.copy(str(text_))
+
         return cls.msgbox("critical", *args)

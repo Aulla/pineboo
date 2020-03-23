@@ -2222,29 +2222,29 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 self.id(),
             )
         # FIXME: Pongo que tiene que haber mas de una trasaccion abierta
-        try:
-            message = None
+        # try:
+        message = None
 
-            if not hasattr(self, "private_cursor"):
-                return
+        if not hasattr(self, "private_cursor"):
+            return
 
-            if self.private_cursor._transactions_opened:
-                LOGGER.warning(
-                    "FLSqlCursor(%s).Transacciones abiertas!! %s",
-                    self.curName(),
-                    self.private_cursor._transactions_opened,
-                )
+        if self.private_cursor._transactions_opened:
+            LOGGER.warning(
+                "FLSqlCursor(%s).Transacciones abiertas!! %s",
+                self.curName(),
+                self.private_cursor._transactions_opened,
+            )
 
-                message = (
-                    "Se han detectado transacciones no finalizadas en la última operación.\n"
-                    "Se van a cancelar las transacciones pendientes.\n"
-                    "Los últimos datos introducidos no han sido guardados, por favor\n"
-                    "revise sus últimas acciones y repita las operaciones que no\n"
-                    "se han guardado.\nSqlCursor::~SqlCursor: %s\n" % self.table()
-                )
-                self.rollbackOpened(-1, message)
-        except Exception as error:
-            LOGGER.warning("__del__: %s", error)
+            message = (
+                "Se han detectado transacciones no finalizadas en la última operación.\n"
+                "Se van a cancelar las transacciones pendientes.\n"
+                "Los últimos datos introducidos no han sido guardados, por favor\n"
+                "revise sus últimas acciones y repita las operaciones que no\n"
+                "se han guardado.\nSqlCursor::~SqlCursor: %s\n" % self.table()
+            )
+            self.rollbackOpened(-1, message)
+        # except Exception as error:
+        #    LOGGER.warning("__del__: %s", error)
 
     @decorators.pyqt_slot()
     def select(

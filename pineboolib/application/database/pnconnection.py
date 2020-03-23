@@ -388,22 +388,23 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         cancel = False
         if (
-            self.interactiveGUI()
-            and cur.modeAccess() in (cur.Insert, cur.Edit)
+            cur.modeAccess() in (cur.Insert, cur.Edit)
             and cur.isModifiedBuffer()
             and cur.private_cursor._ask_for_cancel_changes
         ):
 
-            if application.PROJECT.DGI.localDesktop():
-                res = QtWidgets.QMessageBox.information(
-                    QtWidgets.QApplication.activeWindow(),
-                    "Cancelar Cambios",
-                    "Todos los cambios se cancelarán.¿Está seguro?",
-                    QtWidgets.QMessageBox.Yes,
-                    QtWidgets.QMessageBox.No,
-                )
-                if res == QtWidgets.QMessageBox.No:
-                    return False
+            dgi = application.PROJECT.DGI
+
+            if dgi:
+                msg_box = getattr(dgi, "msgBoxQuestion", None)
+                if msg_box is not None:
+                    res = msg_box(
+                        "Todos los cambios se cancelarán.¿Está seguro?", None, "Cancelar Cambios"
+                    )
+
+                    if res is not None:
+                        if res == QtWidgets.QMessageBox.No:
+                            return False
 
             cancel = True
 

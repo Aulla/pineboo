@@ -509,8 +509,8 @@ class PNSqlSchema(object):
         #    return False
 
         self.set_last_error_null()
-        cursor = self.cursor()
         try:
+            cursor = self.cursor()
             cursor.execute("%s" % self.rollback_transaction_command)
         except Exception as error:
             self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")

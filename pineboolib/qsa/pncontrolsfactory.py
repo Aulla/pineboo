@@ -30,7 +30,8 @@ from pineboolib.q3widgets.qdateedit import QDateEdit  # noqa: F401
 from pineboolib.q3widgets.qtimeedit import QTimeEdit  # noqa: F401
 from pineboolib.q3widgets.qcheckbox import QCheckBox  # noqa: F401
 from pineboolib.q3widgets.qwidget import QWidget  # noqa: F401
-from pineboolib.q3widgets.messagebox import QMessageBox  # noqa: F401
+
+# from pineboolib.q3widgets.messagebox import QMessageBox  # noqa: F401
 from pineboolib.q3widgets.qbuttongroup import QButtonGroup  # noqa: F401
 from pineboolib.q3widgets.qdialog import QDialog  # noqa: F401
 from pineboolib.q3widgets.qvboxlayout import QVBoxLayout  # noqa: F401
@@ -74,7 +75,7 @@ from PyQt5.QtWidgets import QTreeWidgetItem  # noqa: F401
 from PyQt5.QtWidgets import QTreeWidgetItemIterator  # noqa: F401
 from PyQt5.QtWidgets import QListWidgetItem  # noqa: F401
 from PyQt5.QtWidgets import QMdiArea  # noqa: F401
-
+from PyQt5.QtWidgets import QMessageBox  # noqa: F401
 
 from PyQt5.QtCore import QSignalMapper  # noqa: F401
 from PyQt5.QtCore import QSize  # noqa: F401
