@@ -584,25 +584,13 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         @param bytes. Especifica si se lee en modo texto o en bytes
         @retunr contenido del fichero
         """
-        file_: str
-        encode: str
 
         if not self._file_name:
             raise ValueError("self._file_name is not defined!")
 
-        file_ = self._file_name
-        encode = self._encode
-        import codecs
-
-        if file_ is None:
-            raise ValueError("file is empty!")
-
-        file_obj = codecs.open(file_, "r" if not bytes else "rb", encoding=encode)
-        ret = ""
-        for line_ in file_obj:
-            ret += line_
-
-        file_obj.close()
+        file_ = codecs.open(self._file_name, "r" if not bytes else "rb", encoding=self._encode)
+        ret = file_.read()
+        file_.close()
         self.eof = True
         return ret
 
@@ -619,29 +607,26 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         """
         if not self._file_name:
             raise ValueError("self._file_name is empty!")
-        file_: str = self._file_name
-        encode: str = self._encode
 
-        if isinstance(data, str):
-            bytes_ = data.encode(encode)
-        else:
-            bytes_ = data
+        mode = "w"
+        if self._mode == self.Append:
+            mode = "a"
 
-        mode = "ab" if self._mode == self.Append else "wb"
-        with open(file_, mode) as file:
-            file.write(bytes_)
+        if not isinstance(data, str):
+            mode += "b"
 
-        file.close()
+        file_ = codecs.open(self._file_name, mode, encoding=self._encode)
+        file_.write(data)
+        file_.close()
 
-    def writeBlock(self, bytes_array: bytes) -> None:
+    def writeBlock(self, data: bytes) -> None:
         """Write a block of data to the file."""
         if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
-        with open(self._file_name, "wb") as file:
-            file.write(bytes_array)
-
-        file.close()
+        file_ = codecs.open(self._file_name, "wb", encoding=self._encode)
+        file_.write(data)
+        file_.close()
 
     def getName(self) -> str:
         """
