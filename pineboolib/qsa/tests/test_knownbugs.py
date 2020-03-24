@@ -290,6 +290,7 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
         """Test aqApp.execMainScript."""
 
         from pineboolib.qsa import qsa
+        from pineboolib import application
 
         fun_ = qsa.from_project("sys").iface.execMainScript
         self.assertTrue(fun_ is not None)

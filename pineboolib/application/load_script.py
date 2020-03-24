@@ -41,6 +41,14 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
 
         script_path_qs: str = _path("%s.qs" % script_name, False) or ""
         script_path_py: str = _path("%s.py" % script_name, False) or ""
+        if application.PROJECT.no_python_cache:
+            if not script_path_qs:
+                LOGGER.warning(
+                    "load_script: no_python_cache. Using %s. No candidate found for translation",
+                    script_path_py,
+                )
+            else:
+                script_path_py = ""
         script_path_py_static: str = ""
         script_path_qs_static: str = ""
         static_flag = ""
@@ -121,6 +129,9 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                     need_parse = False
 
             if need_parse:
+                if os.path.exists(script_path_py):
+                    os.remove(script_path_py)
+
                 if not application.PROJECT.parse_script_list([script_path_qs]):
                     if not os.path.exists(script_path_py):
                         raise Exception(

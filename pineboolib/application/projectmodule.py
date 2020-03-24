@@ -375,7 +375,9 @@ class Project(object):
                         file_2.close()
 
             if self.parse_project and nombre.endswith(".qs"):
-                if os.path.exists(file_name) and not os.path.exists("%spy" % file_name[:-2]):
+                if self.no_python_cache or (
+                    os.path.exists(file_name) and not os.path.exists("%spy" % file_name[:-2])
+                ):
                     list_files.append(file_name)
 
         file_1.close()
