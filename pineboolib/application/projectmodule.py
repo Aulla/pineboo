@@ -302,7 +302,7 @@ class Project(object):
         count = 0
 
         list_files: List[str] = []
-        LOGGER.info("RUN: Processing modules.")
+        LOGGER.info("RUN: Populating cache.")
         for idmodulo, nombre, sha in list(cursor_):
             if not self.dgi.accept_file(nombre):
                 continue
@@ -345,7 +345,7 @@ class Project(object):
                 )
             )
             cur2.execute(sql)
-            LOGGER.info("RUN: Populating cache.")
+
             for (contenido,) in list(cur2):
 
                 encode_ = "utf-8" if str(nombre).endswith((".kut", ".ts", ".py")) else "ISO-8859-15"
@@ -365,7 +365,7 @@ class Project(object):
 
                 if not os.path.exists(file_name):
                     if contenido:
-                        LOGGER.info("RUN: caching %s", nombre)
+                        # LOGGER.info("RUN: caching %s", nombre)
                         self.message_manager().send(
                             "splash", "showMessage", ["Volcando a caché %s..." % nombre]
                         )
