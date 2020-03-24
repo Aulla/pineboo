@@ -616,35 +616,44 @@ class MainForm(QtWidgets.QMainWindow):
         for number in range(self.tab_widget.count()):
             self.tab_widget.widget(number).close()
 
-    def addForm(self, action_name: str, icono: "QtGui.QPixmap") -> None:
+    def addForm(self, action_str: str, icono: "QtGui.QPixmap") -> None:
         """Add new tab."""
 
         if self.tab_widget is None:
             raise Exception("tab_widget is empty!")
 
+        action_name = action_str
+
         for i in range(self.tab_widget.count()):
             form = self.tab_widget.widget(i)
             if isinstance(form, flformdb.FLFormDB):
                 if form.action().name() == action_name:
-                    self.tab_widget.widget(i).close()
-
-        form = aqsobjectfactory.AQFormDB(action_name, self.tab_widget)
-        form.setMainWidget()
-        if not form.mainWidget():
-            return
+                    form.close()
+                    break
         if self.ag_menu_:
-            self.tab_widget.addTab(
-                form,
-                cast(
-                    QtWidgets.QAction, self.ag_menu_.findChild(QtWidgets.QAction, action_name)
-                ).icon(),
-                form.windowTitle(),
+            action = cast(
+                QtWidgets.QAction, self.ag_menu_.findChild(QtWidgets.QAction, action_name)
             )
-        form.setIdMDI(action_name)
-        form.show()
+            icon = action.icon() if action is not None else None
+            form = aqsobjectfactory.AQFormDB(action_name, self.tab_widget)
+            form.setMainWidget()
 
-        self.tab_widget.setCurrentWidget(form)
-        form.installEventFilter(self.main_widget)
+            try:
+                title = form.windowTitle()
+
+                if not form.mainWidget():
+                    return
+                if self.ag_menu_:
+                    self.tab_widget.addTab(form, icon, title)
+
+                form.setIdMDI(action_name)
+                form.show()
+
+                self.tab_widget.setCurrentWidget(form)
+                form.installEventFilter(self.main_widget)
+
+            except Exception as error:
+                LOGGER.warning("addForm: %s", str(error))
 
     def addRecent(self, action: QtWidgets.QAction) -> None:
         """Add new entry to recent list."""
