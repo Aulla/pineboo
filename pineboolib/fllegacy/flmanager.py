@@ -639,8 +639,8 @@ class FLManager(QtCore.QObject, IManager):
                         self.tr("No se ha podido crear la tabla ") + n_or_tmd.name(),
                     )
                     return None
-                else:
-                    LOGGER.info("createTable: Created new table %r", n_or_tmd.name())
+                # else:
+                #    LOGGER.info("createTable: Created new table %r", n_or_tmd.name())
 
         return n_or_tmd
 

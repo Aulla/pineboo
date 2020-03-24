@@ -384,7 +384,7 @@ class Project(object):
         self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
 
         if list_files:
-            LOGGER.info("RUN: Parsing QSA files. (%s)", len(list_files))
+            LOGGER.debug("RUN: Parsing QSA files. (%s)", len(list_files))
             if not self.parse_script_list(list_files):
                 LOGGER.warning("Failed QSA conversion !.See debug for mode information.")
                 return False
@@ -589,7 +589,7 @@ class Project(object):
         #    for n, path_file in enumerate(path_list)
         # ]
         msg = "Convirtiendo a Python . . ."
-        LOGGER.info(msg)
+        LOGGER.info(msg, stack_info=True)
 
         threads_num = pyconvert.CPU_COUNT
         if len(itemlist) < threads_num:
