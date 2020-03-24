@@ -3,6 +3,8 @@
 from pineboolib import logging
 from pineboolib.qsa import qsa
 
+from pineboolib.application.parsers.qsaparser import postparse
+import os
 
 from typing import TYPE_CHECKING
 
@@ -134,8 +136,6 @@ class FormInternalObj(qsa.FormDBWidget):
         if log is None:
             raise Exception("log is empty!.")
         i = 0
-        from pineboolib.application.parsers.qsaparser import postparse
-        import os
 
         settings = qsa.FLSettings()
         while_pass = True
