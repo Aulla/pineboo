@@ -101,6 +101,9 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
             need_parse = True
             script_path_py = "%spy" % script_path_qs[:-2]
 
+            if not application.PROJECT.no_python_cache and os.path.exists(script_path_py):
+                need_parse = False
+
             if script_path_qs_static:
                 replace_static = True
                 if os.path.exists(static_flag):
