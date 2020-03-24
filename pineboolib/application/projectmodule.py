@@ -588,8 +588,8 @@ class Project(object):
         #    )
         #    for n, path_file in enumerate(path_list)
         # ]
-        msg = "Convirtiendo a Python . . ."
-        LOGGER.info(msg, stack_info=True)
+        # msg = "Convirtiendo a Python . . ."
+        # LOGGER.info(msg)
 
         threads_num = pyconvert.CPU_COUNT
         if len(itemlist) < threads_num:

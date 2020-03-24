@@ -101,9 +101,6 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
             need_parse = True
             script_path_py = "%spy" % script_path_qs[:-2]
 
-            if not application.PROJECT.no_python_cache and os.path.exists(script_path_py):
-                need_parse = False
-
             if script_path_qs_static:
                 replace_static = True
                 if os.path.exists(static_flag):
@@ -133,37 +130,35 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
 
             if need_parse:
                 if os.path.exists(script_path_py):
+                    LOGGER.debug("Deleting older PY %s", script_path_py)
                     os.remove(script_path_py)
 
                 if not application.PROJECT.parse_script_list([script_path_qs]):
                     if not os.path.exists(script_path_py):
-                        raise Exception(
-                            "El fichero convertido %s no existe, pero el parser dice que todo está ok"
-                            % script_path_py
-                        )
+                        LOGGER.error("SCRIPT_NAME: %s", script_name)
+                        LOGGER.error("QSA_FILE PATH: %s", script_path_qs)
+                        LOGGER.error("STATIC_LOAD_FILE PATH: %s", script_path_qs_static)
+                        raise Exception("THE FILE %s DOESN'T CREATED!\n" % script_path_py)
 
-            LOGGER.debug("Loading script QS %s -> %s", script_name, script_path_py)
+            LOGGER.debug(
+                "Loading script QS %s (ALWAYS PARSE QSA: %s) -> %s",
+                script_name,
+                application.PROJECT.no_python_cache,
+                script_path_py,
+            )
             try:
-                if os.path.exists(script_path_py):
-                    loader = machinery.SourceFileLoader(script_name, script_path_py)
-                    script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
-                else:
-                    LOGGER.error("******************** ERROR POST PARSING ********************")
-                    LOGGER.error("THE FILE %s DOESN'T CREATED!", script_path_py)
-                    LOGGER.error("SCRIPT_NAME: %s", script_name)
-                    LOGGER.error("QSA_FILE PATH: %s", script_path_qs)
-                    LOGGER.error("STATIC_LOAD_FILE PATH: %s", script_path_qs_static)
-                    LOGGER.error("************************************************************")
+                loader = machinery.SourceFileLoader(script_name, script_path_py)
+                script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
 
             except Exception as error:
-                LOGGER.error(
-                    "ERROR al cargar script QS para la accion %s: %s", action_._name, str(error)
-                )
-
                 if os.path.exists(script_path_py):
                     os.remove(script_path_py)
                 if os.path.exists(static_flag):
                     os.remove(static_flag)
+
+                raise Exception(
+                    "ERROR al cargar script QS para la accion %s: %s" % (action_._name, str(error))
+                )
 
     if script_loaded is None:
         from pineboolib.qsa import emptyscript
