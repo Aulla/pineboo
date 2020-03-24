@@ -70,9 +70,9 @@ class Parser(object):
     def call(self, environ: Mapping[str, Any], start_response) -> Any:
         """Return value from called function."""
         start_response("200 OK", [("Content-Type", "text/html")])
-        aList = environ["QUERY_STRING"]
+        query_str = environ["QUERY_STRING"]
         try:
-            retorno_: Any = application.PROJECT.call(self._call_script, aList)
+            retorno_: Any = application.PROJECT.call(self._call_script, query_str)
         except Exception:
             qsa_sys = systype.SysType()
 

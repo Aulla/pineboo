@@ -1,7 +1,7 @@
 """Dgi_schema module."""
 # -*- coding: utf-8 -*-
 from importlib import import_module
-from typing import List, cast, Optional, Any
+from typing import cast, Optional, Any
 from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.application.utils.mobilemode import is_mobile_mode
@@ -13,11 +13,11 @@ LOGGER = logging.get_logger(__name__)
 class DgiSchema(object):
     """dgi_schema class."""
 
-    _desktopEnabled: bool
-    _mLDefault: bool
+    _desktop_enabled: bool
+    _ml_default: bool
     _name: str
     _alias: str
-    _localDesktop: bool
+    _local_desktop: bool
     _mobile: bool
     _clean_no_python: bool
     # FIXME: Guess this is because there is conditional code we don't want to run on certain DGI
@@ -31,15 +31,12 @@ class DgiSchema(object):
         # ... Worse than it seems: looks like this class is prepared to be constructed without
         # ... calling __init__, on purpose, to have different behavior than calling it.
 
-        self._desktopEnabled = True  # Indica si se usa en formato escritorio con interface Qt
-        self.setUseMLDefault(
-            True
-        )  # FIXME: Setters are wrong. Inside private context, even wronger.
-        self.setLocalDesktop(True)
+        self._desktop_enabled = True  # Indica si se usa en formato escritorio con interface Qt
+        self._ml_default = True
+        self._local_desktop = True
         self._name = "dgi_shema"
         self._alias = "Default Schema"
         self._show_object_not_found_warnings = True
-        self.loadReferences()
         self._mobile = is_mobile_mode()
 
     def name(self) -> str:
@@ -67,29 +64,29 @@ class DgiSchema(object):
 
     def useDesktop(self) -> bool:
         """Return if desktop UI is used."""
-        return self._desktopEnabled
+        return self._desktop_enabled
 
     def setUseDesktop(self, val: bool) -> None:
         """Set if desktop UI is used."""
-        self._desktopEnabled = val
+        self._desktop_enabled = val
 
     def localDesktop(
         self,
     ) -> bool:  # Indica si son ventanas locales o remotas a traves de algún parser
         """Return if is local desktop."""
-        return self._localDesktop
+        return self._local_desktop
 
     def setLocalDesktop(self, val: bool) -> None:
         """Set local desktop variable."""
-        self._localDesktop = val
+        self._local_desktop = val
 
     def setUseMLDefault(self, val: bool) -> None:
         """Set if defaul main loader is used."""
-        self._mLDefault = val
+        self._ml_default = val
 
     def useMLDefault(self) -> bool:
         """Return if main loaded is used."""
-        return self._mLDefault
+        return self._ml_default
 
     def setParameter(self, param: str) -> None:  # Se puede pasar un parametro al dgi
         """Set parameters to DGI."""
@@ -127,41 +124,18 @@ class DgiSchema(object):
         """Return if show warnings when objects not found."""
         return self._show_object_not_found_warnings
 
-    def loadReferences(self) -> None:
-        """Load specific DGI references."""
-        return
-
     def mobilePlatform(self) -> bool:
         """Return if run into a mobile platform."""
         return self._mobile
 
-    def isDeployed(self) -> bool:
-        """Return True only if the code is running inside a PyInstaller bundle."""
-        # FIXME: Delete me. This functionality DOES NOT DEPEND on which interface is being used.
-        # .... a bundle is a bundle regardless of wether is running as jsonrpc or Qt.
-        # .... A copy of this function has been moved to pineboolib.core.utils.utils_base.is_deployed() for convenience
-        raise Exception("Please DELETE ME. DEPRECATED")
-
     def iconSize(self) -> QtCore.QSize:
         """Return default icon size."""
-        from PyQt5 import QtCore  # type: ignore
 
         size = QtCore.QSize(22, 22)
         # if self.mobilePlatform():
         #    size = QtCore.QSize(60, 60)
 
         return size
-
-    def alternative_content_cached(self) -> bool:
-        """Return alternative content cached."""
-        # FIXME: This is not needed. Use "content_cached" to return an exception or None, to signal
-        # ... the module is unaware on how to perform the task
-        # ... also the naming is bad. It conveys having done a cache in the past.
-        return self._alternative_content_cached
-
-    # def use_model(self):
-    #    """Return if this DGI use models."""
-    #    return False
 
     def __getattr__(self, name: str) -> Optional[QtCore.QObject]:
         """Return and object specified by name."""
@@ -182,10 +156,6 @@ class DgiSchema(object):
             LOGGER.exception("resolveObject: Unable to load module %s", mod_name_full)
         return cast(Optional[QtCore.QObject], cls)
 
-    def sys_mtds(self) -> List[str]:
-        """Return optional system mtds tables list."""
-        return []
-
     def use_alternative_credentials(self) -> bool:
         """Return True if use alternative authentication , False elsewhere."""
         return False
@@ -197,20 +167,3 @@ class DgiSchema(object):
     def debug(self, txt: str):
         """Show debug message."""
         LOGGER.warning("---> %s" % txt)
-
-    def content_cached(
-        self,
-        tmp_folder: str,
-        db_name: str,
-        module_id: str,
-        file_ext: str,
-        file_name: str,
-        sha_key: str,
-    ) -> Optional[str]:
-        """Return content cahced from a specific file."""
-
-        return ""
-
-    def load_meta_model(self, module_nae: str) -> Any:
-        """Load meta model process."""
-        return ""
