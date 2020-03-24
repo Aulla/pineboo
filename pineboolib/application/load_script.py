@@ -145,10 +145,10 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                     loader = machinery.SourceFileLoader(script_name, script_path_py)
                     script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
                 else:
-                    LOGGER.warning("The file %s does not exists!", script_path_py, stack_info=True)
+                    LOGGER.error("The file %s does not exists!", script_path_py, stack_info=True)
 
             except Exception as error:
-                LOGGER.exception(
+                LOGGER.error(
                     "ERROR al cargar script QS para la accion %s: %s", action_._name, str(error)
                 )
 
