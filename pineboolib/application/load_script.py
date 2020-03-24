@@ -145,7 +145,12 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                     loader = machinery.SourceFileLoader(script_name, script_path_py)
                     script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
                 else:
-                    LOGGER.error("The file %s does not exists!", script_path_py, stack_info=True)
+                    LOGGER.error("******************** ERROR POST PARSING ********************")
+                    LOGGER.error("THE FILE %s DOESN'T CREATED!", script_path_py)
+                    LOGGER.error("SCRIPT_NAME: %s", script_name)
+                    LOGGER.error("QSA_FILE PATH: %s", script_path_qs)
+                    LOGGER.error("STATIC_LOAD_FILE PATH: %s", script_path_qs_static)
+                    LOGGER.error("************************************************************")
 
             except Exception as error:
                 LOGGER.error(
