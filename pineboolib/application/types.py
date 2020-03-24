@@ -613,7 +613,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
             mode = "a"
 
         if not isinstance(data, str):
-            mode += "b"
+            data = data.decode(self._encode)
 
         file_ = codecs.open(self._file_name, mode, encoding=self._encode)
         file_.write(data)
@@ -624,8 +624,10 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if not self._file_name:
             raise ValueError("self._file_name is empty!")
 
-        file_ = codecs.open(self._file_name, "wb", encoding=self._encode)
-        file_.write(data)
+        data_string = data.decode(self._encode)
+
+        file_ = codecs.open(self._file_name, "w", encoding=self._encode)
+        file_.write(data_string)
         file_.close()
 
     def getName(self) -> str:
