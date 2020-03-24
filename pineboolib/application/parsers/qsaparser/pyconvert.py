@@ -120,6 +120,10 @@ def pythonify_item(item: PythonifyItem) -> bool:
     file_.write(pycode)
     file_.close()
 
+    if not os.path.exists(item.dst_path):
+        LOGGER.error("The file %s was generated but doesn't exists!", item.dst_path)
+        return False
+
     return True
 
 
