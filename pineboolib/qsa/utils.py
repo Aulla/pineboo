@@ -327,7 +327,7 @@ def parse_int(value: Union[float, int, str], base: int = 10) -> int:
     return ret_
 
 
-def length(obj: Any) -> int:
+def length(obj: Any = "") -> int:
     """
     Get length of any object.
 
