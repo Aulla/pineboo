@@ -3,10 +3,14 @@ IManager Module.
 """
 from typing import Any, Callable, Dict, Optional, Union, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from pineboolib.application.database import pnsqlquery  # noqa: F401
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
     from pineboolib.application.metadata import pnfieldmetadata  # noqa: F401
+    from pineboolib.application.metadata import pnrelationmetadata  # noqa: F401
+    from xml.etree import ElementTree  # noqa: F401
+    from PyQt5 import QtXml  # noqa: F401
 #     import pineboolib.application.database.pnconnection
 #     import pineboolib.application.metadata.pnfieldmetadata
 #     import pineboolib.application.metadata.pntablemetadata
@@ -37,7 +41,7 @@ class IManager(object):
         """Create manager."""
         return None
 
-    def action(self, n: str) -> Any:  # "pnaction.PNAction"
+    def action(self, name: str) -> Any:  # "pnaction.PNAction"
         """Retrieve action object by name."""
         raise Exception("must be implemented")
 
@@ -53,19 +57,19 @@ class IManager(object):
         """Clean up MTD."""
         return None
 
-    def createSystemTable(self, n: str) -> bool:
+    def createSystemTable(self, name: str) -> bool:
         """Create named system table."""
         return False
 
-    def createTable(self, n_or_tmd) -> Any:
+    def createTable(self, name_or_metadata) -> Any:
         """Create new table."""
         return None
 
-    def existsTable(self, n: str, cache: bool = False) -> bool:
+    def existsTable(self, name: str, cache: bool = False) -> bool:
         """Check if table does exist in db."""
         return False
 
-    def fetchLargeValue(self, refKey: str) -> Optional[str]:
+    def fetchLargeValue(self, ref_key: str) -> Optional[str]:
         """Fetch from fllarge."""
         return None
 
@@ -81,7 +85,7 @@ class IManager(object):
         """Format value for DB "LIKE" statement."""
         return ""
 
-    def formatValue(self, fMD_or_type: str, v: Any, upper: bool = False) -> str:
+    def formatValue(self, fmd_or_type: str, value: Any, upper: bool = False) -> str:
         """Format value for DB."""
         return ""
 
@@ -102,7 +106,7 @@ class IManager(object):
         """Track number of inits."""
         return 0
 
-    def isSystemTable(self, n: str) -> bool:
+    def isSystemTable(self, name: str) -> bool:
         """Return if given name is a system table."""
         return False
 
@@ -110,19 +114,27 @@ class IManager(object):
         """Load tables."""
         return None
 
-    def metadata(self, n, quick: bool = False) -> Optional[Any]:  # PNTableMetaData"
+    def metadata(
+        self, name_or_xml, quick: bool = False
+    ) -> Optional["pntablemetadata.PNTableMetaData"]:  # PNTableMetaData"
         """Retrieve table metadata by table name."""
         return None
 
-    def metadataField(self, field, v: bool = False, ed: bool = False) -> Any:  # "PNFieldMetaData"
+    def metadataField(
+        self, field: str, vvisible: bool = False, ededitable: bool = False
+    ) -> Optional["pnfieldmetadata.PNFieldMetaData"]:  # "PNFieldMetaData"
         """Retrieve field metadata."""
         raise Exception("must be implemented")
 
-    def metadataRelation(self, relation) -> Any:  # "PNRelationMetaData"
+    def metadataRelation(
+        self, relation: Union["QtXml.QDomElement", "ElementTree.Element"]
+    ) -> Optional["pnrelationmetadata.PNRelationMetaData"]:  # "PNRelationMetaData"
         """Retrieve relationship."""
         raise Exception("must be implemented")
 
-    def query(self, n, parent=...) -> Optional["pnsqlquery.PNSqlQuery"]:  # "PNSqlQuery"
+    def query(
+        self, name: str, parent: Optional["pnsqlquery.PNSqlQuery"]
+    ) -> Optional["pnsqlquery.PNSqlQuery"]:  # "PNSqlQuery"
         """Create query."""
         return None
 

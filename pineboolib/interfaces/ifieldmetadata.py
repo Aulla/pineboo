@@ -21,7 +21,7 @@ class IFieldMetaData:
         """Get size of field."""
         return 0
 
-    def addRelationMD(self, r) -> None:
+    def addRelationMD(self, relation) -> None:
         """Add relation M1 or 1M."""
         return
 
@@ -53,7 +53,7 @@ class IFieldMetaData:
         """Get if field is editable."""
         return False
 
-    def formatAssignValue(self, fieldName: str, value: int, upper: bool) -> str:
+    def formatAssignValue(self, field_name: str, value: int, upper: bool) -> str:
         """Format a value for this field."""
         return ""
 
@@ -75,26 +75,26 @@ class IFieldMetaData:
 
     def inicializeNewFLFieldMetaData(
         self,
-        n: str,
-        a: str,
-        aN: bool,
-        isPrimaryKey: bool,
-        t: str,
+        name: str,
+        alias: str,
+        allow_null: bool,
+        is_primary_key: bool,
+        ttype: str,
         length_: int = 0,
-        c: bool = False,
-        v: bool = True,
-        ed: bool = True,
-        pI: int = 4,
-        pD: int = 0,
-        iNX: bool = False,
-        uNI: bool = False,
+        calculated: bool = False,
+        visible: bool = True,
+        editable: bool = True,
+        part_integer: int = 4,
+        part_decimal: int = 0,
+        is_index: bool = False,
+        is_unique: bool = False,
         coun: bool = False,
-        defValue: Optional[str] = None,
-        oT: bool = False,
-        rX: Optional[str] = None,
-        vG: bool = True,
-        gen: bool = True,
-        iCK: bool = False,
+        default_value: Optional[str] = None,
+        out_transaction: bool = False,
+        regular_exp: Optional[str] = None,
+        visible_grib: bool = True,
+        generated: bool = True,
+        is_compound_key: bool = False,
     ) -> None:
         """Initialize."""
         return
@@ -143,31 +143,31 @@ class IFieldMetaData:
         """Return M1 relationship in this field."""
         return None
 
-    def setAssociatedField(self, r_or_name, f: str) -> None:
+    def setAssociatedField(self, relation_or_name, field: str) -> None:
         """Set new associated field."""
         return
 
-    def setEditable(self, ed: bool) -> None:
+    def setEditable(self, editable: bool) -> None:
         """Set if this field should be editable."""
         return
 
-    def setFullyCalculated(self, c: bool) -> None:
+    def setFullyCalculated(self, calculated: bool) -> None:
         """Set if this field should be fully calculated."""
         return
 
-    def setMetadata(self, mtd) -> None:
+    def setMetadata(self, metadata) -> None:
         """Set TableMetadata for this field."""
         return
 
-    def setOptionsList(self, ol: str) -> None:
+    def setOptionsList(self, options_list: str) -> None:
         """Set option list for this field."""
         return
 
-    def setTrimed(self, t: bool) -> None:
+    def setTrimed(self, trimed: bool) -> None:
         """Set if this field should be trimed."""
         return
 
-    def setVisible(self, v: bool) -> None:
+    def setVisible(self, visible: bool) -> None:
         """Set if this field should be visible."""
         return
 

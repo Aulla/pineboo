@@ -46,7 +46,7 @@ class IConnection:
         """Indicate if a connection is open."""
         return False
 
-    def tables(self, t_: Optional[Union[str, int]] = None) -> List[str]:
+    def tables(self, tables: Optional[Union[str, int]] = None) -> List[str]:
         """Return a list of available tables in the database, according to a given filter."""
         return []
 
@@ -103,7 +103,7 @@ class IConnection:
 
         return None
 
-    def conectar(self, db_name, db_host, db_port, db_userName, db_returnword) -> Any:
+    def conectar(self, db_name, db_host, db_port, db_user_name, db_returnword) -> Any:
         """Request a connection to the database."""
 
         return
@@ -161,22 +161,22 @@ class IConnection:
 
         return True
 
-    def setInteractiveGUI(self, b) -> None:
+    def setInteractiveGUI(self, data) -> None:
         """Set if it is an interactive GUI."""
 
         return
 
-    def setQsaExceptions(self, b) -> None:
+    def setQsaExceptions(self, data) -> None:
         """See properties of the qsa exceptions."""
 
         return
 
-    def formatValue(self, t, v, upper) -> str:
+    def formatValue(self, type_, value, upper) -> str:
         """Return a correctly formatted value to be assigned as a where filter."""
 
         return ""
 
-    def formatValueLike(self, t, v, upper) -> str:
+    def formatValueLike(self, type_, value, upper) -> str:
         """Return a correctly formatted value to be assigned as a WHERE LIKE filter."""
 
         return ""
@@ -306,7 +306,7 @@ class IConnection:
 
         return ""
 
-    def execute_query(self, q: str, cursor: Any = None) -> Any:
+    def execute_query(self, query: str, cursor: Any = None) -> Any:
         """Execute a query in a database cursor."""
 
         return ""
