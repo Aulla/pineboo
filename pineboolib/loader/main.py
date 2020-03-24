@@ -198,7 +198,7 @@ def init_gui() -> None:
     eneboo_mdi.mainWindow = eneboo_mdi.MainForm()
 
 
-def setup_gui(app: QtWidgets.QApplication, options: Values) -> None:
+def setup_gui(app: QtWidgets.QApplication) -> None:
     """Configure GUI app."""
     from pineboolib.core.utils.utils_base import filedir
     from PyQt5 import QtGui
@@ -341,7 +341,7 @@ def exec_main(options: Values) -> int:
         app_.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
         application.PROJECT.set_app(app_(sys.argv))
-        setup_gui(application.PROJECT.app, options)
+        setup_gui(application.PROJECT.app)
     else:
         application.PROJECT.set_app(QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"]))
 
