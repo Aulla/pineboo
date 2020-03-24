@@ -121,7 +121,7 @@ class IManager(object):
         return None
 
     def metadataField(
-        self, field: str, vvisible: bool = False, ededitable: bool = False
+        self, field: "ElementTree.Element", vvisible: bool = False, ededitable: bool = False
     ) -> Optional["pnfieldmetadata.PNFieldMetaData"]:  # "PNFieldMetaData"
         """Retrieve field metadata."""
         raise Exception("must be implemented")

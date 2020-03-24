@@ -223,7 +223,7 @@ class ICursorPrivate(QtCore.QObject):
 
         pass
 
-    def msgBoxWarning(self, msg: str, throwException: bool = False) -> None:
+    def msgBoxWarning(self, msg: str, throw_exception: bool = False) -> None:
         """Return msgbox if an error exists."""
 
         pass
@@ -325,15 +325,15 @@ class ISqlCursor(QtCore.QObject):
         self,
         name: Optional[str] = None,
         conn_or_autopopulate: Union[bool, str] = True,
-        connectionName_or_db: Union[str, "iconnection.IConnection"] = "default",
-        cR: Optional["ISqlCursor"] = None,
-        r: Optional["pnrelationmetadata.PNRelationMetaData"] = None,
+        connection_name_or_db: Union[str, "iconnection.IConnection"] = "default",
+        cursor_relation: Optional["ISqlCursor"] = None,
+        relation: Optional["pnrelationmetadata.PNRelationMetaData"] = None,
         parent=None,
     ) -> None:
         """Create cursor."""
         super().__init__()
 
-    def init(self, name: str, autopopulate, cR, r) -> None:
+    def init(self, name: str, autopopulate, cusor_relation, relation) -> None:
         """Initialize cursor."""
         pass
 
@@ -381,7 +381,7 @@ class ISqlCursor(QtCore.QObject):
         """Set Action object."""
         pass
 
-    def setMainFilter(self, f, doRefresh=True) -> Any:
+    def setMainFilter(self, filter: str, do_refresh: bool = True) -> Any:
         """Set Main filter for this cursor."""
         pass
 
@@ -393,11 +393,11 @@ class ISqlCursor(QtCore.QObject):
         """Get current connection name."""
         pass
 
-    def setValueBuffer(self, fN, v) -> Any:
+    def setValueBuffer(self, field_name: str, value: Any) -> Any:
         """Set Value on the cursor buffer."""
         pass
 
-    def valueBuffer(self, fN) -> Any:
+    def valueBuffer(self, field_name: str) -> Any:
         """Get value from cursor buffer."""
         pass
 
@@ -405,23 +405,23 @@ class ISqlCursor(QtCore.QObject):
         """Fetch from fllarge."""
         pass
 
-    def valueBufferCopy(self, fN) -> Any:
+    def valueBufferCopy(self, field_name) -> Any:
         """Get original value on buffer."""
         pass
 
-    def setEdition(self, b, m=None) -> Any:
+    def setEdition(self, value, flag=None) -> Any:
         """Set edit mode."""
         pass
 
-    def restoreEditionFlag(self, m) -> Any:
+    def restoreEditionFlag(self, flag) -> Any:
         """Restore edit flag."""
         pass
 
-    def setBrowse(self, b, m=None) -> Any:
+    def setBrowse(self, value, flag=None) -> Any:
         """Set browse mode."""
         pass
 
-    def restoreBrowseFlag(self, m) -> Any:
+    def restoreBrowseFlag(self, flag) -> Any:
         """Restore browse flag."""
         pass
 
@@ -429,7 +429,7 @@ class ISqlCursor(QtCore.QObject):
         """Get sqlAlchemy model."""
         pass
 
-    def setContext(self, c=None) -> Any:
+    def setContext(self, context=None) -> Any:
         """Set script execution context."""
         pass
 
@@ -437,7 +437,7 @@ class ISqlCursor(QtCore.QObject):
         """Get script execution context."""
         pass
 
-    def fieldDisabled(self, fN) -> Any:
+    def fieldDisabled(self, field_name) -> Any:
         """Get if field is disabled."""
         pass
 
@@ -461,11 +461,11 @@ class ISqlCursor(QtCore.QObject):
         """Get current cursor size in rows."""
         pass
 
-    def openFormInMode(self, m: int, wait: bool = True, cont: bool = True) -> None:
+    def openFormInMode(self, mode: int, wait: bool = True, cont: bool = True) -> None:
         """Open record form in specified mode."""
         pass
 
-    def isNull(self, fN) -> Any:
+    def isNull(self, field_name) -> Any:
         """Get if field is null."""
         pass
 
@@ -477,11 +477,11 @@ class ISqlCursor(QtCore.QObject):
         """Get if buffer is modified."""
         pass
 
-    def setAskForCancelChanges(self, a) -> Any:
+    def setAskForCancelChanges(self, value) -> Any:
         """Activate dialog for asking before closing."""
         pass
 
-    def setActivatedCheckIntegrity(self, a) -> Any:
+    def setActivatedCheckIntegrity(self, value) -> Any:
         """Activate integrity checks."""
         pass
 
@@ -489,7 +489,7 @@ class ISqlCursor(QtCore.QObject):
         """Get integrity check state."""
         pass
 
-    def setActivatedCommitActions(self, a) -> Any:
+    def setActivatedCommitActions(self, value) -> Any:
         """Activate before/after commit."""
         pass
 
@@ -521,7 +521,7 @@ class ISqlCursor(QtCore.QObject):
         """Get relation."""
         pass
 
-    def setUnLock(self, fN, v) -> Any:
+    def setUnLock(self, field_name, value) -> Any:
         """Set unlock field."""
         pass
 
@@ -565,11 +565,11 @@ class ISqlCursor(QtCore.QObject):
         """Get cursor name."""
         pass
 
-    def filterAssoc(self, fieldName, tableMD=None) -> Any:
+    def filterAssoc(self, field_name, table_metadata=None) -> Any:
         """Retrieve filter for associated field."""
         pass
 
-    def calculateField(self, name) -> Any:
+    def calculateField(self, field_name) -> Any:
         """Return the result of a field calculation."""
         pass
 
@@ -589,7 +589,7 @@ class ISqlCursor(QtCore.QObject):
         """Return if cursor is valid."""
         pass
 
-    def refresh(self, fN=None) -> Any:
+    def refresh(self, field_name=None) -> Any:
         """Refresh cursor."""
         pass
 
@@ -633,7 +633,7 @@ class ISqlCursor(QtCore.QObject):
         """Perform SQL Select."""
         pass
 
-    def setSort(self, sortO) -> Any:
+    def setSort(self, filter) -> Any:
         """Set sorting order."""
         pass
 
@@ -661,11 +661,11 @@ class ISqlCursor(QtCore.QObject):
         """Emit chooseRecord."""
         pass
 
-    def setForwardOnly(self, b) -> Any:
+    def setForwardOnly(self, value) -> Any:
         """Set forward only."""
         pass
 
-    def commitBuffer(self, emite=True, checkLocks=False) -> Any:
+    def commitBuffer(self, emite=True, check_locks=False) -> Any:
         """Commit current buffer to db."""
         pass
 
@@ -689,7 +689,7 @@ class ISqlCursor(QtCore.QObject):
         """Return if in commit."""
         pass
 
-    def checkIntegrity(self, showError: bool = True) -> bool:
+    def checkIntegrity(self, show_error: bool = True) -> bool:
         """Return check integrity result."""
         pass
 
