@@ -610,12 +610,15 @@ class PNSqlSchema(object):
         if len(diff) > 0:
             return True
 
+        if not dict_database and dict_metadata:
+            return True
+
         for name in dict_metadata.keys():
             if name in dict_database.keys():
                 if self.notEqualsFields(dict_database[name], dict_metadata[name]):
                     return True
             else:
-                LOGGER.warning(
+                LOGGER.error(
                     "Esto no debería de pasar :( database: %s metadata: %s key : %s",
                     dict_database,
                     dict_metadata,
