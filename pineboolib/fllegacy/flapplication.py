@@ -382,7 +382,7 @@ class FLApplication(QtCore.QObject):
         application.PROJECT.actions = {}
         application.PROJECT.areas = {}
         application.PROJECT.modules = {}
-        application.PROJECT.tables = {}
+        # application.PROJECT.tables = {}
 
     def acl(self) -> Optional[pnaccesscontrollists.PNAccessControlLists]:
         """Return acl."""

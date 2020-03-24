@@ -84,7 +84,7 @@ class Project(object):
         self.parse_project = False
         self.translator_ = []  # FIXME: Add proper type
         self.actions = {}  # FIXME: Add proper type
-        self.tables = {}  # FIXME: Add proper type
+        # self.tables = {}  # FIXME: Add proper type
         self.files = {}  # FIXME: Add proper type
         self.areas = {}
         self.modules = {}
@@ -156,7 +156,7 @@ class Project(object):
         """Load all modules."""
         for module_name, mod_obj in self.modules.items():
             mod_obj.load()
-            self.tables.update(mod_obj.tables)
+            # self.tables.update(mod_obj.tables)
 
     def setDebugLevel(self, level: int) -> None:
         """
@@ -188,11 +188,11 @@ class Project(object):
         if self.actions:
             del self.actions
 
-        if self.tables:
-            del self.tables
+        # if self.tables:
+        #    del self.tables
 
         self.actions = {}
-        self.tables = {}
+        # self.tables = {}
 
         if self.dgi is None:
             raise Exception("DGI not loaded")

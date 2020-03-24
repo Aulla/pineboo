@@ -9,10 +9,9 @@ Modules are the declaration of Pineboo source packages where all related functio
 is stored within. Its composed of a name and description; and they contain code, forms, etc.
 """
 
-import os.path
 from pineboolib.core.utils import logging
 
-from pineboolib.core import parsetable
+
 from .utils.path import _path
 
 from typing import Dict, TYPE_CHECKING
@@ -88,31 +87,6 @@ class Module(object):
 
         # TODO: Load Main Script:
         self.mainscript = None
-        # /-----------------------
-
-        for tablefile in self.files:
-            if not tablefile.endswith(".mtd") or tablefile.find("alteredtable") > -1:
-                continue
-
-            contenido = mng_modules.contentCached(tablefile)
-            name, ext = os.path.splitext(tablefile)
-            #    # path = _path(tablefile)
-            #    # if path is None:
-            #    #    raise Exception("Cannot find %s" % tablefile)
-            #    # try:
-            #    #    contenido = str(open(path, "rb").read(), "ISO-8859-15")
-            #    # except UnicodeDecodeError as e:
-            #    #    self.logger.error("Error al leer el fichero %s %s", tablefile, e)
-            #    #    continue
-            try:
-                if not contenido:
-                    continue
-
-                self.tables[name] = parsetable.parse_table(name, contenido)
-            except ValueError as exception:
-                LOGGER.warning(
-                    "No se pudo procesar. Se ignora tabla %s/%s (%s) ", self.name, name, exception
-                )
 
         self.loaded = True
         return True

@@ -278,7 +278,7 @@ def finish_testing() -> None:
     application.PROJECT.actions = {}
     application.PROJECT.areas = {}
     application.PROJECT.modules = {}
-    application.PROJECT.tables = {}
+    # application.PROJECT.tables = {}
     if application.PROJECT.main_window:
         application.PROJECT.main_window.initialized_mods_ = []
 
