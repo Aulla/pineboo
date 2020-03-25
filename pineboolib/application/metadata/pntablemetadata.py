@@ -428,14 +428,13 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
                         and relation_.foreignTable() == foreign_table.lower()
                     ):
                         return relation_
-
-                relation_list = field.relationList()
-                for itr in relation_list:
-                    if (
-                        itr.foreignField() == foreign_field.lower()
-                        and itr.foreignTable() == foreign_table.lower()
-                    ):
-                        return itr
+                else:
+                    for itr in list(field.relationList()):
+                        if (
+                            itr.foreignField() == foreign_field.lower()
+                            and itr.foreignTable() == foreign_table.lower()
+                        ):
+                            return itr
 
         return None
 

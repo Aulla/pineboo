@@ -17,7 +17,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def _class_init(self) -> None:
         """Inicialize."""
-        self.form = self
+        # self.form = self
         self.iface = self
 
     def init(self) -> None:
@@ -26,8 +26,9 @@ class FormInternalObj(qsa.FormDBWidget):
         app_ = qsa.aqApp
         if not app_:
             return
-        flfactppal = qsa.SysType().isLoadedModule("flfactppal")
-        if flfactppal is True:
+
+        if qsa.SysType().isLoadedModule("flfactppal"):
+            codEjercicio = None
             try:
                 codEjercicio = qsa.from_project("flfactppal").iface.pub_ejercicioActual()
             except Exception as e:
@@ -38,7 +39,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     "... this usually means that flfactppal has failed translation to python"
                 )
                 logger.exception(e)
-                codEjercicio = None
+
             if codEjercicio:
                 util = qsa.FLUtil()
                 nombreEjercicio = util.sqlSelect(
@@ -64,8 +65,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     if nombreEjercicio:
                         app_.setCaptionMainWidget(nombreEjercicio)
 
-                oldApi = settings.readBoolEntry(u"application/oldApi")
-                if not oldApi:
+                if not settings.readBoolEntry(u"application/oldApi", False):
                     valor = util.readSettingEntry(u"ebcomportamiento/ebCallFunction")
                     if valor:
                         funcion = qsa.Function(valor)

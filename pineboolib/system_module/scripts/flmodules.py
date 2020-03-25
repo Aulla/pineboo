@@ -43,59 +43,60 @@ class FormInternalObj(qsa.FormDBWidget):
         self, nombre: str, contenido: str, log: "QtWidgets.QTextEdit", directorio: str
     ) -> None:
         """Load a file into database."""
-        if (
-            not qsa.util.isFLDefFile(contenido)
-            and not nombre.endswith(u".mod")
-            and not nombre.endswith(u".xpm")
-            and not nombre.endswith(u".signatures")
-            and not nombre.endswith(u".checksum")
-            and not nombre.endswith(u".certificates")
-            and not nombre.endswith(u".qs")
-            and not nombre.endswith(u".ar")
-            and not nombre.endswith(u".py")
-            and not nombre.endswith(u".kut")
+        if not qsa.util.isFLDefFile(contenido) and not nombre.endswith(
+            (
+                ".mod",
+                ".xpm",
+                ".signatures",
+                ".checksum",
+                ".certificates",
+                ".qs",
+                ".ar",
+                ".py",
+                ".kut",
+            )
         ):
             return
-        cursorFicheros = qsa.FLSqlCursor(u"flfiles")
+        cursor_ficheros = qsa.FLSqlCursor(u"flfiles")
         cursor = self.cursor()
-        cursorFicheros.select(qsa.ustr(u"nombre = '", nombre, u"'"))
-        if not cursorFicheros.first():
+        cursor_ficheros.select(qsa.ustr(u"nombre = '", nombre, u"'"))
+        if not cursor_ficheros.first():
             if nombre.endswith(u".ar"):
                 if not self.cargarAr(nombre, contenido, log, directorio):
                     return
             log.append(qsa.util.translate(u"scripts", u"- Cargando :: ") + nombre)
-            cursorFicheros.setModeAccess(cursorFicheros.Insert)
-            cursorFicheros.refreshBuffer()
-            cursorFicheros.setValueBuffer(u"nombre", nombre)
-            cursorFicheros.setValueBuffer(u"idmodulo", cursor.valueBuffer(u"idmodulo"))
-            cursorFicheros.setValueBuffer(u"sha", qsa.util.sha1(contenido))
-            cursorFicheros.setValueBuffer(u"contenido", contenido)
-            cursorFicheros.commitBuffer()
+            cursor_ficheros.setModeAccess(cursor_ficheros.Insert)
+            cursor_ficheros.refreshBuffer()
+            cursor_ficheros.setValueBuffer(u"nombre", nombre)
+            cursor_ficheros.setValueBuffer(u"idmodulo", cursor.valueBuffer(u"idmodulo"))
+            cursor_ficheros.setValueBuffer(u"sha", qsa.util.sha1(contenido))
+            cursor_ficheros.setValueBuffer(u"contenido", contenido)
+            cursor_ficheros.commitBuffer()
 
         else:
-            cursorFicheros.setModeAccess(cursorFicheros.Edit)
-            cursorFicheros.refreshBuffer()
-            contenidoCopia = cursorFicheros.valueBuffer(u"contenido")
+            cursor_ficheros.setModeAccess(cursor_ficheros.Edit)
+            cursor_ficheros.refreshBuffer()
+            contenidoCopia = cursor_ficheros.valueBuffer(u"contenido")
             if contenidoCopia != contenido:
                 log.append(qsa.util.translate(u"scripts", u"- Actualizando :: ") + nombre)
-                cursorFicheros.setModeAccess(cursorFicheros.Insert)
-                cursorFicheros.refreshBuffer()
+                cursor_ficheros.setModeAccess(cursor_ficheros.Insert)
+                cursor_ficheros.refreshBuffer()
                 d = qsa.Date()
-                cursorFicheros.setValueBuffer(u"nombre", nombre + qsa.parseString(d))
-                cursorFicheros.setValueBuffer(u"idmodulo", cursor.valueBuffer(u"idmodulo"))
-                cursorFicheros.setValueBuffer(u"contenido", contenidoCopia)
-                cursorFicheros.commitBuffer()
+                cursor_ficheros.setValueBuffer(u"nombre", nombre + qsa.parseString(d))
+                cursor_ficheros.setValueBuffer(u"idmodulo", cursor.valueBuffer(u"idmodulo"))
+                cursor_ficheros.setValueBuffer(u"contenido", contenidoCopia)
+                cursor_ficheros.commitBuffer()
                 log.append(
                     qsa.util.translate(u"scripts", u"- Backup :: ") + nombre + qsa.parseString(d)
                 )
-                cursorFicheros.select(qsa.ustr(u"nombre = '", nombre, u"'"))
-                cursorFicheros.first()
-                cursorFicheros.setModeAccess(cursorFicheros.Edit)
-                cursorFicheros.refreshBuffer()
-                cursorFicheros.setValueBuffer(u"idmodulo", cursor.valueBuffer(u"idmodulo"))
-                cursorFicheros.setValueBuffer(u"sha", qsa.util.sha1(contenido))
-                cursorFicheros.setValueBuffer(u"contenido", contenido)
-                cursorFicheros.commitBuffer()
+                cursor_ficheros.select(qsa.ustr(u"nombre = '", nombre, u"'"))
+                cursor_ficheros.first()
+                cursor_ficheros.setModeAccess(cursor_ficheros.Edit)
+                cursor_ficheros.refreshBuffer()
+                cursor_ficheros.setValueBuffer(u"idmodulo", cursor.valueBuffer(u"idmodulo"))
+                cursor_ficheros.setValueBuffer(u"sha", qsa.util.sha1(contenido))
+                cursor_ficheros.setValueBuffer(u"contenido", contenido)
+                cursor_ficheros.commitBuffer()
                 if nombre.endswith(u".ar"):
                     self.cargarAr(nombre, contenido, log, directorio)
 
@@ -327,176 +328,37 @@ class FormInternalObj(qsa.FormDBWidget):
                     file = curFiles.valueBuffer(u"nombre")
                     tipo = self.tipoDeFichero(file)
                     contenido = curFiles.valueBuffer(u"contenido")
-                    if not contenido == "":
-                        s01_when = tipo
-                        s01_do_work, s01_work_done = False, False
-                        if s01_when == u".xml":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".mod":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".xpm":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".signatures":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".certificates":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".checksum":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".ui":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/forms/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".qs":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/scripts/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".py":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"UTF-8", qsa.ustr(directorio, u"/scripts/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-
-                        if s01_when == u".qry":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/queries/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".mtd":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"ISO-8859-1", qsa.ustr(directorio, u"/tables/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".kut":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"UTF-8", qsa.ustr(directorio, u"/reports/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if s01_when == u".ts":
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
-                            qsa.sys.write(
-                                u"UTF-8", qsa.ustr(directorio, u"/translations/", file), contenido
-                            )
-                            log.append(
-                                qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Exportando ", file, u".")
-                                )
-                            )
-                            s01_do_work = False  # BREAK
-                        if not s01_work_done:
-                            s01_do_work, s01_work_done = True, True
-                        if s01_do_work:
+                    if contenido:
+                        codec: str = ""
+                        if tipo in [
+                            ".xml",
+                            ".mod",
+                            ".xml",
+                            ".signatures",
+                            ".certificates",
+                            ".checksum",
+                            ".ui",
+                            ".qs",
+                            ".qry",
+                            ".mtd",
+                        ]:
+                            codec = "ISO-8859-1"
+                        elif tipo in [".py", ".kut", ".ts"]:
+                            codec = "UTF-8"
+                        else:
                             log.append(
                                 qsa.util.translate(
                                     u"scripts", qsa.ustr(u"* Omitiendo ", file, u".")
                                 )
                             )
+                            continue
 
-                    qsa.sys.processEvents()
+                        qsa.sys.write(codec, qsa.ustr(directorio, u"/", file), contenido)
+                        log.append(
+                            qsa.util.translate(u"scripts", qsa.ustr(u"* Exportando ", file, u"."))
+                        )
+
+                    # qsa.sys.processEvents()
 
                 cursorModules.select(qsa.ustr(u"idmodulo = '", idModulo, u"'"))
                 if cursorModules.first():
