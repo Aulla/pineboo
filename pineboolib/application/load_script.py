@@ -36,6 +36,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
         LOGGER.info("No script to load for action %s", action_._name)
 
     script_loaded = None
+    generate_static_flag_file = True
 
     if script_name:
 
@@ -83,16 +84,20 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                 os.remove(static_flag)
 
             if old_script_path_py:  # si es carga estática lo marco:
+                if old_script_path_py.find("system_module") > -1:
+                    generate_static_flag_file = False
 
                 static_flag = "%s/static.xml" % os.path.dirname(old_script_path_py)
                 if os.path.exists(static_flag):
                     os.remove(static_flag)
-                xml_data = get_static_flag(old_script_path_py, script_path_py)
-                my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
-                file_ = open(static_flag, "wb")
-                file_.write(my_data)
 
-            LOGGER.debug("Loading script PY %s -> %s", script_name, script_path_py)
+                if generate_static_flag_file:
+                    xml_data = get_static_flag(old_script_path_py, script_path_py)
+                    my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
+                    file_ = open(static_flag, "wb")
+                    file_.write(my_data)
+
+            LOGGER.info("Loading script PY %s -> %s", script_name, script_path_py)
             if not os.path.isfile(script_path_py):
                 raise IOError
             try:
@@ -147,7 +152,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                         LOGGER.error("STATIC_LOAD_FILE PATH: %s", script_path_qs_static)
                         raise Exception("THE FILE %s DOESN'T CREATED!\n" % script_path_py)
 
-            LOGGER.debug(
+            LOGGER.info(
                 "Loading script QS %s (ALWAYS PARSE QSA: %s) -> %s",
                 script_name,
                 application.PROJECT.no_python_cache,
