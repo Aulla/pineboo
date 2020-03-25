@@ -100,9 +100,6 @@ def parse_options(custom_argv: Optional[List] = None) -> Values:
         metavar="DGIPARAMETER",
     )
     parser.add_option(
-        "--test", action="store_true", dest="test", default=False, help="Launch all test"
-    )
-    parser.add_option(
         "--dbadmin",
         action="store_true",
         dest="enable_dbadmin",

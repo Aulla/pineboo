@@ -437,21 +437,6 @@ def exec_main(options: Values) -> int:
 
     application.PROJECT.no_python_cache = options.no_python_cache
 
-    # if options.test:
-    #    return 0 if application.PROJECT.test() else 1
-
-    # if dgi.useDesktop():
-    # FIXME: What is happening here? Why dynamic load?
-    # import importlib  # FIXME: Delete dynamic import and move this code between Project and DGI plugins
-
-    # application.PROJECT.main_form = (
-    #    importlib.import_module(
-    #        "pineboolib.plugins.mainform.%s.%s"
-    #        % (application.PROJECT.main_form_name, application.PROJECT.main_form_name)
-    #    )
-    #    if dgi.localDesktop()
-    #    else dgi.mainForm()
-    # )
     main_form_name = settings.CONFIG.value("ebcomportamiento/main_form_name", "eneboo")
 
     main_form = getattr(plugins.mainform, main_form_name, None)
