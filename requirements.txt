@@ -43,3 +43,4 @@ twine
 fpdf2
 pymssql
 clipboard
+coloredlogs

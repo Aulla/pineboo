@@ -105,13 +105,19 @@ def init_logging(
     loglevel: int = logging.INFO, logtime: bool = False, trace_loggers: List[str] = []
 ) -> None:
     """Initialize pineboo logging."""
+    import coloredlogs
+
     # ---- LOGGING -----
-    log_format = "%(levelname)s: %(name)s: %(message)s"
+    log_format = "%(levelname)-8s: %(name)s:%(lineno)d: %(message)s"
 
     if logtime:
-        log_format = "%(asctime)s - %(levelname)s: %(name)s: %(message)s"
+        log_format = "%(asctime)s - %(levelname)-8s: %(name)s:%(lineno)d: %(message)s"
 
     app_loglevel = logging.TRACE if trace_loggers else loglevel
+
+    coloredlogs.DEFAULT_LOG_LEVEL = app_loglevel
+    coloredlogs.DEFAULT_LOG_FORMAT = log_format
+    coloredlogs.install()
     if trace_loggers:
         logging.Logger.set_pineboo_default_level(loglevel)
 
