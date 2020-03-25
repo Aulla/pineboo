@@ -183,7 +183,7 @@ class FLManagerModules(object):
 
         del self
 
-    def content(self, file_name: str) -> Optional[str]:
+    def content(self, file_name: str) -> str:
         """
         Get the contents of a file stored in the database.
 
@@ -206,7 +206,7 @@ class FLManagerModules(object):
         for contenido in cursor:
             return contenido[0]
 
-        return None
+        return ""
 
     @decorators.not_implemented_warn
     def byteCodeToStr(self, file_name: str) -> str:
