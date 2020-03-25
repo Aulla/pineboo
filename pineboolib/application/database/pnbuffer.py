@@ -378,10 +378,10 @@ class PNBuffer(object):
         if field.type_ in ("bool", "unlock"):
             return field.value in (True, "true")
 
-        if field.value is None:
+        elif field.value is None:
             return None
 
-        if field.type_ in ("string", "pixmap", "time", "date", "datetime", "timestamp"):
+        elif field.type_ in ("string", "pixmap", "time", "date", "datetime", "timestamp"):
             try:
                 value = str(field.value)
             except Exception as expcetion:
@@ -425,13 +425,8 @@ class PNBuffer(object):
 
         if field.has_changed(value):
             field.value = field.parse_value_input(value)
-
             if mark_:
-                if not field.value == field._original_value:
-                    field.modified = True
-                else:
-                    field.modified = False
-                # self.setMd5Sum(value)
+                field.modified = field.value != field._original_value
 
         return True
 
@@ -469,11 +464,7 @@ class PNBuffer(object):
 
         @return field name Primary key.
         """
-        for field in self.fieldsList():
-            if field.metadata.isPrimaryKey():
-                return field.name
-        LOGGER.warning("PNBuffer.pk(): No se ha encontrado clave Primaria")
-        return None
+        return self.cursor_.metadata().primaryKey(False)
 
     def indexField(self, name) -> Optional[int]:
         """
@@ -482,9 +473,9 @@ class PNBuffer(object):
         @param name = field name.
         @return field position.
         """
-        for i, field in enumerate(self.fieldsList()):
-            if field.name == name:
-                return i
+        for number, field_name in enumerate(self.field_dict_.keys()):
+            if field_name == name:
+                return number
         LOGGER.warning("indexField: %s not found", name)
         return None
 
@@ -516,17 +507,14 @@ class PNBuffer(object):
                 return self.field_dict_[name]
             else:
                 mtd_field = self.cursor_.metadata().field(name)
-        elif isinstance(field_name_or_index, int):
-            if field_name_or_index > 0 and field_name_or_index < len(self.fieldsList()):
+
+        else:
+            if field_name_or_index in range(1, len(self.fieldsList())):
                 return self.fieldsList()[field_name_or_index]
             else:
                 mtd_field = self.cursor_.metadata().indexFieldObject(field_name_or_index)
 
-        else:
-            raise Exception("Bad call to _field, type not supported %s" % type(field_name_or_index))
-
         new_field_struct = None
-
         if mtd_field is not None:
             new_field_struct = FieldStruct(mtd_field)
             self.field_dict_[new_field_struct.name] = new_field_struct
