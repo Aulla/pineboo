@@ -334,6 +334,9 @@ def length(obj: Any = "") -> int:
     @param obj, objeto a obtener longitud
     @return longitud del objeto
     """
+    if obj is None:
+        return 0
+
     if hasattr(obj, "length"):
         if isinstance(obj.length, int):
             return obj.length
