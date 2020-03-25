@@ -210,14 +210,15 @@ class Project(object):
         if self.delete_cache and os.path.exists(path._dir("cache/%s" % db_name)):
 
             self.message_manager().send("splash", "showMessage", ["Borrando caché ..."])
-            LOGGER.debug(
+            LOGGER.info(
                 "DEVELOP: delete_cache Activado\nBorrando %s", path._dir("cache/%s" % db_name)
             )
             for root, dirs, files in os.walk(path._dir("cache/%s" % db_name), topdown=False):
                 for name in files:
                     os.remove(os.path.join(root, name))
                 for name in dirs:
-                    os.rmdir(os.path.join(root, name))
+                    if name != "sqlite_database":
+                        os.rmdir(os.path.join(root, name))
 
         else:
             keep_images = settings.CONFIG.value("ebcomportamiento/keep_general_cache", False)
@@ -384,7 +385,7 @@ class Project(object):
         self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
 
         if list_files:
-            LOGGER.debug("RUN: Parsing QSA files. (%s)", len(list_files))
+            LOGGER.info("RUN: Parsing QSA files. (%s): %s", len(list_files), list_files)
             if not self.parse_script_list(list_files):
                 LOGGER.warning("Failed QSA conversion !.See debug for mode information.")
                 return False
