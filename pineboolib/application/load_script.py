@@ -46,9 +46,9 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     if script_name:
 
         script_path_qs: str = _path("%s.qs" % script_name, False) or ""
-        script_path_py = _path("%s.py" % script_name, False) or ""
+        script_path_py = _path("%s.py" % script_name, False) or ""  # Busqueda en carpetas .py
 
-        if script_path_qs and not script_path_py:
+        if script_path_qs and not script_path_py:  # busqueda en carpetas .qs.py
             script_path_py = (
                 "%spy" % script_path_qs[:-2] if os.path.exists("%spy" % script_path_qs[:-2]) else ""
             )

@@ -192,6 +192,9 @@ class Project(object):
         #    del self.tables
 
         self.actions = {}
+        self.files = {}
+        self.areas = {}
+        self.modules = {}
         # self.tables = {}
 
         if self.dgi is None:
@@ -242,7 +245,26 @@ class Project(object):
             LOGGER.warning("RUN: Creating %s folder.", path._dir("cache/%s" % db_name))
             os.makedirs(path._dir("cache/%s" % db_name))
 
-        # Conectar:
+        # Cargar el núcleo común del proyecto
+
+        file_object = open(
+            utils_base.filedir(utils_base.get_base_dir(), "system_module", "sys.xpm"), "r"
+        )
+        icono = file_object.read()
+        file_object.close()
+        # icono = clearXPM(icono)
+
+        self.modules["sys"] = module.Module("sys", "sys", "Administración", icono)
+
+        for root, dirs, files in os.walk(
+            utils_base.filedir(utils_base.get_base_dir(), "system_module")
+        ):
+            # list_files = []
+            for nombre in files:
+                if root.find("modulos") == -1:
+                    fileobj = file.File("sys", nombre, basedir=root, db_name=db_name)
+                    self.files[nombre] = fileobj
+                    self.modules["sys"].add_project_file(fileobj)
 
         # Se verifica que existen estas tablas
         for table in (
@@ -265,7 +287,7 @@ class Project(object):
                 self.conn_manager.manager().createSystemTable(table)
 
         cursor_ = self.conn_manager.dbAux().cursor()
-        self.areas = {}
+
         cursor_.execute(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
         for idarea, descripcion in list(cursor_):
             self.areas[idarea] = AreaStruct(idarea=idarea, descripcion=descripcion)
@@ -278,27 +300,15 @@ class Project(object):
             % conn.driver().formatValue("bool", "True", False)
         )
 
-        self.modules = {}
-
         for idarea, idmodulo, descripcion, icono in cursor_:
             icono = xpm.cache_xpm(icono)
             self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
-
-        file_object = open(
-            utils_base.filedir(utils_base.get_base_dir(), "system_module", "sys.xpm"), "r"
-        )
-        icono = file_object.read()
-        file_object.close()
-        # icono = clearXPM(icono)
-
-        self.modules["sys"] = module.Module("sys", "sys", "Administración", icono)
 
         cursor_.execute(
             """ SELECT idmodulo, nombre, sha FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
         )
 
         file_1 = open(path._dir("project.txt"), "w")
-        self.files = {}
 
         count = 0
 
@@ -390,21 +400,9 @@ class Project(object):
                 LOGGER.warning("Failed QSA conversion !.See debug for mode information.")
                 return False
 
-        # Cargar el núcleo común del proyecto
-
-        for root, dirs, files in os.walk(
-            utils_base.filedir(utils_base.get_base_dir(), "system_module")
-        ):
-            # list_files = []
-            for nombre in files:
-                if root.find("modulos") == -1:
-                    fileobj = file.File("sys", nombre, basedir=root, db_name=db_name)
-                    self.files[nombre] = fileobj
-                    self.modules["sys"].add_project_file(fileobj)
-
-                    # if self.parse_project and nombre.endswith(".qs"):
-                    # self.parseScript(path._dir(root, nombre))
-                    #    list_files.append(path._dir(root, nombre))
+                # if self.parse_project and nombre.endswith(".qs"):
+                # self.parseScript(path._dir(root, nombre))
+                #    list_files.append(path._dir(root, nombre))
 
             # self.parse_script_lists(list_files)
 

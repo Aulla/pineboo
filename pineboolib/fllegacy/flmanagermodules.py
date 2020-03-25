@@ -15,6 +15,7 @@ from pineboolib.application.utils import path, xpm, convert_flaction
 from pineboolib.application.parsers.qt3uiparser import qt3ui
 
 from pineboolib import application
+from pineboolib.application.utils.path import _path
 
 from pineboolib.q3widgets import qmainwindow, qdialog
 
@@ -26,7 +27,7 @@ from pineboolib import logging
 
 from typing import Union, List, Dict, Optional, cast, TYPE_CHECKING
 import os
-
+import codecs
 
 if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # noqa: F401
@@ -276,78 +277,19 @@ class FLManagerModules(object):
         if file_name in self.filesCached_.keys():
             return self.filesCached_[file_name]
 
-        data = None
-        modId: str
-        name_: str = file_name[: file_name.index(".")]
-        ext_: str = file_name[file_name.index(".") + 1 :]
-        type_: Optional[str] = None
-        if ext_ == "kut":
-            type_ = "reports/"
-        elif ext_ == "qs":
-            type_ = "scritps/"
-        elif ext_ == "mtd":
-            type_ = "tables/"
-        elif ext_ == "ui":
-            type_ = "forms/"
-        elif ext_ == "qry":
-            type_ = "queries/"
-        elif ext_ == "ts":
-            type_ = "translations/"
-        elif ext_ == "xml":
-            type_ = ""
+        path_file = _path(file_name, False) or ""
+        data = ""
+        if path_file:
+            file_ = codecs.open(
+                path_file, "r", encoding="UTF8" if file_name.endswith(".kut") else "ISO-8859-15"
+            )
+            data = file_.read()
+            file_.close()
 
-        if sys_table:
-            modId = "sys"
-        else:
-            modId = self.idModuleOfFile(file_name)
-            if not sha_key:
-                cursor = self.conn_.execute_query(
-                    "SELECT sha FROM flfiles WHERE nombre='%s'" % file_name
-                )
+        if not data:
+            data = self.content(file_name)
 
-                for contenido in cursor:
-                    sha_key = contenido[0]
-
-        # if not PROJECT._DGI:
-        #    raise Exception("DGI not loaded")
-
-        # if PROJECT.DGI.alternative_content_cached():
-        #    data = project.DGI.content_cached(
-        #        project.tmpdir, self.conn_.DBName(), modId, ext_, name_, sha_key
-        #    )
-        #    if data is not None:
-        #        return data
-
-        if data is None:
-            """Ruta por defecto"""
-            if os.path.exists(
-                "%s/cache/%s/%s/file.%s/%s"
-                % (application.PROJECT.tmpdir, self.conn_.DBName(), modId, ext_, name_)
-            ):
-                utf8_ = True if ext_ == "kut" else False
-                data = self.contentFS(
-                    "%s/cache/%s/%s/file.%s/%s/%s.%s"
-                    % (
-                        application.PROJECT.tmpdir,
-                        self.conn_.DBName(),
-                        modId,
-                        ext_,
-                        name_,
-                        sha_key,
-                        ext_,
-                    ),
-                    utf8_,
-                )
-
-        if data is None:
-            if os.path.exists(utils_base.filedir("./system_module/%s%s.%s" % (type_, name_, ext_))):
-                data = self.contentFS(
-                    utils_base.filedir("./system_module/%s%s.%s" % (type_, name_, ext_))
-                )
-            else:
-                data = self.content(file_name)
-
-        if data is not None:
+        if data:
             self.filesCached_[file_name] = data
         return data
 
