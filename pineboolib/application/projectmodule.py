@@ -452,13 +452,11 @@ class Project(object):
         if not object_context:
             if not array_fun[0] in self.actions:
                 if len(array_fun) > 1:
-                    if show_exceptions:
-                        LOGGER.error(
-                            "No existe la acción %s en el módulo %s", array_fun[1], array_fun[0]
-                        )
+                    msg = "%s en el módulo %s" % (array_fun[1], array_fun[0])
                 else:
-                    if show_exceptions:
-                        LOGGER.error("No existe la acción %s", array_fun[0])
+                    msg = array_fun[0]
+                if show_exceptions:
+                    LOGGER.warning("No existe la acción %s", msg)
                 return None
 
             fun_action = self.actions[array_fun[0]]
