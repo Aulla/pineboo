@@ -235,11 +235,11 @@ class Project(object):
                             pass
 
         if not os.path.exists(path._dir("cache")):
-            LOGGER.info("RUN: Creating %s folder.", path._dir("cache"))
+            LOGGER.warning("RUN: Creating %s folder.", path._dir("cache"))
             os.makedirs(path._dir("cache"))
 
         if not os.path.exists(path._dir("cache/%s" % db_name)):
-            LOGGER.info("RUN: Creating %s folder.", path._dir("cache/%s" % db_name))
+            LOGGER.warning("RUN: Creating %s folder.", path._dir("cache/%s" % db_name))
             os.makedirs(path._dir("cache/%s" % db_name))
 
         # Conectar:

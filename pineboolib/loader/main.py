@@ -301,13 +301,17 @@ def finish_testing() -> None:
     import shutil
     import os
 
+    LOGGER.warning("Deleting temp folder %s", application.PROJECT.tmpdir)
     try:
+
         shutil.rmtree(application.PROJECT.tmpdir)
-    except Exception:
+    except Exception as error:
         LOGGER.warning(
-            "No se ha podido borrar %s al limpiar cambios del test", application.PROJECT.tmpdir
+            "No se ha podido borrar %s al limpiar cambios del test. %s",
+            application.PROJECT.tmpdir,
+            error,
         )
-        pass
+
     qsadictmodules.QSADictModules.clean_all()
     if not os.path.exists(application.PROJECT.tmpdir):
         os.mkdir(application.PROJECT.tmpdir)

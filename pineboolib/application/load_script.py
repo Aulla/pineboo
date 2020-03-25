@@ -28,7 +28,11 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     Transform QS script into Python and starts it up.
     """
 
-    LOGGER.warning("LOADING SCRIPT %s    ----->", script_name.upper())
+    LOGGER.warning(
+        "LOADING SCRIPT %s (ALWAYS PARSE QSA: %s) ----->",
+        script_name.upper(),
+        application.PROJECT.no_python_cache,
+    )
 
     if script_name:
         script_name = script_name.replace(".qs", "")
@@ -42,14 +46,15 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     if script_name:
 
         script_path_qs: str = _path("%s.qs" % script_name, False) or ""
-        script_path_py: str = _path("%s.py" % script_name, False) or ""
+        script_path_py = _path("%s.py" % script_name, False) or ""
+
+        if script_path_qs and not script_path_py:
+            script_path_py = (
+                "%spy" % script_path_qs[:-2] if os.path.exists("%spy" % script_path_qs[:-2]) else ""
+            )
 
         if script_path_qs:
-            LOGGER.info(
-                "Found QSA file (ALWAYS PARSE QSA: %s): %s",
-                application.PROJECT.no_python_cache,
-                script_path_qs,
-            )
+            LOGGER.info("Found QSA file : %s", script_path_qs)
         else:
             LOGGER.info("QSA file not found.")
 
@@ -147,6 +152,9 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                     file_ = open(static_flag, "wb")
                     file_.write(my_data)
                 else:
+                    need_parse = False
+            else:
+                if os.path.exists(script_path_py) and not application.PROJECT.no_python_cache:
                     need_parse = False
 
             if need_parse:
