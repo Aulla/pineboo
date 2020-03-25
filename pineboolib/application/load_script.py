@@ -43,9 +43,9 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
         script_path_py: str = _path("%s.py" % script_name, False) or ""
 
         if script_path_qs:
-            LOGGER.debug("Found QSA file : %s", script_path_qs)
+            LOGGER.info("Found QSA file : %s", script_path_qs)
         if script_path_py:
-            LOGGER.debug("Found PY file : %s", script_path_py)
+            LOGGER.info("Found PY file : %s", script_path_py)
 
         if application.PROJECT.no_python_cache:
             if not script_path_qs:
