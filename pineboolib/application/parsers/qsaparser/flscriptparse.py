@@ -13,16 +13,16 @@ from typing import Any, Dict, List, Tuple, Optional, TextIO
 import ply.yacc as yacc  # type: ignore
 import ply.lex as lex  # type: ignore
 
-from . import flex
+from . import token_rules, flex
 
 TEMP_DIR = tempfile.gettempdir()
 
 # Get the token map
-tokens = flex.tokens
+tokens = token_rules.tokens
 start = "source"
 
 reserv = ["nonassoc"]
-reserv += list(flex.reserved)
+reserv += list(token_rules.reserved)
 
 endoffile = None
 
@@ -807,7 +807,7 @@ def printtree(
         else:
             if ctype == "ID" and name == "":
                 name = value
-            if ctype in flex.token_literals:
+            if ctype in token_rules.token_literals:
                 lines.append(sep * depth + '<%s value="%s" />' % (ctype, cnvrt(value)))
             else:
                 lines.append(sep * depth + "<%s />" % (ctype))
