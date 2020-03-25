@@ -4,6 +4,7 @@ import sys
 from optparse import Values
 from typing import List, Type, Optional, TYPE_CHECKING
 from types import TracebackType
+import coloredlogs  # type: ignore [import]
 
 from PyQt5 import QtCore, QtWidgets
 
@@ -105,7 +106,6 @@ def init_logging(
     loglevel: int = logging.INFO, logtime: bool = False, trace_loggers: List[str] = []
 ) -> None:
     """Initialize pineboo logging."""
-    import coloredlogs
 
     # ---- LOGGING -----
     log_format = "%(levelname)-8s: %(name)s:%(lineno)d: %(message)s"
