@@ -1,3 +1,5 @@
+""" Flex module."""
+
 import ply.lex as lex  # type: ignore
 from . import token_rules
 
