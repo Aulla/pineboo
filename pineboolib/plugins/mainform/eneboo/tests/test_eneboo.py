@@ -96,7 +96,7 @@ class TestEnebooGUI(unittest.TestCase):
             ["flmodules", "flmodules", "flareas", "flmodules", "flusers", "flmodules", "flareas"],
         )
         main_window.loadTabs()
-        self.assertEqual(main_window.tab_widget.count(), 5)
+        self.assertEqual(main_window.tab_widget.count(), 3)  # flmodules, flareas, flusers
 
     @classmethod
     def tearDownClass(cls) -> None:

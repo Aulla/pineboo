@@ -467,7 +467,6 @@ class MainForm(QtWidgets.QMainWindow):
             key = "MainWindow/%s/" % application.PROJECT.conn_manager.database()
 
             open_actions = settings.readListEntry("%sopenActions" % key)
-            i = 0
 
             if self.tab_widget is None:
                 raise Exception("tab_widget is empty!")
@@ -602,8 +601,8 @@ class MainForm(QtWidgets.QMainWindow):
             raise Exception("Not initialized.")
 
         if idx is None:
-            for number, child in enumerate(self.tab_widget):
-                if child is self.tab_widget.currentWidget():
+            for number in range(self.tab_widget.count()):
+                if self.tab_widget.widget(number) is self.tab_widget.currentWidget():
                     idx = number
                     break
 
