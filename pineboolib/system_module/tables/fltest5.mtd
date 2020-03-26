@@ -23,4 +23,12 @@
 		<length>15</length>
 
 	</field>
+	<field>
+		<name>string_timestamp</name>
+		<alias>QT_TRANSLATE_NOOP("MetaData","String timestamp")</alias>
+		<null>true</null>
+		<pk>false</pk>
+		<type>timestamp</type>
+		<default></default>
+	</field>
 </TMD>
