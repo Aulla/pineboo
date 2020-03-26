@@ -439,7 +439,7 @@ class FLApplication(QtCore.QObject):
             if hasattr(mw, "initToolBox"):
                 mw.initToolBox()
 
-            mw.readState()
+            # mw.readState()
 
             if hasattr(mw, "container_"):
                 mw.container_.installEventFilter(self)
