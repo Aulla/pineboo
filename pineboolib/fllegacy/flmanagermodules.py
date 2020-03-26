@@ -279,14 +279,16 @@ class FLManagerModules(object):
 
         path_file = _path(file_name, False) or ""
         data = ""
-        if path_file:
+        if path_file and os.path.exists(path_file):
             file_ = codecs.open(
-                path_file, "r", encoding="UTF8" if file_name.endswith(".kut") else "ISO-8859-15"
+                path_file,
+                "r",
+                encoding="UTF8" if file_name.endswith((".kut", ".ts", ".py")) else "ISO-8859-15",
             )
             data = file_.read()
             file_.close()
 
-        if not data:
+        else:
             data = self.content(file_name)
 
         if data:

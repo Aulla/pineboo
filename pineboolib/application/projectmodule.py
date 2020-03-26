@@ -180,22 +180,14 @@ class Project(object):
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
-
         LOGGER.info("RUN: Loading project data.")
 
         self.pending_conversion_list = []
-
-        if self.actions:
-            del self.actions
-
-        # if self.tables:
-        #    del self.tables
 
         self.actions = {}
         self.files = {}
         self.areas = {}
         self.modules = {}
-        # self.tables = {}
 
         if self.dgi is None:
             raise Exception("DGI not loaded")
@@ -207,8 +199,6 @@ class Project(object):
 
         conn = self.conn_manager.mainConn()
         db_name = conn.DBName()
-        # TODO: Refactorizar esta función en otras más sencillas
-        # Preparar temporal
 
         if self.delete_cache and os.path.exists(path._dir("cache/%s" % db_name)):
 
@@ -216,6 +206,7 @@ class Project(object):
             LOGGER.info(
                 "DEVELOP: delete_cache Activado\nBorrando %s", path._dir("cache/%s" % db_name)
             )
+
             for root, dirs, files in os.walk(path._dir("cache/%s" % db_name), topdown=False):
                 for name in files:
                     os.remove(os.path.join(root, name))
@@ -245,166 +236,11 @@ class Project(object):
             LOGGER.warning("RUN: Creating %s folder.", path._dir("cache/%s" % db_name))
             os.makedirs(path._dir("cache/%s" % db_name))
 
-        # Cargar el núcleo común del proyecto
+        if not self.load_system_module():
+            return False
 
-        file_object = open(
-            utils_base.filedir(utils_base.get_base_dir(), "system_module", "sys.xpm"), "r"
-        )
-        icono = file_object.read()
-        file_object.close()
-        # icono = clearXPM(icono)
-
-        self.modules["sys"] = module.Module("sys", "sys", "Administración", icono)
-
-        for root, dirs, files in os.walk(
-            utils_base.filedir(utils_base.get_base_dir(), "system_module")
-        ):
-            # list_files = []
-            for nombre in files:
-                if root.find("modulos") == -1:
-                    fileobj = file.File("sys", nombre, basedir=root, db_name=db_name)
-                    self.files[nombre] = fileobj
-                    self.modules["sys"].add_project_file(fileobj)
-
-        # Se verifica que existen estas tablas
-        for table in (
-            "flareas",
-            "flmodules",
-            "flfiles",
-            "flgroups",
-            "fllarge",
-            "flserial",
-            "flusers",
-            "flvar",
-            "flmetadata",
-            "flsettings",
-            "flupdates",
-            "flmetadata",
-            "flseqs",
-            "flsettings",
-        ):
-            if not self.conn_manager.manager().existsTable(table):
-                self.conn_manager.manager().createSystemTable(table)
-
-        cursor_ = self.conn_manager.dbAux().cursor()
-
-        cursor_.execute(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
-        for idarea, descripcion in list(cursor_):
-            self.areas[idarea] = AreaStruct(idarea=idarea, descripcion=descripcion)
-
-        self.areas["sys"] = AreaStruct(idarea="sys", descripcion="Area de Sistema")
-
-        # Obtener módulos activos
-        cursor_.execute(
-            """ SELECT idarea, idmodulo, descripcion, icono FROM flmodules WHERE bloqueo = %s """
-            % conn.driver().formatValue("bool", "True", False)
-        )
-
-        for idarea, idmodulo, descripcion, icono in cursor_:
-            icono = xpm.cache_xpm(icono)
-            self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
-
-        cursor_.execute(
-            """ SELECT idmodulo, nombre, sha FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
-        )
-
-        file_1 = open(path._dir("project.txt"), "w")
-
-        count = 0
-
-        list_files: List[str] = []
-        LOGGER.info("RUN: Populating cache.")
-        for idmodulo, nombre, sha in list(cursor_):
-            if not self.dgi.accept_file(nombre):
-                continue
-
-            count += 1
-            if idmodulo not in self.modules:
-                continue  # I
-            fileobj = file.File(idmodulo, nombre, sha, db_name=db_name)
-            if nombre in self.files:
-                LOGGER.warning("run: file %s already loaded, overwritting..." % nombre)
-            self.files[nombre] = fileobj
-            self.modules[idmodulo].add_project_file(fileobj)
-            file_1.write(fileobj.filekey + "\n")
-
-            fileobjdir = os.path.dirname(path._dir("cache", fileobj.filekey))
-            file_name = path._dir("cache", fileobj.filekey)
-            if not os.path.exists(fileobjdir):
-                os.makedirs(fileobjdir)
-
-            if os.path.exists(file_name):
-                if file_name.endswith(".py"):
-                    static_flag = "%s/static.xml" % os.path.dirname(file_name)
-                    if os.path.exists(static_flag):
-                        os.remove(static_flag)
-
-                if file_name.endswith(".mtd"):
-                    if settings.CONFIG.value(
-                        "ebcomportamiento/orm_enabled", False
-                    ) and not settings.CONFIG.value("ebcomportamiento/orm_parser_disabled", False):
-                        if os.path.exists("%s_model.py" % path._dir("cache", fileobj.filekey[:-4])):
-                            continue
-
-            cur2 = self.conn_manager.useConn("dbAux").cursor()
-            sql = (
-                "SELECT contenido FROM flfiles WHERE idmodulo = %s AND nombre = %s AND sha = %s"
-                % (
-                    conn.driver().formatValue("string", idmodulo, False),
-                    conn.driver().formatValue("string", nombre, False),
-                    conn.driver().formatValue("string", sha, False),
-                )
-            )
-            cur2.execute(sql)
-
-            for (contenido,) in list(cur2):
-
-                encode_ = "utf-8" if str(nombre).endswith((".kut", ".ts", ".py")) else "ISO-8859-15"
-
-                folder = path._dir(
-                    "cache",
-                    "/".join(fileobj.filekey.split("/")[: len(fileobj.filekey.split("/")) - 1]),
-                )
-
-                if os.path.exists(folder):
-                    if not os.path.exists(
-                        file_name
-                    ):  # Borra la carpeta si no existe el fichero destino
-                        for root, dirs, files in os.walk(folder):
-                            for file_item in files:
-                                os.remove(os.path.join(root, file_item))
-
-                if not os.path.exists(file_name):
-                    if contenido:
-                        # LOGGER.info("RUN: caching %s", nombre)
-                        self.message_manager().send(
-                            "splash", "showMessage", ["Volcando a caché %s..." % nombre]
-                        )
-                        file_2 = open(file_name, "wb")
-                        txt = contenido.encode(encode_, "replace")
-                        file_2.write(txt)
-                        file_2.close()
-
-            if self.parse_project and nombre.endswith(".qs"):
-                if self.no_python_cache or (
-                    os.path.exists(file_name) and not os.path.exists("%spy" % file_name[:-2])
-                ):
-                    list_files.append(file_name)
-
-        file_1.close()
-        self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
-
-        if list_files:
-            LOGGER.info("RUN: Parsing QSA files. (%s): %s", len(list_files), list_files)
-            if not self.parse_script_list(list_files):
-                LOGGER.warning("Failed QSA conversion !.See debug for mode information.")
-                return False
-
-                # if self.parse_project and nombre.endswith(".qs"):
-                # self.parseScript(path._dir(root, nombre))
-                #    list_files.append(path._dir(root, nombre))
-
-            # self.parse_script_lists(list_files)
+        if not self.load_database_modules():
+            return False
 
         if settings.CONFIG.value(
             "ebcomportamiento/orm_enabled", False
@@ -417,6 +253,7 @@ class Project(object):
         # FIXME: ACLs needed at this level?
         # self.acl_ = FLAccessControlLists()
         # self.acl_.init()
+        print("***", self.actions.keys())
 
         return True
 
@@ -645,3 +482,142 @@ class Project(object):
         """Return id if use pineboo like framework."""
 
         return str(self._session_func_()) if self._session_func_ is not None else "auto"
+
+    def load_system_module(self) -> bool:
+        """Load system module."""
+
+        conn = self.conn_manager.mainConn()
+        db_name = conn.DBName()
+
+        file_object = open(
+            utils_base.filedir(utils_base.get_base_dir(), "system_module", "sys.xpm"), "r"
+        )
+        icono = file_object.read()
+        file_object.close()
+
+        self.modules["sys"] = module.Module("sys", "sys", "Administración", icono)
+        for root, dirs, files in os.walk(
+            utils_base.filedir(utils_base.get_base_dir(), "system_module")
+        ):
+            for nombre in files:
+                if root.find("modulos") == -1:
+                    fileobj = file.File("sys", nombre, basedir=root, db_name=db_name)
+                    self.files[nombre] = fileobj
+                    self.modules["sys"].add_project_file(fileobj)
+
+        # Se verifica que existen estas tablas
+        for table in (
+            "flareas",
+            "flmodules",
+            "flfiles",
+            "flgroups",
+            "fllarge",
+            "flserial",
+            "flusers",
+            "flvar",
+            "flmetadata",
+            "flsettings",
+            "flupdates",
+            "flmetadata",
+            "flseqs",
+            "flsettings",
+        ):
+            if not self.conn_manager.manager().existsTable(table):
+                self.conn_manager.manager().createSystemTable(table)
+
+        return True
+
+    def load_database_modules(self) -> bool:
+        """Load database modules."""
+        conn = self.conn_manager.mainConn()
+        db_name = conn.DBName()
+        cursor_ = self.conn_manager.dbAux().cursor()
+
+        cursor_.execute(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
+        for idarea, descripcion in list(cursor_):
+            self.areas[idarea] = AreaStruct(idarea=idarea, descripcion=descripcion)
+
+        self.areas["sys"] = AreaStruct(idarea="sys", descripcion="Area de Sistema")
+
+        # Obtener módulos activos
+        cursor_.execute(
+            """ SELECT idarea, idmodulo, descripcion, icono FROM flmodules WHERE bloqueo = %s """
+            % conn.driver().formatValue("bool", "True", False)
+        )
+
+        for idarea, idmodulo, descripcion, icono in list(cursor_):
+            icono = xpm.cache_xpm(icono)
+            self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
+
+        cursor_.execute(
+            """ SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
+        )
+
+        log_file = open(path._dir("project.txt"), "w")
+
+        list_files: List[str] = []
+        LOGGER.info("RUN: Populating cache.")
+        for idmodulo, nombre, sha, contenido in list(cursor_):
+            if idmodulo not in self.modules:
+                continue  # I
+
+            fileobj = file.File(idmodulo, nombre, sha, db_name=db_name)
+
+            if nombre in self.files:
+                if self.files[nombre].module == "sys":
+                    continue
+
+                LOGGER.warning("run: file %s already loaded, overwritting..." % nombre)
+            self.files[nombre] = fileobj
+
+            self.modules[idmodulo].add_project_file(fileobj)
+
+            log_file.write(fileobj.filekey + "\n")
+
+            fileobjdir = os.path.dirname(path._dir("cache", fileobj.filekey))
+            file_name = path._dir("cache", fileobj.filekey)
+
+            if not os.path.exists(
+                file_name
+            ):  # Borra contenido de la carpeta si no existe el fichero destino
+                if os.path.exists(fileobjdir):
+                    for root, dirs, files in os.walk(fileobjdir):
+                        for file_item in files:
+                            os.remove(os.path.join(root, file_item))
+                else:
+                    os.makedirs(fileobjdir)
+
+                if contenido is not None:
+                    encode_ = (
+                        "utf-8" if str(nombre).endswith((".kut", ".ts", ".py")) else "ISO-8859-15"
+                    )
+                    self.message_manager().send(
+                        "splash", "showMessage", ["Volcando a caché %s..." % nombre]
+                    )
+                    new_cache_file = open(file_name, "wb")
+                    new_cache_file.write(contenido.encode(encode_, "replace"))
+                    new_cache_file.close()
+            else:
+                if file_name.endswith(".py"):
+                    static_flag = "%s/static.xml" % fileobjdir
+                    if os.path.exists(static_flag):
+                        os.remove(static_flag)
+
+            if self.parse_project:
+                if nombre.endswith(".qs"):
+                    if self.no_python_cache or not os.path.exists(
+                        "%spy" % file_name[:-2]
+                    ):  # si es forzado o no existe el .py
+                        list_files.append(file_name)
+
+        log_file.close()
+        LOGGER.info("RUN: End populating cache.")
+        self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
+
+        if list_files:
+            LOGGER.info("RUN: Parsing QSA files. (%s): %s", len(list_files), list_files)
+            if not self.parse_script_list(list_files):
+                LOGGER.warning("Failed QSA conversion !.See debug for mode information.")
+                return False
+
+        return True

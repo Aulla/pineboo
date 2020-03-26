@@ -28,7 +28,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     Transform QS script into Python and starts it up.
     """
 
-    LOGGER.warning(
+    LOGGER.info(
         "LOADING SCRIPT %s (ALWAYS PARSE QSA: %s) ----->",
         script_name.upper(),
         application.PROJECT.no_python_cache,
@@ -190,7 +190,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
         script_loaded = emptyscript
 
     # script_loaded.form = script_loaded.FormInternalObj(action_)
-    LOGGER.warning("<-----   END LOADING SCRIPT %s", script_name.upper())
+    LOGGER.info("<-----   END LOADING SCRIPT %s", script_name.upper())
     return script_loaded.FormInternalObj(action_)  # type: ignore[attr-defined] # noqa: F821
 
 

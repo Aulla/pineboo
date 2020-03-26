@@ -4,6 +4,7 @@ import unittest
 from . import fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
+from pineboolib.core.utils import utils_base
 
 
 class TestParser(unittest.TestCase):
@@ -12,6 +13,7 @@ class TestParser(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Init test project."""
+        utils_base.FORCE_DESKTOP = True
         init_testing()
 
     def test_kugar_parser_1(self) -> None:

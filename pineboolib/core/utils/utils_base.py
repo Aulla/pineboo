@@ -256,6 +256,7 @@ def load2xml(form_path_or_str: str) -> ElementTree.ElementTree:
         form_path_or_str = _parse_for_duplicates(form_path_or_str)
         file_ptr = io.StringIO(form_path_or_str)
     elif not os.path.exists(form_path_or_str):
+        LOGGER.warning("Problema!!", stack_info=True)
         raise Exception("File %s not found" % form_path_or_str[:200])
 
     try:
