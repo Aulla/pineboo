@@ -419,7 +419,7 @@ class FLApplication(QtCore.QObject):
         QSADictModules.clean_all()
 
         application.PROJECT.run()
-        application.PROJECT.load_modules()
+        # application.PROJECT.load_modules()
 
         self.db().managerModules().loadIdAreas()
         self.db().managerModules().loadAllIdModules()
