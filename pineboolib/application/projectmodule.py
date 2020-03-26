@@ -545,7 +545,9 @@ class Project(object):
 
         for idarea, idmodulo, descripcion, icono in list(cursor_):
             icono = xpm.cache_xpm(icono)
-            self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
+
+            if idmodulo not in self.modules:
+                self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
 
         cursor_.execute(
             """ SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
