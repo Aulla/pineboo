@@ -20,6 +20,7 @@ class MessageBox:
     No = QtWidgets.QMessageBox.No
     NoButton = QtWidgets.QMessageBox.NoButton
     Ok = QtWidgets.QMessageBox.Ok
+    Cancel = QtWidgets.QMessageBox.Cancel
 
     @classmethod
     def msgbox(
