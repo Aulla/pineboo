@@ -332,6 +332,11 @@ class MainForm(QtWidgets.QMainWindow):
 
             elif isinstance(obj_, QtWidgets.QDockWidget):
                 cast(QtCore.pyqtSignal, obj_.topLevelChanged).emit(False)
+            elif isinstance(obj_, flformdb.FLFormDB):
+                for number in range(self.tab_widget.count()):
+                    if self.tab_widget.widget(number) is obj_:
+                        self.tab_widget.removeTab(number)
+                        break
 
         elif isinstance(event, AQS.Show):
             if isinstance(obj_, flformdb.FLFormDB):
@@ -467,12 +472,12 @@ class MainForm(QtWidgets.QMainWindow):
             if self.tab_widget is None:
                 raise Exception("tab_widget is empty!")
 
-            for i in range(self.tab_widget.count()):
-                self.tab_widget.widget(i).close()
+            for number in range(self.tab_widget.count()):
+                self.tab_widget.widget(number).close()
+                self.tab_widget.removeTab(number)
 
             actions_opened: List[str] = []
             for open_action in open_actions:
-
                 if open_action in actions_opened:
                     continue
                 else:
@@ -591,19 +596,21 @@ class MainForm(QtWidgets.QMainWindow):
         mng = flapplication.aqApp.db().managerModules()
         mng.setActiveIdModule(module)
 
-    def removeCurrentPage(self, number: Optional[int] = None) -> None:
+    def removeCurrentPage(self, idx: Optional[int] = None) -> None:
         """Close tab."""
         if self.tab_widget is None:
             raise Exception("Not initialized.")
 
-        widget = (
-            self.tab_widget.widget(number)
-            if number is not None
-            else self.tab_widget.currentWidget()
-        )
+        if idx is None:
+            for number, child in enumerate(self.tab_widget):
+                if child is self.tab_widget.currentWidget():
+                    idx = number
+                    break
 
-        if isinstance(widget, QtWidgets.QDialog):
-            widget.close()
+        if idx is not None:
+            if isinstance(self.tab_widget.widget(idx), QtWidgets.QDialog):
+                self.tab_widget.widget(idx).close()
+                self.tab_widget.removeTab(idx)
 
     def removeAllPages(self) -> None:
         """Close all tabs."""
