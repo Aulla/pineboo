@@ -253,8 +253,6 @@ class Project(object):
         # FIXME: ACLs needed at this level?
         # self.acl_ = FLAccessControlLists()
         # self.acl_.init()
-        print("***", self.actions.keys())
-
         return True
 
     def call(
