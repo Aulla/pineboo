@@ -66,7 +66,8 @@ class TestKnownBugs(unittest.TestCase):
         var texto:String = "UNO DOS".replace(reg_exp, "_").lower();"""
         self.assertEqual(
             qs2py(value3),
-            """reg_exp: \"qsa.RegExp\" = qsa.RegExp(" ")\nreg_exp.global_ = True\ntexto: str = qsa.replace("UNO DOS", reg_exp, "_").lower()\n""",
+            """reg_exp: \"qsa.RegExp\" = qsa.RegExp(" ")\nreg_exp.global_ = True\n"""
+            + """texto: str = qsa.replace("UNO DOS", reg_exp, "_").lower()\n""",
         )
 
     def test_from_project(self) -> None:
