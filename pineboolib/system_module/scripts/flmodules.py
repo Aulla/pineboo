@@ -161,7 +161,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     self.cargarFicheroEnBD("%s.py" % ficheros[i][-3], value_py, log, directorio)
 
             encode = "ISO-8859-1"
-            if path_.endswith((".ts", ".py", ".kut")):
+            if path_.endswith((".ts", ".py")):
                 encode = "UTF-8"
             try:
                 value = qsa.File(path_, encode).read()
@@ -341,9 +341,10 @@ class FormInternalObj(qsa.FormDBWidget):
                             ".qs",
                             ".qry",
                             ".mtd",
+                            ".kut",
                         ]:
                             codec = "ISO-8859-1"
-                        elif tipo in [".py", ".kut", ".ts"]:
+                        elif tipo in [".py", ".ts"]:
                             codec = "UTF-8"
                         else:
                             log.append(

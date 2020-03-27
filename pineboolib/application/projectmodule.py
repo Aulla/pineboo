@@ -588,9 +588,7 @@ class Project(object):
                     os.makedirs(fileobjdir)
 
                 if contenido is not None:
-                    encode_ = (
-                        "utf-8" if str(nombre).endswith((".kut", ".ts", ".py")) else "ISO-8859-15"
-                    )
+                    encode_ = "UTF-8" if str(nombre).endswith((".ts", ".py")) else "ISO-8859-15"
                     self.message_manager().send(
                         "splash", "showMessage", ["Volcando a caché %s..." % nombre]
                     )
