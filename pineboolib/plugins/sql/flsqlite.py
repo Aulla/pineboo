@@ -304,11 +304,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return table_list
 
-    def remove_index(self, metadata: "pntablemetadata.PNTableMetaData") -> bool:
+    def remove_index(self, metadata: "pntablemetadata.PNTableMetaData", query) -> bool:
         """Remove olds index."""
 
-        self.execute_query("DROP INDEX IF EXISTS %s_pkey" % metadata.name())
-        if self.lastError():
+        if not query.exec_("DROP INDEX IF EXISTS %s_pkey" % metadata.name()):
             return False
 
         return True

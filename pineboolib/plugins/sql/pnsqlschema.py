@@ -741,45 +741,33 @@ class PNSqlSchema(object):
         util = flutil.FLUtil()
         table_name = new_metadata.name()
 
+        old_columns_info = self.recordInfo2(table_name)
+        old_field_names: List[str] = []
+        for old_column in old_columns_info:
+            old_field_names.append(old_column[0])
+
         renamed_table = "%salteredtable%s" % (
             table_name,
             QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
         )
 
-        # constraint_name = "%s_key" % table_name
-
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
         query.db().transaction()
 
-        # if self.constraintExists(constraint_name):
-        #    sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (table_name, constraint_name)
-        #    if not query.exec_(sql):
-        #        query.db().rollbackTransaction()
-        #        return False
-
-        # for field in field_list:
-        #    if field.isUnique():
-        #        constraint_name = "%s_%s_key" % table_name, field.name()
-        #        if self.constraintExists(constraint_name):
-        #            sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (
-        #                table_name,
-        #                constraint_name,
-        #            )
-        #            if not query.exec_(sql):
-        #                query.db().rollbackTransaction()
-        #                return False
+        if not self.remove_index(new_metadata, query):
+            query.db().rollbackTransaction()
 
         if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
             query.db().rollbackTransaction()
             return False
 
-        self.remove_index(new_metadata)
-
         if not self.db_.connManager().manager().createTable(new_metadata):
             query.db().rollbackTransaction()
             return False
 
-        cur = self.execute_query("SELECT * FROM %s WHERE 1=1" % renamed_table)
+        cur = self.execute_query(
+            "SELECT %s FROM %s WHERE 1=1" % (", ".join(old_field_names), renamed_table)
+        )
         old_data_list = cur.fetchall()
         # old_cursor = pnsqlcursor.PNSqlCursor(renamed_table, True, "dbAux")
         # old_cursor.setModeAccess(old_cursor.Browse)
@@ -792,31 +780,38 @@ class PNSqlSchema(object):
 
         util.setLabelText(util.translate("application", "Tabla modificada"))
 
-        old_columns_info = self.recordInfo2(table_name)
-        new_field_names = new_metadata.fieldNames()
+        new_field_names: List[str] = new_metadata.fieldNames()
+
         list_records = []
         for number_progress, old_data in enumerate(old_data_list):
             new_buffer = []
-            for number, column in enumerate(old_columns_info):
-                field = new_metadata.field(column[0])
-                if field:
-                    value = (
-                        old_data[number] if column[0] in new_field_names else field.defaultValue()
-                    )
-                    new_buffer.append([field, value])
+
+            for new_idx, new_name in enumerate(new_field_names):
+                new_field = new_metadata.field(new_name)
+                value = None
+                if new_name in old_field_names:
+                    value = old_data[old_field_names.index(new_name)]
+                    if value is None:
+                        continue
+                elif not field.allowNull():
+                    value = new_field.defaultValue()
+                else:
+                    continue
+
+                new_buffer.append([new_field, value])
 
             list_records.append(new_buffer)
+
             util.setProgress(number_progress)
 
         util.destroyProgressDialog()
         if not self.insertMulti(table_name, list_records):
-            query.db().rollbackTransaction()
+            self.db_.connManager().dbAux().rollbackTransaction()
             return False
         else:
             self.db_.connManager().dbAux().commit()
 
         query.exec_("DROP TABLE %s CASCADE" % renamed_table)
-
         return True
 
     def cascadeSupport(self) -> bool:
@@ -1215,3 +1210,39 @@ class PNSqlSchema(object):
         """Check sequences."""
 
         return
+
+    def regenTable(self, table_name: str, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
+
+        must_alter = self.mismatchedTable(table_name, new_metadata)
+
+        if must_alter:
+            must_alter = self.alterTable(new_metadata)
+
+            if must_alter:
+                conn_dbaux = self.db_.connManager().dbAux()
+                reg_exp = re.compile("^.*\\d{6,9}$")
+                bad_list_mtds = list(filter(reg_exp.match, self.tables("Tables")))
+
+                sql = "select nombre from flfiles where nombre%s" % self.formatValueLike(
+                    "string", "%%alteredtable", False
+                )
+                cursor = conn_dbaux.execute_query(sql)
+                for name in cursor:
+                    sql = "DELETE FROM flfiles WHERE NOMBRE ='%s'" % name
+                    conn_dbaux.execute_query(sql)
+                    if name.find("alteredtable") > -1 and self.existsTable(name.replace(".mtd", "")):
+                        conn_dbaux.execute_query("DROP table %s CASCADE" % name.replace(".mtd", ""))
+                        
+                for bad_table in bad_list_tables:
+                    if self.existsTable(bad_table):
+                        conn_dbaux.execute_query("DROP table %s cascade" % bad_table
+                                                 
+                conn_dbaux.commit()
+        
+        return must_alter
+                
+                
+                                            
+                                        
+                    
+                    

@@ -421,36 +421,16 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             LOGGER.error("finRow: %s", exception)
             LOGGER.warning("Detalle:", stack_info=True)
 
-    def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
-        """Modify a table structure."""
+    def remove_index(self, metadata, query):
 
-        if self.hasCheckColumn(new_metadata):
-            return False
-
-        field_list = new_metadata.fieldList()
-        if not field_list:
-            return False
-
-        util = flutil.FLUtil()
-        table_name = new_metadata.name()
-
-        renamed_table = "%salteredtable%s" % (
-            table_name,
-            QtCore.QDateTime().currentDateTime().toString("ddhhssz"),
-        )
-
+        table_name = metadata.name()
         constraint_name = "%s_key" % table_name
-
-        query = pnsqlquery.PNSqlQuery(None, "dbAux")
-        query.db().transaction()
-
         if self.constraintExists(constraint_name):
             sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (table_name, constraint_name)
             if not query.exec_(sql):
-                query.db().rollbackTransaction()
                 return False
 
-        for field in field_list:
+        for field in new_metadata.fieldList():
             if field.isUnique():
                 constraint_name = "%s_%s_key" % (table_name, field.name())
                 if self.constraintExists(constraint_name):
@@ -459,57 +439,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                         constraint_name,
                     )
                     if not query.exec_(sql):
-                        query.db().rollbackTransaction()
                         return False
-
-        if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
-            query.db().rollbackTransaction()
-            return False
-
-        if not self.db_.connManager().manager().createTable(new_metadata):
-            query.db().rollbackTransaction()
-            return False
-
-        cur = self.execute_query("SELECT * FROM %s WHERE 1=1" % renamed_table)
-        old_data_list = cur.fetchall()
-        # old_cursor = pnsqlcursor.PNSqlCursor(renamed_table, True, "dbAux")
-        # old_cursor.setModeAccess(old_cursor.Browse)
-        # old_cursor.select()
-        util.createProgressDialog(
-            util.translate("application", "Reestructurando registros para %s...")
-            % new_metadata.alias(),
-            len(old_data_list),
-        )
-
-        util.setLabelText(util.translate("application", "Tabla modificada"))
-
-        old_columns_info = self.recordInfo2(table_name)
-        new_field_names = new_metadata.fieldNames()
-        list_records = []
-        for number_progress, old_data in enumerate(old_data_list):
-            new_buffer = []
-            for number, column in enumerate(old_columns_info):
-                new_field = new_metadata.field(column[0])
-                if new_field:
-                    value = (
-                        old_data[number]
-                        if column[0] in new_field_names
-                        else new_field.defaultValue()
-                    )
-                    new_buffer.append([new_field, value])
-
-            list_records.append(new_buffer)
-            util.setProgress(number_progress)
-
-        util.destroyProgressDialog()
-        if not self.insertMulti(table_name, list_records):
-            self.db_.connManager().dbAux().rollbackTransaction()
-            return False
-        else:
-            self.db_.connManager().dbAux().commit()
-
-        query.exec_("DROP TABLE %s CASCADE" % renamed_table)
-        return True
 
     """
     def Mr_Proper(self) -> None:

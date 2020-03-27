@@ -738,14 +738,15 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def canRegenTables(self) -> bool:
         """Return if can regenerate tables."""
+        if not self._driver_name:
+            return False
 
         return self.driver().canRegenTables()
 
-    @decorators.not_implemented_warn
-    def regenTable(self, table_name: str, mtd: "pntablemetadata.PNTableMetaData") -> None:
+    def regenTable(self, table_name: str, mtd: "pntablemetadata.PNTableMetaData") -> bool:
         """Regenerate a table."""
 
-        return None
+        return self.driver().regenTable(table_name, mtd)
 
     def idle_time(self) -> float:
         """Return idle time in Seconds."""
