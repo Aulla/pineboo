@@ -28,6 +28,7 @@ from pineboolib import logging
 from typing import Union, List, Dict, Optional, cast, TYPE_CHECKING
 import os
 import codecs
+from xml.etree import ElementTree as ET
 
 if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # noqa: F401
@@ -874,7 +875,7 @@ class FLManagerModules(object):
             file_name, self.static_db_info_, only_path
         )
         if str_ret:
-
+            mng = application.PROJECT.conn_manager.manager()
             s = ""
             util = flutil.FLUtil()
             sha = util.sha1(str_ret)
@@ -888,21 +889,15 @@ class FLManagerModules(object):
                 self.dict_key_files_[file_name] = sha
 
             if file_name.endswith(".mtd"):
-                from PyQt5.QtXml import QDomDocument  # type: ignore
+                mtd = mng.metadata(ET.fromstring(str_ret), True)
 
-                doc = QDomDocument(file_name)
-                if util.domDocumentSetContent(doc, str_ret):
-                    mng = self.conn_.connManager().manager()
-                    docElem = doc.documentElement()
-                    mtd = mng.metadata(docElem, True)
+                if not mtd or mtd.isQuery():
+                    return str_ret
 
-                    if not mtd or mtd.isQuery():
-                        return str_ret
-
-                    if not mng.existsTable(mtd.name()):
-                        mng.createTable(mng)
-                    elif self.conn_.canRegenTables():
-                        self.conn_.regenTable(mtd.name(), mtd)
+                if not mng.existsTable(mtd.name()):
+                    mng.createTable(mng)
+                elif self.conn_.canRegenTables():
+                    self.conn_.regenTable(mtd.name(), mtd)
 
         return str_ret
 
