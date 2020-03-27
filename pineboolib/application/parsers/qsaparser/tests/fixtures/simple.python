@@ -24,7 +24,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
 
 if TYPE_CHECKING:
-    form: FormInternalObj = FormInternalObj()
+    form: "FormInternalObj" = FormInternalObj()
     iface = form.iface
 else:
     form = None

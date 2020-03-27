@@ -1325,8 +1325,16 @@ class Variable(ASTPython):
 
             value.set("parent_", self.elem)  # type: ignore
             values += 1
-            if dtype is None and name not in ("iface", "form"):
-                yield "expr", ": Any"
+            if dtype is None:
+                if name not in ("iface", "form"):
+                    yield "expr", ": Any"
+
+            if dtype == "String":
+                yield "expr", ": str"
+            elif dtype == "Number":
+                pass
+            elif dtype in QSA_KNOWN_ATTRS:
+                yield "expr", ': "qsa.%s"' % dtype
 
             yield "expr", "="
             expr = 0
@@ -1358,6 +1366,8 @@ class Variable(ASTPython):
                         yield "expr", ": str"
                     elif dtype == "Number":
                         yield "expr", "= 0"
+                    elif dtype == "FLUtil":
+                        yield "expr", ': "qsa.FLUtil" = qsa.FLUtil()'
                     elif dtype in QSA_KNOWN_ATTRS:
                         yield "expr", ': "qsa.%s"' % dtype
                     else:
@@ -2514,7 +2524,7 @@ def file_template(
 
     yield "line", ""
     yield "line", "if TYPE_CHECKING:"
-    yield "line", "    form: FormInternalObj = FormInternalObj()"
+    yield "line", '    form: "FormInternalObj" = FormInternalObj()'
     yield "line", "    iface = form.iface"
     yield "line", "else:"
     yield "line", "    form = None"

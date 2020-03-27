@@ -136,7 +136,7 @@ class TestParser(unittest.TestCase):
             qs2py(
                 'var rutaImp:String = "."; var impDir = new QDir(rutaImp, "c*.csv C*.csv c*.CSV C*.CSV");'
             ),
-            'rutaImp = "."\nimpDir: Any = qsa.QDir(rutaImp, "c*.csv C*.csv c*.CSV C*.CSV")\n',
+            'rutaImp: str = "."\nimpDir: Any = qsa.QDir(rutaImp, "c*.csv C*.csv c*.CSV C*.CSV")\n',
         )
 
     def test_qobject(self) -> None:
@@ -164,7 +164,7 @@ class TestParser(unittest.TestCase):
             qs2py(
                 'var listaOutlet:Array = new Array();flfactppal.iface.replace(listaOutlet, ", ", " "," ");'
             ),
-            """listaOutlet = qsa.Array()
+            """listaOutlet: \"qsa.Array\" = qsa.Array()
 qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         )
 
@@ -181,7 +181,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
 
         self.assertEqual(
             qs2py("var listaOutlet:Array = new Array();listaOutlet.sort();"),
-            "listaOutlet = qsa.Array()\nqsa.Sort().sort_(listaOutlet)\n",
+            'listaOutlet: "qsa.Array" = qsa.Array()\nqsa.Sort().sort_(listaOutlet)\n',
         )
 
     def test_sort_2(self) -> None:
@@ -194,7 +194,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
                 aLista.sort(parseString);
                 """
             ),
-            "aLista = qsa.Array()\nqsa.Sort(qsa.parseString).sort_(aLista)\n",
+            'aLista: "qsa.Array" = qsa.Array()\nqsa.Sort(qsa.parseString).sort_(aLista)\n',
         )
 
     def test_form2(self) -> None:

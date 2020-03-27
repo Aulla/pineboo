@@ -28,10 +28,10 @@ class TestKnownBugs(unittest.TestCase):
         """Test str.mid(5, 2)."""
 
         value_1 = 'var cadena:String = "abcdefg";\ncadena.mid(5, 2);'
-        self.assertEqual(qs2py(value_1), 'cadena = "abcdefg"\ncadena[5 : 5 + 2]\n')
+        self.assertEqual(qs2py(value_1), 'cadena: str = "abcdefg"\ncadena[5 : 5 + 2]\n')
 
         value_2 = 'var cadena:String = "abcdefg";\ncadena.mid(5);'
-        self.assertEqual(qs2py(value_2), 'cadena = "abcdefg"\ncadena[0 + 5 :]\n')
+        self.assertEqual(qs2py(value_2), 'cadena: str = "abcdefg"\ncadena[0 + 5 :]\n')
 
     def test_system_get_env(self) -> None:
         """Check that qsa.System.getenv () works correctly."""
@@ -46,25 +46,27 @@ class TestKnownBugs(unittest.TestCase):
         value = """var text_:String = "test@test.test";\nif (text_.indexOf("@") == -1){\ndebug("ok");}"""
         self.assertEqual(
             qs2py(value),
-            """text_ = "test@test.test"\nif text_.index("@") == -1:\n    qsa.debug("ok")\n""",
+            """text_: str = "test@test.test"\nif text_.index("@") == -1:\n    qsa.debug("ok")\n""",
         )
 
     def test_reg_exp(self) -> None:
         """Test regExp parser."""
         value = """var reg_exp:RegExp = new RegExp( "''" );\nreg_exp.global = true;"""
-        self.assertEqual(qs2py(value), """reg_exp = qsa.RegExp("''")\nreg_exp.global_ = True\n""")
+        self.assertEqual(
+            qs2py(value), """reg_exp: "qsa.RegExp" = qsa.RegExp("''")\nreg_exp.global_ = True\n"""
+        )
 
         value2 = """var reg_exp:RegExp = new RegExp( " " );\nreg_exp.global = true;\nvar texto:String = "UNO DOS".replace(reg_exp, "_");"""
         self.assertEqual(
             qs2py(value2),
-            """reg_exp = qsa.RegExp(" ")\nreg_exp.global_ = True\ntexto = qsa.replace("UNO DOS", reg_exp, "_")\n""",
+            """reg_exp: \"qsa.RegExp\" = qsa.RegExp(" ")\nreg_exp.global_ = True\ntexto: str = qsa.replace("UNO DOS", reg_exp, "_")\n""",
         )
 
         value3 = """var reg_exp:RegExp = new RegExp( " " );\nreg_exp.global = true;\n
         var texto:String = "UNO DOS".replace(reg_exp, "_").lower();"""
         self.assertEqual(
             qs2py(value3),
-            """reg_exp = qsa.RegExp(" ")\nreg_exp.global_ = True\ntexto = qsa.replace("UNO DOS", reg_exp, "_").lower()\n""",
+            """reg_exp: \"qsa.RegExp\" = qsa.RegExp(" ")\nreg_exp.global_ = True\ntexto: str = qsa.replace("UNO DOS", reg_exp, "_").lower()\n""",
         )
 
     def test_from_project(self) -> None:
@@ -244,7 +246,7 @@ class TestKnownBugs(unittest.TestCase):
         .arg(qryRecargo.value("f.nombrecliente"))"""
         )
 
-        cadena_result = """qryRecargo = qsa.FLSqlQuery()
+        cadena_result = """qryRecargo: \"qsa.FLSqlQuery\" = qsa.FLSqlQuery()
 res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") % (
     str(qryRecargo.value("f.codigo")),
     str(qryRecargo.value("f.nombrecliente")),\n)\n"""
