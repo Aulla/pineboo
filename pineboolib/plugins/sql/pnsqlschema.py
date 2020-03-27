@@ -58,6 +58,7 @@ class PNSqlSchema(object):
     _like_false: Any
     _null: str
     _text_like: str
+    _text_cascade: str
     _safe_load: Dict[str, str]
     _database_not_found_keywords: List[str]
     _transaction: int
@@ -88,6 +89,7 @@ class PNSqlSchema(object):
         self.rollback_transaction_command = "ROLLBACK TRANSACTION"
         self.transaction_command = "BEGIN TRANSACTION"
         self.release_savepoint_command = "RELEASE SAVEPOINT"
+        self._text_cascade = "CASCADE"
         self._true = "1"
         self._false = "0"
         self._like_true = "1"
@@ -523,7 +525,6 @@ class PNSqlSchema(object):
 
     def transaction(self) -> bool:
         """Set a new transaction."""
-
         if not self.isOpen():
             LOGGER.warning("%s::transaction: Database not open", __name__)
             return False
@@ -618,13 +619,6 @@ class PNSqlSchema(object):
                 if self.notEqualsFields(dict_database[name], dict_metadata[name]):
                     return True
             else:
-                LOGGER.error(
-                    "Esto no debería de pasar :( database: %s metadata: %s key : %s",
-                    dict_database,
-                    dict_metadata,
-                    name,
-                    stack_info=True,
-                )
                 return True
 
         return False
@@ -752,17 +746,24 @@ class PNSqlSchema(object):
         )
 
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
-        query.db().transaction()
+
+        do_transaction = self._transaction > 0
+
+        if do_transaction:
+            query.db().transaction()
+            self._transaction += 1
 
         if not self.remove_index(new_metadata, query):
             query.db().rollbackTransaction()
 
         if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
             query.db().rollbackTransaction()
+            self._transaction -= 1
             return False
 
         if not self.db_.connManager().manager().createTable(new_metadata):
             query.db().rollbackTransaction()
+            self._transaction -= 1
             return False
 
         cur = self.execute_query(
@@ -792,9 +793,14 @@ class PNSqlSchema(object):
                 if new_name in old_field_names:
                     value = old_data[old_field_names.index(new_name)]
                     if value is None:
-                        continue
-                elif not field.allowNull():
+                        if new_field.type() == "timestamp":
+                            value = self.getTimeStamp()
+                        else:
+                            continue
+                elif not new_field.allowNull():
                     value = new_field.defaultValue()
+                    if value is None:
+                        continue
                 else:
                     continue
 
@@ -807,11 +813,14 @@ class PNSqlSchema(object):
         util.destroyProgressDialog()
         if not self.insertMulti(table_name, list_records):
             self.db_.connManager().dbAux().rollbackTransaction()
+            self._transaction -= 1
             return False
         else:
-            self.db_.connManager().dbAux().commit()
+            if do_transaction:
+                self.db_.connManager().dbAux().commit()
+                self._transaction -= 1
 
-        query.exec_("DROP TABLE %s CASCADE" % renamed_table)
+        query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
         return True
 
     def cascadeSupport(self) -> bool:
@@ -973,10 +982,10 @@ class PNSqlSchema(object):
 
         return self.conn_.cursor() if self.conn_ is not None else False
 
-    def insertMulti(self, table_name: str, list_records: Iterable = []) -> bool:
+    def insertMulti(
+        self, table_name: str, list_records: Iterable = []
+    ) -> bool:  # FIXME SQLITE NO PUEDE TODAS DE GOLPE
         """Insert several rows at once."""
-
-        sql = ""
         for line in list_records:
             field_names = []
             field_values = []
@@ -994,17 +1003,18 @@ class PNSqlSchema(object):
                 field_names.append(field.name())
                 field_values.append(value)
 
-            sql += """INSERT INTO %s(%s) values (%s);""" % (
+            sql = """INSERT INTO %s(%s) values (%s)""" % (
                 table_name,
                 ", ".join(field_names),
                 ", ".join(map(str, field_values)),
             )
 
-        try:
-            self.execute_query(sql)
-        except Exception as error:
-            LOGGER.error("insertMulti: %s %s", sql, str(error))
-            return False
+            if sql:
+                try:
+                    self.execute_query(sql)
+                except Exception as error:
+                    LOGGER.error("insertMulti: %s %s", sql, str(error))
+                    return False
 
         return True
 
@@ -1017,7 +1027,7 @@ class PNSqlSchema(object):
         multi_fllarge = False
         fllarge_tables_list: List[str] = []
         fllarge_to_delete: Dict[str, List[str]] = {}
-        sql = "SELECT valor FROM flsettings where flkey=%s" % self.formatValue(
+        sql = "SELECT valor FROM flsettings WHERE flkey=%s" % self.formatValue(
             "string", "FLLargeMode", False
         )
         cursor = conn_dbaux.execute_query(sql)
@@ -1115,7 +1125,7 @@ class PNSqlSchema(object):
 
         # query = pnsqlquery.PNSqlQuery(None,conn_dbaux)
         cursor = conn_dbaux.execute_query(
-            "select nombre from flfiles where nombre "
+            "SELECT nombre FROM flfiles WHERE nombre "
             + self.formatValueLike("string", "%%.mtd", False)
         )
         list_mtds = []
@@ -1147,7 +1157,9 @@ class PNSqlSchema(object):
                 util.setLabelText(
                     util.translate("application", "Borrando tabla %s" % altered_table_name)
                 )
-                conn_dbaux.execute_query("DROP TABLE %s CASCADE" % altered_table_name)
+                conn_dbaux.execute_query(
+                    "DROP TABLE %s %s" % (altered_table_name, self._text_cascade)
+                )
 
             util.setProgress(number)
 
@@ -1182,10 +1194,10 @@ class PNSqlSchema(object):
         util.createProgressDialog(util.translate("application", "Comprobando base de datos"), 4)
         util.setLabelText(util.translate("application", "Borrando flmetadata"))
         util.setProgress(1)
-        conn_dbaux.execute_query("delete from flmetadata")
+        conn_dbaux.execute_query("DELETE FROM flmetadata")
         util.setLabelText(util.translate("application", "Borrando flvar"))
         util.setProgress(2)
-        conn_dbaux.execute_query("delete from flvar")
+        conn_dbaux.execute_query("DELETE FROM flvar")
         conn_dbaux.connManager().manager().cleanupMetaData()
         conn_dbaux.commit()
 
@@ -1223,26 +1235,26 @@ class PNSqlSchema(object):
                 reg_exp = re.compile("^.*\\d{6,9}$")
                 bad_list_mtds = list(filter(reg_exp.match, self.tables("Tables")))
 
-                sql = "select nombre from flfiles where nombre%s" % self.formatValueLike(
+                sql = "SELECT nombre FROM flfiles WHERE nombre%s" % self.formatValueLike(
                     "string", "%%alteredtable", False
                 )
                 cursor = conn_dbaux.execute_query(sql)
                 for name in cursor:
-                    sql = "DELETE FROM flfiles WHERE NOMBRE ='%s'" % name
+                    sql = "DELETE FROM flfiles WHERE nombre ='%s'" % name
                     conn_dbaux.execute_query(sql)
-                    if name.find("alteredtable") > -1 and self.existsTable(name.replace(".mtd", "")):
-                        conn_dbaux.execute_query("DROP table %s CASCADE" % name.replace(".mtd", ""))
-                        
+                    if name.find("alteredtable") > -1 and self.existsTable(
+                        name.replace(".mtd", "")
+                    ):
+                        conn_dbaux.execute_query(
+                            "DROP TABLE %s %s" % (name.replace(".mtd", ""), self._text_cascade)
+                        )
+
                 for bad_table in bad_list_tables:
                     if self.existsTable(bad_table):
-                        conn_dbaux.execute_query("DROP table %s cascade" % bad_table
-                                                 
+                        conn_dbaux.execute_query(
+                            "DROP TABLE %s %s" % (bad_table, self._text_cascade)
+                        )
+
                 conn_dbaux.commit()
-        
+
         return must_alter
-                
-                
-                                            
-                                        
-                    
-                    

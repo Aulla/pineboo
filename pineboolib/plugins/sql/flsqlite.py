@@ -40,6 +40,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.desktop_file = True
         self._null = ""
         self._text_like = ""
+        self._text_cascade = ""
         self._safe_load = {"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"}
         self._single_conn = True
 

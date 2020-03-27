@@ -430,7 +430,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             if not query.exec_(sql):
                 return False
 
-        for field in new_metadata.fieldList():
+        for field in metadata.fieldList():
             if field.isUnique():
                 constraint_name = "%s_%s_key" % (table_name, field.name())
                 if self.constraintExists(constraint_name):
