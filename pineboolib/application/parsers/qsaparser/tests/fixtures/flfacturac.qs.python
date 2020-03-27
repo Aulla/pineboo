@@ -7,7 +7,7 @@ from pineboolib.qsa import qsa
 
 # /** @class_declaration interna */
 class interna(object):
-    ctx = qsa.Object()
+    ctx: "qsa.Object"
 
     def __init__(self, context=None):
         self.ctx = context
@@ -69,7 +69,7 @@ class interna(object):
 
 # /** @class_declaration oficial */
 class oficial(interna):
-    curAsiento_ = None
+    curAsiento_: "qsa.FLSqlCursor"
 
     def __init__(self, context=None):
         super(oficial, self).__init__(context)
@@ -409,7 +409,7 @@ class ifaceCtx(head):
 
 # /** @class_declaration FormInternalObj */
 class FormInternalObj(qsa.FormDBWidget):
-    iface: ifaceCtx
+    iface: "ifaceCtx"
 
     # /** @class_definition FormInternalObj */
     def _class_init(self):
@@ -418,7 +418,7 @@ class FormInternalObj(qsa.FormDBWidget):
     # /** @class_definition interna */
     def interna_beforeCommit_pedidoscli(self, curPedido=None):
         util = qsa.FLUtil()
-        numero = ""
+        numero: str
         for case in qsa.switch(curPedido.modeAccess()):
             if case(curPedido.Insert):
                 if not qsa.from_project("flfactppal").iface.pub_clienteActivo(
@@ -478,7 +478,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def interna_beforeCommit_pedidosprov(self, curPedido=None):
         util = qsa.FLUtil()
-        numero = ""
+        numero: str
         for case in qsa.switch(curPedido.modeAccess()):
             if case(curPedido.Insert):
                 if curPedido.valueBuffer("numero") == 0:
@@ -529,7 +529,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def interna_beforeCommit_facturascli(self, curFactura=None):
         util = qsa.FLUtil()
-        numero = ""
+        numero: str
         if curFactura.modeAccess() == curFactura.Insert or curFactura.modeAccess() == curFactura.Edit:
             if not self.iface.comprobarFacturaAbonoCli(curFactura):
                 return False
@@ -603,7 +603,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def interna_beforeCommit_facturasprov(self, curFactura=None):
         util = qsa.FLUtil()
-        numero = ""
+        numero: str
         if curFactura.valueBuffer("deabono"):
             if not curFactura.valueBuffer("idfacturarect"):
                 qsa.MessageBox.warning(
@@ -690,7 +690,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def interna_beforeCommit_albaranescli(self, curAlbaran=None):
         util = qsa.FLUtil()
-        numero = ""
+        numero: str
         for case in qsa.switch(curAlbaran.modeAccess()):
             if case(curAlbaran.Insert):
                 if not qsa.from_project("flfactppal").iface.pub_clienteActivo(
@@ -739,7 +739,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def interna_beforeCommit_albaranesprov(self, curAlbaran=None):
         util = qsa.FLUtil()
-        numero = ""
+        numero: str
         for case in qsa.switch(curAlbaran.modeAccess()):
             if case(curAlbaran.Insert):
                 if curAlbaran.valueBuffer("numero") == 0:
@@ -765,7 +765,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def interna_beforeCommit_presupuestoscli(self, curPresupuesto=None):
         util = qsa.FLUtil()
-        numero = ""
+        numero: str
         for case in qsa.switch(curPresupuesto.modeAccess()):
             if case(curPresupuesto.Insert):
                 if not qsa.from_project("flfactppal").iface.pub_clienteActivo(
@@ -1194,7 +1194,7 @@ class FormInternalObj(qsa.FormDBWidget):
         if not self.iface.comprobarRegularizacion(curFactura):
             return False
         datosAsiento = qsa.Array()
-        valoresDefecto = qsa.Array()
+        valoresDefecto: "qsa.Array"
         valoresDefecto["codejercicio"] = curFactura.valueBuffer("codejercicio")
         valoresDefecto["coddivisa"] = qsa.from_project("flfactppal").iface.pub_valorDefectoEmpresa("coddivisa")
         curTransaccion = qsa.FLSqlCursor("facturascli")
@@ -1343,8 +1343,8 @@ class FormInternalObj(qsa.FormDBWidget):
             haber = util.roundFieldValue(haber, "co_partidas", "haber")
             haberME = util.roundFieldValue(haberME, "co_partidas", "haberme")
             baseImponible = util.roundFieldValue(baseImponible, "co_partidas", "baseimponible")
-            ctaIvaRep = qsa.Array()
-            textoError = ""
+            ctaIvaRep: "qsa.Array"
+            textoError: str
             for case in qsa.switch(regimenIVA):
                 if case("U.E."):
                     ctaIvaRep = self.iface.datosCtaIVA("IVAEUE", valoresDefecto.codejercicio, qryIva.value(5))
@@ -1447,7 +1447,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def oficial_regimenIVACliente(self, curDocCliente=None):
         util = qsa.FLUtil()
-        regimen = ""
+        regimen: str
         codCliente = curDocCliente.valueBuffer("codcliente")
         if codCliente and codCliente != "":
             regimen = util.sqlSelect("clientes", "regimeniva", qsa.ustr("codcliente = '", codCliente, "'"))
@@ -1880,7 +1880,7 @@ class FormInternalObj(qsa.FormDBWidget):
             return False
         util = qsa.FLUtil()
         datosAsiento = qsa.Array()
-        valoresDefecto = qsa.Array()
+        valoresDefecto: "qsa.Array"
         valoresDefecto["codejercicio"] = curFactura.valueBuffer("codejercicio")
         valoresDefecto["coddivisa"] = qsa.from_project("flfactppal").iface.pub_valorDefectoEmpresa("coddivisa")
         curTransaccion = qsa.FLSqlCursor("facturascli")
@@ -2137,7 +2137,7 @@ class FormInternalObj(qsa.FormDBWidget):
         regimenIVA = util.sqlSelect(
             "proveedores", "regimeniva", qsa.ustr("codproveedor = '", curFactura.valueBuffer("codproveedor"), "'")
         )
-        codCuentaEspIVA = ""
+        codCuentaEspIVA: str
         qryIva = qsa.FLSqlQuery()
         qryIva.setTablesList("lineasivafactprov")
         if regimenIVA == "UE":
@@ -2540,7 +2540,7 @@ class FormInternalObj(qsa.FormDBWidget):
     def oficial_datosCtaIVA(self, tipo=None, codEjercicio=None, codImpuesto=None):
         util = qsa.FLUtil()
         datos = qsa.Array()
-        codSubcuenta = ""
+        codSubcuenta: str
         if not codImpuesto or codImpuesto == "":
             codSubcuenta = util.sqlSelect(
                 "co_subcuentas",
@@ -2741,7 +2741,7 @@ class FormInternalObj(qsa.FormDBWidget):
             return True
         curPartidasVenta = qsa.FLSqlCursor("co_partidas")
         ctaDevolVentas = False
-        codSubcuentaDev = ""
+        codSubcuentaDev: str
         while qryPartidasVenta.next():
             codSubcuentaDev = qryPartidasVenta.value("p.codsubcuenta")
             if not self.iface.esSubcuentaEspecial(codSubcuentaDev, valoresDefecto.codejercicio, "VENTAS"):
@@ -2828,7 +2828,7 @@ class FormInternalObj(qsa.FormDBWidget):
             return True
         curPartidasCompra = qsa.FLSqlCursor("co_partidas")
         ctaDevolCompra = False
-        codSubcuentaDev = ""
+        codSubcuentaDev: str
         while qryPartidasCompra.next():
             codSubcuentaDev = qryPartidasCompra.value("p.codsubcuenta")
             if not self.iface.esSubcuentaEspecial(codSubcuentaDev, valoresDefecto.codejercicio, "COMPRA"):
@@ -3022,8 +3022,8 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def oficial_recalcularHuecos(self, serie=None, ejercicio=None, fN=None):
         util = qsa.FLUtil()
-        tipo = ""
-        tabla = ""
+        tipo: str
+        tabla: str
         if fN == "nfacturaprov":
             tipo = "FP"
             tabla = "facturasprov"
@@ -3218,7 +3218,7 @@ class FormInternalObj(qsa.FormDBWidget):
         return False
 
     def oficial_validarIvaRecargoCliente(self, codCliente=None, id=None, tabla=None, identificador=None):
-        util = qsa.FLUtil()
+        util: "qsa.FLUtil"
         if not codCliente:
             return True
         regimenIva: Any = util.sqlSelect("clientes", "regimeniva", qsa.ustr("codcliente = '", codCliente, "'"))
@@ -3307,7 +3307,7 @@ class FormInternalObj(qsa.FormDBWidget):
         return True
 
     def oficial_validarIvaRecargoProveedor(self, codProveedor=None, id=None, tabla=None, identificador=None):
-        util = qsa.FLUtil()
+        util: "qsa.FLUtil"
         if not codProveedor:
             return True
         regimenIva: Any = util.sqlSelect("proveedores", "regimeniva", qsa.ustr("codproveedor = '", codProveedor, "'"))
@@ -3433,7 +3433,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def oficial_crearCtaEspecial(self, codCtaEspecial=None, tipo=None, codEjercicio=None, desCta=None):
         util = qsa.FLUtil()
-        codSubcuenta = ""
+        codSubcuenta: str
         if tipo == "subcuenta":
             f = qsa.FLFormSearchDB("co_subcuentas")
             curSubcuenta = f.cursor()
@@ -3461,7 +3461,7 @@ class FormInternalObj(qsa.FormDBWidget):
         return True
 
     def oficial_comprobarCambioSerie(self, cursor=None):
-        util = qsa.FLUtil()
+        util: "qsa.FLUtil"
         if (
             not cursor.valueBuffer("codserie")
             or cursor.valueBuffer("codserie") == ""
@@ -3608,7 +3608,7 @@ class FormInternalObj(qsa.FormDBWidget):
             return "No"
         cantidad = 0
         cantidadServida = 0
-        cerrada = qsa.Boolean()
+        cerrada: "qsa.Boolean"
         while query.next():
             cantidad = qsa.parseFloat(query.value("cantidad"))
             cantidadServida = qsa.parseFloat(query.value("totalenalbaran"))
@@ -3706,7 +3706,7 @@ class FormInternalObj(qsa.FormDBWidget):
             return "No"
         cantidad = 0
         cantidadServida = 0
-        cerrada = qsa.Boolean()
+        cerrada: "qsa.Boolean"
         while query.next():
             cantidad = qsa.parseFloat(query.value("cantidad"))
             cantidadServida = qsa.parseFloat(query.value("totalenalbaran"))
@@ -3791,7 +3791,7 @@ class FormInternalObj(qsa.FormDBWidget):
         return True
 
     def oficial_aplicarComisionLineas(self, codAgente=None, tblHija=None, where=None):
-        util = qsa.FLUtil()
+        util: "qsa.FLUtil"
         numLineas = util.sqlSelect(tblHija, "count(idlinea)", where)
         if not numLineas:
             return True
@@ -3822,7 +3822,7 @@ class FormInternalObj(qsa.FormDBWidget):
         return True
 
     def oficial_calcularComisionLinea(self, codAgente=None, referencia=None):
-        util = qsa.FLUtil()
+        util: "qsa.FLUtil"
         valor = -1
         if referencia and referencia != "":
             id = util.sqlSelect(
@@ -3898,7 +3898,7 @@ class FormInternalObj(qsa.FormDBWidget):
         return qsa.parseFloat(util.sqlSelect("impuestos", campo, qsa.ustr("codimpuesto = '", codImpuesto, "'")))
 
     def oficial_datosImpuesto(self, codImpuesto=None, fecha=None):
-        datosImpuesto = qsa.Array()
+        datosImpuesto: "qsa.Array"
         qryImpuesto = qsa.FLSqlQuery()
         qryImpuesto.setTablesList("impuestos")
         qryImpuesto.setSelect("iva, recargo")

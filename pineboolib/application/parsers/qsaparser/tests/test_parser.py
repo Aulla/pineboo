@@ -78,6 +78,7 @@ class TestParser(unittest.TestCase):
 
     def test_flfacturac(self) -> None:
         """Test conveting fixture flfacturac."""
+        self.maxDiff = None
         flfacturac_qs = fixture_read("flfacturac.qs")
         flfacturac_py = fixture_read("flfacturac.python")
         flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")

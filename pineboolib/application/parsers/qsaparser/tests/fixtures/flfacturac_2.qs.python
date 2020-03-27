@@ -7,7 +7,7 @@ from pineboolib.qsa import qsa
 
 # /** @class_declaration interna */
 class interna(object):
-    ctx = qsa.Object()
+    ctx: "qsa.Object"
 
     def __init__(self, context=None):
         self.ctx = context
@@ -48,8 +48,8 @@ class ifaceCtx(head):
 
 # /** @class_declaration FormInternalObj */
 class FormInternalObj(qsa.FormDBWidget):
-    iface: ifaceCtx
-    form: qsa.FormDBWidget
+    iface: "ifaceCtx"
+    form: "qsa.FormDBWidget"
 
     # /** @class_definition FormInternalObj */
     def _class_init(self):

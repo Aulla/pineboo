@@ -1354,15 +1354,14 @@ class Variable(ASTPython):
                 if dtype is None:
                     yield "expr", ": Any = None"
                 else:
-                    yield "expr", "="
                     if dtype == "String":
-                        yield "expr", '""'
+                        yield "expr", ": str"
                     elif dtype == "Number":
-                        yield "expr", "0"
-                    elif dtype in ("FLSqlCursor", "FLTableDB"):
-                        yield "expr", "None"
+                        yield "expr", "= 0"
+                    elif dtype in QSA_KNOWN_ATTRS:
+                        yield "expr", ': "qsa.%s"' % dtype
                     else:
-                        yield "expr", "%s()" % self.local_var(dtype)
+                        yield "expr", "= %s()" % self.local_var(dtype)
 
         self.source.locals.add(name)
         # if dtype and force_value == False: yield "debug", "Variable %s:%s" % (name,dtype)
@@ -2396,16 +2395,17 @@ class DeclarationBlock(ASTPython):
             if is_definition:
                 if expr[0] == "form" and expr[2] == "self":
                     expr[1] = ":"
-                    expr[2] = "qsa.FormDBWidget"
+                    expr[2] = '"qsa.FormDBWidget"'
                 # Transform: ['iface', '=', 'ifaceCtx(self)']
                 # To: ['iface', ':', 'ifaceCtx']
                 else:
                     if len(expr) > 2:
                         if expr[2] == "=":
                             expr[1] = " : Any"
+                            expr[2] = " %s" % expr[2].replace("(self)", "")
                         else:
                             expr[1] = " :"
-                        expr[2] = expr[2].replace("(self)", "")
+                            expr[2] = ' "%s"' % expr[2].replace("(self)", "")
 
             yield "line", " ".join(expr)
 
