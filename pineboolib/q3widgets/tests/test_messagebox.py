@@ -15,3 +15,4 @@ class TestMessageBox(unittest.TestCase):
         self.assertTrue(hasattr(msg_box, "NoButton"))
         self.assertTrue(hasattr(msg_box, "Ok"))
         self.assertTrue(hasattr(msg_box, "Cancel"))
+        self.assertTrue(hasattr(msg_box, "Ignore"))
