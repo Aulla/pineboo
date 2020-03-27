@@ -113,9 +113,9 @@ class FLManager(QtCore.QObject, IManager):
         self.dict_key_metadata_ = {}
         self.list_tables_ = []
         self.cache_metadata_ = {}
+        self.cache_metadata_sys_ = {}
+        self.metadata_cache_fails_ = {}
         self.cacheAction_ = {}
-
-        del self
 
     def metadata(
         self, metadata_name_or_xml: Union[str, "ElementTree.Element"], quick: bool = False
@@ -151,7 +151,6 @@ class FLManager(QtCore.QObject, IManager):
             quick = not bool(dbadmin)
 
         if isinstance(metadata_name_or_xml, str):
-
             ret: Any = False
             acl: Any = None
             key = metadata_name_or_xml.strip()
@@ -167,7 +166,6 @@ class FLManager(QtCore.QObject, IManager):
             else:
                 if key in self.cache_metadata_.keys():
                     ret = self.cache_metadata_[key]
-
             if not ret:
                 table_name = (
                     metadata_name_or_xml
@@ -191,7 +189,16 @@ class FLManager(QtCore.QObject, IManager):
 
                 # docElem = doc.documentElement()
                 # tree = utils_base.load2xml(stream)
-                tree = ElementTree.fromstring(stream)
+                tree = None
+                try:
+                    tree = ElementTree.fromstring(stream)
+
+                except Exception as error:
+                    LOGGER.error("Failed loading %s :%s", metadata_name_or_xml, error)
+
+                if tree is None:
+                    return None
+
                 ret = self.metadata(tree, quick)
                 if ret is None:
                     return None

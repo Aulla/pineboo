@@ -157,32 +157,27 @@ class FLManagerModules(object):
     def finish(self) -> None:
         """Run tasks when closing the module."""
 
-        if self.list_all_id_modules_:
-            del self.list_all_id_modules_
-            self.list_all_id_modules_ = []
+        del self.list_all_id_modules_
+        self.list_all_id_modules_ = []
 
-        if self.list_id_areas_:
-            del self.list_id_areas_
-            self.list_id_areas_ = []
+        del self.list_id_areas_
+        self.list_id_areas_ = []
 
-        if self.dict_info_mods_:
-            del self.dict_info_mods_
-            self.dict_info_mods_ = {}
+        del self.dict_info_mods_
+        self.dict_info_mods_ = {}
 
-        if self.dict_module_files_:
-            del self.dict_module_files_
-            self.dict_module_files_ = {}
+        del self.dict_module_files_
+        self.dict_module_files_ = {}
 
-        if self.static_db_info_:
-            del self.static_db_info_
-            self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
+        del self.static_db_info_
+        self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
 
-        if self.dict_key_files_:
-            self.writeState()
-            del self.dict_key_files_
-            self.dict_key_files_ = {}
+        self.writeState()
+        del self.dict_key_files_
+        self.dict_key_files_ = {}
 
-        del self
+        del self.filesCached_
+        self.filesCached_ = {}
 
     def content(self, file_name: str) -> str:
         """
@@ -263,7 +258,6 @@ class FLManagerModules(object):
         @return QString with the contents of the file or None in case of error.
         """
         sys_table: bool = False
-
         if file_name.endswith(".mtd"):
             if file_name[0:3] == "sys":
                 sys_table = True
