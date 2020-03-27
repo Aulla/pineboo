@@ -114,7 +114,7 @@ class FLManager(QtCore.QObject, IManager):
         self.list_tables_ = []
         self.cache_metadata_ = {}
         self.cache_metadata_sys_ = {}
-        self.metadata_cache_fails_ = {}
+        self.metadata_cache_fails_ = []
         self.cacheAction_ = {}
 
     def metadata(

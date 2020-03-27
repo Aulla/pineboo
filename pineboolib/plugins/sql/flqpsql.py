@@ -1,7 +1,4 @@
 """Flqpsql module."""
-from PyQt5 import QtCore
-
-from pineboolib.application.database import pnsqlquery
 
 from pineboolib.application.metadata import pntablemetadata
 from pineboolib import logging
@@ -422,6 +419,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             LOGGER.warning("Detalle:", stack_info=True)
 
     def remove_index(self, metadata, query):
+        """Remove index."""
 
         table_name = metadata.name()
         constraint_name = "%s_key" % table_name

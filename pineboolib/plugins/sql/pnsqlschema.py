@@ -717,7 +717,7 @@ class PNSqlSchema(object):
         """Return if constraint exists specified by name."""
         return False
 
-    def remove_index(self, metadata: "pntablemetadata.PNTableMetaData") -> bool:
+    def remove_index(self, metadata: "pntablemetadata.PNTableMetaData", cursor: Any) -> bool:
         """Remove olds index."""
 
         return True
@@ -789,18 +789,25 @@ class PNSqlSchema(object):
 
             for new_idx, new_name in enumerate(new_field_names):
                 new_field = new_metadata.field(new_name)
+                if new_field is None:
+                    LOGGER.warning(
+                        "Field %s not found un metadata %s" % (new_name, new_metadata.name())
+                    )
+                    self.db_.connManager().dbAux().rollbackTransaction()
+                    self._transaction -= 1
+                    return False
                 value = None
                 if new_name in old_field_names:
                     value = old_data[old_field_names.index(new_name)]
+                    if value is None:
+                        continue
+                elif not new_field.allowNull():
+                    value = new_field.defaultValue()
                     if value is None:
                         if new_field.type() == "timestamp":
                             value = self.getTimeStamp()
                         else:
                             continue
-                elif not new_field.allowNull():
-                    value = new_field.defaultValue()
-                    if value is None:
-                        continue
                 else:
                     continue
 
@@ -1224,6 +1231,7 @@ class PNSqlSchema(object):
         return
 
     def regenTable(self, table_name: str, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
+        """Regenerate tables."""
 
         must_alter = self.mismatchedTable(table_name, new_metadata)
 
@@ -1233,7 +1241,7 @@ class PNSqlSchema(object):
             if must_alter:
                 conn_dbaux = self.db_.connManager().dbAux()
                 reg_exp = re.compile("^.*\\d{6,9}$")
-                bad_list_mtds = list(filter(reg_exp.match, self.tables("Tables")))
+                bad_list_tables = list(filter(reg_exp.match, self.tables("Tables")))
 
                 sql = "SELECT nombre FROM flfiles WHERE nombre%s" % self.formatValueLike(
                     "string", "%%alteredtable", False

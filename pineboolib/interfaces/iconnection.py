@@ -236,10 +236,10 @@ class IConnection:
 
         return True
 
-    def regenTable(self, table_name: str, mtd: "PNTableMetaData") -> None:
+    def regenTable(self, table_name: str, mtd: "PNTableMetaData") -> bool:
         """Regenerate a table."""
 
-        return None
+        return True
 
     def savePoint(self, save_point: int) -> bool:
         """Create a save point."""

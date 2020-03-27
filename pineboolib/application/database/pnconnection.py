@@ -4,7 +4,7 @@ Defines the PNConnection class.
 """
 from PyQt5 import QtCore, QtWidgets
 
-from pineboolib.core import settings, decorators, utils
+from pineboolib.core import settings, utils
 from pineboolib.interfaces import iconnection
 from . import pnsqldrivers
 from pineboolib import application
@@ -649,7 +649,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def transaction(self) -> bool:
         """Create a transaction."""
-
         return self.driver().transaction()
 
     def commitTransaction(self) -> bool:

@@ -594,6 +594,7 @@ class Project(object):
                     self.message_manager().send(
                         "splash", "showMessage", ["Volcando a caché %s..." % nombre]
                     )
+
                     new_cache_file = open(file_name, "wb")
                     new_cache_file.write(contenido.encode(encode_, "replace"))
                     new_cache_file.close()

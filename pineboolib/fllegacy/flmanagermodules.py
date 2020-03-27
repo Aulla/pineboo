@@ -889,7 +889,7 @@ class FLManagerModules(object):
                     return str_ret
 
                 if not mng.existsTable(mtd.name()):
-                    mng.createTable(mng)
+                    mng.createTable(mtd)
                 elif self.conn_.canRegenTables():
                     self.conn_.regenTable(mtd.name(), mtd)
 
