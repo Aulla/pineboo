@@ -278,7 +278,7 @@ class FLManagerModules(object):
             file_ = codecs.open(
                 path_file,
                 "r",
-                encoding="UTF8" if file_name.endswith((".kut", ".ts", ".py")) else "ISO-8859-15",
+                encoding="UTF8" if file_name.endswith((".ts", ".py")) else "ISO-8859-15",
             )
             data = file_.read()
             file_.close()
