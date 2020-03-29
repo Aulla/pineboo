@@ -633,6 +633,8 @@ class Function(ASTPython):
             rtype = "str"
         elif rtype == "Number":
             rtype = "Union[int, float]"
+        elif rtype == "Boolean":
+            rtype = "bool"
         elif rtype in QSA_KNOWN_ATTRS:
             rtype = "qsa.%s" % rtype
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Union
 from pineboolib.qsa import qsa
 
 # /** @file */
@@ -64,7 +64,7 @@ class FormInternalObj(qsa.FormDBWidget):
         self.module_connect(cursor, "bufferChanged(QString)", _i, "bufferChanged")
         _i.habilitaPorClave()
 
-    def interna_calculateField(self, fN=None) -> "qsa.String":
+    def interna_calculateField(self, fN=None) -> "str":
         util: Any = qsa.FLUtil()
         cursor: Any = self.cursor()
         valor: Any = None
