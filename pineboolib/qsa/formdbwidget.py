@@ -231,6 +231,9 @@ class FormDBWidget(QtWidgets.QWidget):
                 elif self is self._action._record_widget and self._action._record_form:
                     self._action.load_record_form()
 
+        setattr(
+            sys.modules[self.__module__], "form", self._form
+        )  # Con esto seteamos el global form en el módulo
         return self._form
 
     form = property(_get_form, _set_form)
