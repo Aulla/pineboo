@@ -279,11 +279,11 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
     def test_number_min_value_and_max_value(self) -> None:
         """Test number min and max value."""
         qsa_one = "var min : Number = Number.MIN_VALUE;"
-        result_one = "min = qsa.Number.MIN_VALUE\n"
+        result_one = "min: Union[int, float] = qsa.Number.MIN_VALUE\n"
         self.assertEqual(qs2py(qsa_one), result_one)
 
         qsa_two = "var max : Number = Number.MAX_VALUE;"
-        result_two = "max = qsa.Number.MAX_VALUE\n"
+        result_two = "max: Union[int, float] = qsa.Number.MAX_VALUE\n"
         self.assertEqual(qs2py(qsa_two), result_two)
 
         self.assertTrue(qsa.Number.MIN_VALUE < 0)
