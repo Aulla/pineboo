@@ -4,7 +4,7 @@ Defines the PNConnection class.
 """
 from PyQt5 import QtCore, QtWidgets
 
-from pineboolib.core import settings, utils
+from pineboolib.core import settings, utils, decorators
 from pineboolib.interfaces import iconnection
 from . import pnsqldrivers
 from pineboolib import application
@@ -255,6 +255,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         return self._db_user_name
 
     def returnword(self) -> str:
+        """Return the password used by the database."""
+
+        return self._db_password
+
+    @decorators.deprecated
+    def password(self) -> str:
         """Return the password used by the database."""
 
         return self._db_password
@@ -762,6 +768,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         return self.driver().getTimeStamp()
 
     def __str__(self):
+        """Return the name of the database in text format."""
+
+        return self.DBName()
+
+    def __repr__(self):
         """Return the name of the database in text format."""
 
         return self.DBName()
