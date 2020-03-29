@@ -162,15 +162,11 @@ class FLUtil(object):
             raise ValueError("Parameter 'n' must be a positive integer")
 
     @staticmethod
-    @decorators.not_implemented_warn
-    def utf8(s: str) -> str:
+    def utf8(text: str) -> str:
         """
         Return a string to utf-8 encoding.
-
-        @param s: Chain
-        @return String in UTF-8 format
         """
-        return s
+        return text.encode().decode("utf-8", "ignore")
 
     @classmethod
     def centenamillar(cls, n: int) -> str:
