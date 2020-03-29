@@ -626,6 +626,16 @@ class Function(ASTPython):
             else:
                 arguments.append("self")
         id_list: Set[str] = set()
+        rtype: Optional[str] = self.elem.get("returns")
+        if rtype is None:
+            pass
+        elif rtype == "String":
+            rtype = "str"
+        elif rtype == "Number":
+            rtype = "Union[int, float]"
+        elif rtype in QSA_KNOWN_ATTRS:
+            rtype = "qsa.%s" % rtype
+
         for number, arg in enumerate(self.elem.findall("Arguments/*")):
             expr = []
             # FIXME: ElementTree.Element.set expects a string not Element.
@@ -642,10 +652,28 @@ class Function(ASTPython):
                 yield "debug", ElementTree.tostring(arg)  # type: ignore
             else:
                 if len(expr) == 1:
-                    expr += ["=", "None"]
+
+                    dtype_: Optional[str] = arg.get("type")
+                    if dtype_ is not None:
+                        if dtype_ == "String":
+                            dtype_ = "str"
+                        elif dtype_ == "Number":
+                            dtype_ = "Union[int, float]"
+                        elif dtype_ == "Boolean":
+                            dtype_ = "bool"
+                        elif dtype_ in QSA_KNOWN_ATTRS:
+                            dtype_ = "qsa.%s" % dtype_
+
+                        expr += [":", '"%s"' % dtype_]
+                    else:
+                        expr += ["=", "None"]
                 arguments.append("".join(expr))
 
-        yield "line", "def %s(%s):" % (name, ", ".join(arguments))
+        yield "line", "def %s(%s) -> %s:" % (
+            name,
+            ", ".join(arguments),
+            '"%s"' % rtype if rtype is not None else None,
+        )
         yield "begin", "block-def-%s" % (name)
         # if returns:  yield "debug", "Returns: %s" % returns
         for source in self.elem.findall("Source"):
@@ -1332,7 +1360,9 @@ class Variable(ASTPython):
             if dtype == "String":
                 yield "expr", ": str"
             elif dtype == "Number":
-                pass
+                yield "expr", ": Union[int, float]"
+            elif dtype == "Boolean":
+                yield "expr", ": bool"
             elif dtype in QSA_KNOWN_ATTRS:
                 yield "expr", ': "qsa.%s"' % dtype
 
@@ -1363,11 +1393,13 @@ class Variable(ASTPython):
                     yield "expr", ": Any = None"
                 else:
                     if dtype == "String":
-                        yield "expr", ": str"
+                        yield "expr", ': str = ""'
                     elif dtype == "Number":
-                        yield "expr", "= 0"
-                    elif dtype == "FLUtil":
-                        yield "expr", ': "qsa.FLUtil" = qsa.FLUtil()'
+                        yield "expr", ": Union[int, float] = 0"
+                    elif dtype == "Boolean":
+                        yield "expr", ": bool"
+                    elif dtype in ("FLUtil", "Array"):
+                        yield "expr", ': "qsa.%s" = qsa.%s() # Please initialize!' % (dtype, dtype)
                     elif dtype in QSA_KNOWN_ATTRS:
                         yield "expr", ': "qsa.%s"' % dtype
                     else:
@@ -2480,7 +2512,7 @@ def file_template(
 
     yield "line", "# -*- coding: utf-8 -*-"
     yield "line", "# Translated with pineboolib %s" % prj.version.split(" ")[1]
-    yield "line", "from typing import TYPE_CHECKING, Any"
+    yield "line", "from typing import TYPE_CHECKING, Any, Union"
 
     if not STRICT_MODE:
         yield "line", "from pineboolib.qsa.qsa import *  # noqa: F403"

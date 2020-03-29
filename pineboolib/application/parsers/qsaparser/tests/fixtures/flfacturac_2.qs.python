@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Union
 from pineboolib.qsa import qsa
 
 # /** @file */
@@ -9,40 +9,40 @@ from pineboolib.qsa import qsa
 class interna(object):
     ctx: "qsa.Object"
 
-    def __init__(self, context=None):
+    def __init__(self, context=None) -> None:
         self.ctx = context
 
-    def init(self):
+    def init(self) -> None:
         return self.ctx.interna_init()
 
-    def calculateField(self, fN=None):
+    def calculateField(self, fN=None) -> None:
         return self.ctx.interna_calculateField(fN)
 
-    def validateForm(self):
+    def validateForm(self) -> None:
         return self.ctx.interna_validateForm()
 
 
 # /** @class_declaration oficial */
 class oficial(interna):
-    def __init__(self, context=None):
+    def __init__(self, context=None) -> None:
         super(oficial, self).__init__(context)
 
-    def bufferChanged(self, fN=None):
+    def bufferChanged(self, fN=None) -> None:
         return self.ctx.oficial_bufferChanged(fN)
 
-    def habilitaPorClave(self):
+    def habilitaPorClave(self) -> None:
         return self.ctx.oficial_habilitaPorClave()
 
 
 # /** @class_declaration head */
 class head(oficial):
-    def __init__(self, context=None):
+    def __init__(self, context=None) -> None:
         super(head, self).__init__(context)
 
 
 # /** @class_declaration ifaceCtx */
 class ifaceCtx(head):
-    def __init__(self, context=None):
+    def __init__(self, context=None) -> None:
         super(ifaceCtx, self).__init__(context)
 
 
@@ -52,19 +52,19 @@ class FormInternalObj(qsa.FormDBWidget):
     form: "qsa.FormDBWidget"
 
     # /** @class_definition FormInternalObj */
-    def _class_init(self):
+    def _class_init(self) -> None:
         self.form = self
         self.iface = ifaceCtx(self)
 
     # /** @class_definition interna */
-    def interna_init(self):
+    def interna_init(self) -> None:
         _i: Any = self.iface
         util: Any = qsa.FLUtil()
         cursor: Any = self.cursor()
         self.module_connect(cursor, "bufferChanged(QString)", _i, "bufferChanged")
         _i.habilitaPorClave()
 
-    def interna_calculateField(self, fN=None):
+    def interna_calculateField(self, fN=None) -> "str":
         util: Any = qsa.FLUtil()
         cursor: Any = self.cursor()
         valor: Any = None
@@ -73,11 +73,11 @@ class FormInternalObj(qsa.FormDBWidget):
                 break
         return valor
 
-    def interna_validateForm(self):
+    def interna_validateForm(self) -> None:
         return True
 
     # /** @class_definition oficial */
-    def oficial_bufferChanged(self, fN=None):
+    def oficial_bufferChanged(self, fN=None) -> None:
         _i: Any = self.iface
         cursor: Any = self.cursor()
         for case in qsa.switch(fN):
@@ -85,7 +85,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 _i.habilitaPorClave()
                 break
 
-    def oficial_habilitaPorClave(self):
+    def oficial_habilitaPorClave(self) -> None:
         _i: Any = self.iface
         cursor: Any = self.cursor()
         for case in qsa.switch(cursor.valueBuffer("operacion")):
