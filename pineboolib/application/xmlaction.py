@@ -133,8 +133,9 @@ class XMLAction(struct.ActionStruct):
         Load FLFormRecordDB by default.
 
         """
-
-        if not self.is_form_loaded(self._record_widget):
+        if self._record_widget is None:
+            self._record_widget = self.load_widget(self._record_script)
+        elif self._record_widget._form is not None and not self.is_form_loaded(self._record_widget):
             self.clear_widget(self._record_widget)
 
             self._record_widget = self.load_widget(self._record_script)
