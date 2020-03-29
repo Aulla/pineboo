@@ -620,7 +620,8 @@ class MainForm(QtWidgets.QMainWindow):
         #    self.tab_widgetcorner.hide()
 
         for number in range(self.tab_widget.count()):
-            self.tab_widget.widget(number).close()
+            if self.tab_widget.widget(number):
+                self.tab_widget.widget(number).close()
 
     def addForm(self, action_str: str, icono: "QtGui.QPixmap") -> None:
         """Add new tab."""
