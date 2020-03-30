@@ -117,6 +117,26 @@ def init_logging(
 
     coloredlogs.DEFAULT_LOG_LEVEL = app_loglevel
     coloredlogs.DEFAULT_LOG_FORMAT = log_format
+    # 'black', 'blue', 'cyan', 'green', 'magenta', 'red', 'white' and 'yellow'
+    coloredlogs.DEFAULT_FIELD_STYLES = {
+        "asctime": {"color": "green"},
+        "hostname": {"color": "magenta"},
+        "levelname": {"bold": True, "color": "cyan"},
+        "name": {"color": "white"},
+        "programname": {"color": "cyan"},
+        "username": {"color": "yellow"},
+    }
+    coloredlogs.DEFAULT_LEVEL_STYLES = {
+        "critical": {"bold": True, "color": "red"},
+        "debug": {"color": "green"},
+        "error": {"color": "red"},
+        "info": {},
+        "notice": {"color": "magenta"},
+        "spam": {"color": "green", "faint": True},
+        "success": {"bold": True, "color": "green"},
+        "verbose": {"color": "blue"},
+        "warning": {"color": "yellow"},
+    }
     coloredlogs.install()
     if trace_loggers:
         logging.Logger.set_pineboo_default_level(loglevel)
