@@ -622,8 +622,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             util.setLabelText(util.translate("application", "Creando índices para %s" % table_name))
             util.setProgress(number)
             metadata = self.db_.connManager().manager().metadata(table_name)
-            if metadata is None:
-                LOGGER.error("checkSequences: %s metadata not found!", table_name)
+            # if metadata is None:
+            #    LOGGER.error("checkSequences: %s metadata not found!", table_name)
 
         util.destroyProgressDialog()
         return
