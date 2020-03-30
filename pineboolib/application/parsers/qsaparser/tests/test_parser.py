@@ -170,7 +170,8 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
 
         self.assertEqual(
             qs2py(
-                "function pub_replace(cadena:String, searchValue:Number, newValue:Array) {\nreturn this.replace(cadena, searchValue, newValue);\n}"
+                "function pub_replace(cadena:String, searchValue:Number, newValue:Array)"
+                + " {\nreturn this.replace(cadena, searchValue, newValue);\n}"
             ),
             """def pub_replace(self, cadena: "str", searchValue, newValue: "qsa.Array"):
     return self.replace(cadena, searchValue, newValue)\n""",
