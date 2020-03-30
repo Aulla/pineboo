@@ -670,11 +670,10 @@ class Function(ASTPython):
 
                     if dtyping_:
                         expr += [":", '"%s"' % dtyping_]
-                    else:
-                        def_value = "None"
-                        if dtype_ == "Number":
-                            def_value = "0"
-                        expr += ["=", def_value]
+                        # def_value = "None"
+                        # if dtype_ == "Number":
+                        #    def_value = "0"
+                        # expr += ["=", def_value]
                 arguments.append("".join(expr))
 
         yield "line", "def %s(%s)%s:" % (
