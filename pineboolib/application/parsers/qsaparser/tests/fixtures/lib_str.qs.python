@@ -9,11 +9,11 @@ from pineboolib.qsa import qsa
 class FormInternalObj(qsa.FormDBWidget):
 
     # /** @class_definition FormInternalObj */
-    def _class_init(self) -> None:
+    def _class_init(self):
         pass
 
     # /** @class_definition entry */
-    def entry_point(self, user=None, verb=None, model=None, params=None, method=None) -> None:
+    def entry_point(self, user, verb, model, params, method):
         qsa.debug("Hola")
         return
         f: Any = self.get_api_function(verb, model, method)
@@ -30,7 +30,7 @@ class FormInternalObj(qsa.FormDBWidget):
             qsa.debug(qsa.ustr("Error ", e))
 
     # /** @class_definition get */
-    def get_api_function(self, verb=None, model=None, method=None) -> None:
+    def get_api_function(self, verb, model, method):
         f: Any = False
         for case in qsa.switch(model):
             if case("gt_tareas"):

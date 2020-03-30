@@ -147,7 +147,7 @@ class TestParser(unittest.TestCase):
     def test_inicialize_float(self) -> None:
         """Test float inicialization."""
 
-        self.assertEqual(qs2py("var num:Number = 0.0;"), "num: Union[int, float] = 0.0\n")
+        self.assertEqual(qs2py("var num:Number = 0.0;"), "num = 0.0\n")
 
     def test_aqsignalmapper(self) -> None:
         """Test AQSignalmapper."""
@@ -170,9 +170,9 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
 
         self.assertEqual(
             qs2py(
-                "function pub_replace(cadena, searchValue, newValue) {\nreturn this.replace(cadena, searchValue, newValue);\n}"
+                "function pub_replace(cadena:String, searchValue:Number, newValue:Array) {\nreturn this.replace(cadena, searchValue, newValue);\n}"
             ),
-            """def pub_replace(self, cadena=None, searchValue=None, newValue=None) -> None:
+            """def pub_replace(self, cadena: "str", searchValue, newValue: "qsa.Array"):
     return self.replace(cadena, searchValue, newValue)\n""",
         )
 
