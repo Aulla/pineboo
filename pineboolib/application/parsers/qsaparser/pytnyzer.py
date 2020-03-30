@@ -632,7 +632,7 @@ class Function(ASTPython):
         elif rtype == "String":
             rtype = "str"
         elif rtype == "Number":
-            rtype = "Union[int, float]"
+            rtype = None
         elif rtype == "Boolean":
             rtype = "bool"
         elif rtype in QSA_KNOWN_ATTRS:
@@ -656,25 +656,31 @@ class Function(ASTPython):
                 if len(expr) == 1:
 
                     dtype_: Optional[str] = arg.get("type")
+                    dtyping_ = ""
                     if dtype_ is not None:
                         if dtype_ == "String":
-                            dtype_ = "str"
+                            dtyping_ = "str"
                         elif dtype_ == "Number":
-                            dtype_ = "Union[int, float]"
+                            pass
+                            # dtype_ = "Union[int, float]"
                         elif dtype_ == "Boolean":
-                            dtype_ = "bool"
+                            dtyping_ = "bool"
                         elif dtype_ in QSA_KNOWN_ATTRS:
-                            dtype_ = "qsa.%s" % dtype_
+                            dtyping_ = "qsa.%s" % dtype_
 
-                        expr += [":", '"%s"' % dtype_]
+                    if dtyping_:
+                        expr += [":", '"%s"' % dtyping_]
                     else:
-                        expr += ["=", "None"]
+                        def_value = "None"
+                        if dtype_ == "Number":
+                            def_value = "0"
+                        expr += ["=", def_value]
                 arguments.append("".join(expr))
 
-        yield "line", "def %s(%s) -> %s:" % (
+        yield "line", "def %s(%s)%s:" % (
             name,
             ", ".join(arguments),
-            '"%s"' % rtype if rtype is not None else None,
+            "%s" % ' -> "%s"' % rtype if rtype is not None else "",
         )
         yield "begin", "block-def-%s" % (name)
         # if returns:  yield "debug", "Returns: %s" % returns
@@ -1362,7 +1368,8 @@ class Variable(ASTPython):
             if dtype == "String":
                 yield "expr", ": str"
             elif dtype == "Number":
-                yield "expr", ": Union[int, float]"
+                # yield "expr", ": Union[int, float]"
+                pass
             elif dtype == "Boolean":
                 yield "expr", ": bool"
             elif dtype in QSA_KNOWN_ATTRS:
@@ -1397,7 +1404,7 @@ class Variable(ASTPython):
                     if dtype == "String":
                         yield "expr", ': str = ""'
                     elif dtype == "Number":
-                        yield "expr", ": Union[int, float] = 0"
+                        yield "expr", " = 0"
                     elif dtype == "Boolean":
                         yield "expr", ": bool"
                     elif dtype in ("FLUtil", "Array"):
@@ -2440,6 +2447,7 @@ class DeclarationBlock(ASTPython):
                 if expr[0] == "form" and expr[2] == "self":
                     expr[1] = ":"
                     expr[2] = '"qsa.FormDBWidget"'
+
                 # Transform: ['iface', '=', 'ifaceCtx(self)']
                 # To: ['iface', ':', 'ifaceCtx']
                 else:
@@ -2450,7 +2458,9 @@ class DeclarationBlock(ASTPython):
                         else:
                             expr[1] = " :"
                             expr[2] = ' "%s"' % expr[2].replace("(self)", "")
-
+            else:
+                if expr[0] == "ctx" and expr[1].find("qsa.Object") > -1:
+                    expr[1] = ': "FormInternalObj"'
             yield "line", " ".join(expr)
 
 
