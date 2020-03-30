@@ -186,11 +186,11 @@ class QTable(Q3TableWidget):
         for r in range(n):
             self.insertRow(numero)
 
-    def text(self, row: int, col: int) -> Optional[str]:
+    def text(self, row: int, col: int) -> str:
         """Return text from a index."""
         if row is None:
             return
-        return self.item(row, col).text() if self.item(row, col) else None
+        return self.item(row, col).text() if self.item(row, col) else ""
 
     def setText(self, row: int, col: int, value: Any) -> None:
         """Set text to a index."""
