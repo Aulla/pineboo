@@ -3,19 +3,19 @@
 from PyQt5 import QtWidgets, QtCore
 
 from pineboolib.application import connections
+from pineboolib.fllegacy import flsqlcursor
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.core.garbage_collector import check_gc_referrers
 from pineboolib import logging
 
 
-from typing import Set, Tuple, Optional, Any, TYPE_CHECKING
+from typing import Set, Tuple, Optional, Any, TYPE_CHECKING, cast
 import weakref
 import sys
 
 
 if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # noqa: F401
-    from pineboolib.interfaces import isqlcursor
 
 LOGGER = logging.get_logger(__name__)
 
@@ -24,7 +24,7 @@ class FormDBWidget(QtWidgets.QWidget):
     """FormDBWidget class."""
 
     closed = QtCore.pyqtSignal()
-    cursor_: Optional["isqlcursor.ISqlCursor"]
+    cursor_: Optional["flsqlcursor.FLSqlCursor"]
     _form: Optional[QtWidgets.QDialog]
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
@@ -173,7 +173,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return ret
 
-    def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
+    def cursor(self) -> "flsqlcursor.FLSqlCursor":  # type: ignore [override] # noqa F821
         """Return cursor associated."""
         action = self._action
         if action is None:
@@ -182,7 +182,7 @@ class FormDBWidget(QtWidgets.QWidget):
         if cursor is None:
             cursor = pnsqlcursor.PNSqlCursor(action._name)
             action.setCursor(cursor)
-        return cursor
+        return cast(flsqlcursor.FLSqlCursor, cursor)
 
     def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Guess if attribute can be found in other related objects."""
