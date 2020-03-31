@@ -317,63 +317,6 @@ class FLManager(QtCore.QObject, IManager):
                 aWith = None
                 aBy = None
 
-            if query and not quick:
-                qry = self.query(query)
-                if qry:
-                    table = None
-                    field = None
-                    fields = table_metadata.fieldNames()
-                    # .split(",")
-                    fieldsEmpty = not fields
-
-                    for it2 in qry.fieldList():
-                        pos = it2.find(".")
-                        if pos > -1:
-                            table = it2[:pos]
-                            field = it2[pos + 1 :]
-                        else:
-                            field = it2
-
-                        # if not (not fieldsEmpty and table == name and fields.find(field.lower())) != fields.end():
-                        # print("Tabla %s nombre %s campo %s buscando en %s" % (table, name, field, fields))
-                        # if not fieldsEmpty and table == name and (field.lower() in fields): Asi
-                        # esta en Eneboo, pero incluye campos repetidos
-                        if not fieldsEmpty and (field.lower() in fields):
-                            continue
-
-                        if table is None:
-                            raise ValueError("table is empty!")
-
-                        mtdAux = self.metadata(table, True)
-                        if mtdAux is not None:
-                            fmtdAux = mtdAux.field(field)
-                            if fmtdAux is not None:
-                                isForeignKey = False
-                                if fmtdAux.isPrimaryKey() and not table == name:
-                                    fmtdAux = pnfieldmetadata.PNFieldMetaData(fmtdAux)
-                                    fmtdAux.setIsPrimaryKey(False)
-                                    fmtdAux.setEditable(False)
-
-                                # newRef = not isForeignKey
-                                fmtdAuxName = fmtdAux.name().lower()
-                                if fmtdAuxName.find(".") == -1:
-                                    # fieldsAux = table_metadata.fieldNames().split(",")
-                                    fieldsAux = table_metadata.fieldNames()
-                                    if fmtdAuxName not in fieldsAux:
-                                        if not isForeignKey:
-                                            fmtdAux = pnfieldmetadata.PNFieldMetaData(fmtdAux)
-
-                                        fmtdAux.setName("%s.%s" % (table, field))
-                                        # newRef = False
-
-                                # FIXME: ref() does not exist. Probably a C++ quirk from Qt to reference counting.
-                                # if newRef:
-                                #    fmtdAux.ref()
-
-                                table_metadata.addFieldMD(fmtdAux)
-
-                    del qry
-
             acl = flapplication.aqApp.acl()
             if acl:
                 acl.process(table_metadata)
