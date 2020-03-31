@@ -44,6 +44,7 @@ class DockListView(QtCore.QObject):
 
         self.doc_widget = QtWidgets.QDockWidget(name, parent)
         self.doc_widget.setObjectName("%sListView" % name)
+        self.doc_widget.setFixedWidth(300)
 
         self.tree_widget = QtWidgets.QTreeWidget(self.doc_widget)
         self.tree_widget.setObjectName(self.objectName())
