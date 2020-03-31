@@ -245,6 +245,10 @@ class Date(object):
         """Support for str()."""
         return self.toString()
 
+    def __repr__(self) -> str:
+        """Support for str()."""
+        return self.toString()
+
     def __lt__(self, other: Union[str, "Date"]) -> bool:
         """Support for comparisons."""
         return str(self) < str(other)
