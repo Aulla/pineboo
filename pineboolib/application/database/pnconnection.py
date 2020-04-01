@@ -38,7 +38,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     # currentSavePoint_: Optional[PNSqlSavePoint]
     # stackSavePoints_: List[PNSqlSavePoint]
     # queueSavePoints_: List[PNSqlSavePoint]
-    _interactive_gui: bool
+    _interactive_gui: str
     _db_aux = None
     _is_open: bool
     _driver = None
@@ -92,7 +92,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         # self.driver()._transaction = 0
         # self.stackSavePoints_ = []
         # self.queueSavePoints_ = []
-        self._interactive_gui = True
+        self._interactive_gui = "Pineboo"
         self._last_active_cursor = None
 
         self._is_open = False
@@ -505,7 +505,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             cur.setModeAccess(cur.Browse)
             return True
 
-    def interactiveGUI(self) -> bool:
+    def interactiveGUI(self) -> str:
         """Return if it is an interactive GUI."""
 
         return self._interactive_gui

@@ -32,7 +32,7 @@ class IConnection:
     _current_save_point: Optional[Any]  # Optional["PNSqlSavePoint"]
     _stack_save_points: List[Any]  # List["PNSqlSavePoint"]
     _queue_save_points: List[Any]  # List["PNSqlSavePoint"]
-    _interactive_gui: bool
+    _interactive_gui: str
     _driver_name: str
     _name: str
     _is_open: bool
@@ -206,10 +206,10 @@ class IConnection:
 
         return False
 
-    def interactiveGUI(self) -> bool:
+    def interactiveGUI(self) -> str:
         """Return if it is an interactive GUI."""
 
-        return False
+        return ""
 
     def doCommit(self, cur, notify=True) -> bool:
         """Approve changes to a transaction or a save point based on your transaction level."""
