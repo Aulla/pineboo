@@ -2646,7 +2646,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             id_module if id_module in application.PROJECT.actions.keys() else "sys"
         ]
 
-        module_script = action.load_master_widget
+        module_script = action.load_master_widget()
 
         module_iface: Any = getattr(module_script, "iface", None)
 
@@ -2656,9 +2656,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             function_after = "afterCommit_%s" % (self.table())
 
             if function_before:
-                field_name = getattr(module_iface, function_before, None)
-                if field_name is not None:
-                    value = field_name(self)
+                func_ = getattr(module_iface, function_before, None)
+                if func_ is not None:
+                    value = func_(self)
                     if value and not isinstance(value, bool) or value is False:
                         return False
 
@@ -2807,10 +2807,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             if function_after:
 
-                field_name = getattr(module_iface, function_after, None)
+                func_ = getattr(module_iface, function_after, None)
 
-                if field_name is not None:
-                    value = field_name(self)
+                if func_ is not None:
+                    value = func_(self)
                     if value and not isinstance(value, bool) or value is False:
                         return False
 
