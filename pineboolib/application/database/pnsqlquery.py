@@ -190,7 +190,6 @@ class PNSqlQuery(object):
 
         self.sql_inspector.set_sql(sql)
         self.sql_inspector.resolve()
-
         if not self.isValid():
             LOGGER.error("exec_: invalid tables list found on query * %s *", sql)
             return False
@@ -821,12 +820,16 @@ class PNSqlQuery(object):
         """
         value_inspector = True
         if self.sql_inspector is not None:
-            if self.sql_inspector._invalid_tables:
-                real_tables = self.db().tables()
-                for table_name in self.sql_inspector._invalid_tables:
-                    if table_name not in real_tables:
-                        value_inspector = False
-                        break
+            # if self.sql_inspector._invalid_fields and not self._sql_inspector._invalid_tables:
+            #    value_inspector = False
+
+            if value_inspector:
+                if self.sql_inspector._invalid_tables:
+                    real_tables = self.db().tables()
+                    for table_name in self.sql_inspector._invalid_tables:
+                        if table_name not in real_tables:
+                            value_inspector = False
+                            break
 
         value_invalid_tables_list = not self._invalid_tables_list
 
