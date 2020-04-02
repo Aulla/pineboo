@@ -42,9 +42,9 @@ class QGroupBox(QtWidgets.QGroupBox):
     def setLineWidth(self, s: int) -> None:
         """Set line width."""
 
-        style_ = "QGroupBox#%s {  border: %spx solid gray; border-radius: 3px;}" % (
-            self.objectName(),
-            s,
+        style_ = (
+            "QGroupBox#%s {  border: %spx solid gray; margin-top: 20px; border-radius: 3px;}"
+            % (self.objectName(), s)
         )
         self.line_width = s
         self.setStyleSheet(style_)
