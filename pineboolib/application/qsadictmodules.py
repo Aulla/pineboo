@@ -46,6 +46,18 @@ class QSADictModules:
         return ret_
 
     @classmethod
+    def new(cls, scriptname: str) -> Any:
+        """
+        Return project object for given name.
+        """
+
+        ret_ = getattr(cls.qsa_dict_modules(), scriptname, None)
+        if ret_ is not None:
+            return ret_.new()
+        else:
+            return None
+
+    @classmethod
     def action_exists(cls, scriptname: str) -> bool:
         """
         Check if action is already loaded.

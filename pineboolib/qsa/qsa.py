@@ -30,7 +30,8 @@ from .utils import debug, isnan, replace, length, text  # noqa: F401
 from .utils import format_exc, Sort, splice  # noqa: F401
 from .utils import Switch as switch  # noqa: F401
 from .utils import QsaRegExp as qsaRegExp  # noqa: F401
-from .dictmodules import Application, from_project  # noqa: F401
+from .dictmodules import Application, from_project, new  # noqa: F401
+
 
 # QT
 from .pncontrolsfactory import QS_PROJECT, QSA_SYS, MATH, NUMBER_ATT
