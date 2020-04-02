@@ -28,11 +28,11 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     Transform QS script into Python and starts it up.
     """
 
-    LOGGER.info(
-        "LOADING SCRIPT %s (ALWAYS PARSE QSA: %s) ----->",
-        script_name.upper(),
-        application.PROJECT.no_python_cache,
-    )
+    # LOGGER.info(
+    #    "LOADING SCRIPT %s (ALWAYS PARSE QSA: %s) ----->",
+    #    script_name.upper(),
+    #    application.PROJECT.no_python_cache,
+    # )
 
     if script_name:
         script_name = script_name.replace(".qs", "")
@@ -53,23 +53,24 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                 "%spy" % script_path_qs[:-2] if os.path.exists("%spy" % script_path_qs[:-2]) else ""
             )
 
-        if script_path_qs:
-            LOGGER.info("Found QSA file : %s", script_path_qs)
-        else:
-            LOGGER.info("QSA file not found.")
+        # if script_path_qs:
+        #    LOGGER.info("Found QSA file : %s", script_path_qs)
+        # else:
+        #    LOGGER.info("QSA file not found.")
 
-        if script_path_py:
-            LOGGER.info("Found cached PY file : %s", script_path_py)
-        else:
-            LOGGER.info("PY file not found.")
+        # if script_path_py:
+        #    LOGGER.info("Found cached PY file : %s", script_path_py)
+        # else:
+        #    LOGGER.info("PY file not found.")
 
         if application.PROJECT.no_python_cache:
-            if not script_path_qs:
-                LOGGER.warning(
-                    "load_script: no_python_cache. Using %s. No candidate found for translation",
-                    script_path_py,
-                )
-            else:
+            # if not script_path_qs:
+            #    LOGGER.warning(
+            #        "load_script: no_python_cache. Using %s. No candidate found for translation",
+            #        script_path_py,
+            #    )
+            # else:
+            if script_path_qs:
                 script_path_py = ""
         script_path_py_static: str = ""
         script_path_qs_static: str = ""
@@ -111,7 +112,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                     file_ = open(static_flag, "wb")
                     file_.write(my_data)
 
-            LOGGER.info("Loading script PY %s -> %s", script_name, script_path_py)
+            # LOGGER.info("Loading script PY %s -> %s", script_name, script_path_py)
             if not os.path.isfile(script_path_py):
                 raise IOError
             try:
@@ -159,17 +160,23 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
 
             if need_parse:
                 if os.path.exists(script_path_py):
-                    LOGGER.info("Deleting older PY %s", script_path_py)
+                    # LOGGER.info("Deleting older PY %s", script_path_py)
                     os.remove(script_path_py)
 
+                LOGGER.info(
+                    "PARSE_SCRIPT (name : %s, use cache : %s, file: %s",
+                    script_name,
+                    not application.PROJECT.no_python_cache,
+                    script_path_qs,
+                )
                 if not application.PROJECT.parse_script_list([script_path_qs]):
                     if not os.path.exists(script_path_py):
-                        LOGGER.error("SCRIPT_NAME: %s", script_name)
-                        LOGGER.error("QSA_FILE PATH: %s", script_path_qs)
-                        LOGGER.error("STATIC_LOAD_FILE PATH: %s", script_path_qs_static)
-                        raise Exception("THE FILE %s DOESN'T CREATED!\n" % script_path_py)
+                        # LOGGER.error("SCRIPT_NAME: %s", script_name)
+                        # LOGGER.error("QSA_FILE PATH: %s", script_path_qs)
+                        # LOGGER.error("STATIC_LOAD_FILE PATH: %s", script_path_qs_static)
+                        raise Exception("The file %s doesn't created\n" % script_path_py)
 
-            LOGGER.info("Loading script QS %s -> %s", script_name, script_path_py)
+            # LOGGER.info("Loading script QS %s -> %s", script_name, script_path_py)
             try:
                 loader = machinery.SourceFileLoader(script_name, script_path_py)
                 script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
@@ -190,7 +197,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
         script_loaded = emptyscript
 
     # script_loaded.form = script_loaded.FormInternalObj(action_)
-    LOGGER.info("<-----   END LOADING SCRIPT %s", script_name.upper())
+    # LOGGER.info("<-----   END LOADING SCRIPT %s", script_name.upper())
     return script_loaded.FormInternalObj(action_)  # type: ignore[attr-defined] # noqa: F821
 
 
