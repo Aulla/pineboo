@@ -2,7 +2,8 @@
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.fllegacy import systype, flapplication
+from pineboolib.fllegacy import systype
+from pineboolib import application
 from . import fixture_path
 
 
@@ -18,7 +19,6 @@ class TestSysType(unittest.TestCase):
         """Test FileWrite attributes."""
 
         from pineboolib.application import types
-        from pineboolib import application
         import os
 
         qsa_sys = systype.SysType()
@@ -50,7 +50,7 @@ class TestSysType(unittest.TestCase):
 
         qsa_sys = systype.SysType()
 
-        qsa.aqApp.loadTranslationFromModule("sys", "es")
+        application.PROJECT.aq_app.loadTranslationFromModule("sys", "es")
         self.assertEqual(qsa_sys.translate("scripts", "hola python"), "Holaaaaa")
         self.assertEqual(qsa_sys.translate("python", "hola python sin group"), "Hola de nuevo!")
 
@@ -230,7 +230,7 @@ class TestSysType(unittest.TestCase):
 
     def test_basic_1(self) -> None:
         """Test basic."""
-        flapplication.aqApp.db().mainConn().setInteractiveGUI(False)
+        application.PROJECT.conn_manager.mainConn().setInteractiveGUI(False)
         systype.SysType().selectModsDialog(["flfactppal", "flfactinfo", "flfactalma"])
 
     @classmethod

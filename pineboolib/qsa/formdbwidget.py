@@ -6,7 +6,7 @@ from pineboolib.application import connections
 from pineboolib.fllegacy import flsqlcursor
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.core.garbage_collector import check_gc_referrers
-from pineboolib import logging
+from pineboolib import logging, application
 
 
 from typing import Set, Tuple, Optional, Any, TYPE_CHECKING, cast
@@ -201,10 +201,8 @@ class FormDBWidget(QtWidgets.QWidget):
                     ret_ = getattr(form, name, None)
 
         if ret_ is None and not TYPE_CHECKING:
-            # FIXME: q3widgets should not interact with fllegacy
-            from pineboolib.fllegacy import flapplication
 
-            ret_ = getattr(flapplication.aqApp, name, None)
+            ret_ = getattr(application.PROJECT.aq_app, name, None)
             if ret_ is not None:
                 LOGGER.warning(
                     "FormDBWidget: Coearcing attribute %r from aqApp (should be avoided)" % name

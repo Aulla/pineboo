@@ -18,7 +18,7 @@ from pineboolib.core.utils.struct import AreaStruct
 from pineboolib.core import exceptions, settings, message_manager, decorators
 from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.utils import path, xpm
-from pineboolib.application import module, file, load_script
+from pineboolib.application import module, file, load_script, pnapplication
 
 from pineboolib.application.parsers import qsaparser
 
@@ -41,6 +41,7 @@ class Project(object):
     _conn_manager: Optional["pnconnectionmanager.PNConnectionManager"]
 
     _app: Optional[QtWidgets.QApplication] = None
+    _aq_app: Optional["pnapplication.PNApplication"] = None
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
     debug_level = 100
     options: Values
@@ -110,6 +111,17 @@ class Project(object):
     def set_app(self, app: QtWidgets.QApplication):
         """Set Qt Application."""
         self._app = app
+
+    @property
+    def aq_app(self) -> "pnapplication.PNApplication":
+        """Retrieve current Qt Application or throw error."""
+        if self._aq_app is None:
+            self._aq_app = pnapplication.PNApplication()
+        return self._aq_app
+
+    def set_aq_app(self, app: "pnapplication.PNApplication") -> None:
+        """Set Qt Application."""
+        self._aq_app = aq_app
 
     @property
     def conn_manager(self) -> "pnconnectionmanager.PNConnectionManager":

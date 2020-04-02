@@ -196,24 +196,6 @@ def init_cli(catch_ctrl_c: bool = True) -> None:
 
         signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    # FIXME: Order of import is REALLY important here. FIX.
-    # from pineboolib.fllegacy.aqsobjects import aqsobjectfactory
-    #
-    # aqsobjectfactory.AQUtil = aqsobjectfactory.AQUtil_class()
-    # aqsobjectfactory.AQS = aqsobjectfactory.AQS_class()
-
-    from pineboolib.fllegacy import flapplication
-
-    flapplication.aqApp = flapplication.FLApplication()
-
-    from pineboolib.qsa import qsa
-
-    qsa.aqApp = flapplication.aqApp
-    # from pineboolib import pncontrolsfactory
-    #
-    # pncontrolsfactory.System = pncontrolsfactory.System_class()
-    # pncontrolsfactory.qsa_sys = pncontrolsfactory.SysType()
-
 
 def init_gui() -> None:
     """Create GUI singletons."""
@@ -431,12 +413,10 @@ def exec_main(options: Values) -> int:
     LOGGER.debug(configdb)
     application.PROJECT.init_dgi(dgi)
 
-    from pineboolib.fllegacy.flapplication import aqApp
-
     lang = QtCore.QLocale().name()[:2]
     if lang == "C":
         lang = "es"
-    aqApp.loadTranslationFromModule("sys", lang)
+    application.PROJECT.aq_app.loadTranslationFromModule("sys", lang)
 
     if not configdb and dgi.useDesktop() and dgi.localDesktop():
         if not dgi.mobilePlatform():
@@ -512,7 +492,7 @@ def exec_main(options: Values) -> int:
     application.PROJECT.message_manager().send(
         "splash", "showMessage", ["Cargando traducciones ..."]
     )
-    aqApp.loadTranslations()
+    application.PROJECT.aq_app.loadTranslations()
 
     from .init_project import init_project
 

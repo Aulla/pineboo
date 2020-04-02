@@ -2,7 +2,7 @@
 
 from pineboolib.core.utils import logging
 from pineboolib.core import settings
-
+from pineboolib import application
 
 LOGGER = logging.get_logger(__name__)
 
@@ -14,11 +14,9 @@ class StatusHelpMsg(object):
         """Send a text."""
 
         try:
-            from pineboolib.fllegacy.flapplication import aqApp
-
-            aqApp.statusHelpMsg(text_)
+            application.PROJECT.aq_app.statusHelpMsg(text_)
 
             if settings.CONFIG.value("ebcomportamiento/parser_qsa_gui", False):
-                aqApp.popupWarn(text_)
+                application.PROJECT.aq_app.popupWarn(text_)
         except RuntimeError as error:
             LOGGER.warning(str(error))

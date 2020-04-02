@@ -17,9 +17,6 @@ from pineboolib.q3widgets import qmainwindow
 from pineboolib.application.database import pnsqlcursor
 
 from pineboolib import application
-
-from . import flapplication
-
 from typing import Any, Union, Dict, Optional, Tuple, Type, cast, Callable, TYPE_CHECKING
 
 
@@ -183,7 +180,7 @@ class FLFormDB(QtWidgets.QDialog):
             load = load == 1
 
         if parent is None or isinstance(parent, int):
-            parent_widget = flapplication.aqApp.mainWidget()
+            parent_widget = application.PROJECT.aq_app.mainWidget()
         else:
             parent_widget = parent
 
@@ -393,7 +390,7 @@ class FLFormDB(QtWidgets.QDialog):
         if not path_file:
 
             tmp_file = "%s/snap_shot_%s.png" % (
-                flapplication.aqApp.tmp_dir(),
+                application.PROJECT.tmpdir,
                 QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz"),
             )
 
@@ -538,7 +535,7 @@ class FLFormDB(QtWidgets.QDialog):
         qsa_sys = SysBaseType()
         if qsa_sys.isLoadedModule("fltesttest"):
 
-            flapplication.aqApp.call(
+            application.PROJECT.call(
                 "fltesttest.iface.recibeEvento", ("formReady", self.actionName_), None
             )
         self.formReady.emit()
@@ -571,9 +568,8 @@ class FLFormDB(QtWidgets.QDialog):
         """
         Initialize the associated script.
         """
-        from pineboolib.fllegacy import flapplication
 
-        acl = flapplication.aqApp.acl()
+        acl = application.PROJECT.aq_app.acl()
 
         if acl:
             acl.process(self)

@@ -15,7 +15,6 @@ from pineboolib.application import types
 from pineboolib.core import decorators, translate, settings
 from pineboolib import logging, application
 
-from . import flapplication
 
 from typing import List, Optional, Union, Any, TYPE_CHECKING
 
@@ -382,7 +381,7 @@ class FLUtil(object):
         @return Field List.
         """
 
-        campos = flapplication.aqApp.db().manager().metadata(tablename).fieldNames()
+        campos = application.PROJECT.conn_manager.manager().metadata(tablename).fieldNames()
         return [str(len(campos))] + campos
 
     @classmethod
@@ -790,7 +789,7 @@ class FLUtil(object):
         @return Rounded Number
         """
 
-        tmd = flapplication.aqApp.db().manager().metadata(table_name)
+        tmd = application.PROJECT.conn_manager.manager().metadata(table_name)
         if tmd is None:
             return ""
         fmd = tmd.field(field_name)
@@ -1125,7 +1124,7 @@ class FLUtil(object):
         @return field type id
         """
 
-        conn = flapplication.aqApp.db().useConn(conn_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
         mtd = conn.connManager().manager().metadata(tn)
 
         return None if mtd is None else mtd.fieldType(fn)
@@ -1143,7 +1142,7 @@ class FLUtil(object):
         if tn is None:
             return 0
 
-        conn = flapplication.aqApp.db().useConn(conn_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
         mtd = conn.connManager().manager().metadata(tn)
 
         return 0 if mtd is None else mtd.fieldLength(fn)
@@ -1161,7 +1160,7 @@ class FLUtil(object):
         if tn is None:
             return fn
 
-        conn = flapplication.aqApp.db().useConn(conn_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
         mtd = conn.connManager().manager().metadata(tn)
 
         return fn if mtd is None else mtd.fieldNameToAlias(fn)
@@ -1179,7 +1178,7 @@ class FLUtil(object):
         if tn is None:
             return None
 
-        conn = flapplication.aqApp.db().useConn(conn_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
         mtd = conn.connManager().manager().metadata(tn)
 
         return None if mtd is None else mtd.alias()
@@ -1198,7 +1197,7 @@ class FLUtil(object):
         if tn is None:
             return an
 
-        conn = flapplication.aqApp.db().useConn(conn_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
         mtd = conn.connManager().manager().metadata(tn)
 
         return an if mtd is None else mtd.fieldAliasToName(an)
@@ -1217,7 +1216,7 @@ class FLUtil(object):
         if tn is None:
             return False
 
-        conn = flapplication.aqApp.db().useConn(conn_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
         mtd = conn.connManager().manager().metadata(tn)
 
         return False if mtd is None else mtd.fieldAllowNull(fn)
@@ -1235,7 +1234,7 @@ class FLUtil(object):
         if tn is None:
             return False
 
-        conn = flapplication.aqApp.db().useConn(conn_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
         mtd = conn.connManager().manager().metadata(tn)
 
         return False if mtd is None else mtd.fieldIsPrimaryKey(fn)
@@ -1253,7 +1252,7 @@ class FLUtil(object):
         if tn is None:
             return False
 
-        conn = flapplication.aqApp.db().useConn(conn_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
         mtd = conn.connManager().manager().metadata(tn)
 
         if mtd is None:
@@ -1275,7 +1274,7 @@ class FLUtil(object):
         if tn is None:
             return None  # return QVariant
 
-        conn = flapplication.aqApp.db().useConn(conn_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
         mtd = conn.connManager().manager().metadata(tn)
 
         if mtd is None:
@@ -1297,7 +1296,7 @@ class FLUtil(object):
         @param conn_name. Name of the connection to use
         @return Formatted Value
         """
-        conn = flapplication.aqApp.db().useConn(conn_name)
+        conn = application.PROJECT.conn_manager.useConn(conn_name)
         return conn.connManager().manager().formatValue(t, v, upper)
 
     @classmethod

@@ -19,9 +19,8 @@ from pineboolib.application.utils import xpm, convert_flaction
 
 from pineboolib.interfaces import IManager
 
-from pineboolib import logging
+from pineboolib import logging, application
 
-from . import flapplication
 from . import flutil
 
 from xml.etree import ElementTree
@@ -235,7 +234,7 @@ class FLManager(QtCore.QObject, IManager):
 
                 # throwMsgWarning(self.db_, msg)
 
-            acl = flapplication.aqApp.acl()
+            acl = application.PROJECT.aq_app.acl()
             if acl:
                 acl.process(ret)
 
@@ -317,7 +316,7 @@ class FLManager(QtCore.QObject, IManager):
                 aWith = None
                 aBy = None
 
-            acl = flapplication.aqApp.acl()
+            acl = application.PROJECT.aq_app.acl()
             if acl:
                 acl.process(table_metadata)
 
@@ -1305,7 +1304,7 @@ class FLManager(QtCore.QObject, IManager):
 
         tableLarge = "fllarge"
 
-        if not flapplication.aqApp.singleFLLarge():
+        if not application.PROJECT.aq_app.singleFLLarge():
             tableLarge = "fllarge_%s" % tableName
 
             if not self.existsTable(tableLarge):
@@ -1369,7 +1368,7 @@ class FLManager(QtCore.QObject, IManager):
 
             table_name = (
                 "fllarge"
-                if flapplication.aqApp.singleFLLarge()
+                if application.PROJECT.aq_app.singleFLLarge()
                 else "fllarge_" + ref_key.split("@")[1]
             )
 

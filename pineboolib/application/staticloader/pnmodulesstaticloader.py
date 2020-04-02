@@ -116,9 +116,8 @@ class FLStaticLoaderWarning(QtCore.QObject):
 
         msg += "</font><br></p>"
         self.warns_.clear()
-        from pineboolib.fllegacy import flapplication
 
-        flapplication.aqApp.popupWarn(msg)
+        application.PROJECT.aq_app.popupWarn(msg)
 
 
 WARN_: Optional[FLStaticLoaderWarning] = None

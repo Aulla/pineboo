@@ -8,9 +8,10 @@ from pineboolib.core.utils import utils_base
 from pineboolib.core import settings, decorators
 
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
-from pineboolib import logging
+from pineboolib import logging, application
 
-from . import flformdb, flapplication, flfielddb
+
+from . import flformdb, flfielddb
 
 from typing import cast, Union, Optional, TYPE_CHECKING
 
@@ -191,7 +192,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         else:
             self.setCaptionWidget("No hay metadatos")
 
-        acl = flapplication.aqApp.acl()
+        acl = application.PROJECT.aq_app.acl()
         if acl:
             acl.process(self)
 

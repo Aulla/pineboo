@@ -8,7 +8,8 @@ Those variables are per session, so they are not shared even for same user.
 """
 
 from pineboolib.application.database import utils
-from pineboolib.fllegacy import flapplication
+from pineboolib import application
+
 
 from PyQt5 import QtCore  # type: ignore
 from typing import Any
@@ -19,12 +20,12 @@ class FLVar(object):
 
     def set(self, n: str, v: Any) -> bool:
         """Save a variable to database."""
-        from pineboolib.application.database.pnsqlquery import PNSqlQuery
+        from pineboolib.application.database import pnsqlquery
 
-        id_sesion = flapplication.aqApp.timeUser().toString(QtCore.Qt.ISODate)
+        id_sesion = application.PROJECT.aq_app.timeUser().toString(QtCore.Qt.ISODate)
         where = "idvar = '%s' AND idsesion ='%s'" % (n, id_sesion)
 
-        qry = PNSqlQuery()
+        qry = pnsqlquery.PNSqlQuery()
         qry.setTablesList("flvar")
         qry.setSelect("id")
         qry.setFrom("flvar")
@@ -41,18 +42,18 @@ class FLVar(object):
 
     def get(self, name: str) -> Any:
         """Get variable from database."""
-        id_sesion = flapplication.aqApp.timeUser().toString(QtCore.Qt.ISODate)
+        id_sesion = application.PROJECT.aq_app.timeUser().toString(QtCore.Qt.ISODate)
         where = "idvar = '%s' AND idsesion ='%s'" % (name, id_sesion)
         return utils.sql_select("flvar", "valor", where, "flvar")
 
     def del_(self, name: str) -> bool:
         """Delete variable from database."""
-        id_sesion = flapplication.aqApp.timeUser().toString(QtCore.Qt.ISODate)
+        id_sesion = application.PROJECT.aq_app.timeUser().toString(QtCore.Qt.ISODate)
         where = "idvar = '%s' AND idsesion ='%s'" % (name, id_sesion)
         return utils.sql_delete("flvar", where)
 
     def clean(self) -> bool:
         """Clean variables for this session."""
-        id_sesion = flapplication.aqApp.timeUser().toString(QtCore.Qt.ISODate)
+        id_sesion = application.PROJECT.aq_app.timeUser().toString(QtCore.Qt.ISODate)
         where = "idsesion = '%s'" % id_sesion
         return utils.sql_delete("flvar", where)

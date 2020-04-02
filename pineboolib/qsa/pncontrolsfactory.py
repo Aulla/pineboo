@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui, QtXml  # noqa: F401
 from pineboolib.core.system import System  # noqa: F401
 
 from .utils import MathClass, NumberAttr
-
+from pineboolib import application
 from pineboolib.application.packager.pnunpacker import PNUnpacker as AQUnpacker  # noqa: F401
 from pineboolib.application.packager.pnpackager import PNPackager as AQPackager  # noqa: F401
 
@@ -132,6 +132,7 @@ from pineboolib.fllegacy.flnetwork import FLNetwork  # noqa: F401
 from pineboolib.fllegacy.flreportviewer import FLReportViewer  # noqa: F401
 from pineboolib.fllegacy.flreportengine import FLReportEngine  # noqa: F401
 from pineboolib.fllegacy.fljasperengine import FLJasperEngine  # noqa: F401
+
 from pineboolib.fllegacy.flapplication import FLApplication  # noqa: F401
 from pineboolib.fllegacy.flvar import FLVar  # noqa: F401
 from pineboolib.fllegacy.flsmtpclient import FLSmtpClient  # noqa: F401
@@ -195,6 +196,7 @@ QSA_SYS = SysType()
 QS_PROJECT = AQSSProject()
 MATH = MathClass()
 NUMBER_ATT = NumberAttr()
+AQ_APP = application.PROJECT.aq_app
 # FIXME: meter todo QSA
 # from pineboolib.fllegacy.aqsobjects.aqsobjectfactory import *
 

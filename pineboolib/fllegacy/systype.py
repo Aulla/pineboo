@@ -29,7 +29,6 @@ from .aqsobjects.aqs import AQS
 from .aqsobjects import aqsql
 
 from . import flutil
-from . import flapplication
 from . import flvar
 
 from pineboolib.q3widgets.dialog import Dialog
@@ -126,27 +125,27 @@ class SysType(sysbasetype.SysBaseType):
     def printTextEdit(self, editor: QtWidgets.QTextEdit):
         """Print text from a textEdit."""
 
-        flapplication.aqApp.printTextEdit(editor)
+        application.PROJECT.aq_app.printTextEdit(editor)
 
     def dialogGetFileImage(self) -> Optional[str]:
         """Show a file dialog and return a file name."""
 
-        return flapplication.aqApp.dialogGetFileImage()
+        return application.PROJECT.aq_app.dialogGetFileImage()
 
     def toXmlReportData(self, qry: "pnsqlquery.PNSqlQuery") -> "QtXml.QDomDocument":
         """Return xml from a query."""
 
-        return flapplication.aqApp.toXmlReportData(qry)
+        return application.PROJECT.aq_app.toXmlReportData(qry)
 
     def showDocPage(self, url_: str) -> None:
         """Show externa file."""
 
-        return flapplication.aqApp.showDocPage(url_)
+        return application.PROJECT.aq_app.showDocPage(url_)
 
     def toPixmap(self, value_: str) -> QtGui.QPixmap:
         """Create a QPixmap from a text."""
 
-        return flapplication.aqApp.toPixmap(value_)
+        return application.PROJECT.aq_app.toPixmap(value_)
 
     def setMultiLang(self, enable_: bool, lang_id_: str) -> None:
         """
@@ -156,29 +155,29 @@ class SysType(sysbasetype.SysBaseType):
         @param langid, Identificador del leguaje a activar
         """
 
-        return flapplication.aqApp.setMultiLang(enable_, lang_id_)
+        return application.PROJECT.aq_app.setMultiLang(enable_, lang_id_)
 
     def fromPixmap(self, pix_: QtGui.QPixmap) -> str:
         """Return a text from a QPixmap."""
 
-        return flapplication.aqApp.fromPixmap(pix_)
+        return application.PROJECT.aq_app.fromPixmap(pix_)
 
     def popupWarn(self, msg_warn: str, script_calls: List[Any] = []) -> None:
         """Show a warning popup."""
 
-        flapplication.aqApp.popupWarn(msg_warn, script_calls)
+        application.PROJECT.aq_app.popupWarn(msg_warn, script_calls)
 
     def openMasterForm(self, action_name_: str, pix_: Optional[QtGui.QPixmap] = None) -> None:
         """Open default form from a action."""
 
-        flapplication.aqApp.openMasterForm(action_name_, pix_)
+        application.PROJECT.aq_app.openMasterForm(action_name_, pix_)
 
     def scalePixmap(
         self, pix_: QtGui.QPixmap, w_: int, h_: int, mode_: QtCore.Qt.AspectRatioMode
     ) -> QtGui.QImage:
         """Return QImage scaled from a QPixmap."""
 
-        return flapplication.aqApp.scalePixmap(pix_, w_, h_, mode_)
+        return application.PROJECT.aq_app.scalePixmap(pix_, w_, h_, mode_)
 
     @classmethod
     def transactionLevel(self) -> int:
@@ -199,7 +198,7 @@ class SysType(sysbasetype.SysBaseType):
     @classmethod
     def updateAreas(self) -> None:
         """Update areas in mdi."""
-        mw = flapplication.aqApp.mainWidget()
+        mw = application.PROJECT.aq_app.mainWidget()
         if hasattr(mw, "initToolBox"):
             mw.initToolBox()
 
@@ -207,19 +206,19 @@ class SysType(sysbasetype.SysBaseType):
     def reinit(self) -> None:
         """Call reinit script."""
 
-        flapplication.aqApp.reinit()
+        application.PROJECT.aq_app.reinit()
 
     @classmethod
     def modMainWidget(self, id_module_: str) -> Optional[QtWidgets.QWidget]:
         """Set module MainWinget."""
 
-        return flapplication.aqApp.modMainWidget(id_module_)
+        return application.PROJECT.aq_app.modMainWidget(id_module_)
 
     @classmethod
     def setCaptionMainWidget(self, title: str) -> None:
         """Set caption in the main widget."""
 
-        flapplication.aqApp.setCaptionMainWidget(title)
+        application.PROJECT.aq_app.setCaptionMainWidget(title)
 
     @staticmethod
     def execQSA(fileQSA=None, args=None) -> None:
@@ -1661,7 +1660,7 @@ class SysType(sysbasetype.SysBaseType):
     def qsaExceptions(self):
         """Return QSA exceptions found."""
 
-        return flapplication.aqApp.db().qsaExceptions()
+        return application.PROJECT.conn_manager.qsaExceptions()
 
     @classmethod
     @decorators.not_implemented_warn
@@ -1700,7 +1699,7 @@ class SysType(sysbasetype.SysBaseType):
     def interactiveGUI(self):
         """Return interactiveGUI."""
 
-        return flapplication.aqApp.db().mainConn().interactiveGUI()
+        return application.PROJECT.conn_manager.mainConn().interactiveGUI()
 
     @classmethod
     def getWidgetList(self, container: str, control_name: str) -> str:
@@ -1815,7 +1814,7 @@ class AbanQDbDumper(QtCore.QObject):
 
         self.funLog_ = self.addLog if fun_log is None else fun_log  # type: ignore
 
-        self.db_ = flapplication.aqApp.db() if db is None else db
+        self.db_ = application.PROJECT.aq_app.db() if db is None else db
         self.showGui_ = showGui
         self.dirBase_ = types.Dir.home if dirBase is None else dirBase
 

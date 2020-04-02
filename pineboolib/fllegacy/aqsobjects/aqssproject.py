@@ -1,9 +1,8 @@
 """Aqssproject module."""
 
 from PyQt5 import QtCore
-from pineboolib.fllegacy import flapplication
 
-from typing import Optional
+from pineboolib import application
 
 
 class AQSSProject(QtCore.QObject):
@@ -15,14 +14,14 @@ class AQSSProject(QtCore.QObject):
 
     def callEntryFunction(self):
         """Call entry function."""
-        flapplication.aqApp.callScriptEntryFunction()
+        application.PROJECT.aq_app.callScriptEntryFunction()
 
-    def get_entry_function(self) -> Optional[str]:
+    def get_entry_function(self) -> str:
         """Return entry function."""
-        return flapplication.aqApp.script_entry_function_
+        return application.PROJECT.aq_app.script_entry_function_
 
     def set_entry_function(self, entry_fun_: str) -> None:
         """Set entry function."""
-        flapplication.aqApp.script_entry_function_ = entry_fun_
+        application.PROJECT.aq_app.script_entry_function_ = entry_fun_
 
     entryFunction = property(get_entry_function, set_entry_function)

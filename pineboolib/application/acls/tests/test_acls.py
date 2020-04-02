@@ -2,10 +2,11 @@
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.fllegacy import flapplication, systype
+from pineboolib.fllegacy import systype
 from pineboolib.core import settings
 from pineboolib.core.utils import utils_base
 from pineboolib.application.acls import pnaccesscontrollists
+from pineboolib import application
 
 
 class TestACLS(unittest.TestCase):
@@ -299,7 +300,7 @@ class TestACLS(unittest.TestCase):
         sys_type.installACL("tercera")
         acl = pnaccesscontrollists.PNAccessControlLists()
         acl.init()
-        flapplication.aqApp.set_acl(acl)
+        application.PROJECT.aq_app.set_acl(acl)
         button_1 = qsa.from_project("formRecordflmodules").child("botonExportar")  # r-
         button_2 = qsa.from_project("formRecordflmodules").child("botonCargar")  # --
         self.assertTrue(button_2.isHidden())  # not visible
@@ -317,7 +318,7 @@ class TestACLS(unittest.TestCase):
         sys_type.installACL("cuarta")
         acl = pnaccesscontrollists.PNAccessControlLists()
         acl.init()
-        flapplication.aqApp.set_acl(acl)
+        application.PROJECT.aq_app.set_acl(acl)
 
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
@@ -356,7 +357,7 @@ class TestACLS(unittest.TestCase):
         sys_type.installACL("cuarta")
         acl = pnaccesscontrollists.PNAccessControlLists()
         acl.init()
-        flapplication.aqApp.set_acl(acl)
+        application.PROJECT.aq_app.set_acl(acl)
 
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
@@ -384,7 +385,7 @@ class TestACLS(unittest.TestCase):
         sys_type.installACL("tercera")
         acl = pnaccesscontrollists.PNAccessControlLists()
         acl.init()
-        flapplication.aqApp.set_acl(acl)
+        application.PROJECT.aq_app.set_acl(acl)
 
         project = application.PROJECT
         project.main_form = eneboo
@@ -408,13 +409,13 @@ class TestACLS(unittest.TestCase):
         sys_type.installACL("primera")
         acl = pnaccesscontrollists.PNAccessControlLists()
         acl.init()
-        flapplication.aqApp.set_acl(acl)
+        application.PROJECT.aq_app.set_acl(acl)
 
         # clear metadata cache
-        flapplication.aqApp.db().manager().cacheMetaDataSys_ = {}
-        flapplication.aqApp.db().manager().cacheMetaData_ = {}
+        application.PROJECT.conn_manager.manager().cacheMetaDataSys_ = {}
+        application.PROJECT.conn_manager.manager().cacheMetaData_ = {}
 
-        mtd_flgroups = flapplication.aqApp.db().manager().metadata("flgroups")
+        mtd_flgroups = application.PROJECT.conn_manager.manager().metadata("flgroups")
         self.assertTrue(mtd_flgroups)
         # descripcion = '--'
         field_descripcion = mtd_flgroups.field("descripcion")
@@ -425,7 +426,7 @@ class TestACLS(unittest.TestCase):
         field_idgroup = mtd_flgroups.field("idgroup")
         self.assertFalse(field_idgroup.visible())
 
-        mtd_flmodules = flapplication.aqApp.db().manager().metadata("flmodules")
+        mtd_flmodules = application.PROJECT.conn_manager.manager().metadata("flmodules")
         field_descripcion = mtd_flmodules.field("descripcion")
 
         # descripcion = 'rw'
@@ -439,27 +440,27 @@ class TestACLS(unittest.TestCase):
         sys_type.installACL("segunda")
         acl = pnaccesscontrollists.PNAccessControlLists()
         acl.init()
-        flapplication.aqApp.set_acl(acl)
+        application.PROJECT.aq_app.set_acl(acl)
 
         # clear metadata cache
-        flapplication.aqApp.db().manager().cacheMetaDataSys_ = {}
-        flapplication.aqApp.db().manager().cacheMetaData_ = {}
+        application.PROJECT.conn_manager.manager().cacheMetaDataSys_ = {}
+        application.PROJECT.conn_manager.manager().cacheMetaData_ = {}
 
-        mtd_flareas = flapplication.aqApp.db().manager().metadata("flareas")
+        mtd_flareas = application.PROJECT.conn_manager.manager().metadata("flareas")
         self.assertTrue(mtd_flareas)
         # '--'
         field_descripcion = mtd_flareas.field("descripcion")
         self.assertFalse(field_descripcion.editable())
         self.assertFalse(field_descripcion.visible())
 
-        mtd_flusers = flapplication.aqApp.db().manager().metadata("flusers")
+        mtd_flusers = application.PROJECT.conn_manager.manager().metadata("flusers")
         self.assertTrue(mtd_flusers)
         # 'r-'
         field_descripcion = mtd_flusers.field("descripcion")
         self.assertFalse(field_descripcion.editable())
         self.assertTrue(field_descripcion.visible())
 
-        mtd_fltest = flapplication.aqApp.db().manager().metadata("fltest")
+        mtd_fltest = application.PROJECT.conn_manager.manager().metadata("fltest")
         self.assertTrue(mtd_fltest)
         # 'rw'
         field = mtd_fltest.field("date_field")
@@ -478,7 +479,7 @@ class TestACLS(unittest.TestCase):
         sys_type.installACL("final")
         acl = pnaccesscontrollists.PNAccessControlLists()
         acl.init()
-        flapplication.aqApp.set_acl(acl)
+        application.PROJECT.conn_manager.set_acl(acl)
 
         utils.sqlDelete("flacls", "1=1")
         utils.sqlDelete("flacs", "1=1")
@@ -486,9 +487,9 @@ class TestACLS(unittest.TestCase):
         utils.sqlDelete("flusers", "1=1")
         utils.sqlDelete("flgroups", "1=1")
         utils.sqlDelete("flfiles", "nombre='acl.xml'")
-        flapplication.aqApp.db().manager().cacheMetaDataSys_ = {}
-        flapplication.aqApp.db().manager().cacheMetaData_ = {}
-        flapplication.aqApp.acl_ = None
+        application.PROJECT.conn_manager.manager().cacheMetaDataSys_ = {}
+        application.PROJECT.conn_manager.manager().cacheMetaData_ = {}
+        application.PROJECT.aq_app.acl_ = None
 
         settings.CONFIG.set_value("application/dbadmin_enabled", cls.db_admin)
         """
