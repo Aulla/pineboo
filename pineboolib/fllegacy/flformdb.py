@@ -536,7 +536,7 @@ class FLFormDB(QtWidgets.QDialog):
         if qsa_sys.isLoadedModule("fltesttest"):
 
             application.PROJECT.call(
-                "fltesttest.iface.recibeEvento", ("formReady", self.actionName_), None
+                "fltesttest.iface.recibeEvento", ["formReady", self.actionName_], None
             )
         self.formReady.emit()
 

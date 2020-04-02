@@ -119,7 +119,7 @@ class Project(object):
             self._aq_app = pnapplication.PNApplication()
         return self._aq_app
 
-    def set_aq_app(self, app: "pnapplication.PNApplication") -> None:
+    def set_aq_app(self, aq_app: "pnapplication.PNApplication") -> None:
         """Set Qt Application."""
         self._aq_app = aq_app
 

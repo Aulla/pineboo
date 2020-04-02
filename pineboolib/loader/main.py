@@ -466,7 +466,7 @@ def exec_main(options: Values) -> int:
     acl.init()
 
     if acl._access_control_list:
-        aqApp.set_acl(acl)
+        application.PROJECT.aq_app.set_acl(acl)
 
     # conn = application.PROJECT.conn_manager.mainConn()
 

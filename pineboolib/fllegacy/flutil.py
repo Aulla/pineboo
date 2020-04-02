@@ -380,9 +380,12 @@ class FLUtil(object):
         @param table. Table name.
         @return Field List.
         """
-
-        campos = application.PROJECT.conn_manager.manager().metadata(tablename).fieldNames()
-        return [str(len(campos))] + campos
+        metadata = application.PROJECT.conn_manager.manager().metadata(tablename)
+        if metadata is not None:
+            campos = metadata.fieldNames()
+            return [str(len(campos))] + campos
+        else:
+            return ["0"]
 
     @classmethod
     def calcularDC(cls, n: int) -> str:

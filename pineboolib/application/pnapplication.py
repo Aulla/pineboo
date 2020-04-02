@@ -62,7 +62,7 @@ class PNApplication(QtCore.QObject):
     show_debug_: bool
     timer_idle_: Optional[QtCore.QTimer]
     time_user_: QtCore.QTimer
-    script_entry_function_: Optional[str]
+    script_entry_function_: str
     _event_loop: Optional[QtCore.QEventLoop]
     window_menu: Optional[QtWidgets.QMenu] = None
     modules_menu: Any
@@ -92,7 +92,7 @@ class PNApplication(QtCore.QObject):
         self.style = False
         self.init_single_fl_large = False
         self.show_debug_ = True  # FIXME
-        self.script_entry_function_ = None
+        self.script_entry_function_ = ""
 
         self.acl_ = None
         # self.fl_factory_ = FLObjectFactory() # FIXME para un futuro

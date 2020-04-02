@@ -416,22 +416,27 @@ class TestACLS(unittest.TestCase):
         application.PROJECT.conn_manager.manager().cacheMetaData_ = {}
 
         mtd_flgroups = application.PROJECT.conn_manager.manager().metadata("flgroups")
+
         self.assertTrue(mtd_flgroups)
         # descripcion = '--'
-        field_descripcion = mtd_flgroups.field("descripcion")
-        self.assertFalse(field_descripcion.editable())
-        self.assertTrue(field_descripcion.visible())
+        field_descripcion = mtd_flgroups.field(  # type: ignore [union-attr] # noqa: F821
+            "descripcion"
+        )
+        self.assertFalse(field_descripcion.editable())  # type: ignore [union-attr] # noqa: F821
+        self.assertTrue(field_descripcion.visible())  # type: ignore [union-attr] # noqa: F821
 
         # idgroup = 'r-'
-        field_idgroup = mtd_flgroups.field("idgroup")
-        self.assertFalse(field_idgroup.visible())
+        field_idgroup = mtd_flgroups.field("idgroup")  # type: ignore [union-attr] # noqa: F821
+        self.assertFalse(field_idgroup.visible())  # type: ignore [union-attr] # noqa: F821
 
         mtd_flmodules = application.PROJECT.conn_manager.manager().metadata("flmodules")
-        field_descripcion = mtd_flmodules.field("descripcion")
+        field_descripcion = mtd_flmodules.field(  # type: ignore [union-attr] # noqa: F821
+            "descripcion"
+        )
 
         # descripcion = 'rw'
-        self.assertTrue(field_descripcion.editable())
-        self.assertTrue(field_descripcion.visible())
+        self.assertTrue(field_descripcion.editable())  # type: ignore [union-attr] # noqa: F821
+        self.assertTrue(field_descripcion.visible())  # type: ignore [union-attr] # noqa: F821
 
     def test_tables_globals(self) -> None:
         """Test table acls globals."""
@@ -449,23 +454,27 @@ class TestACLS(unittest.TestCase):
         mtd_flareas = application.PROJECT.conn_manager.manager().metadata("flareas")
         self.assertTrue(mtd_flareas)
         # '--'
-        field_descripcion = mtd_flareas.field("descripcion")
-        self.assertFalse(field_descripcion.editable())
-        self.assertFalse(field_descripcion.visible())
+        field_descripcion = mtd_flareas.field(  # type: ignore [union-attr] # noqa: F821
+            "descripcion"
+        )
+        self.assertFalse(field_descripcion.editable())  # type: ignore [union-attr] # noqa: F821
+        self.assertFalse(field_descripcion.visible())  # type: ignore [union-attr] # noqa: F821
 
         mtd_flusers = application.PROJECT.conn_manager.manager().metadata("flusers")
         self.assertTrue(mtd_flusers)
         # 'r-'
-        field_descripcion = mtd_flusers.field("descripcion")
-        self.assertFalse(field_descripcion.editable())
-        self.assertTrue(field_descripcion.visible())
+        field_descripcion = mtd_flusers.field(  # type: ignore [union-attr] # noqa: F821
+            "descripcion"
+        )
+        self.assertFalse(field_descripcion.editable())  # type: ignore [union-attr] # noqa: F821
+        self.assertTrue(field_descripcion.visible())  # type: ignore [union-attr] # noqa: F821
 
         mtd_fltest = application.PROJECT.conn_manager.manager().metadata("fltest")
         self.assertTrue(mtd_fltest)
         # 'rw'
-        field = mtd_fltest.field("date_field")
-        self.assertTrue(field.editable())
-        self.assertTrue(field.visible())
+        field = mtd_fltest.field("date_field")  # type: ignore [union-attr] # noqa: F821
+        self.assertTrue(field.editable())  # type: ignore [union-attr] # noqa: F821
+        self.assertTrue(field.visible())  # type: ignore [union-attr] # noqa: F821
 
     @classmethod
     def tearDownClass(cls) -> None:

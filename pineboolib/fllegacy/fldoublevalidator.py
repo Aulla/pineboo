@@ -63,7 +63,7 @@ class FLDoubleValidator(QtGui.QDoubleValidator):
 
         ret_1 = state[1]
 
-        if application.PROJECT.app.commaSeparator() == "," and ret_1.endswith("."):
+        if application.PROJECT.aq_app.commaSeparator() == "," and ret_1.endswith("."):
             ret_1 = ret_1[0 : len(ret_1) - 1] + ","
 
         if len(ret_1) == 1 and ret_1 not in (

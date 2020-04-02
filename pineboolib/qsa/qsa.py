@@ -7,6 +7,7 @@ This file should be imported at top of QS converted files.
 
 import re  # noqa: F401
 
+
 from pineboolib.core.utils.utils_base import ustr, filedir  # noqa: F401
 from pineboolib.application.types import QString, String  # noqa: F401
 from pineboolib.application.types import boolean as Boolean  # noqa: F401
@@ -90,8 +91,7 @@ from .pncontrolsfactory import AQBoolFlagState, AQBoolFlagStateList  # noqa: F40
 from .pncontrolsfactory import FormDBWidget  # noqa: F401
 from pineboolib.application.process import Process, ProcessStatic  # noqa: F401
 from .pncontrolsfactory import SysType, System  # noqa: F401
-from .pncontrolsfactory import AQ_APP as aqApp
-
+from .pncontrolsfactory import AQ_APP as aqApp  # noqa: F401
 
 QSProject = QS_PROJECT
 sys = QSA_SYS

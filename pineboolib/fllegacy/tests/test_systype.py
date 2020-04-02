@@ -46,7 +46,6 @@ class TestSysType(unittest.TestCase):
 
     def test_translation(self) -> None:
         """Test translation function."""
-        from pineboolib.qsa import qsa
 
         qsa_sys = systype.SysType()
 
