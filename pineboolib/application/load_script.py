@@ -33,7 +33,6 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     #    script_name.upper(),
     #    application.PROJECT.no_python_cache,
     # )
-
     if script_name:
         script_name = script_name.replace(".qs", "")
         LOGGER.debug("Loading script %s for action %s", script_name, action_._name)
@@ -162,6 +161,11 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                 if os.path.exists(script_path_py):
                     # LOGGER.info("Deleting older PY %s", script_path_py)
                     os.remove(script_path_py)
+
+                # if settings.CONFIG.value("application/isDebuggerMode", False):
+                application.PROJECT.message_manager().send(
+                    "status_help_msg", "send", ["Convirtiendo script... %s" % script_name]
+                )
 
                 LOGGER.info(
                     "PARSE_SCRIPT (name : %s, use cache : %s, file: %s",
