@@ -1,5 +1,7 @@
 """StatusHelpMsg module."""
 
+from pineboolib.core import settings
+
 
 class StatusHelpMsg(object):
     """StatusHelpMsg class."""
@@ -9,3 +11,6 @@ class StatusHelpMsg(object):
         from pineboolib.fllegacy.flapplication import aqApp
 
         aqApp.statusHelpMsg(text_)
+
+        if settings.CONFIG.value("ebcomportamiento/parser_qsa_gui", False):
+            aqApp.popupWarn(text_)
