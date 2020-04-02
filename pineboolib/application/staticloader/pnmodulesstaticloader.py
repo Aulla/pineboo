@@ -111,14 +111,14 @@ class FLStaticLoaderWarning(QtCore.QObject):
             return
 
         msg = '<p><img source="about.png" align="right"><b><u>CARGA ESTATICA ACTIVADA</u></b><br><br><font face="Monospace">'
-
         for item in self.warns_:
-            msg += "%s<br>" % item
+            msg += "%s<br>" % (item)
 
         msg += "</font><br></p>"
         self.warns_.clear()
+        from pineboolib.fllegacy import flapplication
 
-        # flapplication.aqApp.popupWarn(msg) #FIXME
+        flapplication.aqApp.popupWarn(msg)
 
 
 WARN_: Optional[FLStaticLoaderWarning] = None
@@ -345,6 +345,8 @@ class PNStaticLoader(QtCore.QObject):
                     WARN_.paths_.append("%s:%s" % (name, info_item.path_))
                     if settings.CONFIG.value("ebcomportamiento/SLConsola", False):
                         LOGGER.warning("CARGA ESTATICA ACTIVADA:%s -> %s", name, info_item.path_)
+                    if settings.CONFIG.value("ebcomportamiento/SLGUI", False):
+                        QtCore.QTimer.singleShot(500, WARN_.popupWarnings)
 
                 if only_path:
                     return content_path
