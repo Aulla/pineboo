@@ -882,7 +882,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         self.recordChoosed.emit()
 
-    def visual_index_to_column_index(self, c: int) -> Optional[int]:
+    def visual_index_to_column_index(self, c: int) -> int:
         """
         Return the column index from an index of visible columns.
 
@@ -891,10 +891,10 @@ class FLDataTable(QtWidgets.QTableView):
         """
 
         if not self.cursor_:
-            return None
+            return -2
 
         visible_id = -1
-        ret_ = None
+        ret_ = -1
         for column in range(self.model().columnCount()):
             if not self.isColumnHidden(self.logical_index_to_visual_index(column)):
                 visible_id += 1
@@ -922,21 +922,14 @@ class FLDataTable(QtWidgets.QTableView):
         Return the metadata of a field according to visual position.
         """
 
-        # if pos_ is None:
-        #     LOGGER.warning("visual_index_to_field: pos is None")
-        #     return None
-        colIdx = self.visual_index_to_column_index(pos_)
-        if colIdx is None:
-            LOGGER.warning("visual_index_to_field: colIdx is None")
+        col_idx = self.visual_index_to_column_index(pos_)
+        if col_idx < 0:
             return None
 
-        logIdx = self.logical_index_to_visual_index(colIdx)
-        # if logIdx is None:
-        #     LOGGER.warning("visual_index_to_field: logIdx is None")
-        #     return None
+        logical_idx = self.logical_index_to_visual_index(col_idx)
         model: pncursortablemodel.PNCursorTableModel = self.model()
         mtd = model.metadata()
-        mtdfield = mtd.indexFieldObject(logIdx)
+        mtdfield = mtd.indexFieldObject(logical_idx)
         if not mtdfield.visibleGrid():
             raise ValueError(
                 "Se ha devuelto el field %s.%s que no es visible en el grid"
