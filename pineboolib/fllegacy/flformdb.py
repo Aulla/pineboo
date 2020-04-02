@@ -953,7 +953,11 @@ class FLFormDB(QtWidgets.QDialog):
 
     def child(self, child_name: str) -> QtWidgets.QWidget:
         """Get child by name."""
-        ret: Any = self.findChild(QtWidgets.QWidget, child_name)
+        ret_ = None
+        try:
+            ret: Any = self.findChild(QtWidgets.QWidget, child_name)
+        except Exception:
+            pass
 
         if ret is not None:
             from . import flfielddb, fltabledb
