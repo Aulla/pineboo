@@ -538,37 +538,18 @@ class FLApplication(QtCore.QObject):
         """Not implemented."""
         pass
 
-    def popupWarn(self, msg_warn: str, script_calls: List[Any] = []) -> None:
+    def popupWarn(self, msg_warn: str) -> None:
         """Show a warning popup."""
-        mw = self.container_ or self.main_widget_
+        if not self.main_widget_:
+            return
 
-        wi = QtWidgets.QWhatsThis
-
-        if script_calls:
-            if not mw:
-                self.container_ = QtWidgets.QMainWindow(QtWidgets.QApplication.desktop())
-
-            if not self.popup_warn_:
-                self.popup_warn_ = FLPopupWarn(mw)  # FIXME: Empty class yet!
-
-            self.popup_warn_.script_calls_ = script_calls
-            wi.showText(
-                QtWidgets.QApplication.desktop().mapToGlobal(QtCore.QPoint(5, 5)), msg_warn, mw
+        if not self.main_widget_.isHidden():
+            QtWidgets.QWhatsThis.showText(
+                self.main_widget_.mapToGlobal(QtCore.QPoint(self.main_widget_.width() * 2, 0)),
+                msg_warn,
+                self.main_widget_,
             )
-
-        else:
-
-            if not mw:
-                return
-
-        if mw is None:
-            raise Exception("self.container_ and self.main_widget are empty!")
-
-        if not mw.isHidden():
-            wi.showText(
-                self.mainWidget().mapToGlobal(QtCore.QPoint(mw.width() * 2, 0)), msg_warn, mw
-            )
-            QtCore.QTimer.singleShot(4000, wi.hideText)
+            QtCore.QTimer.singleShot(2000, QtWidgets.QWhatsThis.hideText)
             QtWidgets.QApplication.processEvents()
 
     @decorators.not_implemented_warn
@@ -931,27 +912,6 @@ class FLApplication(QtCore.QObject):
                 file_name = list_[0]
 
         return file_name
-
-
-"""
-class FLPopuWarn(QtWidgets.QWhatsThis):
-
-    script_calls_ = []
-
-    def __init__(self, parent):
-        self.script_calls_ = []
-        super(FLPopuWarn, self).__init__(parent)
-
-    def clicked(self, href):
-        if href:
-
-            if href.find(":") > -1:
-                h = href.split(":")[1]
-            if h.find(".") == 1:
-                pncontrolsfactury.aqApp.call(h.split(".")[1], self.script_calls_[href], h.split(".")[0])
-            else:
-                pncontrolsfacotry.aqApp.call(h, self.script_calls_[href], None)
-"""
 
 
 # aqApp = FLApplication()
