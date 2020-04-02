@@ -321,12 +321,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Make a transaction or savePoint according to transaction level."""
 
         if self.driver()._transaction == 0 and self.canTransaction():
-            if settings.CONFIG.value("application/isDebuggerMode", False):
-                application.PROJECT.message_manager().send(
-                    "status_help_msg",
-                    "send",
-                    ["Iniciando Transacción... %s" % self.driver()._transaction],
-                )
+            application.PROJECT.message_manager().send(
+                "status_help_msg",
+                "send",
+                ["Iniciando Transacción... %s" % self.driver()._transaction],
+            )
             if self.transaction():
                 self._last_active_cursor = cursor
                 DB_SIGNALS.emitTransactionBegin(cursor)
@@ -436,12 +435,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             return True
 
         if self.driver()._transaction == 0 and self.canTransaction():
-            if settings.CONFIG.value("application/isDebuggerMode", False):
-                application.PROJECT.message_manager().send(
-                    "status_help_msg",
-                    "send",
-                    ["Deshaciendo Transacción... %s" % self.driver()._transaction],
-                )
+            application.PROJECT.message_manager().send(
+                "status_help_msg",
+                "send",
+                ["Deshaciendo Transacción... %s" % self.driver()._transaction],
+            )
             if self.rollbackTransaction():
                 self._last_active_cursor = None
 
@@ -539,12 +537,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             return True
 
         if self.driver()._transaction == 0 and self.canTransaction():
-            if settings.CONFIG.value("application/isDebuggerMode", False):
-                application.PROJECT.message_manager().send(
-                    "status_help_msg",
-                    "send",
-                    ["Terminando Transacción... %s" % self.driver()._transaction],
-                )
+            application.PROJECT.message_manager().send(
+                "status_help_msg",
+                "send",
+                ["Terminando Transacción... %s" % self.driver()._transaction],
+            )
             try:
                 if self.commit():
                     self._last_active_cursor = None
