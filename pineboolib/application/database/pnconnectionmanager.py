@@ -139,8 +139,8 @@ class PNConnectionManager(QtCore.QObject):
                     )
                     connection_._is_open = True
 
-            if connection_.conn is None:
-                LOGGER.warning("Connection %s is closed!", name, stack_info=True)
+            # if connection_.conn is None:
+            # LOGGER.warning("Connection %s is closed!", name, stack_info=True)
 
             self.connections_dict[name_conn_] = connection_
 
