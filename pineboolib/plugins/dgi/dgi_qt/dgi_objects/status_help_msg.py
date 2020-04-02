@@ -1,6 +1,10 @@
 """StatusHelpMsg module."""
 
+from pineboolib.core.utils import logging
 from pineboolib.core import settings
+
+
+LOGGER = logging.get_logger(__name__)
 
 
 class StatusHelpMsg(object):
@@ -8,9 +12,13 @@ class StatusHelpMsg(object):
 
     def send(self, text_: str) -> None:
         """Send a text."""
-        from pineboolib.fllegacy.flapplication import aqApp
 
-        aqApp.statusHelpMsg(text_)
+        try:
+            from pineboolib.fllegacy.flapplication import aqApp
 
-        if settings.CONFIG.value("ebcomportamiento/parser_qsa_gui", False):
-            aqApp.popupWarn(text_)
+            aqApp.statusHelpMsg(text_)
+
+            if settings.CONFIG.value("ebcomportamiento/parser_qsa_gui", False):
+                aqApp.popupWarn(text_)
+        except RuntimeError as error:
+            LOGGER.warning(str(error))

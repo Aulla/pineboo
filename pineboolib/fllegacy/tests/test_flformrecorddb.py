@@ -51,30 +51,18 @@ class TestFLFormrecordCursor(unittest.TestCase):
 
         module_ = dictmodules.from_project("formRecordflareas")
         form = module_.form
-        form.close()
-        cursor = module_.form.cursor()
-        cursor.select()
-
-        # self.assertFalse(module_.showed)
-        # cursor.insertRecord(False)
-        # self.assertTrue(module_.showed)
-        # module_.close()
-        # self.assertFalse(module_.showed)
-        # cursor.editRecord(False)
-        form.lastRecord()
-        form.previousRecord()
-        form.firstRecord()
-        form.nextRecord()
-        # self.assertTrue(module_.validateForm())
         self.assertFalse(form.accept())
         pb_cancel = form.pushButtonCancel
         self.assertTrue(pb_cancel.isEnabled())
         form.disablePushButtonCancel()
         self.assertFalse(pb_cancel.isEnabled())
-        # form.close()
-        # self.assertFalse(form.showed)
-        # cursor.insertRecord(False)
-        # self.assertTrue(form.showed)
+        form.close()
+        cursor = module_.form.cursor()
+        cursor.select()
+        form.lastRecord()
+        form.previousRecord()
+        form.firstRecord()
+        form.nextRecord()
 
     @classmethod
     def tearDownClass(cls) -> None:

@@ -155,12 +155,15 @@ class FLFormRecordDB(flformdb.FLFormDB):
         if not text:
             text = self.cursor_.metadata().alias()
 
-        if self.cursor_.modeAccess() == self.cursor_.Insert:
-            self.setWindowTitle("Insertar %s" % text)
-        elif self.cursor_.modeAccess() == self.cursor_.Edit:
-            self.setWindowTitle("Editar %s" % text)
-        elif self.cursor_.modeAccess() == self.cursor_.Browse:
-            self.setWindowTitle("Visualizar %s" % text)
+        try:
+            if self.cursor_.modeAccess() == self.cursor_.Insert:
+                self.setWindowTitle("Insertar %s" % text)
+            elif self.cursor_.modeAccess() == self.cursor_.Edit:
+                self.setWindowTitle("Editar %s" % text)
+            elif self.cursor_.modeAccess() == self.cursor_.Browse:
+                self.setWindowTitle("Visualizar %s" % text)
+        except RuntimeError as error:
+            LOGGER.warning(str(error))
 
     def formClassName(self) -> str:
         """

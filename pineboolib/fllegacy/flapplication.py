@@ -265,10 +265,7 @@ class FLApplication(QtCore.QObject):
         if not self.main_widget_:
             return
 
-        try:
-            cast(QtWidgets.QMainWindow, self.main_widget_).statusBar().showMessage(text, 2000)
-        except RuntimeError:
-            pass
+        cast(QtWidgets.QMainWindow, self.main_widget_).statusBar().showMessage(text, 2000)
 
     def openMasterForm(self, action_name: str, pix: Optional[QtGui.QPixmap] = None) -> None:
         """Open a tab."""
