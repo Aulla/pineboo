@@ -265,7 +265,10 @@ class FLApplication(QtCore.QObject):
         if not self.main_widget_:
             return
 
-        cast(QtWidgets.QMainWindow, self.main_widget_).statusBar().showMessage(text, 2000)
+        try:
+            cast(QtWidgets.QMainWindow, self.main_widget_).statusBar().showMessage(text, 2000)
+        except RuntimeError:
+            pass
 
     def openMasterForm(self, action_name: str, pix: Optional[QtGui.QPixmap] = None) -> None:
         """Open a tab."""
@@ -538,10 +541,13 @@ class FLApplication(QtCore.QObject):
         """Not implemented."""
         pass
 
-    def popupWarn(self, msg_warn: str) -> None:
+    def popupWarn(self, msg_warn: str, script_call: List[Any] = []) -> None:
         """Show a warning popup."""
         if not self.main_widget_:
             return
+
+        if script_call:
+            LOGGER.warning("script_call not implemented. FIXME!!")
 
         if not self.main_widget_.isHidden():
             QtWidgets.QWhatsThis.showText(
