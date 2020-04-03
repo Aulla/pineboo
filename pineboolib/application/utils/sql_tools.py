@@ -397,7 +397,11 @@ class SqlInspector(object):
         if type_ in ("string", "stringlist", "timestamp"):
             pass
         elif type_ == "double":
-            ret_ = float(ret_)
+            try:
+                ret_ = float(ret_)
+            except ValueError as error:
+                LOGGER.warning(str(error))
+
         elif type_ in ("int", "uint", "serial"):
             ret_ = int(ret_)
         elif type_ == "pixmap":
