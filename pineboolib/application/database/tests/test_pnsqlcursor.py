@@ -4,6 +4,8 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core.utils import logging
 from pineboolib.application.database import pnsqlcursor
+from pineboolib.core.utils import utils_base
+from . import fixture_path
 
 LOGGER = logging.get_logger("test")
 
@@ -14,6 +16,7 @@ class TestInsertData(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
+        utils_base.FORCE_DESKTOP = True
         init_testing()
 
     def test_basic(self) -> None:
@@ -917,6 +920,37 @@ class TestCorruption(unittest.TestCase):
         #    print("**", cursor.valueBuffer("string_field"))
         cursor.refresh()
         self.assertEqual(cursor.size(), 0)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
+
+
+class TestAfterCommit(unittest.TestCase):
+    """TestAfterCommit Class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_basic(self) -> None:
+        """Test sys.afertCommit_flfiles is called"""
+
+        from pineboolib.qsa import qsa
+        import os
+
+        util = qsa.FLUtil()
+
+        self.assertEqual(util.sqlSelect("flserial", "sha", "1=1"), False)
+        qsa_sys = qsa.sys
+        path = fixture_path("principal.eneboopkg")
+        qsa_sys.loadModules(path, False)
+
+        self.assertEqual(
+            util.sqlSelect("flserial", "sha", "1=1"), "79D7F8BEFE9C4ECAA33E3D746A86586EFC90AB86"
+        )
 
     @classmethod
     def tearDownClass(cls) -> None:
