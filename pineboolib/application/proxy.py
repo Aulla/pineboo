@@ -66,9 +66,14 @@ class DelayedObjectProxyLoader(object):
         return self.loaded_obj
 
     def new(self):
-        """Return new object."""
+        """Return new instance."""
 
         return self._obj(*self._args, **self._kwargs)
+
+    def class_(self):
+        """Return class."""
+
+        return self._obj
 
     def __getattr__(self, name: str) -> Any:  # Solo se lanza si no existe la propiedad.
         """

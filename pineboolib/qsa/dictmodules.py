@@ -18,6 +18,14 @@ def new(object_name: str) -> Any:
     return QSADictModules.new(object_name)
 
 
+def class_(object_name: str) -> Any:
+    """Get class from project."""
+
+    from pineboolib.application.qsadictmodules import QSADictModules
+
+    return QSADictModules.class_(object_name)
+
+
 class Application:
     """
     Emulate QS Application class.
