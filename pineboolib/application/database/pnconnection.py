@@ -5,6 +5,7 @@ Defines the PNConnection class.
 from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.core import settings, utils, decorators
+from pineboolib.core.utils import utils_base
 from pineboolib.interfaces import iconnection
 from . import pnsqldrivers
 from pineboolib import application
@@ -92,7 +93,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         # self.driver()._transaction = 0
         # self.stackSavePoints_ = []
         # self.queueSavePoints_ = []
-        self._interactive_gui = "Pineboo"
+        self._interactive_gui = "Pineboo" if not utils_base.is_library() else "Pinebooapi"
         self._last_active_cursor = None
 
         self._is_open = False

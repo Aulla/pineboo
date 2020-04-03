@@ -4,6 +4,9 @@ from . import fixture_path
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
+from pineboolib.qsa import qsa
+from pineboolib.core.utils import utils_base
+
 from PyQt5 import QtWidgets
 
 
@@ -18,7 +21,6 @@ class TestFLFormsearchDB(unittest.TestCase):
     def test_initialization(self) -> None:
         """Test flformrecord cursor assignment"""
 
-        from pineboolib.qsa import qsa
         import os
 
         path = fixture_path("principal.eneboopkg")
@@ -55,9 +57,34 @@ class TestFLFormsearchDB(unittest.TestCase):
         self.assertEqual(form_search_4.parent(), QtWidgets.QApplication.activeModalWidget())
         self.assertEqual(form_search_4.cursor(), cur_4)
 
+        self.assertEqual(qsa.sys.interactiveGUI(), "Pineboo")
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
+
+        finish_testing()
+
+
+class TestNoFLFormsearchDB(unittest.TestCase):
+    """TestNoFLFormsearchDB Class."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        utils_base.FORCE_DESKTOP = False
+        init_testing()
+
+    def test_no_gui(self) -> None:
+        """Test FlformSearch call with no GUI"""
+
+        self.assertEqual(qsa.sys.interactiveGUI(), "Pinebooapi")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+
+        utils_base.FORCE_DESKTOP = True
         finish_testing()
 
 
