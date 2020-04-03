@@ -2609,6 +2609,21 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return False
 
         field_name_check = None
+
+        function_before_commit = (
+            "beforeCommit_%s" % self.table() if self.activatedCommitActions() else ""
+        )
+        function_after_commit = (
+            "afterCommit_%s" % self.table() if self.activatedCommitActions() else ""
+        )
+        function_record_del_after = "recordDelAfter%s" % self.table()
+        function_record_del_before = "recordDelBefore%s" % self.table()
+
+        script_record_iface = None
+        if self.action().name() in application.PROJECT.actions.keys():
+            script_record = application.PROJECT.actions[self.action().name()].load_record_widget()
+            script_record_iface = getattr(script_record, "iface", None)
+
         if self.modeAccess() in [self.Edit, self.Insert]:
             field_list = self.private_cursor.metadata_.fieldList()
 
@@ -2624,20 +2639,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if not self.private_cursor.buffer_.isGenerated(field.name()):
                     continue
 
-                if (
-                    self.context()
-                    and hasattr(self.context(), "calculateField")
-                    and field.calculated()
-                ):
-                    value = application.PROJECT.call(
-                        "calculateField", [field.name()], self.context(), False
-                    )
+                if field.calculated():
+                    func_ = getattr(script_record_iface, "calculateField", None)
+                    if func_ is not None:
+                        value = func_(field.name())
 
-                    if value not in (True, False, None):
-                        self.setValueBuffer(field.name(), value)
-
-        function_before = None
-        function_after = None
+                        if value not in (True, False, None):
+                            self.setValueBuffer(field.name(), value)
 
         id_module = self.db().connManager().managerModules().idModuleOfFile("%s.mtd" % self.table())
 
@@ -2650,17 +2658,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         module_iface: Any = getattr(module_script, "iface", None)
 
-        if not self.modeAccess() == PNSqlCursor.Browse and self.activatedCommitActions():
-
-            function_before = "beforeCommit_%s" % (self.table())
-            function_after = "afterCommit_%s" % (self.table())
-
-            if function_before:
-                func_ = getattr(module_iface, function_before, None)
-                if func_ is not None:
-                    value = func_(self)
-                    if value and not isinstance(value, bool) or value is False:
-                        return False
+        if self.modeAccess() != PNSqlCursor.Browse and function_before_commit:
+            # BEFORE_COMMIT
+            func_ = getattr(module_iface, function_before_commit, None)
+            if func_ is not None:
+                value = func_(self)
+                if value and not isinstance(value, bool) or value is False:
+                    return False
 
         # primary_key = self.private_cursor.metadata_.primaryKey()
         updated = False
@@ -2681,7 +2685,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             pk_name = self.private_cursor.buffer_.pK()
             if pk_name is None:
-                raise ValueError("primery key is not defined!")
+                raise ValueError("primary key is not defined!")
             pk_value = self.private_cursor.buffer_.value(pk_name)
 
             if not (self.private_cursor._model.insert(self)):
@@ -2736,11 +2740,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if self.private_cursor.cursor_relation_.metadata():
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
 
-            value = application.PROJECT.call(
-                "recordDelBefore%s" % self.table(), [self], self.context(), False
-            )
-            if value and not isinstance(value, bool):
-                return False
+            # RECORD_DEL_BEFORE
+
+            func_ = getattr(script_record_iface, function_record_del_before, None)
+            if func_ is not None:
+                value = func_(self)
+
+                if value and not isinstance(value, bool) or value is False:
+                    return False
 
             if not self.private_cursor.buffer_:
                 self.primeUpdate()
@@ -2794,25 +2801,29 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not self.private_cursor._model.delete(self):
                 raise Exception("Error deleting row!")
 
-            application.PROJECT.call(
-                "recordDelAfter%s" % self.table(), [self], self.context(), False
-            )
+            if function_record_del_after:
+                # RECORD DEL AFTER!!
+
+                func_ = getattr(script_record_iface, function_record_del_after, None)
+                if func_ is not None:
+                    value = func_(self)
+
+                    if value and not isinstance(value, bool) or value is False:
+                        return False
 
             updated = True
 
         if updated and self.lastError():
             return False
 
-        if not self.modeAccess() == self.Browse and self.activatedCommitActions():
+        if self.modeAccess() != self.Browse and function_after_commit:
+            # AFTER_COMMIT
+            func_ = getattr(module_iface, function_after_commit, None)
 
-            if function_after:
-
-                func_ = getattr(module_iface, function_after, None)
-
-                if func_ is not None:
-                    value = func_(self)
-                    if value and not isinstance(value, bool) or value is False:
-                        return False
+            if func_ is not None:
+                value = func_(self)
+                if value and not isinstance(value, bool) or value is False:
+                    return False
 
         if self.modeAccess() in (self.Del, self.Edit):
             self.setModeAccess(self.Browse)
