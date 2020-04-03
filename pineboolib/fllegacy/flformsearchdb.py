@@ -103,7 +103,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
         action = application.PROJECT.actions[self._action.name()]
         action.load_master_widget()
-        if action._master_widget is not None:
+        if action._master_widget is not None and not utils_base.is_library():
             action._master_widget._form = self  # type: ignore [assignment] # noqa: F821
 
     def setAction(self, a: "pnaction.PNAction") -> None:
