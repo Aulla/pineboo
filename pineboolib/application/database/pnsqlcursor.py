@@ -2620,9 +2620,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         function_record_del_before = "recordDelBefore%s" % self.table()
 
         script_record_iface = None
-        if self.action().name() in application.PROJECT.actions.keys():
-            script_record = application.PROJECT.actions[self.action().name()].load_record_widget()
-            script_record_iface = getattr(script_record, "iface", None)
+        pn_action = self.action()
+        if pn_action is not None:
+            if pn_action.name() in application.PROJECT.actions.keys():
+                action_ = application.PROJECT.actions[pn_action.name()]
+                if action_ is not None:
+                    script_record = action_.load_record_widget()
+                    script_record_iface = getattr(script_record, "iface", None)
 
         if self.modeAccess() in [self.Edit, self.Insert]:
             field_list = self.private_cursor.metadata_.fieldList()

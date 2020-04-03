@@ -939,7 +939,6 @@ class TestAfterCommit(unittest.TestCase):
         """Test sys.afertCommit_flfiles is called"""
 
         from pineboolib.qsa import qsa
-        import os
 
         util = qsa.FLUtil()
 
