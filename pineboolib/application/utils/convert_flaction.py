@@ -26,7 +26,7 @@ def convert_from_flaction(action: pnaction.PNAction) -> "XMLAction":
     return cast("XMLAction", application.PROJECT.actions[action.name()])
 
 
-def convert_to_flaction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
+def convert_to_flaction(action: Union[str, "XMLAction"]) -> "pnaction.PNAction":
     """
     Convert a XMLAction to action_.
 
@@ -61,6 +61,7 @@ def convert_to_flaction(action: Union[str, "XMLAction"]) -> pnaction.PNAction:
             action_.setScriptFormRecord(xml_action._record_script)
             action_.setDescription(xml_action._description)
             action_.setCaption(xml_action._alias if xml_action._alias else xml_action._caption)
+            action_.setClass_(xml_action._class_script)
 
         cached_actions[action_name] = action_
         LOGGER.trace("convert2FLAction: done")

@@ -4,7 +4,7 @@ XMLAction module.
 from PyQt5 import QtWidgets
 
 from pineboolib.core.utils import logging, struct, utils_base
-
+from xml.etree import ElementTree as ET  # noqa: F401
 from . import load_script
 
 from typing import Optional, Union, TYPE_CHECKING
@@ -15,7 +15,7 @@ from pineboolib.application.database import pnsqlcursor
 if TYPE_CHECKING:
     from . import moduleactions  # noqa : F401
     from pineboolib.interfaces import isqlcursor  # noqa: F401
-    from xml.etree import ElementTree as ET  # noqa: F401
+
     from pineboolib.qsa import formdbwidget  # noqa: F401
 
 LOGGER = logging.get_logger(__name__)
@@ -55,6 +55,7 @@ class XMLAction(struct.ActionStruct):
         self._record_form = self._v("formrecord") or ""
         self._record_script = self._v("scriptformrecord") or ""
         self._table = self._v("table") or ""
+        self._class_script = self._v("class") or ""
 
         self._master_widget = None
         self._record_widget = None
@@ -105,6 +106,11 @@ class XMLAction(struct.ActionStruct):
 
         form = getattr(widget, "_form", None)
         return getattr(form, "_loaded", False)
+
+    def load_class(self):
+        """Load and return class."""
+        if self._class_script:
+            return load_script.load_class(self._class_script)
 
     def load_master_widget(self) -> "formdbwidget.FormDBWidget":
         """

@@ -46,18 +46,6 @@ class QSADictModules:
         return ret_
 
     @classmethod
-    def new(cls, scriptname: str) -> Any:
-        """
-        Return project object for given name.
-        """
-
-        ret_ = getattr(cls.qsa_dict_modules(), scriptname, None)
-        if ret_ is not None:
-            return ret_.new()
-        else:
-            return None
-
-    @classmethod
     def class_(cls, scriptname: str) -> Any:
         """
         Return project class for given name.
@@ -154,6 +142,29 @@ class QSADictModules:
         cls.save_action(actionname, delayed_action)
         SafeQSA.save_formrecord(actionname, delayed_action)
         return True
+
+    @classmethod
+    def save_action_for_class(cls, action: XMLAction):
+        """Save action class action."""
+
+        class_name = action._class_script
+        module = action._mod
+        if module is None:
+            raise ValueError("Action.module must be set before calling")
+
+        if class_name:
+            if cls.action_exists(class_name):
+                LOGGER.debug(
+                    "No se sobreescribe variable de entorno %s. Hay una definición previa.",
+                    "%s.%s" % (module.module_name, class_name),
+                )
+                return False
+
+            delayed_action = DelayedObjectProxyLoader(
+                action.load_class,
+                name="QSA.Module.%s.Action.class_%s" % (module.mod.name, class_name),
+            )
+            cls.save_other(action._name, delayed_action)
 
     @classmethod
     def clean_all(cls):

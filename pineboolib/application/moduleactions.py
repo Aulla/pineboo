@@ -71,6 +71,7 @@ class ModuleActions(object):
                     name
                 ] = action_xml  # FIXME: Actions should be loaded to their parent, not the singleton
             QSADictModules.save_action_for_formrecord(action_xml)
+            QSADictModules.save_action_for_class(action_xml)
 
     def __contains__(self, k) -> bool:
         """Determine if it is the owner of an action."""

@@ -10,14 +10,6 @@ def from_project(scriptname: str) -> Any:
     return QSADictModules.from_project(scriptname)
 
 
-def new(object_name: str) -> Any:
-    """Get object from project."""
-
-    from pineboolib.application.qsadictmodules import QSADictModules
-
-    return QSADictModules.new(object_name)
-
-
 def class_(object_name: str) -> Any:
     """Get class from project."""
 

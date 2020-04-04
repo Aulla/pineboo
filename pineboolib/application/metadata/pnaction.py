@@ -60,6 +60,11 @@ class PNAction(object):
     """
     _description: str
 
+    """
+    Class
+    """
+    _class: str
+
     def __init__(self, action: Union[str, ActionStruct]) -> None:
         """Initialize."""
 
@@ -71,6 +76,7 @@ class PNAction(object):
         self._script_form = ""
         self._script_form_record = ""
         self._table = ""
+        self._class = ""
 
         if isinstance(action, str):
             self.setName(action)
@@ -119,6 +125,11 @@ class PNAction(object):
         """Set the name of the source table of the master form."""
 
         self._table = table
+
+    def setClass_(self, class_: str) -> None:
+        """Set the name of class script."""
+
+        self._class = class_ if class_ else ""
 
     def setForm(self, form: str) -> None:
         """Set the name of the master form."""
@@ -179,3 +190,8 @@ class PNAction(object):
         """Get the name of the record editing form."""
 
         return self._form_record
+
+    def class_(self) -> str:
+        """Get class script."""
+
+        return self._class
