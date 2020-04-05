@@ -167,10 +167,11 @@ class SysType(sysbasetype.SysBaseType):
 
         application.PROJECT.aq_app.popupWarn(msg_warn, script_calls)
 
-    def openMasterForm(self, action_name_: str, pix_: Optional[QtGui.QPixmap] = None) -> None:
+    def openMasterForm(self, action_name_: str) -> None:
         """Open default form from a action."""
 
-        application.PROJECT.aq_app.openMasterForm(action_name_, pix_)
+        if action_name_ in application.PROJECT.actions.keys():
+            application.PROJECT.actions[action_name_].openDefaultForm()
 
     def scalePixmap(
         self, pix_: QtGui.QPixmap, w_: int, h_: int, mode_: QtCore.Qt.AspectRatioMode

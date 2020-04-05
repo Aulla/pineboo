@@ -109,7 +109,7 @@ from pineboolib.fllegacy.flpixmapview import FLPixmapView  # noqa: F401
 from pineboolib.fllegacy.fllistviewitem import FLListViewItem  # noqa: F401
 from pineboolib.fllegacy.fldatatable import FLDataTable  # noqa: F401
 from pineboolib.fllegacy.flcheckbox import FLCheckBox  # noqa: F401
-from pineboolib.fllegacy.fltexteditoutput import FLTextEditOutput  # noqa: F401
+from pineboolib.application.pnapplication import TextEditOutput as FLTextEditOutput  # noqa: F401
 from pineboolib.fllegacy.flspinbox import FLSpinBox  # noqa: F401
 from pineboolib.fllegacy.fltabledb import FLTableDB  # noqa: F401
 from pineboolib.fllegacy.flfielddb import FLFieldDB  # noqa: F401

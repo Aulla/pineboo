@@ -188,9 +188,14 @@ class FormDBWidget(QtWidgets.QWidget):
         """Guess if attribute can be found in other related objects."""
 
         ret_ = None
-        if self._action is not None and self._action._table:
-            cursor = self.cursor()
-            ret_ = getattr(cursor, name, None)
+        if self._action is not None:
+
+            if self._action._table:
+                cursor = self.cursor()
+                ret_ = getattr(cursor, name, None)
+
+            if ret_ is None:
+                ret_ = getattr(self._action, name, None)
 
         if ret_ is None:
             if name == "form":

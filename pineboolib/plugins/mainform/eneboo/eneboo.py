@@ -1339,7 +1339,9 @@ class MainForm(QtWidgets.QMainWindow):
 
         elif fn_ == "execDefaultScript()":
             mw.addRecent(ac)
-            application.PROJECT.aq_app.execMainScript(ac.objectName())
+            action_name = ac.objectName()
+            if action_name in application.PROJECT.actions.keys():
+                application.PROJECT.actions[action_name].execMainScript(action_name)
 
         elif fn_ == "loadModules()":
             QSA_SYS.loadModules()

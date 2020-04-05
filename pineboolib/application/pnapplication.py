@@ -3,22 +3,24 @@
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-from pineboolib import logging
-
 from pineboolib.core import decorators, settings
+from pineboolib.core.utils import logging
 
 from pineboolib import application
 from . import database
 from .qsatypes import sysbasetype
 from .acls import pnaccesscontrollists
+from .database import utils
+from .translator import pntranslator
 
-from pineboolib.fllegacy import fltranslator
+import sys
 
-from typing import Any, Optional, List, cast, TYPE_CHECKING
+from typing import Any, Optional, List, cast, Union, TYPE_CHECKING
+
 
 if TYPE_CHECKING:
-    from pineboolib.application.database import pnsqlcursor  # noqa: F401
-    from pineboolib.application.database import pnsqlquery  # noqa: F401
+    from .database import pnsqlcursor  # noqa: F401
+    from .database import pnsqlquery  # noqa: F401
     from PyQt5 import QtXml  # noqa: F401
 
 LOGGER = logging.get_logger(__name__)
@@ -31,7 +33,7 @@ class FLPopupWarn(QtCore.QObject):
     def __init__(self, mainwindow) -> None:
         """Inicialize."""
 
-        self.mainWindow = mainwindow
+        self._main_window = mainwindow
 
 
 class PNApplication(QtCore.QObject):
@@ -43,7 +45,7 @@ class PNApplication(QtCore.QObject):
     _not_exit: bool
     _multi_lang_enabled: bool
     _multi_lang_id: str
-    _translator: List["fltranslator.FLTranslator"]
+    _translator: List["pntranslator.PNTranslator"]
 
     container_: Optional[QtWidgets.QWidget]  # Contenedor actual??
 
@@ -101,8 +103,8 @@ class PNApplication(QtCore.QObject):
         self._multi_lang_id = QtCore.QLocale().name()[:2].upper()
 
         self.locale_system_ = QtCore.QLocale.system()
-        v = 1.1
-        self.comma_separator = self.locale_system_.toString(v, "f", 1)[1]
+        value = 1.1
+        self.comma_separator = self.locale_system_.toString(value, "f", 1)[1]
         self.setObjectName("aqApp")
         self._event_loop = None
 
@@ -132,7 +134,7 @@ class PNApplication(QtCore.QObject):
         pass
 
     @decorators.not_implemented_warn
-    def checkForUpdateFinish(self, op):
+    def checkForUpdateFinish(self, option):
         """Not used in pineboo."""
         pass
 
@@ -165,15 +167,15 @@ class PNApplication(QtCore.QObject):
         """Open debugger. Unused."""
         pass
 
-    def setMainWidget(self, w) -> None:
+    def setMainWidget(self, main_widget) -> None:
         """Set mainWidget."""
 
-        if w is None:
+        if main_widget is None:
             self.main_widget_ = None
-            return
+        else:
+            self.main_widget_ = main_widget
 
-        QtWidgets.QApplication.setActiveWindow(w)
-        self.main_widget_ = w
+            QtWidgets.QApplication.setActiveWindow(main_widget)
 
     @decorators.not_implemented_warn
     def makeStyle(self, style_):
@@ -219,7 +221,7 @@ class PNApplication(QtCore.QObject):
         style_menu = self.mainWidget().findChild(QtWidgets.QMenu, "style")
 
         if style_menu:
-            ag = QtWidgets.QActionGroup(style_menu)
+            action_group = QtWidgets.QActionGroup(style_menu)
             for style_ in QtWidgets.QStyleFactory.keys():
                 action_ = style_menu.addAction(style_)
                 action_.setObjectName("style_%s" % style_)
@@ -229,15 +231,41 @@ class PNApplication(QtCore.QObject):
 
                 action_.triggered.connect(self.style_mapper.map)
                 self.style_mapper.setMapping(action_, style_)
-                ag.addAction(action_)
-            ag.setExclusive(True)
+                action_group.addAction(action_)
+            action_group.setExclusive(True)
 
         self.style = True
 
-    @decorators.not_implemented_warn
-    def getTabWidgetPages(self, wn, n):
+    def getTabWidgetPages(self, widget_name: str, obj_name: str) -> str:
         """Get tabs."""
-        pass
+
+        action_name = ""
+        if widget_name.startswith("formRecord"):
+            action_name = widget_name[10:]
+            action_ = self.db().manager().action(action_name)
+            widget_ = self.db().managerModules().createFormRecord(action_)
+        elif widget_name.startswith("formSearch"):
+            action_name = widget_name[10:]
+            action_ = self.db().manager().action(action_name)
+            widget_ = self.db().managerModules().createForm(action_)
+        else:
+            action_name = widget_name[4:]
+            action_ = self.db().manager().action(action_name)
+            widget_ = self.db().managerModules().createForm(action_)
+
+        if widget_ is None:
+            return ""
+
+        tab_widget = widget_.findChild(QtWidgets.QTabWidget, obj_name)
+        if tab_widget is None:
+            return ""
+
+        tab_names: str = ""
+        for number in enumerate(tab_widget.count()):
+            item = tab_widget.index(number)
+            tab_names += "%s/%s*" % (item.objectName(), tab_widget.tabText(number))
+
+        return tab_names
 
     @decorators.not_implemented_warn
     def getWidgetList(self, wn, c):
@@ -267,31 +295,31 @@ class PNApplication(QtCore.QObject):
 
         cast(QtWidgets.QMainWindow, self.main_widget_).statusBar().showMessage(text, 2000)
 
-    def openMasterForm(self, action_name: str, pix: Optional[QtGui.QPixmap] = None) -> None:
-        """Open a tab."""
-        if action_name in application.PROJECT.actions.keys():
-            application.PROJECT.actions[action_name].openDefaultForm()
+    # def openMasterForm(self, action_name: str, pix: Optional[QtGui.QPixmap] = None) -> None:
+    #    """Open a tab."""
+    #    if action_name in application.PROJECT.actions.keys():
+    #        application.PROJECT.actions[action_name].openDefaultForm()
 
-    @decorators.not_implemented_warn
-    def openDefaultForm(self) -> None:
-        """Open a default form."""
-        pass
+    # @decorators.not_implemented_warn
+    # def openDefaultForm(self) -> None:
+    #    """Open a default form."""
+    #    pass
 
-    def execMainScript(self, action_name) -> None:
-        """Execute main script."""
-        if action_name in application.PROJECT.actions.keys():
-            application.PROJECT.actions[action_name].execMainScript(action_name)
+    # def execMainScript(self, action_name) -> None:
+    #    """Execute main script."""
+    #    if action_name in application.PROJECT.actions.keys():
+    #        application.PROJECT.actions[action_name].execMainScript(action_name)
 
-    @decorators.not_implemented_warn
-    def execDefaultScript(self) -> None:
-        """Execute default script."""
+    # @decorators.not_implemented_warn
+    # def execDefaultScript(self) -> None:
+    #    """Execute default script."""
 
-        pass
+    #    pass
 
-    def loadScriptsFromModule(self, idm) -> None:
+    def loadScriptsFromModule(self, id_module) -> None:
         """Load scripts from named module."""
-        if idm in application.PROJECT.modules.keys():
-            application.PROJECT.modules[idm].load()
+        if id_module in application.PROJECT.modules.keys():
+            application.PROJECT.modules[id_module].load()
 
     def reinit(self) -> None:
         """Cleanup and restart."""
@@ -384,11 +412,11 @@ class PNApplication(QtCore.QObject):
         application.PROJECT.modules = {}
         # application.PROJECT.tables = {}
 
-    def acl(self) -> Optional[pnaccesscontrollists.PNAccessControlLists]:
+    def acl(self) -> Optional["pnaccesscontrollists.PNAccessControlLists"]:
         """Return acl."""
         return self.acl_
 
-    def set_acl(self, acl: pnaccesscontrollists.PNAccessControlLists) -> None:
+    def set_acl(self, acl: "pnaccesscontrollists.PNAccessControlLists") -> None:
         """Set acl to pineboo."""
         self.acl_ = acl
 
@@ -409,9 +437,8 @@ class PNApplication(QtCore.QObject):
                 application.PROJECT.main_window = application.PROJECT.main_form.mainWindow
                 application.PROJECT.main_window.initScript()
 
-        mw = application.PROJECT.main_window
         if self.main_widget_ is None:
-            self.main_widget_ = mw
+            self.main_widget_ = application.PROJECT.main_window
 
         if application.PROJECT.main_window is not None:
             application.PROJECT.main_window.initialized_mods_ = []
@@ -435,14 +462,14 @@ class PNApplication(QtCore.QObject):
         self.loadScripts()
         # self.db().managerModules().setShaFromGlobal()
         self.call("sys.init()", [])
-        if mw:
-            if hasattr(mw, "initToolBox"):
-                mw.initToolBox()
+        if application.PROJECT.main_window:
+            if hasattr(application.PROJECT.main_window, "initToolBox"):
+                application.PROJECT.main_window.initToolBox()
 
             # mw.readState()
 
-            if hasattr(mw, "container_"):
-                mw.container_.installEventFilter(self)
+            if hasattr(application.PROJECT.main_window, "container_"):
+                application.PROJECT.main_window.container_.installEventFilter(self)
             # self.container_.setDisable(False)
 
         self.callScriptEntryFunction()
@@ -486,15 +513,15 @@ class PNApplication(QtCore.QObject):
         return str(buffer_.data())
 
     def scalePixmap(
-        self, pix_: QtGui.QPixmap, w_: int, h_: int, mode_: QtCore.Qt.AspectRatioMode
+        self, pix_: QtGui.QPixmap, width: int, height: int, mode_: QtCore.Qt.AspectRatioMode
     ) -> QtGui.QImage:
         """Return QImage scaled from a QPixmap."""
 
         img_ = pix_.toImage()
 
-        return img_.scaled(w_, h_, mode_)
+        return img_.scaled(height, height, mode_)
 
-    def timeUser(self) -> Any:
+    def timeUser(self) -> "QtCore.QDateTime":
         """Get amount of time running."""
 
         return sysbasetype.SysBaseType.time_user_
@@ -504,9 +531,9 @@ class PNApplication(QtCore.QObject):
         return application.PROJECT.call(function, argument_list, object_content, show_exceptions)
 
     @decorators.not_implemented_warn
-    def setNotExit(self, b):
+    def setNotExit(self, value):
         """Protect against window close."""
-        self._not_exit = b
+        self._not_exit = value
 
     @decorators.not_implemented_warn
     def printTextEdit(self, editor_):
@@ -533,7 +560,7 @@ class PNApplication(QtCore.QObject):
 
     @decorators.not_implemented_warn
     def setDatabaseLockDetection(
-        self, on, msec_lapsus, lim_checks, show_warn, msg_warn, connection_name
+        self, on_, msec_lapsus, lim_checks, show_warn, msg_warn, connection_name
     ):
         """Not implemented."""
         pass
@@ -580,19 +607,23 @@ class PNApplication(QtCore.QObject):
 
     def showConsole(self) -> None:
         """Show application console on GUI."""
-        mw = application.PROJECT.main_form.mainWindow
-        if mw:
+
+        if application.PROJECT.main_form.mainWindow:
             if self._ted_output:
                 self._ted_output.parentWidget().close()
 
-            dw = QtWidgets.QDockWidget("tedOutputDock", mw)
+            dock_widget = QtWidgets.QDockWidget(
+                "tedOutputDock", application.PROJECT.main_form.mainWindow
+            )
 
-            from pineboolib.fllegacy import fltexteditoutput
+            if dock_widget is not None:
 
-            self._ted_output = fltexteditoutput.FLTextEditOutput(dw)
-            dw.setWidget(self._ted_output)
-            dw.setWindowTitle(self.tr("Mensajes de Eneboo"))
-            mw.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dw)
+                self._ted_output = TextEditOutput(dock_widget)
+                dock_widget.setWidget(self._ted_output)
+                dock_widget.setWindowTitle(self.tr("Mensajes de Eneboo"))
+                application.PROJECT.main_form.mainWindow.addDockWidget(
+                    QtCore.Qt.BottomDockWidgetArea, dock_widget
+                )
 
     def consoleShown(self) -> bool:
         """Return if console is shown."""
@@ -600,17 +631,17 @@ class PNApplication(QtCore.QObject):
 
     def modMainWidget(self, id_modulo: str) -> Optional[QtWidgets.QWidget]:
         """Set module main widget."""
-        mw = application.PROJECT.main_window
+
         mod_widget: Optional[QtWidgets.QWidget] = None
-        if hasattr(mw, "_dict_main_widgets"):
-            if id_modulo in mw._dict_main_widgets.keys():
-                mod_widget = mw._dict_main_widgets[id_modulo]
+        if hasattr(application.PROJECT.main_window, "_dict_main_widgets"):
+            if id_modulo in application.PROJECT.main_window._dict_main_widgets.keys():
+                mod_widget = application.PROJECT.main_window._dict_main_widgets[id_modulo]
 
         if mod_widget is None:
             list_ = QtWidgets.QApplication.topLevelWidgets()
-            for w in list_:
-                if w.objectName() == id_modulo:
-                    mod_widget = w
+            for widget in list_:
+                if widget.objectName() == id_modulo:
+                    mod_widget = widget
                     break
 
         if mod_widget is None and self.mainWidget() is not None:
@@ -628,17 +659,17 @@ class PNApplication(QtCore.QObject):
             self.call(self.script_entry_function_, [], self)
             # self.script_entry_function_ = None
 
-    def emitTransactionBegin(self, o: "pnsqlcursor.PNSqlCursor") -> None:
+    def emitTransactionBegin(self, cursor: "pnsqlcursor.PNSqlCursor") -> None:
         """Emit signal."""
-        database.DB_SIGNALS.emitTransactionBegin(o)
+        database.DB_SIGNALS.emitTransactionBegin(cursor)
 
-    def emitTransactionEnd(self, o: "pnsqlcursor.PNSqlCursor") -> None:
+    def emitTransactionEnd(self, cursor: "pnsqlcursor.PNSqlCursor") -> None:
         """Emit signal."""
-        database.DB_SIGNALS.emitTransactionEnd(o)
+        database.DB_SIGNALS.emitTransactionEnd(cursor)
 
-    def emitTransactionRollback(self, o: "pnsqlcursor.PNSqlCursor") -> None:
+    def emitTransactionRollback(self, cursor: "pnsqlcursor.PNSqlCursor") -> None:
         """Emit signal."""
-        database.DB_SIGNALS.emitTransactionRollback(o)
+        database.DB_SIGNALS.emitTransactionRollback(cursor)
 
     @decorators.not_implemented_warn
     def gsExecutable(self):
@@ -660,17 +691,13 @@ class PNApplication(QtCore.QObject):
 
         @return True (Tabla única), False (Múltiples tablas)
         """
-        from pineboolib.fllegacy.flutil import FLUtil
 
-        ret = FLUtil().sqlSelect("flsettings", "valor", "flkey='FLLargeMode'")
-        if ret in ["True", True]:
-            return False
+        ret = utils.sql_select("flsettings", "valor", "flkey='FLLargeMode'")
+        return False if ret in ["True", True] else True
 
-        return True
-
-    def msgBoxWarning(self, t, _gui) -> None:
+    def msgBoxWarning(self, text, _gui) -> None:
         """Display warning."""
-        _gui.msgBoxWarning(t)
+        _gui.msgBoxWarning(text)
 
     @decorators.not_implemented_warn
     def showDebug(self):
@@ -681,15 +708,10 @@ class PNApplication(QtCore.QObject):
         """Return current connection."""
         return application.PROJECT.conn_manager
 
-    @decorators.not_implemented_warn
-    def classType(self, n):
+    def classType(self, obj) -> str:
         """Return class for object."""
 
-        # return type(self.resolveObject(n)())
-        return type(n)
-
-    # def __getattr__(self, name):
-    #    return getattr(application.PROJECT, name, None)
+        return str(type(obj))
 
     def mainWidget(self) -> Any:
         """Return current mainWidget."""
@@ -724,8 +746,8 @@ class PNApplication(QtCore.QObject):
 
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         list_modules = self.db().managerModules().listAllIdModules()
-        for it in list_modules:
-            self.loadScriptsFromModule(it)
+        for item in list_modules:
+            self.loadScriptsFromModule(item)
 
         QtWidgets.QApplication.restoreOverrideCursor()
 
@@ -737,21 +759,20 @@ class PNApplication(QtCore.QObject):
         """Open help."""
         sysbasetype.SysBaseType.openUrl(["http://manuales-eneboo-pineboo.org/"])
 
-    def tr(self, sourceText: str, disambiguation: Optional[str] = None, n: int = 0) -> Any:
-        """Open translations."""
+    # def tr(self, sourceText: str, disambiguation: Optional[str] = None, n: int = 0) -> Any:
+    #    """Open translations."""
 
-        return QtWidgets.QApplication.translate("system", sourceText)
+    #    return QtWidgets.QApplication.translate("system", sourceText)
 
     def loadTranslations(self) -> None:
         """
         Install loaded translations.
         """
-        translatorsCopy = []
-        if self._translator:
-            for t in self._translator:
-                translatorsCopy.append(t)
-            for it in translatorsCopy:
-                self.removeTranslator(it)
+        tl_list = []
+
+        for trans in self._translator:
+            tl_list.append(trans)
+            self.removeTranslator(trans)
 
         lang = QtCore.QLocale().name()[:2]
 
@@ -761,27 +782,26 @@ class PNApplication(QtCore.QObject):
         for module in self.modules().keys():
             self.loadTranslationFromModule(module, lang)
 
-        for it in translatorsCopy:
-            if it._sys_trans:
-                self.installTranslator(it)
+        for item in tl_list:
+            if item._sys_trans:
+                self.installTranslator(item)
             else:
-                del it
+                del item
 
-    @decorators.beta_implementation
-    def trMulti(self, s, l):
+    def trMulti(self, text: str, lang: str):
         """
         Lookup translation for certain language.
 
-        @param s, Cadena de texto
-        @param l, Idioma.
+        @param text, Cadena de texto
+        @param lang, Idioma.
         @return Cadena de texto traducida.
         """
-        return s
-        # FIXME: self.tr does not support two arguments.
-        # backMultiEnabled = self._multi_lang_enabled
-        # ret = self.tr("%s_MULTILANG" % l.upper(), s)
-        # self._multi_lang_enabled = backMultiEnabled
-        # return ret
+
+        back_multi_enabled = self._multi_lang_enabled
+        ret = application.PROJECT.app.tr("%s_MULTILANG" % lang.upper(), text)
+        self._multi_lang_enabled = back_multi_enabled
+
+        return ret
 
     def setMultiLang(self, enable_: bool, lang_id_: str) -> None:
         """
@@ -814,7 +834,7 @@ class PNApplication(QtCore.QObject):
         if tor is None:
             return
         else:
-            QtWidgets.qApp.installTranslator(tor)
+            application.PROJECT.app.installTranslator(tor)
             self._translator.append(tor)
 
     def removeTranslator(self, tor) -> None:
@@ -826,14 +846,15 @@ class PNApplication(QtCore.QObject):
         if tor is None:
             return
         else:
-            QtWidgets.qApp.removeTranslator(tor)
-            for t in self._translator:
-                if t == tor:
-                    del t
+            application.PROJECT.app.removeTranslator(tor)
+            for trans_ in self._translator:
+                if trans_ == tor:
+                    self._translator.remove(tor)
+                    del trans_
                     break
 
     @decorators.not_implemented_warn
-    def createSysTranslator(self, lang, loadDefault):
+    def createSysTranslator(self, lang, load_default):
         """
         Create SYS Module translation.
 
@@ -845,7 +866,7 @@ class PNApplication(QtCore.QObject):
 
     def createModTranslator(
         self, id_module, lang: str, load_default: bool = False
-    ) -> Optional["fltranslator.FLTranslator"]:
+    ) -> Optional["pntranslator.PNTranslator"]:
         """
         Create new translation for module.
 
@@ -865,7 +886,7 @@ class PNApplication(QtCore.QObject):
                 key = self.db().managerModules().shaOfFile(file_ts)
 
         if key:
-            tor = fltranslator.FLTranslator(
+            tor = pntranslator.PNTranslator(
                 self.mainWidget(), "%s_%s" % (id_module, lang), lang == "multilang"
             )
             if key and tor.loadTsContent(key):
@@ -915,6 +936,42 @@ class PNApplication(QtCore.QObject):
                 file_name = list_[0]
 
         return file_name
+
+
+class TextEditOutput(QtWidgets.QPlainTextEdit):
+    """FLTextEditOutput class."""
+
+    oldStdout: Any
+    oldStderr: Any
+
+    def __init__(self, parent: QtWidgets.QWidget) -> None:
+        """Inicialize."""
+        super().__init__(parent)
+
+        self.oldStdout = sys.stdout
+        self.oldStderr = sys.stderr
+        sys.stdout = self  # type: ignore [assignment] # noqa F821
+        sys.stderr = self  # type: ignore [assignment] # noqa F821
+
+    def write(self, txt: Union[bytearray, bytes, str]) -> None:
+        """Set text."""
+        txt = str(txt)
+        if self.oldStdout:
+            self.oldStdout.write(txt)
+        self.appendPlainText(txt)
+
+    def flush(self):
+        """Flush data."""
+
+        pass
+
+    def close(self) -> bool:
+        """Control close."""
+        if self.oldStdout:
+            sys.stdout = self.oldStdout
+        if self.oldStderr:
+            sys.stderr = self.oldStderr
+        return super().close()
 
 
 # aqApp = FLApplication()

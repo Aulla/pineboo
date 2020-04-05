@@ -3,11 +3,16 @@
 
 import os
 from pineboolib.core.utils.utils_base import filedir
+from pineboolib.core.utils import logging
 from pineboolib.core import settings
 from pineboolib import application
 
 from PyQt5 import Qt
-from pineboolib import logging
+
+
+from . import pntranslations
+
+
 from typing import Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -16,7 +21,7 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class FLTranslator(Qt.QTranslator):
+class PNTranslator(Qt.QTranslator):
     """FLTranspator class."""
 
     _multi_lang: bool
@@ -34,7 +39,7 @@ class FLTranslator(Qt.QTranslator):
         sysTrans: bool = False,
     ) -> None:
         """Inicialize."""
-        super(FLTranslator, self).__init__()
+        super().__init__()
 
         self._prj = parent
         if not name:
@@ -89,9 +94,8 @@ class FLTranslator(Qt.QTranslator):
                     return False
 
             else:
-                from . import fltranslations
 
-                trans = fltranslations.FLTranslations()
+                trans = pntranslations.PNTranslations()
                 trans.lrelease("%s.ts" % ts_file, qm_file, not self._multi_lang)
 
             ret_ = self.load(qm_file)

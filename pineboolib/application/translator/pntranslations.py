@@ -15,17 +15,10 @@ Esta clase gestiona las diferenetes trducciones de módulos y aplicación
 LOGGER = logging.get_logger(__name__)
 
 
-class FLTranslations(object):
+class PNTranslations(object):
     """
     FLTranslations class manages the different module and application traductions.
     """
-
-    qmFileName: str
-
-    def __init__(self) -> None:
-        """Initialize."""
-
-        super(FLTranslations, self).__init__()
 
     def loadTsFile(self, tor: Any, ts_file_name: Union[bytes, int, str], verbose) -> bool:
         """
