@@ -533,6 +533,7 @@ class MainForm(QtWidgets.QMainWindow):
 
     def eventFilter(self, obj_, event) -> Any:
         """React to user events."""
+
         if self._inicializing or application.PROJECT.aq_app._destroying:
             return super().eventFilter(obj_, obj_)
 
@@ -540,6 +541,7 @@ class MainForm(QtWidgets.QMainWindow):
         #    return super().eventFilter(obj, event)
 
         event_type = event.type()
+
         main_widget = application.PROJECT.aq_app.main_widget_
         if obj_ != main_widget and not isinstance(obj_, QtWidgets.QMainWindow):
             return super().eventFilter(obj_, event)

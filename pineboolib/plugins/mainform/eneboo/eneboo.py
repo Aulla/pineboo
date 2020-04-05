@@ -1110,7 +1110,7 @@ class MainForm(QtWidgets.QMainWindow):
             actions = node.elementsByTagName("addaction")
         hide_group = True
 
-        actions_widgets: List[QtWidgets.QToolBar] = []
+        actions_widgets: List[QtWidgets.QAction] = []
         if isinstance(widget, (QtWidgets.QToolBar, QtWidgets.QMenu)):
             actions_widgets = widget.actions()
 
