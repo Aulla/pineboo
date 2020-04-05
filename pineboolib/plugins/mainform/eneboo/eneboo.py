@@ -1100,29 +1100,44 @@ class MainForm(QtWidgets.QMainWindow):
 
         return ac
 
-    def addWidgetActions(self, node, action_group, wi) -> None:
+    def addWidgetActions(self, node, action_group, widget) -> None:
         """Add actions belonging to a widget."""
+
+        # print("Loading actions", node, action_group, widget)
+
         actions = node.elementsByTagName("action")
         if len(actions) == 0:
             actions = node.elementsByTagName("addaction")
         hide_group = True
+
+        actions_widgets = []
+        if isinstance(widget, (QtWidgets.QToolBar, QtWidgets.QMenu)):
+            actions_widgets = widget.actions()
+
+        # print("Actions de", widget, actions_widgets)
         for i in range(len(actions)):
             item = actions.at(i).toElement()
-            action_widget = wi.findChild(QtWidgets.QAction, item.attribute("name"))
-            if action_widget is None:
-                continue
+            for action_widget in actions_widgets:
+                # print("Comparando", action_widget.objectName(), "-", item.attribute("name"))
+                if action_widget.objectName() != item.attribute("name"):
+                    continue
+                # action_widget = widget.findChild(QtWidgets.QAction, item.attribute("name"))
+                # print("widget action", item.attribute("name"), action_widget, widget)
+                # if action_widget is None:
+                #    continue
 
-            if action_widget.isVisible():
-                hide_group = False
+                if action_widget.isVisible():
+                    hide_group = False
 
-            prev = item.previousSibling().toElement()
-            if not prev.isNull() and prev.tagName() == "separator":
-                sep_ = action_group.addAction("separator")
-                sep_.setObjectName("separator")
-                sep_.setSeparator(True)
-                # actGroup.addSeparator()
+                prev = item.previousSibling().toElement()
+                if not prev.isNull() and prev.tagName() == "separator":
+                    sep_ = action_group.addAction("separator")
+                    sep_.setObjectName("separator")
+                    sep_.setSeparator(True)
+                    # actGroup.addSeparator()
 
-            self.cloneAction(action_widget, action_group)
+                self.cloneAction(action_widget, action_group)
+                break
 
         if hide_group:
             action_group.setVisible(False)
@@ -1162,7 +1177,6 @@ class MainForm(QtWidgets.QMainWindow):
         root = doc.documentElement().toElement()
         ag = QtWidgets.QActionGroup(parent)
         ag.setObjectName("%sActions" % parent.objectName())
-
         if root.attribute("version") == "3.3":
             bars = root.namedItem("toolbars").toElement()
             menu = root.namedItem("menubar").toElement()
@@ -1178,7 +1192,7 @@ class MainForm(QtWidgets.QMainWindow):
                     items = menu_.toElement().elementsByTagName("widget")
 
         if not reduced:
-            self.addWidgetActions(bars, ag, w)
+            self.addWidgetActions(bars, ag, w.findChild(QtWidgets.QToolBar))
 
         if len(items) > 0:
             if not reduced:
@@ -1208,6 +1222,8 @@ class MainForm(QtWidgets.QMainWindow):
                 else:
                     text = itn.text()
 
+                name = itn.attribute("name")
+
                 if not reduced:
                     sub_menu_ag.setObjectName("%sActions" % menu_ag.objectName())
 
@@ -1218,7 +1234,7 @@ class MainForm(QtWidgets.QMainWindow):
                 sub_menu_ag_name.setObjectName("%s_actiongroup_name" % sub_menu_ag.objectName())
                 sub_menu_ag_name.setText(QSA_SYS.toUnicode(text, "iso-8859-1"))
 
-                self.addWidgetActions(itn, sub_menu_ag, w)
+                self.addWidgetActions(itn, sub_menu_ag, w.findChild(QtWidgets.QMenu, name))
 
         conns = root.namedItem("connections").toElement()
         connections = conns.elementsByTagName("connection")

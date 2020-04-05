@@ -91,8 +91,19 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
     LOGGER.info("form: %s", formname)
 
     # Cargamos actions...
-    for action in ROOT.findall("actions//action"):
-        load_action(action, widget)
+    # for action in ROOT.findall("actions//action"):
+    #    load_action(action, widget)
+
+    # Cargamos menubar ...
+    xmlmenubar = ROOT.find("menubar")
+    # print("Cargamos menubar!")
+    if xmlmenubar:
+        load_menu_bar(xmlmenubar, widget)
+
+    # Cargamos toolbars ...
+    # print("Cargamos toolbar!")
+    for xmltoolbar in ROOT.findall("toolbars//toolbar"):
+        load_tool_bar(xmltoolbar, widget)
 
     for xmlconnection in ROOT.findall("connections//connection"):
         sender_elem = xmlconnection.find("sender")
@@ -125,148 +136,131 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
         if sender_name == formname:
             sender = widget
         else:
-            sender = widget.findChild(
-                QtCore.QObject, sender_name, QtCore.Qt.FindChildrenRecursively
-            )
+            senders = widget.findChildren(QtCore.QObject, sender_name)
+            for sender in senders:
 
-        # if not application.PROJECT.DGI.localDesktop():
-        #    wui = hasattr(widget, "ui_") and sender_name in widget.ui_
-        #    if sender is None and wui:
-        #        sender = widget.ui_[sender_name]
+                # if not application.PROJECT.DGI.localDesktop():
+                #    wui = hasattr(widget, "ui_") and sender_name in widget.ui_
+                #    if sender is None and wui:
+                #        sender = widget.ui_[sender_name]
 
-        sg_name = signal_name
+                sg_name = signal_name
 
-        if signal_name.find("(") > -1:
-            sg_name = signal_name[: signal_name.find("(")]
+                if signal_name.find("(") > -1:
+                    sg_name = signal_name[: signal_name.find("(")]
 
-        sl_name = slot_name
-        if slot_name.find("(") > -1:
-            sl_name = slot_name[: slot_name.find("(")]
+                sl_name = slot_name
+                if slot_name.find("(") > -1:
+                    sl_name = slot_name[: slot_name.find("(")]
 
-        if sender is None:
-            LOGGER.debug("Connection sender not found:%s", sender_name)
+                if sender is None:
+                    LOGGER.debug("Connection sender not found:%s", sender_name)
 
-        if receiv_name == formname:
-            fn_name = slot_name.rstrip("()")
-            LOGGER.debug(
-                "Conectando de UI a QS: (%r.%r -> %r.%r)",
-                sender_name,
-                signal_name,
-                receiv_name,
-                fn_name,
-            )
-
-            ifx = None
-            if not widget.inherits("QMainWindow"):
-                parent = widget.parent()
-                if parent:
-                    ifx = getattr(parent, "iface", None)
-            else:
-                if sender_name in application.PROJECT.actions.keys():
-                    receiver = application.PROJECT.actions[sender_name]._master_widget
-
-            ifx = widget
-            # if hasattr(widget, "iface"):
-            #    ifx = widget.iface
-            if hasattr(ifx, fn_name):
-                try:
-
-                    # getattr(sender, sg_name).connect(
-                    #    getattr(ifx, fn_name))
-                    connections.connect(sender, signal_name, ifx, fn_name)
-                except Exception:
+                if receiv_name == formname:
+                    fn_name = slot_name.rstrip("()")
                     LOGGER.debug(
-                        "Error connecting: %s %s %s %s %s",
+                        "Conectando de UI a QS: (%r.%r -> %r.%r)",
+                        sender_name,
+                        signal_name,
+                        receiv_name,
+                        fn_name,
+                    )
+
+                    ifx = None
+                    if not widget.inherits("QMainWindow"):
+                        parent = widget.parent()
+                        if parent:
+                            ifx = getattr(parent, "iface", None)
+                    else:
+                        if sender_name in application.PROJECT.actions.keys():
+                            receiver = application.PROJECT.actions[sender_name]._master_widget
+
+                    ifx = widget
+                    # if hasattr(widget, "iface"):
+                    #    ifx = widget.iface
+                    if hasattr(ifx, fn_name):
+                        try:
+
+                            # getattr(sender, sg_name).connect(
+                            #    getattr(ifx, fn_name))
+                            connections.connect(sender, signal_name, ifx, fn_name)
+                        except Exception:
+                            LOGGER.debug(
+                                "Error connecting: %s %s %s %s %s",
+                                sender,
+                                signal_name,
+                                receiver,
+                                slot_name,
+                                getattr(ifx, fn_name),
+                            )
+                        continue
+
+                if receiver is None:
+                    receiver = widget.findChild(
+                        QtCore.QObject, receiv_name, QtCore.Qt.FindChildrenRecursively
+                    )
+
+                if receiver is None:
+                    from pineboolib.application.safeqsa import SafeQSA
+
+                    receiver = SafeQSA.get_any(receiv_name)
+
+                if receiver is None and receiv_name == "FLWidgetApplication":
+                    if sender_name in application.PROJECT.actions.keys():
+                        receiver = application.PROJECT.actions[sender_name]
+                    else:
+                        LOGGER.debug("Sender action %s not found. Connection skiped", sender_name)
+                        continue
+
+                if receiver is None:
+                    LOGGER.debug("Connection receiver not found:%s", receiv_name)
+
+                if sender is None or receiver is None:
+                    continue
+
+                if hasattr(receiver, "iface"):
+                    # iface = getattr(receiver, "iface")
+                    # try:
+                    #    receiver.connect(
+                    #        sender,
+                    #        signal_name,
+                    #        receiver,
+                    #        "%s%s" % ("iface." if hasattr(iface, sl_name) else "", slot_name),
+                    #    )
+                    #     getattr(sender, sg_name).connect(getattr(iface, sl_name))
+                    # except Exception:
+                    #    LOGGER.exception(
+                    #        "Error connecting: %s:%s %s.iface:%s", sender, signal_name, receiver, slot_name
+                    #    )
+                    LOGGER.debug(
+                        "DEPRECATED: This type of connection must be made in the module init: %s %s %s %s",
+                        sender_name,
+                        signal_name,
+                        receiv_name,
+                        slot_name,
+                    )
+                    continue
+
+                elif hasattr(receiver, sl_name):
+                    try:
+                        getattr(sender, sg_name).connect(getattr(receiver, sl_name))
+                    except Exception:
+                        LOGGER.exception(
+                            "Error connecting: %s:%s %s:%s",
+                            sender,
+                            signal_name,
+                            receiver,
+                            slot_name,
+                        )
+                else:
+                    LOGGER.error(
+                        "Error connecting: %s:%s %s:%s (no candidate found)",
                         sender,
                         signal_name,
                         receiver,
                         slot_name,
-                        getattr(ifx, fn_name),
                     )
-                continue
 
-        if receiver is None:
-            receiver = widget.findChild(
-                QtCore.QObject, receiv_name, QtCore.Qt.FindChildrenRecursively
-            )
-
-        if receiver is None:
-            from pineboolib.application.safeqsa import SafeQSA
-
-            receiver = SafeQSA.get_any(receiv_name)
-
-        if receiver is None and receiv_name == "FLWidgetApplication":
-            if sender_name in application.PROJECT.actions.keys():
-                receiver = application.PROJECT.actions[sender_name]
-            else:
-                LOGGER.debug("Sender action %s not found. Connection skiped", sender_name)
-                continue
-
-        if receiver is None:
-            LOGGER.debug("Connection receiver not found:%s", receiv_name)
-
-        if sender is None or receiver is None:
-            continue
-
-        if hasattr(receiver, "iface"):
-            # iface = getattr(receiver, "iface")
-            # try:
-            #    receiver.connect(
-            #        sender,
-            #        signal_name,
-            #        receiver,
-            #        "%s%s" % ("iface." if hasattr(iface, sl_name) else "", slot_name),
-            #    )
-            #     getattr(sender, sg_name).connect(getattr(iface, sl_name))
-            # except Exception:
-            #    LOGGER.exception(
-            #        "Error connecting: %s:%s %s.iface:%s", sender, signal_name, receiver, slot_name
-            #    )
-            LOGGER.debug(
-                "DEPRECATED: This type of connection must be made in the module init: %s %s %s %s",
-                sender_name,
-                signal_name,
-                receiv_name,
-                slot_name,
-            )
-            continue
-
-        elif hasattr(receiver, sl_name):
-            try:
-                getattr(sender, sg_name).connect(getattr(receiver, sl_name))
-            except Exception:
-                LOGGER.exception(
-                    "Error connecting: %s:%s %s:%s", sender, signal_name, receiver, slot_name
-                )
-        else:
-            LOGGER.error(
-                "Error connecting: %s:%s %s:%s (no candidate found)",
-                sender,
-                signal_name,
-                receiver,
-                slot_name,
-            )
-
-    # Cargamos menubar ...
-    xmlmenubar = ROOT.find("menubar")
-    if xmlmenubar:
-        # nameMB_ = xmlmenubar.find("./property[@name='name']/cstring").text
-        # bar = widget.menuBar()
-        # for itemM in xmlmenubar.findall("item"):
-        #    menubar = bar.addMenu(itemM.get("text"))
-        #    LoadWidget(itemM, menubar, parent, widget)
-        load_menu_bar(xmlmenubar, widget)
-
-    # Cargamos toolbars ...
-    for xmltoolbar in ROOT.findall("toolbars//toolbar"):
-        # nameTB_ = xmltoolbar.find("./property[@name='name']/cstring").text
-        # toolbar = widget.addToolBar(nameTB_)
-        load_tool_bar(xmltoolbar, widget)
-
-    # if application.PROJECT._DGI and not application.PROJECT.DGI.localDesktop():
-    #    application.PROJECT.DGI.showWidget(widget)
-    # else:
-    #    widget.show()
     widget.show()
 
 
@@ -291,11 +285,15 @@ def load_tool_bar(xml: ET.Element, widget: QtWidgets.QMainWindow) -> None:
             name = action.get("name") or "action"
             new_action = tool_bar.addAction(name)
             new_action.setObjectName(name)
-            clone_action(new_action, widget)
+            # print("**", name, new_action, tool_bar)
+            load_action(action, widget, new_action)
+            # print("**", new_action.objectName())
+            # clone_action(new_action, widget)
 
             # FIXME!!, meter el icono y resto de datos!!
         elif action.tag == "separator":
-            tool_bar.addSeparator()
+            separator = tool_bar.addSeparator()
+            separator.setObjectName("separator")
 
     widget.addToolBar(tool_bar)
 
@@ -363,12 +361,16 @@ def process_item(
 
     menu_ = parent.addMenu(text)
     menu_.setObjectName(name)
+
     for item in xml:
         if item.tag == "action":
             name_ = item.get("name") or ""
-            action = menu_.addAction(name_)
-            action.setObjectName(name_)
-            clone_action(action, widget)
+            new_action = menu_.addAction(name_)
+            new_action.setObjectName(name_)
+
+            load_action(item, widget, new_action)
+            # action.setObjectName(name_)
+            # clone_action(action, widget)
         elif item.tag == "item":
             process_item(item, menu_, widget)
 
@@ -394,33 +396,47 @@ def clone_action(action: QtWidgets.QAction, widget: QWidget) -> None:
         action.toggled.connect(real_action.toggle)
 
 
-def load_action(action: ET.Element, widget: QWidget) -> None:
+def load_action(
+    action: ET.Element, widget: QWidget, action_widget: QtWidgets.QAction = None
+) -> None:
     """
     Load Action into widget.
 
     widget: pre-created widget to store the object.
     """
     global ICONS
-    new_action = QtWidgets.QAction(widget)
-    for property in action.findall("property"):
-        name = property.get("name")
-        cstring = property.find("cstring")
-        string = property.find("string")
-        iconset = property.find("iconset")
+    if action_widget is not None:
+        new_action = action_widget
+    else:
+        new_action = QtWidgets.QAction(widget)
 
-        if name == "name" and cstring is not None:
-            new_action.setObjectName(cstring.text or "unnamed")
-        elif name == "text" and string is not None:
-            new_action.setText(string.text or "")
-        elif name == "iconSet" and iconset is not None:
-            if iconset.text and iconset.text in ICONS.keys():
-                new_action.setIcon(ICONS[iconset.text])
-        elif name == "toolTip" and string is not None:
-            new_action.setToolTip(string.text or "")
-        elif name == "statusTip" and string is not None:
-            new_action.setStatusTip(string.text or "")
-        elif name == "whatsThis" and string is not None:
-            new_action.setWhatsThis(string.text or "")
+    action_name = action.get("name")
+    for root_action in ROOT.findall("actions//action"):  # type: ignore [union-attr] # noqa: F821
+        for property in root_action.findall("property"):
+            if property.get("name") == "name":
+                cstring = property.find("cstring")
+                if cstring is not None:
+                    if cstring.text == action_name:
+                        for property2 in root_action.findall("property"):
+                            name = property2.get("name")
+                            cstring = property2.find("cstring")
+                            string = property2.find("string")
+                            iconset = property2.find("iconset")
+
+                            if name == "name" and cstring is not None:
+                                if action_name == cstring.text:
+                                    new_action.setObjectName(cstring.text or "unnamed")
+                            elif name == "text" and string is not None:
+                                new_action.setText(string.text or "")
+                            elif name == "iconSet" and iconset is not None:
+                                if iconset.text and iconset.text in ICONS.keys():
+                                    new_action.setIcon(ICONS[iconset.text])
+                            elif name == "toolTip" and string is not None:
+                                new_action.setToolTip(string.text or "")
+                            elif name == "statusTip" and string is not None:
+                                new_action.setStatusTip(string.text or "")
+                            elif name == "whatsThis" and string is not None:
+                                new_action.setWhatsThis(string.text or "")
 
 
 class WidgetResolver:
