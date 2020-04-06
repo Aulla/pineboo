@@ -3,7 +3,7 @@
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib import logging
+from pineboolib import logging, application
 from . import fixture_path
 from pineboolib.core.utils import utils_base
 import codecs
@@ -23,6 +23,9 @@ class TestFlModules(unittest.TestCase):
     def test_cargar_ficheros(self) -> None:
         """Test load files into Database."""
         from pineboolib.qsa import qsa
+        from pineboolib.plugins.mainform import eneboo
+
+        application.PROJECT.main_window = eneboo.MainForm()
 
         cur_area = qsa.FLSqlCursor("flareas")
         cur_area.select()

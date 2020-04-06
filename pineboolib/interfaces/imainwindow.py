@@ -21,7 +21,7 @@ class IMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         """Initialize."""
         super().__init__()
-        self._dict_main_widget = {}
+        self._dict_main_widgets = {}
 
     def writeState(self) -> None:
         """Write settings back to disk."""

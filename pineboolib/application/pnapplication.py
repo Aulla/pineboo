@@ -271,8 +271,9 @@ class PNApplication(QtCore.QObject):
 
     def aboutQt(self) -> None:
         """Show About QT."""
-
-        QtWidgets.QMessageBox.aboutQt(self.mainWidget())
+        main_widget = self.mainWidget()
+        if main_widget is not None:
+            QtWidgets.QMessageBox.aboutQt(main_widget)
 
     def aboutPineboo(self) -> None:
         """Show about Pineboo."""
@@ -721,15 +722,16 @@ class PNApplication(QtCore.QObject):
 
         if not sysbasetype.SysBaseType.interactiveGUI():
             return True
-
-        ret = QtWidgets.QMessageBox.question(
-            application.PROJECT.main_window,
-            self.tr("Salir ..."),
-            self.tr("¿ Quiere salir de la aplicación ?"),
-            QtWidgets.QMessageBox.Yes,
-            QtWidgets.QMessageBox.No,
-        )
-        return ret == QtWidgets.QMessageBox.Yes
+        main_widget = application.PROJECT.main_window
+        if main_widget is not None:
+            ret = QtWidgets.QMessageBox.question(
+                main_widget,
+                self.tr("Salir ..."),
+                self.tr("¿ Quiere salir de la aplicación ?"),
+                QtWidgets.QMessageBox.Yes,
+                QtWidgets.QMessageBox.No,
+            )
+            return ret == QtWidgets.QMessageBox.Yes
 
     def loadScripts(self) -> None:
         """Load scripts for all modules."""
