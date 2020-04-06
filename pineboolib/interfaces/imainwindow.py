@@ -16,6 +16,12 @@ class IMainWindow(QtWidgets.QMainWindow):
     _dict_main_widgets: Dict[str, QtWidgets.QWidget]
     tab_widget: "QtWidgets.QTabWidget"
     container_: Optional[QtWidgets.QMainWindow]
+    main_widget: QtWidgets.QWidget
+
+    def __init__(self):
+        """Initialize."""
+        super().__init__()
+        self._dict_main_widget = {}
 
     def writeState(self) -> None:
         """Write settings back to disk."""

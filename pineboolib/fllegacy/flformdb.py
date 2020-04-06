@@ -66,7 +66,7 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Widget principal del formulario
     """
-    mainWidget_: Optional[QtWidgets.QWidget]
+    main_widget: Optional[QtWidgets.QWidget]
     """
     Identificador de ventana MDI.
 
@@ -180,7 +180,14 @@ class FLFormDB(QtWidgets.QDialog):
             load = load == 1
 
         if parent is None or isinstance(parent, int):
-            parent_widget = application.PROJECT.aq_app.mainWidget()
+            if application.PROJECT.main_window is not None:
+                if application.PROJECT.main_window.main_widget is not None:
+                    parent_widget = application.PROJECT.main_window.main_widget
+                else:
+
+                    parent_widget = application.PROJECT.main_window
+            else:
+                raise Exception("main_window is not loaded!")
         else:
             parent_widget = parent
 
@@ -230,7 +237,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.showed = False
         self.isClosing_ = False
         self.accepted_ = False
-        self.mainWidget_ = None
+        self.main_widget = None
         # self.iface = None
         self.oldFormObj = None
         self.oldCursorCtxt = None
@@ -353,7 +360,7 @@ class FLFormDB(QtWidgets.QDialog):
         To get the form's main widget.
         """
 
-        return self.mainWidget_
+        return self.main_widget
 
     def setIdMDI(self, id_: str) -> None:
         """
@@ -369,12 +376,14 @@ class FLFormDB(QtWidgets.QDialog):
 
         return self.idMDI_
 
-    def setMainWidget(self, w: Optional[QtWidgets.QWidget] = None) -> None:
+    def setMainWidget(self, widget: Optional[QtWidgets.QWidget] = None) -> None:
         """
         Set widget as the main form.
         """
-
-        self.mainWidget_ = self
+        if widget is not None:
+            self.main_widget = widget
+        else:
+            self.main_widget = self
 
     def snapShot(self) -> QtGui.QImage:
         """
@@ -492,9 +501,9 @@ class FLFormDB(QtWidgets.QDialog):
         Used in documentation to avoid conflicts when capturing forms.
         """
         self.showed = True
-        if self.mainWidget_:
-            self.mainWidget_.show()
-            self.resize(self.mainWidget_.size())
+        if self.main_widget:
+            self.main_widget.show()
+            self.resize(self.main_widget.size())
         super().show()
 
     @decorators.pyqt_slot()
@@ -898,17 +907,15 @@ class FLFormDB(QtWidgets.QDialog):
         @param w Widget to initialize. If not set use
         by default the current main widget.
         """
+        main_window = application.PROJECT.main_window
+        if main_window is None:
+            return
 
-        if hasattr(application.PROJECT.main_window, "_dict_main_widgets"):
+        if hasattr(main_window, "_dict_main_widgets"):
             module_name = application.PROJECT.conn_manager.managerModules().activeIdModule()
-            if (
-                module_name
-                and application.PROJECT.main_window
-                and module_name in application.PROJECT.main_window._dict_main_widgets.keys()
-            ):
+            if module_name and main_window and module_name in main_window._dict_main_widgets.keys():
                 module_window = cast(
-                    QtWidgets.QMainWindow,
-                    application.PROJECT.main_window._dict_main_widgets[module_name],
+                    QtWidgets.QMainWindow, main_window._dict_main_widgets[module_name]
                 )
 
                 mdi_area = module_window.centralWidget()
@@ -948,12 +955,12 @@ class FLFormDB(QtWidgets.QDialog):
 
     def initMainWidget(self, w: Optional[QtWidgets.QWidget] = None) -> None:
         """Initialize widget."""
-        if not self.showed:
-            self.show()
+        if self.main_widget and not getattr(self.main_widget, "showed", False):
+            self.main_widget.show()
 
-    def child(self, child_name: str) -> QtWidgets.QWidget:
+    def child(self, child_name: str) -> Optional[QtWidgets.QWidget]:
         """Get child by name."""
-        ret: Any = None
+        ret: Optional[QtCore.QObject] = None
         try:
             ret = self.findChild(QtWidgets.QWidget, child_name)
         except Exception:
@@ -966,7 +973,7 @@ class FLFormDB(QtWidgets.QDialog):
                 if ret._loaded is False:
                     ret.load()
 
-        return ret
+        return cast(QtWidgets.QWidget, ret)
 
     # def __getattr__(self, name):
     # if getattr(self.script, "form", None):

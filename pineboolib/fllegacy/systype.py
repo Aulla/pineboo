@@ -199,9 +199,9 @@ class SysType(sysbasetype.SysBaseType):
     @classmethod
     def updateAreas(self) -> None:
         """Update areas in mdi."""
-        mw = application.PROJECT.aq_app.mainWidget()
-        if hasattr(mw, "initToolBox"):
-            mw.initToolBox()
+        func_ = getattr(application.PROJECT.main_window, "initToolBox", None)
+        if func_ is not None:
+            func_()
 
     @classmethod
     def reinit(self) -> None:

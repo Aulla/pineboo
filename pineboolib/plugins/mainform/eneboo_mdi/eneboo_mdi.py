@@ -45,7 +45,7 @@ class MainForm(imainwindow.IMainWindow):
         """Inicialize."""
         super().__init__()
         self._p_work_space = None
-        application.PROJECT.aq_app.main_widget_ = self
+        self.main_widget = self
         self.is_closing_ = False
         self.mdi_toolbuttons = []
         self._dict_main_widgets = {}
@@ -58,8 +58,9 @@ class MainForm(imainwindow.IMainWindow):
 
     def reinitScript(self):
         """Reinit script."""
-
-        application.PROJECT.aq_app.startTimerIdle()
+        # application.PROJECT.aq_app.startTimerIdle()
+        # self.tool_box = None
+        # self.modules_menu = None
 
         if self._dict_main_widgets:
             self._dict_main_widgets = {}
@@ -199,17 +200,14 @@ class MainForm(imainwindow.IMainWindow):
     def initToolBar(self) -> None:
         """Initialize toolbar."""
 
-        if application.PROJECT.aq_app.main_widget_ is None:
+        if self.main_widget is None:
             return
 
         menu_bar = (
-            application.PROJECT.aq_app.main_widget_.menuBar()  # type: ignore [attr-defined] # noqa: F821
+            self.main_widget.menuBar()  # type: ignore [attr-defined] # noqa: F821
         )
         if menu_bar is None:
-            LOGGER.warning(
-                "No se encuentra toolbar en %s",
-                application.PROJECT.aq_app.main_widget_.objectName(),
-            )
+            LOGGER.warning("No se encuentra toolbar en %s", self.main_widget.objectName())
             return
 
         # tb.setMovingEnabled(False)
@@ -239,16 +237,16 @@ class MainForm(imainwindow.IMainWindow):
             status_action.triggered.connect(self.toggleStatusBar)
             self.toogle_bars_.addAction(status_action)
 
-            application.PROJECT.aq_app.main_widget_.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
+            self.main_widget.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
                 self.toogle_bars_
             )
 
-        view_action = application.PROJECT.aq_app.main_widget_.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
+        view_action = self.main_widget.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
             self.toogle_bars_
         )
         view_action.setText(self.tr("&Ver"))
-
-        modules_action = application.PROJECT.aq_app.main_widget_.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
+        print("******", self.main_widget, self.modules_menu)
+        modules_action = self.main_widget.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
             self.modules_menu
         )
         modules_action.setText(self.tr("&Módulos"))
@@ -319,17 +317,8 @@ class MainForm(imainwindow.IMainWindow):
     def initToolBox(self) -> None:
         """Initialize toolbox."""
 
-        main_widget = application.PROJECT.aq_app.main_widget_
-
-        if main_widget is None:
-            raise Exception("application.PROJECT.aq_app.main_widget_ is empty!")
-
-        self.tool_box_ = cast(
-            QtWidgets.QToolBox, main_widget.findChild(QtWidgets.QToolBox, "toolBox")
-        )
-        self.modules_menu = cast(
-            QtWidgets.QMenu, main_widget.findChild(QtWidgets.QMenu, "modulesMenu")
-        )
+        self.tool_box_ = cast(QtWidgets.QToolBox, self.findChild(QtWidgets.QToolBox, "toolBox"))
+        self.modules_menu = cast(QtWidgets.QMenu, self.findChild(QtWidgets.QMenu, "modulesMenu"))
 
         if self.tool_box_ is None or self.modules_menu is None:
             return
@@ -542,8 +531,7 @@ class MainForm(imainwindow.IMainWindow):
         #    return super().eventFilter(obj, event)
 
         event_type = event.type()
-
-        main_widget = application.PROJECT.aq_app.main_widget_
+        main_widget = self.main_widget
         if obj_ != main_widget and not isinstance(obj_, QtWidgets.QMainWindow):
             return super().eventFilter(obj_, event)
 
@@ -750,8 +738,7 @@ class MainForm(imainwindow.IMainWindow):
         if not idm:
             return
 
-        main_widget = application.PROJECT.aq_app.main_widget_
-
+        main_widget = self.main_widget
         if main_widget is None or main_widget.objectName() != idm:
             return
 
@@ -862,8 +849,7 @@ class MainForm(imainwindow.IMainWindow):
         if not idm:
             return
 
-        main_widget = application.PROJECT.aq_app.main_widget_
-
+        main_widget = self.main_widget
         if main_widget is None or main_widget.objectName() != idm:
             return
 
@@ -922,11 +908,11 @@ class MainForm(imainwindow.IMainWindow):
 
     def initView(self) -> None:
         """Initialize view."""
-        mw = cast(QtWidgets.QMainWindow, application.PROJECT.aq_app.main_widget_)
-        if mw is None:
+
+        if self.main_widget is None:
             return
 
-        view_back = mw.centralWidget()
+        view_back = cast(QtWidgets.QMainWindow, self.main_widget).centralWidget()
         if not isinstance(view_back, QtWidgets.QMdiArea):
 
             view_back = QtWidgets.QMdiArea()
@@ -942,7 +928,7 @@ class MainForm(imainwindow.IMainWindow):
             self._p_work_space.setAttribute(QtCore.Qt.WA_NoSystemBackground)
             # p_work_space.setScrollBarsEnabled(True)
             # FIXME: setScrollBarsEnabled
-            mw.setCentralWidget(view_back)
+            cast(QtWidgets.QMainWindow, self.main_widget).setCentralWidget(view_back)
 
     def setMainWidget(self, w) -> None:
         """Set mainWidget."""
@@ -958,11 +944,7 @@ class MainForm(imainwindow.IMainWindow):
         # QtWidgets.QApplication.setActiveWindow(w)
         # application.PROJECT.aq_app.main_widget_ = w
 
-        mw = (
-            application.PROJECT.aq_app.main_widget_
-            if isinstance(application.PROJECT.aq_app.main_widget_, QtWidgets.QMainWindow)
-            else None
-        )
+        mw = self.main_widget if isinstance(self.main_widget, QtWidgets.QMainWindow) else None
 
         if mw is None:
             return
@@ -1045,7 +1027,7 @@ class MainForm(imainwindow.IMainWindow):
 
     def initMainWidget(self) -> None:
         """Init mainwidget UI."""
-        mw = cast(QtWidgets.QMainWindow, application.PROJECT.aq_app.main_widget_)
+        mw = cast(QtWidgets.QMainWindow, self.main_widget)
         if not mw or not self.container_:
             return
 
@@ -1066,7 +1048,7 @@ class MainForm(imainwindow.IMainWindow):
         if value:
             self.last_text_caption_ = value
 
-        main_widget = application.PROJECT.aq_app.main_widget_
+        main_widget = self.main_widget
 
         if main_widget:
             descript_area = (
@@ -1083,14 +1065,14 @@ class MainForm(imainwindow.IMainWindow):
 
     def initActions(self) -> None:
         """Initialize actions."""
-        if application.PROJECT.aq_app.main_widget_ is not None and self._p_work_space is not None:
+        if self.main_widget is not None and self._p_work_space is not None:
             self.window_cascade_action.triggered.connect(self._p_work_space.cascadeSubWindows)
             self.window_tile_action.triggered.connect(self._p_work_space.tileSubWindows)
             self.window_close_action.triggered.connect(self._p_work_space.closeActiveSubWindow)
 
     def initStatusBar(self) -> None:
         """Initialize statusbar."""
-        mw = application.PROJECT.aq_app.main_widget_
+        mw = self.main_widget
 
         if not mw:
             return
@@ -1107,7 +1089,7 @@ class MainForm(imainwindow.IMainWindow):
 
     def toggleToolBar(self, toggle: bool) -> None:
         """Show or hide toolbar."""
-        mw = cast(QtWidgets.QToolBar, application.PROJECT.aq_app.main_widget_)
+        mw = cast(QtWidgets.QToolBar, self.main_widget)
 
         if not mw:
             return
@@ -1124,7 +1106,7 @@ class MainForm(imainwindow.IMainWindow):
 
     def toggleStatusBar(self, toggle: bool) -> None:
         """Toggle status bar."""
-        mw = cast(QtWidgets.QMainWindow, application.PROJECT.aq_app.main_widget_)
+        mw = cast(QtWidgets.QMainWindow, self.main_widget)
         if not mw:
             return
         if toggle:

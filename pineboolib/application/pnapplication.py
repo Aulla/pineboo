@@ -4,9 +4,9 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 from pineboolib.core import decorators, settings
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import logging, utils_base
 
-from pineboolib import application, plugins
+from pineboolib import application
 from . import database
 from .qsatypes import sysbasetype
 from .acls import pnaccesscontrollists
@@ -49,8 +49,6 @@ class PNApplication(QtCore.QObject):
 
     container_: Optional[QtWidgets.QWidget]  # Contenedor actual??
 
-    main_widget_: Optional[QtWidgets.QWidget]
-
     # project_ = None
 
     form_alone_: bool
@@ -72,7 +70,7 @@ class PNApplication(QtCore.QObject):
     def __init__(self) -> None:
         """Create new FLApplication."""
         super().__init__()
-        self.main_widget_ = None
+
         # self.project_ = None
         self.wb_ = None
 
@@ -169,13 +167,10 @@ class PNApplication(QtCore.QObject):
 
     def setMainWidget(self, main_widget) -> None:
         """Set mainWidget."""
-
-        if main_widget is None:
-            self.main_widget_ = None
-        else:
-            self.main_widget_ = main_widget
-
-            QtWidgets.QApplication.setActiveWindow(main_widget)
+        if application.PROJECT.main_window is not None:
+            application.PROJECT.main_window.main_widget = main_widget
+            if main_widget is not None:
+                QtWidgets.QApplication.setActiveWindow(main_widget)
 
     @decorators.not_implemented_warn
     def makeStyle(self, style_):
@@ -218,12 +213,14 @@ class PNApplication(QtCore.QObject):
         if not style_read:
             style_read = "Fusion"
 
-        style_menu = self.mainWidget().findChild(QtWidgets.QMenu, "style")
+        style_menu = self.mainWidget().findChild(  # type: ignore [union-attr] # noqa : F821
+            QtWidgets.QMenu, "style"
+        )
 
         if style_menu:
             action_group = QtWidgets.QActionGroup(style_menu)
             for style_ in QtWidgets.QStyleFactory.keys():
-                action_ = style_menu.addAction(style_)
+                action_ = style_menu.addAction(style_)  # type: ignore [union-attr] # noqa : F821
                 action_.setObjectName("style_%s" % style_)
                 action_.setCheckable(True)
                 if style_ == style_read:
@@ -290,31 +287,12 @@ class PNApplication(QtCore.QObject):
         if settings.CONFIG.value("application/isDebuggerMode", False):
             LOGGER.warning("StatusHelpMsg: %s", text)
 
-        if not self.main_widget_:
+        main_widget = getattr(application.PROJECT.main_window, "main_widget", None)
+
+        if main_widget is None:
             return
 
-        cast(QtWidgets.QMainWindow, self.main_widget_).statusBar().showMessage(text, 2000)
-
-    # def openMasterForm(self, action_name: str, pix: Optional[QtGui.QPixmap] = None) -> None:
-    #    """Open a tab."""
-    #    if action_name in application.PROJECT.actions.keys():
-    #        application.PROJECT.actions[action_name].openDefaultForm()
-
-    # @decorators.not_implemented_warn
-    # def openDefaultForm(self) -> None:
-    #    """Open a default form."""
-    #    pass
-
-    # def execMainScript(self, action_name) -> None:
-    #    """Execute main script."""
-    #    if action_name in application.PROJECT.actions.keys():
-    #        application.PROJECT.actions[action_name].execMainScript(action_name)
-
-    # @decorators.not_implemented_warn
-    # def execDefaultScript(self) -> None:
-    #    """Execute default script."""
-
-    #    pass
+        cast(QtWidgets.QMainWindow, main_widget).statusBar().showMessage(text, 2000)
 
     def loadScriptsFromModule(self, id_module) -> None:
         """Load scripts from named module."""
@@ -431,9 +409,11 @@ class PNApplication(QtCore.QObject):
 
         self.clearProject()
 
-        if application.PROJECT.main_window is None:
+        if application.PROJECT.main_window is None and not utils_base.is_library():
+            from pineboolib.plugins import mainform
+
             main_form_name = settings.CONFIG.value("ebcomportamiento/main_form_name", "eneboo")
-            main_form = getattr(plugins.mainform, main_form_name, None)
+            main_form = getattr(mainform, main_form_name, None)
             main_form_class = getattr(main_form, "MainForm", None)
             if main_form_class is not None:
                 application.PROJECT.main_window = main_form_class()
@@ -443,9 +423,6 @@ class PNApplication(QtCore.QObject):
             if application.PROJECT.main_window is not None:
                 application.PROJECT.main_window.initScript()
                 application.PROJECT.main_window.initialized_mods_ = []
-
-            if self.main_widget_ is None:
-                self.main_widget_ = application.PROJECT.main_window
 
         QSADictModules.clean_all()
 
@@ -481,7 +458,7 @@ class PNApplication(QtCore.QObject):
 
         self._inicializing = False
 
-        reinit_func = getattr(application.PROJECT.main_window, "reinitSript", None)
+        reinit_func = getattr(application.PROJECT.main_window, "reinitScript", None)
         if reinit_func is not None:
             reinit_func()
 
@@ -574,17 +551,19 @@ class PNApplication(QtCore.QObject):
 
     def popupWarn(self, msg_warn: str, script_call: List[Any] = []) -> None:
         """Show a warning popup."""
-        if not self.main_widget_:
+        main_window = application.PROJECT.main_window
+
+        if main_window is None:
             return
 
         if script_call:
             LOGGER.warning("script_call not implemented. FIXME!!")
 
-        if not self.main_widget_.isHidden():
+        if not main_window.isHidden():
             QtWidgets.QWhatsThis.showText(
-                self.main_widget_.mapToGlobal(QtCore.QPoint(self.main_widget_.width() * 2, 0)),
+                main_window.mapToGlobal(QtCore.QPoint(main_window.width() * 2, 0)),
                 msg_warn,
-                self.main_widget_,
+                main_window,
             )
             QtCore.QTimer.singleShot(2000, QtWidgets.QWhatsThis.hideText)
             QtWidgets.QApplication.processEvents()
@@ -637,8 +616,12 @@ class PNApplication(QtCore.QObject):
     def modMainWidget(self, id_modulo: str) -> Optional[QtWidgets.QWidget]:
         """Set module main widget."""
 
+        main_window = application.PROJECT.main_window
+        if main_window is None:
+            return None
+
         mod_widget: Optional[QtWidgets.QWidget] = None
-        dict_main_widgets = getattr(application.PROJECT.main_window, "_dict_main_widgets", {})
+        dict_main_widgets = getattr(main_window, "_dict_main_widgets", {})
         if id_modulo in dict_main_widgets.keys():
             mod_widget = dict_main_widgets[id_modulo]
 
@@ -650,7 +633,9 @@ class PNApplication(QtCore.QObject):
                     break
 
         if mod_widget is None and self.mainWidget() is not None:
-            mod_widget = self.mainWidget().findChild(QtWidgets.QWidget, id_modulo)
+            mod_widget = cast(
+                QtWidgets.QWidget, main_window.main_widget.findChild(QtWidgets.QWidget, id_modulo)
+            )
 
         return mod_widget
 
@@ -718,15 +703,15 @@ class PNApplication(QtCore.QObject):
 
         return str(type(obj))
 
-    def mainWidget(self) -> Any:
+    def mainWidget(self) -> Optional[QtWidgets.QWidget]:
         """Return current mainWidget."""
-        ret_ = self.main_widget_
-        return ret_
+        return getattr(application.PROJECT.main_window, "main_widget", None)
 
     def quit(self) -> None:
         """Handle quit/close signal."""
-        if self.main_widget_ is not None:
-            self.main_widget_.close()
+        main_window = application.PROJECT.main_window
+        if main_window is not None:
+            main_window.close()
 
     def queryExit(self) -> Any:
         """Ask user if really wants to quit."""

@@ -16,6 +16,7 @@ import sys
 
 if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # noqa: F401
+    from pineboolib.fllegacy import flformdb  # noqa: F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -25,7 +26,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
     closed = QtCore.pyqtSignal()
     cursor_: Optional["flsqlcursor.FLSqlCursor"]
-    _form: Optional[QtWidgets.QDialog]
+    _form: Optional["flformdb.FLFormDB"]
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
     _loaded: bool
@@ -154,7 +155,8 @@ class FormDBWidget(QtWidgets.QWidget):
     def child(self, child_name: str) -> Any:
         """Return child from name."""
         ret = None
-        form = self.form
+
+        form = self._get_form()
         if form:
             ret = form.child(child_name)
             if ret is None:
@@ -218,11 +220,11 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return ret_
 
-    def _set_form(self, form: Optional[QtWidgets.QDialog]) -> None:
+    def _set_form(self, form: Optional["flformdb.FLFormDB"]) -> None:
         """Set form widget."""
         self._form = form
 
-    def _get_form(self) -> Optional[QtWidgets.QDialog]:
+    def _get_form(self) -> Optional["flformdb.FLFormDB"]:
         """Return form widget."""
 
         if self._form is None:
@@ -237,6 +239,7 @@ class FormDBWidget(QtWidgets.QWidget):
         setattr(
             sys.modules[self.__module__], "form", self._form
         )  # Con esto seteamos el global form en el módulo
+
         return self._form
 
     form = property(_get_form, _set_form)

@@ -295,6 +295,11 @@ class TestACLS(unittest.TestCase):
     def test_form_flacos(self) -> None:
         """Test form acls from flacos."""
         from pineboolib.qsa import qsa
+        from pineboolib.plugins.mainform import eneboo
+
+        main_form_class = getattr(eneboo, "MainForm", None)
+        self.assertTrue(main_form_class)
+        application.PROJECT.main_window = main_form_class()
 
         sys_type = systype.SysType()
         sys_type.installACL("tercera")
