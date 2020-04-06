@@ -2,14 +2,21 @@
 Finalize pineboo setup and load.
 """
 from pineboolib import logging
-from typing import Any
+from typing import Any, Optional, TYPE_CHECKING
+
 
 from pineboolib.core import settings
+
+if TYPE_CHECKING:
+    from pineboolib.interfaces import imainwindow  # noqa: F401
+
 
 LOGGER = logging.get_logger(__name__)
 
 
-def init_project(dgi: Any, options: Any, project: Any, main_form: Any, app: Any) -> Any:
+def init_project(
+    dgi: Any, options: Any, project: Any, main_window: Optional["imainwindow.IMainWindow"], app: Any
+) -> Any:
     """Initialize the project and start it."""
     # from PyQt5 import QtCore  # type: ignore
 
@@ -45,9 +52,9 @@ def init_project(dgi: Any, options: Any, project: Any, main_form: Any, app: Any)
 
     project.message_manager().send("splash", "showMessage", ["Creando interface ..."])
 
-    if main_form is not None:
+    if main_window is not None:
         LOGGER.info("Creando interfaz ...")
-        main_window = main_form.mainWindow
+        # main_window = main_form.mainWindow
         main_window.initScript()
         ret = 0
 
@@ -65,8 +72,8 @@ def init_project(dgi: Any, options: Any, project: Any, main_form: Any, app: Any)
     else:
         ret = dgi.exec_()
 
-    if main_form is not None:
-        main_form.mainWindow = None
-        del main_window
+    # if main_form is not None:
+    #    main_form.mainWindow = None
+    #    del main_window
     del project
     return ret

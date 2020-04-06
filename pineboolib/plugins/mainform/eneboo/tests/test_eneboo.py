@@ -10,6 +10,8 @@ from pineboolib import application
 from . import fixture_path
 from pineboolib import logging
 
+from typing import cast
+
 LOGGER = logging.get_logger("eneboo_%s" % __name__)
 
 
@@ -39,14 +41,14 @@ class TestEnebooGUI(unittest.TestCase):
         from pineboolib.plugins.mainform.eneboo import eneboo
         import os
 
-        application.PROJECT.main_form = eneboo
-        eneboo.mainWindow = eneboo.MainForm()
-        eneboo.mainWindow.initScript()
-        application.PROJECT.main_window = eneboo.mainWindow
-
+        # application.PROJECT.main_form = eneboo
+        # eneboo.mainWindow = eneboo.MainForm()
+        # eneboo.mainWindow.initScript()
+        application.PROJECT.main_window = eneboo.MainForm()
+        application.PROJECT.main_window.initScript()
         # main_window = application.PROJECT.main_form.MainForm()  # type: ignore
         # main_window.initScript()
-
+        self.assertTrue(application.PROJECT.main_window)
         qsa_sys = qsa.sys
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
@@ -55,7 +57,7 @@ class TestEnebooGUI(unittest.TestCase):
         )
         qsa_sys.loadModules(path, False)
 
-        application.PROJECT.main_window = application.PROJECT.main_form.mainWindow  # type: ignore
+        # application.PROJECT.main_window = application.PROJECT.main_form.mainWindow  # type: ignore
         application.PROJECT.main_window.show()
         self.assertTrue(application.PROJECT.main_window)
         application.PROJECT.main_window.triggerAction(
@@ -66,10 +68,13 @@ class TestEnebooGUI(unittest.TestCase):
         application.PROJECT.main_window.triggerAction(
             "triggered():openDefaultForm():clientes"
         )  # Remove page and show again.
-        action = application.PROJECT.main_window.findChild(QtWidgets.QAction, "clientes")
+        action = cast(
+            QtWidgets.QAction,
+            application.PROJECT.main_window.findChild(QtWidgets.QAction, "clientes"),
+        )
         application.PROJECT.main_window.addMark(action)
-
-        application.PROJECT.main_window.ag_mar_.removeAction(action)
+        if application.PROJECT.main_window.ag_mar_:
+            application.PROJECT.main_window.ag_mar_.removeAction(action)
         application.PROJECT.main_window.dck_mar_.update(application.PROJECT.main_window.ag_mar_)
         doc_widget = QtWidgets.QDockWidget()
         doc_widget.setWidget(QtWidgets.QTreeWidget())
@@ -87,21 +92,29 @@ class TestEnebooGUI(unittest.TestCase):
 
         main_window = application.PROJECT.main_window
 
-        for i in range(main_window.tab_widget.count()):
-            main_window.tab_widget.widget(i).close()
+        if main_window is not None:
+            for i in range(main_window.tab_widget.count()):
+                main_window.tab_widget.widget(i).close()
 
-        key = "MainWindow/%s/" % application.PROJECT.conn_manager.database()
-        settings.SETTINGS.set_value(
-            "%sopenActions" % key,
-            ["flmodules", "flmodules", "flareas", "flmodules", "flusers", "flmodules", "flareas"],
-        )
-        main_window.loadTabs()
-        self.assertEqual(main_window.tab_widget.count(), 3)  # flmodules, flareas, flusers
+            key = "MainWindow/%s/" % application.PROJECT.conn_manager.database()
+            settings.SETTINGS.set_value(
+                "%sopenActions" % key,
+                [
+                    "flmodules",
+                    "flmodules",
+                    "flareas",
+                    "flmodules",
+                    "flusers",
+                    "flmodules",
+                    "flareas",
+                ],
+            )
+            main_window.loadTabs()
+            self.assertEqual(main_window.tab_widget.count(), 3)  # flmodules, flareas, flusers
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure this class is finished correctly."""
-        del application.PROJECT.main_form
         del application.PROJECT.main_window
 
         settings.CONFIG.set_value("application/isDebuggerMode", False)

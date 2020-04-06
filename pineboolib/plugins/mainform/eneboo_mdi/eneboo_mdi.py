@@ -13,8 +13,9 @@ from pineboolib.fllegacy import flworkspace, flformdb
 from pineboolib.application import pncore
 from pineboolib import application
 from pineboolib import logging
+from pineboolib.interfaces import imainwindow
 
-from typing import Any, cast, List, Optional, Dict, TYPE_CHECKING
+from typing import Any, cast, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.database import pnconnectionmanager
@@ -22,18 +23,18 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class MainForm(QtWidgets.QMainWindow):
+class MainForm(imainwindow.IMainWindow):
     """MainForm class."""
 
     acl_: pnaccesscontrollists.PNAccessControlLists
     is_closing_: bool
     mdi_enable_: bool
-    container_: Optional[QtWidgets.QMainWindow]
+
     main_window: QtWidgets.QMainWindow
     exit_button: QtWidgets.QPushButton
-    _p_work_space: Any
+
     mdi_toolbuttons: List[QtWidgets.QToolButton]
-    _dict_main_widgets: Dict[str, QtWidgets.QWidget]
+
     debug_level: int
     tool_box_: Any
     toogle_bars_: Any
@@ -825,7 +826,7 @@ class MainForm(QtWidgets.QMainWindow):
                         if application.PROJECT.aq_app.acl_:
                             application.PROJECT.aq_app.acl_.process(w)
 
-                        self.setCaptionMainWidget(None)
+                        self.setCaptionMainWidget("")
                         self.setMainWidget(w)
                         application.PROJECT.aq_app.call("%s.init()" % id_module, [])
                         self.db().managerModules().setActiveIdModule(id_module)
@@ -843,7 +844,10 @@ class MainForm(QtWidgets.QMainWindow):
 
                     view_back = w.centralWidget()
                     if view_back is not None:
-                        self._p_work_space = view_back.findChild(QtWidgets.QWidget, w.objectName())
+                        self._p_work_space = cast(
+                            flworkspace.FLWorkSpace,
+                            view_back.findChild(QtCore.QObject, w.objectName()),
+                        )
 
             if active_id_module:
                 self.container_.show()
@@ -1028,7 +1032,7 @@ class MainForm(QtWidgets.QMainWindow):
                 self._p_work_space = view_back.findChild(flworkspace.FLWorkSpace, w.objectName())
                 view_back.show()
 
-        self.setCaptionMainWidget(None)
+        self.setCaptionMainWidget("")
         descript_area = (
             self.db()
             .managerModules()
@@ -1057,7 +1061,7 @@ class MainForm(QtWidgets.QMainWindow):
 
         self.readStateModule()
 
-    def setCaptionMainWidget(self, value) -> None:
+    def setCaptionMainWidget(self, value: str) -> None:
         """Set application title."""
         if value:
             self.last_text_caption_ = value
@@ -1157,5 +1161,5 @@ class MainForm(QtWidgets.QMainWindow):
             return False
 
 
-mainWindow: MainForm
+# mainWindow: MainForm
 # mainWindow = MainForm()

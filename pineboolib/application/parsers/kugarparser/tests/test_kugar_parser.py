@@ -24,13 +24,12 @@ class TestParser(unittest.TestCase):
         from pineboolib.plugins.mainform.eneboo import eneboo
         import os
 
-        application.PROJECT.main_form = eneboo
-        # application.project.main_form.mainWindow = application.project.main_form.MainForm()
-        # application.project.main_form.mainWindow.initScript()
-        # application.project.main_window = application.project.main_form.mainWindow
-
-        application.PROJECT.main_window = application.PROJECT.main_form.MainForm()  # type: ignore
-        application.PROJECT.main_window.initScript()
+        main_form_class = getattr(eneboo, "MainForm", None)
+        self.assertTrue(main_form_class)
+        application.PROJECT.main_window = main_form_class()
+        self.assertTrue(application.PROJECT.main_window)
+        if application.PROJECT.main_window is not None:
+            application.PROJECT.main_window.initScript()
 
         qsa_sys = qsa.sys
         path = fixture_path("principal.eneboopkg")

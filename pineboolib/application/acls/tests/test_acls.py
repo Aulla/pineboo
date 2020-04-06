@@ -323,11 +323,12 @@ class TestACLS(unittest.TestCase):
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
         project = application.PROJECT
-        project.main_form = eneboo
-        project.main_window = getattr(project.main_form, "mainWindow", None)
-        main_form_ = getattr(project.main_form, "MainForm", None)
-        self.assertTrue(main_form_)
-        self.main_w = main_form_()
+        # project.main_form = eneboo
+        main_form_class = getattr(eneboo, "MainForm", None)
+        # main_form_ = getattr(project.main_form, "MainForm", None)
+        self.assertTrue(main_form_class)
+        self.main_w = main_form_class()
+        project.main_window = self.main_w
         self.main_w.initScript()
         self.main_w.show()
         self.assertTrue(self.main_w)
@@ -362,11 +363,11 @@ class TestACLS(unittest.TestCase):
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
 
         project = application.PROJECT
-        project.main_form = eneboo
-        project.main_window = getattr(project.main_form, "mainWindow", None)
-        main_form_ = getattr(project.main_form, "MainForm", None)
-        self.assertTrue(main_form_)
-        self.main_w = main_form_()
+        main_form_class = getattr(eneboo, "MainForm", None)
+        # main_form_ = getattr(project.main_form, "MainForm", None)
+        self.assertTrue(main_form_class)
+        self.main_w = main_form_class()
+        project.main_window = self.main_w
         self.main_w.initScript()
         self.main_w.show()
         self.assertTrue(self.main_w)
@@ -388,11 +389,11 @@ class TestACLS(unittest.TestCase):
         application.PROJECT.aq_app.set_acl(acl)
 
         project = application.PROJECT
-        project.main_form = eneboo
-        project.main_window = getattr(project.main_form, "mainWindow", None)
-        main_form_ = getattr(project.main_form, "MainForm", None)
-        self.assertTrue(main_form_)
-        self.main_w = main_form_()
+        main_form_class = getattr(eneboo, "MainForm", None)
+        # main_form_ = getattr(project.main_form, "MainForm", None)
+        self.assertTrue(main_form_class)
+        self.main_w = main_form_class()
+        project.main_window = self.main_w
         self.main_w.initScript()
         self.main_w.show()
         self.assertTrue(self.main_w)

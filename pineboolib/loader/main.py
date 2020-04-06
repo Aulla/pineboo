@@ -16,7 +16,6 @@ from pineboolib.loader.options import parse_options
 from pineboolib.loader.dgi import load_dgi
 from pineboolib.loader.connection import config_dbconn, connect_to_db
 from pineboolib.loader.connection import DEFAULT_SQLITE_CONN, IN_MEMORY_SQLITE_CONN
-from pineboolib import plugins
 from pineboolib import application
 from pineboolib.application.parsers.qsaparser import pytnyzer
 
@@ -197,13 +196,13 @@ def init_cli(catch_ctrl_c: bool = True) -> None:
         signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
-def init_gui() -> None:
-    """Create GUI singletons."""
-    from pineboolib.plugins.mainform.eneboo import eneboo
-    from pineboolib.plugins.mainform.eneboo_mdi import eneboo_mdi
+# def init_gui() -> None:
+#    """Create GUI singletons."""
+#    from pineboolib.plugins.mainform.eneboo import eneboo
+#    from pineboolib.plugins.mainform.eneboo_mdi import eneboo_mdi
 
-    eneboo.mainWindow = eneboo.MainForm()
-    eneboo_mdi.mainWindow = eneboo_mdi.MainForm()
+#    eneboo.mainWindow = eneboo.MainForm()
+#    eneboo_mdi.mainWindow = eneboo_mdi.MainForm()
 
 
 def setup_gui(app: QtWidgets.QApplication) -> None:
@@ -389,8 +388,8 @@ def exec_main(options: Values) -> int:
         download_files()
 
     dgi = load_dgi(options.dgi, options.dgi_parameter)
-    if options.enable_gui:
-        init_gui()
+    # if options.enable_gui:
+    #    init_gui()
 
     if dgi.useDesktop() and not options.enable_gui:
         LOGGER.info(
@@ -441,19 +440,22 @@ def exec_main(options: Values) -> int:
 
     application.PROJECT.no_python_cache = options.no_python_cache
 
-    main_form_name = settings.CONFIG.value("ebcomportamiento/main_form_name", "eneboo")
+    if options.enable_gui:
+        from pineboolib.plugins import mainform
 
-    main_form = getattr(plugins.mainform, main_form_name, None)
-    if main_form is None:
-        settings.CONFIG.set_value("ebcomportamiento/main_form_name", "eneboo")
-        raise Exception(
-            "mainForm %s does not exits!!.Use 'pineboo --main_form eneboo' to restore default mainForm"
-            % main_form_name
-        )
-    else:
-        application.PROJECT.main_form = getattr(main_form, main_form_name)
+        main_form_name = settings.CONFIG.value("ebcomportamiento/main_form_name", "eneboo")
 
-    application.PROJECT.main_window = getattr(application.PROJECT.main_form, "mainWindow", None)
+        main_form = getattr(mainform, main_form_name, None)
+        if main_form is None:
+            settings.CONFIG.set_value("ebcomportamiento/main_form_name", "eneboo")
+            raise Exception(
+                "mainForm %s does not exits!!.Use 'pineboo --main_form eneboo' to restore default mainForm"
+                % main_form_name
+            )
+        # else:
+        #    main_form = getattr(main_form, main_form_name)
+
+        application.PROJECT.main_window = main_form.MainForm()
     # main_form_ = getattr(application.PROJECT.main_form, "MainForm", None)
 
     application.PROJECT.message_manager().send("splash", "show")
@@ -500,7 +502,7 @@ def exec_main(options: Values) -> int:
         dgi,
         options,
         application.PROJECT,
-        application.PROJECT.main_form if dgi.useDesktop() else None,
+        application.PROJECT.main_window if dgi.useDesktop() else None,
         application.PROJECT.app,
     )
     return ret

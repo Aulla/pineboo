@@ -903,9 +903,13 @@ class FLFormDB(QtWidgets.QDialog):
             module_name = application.PROJECT.conn_manager.managerModules().activeIdModule()
             if (
                 module_name
+                and application.PROJECT.main_window
                 and module_name in application.PROJECT.main_window._dict_main_widgets.keys()
             ):
-                module_window = application.PROJECT.main_window._dict_main_widgets[module_name]
+                module_window = cast(
+                    QtWidgets.QMainWindow,
+                    application.PROJECT.main_window._dict_main_widgets[module_name],
+                )
 
                 mdi_area = module_window.centralWidget()
                 if isinstance(mdi_area, QtWidgets.QMdiArea):

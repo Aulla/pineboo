@@ -15,6 +15,8 @@ from pineboolib.fllegacy import flformdb, systype
 
 from pineboolib import logging, application
 
+from pineboolib.interfaces import imainwindow
+
 
 from typing import Any, Dict, Optional, List, cast, Union
 
@@ -270,7 +272,7 @@ class DockListView(QtCore.QObject):
             node = node.previousSibling().toElement() if reverse else node.nextSibling().toElement()
 
 
-class MainForm(QtWidgets.QMainWindow):
+class MainForm(imainwindow.IMainWindow):
     """
     Create Eneboo-alike UI.
     """
@@ -287,7 +289,7 @@ class MainForm(QtWidgets.QMainWindow):
     w_: QtWidgets.QMainWindow
     # tw_corner = None  # deprecated
     act_sig_map_: QtCore.QSignalMapper
-    initialized_mods_: List[str]
+
     main_widgets_: Dict[str, QtWidgets.QWidget] = {}
     debugLevel: int
     # lista_tabs_ = []
@@ -1406,5 +1408,5 @@ class MainForm(QtWidgets.QMainWindow):
         self.setWindowTitle("Pineboo %s - %s" % (application.PROJECT.version, value))
 
 
-mainWindow: MainForm
+# mainWindow: MainForm
 # mainWindow = MainForm()

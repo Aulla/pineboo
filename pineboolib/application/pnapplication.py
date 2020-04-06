@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from pineboolib.core import decorators, settings
 from pineboolib.core.utils import logging
 
-from pineboolib import application
+from pineboolib import application, plugins
 from . import database
 from .qsatypes import sysbasetype
 from .acls import pnaccesscontrollists
@@ -330,8 +330,8 @@ class PNApplication(QtCore.QObject):
         # self.apAppIdle()
         self._inicializing = True
 
-        if hasattr(application.PROJECT.main_form, "mainWindow"):
-            mw = application.PROJECT.main_form.mainWindow
+        if application.PROJECT.main_window:
+            mw = application.PROJECT.main_window
 
             if mw is not None:
                 mw.writeState()
@@ -432,16 +432,20 @@ class PNApplication(QtCore.QObject):
         self.clearProject()
 
         if application.PROJECT.main_window is None:
-            if application.PROJECT.main_form is not None:
-                application.PROJECT.main_form.mainWindow = application.PROJECT.main_form.MainForm()
-                application.PROJECT.main_window = application.PROJECT.main_form.mainWindow
+            main_form_name = settings.CONFIG.value("ebcomportamiento/main_form_name", "eneboo")
+            main_form = getattr(plugins.mainform, main_form_name, None)
+            main_form_class = getattr(main_form, "MainForm", None)
+            if main_form_class is not None:
+                application.PROJECT.main_window = main_form_class()
+            # if application.PROJECT.main_form is not None:
+            #    application.PROJECT.main_form.mainWindow = application.PROJECT.main_window.MainForm()
+            #    application.PROJECT.main_window = application.PROJECT.main_form.mainWindow
+            if application.PROJECT.main_window is not None:
                 application.PROJECT.main_window.initScript()
+                application.PROJECT.main_window.initialized_mods_ = []
 
-        if self.main_widget_ is None:
-            self.main_widget_ = application.PROJECT.main_window
-
-        if application.PROJECT.main_window is not None:
-            application.PROJECT.main_window.initialized_mods_ = []
+            if self.main_widget_ is None:
+                self.main_widget_ = application.PROJECT.main_window
 
         QSADictModules.clean_all()
 
@@ -468,16 +472,18 @@ class PNApplication(QtCore.QObject):
 
             # mw.readState()
 
-            if hasattr(application.PROJECT.main_window, "container_"):
-                application.PROJECT.main_window.container_.installEventFilter(self)
+            container = getattr(application.PROJECT.main_window, "container_", None)
+            if container is not None:
+                container.installEventFilter(self)
             # self.container_.setDisable(False)
 
         self.callScriptEntryFunction()
 
         self._inicializing = False
 
-        if hasattr(application.PROJECT.main_window, "reinitSript"):
-            application.PROJECT.main_window.reinitSript()
+        reinit_func = getattr(application.PROJECT.main_window, "reinitSript", None)
+        if reinit_func is not None:
+            reinit_func()
 
     def showDocPage(self, url_: str) -> None:
         """Show documentation."""
@@ -547,7 +553,8 @@ class PNApplication(QtCore.QObject):
 
     def setCaptionMainWidget(self, text: str) -> None:
         """Set caption main widget."""
-        application.PROJECT.main_form.mainWindow.setCaptionMainWidget(text)
+        if application.PROJECT.main_window is not None:
+            application.PROJECT.main_window.setCaptionMainWidget(text)
 
     @decorators.not_implemented_warn
     def addSysCode(self, code, script_entry_function):
@@ -608,20 +615,18 @@ class PNApplication(QtCore.QObject):
     def showConsole(self) -> None:
         """Show application console on GUI."""
 
-        if application.PROJECT.main_form.mainWindow:
+        if application.PROJECT.main_window is not None:
             if self._ted_output:
                 self._ted_output.parentWidget().close()
 
-            dock_widget = QtWidgets.QDockWidget(
-                "tedOutputDock", application.PROJECT.main_form.mainWindow
-            )
+            dock_widget = QtWidgets.QDockWidget("tedOutputDock", application.PROJECT.main_window)
 
             if dock_widget is not None:
 
                 self._ted_output = TextEditOutput(dock_widget)
                 dock_widget.setWidget(self._ted_output)
                 dock_widget.setWindowTitle(self.tr("Mensajes de Eneboo"))
-                application.PROJECT.main_form.mainWindow.addDockWidget(
+                application.PROJECT.main_window.addDockWidget(
                     QtCore.Qt.BottomDockWidgetArea, dock_widget
                 )
 
@@ -633,9 +638,9 @@ class PNApplication(QtCore.QObject):
         """Set module main widget."""
 
         mod_widget: Optional[QtWidgets.QWidget] = None
-        if hasattr(application.PROJECT.main_window, "_dict_main_widgets"):
-            if id_modulo in application.PROJECT.main_window._dict_main_widgets.keys():
-                mod_widget = application.PROJECT.main_window._dict_main_widgets[id_modulo]
+        dict_main_widgets = getattr(application.PROJECT.main_window, "_dict_main_widgets", {})
+        if id_modulo in dict_main_widgets.keys():
+            mod_widget = dict_main_widgets[id_modulo]
 
         if mod_widget is None:
             list_ = QtWidgets.QApplication.topLevelWidgets()
@@ -733,7 +738,7 @@ class PNApplication(QtCore.QObject):
             return True
 
         ret = QtWidgets.QMessageBox.question(
-            application.PROJECT.main_form.mainWindow,
+            application.PROJECT.main_window,
             self.tr("Salir ..."),
             self.tr("¿ Quiere salir de la aplicación ?"),
             QtWidgets.QMessageBox.Yes,

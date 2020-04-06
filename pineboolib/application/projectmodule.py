@@ -24,7 +24,7 @@ from pineboolib.application.parsers import qsaparser
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces.dgi_schema import dgi_schema
+    from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401
     from pineboolib.application.database import pnconnection
     from pineboolib.application import xmlaction  # noqa: F401
 
@@ -46,11 +46,9 @@ class Project(object):
     debug_level = 100
     options: Values
 
-    # _initModules = None
-    main_form: Any = None  # FIXME: How is this used? Which type?
-    main_window: Any = None
+    main_window: Optional["imainwindow.IMainWindow"] = None
     acl_ = None
-    dgi: Optional["dgi_schema"] = None
+    dgi: Optional["dgi_schema.dgi_schema"] = None
     delete_cache: bool = False
     parse_project: bool = False
     path = None
@@ -132,7 +130,7 @@ class Project(object):
         return self._conn_manager
 
     @property
-    def DGI(self) -> "dgi_schema":
+    def DGI(self) -> "dgi_schema.dgi_schema":
         """Retrieve current DGI or throw."""
         if self.dgi is None:
             raise Exception("Project is not initialized")
@@ -154,7 +152,7 @@ class Project(object):
 
         return result
 
-    def init_dgi(self, dgi: "dgi_schema") -> None:
+    def init_dgi(self, dgi: "dgi_schema.dgi_schema") -> None:
         """Load and associate the defined DGI onto this project."""
         # FIXME: Actually, DGI should be loaded here, or kind of.
 

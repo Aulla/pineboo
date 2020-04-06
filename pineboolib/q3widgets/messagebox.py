@@ -28,7 +28,7 @@ class MessageBox:
         cls, typename, text, button0, button1=None, button2=None, title=None, form=None
     ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Return a messageBox."""
-        if not application.PROJECT.main_form:
+        if application.PROJECT.main_window is None:
             return None
 
         if application.PROJECT._splash:
