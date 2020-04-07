@@ -48,15 +48,6 @@ class TestMtdParserGeneral(unittest.TestCase):
 
         pnormmodelsfactory.load_models()
 
-    def test_basic_3(self) -> None:
-        """Test load ORM."""
-        from pineboolib.qsa import qsa
-
-        flareas_orm = qsa.orm_("flareas")
-        self.assertTrue(flareas_orm)
-        session = flareas_orm.__session__
-        self.assertTrue(session)
-
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
