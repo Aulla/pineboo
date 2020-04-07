@@ -8,7 +8,7 @@ functions. See pineboolib/pnobjectsfactory.py
 """
 
 from pineboolib import logging
-from typing import List, cast, Optional
+from typing import List, cast, Optional, TYPE_CHECKING
 from pineboolib.application.utils.path import _path
 from pineboolib import application
 from pineboolib.application.metadata import pnfieldmetadata, pntablemetadata
@@ -20,11 +20,18 @@ LOGGER = logging.get_logger(__name__)
 
 RESERVER_WORDS = ["pass"]
 
+if TYPE_CHECKING:
+    from pineboolib.application import xmlaction
 
-def mtd_parse(table_name: str) -> Optional[str]:
+
+def mtd_parse(action: "xmlaction.XMLAction") -> Optional[str]:
     """
     Parse MTD into SqlAlchemy model.
     """
+    if not action._table:
+        return ""
+
+    table_name = action._table
 
     if table_name.endswith(".mtd"):
         table_name = table_name[:-4]
@@ -64,7 +71,7 @@ def mtd_parse(table_name: str) -> Optional[str]:
         lines = generate_model(mtd)
 
         if lines:
-            file_ = open(dest_file, "w")
+            file_ = open(dest_file, "w", encoding="UTF-8")
             for line in lines:
                 file_.write("%s\n" % line)
             file_.close()
@@ -72,7 +79,7 @@ def mtd_parse(table_name: str) -> Optional[str]:
     return dest_file
 
 
-def generate_model(mtd_table: pntablemetadata.PNTableMetaData) -> List[str]:
+def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     """
     Create a list of lines from a mtd_table (pntablemetadata.PNTableMetaData).
     """
@@ -90,8 +97,8 @@ def generate_model(mtd_table: pntablemetadata.PNTableMetaData) -> List[str]:
     data.append("from pineboolib import application")
     data.append("")
     # data.append("Base = declarative_base()")
-    data.append("Base = application.PROJECT.conn_manager.mainConn().declarative_base()")
-    data.append("engine = application.PROJECT.conn_manager.mainConn().engine()")
+    data.append("BASE = application.PROJECT.conn_manager.mainConn().declarative_base()")
+    data.append("ENGINE = application.PROJECT.conn_manager.mainConn().engine()")
     data.append("")
     # for field in mtd_table.fieldList():
     #    if field.relationM1():
@@ -99,8 +106,10 @@ def generate_model(mtd_table: pntablemetadata.PNTableMetaData) -> List[str]:
     #        data.append("load_model('%s')" % rel.foreignTable())
 
     data.append("")
-    data.append("class %s%s(Base):" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
+    data.append("class %s%s(BASE):" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("    __tablename__ = '%s'" % mtd_table.name())
+    data.append("    __session__ = application.PROJECT.conn_manager.mainConn().session()")
+    # data.append("    __actionname__ = '%s'" % action_name)
     data.append("")
 
     validator_list: List[str] = []
@@ -166,6 +175,7 @@ def generate_model(mtd_table: pntablemetadata.PNTableMetaData) -> List[str]:
 
     data.append("")
     data.append("# <--- Relations 1:M --- ")
+    """
     data.append("")
     data.append("")
     data.append("")
@@ -209,9 +219,9 @@ def generate_model(mtd_table: pntablemetadata.PNTableMetaData) -> List[str]:
     #
     #         data.append("".join(rel_data))
     #
-    # data.append("if not engine.dialect.has_table(engine.connect(),'%s'):" % mtd_table.name())
-    # data.append("    %s%s.__table__.create(engine)" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
-
+    # data.append("if not ENGINE.dialect.has_table(ENGINE.connect(),'%s'):" % mtd_table.name())
+    # data.append("    %s%s.__table__.create(ENGINE)" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
+    """
     if not pk_found:
 
         if settings.CONFIG.value("application/isDebuggerMode", False):
@@ -224,7 +234,7 @@ def generate_model(mtd_table: pntablemetadata.PNTableMetaData) -> List[str]:
     return data
 
 
-def field_type(field: pnfieldmetadata.PNFieldMetaData) -> str:
+def field_type(field: "pnfieldmetadata.PNFieldMetaData") -> str:
     """
     Get text representation for sqlAlchemy of a field type given its pnfieldmetadata.PNFieldMetaData.
     """
@@ -248,7 +258,7 @@ def field_type(field: pnfieldmetadata.PNFieldMetaData) -> str:
         ret = "Boolean"
         ret += ", unique=False"
 
-    elif field.type() in ("time, date"):
+    elif field.type() in ("time", "date", "timestamp"):
         ret = "DateTime"
 
     elif field.type() in ("bytearray"):

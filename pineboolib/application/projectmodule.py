@@ -166,7 +166,20 @@ class Project(object):
         """Load all modules."""
         for module_name, mod_obj in self.modules.items():
             mod_obj.load()
-            # self.tables.update(mod_obj.tables)
+
+    def load_orm(self) -> None:
+        """Load Orm objects."""
+
+        if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
+            from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
+
+            if not settings.CONFIG.value("ebcomportamiento/orm_parser_disabled", False):
+                for action_name in self.actions:
+                    pnmtdparser.mtd_parse(self.actions[action_name])
+
+            if not settings.CONFIG.value("ebcomportamiento/orm_load_disabled", False):
+                self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
+                pnormmodelsfactory.load_models()
 
     def setDebugLevel(self, level: int) -> None:
         """
@@ -251,14 +264,6 @@ class Project(object):
 
         if not self.load_database_modules():
             return False
-
-        if settings.CONFIG.value(
-            "ebcomportamiento/orm_enabled", False
-        ) and not settings.CONFIG.value("ebcomportamiento/orm_load_disabled", False):
-            self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
-            from pineboolib.application.parsers.mtdparser import pnormmodelsfactory
-
-            pnormmodelsfactory.load_models()
 
         # FIXME: ACLs needed at this level?
         # self.acl_ = FLAccessControlLists()

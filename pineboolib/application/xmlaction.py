@@ -56,6 +56,7 @@ class XMLAction(struct.ActionStruct):
         self._record_script = self._v("scriptformrecord") or ""
         self._table = self._v("table") or ""
         self._class_script = self._v("class") or ""
+        self._class_orm = self._v("model") or ""
 
         self._master_widget = None
         self._record_widget = None

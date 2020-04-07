@@ -1,6 +1,9 @@
 """Test_sysbasetype module."""
 
 import unittest
+
+from pineboolib import application
+
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core import settings
 
@@ -14,7 +17,7 @@ class TestMtdParserGeneral(unittest.TestCase):
 
         init_testing()
 
-    def test_basic(self) -> None:
+    def test_basic_1(self) -> None:
         """Test basic functions."""
         from pineboolib.application.parsers.mtdparser import pnmtdparser
         from pineboolib.core.utils.utils_base import filedir
@@ -26,22 +29,33 @@ class TestMtdParserGeneral(unittest.TestCase):
         )
         if os.path.exists(file):
             os.remove(file)
-        pnmtdparser.mtd_parse("flmodules")
+        action_xml = application.PROJECT.actions["flmodules"]
+        self.assertTrue(action_xml)
+        pnmtdparser.mtd_parse(action_xml)
         self.assertTrue(os.path.exists(file))
 
-    def test_orm_parser(self) -> None:
+    def test_basic_2(self) -> None:
         """Test ORM parser."""
 
         from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
-        from pineboolib import application
+
         import os
 
-        for table in application.PROJECT.conn_manager.useConn("dbAux").tables("Tables"):
-            file_path = pnmtdparser.mtd_parse(table)
+        for action_name in application.PROJECT.actions:
+            file_path = pnmtdparser.mtd_parse(application.PROJECT.actions[action_name])
             if file_path:
                 self.assertTrue(os.path.exists(file_path))
 
         pnormmodelsfactory.load_models()
+
+    def test_basic_3(self) -> None:
+        """Test load ORM."""
+        from pineboolib.qsa import qsa
+
+        flareas_orm = qsa.orm_("flareas")
+        self.assertTrue(flareas_orm)
+        session = flareas_orm.__session__
+        self.assertTrue(session)
 
     @classmethod
     def tearDownClass(cls) -> None:

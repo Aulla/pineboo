@@ -41,7 +41,7 @@ from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core import settings
 from importlib import machinery
 
-from sqlalchemy import String  # type: ignore
+from sqlalchemy import String, exc  # type: ignore
 
 import importlib
 import traceback
@@ -49,7 +49,7 @@ import sys
 import os
 from pineboolib import logging, application
 
-from typing import Any
+from typing import Any, List
 
 LOGGER = logging.get_logger(__name__)
 
@@ -67,28 +67,27 @@ def base_model(name: str) -> Any:
     if path is None:
         return None
     if path.find("system_module/tables") > -1:
-        path = path.replace(
-            "system_module/tables",
-            "%s/cache/%s/sys/file.mtd"
-            % (
-                settings.CONFIG.value("ebcomportamiento/temp_dir"),
-                application.PROJECT.conn_manager.mainConn().DBName(),
-            ),
+        path = "%s/cache/%s/sys/file.mtd%s" % (
+            settings.CONFIG.value("ebcomportamiento/temp_dir"),
+            application.PROJECT.conn_manager.mainConn().DBName(),
+            path[path.find("system_module/tables") + 20 :],
         )
+
     if path:
         path = "%s_model.py" % path[:-4]
-        if os.path.exists(path):
-            try:
+        if not os.path.exists(path):
+            path = ""
+            # try:
 
-                # FIXME: load_module is deprecated!
-                # https://docs.python.org/3/library/importlib.html#importlib.machinery.SourceFileLoader.load_module
-                loader = machinery.SourceFileLoader(name, path)
-                return loader.load_module()  # type: ignore
-            except Exception as exc:
-                LOGGER.warning("Error recargando model base:\n%s\n%s", exc, traceback.format_exc())
-                pass
-
-    return None
+            # FIXME: load_module is deprecated!
+            # https://docs.python.org/3/library/importlib.html#importlib.machinery.SourceFileLoader.load_module
+            #    loader = machinery.SourceFileLoader(name, path)
+            #    return loader.load_module()  # type: ignore
+            # except Exception as exc:
+            #    LOGGER.warning("Error recargando model base:\n%s\n%s", exc, traceback.format_exc())
+            #    pass
+    return path
+    # return None
 
 
 def load_model(nombre):
@@ -165,7 +164,6 @@ def empty_base():
 
 def load_models() -> None:
     """Load all sqlAlchemy models."""
-
     from pineboolib.application.qsadictmodules import QSADictModules
 
     if application.PROJECT.conn_manager is None:
@@ -173,39 +171,39 @@ def load_models() -> None:
 
     main_conn = application.PROJECT.conn_manager.mainConn()
 
-    db_name = main_conn.DBName()
-    tables = main_conn.tables()
+    # db_name = main_conn.DBName()
 
     QSADictModules.save_other("Base", main_conn.declarative_base())
     QSADictModules.save_other("session", main_conn.session())
     QSADictModules.save_other("engine", main_conn.engine())
 
-    for table in tables:
-        try:
-            mod = base_model(table)
-        except Exception:
-            mod = None
+    tables_loaded: List[str] = []
+    for action_name in application.PROJECT.actions:
+        table = application.PROJECT.actions[action_name]._table
 
-        if mod is not None:
-            model_name = "%s%s" % (table[0].upper(), table[1:])
-            class_ = getattr(mod, model_name, None)
-            if class_ is not None:
-                QSADictModules.save_other(model_name, class_)
+        if not table or table in tables_loaded:
+            continue
+        action_model = application.PROJECT.actions[action_name]._class_orm
+        model_name = "%s%s" % (table[0].upper(), table[1:])
+        if action_model:
 
-    for root, dirs, files in os.walk(
-        filedir(settings.CONFIG.value("ebcomportamiento/temp_dir"), "cache", db_name, "models")
-    ):
-        for nombre in files:  # Buscamos los presonalizados
-            if nombre.endswith("pyc"):
-                continue
-            nombre = nombre.replace("_model.py", "")
-            mod = load_model(nombre)
-            if mod is not None:
-                model_name = "%s%s" % (nombre[0].upper(), nombre[1:])
+            model_path = _path("%s.py" % action_model)
+        else:
+            model_path = base_model(table)
 
-                class_ = getattr(mod, model_name, None)
-                if class_ is not None:
-                    QSADictModules.save_other(model_name, class_)
+        if model_path:
+            try:
+                loader = machinery.SourceFileLoader("model", model_path)
+                model_module = loader.load_module()  # type: ignore [call-arg] # noqa: F821
+                model_class = getattr(model_module, model_name, None)
+                if model_class is not None:
+                    QSADictModules.save_other("%s_orm" % table, model_class)
+
+            except exc.InvalidRequestError as error:
+                LOGGER.warning(str(error))
+
+            else:
+                tables_loaded.append(table)
 
 
 Calculated = String

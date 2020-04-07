@@ -476,19 +476,12 @@ def exec_main(options: Values) -> int:
     #    LOGGER.warning("No connection was provided. Aborting Pineboo load.")
     #    return -99
 
-    if settings.CONFIG.value("ebcomportamiento/orm_enabled", False) and not settings.CONFIG.value(
-        "ebcomportamiento/orm_parser_disabled", False
-    ):
-        from pineboolib.application.parsers.mtdparser.pnmtdparser import mtd_parse
-
-        for table in conn.tables("Tables"):
-            mtd_parse(table)
-
     # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
     application.PROJECT.conn_manager.managerModules().loadIdAreas()
     application.PROJECT.conn_manager.managerModules().loadAllIdModules()
 
     application.PROJECT.load_modules()
+    application.PROJECT.load_orm()
 
     # FIXME: move this code to pineboo.application
     application.PROJECT.message_manager().send(

@@ -1,5 +1,7 @@
 """dictmodules module."""
 
+from pineboolib import application
+
 from typing import Any
 
 
@@ -16,6 +18,19 @@ def class_(object_name: str) -> Any:
     from pineboolib.application.qsadictmodules import QSADictModules
 
     return QSADictModules.class_(object_name)
+
+
+def orm_(action_name: str) -> Any:
+    """Get Orm from project."""
+
+    table_name: str = application.PROJECT.actions[action_name]._table
+    orm = None
+    if table_name:
+        from pineboolib.application.qsadictmodules import QSADictModules
+
+        orm = QSADictModules.from_project("%s_orm" % (table_name))
+
+    return orm
 
 
 class Application:

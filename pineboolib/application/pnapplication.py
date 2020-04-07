@@ -437,11 +437,11 @@ class PNApplication(QtCore.QObject):
 
         self.db().managerModules()
         self.db().manager().cleanupMetaData()
-
         if self.acl_:
             self.acl_.init()
 
         self.loadScripts()
+        application.PROJECT.load_orm()
         # self.db().managerModules().setShaFromGlobal()
         self.call("sys.init()", [])
         if application.PROJECT.main_window:

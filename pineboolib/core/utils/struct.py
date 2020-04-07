@@ -116,6 +116,7 @@ class ActionStruct(XMLStruct):
     _record_form: str = ""
     _record_script: str = ""
     _class_script: str = ""
+    _class_orm: str = ""
 
     load: Callable
     load_record: Callable
