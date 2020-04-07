@@ -31,9 +31,9 @@ class TestMtdParserGeneral(unittest.TestCase):
 
     def test_basic_1(self) -> None:
         """Test basic functions."""
-        from pineboolib.application.parsers.mtdparser import pnormmodelsfactory, pnmtdparser
+        from pineboolib.application.parsers.mtdparser import pnmtdparser
         from pineboolib.core.utils.utils_base import filedir
-        from pineboolib.qsa import qsa
+
         import os
 
         file = filedir(
@@ -53,7 +53,6 @@ class TestMtdParserGeneral(unittest.TestCase):
         """Test ORM parser."""
 
         from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
-        from pineboolib.qsa import qsa
         import os
 
         for action_name in application.PROJECT.actions:
@@ -66,7 +65,7 @@ class TestMtdParserGeneral(unittest.TestCase):
     def test_basic_3(self) -> None:
         """Test create table."""
 
-        from sqlalchemy import MetaData
+        from sqlalchemy import MetaData  # type: ignore
 
         meta = MetaData()
         meta.create_all(application.PROJECT.conn_manager.mainConn().engine())
@@ -90,4 +89,4 @@ class TestMtdParserGeneral(unittest.TestCase):
         settings.CONFIG.set_value("ebcomportamiento/orm_parser_disabled", orm_parser_disabled)
         settings.CONFIG.set_value("ebcomportamiento/orm_load_disabled", orm_load_disabled)
 
-        # finish_testing()
+        finish_testing()
