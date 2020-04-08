@@ -14,11 +14,17 @@ from pineboolib.core import settings, decorators
 
 from pineboolib.fllegacy import flutil
 
+from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noqa: F821
+from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
+import sqlalchemy
+
 import re
+import sqlalchemy
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
     from pineboolib.interfaces import iconnection  # noqa: F401
+    from sqlalchemy.engine import result  # type: ignore [import] # noqa: F821, F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -28,7 +34,6 @@ class PNSqlSchema(object):
     """PNSqlSchema class."""
 
     version_: str
-    conn_: Any
     name_: str
     alias_: str
     errorList: List[str]
@@ -63,12 +68,14 @@ class PNSqlSchema(object):
     _database_not_found_keywords: List[str]
     _transaction: int
     _single_conn: bool
+    _sqlalchemy_name: str
+    _connection: Any = None
 
     def __init__(self):
         """Inicialize."""
         self.version_ = ""
         self.name_ = ""
-        self.conn_ = None
+        self._connection = None
         self.errorList = []
         self.alias_ = ""
         self._dbname = ""
@@ -96,10 +103,11 @@ class PNSqlSchema(object):
         self._like_false = "0"
         self._null = "Null"
         self._text_like = "::text "
-        self._safe_load = {}
+        self._safe_load = {"sqlalchemy": "sqlAlchemy"}
         self._database_not_found_keywords = ["does not exist", "no existe"]
         self._transaction = 0
         self._single_conn = False
+        self._sqlalchemy_name = ""
         # self.sql_query = {}
         # self.cursors_dict = {}
 
@@ -107,9 +115,20 @@ class PNSqlSchema(object):
         """Return if the driver can loads dependencies safely."""
         return check_dependencies.check_dependencies(self._safe_load, exit)
 
+    def close(self):
+        """Close driver connection."""
+
+        self.open_ = False
+        self._connection.close()
+
     def singleConnection(self) -> bool:
         """Return if driver uses a single connection."""
         return self._single_conn
+
+    def loadConnectionString(self, name: str, host: str, port: int, usern: str, passw_: str) -> str:
+        """Set special config."""
+
+        return "%s://%s:%s@%s:%s/%s" % (self._sqlalchemy_name, usern, passw_, host, port, name)
 
     def connect(
         self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str
@@ -119,9 +138,9 @@ class PNSqlSchema(object):
         self.setDBName(db_name)
         self.safe_load(True)
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
-        self.conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password)
+        conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password)
 
-        if self.conn_ is None:  # Si no existe la conexión
+        if conn_ is None:  # Si no existe la conexión
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
             if not application.PROJECT.DGI.localDesktop():
@@ -152,19 +171,21 @@ class PNSqlSchema(object):
                             db_name, db_host, db_port, db_user_name, db_password
                         )
                         if tmp_conn is not None:
-                            tmp_cursor = tmp_conn.cursor()
+                            self.set_last_error_null()
                             try:
-                                tmp_cursor.execute("CREATE DATABASE %s" % db_name)
+                                tmp_conn.execute("CREATE DATABASE %s" % db_name)
                             except Exception as error:
                                 self.setLastError(str(error), "LOGGIN")
-                                tmp_cursor.execute("ROLLBACK")
-                                tmp_cursor.close()
+
+                                tmp_conn.execute("ROLLBACK")
+                                tmp_conn.close()
                                 return False
 
-                            tmp_cursor.close()
-                            self.conn_ = self.getConn(
+                            tmp_conn.close()
+                            conn_ = self.getConn(
                                 db_name, db_host, db_port, db_user_name, db_password
                             )
+
                     except Exception as error:
                         LOGGER.warning(error)
                         QtWidgets.QMessageBox.information(
@@ -176,17 +197,17 @@ class PNSqlSchema(object):
                         LOGGER.error("ERROR: No se ha podido crear la Base de Datos %s", db_name)
                         return False
 
-        if self.conn_ is not None:
-            if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
-                self.engine_ = self.getEngine(db_name, db_host, db_port, db_user_name, db_password)
-
+        if conn_ is not None:
+            # if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
+            #    self.engine_ = self.getEngine(db_name, db_host, db_port, db_user_name, db_password)
+            self._connection = conn_
             self.open_ = True
             self.loadSpecialConfig()
         else:
             LOGGER.error("connect: %s", self.lastError())
             return False
 
-        return self.conn_
+        return conn_
 
     def setDBName(self, name: str) -> None:
         """Set DB Name."""
@@ -194,22 +215,41 @@ class PNSqlSchema(object):
         self._dbname = name
 
     @decorators.not_implemented_warn
-    def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return connection."""
+    def getAlternativeConn(
+        self, name: str, host: str, port: int, usern: str, passw_: str
+    ) -> Optional["base.Connection"]:
+        """Return alternative connection."""
 
         return None
 
-    @decorators.not_implemented_warn
-    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+    def getConn(
+        self, name: str, host: str, port: int, usern: str, passw_: str
+    ) -> Optional["base.Connection"]:
         """Return connection."""
 
-        return None
+        conn_ = None
+        LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
 
-    @decorators.not_implemented_warn
-    def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return connection."""
+        try:
+            self.engine_ = self.getEngine(
+                self.loadConnectionString(name, host, port, usern, passw_)
+            )
+            conn_ = self.engine_.connect()
+            # conn_.initialize(LOGGER)
+        except Exception as error:
+            self.setLastError(str(error), "CONNECT")
+        return conn_
 
-        return ""
+    def getEngine(self, conn_string: str) -> Any:
+        """Return sqlAlchemy connection."""
+
+        return create_engine(
+            conn_string,
+            encoding="UTF-8",
+            isolation_level="AUTOCOMMIT",
+            pool_size=10,
+            max_overflow=20,
+        )
 
     @decorators.not_implemented_warn
     def loadSpecialConfig(self) -> None:
@@ -227,13 +267,7 @@ class PNSqlSchema(object):
 
     def isOpen(self) -> bool:
         """Return if the connection is open."""
-        try:
-            cur = self.conn_.cursor()
-            cur.execute("select 1")
-        except Exception as error:
-            LOGGER.error("isOpen raise an exception %s", error, stack_info=True)
-            return False
-
+        # return not self.engine_.connect().closed
         return True
 
     def pure_python(self) -> bool:
@@ -254,16 +288,15 @@ class PNSqlSchema(object):
 
     def session(self) -> Any:
         """Create a sqlAlchemy session."""
-        if settings.CONFIG.value("ebcomportamiento/orm_enabled", False) and self.session_ is None:
-            from sqlalchemy.orm import sessionmaker  # type: ignore
 
-            Session = sessionmaker(bind=self.engine())
-            self.session_ = Session()
+        Session = sessionmaker(bind=self.engine())
+        self.session_ = Session()
 
         return self.session_
 
     def declarative_base(self) -> Any:
         """Return sqlAlchemy declarative base."""
+
         if (
             settings.CONFIG.value("ebcomportamiento/orm_enabled", False)
             and self.declarative_base_ is None
@@ -276,6 +309,7 @@ class PNSqlSchema(object):
 
     def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
         """Return a string with the format value like."""
+
         util = flutil.FLUtil()
         res = "IS NULL"
 
@@ -379,17 +413,17 @@ class PNSqlSchema(object):
         res_ = 0
 
         cur = self.execute_query("SELECT max(%s) FROM %s WHERE 1=1" % (field_name, table_name))
-        result = cur.fetchone()
+        result_ = cur.fetchone()
 
-        if result:
-            table_max = result[0] or 0
+        if result_:
+            table_max = result_[0] or 0
 
         cur = self.execute_query(
             "SELECT seq FROM flseqs WHERE tabla = '%s' AND campo ='%s'" % (table_name, field_name)
         )
-        result = cur.fetchone()
-        if result:
-            flseq_max = result[0] or 0
+        result_ = cur.fetchone()
+        if result_:
+            flseq_max = result_[0] or 0
 
         res_ = flseq_max if flseq_max else table_max
         res_ += 1
@@ -420,6 +454,7 @@ class PNSqlSchema(object):
 
     def savePoint(self, number: int) -> bool:
         """Set a savepoint."""
+
         if not self.isOpen():
             LOGGER.warning("savePoint: Database not open")
             return False
@@ -447,6 +482,7 @@ class PNSqlSchema(object):
 
     def rollbackSavePoint(self, number: int) -> bool:
         """Set rollback savepoint."""
+
         if not number:
             return True
 
@@ -488,6 +524,7 @@ class PNSqlSchema(object):
 
     def commitTransaction(self) -> bool:
         """Set commit transaction."""
+
         if not self.isOpen():
             LOGGER.warning("%s::commitTransaction: Database not open", __name__)
             return False
@@ -498,7 +535,9 @@ class PNSqlSchema(object):
             cursor.execute("%s" % self.commit_transaction_command)
         except Exception as error:
             self.setLastError("No se pudo aceptar la transacción", "COMMIT")
-            LOGGER.error("%s:: No se pudo aceptar la transacción COMMIT: %s", __name__, str(error))
+            LOGGER.error(
+                "%s::%s No se pudo aceptar la transacción COMMIT: %s", __name__, self, str(error)
+            )
             return False
 
         return True
@@ -581,10 +620,9 @@ class PNSqlSchema(object):
         """Return type definition."""
         return ""
 
-    @decorators.not_implemented_warn
-    def existsTable(self, name: str) -> bool:
+    def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""
-        return True
+        return table_name in self.engine_.table_names()
 
     @decorators.not_implemented_warn
     def sqlCreateTable(
@@ -850,23 +888,80 @@ class PNSqlSchema(object):
         """Return if use a file like database."""
         return self.desktop_file
 
-    def execute_query(self, query: str, cursor: Any = None) -> Any:
+    def insert_data(
+        self, table_name: str, fields: List[str], values: List[str], conn_db: "base.Connection"
+    ) -> bool:
+        """Insert data into table."""
+
+        valores: Dict = {}
+
+        for number, field in enumerate(fields):
+
+            valores[fields[number]] = values[number]
+
+        sql = """INSERT INTO %s (%s) VALUES (%s)""" % (
+            table_name,
+            ", ".join(fields),
+            ", ".join(":%s" % field for field in fields),
+        )
+        try:
+            conn_db.execute(sqlalchemy.text(sql), **valores)
+        except Exception as error:
+            LOGGER.warning(str(error))
+            return False
+        return True
+
+    def update_data(
+        self,
+        metadata: "pntablemetadata.PNTableMetaData",
+        data: Dict[str, Any],
+        pk_value: Any,
+        conn_db: "base.Connection",
+    ) -> bool:
+
+        pkey_name = metadata.primaryKey()
+        mtdfield = metadata.field(pkey_name)
+        pkey_type = mtdfield.type()
+        pk_value = self.db_.formatValue(pkey_type, pk_value, False)
+
+        where_filter = "%s = %s" % (pkey_name, pk_value)
+
+        valores: Dict = {}
+        campos = []
+        for key, value in data.items():
+
+            valores[key] = value
+            campos.append("%s = :%s" % (key, key))
+
+        sql = """UPDATE %s SET %s WHERE %s""" % (metadata.name(), ", ".join(campos), where_filter)
+        try:
+            conn_db.execute(sqlalchemy.text(sql), **valores)
+        except Exception as error:
+            LOGGER.warning(str(error))
+            return False
+        return True
+
+    def execute_query(
+        self, query: str, conn: Optional["base.Connection"] = None
+    ) -> Optional["result.ResultProxy"]:
         """Excecute a query and return result."""
 
         if not self.isOpen():
-            raise Exception("execute_query: Database not open")
+            raise Exception("execute_query: Database not open %s", self)
 
         self.set_last_error_null()
-        if cursor is None:
-            cursor = self.cursor()
+        if conn is None:
+            conn = self.cursor()
+
+        result_ = []
         try:
-            # q = self.fix_query(q)
-            cursor.execute(query)
+            query = sqlalchemy.text(query)
+            result_ = conn.execute(query)
         except Exception as error:
             self.setLastError("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
             LOGGER.error("execute_query : %s", self.lastError(), stack_info=True)
 
-        return cursor
+        return result_
 
     def getTimeStamp(self) -> str:
         """Return TimeStamp."""
@@ -888,28 +983,38 @@ class PNSqlSchema(object):
         return time_stamp_
 
     def declareCursor(
-        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
-    ) -> None:
+        self, curname: str, fields: str, table: str, where: str, conn_db: "base.Connection"
+    ) -> Optional["result.ResultProxy"]:
         """Set a refresh query for database."""
 
         if not self.isOpen():
             raise Exception("declareCursor: Database not open")
 
         sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
+
         sql = self.fix_query(sql)
         self.rows_cached[curname] = []
+        result_ = None
         try:
-            cursor.execute(sql)
-            data_list = cursor.fetchmany(self.init_cached)
+            result_ = self._connection.connect().execute(sql)
+            data_list = result_.fetchmany(self.init_cached)
             for data in data_list:
                 self.rows_cached[curname].append(data)
 
         except Exception as e:
             LOGGER.error("declareCursor: %s", e)
             LOGGER.trace("Detalle:", stack_info=True)
+
+        return result_
         # self.sql_query[curname] = sql
 
-    def getRow(self, number: int, curname: str, cursor: Any) -> List:
+    def getRow(
+        self,
+        number: int,
+        curname: str,
+        conn_db: "base.Connection",
+        data: Optional["result.ResultProxy"] = None,
+    ) -> List:
         """Return a data row."""
 
         if not self.isOpen():
@@ -917,9 +1022,8 @@ class PNSqlSchema(object):
 
         try:
             cached_count = len(self.rows_cached[curname])
-            if number >= cached_count:
-
-                data_list = cursor.fetchmany(number - cached_count + 1)
+            if number >= cached_count and data:
+                data_list = data.fetchmany(number - cached_count + 1)
                 for row in data_list:
                     self.rows_cached[curname].append(row)
 
@@ -931,7 +1035,14 @@ class PNSqlSchema(object):
 
         return self.rows_cached[curname][number] if number < cached_count else []
 
-    def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
+    def findRow(
+        self,
+        cursor: "base.Connection",
+        curname: str,
+        field_pos: int,
+        value: Any,
+        data_proxy: Optional["result.ResultProxy"] = None,
+    ) -> Optional[int]:
         """Return index row."""
 
         if not self.isOpen():
@@ -945,8 +1056,8 @@ class PNSqlSchema(object):
 
             cached_count = len(self.rows_cached[curname])
 
-            while True:
-                data = cursor.fetchone()
+            while True and data_proxy:
+                data = data_proxy.fetchone()
                 if not data:
                     break
 
@@ -981,13 +1092,10 @@ class PNSqlSchema(object):
         sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
         return sql
 
-    def cursor(self) -> Any:
+    def cursor(self) -> "base.Connection":
         """Return a cursor connection."""
 
-        # if not self.isOpen():
-        #    raise Exception("cursor: Database not open")
-
-        return self.conn_.cursor() if self.conn_ is not None else False
+        return self.engine_.connect()
 
     def insertMulti(
         self, table_name: str, list_records: Iterable = []
@@ -1039,9 +1147,9 @@ class PNSqlSchema(object):
         )
         cursor = conn_dbaux.execute_query(sql)
         try:
-            result = cursor.fetchone()
-            if result:
-                multi_fllarge = utils_base.text2bool(str(result[0]))
+            result_ = cursor.fetchone()
+            if result_:
+                multi_fllarge = utils_base.text2bool(str(result_[0]))
         except Exception as error:
             LOGGER.warning("Mr_Proper: %s" % str(error))
 

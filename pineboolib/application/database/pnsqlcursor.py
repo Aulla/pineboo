@@ -162,6 +162,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """Get current connection for this cursor."""
         return self.db()
 
+    def close(self) -> None:
+        """Close cursor connection."""
+        model = self.model()
+        if model is not None:
+            model._cursor_db.close()
+
     def table(self) -> str:
         """Get current table or empty string."""
         return self._name or ""

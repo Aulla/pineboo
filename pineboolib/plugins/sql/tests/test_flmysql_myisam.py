@@ -1,7 +1,7 @@
 """Test_flsqlite module."""
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.plugins.sql import flmysql_myisam2
+from pineboolib.plugins.sql import flmysql_myisam
 
 
 class TestFLSqlite(unittest.TestCase):
@@ -15,7 +15,7 @@ class TestFLSqlite(unittest.TestCase):
     def test_basic_1(self) -> None:
         """Basics test 1."""
 
-        driver = flmysql_myisam2.FLMYSQL_MYISAM2()
+        driver = flmysql_myisam.FLMYSQL_MYISAM()
 
         self.assertEqual(driver.formatValueLike("bool", "true", False), "=0")
         self.assertEqual(driver.formatValueLike("date", "2020-01-27", True), " LIKE '%%27-01-2020'")
@@ -43,7 +43,7 @@ class TestFLSqlite(unittest.TestCase):
             + " ENGINE=MyISAM DEFAULT CHARACTER SET = UTF8MB3 COLLATE = UTF8MB3_BIN"
         )
 
-        driver = flmysql_myisam2.FLMYSQL_MYISAM2()
+        driver = flmysql_myisam.FLMYSQL_MYISAM()
         self.assertEqual(sql, driver.sqlCreateTable(cursor.metadata(), False))
 
     @classmethod

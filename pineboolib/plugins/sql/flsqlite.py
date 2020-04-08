@@ -17,6 +17,7 @@ from typing import Optional, Any, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
+    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F401, F821
 
 LOGGER = logging.get_logger(__name__)
 
@@ -35,65 +36,34 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self.alias_ = "SQLite3 (SQLITE3)"
         self.db_filename = None
         self.db_ = None
-        self.parseFromLatin = False
         self.mobile_ = True
         self.desktop_file = True
         self._null = ""
         self._text_like = ""
         self._text_cascade = ""
-        self._safe_load = {"sqlite3": "sqlite3", "sqlalchemy": "sqlAlchemy"}
-        self._single_conn = True
-
-    def setDBName(self, name: str):
-        """Set DB Name."""
-
-        self._dbname = name
-
-        if name == ":memory:":
-            self._dbname = "temp_db"
-            if application.PROJECT._splash:
-                application.PROJECT._splash.hide()
-
-        if application.VIRTUAL_DB:
-            if name == ":memory:":
-                self.db_filename = name
-                return
-
-        self.db_filename = path._dir("sqlite_databases/%s.sqlite3" % self._dbname)
-
-    def loadSpecialConfig(self) -> None:
-        """Set special config."""
-
-        self.conn_.isolation_level = None
-        if self.parseFromLatin:
-            self.conn_.text_factory = lambda x: str(x, "latin1")
-
-    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return connection."""
-
-        return None
+        self._single_conn = False
+        self._sqlalchemy_name = "sqlite"
 
     def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
         """Return connection."""
-
-        import sqlite3
 
         conn_ = None
 
         main_conn = None
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
-        if main_conn is not None:
-            if self.db_filename == main_conn.driver().db_filename and main_conn.conn:
-
-                conn_ = main_conn.conn
+            self.engine_ = main_conn.engine()
+            conn_ = self.engine_.connect()
 
         if conn_ is None:
 
             if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):
                 os.mkdir("%s/sqlite_databases/" % application.PROJECT.tmpdir)
 
-            conn_ = sqlite3.connect("%s" % self.db_filename)
+            self.engine_ = self.getEngine(
+                self.loadConnectionString(name, host, port, usern, passw_)
+            )
+            conn_ = self.engine_.connect()
 
             if not os.path.exists("%s" % self.db_filename) and self.db_filename not in [
                 ":memory:",
@@ -103,15 +73,36 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return conn_
 
-    def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+    def getEngine(self, conn_string: str) -> Any:
         """Return sqlAlchemy connection."""
+
         from sqlalchemy import create_engine  # type: ignore
 
-        sqlalchemy_uri = "sqlite:///%s" % self.db_filename
-        if self.db_filename == ":memory:":
-            sqlalchemy_uri = "sqlite://"
+        return create_engine(conn_string)
 
-        return create_engine(sqlalchemy_uri)
+    def loadConnectionString(self, name: str, host: str, port: int, usern: str, passw_: str) -> str:
+        """Set special config."""
+
+        return "%s:///%s" % (self._sqlalchemy_name, self.db_filename)
+
+    # def cursor(self) -> "base.Connection":
+    #    """Return a cursor connection."""
+    #    conn_ = super().cursor()
+    #    return conn_.execution_options(autocommit=None)
+
+    def setDBName(self, name: str):
+        """Set DB Name."""
+
+        self._dbname = "temp_db" if name == ":memory:" else name
+
+        self.db_filename = path._dir("sqlite_databases/%s.sqlite3" % self._dbname)
+
+        if name == ":memory:":
+            if application.PROJECT._splash:
+                application.PROJECT._splash.hide()
+
+            if application.VIRTUAL_DB:
+                self.db_filename = name
 
     def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
@@ -149,16 +140,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Process booleans fields."""
         where = where.replace("'true'", "1")
         return where.replace("'false'", "0")
-
-    def existsTable(self, name: str) -> bool:
-        """Return if exists a table specified by name."""
-
-        cur = self.execute_query(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='%s'" % name
-        )
-        result = cur.fetchone()
-
-        return True if result else False
 
     def sqlCreateTable(
         self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True

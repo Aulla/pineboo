@@ -37,47 +37,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self._like_true = "1"
         self._like_false = "0"
         self._text_like = " "
-        self._safe_load = {"MySQLdb": "mysqlclient", "sqlalchemy": "sqlAlchemy"}
+
         self._database_not_found_keywords = ["Unknown database"]
         self._default_charset = "DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
-
-    def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return sqlAlchemy connection."""
-        from sqlalchemy import create_engine  # type: ignore
-
-        return create_engine("mysql+mysqldb://%s:%s@%s:%s/%s" % (usern, passw_, host, port, name))
-
-    def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return connection."""
-
-        import MySQLdb  # type: ignore
-
-        conn_ = None
-        try:
-            conn_ = MySQLdb.connect(host, usern, passw_, name)
-        except MySQLdb.OperationalError as error:
-            self.setLastError(str(error), "CONNECT")
-
-        return conn_
-
-    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return connection."""
-
-        import MySQLdb  # type: ignore
-
-        conn_ = None
-        try:
-            conn_ = MySQLdb.connect(host, usern, passw_)
-        except MySQLdb.OperationalError as error:
-            self.setLastError(str(error), "CONNECT")
-
-        return conn_
-
-    def loadSpecialConfig(self) -> None:
-        """Set special config."""
-
-        self.conn_.autocommit(True)
-        self.conn_.set_character_set("utf8")
+        self._sqlalchemy_name = "mysql"
 
     def tables(self, type_name: Optional[str] = "") -> List[str]:
         """Return a tables list specified by type."""
@@ -109,14 +72,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             table_list.append(item[0])
 
         return table_list
-
-    def existsTable(self, table_name: str) -> bool:
-        """Return if exists a table specified by name."""
-
-        cur = self.execute_query("SHOW TABLES LIKE '%s'" % table_name)
-        result = cur.fetchone()
-
-        return True if result else False
 
     def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
@@ -308,12 +263,12 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    def normalizeValue(self, text: str) -> str:
-        """Escape values, suitable to prevent sql injection."""
+    # def normalizeValue(self, text: str) -> str:
+    #    """Escape values, suitable to prevent sql injection."""
 
-        import MySQLdb
+    # import MySQLdb
 
-        return MySQLdb.escape_string(text).decode("utf-8")
+    # return MySQLdb.escape_string(text).decode("utf-8")
 
     def vacuum(self):
         """Vacuum tables."""

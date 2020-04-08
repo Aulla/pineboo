@@ -170,16 +170,13 @@ class Project(object):
     def load_orm(self) -> None:
         """Load Orm objects."""
 
-        if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
-            from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
+        from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
 
-            if not settings.CONFIG.value("ebcomportamiento/orm_parser_disabled", False):
-                for action_name in self.actions:
-                    pnmtdparser.mtd_parse(self.actions[action_name])
+        for action_name in self.actions:
+            pnmtdparser.mtd_parse(self.actions[action_name])
 
-            if not settings.CONFIG.value("ebcomportamiento/orm_load_disabled", False):
-                self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
-                pnormmodelsfactory.load_models()
+        self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
+        pnormmodelsfactory.load_models()
 
     def setDebugLevel(self, level: int) -> None:
         """
@@ -544,27 +541,27 @@ class Project(object):
         """Load database modules."""
         conn = self.conn_manager.mainConn()
         db_name = conn.DBName()
-        cursor_ = self.conn_manager.dbAux().cursor()
+        cursor_ = self.conn_manager.dbAux().driver().cursor()
 
-        cursor_.execute(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
-        for idarea, descripcion in list(cursor_):
+        result = cursor_.execute(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
+        for idarea, descripcion in list(result):
             self.areas[idarea] = AreaStruct(idarea=idarea, descripcion=descripcion)
 
         self.areas["sys"] = AreaStruct(idarea="sys", descripcion="Area de Sistema")
 
         # Obtener módulos activos
-        cursor_.execute(
+        result = cursor_.execute(
             """ SELECT idarea, idmodulo, descripcion, icono FROM flmodules WHERE bloqueo = %s """
             % conn.driver().formatValue("bool", "True", False)
         )
 
-        for idarea, idmodulo, descripcion, icono in list(cursor_):
+        for idarea, idmodulo, descripcion, icono in list(result):
             icono = xpm.cache_xpm(icono)
 
             if idmodulo not in self.modules:
                 self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
 
-        cursor_.execute(
+        result = cursor_.execute(
             """ SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
         )
 
@@ -572,7 +569,7 @@ class Project(object):
 
         list_files: List[str] = []
         LOGGER.info("RUN: Populating cache.")
-        for idmodulo, nombre, sha, contenido in list(cursor_):
+        for idmodulo, nombre, sha, contenido in list(result):
             if idmodulo not in self.modules:
                 continue  # I
 

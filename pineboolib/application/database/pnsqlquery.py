@@ -200,10 +200,11 @@ class PNSqlQuery(object):
         if self._cursor is None:
             raise Exception("self._cursor is empty!")
         LOGGER.trace("exec_: Ejecutando consulta: <%s> en <%s>", sql, self._cursor)
-        self.db().execute_query(sql, self._cursor)
+        result = self.db().execute_query(sql, self._cursor)
         try:
-            self._datos = self._cursor.fetchall()
-        except Exception:
+            self._datos = result.fetchall()
+        except Exception as error:
+            LOGGER.exception("ERROR SQLQUERY!: %s", str(error))
             self._datos = []
 
         self._posicion = -1

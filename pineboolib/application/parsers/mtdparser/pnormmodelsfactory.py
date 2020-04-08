@@ -183,8 +183,20 @@ def load_models() -> None:
 
         if not table or table in tables_loaded:
             continue
-        action_model = application.PROJECT.actions[action_name]._class_orm
+
         model_name = "%s%s" % (table[0].upper(), table[1:])
+        class_orm = application.PROJECT.actions[action_name]._class_orm
+        if _path(class_orm, False):
+            action_model = application.PROJECT.actions[action_name]._class_orm
+        else:
+            if class_orm:
+                LOGGER.warning(
+                    "Se ha especificado un model (%s) en el action %s, pero el fichero no existe",
+                    application.PROJECT.actions[action_name]._class_orm,
+                    action_name,
+                )
+            action_model = ""
+
         if action_model:
 
             model_path = _path("%s.py" % action_model)

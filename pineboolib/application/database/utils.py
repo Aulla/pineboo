@@ -223,7 +223,11 @@ def sql_select(
     if not _qry.exec_():
         return False
 
-    return _qry.value(0) if _qry.first() else False
+    if _qry.first():
+
+        return _qry.value(0)
+
+    return False
 
 
 def quick_sql_select(

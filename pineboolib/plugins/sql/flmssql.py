@@ -9,7 +9,10 @@ from pineboolib import logging
 from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 
-from typing import Optional, Union, List, Any
+from typing import Optional, Union, List, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine import base, result  # type: ignore [import] # noqa: F401, F821
 
 
 LOGGER = logging.get_logger(__name__)
@@ -34,59 +37,38 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         self._safe_load = {"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"}
         self._database_not_found_keywords = ["does not exist", "no existe"]
         self._text_like = ""
+        self._sqlalchemy_name = "mssql"
 
-    def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return sqlAlchemy connection."""
-        from sqlalchemy import create_engine  # type: ignore
+    # def loadSpecialConfig(self) -> None:
+    #    """Set special config."""
 
-        return create_engine("mssql+pymssql://%s:%s@%s:%s/%s" % (usern, passw_, host, port, name))
+    #    self.conn_.autocommit(True)
 
-    def loadSpecialConfig(self) -> None:
-        """Set special config."""
+    # def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+    #    """Return connection."""
 
-        self.conn_.autocommit(True)
+    #    import pymssql  # type: ignore
 
-    def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return connection."""
+    #    conn_ = None
 
-        import pymssql  # type: ignore
+    #    try:
+    #        conn_ = pymssql.connect(server=host, user="SA", password=passw_, port=port)
+    #        conn_.autocommit(True)
+    #    except Exception as error:
+    #        self.setLastError(str(error), "CONNECT")
 
-        conn_ = None
-
-        try:
-            conn_ = pymssql.connect(
-                server=host, user=usern, password=passw_, database=name, port=port
-            )
-        except Exception as error:
-            self.setLastError(str(error), "CONNECT")
-
-        return conn_
-
-    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return connection."""
-
-        import pymssql  # type: ignore
-
-        conn_ = None
-
-        try:
-            conn_ = pymssql.connect(server=host, user="SA", password=passw_, port=port)
-            conn_.autocommit(True)
-        except Exception as error:
-            self.setLastError(str(error), "CONNECT")
-
-        return conn_
+    #    return conn_
 
     def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
 
         if self.isOpen():
             cur = self.execute_query("SELECT NEXT VALUE FOR %s_%s_seq" % (table_name, field_name))
-            result = cur.fetchone()
-            if not result:
+            result_ = cur.fetchone()
+            if not result_:
                 LOGGER.warning("not exec sequence")
             else:
-                return result[0]
+                return result_[0]
 
         return 0
 
@@ -131,9 +113,9 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         cur = self.execute_query(
             "SELECT 1 FROM sys.Tables WHERE  Name = N'%s' AND Type = N'U'" % table_name
         )
-        result = cur.fetchone()
+        result_ = cur.fetchone()
 
-        return True if result else False
+        return True if result_ else False
 
     def sqlCreateTable(
         self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
@@ -260,8 +242,9 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         return table_list
 
     def declareCursor(
-        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
-    ) -> None:
+        self, curname: str, fields: str, table: str, where: str, conn_db: "base.Connection"
+    ) -> Optional["result.ResultProxy"]:
+
         """Set a refresh query for database."""
 
         if not self.isOpen():
@@ -274,14 +257,22 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
             where,
         )
         try:
-            cursor.execute(sql)
-            cursor.execute("OPEN %s" % curname)
+            conn_db.execute(sql)
+            conn_db.execute("OPEN %s" % curname)
         except Exception as e:
             LOGGER.error("refreshQuery: %s", e)
             LOGGER.info("SQL: %s", sql)
             LOGGER.trace("Detalle:", stack_info=True)
 
-    def getRow(self, number: int, curname: str, cursor: Any) -> List:
+        return None
+
+    def getRow(
+        self,
+        number: int,
+        curname: str,
+        conn_db: "base.Connection",
+        data: Optional["result.ResultProxy"] = None,
+    ) -> List:
         """Return a data row."""
 
         if not self.isOpen():
@@ -290,20 +281,27 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         ret_: List[Any] = []
         sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
         sql_exists = "SELECT CURSOR_STATUS('global','%s')" % curname
-        cursor.execute(sql_exists)
-        if cursor.fetchone()[0] < 1:
+        conn_db.execute(sql_exists)
+        if conn_db.fetchone()[0] < 1:
             return ret_
 
         try:
-            cursor.execute(sql)
-            ret_ = cursor.fetchone()
+            conn_db.execute(sql)
+            ret_ = conn_db.fetchone()
         except Exception as e:
             LOGGER.error("getRow: %s", e)
             LOGGER.trace("Detalle:", stack_info=True)
 
         return ret_
 
-    def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
+    def findRow(
+        self,
+        cursor: "base.Connection",
+        curname: str,
+        field_pos: int,
+        value: Any,
+        data_proxy: Optional["result.ResultProxy"] = None,
+    ) -> Optional[int]:
         """Return index row."""
         pos: Optional[int] = None
 

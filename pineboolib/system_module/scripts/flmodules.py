@@ -100,6 +100,8 @@ class FormInternalObj(qsa.FormDBWidget):
                 if nombre.endswith(u".ar"):
                     self.cargarAr(nombre, contenido, log, directorio)
 
+        cursor_ficheros.close()
+
     def cargarAr(
         self, nombre: str, contenido: str, log: "QtWidgets.QTextEdit", directorio: str
     ) -> bool:

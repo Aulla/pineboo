@@ -33,7 +33,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _db_port: Optional[int]
     _db_user_name: Optional[str]
     _db_password: str = ""
-    conn: Any = None  # Connection from the actual driver
+
     _driver_sql: "pnsqldrivers.PNSqlDrivers"
     _driver_name: str
     # currentSavePoint_: Optional[PNSqlSavePoint]
@@ -61,7 +61,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         super().__init__()
         self.update_activity_time()
-        self.conn = None
+
         self._driver = None
         self._db_name = db_name
         self._driver_sql = pnsqldrivers.PNSqlDrivers()
@@ -178,9 +178,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def cursor(self) -> "iapicursor.IApiCursor":
         """Return a cursor to the database."""
-        if self.conn is None:
-            raise Exception("cursor. Empty conn!! in %s" % self.connectionName())
-        return self.conn.cursor()
+
+        return self.driver().cursor()
 
     def conectar(
         self,
@@ -779,8 +778,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Close connection."""
 
         self._is_open = False
-        self.driver().open_ = False
-        self.driver().conn_.close()
+        self.driver().close()
 
     def singleConnection(self) -> bool:
         """Return if driver uses a single connection."""

@@ -6,9 +6,12 @@ from pineboolib import logging
 from pineboolib.fllegacy import flutil
 
 from . import pnsqlschema
+import sqlalchemy
 
-import traceback
-from typing import Optional, Union, List, Any
+from typing import Optional, Union, List, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine import base, result  # type: ignore [import] # noqa: F821, F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -31,73 +34,29 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         self._false = False
         self._like_true = "'t'"
         self._like_false = "'f'"
-        self._safe_load = {"psycopg2": "python3-psycopg2", "sqlalchemy": "sqlAlchemy"}
         self._database_not_found_keywords = ["does not exist", "no existe"]
-
-    def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return connection."""
-
-        import psycopg2  # type: ignore
-        from psycopg2.extras import LoggingConnection  # type: ignore
-
-        conn_ = None
-        conn_info_str = "dbname=%s host=%s port=%s user=%s password=%s connect_timeout=5" % (
-            name,
-            host,
-            port,
-            usern,
-            passw_,
-        )
-
-        LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
-
-        try:
-            conn_ = psycopg2.connect(conn_info_str, connection_factory=LoggingConnection)
-            conn_.initialize(LOGGER)
-        except psycopg2.OperationalError as error:
-            self.setLastError(str(error), "CONNECT")
-
-        return conn_
+        self._sqlalchemy_name = "postgresql"
 
     def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
         """Return connection."""
-        import psycopg2
+        # import psycopg2
 
         conn_ = self.getConn("postgres", host, port, usern, passw_)
-        if conn_ is not None:
-            conn_.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        # if conn_ is not None:
+        #    conn_.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
         return conn_
-
-    def getEngine(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-        """Return sqlAlchemy connection."""
-        from sqlalchemy import create_engine  # type: ignore
-
-        return create_engine(
-            "postgresql+psycopg2://%s:%s@%s:%s/%s" % (usern, passw_, host, port, name)
-        )
-
-    def loadSpecialConfig(self) -> None:
-        """Set special config."""
-        import psycopg2
-
-        self.conn_.initialize(LOGGER)
-        self.conn_.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-        try:
-            self.conn_.set_client_encoding("UTF8")
-        except Exception:
-            LOGGER.warning(traceback.format_exc())
 
     def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
 
         if self.isOpen():
             cur = self.execute_query("SELECT nextval('%s_%s_seq')" % (table_name, field_name))
-            result = cur.fetchone()
-            if not result:
+            result_ = cur.fetchone()
+            if not result_:
                 LOGGER.warning("not exec sequence")
             else:
-                return result[0]
+                return result_[0]
 
         return 0
 
@@ -130,14 +89,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             leng = 0
 
         return "%s(%s)" % (res_, leng) if leng else res_
-
-    def existsTable(self, table_name: str) -> bool:
-        """Return if exists a table specified by name."""
-
-        cur = self.execute_query("SELECT relname FROM pg_class WHERE relname = '%s'" % table_name)
-        result = cur.fetchone()
-
-        return True if result else False
 
     def sqlCreateTable(
         self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
@@ -325,16 +276,16 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             % name
         )
         cur = self.execute_query(sql)
-        result = cur.fetchone()
-        return True if result else False
+        result_ = cur.fetchone()
+        return True if result_ else False
 
     def queryUpdate(self, name: str, update: str, filter: str) -> str:
         """Return a database friendly update query."""
         return """UPDATE %s SET %s WHERE %s RETURNING *""" % (name, update, filter)
 
     def declareCursor(
-        self, curname: str, fields: str, table: str, where: str, cursor: Any, conn: Any
-    ) -> None:
+        self, curname: str, fields: str, table: str, where: str, conn_db: "base.Connection"
+    ) -> Optional["result.ResultProxy"]:
         """Set a refresh query for database."""
 
         if not self.isOpen():
@@ -346,14 +297,23 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             table,
             where,
         )
+
         try:
-            cursor.execute(sql)
+            result_ = conn_db.execute(sqlalchemy.text(sql))
         except Exception as e:
             LOGGER.error("refreshQuery: %s", e)
             LOGGER.info("SQL: %s", sql)
             LOGGER.trace("Detalle:", stack_info=True)
 
-    def getRow(self, number: int, curname: str, cursor: Any) -> List:
+        return result_
+
+    def getRow(
+        self,
+        number: int,
+        curname: str,
+        conn_db: "base.Connection",
+        data: Optional["result.ResultProxy"] = None,
+    ) -> List:
         """Return a data row."""
 
         if not self.isOpen():
@@ -362,33 +322,42 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         ret_: List[Any] = []
         sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
         sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % curname
-        cursor.execute(sql_exists)
-        if cursor.fetchone() is None:
+        result_ = conn_db.execute(sql_exists)
+        if result_ is None:
             return ret_
 
         try:
-            cursor.execute(sql)
-            ret_ = cursor.fetchone()
+            result_ = conn_db.execute(sql)
+            ret_ = result_.fetchone()
         except Exception as e:
             LOGGER.error("getRow: %s", e)
             LOGGER.trace("Detalle:", stack_info=True)
+
         return ret_
 
-    def findRow(self, cursor: Any, curname: str, field_pos: int, value: Any) -> Optional[int]:
+    def findRow(
+        self,
+        cursor: "base.Connection",
+        curname: str,
+        field_pos: int,
+        value: Any,
+        data_proxy: Optional["result.ResultProxy"] = None,
+    ) -> Optional[int]:
         """Return index row."""
         limit = 0
         pos: Optional[int] = None
 
         if not self.isOpen():
             raise Exception("findRow: Database not open")
-
         try:
+
             while True:
                 sql = "FETCH %s FROM %s" % ("FIRST" if not limit else limit + 10000, curname)
-                cursor.execute(sql)
-                data_ = cursor.fetchall()
-                if not data_:
+                result_ = cursor.execute(sql)
+                if not result_:
                     break
+                data_ = result_.fetchall()
+
                 for n, line in enumerate(data_):
                     if line[field_pos] == value:
                         return limit + n
@@ -409,8 +378,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         try:
             sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % cursor_name
-            cursor.execute(sql_exists)
-            if cursor.fetchone() is None:
+            result_ = cursor.execute(sql_exists)
+            if result_.fetchone() is None:
                 return
 
             cursor.execute("CLOSE %s" % cursor_name)
@@ -612,7 +581,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             "and ( relname !~ '^pg_' ) and ( relname !~ '^sql_' )"
         )
         cur_sequences = self.execute_query(sql, conn_dbaux.cursor())
-        data_list = list(cur_sequences)
+        data_list = list(cur_sequences.fetchall())
         util.createProgressDialog(
             util.translate("application", "Comprobando indices"), len(data_list)
         )
