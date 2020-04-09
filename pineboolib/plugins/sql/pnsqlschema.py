@@ -462,9 +462,6 @@ class PNSqlSchema(object):
     def save_point(self, number: int) -> bool:
         """Set a savepoint."""
 
-        if not self._current_transaction:
-            return False
-
         if not number:
             return True
 
@@ -481,9 +478,6 @@ class PNSqlSchema(object):
 
     def save_point_roll_back(self, number: int) -> bool:
         """Set rollback savepoint."""
-
-        if not self._current_transaction:
-            return False
 
         if not number:
             return True
@@ -504,9 +498,6 @@ class PNSqlSchema(object):
     def save_point_release(self, number: int) -> bool:
         """Set release savepoint."""
 
-        if not self._current_transaction:
-            return False
-
         if not number:
             return True
 
@@ -525,15 +516,10 @@ class PNSqlSchema(object):
     def transaction_commit(self) -> bool:
         """Set commit transaction."""
 
-        if not self._current_transaction:
-            return False
-
         self.set_last_error_null()
 
         try:
-            if self._current_transaction:
-                self._current_transaction.commit()
-            self._current_transaction = None
+            self.execute_query("%s" % (self.commit_transaction_command))
         except Exception as error:  # noqa: F841
             self.set_last_error("No se pudo aceptar la transacción", "COMMIT")
             return False
@@ -543,14 +529,9 @@ class PNSqlSchema(object):
     def transaction_rollback(self) -> bool:
         """Set a rollback transaction."""
 
-        if not self._current_transaction:
-            return False
-
         self.set_last_error_null()
         try:
-            if self._current_transaction:
-                self._current_transaction.rollback()
-            self._current_transaction = None
+            self.execute_query("%s" % (self.rollback_transaction_command))
         except Exception as error:  # noqa: F841
             self.set_last_error("No se pudo deshacer la transacción", "ROLLBACK")
             return False
@@ -560,13 +541,10 @@ class PNSqlSchema(object):
     def transaction(self) -> bool:
         """Set a new transaction."""
 
-        if self._current_transaction:
-            raise Exception("transaction already exists!!")
-
         self.set_last_error_null()
         try:
 
-            self._current_transaction = self.connection().begin()
+            self.execute_query("%s" % (self.transaction_command))
         except Exception as error:  # noqa: F841
             self.set_last_error("No se pudo crear la transacción", "BEGIN")
             return False

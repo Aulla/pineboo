@@ -82,7 +82,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def getEngine(self, conn_string: str) -> "base.Engine":
         """Return sqlAlchemy connection."""
-        return create_engine(conn_string, encoding="UTF-8")
+        return create_engine(conn_string, encoding="UTF-8", isolation_level="AUTOCOMMIT")
 
     def setDBName(self, name: str):
         """Set DB Name."""
@@ -284,6 +284,120 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Remove olds index."""
 
         if not query.exec_("DROP INDEX IF EXISTS %s_pkey" % metadata.name()):
+            return False
+
+        return True
+
+    def transaction_commit(self) -> bool:
+        """Set commit transaction."""
+
+        if not self._current_transaction:
+            return False
+
+        self.set_last_error_null()
+
+        try:
+            if self._current_transaction:
+                self._current_transaction.commit()
+            self._current_transaction = None
+        except Exception as error:  # noqa: F841
+            self.set_last_error("No se pudo aceptar la transacción", "COMMIT")
+            return False
+
+        return True
+
+    def transaction_rollback(self) -> bool:
+        """Set a rollback transaction."""
+
+        if not self._current_transaction:
+            return False
+
+        self.set_last_error_null()
+        try:
+            if self._current_transaction:
+                self._current_transaction.rollback()
+            self._current_transaction = None
+        except Exception as error:  # noqa: F841
+            self.set_last_error("No se pudo deshacer la transacción", "ROLLBACK")
+            return False
+
+        return True
+
+    def transaction(self) -> bool:
+        """Set a new transaction."""
+
+        if self._current_transaction:
+            raise Exception("transaction already exists!!")
+
+        self.set_last_error_null()
+        try:
+
+            self._current_transaction = self.connection().begin()
+        except Exception as error:  # noqa: F841
+            self.set_last_error("No se pudo crear la transacción", "BEGIN")
+            return False
+
+        return True
+
+    def save_point(self, number: int) -> bool:
+        """Set a savepoint."""
+
+        if not self._current_transaction:
+            return False
+
+        if not number:
+            return True
+
+        self.set_last_error_null()
+
+        try:
+            LOGGER.debug("Creando savepoint sv_%s" % number)
+            self.execute_query("%s sv_%s" % (self.savepoint_command, number))
+        except Exception as error:  # noqa: F841
+            self.set_last_error("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % number)
+            return False
+
+        return True
+
+    def save_point_roll_back(self, number: int) -> bool:
+        """Set rollback savepoint."""
+
+        if not self._current_transaction:
+            return False
+
+        if not number:
+            return True
+
+        self.set_last_error_null()
+
+        try:
+            self.execute_query("%s sv_%s" % (self.rollback_savepoint_command, number))
+        except Exception as error:  # noqa: F841
+            self.set_last_error(
+                "No se pudo rollback a punto de salvaguarda",
+                "ROLLBACK TO SAVEPOINTt sv_%s" % number,
+            )
+            return False
+
+        return True
+
+    def save_point_release(self, number: int) -> bool:
+        """Set release savepoint."""
+
+        if not self._current_transaction:
+            return False
+
+        if not number:
+            return True
+
+        self.set_last_error_null()
+
+        try:
+            self.execute_query("%s sv_%s" % (self.release_savepoint_command, number))
+        except Exception as error:  # noqa: F841
+            self.set_last_error(
+                "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % number
+            )
             return False
 
         return True
