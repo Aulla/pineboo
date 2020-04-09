@@ -9,7 +9,7 @@ pg8000
 ply
 pylint
 six
-PyQt5==5.14.1
+PyQt5==5.13.0
 PyQt5-sip
 PyQt5-stubs
 pytest
