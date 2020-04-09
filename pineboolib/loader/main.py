@@ -367,9 +367,6 @@ def exec_main(options: Values) -> int:
 
         monkey_patch_connect()
 
-    if options.orm_disabled:
-        settings.CONFIG.set_value("ebcomportamiento/orm_enabled", False)
-
     if options.enable_dbadmin:
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
 

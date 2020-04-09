@@ -42,13 +42,6 @@ def parse_options(custom_argv: Optional[List] = None) -> Values:
         help="Write lots of trace information to stdout",
     )
     parser.add_option(
-        "--no-orm",
-        action="store_true",
-        dest="orm_disabled",
-        default=False,
-        help="Disable ORM sqlAlchemy",
-    )
-    parser.add_option(
         "--trace-loggers",
         dest="trace_loggers",
         default="",

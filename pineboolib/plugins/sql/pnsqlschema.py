@@ -304,13 +304,9 @@ class PNSqlSchema(object):
     def declarative_base(self) -> Any:
         """Return sqlAlchemy declarative base."""
 
-        if (
-            settings.CONFIG.value("ebcomportamiento/orm_enabled", False)
-            and self.declarative_base_ is None
-        ):
-            from sqlalchemy.ext.declarative import declarative_base  # type: ignore
+        from sqlalchemy.ext.declarative import declarative_base  # type: ignore
 
-            self.declarative_base_ = declarative_base()
+        self.declarative_base_ = declarative_base()
 
         return self.declarative_base_
 
