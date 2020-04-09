@@ -23,11 +23,11 @@ class TestFLSqlite(unittest.TestCase):
         self.assertEqual(driver.formatValue("bool", "false", True), "0")
         self.assertEqual(driver.formatValue("time", "", True), "")
 
-        self.assertFalse(driver.rollbackTransaction())
-        self.assertFalse(driver.savePoint(0))
-        self.assertFalse(driver.commitTransaction())
+        self.assertFalse(driver.transaction_rollback())
+        self.assertFalse(driver.save_point(0))
+        self.assertFalse(driver.transaction_commit())
         self.assertFalse(driver.transaction())
-        self.assertFalse(driver.releaseSavePoint(0))
+        self.assertFalse(driver.save_point_release(0))
 
         self.assertEqual(driver.setType("String", 20), "VARCHAR(20)")
         self.assertEqual(driver.setType("sTring", 0), "VARCHAR")

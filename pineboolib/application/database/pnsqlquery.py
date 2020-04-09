@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from pineboolib.application.types import Array  # noqa: F401
     from .pnparameterquery import PNParameterQuery  # noqa: F401
     from .pngroupbyquery import PNGroupByQuery  # noqa: F401
+    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F821, F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -116,6 +117,7 @@ class PNSqlQuery(object):
     _posicion: int
     _cursor: Optional["IApiCursor"]
     private_query: PNSqlQueryPrivate
+    _connection: Optional["base.Connection"]
 
     def __init__(self, cx=None, connection_name: Union[str, "IConnection"] = "default") -> None:
         """
@@ -137,7 +139,7 @@ class PNSqlQuery(object):
         self._invalid_tables_list = False
         self.private_query._field_list = []
         self._is_active = False
-        self._cursor = None
+        self._connection = None
 
         retorno_qry = None
         if cx:
@@ -152,8 +154,8 @@ class PNSqlQuery(object):
         """
 
         try:
-            if self._cursor is not None:
-                self._cursor.close()
+            # if self._connection is not None:
+            #    self._connection.close()
             del self._sql_inspector
         except Exception:
             pass
@@ -196,13 +198,15 @@ class PNSqlQuery(object):
 
         self._last_query = sql
 
-        self._cursor = self.db().cursor()
-        if self._cursor is None:
-            raise Exception("self._cursor is empty!")
-        LOGGER.trace("exec_: Ejecutando consulta: <%s> en <%s>", sql, self._cursor)
-        result = self.db().execute_query(sql, self._cursor)
+        self._connection = self.db().connection()
+        if self._connection is None:
+            raise Exception("self._connection is empty!")
+        LOGGER.trace(
+            "exec_: Ejecutando consulta: <%s> en <%s>", sql, self._connection
+        )  # type: ignore [misc] # noqa: F821, F401
+        result = self.db().execute_query(sql, self._connection)
         try:
-            self._datos = result.fetchall()
+            self._datos = result.fetchall() if result else []
         except Exception as error:
             LOGGER.exception("ERROR SQLQUERY!: %s", str(error))
             self._datos = []
@@ -894,7 +898,7 @@ class PNSqlQuery(object):
         @return True or False.
         """
 
-        if not self._cursor:
+        if not self._connection:
             return False
 
         pos = postition
@@ -915,7 +919,7 @@ class PNSqlQuery(object):
 
         @return True or False.
         """
-        if not self._cursor:
+        if not self._connection:
             return False
 
         if self._datos:
@@ -932,7 +936,7 @@ class PNSqlQuery(object):
 
         @return True or False.
         """
-        if not self._cursor:
+        if not self._connection:
             return False
 
         if self._datos:
@@ -949,7 +953,7 @@ class PNSqlQuery(object):
 
         @return True or False.
         """
-        if not self._cursor:
+        if not self._connection:
             return False
 
         if self._datos:
@@ -965,7 +969,7 @@ class PNSqlQuery(object):
 
         @return True or False.
         """
-        if not self._cursor:
+        if not self._connection:
             return False
 
         if self._datos:

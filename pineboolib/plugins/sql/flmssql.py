@@ -62,9 +62,9 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
     def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
 
-        if self.isOpen():
+        if self.is_open():
             cur = self.execute_query("SELECT NEXT VALUE FOR %s_%s_seq" % (table_name, field_name))
-            result_ = cur.fetchone()
+            result_ = cur.fetchone() if cur else []
             if not result_:
                 LOGGER.warning("not exec sequence")
             else:
@@ -113,7 +113,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         cur = self.execute_query(
             "SELECT 1 FROM sys.Tables WHERE  Name = N'%s' AND Type = N'U'" % table_name
         )
-        result_ = cur.fetchone()
+        result_ = cur.fetchone() if cur else []
 
         return True if result_ else False
 
@@ -136,7 +136,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
             type_ = field.type()
             if type_ == "serial":
                 seq = "%s_%s_seq" % (tmd.name(), field.name())
-                if self.isOpen() and create_index:
+                if self.is_open() and create_index:
                     try:
                         self.execute_query("CREATE SEQUENCE %s START WITH 1 INCREMENT BY 1" % seq)
                     except Exception as error:
@@ -222,19 +222,19 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         """Return a tables list specified by type."""
         table_list: List[str] = []
         result_list: List[Any] = []
-        if self.isOpen():
+        if self.is_open():
 
             if type_name in ("Tables", ""):
                 cursor = self.execute_query("SELECT * FROM SYSOBJECTS WHERE xtype ='U'")
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
 
             if type_name in ("Views", ""):
                 cursor = self.execute_query("SELECT * FROM SYSOBJECTS WHERE xtype ='V'")
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
 
             if type_name in ("SystemTables", ""):
                 cursor = self.execute_query("SELECT * FROM SYSOBJECTS WHERE xtype ='S'")
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
 
         for item in result_list:
             table_list.append(item[0])
@@ -244,10 +244,9 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
     def declareCursor(
         self, curname: str, fields: str, table: str, where: str, conn_db: "base.Connection"
     ) -> Optional["result.ResultProxy"]:
-
         """Set a refresh query for database."""
 
-        if not self.isOpen():
+        if not self.is_open():
             raise Exception("declareCursor: Database not open")
 
         sql = "DECLARE %s CURSOR STATIC FOR SELECT %s FROM %s WHERE %s " % (
@@ -275,7 +274,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
     ) -> List:
         """Return a data row."""
 
-        if not self.isOpen():
+        if not self.is_open():
             raise Exception("getRow: Database not open")
 
         ret_: List[Any] = []
@@ -305,7 +304,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         """Return index row."""
         pos: Optional[int] = None
 
-        if not self.isOpen():
+        if not self.is_open():
             raise Exception("findRow: Database not open")
 
         try:
@@ -331,7 +330,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
     def deleteCursor(self, cursor_name: str, cursor: Any) -> None:
         """Delete cursor."""
 
-        if not self.isOpen():
+        if not self.is_open():
             raise Exception("deleteCursor: Database not open")
 
         try:
@@ -366,8 +365,8 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
             % tablename.lower()
         )
 
-        cursor = self.execute_query(sql)
-        res = cursor.fetchall()
+        data = self.execute_query(sql)
+        res = data.fetchall() if data else []
         for columns in res:
             field_size = int(columns[5]) if columns[5] else 0
             # field_precision = columns[4] or 0

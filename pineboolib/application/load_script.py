@@ -227,7 +227,7 @@ def load_class(script_name):
                 script_loaded, "%s%s" % (script_name[0].upper(), script_name[1:]), None
             )
         except Exception as error:
-            LOGGER.warning("Error loading class %s: %s", script_name, str(error))
+            LOGGER.error("Error loading class %s: %s", script_name, str(error))
 
     return class_loaded
 

@@ -5,8 +5,6 @@ Defines the IConnection class.
 
 from pineboolib.core.utils import logging
 
-from .iapicursor import IApiCursor
-
 
 from typing import Any, List, Dict, Optional, Union, TYPE_CHECKING
 
@@ -14,6 +12,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
     from pineboolib.fllegacy import flmanager
     from pineboolib.fllegacy import flmanagermodules
+    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F821, F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -93,10 +92,15 @@ class IConnection:
 
         return {}
 
-    def cursor(self) -> IApiCursor:
-        """Return a cursor to the database."""
+    # def cursor(self) -> IApiCursor:
+    #    """Return a cursor to the database."""
 
-        return IApiCursor()
+    #    return IApiCursor()
+
+    def connection(self) -> "base.Connection":
+        """Return base connection."""
+
+        pass
 
     def lastActiveCursor(self) -> Optional[Any]:  # returns FLSqlCuror
         """Return the last active cursor in the sql driver."""

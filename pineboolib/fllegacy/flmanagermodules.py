@@ -191,7 +191,7 @@ class FLManagerModules(object):
         @return QString with the contents of the file or empty in case of error.
         """
 
-        cursor = (
+        result_conn = (
             self.conn_.connManager()
             .dbAux()
             .execute_query(
@@ -199,8 +199,9 @@ class FLManagerModules(object):
             )
         )
 
-        for contenido in cursor:
-            return contenido[0]
+        ret = result_conn.fetchone() if result_conn else None
+        if ret is not None:
+            return ret[0]
 
         return ""
 

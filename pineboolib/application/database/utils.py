@@ -390,14 +390,14 @@ def exec_sql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default"
     else:
         my_conn = conn_
 
-    _cur = my_conn.cursor()
+    _cur = my_conn.connection()
     try:
         last = my_conn.lastError()
         LOGGER.info("execSql: Ejecutando la consulta : %s", sql_)
         # sql = conn_.db().driver().fix_query(sql)
         # cur.execute(sql)
         # conn_.conn.commit()
-        my_conn.execute_query(sql_, _cur)
+        result_ = my_conn.execute_query(sql_, _cur)  # noqa: F841
         if my_conn.lastError() != last:
             return False
         return True

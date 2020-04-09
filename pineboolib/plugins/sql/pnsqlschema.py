@@ -16,10 +16,11 @@ from pineboolib.fllegacy import flutil
 
 from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noqa: F821
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
-import sqlalchemy
+from sqlalchemy import event  # type: ignore [import] # noqa: F821, F401
+import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
 import re
-import sqlalchemy
+
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -43,11 +44,12 @@ class PNSqlSchema(object):
     mobile_: bool
     pure_python_: bool
     defaultPort_: int
-    engine_: Any
+    engine_: Optional["base.Engine"]
     session_: Any
     declarative_base_: Any
     cursor_: Any
     rows_cached: Dict[str, List[Any]]
+    cursor_proxy: Dict[str, "result.ResultProxy"]
     init_cached: int = 200
     open_: bool
     desktop_file: bool
@@ -67,6 +69,7 @@ class PNSqlSchema(object):
     _safe_load: Dict[str, str]
     _database_not_found_keywords: List[str]
     _transaction: int
+    _current_transaction: Optional["base.RootTransaction"]
     _single_conn: bool
     _sqlalchemy_name: str
     _connection: Any = None
@@ -88,6 +91,7 @@ class PNSqlSchema(object):
         self.lastError_ = ""
         self.db_ = None
         self.rows_cached = {}
+        self.cursor_proxy = {}
         self.open_ = False
         self.desktop_file = False
         self.savepoint_command = "SAVEPOINT"
@@ -108,6 +112,8 @@ class PNSqlSchema(object):
         self._transaction = 0
         self._single_conn = False
         self._sqlalchemy_name = ""
+        self._connection = None
+        self._current_transaction = None
         # self.sql_query = {}
         # self.cursors_dict = {}
 
@@ -146,7 +152,7 @@ class PNSqlSchema(object):
             if not application.PROJECT.DGI.localDesktop():
                 return False
 
-            last_error = self.lastError()
+            last_error = self.last_error()
             found = False
             for key in self._database_not_found_keywords:
                 if key in last_error:
@@ -175,7 +181,7 @@ class PNSqlSchema(object):
                             try:
                                 tmp_conn.execute("CREATE DATABASE %s" % db_name)
                             except Exception as error:
-                                self.setLastError(str(error), "LOGGIN")
+                                self.set_last_error(str(error), "LOGGIN")
 
                                 tmp_conn.execute("ROLLBACK")
                                 tmp_conn.close()
@@ -204,7 +210,7 @@ class PNSqlSchema(object):
             self.open_ = True
             self.loadSpecialConfig()
         else:
-            LOGGER.error("connect: %s", self.lastError())
+            LOGGER.error("connect: %s", self.last_error())
             return False
 
         return conn_
@@ -237,21 +243,19 @@ class PNSqlSchema(object):
             conn_ = self.engine_.connect()
             # conn_.initialize(LOGGER)
         except Exception as error:
-            self.setLastError(str(error), "CONNECT")
+            self.set_last_error(str(error), "CONNECT")
         return conn_
 
-    def getEngine(self, conn_string: str) -> Any:
+    def getEngine(self, conn_string: str) -> "base.Engine":
         """Return sqlAlchemy connection."""
-
         return create_engine(
             conn_string,
             encoding="UTF-8",
+            pool_size=0,
             isolation_level="AUTOCOMMIT",
-            pool_size=10,
-            max_overflow=20,
+            # connect_args={"timeout": 1000},
         )
 
-    @decorators.not_implemented_warn
     def loadSpecialConfig(self) -> None:
         """Set special config."""
 
@@ -265,10 +269,12 @@ class PNSqlSchema(object):
         """Return driver name."""
         return self.name_
 
-    def isOpen(self) -> bool:
+    def is_open(self) -> bool:
         """Return if the connection is open."""
-        # return not self.engine_.connect().closed
-        return True
+        if self.engine_:
+            conn_ = self.connection()
+            return not conn_.closed
+        return False
 
     def pure_python(self) -> bool:
         """Return if the driver is python only."""
@@ -289,8 +295,9 @@ class PNSqlSchema(object):
     def session(self) -> Any:
         """Create a sqlAlchemy session."""
 
-        Session = sessionmaker(bind=self.engine())
-        self.session_ = Session()
+        if not self.session_:
+            Session = sessionmaker(bind=self.engine())
+            self.session_ = Session()
 
         return self.session_
 
@@ -413,7 +420,7 @@ class PNSqlSchema(object):
         res_ = 0
 
         cur = self.execute_query("SELECT max(%s) FROM %s WHERE 1=1" % (field_name, table_name))
-        result_ = cur.fetchone()
+        result_ = cur.fetchone() if cur else []
 
         if result_:
             table_max = result_[0] or 0
@@ -421,7 +428,7 @@ class PNSqlSchema(object):
         cur = self.execute_query(
             "SELECT seq FROM flseqs WHERE tabla = '%s' AND campo ='%s'" % (table_name, field_name)
         )
-        result_ = cur.fetchone()
+        result_ = cur.fetchone() if cur else []
         if result_:
             flseq_max = result_[0] or 0
 
@@ -448,15 +455,14 @@ class PNSqlSchema(object):
                 self.execute_query(str_qry)
             except Exception as error:
                 LOGGER.error("nextSerialVal: %s", str(error))
-                self.rollbackTransaction()
+                self.transaction_rollback()
 
         return res_
 
-    def savePoint(self, number: int) -> bool:
+    def save_point(self, number: int) -> bool:
         """Set a savepoint."""
 
-        if not self.isOpen():
-            LOGGER.warning("savePoint: Database not open")
+        if not self._current_transaction:
             return False
 
         if not number:
@@ -464,48 +470,105 @@ class PNSqlSchema(object):
 
         self.set_last_error_null()
 
-        cursor = self.cursor()
         try:
             LOGGER.debug("Creando savepoint sv_%s" % number)
-            cursor.execute("%s sv_%s" % (self.savepoint_command, number))
-        except Exception as error:
-            self.setLastError("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % number)
-            LOGGER.error(
-                "%s:: No se pudo crear punto de salvaguarda SAVEPOINT sv_%s: %s",
-                __name__,
-                number,
-                str(error),
+            self.execute_query("%s sv_%s" % (self.savepoint_command, number))
+        except Exception as error:  # noqa: F841
+            self.set_last_error("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % number)
+            return False
+
+        return True
+
+    def save_point_roll_back(self, number: int) -> bool:
+        """Set rollback savepoint."""
+
+        if not self._current_transaction:
+            return False
+
+        if not number:
+            return True
+
+        self.set_last_error_null()
+
+        try:
+            self.execute_query("%s sv_%s" % (self.rollback_savepoint_command, number))
+        except Exception as error:  # noqa: F841
+            self.set_last_error(
+                "No se pudo rollback a punto de salvaguarda",
+                "ROLLBACK TO SAVEPOINTt sv_%s" % number,
             )
             return False
 
         return True
 
-    def rollbackSavePoint(self, number: int) -> bool:
-        """Set rollback savepoint."""
+    def save_point_release(self, number: int) -> bool:
+        """Set release savepoint."""
+
+        if not self._current_transaction:
+            return False
 
         if not number:
             return True
 
-        if not self.isOpen():
-            LOGGER.warning("rollbackSavePoint: Database not open")
+        self.set_last_error_null()
+
+        try:
+            self.execute_query("%s sv_%s" % (self.release_savepoint_command, number))
+        except Exception as error:  # noqa: F841
+            self.set_last_error(
+                "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % number
+            )
+            return False
+
+        return True
+
+    def transaction_commit(self) -> bool:
+        """Set commit transaction."""
+
+        if not self._current_transaction:
             return False
 
         self.set_last_error_null()
 
-        cursor = self.cursor()
         try:
-            cursor.execute("%s sv_%s" % (self.rollback_savepoint_command, number))
-        except Exception as error:
-            self.setLastError(
-                "No se pudo rollback a punto de salvaguarda",
-                "ROLLBACK TO SAVEPOINTt sv_%s" % number,
-            )
-            LOGGER.error(
-                "%s:: No se pudo rollback a punto de salvaguarda ROLLBACK TO SAVEPOINT sv_%s: %s",
-                __name__,
-                number,
-                str(error),
-            )
+            if self._current_transaction:
+                self._current_transaction.commit()
+            self._current_transaction = None
+        except Exception as error:  # noqa: F841
+            self.set_last_error("No se pudo aceptar la transacción", "COMMIT")
+            return False
+
+        return True
+
+    def transaction_rollback(self) -> bool:
+        """Set a rollback transaction."""
+
+        if not self._current_transaction:
+            return False
+
+        self.set_last_error_null()
+        try:
+            if self._current_transaction:
+                self._current_transaction.rollback()
+            self._current_transaction = None
+        except Exception as error:  # noqa: F841
+            self.set_last_error("No se pudo deshacer la transacción", "ROLLBACK")
+            return False
+
+        return True
+
+    def transaction(self) -> bool:
+        """Set a new transaction."""
+
+        if self._current_transaction:
+            raise Exception("transaction already exists!!")
+
+        self.set_last_error_null()
+        try:
+
+            self._current_transaction = self.connection().begin()
+        except Exception as error:  # noqa: F841
+            self.set_last_error("No se pudo crear la transacción", "BEGIN")
             return False
 
         return True
@@ -514,106 +577,14 @@ class PNSqlSchema(object):
         """Set lastError flag Null."""
         self.lastError_ = ""
 
-    def setLastError(self, text: str, command: str) -> None:
+    def set_last_error(self, text: str, command: str) -> None:
         """Set last error."""
         self.lastError_ = "%s (%s)" % (text, command)
+        LOGGER.error("%s::%s : %s", __name__, text, command)
 
-    def lastError(self) -> str:
+    def last_error(self) -> str:
         """Return last error."""
         return self.lastError_
-
-    def commitTransaction(self) -> bool:
-        """Set commit transaction."""
-
-        if not self.isOpen():
-            LOGGER.warning("%s::commitTransaction: Database not open", __name__)
-            return False
-
-        self.set_last_error_null()
-        cursor = self.cursor()
-        try:
-            cursor.execute("%s" % self.commit_transaction_command)
-        except Exception as error:
-            self.setLastError("No se pudo aceptar la transacción", "COMMIT")
-            LOGGER.error(
-                "%s::%s No se pudo aceptar la transacción COMMIT: %s", __name__, self, str(error)
-            )
-            return False
-
-        return True
-
-    def rollbackTransaction(self) -> bool:
-        """Set a rollback transaction."""
-
-        # if not self.isOpen():
-        #    LOGGER.warning("%s::rollbackTransaction: Database not open", __name__)
-        #    return False
-
-        self.set_last_error_null()
-        try:
-            cursor = self.cursor()
-            cursor.execute("%s" % self.rollback_transaction_command)
-        except Exception as error:
-            self.setLastError("No se pudo deshacer la transacción", "ROLLBACK")
-            LOGGER.error(
-                "%s:: No se pudo deshacer la transacción ROLLBACK: %s", __name__, str(error)
-            )
-            return False
-
-        return True
-
-    def transaction(self) -> bool:
-        """Set a new transaction."""
-        if not self.isOpen():
-            LOGGER.warning("%s::transaction: Database not open", __name__)
-            return False
-
-        cursor = self.cursor()
-        self.set_last_error_null()
-
-        try:
-            cursor.execute("%s" % self.transaction_command)
-        except Exception as error:
-            self.setLastError("No se pudo crear la transacción", "BEGIN")
-            LOGGER.error(
-                "%s:: No se pudo crear la transacción %s BEGIN : %s",
-                __name__,
-                self._transaction,
-                str(error),
-                stack_info=True,
-            )
-            return False
-
-        return True
-
-    def releaseSavePoint(self, number: int) -> bool:
-        """Set release savepoint."""
-
-        if not self.isOpen():
-            LOGGER.warning("%s::releaseSavePoint: Database not open", __name__)
-            return False
-
-        if not number:
-            return True
-
-        self.set_last_error_null()
-
-        cursor = self.cursor()
-        try:
-            cursor.execute("%s sv_%s" % (self.release_savepoint_command, number))
-        except Exception as error:
-            self.setLastError(
-                "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % number
-            )
-            LOGGER.error(
-                "%s:: No se pudo release a punto de salvaguarda RELEASE SAVEPOINT sv_%s : %s",
-                __name__,
-                number,
-                str(error),
-            )
-            return False
-
-        return True
 
     @decorators.not_implemented_warn
     def setType(self, type_: str, leng: int = 0) -> str:
@@ -622,7 +593,11 @@ class PNSqlSchema(object):
 
     def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""
-        return table_name in self.engine_.table_names()
+        engine = self.engine_
+        if engine:
+            return table_name in engine.table_names(None, engine.connect())
+        else:
+            return False
 
     @decorators.not_implemented_warn
     def sqlCreateTable(
@@ -807,7 +782,7 @@ class PNSqlSchema(object):
         cur = self.execute_query(
             "SELECT %s FROM %s WHERE 1=1" % (", ".join(old_field_names), renamed_table)
         )
-        old_data_list = cur.fetchall()
+        old_data_list = cur.fetchall() if cur else []
         # old_cursor = pnsqlcursor.PNSqlCursor(renamed_table, True, "dbAux")
         # old_cursor.setModeAccess(old_cursor.Browse)
         # old_cursor.select()
@@ -888,12 +863,13 @@ class PNSqlSchema(object):
         """Return if use a file like database."""
         return self.desktop_file
 
-    def insert_data(
-        self, table_name: str, fields: List[str], values: List[str], conn_db: "base.Connection"
-    ) -> bool:
+    def insert_data(self, table_name: str, fields: List[str], values: List[str]) -> bool:
         """Insert data into table."""
 
         valores: Dict = {}
+
+        if not self.is_open():
+            raise Exception("execute_query: Database not open %s", self)
 
         for number, field in enumerate(fields):
 
@@ -905,23 +881,24 @@ class PNSqlSchema(object):
             ", ".join(":%s" % field for field in fields),
         )
         try:
-            conn_db.execute(sqlalchemy.text(sql), **valores)
+            self.connection().execute(sqlalchemy.text(sql), **valores)
         except Exception as error:
-            LOGGER.warning(str(error))
+            self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (sql, str(error)), sql)
+            LOGGER.error("insert_data : %s", str(error))
             return False
         return True
 
     def update_data(
-        self,
-        metadata: "pntablemetadata.PNTableMetaData",
-        data: Dict[str, Any],
-        pk_value: Any,
-        conn_db: "base.Connection",
+        self, metadata: "pntablemetadata.PNTableMetaData", data: Dict[str, Any], pk_value: Any
     ) -> bool:
+        """Update table data."""
+
+        if not self.is_open():
+            raise Exception("execute_query: Database not open %s", self)
 
         pkey_name = metadata.primaryKey()
         mtdfield = metadata.field(pkey_name)
-        pkey_type = mtdfield.type()
+        pkey_type = mtdfield.type()  # type: ignore [union-attr] # noqa: F821
         pk_value = self.db_.formatValue(pkey_type, pk_value, False)
 
         where_filter = "%s = %s" % (pkey_name, pk_value)
@@ -935,9 +912,32 @@ class PNSqlSchema(object):
 
         sql = """UPDATE %s SET %s WHERE %s""" % (metadata.name(), ", ".join(campos), where_filter)
         try:
-            conn_db.execute(sqlalchemy.text(sql), **valores)
+            self.connection().execute(sqlalchemy.text(sql), **valores)
         except Exception as error:
-            LOGGER.warning(str(error))
+            self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (sql, str(error)), sql)
+            LOGGER.error("update_data : %s", str(error))
+            return False
+        return True
+
+    def delete_data(self, metadata: "pntablemetadata.PNTableMetaData", pk_value: Any) -> bool:
+        """Delete row from table."""
+
+        if not self.is_open():
+            raise Exception("execute_query: Database not open %s", self)
+
+        pkey_name = metadata.primaryKey()
+        mtdfield = metadata.field(pkey_name)
+        pkey_type = mtdfield.type()  # type: ignore [union-attr] # noqa: F821
+        pk_value = self.db_.formatValue(pkey_type, pk_value, False)
+
+        where_filter = "%s = %s" % (pkey_name, pk_value)
+
+        sql = """DELETE FROM %s WHERE %s""" % (metadata.name(), where_filter)
+        try:
+            self.connection().execute(sql)
+        except Exception as error:
+            self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (sql, str(error)), sql)
+            LOGGER.error("delete_data : %s", str(error))
             return False
         return True
 
@@ -946,34 +946,33 @@ class PNSqlSchema(object):
     ) -> Optional["result.ResultProxy"]:
         """Excecute a query and return result."""
 
-        if not self.isOpen():
+        if not self.is_open():
             raise Exception("execute_query: Database not open %s", self)
 
         self.set_last_error_null()
         if conn is None:
-            conn = self.cursor()
+            conn = self.connection()
 
-        result_ = []
         try:
             query = sqlalchemy.text(query)
             result_ = conn.execute(query)
         except Exception as error:
-            self.setLastError("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
-            LOGGER.error("execute_query : %s", self.lastError(), stack_info=True)
+            self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
+            return None
 
         return result_
 
     def getTimeStamp(self) -> str:
         """Return TimeStamp."""
 
-        if not self.isOpen():
-            raise Exception("getTimeStamp: Database not open")
-
         sql = "SELECT CURRENT_TIMESTAMP"
 
         cur = self.execute_query(sql)
         time_stamp_: str
-        for line in cur:
+
+        result_ = cur.fetchall() if cur else []
+
+        for line in result_:
             time_stamp_ = line[0]
             break
 
@@ -982,13 +981,8 @@ class PNSqlSchema(object):
 
         return time_stamp_
 
-    def declareCursor(
-        self, curname: str, fields: str, table: str, where: str, conn_db: "base.Connection"
-    ) -> Optional["result.ResultProxy"]:
+    def declare_cursor(self, curname: str, fields: str, table: str, where: str) -> None:
         """Set a refresh query for database."""
-
-        if not self.isOpen():
-            raise Exception("declareCursor: Database not open")
 
         sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
 
@@ -996,8 +990,9 @@ class PNSqlSchema(object):
         self.rows_cached[curname] = []
         result_ = None
         try:
-            result_ = self._connection.connect().execute(sql)
-            data_list = result_.fetchmany(self.init_cached)
+            result_ = self.execute_query(sql)
+            self.cursor_proxy[curname] = result_
+            data_list = self.cursor_proxy[curname].fetchmany(self.init_cached)
             for data in data_list:
                 self.rows_cached[curname].append(data)
 
@@ -1005,25 +1000,15 @@ class PNSqlSchema(object):
             LOGGER.error("declareCursor: %s", e)
             LOGGER.trace("Detalle:", stack_info=True)
 
-        return result_
         # self.sql_query[curname] = sql
 
-    def getRow(
-        self,
-        number: int,
-        curname: str,
-        conn_db: "base.Connection",
-        data: Optional["result.ResultProxy"] = None,
-    ) -> List:
+    def row_get(self, number: int, curname: str) -> List:
         """Return a data row."""
-
-        if not self.isOpen():
-            raise Exception("getRow: Database not open")
 
         try:
             cached_count = len(self.rows_cached[curname])
-            if number >= cached_count and data:
-                data_list = data.fetchmany(number - cached_count + 1)
+            if number >= cached_count and self.cursor_proxy[curname]:
+                data_list = self.cursor_proxy[curname].fetchmany(number - cached_count + 1)
                 for row in data_list:
                     self.rows_cached[curname].append(row)
 
@@ -1035,18 +1020,8 @@ class PNSqlSchema(object):
 
         return self.rows_cached[curname][number] if number < cached_count else []
 
-    def findRow(
-        self,
-        cursor: "base.Connection",
-        curname: str,
-        field_pos: int,
-        value: Any,
-        data_proxy: Optional["result.ResultProxy"] = None,
-    ) -> Optional[int]:
+    def row_find(self, curname: str, field_pos: int, value: Any) -> Optional[int]:
         """Return index row."""
-
-        if not self.isOpen():
-            raise Exception("findRow: Database not open")
 
         ret_ = None
         try:
@@ -1056,8 +1031,8 @@ class PNSqlSchema(object):
 
             cached_count = len(self.rows_cached[curname])
 
-            while True and data_proxy:
-                data = data_proxy.fetchone()
+            while True and self.cursor_proxy[curname]:
+                data = self.cursor_proxy[curname].fetchone()
                 if not data:
                     break
 
@@ -1074,15 +1049,14 @@ class PNSqlSchema(object):
 
         return ret_
 
-    def deleteCursor(self, cursor_name: str, cursor: Any) -> None:
+    def delete_declared_cursor(self, cursor_name: str) -> None:
         """Delete cursor."""
-        if not self.isOpen():
-            raise Exception("deleteCursor: Database not open")
 
         try:
-            del cursor
             self.rows_cached[cursor_name] = []
+            self.cursor_proxy[cursor_name] = None
             self.rows_cached.pop(cursor_name)
+            self.cursor_proxy.pop(cursor_name)
         except Exception as exception:
             LOGGER.error("finRow: %s", exception)
             LOGGER.warning("Detalle:", stack_info=True)
@@ -1092,10 +1066,22 @@ class PNSqlSchema(object):
         sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
         return sql
 
-    def cursor(self) -> "base.Connection":
+    def connection(self) -> "base.Connection":
         """Return a cursor connection."""
 
-        return self.engine_.connect()
+        if not self._connection or self._connection.closed:
+
+            if self.engine_:
+                self._connection = self.engine_.connect()
+                event.listen(self.engine_, "close", self.close_emited)
+            else:
+                raise Exception("Engine is not loaded!")
+        return self._connection
+
+    def close_emited(self, *args):
+        """."""
+        pass
+        # LOGGER.warning("** %s, %s", self, args)
 
     def insertMulti(
         self, table_name: str, list_records: Iterable = []

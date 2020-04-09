@@ -36,9 +36,8 @@ class TestParser(unittest.TestCase):
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
 
-        qsa.from_project("flfactppal").iface.valoresIniciales()
+        # qsa.from_project("flfactppal").iface.valoresIniciales()
         cur_paises = qsa.FLSqlCursor("paises")
-        """
         cur_paises.setModeAccess(cur_paises.Insert)
         cur_paises.refreshBuffer()
         cur_paises.setValueBuffer("codpais", "ES")
@@ -49,10 +48,11 @@ class TestParser(unittest.TestCase):
         cur_paises.setValueBuffer("codpais", "PT")
         cur_paises.setValueBuffer("nombre", "PORTUGAL")
         self.assertTrue(cur_paises.commitBuffer())
-        """
+
         cur_paises.select("1=1")
         cur_paises.first()
         init_ = cur_paises.valueBuffer("codpais")
+        self.assertEqual(cur_paises.valueBuffer("nombre"), "ESPAÑA")
         cur_paises.last()
         last_ = cur_paises.valueBuffer("codpais")
         qry_paises = qsa.FLSqlQuery("paises")
@@ -113,7 +113,6 @@ class TestParser(unittest.TestCase):
         buffer = cur.buffer()
         if buffer:
             bandera = buffer.value("bandera")
-
             self.assertEqual(
                 parser_tools.parseKey(str(bandera)),
                 os.path.abspath("%s/%s.png" % (application.PROJECT.tmpdir, bandera)),

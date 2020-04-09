@@ -68,7 +68,7 @@ class TestPNConnection(unittest.TestCase):
         conn_ = conn_manager.mainConn()
 
         self.assertTrue(conn_.driver())
-        self.assertTrue(conn_.cursor())
+        self.assertTrue(conn_.driver().connection())
         sys_type.addDatabase("conn_test_2")
         self.assertTrue(conn_manager.useConn("conn_test_2").isOpen())
         self.assertTrue(sys_type.removeDatabase("conn_test_2"))

@@ -46,27 +46,27 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         """Return a tables list specified by type."""
         table_list: List[str] = []
         result_list: List[Any] = []
-        if self.isOpen():
+        if self.is_open():
 
             if type_name in ("Tables", ""):
                 cursor = self.execute_query(
                     "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE LIKE 'BASE TABLE' AND TABLE_SCHEMA LIKE '%s'"
                     % self.DBName()
                 )
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
 
             if type_name in ("Views", ""):
                 cursor = self.execute_query(
                     "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE LIKE 'VIEW' AND TABLE_SCHEMA LIKE '%s'"
                     % self.DBName()
                 )
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
 
             if type_name in ("SystemTables", ""):
                 cursor = self.execute_query(
                     "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE LIKE 'SYSTEM VIEW'"
                 )
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
 
         for item in result_list:
             table_list.append(item[0])
@@ -192,7 +192,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         sql = "SHOW FIELDS FROM %s" % table_name
 
         cursor = self.execute_query(sql)
-        res = cursor.fetchall()
+        res = cursor.fetchall() if cursor else []
 
         for columns in res:
             field_name = columns[0]

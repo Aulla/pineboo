@@ -160,8 +160,8 @@ class TestFLUtil(unittest.TestCase):
             util.quickSqlSelect("flareas", "descripcion", "idarea ='T'"), "area test modificado"
         )
 
-        self.assertTrue(util.execSql("SELECT COUNT(*) FROM flareas WHERE '1=1'", "default"))
-        self.assertFalse(util.execSql("SELECT COUNT(*) FROG flareas WHERE '1=1'", "default"))
+        self.assertTrue(util.execSql("SELECT COUNT(*) FROM flareas WHERE 1=1", "default"))
+        self.assertFalse(util.execSql("SELECT COUNT(*) FROG flareas WHERE 1=1", "default"))
 
         self.assertTrue(util.sqlDelete("flareas", "idarea ='T'", "default"))
         cur.refresh()

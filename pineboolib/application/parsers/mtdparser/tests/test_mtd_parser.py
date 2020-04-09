@@ -7,10 +7,6 @@ from pineboolib import application
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core import settings
 
-orm_enabled: bool
-orm_parser_disabled: bool
-orm_load_disabled: bool
-
 
 class TestMtdParserGeneral(unittest.TestCase):
     """TestMtdParserGeneral Class."""
@@ -18,15 +14,7 @@ class TestMtdParserGeneral(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
-        global orm_enabled, orm_parser_disabled, orm_load_disabled
 
-        orm_enabled = settings.CONFIG.value("ebcomportamiento/orm_enabled", False)
-        orm_parser_disabled = settings.CONFIG.value("ebcomportamiento/orm_parser_disabled", False)
-        orm_load_disabled = settings.CONFIG.value("ebcomportamiento/orm_load_disabled", False)
-
-        settings.CONFIG.set_value("ebcomportamiento/orm_enabled", True)
-        settings.CONFIG.set_value("ebcomportamiento/orm_parser_disabled", False)
-        settings.CONFIG.set_value("ebcomportamiento/orm_load_disabled", False)
         init_testing()
 
     def test_basic_1(self) -> None:
@@ -83,10 +71,5 @@ class TestMtdParserGeneral(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
-        global orm_enabled, orm_parser_disabled, orm_load_disabled
-
-        settings.CONFIG.set_value("ebcomportamiento/orm_enabled", orm_enabled)
-        settings.CONFIG.set_value("ebcomportamiento/orm_parser_disabled", orm_parser_disabled)
-        settings.CONFIG.set_value("ebcomportamiento/orm_load_disabled", orm_load_disabled)
 
         finish_testing()

@@ -6,7 +6,7 @@ from pineboolib import application
 from pineboolib.application.database import pnsqlcursor
 
 from pineboolib.core.utils import logging
-from threading import Thread
+
 import time
 
 LOGGER = logging.get_logger(__name__)
@@ -67,31 +67,23 @@ class TestPNConnectionManager(unittest.TestCase):
 
         conn_manager = application.PROJECT.conn_manager
         self.assertEqual(application.PROJECT.conn_manager.session_id(), "test3")
-        thread1 = Thread(target=self.threaded_function)
-        thread2 = Thread(target=self.threaded_function)
-        thread3 = Thread(target=self.threaded_function)
-        thread4 = Thread(target=self.threaded_function)
-        thread5 = Thread(target=self.threaded_function)
-        thread6 = Thread(target=self.threaded_function)
-        thread7 = Thread(target=self.threaded_function)
-        thread8 = Thread(target=self.threaded_function)
-        thread9 = Thread(target=self.threaded_function)
 
-        thread1.start()
+        cur = pnsqlcursor.PNSqlCursor("flfiles")
+        cur.select()
+        time.sleep(1)
+        pnsqlcursor.CONNECTION_CURSORS[application.PROJECT.conn_manager.session_id()].pop()
+
         while "flfiles" in conn_manager.active_pncursors(True):
             QtWidgets.QApplication.processEvents()
-        thread2.start()
+
         while "flfiles" in conn_manager.active_pncursors(True):
             QtWidgets.QApplication.processEvents()
-        thread3.start()
-        while "flfiles" in conn_manager.active_pncursors(True):
-            QtWidgets.QApplication.processEvents()
-        thread4.start()
-        thread5.start()
-        thread6.start()
-        thread7.start()
-        thread8.start()
-        thread9.start()
+
+        cur = pnsqlcursor.PNSqlCursor("flfiles")
+        cur.select()
+        time.sleep(1)
+        pnsqlcursor.CONNECTION_CURSORS[application.PROJECT.conn_manager.session_id()].pop()
+
         while "flfiles" in conn_manager.active_pncursors(True):
             QtWidgets.QApplication.processEvents()
 

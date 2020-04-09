@@ -23,8 +23,9 @@ from typing import Any, Iterable, Optional, List, Dict, Tuple, cast, TYPE_CHECKI
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pnfieldmetadata  # noqa: F401
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from pineboolib.interfaces import iconnection, isqlcursor, iapicursor
+    from pineboolib.interfaces import iconnection, isqlcursor
     from pineboolib.fllegacy import fldatatable
+    from pineboolib.plugins.sql import pnsqlschema
 
 DEBUG = False
 CURSOR_COUNT = itertools.count()
@@ -71,7 +72,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     pkidx: Dict[Tuple, int]
     ckidx: Dict[Tuple, int]
     _column_hints: List[int]
-    _cursor_db: "iapicursor.IApiCursor"
     _current_row_data: List
     _current_row_index: int
     _tablename: str
@@ -87,9 +87,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
 
         super(PNCursorTableModel, self).__init__()
-        if parent is None:
-            raise ValueError("Parent is mandatory")
-        self._cursor_connection = conn
         self._parent = parent
         self.parent_view = None
 
@@ -169,8 +166,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         # self._can_fetch_more_rows = True
         self._disable_refresh = False
-
-        self._cursor_db = self.db().cursor()
         self._initialized = None
         self.grid_row_tmp = {}
 
@@ -288,9 +283,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             result: Any = None
             if row not in self.grid_row_tmp.keys():
                 self.grid_row_tmp = {}
-                self.grid_row_tmp[row] = self.driver_sql().getRow(
-                    row, self._curname, self.cursorDB()
-                )
+                self.grid_row_tmp[row] = self.driver_sql().row_get(row, self._curname)
                 if not self.grid_row_tmp[row]:  # refresh grid if cursor is deleted.
                     self.refresh()
                     return
@@ -691,12 +684,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._current_row_index = -1
 
         if self._curname:
-            self.driver_sql().deleteCursor(self._curname, self.cursorDB())
+            self.driver_sql().delete_declared_cursor(self._curname)
 
         self._curname = "cur_%s_%08d" % (self.metadata().name(), next(CURSOR_COUNT))
 
-        self.driver_sql().declareCursor(
-            self._curname, self.sql_str, self._tablename, self.where_filter, self.cursorDB()
+        self.driver_sql().declare_cursor(
+            self._curname, self.sql_str, self._tablename, self.where_filter
         )
 
         self.rows = self.size()
@@ -762,7 +755,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return False
 
         if row != self._current_row_index:
-            result = self.driver_sql().getRow(row, self._curname, self.cursorDB())
+            result = self.driver_sql().row_get(row, self._curname)
             if not result:
                 return False
 
@@ -850,7 +843,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 valores.append(value)
 
         if campos:
-            if self.driver_sql().insert_data(fl_cursor.curName(), campos, valores, self.cursorDB()):
+            if self.driver_sql().insert_data(fl_cursor.curName(), campos, valores):
                 self.need_update = True
                 return True
 
@@ -878,12 +871,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 % (self.value(row, self.pK()), pk_value)
             )
 
-        self.setValuesDict(row, dict_update)
-
-        if not self.driver_sql().update_data(
-            self.metadata(), dict_update, pk_value, self.cursorDB()
-        ):
+        if not self.driver_sql().update_data(self.metadata(), dict_update, pk_value):
             return False
+
+        self.setValuesDict(row, dict_update)
 
         self.need_update = True
         return True
@@ -894,26 +885,34 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @param cursor . FLSqlCursor object
         """
-        pk_name = self.pK()
-        pk_type = self.fieldType(pk_name)
 
-        val = (
-            self.db()
-            .connManager()
-            .manager()
-            .formatValue(pk_type, self.value(cursor.currentRegister(), pk_name))
-        )
-        sql = "DELETE FROM %s WHERE %s = %s" % (self._tablename, pk_name, val)
-        # conn = self._cursor_connection.db()
-        try:
-            self.db().execute_query(sql)
+        if self.driver_sql().delete_data(
+            self.metadata(), self.value(cursor.currentRegister(), self.metadata().primaryKey())
+        ):
             self.need_update = True
-        except Exception:
-            LOGGER.exception("CursorTableModel.%s.Delete() :: ERROR:", self._tablename)
-            # self._cursor.execute("ROLLBACK")
-            return False
+            return True
 
-        return True
+        return False
+        # pk_name = self.pK()
+        # pk_type = self.fieldType(pk_name)
+
+        # val = (
+        #    self.db()
+        #    .connManager()
+        #    .manager()
+        #    .formatValue(pk_type, self.value(cursor.currentRegister(), pk_name))
+        # )
+        # sql = "DELETE FROM %s WHERE %s = %s" % (self._tablename, pk_name, val)
+        # conn = self._cursor_connection.db()
+        # try:
+        #    self.db().execute_query(sql)
+        #    self.need_update = True
+        # except Exception:
+        #    LOGGER.exception("CursorTableModel.%s.Delete() :: ERROR:", self._tablename)
+        # self._cursor.execute("ROLLBACK")
+        #    return False
+
+        # return True
         # conn.commit()
 
     def findPKRow(self, pklist: Iterable[Any]) -> Optional[int]:
@@ -934,8 +933,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         ret = None
         if self.pK():
-            ret = self.driver_sql().findRow(
-                self.cursorDB(), self._curname, self.sql_fields.index(self.pK()), pklist[0]
+            ret = self.driver_sql().row_find(
+                self._curname, self.sql_fields.index(self.pK()), pklist[0]
             )
 
         return ret
@@ -1024,7 +1023,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             # q = pnsqlquery.PNSqlQuery(None, self.db())
             sql = "SELECT COUNT(%s) FROM %s WHERE %s" % (self.pK(), self._tablename, where_)
             cursor = self.driver_sql().execute_query(sql)
-            result = cursor.fetchone()
+            result = cursor.fetchone() if cursor else None
             if result is not None:
                 size = result[0]
             # q.exec_(sql)
@@ -1083,22 +1082,15 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         return self._metadata
 
-    def driver_sql(self) -> Any:
-        """Get SQL Driver used."""
-        return self._driver_sql
-
-    def cursorDB(self) -> "iapicursor.IApiCursor":
-        """
-        Get currently used database cursor.
-
-        @return cursor object
-        """
-
-        return self._cursor_db
-
     def db(self) -> "iconnection.IConnection":
         """Get current connection."""
-        return self._cursor_connection
+
+        return self._parent.db()
+
+    def driver_sql(self) -> "pnsqlschema.PNSqlSchema":
+        """Return driver sql."""
+
+        return self._parent.db().driver()
 
     def set_parent_view(self, parent_view: "fldatatable.FLDataTable") -> None:
         """Set the parent view."""

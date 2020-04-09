@@ -17,9 +17,11 @@ from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 import time
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import iapicursor, isqlcursor
+    from pineboolib.interfaces import isqlcursor
     from pineboolib.application.metadata import pntablemetadata
     from . import pnconnectionmanager
+
+    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F821, F401
 
 LOGGER = utils.logging.get_logger(__name__)
 
@@ -33,6 +35,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _db_port: Optional[int]
     _db_user_name: Optional[str]
     _db_password: str = ""
+    conn: Optional["base.Connection"] = None  # Connection from the actual driver
 
     _driver_sql: "pnsqldrivers.PNSqlDrivers"
     _driver_name: str
@@ -61,6 +64,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         super().__init__()
         self.update_activity_time()
+        self.conn = None
 
         self._driver = None
         self._db_name = db_name
@@ -125,10 +129,15 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Get the current connection name for this cursor."""
         return self._name
 
+    def connection(self) -> "base.Connection":
+        """Return base connection."""
+
+        return self.driver().connection()
+
     def isOpen(self) -> bool:
         """Indicate if a connection is open."""
 
-        return self._is_open and self.driver().isOpen()
+        return self._is_open and self.driver().is_open()
 
     def tables(self, tables_type: Optional[Union[str, int]] = "") -> List[str]:
         """Return a list of available tables in the database, according to a given filter."""
@@ -176,10 +185,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().declarative_base()
 
-    def cursor(self) -> "iapicursor.IApiCursor":
-        """Return a cursor to the database."""
+    # def cursor(self) -> "iapicursor.IApiCursor":
+    #    """Return a cursor to the database."""
 
-        return self.driver().cursor()
+    #    return self.driver().connection()
 
     def conectar(
         self,
@@ -237,7 +246,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def lastError(self) -> str:
         """Return the last error reported by the sql driver."""
 
-        return self.driver().lastError()
+        return self.driver().last_error()
 
     def host(self) -> Optional[str]:
         """Return the name of the database host."""
@@ -623,7 +632,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def commit(self) -> bool:
         """Send the commit order to the database."""
 
-        return self.driver().commitTransaction()
+        return self.driver().transaction_commit()
 
     def canOverPartition(self) -> bool:
         """Return True if the database supports the OVER statement."""
@@ -633,12 +642,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def savePoint(self, save_point: int) -> bool:
         """Create a save point."""
 
-        return self.driver().savePoint(save_point)
+        return self.driver().save_point(save_point)
 
     def releaseSavePoint(self, save_point: int) -> bool:
         """Release a save point."""
 
-        return self.driver().releaseSavePoint(save_point)
+        return self.driver().save_point_release(save_point)
 
     def Mr_Proper(self):
         """Clean the database of unnecessary tables and records."""
@@ -648,7 +657,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def rollbackSavePoint(self, save_point: int) -> bool:
         """Roll back a save point."""
 
-        return self.driver().rollbackSavePoint(save_point)
+        return self.driver().save_point_roll_back(save_point)
 
     def transaction(self) -> bool:
         """Create a transaction."""
@@ -657,12 +666,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def commitTransaction(self) -> bool:
         """Release a transaction."""
 
-        return self.driver().commitTransaction()
+        return self.driver().transaction_commit()
 
     def rollbackTransaction(self) -> bool:
         """Roll back a transaction."""
 
-        return self.driver().rollbackTransaction()
+        return self.driver().transaction_rollback()
 
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Indicate next available value of a serial type field."""
@@ -692,10 +701,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         for single_sql in sql.split(";"):
             conn_aux.execute_query(single_sql)
-            if conn_aux.driver().lastError():
+            if conn_aux.driver().last_error():
                 LOGGER.exception(
                     "createTable: Error happened executing sql: %s...%s"
-                    % (single_sql[:80], str(conn_aux.driver().lastError()))
+                    % (single_sql[:80], str(conn_aux.driver().last_error()))
                 )
                 self.rollbackTransaction()
                 conn_aux.driver().set_last_error_null()
@@ -728,10 +737,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().queryUpdate(name, update, filter)
 
-    def execute_query(self, qry, cursor: Any = None) -> Any:
+    def execute_query(self, qry, connection: Optional["base.Connection"] = None) -> Any:
         """Execute a query in a database cursor."""
 
-        return self.driver().execute_query(qry, cursor)
+        return self.driver().execute_query(qry, connection)
 
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify the fields of a table in the database based on the differences of two PNTableMetaData."""

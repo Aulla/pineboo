@@ -541,16 +541,16 @@ class Project(object):
         """Load database modules."""
         conn = self.conn_manager.mainConn()
         db_name = conn.DBName()
-        cursor_ = self.conn_manager.dbAux().driver().cursor()
+        connection_ = self.conn_manager.dbAux().driver().connection()
 
-        result = cursor_.execute(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
+        result = connection_.execute(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
         for idarea, descripcion in list(result):
             self.areas[idarea] = AreaStruct(idarea=idarea, descripcion=descripcion)
 
         self.areas["sys"] = AreaStruct(idarea="sys", descripcion="Area de Sistema")
 
         # Obtener módulos activos
-        result = cursor_.execute(
+        result = connection_.execute(
             """ SELECT idarea, idmodulo, descripcion, icono FROM flmodules WHERE bloqueo = %s """
             % conn.driver().formatValue("bool", "True", False)
         )
@@ -561,7 +561,7 @@ class Project(object):
             if idmodulo not in self.modules:
                 self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
 
-        result = cursor_.execute(
+        result = connection_.execute(
             """ SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
         )
 

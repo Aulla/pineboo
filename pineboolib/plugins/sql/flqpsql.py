@@ -6,7 +6,7 @@ from pineboolib import logging
 from pineboolib.fllegacy import flutil
 
 from . import pnsqlschema
-import sqlalchemy
+import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
 from typing import Optional, Union, List, Any, TYPE_CHECKING
 
@@ -50,9 +50,9 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
 
-        if self.isOpen():
+        if self.is_open():
             cur = self.execute_query("SELECT nextval('%s_%s_seq')" % (table_name, field_name))
-            result_ = cur.fetchone()
+            result_ = cur.fetchone() if cur else []
             if not result_:
                 LOGGER.warning("not exec sequence")
             else:
@@ -108,11 +108,13 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             type_ = field.type()
             if type_ == "serial":
                 seq = "%s_%s_seq" % (tmd.name(), field.name())
-                if self.isOpen() and create_index:
+                if self.is_open() and create_index:
                     cursor = self.execute_query(
                         "SELECT relname FROM pg_class WHERE relname='%s'" % seq
                     )
-                    if not cursor.fetchone():
+
+                    res_ = cursor.fetchone() if cursor else None
+                    if not res_:
                         try:
                             self.execute_query("CREATE SEQUENCE %s" % seq)
                         except Exception as error:
@@ -175,7 +177,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             "and pg_attribute.attisdropped = false order by pg_attribute.attnum" % tablename.lower()
         )
         cursor = self.execute_query(sql)
-        res = cursor.fetchall()
+        res = cursor.fetchall() if cursor else []
         for columns in res:
             field_size = columns[3]
             field_precision = columns[4]
@@ -244,24 +246,24 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         """Return a tables list specified by type."""
         table_list: List[str] = []
         result_list: List[Any] = []
-        if self.isOpen():
+        if self.is_open():
 
             if type_name in ("Tables", ""):
                 cursor = self.execute_query(
                     "select relname from pg_class where ( relkind = 'r' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ) "
                 )
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
 
             if type_name in ("Views", ""):
                 cursor = self.execute_query(
                     "select relname from pg_class where ( relkind = 'v' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ) "
                 )
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
             if type_name in ("SystemTables", ""):
                 cursor = self.execute_query(
                     "select relname from pg_class where ( relkind = 'r' ) AND ( relname like 'pg_%' ) "
                 )
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
 
         for item in result_list:
             table_list.append(item[0])
@@ -276,19 +278,17 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             % name
         )
         cur = self.execute_query(sql)
-        result_ = cur.fetchone()
+        result_ = cur.fetchone() if cur else []
         return True if result_ else False
 
     def queryUpdate(self, name: str, update: str, filter: str) -> str:
         """Return a database friendly update query."""
         return """UPDATE %s SET %s WHERE %s RETURNING *""" % (name, update, filter)
 
-    def declareCursor(
-        self, curname: str, fields: str, table: str, where: str, conn_db: "base.Connection"
-    ) -> Optional["result.ResultProxy"]:
+    def declare_cursor(self, curname: str, fields: str, table: str, where: str) -> None:
         """Set a refresh query for database."""
 
-        if not self.isOpen():
+        if not self.is_open():
             raise Exception("declareCursor: Database not open")
 
         sql = "DECLARE %s CURSOR WITH HOLD FOR SELECT %s FROM %s WHERE %s " % (
@@ -299,35 +299,30 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         )
 
         try:
-            result_ = conn_db.execute(sqlalchemy.text(sql))
+            result_ = self.connection().execute(sqlalchemy.text(sql))
         except Exception as e:
             LOGGER.error("refreshQuery: %s", e)
             LOGGER.info("SQL: %s", sql)
             LOGGER.trace("Detalle:", stack_info=True)
+            result_ = None
 
         return result_
 
-    def getRow(
-        self,
-        number: int,
-        curname: str,
-        conn_db: "base.Connection",
-        data: Optional["result.ResultProxy"] = None,
-    ) -> List:
+    def row_get(self, number: int, curname: str) -> List:
         """Return a data row."""
 
-        if not self.isOpen():
+        if not self.is_open():
             raise Exception("getRow: Database not open")
 
         ret_: List[Any] = []
         sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
         sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % curname
-        result_ = conn_db.execute(sql_exists)
+        result_ = self.connection().execute(sql_exists)
         if result_ is None:
             return ret_
 
         try:
-            result_ = conn_db.execute(sql)
+            result_ = self.connection().execute(sql)
             ret_ = result_.fetchone()
         except Exception as e:
             LOGGER.error("getRow: %s", e)
@@ -335,29 +330,20 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         return ret_
 
-    def findRow(
-        self,
-        cursor: "base.Connection",
-        curname: str,
-        field_pos: int,
-        value: Any,
-        data_proxy: Optional["result.ResultProxy"] = None,
-    ) -> Optional[int]:
+    def row_find(self, curname: str, field_pos: int, value: Any) -> Optional[int]:
         """Return index row."""
         limit = 0
         pos: Optional[int] = None
-
-        if not self.isOpen():
+        if not self.is_open():
             raise Exception("findRow: Database not open")
         try:
 
             while True:
                 sql = "FETCH %s FROM %s" % ("FIRST" if not limit else limit + 10000, curname)
-                result_ = cursor.execute(sql)
-                if not result_:
-                    break
+                result_ = self.connection().execute(sql)
                 data_ = result_.fetchall()
-
+                if not data_:
+                    break
                 for n, line in enumerate(data_):
                     if line[field_pos] == value:
                         return limit + n
@@ -370,19 +356,19 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         return pos
 
-    def deleteCursor(self, cursor_name: str, cursor: Any) -> None:
+    def delete_declared_cursor(self, cursor_name: str) -> None:
         """Delete cursor."""
 
-        if not self.isOpen():
+        if not self.is_open():
             raise Exception("deleteCursor: Database not open")
 
         try:
             sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % cursor_name
-            result_ = cursor.execute(sql_exists)
+            result_ = self.connection().execute(sql_exists)
             if result_.fetchone() is None:
                 return
 
-            cursor.execute("CLOSE %s" % cursor_name)
+            self.connection().execute("CLOSE %s" % cursor_name)
         except Exception as exception:
             LOGGER.error("finRow: %s", exception)
             LOGGER.warning("Detalle:", stack_info=True)
@@ -412,7 +398,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
     def Mr_Proper(self) -> None:
         util = flutil.FLUtil()
 
-        if not self.isOpen():
+        if not self.is_open():
             raise Exception("Mr_Proper: Database not open")
 
         if self.db_ is None:
@@ -581,7 +567,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             "and ( relname !~ '^pg_' ) and ( relname !~ '^sql_' )"
         )
         cur_sequences = self.execute_query(sql, conn_dbaux.cursor())
-        data_list = list(cur_sequences.fetchall())
+        data_list = list(cur_sequences.fetchall() if cur_sequences else [])
         util.createProgressDialog(
             util.translate("application", "Comprobando indices"), len(data_list)
         )

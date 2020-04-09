@@ -182,10 +182,16 @@ class KParserTools(object):
                     table_name += "_%s" % ref_key.split("@")[1]
 
                 qry = pnsqlquery.PNSqlQuery()
-                qry.exec_("SELECT contenido FROM %s WHERE refkey='%s'" % (table_name, ref_key))
-                if qry.next():
-                    value = xpm.cache_xpm(qry.value(0))
+                print("*")
+                if qry.exec_("SELECT contenido FROM %s WHERE refkey='%s'" % (table_name, ref_key)):
+                    print(
+                        "**", "SELECT contenido FROM %s WHERE refkey='%s'" % (table_name, ref_key)
+                    )
+                    if qry.next():
+                        print("***")
+                        value = xpm.cache_xpm(qry.value(0))
 
+                print("****", value)
                 if value:
                     ret = img_file
                     pix = QPixmap(value)

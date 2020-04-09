@@ -14,6 +14,8 @@ import os
 
 
 from typing import Optional, Any, List, TYPE_CHECKING
+from sqlalchemy import create_engine  # type: ignore [import] # noqa: F821, F401
+
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
@@ -41,7 +43,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self._null = ""
         self._text_like = ""
         self._text_cascade = ""
-        self._single_conn = False
+        self._single_conn = True
         self._sqlalchemy_name = "sqlite"
 
     def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
@@ -52,11 +54,11 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         main_conn = None
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
-            self.engine_ = main_conn.engine()
-            conn_ = self.engine_.connect()
+            if self._single_conn:
+                self.engine_ = main_conn.driver().engine()
+                conn_ = self.connection()
 
         if conn_ is None:
-
             if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):
                 os.mkdir("%s/sqlite_databases/" % application.PROJECT.tmpdir)
 
@@ -73,22 +75,14 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return conn_
 
-    def getEngine(self, conn_string: str) -> Any:
-        """Return sqlAlchemy connection."""
-
-        from sqlalchemy import create_engine  # type: ignore
-
-        return create_engine(conn_string)
-
     def loadConnectionString(self, name: str, host: str, port: int, usern: str, passw_: str) -> str:
         """Set special config."""
 
         return "%s:///%s" % (self._sqlalchemy_name, self.db_filename)
 
-    # def cursor(self) -> "base.Connection":
-    #    """Return a cursor connection."""
-    #    conn_ = super().cursor()
-    #    return conn_.execution_options(autocommit=None)
+    def getEngine(self, conn_string: str) -> "base.Engine":
+        """Return sqlAlchemy connection."""
+        return create_engine(conn_string, encoding="UTF-8")
 
     def setDBName(self, name: str):
         """Set DB Name."""
@@ -215,7 +209,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         sql = "PRAGMA table_info('%s')" % table_name
 
         cursor = self.execute_query(sql)
-        res = cursor.fetchall()
+        res = cursor.fetchall() if cursor else []
 
         for columns in res:
             field_name = columns[1]
@@ -264,19 +258,19 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         table_list: List[str] = []
         result_list: List[Any] = []
-        if self.isOpen():
+        if self.is_open():
 
             if type_name in ("Tables", ""):
                 cursor = self.execute_query(
                     "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC"
                 )
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
 
             if type_name in ("Views", ""):
                 cursor = self.execute_query(
                     "SELECT name FROM sqlite_master WHERE type='view' ORDER BY name ASC"
                 )
-                result_list += cursor.fetchall()
+                result_list += cursor.fetchall() if cursor else []
 
             if type_name in ("SystemTables", ""):
                 table_list.append("sqlite_master")
