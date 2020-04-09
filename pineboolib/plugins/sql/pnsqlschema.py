@@ -10,7 +10,7 @@ from pineboolib.application.database import pnsqlquery
 
 
 from typing import Iterable, Optional, Union, List, Any, Dict, cast, TYPE_CHECKING
-from pineboolib.core import settings, decorators
+from pineboolib.core import decorators
 
 from pineboolib.fllegacy import flutil
 
