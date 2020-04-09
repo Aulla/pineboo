@@ -19,7 +19,7 @@ pytz
 PyYAML
 reportlab
 setuptools
-SQLAlchemy
+sqlalchemy==1.3.16
 sqlparse
 sphinx
 sphinx-autodoc-typehints
