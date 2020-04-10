@@ -28,8 +28,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         self.errorList = []
         self.alias_ = "PostgreSQL (PSYCOPG2)"
         self.defaultPort_ = 5432
-        self.rollback_savepoint_command = "ROLLBACK TO SAVEPOINT"
-        self.commit_transaction_command = "COMMIT TRANSACTION"
         self._true = True
         self._false = False
         self._like_true = "'t'"
@@ -566,7 +564,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             "select relname from pg_class where ( relkind = 'r' ) " + "and ( relname !~ '^Inv' ) "
             "and ( relname !~ '^pg_' ) and ( relname !~ '^sql_' )"
         )
-        cur_sequences = self.execute_query(sql, conn_dbaux.cursor())
+        cur_sequences = conn_dbaux.execute_query(sql)
         data_list = list(cur_sequences.fetchall() if cur_sequences else [])
         util.createProgressDialog(
             util.translate("application", "Comprobando indices"), len(data_list)

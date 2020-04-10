@@ -95,10 +95,11 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
         "from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated, load_model"
     )
     data.append("from pineboolib import application")
+    data.append("from pineboolib.qsa import qsa")
     data.append("")
     # data.append("Base = declarative_base()")
     data.append("BASE = application.PROJECT.conn_manager.mainConn().declarative_base()")
-    data.append("ENGINE = application.PROJECT.conn_manager.mainConn().engine()")
+    # data.append("ENGINE = application.PROJECT.conn_manager.mainConn().engine()")
     data.append("")
     # for field in mtd_table.fieldList():
     #    if field.relationM1():
@@ -108,7 +109,6 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("")
     data.append("class %s%s(BASE):" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("    __tablename__ = '%s'" % mtd_table.name())
-    data.append("    __session__ = application.PROJECT.conn_manager.mainConn().session()")
     # data.append("    __actionname__ = '%s'" % action_name)
     data.append("")
 
@@ -170,7 +170,6 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
                         relation.foreignField(),
                     )
                     relation_ += ")"
-
                     data.append(relation_)
 
     data.append("")

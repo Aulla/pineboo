@@ -312,15 +312,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().formatValueLike(table, value, upper)
 
-    def canSavePoint(self) -> bool:
-        """Inform if the sql driver can manage savepoints."""
-
-        return self.connManager().dbAux().driver().canSavePoint()
-
-    def canTransaction(self) -> bool:
-        """Inform if the sql driver can manage transactions."""
-        return self.driver().canTransaction()
-
     def lastActiveCursor(self):
         """Return the last active cursor in the sql driver."""
 
@@ -329,7 +320,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def doTransaction(self, cursor: "isqlcursor.ISqlCursor") -> bool:
         """Make a transaction or savePoint according to transaction level."""
 
-        if self.driver()._transaction == 0 and self.canTransaction():
+        if self.driver()._transaction == 0:
             application.PROJECT.message_manager().send(
                 "status_help_msg",
                 "send",
@@ -338,14 +329,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             if self.transaction():
                 self._last_active_cursor = cursor
                 DB_SIGNALS.emitTransactionBegin(cursor)
-
-                # if not self.canSavePoint():
-                #    if self.currentSavePoint_:
-                #        del self.currentSavePoint_
-                #        self.currentSavePoint_ = None
-
-                #    self.stackSavePoints_.clear()
-                #    self.queueSavePoints_.clear()
 
                 self.driver()._transaction = +1
                 cursor.private_cursor._transactions_opened.insert(0, self.driver()._transaction)
@@ -364,23 +347,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                         % (self._name, self.driver()._transaction)
                     ],
                 )
-            # if not self.canSavePoint():
-            #    if self.driver()._transaction == 0:
-            #        if self.currentSavePoint_:
-            #            del self.currentSavePoint_
-            #            self.currentSavePoint_ = None
 
-            #        self.stackSavePoints_.clear()
-            #        self.queueSavePoints_.clear()
-
-            #    if self.currentSavePoint_:
-            #        if self.stackSavePoints_:
-            #            self.stackSavePoints_.insert(0, self.currentSavePoint_)
-            #        else:
-            #            self.stackSavePoints_.append(self.currentSavePoint_)
-
-            #    self.currentSavePoint_ = PNSqlSavePoint(self.driver()._transaction)
-            # else:
             self.savePoint(self.driver()._transaction)
 
             self.driver()._transaction = self.driver()._transaction + 1
@@ -443,7 +410,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         else:
             return True
 
-        if self.driver()._transaction == 0 and self.canTransaction():
+        if self.driver()._transaction == 0:
             application.PROJECT.message_manager().send(
                 "status_help_msg",
                 "send",
@@ -451,14 +418,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             )
             if self.rollbackTransaction():
                 self._last_active_cursor = None
-
-                # if not self.canSavePoint():
-                #    if self.currentSavePoint_:
-                #        del self.currentSavePoint_
-                #        self.currentSavePoint_ = None
-
-                #    self.stackSavePoints_.clear()
-                #    self.queueSavePoints_.clear()
 
                 cur.setModeAccess(cur.Browse)
                 if cancel:
@@ -480,33 +439,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     % (self._name, self.driver()._transaction)
                 ],
             )
-            # if not self.canSavePoint():
-            #    tam_queue = len(self.queueSavePoints_)
-            #    for i in range(tam_queue):
-            #        temp_save_point = self.queueSavePoints_.pop()
-            #        temp_id = temp_save_point.id()
-
-            #        if temp_id > self.driver()._transaction or self.driver()._transaction == 0:
-            #            temp_save_point.undo()
-            #            del temp_save_point
-            #        else:
-            #            self.queueSavePoints_.append(temp_save_point)
-
-            #    if self.currentSavePoint_ is not None:
-            #        self.currentSavePoint_.undo()
-            #        self.currentSavePoint_ = None
-            #        if self.stackSavePoints_:
-            #            self.currentSavePoint_ = self.stackSavePoints_.pop()
-
-            #    if self.driver()._transaction == 0:
-            #        if self.currentSavePoint_:
-            #            del self.currentSavePoint_
-            #            self.currentSavePoint_ = None
-
-            #        self.stackSavePoints_.clear()
-            #        self.queueSavePoints_.clear()
-
-            # else:
             self.rollbackSavePoint(self.driver()._transaction)
 
             cur.setModeAccess(cur.Browse)
@@ -545,7 +477,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             return True
 
-        if self.driver()._transaction == 0 and self.canTransaction():
+        if self.driver()._transaction == 0:
             application.PROJECT.message_manager().send(
                 "status_help_msg",
                 "send",
@@ -554,14 +486,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             try:
                 if self.commit():
                     self._last_active_cursor = None
-
-                    # if not self.canSavePoint():
-                    #    if self.currentSavePoint_:
-                    #        del self.currentSavePoint_
-                    #        self.currentSavePoint_ = None
-
-                    #    self.stackSavePoints_.clear()
-                    #    self.queueSavePoints_.clear()
 
                     if notify:
                         cur.setModeAccess(cur.Browse)
@@ -588,35 +512,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     % (self._name, self.driver()._transaction)
                 ],
             )
-            if (self.driver()._transaction == 1 and self.canTransaction()) or (
-                self.driver()._transaction == 0 and not self.canTransaction()
-            ):
-                # if not self.canSavePoint():
-                #    if self.currentSavePoint_:
-                #        del self.currentSavePoint_
-                #        self.currentSavePoint_ = None
-
-                #    self.stackSavePoints_.clear()
-                #    self.queueSavePoints_.clear()
-                # else:
-                self.releaseSavePoint(self.driver()._transaction)
-                if notify:
-                    cur.setModeAccess(cur.Browse)
-
-                return True
-            # if not self.canSavePoint():
-            #    tam_queue = len(self.queueSavePoints_)
-            #    for i in range(tam_queue):
-            #        temp_save_point = self.queueSavePoints_.pop()
-            #        temp_save_point.setId(self.driver()._transaction - 1)
-            #        self.queueSavePoints_.append(temp_save_point)
-
-            #    if self.currentSavePoint_:
-            #        self.queueSavePoints_.append(self.currentSavePoint_)
-            #        self.currentSavePoint_ = None
-            #        if self.stackSavePoints_:
-            #            self.currentSavePoint_ = self.stackSavePoints_.pop()
-            # else:
             self.releaseSavePoint(self.driver()._transaction)
 
             if notify:
@@ -737,10 +632,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().queryUpdate(name, update, filter)
 
-    def execute_query(self, qry, connection: Optional["base.Connection"] = None) -> Any:
+    def execute_query(self, qry) -> Any:
         """Execute a query in a database cursor."""
 
-        return self.driver().execute_query(qry, connection)
+        return self.driver().execute_query(qry)
 
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Modify the fields of a table in the database based on the differences of two PNTableMetaData."""

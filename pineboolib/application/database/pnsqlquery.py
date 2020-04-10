@@ -117,7 +117,6 @@ class PNSqlQuery(object):
     _posicion: int
     _cursor: Optional["IApiCursor"]
     private_query: PNSqlQueryPrivate
-    _connection: Optional["base.Connection"]
 
     def __init__(self, cx=None, connection_name: Union[str, "IConnection"] = "default") -> None:
         """
@@ -139,7 +138,6 @@ class PNSqlQuery(object):
         self._invalid_tables_list = False
         self.private_query._field_list = []
         self._is_active = False
-        self._connection = None
 
         retorno_qry = None
         if cx:
@@ -198,13 +196,10 @@ class PNSqlQuery(object):
 
         self._last_query = sql
 
-        self._connection = self.db().connection()
-        if self._connection is None:
-            raise Exception("self._connection is empty!")
         LOGGER.trace(
-            "exec_: Ejecutando consulta: <%s> en <%s>", sql, self._connection
+            "exec_: Ejecutando consulta: <%s> en <%s>", sql, self.db()._name
         )  # type: ignore [misc] # noqa: F821, F401
-        result = self.db().execute_query(sql, self._connection)
+        result = self.db().execute_query(sql)
         try:
             self._datos = result.fetchall() if result else []
         except Exception as error:
@@ -898,9 +893,6 @@ class PNSqlQuery(object):
         @return True or False.
         """
 
-        if not self._connection:
-            return False
-
         pos = postition
         if relative:
             pos = postition + self._posicion
@@ -919,8 +911,6 @@ class PNSqlQuery(object):
 
         @return True or False.
         """
-        if not self._connection:
-            return False
 
         if self._datos:
             self._posicion += 1
@@ -936,8 +926,6 @@ class PNSqlQuery(object):
 
         @return True or False.
         """
-        if not self._connection:
-            return False
 
         if self._datos:
             self._posicion -= 1
@@ -953,8 +941,6 @@ class PNSqlQuery(object):
 
         @return True or False.
         """
-        if not self._connection:
-            return False
 
         if self._datos:
             self._posicion = 0
@@ -969,8 +955,6 @@ class PNSqlQuery(object):
 
         @return True or False.
         """
-        if not self._connection:
-            return False
 
         if self._datos:
             self._posicion = len(self._datos) - 1

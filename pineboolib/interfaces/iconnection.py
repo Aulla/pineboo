@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata.pntablemetadata import PNTableMetaData
     from pineboolib.fllegacy import flmanager
     from pineboolib.fllegacy import flmanagermodules
+    from pineboolib.application.metadata import pntablemetadata
     from sqlalchemy.engine import base  # type: ignore [import] # noqa: F821, F401
 
 LOGGER = logging.get_logger(__name__)
@@ -185,16 +186,6 @@ class IConnection:
 
         return ""
 
-    def canSavePoint(self) -> bool:
-        """Inform if the sql driver can manage savepoints."""
-
-        return True
-
-    def canTransaction(self) -> bool:
-        """Inform if the sql driver can manage transactions."""
-
-        return True
-
     def doTransaction(self, cursor) -> bool:
         """Make a transaction or savePoint according to transaction level."""
 
@@ -245,12 +236,12 @@ class IConnection:
 
         return True
 
-    def savePoint(self, save_point: int) -> bool:
+    def savePoint(self) -> bool:
         """Create a save point."""
 
         return True
 
-    def releaseSavePoint(self, save_point: int) -> bool:
+    def releaseSavePoint(self) -> bool:
         """Release a save point."""
 
         return True
@@ -260,7 +251,7 @@ class IConnection:
 
         return
 
-    def rollbackSavePoint(self, save_point: int) -> bool:
+    def rollbackSavePoint(self) -> bool:
         """Roll back a save point."""
 
         return True
@@ -310,7 +301,7 @@ class IConnection:
 
         return ""
 
-    def execute_query(self, query: str, cursor: Any = None) -> Any:
+    def execute_query(self, query: str) -> Any:
         """Execute a query in a database cursor."""
 
         return ""
@@ -343,3 +334,20 @@ class IConnection:
         """Return length formated."""
 
         return ""
+
+    def insert_data(self, table_name: str, fields: List[str], values: List[str]) -> bool:
+        """Insert data into table."""
+
+        return True
+
+    def update_data(
+        self, metadata: "pntablemetadata.PNTableMetaData", data: Dict[str, Any], pk_value: Any
+    ) -> bool:
+        """Update table data."""
+
+        return True
+
+    def delete_data(self, metadata: "pntablemetadata.PNTableMetaData", pk_value: Any) -> bool:
+        """Delete row from table."""
+
+        return True

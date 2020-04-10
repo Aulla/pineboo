@@ -1573,7 +1573,7 @@ class SysType(sysbasetype.SysBaseType):
         if transaction_level_ == 0:
             db_.transaction()
         else:
-            db_.savePoint(transaction_level_)
+            db_.savePoint()
 
         db_.driver()._transaction += 1
 
@@ -1605,13 +1605,13 @@ class SysType(sysbasetype.SysBaseType):
             if transaction_level_ == 0:
                 db_.rollbackTransaction()
             else:
-                db_.rollbackSavePoint(transaction_level_)
+                db_.rollbackSavePoint()
 
         else:  # do Commit
             if transaction_level_ == 0:
                 db_.commit()
             else:
-                db_.releaseSavePoint(transaction_level_)
+                db_.releaseSavePoint()
 
         if self.interactiveGUI():
             AQS.Application_restoreOverrideCursor()

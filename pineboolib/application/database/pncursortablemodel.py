@@ -10,6 +10,7 @@ from pineboolib.core.utils import logging, utils_base
 
 
 from pineboolib.application.utils import date_conversion, xpm
+from pineboolib.application import qsadictmodules
 
 import itertools
 import locale
@@ -611,6 +612,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         Refresh information mananged by this class.
         """
+        print("REFESCANDO", self._tablename)
         if (
             self._initialized is None and self.parent_view
         ):  # Si es el primer refresh y estoy conectado a un FLDatatable()
@@ -812,25 +814,22 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # Reimplementación para que todo pase por el método genérico.
         self.setValuesDict(row, {fieldname: value})
 
-    def insert(
-        self, fl_cursor: "isqlcursor.ISqlCursor"
-    ) -> bool:  # FIXME: Should be "insert" in lowercase.
+    def insert(self, pn_cursor: "isqlcursor.ISqlCursor") -> bool:
         """
         Create new row in TableModel.
 
         @param buffer . PNBuffer to be added.
         """
-        # Metemos lineas en la tabla de la bd
-        # pKValue = None
-        buffer = fl_cursor.buffer()
+
+        data: Dict[str, Any] = {}
+        buffer = pn_cursor.buffer()
         if buffer is None:
             raise Exception("Cursor has no buffer")
-        campos = []
-        valores = []
+
         for buffer_field in buffer.fieldsList():
             value: Any = None
             if buffer.value(buffer_field.name) is None:
-                mtdfield = fl_cursor.metadata().field(buffer_field.name)
+                mtdfield = pn_cursor.metadata().field(buffer_field.name)
                 if mtdfield is None:
                     raise Exception("field %s not found" % buffer_field.name)
                 value = mtdfield.defaultValue()
@@ -838,16 +837,25 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 value = buffer.value(buffer_field.name)
 
             if value is not None:  # si el campo se rellena o hay valor default
+                if buffer_field.type_ in ("string", "stringlist") and isinstance(value, str):
+                    value = self.db().normalizeValue(value)
 
-                campos.append(buffer_field.name)
-                valores.append(value)
+                data[buffer_field.name] = value
 
-        if campos:
-            if self.driver_sql().insert_data(fl_cursor.curName(), campos, valores):
-                self.need_update = True
-                return True
+        if data:
+            try:
+                model = qsadictmodules.QSADictModules.from_project(
+                    "%s_orm" % pn_cursor.action().name()
+                )
 
-        return False
+                if self.db().driver().insert_model(model, data):
+                    self.need_update = True
+
+            except Exception as error:
+                LOGGER("INSERT : %s", str(error))
+                return False
+
+        return True
 
     def update(self, pk_value: Any, dict_update: Dict[str, Any]) -> bool:
         """
@@ -856,12 +864,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         @param pk_value. Pirmary Key of the record to be updated
         @param dict_update. Fields to be updated
         """
-
-        LOGGER.trace("updateValuesDB: init: pk_value %s, dict_update %s", pk_value, dict_update)
         row = self.findPKRow([pk_value])
-        # if row is None:
-        #    raise AssertionError(
-        #        "Los indices del CursorTableModel no devolvieron un registro (%r)" % (pk_value))
         if row is None:
             return False
 
@@ -871,7 +874,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 % (self.value(row, self.pK()), pk_value)
             )
 
-        if not self.driver_sql().update_data(self.metadata(), dict_update, pk_value):
+        model = qsadictmodules.QSADictModules.from_project("%s_orm" % self.metadata().name())
+        if not self.driver_sql().update_model(model, dict_update, pk_value):
             return False
 
         self.setValuesDict(row, dict_update)
@@ -885,35 +889,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @param cursor . FLSqlCursor object
         """
+        pk_value = cursor.valueBuffer(self.pK())
 
-        if self.driver_sql().delete_data(
-            self.metadata(), self.value(cursor.currentRegister(), self.metadata().primaryKey())
-        ):
+        model = qsadictmodules.QSADictModules.from_project("%s_orm" % self.metadata().name())
+        result_ = self.driver_sql().delete_model(model, pk_value)
+        if result_:
             self.need_update = True
-            return True
-
-        return False
-        # pk_name = self.pK()
-        # pk_type = self.fieldType(pk_name)
-
-        # val = (
-        #    self.db()
-        #    .connManager()
-        #    .manager()
-        #    .formatValue(pk_type, self.value(cursor.currentRegister(), pk_name))
-        # )
-        # sql = "DELETE FROM %s WHERE %s = %s" % (self._tablename, pk_name, val)
-        # conn = self._cursor_connection.db()
-        # try:
-        #    self.db().execute_query(sql)
-        #    self.need_update = True
-        # except Exception:
-        #    LOGGER.exception("CursorTableModel.%s.Delete() :: ERROR:", self._tablename)
-        # self._cursor.execute("ROLLBACK")
-        #    return False
-
-        # return True
-        # conn.commit()
+        return result_
 
     def findPKRow(self, pklist: Iterable[Any]) -> Optional[int]:
         """

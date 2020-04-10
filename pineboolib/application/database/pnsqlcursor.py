@@ -1161,7 +1161,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     and self.private_cursor.mode_access_ == self.Insert
                     and value is not None
                 ):
-                    qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                    qry = pnsqlquery.PNSqlQuery(None, self.db())
                     qry.setTablesList(self.table())
                     qry.setSelect(field_name)
                     qry.setFrom(self.table())

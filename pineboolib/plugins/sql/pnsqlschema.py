@@ -15,9 +15,10 @@ from pineboolib.core import decorators
 from pineboolib.fllegacy import flutil
 
 from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noqa: F821
-from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
+from sqlalchemy.orm import sessionmaker, session  # type: ignore [import] # noqa: F821
 from sqlalchemy import event  # type: ignore [import] # noqa: F821, F401
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
+from sqlalchemy.inspection import inspect
 
 import re
 
@@ -45,8 +46,8 @@ class PNSqlSchema(object):
     pure_python_: bool
     defaultPort_: int
     engine_: Optional["base.Engine"]
-    session_: Any
-    declarative_base_: Any
+    _session: Any
+    declarative_base_: Any = None
     cursor_: Any
     rows_cached: Dict[str, List[Any]]
     cursor_proxy: Dict[str, "result.ResultProxy"]
@@ -73,6 +74,7 @@ class PNSqlSchema(object):
     _single_conn: bool
     _sqlalchemy_name: str
     _connection: Any = None
+    _save_points_dict: Dict[str, Any]
 
     def __init__(self):
         """Inicialize."""
@@ -86,8 +88,8 @@ class PNSqlSchema(object):
         self.pure_python_ = False
         self.defaultPort_ = 0
         self.engine_ = None
-        self.session_ = None
-        self.declarative_base_ = None
+        self._session = None
+        # self.declarative_base_ = None
         self.lastError_ = ""
         self.db_ = None
         self.rows_cached = {}
@@ -114,6 +116,7 @@ class PNSqlSchema(object):
         self._sqlalchemy_name = ""
         self._connection = None
         self._current_transaction = None
+        self._save_points_dict = {}
         # self.sql_query = {}
         # self.cursors_dict = {}
 
@@ -208,7 +211,7 @@ class PNSqlSchema(object):
             #    self.engine_ = self.getEngine(db_name, db_host, db_port, db_user_name, db_password)
             self._connection = conn_
             self.open_ = True
-            self.loadSpecialConfig()
+            self.session()
         else:
             LOGGER.error("connect: %s", self.last_error())
             return False
@@ -248,13 +251,8 @@ class PNSqlSchema(object):
 
     def getEngine(self, conn_string: str) -> "base.Engine":
         """Return sqlAlchemy connection."""
-        return create_engine(
-            conn_string,
-            encoding="UTF-8",
-            pool_size=0,
-            isolation_level="AUTOCOMMIT",
-            # connect_args={"timeout": 1000},
-        )
+
+        return create_engine(conn_string, encoding="UTF-8")
 
     def loadSpecialConfig(self) -> None:
         """Set special config."""
@@ -292,21 +290,18 @@ class PNSqlSchema(object):
         """Return sqlAlchemy ORM engine."""
         return self.engine_
 
-    def session(self) -> Any:
+    def session(self) -> "session.Session":
         """Create a sqlAlchemy session."""
-
-        if not self.session_:
-            Session = sessionmaker(bind=self.engine())
-            self.session_ = Session()
-
-        return self.session_
+        Session = sessionmaker(bind=self.engine())
+        return Session()
 
     def declarative_base(self) -> Any:
         """Return sqlAlchemy declarative base."""
 
-        from sqlalchemy.ext.declarative import declarative_base  # type: ignore
+        if self.declarative_base_ is None:
+            from sqlalchemy.ext.declarative import declarative_base  # type: ignore
 
-        self.declarative_base_ = declarative_base()
+            self.declarative_base_ = declarative_base()
 
         return self.declarative_base_
 
@@ -400,14 +395,6 @@ class PNSqlSchema(object):
         """Return if can regenerate tables."""
         return True
 
-    def canSavePoint(self) -> bool:
-        """Return if can do save point."""
-        return True
-
-    def canTransaction(self) -> bool:
-        """Return if can do transaction."""
-        return True
-
     def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
 
@@ -455,56 +442,43 @@ class PNSqlSchema(object):
 
         return res_
 
-    def save_point(self, number: int) -> bool:
+    def save_point(self, num: int) -> bool:
         """Set a savepoint."""
-
-        if not number:
-            return True
-
         self.set_last_error_null()
 
         try:
-            LOGGER.debug("Creando savepoint sv_%s" % number)
-            self.execute_query("%s sv_%s" % (self.savepoint_command, number))
+            self._session.begin_nested()
         except Exception as error:  # noqa: F841
-            self.set_last_error("No se pudo crear punto de salvaguarda", "SAVEPOINT sv_%s" % number)
+            print(error)
+            self.set_last_error("No se pudo crear punto de salvaguarda", "SAVEPOINT")
             return False
 
         return True
 
-    def save_point_roll_back(self, number: int) -> bool:
+    def save_point_roll_back(self, num: int) -> bool:
         """Set rollback savepoint."""
 
-        if not number:
-            return True
-
         self.set_last_error_null()
 
         try:
-            self.execute_query("%s sv_%s" % (self.rollback_savepoint_command, number))
+            self._session.rollback()
         except Exception as error:  # noqa: F841
             self.set_last_error(
-                "No se pudo rollback a punto de salvaguarda",
-                "ROLLBACK TO SAVEPOINTt sv_%s" % number,
+                "No se pudo rollback a punto de salvaguarda", "ROLLBACK TO SAVEPOINT"
             )
             return False
 
         return True
 
-    def save_point_release(self, number: int) -> bool:
+    def save_point_release(self, num: int) -> bool:
         """Set release savepoint."""
-
-        if not number:
-            return True
 
         self.set_last_error_null()
 
         try:
-            self.execute_query("%s sv_%s" % (self.release_savepoint_command, number))
+            self._session.commit()
         except Exception as error:  # noqa: F841
-            self.set_last_error(
-                "No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT sv_%s" % number
-            )
+            self.set_last_error("No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT")
             return False
 
         return True
@@ -515,8 +489,9 @@ class PNSqlSchema(object):
         self.set_last_error_null()
 
         try:
-            self.execute_query("%s" % (self.commit_transaction_command))
+            self._session.commit()
         except Exception as error:  # noqa: F841
+            print(error)
             self.set_last_error("No se pudo aceptar la transacción", "COMMIT")
             return False
 
@@ -527,8 +502,10 @@ class PNSqlSchema(object):
 
         self.set_last_error_null()
         try:
-            self.execute_query("%s" % (self.rollback_transaction_command))
+            self._session.rollback()
+            self._session = None
         except Exception as error:  # noqa: F841
+            print(error)
             self.set_last_error("No se pudo deshacer la transacción", "ROLLBACK")
             return False
 
@@ -539,8 +516,7 @@ class PNSqlSchema(object):
 
         self.set_last_error_null()
         try:
-
-            self.execute_query("%s" % (self.transaction_command))
+            self._session = self.session()
         except Exception as error:  # noqa: F841
             self.set_last_error("No se pudo crear la transacción", "BEGIN")
             return False
@@ -554,7 +530,7 @@ class PNSqlSchema(object):
     def set_last_error(self, text: str, command: str) -> None:
         """Set last error."""
         self.lastError_ = "%s (%s)" % (text, command)
-        LOGGER.error("%s::%s : %s", __name__, text, command)
+        LOGGER.error(self.lastError_)
 
     def last_error(self) -> str:
         """Return last error."""
@@ -837,104 +813,69 @@ class PNSqlSchema(object):
         """Return if use a file like database."""
         return self.desktop_file
 
-    def insert_data(self, table_name: str, fields: List[str], values: List[str]) -> bool:
-        """Insert data into table."""
-
-        valores: Dict = {}
-
-        if not self.is_open():
-            raise Exception("execute_query: Database not open %s", self)
-
-        for number, field in enumerate(fields):
-
-            valores[fields[number]] = values[number]
-
-        sql = """INSERT INTO %s (%s) VALUES (%s)""" % (
-            table_name,
-            ", ".join(fields),
-            ", ".join(":%s" % field for field in fields),
-        )
-        try:
-            self.connection().execute(sqlalchemy.text(sql), **valores)
-        except Exception as error:
-            self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (sql, str(error)), sql)
-            LOGGER.error("insert_data : %s", str(error))
-            return False
-        return True
-
-    def update_data(
-        self, metadata: "pntablemetadata.PNTableMetaData", data: Dict[str, Any], pk_value: Any
-    ) -> bool:
-        """Update table data."""
-
-        if not self.is_open():
-            raise Exception("execute_query: Database not open %s", self)
-
-        pkey_name = metadata.primaryKey()
-        mtdfield = metadata.field(pkey_name)
-        pkey_type = mtdfield.type()  # type: ignore [union-attr] # noqa: F821
-        pk_value = self.db_.formatValue(pkey_type, pk_value, False)
-
-        where_filter = "%s = %s" % (pkey_name, pk_value)
-
-        valores: Dict = {}
-        campos = []
-        for key, value in data.items():
-
-            valores[key] = value
-            campos.append("%s = :%s" % (key, key))
-
-        sql = """UPDATE %s SET %s WHERE %s""" % (metadata.name(), ", ".join(campos), where_filter)
-        try:
-            self.connection().execute(sqlalchemy.text(sql), **valores)
-        except Exception as error:
-            self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (sql, str(error)), sql)
-            LOGGER.error("update_data : %s", str(error))
-            return False
-        return True
-
-    def delete_data(self, metadata: "pntablemetadata.PNTableMetaData", pk_value: Any) -> bool:
-        """Delete row from table."""
-
-        if not self.is_open():
-            raise Exception("execute_query: Database not open %s", self)
-
-        pkey_name = metadata.primaryKey()
-        mtdfield = metadata.field(pkey_name)
-        pkey_type = mtdfield.type()  # type: ignore [union-attr] # noqa: F821
-        pk_value = self.db_.formatValue(pkey_type, pk_value, False)
-
-        where_filter = "%s = %s" % (pkey_name, pk_value)
-
-        sql = """DELETE FROM %s WHERE %s""" % (metadata.name(), where_filter)
-        try:
-            self.connection().execute(sql)
-        except Exception as error:
-            self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (sql, str(error)), sql)
-            LOGGER.error("delete_data : %s", str(error))
-            return False
-        return True
-
-    def execute_query(
-        self, query: str, conn: Optional["base.Connection"] = None
-    ) -> Optional["result.ResultProxy"]:
+    def execute_query(self, query: str) -> Optional["result.ResultProxy"]:
         """Excecute a query and return result."""
 
         if not self.is_open():
             raise Exception("execute_query: Database not open %s", self)
 
         self.set_last_error_null()
-        if conn is None:
-            conn = self.connection()
+
+        if self._session:
+            session_ = self._session
+        else:
+            session_ = self.session()
 
         try:
             query = sqlalchemy.text(query)
-            result_ = conn.execute(query)
+            result_ = session_.execute(query)
         except Exception as error:
             self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
             return None
 
         return result_
+
+    def insert_model(
+        self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", values: Dict[str, Any]
+    ) -> bool:
+        """Insert data with orm."""
+
+        try:
+            obj = model()
+            for field_name in values.keys():
+                setattr(obj, field_name, values[field_name])
+            self._session.add(obj)
+
+        except Exception as error:
+            self.set_last_error("INSERT_MODEL", str(error))
+            return False
+
+        return True
+
+    def update_model(
+        self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", values, pk_value
+    ):
+        """Update data with orm."""
+
+        try:
+            obj = self._session.query(model).get(pk_value)
+            for field_name in values.keys():
+                setattr(obj, field_name, values[field_name])
+        except Exception as error:
+            self.set_last_error("UPDATE_MODEL", str(error))
+            return False
+
+        return True
+
+    def delete_model(self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", pk_value: Any):
+        try:
+            obj = self._session.query(model).get(pk_value)
+            self._session.delete(obj)
+        except Exception as error:
+            self.set_last_error("DELETE_MODEL", str(error))
+            return False
+
+        return True
 
     def getTimeStamp(self) -> str:
         """Return TimeStamp."""
@@ -967,6 +908,7 @@ class PNSqlSchema(object):
             result_ = self.execute_query(sql)
             self.cursor_proxy[curname] = result_
             data_list = self.cursor_proxy[curname].fetchmany(self.init_cached)
+
             for data in data_list:
                 self.rows_cached[curname].append(data)
 
@@ -1035,10 +977,10 @@ class PNSqlSchema(object):
             LOGGER.error("finRow: %s", exception)
             LOGGER.warning("Detalle:", stack_info=True)
 
-    def queryUpdate(self, name: str, update: str, filter: str) -> str:
-        """Return a database friendly update query."""
-        sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
-        return sql
+    # def queryUpdate(self, name: str, update: str, filter: str) -> str:
+    #    """Return a database friendly update query."""
+    #    sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
+    #    return sql
 
     def connection(self) -> "base.Connection":
         """Return a cursor connection."""

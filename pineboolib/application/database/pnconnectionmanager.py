@@ -219,6 +219,12 @@ class PNConnectionManager(QtCore.QObject):
         """
         return self.useConn("dbAux")
 
+    def default(self) -> "iconnection.IConnection":
+        """
+        Return the default connection to the database.
+        """
+        return self.useConn("default")
+
     def check_alive_connections(self):
         """Check alive connections."""
 
