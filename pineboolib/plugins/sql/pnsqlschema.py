@@ -74,7 +74,8 @@ class PNSqlSchema(object):
     _single_conn: bool
     _sqlalchemy_name: str
     _connection: Any = None
-    _save_points_dict: Dict[str, Any]
+
+    _session: Optional["session.Session"]
 
     def __init__(self):
         """Inicialize."""
@@ -115,8 +116,7 @@ class PNSqlSchema(object):
         self._single_conn = False
         self._sqlalchemy_name = ""
         self._connection = None
-        self._current_transaction = None
-        self._save_points_dict = {}
+        self._session = None
         # self.sql_query = {}
         # self.cursors_dict = {}
 
@@ -292,8 +292,11 @@ class PNSqlSchema(object):
 
     def session(self) -> "session.Session":
         """Create a sqlAlchemy session."""
-        Session = sessionmaker(bind=self.engine())
-        return Session()
+        if not self._session:
+            Session = sessionmaker(bind=self.engine())
+            self._session = Session()
+            print("NUEVA SESSION!", self._session, self)
+        return self._session
 
     def declarative_base(self) -> Any:
         """Return sqlAlchemy declarative base."""
@@ -441,87 +444,6 @@ class PNSqlSchema(object):
                 self.transaction_rollback()
 
         return res_
-
-    def save_point(self, num: int) -> bool:
-        """Set a savepoint."""
-        self.set_last_error_null()
-
-        try:
-            self._session.begin_nested()
-        except Exception as error:  # noqa: F841
-            print(error)
-            self.set_last_error("No se pudo crear punto de salvaguarda", "SAVEPOINT")
-            return False
-
-        return True
-
-    def save_point_roll_back(self, num: int) -> bool:
-        """Set rollback savepoint."""
-
-        self.set_last_error_null()
-
-        try:
-            self._session.rollback()
-        except Exception as error:  # noqa: F841
-            self.set_last_error(
-                "No se pudo rollback a punto de salvaguarda", "ROLLBACK TO SAVEPOINT"
-            )
-            return False
-
-        return True
-
-    def save_point_release(self, num: int) -> bool:
-        """Set release savepoint."""
-
-        self.set_last_error_null()
-
-        try:
-            self._session.commit()
-        except Exception as error:  # noqa: F841
-            self.set_last_error("No se pudo release a punto de salvaguarda", "RELEASE SAVEPOINT")
-            return False
-
-        return True
-
-    def transaction_commit(self) -> bool:
-        """Set commit transaction."""
-
-        self.set_last_error_null()
-
-        try:
-            self._session.commit()
-        except Exception as error:  # noqa: F841
-            print(error)
-            self.set_last_error("No se pudo aceptar la transacción", "COMMIT")
-            return False
-
-        return True
-
-    def transaction_rollback(self) -> bool:
-        """Set a rollback transaction."""
-
-        self.set_last_error_null()
-        try:
-            self._session.rollback()
-            self._session = None
-        except Exception as error:  # noqa: F841
-            print(error)
-            self.set_last_error("No se pudo deshacer la transacción", "ROLLBACK")
-            return False
-
-        return True
-
-    def transaction(self) -> bool:
-        """Set a new transaction."""
-
-        self.set_last_error_null()
-        try:
-            self._session = self.session()
-        except Exception as error:  # noqa: F841
-            self.set_last_error("No se pudo crear la transacción", "BEGIN")
-            return False
-
-        return True
 
     def set_last_error_null(self) -> None:
         """Set lastError flag Null."""
@@ -821,61 +743,63 @@ class PNSqlSchema(object):
 
         self.set_last_error_null()
 
-        if self._session:
-            session_ = self._session
-        else:
-            session_ = self.session()
+        # if self._session:
+        #    session_ = self._session
+        # else:
+        session_ = self.session()
 
         try:
+            # print("?", query, session_)
             query = sqlalchemy.text(query)
             result_ = session_.execute(query)
+
         except Exception as error:
             self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
             return None
 
         return result_
 
-    def insert_model(
-        self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", values: Dict[str, Any]
-    ) -> bool:
-        """Insert data with orm."""
+    # def insert_model(
+    #    self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", values: Dict[str, Any]
+    # ) -> bool:
+    #    """Insert data with orm."""
 
-        try:
-            obj = model()
-            for field_name in values.keys():
-                setattr(obj, field_name, values[field_name])
-            self._session.add(obj)
+    #    try:
+    #        obj = model()
+    #        for field_name in values.keys():
+    #            setattr(obj, field_name, values[field_name])
+    #        self._session.add(obj)
 
-        except Exception as error:
-            self.set_last_error("INSERT_MODEL", str(error))
-            return False
+    #    except Exception as error:
+    #        self.set_last_error("INSERT_MODEL", str(error))
+    #        return False
 
-        return True
+    #    return True
 
-    def update_model(
-        self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", values, pk_value
-    ):
-        """Update data with orm."""
+    # def update_model(
+    #    self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", values, pk_value
+    # ):
+    #    """Update data with orm."""
 
-        try:
-            obj = self._session.query(model).get(pk_value)
-            for field_name in values.keys():
-                setattr(obj, field_name, values[field_name])
-        except Exception as error:
-            self.set_last_error("UPDATE_MODEL", str(error))
-            return False
+    #    try:
+    #        obj = self._session.query(model).get(pk_value)
+    #        for field_name in values.keys():
+    #            setattr(obj, field_name, values[field_name])
+    #    except Exception as error:
+    #        self.set_last_error("UPDATE_MODEL", str(error))
+    #        return False
 
-        return True
+    #    return True
 
-    def delete_model(self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", pk_value: Any):
-        try:
-            obj = self._session.query(model).get(pk_value)
-            self._session.delete(obj)
-        except Exception as error:
-            self.set_last_error("DELETE_MODEL", str(error))
-            return False
+    # def delete_model(self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", pk_value: Any):
+    #    try:
+    #        obj = self._session.query(model).get(pk_value)
+    #        self._session.delete(obj)
+    #    except Exception as error:
+    #        self.set_last_error("DELETE_MODEL", str(error))
+    #        return False
 
-        return True
+    #    return True
 
     def getTimeStamp(self) -> str:
         """Return TimeStamp."""
@@ -896,86 +820,86 @@ class PNSqlSchema(object):
 
         return time_stamp_
 
-    def declare_cursor(self, curname: str, fields: str, table: str, where: str) -> None:
-        """Set a refresh query for database."""
+    # def declare_cursor(self, curname: str, fields: str, table: str, where: str) -> None:
+    #    """Set a refresh query for database."""
 
-        sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
+    #    sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
 
-        sql = self.fix_query(sql)
-        self.rows_cached[curname] = []
-        result_ = None
-        try:
-            result_ = self.execute_query(sql)
-            self.cursor_proxy[curname] = result_
-            data_list = self.cursor_proxy[curname].fetchmany(self.init_cached)
+    #    sql = self.fix_query(sql)
+    #    self.rows_cached[curname] = []
+    #    result_ = None
+    #    try:
+    #        result_ = self.execute_query(sql)
+    #        self.cursor_proxy[curname] = result_
+    #        data_list = self.cursor_proxy[curname].fetchmany(self.init_cached)
 
-            for data in data_list:
-                self.rows_cached[curname].append(data)
+    #        for data in data_list:
+    #            self.rows_cached[curname].append(data)
 
-        except Exception as e:
-            LOGGER.error("declareCursor: %s", e)
-            LOGGER.trace("Detalle:", stack_info=True)
+    #    except Exception as e:
+    #        LOGGER.error("declareCursor: %s", e)
+    #        LOGGER.trace("Detalle:", stack_info=True)
 
-        # self.sql_query[curname] = sql
+    #    # self.sql_query[curname] = sql
 
-    def row_get(self, number: int, curname: str) -> List:
-        """Return a data row."""
+    # def row_get(self, number: int, curname: str) -> List:
+    #    """Return a data row."""
 
-        try:
-            cached_count = len(self.rows_cached[curname])
-            if number >= cached_count and self.cursor_proxy[curname]:
-                data_list = self.cursor_proxy[curname].fetchmany(number - cached_count + 1)
-                for row in data_list:
-                    self.rows_cached[curname].append(row)
+    #    try:
+    #        cached_count = len(self.rows_cached[curname])
+    #        if number >= cached_count and self.cursor_proxy[curname]:
+    #            data_list = self.cursor_proxy[curname].fetchmany(number - cached_count + 1)
+    #            for row in data_list:
+    #                self.rows_cached[curname].append(row)
 
-                cached_count = len(self.rows_cached[curname])
+    #            cached_count = len(self.rows_cached[curname])
 
-        except Exception as e:
-            LOGGER.error("getRow: %s", e)
-            LOGGER.trace("Detalle:", stack_info=True)
+    #    except Exception as e:
+    #        LOGGER.error("getRow: %s", e)
+    #        LOGGER.trace("Detalle:", stack_info=True)
 
-        return self.rows_cached[curname][number] if number < cached_count else []
+    #    return self.rows_cached[curname][number] if number < cached_count else []
 
-    def row_find(self, curname: str, field_pos: int, value: Any) -> Optional[int]:
-        """Return index row."""
+    # def row_find(self, curname: str, field_pos: int, value: Any) -> Optional[int]:
+    #    """Return index row."""
 
-        ret_ = None
-        try:
-            for n, row in enumerate(self.rows_cached[curname]):
-                if row[field_pos] == value:
-                    return n
+    #    ret_ = None
+    #    try:
+    #        for n, row in enumerate(self.rows_cached[curname]):
+    #            if row[field_pos] == value:
+    #                return n
 
-            cached_count = len(self.rows_cached[curname])
+    #        cached_count = len(self.rows_cached[curname])
 
-            while True and self.cursor_proxy[curname]:
-                data = self.cursor_proxy[curname].fetchone()
-                if not data:
-                    break
+    #        while True and self.cursor_proxy[curname]:
+    #            data = self.cursor_proxy[curname].fetchone()
+    #            if not data:
+    #                break
 
-                self.rows_cached[curname].append(data)
-                if data[field_pos] == value:
-                    ret_ = cached_count
-                    break
+    #            self.rows_cached[curname].append(data)
+    #            if data[field_pos] == value:
+    #                ret_ = cached_count
+    #                break
 
-                cached_count += 1
+    #            cached_count += 1
 
-        except Exception as e:
-            LOGGER.error("finRow: %s", e)
-            LOGGER.warning("%s Detalle:", field_pos, stack_info=True)
+    #    except Exception as e:
+    #        LOGGER.error("finRow: %s", e)
+    #        LOGGER.warning("%s Detalle:", field_pos, stack_info=True)
 
-        return ret_
+    #    return ret_
 
-    def delete_declared_cursor(self, cursor_name: str) -> None:
-        """Delete cursor."""
+    # def delete_declared_cursor(self, cursor_name: str) -> None:
+    #    """Delete cursor."""
 
-        try:
-            self.rows_cached[cursor_name] = []
-            self.cursor_proxy[cursor_name] = None
-            self.rows_cached.pop(cursor_name)
-            self.cursor_proxy.pop(cursor_name)
-        except Exception as exception:
-            LOGGER.error("finRow: %s", exception)
-            LOGGER.warning("Detalle:", stack_info=True)
+    #    try:
+    #        self.rows_cached[cursor_name] = []
+    #        self.cursor_proxy[cursor_name] = None
+    #        self.rows_cached.pop(cursor_name)
+    #        self.cursor_proxy.pop(cursor_name)
+    #    except Exception as exception:
+    #        LOGGER.error("finRow: %s", exception)
+    #        LOGGER.warning("Detalle:", stack_info=True)
 
     # def queryUpdate(self, name: str, update: str, filter: str) -> str:
     #    """Return a database friendly update query."""

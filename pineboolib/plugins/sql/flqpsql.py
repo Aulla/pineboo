@@ -279,118 +279,118 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         result_ = cur.fetchone() if cur else []
         return True if result_ else False
 
-    def queryUpdate(self, name: str, update: str, filter: str) -> str:
-        """Return a database friendly update query."""
-        return """UPDATE %s SET %s WHERE %s RETURNING *""" % (name, update, filter)
+    # def queryUpdate(self, name: str, update: str, filter: str) -> str:
+    #    """Return a database friendly update query."""
+    #    return """UPDATE %s SET %s WHERE %s RETURNING *""" % (name, update, filter)
 
-    def declare_cursor(self, curname: str, fields: str, table: str, where: str) -> None:
-        """Set a refresh query for database."""
+    # def declare_cursor(self, curname: str, fields: str, table: str, where: str) -> None:
+    #    """Set a refresh query for database."""
 
-        if not self.is_open():
-            raise Exception("declareCursor: Database not open")
+    #    if not self.is_open():
+    #        raise Exception("declareCursor: Database not open")
 
-        sql = "DECLARE %s CURSOR WITH HOLD FOR SELECT %s FROM %s WHERE %s " % (
-            curname,
-            fields,
-            table,
-            where,
-        )
+    #    sql = "DECLARE %s CURSOR WITH HOLD FOR SELECT %s FROM %s WHERE %s " % (
+    #        curname,
+    #        fields,
+    #        table,
+    #        where,
+    #    )
 
-        try:
-            result_ = self.connection().execute(sqlalchemy.text(sql))
-        except Exception as e:
-            LOGGER.error("refreshQuery: %s", e)
-            LOGGER.info("SQL: %s", sql)
-            LOGGER.trace("Detalle:", stack_info=True)
-            result_ = None
+    #    try:
+    #        result_ = self.connection().execute(sqlalchemy.text(sql))
+    #    except Exception as e:
+    #        LOGGER.error("refreshQuery: %s", e)
+    #        LOGGER.info("SQL: %s", sql)
+    #        LOGGER.trace("Detalle:", stack_info=True)
+    #        result_ = None
 
-        return result_
+    #    return result_
 
-    def row_get(self, number: int, curname: str) -> List:
-        """Return a data row."""
+    # def row_get(self, number: int, curname: str) -> List:
+    #    """Return a data row."""
 
-        if not self.is_open():
-            raise Exception("getRow: Database not open")
+    #    if not self.is_open():
+    #        raise Exception("getRow: Database not open")
 
-        ret_: List[Any] = []
-        sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
-        sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % curname
-        result_ = self.connection().execute(sql_exists)
-        if result_ is None:
-            return ret_
+    #    ret_: List[Any] = []
+    #    sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
+    #    sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % curname
+    #    result_ = self.connection().execute(sql_exists)
+    #    if result_ is None:
+    #        return ret_
 
-        try:
-            result_ = self.connection().execute(sql)
-            ret_ = result_.fetchone()
-        except Exception as e:
-            LOGGER.error("getRow: %s", e)
-            LOGGER.trace("Detalle:", stack_info=True)
+    #    try:
+    #        result_ = self.connection().execute(sql)
+    #        ret_ = result_.fetchone()
+    #    except Exception as e:
+    #        LOGGER.error("getRow: %s", e)
+    #        LOGGER.trace("Detalle:", stack_info=True)
 
-        return ret_
+    #    return ret_
 
-    def row_find(self, curname: str, field_pos: int, value: Any) -> Optional[int]:
-        """Return index row."""
-        limit = 0
-        pos: Optional[int] = None
-        if not self.is_open():
-            raise Exception("findRow: Database not open")
-        try:
+    # def row_find(self, curname: str, field_pos: int, value: Any) -> Optional[int]:
+    #    """Return index row."""
+    #    limit = 0
+    #    pos: Optional[int] = None
+    #    if not self.is_open():
+    #        raise Exception("findRow: Database not open")
+    #    try:
 
-            while True:
-                sql = "FETCH %s FROM %s" % ("FIRST" if not limit else limit + 10000, curname)
-                result_ = self.connection().execute(sql)
-                data_ = result_.fetchall()
-                if not data_:
-                    break
-                for n, line in enumerate(data_):
-                    if line[field_pos] == value:
-                        return limit + n
+    #        while True:
+    #            sql = "FETCH %s FROM %s" % ("FIRST" if not limit else limit + 10000, curname)
+    #            result_ = self.connection().execute(sql)
+    #            data_ = result_.fetchall()
+    #            if not data_:
+    #                break
+    #            for n, line in enumerate(data_):
+    #                if line[field_pos] == value:
+    #                    return limit + n
 
-                limit += len(data_)
+    #            limit += len(data_)
 
-        except Exception as e:
-            LOGGER.error("finRow: %s", e)
-            LOGGER.warning("Detalle:", stack_info=True)
+    #    except Exception as e:
+    #        LOGGER.error("finRow: %s", e)
+    #        LOGGER.warning("Detalle:", stack_info=True)
 
-        return pos
+    #    return pos
 
-    def delete_declared_cursor(self, cursor_name: str) -> None:
-        """Delete cursor."""
+    # def delete_declared_cursor(self, cursor_name: str) -> None:
+    #    """Delete cursor."""
 
-        if not self.is_open():
-            raise Exception("deleteCursor: Database not open")
+    #    if not self.is_open():
+    #        raise Exception("deleteCursor: Database not open")
 
-        try:
-            sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % cursor_name
-            result_ = self.connection().execute(sql_exists)
-            if result_.fetchone() is None:
-                return
+    #    try:
+    #        sql_exists = "SELECT name FROM pg_cursors WHERE name = '%s'" % cursor_name
+    #        result_ = self.connection().execute(sql_exists)
+    #        if result_.fetchone() is None:
+    #            return
 
-            self.connection().execute("CLOSE %s" % cursor_name)
-        except Exception as exception:
-            LOGGER.error("finRow: %s", exception)
-            LOGGER.warning("Detalle:", stack_info=True)
+    #        self.connection().execute("CLOSE %s" % cursor_name)
+    #    except Exception as exception:
+    #        LOGGER.error("finRow: %s", exception)
+    #        LOGGER.warning("Detalle:", stack_info=True)
 
-    def remove_index(self, metadata, query):
-        """Remove index."""
+    # def remove_index(self, metadata, query):
+    #    """Remove index."""
 
-        table_name = metadata.name()
-        constraint_name = "%s_key" % table_name
-        if self.constraintExists(constraint_name):
-            sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (table_name, constraint_name)
-            if not query.exec_(sql):
-                return False
+    #    table_name = metadata.name()
+    #    constraint_name = "%s_key" % table_name
+    #    if self.constraintExists(constraint_name):
+    #        sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (table_name, constraint_name)
+    #        if not query.exec_(sql):
+    #            return False
 
-        for field in metadata.fieldList():
-            if field.isUnique():
-                constraint_name = "%s_%s_key" % (table_name, field.name())
-                if self.constraintExists(constraint_name):
-                    sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (
-                        table_name,
-                        constraint_name,
-                    )
-                    if not query.exec_(sql):
-                        return False
+    #    for field in metadata.fieldList():
+    #        if field.isUnique():
+    #            constraint_name = "%s_%s_key" % (table_name, field.name())
+    #            if self.constraintExists(constraint_name):
+    #                sql = "ALTER TABLE %s DROP CONSTRAINT %s CASCADE" % (
+    #                    table_name,
+    #                    constraint_name,
+    #                )
+    #                if not query.exec_(sql):
+    #                    return False
 
     """
     def Mr_Proper(self) -> None:

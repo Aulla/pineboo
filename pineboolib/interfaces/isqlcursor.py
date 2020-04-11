@@ -321,6 +321,8 @@ class ISqlCursor(QtCore.QObject):
     """
     commited = QtCore.pyqtSignal()
 
+    _cursor_model: "sqlalchemy.ext.declarative.api.DeclarativeMeta"
+
     def __init__(
         self,
         name: Optional[str] = None,

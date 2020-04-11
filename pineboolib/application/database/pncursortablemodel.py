@@ -38,7 +38,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     Link between FLSqlCursor and database.
     """
 
-    rows: int
+    # rows: int
     cols: int
     _use_timer = True
     _rows_loaded: int
@@ -73,11 +73,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     pkidx: Dict[Tuple, int]
     ckidx: Dict[Tuple, int]
     _column_hints: List[int]
-    _current_row_data: List
+    _current_row_data: Any
     _current_row_index: int
     _tablename: str
     _order: str
     grid_row_tmp: Dict[int, List[Any]]
+    _data_proxy: str
 
     def __init__(self, conn: "iconnection.IConnection", parent: "isqlcursor.ISqlCursor") -> None:
         """
@@ -94,7 +95,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         metadata = self._parent.private_cursor.metadata_
 
         self._rows_loaded = 0
-        self.rows = 0
+        # self.rows = 0
         self.cols = 0
         self._metadata = None
 
@@ -111,10 +112,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         #    LOGGER.warning("SQL Driver supports neither Timer, defaulting to Timer")
         # self._use_timer = True
 
-        self._rows_loaded = 0
-        self.rows = 0
-        self.cols = 0
-
         self.sql_fields = []
         self.sql_fields_omited = []
         self.sql_fields_without_check = []
@@ -122,7 +119,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # self.field_type = []
         # self.field_metaData = []
         self.col_aliases: List[str] = []
-        self._current_row_data = []
+        self._current_row_data = None
         self._current_row_index = -1
 
         # Indices de busqueda segun PK y CK. Los array "pos" guardan las posiciones
@@ -169,6 +166,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._disable_refresh = False
         self._initialized = None
         self.grid_row_tmp = {}
+        self._data_proxy = None
 
         # self.refresh()
 
@@ -182,11 +180,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
     def disable_refresh(self, disable: bool) -> None:
         """
-        Disable refresh.
+       Disable refresh.
 
-        e.g. FLSqlQuery.setForwardOnly(True).
-        @param disable. True or False
-        """
+       e.g. FLSqlQuery.setForwardOnly(True).
+       @param disable. True or False
+       """
         self._disable_refresh = disable
 
     def sort(self, column: int, order: QtCore.Qt.SortOrder = QtCore.Qt.AscendingOrder) -> None:
@@ -275,24 +273,28 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         res_color_function: List[str] = []
         if _type != "check":
 
+            row_model = list(self._data_proxy)[row]
+
+            # row_object = self._data_proxy.slice(row, 1)
+            # print("*", row_object)
             # r = [x for x in self._data[row]]
             # self._data[row] = r
             # d = r[col]
             # self.seekRow(row)
             # d = self._current_row_data[col]
             # d = self._data[row][col]
-            result: Any = None
-            if row not in self.grid_row_tmp.keys():
-                self.grid_row_tmp = {}
-                self.grid_row_tmp[row] = self.driver_sql().row_get(row, self._curname)
-                if not self.grid_row_tmp[row]:  # refresh grid if cursor is deleted.
-                    self.refresh()
-                    return
+            # result: Any = None
+            # if row not in self.grid_row_tmp.keys():
+            #    self.grid_row_tmp = {}
+            #    self.grid_row_tmp[row] = self.driver_sql().row_get(row, self._curname)
+            #    if not self.grid_row_tmp[row]:  # refresh grid if cursor is deleted.
+            #        self.refresh()
+            #        return
 
-            tuple = self.grid_row_tmp[row]
-            if tuple:
-                result = tuple[col]
-
+            # tuple = self.grid_row_tmp[row]
+            # if tuple:
+            #    result = tuple[col]
+            result = getattr(row_model, field.name(), None)
         else:
             primary_key = str(self.value(row, self.metadata().primaryKey()))
             if primary_key not in self._check_column.keys():
@@ -522,18 +524,31 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         return None
 
-    def updateRows(self) -> None:
-        """
-        Update virtual records managed by its model.
-        """
+    # def updateRows(self) -> None:
+    #    """
+    #    Update virtual records managed by its model.
+    #    """
+    #    parent = QtCore.QModelIndex()
+    #    torow = self.rows - 1
+    #    self._rows_loaded = torow + 1
+    #    self.beginInsertRows(parent, 0, torow)
+    #    self.endInsertRows()
+    #    top_left = self.index(0, 0)
+    #    bottom_right = self.index(torow, self.cols - 1)
+    #    self.dataChanged.emit(top_left, bottom_right)
+    #    self.indexes_valid = True
+
+    def update_rows(self) -> None:
+        """Update virtual records managed by its model."""
+
         parent = QtCore.QModelIndex()
-        torow = self.rows - 1
-        self._rows_loaded = torow + 1
-        self.beginInsertRows(parent, 0, torow)
+        to_row = self._data_proxy.count() - 1
+        self._rows_loaded = to_row + 1
+        self.beginInsertRows(parent, 0, to_row)
         self.endInsertRows()
         top_left = self.index(0, 0)
-        bottom_right = self.index(torow, self.cols - 1)
-        self.dataChanged.emit(top_left, bottom_right)
+        botom_rigth = self.index(to_row, self.cols - 1)
+        self.dataChanged.emit(top_left, botom_rigth)
         self.indexes_valid = True
 
     def _refresh_field_info(self) -> None:
@@ -612,7 +627,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         Refresh information mananged by this class.
         """
-        print("REFESCANDO", self._tablename)
+        # print("REFESCANDO", self._tablename, self, self.db().session())
         if (
             self._initialized is None and self.parent_view
         ):  # Si es el primer refresh y estoy conectado a un FLDatatable()
@@ -628,12 +643,14 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self._initialized = False
 
-        # if self._disable_refresh and self.rows > 0:
-        #    return
-
-        if not self.metadata():
-            LOGGER.warning("ERROR: CursorTableModel :: No hay tabla %s", self.metadata().name())
+        if self._disable_refresh and self._rows_loaded > 0:
             return
+
+        session_ = self.db().session()
+
+        # if not self.metadata():
+        #    LOGGER.warning("ERROR: CursorTableModel :: No hay tabla %s", self.metadata().name())
+        #    return
 
         """ FILTRO WHERE """
         where_filter = ""
@@ -664,105 +681,136 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         parent = QtCore.QModelIndex()
 
-        self.beginRemoveRows(parent, 0, self.rows)
-        self.endRemoveRows()
-        if self.rows > 0:
-            cast(QtCore.pyqtSignal, self.rowsRemoved).emit(parent, 0, self.rows - 1)
+        if self.parent_view:
+            rows = self._rows_loaded
+            self.beginRemoveRows(parent, 0, rows)
+            self.endRemoveRows()
+            if rows > 0:
+                cast(QtCore.pyqtSignal, self.rowsRemoved).emit(parent, 0, rows - 1)
 
-        self.rows = 0
-        self._rows_loaded = 0
-        self._fetched_rows = 0
-        self.sql_fields = []
-        self.sql_fields_without_check = []
+        # self.rows = 0
+        # self._rows_loaded = 0
+        # self._fetched_rows = 0
+        # self.sql_fields = []
+        # self.sql_fields_without_check = []
 
         self._refresh_field_info()
 
-        if self.sql_fields_without_check:
-            self.sql_str = ", ".join(self.sql_fields_without_check)
-        else:
-            self.sql_str = ", ".join(self.sql_fields)
+        # if self.sql_fields_without_check:
+        #    self.sql_str = ", ".join(self.sql_fields_without_check)
+        # else:
+        #    self.sql_str = ", ".join(self.sql_fields)
 
-        self._current_row_data = []
-        self._current_row_index = -1
+        # self._current_row_data = []
+        # self._current_row_index = -1
 
-        if self._curname:
-            self.driver_sql().delete_declared_cursor(self._curname)
+        filter = []
 
-        self._curname = "cur_%s_%08d" % (self.metadata().name(), next(CURSOR_COUNT))
-
-        self.driver_sql().declare_cursor(
-            self._curname, self.sql_str, self._tablename, self.where_filter
+        dynamic_filter_class = DynamicFilter(
+            query=session_.query(self._parent._cursor_model),
+            model_class=self._parent._cursor_model,
+            filter_condition=filter,
         )
 
-        self.rows = self.size()
-        if not self.rows:  # Si no hay tamaño, no declara/crea el cursor/consulta
+        self._data_proxy = dynamic_filter_class.return_query()
+
+        # if self._curname:
+        #    self.driver_sql().delete_declared_cursor(self._curname)
+
+        # self._curname = "cur_%s_%08d" % (self.metadata().name(), next(CURSOR_COUNT))
+
+        # self.driver_sql().declare_cursor(
+        #    self._curname, self.sql_str, self._tablename, self.where_filter
+        # )
+        if not self._data_proxy.count():
             return
 
-        self.grid_row_tmp = {}
+        # self.rows = self.data_size()
+        # if not self.rows:  # Si no hay tamaño, no declara/crea el cursor/consulta
+        #    return
+
+        # self.grid_row_tmp = {}
 
         self.need_update = False
         self._column_hints = [120] * len(self.sql_fields)
-        self.updateRows()
+        if self.parent_view:
+            self.update_rows()
 
-    def value(self, row: Optional[int], field_name: str) -> Any:
-        """
-        Retrieve column value for a row.
+    # def value(self, row: Optional[int], field_name: str) -> Any:
+    #    """
+    #    Retrieve column value for a row.
 
-        @param row. Row number to retrieve
-        @param field_name. Field name.
-        @return Value
-        """
-        if row is None or row < 0:
-            return None
-        col = None
-        if not self.metadata().isQuery():
-            col = self.metadata().indexPos(field_name)
-        else:
-            # Comparo con los campos de la qry, por si hay algun hueco que no se detectaria con indexPos
-            for number, field in enumerate(self.sql_fields):
-                if field_name == field[field.find(".") + 1 :]:
-                    col = number
-                    break
+    #    @param row. Row number to retrieve
+    #    @param field_name. Field name.
+    #    @return Value
+    #    """
+    #    if row is None or row < 0:
+    #        return None
+    #    col = None
+    #    if not self.metadata().isQuery():
+    #        col = self.metadata().indexPos(field_name)
+    #    else:
+    #        # Comparo con los campos de la qry, por si hay algun hueco que no se detectaria con indexPos
+    #        for number, field in enumerate(self.sql_fields):
+    #            if field_name == field[field.find(".") + 1 :]:
+    #                col = number
+    #                break
 
-            if not col:
-                return None
+    #        if not col:
+    #            return None
 
-        mtdfield = self.metadata().field(field_name)
-        if mtdfield is None:
-            raise Exception("field_name: %s not found" % field_name)
-        type_ = mtdfield.type()
+    #    mtdfield = self.metadata().field(field_name)
+    #    if mtdfield is None:
+    #        raise Exception("field_name: %s not found" % field_name)
+    #    type_ = mtdfield.type()
 
-        if type_ == "check":
-            return None
+    #    if type_ == "check":
+    #        return None
 
-        if self._current_row_index != row:
-            if not self.seekRow(row):
-                return None
+    #    if self._current_row_index != row:
+    #        if not self.seekRow(row):
+    #            return None
 
-        campo: Any = None
-        if self._current_row_data:
-            campo = self._current_row_data[col]
+    #    campo: Any = None
+    #    if self._current_row_data:
+    #        campo = self._current_row_data[col]
 
-        if type_ in ("serial", "uint", "int"):
-            if campo not in (None, "None"):
-                campo = int(campo)
-            elif campo == "None":
-                LOGGER.warning("Campo no deberia ser un string 'None'")
+    #    if type_ in ("serial", "uint", "int"):
+    #        if campo not in (None, "None"):
+    #            campo = int(campo)
+    #        elif campo == "None":
+    #            LOGGER.warning("Campo no deberia ser un string 'None'")
 
-        return campo
+    #    return campo
 
-    def seekRow(self, row: int) -> bool:
-        """Seek to a row possition."""
-        if not self.rows:
-            return False
+    # def seekRow(self, row: int) -> bool:
+    #    """Seek to a row possition."""
+    #    if not self.rows:
+    #        return False
+
+    #    if row != self._current_row_index:
+    #        result = self.driver_sql().row_get(row, self._curname)
+    #        if not result:
+    #            return False
+
+    #        self._current_row_index = row
+    #        self._current_row_data = list(result)
+    #    return True
+
+    def seek_row(self, row: int) -> bool:
 
         if row != self._current_row_index:
-            result = self.driver_sql().row_get(row, self._curname)
-            if not result:
+            if row >= 0 and row < self._current_row_index:
+                object_ = self._data_proxy.index(row)
+                if object_ is None:
+                    return False
+
+                self._current_row_index = row
+                self._current_row_data = object_
+
+            else:
                 return False
 
-            self._current_row_index = row
-            self._current_row_data = list(result)
         return True
 
     def setValuesDict(self, row: int, update_dict: Dict[str, Any]) -> None:
@@ -803,123 +851,144 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self._current_row_index = -1
 
-    def setValue(self, row: int, fieldname: str, value: Any) -> None:
-        """
-        Set value to a cell.
+    # def setValue(self, row: int, fieldname: str, value: Any) -> None:
+    #    """
+    #    Set value to a cell.
 
-        @param row. related row
-        @param fieldname. name of the field to update.
-        @param value. Value to write. Text, Pixmap, etc.
-        """
-        # Reimplementación para que todo pase por el método genérico.
-        self.setValuesDict(row, {fieldname: value})
+    #    @param row. related row
+    #    @param fieldname. name of the field to update.
+    #    @param value. Value to write. Text, Pixmap, etc.
+    #    """
+    # Reimplementación para que todo pase por el método genérico.
+    #    self.setValuesDict(row, {fieldname: value})
 
-    def insert(self, pn_cursor: "isqlcursor.ISqlCursor") -> bool:
-        """
-        Create new row in TableModel.
+    # def data_insert(self, pn_cursor: "isqlcursor.ISqlCursor") -> bool:
+    #    """
+    #    Create new row in TableModel.
 
-        @param buffer . PNBuffer to be added.
-        """
+    #    @param buffer . PNBuffer to be added.
+    #    """
 
-        data: Dict[str, Any] = {}
-        buffer = pn_cursor.buffer()
-        if buffer is None:
-            raise Exception("Cursor has no buffer")
+    #    data: Dict[str, Any] = {}
+    #    buffer = pn_cursor.buffer()
+    #    if buffer is None:
+    #        raise Exception("Cursor has no buffer")
 
-        for buffer_field in buffer.fieldsList():
-            value: Any = None
-            if buffer.value(buffer_field.name) is None:
-                mtdfield = pn_cursor.metadata().field(buffer_field.name)
-                if mtdfield is None:
-                    raise Exception("field %s not found" % buffer_field.name)
-                value = mtdfield.defaultValue()
-            else:
-                value = buffer.value(buffer_field.name)
+    #    for buffer_field in buffer.fieldsList():
+    #        value: Any = None
+    #        if buffer.value(buffer_field.name) is None:
+    #            mtdfield = pn_cursor.metadata().field(buffer_field.name)
+    #            if mtdfield is None:
+    #                raise Exception("field %s not found" % buffer_field.name)
+    #            value = mtdfield.defaultValue()
+    #        else:
+    #            value = buffer.value(buffer_field.name)
 
-            if value is not None:  # si el campo se rellena o hay valor default
-                if buffer_field.type_ in ("string", "stringlist") and isinstance(value, str):
-                    value = self.db().normalizeValue(value)
+    #        if value is not None:  # si el campo se rellena o hay valor default
+    #            if buffer_field.type_ in ("string", "stringlist") and isinstance(value, str):
+    #                value = self.db().normalizeValue(value)
 
-                data[buffer_field.name] = value
+    #            data[buffer_field.name] = value
 
-        if data:
-            try:
-                model = qsadictmodules.QSADictModules.from_project(
-                    "%s_orm" % pn_cursor.action().name()
-                )
+    #    if data:
+    #        obj = self._cursor_model()
 
-                if self.db().driver().insert_model(model, data):
-                    self.need_update = True
+    #        try:
+    #            for field_name in data.keys():
+    #                setattr(obj, field_name, values[field_name])
+    #            self.db()._current_transaction.add(obj)
+    #            self.need_update = True
 
-            except Exception as error:
-                LOGGER("INSERT : %s", str(error))
-                return False
+    #        except Exception as error:
+    #            self.db()._last_error = "Error en insert_data: %s" % str(error)
+    #            return False
 
-        return True
+    #    return True
 
-    def update(self, pk_value: Any, dict_update: Dict[str, Any]) -> bool:
-        """
-        Update record data from tableModel into DB.
+    # def data_update(self, pk_value: Any, dict_update: Dict[str, Any]) -> bool:
+    #    """
+    #    Update record data from tableModel into DB.
 
-        @param pk_value. Pirmary Key of the record to be updated
-        @param dict_update. Fields to be updated
-        """
-        row = self.findPKRow([pk_value])
-        if row is None:
-            return False
+    #    @param pk_value. Pirmary Key of the record to be updated
+    #    @param dict_update. Fields to be updated
+    #    """
+    #    row = self.findPKRow([pk_value])
+    #    if row is None:
+    #        return False
 
-        if self.value(row, self.pK()) != pk_value:
-            raise AssertionError(
-                "Los indices del CursorTableModel devolvieron un registro erroneo: %r != %r"
-                % (self.value(row, self.pK()), pk_value)
-            )
+    #    if self.value(row, self.pK()) != pk_value:
+    #        raise AssertionError(
+    #            "Los indices del CursorTableModel devolvieron un registro erroneo: %r != %r"
+    #            % (self.value(row, self.pK()), pk_value)
+    #        )
 
-        model = qsadictmodules.QSADictModules.from_project("%s_orm" % self.metadata().name())
-        if not self.driver_sql().update_model(model, dict_update, pk_value):
-            return False
+    #    try:
+    #        obj = self.db()._current_transaction.query(self._cursor_model).get(pk_value)
+    #        for field_name in values.keys():
+    #            setattr(obj, field_name, values[field_name])
+    #    except Exception as error:
+    #        self.db()._last_error = "Error en update_data: %s" % str(error)
+    #        return False
 
-        self.setValuesDict(row, dict_update)
+    #    self.setValuesDict(row, dict_update)
+    #    self.need_update = True
 
-        self.need_update = True
-        return True
+    #    return True
 
-    def delete(self, cursor: "isqlcursor.ISqlCursor") -> bool:
-        """
-        Delete a row from tableModel.
+    # def data_delete(self, cursor: "isqlcursor.ISqlCursor") -> bool:
+    #    """
+    #    Delete a row from tableModel.
 
-        @param cursor . FLSqlCursor object
-        """
-        pk_value = cursor.valueBuffer(self.pK())
+    #    @param cursor . FLSqlCursor object
+    #    """
 
-        model = qsadictmodules.QSADictModules.from_project("%s_orm" % self.metadata().name())
-        result_ = self.driver_sql().delete_model(model, pk_value)
-        if result_:
-            self.need_update = True
-        return result_
+    #    try:
+    #        obj = (
+    #            self.db()
+    #            ._current_transaction.query(self._cursor_model)
+    #            .get(cursor.valueBuffer(self.pK()))
+    #        )
+    #        self.db()._current_transaction.delete(obj)
+    #    except Exception as error:
+    #        self.db()._last_error = "Error en delete_data: %s" % str(error)
+    #        return False
 
-    def findPKRow(self, pklist: Iterable[Any]) -> Optional[int]:
-        """
-        Retrieve row index of a record given a primary key.
+    #    self.need_update = True
+    #    return True
 
-        @param pklist. Primary Key list to find. Use a List [] even for a single record.
-        @return row index.
-        """
-        if not isinstance(pklist, (tuple, list)):
-            raise ValueError(
-                "findPKRow expects a list as first argument. Enclose PK inside brackets [self.pkvalue]"
-            )
+    # def findPKRow(self, pklist: Iterable[Any]) -> Optional[int]:
+    #    """
+    #    Retrieve row index of a record given a primary key.
 
-        pklist = tuple(pklist)
-        if not pklist or pklist[0] is None:
-            raise ValueError("Primary Key can't be null")
+    #    @param pklist. Primary Key list to find. Use a List [] even for a single record.
+    #    @return row index.
+    #    """
+    #    if not isinstance(pklist, (tuple, list)):
+    #        raise ValueError(
+    #            "findPKRow expects a list as first argument. Enclose PK inside brackets [self.pkvalue]"
+    #        )
 
-        ret = None
-        if self.pK():
-            ret = self.driver_sql().row_find(
-                self._curname, self.sql_fields.index(self.pK()), pklist[0]
-            )
+    #    pklist = tuple(pklist)
+    #    if not pklist or pklist[0] is None:
+    #        raise ValueError("Primary Key can't be null")
 
-        return ret
+    #    ret = None
+    #    if self.pK():
+    #        ret = self.driver_sql().row_find(
+    #            self._curname, self.sql_fields.index(self.pK()), pklist[0]
+    #        )
+
+    #    return ret
+    def find_pk_row(self, pk_value: Any) -> int:
+        """Retrieve row index of a record given a primary key."""
+
+        ret_ = -1
+
+        if self._data_proxy:
+            obj_ = self._data_proxy.get(pk_value)
+            ret_ = list(self._data_proxy).index(obj_) if obj_ else -1
+
+        return ret_
 
     def pK(self) -> str:
         """
@@ -978,40 +1047,40 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @return Row number present in table.
         """
-        return self._rows_loaded
+        return self._data_proxy.count() if self._data_proxy else 0
 
-    def size(self) -> int:
-        """
-        Get amount of data selected on the cursor.
+    # def size(self) -> int:
+    #    """
+    #    Get amount of data selected on the cursor.
 
-        @return number of retrieved rows.
-        """
-        size = 0
-        mtd = self.metadata()
-        if mtd and self.db().isOpen():
-            where_ = self.where_filter
-            # from_ = self.metadata().name()
+    #    @return number of retrieved rows.
+    #    """
+    #    size = 0
+    #    mtd = self.metadata()
+    #    if mtd and self.db().isOpen():
+    #        where_ = self.where_filter
+    # from_ = self.metadata().name()
 
-            # if mtd.isQuery():
-            #    qry = self.db().connManager().manager().query(self.metadata().query())
-            #    if qry is None:
-            #        raise Exception("Query not found")
-            #    from_ = qry.from_()
+    # if mtd.isQuery():
+    #    qry = self.db().connManager().manager().query(self.metadata().query())
+    #    if qry is None:
+    #        raise Exception("Query not found")
+    #    from_ = qry.from_()
 
-            if self.where_filter.find("ORDER BY") > -1:
-                where_ = self.where_filter[: self.where_filter.find("ORDER BY")]
+    #        if self.where_filter.find("ORDER BY") > -1:
+    #            where_ = self.where_filter[: self.where_filter.find("ORDER BY")]
 
-            where_ = self.driver_sql().fix_query(where_)
-            # q = pnsqlquery.PNSqlQuery(None, self.db())
-            sql = "SELECT COUNT(%s) FROM %s WHERE %s" % (self.pK(), self._tablename, where_)
-            cursor = self.driver_sql().execute_query(sql)
-            result = cursor.fetchone() if cursor else None
-            if result is not None:
-                size = result[0]
-            # q.exec_(sql)
-            # if q.first():
-            #    size = q.value(0)
-        return size
+    #        where_ = self.driver_sql().fix_query(where_)
+    # q = pnsqlquery.PNSqlQuery(None, self.db())
+    #        sql = "SELECT COUNT(%s) FROM %s WHERE %s" % (self.pK(), self._tablename, where_)
+    #        cursor = self.driver_sql().execute_query(sql)
+    #        result = cursor.fetchone() if cursor else None
+    #        if result is not None:
+    #            size = result[0]
+    # q.exec_(sql)
+    # if q.first():
+    #    size = q.value(0)
+    #    return size
 
     def headerData(
         self, section: int, orientation: QtCore.Qt.Orientation, role: int = QtCore.Qt.DisplayRole
@@ -1041,17 +1110,17 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             str(self.metadata().indexFieldObject(i).alias()) for i in range(self.cols)
         ]
 
-    def field_metadata(self, field_name: str) -> "pnfieldmetadata.PNFieldMetaData":
-        """
-        Retrieve FLFieldMetadata for given field name.
+    # def field_metadata(self, field_name: str) -> "pnfieldmetadata.PNFieldMetaData":
+    #    """
+    #    Retrieve FLFieldMetadata for given field name.
 
-        @param field_name. field name.
-        @return FLFieldMetadata
-        """
-        field = self.metadata().field(field_name)
-        if field is None:
-            raise Exception("field_name %s not found" % field_name)
-        return field
+    #    @param field_name. field name.
+    #    @return FLFieldMetadata
+    #    """
+    #    field = self.metadata().field(field_name)
+    #    if field is None:
+    #        raise Exception("field_name %s not found" % field_name)
+    #    return field
 
     def metadata(self) -> "pntablemetadata.PNTableMetaData":
         """
@@ -1077,3 +1146,71 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def set_parent_view(self, parent_view: "fldatatable.FLDataTable") -> None:
         """Set the parent view."""
         self.parent_view = parent_view
+
+    # https://ruddra.com/posts/dynamically-constructing-filters-based-on-string-input-using-sqlalchemy/
+
+
+class DynamicFilter(object):
+    def __init__(self, query=None, model_class=None, filter_condition=None):
+        self.query = query
+        self.model_class = model_class
+        self.filter_condition = filter_condition
+
+    def get_query(self):
+        """
+        Returns query with all the objects
+        :return:
+        """
+        if not self.query:
+            self.query = self.session.query(self.model_class)
+        return self.query
+
+    def filter_query(self, query, filter_condition):
+        """
+        Return filtered queryset based on condition.
+        :param query: takes query
+        :param filter_condition: Its a list, ie: [(key,operator,value)]
+        operator list:
+            eq for ==
+            lt for <
+            ge for >=
+            in for in_
+            like for like
+            value could be list or a string
+        :return: queryset
+
+        """
+
+        if query is None:
+            query = self.get_query()
+        # model_class = self.get_model_class()  # returns the query's Model
+        model_class = self.model_class
+        for raw in filter_condition:
+            try:
+                key, op, value = raw
+            except ValueError:
+                raise Exception("Invalid filter: %s" % raw)
+            column = getattr(model_class, key, None)
+            if not column:
+                raise Exception("Invalid filter column: %s" % key)
+            if op == "in":
+                if isinstance(value, list):
+                    filt = column.in_(value)
+                else:
+                    filt = column.in_(value.split(","))
+            else:
+                try:
+                    attr = (
+                        list(filter(lambda e: hasattr(column, e % op), ["%s", "%s_", "__%s__"]))[0]
+                        % op
+                    )
+                except IndexError:
+                    raise Exception("Invalid filter operator: %s" % op)
+                if value == "null":
+                    value = None
+                filt = getattr(column, attr)(value)
+            query = query.filter(filt)
+        return query
+
+    def return_query(self):
+        return self.filter_query(self.get_query(), self.filter_condition)

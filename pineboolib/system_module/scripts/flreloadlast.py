@@ -131,11 +131,15 @@ class FormInternalObj(qsa.FormDBWidget):
         curModulo.commitBuffer()
         # WITH_END
         # curSeleccion = qsa.FLSqlCursor(u"flmodules")
+        print(1)
         curModulo.setMainFilter(qsa.ustr(u"idmodulo = '", modulo, u"'"))
+        print(2)
         curModulo.editRecord(False)
+        print(3, fichero.path, modulo)
         qsa.from_project("formRecordflmodules").cargarDeDisco(qsa.ustr(fichero.path, u"/"), False)
+        print(4)
         qsa.from_project("formRecordflmodules").accept()
-
+        print(5)
         setting = "scripts/sys/modLastModule_%s" % qsa.sys.nameBD()
         nombre_fichero = "%s" % os.path.abspath(nombre_fichero)
         qsa.util.writeSettingEntry(setting, nombre_fichero)

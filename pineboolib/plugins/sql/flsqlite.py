@@ -85,7 +85,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def getEngine(self, conn_string: str) -> "base.Engine":
         """Return sqlAlchemy connection."""
-        return create_engine(conn_string, encoding="UTF-8", isolation_level="AUTOCOMMIT")
+        return create_engine(conn_string, encoding="UTF-8")
 
     def setDBName(self, name: str):
         """Set DB Name."""

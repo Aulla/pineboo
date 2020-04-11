@@ -8,9 +8,9 @@ from PyQt5 import QtCore, QtWidgets
 from pineboolib.core.utils import logging
 from pineboolib.core import decorators, settings
 
-from pineboolib.application.database import pnsqlquery
+from pineboolib.application.database import pnsqlquery, utils
 from pineboolib.application.utils import xpm
-from pineboolib.application import types
+from pineboolib.application import types, qsadictmodules
 
 from pineboolib import application
 
@@ -22,6 +22,7 @@ from . import pncursortablemodel
 
 import weakref
 import datetime
+import copy
 
 from typing import Any, Optional, List, Dict, Union, cast, TYPE_CHECKING
 
@@ -137,7 +138,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         mtd = private_cursor.metadata_
         if not mtd:
             return
-
+        self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
         private_cursor._is_query = mtd.isQuery()
         private_cursor._is_system_table = (
             self.db().connManager().manager().isSystemTable(mtd.name())
@@ -423,9 +424,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             raise Exception("no manager")
 
         type_ = field.type()
-        buff_field = self.private_cursor.buffer_.field(field_name)
-        if buff_field and not buff_field.has_changed(value):
-            return
+        # buff_field = self.private_cursor.buffer_.field(field_name)
+        # if buff_field and not buff_field.has_changed(value):
+        #    return
 
         if value and type_ == "pixmap" and not self.private_cursor._is_system_table:
             value = database.normalizeValue(value)
@@ -484,7 +485,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return None
 
         if (
-            self.private_cursor._model.rows > 0 and not self.modeAccess() == self.Insert
+            self.private_cursor._model.rowCount() and not self.modeAccess() == self.Insert
         ) or not self.private_cursor.buffer_:
             if not self.private_cursor.buffer_:
                 self.refreshBuffer()
@@ -836,7 +837,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     def size(self) -> int:
         """Get number of records in the cursor."""
         model = self.model()
-        return model.rows
+        return model.rowCount() if model else 0
 
     def openFormInMode(self, m: int, wait: bool = True, cont: bool = True) -> None:
         """
@@ -886,8 +887,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         self.private_cursor.mode_access_ = m
 
-        if self.private_cursor.buffer_:
-            self.private_cursor.buffer_.clearValues()
+        # if self.private_cursor.buffer_:
+        #    self.private_cursor.buffer_.clearValues()
 
         # if not self.private_cursor._action:
         # self.private_cursor.action_ = self.db().manager().action(self.table())
@@ -932,6 +933,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             raise Exception("No buffer_copy set")
         return self.private_cursor._buffer_copy.isNull(field_name)
 
+    @decorators.not_implemented_warn
     def updateBufferCopy(self) -> None:
         """
         Copy contents of FLSqlCursor::buffer_ into FLSqlCursor::_buffer_copy.
@@ -946,15 +948,19 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             del self.private_cursor._buffer_copy
 
         self.private_cursor._buffer_copy = pnbuffer.PNBuffer(self)
+        self.private_cursor._buffer_copy._current_model_obj = copy.copy(
+            self.private_cursor.buffer_._current_model_obj
+        )
         # bufferCopy = self.bufferCopy()
-        if not self.private_cursor._buffer_copy:
-            raise Exception("No buffercopy")
+        # if not self.private_cursor._buffer_copy:
+        #    raise Exception("No buffercopy")
 
-        for field in self.private_cursor.buffer_.fieldsList():
-            self.private_cursor._buffer_copy.setValue(
-                field.name, self.private_cursor.buffer_.value(field.name), False
-            )
+        # for field in self.private_cursor.buffer_.fieldsList():
+        #    self.private_cursor._buffer_copy.setValue(
+        #        field.name, self.private_cursor.buffer_.value(field.name), False
+        #    )
 
+    @decorators.not_implemented_warn
     def isModifiedBuffer(self) -> bool:
         """
         Check if current buffer contents are different from the original copy.
@@ -964,13 +970,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return True if different. False if equal.
         """
 
-        if self.private_cursor.buffer_ is None:
-            return False
-
-        if self.private_cursor.buffer_.modifiedFields():
-            return True
-        else:
-            return False
+        return True
 
     def setAskForCancelChanges(self, a: bool) -> None:
         """
@@ -1034,12 +1034,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             for field in field_list:
                 field_name = field.name()
                 relation_m1 = field.relationM1()
-                if not self.private_cursor.buffer_.isGenerated(field_name):
-                    continue
+                # if not self.private_cursor.buffer_.isGenerated(field_name):
+                #    continue
 
                 value = None
-                if not self.private_cursor.buffer_.isNull(field_name):
-                    value = self.private_cursor.buffer_.value(field_name)
+                if not self.bufferIsNull(field_name):
+                    value = self.buffer().value(field_name)
 
                 assoc_field_metadata = field.associatedField()
                 if assoc_field_metadata and value is not None:
@@ -1061,7 +1061,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         continue
                     field_metadata_name = assoc_field_metadata.name()
                     assoc_value = None
-                    if not self.private_cursor.buffer_.isNull(field_metadata_name):
+                    if not self.bufferIsNull(field_metadata_name):
                         assoc_value = self.private_cursor.buffer_.value(field_metadata_name)
                         # if not ss:
                         #     ss = None
@@ -1115,7 +1115,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             continue
 
                 if (
-                    self.private_cursor.buffer_.isNull(field_name)
+                    self.bufferIsNull(field_name)
                     and not field.allowNull()
                     and not field.type() in ("serial")
                 ):
@@ -1200,6 +1200,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         # )
                         qry.exec_()
                         if not qry.next():
+
                             message += "\n%s:%s : El valor %s no existe en la tabla %s" % (
                                 self.table(),
                                 field.alias(),
@@ -1262,23 +1263,17 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         checked_compound_key = True
 
         elif self.private_cursor.mode_access_ == self.Del:
-            field_list = self.private_cursor.metadata_.fieldList()
-            # field_name = None
-            value = None
 
-            for field in field_list:
-                # field_name = field.name()
-                if not self.private_cursor.buffer_.isGenerated(field.name()):
-                    continue
+            for field in self.metadata().fieldList():
 
                 value = None
 
-                if not self.private_cursor.buffer_.isNull(field.name()):
-                    value = self.private_cursor.buffer_.value(field.name())
+                if not self.bufferIsNull(field.name()):
+                    value = self.buffer().value(field.name())
                     # if s:
                     #    s = None
 
-                if value is None:
+                else:
                     continue
 
                 relation_list = field.relationList()
@@ -1426,9 +1421,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.private_cursor.mode_access_ is not self.Insert:
             row = self.currentRegister()
 
-            for field in self.private_cursor.metadata_.fieldNamesUnlock():
+            for field_name in self.private_cursor.metadata_.fieldNamesUnlock():
                 if row > -1:
-                    if self.private_cursor._model.value(row, field) not in ("True", True, 1, "1"):
+                    if self.buffer().value(field_name) not in ("True", True, 1, "1"):
                         ret_ = True
                         break
 
@@ -1453,7 +1448,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         return self.private_cursor._buffer_copy
 
-    def bufferIsNull(self, pos_or_name: Union[int, str]) -> bool:
+    def bufferIsNull(self, field_name: str) -> bool:
         """
         Return if the content of a field in the buffer is null.
 
@@ -1461,10 +1456,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return True or False
         """
 
-        if self.private_cursor.buffer_ is not None:
-            return self.private_cursor.buffer_.isNull(pos_or_name)
+        # if self.private_cursor.buffer_ is not None:
+        #    return self.private_cursor.buffer_.isNull(pos_or_name)
 
-        return True
+        return getattr(self.buffer()._current_model_obj, field_name, None) is None
 
     def bufferSetNull(self, pos_or_name: Union[int, str]) -> None:
         """
@@ -1818,8 +1813,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             if not self.seek(pos, False, True):
 
-                if self.private_cursor.buffer_:
-                    self.private_cursor.buffer_.clear_buffer()
+                # if self.private_cursor.buffer_:
+                #    self.private_cursor.buffer_.clear_buffer()
                 self.newBuffer.emit()
 
     @decorators.pyqt_slot()
@@ -1930,38 +1925,39 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not self.private_cursor.buffer_:
                 self.private_cursor.buffer_ = pnbuffer.PNBuffer(self)
 
-            self.setNotGenerateds()
+            self.buffer().primeInsert()
+
+            # self.setNotGenerateds()
 
             field_list = self.private_cursor.metadata_.fieldList()
 
             for field in field_list:
                 field_name = field.name()
 
-                if self.private_cursor.buffer_ is None:
-                    raise Exception("buffer is empty!")
+                # if self.private_cursor.buffer_ is None:
+                #    raise Exception("buffer is empty!")
 
-                self.private_cursor.buffer_.setNull(field_name)
-                if not self.private_cursor.buffer_.isGenerated(field_name):
-                    continue
+                # self.private_cursor.buffer_.setNull(field_name)
+                # if not self.private_cursor.buffer_.isGenerated(field_name):
+                #    continue
                 type_ = field.type()
                 # fltype = FLFieldself.private_cursor.metadata_.flDecodeType(type_)
                 # fltype = self.private_cursor.metadata_.field(field_name).flDecodeType(type_)
                 default_value = field.defaultValue()
                 if default_value is not None:
                     # default_value.cast(fltype)
-                    self.private_cursor.buffer_.setValue(field_name, default_value)
+                    self.buffer().setValue(field_name, default_value)
 
                 if type_ == "serial":
                     val = self.db().nextSerialVal(self.table(), field_name)
                     if val is None:
                         val = 0
-                    self.private_cursor.buffer_.setValue(field_name, val)
+                    self.buffer().setValue(field_name, val)
                 elif type_ == "timestamp":
                     if not field.allowNull():
                         val = self.db().getTimeStamp()
-                        self.private_cursor.buffer_.setValue(field_name, val)
+                        self.buffer().setValue(field_name, val)
                 if field.isCounter():
-                    from pineboolib.application.database import utils
 
                     siguiente = None
                     if self._action.scriptFormRecord():
@@ -2141,9 +2137,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         # if row >= model.rows:
         #    row = model.rows
-        if not model.seekRow(row):
+        if not model.seek_row(row):
             return False
-
         row = model._current_row_index
         if self.currentRegister() == row:
             return False
@@ -2646,8 +2641,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         self.private_cursor._buffer_copy.setGenerated(field, False)
                     continue
 
-                if not self.private_cursor.buffer_.isGenerated(field.name()):
-                    continue
+                # if not self.private_cursor.buffer_.isGenerated(field.name()):
+                #    continue
 
                 if field.calculated():
                     func_ = getattr(script_record_iface, "calculateField", None)
@@ -2693,21 +2688,36 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     )
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
 
-            pk_name = self.private_cursor.buffer_.pK()
-            if pk_name is None:
-                raise ValueError("primary key is not defined!")
-            pk_value = self.private_cursor.buffer_.value(pk_name)
+            pk_value = self.buffer().value(self.primaryKey())
 
-            if not (self.private_cursor._model.insert(self)):
+            # if not (self.private_cursor._model.insert(self)):
+            try:
+                # obj_ = self._cursor_model()
+                obj_ = self.buffer()._current_model_obj
+                session_ = self.db().session()
+                # for field in self.buffer().fieldsList():
+                #    if field.value is not None:
+                #        value = field.value
+                #    else:
+                #        value = self.metadata().field(field.name).defaultValue()
+
+                #    setattr(obj_, field.name, value)
+
+                session_.add(obj_)
+                print("ADD", obj_, session_, "pk = ", getattr(obj_, self.primaryKey()))
+
+            except Exception as error:
+                raise Exception("Error adding row!: %s" % error)
+
                 return False
-            self.selection().currentRowChanged.disconnect(
-                self.selection_currentRowChanged
-            )  # Evita vaciado de buffer al hacer removeRows
-            self.private_cursor._model.refresh()
-            self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
-            pk_row = self.private_cursor._model.findPKRow((pk_value,))
+            # self.selection().currentRowChanged.disconnect(
+            #    self.selection_currentRowChanged
+            # )  # Evita vaciado de buffer al hacer removeRows
+            # self.model().refresh()
+            # self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
+            pk_row = self.private_cursor._model.find_pk_row(pk_value)
 
-            if pk_row is not None:
+            if pk_row > -1:
                 self.move(pk_row)
 
             updated = True
@@ -2759,22 +2769,21 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if value and not isinstance(value, bool) or value is False:
                     return False
 
-            if not self.private_cursor.buffer_:
-                self.primeUpdate()
+            # if not self.private_cursor.buffer_:
 
-            field_list = self.private_cursor.metadata_.fieldList()
+            #    self.buffer().primeDelete()
+
+            field_list = self.metadata().fieldList()
 
             for field in field_list:
 
                 field_name = field.name()
-                if not self.private_cursor.buffer_.isGenerated(field_name):
-                    continue
 
                 result = None
-                if not self.private_cursor.buffer_.isNull(field_name):
+                if not self.bufferIsNull(field_name):
                     result = self.private_cursor.buffer_.value(field_name)
 
-                if result is None:
+                else:
                     continue
 
                 relation_list = field.relationList()
@@ -2808,8 +2817,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                 if not cursor.commitBuffer(False):
                                     return False
 
-            if not self.private_cursor._model.delete(self):
-                raise Exception("Error deleting row!")
+            try:
+                transaction = self.db().session()
+                # obj_ = transaction.query(self._cursor_model).get(
+                #    self.buffer().value(self.primaryKey())
+                # )
+                transaction.delete(self.buffer()._current_model_obj)
+            except Exception as error:
+                raise Exception("Error deleting row!: %s" % error)
+            # if not self.private_cursor._model.delete(self):
+            #    raise Exception("Error deleting row!")
 
             if function_record_del_after:
                 # RECORD DEL AFTER!!
@@ -2842,6 +2859,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.setModeAccess(self.Edit)
 
         if updated:
+
+            if self.transactionLevel() == 0:
+                self.db().commit()
+
             if field_name_check:
                 self.private_cursor.buffer_.setGenerated(field_name_check, True)
 
@@ -3229,65 +3250,76 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not self.private_cursor.buffer_:
                 raise Exception("Buffer is not set. Cannot update")
             # solo los campos modified
-            lista = self.private_cursor.buffer_.modifiedFields()
-            self.private_cursor.buffer_.setNoModifiedFields()
+            # lista = self.private_cursor.buffer_.modifiedFields()
+            # self.private_cursor.buffer_.setNoModifiedFields()
             # TODO: pKVaue debe ser el valueBufferCopy, es decir, el antiguo. Para
             # .. soportar updates de PKey, que, aunque inapropiados deberían funcionar.
-            pk_name = self.private_cursor.buffer_.pK()
-            if pk_name is None:
-                raise Exception("PrimaryKey is not defined!")
+            # pk_name = self.private_cursor.buffer_.pK()
+            # if pk_name is None:
+            #    raise Exception("PrimaryKey is not defined!")
 
-            primary_key_value = self.private_cursor.buffer_.value(pk_name)
+            # primary_key_value = self.private_cursor.buffer_.value(pk_name)
+            # obj_ = self.db()._current_transaction.query(self._cursor_model).get(primary_key_value)
+            # for field_name in lista:
+            #    setattr(obj_, field_name, self.private_cursor.buffer_.value(field_name))
 
-            dict_update = {
-                fieldName: self.private_cursor.buffer_.value(fieldName) for fieldName in lista
-            }
-            try:
-                update_successful = self.private_cursor._model.update(
-                    primary_key_value, dict_update
-                )
-            except Exception:
-                LOGGER.exception("PNSqlCursor.update:: Unhandled error on model updateRowDB:: ")
-                update_successful = False
+            # if lista and obj_:
+
+            update_successful = True
+
+            # dict_update = {
+            #    fieldName: self.private_cursor.buffer_.value(fieldName) for fieldName in lista
+            # }
+            # try:
+            #    update_successful = self.model().data_update(
+            #        primary_key_value, dict_update
+            #    )
+            # except Exception:
+            #    LOGGER.exception("PNSqlCursor.update:: Unhandled error on model updateRowDB:: ")
+            #    update_successful = False
             # TODO: En el futuro, si no se puede conseguir un update, hay que
             # "tirar atrás" todo.
-            if update_successful:
-                row = self.private_cursor._model.findPKRow([primary_key_value])
-                if row is not None:
-                    if (
-                        self.private_cursor._model.value(row, self.private_cursor._model.pK())
-                        != primary_key_value
-                    ):
-                        raise AssertionError(
-                            "Los indices del CursorTableModel devolvieron un registro erroneo: %r != %r"
-                            % (
-                                self.private_cursor._model.value(
-                                    row, self.private_cursor._model.pK()
-                                ),
-                                primary_key_value,
-                            )
-                        )
-                    self.private_cursor._model.setValuesDict(row, dict_update)
+            # if update_successful:
+            # row = self.private_cursor._model.findPKRow([primary_key_value])
+            # if row is not None:
+            #    if (
+            #        self.private_cursor._model.value(row, self.private_cursor._model.pK())
+            #        != primary_key_value
+            #    ):
+            #        raise AssertionError(
+            #            "Los indices del CursorTableModel devolvieron un registro erroneo: %r != %r"
+            #            % (
+            #                self.private_cursor._model.value(
+            #                    row, self.private_cursor._model.pK()
+            #                ),
+            #                primary_key_value,
+            #            )
+            #        )
+            #    self.private_cursor._model.setValuesDict(row, dict_update)
 
-            else:
-                # Método clásico
-                LOGGER.warning(
-                    "update :: WARN :: Los indices del CursorTableModel no funcionan o el PKey no existe."
-                )
-                row = 0
-                while row < self.private_cursor._model.rowCount():
-                    if (
-                        self.private_cursor._model.value(row, self.private_cursor._model.pK())
-                        == primary_key_value
-                    ):
-                        for field_name in lista:
-                            self.private_cursor._model.setValue(
-                                row, field_name, self.private_cursor.buffer_.value(field_name)
-                            )
+            # else:
+            # Método clásico
+            #    LOGGER.warning(
+            #        "update :: WARN :: Los indices del CursorTableModel no funcionan o el PKey no existe."
+            #    )
+            # row = 0
+            # while row < self.private_cursor._model.rowCount():
+            #    if (
+            #        self.private_cursor._model.value(row, self.private_cursor._model.pK())
+            #        == primary_key_value
+            #    ):
+            #    obj_ = self.model()._data_proxy.get(primay_key_value)
+            #    for field_name in lista:
+            #        setattr(obj_, field_name, self.private_cursor.buffer_.value(field_name))
 
-                        break
+            #    for field_name in lista:
+            #        self.private_cursor._model.setValue(
+            #            row, field_name, self.private_cursor.buffer_.value(field_name)
+            #        )
 
-                    row = row + 1
+            #    break
+
+            # row = row + 1
 
             if notify:
                 self.bufferCommited.emit()

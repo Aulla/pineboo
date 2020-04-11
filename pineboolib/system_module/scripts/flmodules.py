@@ -57,8 +57,10 @@ class FormInternalObj(qsa.FormDBWidget):
             )
         ):
             return
+
         cursor_ficheros = qsa.FLSqlCursor(u"flfiles")
         cursor = self.cursor()
+
         cursor_ficheros.select(qsa.ustr(u"nombre = '", nombre, u"'"))
         if not cursor_ficheros.first():
             if nombre.endswith(u".ar"):
@@ -249,7 +251,9 @@ class FormInternalObj(qsa.FormDBWidget):
             if not qsa.aqApp.db().singleConnection():
                 qsa.sys.cleanupMetaData()
             qsa.sys.processEvents()
+            print("A")
             if self.cursor().commitBuffer():
+                print("B")
                 id_mod_widget = self.child(u"idMod")
                 if id_mod_widget is not None:
                     id_mod_widget.setDisabled(True)

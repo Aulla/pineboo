@@ -542,7 +542,7 @@ class Project(object):
         conn = self.conn_manager.dbAux()
         db_name = conn.DBName()
 
-        result = conn.execute_query(""" SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
+        result = conn.execute_query("""SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
         for idarea, descripcion in list(result):
             self.areas[idarea] = AreaStruct(idarea=idarea, descripcion=descripcion)
 
@@ -550,7 +550,7 @@ class Project(object):
 
         # Obtener módulos activos
         result = conn.execute_query(
-            """ SELECT idarea, idmodulo, descripcion, icono FROM flmodules WHERE bloqueo = %s """
+            """SELECT idarea, idmodulo, descripcion, icono FROM flmodules WHERE bloqueo = %s """
             % conn.driver().formatValue("bool", "True", False)
         )
 
@@ -561,7 +561,7 @@ class Project(object):
                 self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
 
         result = conn.execute_query(
-            """ SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
+            """SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
         )
 
         log_file = open(path._dir("project.txt"), "w")

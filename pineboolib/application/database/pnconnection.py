@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from . import pnconnectionmanager
 
     from sqlalchemy.engine import base  # type: ignore [import] # noqa: F821, F401
-
+    from sqlalchemy.orm import session  # type: ignore [import] # noqa: F821
 LOGGER = utils.logging.get_logger(__name__)
 
 
@@ -50,6 +50,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     connections_dict: Dict[str, "iconnection.IConnection"] = {}
     _conn_manager: "pnconnectionmanager.PNConnectionManager"
     _last_activity_time: float
+    # _current_transaction: Optional["session.Session"]
+    _last_error: str
 
     def __init__(
         self,
@@ -99,7 +101,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         # self.queueSavePoints_ = []
         self._interactive_gui = "Pineboo" if not utils_base.is_library() else "Pinebooapi"
         self._last_active_cursor = None
-
+        # self._current_transaction = None
+        self._last_error = None
         self._is_open = False
         # if self._driver_name and self._driver_sql.loadDriver(self._driver_name):
         #    self.conn = self.conectar(db_name, db_host, db_port, db_user_name, db_password)
@@ -347,7 +350,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                         % (self._name, self.driver()._transaction)
                     ],
                 )
-
+            print(12)
             self.savePoint(self.driver()._transaction)
 
             self.driver()._transaction = self.driver()._transaction + 1
@@ -527,7 +530,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def commit(self) -> bool:
         """Send the commit order to the database."""
 
-        return self.driver().transaction_commit()
+        return self.commitTransaction()
 
     def canOverPartition(self) -> bool:
         """Return True if the database supports the OVER statement."""
@@ -536,13 +539,25 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def savePoint(self, save_point: int) -> bool:
         """Create a save point."""
+        print("CREA SAVE_POINT!!", self.session().transaction)
+        try:
+            self.session().begin_nested()
+            return True
+        except Exception as error:
+            self._last_error = "No se pudo crear punto de salvaguarda: %s" % str(error)
 
-        return self.driver().save_point(save_point)
+        return False
 
     def releaseSavePoint(self, save_point: int) -> bool:
         """Release a save point."""
+        print("RELEASE SAVE_POINT!!", self.session().transaction)
+        try:
+            self.session().commit()
+            return True
+        except Exception as error:
+            self._last_error = "No se pudo release a punto de salvaguarda: %s" % str(error)
 
-        return self.driver().save_point_release(save_point)
+        return False
 
     def Mr_Proper(self):
         """Clean the database of unnecessary tables and records."""
@@ -551,22 +566,56 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def rollbackSavePoint(self, save_point: int) -> bool:
         """Roll back a save point."""
+        print("CANCELA SAVE_POINT!!", self.session().transaction)
+        try:
+            self.session().rollback()
+            return True
+        except Exception as error:
+            self._last_error = "No se pudo rollback a punto de salvaguarda: %s" % str(error)
 
-        return self.driver().save_point_roll_back(save_point)
+        return False
 
     def transaction(self) -> bool:
         """Create a transaction."""
-        return self.driver().transaction()
+
+        try:
+            self.session()
+            print("CREA TRANSACCION!!", self.session().transaction)
+            return True
+        except Exception as error:
+            self._last_error = "No se pudo crear la transacción: %s" % str(error)
+
+        return False
 
     def commitTransaction(self) -> bool:
         """Release a transaction."""
+        print("COMMIT TRANSACCION!!", self.session().transaction)
+        try:
+            session_ = self.session()
+            session_.commit()
+            session_.close()
+            self.driver()._session = None
 
-        return self.driver().transaction_commit()
+            return True
+        except Exception as error:
+            self._last_error = "No se pudo aceptar la transacción: %s" % str(error)
+
+        return False
 
     def rollbackTransaction(self) -> bool:
         """Roll back a transaction."""
+        print("ROLLBACK TRANSACCION!!", self.session().transaction)
+        try:
+            session_ = self.session()
+            session_.rollback()
+            session_.close()
+            self.driver()._session = None
 
-        return self.driver().transaction_rollback()
+            return True
+        except Exception as error:
+            self._last_error = "No se pudo deshacer la transacción: %s" % str(error)
+
+        return False
 
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Indicate next available value of a serial type field."""

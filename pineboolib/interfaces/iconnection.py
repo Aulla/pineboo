@@ -37,6 +37,7 @@ class IConnection:
     _name: str
     _is_open: bool
     _driver = None
+    _last_error: str
 
     def connectionName(self) -> str:
         """Get the current connection name for this cursor."""

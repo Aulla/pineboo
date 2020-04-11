@@ -222,8 +222,9 @@ class FLDataTable(QtWidgets.QTableView):
         Set a persistent filter that always applies to the cursor before to refresh.
         """
         if id_pk is not None and self.numRows():
-            pos = self.model().findPKRow((id_pk,))
-            if pos is not None and pos != self.cur.currentRegister():
+            pos = self.model().find_pk_row([id_pk])
+
+            if pos > -1 and pos != self.cur.currentRegister():
                 self.cur.move(pos)
             # self.ensureRowSelectedVisible()
 
@@ -726,7 +727,7 @@ class FLDataTable(QtWidgets.QTableView):
             last_pk = None
             buffer = self.cur.buffer()
             if buffer:
-                pk_name = buffer.pK()
+                pk_name = self.cur.primaryKey()
                 if pk_name is not None:
                     last_pk = buffer.value(pk_name)
 
@@ -860,7 +861,7 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_:
             return -1
 
-        return self.cursor_.model().rows
+        return self.cursor_.model().rowCount()
 
     def column_name_to_column_index(self, name: str) -> int:
         """
