@@ -2717,7 +2717,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             # )  # Evita vaciado de buffer al hacer removeRows
             # self.model().refresh()
             # self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
-            pk_row = self.private_cursor._model.find_pk_row(pk_value)
+            pk_row = self.model().find_pk_row(pk_value)
 
             if pk_row > -1:
                 self.move(pk_row)
