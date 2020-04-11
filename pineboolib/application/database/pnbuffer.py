@@ -85,17 +85,23 @@ class PNBuffer(object):
         print("*", self._current_model_obj)
         self.inicialized_ = True
 
-    def primeUpdate(self, row: int = None) -> None:
+    def primeUpdate(self) -> None:
         """Set the initial copy of the cursor values into the buffer."""
         del self._current_model_obj
-        self._current_model_obj = list(self.cursor_.model()._data_proxy)[row]
-        print("* *", row, self._current_model_obj)
+        self._current_model_obj = list(self.cursor_.model()._data_proxy)[
+            self.cursor_.currentRegister()
+        ]
+        print("* *", self._current_model_obj, self.cursor_.currentRegister())
 
     def primeDelete(self) -> None:
         """Clear the values ​​of all buffer fields."""
         # for field_key in self.field_dict_.keys():
         #    field = self.field_dict_[field_key]
-        self.primeUpdate(self.cursor_.currentRegister())
+        del self._current_model_obj
+        self._current_model_obj = list(self.cursor_.model()._data_proxy)[
+            self.cursor_.currentRegister()
+        ]
+        print("* * *", self._current_model_obj, self.cursor_.currentRegister())
 
     def setNull(self, name) -> bool:
         """

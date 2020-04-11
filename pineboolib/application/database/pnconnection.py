@@ -539,7 +539,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def savePoint(self, save_point: int) -> bool:
         """Create a save point."""
-        print("CREA SAVE_POINT!!", self.session().transaction)
+        # print("CREA SAVE_POINT!!", self.session().transaction)
         try:
             self.session().begin_nested()
             return True
@@ -550,7 +550,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def releaseSavePoint(self, save_point: int) -> bool:
         """Release a save point."""
-        print("RELEASE SAVE_POINT!!", self.session().transaction)
+        # print("RELEASE SAVE_POINT!!", self.session().transaction)
         try:
             self.session().commit()
             return True
@@ -566,7 +566,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def rollbackSavePoint(self, save_point: int) -> bool:
         """Roll back a save point."""
-        print("CANCELA SAVE_POINT!!", self.session().transaction)
+        # print("CANCELA SAVE_POINT!!", self.session().transaction)
         try:
             self.session().rollback()
             return True
@@ -580,7 +580,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         try:
             self.session()
-            print("CREA TRANSACCION!!", self.session().transaction)
+            # print("CREA TRANSACCION!!", self.session().transaction)
             return True
         except Exception as error:
             self._last_error = "No se pudo crear la transacción: %s" % str(error)
@@ -589,12 +589,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def commitTransaction(self) -> bool:
         """Release a transaction."""
-        print("COMMIT TRANSACCION!!", self.session().transaction)
+        # print("COMMIT TRANSACCION!!", self.session().transaction)
         try:
             session_ = self.session()
             session_.commit()
-            session_.close()
-            self.driver()._session = None
+            # session_.close()
+            # self.driver()._session = None
 
             return True
         except Exception as error:
@@ -604,12 +604,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def rollbackTransaction(self) -> bool:
         """Roll back a transaction."""
-        print("ROLLBACK TRANSACCION!!", self.session().transaction)
+        # print("ROLLBACK TRANSACCION!!", self.session().transaction)
         try:
             session_ = self.session()
             session_.rollback()
-            session_.close()
-            self.driver()._session = None
+            # session_.close()
+            # self.driver()._session = None
 
             return True
         except Exception as error:

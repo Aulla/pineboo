@@ -182,7 +182,9 @@ class PNSqlSchema(object):
                         if tmp_conn is not None:
                             self.set_last_error_null()
                             try:
+                                tmp_conn.connection.set_isolation_level(0)
                                 tmp_conn.execute("CREATE DATABASE %s" % db_name)
+                                tmp_conn.connection.set_isolation_level(1)
                             except Exception as error:
                                 self.set_last_error(str(error), "LOGGIN")
 

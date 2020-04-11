@@ -1200,7 +1200,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         # )
                         qry.exec_()
                         if not qry.next():
-
+                            print("Buscando en", self.db().session().transaction)
                             message += "\n%s:%s : El valor %s no existe en la tabla %s" % (
                                 self.table(),
                                 field.alias(),
@@ -1883,7 +1883,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.private_cursor.buffer_ is None:
             self.private_cursor.buffer_ = pnbuffer.PNBuffer(self)
         # LOGGER.warning("Realizando primeUpdate en pos %s y estado %s , filtro %s", self.at(), self.modeAccess(), self.filter())
-        self.private_cursor.buffer_.primeUpdate(self.at())
+        self.private_cursor.buffer_.primeUpdate()
         return self.private_cursor.buffer_
 
     @decorators.pyqt_slot()
@@ -2578,8 +2578,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param check_locks True to check block risks for this table and the current record
         @return TRUE if the buffer could be delivered to the cursor, and FALSE if the delivery failed
         """
-
-        if not self.private_cursor.buffer_ or not self.private_cursor.metadata_:
+        print(100)
+        if not self.buffer() or not self.metadata():
+            print("FALLA commitbuffer()", self.buffer(), self.metadata())
             return False
 
         if (
@@ -2704,8 +2705,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 #    setattr(obj_, field.name, value)
 
                 session_.add(obj_)
-                print("ADD", obj_, session_, "pk = ", getattr(obj_, self.primaryKey()))
-
+                print("ADD", obj_, session_, session_.transaction)
+                if self.transactionLevel() == 0:
+                    session_.transaction.commit()
             except Exception as error:
                 raise Exception("Error adding row!: %s" % error)
 
@@ -2823,6 +2825,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 #    self.buffer().value(self.primaryKey())
                 # )
                 transaction.delete(self.buffer()._current_model_obj)
+                if self.transactionLevel() == 0:
+                    transaction.transaction.commit()
             except Exception as error:
                 raise Exception("Error deleting row!: %s" % error)
             # if not self.private_cursor._model.delete(self):
@@ -2860,8 +2864,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if updated:
 
-            if self.transactionLevel() == 0:
-                self.db().commit()
+            # if self.transactionLevel() == 0:
+            #    self.db().commit()
 
             if field_name_check:
                 self.private_cursor.buffer_.setGenerated(field_name_check, True)
@@ -3265,6 +3269,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             # if lista and obj_:
 
+            if self.transactionLevel() == 0:
+                self.db().session().transaction.commit()
             update_successful = True
 
             # dict_update = {

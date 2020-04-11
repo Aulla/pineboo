@@ -251,7 +251,7 @@ class FormInternalObj(qsa.FormDBWidget):
             if not qsa.aqApp.db().singleConnection():
                 qsa.sys.cleanupMetaData()
             qsa.sys.processEvents()
-            print("A")
+            print("A", self.cursor(), self.cursor().valueBuffer(self.cursor().primaryKey()))
             if self.cursor().commitBuffer():
                 print("B")
                 id_mod_widget = self.child(u"idMod")

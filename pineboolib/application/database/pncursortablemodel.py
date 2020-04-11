@@ -653,40 +653,60 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         #    return
 
         """ FILTRO WHERE """
-        where_filter = ""
-        for k, wfilter in sorted(self.where_filters.items()):
-            # if wfilter is None:
-            #     continue
-            wfilter = wfilter.strip()
 
-            if not wfilter:
+        filter_list = []
+        for key, filter in self.where_filters.items():
+            if not filter:
                 continue
-            if not where_filter:
-                where_filter = wfilter
-            elif wfilter not in where_filter:
-                if where_filter not in wfilter:
-                    where_filter += " AND " + wfilter
-        if not where_filter:
-            where_filter = "1 = 1"
+            filter = filter.lower()
+            filter = filter.replace("=", "eq")
+            filter = filter.replace("<=", "le")
+            filter = filter.replace(">=", "ge")
+            filter = filter.replace("<", "lt")
+            filter = filter.replace(">", "gt")
+            filter = filter.replace(" in ", " in_ ")
 
-        self.where_filter = where_filter
-        self._order = self.getSortOrder()
+            item = filter.split(" ")
+            if item[0].startswith("upper("):
+                item[0] = item[0][6:-1]
+            if item[2][0] == "'":
+                item[2] = item[2][1:-1]
+            filter_list.append(item)
+
+        print("FIXME!!", self.where_filters, filter_list)
+        # where_filter = ""
+        # for k, wfilter in sorted(self.where_filters.items()):
+        # if wfilter is None:
+        #     continue
+        #    wfilter = wfilter.strip()
+
+        #    if not wfilter:
+        #        continue
+        #    if not where_filter:
+        #        where_filter = wfilter
+        #    elif wfilter not in where_filter:
+        #        if where_filter not in wfilter:
+        #            where_filter += " AND " + wfilter
+        # if not where_filter:
+        #    where_filter = "1 = 1"
+
+        # self.where_filter = where_filter
+        # self._order = self.getSortOrder()
         # Si no existe un orderBy y se ha definido uno desde FLTableDB ...
-        if self.where_filter.find("ORDER BY") == -1 and self.getSortOrder():
-            if self.where_filter.find(";") > -1:  # Si el where termina en ; ...
-                self.where_filter = self.where_filter.replace(";", " ORDER BY %s;" % self._order)
-            else:
-                self.where_filter = "%s ORDER BY %s" % (self.where_filter, self._order)
+        # if self.where_filter.find("ORDER BY") == -1 and self.getSortOrder():
+        #    if self.where_filter.find(";") > -1:  # Si el where termina en ; ...
+        #        self.where_filter = self.where_filter.replace(";", " ORDER BY %s;" % self._order)
+        #    else:
+        #        self.where_filter = "%s ORDER BY %s" % (self.where_filter, self._order)
         """ FIN """
 
         parent = QtCore.QModelIndex()
 
-        if self.parent_view:
-            rows = self._rows_loaded
-            self.beginRemoveRows(parent, 0, rows)
-            self.endRemoveRows()
-            if rows > 0:
-                cast(QtCore.pyqtSignal, self.rowsRemoved).emit(parent, 0, rows - 1)
+        rows = self._rows_loaded
+        self.beginRemoveRows(parent, 0, rows)
+        self.endRemoveRows()
+        if rows > 0:
+            cast(QtCore.pyqtSignal, self.rowsRemoved).emit(parent, 0, rows - 1)
 
         # self.rows = 0
         # self._rows_loaded = 0
@@ -704,12 +724,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # self._current_row_data = []
         # self._current_row_index = -1
 
-        filter = []
-
         dynamic_filter_class = DynamicFilter(
             query=session_.query(self._parent._cursor_model),
             model_class=self._parent._cursor_model,
-            filter_condition=filter,
+            filter_condition=filter_list,
         )
 
         self._data_proxy = dynamic_filter_class.return_query()
@@ -733,8 +751,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self.need_update = False
         self._column_hints = [120] * len(self.sql_fields)
-        if self.parent_view:
-            self.update_rows()
+        self.update_rows()
 
     # def value(self, row: Optional[int], field_name: str) -> Any:
     #    """
@@ -800,8 +817,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def seek_row(self, row: int) -> bool:
 
         if row != self._current_row_index:
-            if row >= 0 and row < self._current_row_index:
-                object_ = self._data_proxy.index(row)
+            if row > -1 and row < self._data_proxy.count() if self._data_proxy else 0:
+                object_ = list(self._data_proxy)[row]
                 if object_ is None:
                     return False
 
