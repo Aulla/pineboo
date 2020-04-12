@@ -1462,8 +1462,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         # if self.private_cursor.buffer_ is not None:
         #    return self.private_cursor.buffer_.isNull(pos_or_name)
+        buffer_ = self.private_cursor.buffer_
+        if buffer_:
+            return getattr(buffer_._current_model_obj, field_name, None) is None
 
-        return getattr(self.buffer()._current_model_obj, field_name, None) is None
+        return True
 
     def bufferSetNull(self, pos_or_name: Union[int, str]) -> None:
         """
