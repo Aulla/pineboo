@@ -172,7 +172,7 @@ def load_models() -> None:
     main_conn = application.PROJECT.conn_manager.mainConn()
 
     # db_name = main_conn.DBName()
-    print("Cargando modelos")
+    # print("Cargando modelos")
     # QSADictModules.save_other("Base", main_conn.declarative_base())
     # QSADictModules.save_other("session", main_conn.session())
     # QSADictModules.save_other("engine", main_conn.engine())

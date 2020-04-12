@@ -583,7 +583,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         try:
             self.session()
-            print("CREA TRANSACCION!!", self.session().transaction)
+            # print("CREA TRANSACCION!!", self.session().transaction)
             return True
         except Exception as error:
             self._last_error = "No se pudo crear la transacción: %s" % str(error)
