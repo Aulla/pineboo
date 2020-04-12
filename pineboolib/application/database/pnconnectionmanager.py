@@ -22,7 +22,7 @@ class PNConnectionManager(QtCore.QObject):
     _manager: "flmanager.FLManager"
     _manager_modules: "flmanagermodules.FLManagerModules"
     connections_dict: Dict[str, "pnconnection.PNConnection"] = {}
-    limit_connections: int = 10  # Limit of connections to use.
+    limit_connections: int = 50  # Limit of connections to use.
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
     def __init__(self):
@@ -136,6 +136,7 @@ class PNConnectionManager(QtCore.QObject):
                         connection_._db_port,
                         connection_._db_user_name,
                         connection_._db_password,
+                        self.limit_connections,
                     )
                     connection_._is_open = True
 

@@ -82,10 +82,8 @@ class FormInternalObj(qsa.FormDBWidget):
 
         if cur_files_.modeAccess() != cur_files_.Browse:
             _qry = qsa.FLSqlQuery()
-            _qry.setTablesList(u"flserial")
             _qry.setSelect(u"sha")
             _qry.setFrom(u"flfiles")
-            _qry.setForwardOnly(True)
             _serial_value = cur_files_.valueBuffer(u"sha")
             if _qry.exec_():
                 if _qry.first():

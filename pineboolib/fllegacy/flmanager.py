@@ -1237,7 +1237,7 @@ class FLManager(QtCore.QObject, IManager):
                 )
                 continue
 
-            c.select("tabla='%s'" % table)
+            c.select("tabla = '%s'" % table)
             if c.next():
                 buffer = c.primeUpdate()
                 buffer.setValue("xml", q2.value(1))

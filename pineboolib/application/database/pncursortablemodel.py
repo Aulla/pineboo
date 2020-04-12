@@ -655,25 +655,30 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """ FILTRO WHERE """
 
         filter_list = []
-        for key, filter in self.where_filters.items():
-            if not filter:
-                continue
-            filter = filter.lower()
-            filter = filter.replace("=", "eq")
-            filter = filter.replace("<=", "le")
-            filter = filter.replace(">=", "ge")
-            filter = filter.replace("<", "lt")
-            filter = filter.replace(">", "gt")
-            filter = filter.replace(" in ", " in_ ")
+        try:
+            for key, filter in self.where_filters.items():
+                if not filter:
+                    continue
+                filter = filter.lower()
+                filter = filter.replace("=", "eq")
+                filter = filter.replace("<=", "le")
+                filter = filter.replace(">=", "ge")
+                filter = filter.replace("<", "lt")
+                filter = filter.replace(">", "gt")
+                filter = filter.replace(" in ", " in_ ")
 
-            item = filter.split(" ")
-            if item[0].startswith("upper("):
-                item[0] = item[0][6:-1]
-            if item[2][0] == "'":
-                item[2] = item[2][1:-1]
-            filter_list.append(item)
+                item = filter.split(" ")
+                if item[0].startswith("upper("):
+                    item[0] = item[0][6:-1]
+                if item[2][0] == "'":
+                    item[2] = item[2][1:-1]
+                filter_list.append(item)
+        except Exception as error:
+            LOGGER.warning(
+                "creando filtro %s : %s", self.where_filters, str(error), stack_info=True
+            )
 
-        print("FIXME!!", self.where_filters, filter_list)
+        # print("FIXME!!", self.where_filters, filter_list)
         # where_filter = ""
         # for k, wfilter in sorted(self.where_filters.items()):
         # if wfilter is None:
@@ -1002,8 +1007,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         ret_ = -1
 
         if self._data_proxy:
-            obj_ = self._data_proxy.get(pk_value)
-            ret_ = list(self._data_proxy).index(obj_) if obj_ else -1
+            for number, row in enumerate(self._data_proxy):
+                if getattr(row, self.metadata().primaryKey(), 0) == pk_value:
+                    ret_ = number
+                    break
 
         return ret_
 

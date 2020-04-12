@@ -22,6 +22,7 @@ from . import pncursortablemodel
 
 import weakref
 import datetime
+import time
 import copy
 
 from typing import Any, Optional, List, Dict, Union, cast, TYPE_CHECKING
@@ -163,8 +164,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """Get current connection for this cursor."""
         return self.db()
 
-    # def close(self) -> None:
-    #    """Close cursor connection."""
+        # def close(self) -> None:
+        """Close cursor connection."""
+
+    #    session = self.db().session()
+    # print("*********", session, session.transaction)
+    # session.close()
+    # print("*****", session.transaction, self.db().session(), session.is_active)
+
     #    model = self.model()
     #    if model is not None:
     #        model._cursor_db.close()
@@ -463,6 +470,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 )
 
         else:
+            # if type_ == "date":
+            # value = time.strptime(repr(value))
+            #    print("**", value)
             self.private_cursor.buffer_.setValue(field_name, value)
 
         # LOGGER.trace("(%s)bufferChanged.emit(%s)" % (self.curName(),field_name))
@@ -933,7 +943,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             raise Exception("No buffer_copy set")
         return self.private_cursor._buffer_copy.isNull(field_name)
 
-    @decorators.not_implemented_warn
     def updateBufferCopy(self) -> None:
         """
         Copy contents of FLSqlCursor::buffer_ into FLSqlCursor::_buffer_copy.
@@ -948,19 +957,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             del self.private_cursor._buffer_copy
 
         self.private_cursor._buffer_copy = pnbuffer.PNBuffer(self)
-        self.private_cursor._buffer_copy._current_model_obj = copy.copy(
-            self.private_cursor.buffer_._current_model_obj
-        )
-        # bufferCopy = self.bufferCopy()
-        # if not self.private_cursor._buffer_copy:
-        #    raise Exception("No buffercopy")
+        self.bufferCopy()._current_model_obj = self._cursor_model()
 
-        # for field in self.private_cursor.buffer_.fieldsList():
-        #    self.private_cursor._buffer_copy.setValue(
-        #        field.name, self.private_cursor.buffer_.value(field.name), False
-        #    )
+        for field_name in self.metadata().fieldNames():
+            self.bufferCopy().setValue(field_name, self.buffer().value(field_name))
 
-    @decorators.not_implemented_warn
     def isModifiedBuffer(self) -> bool:
         """
         Check if current buffer contents are different from the original copy.
@@ -969,8 +970,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return True if different. False if equal.
         """
+        for field_name in self.metadata().fieldNames():
+            if self.buffer().value(field_name) != self.bufferCopy().value(field_name):
+                return True
 
-        return True
+        return False
 
     def setAskForCancelChanges(self, a: bool) -> None:
         """
@@ -2578,9 +2582,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param check_locks True to check block risks for this table and the current record
         @return TRUE if the buffer could be delivered to the cursor, and FALSE if the delivery failed
         """
-        print(100)
+
         if not self.buffer() or not self.metadata():
-            print("FALLA commitbuffer()", self.buffer(), self.metadata())
+
             return False
 
         if (
@@ -2705,9 +2709,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 #    setattr(obj_, field.name, value)
 
                 session_.add(obj_)
-                print("ADD", obj_, session_, session_.transaction)
-                if self.transactionLevel() == 0:
-                    session_.transaction.commit()
+                # print("ADD", obj_, session_, session_.transaction)
+
             except Exception as error:
                 raise Exception("Error adding row!: %s" % error)
 
@@ -2825,8 +2828,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 #    self.buffer().value(self.primaryKey())
                 # )
                 transaction.delete(self.buffer()._current_model_obj)
-                if self.transactionLevel() == 0:
-                    transaction.transaction.commit()
             except Exception as error:
                 raise Exception("Error deleting row!: %s" % error)
             # if not self.private_cursor._model.delete(self):
@@ -2863,7 +2864,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.setModeAccess(self.Edit)
 
         if updated:
-
+            if self.transactionLevel() == 0:
+                self.db().commit()
             # if self.transactionLevel() == 0:
             #    self.db().commit()
 
@@ -3269,8 +3271,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             # if lista and obj_:
 
-            if self.transactionLevel() == 0:
-                self.db().session().transaction.commit()
+            # if self.transactionLevel() == 0:
+            #    self.db().session().transaction.commit()
             update_successful = True
 
             # dict_update = {

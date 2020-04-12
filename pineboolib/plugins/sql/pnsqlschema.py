@@ -140,14 +140,20 @@ class PNSqlSchema(object):
         return "%s://%s:%s@%s:%s/%s" % (self._sqlalchemy_name, usern, passw_, host, port, name)
 
     def connect(
-        self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str
-    ) -> Any:
+        self,
+        db_name: str,
+        db_host: str,
+        db_port: int,
+        db_user_name: str,
+        db_password: str,
+        limit_conn=0,
+    ) -> "base.Connection":
         """Connect to database."""
 
         self.setDBName(db_name)
         self.safe_load(True)
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
-        conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password)
+        conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password, limit_conn)
 
         if conn_ is None:  # Si no existe la conexión
             if application.PROJECT._splash:
@@ -194,7 +200,13 @@ class PNSqlSchema(object):
 
                             tmp_conn.close()
                             conn_ = self.getConn(
-                                db_name, db_host, db_port, db_user_name, db_password
+                                db_name,
+                                db_host,
+                                db_port,
+                                db_user_name,
+                                db_password,
+                                limit_conn,
+                                conn_timeout,
                             )
 
                     except Exception as error:
@@ -234,27 +246,29 @@ class PNSqlSchema(object):
         return None
 
     def getConn(
-        self, name: str, host: str, port: int, usern: str, passw_: str
+        self, name: str, host: str, port: int, usern: str, passw_: str, limit_conn=0
     ) -> Optional["base.Connection"]:
         """Return connection."""
 
         conn_ = None
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
+        queqe_params: Dict[str, Any] = {}
+
+        queqe_params["encoding"] = "UTF-8"
+        if limit_conn > 0:
+            queqe_params["pool_size"] = limit_conn
+            queqe_params["max_overflow"] = int(limit_conn * 2)
+            queqe_params["echo"] = True
 
         try:
-            self.engine_ = self.getEngine(
-                self.loadConnectionString(name, host, port, usern, passw_)
+            self.engine_ = create_engine(
+                self.loadConnectionString(name, host, port, usern, passw_), **queqe_params
             )
             conn_ = self.engine_.connect()
-            # conn_.initialize(LOGGER)
+
         except Exception as error:
             self.set_last_error(str(error), "CONNECT")
         return conn_
-
-    def getEngine(self, conn_string: str) -> "base.Engine":
-        """Return sqlAlchemy connection."""
-
-        return create_engine(conn_string, encoding="UTF-8")
 
     def loadSpecialConfig(self) -> None:
         """Set special config."""
@@ -295,10 +309,22 @@ class PNSqlSchema(object):
     def session(self) -> "session.Session":
         """Create a sqlAlchemy session."""
         if not self._session:
-            Session = sessionmaker(bind=self.engine())
+            Session = sessionmaker(bind=self.connection())
             self._session = Session()
-            print("NUEVA SESSION!", self._session, self)
+
         return self._session
+
+    def connection(self) -> "base.Connection":
+        """Return a cursor connection."""
+
+        if not self._connection or self._connection.closed:
+
+            if self.engine_:
+                self._connection = self.engine_.connect()
+                event.listen(self.engine_, "close", self.close_emited)
+            else:
+                raise Exception("Engine is not loaded!")
+        return self._connection
 
     def declarative_base(self) -> Any:
         """Return sqlAlchemy declarative base."""
@@ -406,21 +432,23 @@ class PNSqlSchema(object):
         table_max = 0
         flseq_max = 0
         res_ = 0
+        sql = "SELECT MAX(%s) FROM %s WHERE 1=1" % (field_name, table_name)
+        cur = self.execute_query(sql)
+        if cur is not None:
+            value = cur.fetchone()
 
-        cur = self.execute_query("SELECT max(%s) FROM %s WHERE 1=1" % (field_name, table_name))
-        result_ = cur.fetchone() if cur else []
+            if value is not None:
+                table_max = value[0] or 0
 
-        if result_:
-            table_max = result_[0] or 0
+        sql = "SELECT seq FROM flseqs WHERE tabla = '%s' AND campo ='%s'" % (table_name, field_name)
+        cur = self.execute_query(sql)
+        if cur is not None:
+            value = cur.fetchone()
 
-        cur = self.execute_query(
-            "SELECT seq FROM flseqs WHERE tabla = '%s' AND campo ='%s'" % (table_name, field_name)
-        )
-        result_ = cur.fetchone() if cur else []
-        if result_:
-            flseq_max = result_[0] or 0
+            if value is not None:
+                flseq_max = value[0] or 0
 
-        res_ = flseq_max if flseq_max else table_max
+        res_ = flseq_max or table_max
         res_ += 1
 
         str_qry = ""
@@ -467,11 +495,10 @@ class PNSqlSchema(object):
 
     def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""
-        engine = self.engine_
-        if engine:
-            return table_name in engine.table_names(None, engine.connect())
+        if self.engine_ and self._connection:
+            return table_name in self.engine_.table_names(None, self._connection)
         else:
-            return False
+            raise Exception("No engine or connection exists!")
 
     @decorators.not_implemented_warn
     def sqlCreateTable(
@@ -751,10 +778,11 @@ class PNSqlSchema(object):
         session_ = self.session()
 
         try:
-            # print("?", query, session_)
-            query = sqlalchemy.text(query)
-            result_ = session_.execute(query)
 
+            query_ = sqlalchemy.text(query)
+            result_ = session_.execute(query_)
+
+            # LOGGER.warning("? %s %s", query[:100], session_)
         except Exception as error:
             self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
             return None
@@ -907,18 +935,6 @@ class PNSqlSchema(object):
     #    """Return a database friendly update query."""
     #    sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
     #    return sql
-
-    def connection(self) -> "base.Connection":
-        """Return a cursor connection."""
-
-        if not self._connection or self._connection.closed:
-
-            if self.engine_:
-                self._connection = self.engine_.connect()
-                event.listen(self.engine_, "close", self.close_emited)
-            else:
-                raise Exception("Engine is not loaded!")
-        return self._connection
 
     def close_emited(self, *args):
         """."""

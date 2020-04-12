@@ -200,6 +200,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         db_port: Optional[int],
         db_user_name: Optional[str],
         db_password: str = "",
+        limit_conn: int = 0,
     ) -> Any:
         """Request a connection to the database."""
 
@@ -220,7 +221,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         LOGGER.info(" * DB NAME   : %s", db_name)
         LOGGER.info(" * USER NAME : %s", db_user_name)
         LOGGER.info("")
-        result = self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
+        result = self.driver().connect(
+            db_name, db_host, db_port, db_user_name, db_password, limit_conn
+        )
         LOGGER.info(
             " CONNECTION TO %s %s ",
             self.connectionName(),
@@ -350,7 +353,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                         % (self._name, self.driver()._transaction)
                     ],
                 )
-            print(12)
+
             self.savePoint(self.driver()._transaction)
 
             self.driver()._transaction = self.driver()._transaction + 1
@@ -580,7 +583,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         try:
             self.session()
-            # print("CREA TRANSACCION!!", self.session().transaction)
+            print("CREA TRANSACCION!!", self.session().transaction)
             return True
         except Exception as error:
             self._last_error = "No se pudo crear la transacción: %s" % str(error)
@@ -592,7 +595,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         # print("COMMIT TRANSACCION!!", self.session().transaction)
         try:
             session_ = self.session()
+            # self.driver()._session = None
             session_.commit()
+            # session_.close()
+            # session_.begin()
             # session_.close()
             # self.driver()._session = None
 
@@ -607,7 +613,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         # print("ROLLBACK TRANSACCION!!", self.session().transaction)
         try:
             session_ = self.session()
+            # self.driver()._session = None
             session_.rollback()
+            # session_.close()
+            # session_.begin()
             # session_.close()
             # self.driver()._session = None
 
@@ -620,12 +629,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def nextSerialVal(self, table: str, field: str) -> Any:
         """Indicate next available value of a serial type field."""
 
-        return self.connManager().dbAux().driver().nextSerialVal(table, field)
+        return self.driver().nextSerialVal(table, field)
 
     def existsTable(self, name: str) -> bool:
         """Indicate the existence of a table in the database."""
 
-        return self.connManager().dbAux().driver().existsTable(name)
+        return self.driver().existsTable(name)
 
     def createTable(self, tmd: "pntablemetadata.PNTableMetaData") -> bool:
         """Create a table in the database, from a PNTableMetaData."""

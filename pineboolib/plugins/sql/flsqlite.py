@@ -15,7 +15,7 @@ import os
 
 from typing import Optional, Any, List, TYPE_CHECKING
 from sqlalchemy import create_engine  # type: ignore [import] # noqa: F821, F401
-
+from sqlalchemy.orm import sessionmaker, session  # type: ignore [import] # noqa: F821
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
@@ -46,7 +46,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self._single_conn = True
         self._sqlalchemy_name = "sqlite"
 
-    def getConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+    def getConn(
+        self, name: str, host: str, port: int, usern: str, passw_: str, limit_conn=0
+    ) -> "base.Connection":
         """Return connection."""
 
         conn_ = None
@@ -55,15 +57,26 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
             if self._single_conn:
+                self._session = main_conn.driver().session()
                 self.engine_ = main_conn.driver().engine()
                 conn_ = self.connection()
+                return conn_
+
+        queqe_params: Dict[str, Union(int, bool, str, Dict[str, int])] = {}
+        # queqe_params["connect_args"] = {"timeout": 5}
+        queqe_params["encoding"] = "UTF-8"
+        # queqe_params["echo"] = True
+
+        if limit_conn > 0:
+            queqe_params["pool_size"] = limit_conn
+            queqe_params["max_overflow"] = int(limit_conn * 2)
 
         if conn_ is None:
             if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):
                 os.mkdir("%s/sqlite_databases/" % application.PROJECT.tmpdir)
 
-            self.engine_ = self.getEngine(
-                self.loadConnectionString(name, host, port, usern, passw_)
+            self.engine_ = create_engine(
+                self.loadConnectionString(name, host, port, usern, passw_), **queqe_params
             )
             conn_ = self.engine_.connect()
 
@@ -82,6 +95,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Set special config."""
 
         return "%s:///%s" % (self._sqlalchemy_name, self.db_filename)
+        # return "%s:///%s?timeout=10&nolock=1" % (self._sqlalchemy_name, self.db_filename)
 
     def setDBName(self, name: str):
         """Set DB Name."""
@@ -286,3 +300,12 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             return False
 
         return True
+
+    def session(self) -> "session.Session":
+        """Create a sqlAlchemy session."""
+        if not self._session:
+            Session = sessionmaker(bind=self.engine_)
+            self._session = Session()
+            self._session.connection().execute("PRAGMA journal_mode=WAL")
+            self._session.connection().execute("PRAGMA synchronous=NORMAL")
+        return self._session

@@ -14,6 +14,7 @@ import decimal
 
 from typing import Dict, List, Union, Optional, Any, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from pineboolib.interfaces import ifieldmetadata, isqlcursor
 
@@ -82,7 +83,7 @@ class PNBuffer(object):
 
         del self._current_model_obj
         self._current_model_obj = self.cursor_._cursor_model()
-        print("*", self._current_model_obj)
+        # print("B *", self._current_model_obj)
         self.inicialized_ = True
 
     def primeUpdate(self) -> None:
@@ -91,7 +92,7 @@ class PNBuffer(object):
         self._current_model_obj = list(self.cursor_.model()._data_proxy)[
             self.cursor_.currentRegister()
         ]
-        print("* *", self._current_model_obj, self.cursor_.currentRegister())
+        # print("B * *", self._current_model_obj, self.cursor_.currentRegister())
 
     def primeDelete(self) -> None:
         """Clear the values ​​of all buffer fields."""
@@ -101,7 +102,7 @@ class PNBuffer(object):
         self._current_model_obj = list(self.cursor_.model()._data_proxy)[
             self.cursor_.currentRegister()
         ]
-        print("* * *", self._current_model_obj, self.cursor_.currentRegister())
+        # print("B * * *", self._current_model_obj, self.cursor_.currentRegister())
 
     def setNull(self, name) -> bool:
         """
@@ -129,6 +130,7 @@ class PNBuffer(object):
         @param value = new value.
         @param mark_. If True verifies that it has changed from the value assigned in primeUpdate and mark it as modified (Default to True).
         """
+
         try:
             setattr(self._current_model_obj, field_name, value)
         except Exception as error:

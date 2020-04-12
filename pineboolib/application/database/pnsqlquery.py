@@ -205,7 +205,7 @@ class PNSqlQuery(object):
         except Exception as error:
             LOGGER.exception("ERROR SQLQUERY!: %s", str(error))
             self._datos = []
-        # print("*****", self.db().session().transaction, self.sql()[:100], self._datos)
+        # print("*****", self.db().session().transaction, self.sql(), self._datos)
         self._posicion = -1
         # except Exception as exc:
         # LOGGER.error(exc)
