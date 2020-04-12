@@ -119,7 +119,6 @@ class PNBuffer(object):
         @param field_name field identification.
         @return Any = field value.
         """
-
         return getattr(self._current_model_obj, field_name, None)
 
     def setValue(self, field_name: str, value: TVALUES, mark_: bool = True) -> bool:
@@ -130,6 +129,10 @@ class PNBuffer(object):
         @param value = new value.
         @param mark_. If True verifies that it has changed from the value assigned in primeUpdate and mark it as modified (Default to True).
         """
+        if value is not None:
+            metadata = self.cursor_.metadata().field(field_name)
+            if metadata.type() == "date":
+                value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
 
         try:
             setattr(self._current_model_obj, field_name, value)
