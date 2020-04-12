@@ -483,6 +483,17 @@ class TestPNSqlQuery2(unittest.TestCase):
         self.assertEqual(qry.value("fechaini"), "")
         self.assertNotEqual(qry.value("fechafinal"), "")
 
+    def test_basic_5(self) -> None:
+        """Test query without where."""
+
+        from pineboolib.qsa import qsa
+
+        qry = qsa.FLSqlQuery()
+        qry.setSelect("agentes.codagente,agentes.nombre")
+        qry.setFrom("agentes")
+        qry.setOrderBy("agentes.codagente ASC LIMIT 11")
+        self.assertTrue(qry.exec_())
+
     def test_invalid_tables(self) -> None:
         """Test invalid tables."""
 
