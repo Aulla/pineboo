@@ -243,7 +243,7 @@ class SqlInspector(object):
                 tables_list = list_sql[index_from + 1 : index_where]
             elif "order" in list_sql:
                 index_order_by = list_sql.index("order")
-                table_list = list_sql[index_from + 1 : index_order_by]
+                tables_list = list_sql[index_from + 1 : index_order_by]
             else:
                 tables_list = list_sql[index_from + 1 :]
             tablas: List[str] = []
