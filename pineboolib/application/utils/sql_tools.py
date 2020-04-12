@@ -215,7 +215,6 @@ class SqlInspector(object):
         """
         list_sql = self._sql.split(" ")
         self._list_sql = list_sql
-
         if list_sql[0] == "select":
             if "from" not in list_sql:
                 return  # Se entiende que es una consulta especial
@@ -242,6 +241,9 @@ class SqlInspector(object):
             if "where" in list_sql:
                 index_where = list_sql.index("where")
                 tables_list = list_sql[index_from + 1 : index_where]
+            elif "order" in list_sql:
+                index_order_by = list_sql.index("order")
+                table_list = list_sql[index_from + 1 : index_order_by]
             else:
                 tables_list = list_sql[index_from + 1 :]
             tablas: List[str] = []
