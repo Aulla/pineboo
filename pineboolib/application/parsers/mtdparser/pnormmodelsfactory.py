@@ -104,6 +104,7 @@ def load_models() -> None:
 
             model_path = _path("%s.py" % action_model)
         else:
+            print("FIXME! buscar ruta carga model", action_name)
             model_path = _path("%s_model.py" % table, False) or ""
 
         if model_path:

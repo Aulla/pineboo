@@ -531,12 +531,12 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         if c:
             self.private.generated_ = True
 
-    def trimed(self) -> bool:
+    def trimmed(self) -> bool:
         """Return if a field is trimmed."""
 
         return self.private.trimmed_
 
-    def setTrimed(self, t: bool) -> None:
+    def setTrimmed(self, t: bool) -> None:
         """Specify if a field is trimmed."""
 
         self.private.trimmed_ = t
@@ -582,7 +582,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         # print("Return", _type)
         return _type
 
-    def searchOptions(self) -> Any:
+    def searchOptions(self) -> List[str]
         """
         Return different search options for this field.
 

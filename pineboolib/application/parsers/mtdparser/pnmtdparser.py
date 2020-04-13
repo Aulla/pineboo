@@ -50,10 +50,14 @@ def mtd_parse(action: "xmlaction.XMLAction") -> Optional[str]:
 
     dest_file = _path("%s.mtd" % table_name)
     if dest_file.find("system_module/tables") == -1:
-        dest_file = "%s/file.model/%s_model.py" % (
-            mtd_file[: mtd_file.find("file.mtd")],
-            table_name,
-        )
+        path_model = dest_file[: dest_file.find("file.mtd") - 1]
+        if not os.path.exists("%s/file.model" % path_model):
+            os.mkdir("%s/file.model" % path_model)
+        print("FIXME nombre_model como sha1")
+        dest_file = "%s/file.model/%s_model.py" % (path_model, table_name)
+    else:
+        return None
+
     # if mtd_file is None:
     #    LOGGER.warning("No se encuentra %s.mtd", table_name)
     #    return None
@@ -71,6 +75,7 @@ def mtd_parse(action: "xmlaction.XMLAction") -> Optional[str]:
     #    os.mkdir(path_dir)
     # if not os.path.exists("%s/file.model" % path_dir):
     #    os.mkdir("%s/file.model" % path_dir)
+    print("Convirtiendo", mtd_.name(), "->", dest_file)
 
     if not os.path.exists(dest_file):
         lines = generate_model(mtd_)
@@ -88,7 +93,41 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     """
     Create a list of lines from a mtd_table (pntablemetadata.PNTableMetaData).
     """
+
     data = []
+    list_data_field: str = []
+    validator_list: List[str] = []
+
+    field_lists: "pnfieldmetadata.PNFieldMetaData" = []
+
+    if mtd_table.isQuery():
+        field_lists = []  # CREAR CAMPOS
+    else:
+        field_list = mtd_table.fieldList()
+
+    for field in field_list:  # Crea los campos
+        if field.name() in validator_list:
+            LOGGER.warning(
+                "Hay un campo %s duplicado en %s.mtd. Omitido", field.name(), mtd_table.name()
+            )
+        else:
+
+            field_data = []
+            field_data.append("    ")
+            if field.name() in RESERVER_WORDS:
+                field_data.append("%s_" % field.name())
+            else:
+                field_data.append(field.name())
+
+            field_data.append(" = Column('%s', " % field.name())
+            field_data.append(generate_metadata(field))
+            field_data.append(")")
+            validator_list.append(field.name())
+            if field.isPrimaryKey():
+                pk_found = True
+
+        list_data_field.append("".join(field_data))
+
     pk_found = False
     data.append("# -*- coding: utf-8 -*-")
     # data.append("from sqlalchemy.ext.declarative import declarative_base")
@@ -114,118 +153,28 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("")
     data.append("class %s%s(BASE):" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("    __tablename__ = '%s'" % mtd_table.name())
+    if mtd_table.isQuery():
+        data.append("    metadata_isquery = True")
+    if mtd_table.concurWarn():
+        data.append("    metadata_concurwarn = True")
+    if mtd_table.detectLocks():
+        data.append("    metadata_detectlocks = True")
+    if mtd_table.FTSFunction():
+        data.append('    metadata_ftsfunction = "%s"' % mtd_table.FTSFunction())
     # data.append("    __actionname__ = '%s'" % action_name)
     data.append("")
-
-    validator_list: List[str] = []
 
     data.append("")
     data.append("# --- Fields ---> ")
     data.append("")
 
-    for field in mtd_table.fieldList():  # Crea los campos
-        if field.name() in validator_list:
-            LOGGER.warning(
-                "Hay un campo %s duplicado en %s.mtd. Omitido", field.name(), mtd_table.name()
-            )
-        else:
-            field_data = []
-            field_data.append("    ")
-            field_data.append(
-                "%s" % field.name() + "_" if field.name() in RESERVER_WORDS else field.name()
-            )
-            field_data.append(" = Column('%s', " % field.name())
-            field_data.append(field_type(field))
-            field_data.append(")")
-            validator_list.append(field.name())
-            if field.isPrimaryKey():
-                pk_found = True
-
-        data.append("".join(field_data))
+    for data_field in list_data_field:
+        data.appen(data_field)
 
     data.append("")
     data.append("# <--- Fields --- ")
     data.append("")
 
-    data.append("")
-    data.append("# --- Relations 1:M ---> ")
-    data.append("")
-    if application.PROJECT.conn_manager is None:
-        raise Exception("Project is not connected yet")
-    manager = application.PROJECT.conn_manager.manager()
-    for field in mtd_table.fieldList():  # Creamos relaciones 1M
-        for relation in field.relationList():
-            foreign_table_mtd = manager.metadata(relation.foreignTable())
-            # if application.PROJECT.conn.manager().existsTable(r.foreignTable()):
-            if foreign_table_mtd:
-                # comprobamos si existe el campo...
-                if foreign_table_mtd.field(relation.foreignField()):
-
-                    foreign_object = "%s%s" % (
-                        relation.foreignTable()[0].upper(),
-                        relation.foreignTable()[1:],
-                    )
-                    relation_ = "    %s_%s = relationship('%s'" % (
-                        relation.foreignTable(),
-                        relation.foreignField(),
-                        foreign_object,
-                    )
-                    relation_ += ", foreign_keys='%s.%s'" % (
-                        foreign_object,
-                        relation.foreignField(),
-                    )
-                    relation_ += ")"
-                    data.append(relation_)
-
-    data.append("")
-    data.append("# <--- Relations 1:M --- ")
-    """
-    data.append("")
-    data.append("")
-    data.append("")
-    data.append("    @validates('%s')" % "','".join(validator_list))
-    data.append("    def validate(self, key, value):")
-    data.append(
-        "        self.__dict__[key] = value #Chapuza para que el atributo ya contenga el valor"
-    )
-    data.append("        self.bufferChanged(key)")
-    data.append("        return value #Ahora si se asigna de verdad")
-    data.append("")
-    data.append("    def bufferChanged(self, fn):")
-    data.append("        pass")
-
-    data.append("")
-    data.append("    def beforeCommit(self):")
-    data.append("        return True")
-    data.append("")
-    data.append("    def afterCommit(self):")
-    data.append("        return True")
-    data.append("")
-    data.append("    def commitBuffer(self):")
-    data.append("        if not self.beforeCommit():")
-    data.append("            return False")
-    data.append("")
-    data.append("        aqApp.db().session().commit()")
-    data.append("")
-    data.append("        if not self.afterCommit():")
-    data.append("            return False")
-
-    # for field in mtd_table.fieldList():  # Relaciones M:1
-    #     if field.relationList():
-    #         rel_data = []
-    #         for r in field.relationList():
-    #             if r.cardinality() == r.RELATION_1M:
-    #                 obj_name = "%s%s" % (r.foreignTable()[0].upper(), r.foreignTable()[1:])
-    #                 rel_data.append(
-    #                     "    %s = relationship('%s', backref='parent'%s)\n"
-    #                     % (r.foreignTable(), obj_name, ", cascade ='all, delete'" if r.deleteCascade() else "")
-    #                 )
-    #
-    #         data.append("".join(rel_data))
-    #
-    # data.append("if not ENGINE.dialect.has_table(ENGINE.connect(),'%s'):" % mtd_table.name())
-    # data.append("    %s%s.__table__.create(ENGINE)" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
-    """
     if not pk_found:
 
         if settings.CONFIG.value("application/isDebuggerMode", False):
@@ -238,10 +187,13 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     return data
 
 
-def field_type(field: "pnfieldmetadata.PNFieldMetaData") -> str:
+def generate_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> str:
     """
     Get text representation for sqlAlchemy of a field type given its pnfieldmetadata.PNFieldMetaData.
     """
+    field_data: List[str] = []
+    # TYPE
+
     ret = "String"
     if field.type() in ("int, serial"):
         ret = "Integer"
@@ -260,7 +212,6 @@ def field_type(field: "pnfieldmetadata.PNFieldMetaData") -> str:
 
     elif field.type() in ("bool", "unlock"):
         ret = "Boolean"
-        ret += ", unique=False"
 
     elif field.type() in ("time", "date", "timestamp"):
         ret = "DateTime"
@@ -271,33 +222,119 @@ def field_type(field: "pnfieldmetadata.PNFieldMetaData") -> str:
     else:
         ret = "Desconocido %s" % field.type()
 
-    if field.relationM1() is not None:
-        if application.PROJECT.conn_manager is None:
-            raise Exception("Project is not connected yet")
-        rel = field.relationM1()
-        if rel and application.PROJECT.conn_manager.manager().existsTable(rel.foreignTable()):
-            ret += ", ForeignKey('%s.%s'" % (rel.foreignTable(), rel.foreignField())
-            if rel.deleteCascade():
-                ret += ", ondelete='CASCADE'"
+    field_data.append(ret)
 
-            ret += ")"
+    # ALIAS
 
-    if field.isPrimaryKey() or field.isCompoundKey():
-        ret += ", primary_key=True"
+    if field.alias():
+        field_data.append("metadata_alias = '%s'" % field.alias())
 
-    if (not field.isPrimaryKey() and not field.isCompoundKey()) and field.type() == "serial":
-        ret += ", autoincrement=True"
+    # PK
+    if field.isPrimaryKey():
+        field_data.append("primary_key = True")
+        field_data.append("metadata_primarykey = True")
+    # CK
+    if field.isCompoundKey():
+        field_data.append("metadata_compoundkey = True")
 
+    # TYPE
+    field_relation: List[str] = []
+    field_data.append("metadata_type = '%s'" % field.type())
+
+    # LENGTH
+    if field.length():
+        field_data.append("metadata_length = %s" % field.legth())
+
+    # REGEXP
+    if field.regExpValidator():
+        field_data.append("metadata_regexp = '%s'" % field.regExpValidator())
+
+    # RELATIONS
+    for rel in field.relationList():
+        rel_list: List[str] = []
+        rel_list.append("'card' : '%s'" % rel.cardinality())
+        rel_list.append("'table' : '%s'" % rel.foreignTable())
+        rel_list.append("'field' : '%s'" % rel.foreignField())
+        if rel.deleteCascade():
+            rel_list.append("'delc' : True")
+        if rel.updateCascade():
+            rel_list.append("'updc' : True")
+        if rel.checkIn():
+            rel_list.append("'checkin' : True")
+
+        field_relation.append("{%s}" % ", ".join(rel_list))
+
+    if field_relation:
+        field_data.append("metadata_relations = {%s}" % ", ".join(field_relation))
+
+    # ASSOCIATED
+    if field.associatedField():
+        field_data.append(
+            "metadata_associated = {'with' : '%s', 'by' : '%s' }"
+            % (field.associated_field_filter_to, field.associated_field_name)
+        )
+
+    # UNIQUE
     if field.isUnique():
-        ret += ", unique=True"
+        field_data.append("metadata_isunique = True")
 
-    if not field.allowNull() and field.type() not in ("bool", "unlock"):
-        ret += ", nullable=False"
+    # ALLOW_NULL
+    if field.allowNull():
+        field_data.append("metadata_allownull = True")
 
-    if field.defaultValue() is not None:
-        value = field.defaultValue()
-        if isinstance(value, str):
-            value = "'%s'" % value
-        ret += ", default=%s" % value
+    # DEFAULT_VALUE
+    if field.defaultValue():
+        field_data.append("metadata_defaul= '%s'" % field.defaultValue())
 
-    return ret
+    # OUT_TRANSACTION
+    if field.outTransaction():
+        field_data.append("metadata_outtransaction = True")
+
+    # COUNTER
+    if field.isCounter():
+        field_data.append("metadata_counter = True")
+
+    # CALCULATED
+    if field.calculated():
+        field_data.append("metadata_calculated = True")
+
+    # FULLY_CALCULATED
+    if field.fullyCalculated():
+        field_data.append("metadata_fullycalculated = True")
+
+    # TRIMMED
+    if field.trimmed():
+        field_data.append("metadata_trimmed = True")
+
+    # VISIBLE
+    if field.visible():
+        field_data.append("metadata_visible = True")
+
+    # VISIBLE_GRID
+    if field.visibleGrid():
+        field_data.append("metadata_visiblegrid = True")
+
+    # EDITABLE
+    if field.editable():
+        field_data.append("metadata_editable = True")
+
+    # PARTI
+    if field.partInteger():
+        field_data.append("metadata_partinteger = %s" % field.partInteger())
+
+    # PARTD
+    if field.partDecimal():
+        field_data.append("metadata_partdecimal = %s" % field.partDecimal())
+
+    # INDEX
+    if field.isIndex():
+        field_data.append("metadata_index = True")
+
+    # OPTIONS_LIST
+    if field.optionsList():
+        field_data.append("metadata_optionslist =[%s]" % ", ".join(field.optionsList()))
+    # SEARCH_OPTIONS
+    if field.searchOptions():
+        field_data.append("metadata_searchoptions =[%s]" % ", ".join(field.searchOptions()))
+
+    return ", ".join(field_data)

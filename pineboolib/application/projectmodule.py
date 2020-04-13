@@ -172,6 +172,7 @@ class Project(object):
 
         from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
 
+        print("FIXME parse solo no existentes! y todos los mtd")
         for action_name in self.actions:
             pnmtdparser.mtd_parse(self.actions[action_name])
 

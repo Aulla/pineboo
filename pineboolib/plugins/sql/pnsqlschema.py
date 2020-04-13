@@ -265,7 +265,7 @@ class PNSqlSchema(object):
         if limit_conn > 0:
             queqe_params["pool_size"] = limit_conn
             queqe_params["max_overflow"] = int(limit_conn * 2)
-            queqe_params["echo"] = True
+            # queqe_params["echo"] = True
 
         try:
             self.engine_ = create_engine(
