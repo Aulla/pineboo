@@ -100,10 +100,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
     field_lists: "pnfieldmetadata.PNFieldMetaData" = []
 
-    if mtd_table.isQuery():
-        field_lists = []  # CREAR CAMPOS
-    else:
-        field_list = mtd_table.fieldList()
+    field_list = mtd_table.fieldList()
 
     for field in field_list:  # Crea los campos
         if field.name() in validator_list:
@@ -153,8 +150,12 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("")
     data.append("class %s%s(BASE):" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("    __tablename__ = '%s'" % mtd_table.name())
+
+    data.append("    metadata_alias = '%s'" % mtd_table.alias())
+
     if mtd_table.isQuery():
-        data.append("    metadata_isquery = True")
+        data.append("    metadata_query = '%s'" % mtd_table.query())
+
     if mtd_table.concurWarn():
         data.append("    metadata_concurwarn = True")
     if mtd_table.detectLocks():
