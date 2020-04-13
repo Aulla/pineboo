@@ -170,7 +170,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._initialized = None
         self.grid_row_tmp = {}
         self._data_proxy = None
-        self._current_grid_data = {}
 
         # self.refresh()
 
