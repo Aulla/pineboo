@@ -80,6 +80,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     grid_row_tmp: Dict[int, List[Any]]
     _data_proxy: str
 
+    _last_grid_obj: Any
+    _lost_grid_row: int
+
     def __init__(self, conn: "iconnection.IConnection", parent: "isqlcursor.ISqlCursor") -> None:
         """
         Constructor.
@@ -167,6 +170,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._initialized = None
         self.grid_row_tmp = {}
         self._data_proxy = None
+        self._current_grid_data = {}
 
         # self.refresh()
 
@@ -177,6 +181,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             self._tablename = query.from_()
         else:
             self._tablename = self.metadata().name()
+
+        self._last_grid_obj = None
+        self._last_grid_row = -1
 
     def disable_refresh(self, disable: bool) -> None:
         """
@@ -273,7 +280,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         res_color_function: List[str] = []
         if _type != "check":
 
-            row_model = list(self._data_proxy)[row]
+            if self._last_grid_row != row:
+                self._last_grid_row = row
+                self._last_grid_obj = list(self._data_proxy)[row]
 
             # row_object = self._data_proxy.slice(row, 1)
             # print("*", row_object)
@@ -294,7 +303,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             # tuple = self.grid_row_tmp[row]
             # if tuple:
             #    result = tuple[col]
-            result = getattr(row_model, field.name(), None)
+            result = getattr(self._last_grid_obj, field.name(), None)
         else:
             primary_key = str(self.value(row, self.metadata().primaryKey()))
             if primary_key not in self._check_column.keys():
