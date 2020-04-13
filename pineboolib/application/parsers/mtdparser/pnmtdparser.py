@@ -44,31 +44,36 @@ def mtd_parse(action: "xmlaction.XMLAction") -> Optional[str]:
     mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
     if mtd_ is None:
         return None
-    mtd: pntablemetadata.PNTableMetaData = cast(pntablemetadata.PNTableMetaData, mtd_)
-    if mtd.isQuery():
-        return None
 
-    mtd_file = _path("%s.mtd" % table_name)
+    # if mtd_.isQuery():
+    #    return None
 
-    if mtd_file is None:
-        LOGGER.warning("No se encuentra %s.mtd", table_name)
-        return None
-
-    dest_file = "%s_model.py" % mtd_file[: len(mtd_file) - 4]
-    if dest_file.find("system_module") > -1:
-        sys_dir = "%s/cache/%s/sys" % (
-            settings.CONFIG.value("ebcomportamiento/temp_dir"),
-            application.PROJECT.conn_manager.mainConn().DBName(),
+    dest_file = _path("%s.mtd" % table_name)
+    if dest_file.find("system_module/tables") == -1:
+        dest_file = "%s/file.model/%s_model.py" % (
+            mtd_file[: mtd_file.find("file.mtd")],
+            table_name,
         )
-        dest_file = "%s/file.mtd/%s_model.py" % (sys_dir, table_name)
+    # if mtd_file is None:
+    #    LOGGER.warning("No se encuentra %s.mtd", table_name)
+    #    return None
 
-        if not os.path.exists(sys_dir):
-            os.mkdir(sys_dir)
-        if not os.path.exists("%s/file.mtd" % sys_dir):
-            os.mkdir("%s/file.mtd" % sys_dir)
+    # dest_file = "%s_model.py" % mtd_file[: len(mtd_file) - 4]
+
+    # if dest_file.find("system_module") > -1:
+    #    path_dir = "%s/cache/%s/sys" % (
+    #        settings.CONFIG.value("ebcomportamiento/temp_dir"),
+    #        application.PROJECT.conn_manager.mainConn().DBName(),
+    #    )
+    #    dest_file = "%s/file.model/%s_model.py" % (path_dir, table_name)
+
+    # if not os.path.exists(path_dir):
+    #    os.mkdir(path_dir)
+    # if not os.path.exists("%s/file.model" % path_dir):
+    #    os.mkdir("%s/file.model" % path_dir)
 
     if not os.path.exists(dest_file):
-        lines = generate_model(mtd)
+        lines = generate_model(mtd_)
 
         if lines:
             file_ = open(dest_file, "w", encoding="UTF-8")
@@ -92,7 +97,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     )
     data.append("from sqlalchemy.orm import relationship, validates")
     data.append(
-        "from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated, load_model"
+        "from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated"
     )
     data.append("from pineboolib import application")
     data.append("from pineboolib.qsa import qsa")

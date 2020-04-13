@@ -1,0 +1,36 @@
+# -*- coding: utf-8 -*-
+from sqlalchemy import (
+    Column,
+    Integer,
+    Numeric,
+    String,
+    BigInteger,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    LargeBinary,
+)
+from sqlalchemy.orm import relationship, validates
+from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated
+from pineboolib import application
+from pineboolib.qsa import qsa
+
+BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
+
+
+class Flserial(BASE):
+    __tablename__ = "flserial"
+
+    # --- Fields --->
+
+    serie = Column("serie", Integer, primary_key=True, nullable=False)
+    sha = Column("sha", String(255))
+
+
+# <--- Fields ---
+
+
+# --- Relations 1:M --->
+
+
+# <--- Relations 1:M ---

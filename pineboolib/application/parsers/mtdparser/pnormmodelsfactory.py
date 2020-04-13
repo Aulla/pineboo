@@ -53,103 +53,6 @@ from typing import Any, List
 
 LOGGER = logging.get_logger(__name__)
 
-# processed_: List[str] = []
-
-
-def base_model(name: str) -> Any:
-    """Import and return sqlAlchemy model for given table name."""
-    # print("Base", name)
-
-    if application.PROJECT.conn_manager is None:
-        raise Exception("Project is not connected yet")
-
-    path = _path("%s.mtd" % name, False)
-    if path is None:
-        return None
-    if path.find("system_module/tables") > -1:
-        path = "%s/cache/%s/sys/file.mtd%s" % (
-            settings.CONFIG.value("ebcomportamiento/temp_dir"),
-            application.PROJECT.conn_manager.mainConn().DBName(),
-            path[path.find("system_module/tables") + 20 :],
-        )
-
-    if path:
-        path = "%s_model.py" % path[:-4]
-        if not os.path.exists(path):
-            path = ""
-            # try:
-
-            # FIXME: load_module is deprecated!
-            # https://docs.python.org/3/library/importlib.html#importlib.machinery.SourceFileLoader.load_module
-            #    loader = machinery.SourceFileLoader(name, path)
-            #    return loader.load_module()  # type: ignore
-            # except Exception as exc:
-            #    LOGGER.warning("Error recargando model base:\n%s\n%s", exc, traceback.format_exc())
-            #    pass
-    return path
-    # return None
-
-
-def load_model(nombre):
-    """Import and return sqlAlchemy model for given table name."""
-
-    if nombre is None:
-        return
-
-    # if nombre in processed_:
-    #    return None
-
-    # processed_.append(nombre)
-
-    # nombre_qsa = nombre.replace("_model", "")
-    # model_name = nombre_qsa[0].upper() + nombre_qsa[1:]
-    # mod = getattr(qsa_dict_modules, model_name, None)
-    # if mod is None:
-    #    mod = base_model(nombre)
-    #    if mod:
-    #        setattr(qsa_dict_modules, model_name, mod)  # NOTE: Use application.qsadictmodules
-
-    db_name = application.PROJECT.conn_manager.mainConn().DBName()
-
-    module = None
-    file_path = filedir(
-        settings.CONFIG.value("ebcomportamiento/temp_dir"),
-        "cache",
-        db_name,
-        "models",
-        "%s_model.py" % nombre,
-    )
-    if os.path.exists(file_path):
-
-        module_path = "%s_model" % (nombre)
-        # if module_path in sys.modules:
-        #    # print("Recargando", module_path)
-        #    try:
-        #        module = importlib.reload(sys.modules[module_path])
-        #    except Exception as exc:
-        #        logger.warning("Error recargando módulo:\n%s\n%s", exc, traceback.format_exc())
-        #        pass
-        # else:
-        # print("Cargando", module_path)
-        try:
-            spec = importlib.util.spec_from_file_location(module_path, file_path)  # type: ignore
-            module = importlib.util.module_from_spec(spec)  # type: ignore
-            sys.modules[spec.name] = module
-            spec.loader.exec_module(module)
-        except Exception as exc:
-            LOGGER.warning("Error cargando módulo:\n%s\n%s", exc, traceback.format_exc())
-            pass
-            # models_[nombre] = mod
-
-    # if mod:
-    #    setattr(qsa_dict_modules, model_name, mod)
-
-    # print(3, nombre, mod)
-    return module
-
-    # if mod is not None:
-    #    setattr(qsa_dict_modules,  model_name, mod)
-
 
 def empty_base():
     """Cleanup sqlalchemy models."""
@@ -201,7 +104,7 @@ def load_models() -> None:
 
             model_path = _path("%s.py" % action_model)
         else:
-            model_path = base_model(table)
+            model_path = _path("%s_model.py" % table, False) or ""
 
         if model_path:
             try:
