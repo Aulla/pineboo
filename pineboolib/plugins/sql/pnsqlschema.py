@@ -152,6 +152,19 @@ class PNSqlSchema(object):
 
         self.setDBName(db_name)
         self.safe_load(True)
+
+        # if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
+        #    main_conn = application.PROJECT.conn_manager.mainConn()
+        #    if (
+        #        db_name == main_conn._db_name
+        #        and db_host == main_conn._db_host
+        #        and db_port == main_conn._db_port
+        #    ):
+        #        self.engine_ = main_conn.driver().engine_
+        #        print("**", self.engine_)
+        #        self._connection = main_conn.driver().connection()
+        #        return self._connection
+
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
         conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password, limit_conn)
 
@@ -200,13 +213,7 @@ class PNSqlSchema(object):
 
                             tmp_conn.close()
                             conn_ = self.getConn(
-                                db_name,
-                                db_host,
-                                db_port,
-                                db_user_name,
-                                db_password,
-                                limit_conn,
-                                conn_timeout,
+                                db_name, db_host, db_port, db_user_name, db_password, limit_conn
                             )
 
                     except Exception as error:

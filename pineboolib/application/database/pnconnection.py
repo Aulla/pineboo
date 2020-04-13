@@ -640,8 +640,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Create a table in the database, from a PNTableMetaData."""
 
         do_transaction = False
-        conn_aux = self.connManager().dbAux()
-        sql = conn_aux.driver().sqlCreateTable(tmd)
+
+        sql = self.driver().sqlCreateTable(tmd)
         if not sql:
             return False
 
@@ -653,14 +653,14 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             self.driver()._transaction += 1
 
         for single_sql in sql.split(";"):
-            conn_aux.execute_query(single_sql)
-            if conn_aux.driver().last_error():
+            self.execute_query(single_sql)
+            if self.driver().last_error():
                 LOGGER.exception(
                     "createTable: Error happened executing sql: %s...%s"
                     % (single_sql[:80], str(conn_aux.driver().last_error()))
                 )
                 self.rollbackTransaction()
-                conn_aux.driver().set_last_error_null()
+                self.driver().set_last_error_null()
                 return False
 
         if do_transaction:
