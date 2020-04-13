@@ -1706,13 +1706,20 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param current. new item selected.
         @param previous. old item selected.
         """
-        if self.currentRegister() == current.row():
-            self.private_cursor.doAcl()
-            return None
 
-        self.private_cursor._currentregister = current.row()
-        self.private_cursor._current_changed.emit(self.at())
+        if self.currentRegister() != current.row():
+            self.private_cursor._currentregister = current.row()
+            self.private_cursor._current_changed.emit(self.at())
+
         self.refreshBuffer()
+
+        # if self.currentRegister() == current.row():
+        #    self.private_cursor.doAcl()
+        #    return None
+
+        # self.private_cursor._currentregister = current.row()
+        # self.private_cursor._current_changed.emit(self.at())
+        # self.refreshBuffer()
 
         self.private_cursor.doAcl()
         if self._action:
