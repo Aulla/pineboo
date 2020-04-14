@@ -13,6 +13,7 @@ class Flserial(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flserial",
         "alias": "Serie",
         "fields": [
             {"name": "serie", "alias": "Serie", "primarykey": True, "type": "serial"},

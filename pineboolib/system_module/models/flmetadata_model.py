@@ -13,6 +13,7 @@ class Flmetadata(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flmetadata",
         "alias": "Metadatos",
         "fields": [
             {

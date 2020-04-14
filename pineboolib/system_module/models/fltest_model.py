@@ -13,6 +13,7 @@ class Fltest(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "fltest",
         "alias": "Test table",
         "fields": [
             {

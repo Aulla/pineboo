@@ -13,6 +13,7 @@ class Flacos(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flacos",
         "alias": "Objetos de Control de Acceso",
         "fields": [
             {

@@ -13,6 +13,7 @@ class Flupdates(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flupdates",
         "alias": "Registro de instalaciÃ³n/actualizaciÃ³n de paquetes",
         "fields": [
             {

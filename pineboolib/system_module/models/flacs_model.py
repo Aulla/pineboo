@@ -13,6 +13,7 @@ class Flacs(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flacs",
         "alias": "Reglas de Control de Acceso",
         "fields": [
             {

@@ -716,48 +716,16 @@ class FLManagerModules(object):
         Load the list of all module identifiers.
         """
 
-        self.list_all_id_modules_ = []
-        self.list_all_id_modules_.append("sys")
+        self.list_all_id_modules_ = list(application.PROJECT.modules.keys())
         self.dict_info_mods_ = {}
-
-        q = pnsqlquery.PNSqlQuery(None, "dbAux")
-        q.setTablesList("flmodules,flareas")
-        q.setSelect(
-            "idmodulo,flmodules.idarea,flmodules.descripcion,version,icono,flareas.descripcion"
-        )
-        q.setFrom("flmodules left join flareas on flmodules.idarea = flareas.idarea")
-        q.setWhere("1 = 1")
-        q.setForwardOnly(True)
-        q.exec_()
-        # q.exec_("SELECT idmodulo,flmodules.idarea,flmodules.descripcion,version,icono,flareas.descripcion "
-        #        "FROM flmodules left join flareas on flmodules.idarea = flareas.idarea")
-
-        sys_module_found_ = False
-        while q.next():
+        for id_module in self.list_all_id_modules_:
             info_module_ = FLInfoMod()
-            info_module_.idModulo = str(q.value(0))
-            info_module_.idArea = str(q.value(1))
-            info_module_.descripcion = str(q.value(2))
-            info_module_.version = str(q.value(3))
-            info_module_.icono = str(q.value(4))
-            info_module_.areaDescripcion = str(q.value(5))
-            self.dict_info_mods_[info_module_.idModulo.upper()] = info_module_
-
-            if not info_module_.idModulo == "sys":
-                self.list_all_id_modules_.append(info_module_.idModulo)
-            else:
-                sys_module_found_ = True
-
-        if not sys_module_found_:
-            info_module_ = FLInfoMod()
-            info_module_.idModulo = "sys"
-            info_module_.idArea = "sys"
-            info_module_.descripcion = "Administracion"
-            info_module_.version = "0.0"
-            info_module_.icono = self.contentFS(
-                "%s/%s" % (utils_base.filedir("./system_module"), "/sys.xpm")
-            )
-            info_module_.areaDescripcion = "Sistema"
+            info_module_.idModulo = id_module
+            info_module_.idArea = application.PROJECT.modules[id_module].areaid
+            info_module_.descripcion = application.PROJECT.modules[id_module].description
+            info_module_.version = ""
+            info_module_.icono = application.PROJECT.modules[id_module].icon
+            info_module_.areaDescripcion = ""
             self.dict_info_mods_[info_module_.idModulo.upper()] = info_module_
 
     def loadIdAreas(self) -> None:
@@ -765,15 +733,7 @@ class FLManagerModules(object):
         Load the list of all area identifiers.
         """
 
-        self.list_id_areas_ = []
-        q = pnsqlquery.PNSqlQuery(None, "dbAux")
-        # q.setForwardOnly(True)
-        q.exec_("SELECT idarea from flareas WHERE idarea <> 'sys'")
-        while q.next():
-            self.list_id_areas_.append(str(q.value(0)))
-
-        if "sys" not in self.list_id_areas_:
-            self.list_id_areas_.append("sys")
+        self.list_id_areas_ = list(application.PROJECT.areas.keys())
 
     @decorators.not_implemented_warn
     def checkSignatures(self):

@@ -67,13 +67,14 @@ def empty_base():
 
 def load_models() -> None:
     """Load all sqlAlchemy models."""
+    print("LOADING MODELS!!!")
     from pineboolib.application.qsadictmodules import QSADictModules
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     main_conn = application.PROJECT.conn_manager.mainConn()
-
+    processed = []
     # db_name = main_conn.DBName()
     # print("Cargando modelos")
     # QSADictModules.save_other("Base", main_conn.declarative_base())
@@ -81,10 +82,6 @@ def load_models() -> None:
     # QSADictModules.save_other("engine", main_conn.engine())
 
     models_: Dict[str:Any] = {}
-    for key in application.PROJECT.files.keys():
-        file_ = application.PROJECT.files[key]
-        if file_.filename.endswith("_model.py"):
-            models_[file_.filename[:-9]] = file_.path()
 
     for action_name in application.PROJECT.actions:
         class_orm = application.PROJECT.actions[action_name]._class_orm
@@ -98,14 +95,37 @@ def load_models() -> None:
                 )
 
             models_[class_orm] = path_class_orm
+            # print("***", class_orm)
+            processed.append(class_orm)
+
+    for key in application.PROJECT.files.keys():
+        file_ = application.PROJECT.files[key]
+        if file_.filename.endswith("_model.py"):
+            name = key[:-3]
+            if name.endswith(".mtd_model"):
+                name = "%s_model" % name[:-10]
+
+            if name in processed:
+                continue
+            else:
+                # print("****", name)
+                processed.append(name)
+                models_[name] = file_.path()
 
     for mod_ in models_.keys():
+        # if mod_ in processed:
+        #    continue
+
+        # print("Guardando", mod_, "como", "%s_orm" % mod_[:-6])
         try:
             loader = machinery.SourceFileLoader("model", models_[mod_])
+            # print(1, mod_)
             model_module = loader.load_module()  # type: ignore [call-arg] # noqa: F821
-            model_class = getattr(model_module, "%s%s" % (mod_[0].upper(), mod_[1:]), None)
+            # print(2, model_module, "%s%s" % (mod_[0].upper(), mod_[1:-6]))
+            model_class = getattr(model_module, "%s%s" % (mod_[0].upper(), mod_[1:-6]), None)
             if model_class is not None:
-                QSADictModules.save_other("%s_orm" % mod_, model_class)
+                # print(3)
+                QSADictModules.save_other("%s_orm" % mod_[:-6], model_class)
 
         except exc.InvalidRequestError as error:
             LOGGER.warning(str(error))

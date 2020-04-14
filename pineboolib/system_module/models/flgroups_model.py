@@ -13,6 +13,7 @@ class Flgroups(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flgroups",
         "alias": "Grupos de Usuarios",
         "fields": [
             {

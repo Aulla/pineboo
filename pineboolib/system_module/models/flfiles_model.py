@@ -13,6 +13,7 @@ class Flfiles(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flfiles",
         "alias": "Ficheros de Texto",
         "fields": [
             {

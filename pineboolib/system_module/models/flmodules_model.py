@@ -13,6 +13,7 @@ class Flmodules(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flmodules",
         "alias": "Módulos",
         "fields": [
             {"name": "bloqueo", "alias": "Bloqueo", "type": "unlock", "defaultvalue": "True"},

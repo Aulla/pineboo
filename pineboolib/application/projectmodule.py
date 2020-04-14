@@ -182,14 +182,20 @@ class Project(object):
         for key in list(self.files.keys()):
             file_ = self.files[key]
             if file_.filename.endswith(".mtd"):
-                # print("* Convirtiendo", file_.filename, file_.path())
+
                 dest_file = pnmtdparser.mtd_parse(file_.filename, file_.path())
+
                 if dest_file:
-                    self.files["%s_model.py" % file_.filename] = file.File(
+                    self.files["%s_model.py" % file_.filename[:-4]] = file.File(
                         file_.module,
-                        "%s.model.py" % file_.filename,
+                        "%s_model.py" % file_.path(),
                         basedir=file_.basedir,
+                        sha=file_.sha,
                         db_name=db_name,
+                    )
+
+                    self.files["%s_model.py" % file_.filename[:-4]].filekey = (
+                        "%s_model.py" % file_.filekey
                     )
 
         self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])

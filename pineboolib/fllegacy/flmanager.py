@@ -15,7 +15,7 @@ from pineboolib.application.metadata import (
 
 from pineboolib.application.database import pnsqlquery, pngroupbyquery, pnsqlcursor
 from pineboolib.application.utils import xpm, convert_flaction
-
+from pineboolib.application import qsadictmodules
 
 from pineboolib.interfaces import IManager
 
@@ -117,7 +117,9 @@ class FLManager(QtCore.QObject, IManager):
         self.cacheAction_ = {}
 
     def metadata(
-        self, metadata_name_or_xml: Union[str, "ElementTree.Element"], quick: bool = False
+        self,
+        metadata_name_or_xml: Union[str, "ElementTree.Element", Dict[str, Any]],
+        quick: bool = False,
     ) -> Optional["pntablemetadata.PNTableMetaData"]:
         """
         To obtain definition of a database table, from an XML file.
@@ -171,34 +173,49 @@ class FLManager(QtCore.QObject, IManager):
                     if metadata_name_or_xml.endswith(".mtd")
                     else "%s.mtd" % metadata_name_or_xml
                 )
-                stream = self.db_.connManager().managerModules().contentCached(table_name)
 
-                if not stream:
-                    if metadata_name_or_xml.find("alteredtable") == -1:
-                        LOGGER.info(
-                            "FLManager : "
-                            + util.translate(
-                                "FLManager",
-                                "Error al cargar los metadatos para la tabla %s"
-                                % metadata_name_or_xml,
+                # Buscamos primero si es un model_.
+                model_name = (
+                    metadata_name_or_xml[: metadata_name_or_xml.find(".mtd")]
+                    if metadata_name_or_xml.find(".mtd") > -1
+                    else metadata_name_or_xml
+                )
+                # LOGGER.warning("META_MODEL %s", model_name, stack_info=True)
+                print("metadata", "%s_orm" % model_name)
+                model_ = qsadictmodules.QSADictModules.from_project("%s_orm" % model_name)
+                if model_:
+
+                    ret = self.metadata(model_.legacy_metadata)
+                else:
+                    LOGGER.warning("metadata %s from xml is deprecated", metadata_name_or_xml)
+                    stream = self.db_.connManager().managerModules().contentCached(table_name)
+
+                    if not stream:
+                        if metadata_name_or_xml.find("alteredtable") == -1:
+                            LOGGER.info(
+                                "FLManager : "
+                                + util.translate(
+                                    "FLManager",
+                                    "Error al cargar los metadatos para la tabla %s"
+                                    % metadata_name_or_xml,
+                                )
                             )
-                        )
-                    self.metadata_cache_fails_.append(metadata_name_or_xml)
-                    return None
+                        self.metadata_cache_fails_.append(metadata_name_or_xml)
+                        return None
 
-                # docElem = doc.documentElement()
-                # tree = utils_base.load2xml(stream)
-                tree = None
-                try:
-                    tree = ElementTree.fromstring(stream)
+                    # docElem = doc.documentElement()
+                    # tree = utils_base.load2xml(stream)
+                    tree = None
+                    try:
+                        tree = ElementTree.fromstring(stream)
 
-                except Exception as error:
-                    LOGGER.error("Failed loading %s :%s", metadata_name_or_xml, error)
+                    except Exception as error:
+                        LOGGER.error("Failed loading %s :%s", metadata_name_or_xml, error)
 
-                if tree is None:
-                    return None
+                    if tree is None:
+                        return None
 
-                ret = self.metadata(tree, quick)
+                    ret = self.metadata(tree, quick)
                 if ret is None:
                     return None
 
@@ -240,9 +257,66 @@ class FLManager(QtCore.QObject, IManager):
 
             return ret
 
+        elif isinstance(metadata_name_or_xml, dict):
+
+            meta_dict = metadata_name_or_xml
+
+            name = meta_dict["name"]
+            alias = meta_dict["alias"]
+            query = meta_dict["query"] if "query" in meta_dict.keys() else ""
+            # visible = True
+            # editable = True
+            ftsfun = meta_dict["ftsfunction"] if "ftsfunction" in meta_dict.keys() else ""
+            concur_warn = meta_dict["concurwarn"] if "concurwarn" in meta_dict.keys() else False
+            detect_locks = meta_dict["detectlocks"] if "detectlocks" in meta_dict.keys() else False
+
+            table_metadata = pntablemetadata.PNTableMetaData(name, alias, query)
+            table_metadata.setFTSFunction(ftsfun)
+            table_metadata.setConcurWarn(concur_warn)
+            table_metadata.setDetectLocks(detect_locks)
+
+            compound_key = pncompoundkeymetadata.PNCompoundKeyMetaData()
+            assocs = []
+
+            for child in meta_dict["fields"]:
+                field_mtd = self.metadataField(child)
+                table_metadata.addFieldMD(field_mtd)
+                if field_mtd.isCompoundKey():
+                    compound_key.addFieldMD(field_mtd)
+
+                if field_mtd.associatedFieldName():
+                    assocs.append(field_mtd.associatedFieldName())
+                    assocs.append(field_mtd.associatedFieldFilterTo())
+                    assocs.append(field_mtd.name())
+
+            table_metadata.setCompoundKey(compound_key)
+            aWith = None
+            aBy = None
+
+            for it in assocs:
+                if not aWith:
+                    aWith = it
+                    continue
+                elif not aBy:
+                    aBy = it
+                    continue
+
+                elif table_metadata.field(it) is None:
+                    continue
+
+                if table_metadata.field(aWith) is not None:
+                    table_metadata.field(it).setAssociatedField(table_metadata.field(aWith), aBy)
+                aWith = None
+                aBy = None
+
+            acl = application.PROJECT.aq_app.acl()
+            if acl:
+                acl.process(table_metadata)
+
+            return table_metadata
+
         else:
             # QDomDoc
-
             # root = n.getroot()
             name: str = ""
             query: str = ""
@@ -817,7 +891,7 @@ class FLManager(QtCore.QObject, IManager):
         return retorno
 
     def metadataField(
-        self, field: "ElementTree.Element", v: bool = True, ed: bool = True
+        self, field: Union["ElementTree.Element", Dict], v: bool = True, ed: bool = True
     ) -> "pnfieldmetadata.PNFieldMetaData":
         """
         Create a PNFieldMetaData object from an XML element.
@@ -880,92 +954,166 @@ class FLManager(QtCore.QObject, IManager):
         part_decimal = 0
 
         default_value = None
+        if isinstance(field, dict):
+            for tag in field.keys():
+                if tag in ("relation", "associated"):
+                    continue
 
-        for child in field:
-            tag = child.tag
-            if tag in ("relation", "associated"):
-                continue
+                elif tag == "name":
+                    name = field[tag]
 
-            elif tag == "name":
-                name = child.text or ""
-                continue
+                elif tag == "alias":
+                    alias = utils_base.auto_qt_translate_text(field[tag])
 
-            elif tag == "alias":
-                alias = utils_base.auto_qt_translate_text(child.text)
-                continue
+                elif tag == "null":
+                    as_null = field[tag]
 
-            elif tag == "null":
-                as_null = child.text == "true"
-                continue
+                elif tag == "pk":
+                    is_primary_key = field[tag]
 
-            elif tag == "pk":
-                is_primary_key = child.text == "true"
-                continue
+                elif tag == "type":
+                    type_ = field[tag]
 
-            elif tag == "type":
-                type_ = child.text
-                if type_ not in valid_types:
-                    type_ = None
-                continue
+                elif tag == "length":
+                    length = field[tag]
 
-            elif tag == "length":
-                length = int(child.text or 0)
-                continue
+                elif tag == "regexp":
+                    reg_exp = field[tag]
 
-            elif tag == "regexp":
-                reg_exp = child.text
-                continue
+                elif tag == "default":
+                    default_value = utils_base.auto_qt_translate_text(field[tag])
 
-            elif tag == "default":
-                default_value = child.text or ""
-                if default_value.find("QT_TRANSLATE_NOOP") > -1:
-                    default_value = utils_base.auto_qt_translate_text(default_value)
-                continue
-            elif tag == "outtransaction":
-                out_transaction = child.text == "true"
-                continue
-            elif tag == "counter":
-                coun = child.text == "true"
-                continue
-            elif tag == "calculated":
-                calculated = child.text == "true"
-                continue
-            elif tag == "fullycalculated":
-                full_calculated = child.text == "true"
-                continue
-            elif tag == "trimmed":
-                trimm = child.text == "true"
-                continue
-            elif tag == "visible":
-                visible = child.text == "true"
-                continue
-            elif tag == "visiblegrid":
-                visible_grid = child.text == "true"
-                continue
-            elif tag == "editable":
-                editable = child.text == "true"
-                continue
-            elif tag == "partI":
-                part_integer = int(child.text or 4)
-                continue
-            elif tag == "partD":
-                part_decimal = int(child.text or 0)
-                continue
-            elif tag == "index":
-                is_index = child.text == "true"
-                continue
-            elif tag == "unique":
-                is_unique = child.text == "true"
-                continue
-            elif tag == "ck":
-                compound_key = child.text == "true"
-                continue
-            elif tag == "optionslist":
-                options_list = child.text
-                continue
-            elif tag == "searchoptions":
-                search_options = child.text
-                continue
+                elif tag == "outtransaction":
+                    out_transaction = field[tag]
+
+                elif tag == "counter":
+                    coun = field[tag]
+
+                elif tag == "calculated":
+                    calculated = field[tag]
+
+                elif tag == "fullycalculated":
+                    full_calculated = field[tag]
+
+                elif tag == "trimmed":
+                    trimm = field[tag]
+
+                elif tag == "visible":
+                    visible = field[tag]
+
+                elif tag == "visiblegrid":
+                    visible_grid = field[tag]
+
+                elif tag == "editable":
+                    editable = field[tag]
+
+                elif tag == "partI":
+                    part_integer = field[tag]
+
+                elif tag == "partD":
+                    part_decimal = field[tag]
+
+                elif tag == "index":
+                    is_index = field[tag]
+
+                elif tag == "unique":
+                    is_unique = field[tag]
+
+                elif tag == "ck":
+                    compound_key = field[tag]
+
+                elif tag == "optionslist":
+                    options_list = ", ".join(field[tag])
+
+                elif tag == "searchoptions":
+                    search_options = ", ".join(field[tag])
+
+        else:
+            for child in field:
+                tag = child.tag
+                if tag in ("relation", "associated"):
+                    continue
+
+                elif tag == "name":
+                    name = child.text or ""
+                    continue
+
+                elif tag == "alias":
+                    alias = utils_base.auto_qt_translate_text(child.text)
+                    continue
+
+                elif tag == "null":
+                    as_null = child.text == "true"
+                    continue
+
+                elif tag == "pk":
+                    is_primary_key = child.text == "true"
+                    continue
+
+                elif tag == "type":
+                    type_ = child.text
+                    if type_ not in valid_types:
+                        type_ = None
+                    continue
+
+                elif tag == "length":
+                    length = int(child.text or 0)
+                    continue
+
+                elif tag == "regexp":
+                    reg_exp = child.text
+                    continue
+
+                elif tag == "default":
+                    default_value = child.text or ""
+                    if default_value.find("QT_TRANSLATE_NOOP") > -1:
+                        default_value = utils_base.auto_qt_translate_text(default_value)
+                    continue
+                elif tag == "outtransaction":
+                    out_transaction = child.text == "true"
+                    continue
+                elif tag == "counter":
+                    coun = child.text == "true"
+                    continue
+                elif tag == "calculated":
+                    calculated = child.text == "true"
+                    continue
+                elif tag == "fullycalculated":
+                    full_calculated = child.text == "true"
+                    continue
+                elif tag == "trimmed":
+                    trimm = child.text == "true"
+                    continue
+                elif tag == "visible":
+                    visible = child.text == "true"
+                    continue
+                elif tag == "visiblegrid":
+                    visible_grid = child.text == "true"
+                    continue
+                elif tag == "editable":
+                    editable = child.text == "true"
+                    continue
+                elif tag == "partI":
+                    part_integer = int(child.text or 4)
+                    continue
+                elif tag == "partD":
+                    part_decimal = int(child.text or 0)
+                    continue
+                elif tag == "index":
+                    is_index = child.text == "true"
+                    continue
+                elif tag == "unique":
+                    is_unique = child.text == "true"
+                    continue
+                elif tag == "ck":
+                    compound_key = child.text == "true"
+                    continue
+                elif tag == "optionslist":
+                    options_list = child.text
+                    continue
+                elif tag == "searchoptions":
+                    search_options = child.text
+                    continue
 
         field_mtd = pnfieldmetadata.PNFieldMetaData(
             name,
@@ -999,22 +1147,40 @@ class FLManager(QtCore.QObject, IManager):
 
         assoc_by = ""
         assoc_with = ""
+        if isinstance(field, dict):
+            for tag in field.keys():
+                if tag == "relations":
+                    for rel_ in field[tag]:
+                        field_mtd.addRelationMD(self.metadataRelation(rel_))
 
-        for child in field:
-            tag = child.tag
-            if tag == "relation":
-                field_mtd.addRelationMD(self.metadataRelation(child))
-                continue
-            elif tag == "associated":
-                for sub in child:
-                    sub_tag = sub.tag
-                    if sub_tag == "with":
-                        assoc_with = sub.text or ""
-                    elif sub_tag == "by":
-                        assoc_with = sub.text or ""
+                elif tag == "associated":
+                    for sub_tag in field[tag].keys():
+                        if sub_tag == "with":
+                            assoc_with = field[tag][sub_tag]
+                        elif sub_tag == "by":
+                            assoc_by = field[tag][sub_tag]
 
-        if assoc_with and assoc_by:
-            field_mtd.setAssociatedField(assoc_with, assoc_by)
+            if assoc_with and assoc_by:
+                print("CHECK ", assoc_with, assoc_by)
+                field_mtd.setAssociatedField(assoc_with, assoc_by)
+
+        else:
+
+            for child in field:
+                tag = child.tag
+                if tag == "relation":
+                    field_mtd.addRelationMD(self.metadataRelation(child))
+                    continue
+                elif tag == "associated":
+                    for sub in child:
+                        sub_tag = sub.tag
+                        if sub_tag == "with":
+                            assoc_with = sub.text or ""
+                        elif sub_tag == "by":
+                            assoc_by = sub.text or ""
+
+            if assoc_with and assoc_by:
+                field_mtd.setAssociatedField(assoc_with, assoc_by)
 
         return field_mtd
 
@@ -1032,6 +1198,7 @@ class FLManager(QtCore.QObject, IManager):
         @param relation XML element with the description of the relationship
         @return FLRelationMetaData object that contains the description of the relationship
         """
+        print("FIXME metadataRelation dict", relation)
         if not relation:
             raise ValueError("relation is required")
 

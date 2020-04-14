@@ -13,6 +13,7 @@ class Fllarge(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "fllarge",
         "alias": "Ficheros de gran tamaño",
         "fields": [
             {

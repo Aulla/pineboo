@@ -13,6 +13,7 @@ class Flareas(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flareas",
         "alias": "Áreas",
         "fields": [
             {"name": "bloqueo", "alias": "Bloqueo", "type": "unlock", "defaultvalue": "True"},

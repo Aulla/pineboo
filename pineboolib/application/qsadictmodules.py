@@ -41,7 +41,7 @@ class QSADictModules:
 
         ret_ = getattr(cls.qsa_dict_modules(), module_name, None)
         if ret_ is None:
-            LOGGER.warning("Module %s not found!", module_name, stack_info=True)
+            LOGGER.warning("Module %s not found!", module_name)
 
         return ret_
 

@@ -38,9 +38,6 @@ def mtd_parse(table_name: str, path_mtd: str) -> str:
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
-    mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
-    if mtd_ is None:
-        return ""
 
     # if mtd_.isQuery():
     #    return None
@@ -50,6 +47,10 @@ def mtd_parse(table_name: str, path_mtd: str) -> str:
 
     # if not os.path.exists(dest_file):
     if not os.path.exists(dest_file):
+        print("GENERANDO", dest_file)
+        mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
+        if mtd_ is None:
+            return ""
         lines = generate_model(mtd_)
 
         if lines:
@@ -70,7 +71,8 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     list_data_field: str = []
     validator_list: List[str] = []
     metadata_table: List = []
-    metadata_table.append("'alias':'%s'" % mtd_table.alias())
+    metadata_table.append("'name' : '%s'" % mtd_table.name())
+    metadata_table.append("'alias' : '%s'" % mtd_table.alias())
     if mtd_table.isQuery():
         metadata_table.append("'query':'%s'" % mtd_table.query())
     if mtd_table.concurWarn():
@@ -233,10 +235,10 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
 
     # PK
     if field.isPrimaryKey():
-        field_data.append("'primarykey' : True")
+        field_data.append("'pk' : True")
     # CK
     if field.isCompoundKey():
-        field_data.append("'compoundkey' : True")
+        field_data.append("'ck' : True")
 
     # TYPE
     field_relation: List[str] = []
@@ -269,10 +271,11 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
         field_data.append("'relations' : [%s]" % ", ".join(field_relation))
 
     # ASSOCIATED
-    if field.associatedField():
+    if field.private.associated_field_name:
+
         field_data.append(
             "'associated':{'with' : '%s', 'by' : '%s' }"
-            % (field.associated_field_filter_to, field.associated_field_name)
+            % (field.private.associated_field_filter_to, field.private.associated_field_name)
         )
 
     # UNIQUE
@@ -280,12 +283,12 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
         field_data.append("'isunique' : True")
 
     # ALLOW_NULL
-    if field.allowNull():
-        field_data.append("'allownull' : True")
+    if not field.allowNull():
+        field_data.append("'null' : False")
 
     # DEFAULT_VALUE
     if field.defaultValue():
-        field_data.append("'defaultvalue' : '%s'" % field.defaultValue())
+        field_data.append("'default' : '%s'" % field.defaultValue())
 
     # OUT_TRANSACTION
     if field.outTransaction():
@@ -322,11 +325,11 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
     if field.type() == "double":
         # PARTI
         if field.partInteger():
-            field_data.append("'partinteger' : %s" % field.partInteger())
+            field_data.append("'partI' : %s" % field.partInteger())
 
         # PARTD
         if field.partDecimal():
-            field_data.append("'partdecimal' : %s" % field.partDecimal())
+            field_data.append("'partD' : %s" % field.partDecimal())
 
     # INDEX
     if field.isIndex():

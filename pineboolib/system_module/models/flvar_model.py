@@ -13,6 +13,7 @@ class Flvar(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flvar",
         "alias": "Variables",
         "fields": [
             {

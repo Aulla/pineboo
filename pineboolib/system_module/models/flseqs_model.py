@@ -13,6 +13,7 @@ class Flseqs(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flseqs",
         "alias": "Secuencias",
         "fields": [
             {

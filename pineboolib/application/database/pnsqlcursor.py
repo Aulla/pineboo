@@ -139,7 +139,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         mtd = private_cursor.metadata_
         if not mtd:
             return
-        print("Buscando model", mtd.name())
+        print("Buscando model desde cursor", mtd.name())
         self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
         private_cursor._is_query = mtd.isQuery()
         private_cursor._is_system_table = (

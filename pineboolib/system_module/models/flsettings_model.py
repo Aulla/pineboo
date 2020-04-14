@@ -13,6 +13,7 @@ class Flsettings(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flsettings",
         "alias": "Configuración global",
         "fields": [
             {"name": "flkey", "alias": "Clave", "primarykey": True, "type": "string", "length": 30},

@@ -13,6 +13,7 @@ class Flusers(BASE):
 
     # --- Metadata --->
     legacy_metadata = {
+        "name": "flusers",
         "alias": "Usuarios",
         "fields": [
             {
