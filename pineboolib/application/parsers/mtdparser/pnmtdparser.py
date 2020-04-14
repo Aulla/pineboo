@@ -231,8 +231,8 @@ def generate_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> str:
             rel_list.append("'delc' : True")
         if rel.updateCascade():
             rel_list.append("'updc' : True")
-        if rel.checkIn():
-            rel_list.append("'checkin' : True")
+        if not rel.checkIn():
+            rel_list.append("'checkin' : False")
 
         field_relation.append("{%s}" % ", ".join(rel_list))
 
@@ -256,7 +256,7 @@ def generate_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> str:
 
     # DEFAULT_VALUE
     if field.defaultValue():
-        field_data.append("metadata_defaulvalue= '%s'" % field.defaultValue())
+        field_data.append("metadata_defaultvalue= '%s'" % field.defaultValue())
 
     # OUT_TRANSACTION
     if field.outTransaction():
