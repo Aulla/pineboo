@@ -20,6 +20,7 @@ from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.utils import path, xpm
 from pineboolib.application import module, file, load_script, pnapplication
 
+from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
 from pineboolib.application.parsers import qsaparser
 
 
@@ -170,11 +171,26 @@ class Project(object):
     def load_orm(self) -> None:
         """Load Orm objects."""
 
-        from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
+        # from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
 
-        print("FIXME parse solo no existentes! y todos los mtd")
-        for action_name in self.actions:
-            pnmtdparser.mtd_parse(self.actions[action_name])
+        # print("FIXME parse solo no existentes! y todos los mtd")
+        # for action_name in self.actions:
+        #    pnmtdparser.mtd_parse(self.actions[action_name])
+        conn = self.conn_manager.mainConn()
+        db_name = conn.DBName()
+
+        for key in list(self.files.keys()):
+            file_ = self.files[key]
+            if file_.filename.endswith(".mtd"):
+                print("* Convirtiendo", file_.filename, file_.path())
+                dest_file = pnmtdparser.mtd_parse(file_.filename, file_.path())
+                if dest_file:
+                    self.files["%s.model.py" % file_.filename] = file.File(
+                        file_.module,
+                        "%s.model.py" % file_.filename,
+                        basedir=file_.basedir,
+                        db_name=db_name,
+                    )
 
         self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
         pnormmodelsfactory.load_models()

@@ -24,67 +24,38 @@ if TYPE_CHECKING:
     from pineboolib.application import xmlaction
 
 
-def mtd_parse(action: "xmlaction.XMLAction") -> Optional[str]:
+def mtd_parse(table_name: str, path_mtd: str) -> str:
     """
     Parse MTD into SqlAlchemy model.
     """
-    if not action._table:
-        return ""
+    # if not action._table:
+    #    return ""
 
-    table_name = action._table
+    # table_name = action._table
 
-    if table_name.endswith(".mtd"):
-        table_name = table_name[:-4]
-
-    if table_name.find("alteredtable") > -1 or table_name.startswith("fllarge_"):
-        return None
+    # if table_name.endswith(".mtd"):
+    #    table_name = table_name[:-4]
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
     mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
     if mtd_ is None:
-        return None
+        return ""
 
     # if mtd_.isQuery():
     #    return None
+    dest_file = "%s.py" % path_mtd
+    print("** Convirtiendo", mtd_.name(), "->", dest_file)
 
-    dest_file = _path("%s.mtd" % table_name)
-    if dest_file.find("system_module/tables") == -1:
-        path_model = dest_file[: dest_file.find("file.mtd") - 1]
-        if not os.path.exists("%s/file.model" % path_model):
-            os.mkdir("%s/file.model" % path_model)
-        print("FIXME nombre_model como sha1")
-        dest_file = "%s/file.model/%s_model.py" % (path_model, table_name)
-    else:
-        return None
+    # if not os.path.exists(dest_file):
 
-    # if mtd_file is None:
-    #    LOGGER.warning("No se encuentra %s.mtd", table_name)
-    #    return None
+    lines = generate_model(mtd_)
 
-    # dest_file = "%s_model.py" % mtd_file[: len(mtd_file) - 4]
-
-    # if dest_file.find("system_module") > -1:
-    #    path_dir = "%s/cache/%s/sys" % (
-    #        settings.CONFIG.value("ebcomportamiento/temp_dir"),
-    #        application.PROJECT.conn_manager.mainConn().DBName(),
-    #    )
-    #    dest_file = "%s/file.model/%s_model.py" % (path_dir, table_name)
-
-    # if not os.path.exists(path_dir):
-    #    os.mkdir(path_dir)
-    # if not os.path.exists("%s/file.model" % path_dir):
-    #    os.mkdir("%s/file.model" % path_dir)
-    print("Convirtiendo", mtd_.name(), "->", dest_file)
-
-    if not os.path.exists(dest_file):
-        lines = generate_model(mtd_)
-
-        if lines:
-            file_ = open(dest_file, "w", encoding="UTF-8")
-            for line in lines:
-                file_.write("%s\n" % line)
-            file_.close()
+    if lines:
+        file_ = open(dest_file, "w", encoding="UTF-8")
+        for line in lines:
+            file_.write("%s\n" % line)
+        file_.close()
 
     return dest_file
 
@@ -98,11 +69,14 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     list_data_field: str = []
     validator_list: List[str] = []
 
-    field_lists: "pnfieldmetadata.PNFieldMetaData" = []
-
-    field_list = mtd_table.fieldList()
+    field_list: "pnfieldmetadata.PNFieldMetaData" = mtd_table.fieldList()
+    pk_found = False
 
     for field in field_list:  # Crea los campos
+
+        if field.isPrimaryKey():
+            pk_found = True
+
         if field.name() in validator_list:
             LOGGER.warning(
                 "Hay un campo %s duplicado en %s.mtd. Omitido", field.name(), mtd_table.name()
@@ -125,7 +99,6 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
         list_data_field.append("".join(field_data))
 
-    pk_found = False
     data.append("# -*- coding: utf-8 -*-")
     # data.append("from sqlalchemy.ext.declarative import declarative_base")
     data.append(
@@ -170,7 +143,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("")
 
     for data_field in list_data_field:
-        data.appen(data_field)
+        data.append(data_field)
 
     data.append("")
     data.append("# <--- Fields --- ")
@@ -178,12 +151,10 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
     if not pk_found:
 
-        if settings.CONFIG.value("application/isDebuggerMode", False):
-            LOGGER.warning(
-                "La tabla %s no tiene definida una clave primaria. No se generará el model."
-                % (mtd_table.name())
-            )
-        data = []
+        LOGGER.warning(
+            "La tabla %s no tiene definida una clave primaria. No se generará el model."
+            % (mtd_table.name())
+        )
 
     return data
 
@@ -244,7 +215,7 @@ def generate_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> str:
 
     # LENGTH
     if field.length():
-        field_data.append("metadata_length = %s" % field.legth())
+        field_data.append("metadata_length = %s" % field.length())
 
     # REGEXP
     if field.regExpValidator():
@@ -285,7 +256,7 @@ def generate_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> str:
 
     # DEFAULT_VALUE
     if field.defaultValue():
-        field_data.append("metadata_defaul= '%s'" % field.defaultValue())
+        field_data.append("metadata_defaulvalue= '%s'" % field.defaultValue())
 
     # OUT_TRANSACTION
     if field.outTransaction():
@@ -308,24 +279,25 @@ def generate_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> str:
         field_data.append("metadata_trimmed = True")
 
     # VISIBLE
-    if field.visible():
-        field_data.append("metadata_visible = True")
+    if not field.visible():
+        field_data.append("metadata_visible = False")
 
     # VISIBLE_GRID
-    if field.visibleGrid():
-        field_data.append("metadata_visiblegrid = True")
+    if not field.visibleGrid():
+        field_data.append("metadata_visiblegrid = False")
 
     # EDITABLE
-    if field.editable():
-        field_data.append("metadata_editable = True")
+    if not field.editable():
+        field_data.append("metadata_editable = False")
 
-    # PARTI
-    if field.partInteger():
-        field_data.append("metadata_partinteger = %s" % field.partInteger())
+    if field.type() == "double":
+        # PARTI
+        if field.partInteger():
+            field_data.append("metadata_partinteger = %s" % field.partInteger())
 
-    # PARTD
-    if field.partDecimal():
-        field_data.append("metadata_partdecimal = %s" % field.partDecimal())
+        # PARTD
+        if field.partDecimal():
+            field_data.append("metadata_partdecimal = %s" % field.partDecimal())
 
     # INDEX
     if field.isIndex():
