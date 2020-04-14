@@ -9,8 +9,9 @@ from PyQt5 import QtCore, QtGui, Qt, QtWidgets
 from pineboolib.core.utils import logging, utils_base
 
 
-from pineboolib.application.utils import date_conversion, xpm
+from pineboolib.application.utils import date_conversion, xpm, sql_tools
 from pineboolib.application import qsadictmodules
+
 
 import itertools
 import locale
@@ -550,8 +551,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """Update virtual records managed by its model."""
 
         parent = QtCore.QModelIndex()
-        to_row = self._data_proxy.count() - 1
-        self._rows_loaded = to_row + 1
+        to_row = self.rowCount() - 1
+
         self.beginInsertRows(parent, 0, to_row)
         self.endInsertRows()
         top_left = self.index(0, 0)
@@ -651,9 +652,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self._initialized = False
 
-        if self._disable_refresh and self._rows_loaded > 0:
+        if self._disable_refresh and self.rowCount():
             return
 
+        self._rows_loaded = 0
         session_ = self.db().session()
 
         # if not self.metadata():
@@ -737,13 +739,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # self._current_row_data = []
         # self._current_row_index = -1
 
-        dynamic_filter_class = DynamicFilter(
+        dynamic_filter_class = sql_tools.DynamicFilter(
             query=session_.query(self._parent._cursor_model),
             model_class=self._parent._cursor_model,
             filter_condition=filter_list,
         )
 
-        self._data_proxy = dynamic_filter_class.return_query()
+        self._data_proxy = list(dynamic_filter_class.return_query())
 
         # if self._curname:
         #    self.driver_sql().delete_declared_cursor(self._curname)
@@ -753,7 +755,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # self.driver_sql().declare_cursor(
         #    self._curname, self.sql_str, self._tablename, self.where_filter
         # )
-        if not self._data_proxy.count():
+        self._rows_loaded = len(self._data_proxy)
+
+        if not len(self._data_proxy):
             return
 
         # self.rows = self.data_size()
@@ -830,7 +834,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def seek_row(self, row: int) -> bool:
 
         if row != self._current_row_index:
-            if row > -1 and row < self._data_proxy.count() if self._data_proxy else 0:
+            if row > -1 and row < self.rowCount():
                 object_ = list(self._data_proxy)[row]
                 if object_ is None:
                     return False
@@ -1079,7 +1083,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @return Row number present in table.
         """
-        return self._data_proxy.count() if self._data_proxy else 0
+        return self._rows_loaded
 
     # def size(self) -> int:
     #    """
@@ -1178,71 +1182,3 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def set_parent_view(self, parent_view: "fldatatable.FLDataTable") -> None:
         """Set the parent view."""
         self.parent_view = parent_view
-
-    # https://ruddra.com/posts/dynamically-constructing-filters-based-on-string-input-using-sqlalchemy/
-
-
-class DynamicFilter(object):
-    def __init__(self, query=None, model_class=None, filter_condition=None):
-        self.query = query
-        self.model_class = model_class
-        self.filter_condition = filter_condition
-
-    def get_query(self):
-        """
-        Returns query with all the objects
-        :return:
-        """
-        if not self.query:
-            self.query = self.session.query(self.model_class)
-        return self.query
-
-    def filter_query(self, query, filter_condition):
-        """
-        Return filtered queryset based on condition.
-        :param query: takes query
-        :param filter_condition: Its a list, ie: [(key,operator,value)]
-        operator list:
-            eq for ==
-            lt for <
-            ge for >=
-            in for in_
-            like for like
-            value could be list or a string
-        :return: queryset
-
-        """
-
-        if query is None:
-            query = self.get_query()
-        # model_class = self.get_model_class()  # returns the query's Model
-        model_class = self.model_class
-        for raw in filter_condition:
-            try:
-                key, op, value = raw
-            except ValueError:
-                raise Exception("Invalid filter: %s" % raw)
-            column = getattr(model_class, key, None)
-            if not column:
-                raise Exception("Invalid filter column: %s" % key)
-            if op == "in":
-                if isinstance(value, list):
-                    filt = column.in_(value)
-                else:
-                    filt = column.in_(value.split(","))
-            else:
-                try:
-                    attr = (
-                        list(filter(lambda e: hasattr(column, e % op), ["%s", "%s_", "__%s__"]))[0]
-                        % op
-                    )
-                except IndexError:
-                    raise Exception("Invalid filter operator: %s" % op)
-                if value == "null":
-                    value = None
-                filt = getattr(column, attr)(value)
-            query = query.filter(filt)
-        return query
-
-    def return_query(self):
-        return self.filter_query(self.get_query(), self.filter_condition)
