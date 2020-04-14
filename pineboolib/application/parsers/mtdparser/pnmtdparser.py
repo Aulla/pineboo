@@ -44,18 +44,19 @@ def mtd_parse(table_name: str, path_mtd: str) -> str:
 
     # if mtd_.isQuery():
     #    return None
-    dest_file = "%s.py" % path_mtd
-    print("** Convirtiendo", mtd_.name(), "->", dest_file)
+    dest_file = "%s_model.py" % path_mtd
+
+    # print("** Convirtiendo", mtd_.name(), "->", dest_file)
 
     # if not os.path.exists(dest_file):
+    if not os.path.exists(dest_file):
+        lines = generate_model(mtd_)
 
-    lines = generate_model(mtd_)
-
-    if lines:
-        file_ = open(dest_file, "w", encoding="UTF-8")
-        for line in lines:
-            file_.write("%s\n" % line)
-        file_.close()
+        if lines:
+            file_ = open(dest_file, "w", encoding="UTF-8")
+            for line in lines:
+                file_.write("%s\n" % line)
+            file_.close()
 
     return dest_file
 
@@ -100,7 +101,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
             else:
                 field_data.append(field.name())
 
-            field_data.append(" = Column('%s', " % field.name())
+            field_data.append(" = sqlalchemy.Column('%s', " % field.name())
             field_list.append(generate_field_metadata(field))
             field_data.append(generate_field(field))
             field_data.append(")")
@@ -120,16 +121,19 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
     data.append("# -*- coding: utf-8 -*-")
     data.append("# Translated with pineboolib %s" % application.PROJECT.version.split(" ")[1])
+    data.append("")
+    data.append("import sqlalchemy")
     # data.append("from sqlalchemy.ext.declarative import declarative_base")
-    data.append(
-        "from sqlalchemy import Column, Integer, Numeric, String, BigInteger, Boolean, DateTime, ForeignKey, LargeBinary"
-    )
+    # data.append(
+    #    "from sqlalchemy import Column, Integer, Numeric, String, BigInteger, Boolean, DateTime, ForeignKey, LargeBinary"
+    # )
+    # data.append("from sqlalchemy import String as Calculated")
     data.append("from sqlalchemy.orm import relationship, validates")
-    data.append(
-        "from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated"
-    )
+    # data.append(
+    #    "from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated"
+    # )
     data.append("from pineboolib import application")
-    data.append("from pineboolib.qsa import qsa")
+    # data.append("from pineboolib.qsa import qsa")
     data.append("")
     # data.append("Base = declarative_base()")
     data.append("BASE = application.PROJECT.conn_manager.mainConn().declarative_base()")
@@ -182,28 +186,28 @@ def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
     # = "String"
     ret = ""
     if field.type() in ("int, serial"):
-        ret = "Integer"
+        ret = "sqlalchemy.Integer"
     elif field.type() in ("uint"):
-        ret = "BigInteger"
+        ret = "sqlalchemy.BigInteger"
     elif field.type() in ("calculated"):
-        ret = "Calculated"
+        ret = "sqlalchemy.String"
     elif field.type() in ("double"):
-        ret = "Numeric"
+        ret = "sqlalchemy.Numeric"
         ret += "(%s , %s)" % (field.partInteger(), field.partDecimal())
 
     elif field.type() in ("string", "stringlist", "pixmap"):
-        ret = "String"
+        ret = "sqlalchemy.String"
         if field.length():
             ret += "(%s)" % field.length()
 
     elif field.type() in ("bool", "unlock"):
-        ret = "Boolean"
+        ret = "sqlalchemy.Boolean"
 
     elif field.type() in ("time", "date", "timestamp"):
-        ret = "DateTime"
+        ret = "sqlalchemy.DateTime"
 
     elif field.type() in ("bytearray"):
-        ret = "LargeBinary"
+        ret = "sqlalchemy.LargeBinary"
 
     else:
         ret = "Desconocido %s" % field.type()
@@ -221,30 +225,30 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
     field_data: List = []
 
     # NAME
-    field_data.append("'name':'%s'" % field.name())
+    field_data.append("'name' : '%s'" % field.name())
 
     # ALIAS
     if field.alias():
-        field_data.append("'alias':'%s'" % field.alias())
+        field_data.append("'alias' : '%s'" % field.alias())
 
     # PK
     if field.isPrimaryKey():
-        field_data.append("'primarykey':True")
+        field_data.append("'primarykey' : True")
     # CK
     if field.isCompoundKey():
-        field_data.append("'compoundkey':True")
+        field_data.append("'compoundkey' : True")
 
     # TYPE
     field_relation: List[str] = []
-    field_data.append("'type':'%s'" % field.type())
+    field_data.append("'type' : '%s'" % field.type())
 
     # LENGTH
     if field.length():
-        field_data.append("'length':%s" % field.length())
+        field_data.append("'length' : %s" % field.length())
 
     # REGEXP
     if field.regExpValidator():
-        field_data.append("regexp = '%s'" % field.regExpValidator())
+        field_data.append("'regexp' : '%s'" % field.regExpValidator())
 
     # RELATIONS
     for rel in field.relationList():
@@ -262,7 +266,7 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
         field_relation.append("{%s}" % ", ".join(rel_list))
 
     if field_relation:
-        field_data.append("'relations': [%s]" % ", ".join(field_relation))
+        field_data.append("'relations' : [%s]" % ", ".join(field_relation))
 
     # ASSOCIATED
     if field.associatedField():

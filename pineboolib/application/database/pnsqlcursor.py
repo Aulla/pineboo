@@ -139,6 +139,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         mtd = private_cursor.metadata_
         if not mtd:
             return
+        print("Buscando model", mtd.name())
         self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
         private_cursor._is_query = mtd.isQuery()
         private_cursor._is_system_table = (
@@ -1815,8 +1816,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 return
 
             if not field_name or self.private_cursor.relation_.foreignField() == field_name:
-                if self.private_cursor.buffer_:
-                    self.private_cursor.buffer_.clear_buffer()
+                # if self.private_cursor.buffer_:
+                #    self.private_cursor.buffer_.clear_buffer()
                 self.refreshDelayed()
                 return
         else:
