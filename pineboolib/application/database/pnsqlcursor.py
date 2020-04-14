@@ -9,7 +9,7 @@ from pineboolib.core.utils import logging
 from pineboolib.core import decorators, settings
 
 from pineboolib.application.database import pnsqlquery, utils
-from pineboolib.application.utils import xpm
+from pineboolib.application.utils import xpm, sql_tools
 from pineboolib.application import types, qsadictmodules
 
 from pineboolib import application
@@ -885,10 +885,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             self.transaction()
             self.private_cursor.mode_access_ = self.Del
+            print(1)
             if not self.refreshBuffer():
                 self.commit()
             else:
+                print(2)
                 if not self.commitBuffer():
+                    print(3)
                     self.rollback()
                 else:
                     self.commit()
@@ -2806,6 +2809,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     continue
                 else:
                     for relation in relation_list:
+
                         cursor = PNSqlCursor(relation.foreignTable())
                         foreign_mtd = cursor.private_cursor.metadata_
                         if foreign_mtd is None:
@@ -2826,18 +2830,31 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                     relation.foreignField(), foreign_field, result, True
                                 )
                             )
+
                             while cursor.next():
                                 cursor.setModeAccess(self.Del)
                                 cursor.refreshBuffer()
                                 if not cursor.commitBuffer(False):
                                     return False
-
             try:
-                transaction = self.db().session()
+                # transaction = self.db().session()
                 # obj_ = transaction.query(self._cursor_model).get(
                 #    self.buffer().value(self.primaryKey())
                 # )
-                transaction.delete(self.buffer()._current_model_obj)
+                # print(
+                #    "Borrando",
+                #    self.buffer()._current_model_obj,
+                #    getattr(self.buffer()._current_model_obj, self.primaryKey(), None),
+                # )
+                query_class = sql_tools.DynamicFilter(
+                    query=self.db().session().query(self._cursor_model),
+                    model_class=self._cursor_model,
+                    filter_condition=[
+                        [self.primaryKey(), "eq", self.valueBuffer(self.primaryKey())]
+                    ],
+                )
+                query_class.return_query(True)
+                # transaction.delete(self.buffer()._current_model_obj)
             except Exception as error:
                 raise Exception("Error deleting row!: %s" % error)
             # if not self.private_cursor._model.delete(self):
