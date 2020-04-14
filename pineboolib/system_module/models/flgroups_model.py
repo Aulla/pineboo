@@ -1,19 +1,9 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import (
-    Column,
-    Integer,
-    Numeric,
-    String,
-    BigInteger,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    LargeBinary,
-)
+# Translated with pineboolib v0.71.18
+
+import sqlalchemy
 from sqlalchemy.orm import relationship, validates
-from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated
 from pineboolib import application
-from pineboolib.qsa import qsa
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
@@ -21,17 +11,37 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 class Flgroups(BASE):
     __tablename__ = "flgroups"
 
+    # --- Metadata --->
+    legacy_metadata = {
+        "alias": "Grupos de Usuarios",
+        "fields": [
+            {
+                "name": "idgroup",
+                "alias": "Nombre",
+                "primarykey": True,
+                "type": "string",
+                "length": 30,
+                "relations": [
+                    {"card": "1M", "table": "flusers", "field": "idgroup"},
+                    {"card": "1M", "table": "flacs", "field": "idgroup"},
+                ],
+            },
+            {
+                "name": "descripcion",
+                "alias": "Descripción",
+                "type": "string",
+                "length": 100,
+                "allownull": True,
+            },
+        ],
+    }
+
+    # <--- Metadata ---
+
     # --- Fields --->
 
-    idgroup = Column("idgroup", String(30), primary_key=True, nullable=False)
-    descripcion = Column("descripcion", String(100))
-
-    # <--- Fields ---
-
-    # --- Relations 1:M --->
-
-    flusers_idgroup = relationship("Flusers", foreign_keys="Flusers.idgroup")
-    flacs_idgroup = relationship("Flacs", foreign_keys="Flacs.idgroup")
+    idgroup = sqlalchemy.Column("idgroup", sqlalchemy.String(30), primary_key=True)
+    descripcion = sqlalchemy.Column("descripcion", sqlalchemy.String(100))
 
 
-# <--- Relations 1:M ---
+# <--- Fields ---

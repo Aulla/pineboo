@@ -1,19 +1,9 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import (
-    Column,
-    Integer,
-    Numeric,
-    String,
-    BigInteger,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    LargeBinary,
-)
+# Translated with pineboolib v0.71.18
+
+import sqlalchemy
 from sqlalchemy.orm import relationship, validates
-from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated
 from pineboolib import application
-from pineboolib.qsa import qsa
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
@@ -21,17 +11,30 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 class Flareas(BASE):
     __tablename__ = "flareas"
 
+    # --- Metadata --->
+    legacy_metadata = {
+        "alias": "Áreas",
+        "fields": [
+            {"name": "bloqueo", "alias": "Bloqueo", "type": "unlock", "defaultvalue": "True"},
+            {
+                "name": "idarea",
+                "alias": "Área",
+                "primarykey": True,
+                "type": "string",
+                "length": 15,
+                "relations": [{"card": "1M", "table": "flmodules", "field": "idarea"}],
+            },
+            {"name": "descripcion", "alias": "Descripción", "type": "string", "length": 100},
+        ],
+    }
+
+    # <--- Metadata ---
+
     # --- Fields --->
 
-    bloqueo = Column("bloqueo", Boolean, unique=False, default=True)
-    idarea = Column("idarea", String(15), primary_key=True, nullable=False)
-    descripcion = Column("descripcion", String(100), nullable=False)
-
-    # <--- Fields ---
-
-    # --- Relations 1:M --->
-
-    flmodules_idarea = relationship("Flmodules", foreign_keys="Flmodules.idarea")
+    bloqueo = sqlalchemy.Column("bloqueo", sqlalchemy.Boolean)
+    idarea = sqlalchemy.Column("idarea", sqlalchemy.String(15), primary_key=True)
+    descripcion = sqlalchemy.Column("descripcion", sqlalchemy.String(100))
 
 
-# <--- Relations 1:M ---
+# <--- Fields ---

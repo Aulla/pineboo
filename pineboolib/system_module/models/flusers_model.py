@@ -1,19 +1,9 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import (
-    Column,
-    Integer,
-    Numeric,
-    String,
-    BigInteger,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    LargeBinary,
-)
+# Translated with pineboolib v0.71.18
+
+import sqlalchemy
 from sqlalchemy.orm import relationship, validates
-from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated
 from pineboolib import application
-from pineboolib.qsa import qsa
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
@@ -21,17 +11,36 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 class Flusers(BASE):
     __tablename__ = "flusers"
 
+    # --- Metadata --->
+    legacy_metadata = {
+        "alias": "Usuarios",
+        "fields": [
+            {
+                "name": "iduser",
+                "alias": "Nombre",
+                "primarykey": True,
+                "type": "string",
+                "length": 30,
+                "relations": [{"card": "1M", "table": "flacs", "field": "iduser"}],
+            },
+            {"name": "idgroup", "alias": "Grupo", "type": "string", "length": 30},
+            {
+                "name": "descripcion",
+                "alias": "Descripción",
+                "type": "string",
+                "length": 100,
+                "allownull": True,
+            },
+        ],
+    }
+
+    # <--- Metadata ---
+
     # --- Fields --->
 
-    iduser = Column("iduser", String(30), primary_key=True, nullable=False)
-    idgroup = Column("idgroup", String(30), ForeignKey("flgroups.idgroup"), nullable=False)
-    descripcion = Column("descripcion", String(100))
-
-    # <--- Fields ---
-
-    # --- Relations 1:M --->
-
-    flacs_iduser = relationship("Flacs", foreign_keys="Flacs.iduser")
+    iduser = sqlalchemy.Column("iduser", sqlalchemy.String(30), primary_key=True)
+    idgroup = sqlalchemy.Column("idgroup", sqlalchemy.String(30))
+    descripcion = sqlalchemy.Column("descripcion", sqlalchemy.String(100))
 
 
-# <--- Relations 1:M ---
+# <--- Fields ---

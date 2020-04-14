@@ -1,19 +1,9 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import (
-    Column,
-    Integer,
-    Numeric,
-    String,
-    BigInteger,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    LargeBinary,
-)
+# Translated with pineboolib v0.71.18
+
+import sqlalchemy
 from sqlalchemy.orm import relationship, validates
-from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated
 from pineboolib import application
-from pineboolib.qsa import qsa
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
@@ -21,26 +11,75 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 class Flacos(BASE):
     __tablename__ = "flacos"
 
+    # --- Metadata --->
+    legacy_metadata = {
+        "alias": "Objetos de Control de Acceso",
+        "fields": [
+            {
+                "name": "idaco",
+                "alias": "Identificador",
+                "primarykey": True,
+                "type": "serial",
+                "visiblegrid": False,
+            },
+            {
+                "name": "nombre",
+                "alias": "Nombre",
+                "compoundkey": True,
+                "type": "string",
+                "length": 100,
+            },
+            {
+                "name": "permiso",
+                "alias": "Permiso",
+                "type": "string",
+                "length": 50,
+                "regexp": "[r-][w-]",
+                "defaultvalue": "--",
+            },
+            {
+                "name": "idac",
+                "alias": "Control de Acceso",
+                "compoundkey": True,
+                "type": "uint",
+                "visiblegrid": False,
+            },
+            {
+                "name": "descripcion",
+                "alias": "Descripción",
+                "type": "string",
+                "length": 100,
+                "allownull": True,
+            },
+            {
+                "name": "tipocontrol",
+                "alias": "Control",
+                "type": "string",
+                "length": 30,
+                "allownull": True,
+                "defaultvalue": "Todos",
+                "optionslist": [
+                    "Botón",
+                    "Campo",
+                    "Tabla",
+                    "Grupo de controles",
+                    "Pestaña",
+                    "Todos",
+                ],
+            },
+        ],
+    }
+
+    # <--- Metadata ---
+
     # --- Fields --->
 
-    idaco = Column("idaco", Integer, primary_key=True, nullable=False)
-    nombre = Column("nombre", String(100), primary_key=True, nullable=False)
-    permiso = Column("permiso", String(50), nullable=False, default="--")
-    idac = Column(
-        "idac",
-        BigInteger,
-        ForeignKey("flacs.idac", ondelete="CASCADE"),
-        primary_key=True,
-        nullable=False,
-    )
-    descripcion = Column("descripcion", String(100))
-    tipocontrol = Column("tipocontrol", String(30), default="Todos")
+    idaco = sqlalchemy.Column("idaco", sqlalchemy.Integer, primary_key=True)
+    nombre = sqlalchemy.Column("nombre", sqlalchemy.String(100))
+    permiso = sqlalchemy.Column("permiso", sqlalchemy.String(50))
+    idac = sqlalchemy.Column("idac", sqlalchemy.BigInteger)
+    descripcion = sqlalchemy.Column("descripcion", sqlalchemy.String(100))
+    tipocontrol = sqlalchemy.Column("tipocontrol", sqlalchemy.String(30))
 
 
 # <--- Fields ---
-
-
-# --- Relations 1:M --->
-
-
-# <--- Relations 1:M ---

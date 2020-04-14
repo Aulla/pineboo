@@ -1,19 +1,9 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import (
-    Column,
-    Integer,
-    Numeric,
-    String,
-    BigInteger,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    LargeBinary,
-)
+# Translated with pineboolib v0.71.18
+
+import sqlalchemy
 from sqlalchemy.orm import relationship, validates
-from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated
 from pineboolib import application
-from pineboolib.qsa import qsa
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
@@ -21,29 +11,109 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 class Flacs(BASE):
     __tablename__ = "flacs"
 
+    # --- Metadata --->
+    legacy_metadata = {
+        "alias": "Reglas de Control de Acceso",
+        "fields": [
+            {
+                "name": "idac",
+                "alias": "Identificador",
+                "primarykey": True,
+                "type": "serial",
+                "relations": [{"card": "1M", "table": "flacos", "field": "idac"}],
+                "visiblegrid": False,
+            },
+            {"name": "prioridad", "alias": "Prioridad", "type": "uint"},
+            {
+                "name": "tipo",
+                "alias": "Tipo",
+                "compoundkey": True,
+                "type": "string",
+                "length": 30,
+                "defaultvalue": "mainwindow",
+                "optionslist": ["mainwindow", "form", "table"],
+            },
+            {
+                "name": "nombre",
+                "alias": "Nombre",
+                "compoundkey": True,
+                "type": "string",
+                "length": 50,
+            },
+            {
+                "name": "iduser",
+                "alias": "Usuario",
+                "compoundkey": True,
+                "type": "string",
+                "length": 30,
+                "allownull": True,
+            },
+            {
+                "name": "idgroup",
+                "alias": "Grupo",
+                "compoundkey": True,
+                "type": "string",
+                "length": 30,
+                "allownull": True,
+            },
+            {
+                "name": "permiso",
+                "alias": "Permiso Global",
+                "type": "string",
+                "length": 50,
+                "regexp": "[r-][w-]",
+                "allownull": True,
+            },
+            {
+                "name": "idacl",
+                "alias": "Lista de Control de Acceso",
+                "type": "string",
+                "length": 15,
+            },
+            {
+                "name": "descripcion",
+                "alias": "Descripción",
+                "type": "string",
+                "length": 100,
+                "allownull": True,
+            },
+            {"name": "degrupo", "alias": "Aplicar a un grupo", "type": "bool"},
+            {"name": "idarea", "alias": "Área", "type": "string", "length": 15, "allownull": True},
+            {
+                "name": "idmodule",
+                "alias": "Módulo",
+                "type": "string",
+                "length": 15,
+                "allownull": True,
+            },
+            {
+                "name": "tipoform",
+                "alias": "Formulario",
+                "type": "string",
+                "length": 30,
+                "defaultvalue": "Maestro",
+                "optionslist": ["Maestro", "Edición", "Búsqueda"],
+            },
+        ],
+    }
+
+    # <--- Metadata ---
+
     # --- Fields --->
 
-    idac = Column("idac", Integer, primary_key=True, nullable=False)
-    prioridad = Column("prioridad", BigInteger, nullable=False)
-    tipo = Column("tipo", String(30), primary_key=True, nullable=False, default="mainwindow")
-    nombre = Column("nombre", String(50), primary_key=True, nullable=False)
-    iduser = Column("iduser", String(30), ForeignKey("flusers.iduser"), primary_key=True)
-    idgroup = Column("idgroup", String(30), ForeignKey("flgroups.idgroup"), primary_key=True)
-    permiso = Column("permiso", String(50))
-    idacl = Column(
-        "idacl", String(15), ForeignKey("flacls.idacl", ondelete="CASCADE"), nullable=False
-    )
-    descripcion = Column("descripcion", String(100))
-    degrupo = Column("degrupo", Boolean, unique=False, default=False)
-    idarea = Column("idarea", String(15), ForeignKey("flareas.idarea"))
-    idmodule = Column("idmodule", String(15), ForeignKey("flmodules.idmodulo"))
-    tipoform = Column("tipoform", String(30), nullable=False, default="Maestro")
+    idac = sqlalchemy.Column("idac", sqlalchemy.Integer, primary_key=True)
+    prioridad = sqlalchemy.Column("prioridad", sqlalchemy.BigInteger)
+    tipo = sqlalchemy.Column("tipo", sqlalchemy.String(30))
+    nombre = sqlalchemy.Column("nombre", sqlalchemy.String(50))
+    iduser = sqlalchemy.Column("iduser", sqlalchemy.String(30))
+    idgroup = sqlalchemy.Column("idgroup", sqlalchemy.String(30))
+    permiso = sqlalchemy.Column("permiso", sqlalchemy.String(50))
+    idacl = sqlalchemy.Column("idacl", sqlalchemy.String(15))
+    descripcion = sqlalchemy.Column("descripcion", sqlalchemy.String(100))
+    degrupo = sqlalchemy.Column("degrupo", sqlalchemy.Boolean)
+    idarea = sqlalchemy.Column("idarea", sqlalchemy.String(15))
+    idmodule = sqlalchemy.Column("idmodule", sqlalchemy.String(15))
+    tipoform = sqlalchemy.Column("tipoform", sqlalchemy.String(30))
 
 
 # <--- Fields ---
-
-
-# --- Relations 1:M --->
-
-
-# <--- Relations 1:M ---

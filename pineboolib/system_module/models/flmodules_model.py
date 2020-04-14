@@ -1,19 +1,9 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import (
-    Column,
-    Integer,
-    Numeric,
-    String,
-    BigInteger,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    LargeBinary,
-)
+# Translated with pineboolib v0.71.18
+
+import sqlalchemy
 from sqlalchemy.orm import relationship, validates
-from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated
 from pineboolib import application
-from pineboolib.qsa import qsa
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
@@ -21,20 +11,50 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 class Flmodules(BASE):
     __tablename__ = "flmodules"
 
+    # --- Metadata --->
+    legacy_metadata = {
+        "alias": "Módulos",
+        "fields": [
+            {"name": "bloqueo", "alias": "Bloqueo", "type": "unlock", "defaultvalue": "True"},
+            {
+                "name": "idmodulo",
+                "alias": "Id. del Módulo",
+                "primarykey": True,
+                "type": "string",
+                "length": 15,
+                "relations": [{"card": "1M", "table": "flfiles", "field": "idmodulo"}],
+            },
+            {
+                "name": "idarea",
+                "alias": "Id. del Área",
+                "type": "string",
+                "length": 15,
+                "visiblegrid": False,
+            },
+            {"name": "descripcion", "alias": "Descripción", "type": "string", "length": 100},
+            {
+                "name": "version",
+                "alias": "Versión",
+                "type": "string",
+                "length": 3,
+                "regexp": "[0-9]\.[0-9]",
+                "defaultvalue": "0.0",
+                "editable": False,
+            },
+            {"name": "icono", "alias": "Icono", "type": "pixmap", "allownull": True},
+        ],
+    }
+
+    # <--- Metadata ---
+
     # --- Fields --->
 
-    bloqueo = Column("bloqueo", Boolean, unique=False, default=True)
-    idmodulo = Column("idmodulo", String(15), primary_key=True, nullable=False)
-    idarea = Column("idarea", String(15), ForeignKey("flareas.idarea"), nullable=False)
-    descripcion = Column("descripcion", String(100), nullable=False)
-    version = Column("version", String(3), nullable=False, default="0.0")
-    icono = Column("icono", String)
-
-    # <--- Fields ---
-
-    # --- Relations 1:M --->
-
-    flfiles_idmodulo = relationship("Flfiles", foreign_keys="Flfiles.idmodulo")
+    bloqueo = sqlalchemy.Column("bloqueo", sqlalchemy.Boolean)
+    idmodulo = sqlalchemy.Column("idmodulo", sqlalchemy.String(15), primary_key=True)
+    idarea = sqlalchemy.Column("idarea", sqlalchemy.String(15))
+    descripcion = sqlalchemy.Column("descripcion", sqlalchemy.String(100))
+    version = sqlalchemy.Column("version", sqlalchemy.String(3))
+    icono = sqlalchemy.Column("icono", sqlalchemy.String)
 
 
-# <--- Relations 1:M ---
+# <--- Fields ---

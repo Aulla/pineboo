@@ -1,19 +1,9 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import (
-    Column,
-    Integer,
-    Numeric,
-    String,
-    BigInteger,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    LargeBinary,
-)
+# Translated with pineboolib v0.71.18
+
+import sqlalchemy
 from sqlalchemy.orm import relationship, validates
-from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated
 from pineboolib import application
-from pineboolib.qsa import qsa
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
@@ -21,17 +11,41 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 class Fllarge(BASE):
     __tablename__ = "fllarge"
 
+    # --- Metadata --->
+    legacy_metadata = {
+        "alias": "Ficheros de gran tamaño",
+        "fields": [
+            {
+                "name": "refkey",
+                "alias": "Clave de Referencia",
+                "primarykey": True,
+                "type": "string",
+                "length": 100,
+            },
+            {
+                "name": "sha1",
+                "alias": "Hash Sha1",
+                "type": "string",
+                "length": 50,
+                "allownull": True,
+            },
+            {
+                "name": "contenido",
+                "alias": "Contenido",
+                "type": "stringlist",
+                "allownull": True,
+                "visiblegrid": False,
+            },
+        ],
+    }
+
+    # <--- Metadata ---
+
     # --- Fields --->
 
-    refkey = Column("refkey", String(100), primary_key=True, nullable=False)
-    sha1 = Column("sha1", String(50))
-    contenido = Column("contenido", String)
+    refkey = sqlalchemy.Column("refkey", sqlalchemy.String(100), primary_key=True)
+    sha1 = sqlalchemy.Column("sha1", sqlalchemy.String(50))
+    contenido = sqlalchemy.Column("contenido", sqlalchemy.String)
 
 
 # <--- Fields ---
-
-
-# --- Relations 1:M --->
-
-
-# <--- Relations 1:M ---

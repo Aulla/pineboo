@@ -1,19 +1,9 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import (
-    Column,
-    Integer,
-    Numeric,
-    String,
-    BigInteger,
-    Boolean,
-    DateTime,
-    ForeignKey,
-    LargeBinary,
-)
+# Translated with pineboolib v0.71.18
+
+import sqlalchemy
 from sqlalchemy.orm import relationship, validates
-from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated
 from pineboolib import application
-from pineboolib.qsa import qsa
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
@@ -21,22 +11,56 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 class Flfiles(BASE):
     __tablename__ = "flfiles"
 
+    # --- Metadata --->
+    legacy_metadata = {
+        "alias": "Ficheros de Texto",
+        "fields": [
+            {
+                "name": "nombre",
+                "alias": "Nombre",
+                "primarykey": True,
+                "type": "string",
+                "length": 255,
+                "regexp": "\w+\.(mtd|ts|ui|qs|qry|kut|xml|jrxml|svg)",
+            },
+            {"name": "bloqueo", "alias": "Bloqueo", "type": "unlock", "defaultvalue": "True"},
+            {"name": "idmodulo", "alias": "Módulo", "type": "string", "length": 15},
+            {
+                "name": "sha",
+                "alias": "SHA1",
+                "type": "string",
+                "length": 255,
+                "allownull": True,
+                "calculated": True,
+                "editable": False,
+            },
+            {
+                "name": "contenido",
+                "alias": "Contenido",
+                "type": "stringlist",
+                "allownull": True,
+                "visiblegrid": False,
+            },
+            {
+                "name": "binario",
+                "alias": "Binario",
+                "type": "bytearray",
+                "allownull": True,
+                "visiblegrid": False,
+            },
+        ],
+    }
+
+    # <--- Metadata ---
+
     # --- Fields --->
 
-    nombre = Column("nombre", String(255), primary_key=True, nullable=False)
-    bloqueo = Column("bloqueo", Boolean, unique=False, default=True)
-    idmodulo = Column(
-        "idmodulo", String(15), ForeignKey("flmodules.idmodulo", ondelete="CASCADE"), nullable=False
-    )
-    sha = Column("sha", String(255))
-    contenido = Column("contenido", String)
-    binario = Column("binario", LargeBinary)
+    nombre = sqlalchemy.Column("nombre", sqlalchemy.String(255), primary_key=True)
+    bloqueo = sqlalchemy.Column("bloqueo", sqlalchemy.Boolean)
+    idmodulo = sqlalchemy.Column("idmodulo", sqlalchemy.String(15))
+    sha = sqlalchemy.Column("sha", sqlalchemy.String(255))
+    contenido = sqlalchemy.Column("contenido", sqlalchemy.String)
+    binario = sqlalchemy.Column("binario", sqlalchemy.LargeBinary)
 
 
 # <--- Fields ---
-
-
-# --- Relations 1:M --->
-
-
-# <--- Relations 1:M ---
