@@ -18,7 +18,7 @@
 		<name>idmodulo</name>
 		<alias>QT_TRANSLATE_NOOP("MetaData","Id. del M�dulo")</alias>
 		<null>false</null>
-		<pk>true</pk>
+		<pk>false</pk>
 		<type>string</type>
 		<length>15</length>
 
