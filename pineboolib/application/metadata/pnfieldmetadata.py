@@ -582,7 +582,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         # print("Return", _type)
         return _type
 
-    def searchOptions(self) -> List[str]
+    def searchOptions(self) -> List[str]:
         """
         Return different search options for this field.
 
