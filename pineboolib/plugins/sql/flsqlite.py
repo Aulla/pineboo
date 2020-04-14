@@ -56,11 +56,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         main_conn = None
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
-            if (
-                db_name == main_conn._db_name
-                and db_host == main_conn._db_host
-                and db_port == main_conn._db_port
-            ):
+            if name == main_conn.driver()._dbname:
                 self.engine_ = main_conn.driver().engine_
                 self._connection = self.engine_.connect()
                 return self._connection
