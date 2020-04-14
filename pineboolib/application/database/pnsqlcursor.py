@@ -885,13 +885,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             self.transaction()
             self.private_cursor.mode_access_ = self.Del
-            print(1)
             if not self.refreshBuffer():
                 self.commit()
             else:
-                print(2)
                 if not self.commitBuffer():
-                    print(3)
+
                     self.rollback()
                 else:
                     self.commit()
