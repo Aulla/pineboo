@@ -81,6 +81,7 @@ def load_models() -> None:
     # QSADictModules.save_other("engine", main_conn.engine())
 
     tables_loaded: List[str] = []
+
     for action_name in application.PROJECT.actions:
         table = application.PROJECT.actions[action_name]._table
 

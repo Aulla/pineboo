@@ -129,6 +129,7 @@ class PNBuffer(object):
         @param value = new value.
         @param mark_. If True verifies that it has changed from the value assigned in primeUpdate and mark it as modified (Default to True).
         """
+
         if value is not None:
             metadata = self.cursor_.metadata().field(field_name)
             if metadata.type() == "date":

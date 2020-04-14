@@ -68,11 +68,21 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data = []
     list_data_field: str = []
     validator_list: List[str] = []
+    metadata_table: List = []
+    metadata_table.append("'alias':'%s'" % mtd_table.alias())
+    if mtd_table.isQuery():
+        metadata_table.append("'query':'%s'" % mtd_table.query())
+    if mtd_table.concurWarn():
+        metadata_table.append("'concurwarn': True")
+    if mtd_table.detectLocks():
+        metadata_table.append("'detectlocks':True")
+    if mtd_table.FTSFunction():
+        metadata_table.append("'ftsfunction' :'%s'" % mtd_table.FTSFunction())
 
-    field_list: "pnfieldmetadata.PNFieldMetaData" = mtd_table.fieldList()
+    field_list: List[str] = []
     pk_found = False
 
-    for field in field_list:  # Crea los campos
+    for field in mtd_table.fieldList():  # Crea los campos
 
         if field.isPrimaryKey():
             pk_found = True
@@ -91,7 +101,8 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
                 field_data.append(field.name())
 
             field_data.append(" = Column('%s', " % field.name())
-            field_data.append(generate_metadata(field))
+            field_list.append(generate_field_metadata(field))
+            field_data.append(generate_field(field))
             field_data.append(")")
             validator_list.append(field.name())
             if field.isPrimaryKey():
@@ -99,7 +110,16 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
         list_data_field.append("".join(field_data))
 
+    meta_fields: List = []
+    for meta_field in field_list:
+        meta_fields.append("{%s}" % ", ".join(meta_field))
+
+    metadata_table.append(
+        "\n        'fields' : [\n        %s\n        ]" % ",\n        ".join(meta_fields)
+    )
+
     data.append("# -*- coding: utf-8 -*-")
+    data.append("# Translated with pineboolib %s" % application.PROJECT.version.split(" ")[1])
     # data.append("from sqlalchemy.ext.declarative import declarative_base")
     data.append(
         "from sqlalchemy import Column, Integer, Numeric, String, BigInteger, Boolean, DateTime, ForeignKey, LargeBinary"
@@ -123,18 +143,11 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("")
     data.append("class %s%s(BASE):" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("    __tablename__ = '%s'" % mtd_table.name())
-
-    data.append("    metadata_alias = '%s'" % mtd_table.alias())
-
-    if mtd_table.isQuery():
-        data.append("    metadata_query = '%s'" % mtd_table.query())
-
-    if mtd_table.concurWarn():
-        data.append("    metadata_concurwarn = True")
-    if mtd_table.detectLocks():
-        data.append("    metadata_detectlocks = True")
-    if mtd_table.FTSFunction():
-        data.append('    metadata_ftsfunction = "%s"' % mtd_table.FTSFunction())
+    data.append("")
+    data.append("# --- Metadata ---> ")
+    data.append("    legacy_metadata = {%s}" % ", ".join(metadata_table))
+    data.append("")
+    data.append("# <--- Metadata --- ")
     # data.append("    __actionname__ = '%s'" % action_name)
     data.append("")
 
@@ -159,14 +172,15 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     return data
 
 
-def generate_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> str:
+def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
     """
     Get text representation for sqlAlchemy of a field type given its pnfieldmetadata.PNFieldMetaData.
     """
-    field_data: List[str] = []
+    data: List[str] = []
     # TYPE
 
-    ret = "String"
+    # = "String"
+    ret = ""
     if field.type() in ("int, serial"):
         ret = "Integer"
     elif field.type() in ("uint"):
@@ -194,32 +208,43 @@ def generate_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> str:
     else:
         ret = "Desconocido %s" % field.type()
 
-    field_data.append(ret)
+    data.append(ret)
+
+    if field.isPrimaryKey():
+        data.append("primary_key = True")
+
+    return ", ".join(data)
+
+
+def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[str]:
+
+    field_data: List = []
+
+    # NAME
+    field_data.append("'name':'%s'" % field.name())
 
     # ALIAS
-
     if field.alias():
-        field_data.append("metadata_alias = '%s'" % field.alias())
+        field_data.append("'alias':'%s'" % field.alias())
 
     # PK
     if field.isPrimaryKey():
-        field_data.append("primary_key = True")
-        field_data.append("metadata_primarykey = True")
+        field_data.append("'primarykey':True")
     # CK
     if field.isCompoundKey():
-        field_data.append("metadata_compoundkey = True")
+        field_data.append("'compoundkey':True")
 
     # TYPE
     field_relation: List[str] = []
-    field_data.append("metadata_type = '%s'" % field.type())
+    field_data.append("'type':'%s'" % field.type())
 
     # LENGTH
     if field.length():
-        field_data.append("metadata_length = %s" % field.length())
+        field_data.append("'length':%s" % field.length())
 
     # REGEXP
     if field.regExpValidator():
-        field_data.append("metadata_regexp = '%s'" % field.regExpValidator())
+        field_data.append("regexp = '%s'" % field.regExpValidator())
 
     # RELATIONS
     for rel in field.relationList():
@@ -237,77 +262,85 @@ def generate_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> str:
         field_relation.append("{%s}" % ", ".join(rel_list))
 
     if field_relation:
-        field_data.append("metadata_relations = {%s}" % ", ".join(field_relation))
+        field_data.append("'relations': [%s]" % ", ".join(field_relation))
 
     # ASSOCIATED
     if field.associatedField():
         field_data.append(
-            "metadata_associated = {'with' : '%s', 'by' : '%s' }"
+            "'associated':{'with' : '%s', 'by' : '%s' }"
             % (field.associated_field_filter_to, field.associated_field_name)
         )
 
     # UNIQUE
     if field.isUnique():
-        field_data.append("metadata_isunique = True")
+        field_data.append("'isunique' : True")
 
     # ALLOW_NULL
     if field.allowNull():
-        field_data.append("metadata_allownull = True")
+        field_data.append("'allownull' : True")
 
     # DEFAULT_VALUE
     if field.defaultValue():
-        field_data.append("metadata_defaultvalue= '%s'" % field.defaultValue())
+        field_data.append("'defaultvalue' : '%s'" % field.defaultValue())
 
     # OUT_TRANSACTION
     if field.outTransaction():
-        field_data.append("metadata_outtransaction = True")
+        field_data.append("'outtransaction' : True")
 
     # COUNTER
     if field.isCounter():
-        field_data.append("metadata_counter = True")
+        field_data.append("'counter' : True")
 
     # CALCULATED
     if field.calculated():
-        field_data.append("metadata_calculated = True")
+        field_data.append("'calculated' : True")
 
     # FULLY_CALCULATED
     if field.fullyCalculated():
-        field_data.append("metadata_fullycalculated = True")
+        field_data.append("'fullycalculated' : True")
 
     # TRIMMED
     if field.trimmed():
-        field_data.append("metadata_trimmed = True")
+        field_data.append("'trimmed' : True")
 
     # VISIBLE
     if not field.visible():
-        field_data.append("metadata_visible = False")
+        field_data.append("'visible' : False")
 
     # VISIBLE_GRID
     if not field.visibleGrid():
-        field_data.append("metadata_visiblegrid = False")
+        field_data.append("'visiblegrid' : False")
 
     # EDITABLE
     if not field.editable():
-        field_data.append("metadata_editable = False")
+        field_data.append("'editable' : False")
 
     if field.type() == "double":
         # PARTI
         if field.partInteger():
-            field_data.append("metadata_partinteger = %s" % field.partInteger())
+            field_data.append("'partinteger' : %s" % field.partInteger())
 
         # PARTD
         if field.partDecimal():
-            field_data.append("metadata_partdecimal = %s" % field.partDecimal())
+            field_data.append("'partdecimal' : %s" % field.partDecimal())
 
     # INDEX
     if field.isIndex():
-        field_data.append("metadata_index = True")
+        field_data.append("'index' : True")
 
     # OPTIONS_LIST
     if field.optionsList():
-        field_data.append("metadata_optionslist =[%s]" % ", ".join(field.optionsList()))
+        texto = ""
+        for item in field.optionsList():
+            texto += "'%s', " % item
+
+        field_data.append("'optionslist' : [%s]" % texto)
     # SEARCH_OPTIONS
     if field.searchOptions():
-        field_data.append("metadata_searchoptions =[%s]" % ", ".join(field.searchOptions()))
+        texto = ""
+        for item in field.searchOptions():
+            texto += "'%s', " % item
 
-    return ", ".join(field_data)
+        field_data.append("'searchoptions' : [%s]" % texto)
+
+    return field_data
