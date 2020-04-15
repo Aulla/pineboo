@@ -656,6 +656,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return
 
         self._rows_loaded = 0
+        self._last_grid_row = -1
+        self._last_grid_obj = None
         session_ = self.db().session()
 
         # if not self.metadata():

@@ -141,3 +141,8 @@ class PNBuffer(object):
             LOGGER.error("setValue: %s", str(error))
             return False
         return True
+
+    def clear(self):
+        """"Clear buffer object."""
+        del self._current_model_obj
+        self._current_model_obj = None

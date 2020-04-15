@@ -1824,6 +1824,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 return
         else:
             self.private_cursor._model.refresh()  # Hay que hacer refresh previo pq si no no recoge valores de un commitBuffer paralelo
+            buffer = self.buffer()
+            if buffer is not None:
+                buffer.clear()
             # self.select()
             pos = self.atFrom()
             if pos > self.size():
