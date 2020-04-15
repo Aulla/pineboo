@@ -58,7 +58,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             main_conn = application.PROJECT.conn_manager.mainConn()
             if name == main_conn.driver()._dbname:
                 self.engine_ = main_conn.driver().engine_
-                self._connection = self.engine_.connect()
+                self._connection = main_conn.driver()._connection
+                self._session = main_conn.driver()._session
                 return self._connection
 
         queqe_params: Dict[str, Union(int, bool, str, Dict[str, int])] = {}
@@ -302,9 +303,16 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
     def session(self) -> "session.Session":
         """Create a sqlAlchemy session."""
-        if not self._session:
-            Session = sessionmaker(bind=self.engine_)
-            self._session = Session()
-            self._session.connection().execute("PRAGMA journal_mode=WAL")
-            self._session.connection().execute("PRAGMA synchronous=NORMAL")
+        if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
+            main_conn = application.PROJECT.conn_manager.mainConn()
+            if self != main_conn.driver():
+                if self._dbname == main_conn.driver()._dbname:
+                    return main_conn.driver().session()
+
+            if not self._session:
+                Session = sessionmaker(bind=self.engine_)
+                self._session = Session()
+                self._session.connection().execute("PRAGMA journal_mode=WAL")
+                self._session.connection().execute("PRAGMA synchronous=NORMAL")
+
         return self._session
