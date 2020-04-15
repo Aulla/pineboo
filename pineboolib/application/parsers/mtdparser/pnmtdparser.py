@@ -47,7 +47,7 @@ def mtd_parse(table_name: str, path_mtd: str) -> str:
 
     # if not os.path.exists(dest_file):
     if not os.path.exists(dest_file):
-        print("GENERANDO", dest_file)
+        # print("GENERANDO", dest_file)
         mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
         if mtd_ is None:
             return ""
