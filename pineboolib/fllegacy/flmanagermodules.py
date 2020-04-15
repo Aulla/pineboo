@@ -725,7 +725,9 @@ class FLManagerModules(object):
             info_module_.descripcion = application.PROJECT.modules[id_module].description
             info_module_.version = ""
             info_module_.icono = application.PROJECT.modules[id_module].icon
-            info_module_.areaDescripcion = ""
+            info_module_.areaDescripcion = application.PROJECT.areas[
+                application.PROJECT.modules[id_module].areaid
+            ].descripcion
             self.dict_info_mods_[info_module_.idModulo.upper()] = info_module_
 
     def loadIdAreas(self) -> None:
