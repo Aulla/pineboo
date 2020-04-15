@@ -14,11 +14,11 @@ class Flacls(BASE):
 # --- Metadata ---> 
     legacy_metadata = {'name' : 'flacls', 'alias' : 'Listas de Control de Acceso', 
         'fields' : [
-        {'name' : 'idacl', 'alias' : 'Nombre', 'pk' : True, 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'flacs', 'field' : 'idacl'}], 'null' : False},
+        {'name' : 'idacl', 'alias' : 'Nombre', 'pk' : True, 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'flacs', 'field' : 'idacl'}], 'relations' : [{'card' : '1M', 'table' : 'flacs', 'field' : 'idacl'}], 'null' : False},
         {'name' : 'descripcion', 'alias' : 'Descripción', 'type' : 'string', 'length' : 100},
         {'name' : 'instalada', 'alias' : 'Instalada', 'type' : 'bool'},
-        {'name' : 'idgroupintro', 'alias' : 'Grupo', 'type' : 'string', 'length' : 30},
-        {'name' : 'iduserintro', 'alias' : 'Usuario', 'type' : 'string', 'length' : 30},
+        {'name' : 'idgroupintro', 'alias' : 'Grupo', 'type' : 'string', 'length' : 30, 'relations' : [{'card' : 'M1', 'table' : 'flgroups', 'field' : 'idgroup'}]},
+        {'name' : 'iduserintro', 'alias' : 'Usuario', 'type' : 'string', 'length' : 30, 'relations' : [{'card' : 'M1', 'table' : 'flusers', 'field' : 'iduser'}]},
         {'name' : 'prioridadgrupointro', 'alias' : 'Prioridad por defecto', 'type' : 'uint', 'default' : '2', 'visiblegrid' : False},
         {'name' : 'prioridadusuariointro', 'alias' : 'Prioridad por defecto(7)', 'type' : 'uint', 'default' : '1', 'visiblegrid' : False}
         ]}

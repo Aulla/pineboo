@@ -17,7 +17,7 @@ class Flacos(BASE):
         {'name' : 'idaco', 'alias' : 'Identificador', 'pk' : True, 'type' : 'serial', 'null' : False, 'visiblegrid' : False},
         {'name' : 'nombre', 'alias' : 'Nombre', 'ck' : True, 'type' : 'string', 'length' : 100, 'null' : False},
         {'name' : 'permiso', 'alias' : 'Permiso', 'type' : 'string', 'length' : 50, 'regexp' : '[r-][w-]', 'null' : False, 'default' : '--'},
-        {'name' : 'idac', 'alias' : 'Control de Acceso', 'ck' : True, 'type' : 'uint', 'null' : False, 'visiblegrid' : False},
+        {'name' : 'idac', 'alias' : 'Control de Acceso', 'ck' : True, 'type' : 'uint', 'relations' : [{'card' : 'M1', 'table' : 'flacs', 'field' : 'idac', 'delc' : True}], 'null' : False, 'visiblegrid' : False},
         {'name' : 'descripcion', 'alias' : 'Descripción', 'type' : 'string', 'length' : 100},
         {'name' : 'tipocontrol', 'alias' : 'Control', 'type' : 'string', 'length' : 30, 'default' : 'Todos', 'optionslist' : ['Botón', 'Campo', 'Tabla', 'Grupo de controles', 'Pestaña', 'Todos', ]}
         ]}

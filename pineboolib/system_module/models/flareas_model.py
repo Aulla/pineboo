@@ -14,8 +14,8 @@ class Flareas(BASE):
 # --- Metadata ---> 
     legacy_metadata = {'name' : 'flareas', 'alias' : 'Áreas', 
         'fields' : [
-        {'name' : 'bloqueo', 'alias' : 'Bloqueo', 'type' : 'unlock', 'null' : False, 'default' : 'True'},
-        {'name' : 'idarea', 'alias' : 'Área', 'pk' : True, 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'flmodules', 'field' : 'idarea'}], 'null' : False},
+        {'name' : 'bloqueo', 'alias' : 'Bloqueo', 'type' : 'unlock', 'null' : False, 'default' : True},
+        {'name' : 'idarea', 'alias' : 'Área', 'pk' : True, 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'flmodules', 'field' : 'idarea'}], 'relations' : [{'card' : '1M', 'table' : 'flmodules', 'field' : 'idarea'}], 'null' : False},
         {'name' : 'descripcion', 'alias' : 'Descripción', 'type' : 'string', 'length' : 100, 'null' : False}
         ]}
 

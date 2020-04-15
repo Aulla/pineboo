@@ -14,8 +14,8 @@ class Flusers(BASE):
 # --- Metadata ---> 
     legacy_metadata = {'name' : 'flusers', 'alias' : 'Usuarios', 
         'fields' : [
-        {'name' : 'iduser', 'alias' : 'Nombre', 'pk' : True, 'type' : 'string', 'length' : 30, 'relations' : [{'card' : '1M', 'table' : 'flacs', 'field' : 'iduser'}], 'null' : False},
-        {'name' : 'idgroup', 'alias' : 'Grupo', 'type' : 'string', 'length' : 30, 'null' : False},
+        {'name' : 'iduser', 'alias' : 'Nombre', 'pk' : True, 'type' : 'string', 'length' : 30, 'relations' : [{'card' : '1M', 'table' : 'flacs', 'field' : 'iduser'}], 'relations' : [{'card' : '1M', 'table' : 'flacs', 'field' : 'iduser'}], 'null' : False},
+        {'name' : 'idgroup', 'alias' : 'Grupo', 'type' : 'string', 'length' : 30, 'relations' : [{'card' : 'M1', 'table' : 'flgroups', 'field' : 'idgroup'}], 'null' : False},
         {'name' : 'descripcion', 'alias' : 'Descripción', 'type' : 'string', 'length' : 100}
         ]}
 

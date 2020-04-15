@@ -252,7 +252,7 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
     if field.regExpValidator():
         field_data.append("'regexp' : '%s'" % field.regExpValidator())
 
-    # RELATIONS
+    # RELATIONS 1M
     for rel in field.relationList():
         rel_list: List[str] = []
         rel_list.append("'card' : '%s'" % rel.cardinality())
@@ -264,6 +264,25 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
             rel_list.append("'updc' : True")
         if not rel.checkIn():
             rel_list.append("'checkin' : False")
+
+        field_relation.append("{%s}" % ", ".join(rel_list))
+
+    if field_relation:
+        field_data.append("'relations' : [%s]" % ", ".join(field_relation))
+
+    # RELATIONS 1M
+    if field.private._relation_m1:
+        rel = field.private._relation_m1
+        rel_list: List[str] = []
+        rel_list.append("'card' : '%s'" % rel.cardinality())
+        rel_list.append("'table' : '%s'" % rel.foreignTable())
+        rel_list.append("'field' : '%s'" % rel.foreignField())
+        if rel.deleteCascade():
+            rel_list.append("'delC' : True")
+        if rel.updateCascade():
+            rel_list.append("'updC' : True")
+        if not rel.checkIn():
+            rel_list.append("'checkIn' : False")
 
         field_relation.append("{%s}" % ", ".join(rel_list))
 
@@ -288,7 +307,12 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
 
     # DEFAULT_VALUE
     if field.defaultValue():
-        field_data.append("'default' : '%s'" % field.defaultValue())
+        if field.type() in ["bool", "unlock", "int, uint", "double", "serial"]:
+            value = field.defaultValue()
+        else:
+            value = "'%s'" % field.defaultValue()
+
+        field_data.append("'default' : %s" % value)
 
     # OUT_TRANSACTION
     if field.outTransaction():

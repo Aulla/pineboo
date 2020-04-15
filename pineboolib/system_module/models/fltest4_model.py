@@ -15,8 +15,8 @@ class Fltest4(BASE):
     legacy_metadata = {'name' : 'fltest4', 'alias' : 'Test table', 
         'fields' : [
         {'name' : 'id', 'alias' : 'ID', 'pk' : True, 'type' : 'serial', 'null' : False, 'visiblegrid' : False, 'editable' : False},
-        {'name' : 'idmodulo', 'alias' : 'Id. del Mï¿œdulo', 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'fltest', 'field' : 'id'}], 'null' : False},
-        {'name' : 'other_field', 'alias' : 'otro campo', 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'fltest1234567', 'field' : 'id'}], 'null' : False}
+        {'name' : 'idmodulo', 'alias' : 'Id. del Mï¿œdulo', 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'fltest', 'field' : 'id'}], 'relations' : [{'card' : '1M', 'table' : 'fltest', 'field' : 'id'}], 'null' : False},
+        {'name' : 'other_field', 'alias' : 'otro campo', 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'fltest1234567', 'field' : 'id'}], 'relations' : [{'card' : '1M', 'table' : 'fltest1234567', 'field' : 'id'}], 'null' : False}
         ]}
 
 # <--- Metadata --- 

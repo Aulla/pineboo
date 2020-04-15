@@ -14,18 +14,18 @@ class Flacs(BASE):
 # --- Metadata ---> 
     legacy_metadata = {'name' : 'flacs', 'alias' : 'Reglas de Control de Acceso', 
         'fields' : [
-        {'name' : 'idac', 'alias' : 'Identificador', 'pk' : True, 'type' : 'serial', 'relations' : [{'card' : '1M', 'table' : 'flacos', 'field' : 'idac'}], 'null' : False, 'visiblegrid' : False},
+        {'name' : 'idac', 'alias' : 'Identificador', 'pk' : True, 'type' : 'serial', 'relations' : [{'card' : '1M', 'table' : 'flacos', 'field' : 'idac'}], 'relations' : [{'card' : '1M', 'table' : 'flacos', 'field' : 'idac'}], 'null' : False, 'visiblegrid' : False},
         {'name' : 'prioridad', 'alias' : 'Prioridad', 'type' : 'uint', 'null' : False},
         {'name' : 'tipo', 'alias' : 'Tipo', 'ck' : True, 'type' : 'string', 'length' : 30, 'null' : False, 'default' : 'mainwindow', 'optionslist' : ['mainwindow', 'form', 'table', ]},
         {'name' : 'nombre', 'alias' : 'Nombre', 'ck' : True, 'type' : 'string', 'length' : 50, 'null' : False},
-        {'name' : 'iduser', 'alias' : 'Usuario', 'ck' : True, 'type' : 'string', 'length' : 30},
-        {'name' : 'idgroup', 'alias' : 'Grupo', 'ck' : True, 'type' : 'string', 'length' : 30},
+        {'name' : 'iduser', 'alias' : 'Usuario', 'ck' : True, 'type' : 'string', 'length' : 30, 'relations' : [{'card' : 'M1', 'table' : 'flusers', 'field' : 'iduser'}]},
+        {'name' : 'idgroup', 'alias' : 'Grupo', 'ck' : True, 'type' : 'string', 'length' : 30, 'relations' : [{'card' : 'M1', 'table' : 'flgroups', 'field' : 'idgroup'}]},
         {'name' : 'permiso', 'alias' : 'Permiso Global', 'type' : 'string', 'length' : 50, 'regexp' : '[r-][w-]'},
-        {'name' : 'idacl', 'alias' : 'Lista de Control de Acceso', 'type' : 'string', 'length' : 15, 'null' : False},
+        {'name' : 'idacl', 'alias' : 'Lista de Control de Acceso', 'type' : 'string', 'length' : 15, 'relations' : [{'card' : 'M1', 'table' : 'flacls', 'field' : 'idacl', 'delc' : True}], 'null' : False},
         {'name' : 'descripcion', 'alias' : 'Descripción', 'type' : 'string', 'length' : 100},
         {'name' : 'degrupo', 'alias' : 'Aplicar a un grupo', 'type' : 'bool', 'null' : False},
-        {'name' : 'idarea', 'alias' : 'Área', 'type' : 'string', 'length' : 15},
-        {'name' : 'idmodule', 'alias' : 'Módulo', 'type' : 'string', 'length' : 15, 'associated':{'with' : 'idarea', 'by' : 'idarea' }},
+        {'name' : 'idarea', 'alias' : 'Área', 'type' : 'string', 'length' : 15, 'relations' : [{'card' : 'M1', 'table' : 'flareas', 'field' : 'idarea'}]},
+        {'name' : 'idmodule', 'alias' : 'Módulo', 'type' : 'string', 'length' : 15, 'relations' : [{'card' : 'M1', 'table' : 'flmodules', 'field' : 'idmodulo'}], 'associated':{'with' : 'idarea', 'by' : 'idarea' }},
         {'name' : 'tipoform', 'alias' : 'Formulario', 'type' : 'string', 'length' : 30, 'null' : False, 'default' : 'Maestro', 'optionslist' : ['Maestro', 'Edición', 'Búsqueda', ]}
         ]}
 

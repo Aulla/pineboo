@@ -18,11 +18,11 @@ class Fltest2(BASE):
         {'name' : 'string_field', 'alias' : 'String field', 'type' : 'string'},
         {'name' : 'date_field', 'alias' : 'Date field', 'type' : 'date'},
         {'name' : 'time_field', 'alias' : 'Time field', 'type' : 'time'},
-        {'name' : 'double_field', 'alias' : 'Double field', 'type' : 'double', 'default' : '0', 'partI' : 6, 'partD' : 2},
+        {'name' : 'double_field', 'alias' : 'Double field', 'type' : 'double', 'default' : 0, 'partI' : 6, 'partD' : 2},
         {'name' : 'bool_field', 'alias' : 'Bool field', 'type' : 'bool'},
         {'name' : 'uint_field', 'alias' : 'Unsigned int field', 'type' : 'uint', 'default' : '0'},
         {'name' : 'int_field', 'alias' : 'Int field', 'type' : 'int', 'default' : '0'},
-        {'name' : 'bloqueo', 'alias' : 'Bloqueo', 'type' : 'unlock', 'null' : False, 'default' : 'True'}
+        {'name' : 'bloqueo', 'alias' : 'Bloqueo', 'type' : 'unlock', 'null' : False, 'default' : True}
         ]}
 
 # <--- Metadata --- 

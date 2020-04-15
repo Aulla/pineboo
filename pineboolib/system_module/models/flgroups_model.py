@@ -14,7 +14,7 @@ class Flgroups(BASE):
 # --- Metadata ---> 
     legacy_metadata = {'name' : 'flgroups', 'alias' : 'Grupos de Usuarios', 
         'fields' : [
-        {'name' : 'idgroup', 'alias' : 'Nombre', 'pk' : True, 'type' : 'string', 'length' : 30, 'relations' : [{'card' : '1M', 'table' : 'flusers', 'field' : 'idgroup'}, {'card' : '1M', 'table' : 'flacs', 'field' : 'idgroup'}], 'null' : False},
+        {'name' : 'idgroup', 'alias' : 'Nombre', 'pk' : True, 'type' : 'string', 'length' : 30, 'relations' : [{'card' : '1M', 'table' : 'flusers', 'field' : 'idgroup'}, {'card' : '1M', 'table' : 'flacs', 'field' : 'idgroup'}], 'relations' : [{'card' : '1M', 'table' : 'flusers', 'field' : 'idgroup'}, {'card' : '1M', 'table' : 'flacs', 'field' : 'idgroup'}], 'null' : False},
         {'name' : 'descripcion', 'alias' : 'Descripción', 'type' : 'string', 'length' : 100}
         ]}
 

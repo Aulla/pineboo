@@ -52,6 +52,7 @@ from pineboolib import logging, application
 from typing import Any, List
 
 LOGGER = logging.get_logger(__name__)
+PROCESSED: List[str] = []
 
 
 def empty_base():
@@ -67,14 +68,13 @@ def empty_base():
 
 def load_models() -> None:
     """Load all sqlAlchemy models."""
-    print("LOADING MODELS!!!")
+    # print("LOADING MODELS!!!")
     from pineboolib.application.qsadictmodules import QSADictModules
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
     main_conn = application.PROJECT.conn_manager.mainConn()
-    processed = []
     # db_name = main_conn.DBName()
     # print("Cargando modelos")
     # QSADictModules.save_other("Base", main_conn.declarative_base())
@@ -93,10 +93,12 @@ def load_models() -> None:
                     class_orm,
                     action_name,
                 )
+            if class_orm in PROCESSED:
+                continue
 
             models_[class_orm] = path_class_orm
             # print("***", class_orm)
-            processed.append(class_orm)
+            PROCESSED.append(class_orm)
 
     for key in application.PROJECT.files.keys():
         file_ = application.PROJECT.files[key]
@@ -105,11 +107,14 @@ def load_models() -> None:
             if name.endswith(".mtd_model"):
                 name = "%s_model" % name[:-10]
 
-            if name in processed:
+            if name in PROCESSED:
+                # LOGGER.warning(
+                #    "Se está cargando el model %s, pero ya existe desde action. Omitido" % name
+                # )
                 continue
             else:
                 # print("****", name)
-                processed.append(name)
+                PROCESSED.append(name)
                 models_[name] = file_.path()
 
     for mod_ in models_.keys():

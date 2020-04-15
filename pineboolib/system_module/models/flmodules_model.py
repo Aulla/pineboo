@@ -14,9 +14,9 @@ class Flmodules(BASE):
 # --- Metadata ---> 
     legacy_metadata = {'name' : 'flmodules', 'alias' : 'Módulos', 
         'fields' : [
-        {'name' : 'bloqueo', 'alias' : 'Bloqueo', 'type' : 'unlock', 'null' : False, 'default' : 'True'},
-        {'name' : 'idmodulo', 'alias' : 'Id. del Módulo', 'pk' : True, 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'flfiles', 'field' : 'idmodulo'}], 'null' : False},
-        {'name' : 'idarea', 'alias' : 'Id. del Área', 'type' : 'string', 'length' : 15, 'null' : False, 'visiblegrid' : False},
+        {'name' : 'bloqueo', 'alias' : 'Bloqueo', 'type' : 'unlock', 'null' : False, 'default' : True},
+        {'name' : 'idmodulo', 'alias' : 'Id. del Módulo', 'pk' : True, 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'flfiles', 'field' : 'idmodulo'}], 'relations' : [{'card' : '1M', 'table' : 'flfiles', 'field' : 'idmodulo'}], 'null' : False},
+        {'name' : 'idarea', 'alias' : 'Id. del Área', 'type' : 'string', 'length' : 15, 'relations' : [{'card' : 'M1', 'table' : 'flareas', 'field' : 'idarea'}], 'null' : False, 'visiblegrid' : False},
         {'name' : 'descripcion', 'alias' : 'Descripción', 'type' : 'string', 'length' : 100, 'null' : False},
         {'name' : 'version', 'alias' : 'Versión', 'type' : 'string', 'length' : 3, 'regexp' : '[0-9]\.[0-9]', 'null' : False, 'default' : '0.0', 'editable' : False},
         {'name' : 'icono', 'alias' : 'Icono', 'type' : 'pixmap'}

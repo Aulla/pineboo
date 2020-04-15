@@ -540,6 +540,7 @@ class Project(object):
                     self.files[nombre] = fileobj
                     self.modules["sys"].add_project_file(fileobj)
 
+        pnormmodelsfactory.load_models()
         # Se verifica que existen estas tablas
         for table in (
             "flareas",
@@ -557,6 +558,7 @@ class Project(object):
             "flseqs",
             "flsettings",
         ):
+
             if not self.conn_manager.manager().existsTable(table):
                 self.conn_manager.manager().createSystemTable(table)
 

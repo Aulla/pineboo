@@ -15,7 +15,7 @@ class Flupdates(BASE):
     legacy_metadata = {'name' : 'flupdates', 'alias' : 'Registro de instalaciÃ³n/actualizaciÃ³n de paquetes', 
         'fields' : [
         {'name' : 'id', 'alias' : 'ID', 'pk' : True, 'type' : 'serial', 'null' : False, 'visiblegrid' : False, 'editable' : False},
-        {'name' : 'actual', 'alias' : 'Instalado actualmente', 'type' : 'bool', 'null' : False, 'default' : 'True', 'editable' : False},
+        {'name' : 'actual', 'alias' : 'Instalado actualmente', 'type' : 'bool', 'null' : False, 'default' : True, 'editable' : False},
         {'name' : 'fecha', 'alias' : 'Fecha', 'type' : 'date', 'null' : False, 'editable' : False},
         {'name' : 'hora', 'alias' : 'Hora', 'type' : 'time', 'null' : False, 'editable' : False},
         {'name' : 'nombre', 'alias' : 'Nombre del Paquete', 'type' : 'string', 'length' : 255, 'regexp' : '\w+\.(abanq)', 'null' : False, 'editable' : False},

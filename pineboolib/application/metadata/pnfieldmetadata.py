@@ -444,7 +444,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         if self.private.type_ in ("bool", "unlock") and isinstance(
             self.private._default_value, str
         ):
-            return self.private._default_value == "true"
+            return self.private._default_value in ["true", "True"]
 
         return self.private._default_value
 
