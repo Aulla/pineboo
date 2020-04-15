@@ -757,7 +757,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # )
         self._rows_loaded = len(self._data_proxy)
 
-        if not len(self._data_proxy):
+        if not self._rows_loaded:
             return
 
         # self.rows = self.data_size()
