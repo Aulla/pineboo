@@ -9,44 +9,24 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
 
 class Fllarge(BASE):
-    __tablename__ = "fllarge"
+    __tablename__ = 'fllarge'
 
-    # --- Metadata --->
-    legacy_metadata = {
-        "name": "fllarge",
-        "alias": "Ficheros de gran tamaño",
-        "fields": [
-            {
-                "name": "refkey",
-                "alias": "Clave de Referencia",
-                "primarykey": True,
-                "type": "string",
-                "length": 100,
-            },
-            {
-                "name": "sha1",
-                "alias": "Hash Sha1",
-                "type": "string",
-                "length": 50,
-                "allownull": True,
-            },
-            {
-                "name": "contenido",
-                "alias": "Contenido",
-                "type": "stringlist",
-                "allownull": True,
-                "visiblegrid": False,
-            },
-        ],
-    }
+# --- Metadata ---> 
+    legacy_metadata = {'name' : 'fllarge', 'alias' : 'Ficheros de gran tamaño', 
+        'fields' : [
+        {'name' : 'refkey', 'alias' : 'Clave de Referencia', 'pk' : True, 'type' : 'string', 'length' : 100, 'null' : False},
+        {'name' : 'sha1', 'alias' : 'Hash Sha1', 'type' : 'string', 'length' : 50},
+        {'name' : 'contenido', 'alias' : 'Contenido', 'type' : 'stringlist', 'visiblegrid' : False}
+        ]}
 
-    # <--- Metadata ---
-
-    # --- Fields --->
-
-    refkey = sqlalchemy.Column("refkey", sqlalchemy.String(100), primary_key=True)
-    sha1 = sqlalchemy.Column("sha1", sqlalchemy.String(50))
-    contenido = sqlalchemy.Column("contenido", sqlalchemy.String)
+# <--- Metadata --- 
 
 
-# <--- Fields ---
+# --- Fields ---> 
+
+    refkey = sqlalchemy.Column('refkey', sqlalchemy.String(100), primary_key = True)
+    sha1 = sqlalchemy.Column('sha1', sqlalchemy.String(50))
+    contenido = sqlalchemy.Column('contenido', sqlalchemy.String)
+
+# <--- Fields --- 
+

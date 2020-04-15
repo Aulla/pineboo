@@ -9,30 +9,22 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
 
 class Flsettings(BASE):
-    __tablename__ = "flsettings"
+    __tablename__ = 'flsettings'
 
-    # --- Metadata --->
-    legacy_metadata = {
-        "name": "flsettings",
-        "alias": "Configuración global",
-        "fields": [
-            {"name": "flkey", "alias": "Clave", "primarykey": True, "type": "string", "length": 30},
-            {
-                "name": "valor",
-                "alias": "Valor",
-                "type": "stringlist",
-                "allownull": True,
-                "visiblegrid": False,
-            },
-        ],
-    }
+# --- Metadata ---> 
+    legacy_metadata = {'name' : 'flsettings', 'alias' : 'Configuración global', 
+        'fields' : [
+        {'name' : 'flkey', 'alias' : 'Clave', 'pk' : True, 'type' : 'string', 'length' : 30, 'null' : False},
+        {'name' : 'valor', 'alias' : 'Valor', 'type' : 'stringlist', 'visiblegrid' : False}
+        ]}
 
-    # <--- Metadata ---
-
-    # --- Fields --->
-
-    flkey = sqlalchemy.Column("flkey", sqlalchemy.String(30), primary_key=True)
-    valor = sqlalchemy.Column("valor", sqlalchemy.String)
+# <--- Metadata --- 
 
 
-# <--- Fields ---
+# --- Fields ---> 
+
+    flkey = sqlalchemy.Column('flkey', sqlalchemy.String(30), primary_key = True)
+    valor = sqlalchemy.Column('valor', sqlalchemy.String)
+
+# <--- Fields --- 
+

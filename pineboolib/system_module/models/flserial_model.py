@@ -9,32 +9,22 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
 
 class Flserial(BASE):
-    __tablename__ = "flserial"
+    __tablename__ = 'flserial'
 
-    # --- Metadata --->
-    legacy_metadata = {
-        "name": "flserial",
-        "alias": "Serie",
-        "fields": [
-            {"name": "serie", "alias": "Serie", "primarykey": True, "type": "serial"},
-            {
-                "name": "sha",
-                "alias": "SHA1",
-                "type": "string",
-                "length": 255,
-                "allownull": True,
-                "calculated": True,
-                "editable": False,
-            },
-        ],
-    }
+# --- Metadata ---> 
+    legacy_metadata = {'name' : 'flserial', 'alias' : 'Serie', 
+        'fields' : [
+        {'name' : 'serie', 'alias' : 'Serie', 'pk' : True, 'type' : 'serial', 'null' : False},
+        {'name' : 'sha', 'alias' : 'SHA1', 'type' : 'string', 'length' : 255, 'calculated' : True, 'editable' : False}
+        ]}
 
-    # <--- Metadata ---
-
-    # --- Fields --->
-
-    serie = sqlalchemy.Column("serie", sqlalchemy.Integer, primary_key=True)
-    sha = sqlalchemy.Column("sha", sqlalchemy.String(255))
+# <--- Metadata --- 
 
 
-# <--- Fields ---
+# --- Fields ---> 
+
+    serie = sqlalchemy.Column('serie', sqlalchemy.Integer, primary_key = True)
+    sha = sqlalchemy.Column('sha', sqlalchemy.String(255))
+
+# <--- Fields --- 
+

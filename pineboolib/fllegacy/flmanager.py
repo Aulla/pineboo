@@ -180,8 +180,6 @@ class FLManager(QtCore.QObject, IManager):
                     if metadata_name_or_xml.find(".mtd") > -1
                     else metadata_name_or_xml
                 )
-                # LOGGER.warning("META_MODEL %s", model_name, stack_info=True)
-                print("metadata", "%s_orm" % model_name)
                 model_ = qsadictmodules.QSADictModules.from_project("%s_orm" % model_name)
                 if model_:
 
@@ -1198,7 +1196,6 @@ class FLManager(QtCore.QObject, IManager):
         @param relation XML element with the description of the relationship
         @return FLRelationMetaData object that contains the description of the relationship
         """
-        print("FIXME metadataRelation dict", relation)
         if not relation:
             raise ValueError("relation is required")
 
@@ -1252,6 +1249,22 @@ class FLManager(QtCore.QObject, IManager):
                         continue
 
                 no = no.nextSibling()
+
+        elif isinstance(relation, dict):
+            for key in relation.keys():
+                if key == "table":
+                    foreign_table = relation[key]
+                elif key == "field":
+                    foreign_field = relation[key]
+                elif key == "card":
+                    if relation[key] == "1M":
+                        relation_card = pnrelationmetadata.PNRelationMetaData.RELATION_1M
+                elif key == "delC":
+                    delete_cascade = relation[key]
+                elif key == "updC":
+                    update_cascade = relation[key]
+                elif key == "checkIn":
+                    check_integrity = relation[key]
         else:
             for child in relation:
                 tag = child.tag

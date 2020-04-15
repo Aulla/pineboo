@@ -9,53 +9,30 @@ BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
 
 class Flmodules(BASE):
-    __tablename__ = "flmodules"
+    __tablename__ = 'flmodules'
 
-    # --- Metadata --->
-    legacy_metadata = {
-        "name": "flmodules",
-        "alias": "Módulos",
-        "fields": [
-            {"name": "bloqueo", "alias": "Bloqueo", "type": "unlock", "defaultvalue": "True"},
-            {
-                "name": "idmodulo",
-                "alias": "Id. del Módulo",
-                "primarykey": True,
-                "type": "string",
-                "length": 15,
-                "relations": [{"card": "1M", "table": "flfiles", "field": "idmodulo"}],
-            },
-            {
-                "name": "idarea",
-                "alias": "Id. del Área",
-                "type": "string",
-                "length": 15,
-                "visiblegrid": False,
-            },
-            {"name": "descripcion", "alias": "Descripción", "type": "string", "length": 100},
-            {
-                "name": "version",
-                "alias": "Versión",
-                "type": "string",
-                "length": 3,
-                "regexp": "[0-9]\.[0-9]",
-                "defaultvalue": "0.0",
-                "editable": False,
-            },
-            {"name": "icono", "alias": "Icono", "type": "pixmap", "allownull": True},
-        ],
-    }
+# --- Metadata ---> 
+    legacy_metadata = {'name' : 'flmodules', 'alias' : 'Módulos', 
+        'fields' : [
+        {'name' : 'bloqueo', 'alias' : 'Bloqueo', 'type' : 'unlock', 'null' : False, 'default' : 'True'},
+        {'name' : 'idmodulo', 'alias' : 'Id. del Módulo', 'pk' : True, 'type' : 'string', 'length' : 15, 'relations' : [{'card' : '1M', 'table' : 'flfiles', 'field' : 'idmodulo'}], 'null' : False},
+        {'name' : 'idarea', 'alias' : 'Id. del Área', 'type' : 'string', 'length' : 15, 'null' : False, 'visiblegrid' : False},
+        {'name' : 'descripcion', 'alias' : 'Descripción', 'type' : 'string', 'length' : 100, 'null' : False},
+        {'name' : 'version', 'alias' : 'Versión', 'type' : 'string', 'length' : 3, 'regexp' : '[0-9]\.[0-9]', 'null' : False, 'default' : '0.0', 'editable' : False},
+        {'name' : 'icono', 'alias' : 'Icono', 'type' : 'pixmap'}
+        ]}
 
-    # <--- Metadata ---
-
-    # --- Fields --->
-
-    bloqueo = sqlalchemy.Column("bloqueo", sqlalchemy.Boolean)
-    idmodulo = sqlalchemy.Column("idmodulo", sqlalchemy.String(15), primary_key=True)
-    idarea = sqlalchemy.Column("idarea", sqlalchemy.String(15))
-    descripcion = sqlalchemy.Column("descripcion", sqlalchemy.String(100))
-    version = sqlalchemy.Column("version", sqlalchemy.String(3))
-    icono = sqlalchemy.Column("icono", sqlalchemy.String)
+# <--- Metadata --- 
 
 
-# <--- Fields ---
+# --- Fields ---> 
+
+    bloqueo = sqlalchemy.Column('bloqueo', sqlalchemy.Boolean)
+    idmodulo = sqlalchemy.Column('idmodulo', sqlalchemy.String(15), primary_key = True)
+    idarea = sqlalchemy.Column('idarea', sqlalchemy.String(15))
+    descripcion = sqlalchemy.Column('descripcion', sqlalchemy.String(100))
+    version = sqlalchemy.Column('version', sqlalchemy.String(3))
+    icono = sqlalchemy.Column('icono', sqlalchemy.String)
+
+# <--- Fields --- 
+
