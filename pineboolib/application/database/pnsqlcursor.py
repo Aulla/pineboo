@@ -973,8 +973,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return True if different. False if equal.
         """
         for field_name in self.metadata().fieldNames():
-            if self.buffer().value(field_name) != self.bufferCopy().value(field_name):
-                return True
+            buffer = self.private_cursor.buffer_
+            buffer_copy = self.private_cursor._buffer_copy
+
+            if buffer and buffer_copy:
+                if buffer.value(field_name) != buffer_copy.value(field_name):
+                    return True
 
         return False
 
@@ -1519,7 +1523,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return Position of the record within the cursor, or 0 if it does not match.
         """
 
-        if not self.buffer() or not self.private_cursor.metadata_:
+        if not self.private_cursor.buffer_ or not self.private_cursor.metadata_:
             return 0
         # Faster version for this function::
         if self.isValid():
@@ -1833,8 +1837,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 self.refreshDelayed()
                 return
         else:
-            self.private_cursor._model.refresh()  # Hay que hacer refresh previo pq si no no recoge valores de un commitBuffer paralelo
-            buffer = self.buffer()
+            self.model().refresh()  # Hay que hacer refresh previo pq si no no recoge valores de un commitBuffer paralelo
+            buffer = self.private_cursor.buffer_
             if buffer is not None:
                 buffer.clear()
             # self.select()

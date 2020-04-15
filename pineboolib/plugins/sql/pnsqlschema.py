@@ -136,8 +136,8 @@ class PNSqlSchema(object):
         #        and db_host == main_conn._db_host
         #        and db_port == main_conn._db_port
         #    ):
-        #        self.engine_ = main_conn.driver().engine_
-        #        print("**", self.engine_)
+        #        self._engine = main_conn.driver().engine_
+        #        print("**", self._engine)
         #        self._connection = main_conn.driver().connection()
         #        return self._connection
 
@@ -205,7 +205,7 @@ class PNSqlSchema(object):
 
         if conn_ is not None:
             # if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
-            #    self.engine_ = self.getEngine(db_name, db_host, db_port, db_user_name, db_password)
+            #    self._engine = self.getEngine(db_name, db_host, db_port, db_user_name, db_password)
             self._connection = conn_
             self.open_ = True
             self.session()
@@ -244,10 +244,10 @@ class PNSqlSchema(object):
             # queqe_params["echo"] = True
 
         try:
-            self.engine_ = create_engine(
+            self._engine = create_engine(
                 self.loadConnectionString(name, host, port, usern, passw_), **queqe_params
             )
-            conn_ = self.engine_.connect()
+            conn_ = self._engine.connect()
 
         except Exception as error:
             self.set_last_error(str(error), "CONNECT")
@@ -268,7 +268,7 @@ class PNSqlSchema(object):
 
     def is_open(self) -> bool:
         """Return if the connection is open."""
-        if self.engine_:
+        if self._engine:
             conn_ = self.connection()
             return not conn_.closed
         return False
@@ -287,7 +287,7 @@ class PNSqlSchema(object):
 
     def engine(self) -> Any:
         """Return sqlAlchemy ORM engine."""
-        return self.engine_
+        return self._engine
 
     def session(self) -> "session.Session":  # noqa: F811
         """Create a sqlAlchemy session."""
@@ -477,8 +477,8 @@ class PNSqlSchema(object):
 
     def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""
-        if self.engine_ and self._connection:
-            return table_name in self.engine_.table_names(None, self._connection)
+        if self._engine and self._connection:
+            return table_name in self._engine.table_names(None, self._connection)
         else:
             raise Exception("No engine or connection exists!")
 

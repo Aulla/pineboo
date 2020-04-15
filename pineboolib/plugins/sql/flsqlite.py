@@ -58,7 +58,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
             if name == main_conn.driver()._dbname:
-                self.engine_ = main_conn.driver().engine_
+                self._engine = main_conn.driver()._engine
                 self._connection = main_conn.driver()._connection
                 self._session = main_conn.driver()._session
                 return self._connection
@@ -70,16 +70,16 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         if limit_conn > 0:
             queqe_params["pool_size"] = limit_conn
-            queqe_params["max_overflow"] = int(limit_conn * 2)
+            # queqe_params["max_overflow"] = int(limit_conn * 2)
 
         if conn_ is None:
             if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):
                 os.mkdir("%s/sqlite_databases/" % application.PROJECT.tmpdir)
 
-            self.engine_ = create_engine(
+            self._engine = create_engine(
                 self.loadConnectionString(name, host, port, usern, passw_), **queqe_params
             )
-            conn_ = self.engine_.connect()
+            conn_ = self._engine.connect()
 
             if not os.path.exists("%s" % self.db_filename) and self.db_filename not in [
                 ":memory:",
@@ -310,10 +310,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 if self._dbname == main_conn.driver()._dbname:
                     return main_conn.driver().session()
 
-            if getattr(self, "_session", None) is None:
-                Session = sessionmaker(bind=self._engine)
-                self._session = Session()
-                self._session.connection().execute("PRAGMA journal_mode=WAL")
-                self._session.connection().execute("PRAGMA synchronous=NORMAL")
+        if getattr(self, "_session", None) is None:
+            Session = sessionmaker(bind=self.engine())
+            self._session = Session()
+            self._session.connection().execute("PRAGMA journal_mode=WAL")
+            self._session.connection().execute("PRAGMA synchronous=NORMAL")
 
         return self._session

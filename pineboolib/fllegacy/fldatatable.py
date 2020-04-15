@@ -725,11 +725,9 @@ class FLDataTable(QtWidgets.QTableView):
                 self.cur.setSort(self.sort_)
 
             last_pk = None
-            buffer = self.cur.buffer()
+            buffer = self.cur.private_cursor.buffer_
             if buffer:
-                pk_name = self.cur.primaryKey()
-                if pk_name is not None:
-                    last_pk = buffer.value(pk_name)
+                last_pk = buffer.value(self.cur.primaryKey())
 
             self.cur.refresh()
 

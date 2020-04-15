@@ -23,7 +23,7 @@ class TestMtdParserGeneral(unittest.TestCase):
         import os
 
         for mtd_name in application.PROJECT.files.keys():
-            if mtd_name.ednswith(".mtd"):
+            if mtd_name.endswith(".mtd"):
                 file_path = pnmtdparser.mtd_parse(
                     mtd_name, application.PROJECT.files[mtd_name].path()
                 )
@@ -49,8 +49,8 @@ class TestMtdParserGeneral(unittest.TestCase):
 
         flareas_orm = qsa.orm_("flmodules")
         self.assertTrue(flareas_orm)
-        session = flareas_orm.__session__
-        self.assertEqual(session, application.PROJECT.conn_manager.mainConn().session())
+        # session = flareas_orm.__session__
+        # self.assertEqual(session, application.PROJECT.conn_manager.mainConn().session())
         # self.assertEqual(session.query(flareas_orm).count(), 0)
 
     @classmethod
