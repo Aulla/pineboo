@@ -307,7 +307,7 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
 
     # DEFAULT_VALUE
     if field.defaultValue():
-        if field.type() in ["bool", "unlock", "int, uint", "double", "serial"]:
+        if field.type() in ["bool", "unlock", "int", "uint", "double", "serial"]:
             value = field.defaultValue()
         else:
             value = "'%s'" % field.defaultValue()
