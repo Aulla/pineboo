@@ -201,7 +201,7 @@ class PNSqlQuery(object):
         )  # type: ignore [misc] # noqa: F821, F401
         result = self.db().execute_query(sql)
         try:
-            self._datos = result.fetchall() if result else []
+            self._datos = result.fetchall() if result and result.returns_rows else []
         except Exception as error:
             LOGGER.exception("ERROR SQLQUERY!: %s", str(error))
             self._datos = []
