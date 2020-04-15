@@ -1159,7 +1159,6 @@ class FLManager(QtCore.QObject, IManager):
                             assoc_by = field[tag][sub_tag]
 
             if assoc_with and assoc_by:
-                print("CHECK ", assoc_with, assoc_by)
                 field_mtd.setAssociatedField(assoc_with, assoc_by)
 
         else:
