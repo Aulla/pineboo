@@ -962,7 +962,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         self.bufferCopy()._current_model_obj = self._cursor_model()
 
         for field_name in self.metadata().fieldNames():
-            self.bufferCopy().setValue(field_name, self.buffer().value(field_name))
+            value = self.buffer().value(field_name)
+            if value is not None:
+                self.bufferCopy().setValue(field_name, value)
 
     def isModifiedBuffer(self) -> bool:
         """
@@ -1973,6 +1975,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     if not field.allowNull():
                         val = self.db().getTimeStamp()
                         self.buffer().setValue(field_name, val)
+                elif type_ == "bool":
+                    value = self.buffer().value(field_name)
+                    if value is None:
+                        self.buffer().setValue(field_name, False)
+
                 if field.isCounter():
 
                     siguiente = None
