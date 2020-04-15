@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 # Translated with pineboolib v0.71.18
+"""Flfiles_model module."""
 
 import sqlalchemy
-from sqlalchemy.orm import relationship, validates
+
 from pineboolib import application
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
 
 class Flfiles(BASE):
+    """Flfiles class."""
+
     __tablename__ = "flfiles"
 
     # --- Metadata --->
@@ -22,7 +25,7 @@ class Flfiles(BASE):
                 "pk": True,
                 "type": "string",
                 "length": 255,
-                "regexp": "\w+\.(mtd|ts|ui|qs|qry|kut|xml|jrxml|svg)",
+                "regexp": "\w+\.(mtd|ts|ui|qs|qry|kut|xml|jrxml|svg)",  # noqa: W605
                 "null": False,
             },
             {

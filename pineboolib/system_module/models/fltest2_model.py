@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 # Translated with pineboolib v0.71.18
+"""Fltest2_model module."""
 
 import sqlalchemy
-from sqlalchemy.orm import relationship, validates
+
 from pineboolib import application
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
 
 class Fltest2(BASE):
+    """Fltest2 class."""
+
     __tablename__ = "fltest2"
 
     # --- Metadata --->

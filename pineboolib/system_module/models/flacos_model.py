@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 # Translated with pineboolib v0.71.18
+"""Flacos_model module."""
 
 import sqlalchemy
-from sqlalchemy.orm import relationship, validates
+
 from pineboolib import application
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
 
 class Flacos(BASE):
+    """Flacos class."""
+
     __tablename__ = "flacos"
 
     # --- Metadata --->

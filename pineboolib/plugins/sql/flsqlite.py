@@ -13,13 +13,14 @@ from . import pnsqlschema
 import os
 
 
-from typing import Optional, Any, List, TYPE_CHECKING
+from typing import Optional, Any, List, Dict, Union, TYPE_CHECKING
 from sqlalchemy import create_engine  # type: ignore [import] # noqa: F821, F401
-from sqlalchemy.orm import sessionmaker, session  # type: ignore [import] # noqa: F821
+from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
     from sqlalchemy.engine import base  # type: ignore [import] # noqa: F401, F821
+    from sqlalchemy.orm import session  # type: ignore [import] # noqa: F821, F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -43,7 +44,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self._null = ""
         self._text_like = ""
         self._text_cascade = ""
-        self._single_conn = True
+
         self._sqlalchemy_name = "sqlite"
 
     def getConn(
@@ -62,10 +63,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self._session = main_conn.driver()._session
                 return self._connection
 
-        queqe_params: Dict[str, Union(int, bool, str, Dict[str, int])] = {}
+        queqe_params: Dict[str, Union[int, bool, str, Dict[str, int]]] = {}
         # queqe_params["connect_args"] = {"timeout": 5}
         queqe_params["encoding"] = "UTF-8"
-        queqe_params["echo"] = True
+        # queqe_params["echo"] = True
 
         if limit_conn > 0:
             queqe_params["pool_size"] = limit_conn
@@ -301,7 +302,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return True
 
-    def session(self) -> "session.Session":
+    def session(self) -> "session.Session":  # noqa: F811
         """Create a sqlAlchemy session."""
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
@@ -309,8 +310,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 if self._dbname == main_conn.driver()._dbname:
                     return main_conn.driver().session()
 
-            if not self._session:
-                Session = sessionmaker(bind=self.engine_)
+            if getattr(self, "_session", None) is None:
+                Session = sessionmaker(bind=self._engine)
                 self._session = Session()
                 self._session.connection().execute("PRAGMA journal_mode=WAL")
                 self._session.connection().execute("PRAGMA synchronous=NORMAL")

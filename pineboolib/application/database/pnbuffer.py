@@ -8,15 +8,14 @@ Buffers are the data records pointed to by a PNSqlCursor.
 from pineboolib.application import types
 from pineboolib import logging
 
-import copy
 import datetime
 import decimal
 
-from typing import Dict, List, Union, Optional, Any, TYPE_CHECKING
+from typing import List, Union, Optional, Callable, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import ifieldmetadata, isqlcursor
+    from pineboolib.interfaces import isqlcursor
 
 LOGGER = logging.get_logger(__name__)
 
@@ -54,7 +53,8 @@ class PNBuffer(object):
     the fields of the record.
     """
 
-    _current_model_obj: str
+    _current_model_obj: Optional[Callable]
+    _generated_fields: List[str]
 
     def __init__(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Create a Buffer from the specified PNSqlCursor."""
@@ -62,15 +62,15 @@ class PNBuffer(object):
         if not cursor:
             raise Exception("Missing cursor")
         self.cursor_ = cursor
-        self.field_dict_ = {}
-        self.line_: int = -1
-        self.inicialized_: bool = False
+        # self.field_dict_ = {}
+        # self.line_: int = -1
+        # self.inicialized_: bool = False
         self._current_model_obj = None
+        self._generated_fields = []
+        # tmd = self.cursor_.metadata()
+        # campos = tmd.fieldList()
 
-        tmd = self.cursor_.metadata()
-        campos = tmd.fieldList()
-
-    def primeInsert(self, row: int = None) -> None:
+    def prime_insert(self, row: int = None) -> None:
         """
         Set the initial values ​​of the buffer fields.
 
@@ -86,7 +86,7 @@ class PNBuffer(object):
         # print("B *", self._current_model_obj)
         self.inicialized_ = True
 
-    def primeUpdate(self) -> None:
+    def prime_update(self) -> None:
         """Set the initial copy of the cursor values into the buffer."""
         del self._current_model_obj
         self._current_model_obj = list(self.cursor_.model()._data_proxy)[
@@ -94,7 +94,7 @@ class PNBuffer(object):
         ]
         # print("B * *", self._current_model_obj, self.cursor_.currentRegister())
 
-    def primeDelete(self) -> None:
+    def prime_delete(self) -> None:
         """Clear the values ​​of all buffer fields."""
         # for field_key in self.field_dict_.keys():
         #    field = self.field_dict_[field_key]
@@ -104,7 +104,7 @@ class PNBuffer(object):
         ]
         # print("B * * *", self._current_model_obj, self.cursor_.currentRegister())
 
-    def setNull(self, name) -> bool:
+    def setNull(self, name) -> None:
         """
         Empty the value of the specified field.
 
@@ -112,7 +112,7 @@ class PNBuffer(object):
         """
         setattr(self._current_model_obj, name, None)
 
-    def value(self, field_name: Union[str, int]) -> TVALUES:
+    def value(self, field_name: str) -> TVALUES:
         """
         Return the value of a field.
 
@@ -146,3 +146,27 @@ class PNBuffer(object):
         """"Clear buffer object."""
         del self._current_model_obj
         self._current_model_obj = None
+
+    def is_null(self, field_name: str) -> bool:
+        """Return if a field is null."""
+
+        if self._current_model_obj:
+            value = getattr(self._current_model_obj, field_name)
+            return value in [None, ""]
+
+        return True
+
+    def set_generated(self, field_name: str, status: bool):
+        """Mark a field as generated."""
+
+        if status:
+            if field_name not in self._generated_fields:
+                self._generated_fields.append(field_name)
+        else:
+            if field_name in self._generated_fields:
+                self._generated_fields.remove(field_name)
+
+    def is_generated(self, field_name: str) -> bool:
+        """Return if the field has marked as generated."""
+
+        return field_name in self._generated_fields

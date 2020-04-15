@@ -22,7 +22,6 @@ if TYPE_CHECKING:
     from . import pnconnectionmanager
 
     from sqlalchemy.engine import base  # type: ignore [import] # noqa: F821, F401
-    from sqlalchemy.orm import session  # type: ignore [import] # noqa: F821
 LOGGER = utils.logging.get_logger(__name__)
 
 
@@ -102,7 +101,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._interactive_gui = "Pineboo" if not utils_base.is_library() else "Pinebooapi"
         self._last_active_cursor = None
         # self._current_transaction = None
-        self._last_error = None
+        self._last_error = ""
         self._is_open = False
         # if self._driver_name and self._driver_sql.loadDriver(self._driver_name):
         #    self.conn = self.conectar(db_name, db_host, db_port, db_user_name, db_password)
@@ -169,7 +168,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self.update_activity_time()
         return self._driver
 
-    def session(self) -> Any:
+    def session(self) -> "base.Connection":
         """
         Sqlalchemy session.
 
@@ -657,7 +656,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             if self.driver().last_error():
                 LOGGER.exception(
                     "createTable: Error happened executing sql: %s...%s"
-                    % (single_sql[:80], str(conn_aux.driver().last_error()))
+                    % (single_sql[:80], str(self.driver().last_error()))
                 )
                 self.rollbackTransaction()
                 self.driver().set_last_error_null()

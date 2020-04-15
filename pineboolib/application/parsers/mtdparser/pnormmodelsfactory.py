@@ -37,19 +37,13 @@ Ejemplo de uso:
 
 """
 from pineboolib.application.utils.path import _path
-from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core import settings
 from importlib import machinery
 
-from sqlalchemy import String, exc  # type: ignore
+from sqlalchemy import exc  # type: ignore
 
-import importlib
-import traceback
-import sys
-import os
 from pineboolib import logging, application
 
-from typing import Any, List
+from typing import Any, List, Dict
 
 LOGGER = logging.get_logger(__name__)
 PROCESSED: List[str] = []
@@ -74,14 +68,14 @@ def load_models() -> None:
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    main_conn = application.PROJECT.conn_manager.mainConn()
+    # main_conn = application.PROJECT.conn_manager.mainConn()
     # db_name = main_conn.DBName()
     # print("Cargando modelos")
     # QSADictModules.save_other("Base", main_conn.declarative_base())
     # QSADictModules.save_other("session", main_conn.session())
     # QSADictModules.save_other("engine", main_conn.engine())
 
-    models_: Dict[str:Any] = {}
+    models_: Dict[str, Any] = {}
 
     for action_name in application.PROJECT.actions:
         class_orm = application.PROJECT.actions[action_name]._class_orm

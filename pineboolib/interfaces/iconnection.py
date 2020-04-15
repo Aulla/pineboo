@@ -237,12 +237,12 @@ class IConnection:
 
         return True
 
-    def savePoint(self) -> bool:
+    def savePoint(self, save_point: int) -> bool:
         """Create a save point."""
 
         return True
 
-    def releaseSavePoint(self) -> bool:
+    def releaseSavePoint(self, save_point: int) -> bool:
         """Release a save point."""
 
         return True
@@ -252,7 +252,7 @@ class IConnection:
 
         return
 
-    def rollbackSavePoint(self) -> bool:
+    def rollbackSavePoint(self, save_point: int) -> bool:
         """Roll back a save point."""
 
         return True

@@ -316,10 +316,10 @@ class FLManager(QtCore.QObject, IManager):
         else:
             # QDomDoc
             # root = n.getroot()
-            name: str = ""
-            query: str = ""
-            alias: str = ""
-            ftsfun: str = ""
+            name: str = ""  # type: ignore [no-redef] # noqa: F821
+            query: str = ""  # type: ignore [no-redef] # noqa: F821
+            alias: str = ""  # type: ignore [no-redef] # noqa: F821
+            ftsfun: str = ""  # type: ignore [no-redef] # noqa: F821
             visible = True
             editable = True
             concur_warn = False
@@ -1418,7 +1418,7 @@ class FLManager(QtCore.QObject, IManager):
 
             c.select("tabla = '%s'" % table)
             if c.next():
-                buffer = c.primeUpdate()
+                buffer = c.prime_update()
                 buffer.setValue("xml", q2.value(1))
                 c.update()
             self.dict_key_metadata_[table] = q2.value(1)

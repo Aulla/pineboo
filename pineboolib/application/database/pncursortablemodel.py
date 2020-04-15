@@ -10,7 +10,6 @@ from pineboolib.core.utils import logging, utils_base
 
 
 from pineboolib.application.utils import date_conversion, xpm, sql_tools
-from pineboolib.application import qsadictmodules
 
 
 import itertools
@@ -19,7 +18,7 @@ import os
 import datetime
 
 
-from typing import Any, Iterable, Optional, List, Dict, Tuple, cast, TYPE_CHECKING
+from typing import Any, Optional, List, Dict, Tuple, cast, Callable, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -79,7 +78,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     _tablename: str
     _order: str
     grid_row_tmp: Dict[int, List[Any]]
-    _data_proxy: str
+    _data_proxy: List[Callable]
 
     _last_grid_obj: Any
     _lost_grid_row: int
@@ -170,7 +169,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._disable_refresh = False
         self._initialized = None
         self.grid_row_tmp = {}
-        self._data_proxy = None
+        self._data_proxy = []
 
         # self.refresh()
 
@@ -278,34 +277,15 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         field = self.metadata().indexFieldObject(col)
         _type = field.type()
         res_color_function: List[str] = []
-        if _type != "check":
 
-            if self._last_grid_row != row:
-                self._last_grid_row = row
-                self._last_grid_obj = list(self._data_proxy)[row]
+        if self._last_grid_row != row:
+            self._last_grid_row = row
+            self._last_grid_obj = list(self._data_proxy)[row]
 
-            # row_object = self._data_proxy.slice(row, 1)
-            # print("*", row_object)
-            # r = [x for x in self._data[row]]
-            # self._data[row] = r
-            # d = r[col]
-            # self.seekRow(row)
-            # d = self._current_row_data[col]
-            # d = self._data[row][col]
-            # result: Any = None
-            # if row not in self.grid_row_tmp.keys():
-            #    self.grid_row_tmp = {}
-            #    self.grid_row_tmp[row] = self.driver_sql().row_get(row, self._curname)
-            #    if not self.grid_row_tmp[row]:  # refresh grid if cursor is deleted.
-            #        self.refresh()
-            #        return
+        result = getattr(self._last_grid_obj, field.name(), None)
 
-            # tuple = self.grid_row_tmp[row]
-            # if tuple:
-            #    result = tuple[col]
-            result = getattr(self._last_grid_obj, field.name(), None)
-        else:
-            primary_key = str(self.value(row, self.metadata().primaryKey()))
+        if _type == "check":
+            primary_key = getattr(self._last_grid_obj, self.metadata().primaryKey())
             if primary_key not in self._check_column.keys():
                 result = QtWidgets.QCheckBox()
                 self._check_column[primary_key] = result
@@ -747,7 +727,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             filter_condition=filter_list,
         )
 
-        self._data_proxy = list(dynamic_filter_class.return_query())
+        data = dynamic_filter_class.return_query()
+        # print("--->", data, type(data), list(data))
+        self._data_proxy = list(data)
 
         # if self._curname:
         #    self.driver_sql().delete_declared_cursor(self._curname)
@@ -838,8 +820,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if row != self._current_row_index:
             if row > -1 and row < self.rowCount():
                 object_ = list(self._data_proxy)[row]
-                if object_ is None:
-                    return False
+                # if object_ is None:
+                #    return False
 
                 self._current_row_index = row
                 self._current_row_data = object_
@@ -849,43 +831,45 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         return True
 
-    def setValuesDict(self, row: int, update_dict: Dict[str, Any]) -> None:
-        """
-        Set value to a row using a Dict.
-
-        @param row. Row to update
-        @param update_dict. Key-Value where key is the fieldname and value is the value to update
-        """
-
-        if DEBUG:
-            LOGGER.info("CursorTableModel.setValuesDict(row %s) = %r", row, update_dict)
-
-        try:
-            self.seekRow(row)
-            self._current_row_data = list(self._current_row_data)
-
-            colsnotfound = []
-            for fieldname, value in update_dict.items():
-                # col = self.metadata().indexPos(fieldname)
-                try:
-                    col = self.sql_fields.index(fieldname)
-                    # self._data[row][col] = value
-                    self._current_row_data[col] = value
-                    # r[col] = value
-                except ValueError:
-                    colsnotfound.append(fieldname)
-            if colsnotfound:
-                LOGGER.warning(
-                    "CursorTableModel.setValuesDict:: columns not found: %r", colsnotfound
-                )
-            # self.indexUpdateRow(row)
-
-        except Exception:
-            LOGGER.exception(
-                "CursorTableModel.setValuesDict(row %s) = %r :: ERROR:", row, update_dict
-            )
-
-        self._current_row_index = -1
+    # ===============================================================================
+    #     def setValuesDict(self, row: int, update_dict: Dict[str, Any]) -> None:
+    #         """
+    #         Set value to a row using a Dict.
+    #
+    #         @param row. Row to update
+    #         @param update_dict. Key-Value where key is the fieldname and value is the value to update
+    #         """
+    #
+    #         if DEBUG:
+    #             LOGGER.info("CursorTableModel.setValuesDict(row %s) = %r", row, update_dict)
+    #
+    #         try:
+    #             self.seek_row(row)
+    #             self._current_row_data = list(self._current_row_data)
+    #
+    #             colsnotfound = []
+    #             for fieldname, value in update_dict.items():
+    #                 # col = self.metadata().indexPos(fieldname)
+    #                 try:
+    #                     col = self.sql_fields.index(fieldname)
+    #                     # self._data[row][col] = value
+    #                     self._current_row_data[col] = value
+    #                     # r[col] = value
+    #                 except ValueError:
+    #                     colsnotfound.append(fieldname)
+    #             if colsnotfound:
+    #                 LOGGER.warning(
+    #                     "CursorTableModel.setValuesDict:: columns not found: %r", colsnotfound
+    #                 )
+    #             # self.indexUpdateRow(row)
+    #
+    #         except Exception:
+    #             LOGGER.exception(
+    #                 "CursorTableModel.setValuesDict(row %s) = %r :: ERROR:", row, update_dict
+    #             )
+    #
+    #         self._current_row_index = -1
+    # ===============================================================================
 
     # def setValue(self, row: int, fieldname: str, value: Any) -> None:
     #    """
@@ -1015,6 +999,18 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     #        )
 
     #    return ret
+
+    def value(self, row: int, field_name: str) -> Any:
+        """Return colum value from a row."""
+
+        ret = None
+
+        if self._data_proxy and row > -1 and row < self.rowCount():
+            obj_ = self._data_proxy[row]
+            ret = getattr(obj_, field_name, None)
+
+        return ret
+
     def find_pk_row(self, pk_value: Any) -> int:
         """Retrieve row index of a record given a primary key."""
 

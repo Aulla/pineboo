@@ -258,8 +258,8 @@ class FLFieldDB(QtWidgets.QWidget):
                     self.cursor_.curName(),
                     self.cursor_.at(),
                 )
-                cur_values = [f.value for f in self.cursor_.private_cursor.buffer_.fieldsList()]
-                LOGGER.info("*** cursor Buffer: %r", cur_values)
+                # cur_values = [f.value for f in self.cursor_.private_cursor.buffer_.fieldsList()]
+                # LOGGER.info("*** cursor Buffer: %r", cur_values)
             else:
                 LOGGER.warning("*** FLFieldDB::loaded: SIN cursor ??")
 

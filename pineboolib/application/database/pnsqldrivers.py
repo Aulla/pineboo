@@ -63,7 +63,7 @@ class PNSqlDrivers(object, metaclass=Singleton):
             if _driver.pure_python() or _driver.safe_load():
                 self._drivers_dict[file_name] = _driver.alias_
                 self._driver_defaultr_port[_driver.alias_] = _driver.defaultPort_
-                self._desktop_file[_driver.alias_] = _driver.desktopFile()
+                # self._desktop_file[_driver.alias_] = _driver.desktopFile()
 
         self._defautl_driver_name = "FLsqlite"
 

@@ -8,20 +8,16 @@ functions. See pineboolib/pnobjectsfactory.py
 """
 
 from pineboolib import logging
-from typing import List, cast, Optional, TYPE_CHECKING
-from pineboolib.application.utils.path import _path
+from typing import List
+
 from pineboolib import application
 from pineboolib.application.metadata import pnfieldmetadata, pntablemetadata
-from pineboolib.core import settings
 
 import os
 
 LOGGER = logging.get_logger(__name__)
 
 RESERVER_WORDS = ["pass"]
-
-if TYPE_CHECKING:
-    from pineboolib.application import xmlaction
 
 
 def mtd_parse(table_name: str, path_mtd: str) -> str:
@@ -68,7 +64,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     """
 
     data = []
-    list_data_field: str = []
+    list_data_field: List[str] = []
     validator_list: List[str] = []
     metadata_table: List = []
     metadata_table.append("'name' : '%s'" % mtd_table.name())
@@ -82,7 +78,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     if mtd_table.FTSFunction():
         metadata_table.append("'ftsfunction' :'%s'" % mtd_table.FTSFunction())
 
-    field_list: List[str] = []
+    field_list: List[List[str]] = []
     pk_found = False
 
     for field in mtd_table.fieldList():  # Crea los campos
@@ -123,6 +119,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
     data.append("# -*- coding: utf-8 -*-")
     data.append("# Translated with pineboolib %s" % application.PROJECT.version.split(" ")[1])
+    data.append('"""%s%s_model module."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("")
     data.append("import sqlalchemy")
     # data.append("from sqlalchemy.ext.declarative import declarative_base")
@@ -130,7 +127,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     #    "from sqlalchemy import Column, Integer, Numeric, String, BigInteger, Boolean, DateTime, ForeignKey, LargeBinary"
     # )
     # data.append("from sqlalchemy import String as Calculated")
-    data.append("from sqlalchemy.orm import relationship, validates")
+    # data.append("from sqlalchemy.orm import relationship, validates")
     # data.append(
     #    "from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated"
     # )
@@ -148,6 +145,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
     data.append("")
     data.append("class %s%s(BASE):" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
+    data.append('    """%s%s class."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("    __tablename__ = '%s'" % mtd_table.name())
     data.append("")
     data.append("# --- Metadata ---> ")
@@ -252,9 +250,10 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
     if field.regExpValidator():
         field_data.append("'regexp' : '%s'" % field.regExpValidator())
 
+    rel_list: List[str]
     # RELATIONS 1M
     for rel in field.relationList():
-        rel_list: List[str] = []
+        rel_list = []
         rel_list.append("'card' : '%s'" % rel.cardinality())
         rel_list.append("'table' : '%s'" % rel.foreignTable())
         rel_list.append("'field' : '%s'" % rel.foreignField())
@@ -267,13 +266,13 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
 
         field_relation.append("{%s}" % ", ".join(rel_list))
 
-    if field_relation:
-        field_data.append("'relations' : [%s]" % ", ".join(field_relation))
+    # if field_relation:
+    #    field_data.append("'relations' : [%s]" % ", ".join(field_relation))
 
-    # RELATIONS 1M
+    # RELATIONS M1
     if field.private._relation_m1:
         rel = field.private._relation_m1
-        rel_list: List[str] = []
+        rel_list = []
         rel_list.append("'card' : '%s'" % rel.cardinality())
         rel_list.append("'table' : '%s'" % rel.foreignTable())
         rel_list.append("'field' : '%s'" % rel.foreignField())

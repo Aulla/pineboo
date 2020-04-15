@@ -56,12 +56,12 @@ class TestPNCursorTableModel(unittest.TestCase):
 
         model = cursor.model()
 
-        self.assertEqual(model.findPKRow([cursor.valueBuffer("id")]), cursor.size() - 1)
+        self.assertEqual(model.find_pk_row(cursor.valueBuffer("id")), cursor.size() - 1)
         self.assertEqual(model.pK(), "id")
         self.assertEqual(model.fieldType("string_field"), "string")
         self.assertEqual(model.alias("string_field"), "String field")
         self.assertEqual(
-            model.field_metadata("string_field"), cursor.metadata().field("string_field")
+            model.metadata().field("string_field"), cursor.metadata().field("string_field")
         )
 
     def test_basic_3(self) -> None:
@@ -128,11 +128,11 @@ class TestPNCursorTableModel(unittest.TestCase):
             isinstance(model.data(model.index(0, 5), QtCore.Qt.ForegroundRole), QtGui.QBrush)
         )
 
-        model.updateRows()
+        model.update_rows()
         # self.assertFalse(model.findCKRow([]))
         # self.assertFalse(model.findCKRow([2, 2]))
-        self.assertFalse(model.findPKRow([21]))
-        self.assertEqual(model.findPKRow([1]), 2)
+        self.assertEqual(model.find_pk_row(21), -1)
+        self.assertEqual(model.find_pk_row(1), 2)
 
     def test_basic_5(self) -> None:
         """Test basic 5."""
@@ -145,10 +145,10 @@ class TestPNCursorTableModel(unittest.TestCase):
         model.sort(1, QtCore.Qt.DescendingOrder)
         self.assertTrue(model._disable_refresh)
         model.disable_refresh(False)
-        model.updateRows()
+        model.update_rows()
         cursor.select()
         model.updateColumnsCount()
-        self.assertEqual(model.size(), 3)
+        self.assertEqual(model.rowCount(), 3)
 
     @classmethod
     def tearDownClass(cls) -> None:

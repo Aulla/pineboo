@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 # Translated with pineboolib v0.71.18
+"""Flacs_model module."""
 
 import sqlalchemy
-from sqlalchemy.orm import relationship, validates
+
 from pineboolib import application
 
 BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
 
 
 class Flacs(BASE):
+    """Flacs class."""
+
     __tablename__ = "flacs"
 
     # --- Metadata --->
@@ -21,7 +24,6 @@ class Flacs(BASE):
                 "alias": "Identificador",
                 "pk": True,
                 "type": "serial",
-                "relations": [{"card": "1M", "table": "flacos", "field": "idac"}],
                 "relations": [{"card": "1M", "table": "flacos", "field": "idac"}],
                 "null": False,
                 "visiblegrid": False,

@@ -7,6 +7,7 @@ from PyQt5 import QtCore
 
 from pineboolib.interfaces.cursoraccessmode import CursorAccessMode
 
+
 from typing import Any, Optional, Dict, List, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
         pnaction,
     )
     from pineboolib.interfaces import iconnection
+    import sqlalchemy  # type: ignore [import] # noqa: F821
 
 
 class ICursorPrivate(QtCore.QObject):
@@ -728,12 +730,12 @@ class ISqlCursor(QtCore.QObject):
 
         pass
 
-    def field(self, name: str) -> Optional["pnbuffer.FieldStruct"]:
-        """
-        Return a specified FieldStruct of the buffer.
-        """
+    # def field(self, name: str) -> Optional["pnbuffer.FieldStruct"]:
+    #    """
+    #    Return a specified FieldStruct of the buffer.
+    #    """
 
-        pass
+    #    pass
 
     def curFilter(self) -> str:
         """
@@ -756,6 +758,15 @@ class ISqlCursor(QtCore.QObject):
     def id(self) -> str:
         """
         Return cursor identifier.
+        """
+
+        return ""
+
+    def primaryKey(self) -> str:
+        """
+        Return the primary cursor key.
+
+        @return primary key field name.
         """
 
         return ""

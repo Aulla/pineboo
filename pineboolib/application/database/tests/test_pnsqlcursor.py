@@ -528,10 +528,10 @@ class TestGeneral(unittest.TestCase):
             cursor_2.valueBuffer("descripcion"), cursor_2.valueBufferCopy("descripcion")
         )
 
-        self.assertTrue(cursor_2.field("idarea"))
+        self.assertTrue(cursor_2.metadata().field("idarea"))
         buffer = cursor_2.buffer()
         if buffer:
-            self.assertTrue(buffer.isGenerated("idarea"))
+            self.assertFalse(buffer.is_generated("idarea"))
         cursor_2.setEdition(True, "prueba")
         self.assertTrue(cursor_2.private_cursor.edition_states_)
         cursor_2.restoreEditionFlag("prueba")
@@ -719,7 +719,7 @@ class TestRelations(unittest.TestCase):
         cur_areas.setEditMode()
         cur_areas.setModeAccess(cur_areas.Edit)
         cur_areas.setEditMode()
-        cur_areas.primeInsert()
+        cur_areas.prime_insert()
         cur_modulos.setModeAccess(cur_modulos.Insert)
         cur_modulos.refreshDelayed()
         self.assertTrue(cur_modulos.fieldDisabled("idarea"))

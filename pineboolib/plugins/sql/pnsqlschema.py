@@ -15,10 +15,12 @@ from pineboolib.core import decorators
 from pineboolib.fllegacy import flutil
 
 from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noqa: F821
-from sqlalchemy.orm import sessionmaker, session  # type: ignore [import] # noqa: F821
+from sqlalchemy.ext import declarative  # type: ignore
+from sqlalchemy.inspection import inspect  # type: ignore [import] # noqa: F821, F401
+from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 from sqlalchemy import event  # type: ignore [import] # noqa: F821, F401
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
-from sqlalchemy.inspection import inspect
+
 
 import re
 
@@ -27,6 +29,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
     from pineboolib.interfaces import iconnection  # noqa: F401
     from sqlalchemy.engine import result  # type: ignore [import] # noqa: F821, F401
+    from sqlalchemy.orm import session  # type: ignore [import] # noqa: F821, F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -45,21 +48,10 @@ class PNSqlSchema(object):
     mobile_: bool
     pure_python_: bool
     defaultPort_: int
-    engine_: Optional["base.Engine"]
-    _session: Any
-    declarative_base_: Any = None
-    cursor_: Any
-    rows_cached: Dict[str, List[Any]]
+    _transaction: int
     cursor_proxy: Dict[str, "result.ResultProxy"]
-    init_cached: int = 200
     open_: bool
     desktop_file: bool
-    savepoint_command: str
-    rollback_savepoint_command: str
-    rollback_transaction_command: str
-    commit_transaction_command: str
-    transaction_command: str
-    release_savepoint_command: str
     _true: Any
     _false: Any
     _like_true: Any
@@ -69,13 +61,12 @@ class PNSqlSchema(object):
     _text_cascade: str
     _safe_load: Dict[str, str]
     _database_not_found_keywords: List[str]
-    _transaction: int
-    _current_transaction: Optional["base.RootTransaction"]
-    _single_conn: bool
-    _sqlalchemy_name: str
-    _connection: Any = None
 
-    _session: Optional["session.Session"]
+    _sqlalchemy_name: str
+    _connection: "base.Connection"
+    _engine: "base.Engine"
+    _session: "session.Session"
+    _declarative_base: "declarative.declarative_base"
 
     def __init__(self):
         """Inicialize."""
@@ -88,21 +79,10 @@ class PNSqlSchema(object):
         self.mobile_ = False
         self.pure_python_ = False
         self.defaultPort_ = 0
-        self.engine_ = None
-        self._session = None
-        # self.declarative_base_ = None
+
         self.lastError_ = ""
         self.db_ = None
-        self.rows_cached = {}
-        self.cursor_proxy = {}
-        self.open_ = False
-        self.desktop_file = False
-        self.savepoint_command = "SAVEPOINT"
-        self.rollback_savepoint_command = "ROLLBACK TRANSACTION TO SAVEPOINT"
-        self.commit_transaction_command = "END TRANSACTION"
-        self.rollback_transaction_command = "ROLLBACK TRANSACTION"
-        self.transaction_command = "BEGIN TRANSACTION"
-        self.release_savepoint_command = "RELEASE SAVEPOINT"
+
         self._text_cascade = "CASCADE"
         self._true = "1"
         self._false = "0"
@@ -112,13 +92,9 @@ class PNSqlSchema(object):
         self._text_like = "::text "
         self._safe_load = {"sqlalchemy": "sqlAlchemy"}
         self._database_not_found_keywords = ["does not exist", "no existe"]
+
         self._transaction = 0
-        self._single_conn = False
         self._sqlalchemy_name = ""
-        self._connection = None
-        self._session = None
-        # self.sql_query = {}
-        # self.cursors_dict = {}
 
     def safe_load(self, exit: bool = False) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -130,9 +106,9 @@ class PNSqlSchema(object):
         self.open_ = False
         self._connection.close()
 
-    def singleConnection(self) -> bool:
-        """Return if driver uses a single connection."""
-        return self._single_conn
+    # def singleConnection(self) -> bool:
+    #    """Return if driver uses a single connection."""
+    #    return self._single_conn
 
     def loadConnectionString(self, name: str, host: str, port: int, usern: str, passw_: str) -> str:
         """Set special config."""
@@ -313,9 +289,9 @@ class PNSqlSchema(object):
         """Return sqlAlchemy ORM engine."""
         return self.engine_
 
-    def session(self) -> "session.Session":
+    def session(self) -> "session.Session":  # noqa: F811
         """Create a sqlAlchemy session."""
-        if not self._session:
+        if not getattr(self, "_session", None):
             Session = sessionmaker(bind=self.connection())
             self._session = Session()
 
@@ -324,11 +300,11 @@ class PNSqlSchema(object):
     def connection(self) -> "base.Connection":
         """Return a cursor connection."""
 
-        if not self._connection or self._connection.closed:
+        if not getattr(self, "_connection", None) or self._connection.closed:
 
-            if self.engine_:
-                self._connection = self.engine_.connect()
-                event.listen(self.engine_, "close", self.close_emited)
+            if getattr(self, "_engine", None):
+                self._connection = self._engine.connect()
+                event.listen(self._engine, "close", self.close_emited)
             else:
                 raise Exception("Engine is not loaded!")
         return self._connection
@@ -336,12 +312,11 @@ class PNSqlSchema(object):
     def declarative_base(self) -> Any:
         """Return sqlAlchemy declarative base."""
 
-        if self.declarative_base_ is None:
-            from sqlalchemy.ext.declarative import declarative_base  # type: ignore
+        if getattr(self, "_declarative_base", None) is None:
 
-            self.declarative_base_ = declarative_base()
+            self._declarative_base = declarative.declarative_base()
 
-        return self.declarative_base_
+        return self._declarative_base
 
     def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
         """Return a string with the format value like."""
@@ -478,7 +453,7 @@ class PNSqlSchema(object):
                 self.execute_query(str_qry)
             except Exception as error:
                 LOGGER.error("nextSerialVal: %s", str(error))
-                self.transaction_rollback()
+                self.session().rollback()
 
         return res_
 
@@ -767,9 +742,9 @@ class PNSqlSchema(object):
         ret_ = ret_.replace("'1'", "1")
         return ret_
 
-    def desktopFile(self) -> bool:
-        """Return if use a file like database."""
-        return self.desktop_file
+    # def desktopFile(self) -> bool:
+    #    """Return if use a file like database."""
+    #    return self.desktop_file
 
     def execute_query(self, query: str) -> Optional["result.ResultProxy"]:
         """Excecute a query and return result."""

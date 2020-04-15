@@ -490,14 +490,14 @@ class DynamicFilter(object):
         self.model_class = model_class
         self.filter_condition = filter_condition
 
-    def get_query(self):
-        """
-        Returns query with all the objects
-        :return:
-        """
-        if not self.query:
-            self.query = self.session.query(self.model_class)
-        return self.query
+    # def get_query(self):
+    #    """
+    #    Returns query with all the objects
+    #    :return:
+    #    """
+    # if not self.query:
+    #    self.query = self.session.query(self.model_class)
+    #    return self.query
 
     def filter_query(self, query, filter_condition):
         """
@@ -515,8 +515,8 @@ class DynamicFilter(object):
 
         """
 
-        if query is None:
-            query = self.get_query()
+        # if query is None:
+        #    query = self.get_query()
         # model_class = self.get_model_class()  # returns the query's Model
         model_class = self.model_class
         for raw in filter_condition:
@@ -548,8 +548,8 @@ class DynamicFilter(object):
 
     def return_query(self, delete_later: bool = False):
         if delete_later:
-            return self.filter_query(self.get_query(), self.filter_condition).delete(
+            return self.filter_query(self.query, self.filter_condition).delete(
                 synchronize_session=False
             )
 
-        return self.filter_query(self.get_query(), self.filter_condition)
+        return self.filter_query(self.query, self.filter_condition)
