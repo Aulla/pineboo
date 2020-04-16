@@ -248,8 +248,8 @@ class FormInternalObj(qsa.FormDBWidget):
                         qsa.MessageBox.Ok,
                     )
                     return
-            if not qsa.aqApp.db().singleConnection():
-                qsa.sys.cleanupMetaData()
+
+            qsa.sys.cleanupMetaData()
             qsa.sys.processEvents()
             if self.cursor().commitBuffer():
 
