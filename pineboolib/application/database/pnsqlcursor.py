@@ -2775,7 +2775,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             pk_row = self.model().find_pk_row(pk_value)
 
             if pk_row > -1:
-                if self.move(pk_row):
+                self.move(pk_row)
 
             updated = True
 
