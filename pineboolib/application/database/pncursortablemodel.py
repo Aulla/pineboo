@@ -644,58 +644,31 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         #    LOGGER.warning("ERROR: CursorTableModel :: No hay tabla %s", self.metadata().name())
         #    return
 
-        """ FILTRO WHERE """
-
-        filter_list = []
-        try:
-            for key, filter in self.where_filters.items():
-                if not filter:
-                    continue
-                filter = filter.lower()
-                filter = filter.replace("=", "eq")
-                filter = filter.replace("<=", "le")
-                filter = filter.replace(">=", "ge")
-                filter = filter.replace("<", "lt")
-                filter = filter.replace(">", "gt")
-                filter = filter.replace(" in ", " in_ ")
-
-                item = filter.split(" ")
-                if item[0].startswith("upper("):
-                    item[0] = item[0][6:-1]
-                if item[2][0] == "'":
-                    item[2] = item[2][1:-1]
-                filter_list.append(item)
-        except Exception as error:
-            LOGGER.warning(
-                "creando filtro %s : %s", self.where_filters, str(error), stack_info=True
-            )
-
         # print("FIXME!!", self.where_filters, filter_list)
-        # where_filter = ""
-        # for k, wfilter in sorted(self.where_filters.items()):
-        # if wfilter is None:
-        #     continue
-        #    wfilter = wfilter.strip()
+        where_filter = ""
+        for k, wfilter in sorted(self.where_filters.items()):
+            if wfilter is None:
+                continue
 
-        #    if not wfilter:
-        #        continue
-        #    if not where_filter:
-        #        where_filter = wfilter
-        #    elif wfilter not in where_filter:
-        #        if where_filter not in wfilter:
-        #            where_filter += " AND " + wfilter
-        # if not where_filter:
-        #    where_filter = "1 = 1"
+            wfilter = wfilter.strip()
+
+            if not wfilter:
+                continue
+            if not where_filter:
+                where_filter = wfilter
+            elif wfilter not in where_filter:
+                if where_filter not in wfilter:
+                    where_filter += " AND " + wfilter
 
         # self.where_filter = where_filter
         # self._order = self.getSortOrder()
         # Si no existe un orderBy y se ha definido uno desde FLTableDB ...
-        # if self.where_filter.find("ORDER BY") == -1 and self.getSortOrder():
-        #    if self.where_filter.find(";") > -1:  # Si el where termina en ; ...
-        #        self.where_filter = self.where_filter.replace(";", " ORDER BY %s;" % self._order)
-        #    else:
-        #        self.where_filter = "%s ORDER BY %s" % (self.where_filter, self._order)
-        """ FIN """
+        if where_filter.find("ORDER BY") == -1 and self.getSortOrder():
+            if where_filter.find(";") > -1:  # Si el where termina en ; ...
+                where_filter = where_filter.replace(";", " ORDER BY %s;" % self.getSortOrder())
+            else:
+                where_filter = "%s ORDER BY %s" % (where_filter, self.getSortOrder())
+        # """ FIN """
 
         parent = QtCore.QModelIndex()
 
@@ -722,10 +695,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # self._current_row_index = -1
 
         dynamic_filter_class = sql_tools.DynamicFilter(
-            query=session_.query(self._parent._cursor_model),
-            model_class=self._parent._cursor_model,
-            filter_condition=filter_list,
+            query=session_.query(self._parent._cursor_model), model_class=self._parent._cursor_model
         )
+
+        dynamic_filter_class.set_filter_condition_from_string(where_filter)
 
         data = dynamic_filter_class.return_query()
         # print("--->", data, type(data), list(data))
