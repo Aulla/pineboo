@@ -134,6 +134,8 @@ class PNBuffer(object):
             metadata = self.cursor_.metadata().field(field_name)
             if metadata.type() == "date":
                 value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
+            if metadata.type() == "time":
+                value = datetime.strptime(str(value)[:-8], "%H:%M:%S")
 
         try:
             setattr(self._current_model_obj, field_name, value)
