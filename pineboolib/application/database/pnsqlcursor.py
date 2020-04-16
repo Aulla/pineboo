@@ -1992,10 +1992,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     if not field.allowNull():
                         val = self.db().getTimeStamp()
                         self.buffer().setValue(field_name, val)
-                elif type_ == "bool":
-                    value = self.buffer().value(field_name)
-                    if value is None:
-                        self.buffer().setValue(field_name, False)
 
                 if field.isCounter():
 
