@@ -638,8 +638,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._rows_loaded = 0
         self._last_grid_row = -1
         self._last_grid_obj = None
+        self._parent.clear_buffer()
+
         session_ = self.db().session()
 
+        # print("REFESCANDO", self._tablename, self, session_)
         # if not self.metadata():
         #    LOGGER.warning("ERROR: CursorTableModel :: No hay tabla %s", self.metadata().name())
         #    return

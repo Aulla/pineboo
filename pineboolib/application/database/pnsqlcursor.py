@@ -1464,6 +1464,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return self.private_cursor._buffer_copy
 
+    def clear_buffer(self) -> None:
+        """Clear buffer."""
+
+        if self.private_cursor.buffer_:
+            self.buffer().clear()
+
     def bufferIsNull(self, field_name: str) -> bool:
         """
         Return if the content of a field in the buffer is null.
