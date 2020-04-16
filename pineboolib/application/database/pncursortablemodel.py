@@ -704,6 +704,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         dynamic_filter_class.set_filter_condition_from_string(where_filter)
 
         data = dynamic_filter_class.return_query()
+        if self.metadata().isQuery():
+            print("FIXME!! query!!")
         # print("--->", data, type(data), list(data))
         self._data_proxy = list(data)
 

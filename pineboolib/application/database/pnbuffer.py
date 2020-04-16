@@ -146,15 +146,16 @@ class PNBuffer(object):
 
         if value not in [None, ""]:
             metadata = self.cursor_.metadata().field(field_name)
-            if metadata.type() == "date":
+            type_ = metadata.type()
+            if type_ == "date":
                 value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
-            elif metadata.type() == "time":
+            elif type_ == "time":
                 value = str(value)
                 if value.find("T") > -1:
                     value = value[value.find("T") + 1 :]
 
                 value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S")
-            elif metadata.type() == "bool":
+            elif type_ in ["bool", "unlock"]:
                 value = True if value in [True, 1, "1", "true"] else False
 
         try:

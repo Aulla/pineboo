@@ -521,14 +521,14 @@ class DynamicFilter(object):
                 order_by_list.append(order.split(" "))
 
         if filter_str:
-            filter_str = filter_str.replace(" = ", " eq ")
-            filter_str = filter_str.replace(" <= ", " le ")
-            filter_str = filter_str.replace(" >= ", " ge ")
-            filter_str = filter_str.replace(" < ", " lt ")
-            filter_str = filter_str.replace(" > ", " gt ")
+            filter_str = filter_str.replace("=", " eq ")
+            filter_str = filter_str.replace("<=", " le ")
+            filter_str = filter_str.replace(">=", " ge ")
+            filter_str = filter_str.replace("<", " lt ")
+            filter_str = filter_str.replace(">", " gt ")
             filter_str = filter_str.replace(" in ", " in_ ")
             filter_str = filter_str.strip()
-            print("*", filter_str)
+
             item = []
             for part in filter_str.split(" "):
                 if not part:
@@ -651,17 +651,16 @@ class DynamicFilter(object):
 
             if extra_filter not in ["and", ""]:
                 if extra_filter == "or":
-                    query = query.filter(or_(filt))
+                    filt = or_(filt)
                 else:
                     raise Exception("Unknown extra filter", extra_filter)
-            else:
-                query = query.filter(filt)
 
-            for name, ord in self.order_by:
-                column_order = getattr(model_class, name, None)
-                query = query.filter(filt).order_by(
-                    column_order.desc() if ord == "desc" else column_order
-                )
+            query = query.filter(filt)
+
+        for name, ord in self.order_by:
+            column_order = getattr(model_class, name, None)
+            query = query.order_by(column_order.desc() if ord == "desc" else column_order.asc())
+
         return query
 
     def return_query(self, delete_later: bool = False):

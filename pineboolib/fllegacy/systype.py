@@ -946,7 +946,7 @@ class SysType(sysbasetype.SysBaseType):
     def registerArea(self, mod: Dict[str, Any]) -> bool:
         """Return True if the area is created or False."""
         cur = pnsqlcursor.PNSqlCursor(u"flareas")
-        if not cur.select(utils_base.ustr(u"idarea='", mod["area"], u"'")):
+        if not cur.select(utils_base.ustr(u"idarea = '", mod["area"], u"'")):
             return False
         cur.setModeAccess((aqsql.AQSql.Edit if cur.first() else aqsql.AQSql.Insert))
         cur.refreshBuffer()
