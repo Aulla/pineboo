@@ -8,9 +8,10 @@ from PyQt5 import QtCore, QtWidgets
 from pineboolib.core.utils import logging
 from pineboolib.core import decorators, settings
 
-from pineboolib.application.database import pnsqlquery, utils
+from . import pnsqlquery, utils
 from pineboolib.application.utils import xpm, sql_tools
 from pineboolib.application import types, qsadictmodules
+from pineboolib.application.parsers.mtdparser import pnormmodelsfactory
 
 from pineboolib import application
 
@@ -139,6 +140,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return
 
         self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
+        if not self._cursor_model and mtd:
+            pnormmodelsfactory.register_metadata_as_model(mtd)
+            self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
+
+        if not self._cursor_model:
+            raise Exception("_cursor_model not found !")
+
         private_cursor._is_query = mtd.isQuery()
         private_cursor._is_system_table = (
             self.db().connManager().manager().isSystemTable(mtd.name())
@@ -2621,7 +2629,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return TRUE if the buffer could be delivered to the cursor, and FALSE if the delivery failed
         """
 
-        if not self.buffer() or not self.metadata():
+        if not self.private_cursor.buffer_ or not self.private_cursor.metadata_:
 
             return False
 
@@ -2763,10 +2771,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             # )  # Evita vaciado de buffer al hacer removeRows
             # self.model().refresh()
             # self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
+            self.model().refresh()
             pk_row = self.model().find_pk_row(pk_value)
 
             if pk_row > -1:
-                self.move(pk_row)
+                if self.move(pk_row):
 
             updated = True
 

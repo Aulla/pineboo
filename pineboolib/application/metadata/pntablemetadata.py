@@ -796,6 +796,8 @@ class PNTableMetaDataPrivate:
         """
         self._name = ""
         self._primary_key = None
+        self._concur_warn = False
+        self.full_text_search_function = ""
         self._field_list = []
         self._field_names = []
         self._field_names_unlock = []

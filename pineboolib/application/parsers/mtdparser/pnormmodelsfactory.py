@@ -42,8 +42,12 @@ from importlib import machinery
 from sqlalchemy import exc  # type: ignore
 
 from pineboolib import logging, application
+from . import pnmtdparser
 
-from typing import Any, List, Dict
+from typing import Any, List, Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.application.metadata import pntablemetadata
 
 LOGGER = logging.get_logger(__name__)
 PROCESSED: List[str] = []
@@ -56,8 +60,27 @@ def empty_base():
         raise Exception("Project is not connected yet")
 
     # FIXME: Not a good idea to delete from other module
-    del application.PROJECT.conn_manager.mainConn().driver()._declarative_base
-    application.PROJECT.conn_manager.mainConn().driver()._declarative_base_ = None
+    if hasattr(application.PROJECT.conn_manager.mainConn().driver(), "_declarative_base"):
+        del application.PROJECT.conn_manager.mainConn().driver()._declarative_base
+    application.PROJECT.conn_manager.mainConn().driver()._declarative_base = None
+
+
+def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> None:
+    from pineboolib.application.qsadictmodules import QSADictModules
+
+    if "%s_model" % metadata.name() in PROCESSED:
+        LOGGER.warning("%s already exists as model" % metadata.name())
+        return
+    else:
+        path_ = pnmtdparser.mtd_parse(metadata)
+        name_ = metadata.name()
+        loader = machinery.SourceFileLoader("model", path_)
+        model_module = loader.load_module()  # type: ignore [call-arg] # noqa: F821
+        model_class = getattr(model_module, "%s%s" % (name_[0].upper(), name_[1:]), None)
+        if model_class is not None:
+            QSADictModules.save_other("%s_orm" % name_, model_class)
+
+        PROCESSED.append(name_)
 
 
 def load_models() -> None:

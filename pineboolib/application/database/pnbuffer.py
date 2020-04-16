@@ -119,7 +119,21 @@ class PNBuffer(object):
         @param field_name field identification.
         @return Any = field value.
         """
-        return getattr(self._current_model_obj, field_name, None)
+        value = getattr(self._current_model_obj, field_name, None)
+
+        metadata = self.cursor_.metadata().field(field_name)
+        type_ = metadata.type()
+
+        if isinstance(value, datetime.datetime):
+
+            if type_ == "date":
+                value = value.strftime("%Y-%m-%d")
+            elif type_ == "time":
+                value = value.strftime("%H:%M:%S")
+        elif isinstance(value, decimal.Decimal):
+            value = float(str(value))
+
+        return value
 
     def setValue(self, field_name: str, value: TVALUES, mark_: bool = True) -> bool:
         """
@@ -130,12 +144,18 @@ class PNBuffer(object):
         @param mark_. If True verifies that it has changed from the value assigned in primeUpdate and mark it as modified (Default to True).
         """
 
-        if value is not None:
+        if value not in [None, ""]:
             metadata = self.cursor_.metadata().field(field_name)
             if metadata.type() == "date":
                 value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
-            if metadata.type() == "time":
-                value = datetime.strptime(str(value)[:-8], "%H:%M:%S")
+            elif metadata.type() == "time":
+                value = str(value)
+                if value.find("T") > -1:
+                    value = value[value.find("T") + 1 :]
+
+                value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S")
+            elif metadata.type() == "bool":
+                value = True if value in [True, 1, "1", "true"] else False
 
         try:
             setattr(self._current_model_obj, field_name, value)

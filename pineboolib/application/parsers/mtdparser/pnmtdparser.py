@@ -8,7 +8,7 @@ functions. See pineboolib/pnobjectsfactory.py
 """
 
 from pineboolib import logging
-from typing import List
+from typing import List, Union
 
 from pineboolib import application
 from pineboolib.application.metadata import pnfieldmetadata, pntablemetadata
@@ -20,7 +20,7 @@ LOGGER = logging.get_logger(__name__)
 RESERVER_WORDS = ["pass"]
 
 
-def mtd_parse(table_name: str, path_mtd: str) -> str:
+def mtd_parse(table_name: Union[str, pntablemetadata.PNTableMetaData], path_mtd: str = "") -> str:
     """
     Parse MTD into SqlAlchemy model.
     """
@@ -37,23 +37,26 @@ def mtd_parse(table_name: str, path_mtd: str) -> str:
 
     # if mtd_.isQuery():
     #    return None
-    dest_file = "%s_model.py" % path_mtd
+    if isinstance(table_name, str):
 
-    # print("** Convirtiendo", mtd_.name(), "->", dest_file)
+        dest_file = "%s_model.py" % path_mtd
 
-    # if not os.path.exists(dest_file):
-    if not os.path.exists(dest_file):
-        # print("GENERANDO", dest_file)
-        mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
-        if mtd_ is None:
-            return ""
-        lines = generate_model(mtd_)
+        if not os.path.exists(dest_file):
+            # print("GENERANDO", dest_file)
+            mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
+            if mtd_ is None:
+                return ""
+    else:
+        dest_file = "%s/cache/%s_model.py" % (application.PROJECT.tmpdir, table_name.name())
+        mtd_ = table_name
 
-        if lines:
-            file_ = open(dest_file, "w", encoding="UTF-8")
-            for line in lines:
-                file_.write("%s\n" % line)
-            file_.close()
+    lines = generate_model(mtd_)
+
+    if lines:
+        file_ = open(dest_file, "w", encoding="UTF-8")
+        for line in lines:
+            file_.write("%s\n" % line)
+        file_.close()
 
     return dest_file
 

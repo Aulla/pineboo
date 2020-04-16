@@ -7,7 +7,7 @@ from pineboolib import application
 
 import datetime
 from typing import Dict, Any, List, TYPE_CHECKING
-from sqlalchemy import func, desc, asc
+from sqlalchemy import func, desc, asc, or_
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401
@@ -521,23 +521,33 @@ class DynamicFilter(object):
                 order_by_list.append(order.split(" "))
 
         if filter_str:
-            filter_str = filter_str.replace("=", "eq")
-            filter_str = filter_str.replace("<=", "le")
-            filter_str = filter_str.replace(">=", "ge")
-            filter_str = filter_str.replace("<", "lt")
-            filter_str = filter_str.replace(">", "gt")
+            filter_str = filter_str.replace(" = ", " eq ")
+            filter_str = filter_str.replace(" <= ", " le ")
+            filter_str = filter_str.replace(" >= ", " ge ")
+            filter_str = filter_str.replace(" < ", " lt ")
+            filter_str = filter_str.replace(" > ", " gt ")
             filter_str = filter_str.replace(" in ", " in_ ")
-
+            filter_str = filter_str.strip()
+            print("*", filter_str)
             item = []
             for part in filter_str.split(" "):
+                if not part:
+                    continue
                 if part.startswith("upper("):
                     item.append("upper")
                     part = part[6:-1]
                 elif part.startswith("'"):
                     part = part[1:-1]
+
+                elif part.lower() in ["and", "or"]:
+                    filter_list.append(item)
+                    item = []
+                    part = part.lower()
+
                 item.append(part)
 
-            filter_list.append(item)
+            if item != ["1", "eq", "1"]:
+                filter_list.append(item)
 
         # print("\nConvirtiendo:", filter_str, "\nOrder by:", order_by_list, "\nActual:", filter_list)
 
@@ -599,10 +609,16 @@ class DynamicFilter(object):
             try:
                 func_ = ""
                 func_class = None
+                extra_filter = ""
+
                 if len(raw) == 3:
                     key, op, value = raw
                 elif len(raw) == 4:
                     func_, key, op, value = raw
+                elif len(raw) == 5:
+                    extra_filter, func_, key, op, value = raw
+                else:
+                    raise Exception("arguments length error", raw)
 
             except ValueError:
                 raise Exception("Invalid filter: %s" % raw)
@@ -614,7 +630,7 @@ class DynamicFilter(object):
                 raise Exception("Error parsing func_")
 
             if not column:
-                raise Exception("Invalid filter column: %s" % key)
+                raise Exception("Invalid filter column: %s" % key, raw)
             if op == "in":
                 if isinstance(value, list):
                     filt = column.in_(value)
@@ -633,14 +649,19 @@ class DynamicFilter(object):
 
                 filt = getattr(column if not func_class else func_class(column), attr)(value)
 
-            if not self.order_by:
-                query = query.filter(filt)
+            if extra_filter not in ["and", ""]:
+                if extra_filter == "or":
+                    query = query.filter(or_(filt))
+                else:
+                    raise Exception("Unknown extra filter", extra_filter)
             else:
-                for name, ord in self.order_by:
-                    column_order = getattr(model_class, name, None)
-                    query = query.filter(filt).order_by(
-                        column_order.desc() if ord == "desc" else column_order
-                    )
+                query = query.filter(filt)
+
+            for name, ord in self.order_by:
+                column_order = getattr(model_class, name, None)
+                query = query.filter(filt).order_by(
+                    column_order.desc() if ord == "desc" else column_order
+                )
         return query
 
     def return_query(self, delete_later: bool = False):
