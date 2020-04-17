@@ -356,10 +356,12 @@ def sql_delete(
 
     # if not c.select(w):
     #     return False
+
     _cursor.select(where_)
     _cursor.setForwardOnly(True)
 
     while _cursor.next():
+
         _cursor.setModeAccess(_cursor.Del)
         _cursor.refreshBuffer()
         if not _cursor.commitBuffer():

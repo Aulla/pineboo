@@ -10,8 +10,9 @@ from pineboolib import logging
 
 import datetime
 import decimal
+import sqlalchemy
 
-from typing import List, Union, Optional, Callable, TYPE_CHECKING
+from typing import List, Union, Optional, Callable, Dict, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -55,6 +56,7 @@ class PNBuffer(object):
 
     _current_model_obj: Optional[Callable]
     _generated_fields: List[str]
+    _cache_buffer: Dict[str, TVALUES]
 
     def __init__(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Create a Buffer from the specified PNSqlCursor."""
@@ -67,6 +69,7 @@ class PNBuffer(object):
         # self.inicialized_: bool = False
         self._current_model_obj = None
         self._generated_fields = []
+        self._cache_buffer = {}
         # tmd = self.cursor_.metadata()
         # campos = tmd.fieldList()
 
@@ -80,29 +83,26 @@ class PNBuffer(object):
         #    LOGGER.debug("(%s)PNBuffer. Se inicializa nuevamente el cursor", self.cursor_.curName())
 
         # self.primeUpdate(row)
+        self.clear()
 
-        del self._current_model_obj
         self._current_model_obj = self.cursor_._cursor_model()
-        # print("B *", self._current_model_obj)
         self.inicialized_ = True
 
     def prime_update(self) -> None:
         """Set the initial copy of the cursor values into the buffer."""
-        del self._current_model_obj
-        self._current_model_obj = list(self.cursor_.model()._data_proxy)[
+
+        self.clear()
+        self._current_model_obj = self.cursor_.model().get_obj_from_row(
             self.cursor_.currentRegister()
-        ]
-        # print("B * *", self._current_model_obj, self.cursor_.currentRegister())
+        )
 
     def prime_delete(self) -> None:
-        """Clear the values ​​of all buffer fields."""
-        # for field_key in self.field_dict_.keys():
-        #    field = self.field_dict_[field_key]
-        del self._current_model_obj
-        self._current_model_obj = list(self.cursor_.model()._data_proxy)[
+        """Load registr for delete."""
+
+        self.clear()
+        self._current_model_obj = self.cursor_.model().get_obj_from_row(
             self.cursor_.currentRegister()
-        ]
-        # print("B * * *", self._current_model_obj, self.cursor_.currentRegister())
+        )
 
     def setNull(self, name) -> None:
         """
@@ -119,6 +119,10 @@ class PNBuffer(object):
         @param field_name field identification.
         @return Any = field value.
         """
+
+        if field_name in self._cache_buffer.keys():
+            return self._cache_buffer[field_name]
+
         value = getattr(self._current_model_obj, field_name, None)
 
         metadata = self.cursor_.metadata().field(field_name)
@@ -135,7 +139,23 @@ class PNBuffer(object):
 
         return value
 
-    def setValue(self, field_name: str, value: TVALUES, mark_: bool = True) -> bool:
+    def set_value(self, field_name: str, value: TVALUES) -> bool:
+        """Set values to cache_buffer."""
+
+        if field_name in self.cursor_.metadata().fieldNames():
+            self._cache_buffer[field_name] = value
+        else:
+            return False
+
+        return True
+
+    def apply_buffer(self) -> None:
+        """Aply buffer to object (commitBuffer)."""
+
+        for field_name in self._cache_buffer.keys():
+            self.set_value_to_objet(field_name, self._cache_buffer[field_name])
+
+    def set_value_to_objet(self, field_name: str, value: TVALUES) -> bool:
         """
         Set the value of a field.
 
@@ -169,13 +189,13 @@ class PNBuffer(object):
         """"Clear buffer object."""
         del self._current_model_obj
         self._current_model_obj = None
+        del self._cache_buffer
+        self._cache_buffer = {}
 
     def is_null(self, field_name: str) -> bool:
         """Return if a field is null."""
 
-        if self._current_model_obj:
-            value = getattr(self._current_model_obj, field_name)
-            return value in [None, ""]
+        return self.value(field_name) in [None, ""]
 
         return True
 
@@ -193,3 +213,14 @@ class PNBuffer(object):
         """Return if the field has marked as generated."""
 
         return field_name in self._generated_fields
+
+    def is_valid(self) -> bool:
+        """Return if buffer object is valid."""
+        metadata = self.cursor_.metadata()
+        pk_field = metadata.primaryKey()
+        try:
+            value = getattr(self._current_model_obj, pk_field, None)
+        except sqlalchemy.orm.exc.ObjectDeletedError:
+            return False
+
+        return True

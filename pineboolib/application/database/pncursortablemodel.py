@@ -280,7 +280,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         if self._last_grid_row != row:
             self._last_grid_row = row
-            self._last_grid_obj = list(self._data_proxy)[row]
+            self._last_grid_obj = self.get_obj_from_row(row)
 
         result = getattr(self._last_grid_obj, field.name(), None)
 
@@ -689,6 +689,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self._refresh_field_info()
 
+        if self.metadata().isQuery():
+            print("FIXME!! query!!")
         # if self.sql_fields_without_check:
         #    self.sql_str = ", ".join(self.sql_fields_without_check)
         # else:
@@ -703,11 +705,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         dynamic_filter_class.set_filter_condition_from_string(where_filter)
 
-        data = dynamic_filter_class.return_query()
-        if self.metadata().isQuery():
-            print("FIXME!! query!!")
+        self._data_proxy = dynamic_filter_class.return_query()
         # print("--->", data, type(data), list(data))
-        self._data_proxy = list(data)
+        # self._data_proxy = list(data)
 
         # if self._curname:
         #    self.driver_sql().delete_declared_cursor(self._curname)
@@ -717,7 +717,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # self.driver_sql().declare_cursor(
         #    self._curname, self.sql_str, self._tablename, self.where_filter
         # )
-        self._rows_loaded = len(self._data_proxy)
+        self._rows_loaded = self._data_proxy.count()
 
         if not self._rows_loaded:
             return
@@ -731,6 +731,16 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.need_update = False
         self._column_hints = [120] * len(self.sql_fields)
         self.update_rows()
+
+    def get_obj_from_row(self, row: int) -> Optional[Callable]:
+        """Return row object from proxy."""
+
+        if row > -1 and row < self._rows_loaded:
+            for number, obj_ in enumerate(self._data_proxy):
+                if number == row:
+                    return obj_
+
+        return None
 
     # def value(self, row: Optional[int], field_name: str) -> Any:
     #    """
@@ -797,7 +807,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         if row != self._current_row_index:
             if row > -1 and row < self.rowCount():
-                object_ = list(self._data_proxy)[row]
+                object_ = self.get_obj_from_row(row)
                 # if object_ is None:
                 #    return False
 

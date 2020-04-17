@@ -8,9 +8,11 @@ from pineboolib import application
 import datetime
 from typing import Dict, Any, List, TYPE_CHECKING
 from sqlalchemy import func, desc, asc, or_
+import sqlalchemy
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401
+    from sqlalchemy.orm import query
 
 LOGGER = logging.get_logger(__name__)
 
@@ -514,30 +516,43 @@ class DynamicFilter(object):
         pos_order = filter_str.lower().find("order by")
         if pos_order > -1:
             order_by_str = filter_str[pos_order + 9 :].lower()
-            filter_str = filter_str[:pos_order].strip()
+            filter_str = filter_str[:pos_order]
 
             for order in order_by_str.split(","):
                 order = order.strip()
                 order_by_list.append(order.split(" "))
 
         if filter_str:
-            filter_str = filter_str.replace("=", " eq ")
             filter_str = filter_str.replace("<=", " le ")
             filter_str = filter_str.replace(">=", " ge ")
+            filter_str = filter_str.replace("=", " eq ")
             filter_str = filter_str.replace("<", " lt ")
             filter_str = filter_str.replace(">", " gt ")
             filter_str = filter_str.replace(" in ", " in_ ")
-            filter_str = filter_str.strip()
 
             item = []
-            for part in filter_str.split(" "):
+            pasa = 0
+
+            list_ = filter_str.split(" ")
+
+            for number, part in enumerate(list_):
+
+                if pasa:
+                    pasa -= 1
+                    continue
+
                 if not part:
                     continue
                 if part.startswith("upper("):
                     item.append("upper")
                     part = part[6:-1]
-                elif part.startswith("'"):
-                    part = part[1:-1]
+                elif part.find("'") > -1:
+                    pos_ini = part.find("'")
+                    while part[pos_ini + 1 :].find("'") == -1:
+                        part = "%s %s" % (part, list_[number + 1])
+                        pasa += 1
+
+                    part = part.replace("'", "")
 
                 elif part.lower() in ["and", "or"]:
                     filter_list.append(item)
@@ -546,10 +561,21 @@ class DynamicFilter(object):
 
                 item.append(part)
 
-            if item != ["1", "eq", "1"]:
+            if item and item != ["1", "eq", "1"]:
                 filter_list.append(item)
 
-        # print("\nConvirtiendo:", filter_str, "\nOrder by:", order_by_list, "\nActual:", filter_list)
+        # =======================================================================
+        # print(
+        #     "\nConvirtiendo:",
+        #     filter_str,
+        #     "\nOrder by:",
+        #     order_by_list,
+        #     "\nActual:",
+        #     filter_list,
+        #     "\nORDER:",
+        #     order_by_list,
+        # )
+        # =======================================================================
 
         self.order_by = order_by_list
         self.filter_condition = filter_list
@@ -614,7 +640,13 @@ class DynamicFilter(object):
                 if len(raw) == 3:
                     key, op, value = raw
                 elif len(raw) == 4:
-                    func_, key, op, value = raw
+                    func_or_extra, key, op, value = raw
+
+                    if func_or_extra in ["and", "or"]:
+                        extra_filter = func_or_extra
+                    else:
+                        func_ = func_or_extra
+
                 elif len(raw) == 5:
                     extra_filter, func_, key, op, value = raw
                 else:
@@ -663,10 +695,11 @@ class DynamicFilter(object):
 
         return query
 
-    def return_query(self, delete_later: bool = False):
-        if delete_later:
-            return self.filter_query(self.query, self.filter_condition).delete(
-                synchronize_session=False
-            )
+    def return_query(self, delete_later: bool = False) -> "query.Query":
 
-        return self.filter_query(self.query, self.filter_condition)
+        result = self.filter_query(self.query, self.filter_condition)
+
+        if delete_later:
+            result = result.delete(synchronize_session=False)
+
+        return result

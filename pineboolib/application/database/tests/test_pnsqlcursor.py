@@ -79,7 +79,7 @@ class TestDeleteData(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
-    def test_basic(self) -> None:
+    def test_basic_1(self) -> None:
         """Delete data from a database."""
         cursor = pnsqlcursor.PNSqlCursor("flareas")
         cursor.setModeAccess(cursor.Insert)
@@ -106,6 +106,46 @@ class TestDeleteData(unittest.TestCase):
         cursor.refresh()
         size_3 = cursor.size()
         self.assertEqual(size_3, 0)
+
+    def test_basic_2(self) -> None:
+        """Delete data from a database."""
+
+        cursor = pnsqlcursor.PNSqlCursor("flareas")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "T1")
+        cursor.setValueBuffer("descripcion", "Área de prueba T1")
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "T2")
+        cursor.setValueBuffer("descripcion", "Área de prueba T2")
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "T3")
+        cursor.setValueBuffer("descripcion", "Área de prueba T3")
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "T4")
+        cursor.setValueBuffer("descripcion", "Área de prueba T4")
+        self.assertTrue(cursor.commitBuffer())
+
+        self.assertEqual(cursor.size(), 3)
+        pass_ = 0
+        cursor.select()
+        while cursor.next():
+            pass_ += 1
+            cursor.setModeAccess(self.Del)
+            cursor.refreshBuffer()
+            sefl.assertTrue(cursor.commitBuffer(False))
+
+        self.assertEqual(pass_, 4)
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -857,17 +897,21 @@ class TestCorruption(unittest.TestCase):
         cursor = pnsqlcursor.PNSqlCursor("fltest")
         cursor.select()
         self.assertEqual(cursor.size(), 100)
+
         cursor.select("string_field ='Linea 10'")
         self.assertEqual(cursor.size(), 1)
         self.assertTrue(cursor.first())
         cursor.setModeAccess(cursor.Edit)
         self.assertTrue(cursor.refreshBuffer())
         cursor.setValueBuffer("string_field", "Linea 10 m.")
-        qsa.FLUtil().sqlDelete("fltest", "string_field='Linea 10'")
+
+        self.assertTrue(qsa.FLUtil().sqlDelete("fltest", "string_field='Linea 10'"))
+
         cursor_2 = pnsqlcursor.PNSqlCursor("fltest")
         cursor_2.select()
         self.assertEqual(cursor_2.size(), 99)
-        self.assertTrue(cursor.commitBuffer())
+
+        self.assertFalse(cursor.commitBuffer())
 
         cursor.select("string_field ='Linea 9'")
         self.assertEqual(cursor.size(), 1)
@@ -881,14 +925,17 @@ class TestCorruption(unittest.TestCase):
 
         cursor_3 = pnsqlcursor.PNSqlCursor("fltest")
         cursor_3.select()
+        self.assertEqual(cursor_3.size(), 99)
         i = 0
         size = 99
-        while cursor_3.next():
+        while i > 99:
+            self.assertTrue(cursor_3.next())
             if i == 10:
                 qsa.FLUtil().sqlDelete("fltest", "string_field='Linea 20'")
                 size -= 1
                 i += 1
 
+            print("Check linea", "Linea %s" % i)
             self.assertTrue(cursor_3.valueBuffer("string_field").find("Linea %s" % i) > -1)
             self.assertEqual(cursor_3.size(), 99)
             i += 1

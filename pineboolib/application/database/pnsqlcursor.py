@@ -407,7 +407,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 "No se puede actualizar el campo de forma atómica, porque no existe clave primaria"
             )
 
-        self.private_cursor.buffer_.setValue(field_name, value)
+        self.private_cursor.buffer_.set_value(field_name, value)
         self.bufferChanged.emit(field_name)
         application.PROJECT.app.processEvents()  # type: ignore[misc] # noqa: F821
 
@@ -480,7 +480,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             # if type_ == "date":
             # value = time.strptime(repr(value))
             #    print("**", value)
-            self.private_cursor.buffer_.setValue(field_name, value)
+            self.private_cursor.buffer_.set_value(field_name, value)
 
         # LOGGER.trace("(%s)bufferChanged.emit(%s)" % (self.curName(),field_name))
 
@@ -576,7 +576,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             elif type_ in ("double", "int", "uint"):
                 value = 0
 
-            # self.private_cursor.buffer_.setValue(field_name, value)
+            # self.private_cursor.buffer_.set_value(field_name, value)
 
         return value
 
@@ -970,7 +970,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         for field_name in self.metadata().fieldNames():
             value = self.buffer().value(field_name)
             if value is not None:
-                self.bufferCopy().setValue(field_name, value)
+                self.bufferCopy().set_value(field_name, value)
 
     def isModifiedBuffer(self) -> bool:
         """
@@ -980,13 +980,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return True if different. False if equal.
         """
-        for field_name in self.metadata().fieldNames():
-            buffer = self.private_cursor.buffer_
-            buffer_copy = self.private_cursor._buffer_copy
 
-            if buffer and buffer_copy:
-                if buffer.value(field_name) != buffer_copy.value(field_name):
-                    return True
+        if self.private_cursor.buffer_ and self.private_cursor.buffer_._cache_buffer:
+            return True
+            # buffer_copy = self.private_cursor._buffer_copy
+
+            # if buffer and buffer_copy:
+            #    if buffer.value(field_name) != buffer_copy.value(field_name):
+            #        return True
 
         return False
 
@@ -1039,6 +1040,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.private_cursor.buffer_ is None or self.private_cursor.metadata_ is None:
             message = "\nBuffer vacío o no hay metadatos"
             return message
+
+        if not self.buffer().is_valid():
+            return "\nEl registro ha sido borrado el la BD"
 
         if self.private_cursor.mode_access_ in [self.Insert, self.Edit]:
             if not self.isModifiedBuffer() and self.private_cursor.mode_access_ == self.Edit:
@@ -1114,7 +1118,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                 assoc_value,
                             )
                         else:
-                            self.private_cursor.buffer_.setValue(field_metadata_name, qry.value(0))
+                            self.private_cursor.buffer_.set_value(field_metadata_name, qry.value(0))
 
                     else:
                         message += "\n%s:%s : %s no se puede asociar aun valor NULO" % (
@@ -1226,7 +1230,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                 relation_m1.foreignTable(),
                             )
                         else:
-                            self.private_cursor.buffer_.setValue(field_name, qry.value(0))
+                            self.private_cursor.buffer_.set_value(field_name, qry.value(0))
 
                         if not table_metadata.inCache():
                             del table_metadata
@@ -1422,7 +1426,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             raise Exception("Unexpected null buffer")
 
         self.setModeAccess(self.Edit)
-        self.private_cursor.buffer_.setValue(field_name, v)
+        self.private_cursor.buffer_.set_value(field_name, v)
         self.update()
         self.refreshBuffer()
 
@@ -1434,6 +1438,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         if not self.private_cursor.metadata_:
             return False
+        if not self.private_cursor.buffer_:
+            return True
 
         ret_ = False
         if self.private_cursor.mode_access_ is not self.Insert:
@@ -1441,7 +1447,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             for field_name in self.private_cursor.metadata_.fieldNamesUnlock():
                 if row > -1:
-                    if self.buffer().value(field_name) not in ("True", True, 1, "1"):
+                    if self.private_cursor.buffer_.value(field_name) not in ("True", True, 1, "1"):
                         ret_ = True
                         break
 
@@ -1475,7 +1481,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     def clear_buffer(self) -> None:
         """Clear buffer."""
 
-        if self.private_cursor.buffer_:
+        if self.private_cursor.buffer_ and self.modeAccess() != self.Insert:
             self.buffer().clear()
 
     def bufferIsNull(self, field_name: str) -> bool:
@@ -1502,7 +1508,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
 
         if self.private_cursor.buffer_ is not None:
-            self.buffer().setValue(field_name, None)
+            self.buffer().set_value(field_name, None)
 
     def bufferCopyIsNull(self, field_name: str) -> bool:
         """
@@ -1523,7 +1529,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
 
         if self.private_cursor._buffer_copy is not None:
-            self.bufferCopy().setValue(field_name, None)
+            self.bufferCopy().set_value(field_name, None)
 
     def atFrom(self) -> int:
         """
@@ -1995,17 +2001,17 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 default_value = field.defaultValue()
                 if default_value is not None:
                     # default_value.cast(fltype)
-                    self.buffer().setValue(field_name, default_value)
+                    self.buffer().set_value(field_name, default_value)
 
                 if type_ == "serial":
                     val = self.db().nextSerialVal(self.table(), field_name)
                     if val is None:
                         val = 0
-                    self.buffer().setValue(field_name, val)
+                    self.buffer().set_value(field_name, val)
                 elif type_ == "timestamp":
                     if not field.allowNull():
                         val = self.db().getTimeStamp()
-                        self.buffer().setValue(field_name, val)
+                        self.buffer().set_value(field_name, val)
 
                 if field.isCounter():
 
@@ -2023,7 +2029,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         siguiente = utils.next_counter(field_name, self)
 
                     if siguiente:
-                        self.private_cursor.buffer_.setValue(field_name, siguiente)
+                        self.private_cursor.buffer_.set_value(field_name, siguiente)
 
             if (
                 self.private_cursor.cursor_relation_ is not None
@@ -2570,7 +2576,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 and not self.private_cursor.metadata_.fieldListOfCompoundKey(item.name())
                 and not item.calculated()
             ):
-                self.private_cursor.buffer_.setValue(item.name(), buffer_aux.value(item.name()))
+                self.private_cursor.buffer_.set_value(item.name(), buffer_aux.value(item.name()))
 
             del buffer_aux
             self.newBuffer.emit()
@@ -2661,6 +2667,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if not self.checkIntegrity():
             return False
+
+        self.buffer().apply_buffer()
 
         field_name_check = None
 
@@ -3224,7 +3232,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.rollbackOpened(-1, message)
 
         buffer_backup = None
-        if self.buffer():
+        if self.private_cursor.buffer_:
             buffer_backup = self.buffer()
             self.private_cursor.buffer_ = None
 
@@ -3389,7 +3397,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             #        setattr(obj_, field_name, self.private_cursor.buffer_.value(field_name))
 
             #    for field_name in lista:
-            #        self.private_cursor._model.setValue(
+            #        self.private_cursor._model.set_value(
             #            row, field_name, self.private_cursor.buffer_.value(field_name)
             #        )
 
