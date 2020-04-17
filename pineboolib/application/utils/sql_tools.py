@@ -695,11 +695,6 @@ class DynamicFilter(object):
 
         return query
 
-    def return_query(self, delete_later: bool = False) -> "query.Query":
+    def return_query(self) -> "query.Query":
 
-        result = self.filter_query(self.query, self.filter_condition)
-
-        if delete_later:
-            result = result.delete(synchronize_session=False)
-
-        return result
+        return self.filter_query(self.query, self.filter_condition)

@@ -30,14 +30,21 @@ class Fltest3(BASE):
                 "visiblegrid": False,
                 "editable": False,
             },
-            {"name": "string_field", "alias": "String field", "type": "string"},
+            {"name": "string_field", "alias": "String field", "type": "string", "default": ""},
             {
                 "name": "timezone_field",
                 "alias": "TimeZone field",
                 "type": "timestamp",
                 "null": False,
+                "default": "",
             },
-            {"name": "bool_field", "alias": "Bool field", "type": "bool", "null": False},
+            {
+                "name": "bool_field",
+                "alias": "Bool field",
+                "type": "bool",
+                "null": False,
+                "default": False,
+            },
         ],
     }
 

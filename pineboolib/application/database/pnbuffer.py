@@ -141,7 +141,6 @@ class PNBuffer(object):
 
     def set_value(self, field_name: str, value: TVALUES) -> bool:
         """Set values to cache_buffer."""
-
         if field_name in self.cursor_.metadata().fieldNames():
             self._cache_buffer[field_name] = value
         else:
@@ -151,7 +150,6 @@ class PNBuffer(object):
 
     def apply_buffer(self) -> None:
         """Aply buffer to object (commitBuffer)."""
-
         for field_name in self._cache_buffer.keys():
             self.set_value_to_objet(field_name, self._cache_buffer[field_name])
 
@@ -169,6 +167,8 @@ class PNBuffer(object):
             type_ = metadata.type()
             if type_ == "date":
                 value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
+            elif type_ == "timestamp":
+                value = datetime.datetime.strptime(str(value), "%Y-%m-%d %H:%M:%S")
             elif type_ == "time":
                 value = str(value)
                 if value.find("T") > -1:

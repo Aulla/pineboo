@@ -147,11 +147,11 @@ class TestPNBuffer(unittest.TestCase):
         if buffer_ is None:
             raise Exception("buffer is empty!.")
 
-        buffer_.setValue("string_field", "Campo texto 1 mod")
+        buffer_.set_value("string_field", "Campo texto 1 mod")
         # self.assertEqual(buffer_.modifiedFields(), ["string_field"])
         # buffer_.setNoModifiedFields()
         # self.assertEqual(buffer_.modifiedFields(), [])
-        buffer_.setValue("double_field", 1.02)
+        buffer_.set_value("double_field", 1.02)
         # self.assertEqual(buffer_.modifiedFields(), ["double_field"])
         self.assertEqual(buffer_.value("double_field"), 1.02)
 

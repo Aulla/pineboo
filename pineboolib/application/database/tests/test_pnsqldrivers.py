@@ -20,11 +20,11 @@ class TestPNSqlDrivers(unittest.TestCase):
 
         self.assertEqual(conn_._driver_sql.defaultDriverName(), "FLsqlite")
         self.assertEqual(conn_._driver_sql.driverName(), "FLsqlite")
-        self.assertTrue(
-            conn_._driver_sql.isDesktopFile(
-                conn_._driver_sql.nameToAlias(conn_._driver_sql.driverName())
-            )
-        )
+        # self.assertTrue(
+        #    conn_._driver_sql.isDesktopFile(
+        #        conn_._driver_sql.nameToAlias(conn_._driver_sql.driverName())
+        #    )
+        # )
         self.assertEqual(
             conn_._driver_sql.port(conn_._driver_sql.nameToAlias(conn_._driver_sql.driverName())),
             "0",

@@ -68,9 +68,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         queqe_params["encoding"] = "UTF-8"
         # queqe_params["echo"] = True
 
-        if limit_conn > 0:
-            queqe_params["pool_size"] = limit_conn
-            # queqe_params["max_overflow"] = int(limit_conn * 2)
+        # if limit_conn > 0:
+        #    queqe_params["pool_size"] = limit_conn
+        # queqe_params["max_overflow"] = int(limit_conn * 2)
 
         if conn_ is None:
             if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):

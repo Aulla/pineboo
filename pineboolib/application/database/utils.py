@@ -361,7 +361,6 @@ def sql_delete(
     _cursor.setForwardOnly(True)
 
     while _cursor.next():
-
         _cursor.setModeAccess(_cursor.Del)
         _cursor.refreshBuffer()
         if not _cursor.commitBuffer():

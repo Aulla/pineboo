@@ -1759,7 +1759,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 "cursor:%s , row:%s:: %s", self._action.table(), self.currentRegister(), self
             )
 
-    def selection_pk(self, value: str) -> bool:
+    def selection_pk(self, value: Any) -> bool:
         """
         Move the cursor position to the one that matches the primaryKey value.
 
@@ -1773,12 +1773,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.private_cursor.buffer_:
             raise Exception("Buffer not set")
 
-        pk_value = self.buffer().value(self.primaryKey())
-        grid_row = self.model().find_pk_row(pk_value)
+        # pk_value = self.buffer().value(self.primaryKey())
+        grid_row = self.model().find_pk_row(value)
 
         if grid_row > -1:
             if self.at() != grid_row:
                 return self.move(grid_row)
+            else:
+                return True
         # for i in range(self.private_cursor._model.rowCount()):
         #    pk_value = self.private_cursor.buffer_.pK()
         #    if pk_value is None:
@@ -2112,7 +2114,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         result = self.move(index)
 
-        if result and self.buffer():
+        if result:
             if emite:
                 self.currentChanged.emit(self.at())
 
@@ -2338,8 +2340,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         ):
             final_filter = "1 = 0"
 
-        if final_filter:
-            self.setFilter(final_filter)
+        # if final_filter:
+        self.setFilter(final_filter)
 
         if sort:
             self.private_cursor._model.setSortOrder(sort)
@@ -2902,7 +2904,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         [self.primaryKey(), "eq", self.valueBuffer(self.primaryKey())]
                     ],
                 )
-                query_class.return_query(True)
+                query_class.return_query().delete(synchronize_session=False)
                 # transaction.delete(self.buffer()._current_model_obj)
             except Exception as error:
                 raise Exception("Error deleting row!: %s" % error)

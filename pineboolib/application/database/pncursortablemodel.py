@@ -639,7 +639,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._last_grid_row = -1
         self._last_grid_obj = None
         self._parent.clear_buffer()
-
         session_ = self.db().session()
 
         # print("REFESCANDO", self._tablename, self, session_)
@@ -808,9 +807,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if row != self._current_row_index:
             if row > -1 and row < self.rowCount():
                 object_ = self.get_obj_from_row(row)
-                # if object_ is None:
-                #    return False
-
+                if object_ is None:
+                    return False
                 self._current_row_index = row
                 self._current_row_data = object_
 
