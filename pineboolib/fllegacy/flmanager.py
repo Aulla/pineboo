@@ -185,7 +185,7 @@ class FLManager(QtCore.QObject, IManager):
 
                     ret = self.metadata(model_.legacy_metadata)
                 else:
-                    LOGGER.warning("metadata %s from xml is deprecated", metadata_name_or_xml)
+                    # LOGGER.warning("metadata %s from xml is deprecated", metadata_name_or_xml)
                     stream = self.db_.connManager().managerModules().contentCached(table_name)
 
                     if not stream:

@@ -1017,7 +1017,7 @@ class TestAfterCommit(unittest.TestCase):
 
         init_testing()
 
-    def test_basic(self) -> None:
+    def Test_basic(self) -> None:
         """Test sys.afertCommit_flfiles is called"""
         from pineboolib import application
         from pineboolib.plugins.mainform.eneboo import eneboo
@@ -1033,7 +1033,7 @@ class TestAfterCommit(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         qsa_sys.loadModules(path, False)
 
-    def test_basic_2(self) -> None:
+    def Test_basic_2(self) -> None:
         """Test size and sha."""
         from pineboolib.qsa import qsa
 
