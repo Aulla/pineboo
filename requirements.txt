@@ -10,7 +10,7 @@ ply
 pylint
 six
 PyQt5==5.13.0
-PyQt5-sip
+PyQt5-sip==12.7.2
 PyQt5-stubs
 pytest
 python-barcode
@@ -21,8 +21,9 @@ reportlab
 setuptools
 sqlalchemy==1.3.16
 sqlparse
-sphinx
-sphinx-autodoc-typehints
+sphinx==3.0.1
+sphinxcontrib-serializinghtml==1.1.4
+sphinx-autodoc-typehints==1.10.3
 testresources
 pydocstyle
 sphinx-rtd-theme
