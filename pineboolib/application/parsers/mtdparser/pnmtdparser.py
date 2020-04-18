@@ -136,11 +136,13 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     # data.append(
     #    "from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated"
     # )
-    data.append("from pineboolib import application")
+    # data.append("from pineboolib import application")
     # data.append("from pineboolib.qsa import qsa")
-    data.append("")
+    # data.append("")
     # data.append("Base = declarative_base()")
-    data.append("BASE = application.PROJECT.conn_manager.mainConn().declarative_base()")
+    data.append("from sqlalchemy.ext import declarative # type: ignore [import] # noqa: F821")
+    data.append("")
+    data.append("BASE = declarative.declarative_base()")
     # data.append("ENGINE = application.PROJECT.conn_manager.mainConn().engine()")
     data.append("")
     # for field in mtd_table.fieldList():

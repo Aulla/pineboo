@@ -15,7 +15,7 @@ from pineboolib.core import decorators
 from pineboolib.fllegacy import flutil
 
 from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noqa: F821
-from sqlalchemy.ext import declarative  # type: ignore
+from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
 from sqlalchemy.inspection import inspect  # type: ignore [import] # noqa: F821, F401
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 from sqlalchemy import event  # type: ignore [import] # noqa: F821, F401

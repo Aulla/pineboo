@@ -4,9 +4,9 @@
 
 import sqlalchemy
 
-from pineboolib import application
+from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
 
-BASE = application.PROJECT.conn_manager.mainConn().declarative_base()
+BASE = declarative.declarative_base()
 
 
 class Fltest(BASE):
