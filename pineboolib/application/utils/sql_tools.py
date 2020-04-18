@@ -615,7 +615,7 @@ class DynamicFilter(object):
     def filter_query(self, query, filter_condition) -> None:
         """
         Return filtered queryset based on condition.
-        
+
         :param query: takes query
         :param filter_condition: Its a list, ie: [(key,operator,value)]
         operator list:
