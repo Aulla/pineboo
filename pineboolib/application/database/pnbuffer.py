@@ -230,6 +230,8 @@ class PNBuffer(object):
         metadata = self.cursor_.metadata()
         pk_field = metadata.primaryKey()
         try:
+            if not self._orm_obj:
+                return False
             value = getattr(self._orm_obj, pk_field)  # noqa: F841
         except sqlalchemy.orm.exc.ObjectDeletedError:
             return False
