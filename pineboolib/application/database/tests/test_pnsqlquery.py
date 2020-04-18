@@ -300,7 +300,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
-    def test_basic_4(self) -> None:
+    def Test_basic_4(self) -> None:
         """Test basic test 4."""
         from pineboolib.qsa import qsa
         from pineboolib import application
@@ -483,7 +483,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         self.assertEqual(qry.value("fechaini"), "")
         self.assertNotEqual(qry.value("fechafinal"), "")
 
-    def test_basic_5(self) -> None:
+    def Test_basic_5(self) -> None:
         """Test query without where."""
 
         from pineboolib.qsa import qsa
