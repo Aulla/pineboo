@@ -9,7 +9,7 @@ from pineboolib.core.garbage_collector import check_gc_referrers
 from pineboolib import logging, application
 
 
-from typing import Set, Tuple, Optional, Any, TYPE_CHECKING, cast
+from typing import Set, Tuple, Optional, Any, cast, Union, TYPE_CHECKING
 import weakref
 import sys
 
@@ -26,7 +26,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
     closed = QtCore.pyqtSignal()
     cursor_: Optional["flsqlcursor.FLSqlCursor"]
-    _form: Optional["flformdb.FLFormDB"]
+    _form: Optional[Union["flformdb.FLFormDB", "FormDBWidget"]]
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
     _loaded: bool
@@ -203,9 +203,9 @@ class FormDBWidget(QtWidgets.QWidget):
             if name == "form":
                 ret_ = self._get_form()
             else:
-                form = self._get_form()
-                if not isinstance(form, FormDBWidget):
-                    ret_ = getattr(form, name, None)
+                form_ = self._get_form()
+                if not isinstance(form_, FormDBWidget):
+                    ret_ = getattr(form_, name, None)
 
         if ret_ is None and not TYPE_CHECKING:
 
@@ -220,11 +220,11 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return ret_
 
-    def _set_form(self, form: Optional["flformdb.FLFormDB"]) -> None:
+    def _set_form(self, form: Optional[Union["flformdb.FLFormDB", "FormDBWidget"]]) -> None:
         """Set form widget."""
         self._form = form
 
-    def _get_form(self) -> Optional["flformdb.FLFormDB"]:
+    def _get_form(self) -> Optional[Union["flformdb.FLFormDB", "FormDBWidget"]]:
         """Return form widget."""
 
         if self._form is None:

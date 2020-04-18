@@ -4,7 +4,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core.utils import logging
 from pineboolib.application.database import pnsqlcursor
-from pineboolib import application
+
 from pineboolib.core.utils import utils_base
 from . import fixture_path
 
@@ -893,7 +893,6 @@ class TestCorruption(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
-        from pineboolib import application
 
         # application.VIRTUAL_DB = True
         init_testing()

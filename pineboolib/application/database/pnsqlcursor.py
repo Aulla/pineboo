@@ -9,7 +9,7 @@ from pineboolib.core.utils import logging
 from pineboolib.core import decorators, settings
 
 from . import pnsqlquery, utils
-from pineboolib.application.utils import xpm, sql_tools
+from pineboolib.application.utils import xpm
 from pineboolib.application import types, qsadictmodules
 from pineboolib.application.parsers.mtdparser import pnormmodelsfactory
 
@@ -965,7 +965,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             del self.private_cursor._buffer_copy
 
         self.private_cursor._buffer_copy = pnbuffer.PNBuffer(self)
-        self.bufferCopy()._current_model_obj = self._cursor_model()
+        self.bufferCopy()._orm_obj = self._cursor_model()
 
         for field_name in self.metadata().fieldNames():
             value = self.buffer().value(field_name)
@@ -3279,21 +3279,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         ):
             for field in self.metadata().fieldList():
                 self.private_cursor.buffer_.set_generated(field.name(), False)
-
-    @decorators.not_implemented_warn
-    def setExtraFieldAttributes(self):
-        """Deprecated."""
-
-        return True
-
-    # def clearMapCalcFields(self):
-    #    self.private_cursor.mapCalcFields_ = []
-
-    # @decorators.not_implemented_warn
-    # def valueBufferRaw(self, field_name: str) -> Any:
-    #    """Deprecated."""
-
-    #    return True
 
     def sort(self) -> str:
         """

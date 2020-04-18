@@ -226,6 +226,7 @@ def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
 
 
 def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[str]:
+    """Generate field data from a PNFieldMetaData."""
 
     field_data: List = []
 

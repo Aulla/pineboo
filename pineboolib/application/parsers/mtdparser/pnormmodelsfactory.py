@@ -66,6 +66,8 @@ def empty_base():
 
 
 def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> None:
+    """Register a mtd as model."""
+
     from pineboolib.application.qsadictmodules import QSADictModules
 
     if "%s_model" % metadata.name() in PROCESSED:

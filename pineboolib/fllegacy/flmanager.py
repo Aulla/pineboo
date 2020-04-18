@@ -396,7 +396,7 @@ class FLManager(QtCore.QObject, IManager):
 
     @decorators.not_implemented_warn
     def metadataDev(self, n: str, quick: bool = False) -> bool:
-        """Deprecated."""
+        """Return metadata (deprecated)."""
         return True
 
     def query(
@@ -1419,7 +1419,7 @@ class FLManager(QtCore.QObject, IManager):
             c.select("tabla = '%s'" % table)
             if c.next():
                 buffer = c.prime_update()
-                buffer.setValue("xml", q2.value(1))
+                buffer.set_value("xml", q2.value(1))
                 c.update()
             self.dict_key_metadata_[table] = q2.value(1)
 

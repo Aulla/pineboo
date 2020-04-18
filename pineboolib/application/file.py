@@ -24,7 +24,7 @@ class File(object):
         db_name: Optional[str] = None,
     ) -> None:
         """
-        Constructor.
+        Initialize.
 
         @param module. Identificador del módulo propietario
         @param filename. Nombre del fichero

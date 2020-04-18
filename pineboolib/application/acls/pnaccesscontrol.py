@@ -89,7 +89,7 @@ class PNAccessControl(object):
     _acos_perms: Dict[str, str]
 
     def __init__(self) -> None:
-        """Initialization."""
+        """Initialize."""
         self._name = ""
         self._user = ""
         self._perm = ""

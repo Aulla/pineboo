@@ -770,3 +770,8 @@ class ISqlCursor(QtCore.QObject):
         """
 
         return ""
+
+    def clear_buffer(self) -> None:
+        """Clear buffer."""
+
+        pass

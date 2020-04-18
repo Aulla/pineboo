@@ -60,7 +60,7 @@ class Kut2FPDF(object):
     reset_page_count: bool
 
     def __init__(self) -> None:
-        """Constructor."""
+        """Initialize."""
 
         check_dependencies({"fpdf": "fpdf2"})
 
@@ -326,9 +326,9 @@ class Kut2FPDF(object):
             draw_if = section.get("DrawIf")
             show = True
             if draw_if:
-                show = bool(data.get(draw_if))
+                show = data.get(draw_if) not in ("", "False", "None", False)
 
-            if section.get("Level") == str(data_level) and show not in ("", "False", "None"):
+            if section.get("Level") == str(data_level) and show:
 
                 if section_name in ("DetailHeader", "Detail"):
                     height_calculated = (

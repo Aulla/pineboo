@@ -19,7 +19,7 @@ class ModuleActions(object):
 
     def __init__(self, module: Any, path: str, modulename: str) -> None:
         """
-        Constructor.
+        Initialize.
 
         @param module. Identificador del módulo
         @param path. Ruta del módulo

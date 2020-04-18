@@ -7,12 +7,13 @@ from pineboolib import application
 
 import datetime
 from typing import Dict, Any, List, TYPE_CHECKING
-from sqlalchemy import func, desc, asc, or_
-import sqlalchemy
+
+# from sqlalchemy import func, desc, asc, # type: ignore [import] # noqa: F821, F401
+import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
 if TYPE_CHECKING:
     from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401
-    from sqlalchemy.orm import query
+    from sqlalchemy.orm import query  # type: ignore [import] # noqa: F821, F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -614,6 +615,7 @@ class DynamicFilter(object):
     def filter_query(self, query, filter_condition) -> None:
         """
         Return filtered queryset based on condition.
+        
         :param query: takes query
         :param filter_condition: Its a list, ie: [(key,operator,value)]
         operator list:
@@ -657,7 +659,7 @@ class DynamicFilter(object):
             column = getattr(model_class, key, None)
             try:
                 if func_:
-                    func_class = getattr(func, func_)
+                    func_class = getattr(sqlalchemy.func, func_)
             except Exception:
                 raise Exception("Error parsing func_")
 
@@ -683,7 +685,7 @@ class DynamicFilter(object):
 
             if extra_filter not in ["and", ""]:
                 if extra_filter == "or":
-                    filt = or_(filt)
+                    filt = sqlalchemy.or_(filt)
                 else:
                     raise Exception("Unknown extra filter", extra_filter)
 
@@ -696,5 +698,6 @@ class DynamicFilter(object):
         return query
 
     def return_query(self) -> "query.Query":
+        """Return query object."""
 
         return self.filter_query(self.query, self.filter_condition)

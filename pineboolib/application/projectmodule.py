@@ -70,7 +70,7 @@ class Project(object):
     pending_conversion_list: List[str]
 
     def __init__(self) -> None:
-        """Constructor."""
+        """Initialize."""
         # self._conn = None
         self.dgi = None
         self.tree = None

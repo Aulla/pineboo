@@ -37,7 +37,7 @@ class XMLAction(struct.ActionStruct):
         self, module: "moduleactions.ModuleActions", action_xml_or_str: Union["ET.Element", str]
     ) -> None:
         """
-        Constructor.
+        Initialize.
         """
         if isinstance(action_xml_or_str, str):
             super().__init__()

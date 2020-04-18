@@ -88,7 +88,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
     def __init__(self, conn: "iconnection.IConnection", parent: "isqlcursor.ISqlCursor") -> None:
         """
-        Constructor.
+        Initialize.
 
         @param conn. PNConnection Object
         @param parent. related FLSqlCursor
@@ -190,11 +190,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
     def disable_refresh(self, disable: bool) -> None:
         """
-       Disable refresh.
+        Disable refresh.
 
-       e.g. FLSqlQuery.setForwardOnly(True).
-       @param disable. True or False
-       """
+        e.g. FLSqlQuery.setForwardOnly(True).
+        @param disable. True or False
+        """
+
         self._disable_refresh = disable
 
     def sort(self, column: int, order: QtCore.Qt.SortOrder = QtCore.Qt.AscendingOrder) -> None:
@@ -591,20 +592,31 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
                 self.sql_fields.append(field.name())
 
-    def insert_current_buffer(self):
+    def insert_current_buffer(self) -> bool:
         """Insert data from current buffer."""
+        try:
+            obj_ = self.buffer().current_object()
+            self.db().session().add(obj_)
+            return True
+        except Exception as error:
+            LOGGER.warning("insert_current_buffer : %s" % error)
 
-        obj_ = self.buffer().current_object()
-        self.db().session().add(obj_)
+        return False
 
     # def edit_current_buffer(self):
     #    """Update data from current buffer."""
 
-    def delete_current_buffer(self):
+    def delete_current_buffer(self) -> bool:
         """Delete data from current buffer."""
 
-        obj_ = self.buffer().current_object()
-        self.db().session().delete(obj_)
+        try:
+            obj_ = self.buffer().current_object()
+            self.db().session().delete(obj_)
+            return True
+        except Exception as error:
+            LOGGER.warning("delete_current_buffer : %s" % error)
+
+        return False
 
     def refresh(self) -> None:
         """
@@ -634,11 +646,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._last_grid_row = -1
         self._last_grid_obj = None
         self._parent.clear_buffer()
-        session_ = self.db().session()
+        # session_ = self.db().session()
 
         where_filter = ""
         for k, wfilter in sorted(self.where_filters.items()):
-            if wfilter is None:
+            if not wfilter:
                 continue
 
             wfilter = wfilter.strip()
@@ -696,7 +708,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 meta_qry.setOrderBy(order_by)
 
             sql_query = meta_qry.sql()
-            print("****", sql_query)
+            # print("****", sql_query)
         else:
 
             sql_query = "SELECT %s FROM %s %s" % (
@@ -705,7 +717,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 where_filter,
             )
 
-        print("QUERY", sql_query)
+        # print("QUERY", sql_query)
         result_query = self.db().session().execute(sql_query)
         self._data_index = []
         self._rows_loaded = 0
@@ -753,6 +765,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         return ret_
 
     def seek_row(self, row: int) -> bool:
+        """Seek row selected."""
 
         if row != self._current_row_index:
             if row > -1 and row < self.rowCount():
@@ -772,8 +785,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         ret = None
 
-        if self._data_proxy and row > -1 and row < self.rowCount():
-            obj_ = self._data_proxy[row]
+        if row > -1 and row < self.rowCount():
+            obj_ = self.get_obj_from_row(row)
             ret = getattr(obj_, field_name, None)
 
         return ret

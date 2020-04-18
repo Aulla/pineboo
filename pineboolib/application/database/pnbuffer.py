@@ -10,13 +10,14 @@ from pineboolib import logging
 
 import datetime
 import decimal
-import sqlalchemy
+import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
 from typing import List, Union, Optional, Callable, Dict, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor
+    from . import pncursortablemodel
 
 LOGGER = logging.get_logger(__name__)
 
@@ -191,13 +192,14 @@ class PNBuffer(object):
 
         return self._orm_obj
 
-    def model(self) -> "pncursprtablemodel.PNCursorTableModel":
+    def model(self) -> "pncursortablemodel.PNCursorTableModel":
         """Return cursor table model."""
 
         return self.cursor_.model()
 
     def clear(self):
-        """"Clear buffer object."""
+        """Clear buffer object."""
+
         del self._orm_obj
         self._orm_obj = None
         del self._cache_buffer
@@ -207,8 +209,6 @@ class PNBuffer(object):
         """Return if a field is null."""
 
         return self.value(field_name) in [None, ""]
-
-        return True
 
     def set_generated(self, field_name: str, status: bool):
         """Mark a field as generated."""
@@ -230,7 +230,7 @@ class PNBuffer(object):
         metadata = self.cursor_.metadata()
         pk_field = metadata.primaryKey()
         try:
-            value = getattr(self._orm_obj, pk_field, None)
+            value = getattr(self._orm_obj, pk_field)  # noqa: F841
         except sqlalchemy.orm.exc.ObjectDeletedError:
             return False
 

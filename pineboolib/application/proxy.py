@@ -31,9 +31,7 @@ class DelayedObjectProxyLoader(object):
         *args: str,
         **kwargs: str
     ) -> None:
-        """
-        Constructor.
-        """
+        """Initialize."""
         LOGGER.trace("obj: %r", obj)
         self._name: str = name or "unnamed-loader"
         self._obj = obj
