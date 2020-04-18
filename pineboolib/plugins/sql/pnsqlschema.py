@@ -65,7 +65,6 @@ class PNSqlSchema(object):
     _connection: "base.Connection"
     _engine: "base.Engine"
     _session: "session.Session"
-    _declarative_base: "declarative.declarative_base"
 
     def __init__(self):
         """Inicialize."""
