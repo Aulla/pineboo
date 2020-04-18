@@ -75,7 +75,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         queqe_params: Dict[str, Union[int, bool, str, Dict[str, int]]] = {}
         # queqe_params["connect_args"] = {"timeout": 5}
         queqe_params["encoding"] = "UTF-8"
-        queqe_params["echo"] = True
+        # queqe_params["echo"] = True
 
         # if limit_conn > 0:
         #    queqe_params["pool_size"] = limit_conn
