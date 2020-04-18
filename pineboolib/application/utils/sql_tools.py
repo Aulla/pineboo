@@ -497,7 +497,7 @@ class DynamicFilter(object):
         self.query = query
         self.model_class = model_class
         self.filter_condition = filter_condition
-        self.order_by = []
+        self.order_by: List[List[str]] = []
 
     # def get_query(self):
     #    """
