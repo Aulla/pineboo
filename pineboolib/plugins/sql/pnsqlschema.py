@@ -15,7 +15,6 @@ from pineboolib.core import decorators
 from pineboolib.fllegacy import flutil
 
 from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noqa: F821
-from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
 from sqlalchemy.inspection import inspect  # type: ignore [import] # noqa: F821, F401
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 from sqlalchemy import event  # type: ignore [import] # noqa: F821, F401
@@ -128,18 +127,6 @@ class PNSqlSchema(object):
 
         self.setDBName(db_name)
         self.safe_load(True)
-
-        # if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
-        #    main_conn = application.PROJECT.conn_manager.mainConn()
-        #    if (
-        #        db_name == main_conn._db_name
-        #        and db_host == main_conn._db_host
-        #        and db_port == main_conn._db_port
-        #    ):
-        #        self._engine = main_conn.driver().engine_
-        #        print("**", self._engine)
-        #        self._connection = main_conn.driver().connection()
-        #        return self._connection
 
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
         conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password, limit_conn)
@@ -308,15 +295,6 @@ class PNSqlSchema(object):
             else:
                 raise Exception("Engine is not loaded!")
         return self._connection
-
-    def declarative_base(self) -> Any:
-        """Return sqlAlchemy declarative base."""
-
-        if getattr(self, "_declarative_base", None) is None:
-
-            self._declarative_base = declarative.declarative_base()
-
-        return self._declarative_base
 
     def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
         """Return a string with the format value like."""
@@ -771,48 +749,6 @@ class PNSqlSchema(object):
 
         return result_
 
-    # def insert_model(
-    #    self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", values: Dict[str, Any]
-    # ) -> bool:
-    #    """Insert data with orm."""
-
-    #    try:
-    #        obj = model()
-    #        for field_name in values.keys():
-    #            setattr(obj, field_name, values[field_name])
-    #        self._session.add(obj)
-
-    #    except Exception as error:
-    #        self.set_last_error("INSERT_MODEL", str(error))
-    #        return False
-
-    #    return True
-
-    # def update_model(
-    #    self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", values, pk_value
-    # ):
-    #    """Update data with orm."""
-
-    #    try:
-    #        obj = self._session.query(model).get(pk_value)
-    #        for field_name in values.keys():
-    #            setattr(obj, field_name, values[field_name])
-    #    except Exception as error:
-    #        self.set_last_error("UPDATE_MODEL", str(error))
-    #        return False
-
-    #    return True
-
-    # def delete_model(self, model: "sqlalchemy.ext.declarative.api.DeclarativeMeta", pk_value: Any):
-    #    try:
-    #        obj = self._session.query(model).get(pk_value)
-    #        self._session.delete(obj)
-    #    except Exception as error:
-    #        self.set_last_error("DELETE_MODEL", str(error))
-    #        return False
-
-    #    return True
-
     def getTimeStamp(self) -> str:
         """Return TimeStamp."""
 
@@ -831,92 +767,6 @@ class PNSqlSchema(object):
             raise Exception("timestamp is empty!")
 
         return time_stamp_
-
-    # def declare_cursor(self, curname: str, fields: str, table: str, where: str) -> None:
-    #    """Set a refresh query for database."""
-
-    #    sql = "SELECT %s FROM %s WHERE %s " % (fields, table, where)
-
-    #    sql = self.fix_query(sql)
-    #    self.rows_cached[curname] = []
-    #    result_ = None
-    #    try:
-    #        result_ = self.execute_query(sql)
-    #        self.cursor_proxy[curname] = result_
-    #        data_list = self.cursor_proxy[curname].fetchmany(self.init_cached)
-
-    #        for data in data_list:
-    #            self.rows_cached[curname].append(data)
-
-    #    except Exception as e:
-    #        LOGGER.error("declareCursor: %s", e)
-    #        LOGGER.trace("Detalle:", stack_info=True)
-
-    #    # self.sql_query[curname] = sql
-
-    # def row_get(self, number: int, curname: str) -> List:
-    #    """Return a data row."""
-
-    #    try:
-    #        cached_count = len(self.rows_cached[curname])
-    #        if number >= cached_count and self.cursor_proxy[curname]:
-    #            data_list = self.cursor_proxy[curname].fetchmany(number - cached_count + 1)
-    #            for row in data_list:
-    #                self.rows_cached[curname].append(row)
-
-    #            cached_count = len(self.rows_cached[curname])
-
-    #    except Exception as e:
-    #        LOGGER.error("getRow: %s", e)
-    #        LOGGER.trace("Detalle:", stack_info=True)
-
-    #    return self.rows_cached[curname][number] if number < cached_count else []
-
-    # def row_find(self, curname: str, field_pos: int, value: Any) -> Optional[int]:
-    #    """Return index row."""
-
-    #    ret_ = None
-    #    try:
-    #        for n, row in enumerate(self.rows_cached[curname]):
-    #            if row[field_pos] == value:
-    #                return n
-
-    #        cached_count = len(self.rows_cached[curname])
-
-    #        while True and self.cursor_proxy[curname]:
-    #            data = self.cursor_proxy[curname].fetchone()
-    #            if not data:
-    #                break
-
-    #            self.rows_cached[curname].append(data)
-    #            if data[field_pos] == value:
-    #                ret_ = cached_count
-    #                break
-
-    #            cached_count += 1
-
-    #    except Exception as e:
-    #        LOGGER.error("finRow: %s", e)
-    #        LOGGER.warning("%s Detalle:", field_pos, stack_info=True)
-
-    #    return ret_
-
-    # def delete_declared_cursor(self, cursor_name: str) -> None:
-    #    """Delete cursor."""
-
-    #    try:
-    #        self.rows_cached[cursor_name] = []
-    #        self.cursor_proxy[cursor_name] = None
-    #        self.rows_cached.pop(cursor_name)
-    #        self.cursor_proxy.pop(cursor_name)
-    #    except Exception as exception:
-    #        LOGGER.error("finRow: %s", exception)
-    #        LOGGER.warning("Detalle:", stack_info=True)
-
-    # def queryUpdate(self, name: str, update: str, filter: str) -> str:
-    #    """Return a database friendly update query."""
-    #    sql = "UPDATE %s SET %s WHERE %s" % (name, update, filter)
-    #    return sql
 
     def close_emited(self, *args):
         """."""

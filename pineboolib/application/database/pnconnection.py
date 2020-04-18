@@ -182,16 +182,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().engine()
 
-    def declarative_base(self) -> Any:
-        """Contain the declared models for Sqlalchemy."""
-
-        return self.driver().declarative_base()
-
-    # def cursor(self) -> "iapicursor.IApiCursor":
-    #    """Return a cursor to the database."""
-
-    #    return self.driver().connection()
-
     def conectar(
         self,
         db_name: str,
@@ -288,25 +278,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.conn.seek(offs, whence)
 
-    # @decorators.not_implemented_warn
-    # def md5TuplesStateTable(self, curname: str) -> bool:
-    #    """
-    #    Return the sum md5 with the total records inserted, deleted and modified in the database so far.
-
-    #    Useful to know if the database has been modified from a given moment.
-    #    """
-
-    #    return True
-
     def setInteractiveGUI(self, b):
         """Set if it is an interactive GUI."""
 
         self._interactive_gui = b
-
-    # @decorators.not_implemented_warn
-    # def setQsaExceptions(self, b: bool) -> None:
-    #    """See properties of the qsa exceptions."""
-    #    pass
 
     def formatValue(self, table: str, value: Any, upper: bool) -> Any:
         """Return a correctly formatted value to be assigned as a where filter."""

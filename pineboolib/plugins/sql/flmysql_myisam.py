@@ -263,13 +263,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    # def normalizeValue(self, text: str) -> str:
-    #    """Escape values, suitable to prevent sql injection."""
-
-    # import MySQLdb
-
-    # return MySQLdb.escape_string(text).decode("utf-8")
-
     def vacuum(self):
         """Vacuum tables."""
         table_names = self.tables("Tables")
