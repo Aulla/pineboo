@@ -1821,6 +1821,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.at() >= 0 and self._valid:
             return True
         else:
+            if not self.size():
+                return True
             return False
 
     @decorators.pyqt_slot()
@@ -2751,17 +2753,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     )
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
 
-            pk_value = self.private_cursor.buffer_.value(  # type: ignore [union-attr] # noqa: F821
-                self.primaryKey()
-            )
-
             # if not (self.private_cursor._model.insert(self)):
             try:
+                self.model().insert_current_buffer()
                 # obj_ = self._cursor_model()
-                obj_ = (
-                    self.private_cursor.buffer_._current_model_obj  # type: ignore [union-attr] # noqa: F821
-                )
-                session_ = self.db().session()
+                # obj_ = (
+                #    self.private_cursor.buffer_._current_model_obj  # type: ignore [union-attr] # noqa: F821
+                # )
+                # session_ = self.db().session()
                 # for field in self.buffer().fieldsList():
                 #    if field.value is not None:
                 #        value = field.value
@@ -2770,7 +2769,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                 #    setattr(obj_, field.name, value)
 
-                session_.add(obj_)
+                # session_.add(obj_)
                 # print("ADD", obj_, session_, session_.transaction)
 
             except Exception as error:
@@ -2781,11 +2780,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             # )  # Evita vaciado de buffer al hacer removeRows
             # self.model().refresh()
             # self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
-            self.model().refresh()
-            pk_row = self.model().find_pk_row(pk_value)
 
-            if pk_row > -1:
-                self.move(pk_row)
+            # self.model().refresh()
+            # pk_row = self.model().find_pk_row(pk_value)
+
+            # if pk_row > -1:
+            #    self.move(pk_row)
 
             updated = True
 
@@ -2897,15 +2897,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 #    self.buffer()._current_model_obj,
                 #    getattr(self.buffer()._current_model_obj, self.primaryKey(), None),
                 # )
-                query_class = sql_tools.DynamicFilter(
-                    query=self.db().session().query(self._cursor_model),
-                    model_class=self._cursor_model,
-                    filter_condition=[
-                        [self.primaryKey(), "eq", self.valueBuffer(self.primaryKey())]
-                    ],
-                )
-                query_class.return_query().delete(synchronize_session=False)
+                # query_class = sql_tools.DynamicFilter(
+                #    query=self.db().session().query(self._cursor_model),
+                #    model_class=self._cursor_model,
+                #    filter_condition=[
+                #        [self.primaryKey(), "eq", self.valueBuffer(self.primaryKey())]
+                #    ],
+                # )
+                # query_class.return_query().delete(synchronize_session=False)
                 # transaction.delete(self.buffer()._current_model_obj)
+                self.model().delete_current_buffer()
             except Exception as error:
                 raise Exception("Error deleting row!: %s" % error)
             # if not self.private_cursor._model.delete(self):
@@ -2942,8 +2943,17 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.setModeAccess(self.Edit)
 
         if updated:
+            # Para cuando usamos npsqlcursors solos!
             if self.transactionLevel() == 0:
+                pk_value = self.buffer().value(self.primaryKey())
                 self.db().commit()
+                self.model().refresh()
+                pk_row = self.model().find_pk_row(pk_value)
+
+                if pk_row > -1:
+                    self.move(pk_row)
+                    self.refreshBuffer()
+
             # if self.transactionLevel() == 0:
             #    self.db().commit()
 

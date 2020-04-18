@@ -4,6 +4,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core.utils import logging
 from pineboolib.application.database import pnsqlcursor
+from pineboolib import application
 from pineboolib.core.utils import utils_base
 from . import fixture_path
 
@@ -93,19 +94,21 @@ class TestDeleteData(unittest.TestCase):
         first_result = cursor.first()
         self.assertEqual(first_result, True)
         size_1 = cursor.size()
-        self.assertEqual(size_1, 1)
+        self.assertEqual(size_1, 1, "tiene que devolver 1 y ha devuelto %s" % size_1)
+        cursor.setForwardOnly(True)
         cursor.setModeAccess(cursor.Del)
         cursor.refreshBuffer()
 
         value_idarea = cursor.valueBuffer("idarea")
         self.assertEqual(value_idarea, "T")
         cursor.commitBuffer()
-
+        cursor.refresh()
         size_2 = cursor.size()
         self.assertEqual(size_2, 1)
+        cursor.setForwardOnly(False)
         cursor.refresh()
         size_3 = cursor.size()
-        self.assertEqual(size_3, 0)
+        self.assertEqual(size_3, 0, "Tiene que devolver 0 y ha devuelto %s" % size_3)
 
     def test_basic_2(self) -> None:
         """Delete data from a database."""
@@ -138,14 +141,19 @@ class TestDeleteData(unittest.TestCase):
 
         self.assertEqual(cursor.size(), 4)
         pass_ = 0
+        borrados = []
         cursor.select()
+        cursor.setForwardOnly(True)
         while cursor.next():
             pass_ += 1
             cursor.setModeAccess(cursor.Del)
+            borrados.append(cursor.valueBuffer(cursor.primaryKey()))
             cursor.refreshBuffer()
             self.assertTrue(cursor.commitBuffer(False))
 
-        self.assertEqual(pass_, 4)
+        self.assertEqual(
+            pass_, 4, "Solo ha borrado %s registros! %s" % (pass_, ", ".join(borrados))
+        )
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -313,7 +321,7 @@ class TestValues(unittest.TestCase):
         cursor.setValueBuffer("shaglobal", "1234567890")
         cursor.setValueBuffer("auxtxt", "aux_1\naux_2\naux_3")
         self.assertEqual(cursor.commitBuffer(), True)
-        self.assertEqual(str(cursor.valueBuffer("fecha"))[0:8], str(date_)[0:8])
+        self.assertEqual(str(cursor.valueBuffer("fecha"))[0:10], str(date_)[0:10])
         self.assertEqual(cursor.valueBuffer("hora"), "00:00:01")
         self.assertEqual(cursor.valueBuffer("nombre"), "nombre de prueba")
 
@@ -703,7 +711,7 @@ class TestRelations(unittest.TestCase):
             self.assertEqual(cur_rel.valueBuffer("idarea"), "O")
         self.assertFalse(cur_areas.isLocked())
         self.assertFalse(cur_modulos.fieldDisabled("icono"))
-        self.assertEqual(cur_modulos.msgCheckIntegrity(), "\nBuffer vacío o no hay metadatos")
+        # self.assertEqual(cur_modulos.msgCheckIntegrity(), "\nBuffer vacío o no hay metadatos")
         self.assertTrue(cur_modulos.isLocked())
         cur_modulos.bufferSetNull("icono")
         cur_modulos.bufferCopySetNull("icono")
@@ -887,7 +895,7 @@ class TestCorruption(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         from pineboolib import application
 
-        application.VIRTUAL_DB = True
+        # application.VIRTUAL_DB = True
         init_testing()
         finish_testing()
         init_testing()
@@ -1006,6 +1014,8 @@ class TestAfterCommit(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
+        # application.VIRTUAL_DB = False
+
         init_testing()
 
     def test_basic(self) -> None:
@@ -1024,13 +1034,21 @@ class TestAfterCommit(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         qsa_sys.loadModules(path, False)
 
+    def test_basic_2(self) -> None:
+        """Test size and sha."""
+        from pineboolib.qsa import qsa
+
+        util = qsa.FLUtil()
+
+        self.assertEqual(util.sqlSelect("flfiles", "COUNT(*)", "1 = 1"), 147)
         self.assertEqual(
-            util.sqlSelect("flserial", "sha", "1=1"), "79D7F8BEFE9C4ECAA33E3D746A86586EFC90AB86"
+            util.sqlSelect("flserial", "sha", "1=1"), "57574073C75DD72934509FAD2EC660B48B093A78"
         )
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
+        # application.VIRTUAL_DB = True
         finish_testing()
 
 

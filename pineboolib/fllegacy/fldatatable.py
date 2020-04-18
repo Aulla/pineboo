@@ -193,7 +193,7 @@ class FLDataTable(QtWidgets.QTableView):
             if self.cursor_ and not self.cursor_ == cursor:
                 self.cursor_.restoreEditionFlag(self.objectName())
                 self.cursor_.restoreBrowseFlag(self.objectName())
-                cast(QtCore.pyqtSignal, self.cursor_.cursorUpdated).disconnect(self.refresh)
+                cast(QtCore.pyqtSignal, self.cursor_.commited).disconnect(self.refresh)
 
                 cur_chg = True
 
@@ -207,7 +207,7 @@ class FLDataTable(QtWidgets.QTableView):
                 self.setInsertOnly(self.insertonly_)
                 self.setOnlyTable(self.onlyTable_)
 
-                cast(QtCore.pyqtSignal, self.cursor_.cursorUpdated).connect(self.refresh)
+                cast(QtCore.pyqtSignal, self.cursor_.commited).connect(self.refresh)
 
                 self.setModel(self.cursor_.model())
                 self.setSelectionModel(self.cursor_.selection())
@@ -222,8 +222,7 @@ class FLDataTable(QtWidgets.QTableView):
         Set a persistent filter that always applies to the cursor before to refresh.
         """
         if id_pk is not None and self.numRows():
-            pos = self.model().find_pk_row([id_pk])
-
+            pos = self.model().find_pk_row(id_pk)
             if pos > -1 and pos != self.cur.currentRegister():
                 self.cur.move(pos)
             # self.ensureRowSelectedVisible()

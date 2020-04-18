@@ -56,6 +56,7 @@ class TestFlModules(unittest.TestCase):
         # cursor_form.commitBuffer()
         qsa.from_project("formRecordflmodules").cargarFicheros(fixture_path("scripts"), "*.py")
         qsa.from_project("formRecordflmodules").cargarFicheros(fixture_path("scripts"), "*.qs")
+        cursor_form.commit()
 
         qry = qsa.FLSqlQuery()
         qry.setSelect("contenido")

@@ -94,7 +94,9 @@ class TestEnebooGUI(unittest.TestCase):
 
         if main_window is not None:
             for i in range(main_window.tab_widget.count()):
-                main_window.tab_widget.widget(i).close()
+                tab = main_window.tab_widget.widget(i)
+                if tab is not None:
+                    tab.close()
 
             key = "MainWindow/%s/" % application.PROJECT.conn_manager.database()
             settings.SETTINGS.set_value(

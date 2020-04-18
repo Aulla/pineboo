@@ -57,7 +57,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         model = cursor.model()
 
         self.assertEqual(model.find_pk_row(cursor.valueBuffer("id")), cursor.size() - 1)
-        self.assertEqual(model.pK(), "id")
+        self.assertEqual(model.metadata().primaryKey(), "id")
         self.assertEqual(model.fieldType("string_field"), "string")
         self.assertEqual(model.alias("string_field"), "String field")
         self.assertEqual(

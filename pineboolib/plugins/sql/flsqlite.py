@@ -63,10 +63,19 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self._session = main_conn.driver()._session
                 return self._connection
 
+        if self.db_._name == "main_conn":
+            if hasattr(self, "_engine") and self._engine:
+                self._engine.close()
+                del self._engine
+
+            if hasattr(self, "_connection") and self._connection:
+                self._connection.close()
+                del self._connection
+
         queqe_params: Dict[str, Union[int, bool, str, Dict[str, int]]] = {}
         # queqe_params["connect_args"] = {"timeout": 5}
         queqe_params["encoding"] = "UTF-8"
-        # queqe_params["echo"] = True
+        queqe_params["echo"] = True
 
         # if limit_conn > 0:
         #    queqe_params["pool_size"] = limit_conn

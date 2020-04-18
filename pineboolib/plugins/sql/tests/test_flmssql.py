@@ -1,10 +1,10 @@
-"""Test_flsqlite module."""
+"""Test_flmssql module."""
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.plugins.sql import flmssql
 
 
-class TestFLSqlite(unittest.TestCase):
+class TestFLMSSql(unittest.TestCase):
     """TestFLSqlite Class."""
 
     @classmethod

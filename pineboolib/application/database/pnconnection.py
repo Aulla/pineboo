@@ -220,6 +220,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         LOGGER.info(" * DB NAME   : %s", db_name)
         LOGGER.info(" * USER NAME : %s", db_user_name)
         LOGGER.info("")
+
         result = self.driver().connect(
             db_name, db_host, db_port, db_user_name, db_password, limit_conn
         )
@@ -591,6 +592,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def commitTransaction(self) -> bool:
         """Release a transaction."""
+
         # print("COMMIT TRANSACCION!!", self.session().transaction)
         try:
             session_ = self.session()
@@ -609,6 +611,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def rollbackTransaction(self) -> bool:
         """Roll back a transaction."""
+
         # print("ROLLBACK TRANSACCION!!", self.session().transaction)
         try:
             session_ = self.session()

@@ -54,7 +54,7 @@ class PNBuffer(object):
     the fields of the record.
     """
 
-    _current_model_obj: Optional[Callable]
+    _orm_obj: Optional[Callable]
     _generated_fields: List[str]
     _cache_buffer: Dict[str, TVALUES]
 
@@ -67,7 +67,7 @@ class PNBuffer(object):
         # self.field_dict_ = {}
         # self.line_: int = -1
         # self.inicialized_: bool = False
-        self._current_model_obj = None
+        self._orm_obj = None
         self._generated_fields = []
         self._cache_buffer = {}
         # tmd = self.cursor_.metadata()
@@ -85,24 +85,22 @@ class PNBuffer(object):
         # self.primeUpdate(row)
         self.clear()
 
-        self._current_model_obj = self.cursor_._cursor_model()
+        self._orm_obj = self.cursor_._cursor_model()
         self.inicialized_ = True
 
     def prime_update(self) -> None:
         """Set the initial copy of the cursor values into the buffer."""
 
         self.clear()
-        self._current_model_obj = self.cursor_.model().get_obj_from_row(
-            self.cursor_.currentRegister()
-        )
+        self._orm_obj = self.model().get_obj_from_row(self.cursor_.currentRegister())
 
-    def prime_delete(self) -> None:
-        """Load registr for delete."""
+    # def prime_delete(self) -> None:
+    #    """Load registr for delete."""
 
-        self.clear()
-        self._current_model_obj = self.cursor_.model().get_obj_from_row(
-            self.cursor_.currentRegister()
-        )
+    #    self.clear()
+    #    self._current_model_obj = self.cursor_.model().get_obj_from_row(
+    #        self.cursor_.currentRegister()
+    #    )
 
     def setNull(self, name) -> None:
         """
@@ -110,7 +108,7 @@ class PNBuffer(object):
 
         @param name = field name.
         """
-        setattr(self._current_model_obj, name, None)
+        setattr(self._orm_obj, name, None)
 
     def value(self, field_name: str) -> TVALUES:
         """
@@ -123,7 +121,7 @@ class PNBuffer(object):
         if field_name in self._cache_buffer.keys():
             return self._cache_buffer[field_name]
 
-        value = getattr(self._current_model_obj, field_name, None)
+        value = getattr(self._orm_obj, field_name, None)
 
         metadata = self.cursor_.metadata().field(field_name)
         type_ = metadata.type()
@@ -179,16 +177,29 @@ class PNBuffer(object):
                 value = True if value in [True, 1, "1", "true"] else False
 
         try:
-            setattr(self._current_model_obj, field_name, value)
+            setattr(self._orm_obj, field_name, value)
         except Exception as error:
             LOGGER.error("setValue: %s", str(error))
             return False
         return True
 
+    def current_object(self) -> "Callable":
+        """Return current db object."""
+
+        if not self._orm_obj:
+            raise Exception("buffer orm object doesn't exists!!")
+
+        return self._orm_obj
+
+    def model(self) -> "pncursprtablemodel.PNCursorTableModel":
+        """Return cursor table model."""
+
+        return self.cursor_.model()
+
     def clear(self):
         """"Clear buffer object."""
-        del self._current_model_obj
-        self._current_model_obj = None
+        del self._orm_obj
+        self._orm_obj = None
         del self._cache_buffer
         self._cache_buffer = {}
 
@@ -219,7 +230,7 @@ class PNBuffer(object):
         metadata = self.cursor_.metadata()
         pk_field = metadata.primaryKey()
         try:
-            value = getattr(self._current_model_obj, pk_field, None)
+            value = getattr(self._orm_obj, pk_field, None)
         except sqlalchemy.orm.exc.ObjectDeletedError:
             return False
 

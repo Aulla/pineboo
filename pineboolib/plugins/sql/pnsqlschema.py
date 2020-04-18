@@ -268,7 +268,7 @@ class PNSqlSchema(object):
 
     def is_open(self) -> bool:
         """Return if the connection is open."""
-        if self._engine:
+        if hasattr(self, "_engine"):
             conn_ = self.connection()
             return not conn_.closed
         return False
