@@ -298,6 +298,8 @@ class FLFormDB(QtWidgets.QDialog):
             iface = self.iface
             if hasattr(iface, "init"):
                 iface.init()
+            elif hasattr(self.action_widget, "init"):
+                self.action_widget.init()
 
             return True
 
