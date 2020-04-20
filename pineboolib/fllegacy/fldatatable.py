@@ -628,8 +628,8 @@ class FLDataTable(QtWidgets.QTableView):
             return
         model = self.cur.model()
         pK = str(model.value(row, self.cur.metadata().primaryKey()))
-        model._checkColumn[pK].setChecked(not model._checkColumn[pK].isChecked())
-        self.setPrimaryKeyChecked(str(pK), model._checkColumn[pK].isChecked())
+        model._check_column[pK].setChecked(not model._check_column[pK].isChecked())
+        self.setPrimaryKeyChecked(str(pK), model._check_column[pK].isChecked())
         # print("FIXME: falta un repaint para ver el color!!")
 
     # def focusOutEvent(self, e: QtCore.QEvent) -> None:

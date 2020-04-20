@@ -372,6 +372,8 @@ class FLTableDB(QtWidgets.QWidget):
         self.reqInsertOnly_ = False
         self.reqOnlyTable_ = False
         self.tabFilterLoaded = False
+        self.fieldNameCheckColumn_ = ""
+        self.aliasCheckColumn_ = ""
         self.timer_1 = QtCore.QTimer(self)
         if name:
             self.setObjectName(name)
