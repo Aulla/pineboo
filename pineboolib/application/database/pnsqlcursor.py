@@ -557,7 +557,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if value is not None:
             if type_ in ("date"):
 
-                value = types.Date(value)
+                value = types.Date(value.strftime("%Y-%m-%d"))
+
             elif type_ == "pixmap":
                 v_large = None
                 if not self.private_cursor._is_system_table:
