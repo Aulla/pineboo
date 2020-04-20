@@ -59,6 +59,8 @@ def mtd_parse(table_name: Union[str, pntablemetadata.PNTableMetaData], path_mtd:
         for line in lines:
             file_.write("%s\n" % line)
         file_.close()
+    else:
+        dest_file = ""
 
     return dest_file
 
@@ -179,6 +181,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
             "La tabla %s no tiene definida una clave primaria. No se generará el model."
             % (mtd_table.name())
         )
+        data = []
 
     return data
 
