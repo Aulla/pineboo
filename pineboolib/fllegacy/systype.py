@@ -681,9 +681,9 @@ class SysType(sysbasetype.SysBaseType):
         return doc
 
     @classmethod
-    def loadModules(self, input_: Optional[Any] = None, warnBackup: bool = True):
+    def loadModules(self, input_: Optional[Any] = None, warnBackup: bool = True) -> bool:
         """Load modules from a package."""
-
+        ret_ = False
         if input_ is None:
             dir_ = types.Dir(self.installPrefix())
             dir_.setCurrent()
@@ -691,17 +691,19 @@ class SysType(sysbasetype.SysBaseType):
                 QtWidgets.QApplication.focusWidget(),
                 u"Eneboo/AbanQ Packages",
                 self.translate(u"scripts", u"Seleccionar Fichero"),
-                "*.eneboopkg",
+                "*.eneboopkg, *.eneboopkg",
             )
             input_ = path_tuple[0]
 
         if input_:
-            self.loadAbanQPackage(input_, warnBackup)
+            ret_ = self.loadAbanQPackage(input_, warnBackup)
+
+        return ret_
 
     @classmethod
-    def loadAbanQPackage(self, input_: str, warnBackup: bool = True):
+    def loadAbanQPackage(self, input_: str, warnBackup: bool = True) -> bool:
         """Load and process a Abanq/Eneboo package."""
-
+        ok = False
         if warnBackup and self.interactiveGUI():
             txt = u""
             txt += self.translate(u"Asegúrese de tener una copia de seguridad de todos los datos\n")
@@ -764,6 +766,8 @@ class SysType(sysbasetype.SysBaseType):
 
                 tmpVar = flvar.FLVar()
                 tmpVar.set(u"mrproper", u"dirty")
+
+        return ok
 
     @classmethod
     def loadFilesDef(self, un: Any) -> bool:
