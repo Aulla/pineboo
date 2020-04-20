@@ -555,9 +555,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             value = self.private_cursor.buffer_.value(field_name)
 
         if value is not None:
-            if type_ in ("date"):
+            if type_ == "date":
 
                 value = types.Date(value.strftime("%Y-%m-%d"))
+            elif type_ == "time":
+
+                value = value.strftime("%H:%M:%S")
 
             elif type_ == "pixmap":
                 v_large = None
