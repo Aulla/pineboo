@@ -112,6 +112,7 @@ def load_models() -> None:
                     class_orm,
                     action_name,
                 )
+                continue
             if class_orm in PROCESSED:
                 continue
 
