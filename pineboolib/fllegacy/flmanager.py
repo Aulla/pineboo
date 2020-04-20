@@ -227,7 +227,6 @@ class FLManager(QtCore.QObject, IManager):
 
                 if (
                     not quick
-                    and not is_system_table
                     and not ret.isQuery()
                     and self.db_.mismatchedTable(metadata_name_or_xml, ret)
                     and self.existsTable(metadata_name_or_xml)

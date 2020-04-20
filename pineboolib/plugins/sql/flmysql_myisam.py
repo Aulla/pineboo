@@ -266,7 +266,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
     def vacuum(self):
         """Vacuum tables."""
         table_names = self.tables("Tables")
-
+        self._connection.connection.set_isolation_level(0)
         for table_name in table_names:
             if self.db_.connManager().manager().metadata(table_name) is not None:
                 self.execute_query("ANALYZE TABLE %s" % table_name)
+        self._connection.connection.set_isolation_level(1)

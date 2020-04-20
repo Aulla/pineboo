@@ -8,6 +8,8 @@ from pineboolib.core.utils import utils_base
 from pineboolib.application.utils import check_dependencies
 from pineboolib.application.database import pnsqlquery
 
+from pineboolib.application import qsadictmodules
+
 
 from typing import Iterable, Optional, Union, List, Any, Dict, cast, TYPE_CHECKING
 from pineboolib.core import decorators
@@ -635,7 +637,8 @@ class PNSqlSchema(object):
             self._transaction -= 1
             return False
 
-        if not self.db_.connManager().manager().createTable(new_metadata):
+        if not self.db_.createTable(new_metadata):
+
             query.db().rollbackTransaction()
             self._transaction -= 1
             return False
@@ -745,6 +748,7 @@ class PNSqlSchema(object):
             # LOGGER.warning("? %s %s", query[:100], session_)
         except Exception as error:
             self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
+
             return None
 
         return result_
@@ -777,9 +781,15 @@ class PNSqlSchema(object):
         self, table_name: str, list_records: Iterable = []
     ) -> bool:  # FIXME SQLITE NO PUEDE TODAS DE GOLPE
         """Insert several rows at once."""
+
+        model_ = qsadictmodules.QSADictModules.from_project("%s_orm" % table_name)
+        if not model_:
+            return False
+
         for line in list_records:
             field_names = []
             field_values = []
+            model_obj = model_()
             for data in line:
                 field = data[0]
                 value: Any = ""
@@ -788,24 +798,30 @@ class PNSqlSchema(object):
                     if field.type() in ("string", "stringlist"):
                         value = self.normalizeValue(value)
                     value = self.formatValue(field.type(), value, False)
-                    if field.type() in ("string", "stringlist") and value in ["Null", "NULL"]:
-                        value = "''"
+                    if field.type() in ("string", "stringlist"):
+                        if value in ["Null", "NULL"]:
+                            value = "''"
+                        else:
+                            value = sqlalchemy.text(value)
 
-                field_names.append(field.name())
-                field_values.append(value)
+                setattr(model_obj, field.name(), value)
 
-            sql = """INSERT INTO %s(%s) values (%s)""" % (
-                table_name,
-                ", ".join(field_names),
-                ", ".join(map(str, field_values)),
-            )
+                # field_names.append(field.name())
+                # field_values.append(value)
 
-            if sql:
-                try:
-                    self.execute_query(sql)
-                except Exception as error:
-                    LOGGER.error("insertMulti: %s %s", sql, str(error))
-                    return False
+            # sql = """INSERT INTO %s(%s) values (%s)""" % (
+            #    table_name,
+            #    ", ".join(field_names),
+            #    ", ".join(map(str, field_values)),
+            # )
+
+            # if sql:
+            try:
+                self.session().add(model_obj)
+            #        self.session().execute(sql)
+            except Exception as error:
+                LOGGER.error("insertMulti: %s", str(error))
+                return False
 
         return True
 
@@ -1002,7 +1018,9 @@ class PNSqlSchema(object):
     def vacuum(self):
         """Vacuum tables."""
 
+        self._connection.connection.set_isolation_level(0)
         self.execute_query("vacuum")
+        self._connection.connection.set_isolation_level(1)
 
     def sqlLength(self, field_name: str, size: int) -> str:
         """Return length formated."""
