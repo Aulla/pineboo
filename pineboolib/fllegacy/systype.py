@@ -712,14 +712,14 @@ class SysType(sysbasetype.SysBaseType):
             txt += u"\n\n"
             txt += self.translate(u"¿Desea continuar?")
             if MessageBox.Yes != MessageBox.warning(txt, MessageBox.No, MessageBox.Yes):
-                return
+                return False
 
         if input_:
             ok = True
             changes = self.localChanges()
             if changes["size"] != 0:
                 if not self.warnLocalChanges(changes):
-                    return
+                    return False
             if ok:
                 unpacker = pnunpacker.PNUnpacker(input_)
                 errors = unpacker.errorMessages()

@@ -787,8 +787,8 @@ class PNSqlSchema(object):
             return False
 
         for line in list_records:
-            field_names = []
-            field_values = []
+            # field_names = []
+            # field_values = []
             model_obj = model_()
             for data in line:
                 field = data[0]
@@ -1018,9 +1018,9 @@ class PNSqlSchema(object):
     def vacuum(self):
         """Vacuum tables."""
 
-        self._connection.connection.set_isolation_level(0)
+        # self._connection.connection.set_isolation_level(0)
         self.execute_query("vacuum")
-        self._connection.connection.set_isolation_level(1)
+        # self._connection.connection.set_isolation_level(1)
 
     def sqlLength(self, field_name: str, size: int) -> str:
         """Return length formated."""
