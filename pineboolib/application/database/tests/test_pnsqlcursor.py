@@ -1038,8 +1038,14 @@ class TestAfterCommit(unittest.TestCase):
         from pineboolib.qsa import qsa
 
         util = qsa.FLUtil()
+        count_ = 0
+        limit_ = 0
+        while count_ < 147:
+            count_ = util.sqlSelect("flfiles", "COUNT(*)", "1 = 1")
+            limit_ += 1
+            if limit_ == 1000:
+                break
 
-        # self.assertEqual(util.sqlSelect("flfiles", "COUNT(*)", "1 = 1"), 147)
         self.assertEqual(
             util.sqlSelect("flserial", "sha", "1=1"), "57574073C75DD72934509FAD2EC660B48B093A78"
         )
