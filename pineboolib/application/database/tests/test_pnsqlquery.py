@@ -300,7 +300,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
 
-    def Test_basic_4(self) -> None:
+    def test_basic_4(self) -> None:
         """Test basic test 4."""
         from pineboolib.qsa import qsa
         from pineboolib import application
@@ -310,7 +310,8 @@ class TestPNSqlQuery2(unittest.TestCase):
         qsa_sys = qsa.sys
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
-        qsa_sys.loadModules(path, False)
+        self.assertTrue(qsa_sys.loadModules(path, False))
+
         widget = qsa.from_project("flfactppal")
         widget.iface.valoresIniciales()
         cur_clientes = qsa.FLSqlCursor("clientes")
@@ -483,7 +484,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         self.assertEqual(qry.value("fechaini"), "")
         self.assertNotEqual(qry.value("fechafinal"), "")
 
-    def Test_basic_5(self) -> None:
+    def test_basic_5(self) -> None:
         """Test query without where."""
 
         from pineboolib.qsa import qsa

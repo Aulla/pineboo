@@ -25,7 +25,7 @@ class TestPNUnpaker(unittest.TestCase):
         qsa_sys = systype.SysType()
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
-        qsa_sys.loadModules(path, False)
+        self.assertTrue(qsa_sys.loadModules(path, False))
         qsa_sys.registerUpdate(path)
 
         qry = qsa.FLSqlQuery()

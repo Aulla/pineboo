@@ -1017,7 +1017,7 @@ class TestAfterCommit(unittest.TestCase):
 
         init_testing()
 
-    def Test_basic(self) -> None:
+    def test_basic(self) -> None:
         """Test sys.afertCommit_flfiles is called"""
         from pineboolib import application
         from pineboolib.plugins.mainform.eneboo import eneboo
@@ -1031,9 +1031,9 @@ class TestAfterCommit(unittest.TestCase):
         self.assertEqual(util.sqlSelect("flserial", "sha", "1=1"), False)
         qsa_sys = qsa.sys
         path = fixture_path("principal.eneboopkg")
-        qsa_sys.loadModules(path, False)
+        self.assertTrue(qsa_sys.loadModules(path, False))
 
-    def Test_basic_2(self) -> None:
+    def test_basic_2(self) -> None:
         """Test size and sha."""
         from pineboolib.qsa import qsa
 
