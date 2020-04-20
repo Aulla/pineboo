@@ -556,11 +556,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if value is not None:
             if type_ == "date":
-
-                value = types.Date(value.strftime("%Y-%m-%d"))
+                if isinstance(value, datetime.date):
+                    value = types.Date(value.strftime("%Y-%m-%d"))
             elif type_ == "time":
-
-                value = value.strftime("%H:%M:%S")
+                if isinstance(value, datetime.time):
+                    value = value.strftime("%H:%M:%S")
 
             elif type_ == "pixmap":
                 v_large = None
