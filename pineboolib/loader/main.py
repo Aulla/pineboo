@@ -356,6 +356,9 @@ def exec_main(options: Values) -> int:
     else:
         application.PROJECT.set_app(QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"]))
 
+    if options.log_sql:
+        application.LOG_SQL = True
+
     if options.trace_debug:
         from pineboolib.core.utils.utils_base import traceit
 

@@ -55,6 +55,13 @@ def parse_options(custom_argv: Optional[List] = None) -> Values:
         help="Add timestamp to logs",
     )
     parser.add_option(
+        "--log-sql",
+        action="store_true",
+        dest="log_sql",
+        default=False,
+        help="Write sql log to stdout",
+    )
+    parser.add_option(
         "--trace-signals",
         action="store_true",
         dest="trace_signals",

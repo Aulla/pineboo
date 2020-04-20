@@ -8,3 +8,4 @@ from .projectmodule import Project
 PROJECT = Project()
 SHOW_CURSOR_EVENTS: bool = False
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest
+LOG_SQL = False
