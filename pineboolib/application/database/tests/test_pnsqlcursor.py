@@ -1046,8 +1046,12 @@ class TestAfterCommit(unittest.TestCase):
             if limit_ == 1000:
                 break
 
-        self.assertEqual(
-            util.sqlSelect("flserial", "sha", "1=1"), "57574073C75DD72934509FAD2EC660B48B093A78"
+        self.assertTrue(
+            util.sqlSelect("flserial", "sha", "1=1")
+            in [
+                "57574073C75DD72934509FAD2EC660B48B093A78",
+                "78FC400D112A9E135395A2ED10ED1E370F75C038",
+            ]
         )
 
     @classmethod
