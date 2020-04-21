@@ -9,8 +9,12 @@ import sys
 from PyQt5 import QtCore
 from pineboolib.core.utils.utils_base import ustr
 from pineboolib.core.utils import logging
+from pineboolib import application
 
-from typing import Any, Optional, Union, Match, List, Generator, Callable, Iterable
+from typing import Any, Optional, Union, Match, List, Generator, Callable, Iterable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine import base
 
 LOGGER = logging.get_logger(__name__)
 
@@ -533,3 +537,15 @@ class NumberAttr:
 
     MIN_VALUE = -sys.maxsize - 1
     MAX_VALUE = sys.maxsize
+
+
+def user_id() -> str:
+    """Return user_id."""
+
+    return application.PROJECT.session_id()
+
+
+def session(conn_name: str = "default") -> "base.Connection":
+    """Return session connection."""
+
+    return application.PROJECT.conn_manager.useConn(conn_name).session()

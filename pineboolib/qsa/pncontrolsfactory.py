@@ -8,7 +8,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui, QtXml  # noqa: F401
 
 from pineboolib.core.system import System  # noqa: F401
 
-from .utils import MathClass, NumberAttr
+from .utils import MathClass, NumberAttr, user_id, session
 from pineboolib import application
 from pineboolib.application.packager.pnunpacker import PNUnpacker as AQUnpacker  # noqa: F401
 from pineboolib.application.packager.pnpackager import PNPackager as AQPackager  # noqa: F401
