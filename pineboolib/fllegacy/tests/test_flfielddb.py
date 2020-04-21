@@ -171,6 +171,17 @@ class TestFLFieldDBString(unittest.TestCase):
         # lay = parent.layout()
         # lay.addWidget(new_field)
 
+    def test_basic_2(self) -> None:
+        """Test basics 2."""
+        from pineboolib.qsa import dictmodules
+
+        module_ = dictmodules.from_project("formRecordflmodules")
+        field = module_.child("flfielddb_2")
+        self.assertTrue(field)
+        self.assertEqual(field._text_label_db.text(), "Versión")
+        field.setFieldAlias("Versión 2")
+        self.assertEqual(field._text_label_db.text(), "Versión 2")
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
