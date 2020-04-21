@@ -127,10 +127,7 @@ class TestOrm(unittest.TestCase):
 
         aq_app = qsa.aqApp
 
-        session_ = qsa.session()
         class_ = qsa.from_project("flareas_orm")
-
-        obj_ = class_()
 
         metadata = aq_app.db().manager().metadata("flareas")
         self.assertTrue(metadata)

@@ -14,7 +14,7 @@ from pineboolib import application
 from typing import Any, Optional, Union, Match, List, Generator, Callable, Iterable, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from sqlalchemy.engine import base
+    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F401, F821
 
 LOGGER = logging.get_logger(__name__)
 
