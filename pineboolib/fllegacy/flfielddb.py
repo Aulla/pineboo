@@ -424,8 +424,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
         @param m Mode (Normal, NoEcho, Password)
         """
-        if isinstance(self.editor_, qlineedit.QLineEdit):
-            self.editor_.setEchoMode(m)
+
+        self.editor_.setEchoMode(m)
 
     def echoMode(self) -> int:
         """
@@ -433,10 +433,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
         @return The "echo" mode (Normal, NoEcho, Password)
         """
-        if isinstance(self.editor_, qlineedit.QLineEdit):
-            return self.editor_.echoMode()
 
-        return qlineedit.QLineEdit.Normal
+        return self.editor_.echoMode()
 
     def _process_autocomplete_events(self, event: QtCore.QEvent) -> bool:
         """Process autocomplete events."""

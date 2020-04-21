@@ -174,6 +174,7 @@ class TestFLFieldDBString(unittest.TestCase):
     def test_basic_2(self) -> None:
         """Test basics 2."""
         from pineboolib.qsa import dictmodules
+        from pineboolib.fllegacy import fllineedit
 
         module_ = dictmodules.from_project("formRecordflmodules")
         field = module_.child("flfielddb_2")
@@ -181,6 +182,17 @@ class TestFLFieldDBString(unittest.TestCase):
         self.assertEqual(field._text_label_db.text(), "Versión")
         field.setFieldAlias("Versión 2")
         self.assertEqual(field._text_label_db.text(), "Versión 2")
+
+        self.assertTrue(
+            isinstance(field.editor_, fllineedit.FLLineEdit),
+            "El tipo de campo es %s y se espera qlineedit.QLineEdit" % type(field.editor_),
+        )
+
+        self.assertEqual(field.echoMode(), fllineedit.FLLineEdit.Normal)
+        field.setEchoMode(fllineedit.FLLineEdit.Password)
+        self.assertEqual(field.echoMode(), fllineedit.FLLineEdit.Password)
+
+        self.assertTrue(field.cursor_)
 
     @classmethod
     def tearDownClass(cls) -> None:
