@@ -1,0 +1,183 @@
+"""
+Tests for Orm on qsa.
+"""
+
+import unittest
+from pineboolib.loader.main import init_testing, finish_testing
+from pineboolib.qsa import qsa
+
+
+class TestOrm(unittest.TestCase):
+    """Test Orm."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
+
+    def test_load(self) -> None:
+        """Load model."""
+
+        class1_ = qsa.from_project("flareas_orm")
+        class2_ = qsa.orm_("flareas")
+        self.assertEqual(class1_, class2_)
+
+    # ===============================================================================
+    #     def test_sessions_isolation(self) -> None:
+    #
+    #         session1_ = qsa.session()
+    #         session2_ = qsa.session("dbAux")
+    #         session3_ = qsa.session("aux")
+    #
+    #         self.assertNotEqual(session1_, session2_)
+    #         self.assertNotEqual(session1_, session3_)
+    #         self.assertNotEqual(session2_, session3_)
+    # ===============================================================================
+
+    def test_create_object(self) -> None:
+        """Create object."""
+
+        class_ = qsa.from_project("flareas_orm")
+        self.assertTrue(class_)
+
+        obj_ = class_()
+
+        setattr(obj_, "bloqueo", True)
+        setattr(obj_, "idarea", "A")
+        setattr(obj_, "descripcion", "Area A")
+
+        self.assertEqual(obj_.idarea, "A")
+        self.assertEqual(obj_.bloqueo, True)
+        self.assertEqual(getattr(obj_, "descripcion", ""), "Area A")
+
+    def test_insert_to_database(self) -> None:
+        """Insert object to database."""
+
+        session_ = qsa.session()
+        class_ = qsa.from_project("flareas_orm")
+
+        obj_ = class_()
+
+        setattr(obj_, "bloqueo", True)
+        setattr(obj_, "idarea", "A")
+        setattr(obj_, "descripcion", "Area A")
+
+        session_.add(
+            obj_
+        )  # Introduce el nuevo registro en la BD. A partir de ahora los cambios posteriores se guardarán en la BD.
+
+        obj2_ = session_.query(class_).get("A")  # Recupera el registro de la BD
+
+        self.assertEqual(obj_, obj2_)
+        session_.rollback()
+
+    def test_delete_from_database(self) -> None:
+        """Insert object to database."""
+
+        session_ = qsa.session()
+        class_ = qsa.from_project("flareas_orm")
+
+        obj_ = class_()
+
+        setattr(obj_, "bloqueo", True)
+        setattr(obj_, "idarea", "A")
+        setattr(obj_, "descripcion", "Area A")
+
+        session_.add(obj_)
+        session_.commit()  # Se cierra la sesión (Transacción)
+
+        session_2 = qsa.session()
+        obj2_ = session_2.query(class_).get("A")  # Recupera el registro de la BD
+        self.assertTrue(obj2_)
+
+        session_2.delete(obj2_)
+        session_2.commit()
+
+        session_3 = qsa.session()
+        obj3_ = session_3.query(class_).get("A")  # Recupera el registro de la BD
+        self.assertFalse(obj3_)
+
+    def test_modify_data(self) -> None:
+        """Insert object to database."""
+
+        session_ = qsa.session()
+        class_ = qsa.from_project("flareas_orm")
+
+        obj_ = class_()
+
+        setattr(obj_, "bloqueo", True)
+        setattr(obj_, "idarea", "A")
+        setattr(obj_, "descripcion", "Area A")
+
+        session_.add(obj_)  # Introduce el nuevo registro en la BD
+        session_.commit()
+        session_2 = qsa.session()
+
+        obj2_ = session_2.query(class_).get("A")  # Recupera el registro de la BD
+        self.assertEqual(obj2_.descripcion, "Area A")
+        obj2_.descripcion = "Area A modificada"
+        session_2.commit()  # Guarda el cambio permanentemente.
+
+        session_3 = qsa.session()
+        obj3_ = session_3.query(class_).get("A")
+        self.assertEqual(obj3_.descripcion, "Area A modificada")
+
+    def test_legacy_metadata(self) -> None:
+        """Compares metadata with rom metadata."""
+
+        aq_app = qsa.aqApp
+
+        session_ = qsa.session()
+        class_ = qsa.from_project("flareas_orm")
+
+        obj_ = class_()
+
+        metadata = aq_app.db().manager().metadata("flareas")
+        self.assertTrue(metadata)
+
+        self.assertEqual(metadata.name(), class_.legacy_metadata["name"])
+        self.assertEqual(metadata.alias(), class_.legacy_metadata["alias"])
+
+        result = None
+        for field in class_.legacy_metadata["fields"]:
+            if field["name"] == "bloqueo":
+                result = field["default"]
+                break
+
+        self.assertEqual(metadata.field("bloqueo").defaultValue(), result)
+
+    def test_save_points(self) -> None:
+        """Save points."""
+
+        session_ = (
+            qsa.session()
+        )  # implica nueva Transaccion si en la llama anterior se hizo rollback o commit.
+        # Si no continua en la transaccion que se abrio la última vez
+
+        class_ = qsa.from_project("flareas_orm")
+        obj_ = class_()
+        obj_.idarea = "B"
+        obj_.descripcion = "Descripción B"
+        obj_.bloqueo = True
+
+        session_.add(obj_)
+
+        session_.begin_nested()  # Save point
+
+        obj_.descripcion = "Descripción Nueva"
+
+        obj2_ = session_.query(class_).get("B")
+
+        self.assertEqual(obj_.descripcion, "Descripción Nueva")
+        self.assertEqual(obj2_.descripcion, "Descripción Nueva")
+
+        session_.rollback()  # rollback save_point
+
+        self.assertEqual(obj_.descripcion, "Descripción B")
+
+        session_.rollback()  # rollback transaccion
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
