@@ -1,3 +1,5 @@
+"""Test_aqsbutton_group module."""
+
 import unittest
 
 

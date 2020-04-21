@@ -6,7 +6,7 @@ from pineboolib.application import types
 from typing import Union, Optional
 
 
-def AQObjectQueryList(
+def aq_object_query_list(
     obj_: Union[QtCore.QObject, int, None],
     inherits_class: Optional[str] = None,
     object_name: Optional[str] = None,

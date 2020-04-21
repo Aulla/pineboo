@@ -175,7 +175,9 @@ from pineboolib.fllegacy.aqsobjects.aqsmtpclient import AQSmtpClient  # noqa: F4
 from pineboolib.fllegacy.aqsobjects.aqs import AQS  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsignalmapper import AQSignalMapper  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqssproject import AQSSProject  # noqa: F401
-from pineboolib.fllegacy.aqsobjects.aqobjectquerylist import AQObjectQueryList  # noqa: F401
+from pineboolib.fllegacy.aqsobjects.aqobjectquerylist import (  # noqa: F401
+    aq_object_query_list as AQObjectQueryList,
+)
 
 
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
@@ -183,8 +185,9 @@ from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 if not __is_deployed():
     from pineboolib.fllegacy.aqsobjects.aqods import AQOdsGenerator, AQOdsSpreadSheet  # noqa: F401
     from pineboolib.fllegacy.aqsobjects.aqods import AQOdsSheet, AQOdsRow  # noqa: F401
-    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsColor, AQOdsStyle  # noqa: F401
+    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsStyle  # noqa: F401
     from pineboolib.fllegacy.aqsobjects.aqods import AQOdsImage  # noqa: F401
+    from pineboolib.fllegacy.aqsobjects.aqods import aq_ods_color as AQOdsColor  # noqa: F401
 
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagState  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagStateList  # noqa: F401

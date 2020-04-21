@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from PyQt5 import QtWidgets
 
 
-def AQFormDB(action_name: str, parent: "QtWidgets.QWidget") -> "FLFormDB":
+def aq_form_db(action_name: str, parent: "QtWidgets.QWidget") -> "FLFormDB":
     """Return a FLFormDB instance."""
 
     if application.PROJECT.conn_manager is None:

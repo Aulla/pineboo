@@ -36,8 +36,8 @@ class FLCodBar(object):
     """FLCodBar class."""
 
     barcode: Dict[str, Any]
-    p: Optional[QtGui.QPixmap]
-    pError: QtGui.QPixmap
+    _pixmap: Optional[QtGui.QPixmap]
+    _pixmap_error: QtGui.QPixmap
 
     def __init__(
         self,
@@ -58,19 +58,19 @@ class FLCodBar(object):
         from pineboolib.application.utils.check_dependencies import check_dependencies
 
         check_dependencies(dict_)
-        self.pError = QtGui.QPixmap()
+        self._pixmap_error = QtGui.QPixmap()
         self.barcode = {}
         self.barcode["value"] = ""
-        self.p = None
+        self._pixmap = None
 
         if value in [None, 0]:
-            self.readingStdout = False
-            self.writingStdout = False
+            self.reading_std_out = False
+            self.writing_std_out = False
             self.fillDefault(self.barcode)
         else:
             if isinstance(value, str):
-                self.readingStdout = False
-                self.writingStdout = False
+                self.reading_std_out = False
+                self.writing_std_out = False
                 self.barcode["value"] = value
                 self.barcode["type"] = type_
                 self.barcode["margin"] = margin
@@ -92,16 +92,16 @@ class FLCodBar(object):
 
         self._createBarcode()
 
-        if not self.p:
+        if not self._pixmap:
             self.barcode["valid"] = False
             return self.pixmapError()
 
-        return self.p
+        return self._pixmap
 
     def pixmapError(self) -> QtGui.QPixmap:
         """Return empy pixmap barcode."""
 
-        return self.pError
+        return self._pixmap_error
 
     def value(self) -> Any:
         """Return value."""
@@ -145,10 +145,10 @@ class FLCodBar(object):
         """Return back ground color."""
         return self.barcode["bg"]
 
-    def setData(self, d: Dict[str, Any]) -> None:
+    def setData(self, data: Dict[str, Any]) -> None:
         """Set barcode data."""
 
-        self.barcode = d
+        self.barcode = data
 
     def validBarcode(self) -> bool:
         """Return if is a valid barcode."""
@@ -194,13 +194,13 @@ class FLCodBar(object):
         """Set rotation size."""
         self.barcode["rotation"] = rotation
 
-    def setFg(self, fg: QtGui.QColor) -> None:
+    def setFg(self, fore_ground: QtGui.QColor) -> None:
         """Set fore ground color."""
-        self.barcode["fg"] = fg
+        self.barcode["fg"] = fore_ground
 
-    def setBg(self, bg: QtGui.QColor) -> None:
+    def setBg(self, back_ground: QtGui.QColor) -> None:
         """Set back ground color."""
-        self.barcode["bg"] = bg
+        self.barcode["bg"] = back_ground
 
     def setRes(self, res: int) -> None:
         """Set resolution."""
@@ -234,52 +234,52 @@ class FLCodBar(object):
     def cleanUp(self) -> None:
         """Clean barcode data."""
 
-        if self.p:
-            self.p.scaled(0, 0)
-        self.pError.scaled(0, 0)
+        if self._pixmap:
+            self._pixmap.scaled(0, 0)
+        self._pixmap_error.scaled(0, 0)
 
     def nameToType(self, name: str) -> int:
         """Return barcode  name from type."""
-        n = name.lower()
-        if n == "any":
+        name = name.lower()
+        if name == "any":
             return BARCODE_ANY
-        elif n == "ean":
+        elif name == "ean":
             return BARCODE_EAN
-        elif n == "ean-8":
+        elif name == "ean-8":
             return BARCODE_EAN_8
-        elif n == "ean-13":
+        elif name == "ean-13":
             return BARCODE_EAN_13
-        elif n == "ean-14":
+        elif name == "ean-14":
             return BARCODE_EAN_14
-        elif n == "upc":
+        elif name == "upc":
             return BARCODE_UPC
-        elif n == "upc-a":
+        elif name == "upc-a":
             return BARCODE_UPC_A
-        elif n == "jan":
+        elif name == "jan":
             return BARCODE_JAN
-        elif n == "isbn":
+        elif name == "isbn":
             return BARCODE_ISBN
-        elif n == "isbn-10":
+        elif name == "isbn-10":
             return BARCODE_ISBN_10
-        elif n == "isbn-13":
+        elif name == "isbn-13":
             return BARCODE_ISBN_13
-        elif n == "issn":
+        elif name == "issn":
             return BARCODE_ISSN
-        elif n == "code39":
+        elif name == "code39":
             return BARCODE_39
-        elif n == "code128":
+        elif name == "code128":
             return BARCODE_128
-        elif n == "pzn":
+        elif name == "pzn":
             return BARCODE_PZN
-        elif n == "itf":
+        elif name == "itf":
             return BARCODE_ITF
-        elif n == "gs1":
+        elif name == "gs1":
             return BARCODE_GS1
-        elif n == "gtin":
+        elif name == "gtin":
             return BARCODE_GTIN
         else:
             LOGGER.warning(
-                "Formato no soportado (%s)\nSoportados: %s." % (n, barcode.PROVIDED_BARCODES)
+                "Formato no soportado (%s)\nSoportados: %s." % (name, barcode.PROVIDED_BARCODES)
             )
             return BARCODE_ANY
 
@@ -358,11 +358,11 @@ class FLCodBar(object):
         else:
             render_options["text"] = " "
 
-        barC = barcode.get_barcode_class(type_.lower())
+        bar_code = barcode.get_barcode_class(type_.lower())
         try:
-            bar_ = barC(u"%s" % value_)
+            bar_ = bar_code(u"%s" % value_)
         except Exception:
-            bar_ = barC("000000000000")
+            bar_ = bar_code("000000000000")
 
         svg = bar_.render(render_options)
         xml_svg = load2xml(svg.decode("utf-8")).getroot()
@@ -374,23 +374,23 @@ class FLCodBar(object):
             LOGGER.warning("width or height missing")
             svg_w = 0.0
             svg_h = 0.0
-        self.p = QtGui.QPixmap(int(svg_w), int(svg_h))
+        self._pixmap = QtGui.QPixmap(int(svg_w), int(svg_h))
         render = QtSvg.QSvgRenderer(svg)
-        self.p.fill(QtCore.Qt.transparent)
-        painter = Qt.QPainter(self.p)
+        self._pixmap.fill(QtCore.Qt.transparent)
+        painter = Qt.QPainter(self._pixmap)
         render.render(painter, Qt.QRectF(0, 0, svg_w * 3.4, svg_h * 3.4))
 
-        if self.p.isNull():
+        if self._pixmap.isNull():
             self.barcode["valid"] = False
         else:
 
             if self.barcode["scale"] != 1.0:
-                wS_ = self.barcode["x"] * self.barcode["scale"]
-                hS_ = self.barcode["y"] * self.barcode["scale"]
-                self.p = self.p.scaled(wS_, hS_)
+                width_scaled = self.barcode["x"] * self.barcode["scale"]
+                height_scaled = self.barcode["y"] * self.barcode["scale"]
+                self._pixmap = self._pixmap.scaled(width_scaled, height_scaled)
 
-            self.barcode["x"] = self.p.width()
-            self.barcode["y"] = self.p.height()
+            self.barcode["x"] = self._pixmap.width()
+            self.barcode["y"] = self._pixmap.height()
 
             self.barcode["valid"] = True
 

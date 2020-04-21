@@ -78,28 +78,27 @@ class AQSql(object):
 
         cur.select(where)
 
-        ok = True
-        actCheck = cur.activatedCheckIntegrity()
+        ret_ = True
+        activate_check_integrity = cur.activatedCheckIntegrity()
 
-        fieldsCount = len(fields)
+        fields_count = len(fields)
 
-        while ok and cur.next():
+        while ret_ and cur.next():
             cur.setModeAccess(cur.Edit)
             cur.refreshBuffer()
 
-            for i in range(0, fieldsCount - 1):
+            for i in range(0, fields_count - 1):
                 cur.setValueBuffer(fields[i], values[i])
 
-            msgCheck = cur.msgCheckIntegrity()
-            if msgCheck != "":
-                ok = False
-                raise Exception(msgCheck)
+            msg_check_integrity = cur.msgCheckIntegrity()
+            if msg_check_integrity != "":
+                raise Exception(msg_check_integrity)
 
             cur.setActivatedCheckIntegrity(False)
-            ok = cur.commitBuffer()
-            cur.setActivatedCheckIntegrity(actCheck)
+            ret_ = cur.commitBuffer()
+            cur.setActivatedCheckIntegrity(activate_check_integrity)
 
-        return ok
+        return ret_
 
     @classmethod
     def insert(
@@ -121,26 +120,25 @@ class AQSql(object):
         if not cur.metadata():
             return False
 
-        fieldsCount = len(fields)
+        fields_count = len(fields)
 
         cur.setModeAccess(cur.Insert)
         cur.refreshBuffer()
 
-        for i in range(fieldsCount):
+        for i in range(fields_count):
             cur.setValueBuffer(fields[i], values[i])
 
-        msgCheck = cur.msgCheckIntegrity()
-        if msgCheck != "":
-            ok = False
-            raise Exception(msgCheck)
+        msg_check_integrity = cur.msgCheckIntegrity()
+        if msg_check_integrity != "":
+            raise Exception(msg_check_integrity)
 
-        ok = False
-        actCheck = cur.activatedCheckIntegrity()
+        ret_ = False
+        activated_check_integrity = cur.activatedCheckIntegrity()
         cur.setActivatedCheckIntegrity(False)
-        ok = cur.commitBuffer()
-        cur.setActivatedCheckIntegrity(actCheck)
+        ret_ = cur.commitBuffer()
+        cur.setActivatedCheckIntegrity(activated_check_integrity)
 
-        return ok
+        return ret_
 
     @classmethod
     def del_(
@@ -360,13 +358,13 @@ public slots:
       return false;
     }
 
-    int fieldsCount = fields.size();
+    int fields_count = fields.size();
     int valuesCount = values.size();
 
     cur->setModeAccess(Insert);
     if (!cur->refreshBuffer())
       return false;
-    for (int i = 0; i < fieldsCount; ++i)
+    for (int i = 0; i < fields_count; ++i)
       cur->setValueBuffer(fields[i], (i < valuesCount ? values[i] : QVariant()));
 
     QString msgCheck(cur->msgCheckIntegrity());
@@ -424,7 +422,7 @@ public slots:
     bool ok = true;
     QString msgCheck;
     bool actCheck = cur->activatedCheckIntegrity();
-    int fieldsCount = fields.size();
+    int fields_count = fields.size();
     int valuesCount = values.size();
 
     while (ok && cur->next()) {
@@ -433,7 +431,7 @@ public slots:
         ok = false;
         break;
       }
-      for (int i = 0; i < fieldsCount; ++i)
+      for (int i = 0; i < fields_count; ++i)
         cur->setValueBuffer(fields[i], (i < valuesCount ? values[i] : QVariant()));
 
       msgCheck = cur->msgCheckIntegrity();

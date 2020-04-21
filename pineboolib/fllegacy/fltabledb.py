@@ -2619,7 +2619,7 @@ class FLTableDB(QtWidgets.QWidget):
         pd = util.createProgressDialog("Procesando", tdb_num_rows)
         util.setProgress(1)
         row = aqods.AQOdsRow(sheet)
-        row.addBgColor(aqods.AQOdsColor(0xE7E7E7))
+        row.addBgColor(aqods.aq_ods_color(0xE7E7E7))
         for i in range(tdb_num_cols):
             field = mtd.indexFieldObject(tdb.visual_index_to_logical_index(i))
             if field is not None and field.visibleGrid():

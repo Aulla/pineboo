@@ -61,7 +61,7 @@ class Events(object):
     ContextMenu = QtGui.QContextMenuEvent
 
 
-class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, Events):
+class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, Events):
     """AQS Class."""
 
     Box = None
@@ -130,8 +130,8 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, 
         else:
             qcolor = color
 
-        cL = QtWidgets.QColorDialog(qcolor, parent)
-        return cL.getColor()
+        color_dialog = QtWidgets.QColorDialog(qcolor, parent)
+        return color_dialog.getColor()
 
     @classmethod
     def toXml(
@@ -154,23 +154,23 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, 
         if not obj_:
             return xml_
 
-        e = xml_.createElement(type(obj_).__name__)
-        e.setAttribute("class", type(obj_).__name__)
-        xml_.appendChild(e)
+        element = xml_.createElement(type(obj_).__name__)
+        element.setAttribute("class", type(obj_).__name__)
+        xml_.appendChild(element)
 
         _meta = obj_.metaObject()
 
         i = 0
         # _p_properties = []
         for i in range(_meta.propertyCount()):
-            mp = _meta.property(i)
-            # if mp.name() in _p_properties:
+            meta_prop = _meta.property(i)
+            # if meta_prop.name() in _p_properties:
             #    i += 1
             #    continue
 
-            # _p_properties.append(mp.name())
+            # _p_properties.append(meta_prop.name())
 
-            val = getattr(obj_, mp.name(), None)
+            val = getattr(obj_, meta_prop.name(), None)
             try:
                 val = val()
             except Exception:
@@ -185,7 +185,7 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, 
             if not val and not include_complex_types:
                 i += 1
                 continue
-            e.setAttribute(mp.name(), val)
+            element.setAttribute(meta_prop.name(), val)
 
             i += 1
 
@@ -221,10 +221,10 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, 
         @return sha1 string
         """
 
-        from pineboolib.q3widgets.qbytearray import QByteArray
-
-        ba = QByteArray(byte_array)
-        return ba.sha1()
+        qbyte = QtCore.QByteArray(byte_array)
+        hash = QtCore.QCryptographicHash(QtCore.QCryptographicHash.Sha1)
+        hash.addData(qbyte.data())
+        return hash.result().toHex().data().decode("utf-8").upper()
 
     @classmethod
     def Application_setOverrideCursor(cls, shape: "QtGui.QCursor", replace: bool = False) -> None:
@@ -249,4 +249,4 @@ class AQS_Class(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, 
         return codec_name
 
 
-AQS = AQS_Class()
+AQS = AQSClass()

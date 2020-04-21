@@ -115,8 +115,8 @@ class AQOdsImage(object):
     name_: str
     width_: float
     height_: float
-    x_: int
-    y_: int
+    pos_x: int
+    pos_y: int
     link_: str
 
     def __init__(self, name: str, width: float, height: float, x: int, y: int, link: str) -> None:
@@ -134,8 +134,8 @@ class AQOdsImage(object):
         self.name_ = name
         self.width_ = width
         self.height_ = height
-        self.x_ = x
-        self.y_ = y
+        self.pos_x = x
+        self.pos_y = y
         self.link_ = link
 
 
@@ -247,8 +247,8 @@ class AQOdsRow(object):
 
         else:
             if isinstance(opt, list):  # Si es lista , Insertamos todos los parámetros uno a uno
-                for l in opt:
-                    self.opIn(l)
+                for item in opt:
+                    self.opIn(item)
 
             elif isinstance(opt, AQOdsImage):
 
@@ -259,8 +259,8 @@ class AQOdsRow(object):
                 frame = Frame(
                     width="%spt" % opt.width_,
                     height="%spt" % opt.height_,
-                    x="%spt" % opt.x_,
-                    y="%spt" % opt.y_,
+                    x="%spt" % opt.pos_x,
+                    y="%spt" % opt.pos_y,
                 )
                 frame.addElement(Image(href=href))
                 # p.addElement(frame)
@@ -321,17 +321,17 @@ class AQOdsRow(object):
 
         self.opIn(" ")
 
-    def setFixedPrecision(self, n: Optional[int]) -> None:
+    def setFixedPrecision(self, num_: Optional[int]) -> None:
         """
         Specify the precision of number decimals.
 
         @param n. Decimal precision.
         """
-        if n is not None:
-            self.fix_precision_ = n
+        if num_ is not None:
+            self.fix_precision_ = num_
 
 
-def AQOdsColor(*args) -> str:
+def aq_ods_color(*args) -> str:
     """
     Return a color from a hexadecimal value.
 

@@ -536,10 +536,10 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
 
         return self.private.trimmed_
 
-    def setTrimmed(self, t: bool) -> None:
+    def setTrimmed(self, trimmed: bool) -> None:
         """Specify if a field is trimmed."""
 
-        self.private.trimmed_ = t
+        self.private.trimmed_ = trimmed
 
     def setMetadata(self, mtd: "pntablemetadata.PNTableMetaData") -> None:
         """
