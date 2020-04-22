@@ -122,7 +122,7 @@ class DgiSchema(object):
         """Return if run into a mobile platform."""
         return self._mobile
 
-    def iconSize(self) -> QtCore.QSize:
+    def icon_size(self) -> QtCore.QSize:
         """Return default icon size."""
 
         size = QtCore.QSize(22, 22)

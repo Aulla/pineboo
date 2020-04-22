@@ -122,7 +122,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         if cursor:
             self.setCursor(cursor)
         LOGGER.trace("__init__: load formRecord")
-        self._uiName = action.formRecord()
+        self._ui_name = action.formRecord()
         self._scriptForm = action.scriptFormRecord() or "emptyscript"
         self.bottomToolbar = None
         self.pushButtonAccept = None
@@ -184,7 +184,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.cursor().setAction(self._action)
                 if self._action.description():
                     self.setWhatsThis(self._action.description())
-                self.idMDI_ = self._action.name()
+                self._id_mdi = self._action.name()
 
             # self.bindIface()
             # self.setCursor(self.cursor_)
@@ -225,7 +225,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         self.bottomToolbar = QtWidgets.QFrame()
 
         if self.bottomToolbar:
-            self.bottomToolbar.setMinimumSize(self.iconSize)
+            self.bottomToolbar.setMinimumSize(self._icon_size)
             hblay = QtWidgets.QHBoxLayout()
             hblay.setContentsMargins(0, 0, 0, 0)
             hblay.setSpacing(0)
@@ -245,15 +245,15 @@ class FLFormRecordDB(flformdb.FLFormDB):
         )
         sizePolicy.setHeightForWidth(True)
 
-        pbSize = self.iconSize
+        push_button_size = self._icon_size
 
         if settings.CONFIG.value("application/isDebuggerMode", False):
 
             pushButtonExport = QtWidgets.QToolButton()
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(sizePolicy)
-            pushButtonExport.setMinimumSize(pbSize)
-            pushButtonExport.setMaximumSize(pbSize)
+            pushButtonExport.setMinimumSize(push_button_size)
+            pushButtonExport.setMaximumSize(push_button_size)
             pushButtonExport.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-properties.png"))
             )
@@ -268,8 +268,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 push_button_snapshot = QtWidgets.QToolButton()
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
                 push_button_snapshot.setSizePolicy(sizePolicy)
-                push_button_snapshot.setMinimumSize(pbSize)
-                push_button_snapshot.setMaximumSize(pbSize)
+                push_button_snapshot.setMinimumSize(push_button_size)
+                push_button_snapshot.setMaximumSize(push_button_size)
                 push_button_snapshot.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
                 )
@@ -294,8 +294,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 )
                 self.pushButtonFirst.clicked.connect(self.firstRecord)
                 self.pushButtonFirst.setSizePolicy(sizePolicy)
-                self.pushButtonFirst.setMaximumSize(pbSize)
-                self.pushButtonFirst.setMinimumSize(pbSize)
+                self.pushButtonFirst.setMaximumSize(push_button_size)
+                self.pushButtonFirst.setMinimumSize(push_button_size)
                 self.pushButtonFirst.setShortcut(Qt.QKeySequence(self.tr("F5")))
                 self.pushButtonFirst.setWhatsThis(
                     "Aceptar los cambios e ir al primer registro (F5)"
@@ -313,8 +313,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 )
                 self.pushButtonPrevious.clicked.connect(self.previousRecord)
                 self.pushButtonPrevious.setSizePolicy(sizePolicy)
-                self.pushButtonPrevious.setMaximumSize(pbSize)
-                self.pushButtonPrevious.setMinimumSize(pbSize)
+                self.pushButtonPrevious.setMaximumSize(push_button_size)
+                self.pushButtonPrevious.setMinimumSize(push_button_size)
                 self.pushButtonPrevious.setShortcut(Qt.QKeySequence(self.tr("F6")))
                 self.pushButtonPrevious.setWhatsThis(
                     "Aceptar los cambios e ir al registro anterior (F6)"
@@ -334,8 +334,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 )
                 self.pushButtonNext.clicked.connect(self.nextRecord)
                 self.pushButtonNext.setSizePolicy(sizePolicy)
-                self.pushButtonNext.setMaximumSize(pbSize)
-                self.pushButtonNext.setMinimumSize(pbSize)
+                self.pushButtonNext.setMaximumSize(push_button_size)
+                self.pushButtonNext.setMinimumSize(push_button_size)
                 self.pushButtonNext.setShortcut(Qt.QKeySequence(self.tr("F7")))
                 self.pushButtonNext.setWhatsThis(
                     "Aceptar los cambios e ir al registro siguiente (F7)"
@@ -355,8 +355,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 )
                 self.pushButtonLast.clicked.connect(self.lastRecord)
                 self.pushButtonLast.setSizePolicy(sizePolicy)
-                self.pushButtonLast.setMaximumSize(pbSize)
-                self.pushButtonLast.setMinimumSize(pbSize)
+                self.pushButtonLast.setMaximumSize(push_button_size)
+                self.pushButtonLast.setMinimumSize(push_button_size)
                 self.pushButtonLast.setShortcut(Qt.QKeySequence(self.tr("F8")))
                 self.pushButtonLast.setWhatsThis("Aceptar los cambios e ir al último registro (F8)")
                 self.pushButtonLast.setToolTip("Aceptar los cambios e ir al último registro (F8)")
@@ -369,8 +369,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.pushButtonAcceptContinue.setObjectName("pushButtonAcceptContinue")
             self.pushButtonAcceptContinue.clicked.connect(self.acceptContinue)
             self.pushButtonAcceptContinue.setSizePolicy(sizePolicy)
-            self.pushButtonAcceptContinue.setMaximumSize(pbSize)
-            self.pushButtonAcceptContinue.setMinimumSize(pbSize)
+            self.pushButtonAcceptContinue.setMaximumSize(push_button_size)
+            self.pushButtonAcceptContinue.setMinimumSize(push_button_size)
             self.pushButtonAcceptContinue.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-refresh.png"))
             )
@@ -393,8 +393,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonAccept.clicked.connect(self.accept)
 
             self.pushButtonAccept.setSizePolicy(sizePolicy)
-            self.pushButtonAccept.setMaximumSize(pbSize)
-            self.pushButtonAccept.setMinimumSize(pbSize)
+            self.pushButtonAccept.setMaximumSize(push_button_size)
+            self.pushButtonAccept.setMinimumSize(push_button_size)
             self.pushButtonAccept.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-save.png"))
             )
@@ -416,8 +416,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.pushButtonCancel.clicked.connect(self.reject)
 
         self.pushButtonCancel.setSizePolicy(sizePolicy)
-        self.pushButtonCancel.setMaximumSize(pbSize)
-        self.pushButtonCancel.setMinimumSize(pbSize)
+        self.pushButtonCancel.setMaximumSize(push_button_size)
+        self.pushButtonCancel.setMinimumSize(push_button_size)
         self.pushButtonCancel.setShortcut(Qt.QKeySequence(self.tr("Esc")))
         self.pushButtonCancel.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-stop.png"))
@@ -453,7 +453,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         Return internal form name.
         """
 
-        return "formRecord%s" % self.idMDI_
+        return "formRecord%s" % self._id_mdi
 
     def closeEvent(self, e: QtCore.QEvent) -> None:
         """
@@ -706,8 +706,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     caption = self.cursor_.metadata().alias()
                 self.cursor_.transaction()
                 self.setCaptionWidget(caption)
-                if self.initFocusWidget_:
-                    self.initFocusWidget_.setFocus()
+                if self._init_focus_widget:
+                    self._init_focus_widget.setFocus()
                 self.cursor_.refreshBuffer()
                 self.initScript()
 

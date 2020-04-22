@@ -163,7 +163,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self._max_pix_size = int(self._max_pix_size)
         # self._editor_img = None
 
-        self._icon_size = application.PROJECT.DGI.iconSize()
+        self._icon_size = application.PROJECT.DGI.icon_size()
 
         self._horizontal_layout = QtWidgets.QVBoxLayout(self)
         self._horizontal_layout.setContentsMargins(0, 0, 0, 0)

@@ -72,7 +72,7 @@ class FLFormDB(QtWidgets.QDialog):
 
     Generalmente es el nombre de la acción que abre el formulario
     """
-    idMDI_: str
+    _id_mdi: str
 
     """
     Capa para botones
@@ -92,22 +92,22 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Guarda el contexto anterior que tenia el cursor
     """
-    oldCursorCtxt: Any
+    _old_cursor_context: Any
 
     """
     Indica que el formulario se está cerrando
     """
-    isClosing_: bool
+    _is_closing: bool
 
     """
     Componente con el foco inicial
     """
-    initFocusWidget_: Optional[QtWidgets.QWidget]
+    _init_focus_widget: Optional[QtWidgets.QWidget]
 
     """
     Guarda el último objeto de formulario unido a la interfaz de script (con bindIface())
     """
-    oldFormObj: Any
+    _old_form_object: Any
 
     """
     Boton Debug Script
@@ -122,7 +122,7 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Nombre del formulario relativo a la acción (form / formRecrd + nombre de la acción)
     """
-    actionName_: str
+    _action_name: str
 
     """
     Interface para scripts
@@ -132,14 +132,14 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Tamaño de icono por defecto
     """
-    iconSize: QtCore.QSize
+    _icon_size: QtCore.QSize
 
     # protected slots:
 
     """
     Uso interno
     """
-    oldFormObjDestroyed = QtCore.pyqtSignal()
+    _old_form_objectDestroyed = QtCore.pyqtSignal()
 
     # signals:
 
@@ -160,7 +160,7 @@ class FLFormDB(QtWidgets.QDialog):
 
     toolButtonClose: Optional[QtWidgets.QToolButton]
 
-    _uiName: str
+    _ui_name: str
     _scriptForm: Union[Any, str]
 
     loop: bool
@@ -202,21 +202,21 @@ class FLFormDB(QtWidgets.QDialog):
 
         self.known_instances[(self.__class__, self._action.name())] = self
 
-        self._uiName = self.actionName_ = self._action.name()
+        self._ui_name = self._action_name = self._action.name()
 
         if self._action.table():
             if type(self).__name__ == "FLFormRecordDB":
-                self.actionName_ = "formRecord%s" % self.actionName_
+                self._action_name = "formRecord%s" % self._action_name
                 # script_name = self._action.scriptFormRecord()
                 # self.action_widget = application.PROJECT.actions[self._action.name()]._record_widget
             else:
-                self.actionName_ = "form%s" % self.actionName_
+                self._action_name = "form%s" % self._action_name
                 # script_name = self._action.scriptForm()
                 # self.action_widget = application.PROJECT.actions[self._action.name()]._master_widget
-            self._uiName = self._action.form()
+            self._ui_name = self._action.form()
         else:
             if self._action.scriptForm() or self._action.scriptFormRecord():
-                self._uiName = ""
+                self._ui_name = ""
 
         # self.mod = self._action.mod
         self.loop = False
@@ -233,17 +233,17 @@ class FLFormDB(QtWidgets.QDialog):
         self.toolButtonClose = None
         self.bottomToolbar = None
         # self.cursor_ = None
-        self.initFocusWidget_ = None
+        self._init_focus_widget = None
         self.showed = False
-        self.isClosing_ = False
+        self._is_closing = False
         self.accepted_ = False
         self.main_widget = None
         # self.iface = None
-        self.oldFormObj = None
-        self.oldCursorCtxt = None
+        self._old_form_object = None
+        self._old_cursor_context = None
 
-        self.idMDI_ = self._action.name()
-        self.iconSize = application.PROJECT.DGI.iconSize()
+        self._id_mdi = self._action.name()
+        self._icon_size = application.PROJECT.DGI.icon_size()
 
         if load:
             self.load()
@@ -271,12 +271,12 @@ class FLFormDB(QtWidgets.QDialog):
         self.layout_.setSpacing(1)
         self.layout_.setContentsMargins(1, 1, 1, 1)
         self.layout_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
-        if self._uiName:
+        if self._ui_name:
 
             if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
-            application.PROJECT.conn_manager.managerModules().createUI(self._uiName, None, widget)
+            application.PROJECT.conn_manager.managerModules().createUI(self._ui_name, None, widget)
 
         self._loaded = True
 
@@ -323,8 +323,8 @@ class FLFormDB(QtWidgets.QDialog):
 
         if cursor is not self.cursor_:
             if self.cursor_ is not None:
-                if self.oldCursorCtxt:
-                    self.cursor_.setContext(self.oldCursorCtxt)
+                if self._old_cursor_context:
+                    self.cursor_.setContext(self._old_cursor_context)
 
                 if type(self).__name__ == "FLFormRecodDB":
                     self.cursor_.restoreEditionFlag(self.objectName())
@@ -345,7 +345,7 @@ class FLFormDB(QtWidgets.QDialog):
             iface = self.iface
 
             if iface is not None and self.cursor_ is not None:
-                self.oldCursorCtxt = self.cursor_.context()
+                self._old_cursor_context = self.cursor_.context()
                 self.cursor_.setContext(self.iface)
 
     def cursor(self) -> "isqlcursor.ISqlCursor":  # type: ignore [override] # noqa F821
@@ -369,14 +369,14 @@ class FLFormDB(QtWidgets.QDialog):
         Set the MDI ID.
         """
 
-        self.idMDI_ = id_
+        self._id_mdi = id_
 
     def idMDI(self) -> str:
         """
         Return the MDI ID.
         """
 
-        return self.idMDI_
+        return self._id_mdi
 
     def setMainWidget(self, widget: Optional[QtWidgets.QWidget] = None) -> None:
         """
@@ -472,13 +472,13 @@ class FLFormDB(QtWidgets.QDialog):
         """
         Close the form.
         """
-        if self.isClosing_ or not self._loaded:
+        if self._is_closing or not self._loaded:
             return True
 
-        self.isClosing_ = True
+        self._is_closing = True
 
         super().close()
-        self.isClosing_ = False
+        self._is_closing = False
         return True
 
     @decorators.pyqt_slot()
@@ -536,7 +536,7 @@ class FLFormDB(QtWidgets.QDialog):
         if not self.initScript():
             raise Exception("Error initializing the module.")
 
-        if not self.isClosing_:
+        if not self._is_closing:
             QtCore.QTimer.singleShot(0, self.emitFormReady)
 
     def emitFormReady(self) -> None:
@@ -547,7 +547,7 @@ class FLFormDB(QtWidgets.QDialog):
         if qsa_sys.isLoadedModule("fltesttest"):
 
             application.PROJECT.call(
-                "fltesttest.iface.recibeEvento", ["formReady", self.actionName_], None
+                "fltesttest.iface.recibeEvento", ["formReady", self._action_name], None
             )
         self.formReady.emit()
 
@@ -561,7 +561,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         if "fltesttest" in application.PROJECT.conn_manager.managerModules().listAllIdModules():
             application.PROJECT.call(
-                "fltesttest.iface.recibeEvento", ["formClosed", self.actionName_], None
+                "fltesttest.iface.recibeEvento", ["formClosed", self._action_name], None
             )
 
         self.formClosed.emit()
@@ -637,8 +637,8 @@ class FLFormDB(QtWidgets.QDialog):
         if self.bottomToolbar is None:
             raise Exception("bottomToolBar is empty!")
 
-        if self.iconSize is not None:
-            self.bottomToolbar.setMinimumSize(self.iconSize)
+        if self._icon_size is not None:
+            self.bottomToolbar.setMinimumSize(self._icon_size)
 
         hblay = QtWidgets.QHBoxLayout()
 
@@ -658,15 +658,15 @@ class FLFormDB(QtWidgets.QDialog):
         )
         sizePolicy.setHeightForWidth(True)
 
-        pbSize = self.iconSize
+        push_button_size = self._icon_size
 
         if settings.CONFIG.value("application/isDebuggerMode", False):
 
             pushButtonExport = QtWidgets.QToolButton()
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(sizePolicy)
-            pushButtonExport.setMinimumSize(pbSize)
-            pushButtonExport.setMaximumSize(pbSize)
+            pushButtonExport.setMinimumSize(push_button_size)
+            pushButtonExport.setMaximumSize(push_button_size)
             pushButtonExport.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-properties.png"))
             )
@@ -685,8 +685,8 @@ class FLFormDB(QtWidgets.QDialog):
                 push_button_snapshot = QtWidgets.QToolButton()
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
                 push_button_snapshot.setSizePolicy(sizePolicy)
-                push_button_snapshot.setMinimumSize(pbSize)
-                push_button_snapshot.setMaximumSize(pbSize)
+                push_button_snapshot.setMinimumSize(push_button_size)
+                push_button_snapshot.setMaximumSize(push_button_size)
                 push_button_snapshot.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
                 )
@@ -710,8 +710,8 @@ class FLFormDB(QtWidgets.QDialog):
             )
 
         self.pushButtonCancel.setSizePolicy(sizePolicy)
-        self.pushButtonCancel.setMaximumSize(pbSize)
-        self.pushButtonCancel.setMinimumSize(pbSize)
+        self.pushButtonCancel.setMaximumSize(push_button_size)
+        self.pushButtonCancel.setMinimumSize(push_button_size)
         self.pushButtonCancel.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-stop.png"))
         )
@@ -728,7 +728,7 @@ class FLFormDB(QtWidgets.QDialog):
         Return internal form name.
         """
 
-        return "form%s" % self.idMDI_
+        return "form%s" % self._id_mdi
 
     def name(self) -> str:
         """Get name of the form."""
@@ -746,7 +746,7 @@ class FLFormDB(QtWidgets.QDialog):
     #    """
 
     #    if self.iface:
-    #        self.oldFormObj = self.iface
+    #        self._old_form_object = self.iface
 
     # def unbindIface(self) -> None:
     #    """
@@ -755,7 +755,7 @@ class FLFormDB(QtWidgets.QDialog):
     #    if not self.iface:
     #        return
 
-    #    self.iface = self.oldFormObj
+    #    self.iface = self._old_form_object
 
     # def isIfaceBind(self) -> bool:
     #    """
@@ -933,11 +933,11 @@ class FLFormDB(QtWidgets.QDialog):
                         # size = self.size()
                         mdi_area.addSubWindow(self)
 
-        if self.initFocusWidget_ is None:
-            self.initFocusWidget_ = self.focusWidget()
+        if self._init_focus_widget is None:
+            self._init_focus_widget = self.focusWidget()
 
-        if self.initFocusWidget_:
-            self.initFocusWidget_.setFocus()
+        if self._init_focus_widget:
+            self._init_focus_widget.setFocus()
 
         # if not self.tiempo_ini:
         #    self.tiempo_ini = time.time()
@@ -952,7 +952,7 @@ class FLFormDB(QtWidgets.QDialog):
             self.move(qt_rectangle.topLeft())
         # if settings.readBoolEntry("application/isDebuggerMode", False):
         #    LOGGER.warning("INFO:: Tiempo de carga de %s: %.3fs %s (iface %s)" %
-        #                     (self.actionName_, tiempo_fin - self.tiempo_ini, self, self.iface))
+        #                     (self._action_name, tiempo_fin - self.tiempo_ini, self, self.iface))
         # self.tiempo_ini = None
 
     def initMainWidget(self, w: Optional[QtWidgets.QWidget] = None) -> None:
@@ -999,7 +999,7 @@ class FLFormDB(QtWidgets.QDialog):
             action = application.PROJECT.actions[self._action.name()]
             widget = (
                 action._record_widget
-                if self.actionName_.startswith("formRecord")
+                if self._action_name.startswith("formRecord")
                 else action._master_widget
             )
 
@@ -1009,7 +1009,7 @@ class FLFormDB(QtWidgets.QDialog):
         """Set main widget."""
 
         action = application.PROJECT.actions[self._action.name()]
-        if self.actionName_.startswith("formRecord"):
+        if self._action_name.startswith("formRecord"):
             action._record_widget = obj_
         else:
             action._master_widget = obj_

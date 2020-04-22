@@ -384,7 +384,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         self.iconSize = []
 
-        self.iconSize = application.PROJECT.DGI.iconSize()
+        self.iconSize = application.PROJECT.DGI.icon_size()
 
         self.tabControlLayout = QtWidgets.QHBoxLayout()
         self.tabFilter = QtWidgets.QFrame()  # contiene filtros

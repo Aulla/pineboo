@@ -145,14 +145,14 @@ class FLFormSearchDB(flformdb.FLFormDB):
         )
         sizePolicy.setHeightForWidth(True)
 
-        pbSize = self.iconSize
+        push_button_size = self._icon_size
         if settings.CONFIG.value("application/isDebuggerMode", False):
 
             pushButtonExport = QtWidgets.QToolButton(self)
             pushButtonExport.setObjectName("pushButtonExport")
             pushButtonExport.setSizePolicy(sizePolicy)
-            pushButtonExport.setMinimumSize(pbSize)
-            pushButtonExport.setMaximumSize(pbSize)
+            pushButtonExport.setMinimumSize(push_button_size)
+            pushButtonExport.setMaximumSize(push_button_size)
             pushButtonExport.setIcon(
                 QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-properties.png"))
             )
@@ -167,8 +167,8 @@ class FLFormSearchDB(flformdb.FLFormDB):
                 push_button_snapshot = QtWidgets.QToolButton(self)
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
                 push_button_snapshot.setSizePolicy(sizePolicy)
-                push_button_snapshot.setMinimumSize(pbSize)
-                push_button_snapshot.setMaximumSize(pbSize)
+                push_button_snapshot.setMinimumSize(push_button_size)
+                push_button_snapshot.setMaximumSize(push_button_size)
                 push_button_snapshot.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
                 )
@@ -190,8 +190,8 @@ class FLFormSearchDB(flformdb.FLFormDB):
             self.pushButtonAccept.clicked.connect(self.accept)
 
         self.pushButtonAccept.setSizePolicy(sizePolicy)
-        self.pushButtonAccept.setMaximumSize(pbSize)
-        self.pushButtonAccept.setMinimumSize(pbSize)
+        self.pushButtonAccept.setMaximumSize(push_button_size)
+        self.pushButtonAccept.setMinimumSize(push_button_size)
         self.pushButtonAccept.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-save.png"))
         )
@@ -209,8 +209,8 @@ class FLFormSearchDB(flformdb.FLFormDB):
             self.pushButtonCancel.clicked.connect(self.reject)
 
         self.pushButtonCancel.setSizePolicy(sizePolicy)
-        self.pushButtonCancel.setMaximumSize(pbSize)
-        self.pushButtonCancel.setMinimumSize(pbSize)
+        self.pushButtonCancel.setMaximumSize(push_button_size)
+        self.pushButtonCancel.setMinimumSize(push_button_size)
         self.pushButtonCancel.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-stop.png"))
         )
@@ -248,8 +248,8 @@ class FLFormSearchDB(flformdb.FLFormDB):
             print("FLFormSearchDB::exec(): Se ha detectado una llamada recursiva")
             if self.isHidden():
                 super().show()
-            if self.initFocusWidget_:
-                self.initFocusWidget_.setFocus()
+            if self._init_focus_widget:
+                self._init_focus_widget.setFocus()
             return False
 
         self.inExec_ = True
@@ -257,8 +257,8 @@ class FLFormSearchDB(flformdb.FLFormDB):
         self.accepted_ = False
 
         super().show()
-        if self.initFocusWidget_:
-            self.initFocusWidget_.setFocus()
+        if self._init_focus_widget:
+            self._init_focus_widget.setFocus()
 
         if self.iface:
             try:
@@ -266,7 +266,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
             except Exception:
                 pass
 
-        if not self.isClosing_:
+        if not self._is_closing:
             QtCore.QTimer.singleShot(0, self.emitFormReady)
 
         self.loop = True
@@ -306,7 +306,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         Return internal form name.
         """
 
-        return "formSearch%s" % self.idMDI_
+        return "formSearch%s" % self._id_mdi
 
     def closeEvent(self, e: QtCore.QEvent) -> None:
         """Capture event close."""
@@ -325,10 +325,10 @@ class FLFormSearchDB(flformdb.FLFormDB):
             if not self.pushButtonCancel.isEnabled():
                 return
 
-            self.isClosing_ = True
+            self._is_closing = True
             self.setCursor(None)
         else:
-            self.isClosing_ = True
+            self._is_closing = True
 
         if self.isHidden():
             # self.saveGeometry()
