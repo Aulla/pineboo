@@ -1043,7 +1043,7 @@ class TestAfterCommit(unittest.TestCase):
         while count_ < 147:
             count_ = util.sqlSelect("flfiles", "COUNT(*)", "1 = 1")
             limit_ += 1
-            if limit_ == 1000:
+            if limit_ == 2000:
                 break
 
         self.assertTrue(
@@ -1051,7 +1051,8 @@ class TestAfterCommit(unittest.TestCase):
             in [
                 "57574073C75DD72934509FAD2EC660B48B093A78",
                 "78FC400D112A9E135395A2ED10ED1E370F75C038",
-            ]
+            ],
+            "los registros de la tabla son %s cuando deberían ser 146-147" % count_,
         )
 
     @classmethod
