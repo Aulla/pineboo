@@ -441,7 +441,7 @@ class FLFieldDB(QtWidgets.QWidget):
     def _process_autocomplete_events(self, event: QtCore.QEvent) -> bool:
         """Process autocomplete events."""
 
-        timerActive = False
+        timer_active = False
         if self._auto_com_frame and self._auto_com_frame.isVisible():
             if event.type() == QtCore.QEvent.KeyPress:
                 key = cast(QtGui.QKeyEvent, event)
@@ -467,13 +467,13 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._timer_auto_comp.stop()
 
             if not key.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
-                timerActive = True
+                timer_active = True
                 self._timer_auto_comp.start(500)
             else:
                 QtCore.QTimer.singleShot(0, self.autoCompletionUpdateValue)
                 return True
         if (
-            not timerActive
+            not timer_active
             and self._auto_com_mode == "AlwaysAuto"
             and (not self._auto_com_frame or not self._auto_com_frame.isVisible())
         ):
@@ -490,7 +490,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self._timer_auto_comp.stop()
 
                 if not key.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
-                    timerActive = True
+                    timer_active = True
                     self._timer_auto_comp.start(500)
                 else:
                     QtCore.QTimer.singleShot(0, self.autoCompletionUpdateValue)
@@ -565,23 +565,23 @@ class FLFieldDB(QtWidgets.QWidget):
         if not self.cursor_ or self._table_name:
             return
 
-        isNull = False
+        is_null = False
 
         if hasattr(self, "editor_"):
 
             if isinstance(self.editor_, fldateedit.FLDateEdit):
                 data = str(self.editor_.getDate())
                 if not data:
-                    isNull = True
+                    is_null = True
 
                 if not self.cursor_.bufferIsNull(self._field_name):
 
                     if str(data) == self.cursor_.valueBuffer(self._field_name):
                         return
-                elif isNull:
+                elif is_null:
                     return
 
-                if isNull:
+                if is_null:
                     self.cursor_.setValueBuffer(
                         self._field_name, QtCore.QDate().toString("dd-MM-yyyy")
                     )
@@ -592,15 +592,15 @@ class FLFieldDB(QtWidgets.QWidget):
                 data = str(self.editor_.time().toString("hh:mm:ss"))
 
                 if not data:
-                    isNull = True
+                    is_null = True
                 if not self.cursor_.bufferIsNull(self._field_name):
 
                     if str(data) == self.cursor_.valueBuffer(self._field_name):
                         return
-                elif isNull:
+                elif is_null:
                     return
 
-                if isNull:
+                if is_null:
                     self.cursor_.setValueBuffer(
                         self._field_name, str(QtCore.QTime().toString("hh:mm:ss"))
                     )
@@ -663,7 +663,7 @@ class FLFieldDB(QtWidgets.QWidget):
         LOGGER.info("RefreshLaterEditor:", self._refresh_later)
         LOGGER.info("************************************")
 
-    def setValue(self, v: Any) -> None:
+    def setValue(self, value: Any = "") -> None:
         """
         Set the value contained in the field.
 
@@ -679,15 +679,14 @@ class FLFieldDB(QtWidgets.QWidget):
             return
         # if v:
         #    print("FLFieldDB(%s).setValue(%s) ---> %s" % (self._field_name, v, self.editor_))
+        if value is None:
+            value = ""
 
-        if v == "":
-            v = None
-
-        tMD = self.cursor_.metadata()
-        if not tMD:
+        table_metadata = self.cursor_.metadata()
+        if not table_metadata:
             return
 
-        field = tMD.field(self._field_name)
+        field = table_metadata.field(self._field_name)
         if field is None:
             LOGGER.warning("FLFieldDB::setValue(%s) : No existe el campo ", self._field_name)
             return
@@ -696,26 +695,26 @@ class FLFieldDB(QtWidgets.QWidget):
 
         # v = QVariant(cv)
         if field.hasOptionsList():
-            idxItem = -1
+            idx = -1
             if type_ == "string":
-                if v in field.optionsList():
-                    idxItem = field.optionsList().index(v)
+                if value in field.optionsList():
+                    idx = field.optionsList().index(value)
                 else:
                     LOGGER.warning(
-                        "No se encuentra el valor %s en las opciones %s", v, field.optionsList()
+                        "No se encuentra el valor %s en las opciones %s", value, field.optionsList()
                     )
-            if idxItem == -1:
-                cast(qcombobox.QComboBox, self.editor_).setCurrentItem(v)
+            if idx == -1:
+                cast(qcombobox.QComboBox, self.editor_).setCurrentItem(value)
             self.updateValue(cast(qcombobox.QComboBox, self.editor_).currentText)
             return
 
         if type_ == "pixmap":
             if self._editor_img:
 
-                if v is None:
+                if not value:
                     self._editor_img.clear()
                     return
-                pix = QtGui.QPixmap(v)
+                pix = QtGui.QPixmap(value)
                 # if not QtGui.QPixmapCache().find(cs.left(100), pix):
                 # print("FLFieldDB(%s) :: La imagen no se ha cargado correctamente" % self._field_name)
                 #    QtGui.QPixmapCache().insert(cs.left(100), pix)
@@ -729,75 +728,76 @@ class FLFieldDB(QtWidgets.QWidget):
                 return
 
         if type_ in ("uint", "int"):
-            doHome = False
+            do_home = False
             editor_int = cast(fllineedit.FLLineEdit, self.editor_)
             if not editor_int.text():
-                doHome = True
+                do_home = True
 
-            editor_int.setText(v if v else "0")
+            editor_int.setText(value if value else 0)
 
-            if doHome:
+            if do_home:
                 editor_int.home(False)
 
         elif type_ == "string":
-            doHome = False
+            do_home = False
             editor_str = cast(fllineedit.FLLineEdit, self.editor_)
             if not editor_str.text():
-                doHome = True
+                do_home = True
 
-            editor_str.setText(v if v else "")
+            editor_str.setText(value)
 
-            if doHome:
+            if do_home:
                 editor_str.home(False)
 
         elif type_ == "stringlist":
 
-            cast(fllineedit.FLLineEdit, self.editor_).setText("" if v is None else v)
+            cast(fllineedit.FLLineEdit, self.editor_).setText(value)
 
         elif type_ == "double":
-            s = ""
-            if v is not None:
-                s = str(
+            num_ = ""
+            if value:
+                num_ = str(
                     round(
-                        float(v), self._part_decimal if self._part_decimal else field.partDecimal()
+                        float(value),
+                        self._part_decimal if self._part_decimal else field.partDecimal(),
                     )
                 )
 
-            cast(fllineedit.FLLineEdit, self.editor_).setText(s)
+            cast(fllineedit.FLLineEdit, self.editor_).setText(num_)
 
         elif type_ == "serial":
-            cast(fllineedit.FLLineEdit, self.editor_).setText(str(v) if v is not None else "")
+            cast(fllineedit.FLLineEdit, self.editor_).setText(value)
 
         elif type_ == "date":
             editor_date = cast(fldateedit.FLDateEdit, self.editor_)
-            if v is None:
+            if not value:
                 editor_date.setDate(QtCore.QDate())
-            elif isinstance(v, str):
-                if v.find("T") > -1:
-                    v = v[0 : v.find("T")]
-                editor_date.setDate(QtCore.QDate.fromString(v, "yyyy-MM-dd"))
+            elif isinstance(value, str):
+                if value.find("T") > -1:
+                    value = value[0 : value.find("T")]
+                editor_date.setDate(QtCore.QDate.fromString(value, "yyyy-MM-dd"))
             else:
-                editor_date.setDate(v)
+                editor_date.setDate(value)
 
         elif type_ == "time":
-            if v is None:
-                v = QtCore.QTime()
+            if not value:
+                value = QtCore.QTime()
 
-            cast(fltimeedit.FLTimeEdit, self.editor_).setTime(v)
+            cast(fltimeedit.FLTimeEdit, self.editor_).setTime(value)
 
         elif type_ == "bool":
-            if v is not None:
-                cast(flcheckbox.FLCheckBox, self.editor_).setChecked(v)
+            if value not in [None, ""]:
+                cast(flcheckbox.FLCheckBox, self.editor_).setChecked(value)
 
         elif type_ == "timestamp":
-            doHome = False
+            do_home = False
             editor_ts = cast(fllineedit.FLLineEdit, self.editor_)
             if not editor_ts.text():
-                doHome = True
+                do_home = True
 
-            editor_ts.setText(v if v else "")
+            editor_ts.setText(value)
 
-            if doHome:
+            if do_home:
                 editor_ts.home(False)
 
     def value(self) -> Any:
@@ -807,20 +807,20 @@ class FLFieldDB(QtWidgets.QWidget):
         if not self.cursor_:
             return None
 
-        tMD = self.cursor_.metadata()
-        if not tMD:
+        table_metadata = self.cursor_.metadata()
+        if not table_metadata:
             return None
 
-        field = tMD.field(self._field_name)
+        field = table_metadata.field(self._field_name)
         if field is None:
             LOGGER.warning(self.tr("FLFieldDB::value() : No existe el campo %s" % self._field_name))
             return None
 
-        v: Any = None
+        value: Any = None
 
         if field.hasOptionsList():
-            v = int(cast(qcombobox.QComboBox, self.editor_).currentItem())
-            return v
+            value = int(cast(qcombobox.QComboBox, self.editor_).currentItem())
+            return value
 
         type_ = field.type()
         # fltype = FLFieldMetaData.flDecodeType(type_)
@@ -833,54 +833,54 @@ class FLFieldDB(QtWidgets.QWidget):
             if self.editor_:
                 ed_ = self.editor_
                 if isinstance(ed_, fllineedit.FLLineEdit):
-                    v = ed_.text()
+                    value = ed_.text()
 
         if type_ in ("int", "uint"):
             if self.editor_:
                 ed_ = self.editor_
                 if isinstance(ed_, fllineedit.FLLineEdit):
-                    v = ed_.text()
-                    if v == "":
-                        v = 0
+                    value = ed_.text()
+                    if value == "":
+                        value = 0
                     else:
-                        v = int(v)
+                        value = int(value)
 
         if type_ == "double":
             if self.editor_:
                 ed_ = self.editor_
                 if isinstance(ed_, fllineedit.FLLineEdit):
-                    v = ed_.text()
-                    if v == "":
-                        v = 0.00
+                    value = ed_.text()
+                    if value == "":
+                        value = 0.00
                     else:
-                        v = float(v)
+                        value = float(value)
 
         elif type_ == "serial":
             if self.editor_:
                 ed_ = self.editor_
                 if isinstance(ed_, flspinbox.FLSpinBox):
-                    v = ed_.value()
+                    value = ed_.value()
 
         elif type_ == "pixmap":
-            v = self.cursor_.valueBuffer(self._field_name)
+            value = self.cursor_.valueBuffer(self._field_name)
 
         elif type_ == "date":
             if self.editor_:
-                v = cast(fldateedit.FLDateEdit, self.editor_).date
-                if v:
+                value = cast(fldateedit.FLDateEdit, self.editor_).date
+                if value:
 
-                    v = types.Date(v)
+                    value = types.Date(value)
 
         elif type_ == "time":
             if self.editor_:
-                v = cast(fltimeedit.FLTimeEdit, self.editor_).time
+                value = cast(fltimeedit.FLTimeEdit, self.editor_).time
 
         elif type_ == "bool":
             if self.editor_:
-                v = cast(flcheckbox.FLCheckBox, self.editor_).isChecked()
+                value = cast(flcheckbox.FLCheckBox, self.editor_).isChecked()
 
         # v.cast(fltype)
-        return v
+        return value
 
     def selectAll(self) -> None:
         """
@@ -1037,8 +1037,8 @@ class FLFieldDB(QtWidgets.QWidget):
         if not self.cursor_ or not isinstance(self.cursor_, pnsqlcursor.PNSqlCursor):
             LOGGER.debug("FLField.refresh() Cancelado")
             return
-        tMD = self.cursor_.metadata()
-        if not tMD:
+        table_metadata = self.cursor_.metadata()
+        if not table_metadata:
             return
 
         v = None
@@ -1066,7 +1066,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 if self.cursor_.bufferIsNull(self._field_relation):
                     return
 
-                field = tMD.field(self._field_relation)
+                field = table_metadata.field(self._field_relation)
                 if field is None:
                     return
 
@@ -1125,7 +1125,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
             return
 
-        field = tMD.field(str(self._field_name))
+        field = table_metadata.field(str(self._field_name))
         if field is None:
             return
         type_ = field.type()
@@ -1158,7 +1158,9 @@ class FLFieldDB(QtWidgets.QWidget):
             or self.cursor_.fieldDisabled(self._field_name)
             or (
                 modeAcces == pnsqlcursor.PNSqlCursor.Edit
-                and (field.isPrimaryKey() or tMD.fieldListOfCompoundKey(self._field_name))
+                and (
+                    field.isPrimaryKey() or table_metadata.fieldListOfCompoundKey(self._field_name)
+                )
             )
             or not field.editable()
             or modeAcces == pnsqlcursor.PNSqlCursor.Browse
@@ -1202,7 +1204,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         elif type_ == "string":
 
-            doHome = False
+            do_home = False
             if not ol:
                 editor_str = cast(fllineedit.FLLineEdit, self.editor_)
                 try:
@@ -1229,14 +1231,14 @@ class FLFieldDB(QtWidgets.QWidget):
                     editor_str.setText(def_val if not nulo else "")
 
             if not ol:
-                if doHome:
+                if do_home:
                     editor_str.home(False)
 
                 cast(QtCore.pyqtSignal, editor_str.textChanged).connect(self.updateValue)
 
         elif type_ == "timestamp":
 
-            doHome = False
+            do_home = False
             editor_str = cast(fllineedit.FLLineEdit, self.editor_)
             try:
                 cast(QtCore.pyqtSignal, editor_str.textChanged).disconnect(self.updateValue)
@@ -1249,7 +1251,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 def_val = field.defaultValue() or ""
                 editor_str.setText(def_val if not nulo else "")
 
-            if doHome:
+            if do_home:
                 editor_str.home(False)
 
             cast(QtCore.pyqtSignal, editor_str.textChanged).connect(self.updateValue)
@@ -1435,8 +1437,8 @@ class FLFieldDB(QtWidgets.QWidget):
         if not fN or not fN == self._field_name or not self.cursor_:
             return
 
-        tMD = self.cursor_.metadata()
-        field = tMD.field(self._field_name)
+        table_metadata = self.cursor_.metadata()
+        field = table_metadata.field(self._field_name)
 
         if field is None:
             return
@@ -1453,8 +1455,6 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if self._part_decimal < 0:
             self._part_decimal = field.partDecimal()
-
-        ol = field.hasOptionsList()
 
         if type_ == "double":
             editor_le = cast(fllineedit.FLLineEdit, self.editor_)
@@ -1476,8 +1476,10 @@ class FLFieldDB(QtWidgets.QWidget):
             cast(QtCore.pyqtSignal, editor_le.textChanged).connect(self.updateValue)
 
         elif type_ == "string":
-            doHome = False
-            if ol:
+            do_home = False
+            has_options_list = field.hasOptionsList()
+
+            if has_options_list:
                 cb = cast(qcombobox.QComboBox, self.editor_)
                 if str(v) == cb.currentText:
                     return
@@ -1487,26 +1489,26 @@ class FLFieldDB(QtWidgets.QWidget):
                     return
 
                 if not ed.text():
-                    doHome = True
+                    do_home = True
 
                 cast(QtCore.pyqtSignal, ed.textChanged).disconnect(self.updateValue)
 
             if v:
-                if ol:
+                if has_options_list:
                     cb.setCurrentText(v)
 
                 else:
                     ed.setText(v, False)
 
             else:
-                if ol:
+                if has_options_list:
                     cb.setCurrentIndex(0)
 
                 else:
                     ed.setText("", False)
 
-            if not ol:
-                if doHome:
+            if not has_options_list:
+                if do_home:
                     ed.home(False)
 
                 cast(QtCore.pyqtSignal, ed.textChanged).connect(self.updateValue)
@@ -1685,8 +1687,8 @@ class FLFieldDB(QtWidgets.QWidget):
             self.cursor_.bufferChanged.connect(self.refreshQuick)
             return
 
-        tMD = self.cursor_.db().connManager().manager().metadata(self._table_name)
-        if not tMD:
+        table_metadata = self.cursor_.db().connManager().manager().metadata(self._table_name)
+        if not table_metadata:
             return
 
         try:
@@ -1705,8 +1707,10 @@ class FLFieldDB(QtWidgets.QWidget):
 
         curName = self.cursor().metadata().name()
 
-        rMD = tMD.relation(self._field_relation, self._foreign_field, curName)
-        if not rMD:
+        relation_metadata = table_metadata.relation(
+            self._field_relation, self._foreign_field, curName
+        )
+        if not relation_metadata:
             checkIntegrity = False
             testM1 = self.cursor_.metadata().relation(
                 self._foreign_field, self._field_relation, self._table_name
@@ -1714,10 +1718,10 @@ class FLFieldDB(QtWidgets.QWidget):
             if testM1:
                 if testM1.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_1M:
                     checkIntegrity = True
-            fMD = tMD.field(self._field_relation)
+            field_metadata = table_metadata.field(self._field_relation)
 
-            if fMD is not None:
-                rMD = pnrelationmetadata.PNRelationMetaData(
+            if field_metadata is not None:
+                relation_metadata = pnrelationmetadata.PNRelationMetaData(
                     curName,
                     self._foreign_field,
                     pnrelationmetadata.PNRelationMetaData.RELATION_1M,
@@ -1726,7 +1730,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     checkIntegrity,
                 )
 
-                fMD.addRelationMD(rMD)
+                field_metadata.addRelationMD(relation_metadata)
                 LOGGER.trace(
                     "FLFieldDB : La relación entre la tabla del formulario ( %s ) y la tabla ( %s ) de este campo ( %s ) no existe, "
                     "pero sin embargo se han indicado los campos de relación( %s, %s)",
@@ -1753,7 +1757,12 @@ class FLFieldDB(QtWidgets.QWidget):
         if self._table_name:
             # self.cursor_ = pnsqlcursor.PNSqlCursor(self._table_name)
             self.cursor_ = pnsqlcursor.PNSqlCursor(
-                self._table_name, False, self.cursor_.connectionName(), self._cursor_aux, rMD, self
+                self._table_name,
+                False,
+                self.cursor_.connectionName(),
+                self._cursor_aux,
+                relation_metadata,
+                self,
             )
 
         if not self.cursor_:
@@ -1817,11 +1826,11 @@ class FLFieldDB(QtWidgets.QWidget):
         #    del self._editor_img
         #    self._editor_img = None
 
-        tMD = self.cursor_.metadata()
-        if not tMD:
+        table_metadata = self.cursor_.metadata()
+        if not table_metadata:
             return
 
-        field = tMD.field(self._field_name)
+        field = table_metadata.field(self._field_name)
         if field is None:
             return
 
@@ -1842,7 +1851,7 @@ class FLFieldDB(QtWidgets.QWidget):
         rt = None
         field_relation = field.relationM1()
         if field_relation is not None:
-            if not field_relation.foreignTable() == tMD.name():
+            if not field_relation.foreignTable() == table_metadata.name():
                 rt = field_relation.foreignTable()
 
         hasPushButtonDB = False
@@ -2187,7 +2196,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         elif type_ == "bool":
 
-            alias = tMD.fieldNameToAlias(self._field_name)
+            alias = table_metadata.fieldNameToAlias(self._field_name)
             if not alias:
                 raise Exception("alias is empty!")
 
@@ -2466,8 +2475,8 @@ class FLFieldDB(QtWidgets.QWidget):
             self._auto_com_frame.hide()
 
             if not self._auto_com_popup:
-                tMD = self.cursor_.metadata()
-                field = tMD.field(self._field_name) if tMD else None
+                table_metadata = self.cursor_.metadata()
+                field = table_metadata.field(self._field_name) if table_metadata else None
 
                 if field is not None:
                     self._auto_com_popup = fldatatable.FLDataTable(None, "autoComPopup", True)
@@ -2479,7 +2488,11 @@ class FLFieldDB(QtWidgets.QWidget):
                         if self._field_relation is not None and self._foreign_field is not None:
                             self._auto_com_field_name = self._foreign_field
 
-                            fRel = tMD.field(self._field_relation) if tMD else None
+                            fRel = (
+                                table_metadata.field(self._field_relation)
+                                if table_metadata
+                                else None
+                            )
 
                             if fRel is None:
                                 return
@@ -2498,13 +2511,17 @@ class FLFieldDB(QtWidgets.QWidget):
                                 None,
                                 self._auto_com_frame,
                             )
-                            tMD = cur.metadata()
-                            field = tMD.field(self._auto_com_field_name) if tMD else field
+                            table_metadata = cur.metadata()
+                            field = (
+                                table_metadata.field(self._auto_com_field_name)
+                                if table_metadata
+                                else field
+                            )
                         else:
                             self._auto_com_field_name = self._field_name
                             self._auto_com_field_relation = None
                             cur = pnsqlcursor.PNSqlCursor(
-                                tMD.name(),
+                                table_metadata.name(),
                                 False,
                                 self.cursor_.db().connectionName(),
                                 None,
@@ -2524,14 +2541,18 @@ class FLFieldDB(QtWidgets.QWidget):
                             None,
                             self._auto_com_frame,
                         )
-                        tMD = cur.metadata()
-                        field = tMD.field(self._auto_com_field_name) if tMD else field
+                        table_metadata = cur.metadata()
+                        field = (
+                            table_metadata.field(self._auto_com_field_name)
+                            if table_metadata
+                            else field
+                        )
 
                     # Añade campo al cursor ...    FIXME!!
                     # cur.append(self._auto_com_field_name, field.type(), -1, field.length(), -1)
 
-                    # for fieldNames in tMD.fieldNames().split(","):
-                    #    field = tMD.field(fieldNames)
+                    # for fieldNames in table_metadata.fieldNames().split(","):
+                    #    field = table_metadata.field(fieldNames)
                     #    if field:
                     # cur.append(field.name(), field.type(), -1, field.length(), -1,
                     # "Variant", None, True) #qvariant,0,true
@@ -2559,8 +2580,8 @@ class FLFieldDB(QtWidgets.QWidget):
             cur = cast(pnsqlcursor.PNSqlCursor, self._auto_com_popup.cursor())
             if cur is None:
                 raise Exception("Unexpected: No cursor could be obtained")
-            tMD = cur.metadata()
-            field = tMD.field(self._auto_com_field_name) if tMD else None
+            table_metadata = cur.metadata()
+            field = table_metadata.field(self._auto_com_field_name) if table_metadata else None
 
             if field:
                 _filter = (
@@ -2667,11 +2688,11 @@ class FLFieldDB(QtWidgets.QWidget):
         if not self._field_name:
             return
 
-        tMD = self.cursor_.metadata()
-        if not tMD:
+        table_metadata = self.cursor_.metadata()
+        if not table_metadata:
             return
 
-        field = tMD.field(self._field_name)
+        field = table_metadata.field(self._field_name)
         if field is None:
             return
 
@@ -2681,10 +2702,12 @@ class FLFieldDB(QtWidgets.QWidget):
             LOGGER.info("FLFieldDB : El campo de búsqueda debe tener una relación M1")
             return
 
-        fMD = field.associatedField()
+        field_metadata = field.associatedField()
         a = None
         v = self.cursor_.valueBuffer(field.name())
-        if v in [None, ""] or (fMD is not None and self.cursor_.bufferIsNull(fMD.name())):
+        if v in [None, ""] or (
+            field_metadata is not None and self.cursor_.bufferIsNull(field_metadata.name())
+        ):
             QtWidgets.QMessageBox.warning(
                 QtWidgets.QApplication.focusWidget(),
                 "Aviso",
@@ -2738,11 +2761,11 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if not self._field_name:
             return
-        tMD = self.cursor_.metadata()
-        if not tMD:
+        table_metadata = self.cursor_.metadata()
+        if not table_metadata:
             return
 
-        field = tMD.field(self._field_name)
+        field = table_metadata.field(self._field_name)
         if field is None:
             return
 
@@ -2752,38 +2775,40 @@ class FLFieldDB(QtWidgets.QWidget):
             LOGGER.info("FLFieldDB : El campo de búsqueda debe tener una relación M1")
             return
 
-        fMD = field.associatedField()
+        field_metadata = field.associatedField()
 
         form_search: flformsearchdb.FLFormSearchDB
 
-        if fMD is not None:
-            fmd_relation = fMD.relationM1()
+        if field_metadata is not None:
+            fmd_relation = field_metadata.relationM1()
 
             if fmd_relation is None:
                 LOGGER.info("FLFieldDB : El campo asociado debe tener una relación M1")
                 return
-            v = self.cursor_.valueBuffer(fMD.name())
-            if v is None or self.cursor_.bufferIsNull(fMD.name()):
+            value = self.cursor_.valueBuffer(field_metadata.name())
+            if value is None or self.cursor_.bufferIsNull(field_metadata.name()):
                 QtWidgets.QMessageBox.warning(
                     QtWidgets.QApplication.focusWidget(),
                     "Aviso",
-                    "Debe indicar un valor para %s" % fMD.alias(),
+                    "Debe indicar un valor para %s" % field_metadata.alias(),
                 )
                 return
 
             mng = self.cursor_.db().connManager().manager()
-            c = pnsqlcursor.PNSqlCursor(
+            cursor = pnsqlcursor.PNSqlCursor(
                 fmd_relation.foreignTable(), True, self.cursor_.db().connectionName()
             )
-            c.select(mng.formatAssignValue(fmd_relation.foreignField(), fMD, v, True))
-            if c.size() > 0:
-                c.first()
+            cursor.select(
+                mng.formatAssignValue(fmd_relation.foreignField(), field_metadata, value, True)
+            )
+            if cursor.size() > 0:
+                cursor.first()
 
-            c2 = pnsqlcursor.PNSqlCursor(
+            cursor2 = pnsqlcursor.PNSqlCursor(
                 field_relation.foreignTable(),
                 True,
                 self.cursor_.db().connectionName(),
-                c,
+                cursor,
                 fmd_relation,
             )
 
@@ -2795,23 +2820,27 @@ class FLFieldDB(QtWidgets.QWidget):
             #        return
             #    a.setTable(field.relationM1().foreignField())
 
-            form_search = flformsearchdb.FLFormSearchDB(c2, self._top_widget)
+            form_search = flformsearchdb.FLFormSearchDB(cursor2, self._top_widget)
 
-            form_search.setFilter(mng.formatAssignValue(fmd_relation.foreignField(), fMD, v, True))
+            form_search.setFilter(
+                mng.formatAssignValue(fmd_relation.foreignField(), field_metadata, value, True)
+            )
         else:
             mng = self.cursor_.db().connManager().manager()
             if not self._action_name:
-                a = mng.action(field_relation.foreignTable())
-                if not a:
+                action_ = mng.action(field_relation.foreignTable())
+                if not action_:
                     return
             else:
-                a = mng.action(self._action_name)
-                if not a:
+                action_ = mng.action(self._action_name)
+                if not action_:
                     return
-                a.setTable(field_relation.foreignTable())
-            c = pnsqlcursor.PNSqlCursor(a.table(), True, self.cursor_.db().connectionName())
+                action_.setTable(field_relation.foreignTable())
+            cursor = pnsqlcursor.PNSqlCursor(
+                action_.table(), True, self.cursor_.db().connectionName()
+            )
             # f = flformsearchdb.FLFormSearchDB(c, a.name(), self._top_widget)
-            form_search = flformsearchdb.FLFormSearchDB(c, a.name(), self._top_widget)
+            form_search = flformsearchdb.FLFormSearchDB(cursor, action_.name(), self._top_widget)
 
         form_search.setMainWidget()
 
@@ -2820,12 +2849,12 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if list_objs:
             obj_tdb = cast(fltabledb.FLTableDB, list_objs[0])
-        if fMD is not None and obj_tdb is not None:
+        if field_metadata is not None and obj_tdb is not None:
             # obj_tdb.setTableName(field.relationM1().foreignTable())
             # obj_tdb.setFieldRelation(field.associatedFieldFilterTo())
-            # obj_tdb.setForeignField(fMD.relationM1().foreignField())
+            # obj_tdb.setForeignField(field_metadata.relationM1().foreignField())
             if fmd_relation is not None:
-                if fmd_relation.foreignTable() == tMD.name():
+                if fmd_relation.foreignTable() == table_metadata.name():
                     obj_tdb.setReadOnly(True)
 
         if self._filter:
@@ -2839,13 +2868,13 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 QtCore.QTimer.singleShot(0, obj_tdb.lineEditSearch.setFocus)
 
-        v = form_search.exec_(field_relation.foreignField())
+        value = form_search.exec_(field_relation.foreignField())
         form_search.close()
-        if c:
-            del c
-        if v:
+        if cursor:
+            del cursor
+        if value:
             # self.setValue("")
-            self.setValue(v)
+            self.setValue(value)
 
     @decorators.pyqt_slot()
     def searchPixmap(self) -> None:
@@ -2868,11 +2897,9 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if field is None:
             return
-        util = flutil.FLUtil()
+
         if field.type() == "pixmap":
-            fd = QtWidgets.QFileDialog(
-                self.parentWidget(), util.translate("pineboo", "Elegir archivo"), "", "*"
-            )
+            fd = QtWidgets.QFileDialog(self.parentWidget(), self.tr("Elegir archivo"), "", "*")
             fd.setViewMode(QtWidgets.QFileDialog.Detail)
             filename = None
             if fd.exec_() == QtWidgets.QDialog.Accepted:
@@ -3095,13 +3122,13 @@ class FLFieldDB(QtWidgets.QWidget):
             if not self.cursor_:
                 return
 
-            tMD = self.cursor_.metadata()
-            if not tMD:
+            table_metadata = self.cursor_.metadata()
+            if not table_metadata:
                 return
 
             fSN = self._field_map_value.fieldName()
-            field = tMD.field(self._field_name)
-            fieldSender = tMD.field(fSN)
+            field = table_metadata.field(self._field_name)
+            fieldSender = table_metadata.field(fSN)
 
             if field is None or not fieldSender:
                 return
@@ -3109,7 +3136,7 @@ class FLFieldDB(QtWidgets.QWidget):
             field_relation = field.relationM1()
 
             if field_relation is not None:
-                if not field_relation.foreignTable() == tMD.name():
+                if not field_relation.foreignTable() == table_metadata.name():
                     mng = self.cursor_.db().connManager().manager()
                     relation_table = field_relation.foreignTable()
                     foreign_field = self._field_map_value.foreignField()
@@ -3197,8 +3224,8 @@ class FLFieldDB(QtWidgets.QWidget):
                 read_only = getattr(self.editor_, "setReadOnly", None)
 
                 if read_only is not None:
-                    tMD = self.cursor_.metadata()
-                    field = tMD.field(self._field_name)
+                    table_metadata = self.cursor_.metadata()
+                    field = table_metadata.field(self._field_name)
 
                     if field is None:
                         raise Exception("field is empty!.")
@@ -3251,9 +3278,9 @@ class FLFieldDB(QtWidgets.QWidget):
                             le = w
                             if isinstance(le, qlineedit.QLineEdit):
                                 allowNull = True
-                                tMD = self.cursor_.metadata()
-                                if tMD:
-                                    field = tMD.field(self._field_name)
+                                table_metadata = self.cursor_.metadata()
+                                if table_metadata:
+                                    field = table_metadata.field(self._field_name)
                                     if field and not field.allowNull():
                                         allowNull = False
 
@@ -3345,10 +3372,10 @@ class FLFieldDB(QtWidgets.QWidget):
                             and not self._cursor_aux.bufferIsNull(self._foreign_field)
                         ):
                             mng = self.cursor_.db().connManager().manager()
-                            tMD = self.cursor_.metadata()
-                            if tMD:
+                            table_metadata = self.cursor_.metadata()
+                            if table_metadata:
                                 v = self._cursor_aux.valueBuffer(self._foreign_field)
-                                # print("El valor de %s.%s es %s" % (tMD.name(), self._foreign_field, v))
+                                # print("El valor de %s.%s es %s" % (table_metadata.name(), self._foreign_field, v))
                                 if not self._table_name:
                                     raise ValueError("_table_name no puede ser Nulo")
 
@@ -3362,9 +3389,11 @@ class FLFieldDB(QtWidgets.QWidget):
                                 q.setSelect(self._field_name)
                                 q.setFrom(self._table_name)
                                 where = mng.formatAssignValue(
-                                    tMD.field(self._field_relation), v, True
+                                    table_metadata.field(self._field_relation), v, True
                                 )
-                                filterAc = self._cursor_aux.filterAssoc(self._foreign_field, tMD)
+                                filterAc = self._cursor_aux.filterAssoc(
+                                    self._foreign_field, table_metadata
+                                )
 
                                 if filterAc:
                                     # print("FilterAC == ", filterAc)
@@ -3388,8 +3417,8 @@ class FLFieldDB(QtWidgets.QWidget):
                                     if isinstance(value, datetime.date):
                                         value = value.strftime("%d-%m-%Y")
                                     self.setValue(value)
-                                if not tMD.inCache():
-                                    del tMD
+                                if not table_metadata.inCache():
+                                    del table_metadata
                     else:
                         if (
                             self.cursor_ is None
