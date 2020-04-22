@@ -516,7 +516,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         qry2 = pnsqlquery.PNSqlQuery()
         qry2.setSelect("area.idarea,modulo.idmodelo")
         qry2.setFrom(
-            """flareas area\n\tINNER JOIN flmodules modulo ON (area.idarea = CAST (modulo.idarea AS STRING) 
+            """flareas area\n\tINNER JOIN flmodules modulo ON (area.idarea = CAST (modulo.idarea AS STRING)
             AND CAST(modulo.bloqueado AS BOOL) = False"""
         )
         qry2.setWhere("NOT modulo.bloqueado")
