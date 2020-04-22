@@ -455,7 +455,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                         new_pixmap.fill(QtCore.Qt.transparent)
                         painter = Qt.QPainter(new_pixmap)
                         painter.drawPixmap(
-                            center_width, center_height, pixmap.width(), pixmap.height(), pixmap
+                            int(center_width),
+                            int(center_height),
+                            pixmap.width(),
+                            pixmap.height(),
+                            pixmap,
                         )
 
                         pixmap = new_pixmap

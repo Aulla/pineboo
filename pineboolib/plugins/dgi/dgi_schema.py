@@ -114,12 +114,6 @@ class DgiSchema(object):
         """Return interactiveGUI name."""
         return "Pineboo"
 
-    def processEvents(self) -> None:
-        """Run Process events."""
-        from PyQt5 import QtWidgets  # type: ignore
-
-        QtWidgets.qApp.processEvents()  # type: ignore[misc] # noqa: F821
-
     def show_object_not_found_warnings(self) -> bool:
         """Return if show warnings when objects not found."""
         return self._show_object_not_found_warnings

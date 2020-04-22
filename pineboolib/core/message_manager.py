@@ -1,6 +1,7 @@
 """
 Module for Manager class.
 """
+from PyQt5 import QtWidgets
 from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -40,7 +41,7 @@ class Manager(object):
                     ret_ = attr_()
                 else:
                     ret_ = attr_(*data_)
-                self._dgi.processEvents()
+                QtWidgets.QApplication.processEvents()
 
         if ret_ is not None:
             return ret_

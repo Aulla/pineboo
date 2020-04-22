@@ -489,7 +489,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # LOGGER.trace("(%s)bufferChanged.emit(%s)" % (self.curName(),field_name))
 
         self.bufferChanged.emit(field_name)
-        application.PROJECT.app.processEvents()  # type: ignore[misc] # noqa: F821
+        QtWidgets.QApplication.processEvents()
 
     def valueBuffer(self, field_name: str) -> Any:
         """

@@ -139,7 +139,7 @@ class SysBaseType(object):
     @classmethod
     def processEvents(self) -> None:
         """Process event loop."""
-        return application.PROJECT.DGI.processEvents()
+        QtWidgets.QApplication.processEvents()
 
     @classmethod
     def write(self, encode_: str, dir_: str, contenido: str) -> None:
