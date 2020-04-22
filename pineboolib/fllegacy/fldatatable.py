@@ -517,12 +517,12 @@ class FLDataTable(QtWidgets.QTableView):
 
         return super(FLDataTable, self).eventFilter(obj, event)
 
-    def contextMenuEvent(self, e: Any) -> None:
+    def contextMenuEvent(self, event: Any) -> None:
         """
         To prevent the context menu from appearing with the options to edit records.
         """
 
-        super().contextMenuEvent(e)
+        super().contextMenuEvent(event)
 
         if not self.cursor_ or not self.cursor_.isValid() or not self.cursor_.metadata():
             return
@@ -538,7 +538,7 @@ class FLDataTable(QtWidgets.QTableView):
         if not rel_list:
             return
 
-        db = self.cursor_.db()
+        conn_db = self.cursor_.db()
         pri_key_val = self.cursor_.valueBuffer(pri_key)
 
         from pineboolib.q3widgets.qmenu import QMenu
@@ -554,11 +554,11 @@ class FLDataTable(QtWidgets.QTableView):
         lay = QVBoxLayout()
         menu_frame.setLayout(lay)
 
-        tmp_pos = e.globalPos()
+        tmp_pos = event.globalPos()
 
         for rel in rel_list:
             cur = pnsqlcursor.PNSqlCursor(
-                rel.foreignTable(), True, db.connectionName(), None, None, popup
+                rel.foreignTable(), True, conn_db.connectionName(), None, None, popup
             )
 
             if cur.private_cursor.metadata_:
@@ -573,23 +573,25 @@ class FLDataTable(QtWidgets.QTableView):
                 lay_popup = QVBoxLayout(sub_popup)
                 sub_popup_frame.setLayout(lay_popup)
 
-                dt = FLDataTable(None, "FLDataTable", True)
-                lay_popup.addWidget(dt)
+                data_table = FLDataTable(None, "FLDataTable", True)
+                lay_popup.addWidget(data_table)
 
-                dt.setFLSqlCursor(cur)
-                filter = db.connManager().manager().formatAssignValue(field, pri_key_val, False)
+                data_table.setFLSqlCursor(cur)
+                filter = (
+                    conn_db.connManager().manager().formatAssignValue(field, pri_key_val, False)
+                )
                 cur.setFilter(filter)
-                dt.setFilter(filter)
-                dt.refresh()
+                data_table.setFilter(filter)
+                data_table.refresh()
 
                 # horiz_header = dt.header()
-                for i in range(dt.numCols()):
+                for i in range(data_table.numCols()):
                     field = mtd.indexFieldObject(i)
                     if not field:
                         continue
 
                     if not field.visibleGrid():
-                        dt.setColumnHidden(i, True)
+                        data_table.setColumnHidden(i, True)
 
                 sub_menu = popup.addMenu(sub_popup)
                 sub_menu.hovered.connect(sub_popup_frame.show)
@@ -599,9 +601,9 @@ class FLDataTable(QtWidgets.QTableView):
 
         popup.move(tmp_pos.x(), tmp_pos.y())
 
-        popup.exec_(e.globalPos())
+        popup.exec_(event.globalPos())
         del popup
-        e.accept()
+        event.accept()
 
     def setChecked(self, index: Any) -> None:
         """
@@ -616,46 +618,25 @@ class FLDataTable(QtWidgets.QTableView):
         if _type != "check":
             return
         model = self.cur.model()
-        pK = str(model.value(row, self.cur.metadata().primaryKey()))
-        model._check_column[pK].setChecked(not model._check_column[pK].isChecked())
-        self.setPrimaryKeyChecked(str(pK), model._check_column[pK].isChecked())
+        primary_key = str(model.value(row, self.cur.metadata().primaryKey()))
+        model._check_column[primary_key].setChecked(
+            not model._check_column[primary_key].isChecked()
+        )
+        self.setPrimaryKeyChecked(str(primary_key), model._check_column[primary_key].isChecked())
         # print("FIXME: falta un repaint para ver el color!!")
 
-    # def focusOutEvent(self, e: QtCore.QEvent) -> None:
-    #    """
-    #    Losing focus event.
-    #    """
-    # setPaletteBackgroundColor(qApp->palette().color(QPalette::Active, QColorGroup::Background)) FIXME
-    #    pass
-
-    # def syncNumRows(self) -> None:
-    #    """
-    #    Synchronize the number of lines.
-    #    """
-
-    # print("syncNumRows")
-    #    if not self.cursor_:
-    #        return
-
-    #    if self.changing_num_rows_:
-    #        return
-    # if self.numRows() != self.cursor_.size():
-    #    self.changing_num_rows_ = True
-    #    self.setNumRows(self.cursor_.size())
-    #    self.changing_num_rows_ = False
-
     def paintFieldMtd(
-        self, f: str, t: "pntablemetadata.PNTableMetaData"
+        self, field_name: str, t: "pntablemetadata.PNTableMetaData"
     ) -> "pnfieldmetadata.PNFieldMetaData":
         """
         Return the metadata of a field.
         """
 
-        if self.paint_field_mtd_ and self.paintFieldName_ == f:
+        if self.paint_field_mtd_ and self.paintFieldName_ == field_name:
             return self.paint_field_mtd_
 
-        self.paintFieldName_ = f
-        self.paint_field_mtd_ = t.field(f)
+        self.paintFieldName_ = field_name
+        self.paint_field_mtd_ = t.field(field_name)
 
         if self.paint_field_mtd_ is None:
             raise Exception("paint_field_mtd_ is empty!.")
@@ -755,15 +736,15 @@ class FLDataTable(QtWidgets.QTableView):
         # setPaletteBackgroundColor(qApp->palette().color(QPalette::Active, QColorGroup::Base)); FIXME
         super(FLDataTable, self).setFocus()
 
-    def setColWidth(self, field: str, w: int) -> None:
+    def setColWidth(self, field: str, width: int) -> None:
         """
         Set the width of a column.
 
         @param field Name of the database field corresponding to the column.
-        @param w Column width.
+        @param width Column width.
         """
 
-        self.width_cols_[field] = w
+        self.width_cols_[field] = width
 
     def resize_column(self, col: int, str_text: Optional[str]) -> None:
         """
@@ -780,38 +761,21 @@ class FLDataTable(QtWidgets.QTableView):
             if self.columnWidth(col) < self.width_cols_[field.name()]:
                 self.header().resizeSection(col, self.width_cols_[field.name()])
         else:
-            wC = self.header().sectionSize(col)
+            wc_ = self.header().sectionSize(col)
 
-            fm = Qt.QFontMetrics(self.header().font())
-            wH = fm.horizontalAdvance(field.alias() + "W")
-            if wH < wC:
-                wH = wC
+            font_metrics = Qt.QFontMetrics(self.header().font())
+            wh_ = font_metrics.horizontalAdvance(field.alias() + "W")
+            if wh_ < wc_:
+                wh_ = wc_
 
-            wC = fm.horizontalAdvance(str_text) + fm.maxWidth()
-            if wC > wH:
-                self.header().resizeSection(col, wC)
+            wc_ = font_metrics.horizontalAdvance(str_text) + font_metrics.maxWidth()
+            if wc_ > wh_:
+                self.header().resizeSection(col, wc_)
                 if col == 0 and self.popup_:
-                    pw = self.parentWidget()
-                    if pw and pw.width() < wC:
-                        self.resize(wC, pw.height())
-                        pw.resize(wC, pw.height())
-
-    # def delayedViewportRepaint(self) -> None:
-    #    if not self.timerViewRepaint_:
-    #        self.timerViewRepaint_ = QtCore.QTimer(self)
-    #        self.timerViewRepaint_.timeout.connect(self.repaintViewportSlot)
-
-    #    if not self.timerViewRepaint_.isActive():
-    #        self.setUpdatesEnabled(False)
-    #        self.timerViewRepaint_.start(50)
-
-    # @decorators.pyqtSlot()
-    # def repaintViewportSlot(self) -> None:
-
-    #    vw = self.viewport()
-    #    self.setUpdatesEnabled(True)
-    #    if vw:
-    #        vw.repaint(False)
+                    parent_widget = self.parentWidget()
+                    if parent_widget and parent_widget.width() < wc_:
+                        self.resize(wc_, parent_widget.height())
+                        parent_widget.resize(wc_, parent_widget.height())
 
     def cursorDestroyed(self, obj: Optional[Any] = None) -> None:
         """
@@ -862,18 +826,18 @@ class FLDataTable(QtWidgets.QTableView):
 
         return self.cursor_.model().metadata().fieldIsIndex(name)
 
-    def mouseDoubleClickEvent(self, e: QtGui.QMouseEvent) -> None:
+    def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         """Double click event."""
-        if cast(QtGui.QMouseEvent, e).button() != QtCore.Qt.LeftButton:
+        if cast(QtGui.QMouseEvent, event).button() != QtCore.Qt.LeftButton:
             return
 
         self.recordChoosed.emit()
 
-    def visual_index_to_column_index(self, c: int) -> int:
+    def visual_index_to_column_index(self, col_pos: int) -> int:
         """
         Return the column index from an index of visible columns.
 
-        @param c visible column position.
+        @param col_pos visible column position.
         @return index column of the column.
         """
 
@@ -886,23 +850,23 @@ class FLDataTable(QtWidgets.QTableView):
             if not self.isColumnHidden(self.logical_index_to_visual_index(column)):
                 visible_id += 1
 
-                if visible_id == c:
+                if visible_id == col_pos:
                     ret_ = column
                     break
 
         return ret_
 
-    def visual_index_to_logical_index(self, c: int) -> int:
+    def visual_index_to_logical_index(self, col_pos: int) -> int:
         """
         Visual to logical index.
         """
-        return self.header().logicalIndex(c)
+        return self.header().logicalIndex(col_pos)
 
-    def logical_index_to_visual_index(self, c: int) -> int:
+    def logical_index_to_visual_index(self, col_pos: int) -> int:
         """
         Logical Index to Visual Index.
         """
-        return self.header().visualIndex(c)
+        return self.header().visualIndex(col_pos)
 
     def visual_index_to_field(self, pos_: int) -> Optional["pnfieldmetadata.PNFieldMetaData"]:
         """
@@ -914,7 +878,7 @@ class FLDataTable(QtWidgets.QTableView):
             return None
 
         logical_idx = self.logical_index_to_visual_index(col_idx)
-        model: pncursortablemodel.PNCursorTableModel = self.model()
+        model: "pncursortablemodel.PNCursorTableModel" = self.model()
         mtd = model.metadata()
         mtdfield = mtd.indexFieldObject(logical_idx)
         if not mtdfield.visibleGrid():

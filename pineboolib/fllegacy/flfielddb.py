@@ -990,31 +990,31 @@ class FLFieldDB(QtWidgets.QWidget):
         """
 
         self._show_editor = show
-        ed: Any = None
+        editor: "QtWidgets.QWidget"
         if hasattr(self, "editor_"):
-            ed = self.editor_
+            editor = self.editor_
         elif hasattr(self, "_editor_img"):
-            ed = self._editor_img
+            editor = self._editor_img
 
-        if ed:
+        if editor:
             if show:
-                ed.show()
+                editor.show()
             else:
-                ed.hide()
+                editor.hide()
 
-    def setPartDecimal(self, d: int) -> None:
+    def setPartDecimal(self, part_decimal: int) -> None:
         """
         Set the number of decimals.
         """
-        self._part_decimal = d
+        self._part_decimal = part_decimal
         self.refreshQuick(self._field_name)
         # self.editor_.setText(self.editor_.text(),False)
 
-    def setAutoCompletionMode(self, m: str) -> None:
+    def setAutoCompletionMode(self, mode: str) -> None:
         """
         Set automatic completion assistant mode.
         """
-        self._auto_com_mode = m
+        self._auto_com_mode = mode
 
     def autoCompletionMode(self) -> str:
         """
@@ -1024,7 +1024,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
     @decorators.pyqt_slot()
     @decorators.pyqt_slot("QString")
-    def refresh(self, fN: Optional[str] = None) -> None:
+    def refresh(self, field_name: Optional[str] = None) -> None:
         """
         Refresh the content of the field with the cursor values ​​of the source table.
 
@@ -1032,7 +1032,7 @@ class FLFieldDB(QtWidgets.QWidget):
         matches the fieldRelation property, taking the field value as a filter
         fieldRelation of the related table. If no name of Field refreshment is always carried out.
 
-        @param fN Name of a field
+        @param field_name Name of a field
         """
         if not self.cursor_ or not isinstance(self.cursor_, pnsqlcursor.PNSqlCursor):
             LOGGER.debug("FLField.refresh() Cancelado")
@@ -1041,10 +1041,10 @@ class FLFieldDB(QtWidgets.QWidget):
         if not table_metadata:
             return
 
-        v = None
+        value = None
         nulo = False
-        if not fN:
-            v = self.cursor_.valueBuffer(self._field_name)
+        if not field_name:
+            value = self.cursor_.valueBuffer(self._field_name)
             if self._field_relation:
                 nulo = self.cursor_.bufferIsNull(self._field_relation)
 
@@ -1062,7 +1062,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if not self._field_relation:
                 raise ValueError("_field_relation is not defined!")
 
-            if not self._cursor_aux and fN.lower() == self._field_relation.lower():
+            if not self._cursor_aux and field_name.lower() == self._field_relation.lower():
                 if self.cursor_.bufferIsNull(self._field_relation):
                     return
 
@@ -1078,34 +1078,27 @@ class FLFieldDB(QtWidgets.QWidget):
                 if tmd is None:
                     return
 
-                # if self._top_widget and not self._top_widget.isShown()
-                # and not self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
-                #    return
-
-                if field is None:
-                    return
-
                 if not field.relationM1():
                     LOGGER.info("FLFieldDB :El campo de la relación debe estar relacionado en M1")
                     return
 
-                v = self.cursor_.valueBuffer(self._field_relation)
-                q = pnsqlquery.PNSqlQuery()
-                q.setForwardOnly(True)
+                value = self.cursor_.valueBuffer(self._field_relation)
+                qry = pnsqlquery.PNSqlQuery()
+                qry.setForwardOnly(True)
                 relation_m1 = field.relationM1()
                 if relation_m1 is None:
                     raise ValueError("relationM1 does not exist!")
 
-                q.setTablesList(relation_m1.foreignTable())
-                q.setSelect("%s,%s" % (self.foreignField(), relation_m1.foreignField()))
-                q.setFrom(relation_m1.foreignTable())
-                where = field.formatAssignValue(relation_m1.foreignField(), v, True)
-                filterAc = self.cursor_.filterAssoc(self._field_relation, tmd)
-                if filterAc:
+                qry.setTablesList(relation_m1.foreignTable())
+                qry.setSelect("%s,%s" % (self.foreignField(), relation_m1.foreignField()))
+                qry.setFrom(relation_m1.foreignTable())
+                where = field.formatAssignValue(relation_m1.foreignField(), value, True)
+                filter_ac = self.cursor_.filterAssoc(self._field_relation, tmd)
+                if filter_ac:
                     if not where:
-                        where = filterAc
+                        where = filter_ac
                     else:
-                        where += " AND %s" % filterAc
+                        where += " AND %s" % filter_ac
 
                 # if not self._filter:
                 #    q.setWhere(where)
@@ -1114,13 +1107,13 @@ class FLFieldDB(QtWidgets.QWidget):
                 if self._filter:
                     where = "%s AND %s" % (self._filter, where)
 
-                q.setWhere(where)
-                if q.exec_() and q.next():
-                    v0 = q.value(0)
-                    v1 = q.value(1)
+                qry.setWhere(where)
+                if qry.exec_() and qry.next():
+                    v0 = qry.value(0)
+                    v1 = qry.value(1)
                     if not v0 == self.value():
                         self.setValue(v0)
-                    if not v1 == v:
+                    if not v1 == value:
                         self.cursor_.setValueBuffer(self._field_relation, v1)
 
             return
@@ -1130,8 +1123,8 @@ class FLFieldDB(QtWidgets.QWidget):
             return
         type_ = field.type()
 
-        if not type_ == "pixmap" and not self.editor_ and fN is not None:
-            self._refresh_later = fN
+        if not type_ == "pixmap" and not self.editor_ and field_name is not None:
+            self._refresh_later = field_name
             return
 
         modeAcces = self.cursor_.modeAccess()
@@ -1142,32 +1135,33 @@ class FLFieldDB(QtWidgets.QWidget):
             part_decimal = field.partDecimal() or 0
             self._part_decimal = field.partDecimal()
 
-        ol = field.hasOptionsList()
+        hol = field.hasOptionsList()
 
-        fDis = False
+        field_dis = False
 
         # if isinstance(v , QString): #Para quitar
         # v = str(v)
 
         LOGGER.info(
-            "FLFieldDB:: refresh fN:%r fieldName:%r v:%s" % (fN, self._field_name, repr(v)[:64])
+            "FLFieldDB:: refresh field_name:%r fieldName:%r v:%s"
+            % (field_name, self._field_name, repr(value)[:64])
         )
 
         if (
             self._keep_disabled
             or self.cursor_.fieldDisabled(self._field_name)
             or (
-                modeAcces == pnsqlcursor.PNSqlCursor.Edit
+                modeAcces == self.cursor_.Edit
                 and (
                     field.isPrimaryKey() or table_metadata.fieldListOfCompoundKey(self._field_name)
                 )
             )
             or not field.editable()
-            or modeAcces == pnsqlcursor.PNSqlCursor.Browse
+            or modeAcces == self.cursor_.Edit
         ):
-            fDis = True
+            field_dis = True
 
-        self.setEnabled(not fDis)
+        self.setEnabled(not field_dis)
 
         if type_ == "double":
             editor_dbl = cast(fllineedit.FLLineEdit, self.editor_)
@@ -1175,27 +1169,27 @@ class FLFieldDB(QtWidgets.QWidget):
                 cast(QtCore.pyqtSignal, editor_dbl.textChanged).disconnect(self.updateValue)
             except Exception:
                 LOGGER.debug("Error al desconectar señal textChanged", exc_info=True)
-            s = None
+            text_ = None
 
-            if nulo and v is None:
-                dv = field.defaultValue()
+            if nulo and value is None:
+                default_value = field.defaultValue()
 
                 if field.allowNull():
-                    editor_dbl.setText("" if dv is None else dv)
+                    editor_dbl.setText("" if default_value is None else default_value)
                 else:
-                    if dv is not None:
-                        editor_dbl.setText(dv)
+                    if default_value is not None:
+                        editor_dbl.setText(default_value)
 
             else:
-                if not v:
-                    v = 0.0
-                s = str(round(float(v), part_decimal))
-                pos_dot = s.find(".")
+                if not value:
+                    value = 0.0
+                text_ = str(round(float(value), part_decimal))
+                pos_dot = text_.find(".")
 
                 if pos_dot is not None and pos_dot > -1:
-                    while len(s[pos_dot + 1 :]) < part_decimal:
-                        s = "%s0" % s
-                editor_dbl.setText(s)
+                    while len(text_[pos_dot + 1 :]) < part_decimal:
+                        text_ = "%s0" % text_
+                editor_dbl.setText(text_)
 
             cast(QtCore.pyqtSignal, editor_dbl.textChanged).connect(self.updateValue)
 
@@ -1205,7 +1199,7 @@ class FLFieldDB(QtWidgets.QWidget):
         elif type_ == "string":
 
             do_home = False
-            if not ol:
+            if not hol:
                 editor_str = cast(fllineedit.FLLineEdit, self.editor_)
                 try:
                     cast(QtCore.pyqtSignal, editor_str.textChanged).disconnect(self.updateValue)
@@ -1214,23 +1208,23 @@ class FLFieldDB(QtWidgets.QWidget):
             else:
                 editor_cb = cast(qcombobox.QComboBox, self.editor_)
 
-            if v is not None:
-                if ol:
-                    if v.find("QT_TRANSLATE") != -1:
-                        v = utils_base.AQTT(v)
-                    idx = field.getIndexOptionsList(v)
+            if value is not None:
+                if hol:
+                    if value.find("QT_TRANSLATE") != -1:
+                        value = utils_base.AQTT(value)
+                    idx = field.getIndexOptionsList(value)
                     if idx is not None:
                         editor_cb.setCurrentIndex(idx)
                 else:
-                    editor_str.setText(v)
+                    editor_str.setText(value)
             else:
-                if ol:
+                if hol:
                     editor_cb.setCurrentIndex(0)
                 else:
                     def_val = field.defaultValue() or ""
                     editor_str.setText(def_val if not nulo else "")
 
-            if not ol:
+            if not hol:
                 if do_home:
                     editor_str.home(False)
 
@@ -1245,8 +1239,8 @@ class FLFieldDB(QtWidgets.QWidget):
             except Exception:
                 LOGGER.exception("Error al desconectar señal textChanged")
 
-            if v is not None:
-                editor_str.setText(v)
+            if value is not None:
+                editor_str.setText(value)
             else:
                 def_val = field.defaultValue() or ""
                 editor_str.setText(def_val if not nulo else "")
@@ -1263,22 +1257,22 @@ class FLFieldDB(QtWidgets.QWidget):
             except Exception:
                 LOGGER.exception("Error al desconectar señal textChanged")
 
-            if nulo and not v:
-                dv = field.defaultValue()
+            if nulo and not value:
+                default_value = field.defaultValue()
                 if field.allowNull():
-                    if dv is None:
+                    if default_value is None:
                         editor_int.setText("")
                     else:
-                        editor_int.setText(dv)
+                        editor_int.setText(default_value)
                 else:
-                    if dv is not None:
-                        editor_int.setText(dv)
+                    if default_value is not None:
+                        editor_int.setText(default_value)
 
             else:
-                if not v:
+                if not value:
                     editor_int.setText(str(0))
                 else:
-                    editor_int.setText(v)
+                    editor_int.setText(value)
 
             cast(QtCore.pyqtSignal, editor_int.textChanged).connect(self.updateValue)
 
@@ -1315,19 +1309,19 @@ class FLFieldDB(QtWidgets.QWidget):
             # if modeAcces == pnsqlcursor.PNSqlCursor.Browse:
             if field.visible():
                 # cs = QString()
-                if not v:
+                if not value:
                     self._editor_img.clear()
                     return
                     # cs = v.toString()
                 # if cs.isEmpty():
                 #    self._editor_img.clear()
                 #    return
-                if isinstance(v, str):
-                    if v.find("static char") > -1:
+                if isinstance(value, str):
+                    if value.find("static char") > -1:
 
-                        v = xpm.cache_xpm(v)
+                        value = xpm.cache_xpm(value)
 
-                pix = QtGui.QPixmap(v)
+                pix = QtGui.QPixmap(value)
                 # if not QtGui.QPixmapCache.find(cs.left(100), pix):
                 # pix.loadFromData()
                 # QtGui.QPixmapCache.insert(cs.left(100), pix)
@@ -1343,14 +1337,14 @@ class FLFieldDB(QtWidgets.QWidget):
         elif type_ == "date":
             editor_date = cast(fldateedit.FLDateEdit, self.editor_)
             if self.cursor_.modeAccess() == self.cursor_.Insert and nulo and not field.allowNull():
-                defVal = field.defaultValue()
-                if defVal is not None:
-                    defVal = QtCore.QDate.fromString(str(defVal))
+                default_value = field.defaultValue()
+                if default_value is not None:
+                    default_value = QtCore.QDate.fromString(str(default_value))
                 else:
-                    defVal = QtCore.QDate.currentDate()
+                    default_value = QtCore.QDate.currentDate()
 
-                editor_date.setDate(defVal)
-                self.updateValue(defVal)
+                editor_date.setDate(default_value)
+                self.updateValue(default_value)
 
             else:
                 try:
@@ -1358,10 +1352,10 @@ class FLFieldDB(QtWidgets.QWidget):
                 except Exception:
                     LOGGER.exception("Error al desconectar señal textChanged")
 
-                if v:
+                if value:
                     util = flutil.FLUtil()
-                    v = util.dateDMAtoAMD(v)
-                    editor_date.setDate(v)
+                    value = util.dateDMAtoAMD(value)
+                    editor_date.setDate(value)
                 else:
                     editor_date.setDate()
 
@@ -1370,14 +1364,14 @@ class FLFieldDB(QtWidgets.QWidget):
         elif type_ == "time":
             editor_time = cast(fltimeedit.FLTimeEdit, self.editor_)
             if self.cursor_.modeAccess() == self.cursor_.Insert and nulo and not field.allowNull():
-                defVal = field.defaultValue()
-                if defVal is not None:
-                    defVal = QtCore.QTime.fromString(str(defVal))
+                default_value = field.defaultValue()
+                if default_value is not None:
+                    default_value = QtCore.QTime.fromString(str(default_value))
                 else:
-                    defVal = QtCore.QTime.currentTime()
+                    default_value = QtCore.QTime.currentTime()
 
-                editor_time.setTime(defVal)
-                self.updateValue(defVal)
+                editor_time.setTime(default_value)
+                self.updateValue(default_value)
 
             else:
                 try:
@@ -1385,8 +1379,8 @@ class FLFieldDB(QtWidgets.QWidget):
                 except Exception:
                     LOGGER.exception("Error al desconectar señal timeChanged")
 
-                if v is not None:
-                    editor_time.setTime(v)
+                if value is not None:
+                    editor_time.setTime(value)
 
                 cast(QtCore.pyqtSignal, editor_time.timeChanged).connect(self.updateValue)
 
@@ -1396,8 +1390,8 @@ class FLFieldDB(QtWidgets.QWidget):
                 cast(QtCore.pyqtSignal, editor_sl.textChanged).disconnect(self.updateValue)
             except Exception:
                 LOGGER.exception("Error al desconectar señal timeChanged")
-            if v is not None:
-                editor_sl.setText(v)
+            if value is not None:
+                editor_sl.setText(value)
             else:
                 def_val = field.defaultValue() or ""
                 editor_sl.setText(str(def_val))
@@ -1410,13 +1404,13 @@ class FLFieldDB(QtWidgets.QWidget):
             except Exception:
                 LOGGER.exception("Error al desconectar señal toggled")
 
-            if v is not None:
+            if value is not None:
 
-                editor_bool.setChecked(v)
+                editor_bool.setChecked(value)
             else:
-                dV = field.defaultValue()
-                if dV is not None:
-                    editor_bool.setChecked(dV)
+                def_val = field.defaultValue()
+                if def_val is not None:
+                    editor_bool.setChecked(def_val)
 
             cast(QtCore.pyqtSignal, editor_bool.toggled).connect(self.updateValue)
 
@@ -1432,9 +1426,9 @@ class FLFieldDB(QtWidgets.QWidget):
     """
 
     @decorators.pyqt_slot("QString")
-    def refreshQuick(self, fN: Optional[str] = None) -> None:
+    def refreshQuick(self, field_name: Optional[str] = None) -> None:
         """Refresh value quick."""
-        if not fN or not fN == self._field_name or not self.cursor_:
+        if not field_name or not field_name == self._field_name or not self.cursor_:
             return
 
         table_metadata = self.cursor_.metadata()
@@ -1854,7 +1848,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if not field_relation.foreignTable() == table_metadata.name():
                 rt = field_relation.foreignTable()
 
-        hasPushButtonDB = False
+        has_push_button_db = False
         self._field_alias = field.alias()
 
         if self._field_alias is None:
@@ -1873,7 +1867,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._text_label_db.hide()
 
         if rt:
-            hasPushButtonDB = True
+            has_push_button_db = True
             tmd = self.cursor_.db().connManager().manager().metadata(rt)
             if not tmd and self._push_button_db:
                 self._push_button_db.setDisabled(True)
@@ -1894,7 +1888,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 partInteger=partInteger,
                 len_=len_,
                 rX=rX,
-                hasPushButtonDB=hasPushButtonDB,
+                has_push_button_db=has_push_button_db,
             )
         elif type_ == "serial":
             self.editor_ = fllineedit.FLLineEdit(self, "editor")
@@ -1968,7 +1962,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         #    except Exception:
                         #        LOGGER.exception("Error al desconectar señal")
                         self._pbaux3.clicked.connect(self.searchPixmap)
-                        if not hasPushButtonDB:
+                        if not has_push_button_db:
                             if self.showed:
                                 try:
                                     self.keyF2Pressed.disconnect(self._pbaux3.animateClick)
@@ -2051,7 +2045,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         triggered.connect(self.savePixmap)
 
                     if self._push_button_db:
-                        if hasPushButtonDB:
+                        if has_push_button_db:
                             self._push_button_db.installEventFilter(self)
                         else:
                             self._push_button_db.setDisabled(True)
@@ -2108,11 +2102,11 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Insert
                 and not field.allowNull()
             ):
-                defVal = field.defaultValue()
-                if defVal is None:
+                default_value = field.defaultValue()
+                if default_value is None:
                     self.editor_.setDate(QtCore.QDate.currentDate().toString("dd-MM-yyyy"))
                 else:
-                    self.editor_.setDate(defVal.toDate())
+                    self.editor_.setDate(default_value.toDate())
 
         elif type_ == "time":
             self.editor_ = fltimeedit.FLTimeEdit(self)
@@ -2139,12 +2133,12 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Insert
                 and not field.allowNull()
             ):
-                defVal = field.defaultValue()
-                # if not defVal.isValid() or defVal.isNull():
-                if defVal is None:
+                default_value = field.defaultValue()
+                # if not default_value.isValid() or default_value.isNull():
+                if default_value is None:
                     self.editor_.setTime(QtCore.QTime.currentTime())
                 else:
-                    self.editor_.setTime(defVal.toTime())
+                    self.editor_.setTime(default_value.toTime())
 
         elif type_ == "stringlist":
 
@@ -2228,7 +2222,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.setFocusPolicy(QtCore.Qt.StrongFocus)
             self.setFocusProxy(self.editor_)
 
-            if hasPushButtonDB:
+            if has_push_button_db:
                 if self._push_button_db:
                     self.setTabOrder(self._push_button_db, self.editor_)
                     self._push_button_db.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -2237,11 +2231,11 @@ class FLFieldDB(QtWidgets.QWidget):
 
         elif hasattr(self, "_editor_img"):
             self._editor_img.setFocusPolicy(QtCore.Qt.NoFocus)
-            if hasPushButtonDB:
+            if has_push_button_db:
                 if self._push_button_db:
                     self._push_button_db.setFocusPolicy(QtCore.Qt.StrongFocus)
 
-        if not hasPushButtonDB:
+        if not has_push_button_db:
             if self._push_button_db:
                 self._push_button_db.hide()
 
@@ -2263,7 +2257,7 @@ class FLFieldDB(QtWidgets.QWidget):
         partInteger,
         len_,
         rX,
-        hasPushButtonDB,
+        has_push_button_db,
     ) -> None:
         """Inicialize control for number."""
 
@@ -2387,7 +2381,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.textChanged.connect(self.updateValue)
             self.editor_.textChanged.connect(self.emitTextChanged)
 
-            if hasPushButtonDB and self._push_button_db:
+            if has_push_button_db and self._push_button_db:
                 if self.showed:
                     try:
                         self.keyF2Pressed.disconnect(self._push_button_db.animateClick)
@@ -2703,9 +2697,9 @@ class FLFieldDB(QtWidgets.QWidget):
             return
 
         field_metadata = field.associatedField()
-        a = None
-        v = self.cursor_.valueBuffer(field.name())
-        if v in [None, ""] or (
+
+        value = self.cursor_.valueBuffer(field.name())
+        if value in [None, ""] or (
             field_metadata is not None and self.cursor_.bufferIsNull(field_metadata.name())
         ):
             QtWidgets.QMessageBox.warning(
@@ -2717,29 +2711,25 @@ class FLFieldDB(QtWidgets.QWidget):
             return
 
         self.cursor_.db().connManager().manager()
-        c = pnsqlcursor.PNSqlCursor(
+        cursor = pnsqlcursor.PNSqlCursor(
             field_relation.foreignTable(), True, self.cursor_.db().connectionName()
         )
         # c = pnsqlcursor.PNSqlCursor(field.relationM1().foreignTable())
-        c.select(
+        cursor.select(
             self.cursor_.db()
             .connManager()
             .manager()
-            .formatAssignValue(field_relation.foreignField(), field, v, True)
+            .formatAssignValue(field_relation.foreignField(), field, value, True)
         )
         # if c.size() <= 0:
         #    return
 
-        if c.size() <= 0:
+        if cursor.size() <= 0:
             return
 
-        c.next()
+        cursor.next()
 
-        if self._action_name:
-            a = self._action_name
-            if a is None:
-                raise Exception("action is empty!")
-            c.setAction(a)
+        cursor.setAction(self._action_name)
 
         self.modeAccess = self.cursor_.modeAccess()
         if (
@@ -2748,7 +2738,7 @@ class FLFieldDB(QtWidgets.QWidget):
         ):
             self.modeAccess = pnsqlcursor.PNSqlCursor.Edit
 
-        c.openFormInMode(self.modeAccess, False)
+        cursor.openFormInMode(self.modeAccess, False)
 
     @decorators.pyqt_slot()
     @decorators.pyqt_slot(int)
@@ -2899,11 +2889,13 @@ class FLFieldDB(QtWidgets.QWidget):
             return
 
         if field.type() == "pixmap":
-            fd = QtWidgets.QFileDialog(self.parentWidget(), self.tr("Elegir archivo"), "", "*")
-            fd.setViewMode(QtWidgets.QFileDialog.Detail)
+            file_dialog = QtWidgets.QFileDialog(
+                self.parentWidget(), self.tr("Elegir archivo"), "", "*"
+            )
+            file_dialog.setViewMode(QtWidgets.QFileDialog.Detail)
             filename = None
-            if fd.exec_() == QtWidgets.QDialog.Accepted:
-                filename = fd.selectedFiles()
+            if file_dialog.exec_() == QtWidgets.QDialog.Accepted:
+                filename = file_dialog.selectedFiles()
 
             if not filename:
                 return
@@ -2955,10 +2947,10 @@ class FLFieldDB(QtWidgets.QWidget):
         if not buffer:
             return
 
-        s = buffer.data().data().decode("utf8")
+        text_ = buffer.data().data().decode("utf8")
 
-        if s.find("*dummy") > -1:
-            s = s.replace(
+        if text_.find("*dummy") > -1:
+            text_ = text_.replace(
                 "*dummy",
                 "%s_%s_%s"
                 % (
@@ -2967,15 +2959,15 @@ class FLFieldDB(QtWidgets.QWidget):
                     QtCore.QDateTime().currentDateTime().toString("ddhhmmssz"),
                 ),
             )
-        self.updateValue(s)
+        self.updateValue(text_)
 
-    def setPixmapFromPixmap(self, pixmap: QtGui.QPixmap, w: int = 0, h: int = 0) -> None:
+    def setPixmapFromPixmap(self, pixmap: QtGui.QPixmap, width: int = 0, height: int = 0) -> None:
         """
         Set an image into the pixmap type field with the preferred width and height.
 
         @param pixmap: pixmap to load in the field
-        @param w: preferred width of the image
-        @param h: preferred height of the image
+        @param width: preferred width of the image
+        @param height: preferred height of the image
         @author Silix
         """
 
@@ -2988,8 +2980,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
         img = pixmap.toImage()
 
-        if w and h:
-            pix.convertFromImage(img.scaled(w, h))
+        if width and height:
+            pix.convertFromImage(img.scaled(width, height))
         else:
             pix.convertFromImage(img)
 
@@ -3009,13 +3001,12 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if not buffer:
             return
-        s = None
 
-        s = buffer.data().data().decode("utf8")
+        text_ = buffer.data().data().decode("utf8")
 
         # if not QtGui.QPixmapCache.find(s.left(100)):
         #    QtGui.QPixmapCache.insert(s.left(100), pix)
-        self.updateValue(s)
+        self.updateValue(text_)
 
     @decorators.pyqt_slot(bool)
     def setPixmapFromClipboard(self) -> None:
@@ -3066,11 +3057,11 @@ class FLFieldDB(QtWidgets.QWidget):
         if not buffer:
             return
 
-        s = buffer.data().data().decode("utf8")
+        text_ = buffer.data().data().decode("utf8")
 
         # if not QtGui.QPixmapCache.find(s.left(100)):
         #    QtGui.QPixmapCache.insert(s.left(100), pix)
-        self.updateValue(s)
+        self.updateValue(text_)
 
     @decorators.not_implemented_warn
     def pixmap(self) -> QtGui.QPixmap:
@@ -3098,7 +3089,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.showWidget()
 
     @decorators.pyqt_slot(str)
-    def setMapValue(self, v: Optional[str] = None) -> None:
+    def setMapValue(self, value: Optional[str] = None) -> None:
         """
         Set the value of this field based on the result of the query.
 
@@ -3111,9 +3102,9 @@ class FLFieldDB(QtWidgets.QWidget):
         @param v Value
         """
 
-        if v is not None:
+        if value is not None:
             self._field_map_value = cast(FLFieldDB, self.sender())
-            self.mapValue_ = v
+            self.mapValue_ = value
             self.setMapValue()
         else:
             if not self._field_map_value:
@@ -3143,32 +3134,32 @@ class FLFieldDB(QtWidgets.QWidget):
                     if foreign_field is None:
                         raise Exception("foreign field not found.")
 
-                    q = pnsqlquery.PNSqlQuery(None, self.cursor_.db().connectionName())
-                    q.setForwardOnly(True)
-                    q.setTablesList(relation_table)
-                    q.setSelect("%s,%s" % (field_relation.foreignField(), foreign_field))
-                    q.setFrom(relation_table)
+                    qry = pnsqlquery.PNSqlQuery(None, self.cursor_.db().connectionName())
+                    qry.setForwardOnly(True)
+                    qry.setTablesList(relation_table)
+                    qry.setSelect("%s,%s" % (field_relation.foreignField(), foreign_field))
+                    qry.setFrom(relation_table)
 
                     where = mng.formatAssignValue(foreign_field, fieldSender, self.mapValue_, True)
-                    assocTmd = mng.metadata(relation_table)
-                    filterAc = self.cursor_.filterAssoc(foreign_field, assocTmd)
-                    if assocTmd and not assocTmd.inCache():
-                        del assocTmd
+                    assoc_metadata = mng.metadata(relation_table)
+                    filtert_ac = self.cursor_.filterAssoc(foreign_field, assoc_metadata)
+                    if assoc_metadata and not assoc_metadata.inCache():
+                        del assoc_metadata
 
-                    if filterAc:
+                    if filtert_ac:
                         if not where:
-                            where = filterAc
+                            where = filtert_ac
                         else:
-                            where = "%s AND %s" % (where, filterAc)
+                            where = "%s AND %s" % (where, filtert_ac)
 
                     if not self._filter:
-                        q.setWhere(where)
+                        qry.setWhere(where)
                     else:
-                        q.setWhere("%s AND %s" % (self._filter, where))
+                        qry.setWhere("%s AND %s" % (self._filter, where))
 
-                    if q.exec_() and q.next():
+                    if qry.exec_() and qry.next():
                         # self.setValue("")
-                        self.setValue(q.value(0))
+                        self.setValue(qry.value(0))
 
     @decorators.pyqt_slot()
     def emitKeyF2Pressed(self) -> None:
@@ -3391,16 +3382,16 @@ class FLFieldDB(QtWidgets.QWidget):
                                 where = mng.formatAssignValue(
                                     table_metadata.field(self._field_relation), v, True
                                 )
-                                filterAc = self._cursor_aux.filterAssoc(
+                                filtert_ac = self._cursor_aux.filterAssoc(
                                     self._foreign_field, table_metadata
                                 )
 
-                                if filterAc:
-                                    # print("FilterAC == ", filterAc)
+                                if filtert_ac:
+                                    # print("FilterAC == ", filtert_ac)
                                     if where not in (None, ""):
-                                        where = filterAc
+                                        where = filtert_ac
                                     else:
-                                        where = "%s AND %s" % (where, filterAc)
+                                        where = "%s AND %s" % (where, filtert_ac)
 
                                 if not self._filter:
                                     q.setWhere(where)
@@ -3449,11 +3440,11 @@ class FLFieldDB(QtWidgets.QWidget):
         if hasattr(self, "editor_"):
             return
 
-        hasPushButtonDB = None
+        has_push_button_db = None
         if not self._table_name and not self._foreign_field and not self._field_relation:
-            hasPushButtonDB = True
+            has_push_button_db = True
         else:
-            hasPushButtonDB = False
+            has_push_button_db = False
 
         if not self._field_name:
             self._field_alias = self.tr("Error: fieldName vacio")
@@ -3487,7 +3478,7 @@ class FLFieldDB(QtWidgets.QWidget):
             else:
                 self._text_label_db.hide()
 
-        if hasPushButtonDB:
+        if has_push_button_db:
             if self._push_button_db:
                 self.setTabOrder(self._push_button_db, self.editor_)
                 self._push_button_db.setFocusPolicy(QtCore.Qt.NoFocus)
