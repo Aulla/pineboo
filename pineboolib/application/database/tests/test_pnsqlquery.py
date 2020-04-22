@@ -513,6 +513,21 @@ class TestPNSqlQuery2(unittest.TestCase):
         qry.exec_("select 1")
         self.assertTrue(qry.isValid())
 
+        qry2 = pnsqlquery.PNSqlQuery()
+        qry2.setSelect("area.idarea,modulo.idmodelo")
+        qry2.setFrom(
+            "flareas area\n\tINNER JOIN flmodules modulo ON (area.idarea = CAST (modulo.idarea AS STRING) AND CAST(modulo.bloqueado AS BOOL) = False"
+        )
+        qry2.setWhere("NOT modulo.bloqueado")
+
+        qry2.sql_inspector.set_sql(qry2.sql())
+        qry2.sql_inspector.resolve()
+        self.assertFalse(qry2.sql_inspector._invalid_tables)
+        self.assertTrue(qry2.isValid())
+
+        # qry2.exec_("select 1")
+        # self.assertTrue(qry2.isValid())
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

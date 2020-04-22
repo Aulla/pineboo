@@ -260,7 +260,7 @@ class SqlInspector(object):
             for table in tables_list:
 
                 if table == "cast":
-                    jump += 4
+                    jump += 3
                     last_was_table = False
 
                 if jump > 0:
@@ -269,6 +269,9 @@ class SqlInspector(object):
                     last_was_table = False
                     continue
 
+                if table.find(")") > -1:
+                    last_was_table = False
+                    continue
                 # if next_is_alias:
                 #    alias[t] = next_is_alias
                 #    next_is_alias = None
