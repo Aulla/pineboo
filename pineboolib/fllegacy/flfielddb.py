@@ -50,7 +50,7 @@ class FLFieldDB(QtWidgets.QWidget):
     _parent: QtWidgets.QWidget
 
     _tipo: str
-    _partDecimal: int
+    _part_decimal: int
     autoSelect: bool
 
     editor_: Union[
@@ -102,9 +102,9 @@ class FLFieldDB(QtWidgets.QWidget):
     _text_format: QtCore.Qt.TextFormat
     _init_not_null_color: bool
     _text_label_db: Optional[QtWidgets.QLabel]
-    FLWidgetFieldDBLayout: Optional[QtWidgets.QHBoxLayout]
+    _widgets_layout: Optional[QtWidgets.QHBoxLayout]
 
-    _refreshLaterEditor: Optional[str]
+    _refresh_later: Optional[str]
 
     _push_button_db: qpushbutton.QPushButton
     keyF4Pressed: QtCore.pyqtSignal = QtCore.pyqtSignal()
@@ -119,14 +119,14 @@ class FLFieldDB(QtWidgets.QWidget):
     """
     Tamaño de icono por defecto
     """
-    iconSize: QtCore.QSize
+    _icon_size: QtCore.QSize
 
     def __init__(self, parent: QtWidgets.QWidget) -> None:
         """Inicialize."""
 
         super(FLFieldDB, self).__init__(parent)
         self._loaded = False
-        self.DEBUG = False  # FIXME: debe recoger DEBUG de pineboolib.PROJECT
+
         # self.editor_ = QtWidgets.QWidget(parent)
         # self.editor_.hide()
         self.cursor_ = None
@@ -141,7 +141,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self._auto_com_field_relation = None
         self.setObjectName("FLFieldDB")
         self.showed = False
-        self._refreshLaterEditor = None
+        self._refresh_later = None
         self._keep_disabled = False
         self._init_not_null_color = False
         self._action_name = ""
@@ -152,38 +152,38 @@ class FLFieldDB(QtWidgets.QWidget):
         self._accel = {}
         self._text_format = QtCore.Qt.AutoText
         self._text_label_db = None
-        self.FLWidgetFieldDBLayout = None
+        self._widgets_layout = None
         self._first_refresh = False
         self._field_map_value = None
 
-        self.maxPixImages_ = settings.CONFIG.value("ebcomportamiento/maxPixImages", None)
+        self._max_pix_size = settings.CONFIG.value("ebcomportamiento/maxPixImages", None)
         self._auto_com_mode = settings.CONFIG.value("ebcomportamiento/autoComp", "OnDemandF4")
-        if self.maxPixImages_ in (None, ""):
-            self.maxPixImages_ = 600
-        self.maxPixImages_ = int(self.maxPixImages_)
+        if self._max_pix_size in (None, ""):
+            self._max_pix_size = 600
+        self._max_pix_size = int(self._max_pix_size)
         # self._editor_img = None
 
-        self.iconSize = application.PROJECT.DGI.iconSize()
+        self._icon_size = application.PROJECT.DGI.iconSize()
 
-        self.FLLayoutH = QtWidgets.QVBoxLayout(self)
-        self.FLLayoutH.setContentsMargins(0, 0, 0, 0)
-        self.FLLayoutH.setSpacing(1)
-        # self.FLLayoutH.setSizeConstraint(QtGui.QLayout.SetMinAndMaxSize)
+        self._horizontal_layout = QtWidgets.QVBoxLayout(self)
+        self._horizontal_layout.setContentsMargins(0, 0, 0, 0)
+        self._horizontal_layout.setSpacing(1)
+        # self._horizontal_layout.setSizeConstraint(QtGui.QLayout.SetMinAndMaxSize)
 
-        self.lytButtons = QtWidgets.QHBoxLayout()
-        self.lytButtons.setContentsMargins(0, 0, 0, 0)
-        self.lytButtons.setSpacing(1)
-        self.lytButtons.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self._buttons_layout = QtWidgets.QHBoxLayout()
+        self._buttons_layout.setContentsMargins(0, 0, 0, 0)
+        self._buttons_layout.setSpacing(1)
+        self._buttons_layout.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
 
-        # self.lytButtons.SetMinimumSize(22,22)
-        # self.lytButtons.SetMaximumSize(22,22)
+        # self._buttons_layout.SetMinimumSize(22,22)
+        # self._buttons_layout.SetMaximumSize(22,22)
 
-        self.FLWidgetFieldDBLayout = QtWidgets.QHBoxLayout()
-        self.FLWidgetFieldDBLayout.setSpacing(1)
-        self.FLWidgetFieldDBLayout.setContentsMargins(0, 0, 0, 0)
-        self.FLWidgetFieldDBLayout.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
-        self.FLLayoutH.addLayout(self.lytButtons)
-        self.FLLayoutH.addLayout(self.FLWidgetFieldDBLayout)
+        self._widgets_layout = QtWidgets.QHBoxLayout()
+        self._widgets_layout.setSpacing(1)
+        self._widgets_layout.setContentsMargins(0, 0, 0, 0)
+        self._widgets_layout.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self._horizontal_layout.addLayout(self._buttons_layout)
+        self._horizontal_layout.addLayout(self._widgets_layout)
         self._table_name = ""
         self._foreign_field = ""
         self._field_relation = ""
@@ -206,20 +206,20 @@ class FLFieldDB(QtWidgets.QWidget):
         self._field_alias = ""
         self._filter = ""
 
-        self.FLWidgetFieldDBLayout.addWidget(self._text_label_db)
+        self._widgets_layout.addWidget(self._text_label_db)
 
         self._push_button_db = qpushbutton.QPushButton(self)
         self._push_button_db.setObjectName("_push_button_db")
 
         self.setFocusProxy(self._push_button_db)
         # self._push_button_db.setFlat(True)
-        PBSizePolicy = QtWidgets.QSizePolicy(
+        pb_size_polizy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
         )
-        PBSizePolicy.setHeightForWidth(True)
-        self._push_button_db.setSizePolicy(PBSizePolicy)
-        self._push_button_db.setMinimumSize(self.iconSize)
-        self._push_button_db.setMaximumSize(self.iconSize)
+        pb_size_polizy.setHeightForWidth(True)
+        self._push_button_db.setSizePolicy(pb_size_polizy)
+        self._push_button_db.setMinimumSize(self._icon_size)
+        self._push_button_db.setMaximumSize(self._icon_size)
         self._push_button_db.setFocusPolicy(QtCore.Qt.NoFocus)
         self._push_button_db.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "flfielddb.png"))
@@ -238,7 +238,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if not parent:
                 break
 
-        self.topWidget_ = cast(flformdb.FLFormDB, parent)
+        self._top_widget = cast(flformdb.FLFormDB, parent)
 
     def load(self) -> None:
         """Load the cursor and initialize the control according to the type of data."""
@@ -247,24 +247,24 @@ class FLFieldDB(QtWidgets.QWidget):
             return
 
         self._loaded = True
-        if self.topWidget_:
-            self.cursor_ = self.topWidget_.cursor()
+        if self._top_widget:
+            self.cursor_ = self._top_widget.cursor()
             # print("Hay topWidget en %s", self)
-        if self.DEBUG:
-            if self.cursor_ and self.cursor_.private_cursor.buffer_:
-                LOGGER.info(
-                    "*** FLFieldDB::loaded: cursor: %r name: %r at:%r",
-                    self.cursor_,
-                    self.cursor_.curName(),
-                    self.cursor_.at(),
-                )
-                # cur_values = [f.value for f in self.cursor_.private_cursor.buffer_.fieldsList()]
-                # LOGGER.info("*** cursor Buffer: %r", cur_values)
-            else:
-                LOGGER.warning("*** FLFieldDB::loaded: SIN cursor ??")
+
+        if self.cursor_ and self.cursor_.private_cursor.buffer_:
+            LOGGER.info(
+                "*** FLFieldDB::loaded: cursor: %r name: %r at:%r",
+                self.cursor_,
+                self.cursor_.curName(),
+                self.cursor_.at(),
+            )
+            # cur_values = [f.value for f in self.cursor_.private_cursor.buffer_.fieldsList()]
+            # LOGGER.info("*** cursor Buffer: %r", cur_values)
+        else:
+            LOGGER.warning("*** FLFieldDB::loaded: SIN cursor ??")
 
         self._cursor_backup = None
-        self._partDecimal = 0
+        self._part_decimal = 0
         self.initCursor()
         if (
             self._table_name
@@ -418,14 +418,14 @@ class FLFieldDB(QtWidgets.QWidget):
         #    return ted.textFormat()
         return self._text_format
 
-    def setEchoMode(self, m: qlineedit.QLineEdit.EchoMode) -> None:
+    def setEchoMode(self, mode: qlineedit.QLineEdit.EchoMode) -> None:
         """
         Set the "echo" mode.
 
-        @param m Mode (Normal, NoEcho, Password)
+        @param mode Mode (Normal, NoEcho, Password)
         """
         if isinstance(self.editor_, (fllineedit.FLLineEdit, QtWidgets.QLineEdit)):
-            self.editor_.setEchoMode(m)
+            self.editor_.setEchoMode(mode)
 
     def echoMode(self) -> int:
         """
@@ -660,7 +660,7 @@ class FLFieldDB(QtWidgets.QWidget):
             "Editor: %s, EditorImg: %s"
             % (getattr(self, "editor_", None), getattr(self, "_editor_img", None))
         )
-        LOGGER.info("RefreshLaterEditor:", self._refreshLaterEditor)
+        LOGGER.info("RefreshLaterEditor:", self._refresh_later)
         LOGGER.info("************************************")
 
     def setValue(self, v: Any) -> None:
@@ -758,7 +758,9 @@ class FLFieldDB(QtWidgets.QWidget):
             s = ""
             if v is not None:
                 s = str(
-                    round(float(v), self._partDecimal if self._partDecimal else field.partDecimal())
+                    round(
+                        float(v), self._part_decimal if self._part_decimal else field.partDecimal()
+                    )
                 )
 
             cast(fllineedit.FLLineEdit, self.editor_).setText(s)
@@ -1004,7 +1006,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         Set the number of decimals.
         """
-        self._partDecimal = d
+        self._part_decimal = d
         self.refreshQuick(self._field_name)
         # self.editor_.setText(self.editor_.text(),False)
 
@@ -1076,7 +1078,8 @@ class FLFieldDB(QtWidgets.QWidget):
                 if tmd is None:
                     return
 
-                # if self.topWidget_ and not self.topWidget_.isShown() and not self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
+                # if self._top_widget and not self._top_widget.isShown()
+                # and not self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
                 #    return
 
                 if field is None:
@@ -1128,16 +1131,16 @@ class FLFieldDB(QtWidgets.QWidget):
         type_ = field.type()
 
         if not type_ == "pixmap" and not self.editor_ and fN is not None:
-            self._refreshLaterEditor = fN
+            self._refresh_later = fN
             return
 
         modeAcces = self.cursor_.modeAccess()
-        partDecimal = None
-        if self._partDecimal:
-            partDecimal = self._partDecimal
+        part_decimal = None
+        if self._part_decimal:
+            part_decimal = self._part_decimal
         else:
-            partDecimal = field.partDecimal() or 0
-            self._partDecimal = field.partDecimal()
+            part_decimal = field.partDecimal() or 0
+            self._part_decimal = field.partDecimal()
 
         ol = field.hasOptionsList()
 
@@ -1145,10 +1148,10 @@ class FLFieldDB(QtWidgets.QWidget):
 
         # if isinstance(v , QString): #Para quitar
         # v = str(v)
-        if self.DEBUG:
-            LOGGER.info(
-                "FLFieldDB:: refresh fN:%r fieldName:%r v:%s" % (fN, self._field_name, repr(v)[:64])
-            )
+
+        LOGGER.info(
+            "FLFieldDB:: refresh fN:%r fieldName:%r v:%s" % (fN, self._field_name, repr(v)[:64])
+        )
 
         if (
             self._keep_disabled
@@ -1184,11 +1187,11 @@ class FLFieldDB(QtWidgets.QWidget):
             else:
                 if not v:
                     v = 0.0
-                s = str(round(float(v), partDecimal))
+                s = str(round(float(v), part_decimal))
                 pos_dot = s.find(".")
 
                 if pos_dot is not None and pos_dot > -1:
-                    while len(s[pos_dot + 1 :]) < partDecimal:
+                    while len(s[pos_dot + 1 :]) < part_decimal:
                         s = "%s0" % s
                 editor_dbl.setText(s)
 
@@ -1296,10 +1299,10 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._editor_img.setMaximumSize(147, 24)
                 # self._editor_img.setMinimumSize(self.minimumSize())
                 self._editor_img.setAutoScaled(True)
-                # self.FLWidgetFieldDBLayout.removeWidget(self._push_button_db)
-                if self.FLWidgetFieldDBLayout is None:
-                    raise Exception("FLWidgetFieldDBLayout is empty!")
-                self.FLWidgetFieldDBLayout.addWidget(self._editor_img)
+                # self._widgets_layout.removeWidget(self._push_button_db)
+                if self._widgets_layout is None:
+                    raise Exception("_widgets_layout is empty!")
+                self._widgets_layout.addWidget(self._editor_img)
                 self._push_button_db.hide()
 
                 if field.visible():
@@ -1448,14 +1451,14 @@ class FLFieldDB(QtWidgets.QWidget):
         v = self.cursor_.valueBuffer(self._field_name)
         nulo = self.cursor_.bufferIsNull(self._field_name)
 
-        if self._partDecimal < 0:
-            self._partDecimal = field.partDecimal()
+        if self._part_decimal < 0:
+            self._part_decimal = field.partDecimal()
 
         ol = field.hasOptionsList()
 
         if type_ == "double":
             editor_le = cast(fllineedit.FLLineEdit, self.editor_)
-            # part_decimal = self._partDecimal if self._partDecimal > -1 else field.partDecimal()
+            # part_decimal = self._part_decimal if self._part_decimal > -1 else field.partDecimal()
 
             e_text = editor_le.text() if editor_le.text() != "" else 0.0
             if float(str(e_text)) == float(v):
@@ -1466,7 +1469,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 LOGGER.exception("Error al desconectar señal textChanged")
 
             if not nulo:
-                v = round(v, self._partDecimal)
+                v = round(v, self._part_decimal)
 
             editor_le.setText(v, False)
 
@@ -1530,9 +1533,9 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._editor_img.setMaximumSize(147, 24)
                 # self._editor_img.setMinimumSize(self.minimumSize())
                 self._editor_img.setAutoScaled(True)
-                if self.FLWidgetFieldDBLayout is None:
-                    raise Exception("FLWidgetFieldDBLayout is empty!")
-                self.FLWidgetFieldDBLayout.addWidget(self._editor_img)
+                if self._widgets_layout is None:
+                    raise Exception("_widgets_layout is empty!")
+                self._widgets_layout.addWidget(self._editor_img)
                 if field.visible():
                     self._editor_img.show()
 
@@ -1627,7 +1630,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self,
                 )
             else:
-                if not self.topWidget_:
+                if not self._top_widget:
                     return
                 self.cursor_ = pnsqlcursor.PNSqlCursor(
                     self._table_name,
@@ -1825,13 +1828,13 @@ class FLFieldDB(QtWidgets.QWidget):
         type_ = field.type()
         len_ = field.length()
         partInteger = field.partInteger()
-        partDecimal = None
+        part_decimal = None
         if type_ == "double":
-            if self._partDecimal:
-                partDecimal = self._partDecimal
+            if self._part_decimal:
+                part_decimal = self._part_decimal
             else:
-                partDecimal = field.partDecimal()
-                self._partDecimal = field.partDecimal()
+                part_decimal = field.partDecimal()
+                self._part_decimal = field.partDecimal()
 
         rX = field.regExpValidator()
         ol = field.hasOptionsList()
@@ -1878,7 +1881,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 has_option_list=ol,
                 field=field,
                 type_=type_,
-                partDecimal=partDecimal,
+                part_decimal=part_decimal,
                 partInteger=partInteger,
                 len_=len_,
                 rX=rX,
@@ -1893,8 +1896,8 @@ class FLFieldDB(QtWidgets.QWidget):
             )
             sizePolicy.setHeightForWidth(True)
             self.editor_.setSizePolicy(sizePolicy)
-            if self.FLWidgetFieldDBLayout:
-                self.FLWidgetFieldDBLayout.addWidget(self.editor_)
+            if self._widgets_layout:
+                self._widgets_layout.addWidget(self.editor_)
             self.editor_.installEventFilter(self)
             self.editor_.setDisabled(True)
             self.editor_.setAlignment(QtCore.Qt.AlignRight)
@@ -1911,19 +1914,19 @@ class FLFieldDB(QtWidgets.QWidget):
         elif type_ == "pixmap":
             # if not self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Browse:
             if not self.tableName():
-                if not hasattr(self, "_editor_img") and self.FLWidgetFieldDBLayout:
-                    self.FLWidgetFieldDBLayout.setDirection(QtWidgets.QBoxLayout.Down)
+                if not hasattr(self, "_editor_img") and self._widgets_layout:
+                    self._widgets_layout.setDirection(QtWidgets.QBoxLayout.Down)
                     self._editor_img = flpixmapview.FLPixmapView(self)
                     self._editor_img.setFocusPolicy(QtCore.Qt.NoFocus)
                     self._editor_img.setSizePolicy(self.sizePolicy())
                     self._editor_img.setMaximumSize(self.maximumSize())
                     self._editor_img.setMinimumSize(self.minimumSize())
-                    if self.iconSize:
-                        self.setMinimumHeight(self.iconSize.height() + self.minimumHeight() + 1)
-                        self.setMinimumWidth(self.iconSize.width() * 4)
+                    if self._icon_size:
+                        self.setMinimumHeight(self._icon_size.height() + self.minimumHeight() + 1)
+                        self.setMinimumWidth(self._icon_size.width() * 4)
                     self._editor_img.setAutoScaled(True)
-                    self.FLWidgetFieldDBLayout.removeWidget(self._push_button_db)
-                    self.FLWidgetFieldDBLayout.addWidget(self._editor_img)
+                    self._widgets_layout.removeWidget(self._push_button_db)
+                    self._widgets_layout.addWidget(self._editor_img)
 
                 if self._text_label_db:
                     self._text_label_db.hide()
@@ -1937,11 +1940,11 @@ class FLFieldDB(QtWidgets.QWidget):
                     spcBut = QtWidgets.QSpacerItem(
                         20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
                     )
-                    self.lytButtons.addItem(spcBut)
+                    self._buttons_layout.addItem(spcBut)
                     self._pbaux3 = qpushbutton.QPushButton(self)
                     if self._pbaux3:
                         self._pbaux3.setSizePolicy(sizePolicy)
-                        self._pbaux3.setMinimumSize(self.iconSize)
+                        self._pbaux3.setMinimumSize(self._icon_size)
                         self._pbaux3.setFocusPolicy(QtCore.Qt.NoFocus)
                         self._pbaux3.setIcon(
                             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-open.png"))
@@ -1949,7 +1952,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self._pbaux3.setText("")
                         self._pbaux3.setToolTip("Abrir fichero de imagen")
                         self._pbaux3.setWhatsThis("Abrir fichero de imagen")
-                        self.lytButtons.addWidget(self._pbaux3)
+                        self._buttons_layout.addWidget(self._pbaux3)
                         # if self.showed:
                         #    try:
                         #        self._pbaux3.clicked.disconnect(self.searchPixmap)
@@ -1974,7 +1977,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self._pbaux4 = qpushbutton.QPushButton(self)
                     if self._pbaux4:
                         self._pbaux4.setSizePolicy(sizePolicy)
-                        self._pbaux4.setMinimumSize(self.iconSize)
+                        self._pbaux4.setMinimumSize(self._icon_size)
                         self._pbaux4.setFocusPolicy(QtCore.Qt.NoFocus)
                         self._pbaux4.setIcon(
                             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
@@ -1982,7 +1985,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self._pbaux4.setText("")
                         self._pbaux4.setToolTip("Pegar imagen desde el portapapeles")
                         self._pbaux4.setWhatsThis("Pegar imagen desde el portapapeles")
-                        self.lytButtons.addWidget(self._pbaux4)
+                        self._buttons_layout.addWidget(self._pbaux4)
                         # if self.showed:
                         #    try:
                         #        self._pbaux4.clicked.disconnect(self.setPixmapFromClipboard)
@@ -1994,7 +1997,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self._pbaux = qpushbutton.QPushButton(self)
                     if self._pbaux:
                         self._pbaux.setSizePolicy(sizePolicy)
-                        self._pbaux.setMinimumSize(self.iconSize)
+                        self._pbaux.setMinimumSize(self._icon_size)
                         self._pbaux.setFocusPolicy(QtCore.Qt.NoFocus)
                         self._pbaux.setIcon(
                             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-clear.png"))
@@ -2002,7 +2005,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self._pbaux.setText("")
                         self._pbaux.setToolTip("Borrar imagen")
                         self._pbaux.setWhatsThis("Borrar imagen")
-                        self.lytButtons.addWidget(self._pbaux)
+                        self._buttons_layout.addWidget(self._pbaux)
                         # if self.showed:
                         #    try:
                         #        self._pbaux.clicked.disconnect(self.clearPixmap)
@@ -2021,7 +2024,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
                         self._pbaux2.setMenu(savepixmap_)
                         self._pbaux2.setSizePolicy(sizePolicy)
-                        self._pbaux2.setMinimumSize(self.iconSize)
+                        self._pbaux2.setMinimumSize(self._icon_size)
                         self._pbaux2.setFocusPolicy(QtCore.Qt.NoFocus)
                         self._pbaux2.setIcon(
                             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-save.png"))
@@ -2029,7 +2032,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self._pbaux2.setText("")
                         self._pbaux2.setToolTip("Guardar imagen como...")
                         self._pbaux2.setWhatsThis("Guardar imagen como...")
-                        self.lytButtons.addWidget(self._pbaux2)
+                        self._buttons_layout.addWidget(self._pbaux2)
                         # if self.showed:
                         #    try:
                         #        savepixmap_.triggered.disconnect(self.savePixmap)
@@ -2052,8 +2055,8 @@ class FLFieldDB(QtWidgets.QWidget):
             )
             sizePolicy.setHeightForWidth(True)
             self.editor_.setSizePolicy(sizePolicy)
-            if self.FLWidgetFieldDBLayout:
-                self.FLWidgetFieldDBLayout.insertWidget(1, self.editor_)
+            if self._widgets_layout:
+                self._widgets_layout.insertWidget(1, self.editor_)
 
             # self.editor_.setOrder(QtGui.QDateEdit.DMY)
             # self.editor_.setAutoAdvance(True)
@@ -2076,8 +2079,8 @@ class FLFieldDB(QtWidgets.QWidget):
                 #    # self._pbaux.setText("")
                 #    #self._pbaux.setToolTip("Seleccionar fecha (F2)")
                 #    #self._pbaux.setWhatsThis("Seleccionar fecha (F2)")
-                #    # self.lytButtons.addWidget(self._pbaux) FIXME
-                #    # self.FLWidgetFieldDBLayout.addWidget(self._pbaux)
+                #    # self._buttons_layout.addWidget(self._pbaux) FIXME
+                #    # self._widgets_layout.addWidget(self._pbaux)
                 #    # if self.showed:
                 #        # self._pbaux.clicked.disconnect(self.toggleDatePicker)
                 #        # self.KeyF2Pressed_.disconnect(self._pbaux.animateClick)
@@ -2111,8 +2114,8 @@ class FLFieldDB(QtWidgets.QWidget):
             )
             sizePolicy.setHeightForWidth(True)
             self.editor_.setSizePolicy(sizePolicy)
-            if self.FLWidgetFieldDBLayout:
-                self.FLWidgetFieldDBLayout.addWidget(self.editor_)
+            if self._widgets_layout:
+                self._widgets_layout.addWidget(self.editor_)
             self.editor_.installEventFilter(self)
             if self._push_button_db:
                 self._push_button_db.hide()
@@ -2149,18 +2152,18 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.setSizePolicy(sizePolicy)
             # ted.setTexFormat(self._text_format)
             # if isinstance(self._text_format, QtCore.Qt.RichText) and not self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Browse:
-            # self.FLWidgetFieldDBLayout.setDirection(QtGui.QBoxLayout.Down)
-            # self.FLWidgetFieldDBLayout.remove(self._text_label_db)
+            # self._widgets_layout.setDirection(QtGui.QBoxLayout.Down)
+            # self._widgets_layout.remove(self._text_label_db)
             # textEditTab_ = AQTextEditBar(self, "extEditTab_", self._text_label_db) #FIXME
             # textEditTab_.doConnections(ted)
-            # self.FLWidgetFieldDBLayout.addWidget(textEditTab_)
+            # self._widgets_layout.addWidget(textEditTab_)
             # self.setMinimumHeight(120)
-            if self.FLWidgetFieldDBLayout:
-                self.FLWidgetFieldDBLayout.addWidget(self.editor_)
+            if self._widgets_layout:
+                self._widgets_layout.addWidget(self.editor_)
             # verticalSpacer = QtWidgets.QSpacerItem(
             #    20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
             # )
-            # self.FLLayoutH.addItem(verticalSpacer)
+            # self._horizontal_layout.addItem(verticalSpacer)
             self.editor_.installEventFilter(self)
 
             if self.showed:
@@ -2202,8 +2205,8 @@ class FLFieldDB(QtWidgets.QWidget):
             )
             sizePolicy.setHeightForWidth(True)
             self.editor_.setSizePolicy(sizePolicy)
-            if self.FLWidgetFieldDBLayout:
-                self.FLWidgetFieldDBLayout.addWidget(self.editor_)
+            if self._widgets_layout:
+                self._widgets_layout.addWidget(self.editor_)
 
             if self.showed:
                 try:
@@ -2238,16 +2241,16 @@ class FLFieldDB(QtWidgets.QWidget):
         else:
             self.setShowEditor(self._show_editor)
 
-        if self._refreshLaterEditor is not None:
-            self.refresh(self._refreshLaterEditor)
-            self._refreshLaterEditor = None
+        if self._refresh_later is not None:
+            self.refresh(self._refresh_later)
+            self._refresh_later = None
 
     def initEditorControlForNumber(
         self,
         has_option_list: bool,
         field,
         type_,
-        partDecimal,
+        part_decimal,
         partInteger,
         len_,
         rX,
@@ -2267,7 +2270,7 @@ class FLFieldDB(QtWidgets.QWidget):
             # self.editor_.setEditable(False)
             # self.editor_.setAutoCompletion(True)
             self.editor_.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-            self.editor_.setMinimumSize(self.iconSize)
+            self.editor_.setMinimumSize(self._icon_size)
             self.editor_.setFont(self.font())
             # if not self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Browse:
             # if not field.allowNull():
@@ -2298,12 +2301,12 @@ class FLFieldDB(QtWidgets.QWidget):
 
             self.editor_ = fllineedit.FLLineEdit(self, "editor")
             self.editor_.setFont(self.font())
-            if self.iconSize and self.font().pointSize() < 10:
-                self.editor_.setMinimumSize(self.iconSize)
-                self.editor_.setMaximumHeight(self.iconSize.height())
+            if self._icon_size and self.font().pointSize() < 10:
+                self.editor_.setMinimumSize(self._icon_size)
+                self.editor_.setMaximumHeight(self._icon_size.height())
 
             self.editor_._tipo = type_
-            self.editor_._part_decimal = partDecimal
+            self.editor_._part_decimal = part_decimal
             if not self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Browse:
                 if not field.allowNull() and field.editable() and type_ not in ("time", "date"):
                     # self.editor_.palette().setColor(self.editor_.backgroundRole(), self.notNullColor())
@@ -2402,9 +2405,9 @@ class FLFieldDB(QtWidgets.QWidget):
         )
         sizePolicy.setHeightForWidth(True)
         self.editor_.setSizePolicy(sizePolicy)
-        if self.FLWidgetFieldDBLayout is not None:
-            self.FLWidgetFieldDBLayout.addWidget(self._push_button_db)
-            self.FLWidgetFieldDBLayout.addWidget(self.editor_)
+        if self._widgets_layout is not None:
+            self._widgets_layout.addWidget(self._push_button_db)
+            self._widgets_layout.addWidget(self.editor_)
 
     def clearPixmap(self) -> None:
         """
@@ -2533,8 +2536,8 @@ class FLFieldDB(QtWidgets.QWidget):
                     # cur.append(field.name(), field.type(), -1, field.length(), -1,
                     # "Variant", None, True) #qvariant,0,true
 
-                    if self._auto_com_field_relation is not None and self.topWidget_:
-                        list1 = cast(List[FLFieldDB], self.topWidget_.findChildren(FLFieldDB))
+                    if self._auto_com_field_relation is not None and self._top_widget:
+                        list1 = cast(List[FLFieldDB], self._top_widget.findChildren(FLFieldDB))
                         for itf in list1:
                             if itf.fieldName() == self._auto_com_field_relation:
                                 filter = itf.filter()
@@ -2792,7 +2795,7 @@ class FLFieldDB(QtWidgets.QWidget):
             #        return
             #    a.setTable(field.relationM1().foreignField())
 
-            form_search = flformsearchdb.FLFormSearchDB(c2, self.topWidget_)
+            form_search = flformsearchdb.FLFormSearchDB(c2, self._top_widget)
 
             form_search.setFilter(mng.formatAssignValue(fmd_relation.foreignField(), fMD, v, True))
         else:
@@ -2807,8 +2810,8 @@ class FLFieldDB(QtWidgets.QWidget):
                     return
                 a.setTable(field_relation.foreignTable())
             c = pnsqlcursor.PNSqlCursor(a.table(), True, self.cursor_.db().connectionName())
-            # f = flformsearchdb.FLFormSearchDB(c, a.name(), self.topWidget_)
-            form_search = flformsearchdb.FLFormSearchDB(c, a.name(), self.topWidget_)
+            # f = flformsearchdb.FLFormSearchDB(c, a.name(), self._top_widget)
+            form_search = flformsearchdb.FLFormSearchDB(c, a.name(), self._top_widget)
 
         form_search.setMainWidget()
 
@@ -2894,16 +2897,16 @@ class FLFieldDB(QtWidgets.QWidget):
         pix = QtGui.QPixmap()
         buffer = QtCore.QBuffer()
 
-        if img.width() <= self.maxPixImages_ and img.height() <= self.maxPixImages_:
+        if img.width() <= self._max_pix_size and img.height() <= self._max_pix_size:
             pix.convertFromImage(img)
         else:
             newWidth = 0
             newHeight = 0
             if img.width() < img.height():
-                newHeight = self.maxPixImages_
+                newHeight = self._max_pix_size
                 newWidth = round(newHeight * img.width() / img.height())
             else:
-                newWidth = self.maxPixImages_
+                newWidth = self._max_pix_size
                 newHeight = round(newWidth * img.height() / img.width())
             pix.convertFromImage(img.scaled(newWidth, newHeight))
 
@@ -3004,16 +3007,16 @@ class FLFieldDB(QtWidgets.QWidget):
         pix = QtGui.QPixmap()
         buffer = QtCore.QBuffer()
 
-        if img.width() <= self.maxPixImages_ and img.height() <= self.maxPixImages_:
+        if img.width() <= self._max_pix_size and img.height() <= self._max_pix_size:
             pix.convertFromImage(img)
         else:
             newWidth = 0
             newHeight = 0
             if img.width() < img.height():
-                newHeight = self.maxPixImages_
+                newHeight = self._max_pix_size
                 newWidth = round(newHeight * img.width() / img.height())
             else:
-                newWidth = self.maxPixImages_
+                newWidth = self._max_pix_size
                 newHeight = round(newWidth * img.height() / img.width())
 
             pix.convertFromImage(img.scaled(newWidth, newHeight))
@@ -3322,7 +3325,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
         if self._loaded:
             if not self.showed:
-                if self.topWidget_:
+                if self._top_widget:
                     self.showed = True
                     if not self._first_refresh:
                         self.refresh()
@@ -3439,8 +3442,8 @@ class FLFieldDB(QtWidgets.QWidget):
         # if application.PROJECT.DGI.mobilePlatform():
         #    self.editor_.setMinimumHeight(60)
 
-        if self.FLWidgetFieldDBLayout:
-            self.FLWidgetFieldDBLayout.addWidget(self.editor_)
+        if self._widgets_layout:
+            self._widgets_layout.addWidget(self.editor_)
         self.editor_.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setFocusProxy(self.editor_)
 

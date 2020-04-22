@@ -49,11 +49,11 @@ class FLDoubleValidator(QtGui.QDoubleValidator):
         ret_2 = state[2]
 
         if state[0] in (self.Invalid, self.Intermediate) and len(value_in) > 0:
-            s = value_in[1:]
+            state_ = value_in[1:]
             if (
                 value_in[0] == "-"
-                and super().validate(s, pos_cursor)[0] == self.Acceptable
-                or s == ""
+                and super().validate(state_, pos_cursor)[0] == self.Acceptable
+                or state_ == ""
             ):
                 ret_0 = self.Acceptable
             else:
