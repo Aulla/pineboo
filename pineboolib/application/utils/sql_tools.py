@@ -217,6 +217,7 @@ class SqlInspector(object):
         """
         Break the query into the different data.
         """
+        self._sql = self._sql.replace(" cast(", " cast (")
         list_sql = self._sql.split(" ")
         self._list_sql = list_sql
         if list_sql[0] == "select":
@@ -257,6 +258,11 @@ class SqlInspector(object):
             prev_ = ""
             last_was_table = False
             for table in tables_list:
+
+                if table == "cast":
+                    jump += 4
+                    last_was_table = False
+
                 if jump > 0:
                     jump -= 1
                     prev_ = table
@@ -292,6 +298,7 @@ class SqlInspector(object):
                     #    next_is_alias = True
                     last_was_table = True
                     continue
+
                 elif table == "and":
                     jump = 3
                     last_was_table = False
