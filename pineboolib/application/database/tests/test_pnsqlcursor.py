@@ -1046,13 +1046,14 @@ class TestAfterCommit(unittest.TestCase):
             if limit_ == 2000:
                 break
 
+        sha_ = util.sqlSelect("flserial", "sha", "1=1")
         self.assertTrue(
-            util.sqlSelect("flserial", "sha", "1=1")
+            sha_
             in [
                 "57574073C75DD72934509FAD2EC660B48B093A78",
                 "78FC400D112A9E135395A2ED10ED1E370F75C038",
             ],
-            "los registros de la tabla son %s cuando deberían ser 146-147" % count_,
+            "los registros de la tabla son %s y el sha %s" % (count_, sha_),
         )
 
     @classmethod
