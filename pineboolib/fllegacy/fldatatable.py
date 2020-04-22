@@ -36,12 +36,12 @@ class FLDataTable(QtWidgets.QTableView):
     """
     Numero de la fila (registro) seleccionada actualmente
     """
-    rowSelected: int
+    row_selected: int
 
     """
     Numero de la columna (campo) seleccionada actualmente
     """
-    colSelected: int
+    col_selected: int
 
     """
     Cursor, con los registros
@@ -71,18 +71,18 @@ class FLDataTable(QtWidgets.QTableView):
     """
     Pixmap precargados
     """
-    pixOk_: Qt.QPixmap
-    pixNo_: Qt.QPixmap
+    pix_ok_: Qt.QPixmap
+    pix_no_: Qt.QPixmap
 
     """
     Lista con las claves primarias de los registros seleccionados por chequeo
     """
-    primarysKeysChecked_: List[object]
+    pk_checked: List[object]
 
     """
     Filtro persistente para el cursor
     """
-    persistentFilter_: str
+    persistent_filter_: str
 
     """
     Indicador para evitar refrescos anidados
@@ -97,12 +97,12 @@ class FLDataTable(QtWidgets.QTableView):
     """
     Indica el ancho de las columnas establecidas explícitamente con FLDataTable::setColumnWidth
     """
-    widthCols_: Dict[str, int]
+    width_cols_: Dict[str, int]
 
     """
     Indica si se deben mostrar los campos tipo pixmap en todas las filas
     """
-    showAllPixmaps_: bool
+    show_all_pixmaps_: bool
 
     """
     Nombre de la función de script a invocar para obtener el color de las filas y celdas
@@ -112,10 +112,10 @@ class FLDataTable(QtWidgets.QTableView):
     """
     Indica que no se realicen operaciones con la base de datos (abrir formularios). Modo "sólo tabla".
     """
-    onlyTable_: bool
-    changingNumRows_: bool
+    only_table_: bool
+    changing_num_rows_: bool
     paintFieldName_: Optional[str]
-    paintFieldMtd_: Optional["pnfieldmetadata.PNFieldMetaData"]
+    paint_field_mtd_: Optional["pnfieldmetadata.PNFieldMetaData"]
 
     def __init__(
         self, parent: Optional[Any] = None, name: str = "FLDataTable", popup: bool = False
@@ -135,21 +135,21 @@ class FLDataTable(QtWidgets.QTableView):
         self.refreshing_ = False
         self.filter_ = ""
         self.sort_ = ""
-        self.rowSelected = -1
-        self.colSelected = -1
-        self.primarysKeysChecked_ = []
-        self.persistentFilter_ = ""
-        self.widthCols_ = {}
+        self.row_selected = -1
+        self.col_selected = -1
+        self.pk_checked = []
+        self.persistent_filter_ = ""
+        self.width_cols_ = {}
 
-        self.pixOk_ = utils_base.filedir("./core/images/icons", "unlock.png")
-        self.pixNo_ = utils_base.filedir("./core/images/icons", "lock.png")
-        self.paintFieldMtd_ = None
+        self.pix_ok_ = utils_base.filedir("./core/images/icons", "unlock.png")
+        self.pix_no_ = utils_base.filedir("./core/images/icons", "lock.png")
+        self.paint_field_mtd_ = None
         self.refreshing_ = False
         self.popup_ = False
-        self.showAllPixmaps_ = False
-        self.onlyTable_ = False
+        self.show_all_pixmaps_ = False
+        self.only_table_ = False
         self.function_get_color = None
-        self.changingNumRows_ = False
+        self.changing_num_rows_ = False
         self.cursor_ = None
 
         self._v_header = self.verticalHeader()
@@ -205,7 +205,7 @@ class FLDataTable(QtWidgets.QTableView):
                 self.setFLReadOnly(self.readonly_)
                 self.setEditOnly(self.editonly_)
                 self.setInsertOnly(self.insertonly_)
-                self.setOnlyTable(self.onlyTable_)
+                self.setOnlyTable(self.only_table_)
 
                 cast(QtCore.pyqtSignal, self.cursor_.commited).connect(self.refresh)
 
@@ -232,7 +232,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         if p_filter is None:
             raise Exception("Invalid use of setPersistentFilter with None")
-        self.persistentFilter_ = p_filter
+        self.persistent_filter_ = p_filter
 
     def setFilter(self, filter: str) -> None:
         """Set the filter for this control."""
@@ -325,59 +325,59 @@ class FLDataTable(QtWidgets.QTableView):
         Get the list with the primary keys of the records selected by check.
         """
 
-        return self.primarysKeysChecked_
+        return self.pk_checked
 
     def clearChecked(self) -> None:
         """
         Clear the list with the primary keys of the records selected by check.
         """
 
-        self.primarysKeysChecked_.clear()
+        self.pk_checked.clear()
         model = self.cur.model()
-        for r in model._check_column.keys():
-            model._checkColumn[r].setChecked(False)
+        for idx in model._check_column.keys():
+            model._checkColumn[idx].setChecked(False)
 
-    def setPrimaryKeyChecked(self, primaryKeyValue: str, on: bool) -> None:
+    def setPrimaryKeyChecked(self, pk_value: str, on_: bool) -> None:
         """
         Set the status selected by check for a record, indicating the value of its primary key.
         """
 
         model = self.cur.model()
-        if on:
-            if primaryKeyValue not in self.primarysKeysChecked_:
-                self.primarysKeysChecked_.append(primaryKeyValue)
-                self.primaryKeyToggled.emit(primaryKeyValue, False)
+        if on_:
+            if pk_value not in self.pk_checked:
+                self.pk_checked.append(pk_value)
+                self.primaryKeyToggled.emit(pk_value, False)
         else:
-            if primaryKeyValue in self.primarysKeysChecked_:
-                self.primarysKeysChecked_.remove(primaryKeyValue)
-                self.primaryKeyToggled.emit(primaryKeyValue, False)
+            if pk_value in self.pk_checked:
+                self.pk_checked.remove(pk_value)
+                self.primaryKeyToggled.emit(pk_value, False)
 
-        if primaryKeyValue not in model._check_column.keys():
-            model._check_column[primaryKeyValue] = QtWidgets.QCheckBox()
+        if pk_value not in model._check_column.keys():
+            model._check_column[pk_value] = QtWidgets.QCheckBox()
 
-        model._check_column[primaryKeyValue].setChecked(on)
+        model._check_column[pk_value].setChecked(on_)
 
-    def setShowAllPixmaps(self, s: bool) -> None:
+    def setShowAllPixmaps(self, value: bool) -> None:
         """
         Set if the pixmaps of unselected lines are displayed.
         """
 
-        self.showAllPixmaps_ = s
+        self.show_all_pixmaps_ = value
 
     def showAllPixmap(self) -> bool:
         """
         Return if pixmaps of unselected lines are displayed.
         """
 
-        return self.showAllPixmaps_
+        return self.show_all_pixmaps_
 
-    def setFunctionGetColor(self, f: Optional[str], iface: Optional[Any] = None) -> None:
+    def setFunctionGetColor(self, func_name: Optional[str], iface: Optional[Any] = None) -> None:
         """
         Set the function to use to calculate the color of the cell.
         """
 
         self.fltable_iface = iface
-        self.function_get_color = f
+        self.function_get_color = func_name
 
     def functionGetColor(self) -> Tuple[Optional[str], Any]:
         """
@@ -386,7 +386,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         return (self.function_get_color, self.fltable_iface)
 
-    def setOnlyTable(self, on: bool = True) -> None:
+    def setOnlyTable(self, on_: bool = True) -> None:
         """
         Set if the control is only Table mode.
         """
@@ -394,23 +394,23 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_ or self.cursor_.aqWasDeleted():
             return
 
-        self.cursor_.setEdition(not on, self.objectName())
-        self.cursor_.setBrowse(not on, self.objectName())
-        self.onlyTable_ = on
+        self.cursor_.setEdition(not on_, self.objectName())
+        self.cursor_.setBrowse(not on_, self.objectName())
+        self.only_table_ = on_
 
     def onlyTable(self) -> bool:
         """
         Return if the control is only Table mode.
         """
 
-        return self.onlyTable_
+        return self.only_table_
 
-    def indexOf(self, i: int) -> str:
+    def indexOf(self, idx: int) -> str:
         """
         Return the visual index of a position.
         """
 
-        return self.header().visualIndex(i)
+        return self.header().visualIndex(idx)
 
     def fieldName(self, col: int) -> str:
         """
@@ -422,17 +422,17 @@ class FLDataTable(QtWidgets.QTableView):
             raise Exception("Field not found")
         return field.name()
 
-    def eventFilter(self, o: Any, e: Any) -> bool:
+    def eventFilter(self, obj: Any, event: QtCore.QEvent) -> bool:
         """
         Event Filtering.
         """
 
-        r = self.currentRow()
-        c = self.currentColumn()
-        nr = self.numRows()
-        nc = self.numCols()
-        if e.type() == QtCore.QEvent.KeyPress:
-            key_event = e
+        row = self.currentRow()
+        col = self.currentColumn()
+        num_rows = self.numRows()
+        num_cols = self.numCols()
+        if event.type() == QtCore.QEvent.KeyPress:
+            key_event = cast(QtGui.QKeyEvent, event)
 
             if key_event.key() == QtCore.Qt.Key_Escape and self.popup_ and self.parentWidget():
                 self.parentWidget().hide()
@@ -444,24 +444,24 @@ class FLDataTable(QtWidgets.QTableView):
             if key_event.key() == QtCore.Qt.Key_F2:
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_Up and r == 0:
+            if key_event.key() == QtCore.Qt.Key_Up and row == 0:
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_Left and c == 0:
+            if key_event.key() == QtCore.Qt.Key_Left and col == 0:
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_Down and r == nr - 1:
+            if key_event.key() == QtCore.Qt.Key_Down and row == num_rows - 1:
                 return True
 
-            if key_event.key() == QtCore.Qt.Key_Right and c == nc - 1:
+            if key_event.key() == QtCore.Qt.Key_Right and col == num_cols - 1:
                 return True
 
-            if key_event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return) and r > -1:
+            if key_event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return) and row > -1:
                 self.recordChoosed.emit()
                 return True
 
             if key_event.key() == QtCore.Qt.Key_Space:
-                self.setChecked(self.model().index(r, c))
+                self.setChecked(self.model().index(row, col))
 
             if not settings.CONFIG.value("ebcomportamiento/FLTableShortCut", False):
                 if key_event.key() == QtCore.Qt.Key_A and not self.popup_:
@@ -469,7 +469,7 @@ class FLDataTable(QtWidgets.QTableView):
                         self.cursor_
                         and not self.readonly_
                         and not self.editonly_
-                        and not self.onlyTable_
+                        and not self.only_table_
                     ):
 
                         self.cursor_.insertRecord()
@@ -482,7 +482,7 @@ class FLDataTable(QtWidgets.QTableView):
                         self.cursor_
                         and not self.readonly_
                         and not self.editonly_
-                        and not self.onlyTable_
+                        and not self.only_table_
                     ):
                         self.cursor_.copyRecord()
                         return True
@@ -490,7 +490,7 @@ class FLDataTable(QtWidgets.QTableView):
                         return False
 
                 if key_event.key() == QtCore.Qt.Key_M and not self.popup_:
-                    if self.cursor_ and not self.readonly_ and not self.onlyTable_:
+                    if self.cursor_ and not self.readonly_ and not self.only_table_:
                         self.cursor_.editRecord()
                         return True
                     else:
@@ -501,7 +501,7 @@ class FLDataTable(QtWidgets.QTableView):
                         self.cursor_
                         and not self.readonly_
                         and not self.editonly_
-                        and not self.onlyTable_
+                        and not self.only_table_
                     ):
                         self.cursor_.deleteRecord()
                         return True
@@ -509,24 +509,13 @@ class FLDataTable(QtWidgets.QTableView):
                         return False
 
                 if key_event.key() == QtCore.Qt.Key_V and not self.popup_:
-                    if self.cursor_ and not self.onlyTable_:
+                    if self.cursor_ and not self.only_table_:
                         self.cursor_.browseRecord()
                         return True
 
             return False
 
-        return super(FLDataTable, self).eventFilter(o, e)
-
-    @decorators.not_implemented_warn
-    def paintCell(self, p: Any, row: int, col: int, cr: Any, selected: bool, cg: Any) -> None:
-        """Paint the cell."""
-
-        pass
-
-    @decorators.not_implemented_warn
-    def paintField(self, p: Any, field: str, cr: Any, selected: bool) -> None:
-        """Paint the field."""
-        pass
+        return super(FLDataTable, self).eventFilter(obj, event)
 
     def contextMenuEvent(self, e: Any) -> None:
         """
@@ -648,12 +637,12 @@ class FLDataTable(QtWidgets.QTableView):
     #    if not self.cursor_:
     #        return
 
-    #    if self.changingNumRows_:
+    #    if self.changing_num_rows_:
     #        return
     # if self.numRows() != self.cursor_.size():
-    #    self.changingNumRows_ = True
+    #    self.changing_num_rows_ = True
     #    self.setNumRows(self.cursor_.size())
-    #    self.changingNumRows_ = False
+    #    self.changing_num_rows_ = False
 
     def paintFieldMtd(
         self, f: str, t: "pntablemetadata.PNTableMetaData"
@@ -662,16 +651,16 @@ class FLDataTable(QtWidgets.QTableView):
         Return the metadata of a field.
         """
 
-        if self.paintFieldMtd_ and self.paintFieldName_ == f:
-            return self.paintFieldMtd_
+        if self.paint_field_mtd_ and self.paintFieldName_ == f:
+            return self.paint_field_mtd_
 
         self.paintFieldName_ = f
-        self.paintFieldMtd_ = t.field(f)
+        self.paint_field_mtd_ = t.field(f)
 
-        if self.paintFieldMtd_ is None:
-            raise Exception("paintFieldMtd_ is empty!.")
+        if self.paint_field_mtd_ is None:
+            raise Exception("paint_field_mtd_ is empty!.")
 
-        return self.paintFieldMtd_
+        return self.paint_field_mtd_
 
     timerViewRepaint_ = None
 
@@ -711,10 +700,10 @@ class FLDataTable(QtWidgets.QTableView):
 
             self.refreshing_ = True
             self.hide()
-            filter: str = self.persistentFilter_
+            filter: str = self.persistent_filter_
             if self.filter_:
-                if self.filter_ not in self.persistentFilter_:
-                    if self.persistentFilter_:
+                if self.filter_ not in self.persistent_filter_:
+                    if self.persistent_filter_:
                         filter = "%s AND %s" % (filter, self.filter_)
                     else:
                         filter = self.filter_
@@ -774,7 +763,7 @@ class FLDataTable(QtWidgets.QTableView):
         @param w Column width.
         """
 
-        self.widthCols_[field] = w
+        self.width_cols_[field] = w
 
     def resize_column(self, col: int, str_text: Optional[str]) -> None:
         """
@@ -787,9 +776,9 @@ class FLDataTable(QtWidgets.QTableView):
         str_text = str(str_text)
 
         field = self.model().metadata().indexFieldObject(col)
-        if field.name() in self.widthCols_.keys():
-            if self.columnWidth(col) < self.widthCols_[field.name()]:
-                self.header().resizeSection(col, self.widthCols_[field.name()])
+        if field.name() in self.width_cols_.keys():
+            if self.columnWidth(col) < self.width_cols_[field.name()]:
+                self.header().resizeSection(col, self.width_cols_[field.name()])
         else:
             wC = self.header().sectionSize(col)
 
