@@ -411,12 +411,12 @@ class FLFormDB(QtWidgets.QDialog):
             path_file = ret[0] if ret else None
 
         if path_file:
-            fi = QtCore.QFile(path_file)
-            if not fi.OpenMode(QtCore.QIODevice.WriteOnly):
+            file_ = QtCore.QFile(path_file)
+            if not file_.OpenMode(QtCore.QIODevice.WriteOnly):
                 self.tr("Error I/O al intentar escribir el fichero %s" % path_file)
                 return
 
-            self.snapShot().save(fi, "PNG")
+            self.snapShot().save(file_, "PNG")
 
     def saveGeometry(self) -> QtCore.QByteArray:
         """Save current window size into settings."""
@@ -599,15 +599,15 @@ class FLFormDB(QtWidgets.QDialog):
                 cursor = pnsqlcursor.PNSqlCursor(self._action.table())
                 self.setCursor(cursor)
 
-            v = None
+            value = None
 
             preload_main_filter = getattr(self.iface, "preloadMainFilter", None)
 
             if preload_main_filter:
-                v = preload_main_filter()
+                value = preload_main_filter()
 
-            if v is not None and self.cursor_:
-                self.cursor_.setMainFilter(v, False)
+            if value is not None and self.cursor_:
+                self.cursor_.setMainFilter(value, False)
 
             # if self._loaded and not self.__class__.__name__ == "FLFormRecordDB":
             # application.PROJECT.conn_manager.managerModules().loadFLTableDBs(self)
@@ -653,10 +653,10 @@ class FLFormDB(QtWidgets.QDialog):
         #    self.layout = None
         # Limpiamos la toolbar
 
-        sizePolicy = QtWidgets.QSizePolicy(
+        size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy(0), QtWidgets.QSizePolicy.Policy(0)
         )
-        sizePolicy.setHeightForWidth(True)
+        size_policy.setHeightForWidth(True)
 
         push_button_size = self._icon_size
 
@@ -664,7 +664,7 @@ class FLFormDB(QtWidgets.QDialog):
 
             pushButtonExport = QtWidgets.QToolButton()
             pushButtonExport.setObjectName("pushButtonExport")
-            pushButtonExport.setSizePolicy(sizePolicy)
+            pushButtonExport.setSizePolicy(size_policy)
             pushButtonExport.setMinimumSize(push_button_size)
             pushButtonExport.setMaximumSize(push_button_size)
             pushButtonExport.setIcon(
@@ -684,7 +684,7 @@ class FLFormDB(QtWidgets.QDialog):
             if settings.CONFIG.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton()
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
-                push_button_snapshot.setSizePolicy(sizePolicy)
+                push_button_snapshot.setSizePolicy(size_policy)
                 push_button_snapshot.setMinimumSize(push_button_size)
                 push_button_snapshot.setMaximumSize(push_button_size)
                 push_button_snapshot.setIcon(
@@ -709,7 +709,7 @@ class FLFormDB(QtWidgets.QDialog):
                 cast(Callable, self.close)
             )
 
-        self.pushButtonCancel.setSizePolicy(sizePolicy)
+        self.pushButtonCancel.setSizePolicy(size_policy)
         self.pushButtonCancel.setMaximumSize(push_button_size)
         self.pushButtonCancel.setMinimumSize(push_button_size)
         self.pushButtonCancel.setIcon(
@@ -767,7 +767,7 @@ class FLFormDB(QtWidgets.QDialog):
     #    else:
     #        return False
 
-    def closeEvent(self, e: Any) -> None:
+    def closeEvent(self, event: "QtGui.QCloseEvent") -> None:
         """
         Capture event close.
         """
@@ -833,7 +833,7 @@ class FLFormDB(QtWidgets.QDialog):
         if isinstance(parent, QtWidgets.QMdiSubWindow):
             parent.close()
 
-    def showEvent(self, e: Any) -> None:
+    def showEvent(self, event: "QtGui.QShowEvent") -> None:
         """
         Capture event show.
         """
@@ -893,15 +893,6 @@ class FLFormDB(QtWidgets.QDialog):
         #geometry.saveGeometryForm(self.geoName(), geo)
     """
 
-    def focusInEvent(self, f: Any) -> None:
-        """
-        Capture Focus Enter Event.
-        """
-
-        super().focusInEvent(f)
-        # if not self.isIfaceBind():
-        #    self.bindIface()
-
     def show(self) -> None:
         """
         Initialize components of the main widget.
@@ -955,8 +946,12 @@ class FLFormDB(QtWidgets.QDialog):
         #                     (self._action_name, tiempo_fin - self.tiempo_ini, self, self.iface))
         # self.tiempo_ini = None
 
-    def initMainWidget(self, w: Optional[QtWidgets.QWidget] = None) -> None:
+    def initMainWidget(self, widget: Optional[QtWidgets.QWidget] = None) -> None:
         """Initialize widget."""
+
+        if widget is not None:
+            self.main_widget = widget
+
         if self.main_widget and not getattr(self.main_widget, "showed", False):
             self.main_widget.show()
 
@@ -984,7 +979,7 @@ class FLFormDB(QtWidgets.QDialog):
     #    qWarning("%s (%s):No se encuentra el atributo %s" % (self, self.iface, name))
 
     @decorators.not_implemented_warn
-    def exportToXml(self, b: bool) -> None:
+    def exportToXml(self, value_: bool) -> None:
         """Export this widget into an xml."""
         from pineboolib.fllegacy.aqsobjects.aqs import AQS
 

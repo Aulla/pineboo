@@ -455,7 +455,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         return "formRecord%s" % self._id_mdi
 
-    def closeEvent(self, e: QtCore.QEvent) -> None:
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """
         Capture event close.
         """
@@ -492,7 +492,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.afterCommitTransaction()
             else:
                 if not self.cursor_.rollback():
-                    e.ignore()
+                    event.ignore()
                     return
                 # else:
                 #    self.cursor_.select()
@@ -502,7 +502,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         else:
             self.closed.emit()
 
-        super().closeEvent(e)
+        super().closeEvent(event)
         self.deleteLater()
 
     def validateForm(self) -> bool:

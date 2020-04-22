@@ -308,7 +308,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
         return "formSearch%s" % self._id_mdi
 
-    def closeEvent(self, e: QtCore.QEvent) -> None:
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         """Capture event close."""
 
         self.frameGeometry()
@@ -333,7 +333,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         if self.isHidden():
             # self.saveGeometry()
             # self.closed.emit()
-            super().closeEvent(e)
+            super().closeEvent(event)
             # self.deleteLater()
         else:
             self.reject()
