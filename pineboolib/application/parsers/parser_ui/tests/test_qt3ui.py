@@ -20,7 +20,7 @@ class TestQT3UIParser(unittest.TestCase):
         mng_modules = application.PROJECT.conn_manager.managerModules()
         from pineboolib.core.utils.utils_base import filedir
 
-        file_1 = filedir("./application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui")
+        file_1 = filedir("./application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui")
         widget = mng_modules.createUI(file_1)
         self.assertTrue(widget)
         if widget:
@@ -33,7 +33,7 @@ class TestQT3UIParser(unittest.TestCase):
         mng_modules = application.PROJECT.conn_manager.managerModules()
         from pineboolib.core.utils.utils_base import filedir
 
-        file_1 = filedir("./application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui")
+        file_1 = filedir("./application/parsers/parser_ui/tests/fixtures/form_record_qt3.ui")
         widget = mng_modules.createUI(file_1)
         self.assertTrue(widget)
         if widget:
