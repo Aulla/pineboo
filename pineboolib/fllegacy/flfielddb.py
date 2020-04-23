@@ -499,7 +499,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
     @decorators.pyqt_slot()
     @decorators.pyqt_slot(int)
-    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
+    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
         """
         Process Qt events for keypresses.
         """
@@ -509,34 +509,34 @@ class FLFieldDB(QtWidgets.QWidget):
 
         QtWidgets.QWidget.eventFilter(self, obj, event)
         if event.type() == QtCore.QEvent.KeyPress:
-            k = cast(QtGui.QKeyEvent, event)
+            key_ = cast(QtGui.QKeyEvent, event)
             if self._process_autocomplete_events(event):
                 return True
 
             if isinstance(obj, fllineedit.FLLineEdit):
-                if k.key() == QtCore.Qt.Key_F4:
+                if key_.key() == QtCore.Qt.Key_F4:
                     self.keyF4Pressed.emit()
                     return True
             elif isinstance(obj, qtextedit.QTextEdit):
-                if k.key() == QtCore.Qt.Key_F4:
+                if key_.key() == QtCore.Qt.Key_F4:
                     self.keyF4Pressed.emit()
                     return True
                 return False
 
-            if k.key() == QtCore.Qt.Key_Enter or k.key() == QtCore.Qt.Key_Return:
+            if key_.key() in [QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return]:
                 self.focusNextPrevChild(True)
                 self.keyReturnPressed.emit()
                 return True
 
-            if k.key() == QtCore.Qt.Key_Up:
+            if key_.key() == QtCore.Qt.Key_Up:
                 self.focusNextPrevChild(False)
                 return True
 
-            if k.key() == QtCore.Qt.Key_Down:
+            if key_.key() == QtCore.Qt.Key_Down:
                 self.focusNextPrevChild(True)
                 return True
 
-            if k.key() == QtCore.Qt.Key_F2:
+            if key_.key() == QtCore.Qt.Key_F2:
                 self.keyF2Pressed.emit()
                 return True
 

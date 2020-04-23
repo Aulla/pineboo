@@ -333,7 +333,7 @@ class FLManagerModules(object):
         file_name: str,
         connection: Optional["iconnection.IConnection"] = None,
         parent: Optional["QtWidgets.QWidget"] = None,
-    ) -> "QtWidgets.QWidget":
+    ) -> Optional["QtWidgets.QWidget"]:
         """
         Create a form from its description file.
 
@@ -347,7 +347,7 @@ class FLManagerModules(object):
         if ".ui" not in file_name:
             file_name += ".ui"
 
-        form_path = file_name if os.path.exists(file_name) else path._path(file_name)
+        form_path = file_name if os.path.exists(file_name) else path._path(file_name, False)
         conn_manager = application.PROJECT.conn_manager
 
         if "main_conn" in conn_manager.connections_dict.keys():
@@ -359,9 +359,9 @@ class FLManagerModules(object):
 
         if not form_path:
             # raise AttributeError("File %r not found in project" % n)
-            LOGGER.debug("createUI: No se encuentra el fichero %s", file_name)
+            LOGGER.warning("createUI: No se encuentra el fichero %s", file_name)
 
-            return QtWidgets.QWidget()
+            return None
 
         tree = utils_base.load2xml(form_path)
 

@@ -245,7 +245,7 @@ class MainForm(imainwindow.IMainWindow):
             self.toogle_bars_
         )
         view_action.setText(self.tr("&Ver"))
-        print("******", self.main_widget, self.modules_menu)
+
         modules_action = self.main_widget.menuBar().addMenu(  # type: ignore [attr-defined] # noqa: F821
             self.modules_menu
         )
@@ -521,15 +521,15 @@ class MainForm(imainwindow.IMainWindow):
         if application.PROJECT.aq_app.acl_:
             application.PROJECT.aq_app.acl_.process(self.container_)
 
-    def eventFilter(self, obj_, event) -> Any:
+    def eventFilter(self, obj_: QtCore.QObject, event: QtCore.QEvent) -> bool:
         """React to user events."""
 
         if self._inicializing or application.PROJECT.aq_app._destroying:
-            return super().eventFilter(obj_, obj_)
+            return super().eventFilter(obj_, event)
 
         # if QtWidgets.QApplication.activeModalWidget() or QtWidgets.QApplication.activePopupWidget():
         #    return super().eventFilter(obj, event)
-
+        obj_ = cast(QtWidgets.QWidget, obj_)
         event_type = event.type()
         main_widget = self.main_widget
         if obj_ != main_widget and not isinstance(obj_, QtWidgets.QMainWindow):
@@ -553,20 +553,29 @@ class MainForm(imainwindow.IMainWindow):
         #     obj.installEventFilter(self)
 
         if event_type == QtCore.QEvent.KeyPress:
-            if obj_ == self.container_:
-                key_ = event
+            # if obj_ == self.container_:
+            #    key_ = cast(QtGui.QKeyEvent, event)
 
-            elif obj_ == main_widget:
-                key_ = event
-                if key_.key() == QtCore.Qt.Key_Shift and (key_.state() == QtCore.Qt.Key_Control):
+            if obj_ == main_widget:
+                key_ = cast(QtGui.QKeyEvent, event)
+                if (
+                    key_.key() == QtCore.Qt.Key_Shift
+                    and key_.modifiers()
+                    == QtCore.Qt.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
+                ):
                     self.activateModule(None)
                     return True
-                elif key_.key() == QtCore.Qt.Key_Q and (key_.state() == QtCore.Qt.Key_Control):
+                elif (
+                    key_.key() == QtCore.Qt.Key_Q
+                    and key_.modifiers()
+                    == QtCore.Qt.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
+                ):
                     self.generalExit()
                     return True
-                elif key_.key() == QtCore.Qt.Key_W and (
-                    key_.state() in (QtCore.Qt.Key_Control, QtCore.Qt.Key_Alt)
-                ):
+                elif key_.key() == QtCore.Qt.Key_W and key_.modifiers() in [  # type: ignore [comparison-overlap] # noqa: F821
+                    QtCore.Qt.AltModifier,
+                    QtCore.Qt.ControlModifier,
+                ]:
                     LOGGER.warning("unknown key presset!.")
                     return True
                 elif key_.key() == QtCore.Qt.Key_Escape:
