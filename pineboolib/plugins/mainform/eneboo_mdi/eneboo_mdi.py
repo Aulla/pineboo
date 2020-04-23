@@ -560,14 +560,14 @@ class MainForm(imainwindow.IMainWindow):
                 key_ = cast(QtGui.QKeyEvent, event)
                 if (
                     key_.key() == QtCore.Qt.Key_Shift
-                    and key_.modifiers()
+                    and key_.modifiers()  # type: ignore [comparison-overlap] # noqa: F821
                     == QtCore.Qt.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
                 ):
                     self.activateModule(None)
                     return True
                 elif (
                     key_.key() == QtCore.Qt.Key_Q
-                    and key_.modifiers()
+                    and key_.modifiers()  # type: ignore [comparison-overlap] # noqa: F821
                     == QtCore.Qt.ControlModifier  # type: ignore [comparison-overlap] # noqa: F821
                 ):
                     self.generalExit()
