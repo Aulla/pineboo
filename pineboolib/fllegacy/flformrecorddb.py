@@ -570,7 +570,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                         if res == QtWidgets.QMessageBox.No:
                             self.cursor_.setValueBuffer(field, qry.value(i))
 
-        if self.iface and self.cursor_.modeAccess() in [self.cursor_.Insert, self._cursor.Edit]:
+        if self.iface and self.cursor_.modeAccess() in [self.cursor_.Insert, self.cursor_.Edit]:
             ret_ = True
             fun_ = getattr(self.iface, "validateForm", self.validateForm)
             if fun_ != self.validateForm:
