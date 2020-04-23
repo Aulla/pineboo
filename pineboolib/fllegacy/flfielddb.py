@@ -1127,7 +1127,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self._refresh_later = field_name
             return
 
-        modeAcces = self.cursor_.modeAccess()
+        mode_access = self.cursor_.modeAccess()
         part_decimal = None
         if self._part_decimal:
             part_decimal = self._part_decimal
@@ -1147,19 +1147,16 @@ class FLFieldDB(QtWidgets.QWidget):
             % (field_name, self._field_name, repr(value)[:64])
         )
 
-        if (
-            self._keep_disabled
-            or self.cursor_.fieldDisabled(self._field_name)
-            or (
-                modeAcces == self.cursor_.Edit
-                and (
-                    field.isPrimaryKey() or table_metadata.fieldListOfCompoundKey(self._field_name)
-                )
-            )
-            or not field.editable()
-            or modeAcces == self.cursor_.Edit
-        ):
+        if self._keep_disabled or self.cursor_.fieldDisabled(self._field_name):
             field_dis = True
+
+        elif mode_access == self.cursor_.Edit:
+            if (
+                field.isPrimaryKey()
+                or table_metadata.fieldListOfCompoundKey(self._field_name)
+                or not field.editable()
+            ):
+                field_dis = True
 
         self.setEnabled(not field_dis)
 
@@ -1306,7 +1303,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 else:
                     return
                 # else:
-            # if modeAcces == pnsqlcursor.PNSqlCursor.Browse:
+            # if mode_access == pnsqlcursor.PNSqlCursor.Browse:
             if field.visible():
                 # cs = QString()
                 if not value:
@@ -1331,7 +1328,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 else:
                     self._editor_img.clear()
 
-            # if modeAcces == pnsqlcursor.PNSqlCursor.Browse:
+            # if mode_access == pnsqlcursor.PNSqlCursor.Browse:
             # self._push_button_db.setVisible(False)
 
         elif type_ == "date":
