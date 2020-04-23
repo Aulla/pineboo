@@ -1395,7 +1395,7 @@ class FLTableDB(QtWidgets.QWidget):
     @decorators.pyqt_slot()
     def recordChoosedSlot(self) -> None:
         """Perform operations when selecting a record."""
-        if isinstance(self.topWidget, flformsearchdb.FLFormSearchDB) and self.topWidget.inExec_:
+        if isinstance(self.topWidget, flformsearchdb.FLFormSearchDB) and self.topWidget._in_exec:
             self.topWidget.accept()
         else:
             self.cursor().chooseRecord()

@@ -46,7 +46,8 @@ class FLFormSearchDB(flformdb.FLFormDB):
     Almacena si se ha abierto el formulario con el método FLFormSearchDB::exec()
     """
 
-    acceptingRejecting_: bool
+    _accepting_rejecting: bool
+    _in_exec: bool
 
     def __init__(self, *args) -> None:
         """
@@ -87,9 +88,9 @@ class FLFormSearchDB(flformdb.FLFormDB):
         self.setCursor(cursor)
 
         self.accepted_ = False
-        self.inExec_ = False
+        self._in_exec = False
         self.loop = False
-        self.acceptingRejecting_ = False
+        self._accepting_rejecting = False
         self.pushButtonAccept = None
 
         self.load()
@@ -106,20 +107,11 @@ class FLFormSearchDB(flformdb.FLFormDB):
         if action._master_widget is not None and not utils_base.is_library():
             action._master_widget._form = self  # type: ignore [assignment] # noqa: F821
 
-    def setAction(self, a: "pnaction.PNAction") -> None:
+    def setAction(self, action: "pnaction.PNAction") -> None:
         """Set a action."""
 
         if self.cursor_:
-            self.cursor_.setAction(a)
-
-    # def __delattr__(self, *args, **kwargs) -> None:
-    #    """Delete attributes."""
-
-    #    if self.cursor_:
-    #        self.cursor_.restoreEditionFlag(self)
-    #        self.cursor_.restoreBrowseFlag(self)
-
-    #    super().__delattr__(self, *args, **kwargs)
+            self.cursor_.setAction(action)
 
     """
     formReady = QtCore.pyqtSignal()
@@ -140,17 +132,17 @@ class FLFormSearchDB(flformdb.FLFormDB):
             self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
             self.layout_.addWidget(self.bottomToolbar)
 
-        sizePolicy = QtWidgets.QSizePolicy(
+        size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy(0), QtWidgets.QSizePolicy.Policy(0)
         )
-        sizePolicy.setHeightForWidth(True)
+        size_policy.setHeightForWidth(True)
 
         push_button_size = self._icon_size
         if settings.CONFIG.value("application/isDebuggerMode", False):
 
             pushButtonExport = QtWidgets.QToolButton(self)
             pushButtonExport.setObjectName("pushButtonExport")
-            pushButtonExport.setSizePolicy(sizePolicy)
+            pushButtonExport.setSizePolicy(size_policy)
             pushButtonExport.setMinimumSize(push_button_size)
             pushButtonExport.setMaximumSize(push_button_size)
             pushButtonExport.setIcon(
@@ -166,7 +158,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
             if settings.CONFIG.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton(self)
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
-                push_button_snapshot.setSizePolicy(sizePolicy)
+                push_button_snapshot.setSizePolicy(size_policy)
                 push_button_snapshot.setMinimumSize(push_button_size)
                 push_button_snapshot.setMaximumSize(push_button_size)
                 push_button_snapshot.setIcon(
@@ -189,7 +181,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
             self.pushButtonAccept.setObjectName("pushButtonAccept")
             self.pushButtonAccept.clicked.connect(self.accept)
 
-        self.pushButtonAccept.setSizePolicy(sizePolicy)
+        self.pushButtonAccept.setSizePolicy(size_policy)
         self.pushButtonAccept.setMaximumSize(push_button_size)
         self.pushButtonAccept.setMinimumSize(push_button_size)
         self.pushButtonAccept.setIcon(
@@ -208,7 +200,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
             self.pushButtonCancel.setObjectName("pushButtonCancel")
             self.pushButtonCancel.clicked.connect(self.reject)
 
-        self.pushButtonCancel.setSizePolicy(sizePolicy)
+        self.pushButtonCancel.setSizePolicy(size_policy)
         self.pushButtonCancel.setMaximumSize(push_button_size)
         self.pushButtonCancel.setMinimumSize(push_button_size)
         self.pushButtonCancel.setIcon(
@@ -244,7 +236,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         if self.cursor_.isLocked():
             self.cursor_.setModeAccess(pnsqlcursor.PNSqlCursor.Browse)
 
-        if self.loop or self.inExec_:
+        if self.loop or self._in_exec:
             print("FLFormSearchDB::exec(): Se ha detectado una llamada recursiva")
             if self.isHidden():
                 super().show()
@@ -252,8 +244,8 @@ class FLFormSearchDB(flformdb.FLFormDB):
                 self._init_focus_widget.setFocus()
             return False
 
-        self.inExec_ = True
-        self.acceptingRejecting_ = False
+        self._in_exec = True
+        self._accepting_rejecting = False
         self.accepted_ = False
 
         super().show()
@@ -273,7 +265,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
         if self.eventloop:
             self.eventloop.exec_()
         self.loop = False
-        self.inExec_ = False
+        self._in_exec = False
 
         if self.accepted_ and valor:
             return self.cursor_.valueBuffer(valor)
@@ -281,20 +273,22 @@ class FLFormSearchDB(flformdb.FLFormDB):
             self.close()
             return False
 
-    def setFilter(self, f: str) -> None:
+    def setFilter(self, filter: str) -> None:
         """Apply a filter to the cursor."""
 
         if not self.cursor_:
             return
-        previousF = self.cursor_.mainFilter()
-        newF = None
-        if previousF == "":
-            newF = f
-        elif f is None or previousF.find(f) > -1:
+        previous_filter = self.cursor_.mainFilter()
+
+        new_filter = ""
+        if not previous_filter:
+            new_filter = filter
+        elif not filter or previous_filter.find(filter) > -1:
             return
         else:
-            newF = "%s AND %s" % (previousF, f)
-        self.cursor_.setMainFilter(newF)
+            new_filter = "%s AND %s" % (previous_filter, filter)
+
+        self.cursor_.setMainFilter(new_filter)
 
     def formClassName(self) -> str:
         """Return the class name of the form at runtime."""
@@ -361,7 +355,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
     def accept(self) -> None:
         """Activate pressing the accept button."""
 
-        if self.acceptingRejecting_:
+        if self._accepting_rejecting:
             return
         self.frameGeometry()
         if self.cursor_:
@@ -369,7 +363,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
                 self.cursor_.recordChoosed.disconnect(self.accept)
             except Exception:
                 pass
-        self.acceptingRejecting_ = True
+        self._accepting_rejecting = True
         self.accepted_ = True
         self.saveGeometry()
         self.hide()
@@ -382,7 +376,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
     def reject(self) -> None:
         """Activate pressing the accept button."""
 
-        if self.acceptingRejecting_:
+        if self._accepting_rejecting:
             return
         self.frameGeometry()
         if self.cursor_:
@@ -390,7 +384,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
                 self.cursor_.recordChoosed.disconnect(self.accept)
             except Exception:
                 pass
-        self.acceptingRejecting_ = True
+        self._accepting_rejecting = True
         self.hide()
 
     @decorators.pyqt_slot()
@@ -398,14 +392,17 @@ class FLFormSearchDB(flformdb.FLFormDB):
         """Redefined for convenience."""
         self.exec_()
 
-    def setMainWidget(self, w: QtWidgets.QWidget = None) -> None:
-        """
-        Set widget as the main form.
-        """
 
-        if not self.cursor_:
-            return
-
-        if w:
-            w.hide()
-            self.mainWidget_ = w
+# ===============================================================================
+#     def setMainWidget(self, w: QtWidgets.QWidget = None) -> None:
+#         """
+#         Set widget as the main form.
+#         """
+#
+#         if not self.cursor_:
+#             return
+#
+#         if w:
+#             w.hide()
+#             self.mainWidget_ = w
+# ===============================================================================

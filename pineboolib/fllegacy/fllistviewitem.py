@@ -112,14 +112,14 @@ class FLListViewItem(Qt.QStandardItem):
         """Set pixmap."""
         pass
 
-    def setExpandable(self, b: bool) -> None:
+    def setExpandable(self, val: bool) -> None:
         """Set expandable."""
 
-        self._expandable = b
+        self._expandable = val
 
-    def setKey(self, k: str) -> None:
+    def setKey(self, key: str) -> None:
         """Set key."""
-        self._key = str(k)
+        self._key = key
 
     def key(self) -> str:
         """Return key."""
@@ -128,6 +128,6 @@ class FLListViewItem(Qt.QStandardItem):
             return self.parent().child(self.row(), 0).key()
         return self._key
 
-    def setOpen(self, o: bool) -> None:
+    def setOpen(self, open: bool) -> None:
         """Set Open."""
-        self._open = o
+        self._open = open

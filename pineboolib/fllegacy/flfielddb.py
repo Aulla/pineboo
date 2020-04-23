@@ -990,7 +990,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
 
         self._show_editor = show
-        editor: "QtWidgets.QWidget"
+        editor: Optional["QtWidgets.QWidget"] = None
         if hasattr(self, "editor_"):
             editor = self.editor_
         elif hasattr(self, "_editor_img"):
@@ -1936,10 +1936,10 @@ class FLFieldDB(QtWidgets.QWidget):
                 # size_policy.setHeightForWidth(True)
 
                 if not self._pbaux3:
-                    spcBut = QtWidgets.QSpacerItem(
+                    space_item = QtWidgets.QSpacerItem(
                         20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
                     )
-                    self._buttons_layout.addItem(spcBut)
+                    self._buttons_layout.addItem(space_item)
                     self._pbaux3 = qpushbutton.QPushButton(self)
                     if self._pbaux3:
                         self._pbaux3.setSizePolicy(size_policy)
@@ -2909,15 +2909,15 @@ class FLFieldDB(QtWidgets.QWidget):
         if img.width() <= self._max_pix_size and img.height() <= self._max_pix_size:
             pix.convertFromImage(img)
         else:
-            newWidth = 0
-            newHeight = 0
+            new_width = 0
+            new_height = 0
             if img.width() < img.height():
-                newHeight = self._max_pix_size
-                newWidth = round(newHeight * img.width() / img.height())
+                new_height = self._max_pix_size
+                new_width = round(new_height * img.width() / img.height())
             else:
-                newWidth = self._max_pix_size
-                newHeight = round(newWidth * img.height() / img.width())
-            pix.convertFromImage(img.scaled(newWidth, newHeight))
+                new_width = self._max_pix_size
+                new_height = round(new_width * img.height() / img.width())
+            pix.convertFromImage(img.scaled(new_width, new_height))
 
         QtWidgets.QApplication.restoreOverrideCursor()
 
@@ -3018,16 +3018,16 @@ class FLFieldDB(QtWidgets.QWidget):
         if img.width() <= self._max_pix_size and img.height() <= self._max_pix_size:
             pix.convertFromImage(img)
         else:
-            newWidth = 0
-            newHeight = 0
+            new_width = 0
+            new_height = 0
             if img.width() < img.height():
-                newHeight = self._max_pix_size
-                newWidth = round(newHeight * img.width() / img.height())
+                new_height = self._max_pix_size
+                new_width = round(new_height * img.width() / img.height())
             else:
-                newWidth = self._max_pix_size
-                newHeight = round(newWidth * img.height() / img.width())
+                new_width = self._max_pix_size
+                new_height = round(new_width * img.height() / img.width())
 
-            pix.convertFromImage(img.scaled(newWidth, newHeight))
+            pix.convertFromImage(img.scaled(new_width, new_height))
 
         QtWidgets.QApplication.restoreOverrideCursor()
 
@@ -3094,7 +3094,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if value is not None:
             self._field_map_value = cast(FLFieldDB, self.sender())
-            self.mapValue_ = value
+            self._map_value = value
             self.setMapValue()
         else:
             if not self._field_map_value:
@@ -3107,11 +3107,11 @@ class FLFieldDB(QtWidgets.QWidget):
             if not table_metadata:
                 return
 
-            fSN = self._field_map_value.fieldName()
+            field_name = self._field_map_value.fieldName()
             field = table_metadata.field(self._field_name)
-            fieldSender = table_metadata.field(fSN)
+            field_sender = table_metadata.field(field_name)
 
-            if field is None or not fieldSender:
+            if field is None or not field_sender:
                 return
 
             field_relation = field.relationM1()
@@ -3130,7 +3130,9 @@ class FLFieldDB(QtWidgets.QWidget):
                     qry.setSelect("%s,%s" % (field_relation.foreignField(), foreign_field))
                     qry.setFrom(relation_table)
 
-                    where = mng.formatAssignValue(foreign_field, fieldSender, self.mapValue_, True)
+                    where = mng.formatAssignValue(
+                        foreign_field, field_sender, self._map_value, True
+                    )
                     assoc_metadata = mng.metadata(relation_table)
                     filtert_ac = self.cursor_.filterAssoc(foreign_field, assoc_metadata)
                     if assoc_metadata and not assoc_metadata.inCache():
@@ -3169,14 +3171,14 @@ class FLFieldDB(QtWidgets.QWidget):
         self.labelClicked.emit()
 
     @decorators.pyqt_slot(str)
-    def emitTextChanged(self, t: str) -> None:
+    def emitTextChanged(self, text_: str) -> None:
         """
         Emit the textChanged signal.
 
         The textChanged signal from the editor (only if the editor is fllineedit.FLLineEdit)
         It is connected to this slot.
         """
-        self.textChanged.emit(t)
+        self.textChanged.emit(text_)
 
     # @decorators.pyqt_slot(int)
     # def ActivatedAccel(self, identifier: int) -> None:
@@ -3254,78 +3256,74 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.setAttribute(QtCore.Qt.WA_Disabled, False)
                 self.enabledChange(not enable)
                 if self.children():
-                    for w in self.children():
-                        if not w.testAttribute(QtCore.Qt.WA_ForceDisabled):
-                            le = w
-                            if isinstance(le, qlineedit.QLineEdit):
-                                allowNull = True
+                    for child in self.children():
+                        if not child.testAttribute(QtCore.Qt.WA_ForceDisabled):
+                            if isinstance(child, qlineedit.QLineEdit):
+                                allow_null = True
                                 table_metadata = self.cursor_.metadata()
                                 if table_metadata:
                                     field = table_metadata.field(self._field_name)
                                     if field and not field.allowNull():
-                                        allowNull = False
+                                        allow_null = False
 
-                                if allowNull:
-                                    cBg = QtGui.QColor.blue()
-                                    cBg = (
+                                if allow_null:
+                                    color_bg = QtGui.QColor.blue()
+                                    color_bg = (
                                         QtWidgets.QApplication()
                                         .palette()
                                         .color(QtGui.QPalette.Active, QtGui.QPalette.Base)
                                     )
                                 else:
-                                    cBg = self.NotNullColor()
+                                    color_bg = self.NotNullColor()
 
-                                le.setDisabled(False)
-                                le.setReadOnly(False)
-                                le.palette().setColor(QtGui.QPalette.Base, cBg)
-                                le.setCursor(QtCore.Qt.IBeamCursor)
-                                le.setFocusPolicy(QtCore.Qt.StrongFocus)
+                                child.setDisabled(False)
+                                child.setReadOnly(False)
+                                child.palette().setColor(QtGui.QPalette.Base, color_bg)
+                                child.setCursor(QtCore.Qt.IBeamCursor)
+                                child.setFocusPolicy(QtCore.Qt.StrongFocus)
                                 continue
-                            w.setEnabled(True)
+                            child.setEnabled(True)
 
             else:
                 if not self.testAttribute(QtCore.Qt.WA_Disabled):
-                    if self.focusWidget() == self:
-                        parentIsEnabled = False
+                    if self.focusWidget() is self:
+                        parent_is_enabled = False
                         if not self.parentWidget() or self.parentWidget().isEnabled():
-                            parentIsEnabled = True
-                        if not parentIsEnabled or not self.focusNextPrevChild(True):
+                            parent_is_enabled = True
+                        if not parent_is_enabled or not self.focusNextPrevChild(True):
                             self.clearFocus()
                     self.setAttribute(QtCore.Qt.WA_Disabled)
                     self.enabledChange(not enable)
 
                     if self.children():
-                        for w in self.children():
-                            if isinstance(w, qlineedit.QLineEdit):
-                                le = w
-                                if le:
-                                    le.setDisabled(False)
-                                    le.setReadOnly(True)
-                                    le.setCursor(QtCore.Qt.IBeamCursor)
-                                    le.setFocusPolicy(QtCore.Qt.NoFocus)
-                                    continue
-
-                            if isinstance(w, qtextedit.QTextEdit):
-                                te = w
-                                te.setDisabled(False)
-                                te.setReadOnly(True)
-                                te.viewPort().setCursor(QtCore.Qt.IBeamCursor)
-                                te.setFocusPolicy(QtCore.Qt.NoFocus)
+                        for child in self.children():
+                            if isinstance(child, qlineedit.QLineEdit):
+                                child.setDisabled(False)
+                                child.setReadOnly(True)
+                                child.setCursor(QtCore.Qt.IBeamCursor)
+                                child.setFocusPolicy(QtCore.Qt.NoFocus)
                                 continue
 
-                            if w == self._text_label_db and self._push_button_db:
-                                w.setDisabled(False)
+                            elif isinstance(child, qtextedit.QTextEdit):
+                                child.setDisabled(False)
+                                child.setReadOnly(True)
+                                child.viewPort().setCursor(QtCore.Qt.IBeamCursor)
+                                child.setFocusPolicy(QtCore.Qt.NoFocus)
                                 continue
 
-                            w.setEnabled(False)
-                            w.setAttribute(QtCore.Qt.WA_ForceDisabled, False)
+                            if child is self._text_label_db and self._push_button_db:
+                                child.setDisabled(False)
+                                continue
 
-    def showEvent(self, e: Any) -> None:
+                            child.setEnabled(False)
+                            child.setAttribute(QtCore.Qt.WA_ForceDisabled, False)
+
+    def showEvent(self, event: QtGui.QShowEvent) -> None:
         """Process event show."""
         self.load()
         if self._loaded:
             self.showWidget()
-        super(FLFieldDB, self).showEvent(e)
+        super().showEvent(event)
 
     def showWidget(self) -> None:
         """
@@ -3355,7 +3353,7 @@ class FLFieldDB(QtWidgets.QWidget):
                             mng = self.cursor_.db().connManager().manager()
                             table_metadata = self.cursor_.metadata()
                             if table_metadata:
-                                v = self._cursor_aux.valueBuffer(self._foreign_field)
+                                value = self._cursor_aux.valueBuffer(self._foreign_field)
                                 # print("El valor de %s.%s es %s" % (table_metadata.name(), self._foreign_field, v))
                                 if not self._table_name:
                                     raise ValueError("_table_name no puede ser Nulo")
@@ -3364,13 +3362,15 @@ class FLFieldDB(QtWidgets.QWidget):
                                     raise ValueError("_field_name no puede ser Nulo")
                                 # FIXME q = pnsqlquery.PNSqlQuery(False,
                                 # self.cursor_.db().connectionName())
-                                q = pnsqlquery.PNSqlQuery(None, self.cursor_.db().connectionName())
-                                q.setForwardOnly(True)
-                                q.setTablesList(self._table_name)
-                                q.setSelect(self._field_name)
-                                q.setFrom(self._table_name)
+                                qry = pnsqlquery.PNSqlQuery(
+                                    None, self.cursor_.db().connectionName()
+                                )
+                                qry.setForwardOnly(True)
+                                qry.setTablesList(self._table_name)
+                                qry.setSelect(self._field_name)
+                                qry.setFrom(self._table_name)
                                 where = mng.formatAssignValue(
-                                    table_metadata.field(self._field_relation), v, True
+                                    table_metadata.field(self._field_relation), value, True
                                 )
                                 filtert_ac = self._cursor_aux.filterAssoc(
                                     self._foreign_field, table_metadata
@@ -3383,23 +3383,21 @@ class FLFieldDB(QtWidgets.QWidget):
                                     else:
                                         where = "%s AND %s" % (where, filtert_ac)
 
-                                if not self._filter:
-                                    q.setWhere(where)
-                                else:
-                                    q.setWhere("%s AND %s" % (self._filter, where))
-
+                                qry.setWhere(
+                                    "%s AND %s" % (self._filter, where) if self._filter else where
+                                )
                                 # print("where tipo", type(where))
                                 # print("Consulta = %s" % q.sql())
-                                if q.exec_() and q.first():
-                                    value = q.value(0)
+                                if qry.exec_() and qry.first():
+                                    value = qry.value(0)
                                     if isinstance(value, str):
                                         if value[0:3] == "RK@":
                                             value = self.cursor_.fetchLargeValue(value)
                                     if isinstance(value, datetime.date):
                                         value = value.strftime("%d-%m-%Y")
                                     self.setValue(value)
-                                if not table_metadata.inCache():
-                                    del table_metadata
+                                # if not table_metadata.inCache():
+                                #    del table_metadata
                     else:
                         if (
                             self.cursor_ is None
@@ -3413,7 +3411,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 self.showed = True
 
-    def editor(self) -> QtWidgets.QWidget:
+    def editor(self) -> "QtWidgets.QWidget":
         """Return editor control."""
 
         return self.editor_
