@@ -46,7 +46,7 @@ def convert_to_flaction(action: Union[str, "XMLAction"]) -> "pnaction.PNAction":
 
     action_ = None
 
-    cached_actions = application.PROJECT.conn_manager.manager().cacheAction_
+    cached_actions = application.PROJECT.conn_manager.manager()._cache_action
     if action_name in cached_actions.keys():
         action_ = cached_actions[action_name]
     else:

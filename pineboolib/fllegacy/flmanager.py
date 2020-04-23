@@ -57,14 +57,14 @@ class FLManager(QtCore.QObject, IManager):
     cache_metadata_: Dict[
         str, "pntablemetadata.PNTableMetaData"
     ]  # Caché de metadatos, para optimizar lecturas
-    cacheAction_: Dict[
+    _cache_action: Dict[
         str, "pnaction.PNAction"
     ]  # Caché de definiciones de acciones, para optimizar lecturas
     # Caché de metadatos de talblas del sistema para optimizar lecturas
     cache_metadata_sys_: Dict[str, "pntablemetadata.PNTableMetaData"]
     db_: "iconnection.IConnection"  # Base de datos a utilizar por el manejador
     init_count_: int = 0  # Indica el número de veces que se ha llamado a FLManager::init()
-    buffer_: Any
+
     metadata_cache_fails_: List[str]
 
     def __init__(self, db: "iconnection.IConnection") -> None:
@@ -73,12 +73,12 @@ class FLManager(QtCore.QObject, IManager):
         """
         super().__init__()
         self.db_ = db
-        self.buffer_ = None
+
         self.list_tables_ = []
         self.dict_key_metadata_ = {}
         self.cache_metadata_ = {}
         self.cache_metadata_sys_ = {}
-        self.cacheAction_ = {}
+        self._cache_action = {}
         QtCore.QTimer.singleShot(100, self.init)
         self.metadata_cache_fails_ = []
         self.init_count_ += 1
@@ -100,8 +100,8 @@ class FLManager(QtCore.QObject, IManager):
         if not self.cache_metadata_:
             self.cache_metadata_ = {}
 
-        if not self.cacheAction_:
-            self.cacheAction_ = {}
+        if not self._cache_action:
+            self._cache_action = {}
 
         if not self.cache_metadata_sys_:
             self.cache_metadata_sys_ = {}
@@ -114,7 +114,7 @@ class FLManager(QtCore.QObject, IManager):
         self.cache_metadata_ = {}
         self.cache_metadata_sys_ = {}
         self.metadata_cache_fails_ = []
-        self.cacheAction_ = {}
+        self._cache_action = {}
 
     def metadata(
         self,
@@ -282,35 +282,13 @@ class FLManager(QtCore.QObject, IManager):
                     compound_key.addFieldMD(field_mtd)
 
                 if field_mtd.associatedFieldName():
-                    assocs.append(field_mtd.associatedFieldName())
-                    assocs.append(field_mtd.associatedFieldFilterTo())
-                    assocs.append(field_mtd.name())
-
-            table_metadata.setCompoundKey(compound_key)
-            aWith = None
-            aBy = None
-
-            for it in assocs:
-                if not aWith:
-                    aWith = it
-                    continue
-                elif not aBy:
-                    aBy = it
-                    continue
-
-                elif table_metadata.field(it) is None:
-                    continue
-
-                if table_metadata.field(aWith) is not None:
-                    table_metadata.field(it).setAssociatedField(table_metadata.field(aWith), aBy)
-                aWith = None
-                aBy = None
-
-            acl = application.PROJECT.aq_app.acl()
-            if acl:
-                acl.process(table_metadata)
-
-            return table_metadata
+                    assocs.append(
+                        [
+                            field_mtd.associatedFieldName(),
+                            field_mtd.associatedFieldFilterTo(),
+                            field_mtd.name(),
+                        ]
+                    )
 
         else:
             # QDomDoc
@@ -363,35 +341,27 @@ class FLManager(QtCore.QObject, IManager):
                         compound_key.addFieldMD(field_mtd)
 
                     if field_mtd.associatedFieldName():
-                        assocs.append(field_mtd.associatedFieldName())
-                        assocs.append(field_mtd.associatedFieldFilterTo())
-                        assocs.append(field_mtd.name())
+                        assocs.append(
+                            [
+                                field_mtd.associatedFieldName(),
+                                field_mtd.associatedFieldFilterTo(),
+                                field_mtd.name(),
+                            ]
+                        )
 
-            table_metadata.setCompoundKey(compound_key)
-            aWith = None
-            aBy = None
+        table_metadata.setCompoundKey(compound_key)
 
-            for it in assocs:
-                if not aWith:
-                    aWith = it
-                    continue
-                elif not aBy:
-                    aBy = it
-                    continue
+        for assoc_with, assoc_by, field_name in assocs:
+            field_metadata = table_metadata.field(field_name)
+            assoc_field_mtd = table_metadata.field(assoc_with)
+            if field_metadata and assoc_field_mtd and assoc_by:
+                field_metadata.setAssociatedField(assoc_field_mtd, assoc_by)
 
-                elif table_metadata.field(it) is None:
-                    continue
+        acl = application.PROJECT.aq_app.acl()
+        if acl:
+            acl.process(table_metadata)
 
-                if table_metadata.field(aWith) is not None:
-                    table_metadata.field(it).setAssociatedField(table_metadata.field(aWith), aBy)
-                aWith = None
-                aBy = None
-
-            acl = application.PROJECT.aq_app.acl()
-            if acl:
-                acl.process(table_metadata)
-
-            return table_metadata
+        return table_metadata
 
     @decorators.not_implemented_warn
     def metadataDev(self, n: str, quick: bool = False) -> bool:
@@ -399,7 +369,7 @@ class FLManager(QtCore.QObject, IManager):
         return True
 
     def query(
-        self, name: str, parent: Optional[pnsqlquery.PNSqlQuery] = None
+        self, name: str, parent: Optional["pnsqlquery.PNSqlQuery"] = None
     ) -> Optional["pnsqlquery.PNSqlQuery"]:
         """
         To obtain a query of the database, from an XML file.
@@ -427,59 +397,47 @@ class FLManager(QtCore.QObject, IManager):
         #    remove_blank_text=True,
         # )
 
-        q = pnsqlquery.PNSqlQuery()
-        q.setName(name)
+        qry = pnsqlquery.PNSqlQuery()
+        qry.setName(name)
         root_ = ElementTree.fromstring(qry_)
         elem_select = root_.find("select")
         elem_from = root_.find("from")
+        elem_tables = root_.find("tables")
+        elem_order = root_.find("order")
+        group_xml = root_.findall("group") or []
 
-        if elem_select is not None:
-            if elem_select.text is not None:
-                q.setSelect(
-                    elem_select.text.replace(" ", "")
-                    .replace("\n", "")
-                    .replace("\t", "")
-                    .replace("\r", "")
-                )
-        if elem_from is not None:
-            if elem_from.text is not None:
-                q.setFrom(elem_from.text.strip(" \t\n\r"))
+        if elem_select is not None and elem_select.text:
+            qry.setSelect(elem_select.text.strip(" \t\n\r"))
+
+        if elem_from is not None and elem_from.text:
+            qry.setFrom(elem_from.text.strip(" \t\n\r"))
 
         for where in root_.iter("where"):
-            if where.text is not None:
-                q.setWhere(where.text.strip(" \t\n\r"))
+            if where is not None and where.text:
+                qry.setWhere(where.text.strip(" \t\n\r"))
 
-        elem_tables = root_.find("tables")
-        if elem_tables is not None:
-            if elem_tables.text is not None:
-                q.setTablesList(elem_tables.text.strip(" \t\n\r"))
+        if elem_tables is not None and elem_tables.text:
+            qry.setTablesList(elem_tables.text.strip(" \t\n\r"))
 
-        elem_order = root_.find("order")
-        if elem_order is not None:
-            if elem_order.text is not None:
-                orderBy_ = elem_order.text.strip(" \t\n\r")
-                q.setOrderBy(orderBy_)
+        if elem_order is not None and elem_order.text:
+            qry.setOrderBy(elem_order.text.strip(" \t\n\r"))
 
-        groupXml_ = root_.findall("group")
+        for level, item in enumerate(group_xml):
+            elem_level = item.find("level")
+            elem_field = item.find("field")
+            if (
+                elem_field is not None
+                and elem_field.text
+                and elem_level is not None
+                and elem_level.text
+            ):
+                if float(elem_level.text.strip(" \t\n\r")) == level:
+                    # print("LEVEL %s -> %s" % (i,gr.xpath("field/text()")[0].strip(' \t\n\r')))
+                    qry.addGroup(
+                        pngroupbyquery.PNGroupByQuery(level, elem_field.text.strip(" \t\n\r"))
+                    )
 
-        if not groupXml_:
-            groupXml_ = []
-        # group_ = []
-
-        for i in range(len(groupXml_)):
-            gr = groupXml_[i]
-            if gr is not None:
-                elem_level = gr.find("level")
-                elem_field = gr.find("field")
-                if elem_field is not None and elem_level is not None:
-                    if elem_level.text is not None and elem_field.text is not None:
-                        if float(elem_level.text.strip(" \t\n\r")) == i:
-                            # print("LEVEL %s -> %s" % (i,gr.xpath("field/text()")[0].strip(' \t\n\r')))
-                            q.addGroup(
-                                pngroupbyquery.PNGroupByQuery(i, elem_field.text.strip(" \t\n\r"))
-                            )
-
-        return q
+        return qry
 
     def action(self, action_name: str) -> "pnaction.PNAction":
         """
@@ -498,15 +456,15 @@ class FLManager(QtCore.QObject, IManager):
             raise Exception("action. self.db_ is empty!")
 
         # FIXME: This function is really inefficient. Pineboo already parses the actions much before.
-        if action_name in self.cacheAction_.keys():
-            pnaction_ = self.cacheAction_[action_name]
+        if action_name in self._cache_action.keys():
+            pnaction_ = self._cache_action[action_name]
         else:
 
             pnaction_ = convert_flaction.convert_to_flaction(action_name)
             if not pnaction_.table():
                 pnaction_.setTable(action_name)
 
-            self.cacheAction_[action_name] = pnaction_
+            self._cache_action[action_name] = pnaction_
 
         return pnaction_
 
@@ -549,9 +507,7 @@ class FLManager(QtCore.QObject, IManager):
             if mtd1 is None or mtd2 is None:
                 return False
 
-            field_list = mtd1.fieldList()
-
-            for field1 in field_list:
+            for field1 in mtd1.fieldList():
                 if field1.isCheck():
                     continue
 
@@ -575,8 +531,7 @@ class FLManager(QtCore.QObject, IManager):
                 ):
                     return False
 
-            field_list = mtd2.fieldList()
-            for field1 in field_list:
+            for field1 in mtd2.fieldList():
                 if field1.isCheck():
                     continue
 

@@ -76,7 +76,6 @@ class PNSqlQueryPrivate(object):
     """
     _tables_list: List[str]
 
-    _last_query: Union[bool, str]
     _forward_only: bool
     _limit: Optional[int]
     _offset: Optional[int]
@@ -93,7 +92,7 @@ class PNSqlQueryPrivate(object):
         self._order_by = None
         self._where = None
         self._from = None
-        self._last_query = False
+
         self._forward_only = False
         self._limit = None
         self._offset = None
@@ -115,6 +114,7 @@ class PNSqlQuery(object):
     _row: List[Any]
     _datos: List[Any]
     _posicion: int
+    _last_query: str
     _cursor: Optional["IApiCursor"]
     private_query: PNSqlQueryPrivate
 
@@ -132,6 +132,7 @@ class PNSqlQuery(object):
         else:
             self.private_query._db = connection_name
 
+        self._last_query = ""
         self._count_ref_query = self._count_ref_query + 1
         self._row = []
         self._datos = []
@@ -849,7 +850,7 @@ class PNSqlQuery(object):
 
         return self._posicion
 
-    def lastQuery(self) -> Union[bool, str]:
+    def lastQuery(self) -> str:
         """
         Return the last query made.
 
