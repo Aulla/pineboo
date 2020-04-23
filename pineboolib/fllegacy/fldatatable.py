@@ -114,7 +114,7 @@ class FLDataTable(QtWidgets.QTableView):
     """
     only_table_: bool
     changing_num_rows_: bool
-    paintFieldName_: Optional[str]
+    _paint_field_name: Optional[str]
     paint_field_mtd_: Optional["pnfieldmetadata.PNFieldMetaData"]
 
     def __init__(
@@ -626,17 +626,17 @@ class FLDataTable(QtWidgets.QTableView):
         # print("FIXME: falta un repaint para ver el color!!")
 
     def paintFieldMtd(
-        self, field_name: str, t: "pntablemetadata.PNTableMetaData"
+        self, field_name: str, table_metadata: "pntablemetadata.PNTableMetaData"
     ) -> "pnfieldmetadata.PNFieldMetaData":
         """
         Return the metadata of a field.
         """
 
-        if self.paint_field_mtd_ and self.paintFieldName_ == field_name:
+        if self.paint_field_mtd_ and self._paint_field_name == field_name:
             return self.paint_field_mtd_
 
-        self.paintFieldName_ = field_name
-        self.paint_field_mtd_ = t.field(field_name)
+        self._paint_field_name = field_name
+        self.paint_field_mtd_ = table_metadata.field(field_name)
 
         if self.paint_field_mtd_ is None:
             raise Exception("paint_field_mtd_ is empty!.")

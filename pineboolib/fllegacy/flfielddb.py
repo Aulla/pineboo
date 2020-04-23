@@ -1109,12 +1109,12 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 qry.setWhere(where)
                 if qry.exec_() and qry.next():
-                    v0 = qry.value(0)
-                    v1 = qry.value(1)
-                    if not v0 == self.value():
-                        self.setValue(v0)
-                    if not v1 == value:
-                        self.cursor_.setValueBuffer(self._field_relation, v1)
+                    value_0 = qry.value(0)
+                    value_1 = qry.value(1)
+                    if not value_0 == self.value():
+                        self.setValue(value_0)
+                    if not value_1 == value:
+                        self.cursor_.setValueBuffer(self._field_relation, value_1)
 
             return
 
@@ -1441,7 +1441,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if not type_ == "pixmap" and not self.editor_:
             return
-        v = self.cursor_.valueBuffer(self._field_name)
+        value = self.cursor_.valueBuffer(self._field_name)
         nulo = self.cursor_.bufferIsNull(self._field_name)
 
         if self._part_decimal < 0:
@@ -1452,7 +1452,7 @@ class FLFieldDB(QtWidgets.QWidget):
             # part_decimal = self._part_decimal if self._part_decimal > -1 else field.partDecimal()
 
             e_text = editor_le.text() if editor_le.text() != "" else 0.0
-            if float(str(e_text)) == float(v):
+            if float(str(e_text)) == float(value):
                 return
             try:
                 cast(QtCore.pyqtSignal, editor_le.textChanged).disconnect(self.updateValue)
@@ -1460,9 +1460,9 @@ class FLFieldDB(QtWidgets.QWidget):
                 LOGGER.exception("Error al desconectar señal textChanged")
 
             if not nulo:
-                v = round(v, self._part_decimal)
+                value = round(value, self._part_decimal)
 
-            editor_le.setText(v, False)
+            editor_le.setText(value, False)
 
             cast(QtCore.pyqtSignal, editor_le.textChanged).connect(self.updateValue)
 
@@ -1471,42 +1471,42 @@ class FLFieldDB(QtWidgets.QWidget):
             has_options_list = field.hasOptionsList()
 
             if has_options_list:
-                cb = cast(qcombobox.QComboBox, self.editor_)
-                if str(v) == cb.currentText:
+                combo = cast(qcombobox.QComboBox, self.editor_)
+                if str(value) == combo.currentText:
                     return
             else:
-                ed = cast(fllineedit.FLLineEdit, self.editor_)
-                if str(v) == ed.text():
+                editor = cast(fllineedit.FLLineEdit, self.editor_)
+                if str(value) == editor.text():
                     return
 
-                if not ed.text():
+                if not editor.text():
                     do_home = True
 
-                cast(QtCore.pyqtSignal, ed.textChanged).disconnect(self.updateValue)
+                cast(QtCore.pyqtSignal, editor.textChanged).disconnect(self.updateValue)
 
-            if v:
+            if value:
                 if has_options_list:
-                    cb.setCurrentText(v)
+                    combo.setCurrentText(value)
 
                 else:
-                    ed.setText(v, False)
+                    editor.setText(value, False)
 
             else:
                 if has_options_list:
-                    cb.setCurrentIndex(0)
+                    combo.setCurrentIndex(0)
 
                 else:
-                    ed.setText("", False)
+                    editor.setText("", False)
 
             if not has_options_list:
                 if do_home:
-                    ed.home(False)
+                    editor.home(False)
 
-                cast(QtCore.pyqtSignal, ed.textChanged).connect(self.updateValue)
+                cast(QtCore.pyqtSignal, editor.textChanged).connect(self.updateValue)
 
         elif type_ in ("uint", "int", "serial", "timestamp"):
             editor_le = cast(fllineedit.FLLineEdit, self.editor_)
-            if v == editor_le.text():
+            if value == editor_le.text():
                 return
             try:
                 cast(QtCore.pyqtSignal, editor_le.textChanged).disconnect(self.updateValue)
@@ -1514,7 +1514,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 LOGGER.exception("Error al desconectar señal textChanged")
 
             if not nulo:
-                editor_le.setText(v)
+                editor_le.setText(value)
 
             cast(QtCore.pyqtSignal, editor_le.textChanged).connect(self.updateValue)
 
@@ -1533,17 +1533,16 @@ class FLFieldDB(QtWidgets.QWidget):
                     self._editor_img.show()
 
             if not nulo:
-                if not v:
+                if not value:
                     self._editor_img.clear()
                     return
 
-            if isinstance(v, str):
-                if v.find("static char") > -1:
+            if isinstance(value, str):
+                if value.find("static char") > -1:
+                    value = xpm.cache_xpm(value)
 
-                    v = xpm.cache_xpm(v)
-
-            pix = QtGui.QPixmap(v)
-            # pix.loadFromData(v)
+            pix = QtGui.QPixmap(value)
+            # pix.loadFromData(value)
 
             if pix.isNull():
                 self._editor_img.clear()
@@ -1552,19 +1551,19 @@ class FLFieldDB(QtWidgets.QWidget):
 
         elif type_ == "date":
             editor_d = cast(fldateedit.FLDateEdit, self.editor_)
-            if v == editor_d.date:
+            if value == editor_d.date:
                 return
 
             try:
                 cast(QtCore.pyqtSignal, editor_d.dateChanged).disconnect(self.updateValue)
             except Exception:
                 LOGGER.exception("Error al desconectar señal dateChanged")
-            editor_d.setDate(v)
+            editor_d.setDate(value)
             cast(QtCore.pyqtSignal, editor_d.dateChanged).connect(self.updateValue)
 
         elif type_ == "time":
             editor_t = cast(fltimeedit.FLTimeEdit, self.editor_)
-            if v == str(editor_t.time()):
+            if value == str(editor_t.time()):
                 return
 
             try:
@@ -1572,15 +1571,15 @@ class FLFieldDB(QtWidgets.QWidget):
             except Exception:
                 LOGGER.exception("Error al desconectar señal")
 
-            if v is None:
-                v = "00:00:00"
+            if value is None:
+                value = "00:00:00"
 
-            editor_t.setTime(v)
+            editor_t.setTime(value)
             cast(QtCore.pyqtSignal, editor_t.timeChanged).connect(self.updateValue)
 
         elif type_ == "stringlist":
             editor_sl = cast(qtextedit.QTextEdit, self.editor_)
-            if v == str(editor_sl.toPlainText()):
+            if value == str(editor_sl.toPlainText()):
                 return
 
             try:
@@ -1588,12 +1587,12 @@ class FLFieldDB(QtWidgets.QWidget):
             except Exception:
                 LOGGER.exception("Error al desconectar señal")
 
-            editor_sl.setText(v)
+            editor_sl.setText(value)
             cast(QtCore.pyqtSignal, editor_sl.textChanged).connect(self.updateValue)
 
         elif type_ == "bool":
             editor_b = cast(flcheckbox.FLCheckBox, self.editor_)
-            if v == editor_b.isChecked():
+            if value == editor_b.isChecked():
                 return
 
             try:
@@ -1601,7 +1600,7 @@ class FLFieldDB(QtWidgets.QWidget):
             except Exception:
                 LOGGER.exception("Error al desconectar señal")
 
-            editor_b.setChecked(v)
+            editor_b.setChecked(value)
             cast(QtCore.pyqtSignal, editor_b.toggled).connect(self.updateValue)
 
     def initCursor(self) -> None:
@@ -1696,36 +1695,36 @@ class FLFieldDB(QtWidgets.QWidget):
         if not self.cursor().metadata():
             return
 
-        curName = self.cursor().metadata().name()
+        cursor_name = self.cursor().metadata().name()
 
         relation_metadata = table_metadata.relation(
-            self._field_relation, self._foreign_field, curName
+            self._field_relation, self._foreign_field, cursor_name
         )
         if not relation_metadata:
-            checkIntegrity = False
-            testM1 = self.cursor_.metadata().relation(
+            check_integrity = False
+            rel_m1 = self.cursor_.metadata().relation(
                 self._foreign_field, self._field_relation, self._table_name
             )
-            if testM1:
-                if testM1.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_1M:
-                    checkIntegrity = True
+            if rel_m1:
+                if rel_m1.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_1M:
+                    check_integrity = True
             field_metadata = table_metadata.field(self._field_relation)
 
             if field_metadata is not None:
                 relation_metadata = pnrelationmetadata.PNRelationMetaData(
-                    curName,
+                    cursor_name,
                     self._foreign_field,
                     pnrelationmetadata.PNRelationMetaData.RELATION_1M,
                     False,
                     False,
-                    checkIntegrity,
+                    check_integrity,
                 )
 
                 field_metadata.addRelationMD(relation_metadata)
                 LOGGER.trace(
                     "FLFieldDB : La relación entre la tabla del formulario ( %s ) y la tabla ( %s ) de este campo ( %s ) no existe, "
                     "pero sin embargo se han indicado los campos de relación( %s, %s)",
-                    curName,
+                    cursor_name,
                     self._table_name,
                     self._field_name,
                     self._field_relation,
@@ -1735,7 +1734,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     "FLFieldDB : Creando automáticamente %s.%s --1M--> %s.%s",
                     self._table_name,
                     self._field_relation,
-                    curName,
+                    cursor_name,
                     self._foreign_field,
                 )
             else:
@@ -1827,7 +1826,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         type_ = field.type()
         len_ = field.length()
-        partInteger = field.partInteger()
+        part_integer = field.partInteger()
         part_decimal = None
         if type_ == "double":
             if self._part_decimal:
@@ -1836,14 +1835,14 @@ class FLFieldDB(QtWidgets.QWidget):
                 part_decimal = field.partDecimal()
                 self._part_decimal = field.partDecimal()
 
-        rX = field.regExpValidator()
-        ol = field.hasOptionsList()
+        regex_validator = field.regExpValidator()
+        hol = field.hasOptionsList()
 
-        rt = None
+        foreign_table = None
         field_relation = field.relationM1()
         if field_relation is not None:
             if not field_relation.foreignTable() == table_metadata.name():
-                rt = field_relation.foreignTable()
+                foreign_table = field_relation.foreignTable()
 
         has_push_button_db = False
         self._field_alias = field.alias()
@@ -1863,39 +1862,39 @@ class FLFieldDB(QtWidgets.QWidget):
             else:
                 self._text_label_db.hide()
 
-        if rt:
+        if foreign_table:
             has_push_button_db = True
-            tmd = self.cursor_.db().connManager().manager().metadata(rt)
+            tmd = self.cursor_.db().connManager().manager().metadata(foreign_table)
             if not tmd and self._push_button_db:
                 self._push_button_db.setDisabled(True)
                 field.setEditable(False)
 
-            if tmd and not tmd.inCache():
-                del tmd
+            # if tmd and not tmd.inCache():
+            #    del tmd
 
-        self.initMaxSize_ = self.maximumSize()
-        self.initMinSize_ = self.minimumSize()
+        self._init_max_size = self.maximumSize()
+        self._init_min_size = self.minimumSize()
 
         if type_ in ("uint", "int", "double", "string", "timestamp"):
             self.initEditorControlForNumber(
-                has_option_list=ol,
+                has_option_list=hol,
                 field=field,
                 type_=type_,
                 part_decimal=part_decimal,
-                partInteger=partInteger,
+                partInteger=part_integer,
                 len_=len_,
-                rX=rX,
+                rX=regex_validator,
                 has_push_button_db=has_push_button_db,
             )
         elif type_ == "serial":
             self.editor_ = fllineedit.FLLineEdit(self, "editor")
             self.editor_.setFont(self.font())
             self.editor_.setMaxValue(pow(10, field.partInteger()) - 1)
-            sizePolicy = QtWidgets.QSizePolicy(
+            size_policy = QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy(0)
             )
-            sizePolicy.setHeightForWidth(True)
-            self.editor_.setSizePolicy(sizePolicy)
+            size_policy.setHeightForWidth(True)
+            self.editor_.setSizePolicy(size_policy)
             if self._widgets_layout:
                 self._widgets_layout.addWidget(self.editor_)
             self.editor_.installEventFilter(self)
@@ -1931,10 +1930,10 @@ class FLFieldDB(QtWidgets.QWidget):
                 if self._text_label_db:
                     self._text_label_db.hide()
 
-                sizePolicy = QtWidgets.QSizePolicy(
+                size_policy = QtWidgets.QSizePolicy(
                     QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
                 )
-                # sizePolicy.setHeightForWidth(True)
+                # size_policy.setHeightForWidth(True)
 
                 if not self._pbaux3:
                     spcBut = QtWidgets.QSpacerItem(
@@ -1943,7 +1942,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self._buttons_layout.addItem(spcBut)
                     self._pbaux3 = qpushbutton.QPushButton(self)
                     if self._pbaux3:
-                        self._pbaux3.setSizePolicy(sizePolicy)
+                        self._pbaux3.setSizePolicy(size_policy)
                         self._pbaux3.setMinimumSize(self._icon_size)
                         self._pbaux3.setFocusPolicy(QtCore.Qt.NoFocus)
                         self._pbaux3.setIcon(
@@ -1976,7 +1975,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 if not self._pbaux4:
                     self._pbaux4 = qpushbutton.QPushButton(self)
                     if self._pbaux4:
-                        self._pbaux4.setSizePolicy(sizePolicy)
+                        self._pbaux4.setSizePolicy(size_policy)
                         self._pbaux4.setMinimumSize(self._icon_size)
                         self._pbaux4.setFocusPolicy(QtCore.Qt.NoFocus)
                         self._pbaux4.setIcon(
@@ -1996,7 +1995,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 if not self._pbaux:
                     self._pbaux = qpushbutton.QPushButton(self)
                     if self._pbaux:
-                        self._pbaux.setSizePolicy(sizePolicy)
+                        self._pbaux.setSizePolicy(size_policy)
                         self._pbaux.setMinimumSize(self._icon_size)
                         self._pbaux.setFocusPolicy(QtCore.Qt.NoFocus)
                         self._pbaux.setIcon(
@@ -2023,7 +2022,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         savepixmap_.addAction("BMP")
 
                         self._pbaux2.setMenu(savepixmap_)
-                        self._pbaux2.setSizePolicy(sizePolicy)
+                        self._pbaux2.setSizePolicy(size_policy)
                         self._pbaux2.setMinimumSize(self._icon_size)
                         self._pbaux2.setFocusPolicy(QtCore.Qt.NoFocus)
                         self._pbaux2.setIcon(
@@ -2050,11 +2049,11 @@ class FLFieldDB(QtWidgets.QWidget):
         elif type_ == "date":
             self.editor_ = fldateedit.FLDateEdit(self, "editor")
             self.editor_.setFont(self.font())
-            sizePolicy = QtWidgets.QSizePolicy(
+            size_policy = QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed
             )
-            sizePolicy.setHeightForWidth(True)
-            self.editor_.setSizePolicy(sizePolicy)
+            size_policy.setHeightForWidth(True)
+            self.editor_.setSizePolicy(size_policy)
             if self._widgets_layout:
                 self._widgets_layout.insertWidget(1, self.editor_)
 
@@ -2069,8 +2068,8 @@ class FLFieldDB(QtWidgets.QWidget):
                 # if not self._pbaux:
                 #    #self._pbaux = qpushbutton.QPushButton(self)
                 #    # self._pbaux.setFlat(True)
-                #    #sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(7) ,QtGui.QSizePolicy.Policy(0))
-                #    # sizePolicy.setHeightForWidth(True)
+                #    #size_policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(7) ,QtGui.QSizePolicy.Policy(0))
+                #    # size_policy.setHeightForWidth(True)
                 #    # self._pbaux.setSizePolicy(sizePolicy)
                 #    #self._pbaux.setMinimumSize(25, 25)
                 #    #self._pbaux.setMaximumSize(25, 25)
@@ -2109,11 +2108,11 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_ = fltimeedit.FLTimeEdit(self)
             self.editor_.setFont(self.font())
             # self.editor_.setAutoAdvance(True)
-            sizePolicy = QtWidgets.QSizePolicy(
+            size_policy = QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed
             )
-            sizePolicy.setHeightForWidth(True)
-            self.editor_.setSizePolicy(sizePolicy)
+            size_policy.setHeightForWidth(True)
+            self.editor_.setSizePolicy(size_policy)
             if self._widgets_layout:
                 self._widgets_layout.addWidget(self.editor_)
             self.editor_.installEventFilter(self)
@@ -2145,11 +2144,11 @@ class FLFieldDB(QtWidgets.QWidget):
             self.setMinimumHeight(100)
             # self.editor_.setMinimumHeight(100)
             # self.editor_.setMaximumHeight(120)
-            sizePolicy = QtWidgets.QSizePolicy(
+            size_policy = QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding
             )
-            sizePolicy.setHeightForWidth(True)
-            self.editor_.setSizePolicy(sizePolicy)
+            size_policy.setHeightForWidth(True)
+            self.editor_.setSizePolicy(size_policy)
             # ted.setTexFormat(self._text_format)
             # if isinstance(self._text_format, QtCore.Qt.RichText) and not self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Browse:
             # self._widgets_layout.setDirection(QtGui.QBoxLayout.Down)
@@ -2200,11 +2199,11 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.setMinimumWidth(
                 self.fontMetrics().width(alias) + self.fontMetrics().maxWidth() * 2
             )
-            sizePolicy = QtWidgets.QSizePolicy(
+            size_policy = QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy(0)
             )
-            sizePolicy.setHeightForWidth(True)
-            self.editor_.setSizePolicy(sizePolicy)
+            size_policy.setHeightForWidth(True)
+            self.editor_.setSizePolicy(size_policy)
             if self._widgets_layout:
                 self._widgets_layout.addWidget(self.editor_)
 
@@ -2236,7 +2235,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if self._push_button_db:
                 self._push_button_db.hide()
 
-        if self.initMaxSize_.width() < 80:
+        if self._init_max_size.width() < 80:
             self.setShowEditor(False)
         else:
             self.setShowEditor(self._show_editor)
@@ -2400,11 +2399,11 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._text_label_db.setStyleSheet("color:" + cB.name())
                 self._text_label_db.setCursor(QtCore.Qt.PointingHandCursor)
 
-        sizePolicy = QtWidgets.QSizePolicy(
+        size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy(0)
         )
-        sizePolicy.setHeightForWidth(True)
-        self.editor_.setSizePolicy(sizePolicy)
+        size_policy.setHeightForWidth(True)
+        self.editor_.setSizePolicy(size_policy)
         if self._widgets_layout is not None:
             self._widgets_layout.addWidget(self._push_button_db)
             self._widgets_layout.addWidget(self.editor_)
