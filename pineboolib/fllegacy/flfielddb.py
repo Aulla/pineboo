@@ -1881,9 +1881,9 @@ class FLFieldDB(QtWidgets.QWidget):
                 field=field,
                 type_=type_,
                 part_decimal=part_decimal,
-                partInteger=part_integer,
+                part_integer=part_integer,
                 len_=len_,
-                rX=regex_validator,
+                regexp_=regex_validator,
                 has_push_button_db=has_push_button_db,
             )
         elif type_ == "serial":
@@ -2250,9 +2250,9 @@ class FLFieldDB(QtWidgets.QWidget):
         field,
         type_,
         part_decimal,
-        partInteger,
+        part_integer,
         len_,
-        rX,
+        regexp_,
         has_push_button_db,
     ) -> None:
         """Inicialize control for number."""
@@ -2283,11 +2283,11 @@ class FLFieldDB(QtWidgets.QWidget):
             # else:
             #    self.editor_.setStyleSheet(style_)
 
-            olTranslated = []
-            olNoTranslated = field.optionsList()
-            for olN in olNoTranslated:
-                olTranslated.append(olN)
-            self.editor_.addItems(olTranslated)
+            old_translated = []
+            old_not_translated = field.optionsList()
+            for item in old_not_translated:
+                old_translated.append(item)
+            self.editor_.addItems(old_translated)
             self.editor_.installEventFilter(self)
             if self.showed:
                 try:
@@ -2319,8 +2319,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 self.editor_.setValidator(
                     fldoublevalidator.FLDoubleValidator(
-                        ((pow(10, partInteger) - 1) * -1),
-                        pow(10, partInteger) - 1,
+                        ((pow(10, part_integer) - 1) * -1),
+                        pow(10, part_integer) - 1,
                         self.editor_._part_decimal,
                         self.editor_,
                     )
@@ -2330,24 +2330,24 @@ class FLFieldDB(QtWidgets.QWidget):
                 if type_ == "uint":
 
                     self.editor_.setValidator(
-                        fluintvalidator.FLUIntValidator(0, pow(10, partInteger), self.editor_)
+                        fluintvalidator.FLUIntValidator(0, pow(10, part_integer), self.editor_)
                     )
                     pass
                 elif type_ == "int":
 
                     self.editor_.setValidator(
                         flintvalidator.FLIntValidator(
-                            ((pow(10, partInteger) - 1) * -1),
-                            pow(10, partInteger) - 1,
+                            ((pow(10, part_integer) - 1) * -1),
+                            pow(10, part_integer) - 1,
                             self.editor_,
                         )
                     )
                     self.editor_.setAlignment(QtCore.Qt.AlignRight)
                 else:
                     self.editor_.setMaxValue(len_)
-                    if rX:
+                    if regexp_:
                         self.editor_.setValidator(
-                            QtGui.QRegExpValidator(QtCore.QRegExp(rX), self.editor_)
+                            QtGui.QRegExpValidator(QtCore.QRegExp(regexp_), self.editor_)
                         )
 
                     self.editor_.setAlignment(QtCore.Qt.AlignLeft)
@@ -2394,9 +2394,9 @@ class FLFieldDB(QtWidgets.QWidget):
                 tlf = self._text_label_db.font()
                 tlf.setUnderline(True)
                 self._text_label_db.setFont(tlf)
-                cB = QtGui.QColor(QtCore.Qt.darkBlue)
+                color_ = QtGui.QColor(QtCore.Qt.darkBlue)
                 # self._text_label_db.palette().setColor(self._text_label_db.foregroundRole(), cB)
-                self._text_label_db.setStyleSheet("color:" + cB.name())
+                self._text_label_db.setStyleSheet("color:" + color_.name())
                 self._text_label_db.setCursor(QtCore.Qt.PointingHandCursor)
 
         size_policy = QtWidgets.QSizePolicy(
@@ -2420,14 +2420,14 @@ class FLFieldDB(QtWidgets.QWidget):
             self.cursor_.setValueBuffer(self._field_name, None)
 
     @decorators.pyqt_slot(QtWidgets.QAction)
-    def savePixmap(self, f: QtWidgets.QAction) -> None:
+    def savePixmap(self, action_: QtWidgets.QAction) -> None:
         """
         Save image in Pixmap type fields.
 
         @param fmt Indicates the format in which to save the image
         """
         if self._editor_img:
-            ext = f.text().lower()
+            ext = action_.text().lower()
             filename = "imagen.%s" % ext
             ext = "*.%s" % ext
             util = flutil.FLUtil()
@@ -2478,16 +2478,16 @@ class FLFieldDB(QtWidgets.QWidget):
                         if self._field_relation is not None and self._foreign_field is not None:
                             self._auto_com_field_name = self._foreign_field
 
-                            fRel = (
+                            mtd_relation = (
                                 table_metadata.field(self._field_relation)
                                 if table_metadata
                                 else None
                             )
 
-                            if fRel is None:
+                            if mtd_relation is None:
                                 return
 
-                            field_relation_frel = fRel.relationM1()
+                            field_relation_frel = mtd_relation.relationM1()
 
                             if field_relation_frel is None:
                                 raise Exception("fRel.relationM1 is empty!.")
@@ -2589,22 +2589,22 @@ class FLFieldDB(QtWidgets.QWidget):
                 raise Exception("_auto_com_frame is empty")
 
             if not self._auto_com_frame.isVisible() and cur.size() > 1:
-                tmpPoint = None
+                tmp_point = None
                 if self._show_alias and self._text_label_db:
-                    tmpPoint = self.mapToGlobal(self._text_label_db.geometry().bottomLeft())
+                    tmp_point = self.mapToGlobal(self._text_label_db.geometry().bottomLeft())
                 elif self._push_button_db and not self._push_button_db.isHidden():
-                    tmpPoint = self.mapToGlobal(self._push_button_db.geometry().bottomLeft())
+                    tmp_point = self.mapToGlobal(self._push_button_db.geometry().bottomLeft())
                 else:
-                    tmpPoint = self.mapToGlobal(self.editor_.geometry().bottomLeft())
+                    tmp_point = self.mapToGlobal(self.editor_.geometry().bottomLeft())
 
-                frameWidth = self.width()
-                if frameWidth < self._auto_com_popup.width():
-                    frameWidth = self._auto_com_popup.width()
+                frame_width = self.width()
+                if frame_width < self._auto_com_popup.width():
+                    frame_width = self._auto_com_popup.width()
 
-                if frameWidth < self._auto_com_frame.width():
-                    frameWidth = self._auto_com_frame.width()
+                if frame_width < self._auto_com_frame.width():
+                    frame_width = self._auto_com_frame.width()
 
-                self._auto_com_frame.setGeometry(tmpPoint.x(), tmpPoint.y(), frameWidth, 300)
+                self._auto_com_frame.setGeometry(tmp_point.x(), tmp_point.y(), frame_width, 300)
                 self._auto_com_frame.show()
                 self._auto_com_frame.setFocus()
             elif self._auto_com_frame.isVisible() and cur.size() == 1:
@@ -2636,16 +2636,16 @@ class FLFieldDB(QtWidgets.QWidget):
         elif isinstance(self.editor_, qtextedit.QTextEdit):
             self.setValue(self._auto_com_field_name)
         else:
-            ed = cast(qlineedit.QLineEdit, self.editor_)
-            if self._auto_com_frame.isVisible() and not ed.hasFocus():
+            editor = cast(qlineedit.QLineEdit, self.editor_)
+            if self._auto_com_frame.isVisible() and not editor.hasFocus():
                 if not self._auto_com_popup.hasFocus():
                     cval = str(cur.valueBuffer(self._auto_com_field_name))
-                    val = ed.text
-                    ed.autoSelect = False
-                    ed.setText(cval)
-                    ed.setFocus()
-                    ed.setCursorPosition(len(cval))
-                    ed.cursorBackward(True, len(cval) - len(val))
+                    val = editor.text
+                    editor.autoSelect = False
+                    editor.setText(cval)
+                    editor.setFocus()
+                    editor.setCursorPosition(len(cval))
+                    editor.cursorBackward(True, len(cval) - len(val))
                     # ifdef Q_OS_WIN32
                     # ed->grabKeyboard();
                     # endif
@@ -2654,12 +2654,12 @@ class FLFieldDB(QtWidgets.QWidget):
 
             elif not self._auto_com_frame.isVisible():
                 cval = str(cur.valueBuffer(self._auto_com_field_name))
-                val = ed.text
-                ed.autoSelect = False
-                ed.setText(cval)
-                ed.setFocus()
-                ed.setCursorPosition(len(cval))
-                ed.cursorBackward(True, len(cval) - len(val))
+                val = editor.text
+                editor.autoSelect = False
+                editor.setText(cval)
+                editor.setFocus()
+                editor.setCursorPosition(len(cval))
+                editor.cursorBackward(True, len(cval) - len(val))
 
         if self._auto_com_field_relation is not None and not self._auto_com_frame.isVisible():
             if self.cursor_ is not None and self._field_relation is not None:
@@ -2720,21 +2720,15 @@ class FLFieldDB(QtWidgets.QWidget):
         # if c.size() <= 0:
         #    return
 
-        if cursor.size() <= 0:
-            return
+        if cursor.first():
 
-        cursor.next()
+            cursor.setAction(self._action_name)
 
-        cursor.setAction(self._action_name)
+            mode_access = self.cursor_.modeAccess()
+            if mode_access in [self.cursor_.Insert, self.cursor_.Del]:
+                mode_access = self.cursor_.Edit
 
-        self.modeAccess = self.cursor_.modeAccess()
-        if (
-            self.modeAccess == pnsqlcursor.PNSqlCursor.Insert
-            or self.modeAccess == pnsqlcursor.PNSqlCursor.Del
-        ):
-            self.modeAccess = pnsqlcursor.PNSqlCursor.Edit
-
-        cursor.openFormInMode(self.modeAccess, False)
+            cursor.openFormInMode(mode_access, False)
 
     @decorators.pyqt_slot()
     @decorators.pyqt_slot(int)
