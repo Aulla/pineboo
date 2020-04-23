@@ -92,7 +92,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
     """
     Registra el nivel de anidamiento de transacciones en el que se entra al iniciar el formulario
     """
-    initTransLevel: int
+    _init_translation_level: int
 
     def __init__(
         self,
@@ -239,10 +239,10 @@ class FLFormRecordDB(flformdb.FLFormDB):
         #    self.layout = None
         # Limpiamos la toolbar
 
-        sizePolicy = QtWidgets.QSizePolicy(
+        size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy(0), QtWidgets.QSizePolicy.Policy(0)
         )
-        sizePolicy.setHeightForWidth(True)
+        size_policy.setHeightForWidth(True)
 
         push_button_size = self._icon_size
 
@@ -250,7 +250,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
             pushButtonExport = QtWidgets.QToolButton()
             pushButtonExport.setObjectName("pushButtonExport")
-            pushButtonExport.setSizePolicy(sizePolicy)
+            pushButtonExport.setSizePolicy(size_policy)
             pushButtonExport.setMinimumSize(push_button_size)
             pushButtonExport.setMaximumSize(push_button_size)
             pushButtonExport.setIcon(
@@ -266,7 +266,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if settings.CONFIG.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton()
                 push_button_snapshot.setObjectName("pushButtonSnapshot")
-                push_button_snapshot.setSizePolicy(sizePolicy)
+                push_button_snapshot.setSizePolicy(size_policy)
                 push_button_snapshot.setMinimumSize(push_button_size)
                 push_button_snapshot.setMaximumSize(push_button_size)
                 push_button_snapshot.setIcon(
@@ -292,7 +292,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-goto-first-ltr.png"))
                 )
                 self.pushButtonFirst.clicked.connect(self.firstRecord)
-                self.pushButtonFirst.setSizePolicy(sizePolicy)
+                self.pushButtonFirst.setSizePolicy(size_policy)
                 self.pushButtonFirst.setMaximumSize(push_button_size)
                 self.pushButtonFirst.setMinimumSize(push_button_size)
                 self.pushButtonFirst.setShortcut(Qt.QKeySequence(self.tr("F5")))
@@ -311,7 +311,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-go-back-ltr.png"))
                 )
                 self.pushButtonPrevious.clicked.connect(self.previousRecord)
-                self.pushButtonPrevious.setSizePolicy(sizePolicy)
+                self.pushButtonPrevious.setSizePolicy(size_policy)
                 self.pushButtonPrevious.setMaximumSize(push_button_size)
                 self.pushButtonPrevious.setMinimumSize(push_button_size)
                 self.pushButtonPrevious.setShortcut(Qt.QKeySequence(self.tr("F6")))
@@ -332,7 +332,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-go-back-rtl.png"))
                 )
                 self.pushButtonNext.clicked.connect(self.nextRecord)
-                self.pushButtonNext.setSizePolicy(sizePolicy)
+                self.pushButtonNext.setSizePolicy(size_policy)
                 self.pushButtonNext.setMaximumSize(push_button_size)
                 self.pushButtonNext.setMinimumSize(push_button_size)
                 self.pushButtonNext.setShortcut(Qt.QKeySequence(self.tr("F7")))
@@ -353,7 +353,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-goto-last-ltr.png"))
                 )
                 self.pushButtonLast.clicked.connect(self.lastRecord)
-                self.pushButtonLast.setSizePolicy(sizePolicy)
+                self.pushButtonLast.setSizePolicy(size_policy)
                 self.pushButtonLast.setMaximumSize(push_button_size)
                 self.pushButtonLast.setMinimumSize(push_button_size)
                 self.pushButtonLast.setShortcut(Qt.QKeySequence(self.tr("F8")))
@@ -367,7 +367,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.pushButtonAcceptContinue = QtWidgets.QToolButton()
             self.pushButtonAcceptContinue.setObjectName("pushButtonAcceptContinue")
             self.pushButtonAcceptContinue.clicked.connect(self.acceptContinue)
-            self.pushButtonAcceptContinue.setSizePolicy(sizePolicy)
+            self.pushButtonAcceptContinue.setSizePolicy(size_policy)
             self.pushButtonAcceptContinue.setMaximumSize(push_button_size)
             self.pushButtonAcceptContinue.setMinimumSize(push_button_size)
             self.pushButtonAcceptContinue.setIcon(
@@ -391,7 +391,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonAccept.setObjectName("pushButtonAccept")
                 self.pushButtonAccept.clicked.connect(self.accept)
 
-            self.pushButtonAccept.setSizePolicy(sizePolicy)
+            self.pushButtonAccept.setSizePolicy(size_policy)
             self.pushButtonAccept.setMaximumSize(push_button_size)
             self.pushButtonAccept.setMinimumSize(push_button_size)
             self.pushButtonAccept.setIcon(
@@ -414,7 +414,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
             self.pushButtonCancel.clicked.connect(self.reject)
 
-        self.pushButtonCancel.setSizePolicy(sizePolicy)
+        self.pushButtonCancel.setSizePolicy(size_policy)
         self.pushButtonCancel.setMaximumSize(push_button_size)
         self.pushButtonCancel.setMinimumSize(push_button_size)
         self.pushButtonCancel.setShortcut(Qt.QKeySequence(self.tr("Esc")))
@@ -471,7 +471,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         if self.cursor_:
 
             try:
-                levels = self.cursor_.transactionLevel() - self.initTransLevel
+                levels = self.cursor_.transactionLevel() - self._init_translation_level
                 if levels > 0:
                     self.cursor_.rollbackOpened(
                         levels,
@@ -524,26 +524,26 @@ class FLFormRecordDB(flformdb.FLFormDB):
             return True
 
         if self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Edit and mtd.concurWarn():
-            colFields = self.cursor_.concurrencyFields()
+            col_fields = self.cursor_.concurrencyFields()
 
-            if colFields:
-                pKN = mtd.primaryKey()
-                pKWhere = (
+            if col_fields:
+                pk_name = mtd.primaryKey()
+                pk_where = (
                     self.cursor_.db()
                     .connManager()
                     .manager()
-                    .formatAssignValue(mtd.field(pKN), self.cursor_.valueBuffer(pKN))
+                    .formatAssignValue(mtd.field(pk_name), self.cursor_.valueBuffer(pk_name))
                 )
-                q = pnsqlquery.PNSqlQuery(None, self.cursor_.db().connectionName())
-                q.setTablesList(mtd.name())
-                q.setSelect(colFields)
-                q.setFrom(mtd.name())
-                q.setWhere(pKWhere)
-                q.setForwardOnly(True)
+                qry = pnsqlquery.PNSqlQuery(None, self.cursor_.db().connectionName())
+                qry.setTablesList(mtd.name())
+                qry.setSelect(col_fields)
+                qry.setFrom(mtd.name())
+                qry.setWhere(pk_where)
+                qry.setForwardOnly(True)
 
                 if q.exec_() and q.next():
                     i = 0
-                    for field in colFields:
+                    for field in col_fields:
                         # msg = "El campo '%s' con valor '%s' ha sido modificado\npor otro usuario con el valor '%s'" % (
                         #    mtd.fieldNameToAlias(field), self.cursor_.valueBuffer(field), q.value(i))
                         res = QtWidgets.QMessageBox.warning(
@@ -568,13 +568,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
                             return False
 
                         if res == QtWidgets.QMessageBox.No:
-                            self.cursor_.setValueBuffer(field, q.value(i))
+                            self.cursor_.setValueBuffer(field, qry.value(i))
 
-        if (
-            self.iface
-            and self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Insert
-            or self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Edit
-        ):
+        if self.iface and self.cursor_.modeAccess() in [self.cursor_.Insert, self._cursor.Edit]:
             ret_ = True
             fun_ = getattr(self.iface, "validateForm", self.validateForm)
             if fun_ != self.validateForm:
@@ -843,7 +839,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
             if cur.modeAccess() in (cur.Insert, cur.Edit, cur.Browse):
                 cur.transaction()
-                self.initTransLevel = cur.transactionLevel()
+                self._init_translation_level = cur.transactionLevel()
 
             if cur.modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
                 self._show_accept_continue = True
