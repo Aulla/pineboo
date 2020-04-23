@@ -23,8 +23,8 @@ class TestQT3UIParser(unittest.TestCase):
         file_1 = filedir("./application/parsers/qt3uiparser/tests/fixtures/main_form_qt3.ui")
         widget = mng_modules.createUI(file_1)
         self.assertTrue(widget)
-
-        action = widget.findChild(QtWidgets.QAction, "ebcomportamiento")
+        if widget:
+            action = widget.findChild(QtWidgets.QAction, "ebcomportamiento")
         self.assertTrue(action)
 
     def test_formRecord(self) -> None:
@@ -36,7 +36,8 @@ class TestQT3UIParser(unittest.TestCase):
         file_1 = filedir("./application/parsers/qt3uiparser/tests/fixtures/form_record_qt3.ui")
         widget = mng_modules.createUI(file_1)
         self.assertTrue(widget)
-        bt_01 = widget.findChild(QtWidgets.QWidget, "pb_uno", QtCore.Qt.FindChildrenRecursively)
+        if widget:
+            bt_01 = widget.findChild(QtWidgets.QWidget, "pb_uno", QtCore.Qt.FindChildrenRecursively)
         self.assertTrue(bt_01)
 
     @classmethod

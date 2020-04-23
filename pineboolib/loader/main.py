@@ -17,7 +17,7 @@ from pineboolib.loader.dgi import load_dgi
 from pineboolib.loader.connection import config_dbconn, connect_to_db
 from pineboolib.loader.connection import DEFAULT_SQLITE_CONN, IN_MEMORY_SQLITE_CONN
 from pineboolib import application
-from pineboolib.application.parsers.qsaparser import pytnyzer
+from pineboolib.application.parsers.parser_qsa import pytnyzer
 
 if TYPE_CHECKING:
     from pineboolib.loader import projectconfig  # noqa: F401

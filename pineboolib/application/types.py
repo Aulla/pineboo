@@ -99,9 +99,7 @@ function anon(%s) {
     )
 
     # print("Compilando QS en línea: ", qs_source)
-    from .parsers.qsaparser import flscriptparse
-    from .parsers.qsaparser import postparse
-    from .parsers.qsaparser.pytnyzer import write_python_file
+    from .parsers.parser_qsa import flscriptparse, postparse, pytnyzer
 
     prog = flscriptparse.parse(qs_source)
     if prog is None:
@@ -115,7 +113,7 @@ function anon(%s) {
 
     file_ = open(dest_filename, "w", encoding="UTF-8")
 
-    write_python_file(file_, ast)
+    pytnyzer.write_python_file(file_, ast)
     file_.close()
     module = None
     module_path = "tempdata.anon"

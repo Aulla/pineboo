@@ -12,7 +12,7 @@ from pineboolib import application
 from pineboolib import logging
 from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.utils.check_dependencies import check_dependencies
-from pineboolib.application.parsers.kugarparser import kparsertools
+from . import kparsertools
 from pineboolib.core import settings
 
 

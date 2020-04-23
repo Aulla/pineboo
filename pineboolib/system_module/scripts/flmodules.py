@@ -3,7 +3,7 @@
 from pineboolib import logging
 from pineboolib.qsa import qsa
 
-from pineboolib.application.parsers.qsaparser import postparse
+from pineboolib.application.parsers.parser_qsa import postparse
 import os
 
 from typing import TYPE_CHECKING

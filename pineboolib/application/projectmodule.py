@@ -20,8 +20,8 @@ from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.utils import path, xpm
 from pineboolib.application import module, file, load_script, pnapplication
 
-from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
-from pineboolib.application.parsers import qsaparser
+from pineboolib.application.parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
+from pineboolib.application.parsers import parser_qsa
 
 
 if TYPE_CHECKING:
@@ -395,7 +395,7 @@ class Project(object):
 
         @param scriptname, Nombre del script a convertir
         """
-        from pineboolib.application.parsers.qsaparser import postparse
+        from pineboolib.application.parsers.parser_qsa import postparse
 
         # Intentar convertirlo a Python primero con flscriptparser2
         if not os.path.isfile(scriptname):
@@ -422,7 +422,7 @@ class Project(object):
 
     def parse_script_list(self, path_list: List[str]) -> bool:
         """Convert QS scripts list into Python and stores it in the same folders."""
-        from pineboolib.application.parsers.qsaparser import pytnyzer, pyconvert
+        from pineboolib.application.parsers.parser_qsa import pytnyzer, pyconvert
 
         if not path_list:
             return True
@@ -464,7 +464,7 @@ class Project(object):
 
         pycode_list: List[bool] = []
 
-        if qsaparser.USE_THREADS:
+        if parser_qsa.USE_THREADS:
             with multiprocessing.Pool(threads_num) as thread:
                 # TODO: Add proper signatures to Python files to avoid reparsing
                 pycode_list = thread.map(pyconvert.pythonify_item, itemlist, chunksize=2)

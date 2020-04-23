@@ -870,7 +870,7 @@ def pythonify_string(
 
 def execute(options: Any, args: List[str]) -> None:
     """Execute conversion orders given by options and args. Can be used to emulate program calls."""
-    from pineboolib.application.parsers.qsaparser import pytnyzer
+    from . import pytnyzer
 
     pytnyzer.STRICT_MODE = options.strict
 

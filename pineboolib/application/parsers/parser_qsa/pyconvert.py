@@ -12,8 +12,8 @@ from multiprocessing import Pool
 from typing import List, Tuple, TypeVar, cast, Dict, Optional
 from pineboolib import logging
 from pineboolib.core.utils.struct import ActionStruct
-from pineboolib.application.parsers import qsaparser
-from pineboolib.application.parsers.qsaparser import postparse, pytnyzer
+from pineboolib.application.parsers import parser_qsa
+from . import postparse, pytnyzer
 
 LOGGER = logging.get_logger(__name__)
 
@@ -108,7 +108,7 @@ class PythonifyItem(object):
 
 def pythonify_item(item: PythonifyItem) -> bool:
     """Parse QS into Python. For multiprocessing.map."""
-    if qsaparser.USE_THREADS:
+    if parser_qsa.USE_THREADS:
         LOGGER.info("(%.2f%%) Parsing QS %r", 100 * item.number / item.len, item.src_path)
     try:
         pycode = postparse.pythonify2(item.src_path, known_refs=item.known)
@@ -229,7 +229,7 @@ def main() -> None:
 
     pycode_list: List[bool] = []
 
-    if qsaparser.USE_THREADS:
+    if parser_qsa.USE_THREADS:
         with Pool(CPU_COUNT) as cpu:
             # TODO: Add proper signatures to Python files to avoid reparsing
             pycode_list = cpu.map(pythonify_item, itemlist, chunksize=2)

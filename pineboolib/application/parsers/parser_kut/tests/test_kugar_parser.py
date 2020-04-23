@@ -71,7 +71,7 @@ class TestParser(unittest.TestCase):
 
     def test_parser_tools_1(self) -> None:
         """Test parser tools."""
-        from pineboolib.application.parsers.kugarparser import kparsertools
+        from .. import kparsertools
         from pineboolib.core.utils.utils_base import load2xml
         from pineboolib.application.database import pnsqlquery, pnsqlcursor
         from pineboolib.qsa import qsa
@@ -120,7 +120,7 @@ class TestParser(unittest.TestCase):
 
     def test_parser_tools_2(self) -> None:
         """Test parser tools."""
-        from pineboolib.application.parsers.kugarparser import kparsertools
+        from .. import kparsertools
         from xml.etree import ElementTree as et
         from decimal import Decimal
 

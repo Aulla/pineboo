@@ -12,7 +12,7 @@ from pineboolib.application.staticloader import pnmodulesstaticloader
 from pineboolib.application.database import pnsqlquery, pnsqlcursor
 
 from pineboolib.application.utils import path, xpm, convert_flaction
-from pineboolib.application.parsers.qt3uiparser import qt3ui
+from pineboolib.application.parsers.parser_ui import qt3ui
 
 from pineboolib import application
 from pineboolib.application.utils.path import _path

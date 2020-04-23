@@ -6,7 +6,6 @@ from PyQt5 import QtWidgets, QtCore, QtGui, Qt, QtXml  # type: ignore
 
 from pineboolib import logging
 from pineboolib.plugins.dgi import dgi_schema
-from pineboolib.application.parsers.qt3uiparser import qt3ui
 
 from .dgi_objects.dlg_about import about_pineboo
 
@@ -29,7 +28,6 @@ class DgiQt(dgi_schema.DgiSchema):
         self._name = "qt"
         self._alias = "Qt5"
 
-        self.pnqt3ui = qt3ui
         self.splash = splash_screen.SplashScreen()
         self.progress_dialog_manager = progress_dialog_manager.ProgressDialogManager()
         self.status_help_msg = status_help_msg.StatusHelpMsg()

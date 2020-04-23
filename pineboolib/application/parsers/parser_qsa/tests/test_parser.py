@@ -2,8 +2,8 @@
 Test QS Snippets.
 """
 import unittest
-from pineboolib.application.parsers.qsaparser.postparse import pythonify_string as qs2py
-from pineboolib.application.parsers.qsaparser import pytnyzer
+from ..postparse import pythonify_string as qs2py
+from .. import pytnyzer
 from . import fixture_read, fixture_path
 from pineboolib.loader.main import init_testing, finish_testing
 

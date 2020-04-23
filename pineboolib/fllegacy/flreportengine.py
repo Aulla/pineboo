@@ -27,9 +27,9 @@ class FLReportEngine(QtCore.QObject):
         self.rt = ""
         self.rd: Optional[QtXml.QDomDocument] = None
 
-        from pineboolib.application.parsers.kugarparser.kut2fpdf import Kut2FPDF
+        from pineboolib.application.parsers.parser_kut import kut2fpdf
 
-        self.parser_: Kut2FPDF = Kut2FPDF()
+        self.parser_: "kut2fpdf.Kut2FPDF" = kut2fpdf.Kut2FPDF()
 
     class FLReportEnginePrivate(object):
         """FLReportEnginePrivate."""

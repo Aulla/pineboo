@@ -5,7 +5,7 @@ Tests for known bugs on qsa.
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application import types
-from pineboolib.application.parsers.qsaparser.postparse import pythonify_string as qs2py
+from pineboolib.application.parsers.parser_qsa.postparse import pythonify_string as qs2py
 from pineboolib.qsa import qsa
 
 

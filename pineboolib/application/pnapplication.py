@@ -319,7 +319,7 @@ class PNApplication(QtCore.QObject):
                     mw._p_work_space = None
 
         QtCore.QTimer.singleShot(0, self.reinitP)
-        from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import empty_base
+        from pineboolib.application.parsers.parser_mtd.pnormmodelsfactory import empty_base
 
         empty_base()
 
