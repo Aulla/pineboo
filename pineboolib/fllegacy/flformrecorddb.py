@@ -541,7 +541,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 qry.setWhere(pk_where)
                 qry.setForwardOnly(True)
 
-                if q.exec_() and q.next():
+                if qry.exec_() and qry.next():
                     i = 0
                     for field in col_fields:
                         # msg = "El campo '%s' con valor '%s' ha sido modificado\npor otro usuario con el valor '%s'" % (
