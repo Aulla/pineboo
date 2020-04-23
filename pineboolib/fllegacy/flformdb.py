@@ -161,7 +161,6 @@ class FLFormDB(QtWidgets.QDialog):
     toolButtonClose: Optional[QtWidgets.QToolButton]
 
     _ui_name: str
-    _scriptForm: Union[Any, str]
 
     loop: bool
     _action: "pnaction.PNAction"

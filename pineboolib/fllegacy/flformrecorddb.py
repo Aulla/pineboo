@@ -77,7 +77,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
     """
     Indica si se debe mostrar el botón Aceptar y Continuar
     """
-    showAcceptContinue_: bool
+    _show_accept_continue: bool
 
     """
     Indica que se está intentando aceptar los cambios
@@ -87,7 +87,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
     """
     Modo en el que inicialmente está el cursor
     """
-    initialModeAccess: int
+    _initial_mode_access: int
 
     """
     Registra el nivel de anidamiento de transacciones en el que se entra al iniciar el formulario
@@ -123,7 +123,6 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.setCursor(cursor)
         LOGGER.trace("__init__: load formRecord")
         self._ui_name = action.formRecord()
-        self._scriptForm = action.scriptFormRecord() or "emptyscript"
         self.bottomToolbar = None
         self.pushButtonAccept = None
         self.pushButtonAcceptContinue = None
@@ -133,11 +132,11 @@ class FLFormRecordDB(flformdb.FLFormDB):
         self.pushButtonLast = None
 
         self.accepting = False
-        self.showAcceptContinue_ = True
-        self.initialModeAccess = pnsqlcursor.PNSqlCursor.Browse
+        self._show_accept_continue = True
+        self._initial_mode_access = pnsqlcursor.PNSqlCursor.Browse
 
         if self.cursor_:
-            self.initialModeAccess = self.cursor_.modeAccess()
+            self._initial_mode_access = self.cursor_.modeAccess()
 
         LOGGER.trace("__init__: load form")
         self.load()
@@ -383,7 +382,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             )
             self.pushButtonAcceptContinue.setFocusPolicy(QtCore.Qt.NoFocus)
             self.bottomToolbar.layout().addWidget(self.pushButtonAcceptContinue)
-            if not self.showAcceptContinue_:
+            if not self._show_accept_continue:
                 self.pushButtonAcceptContinue.close()
                 # self.pushButtonAcceptContinue.show()
 
@@ -737,7 +736,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 if self.cursor_.commitBuffer():
                     self.cursor_.setActivatedCheckIntegrity(True)
                     self.cursor_.commit()
-                    self.cursor_.setModeAccess(self.initialModeAccess)
+                    self.cursor_.setModeAccess(self._initial_mode_access)
                     self.accepted_ = False
                     self.cursor_.transaction()
                     self.cursor_.first()
@@ -763,7 +762,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 if self.cursor_.commitBuffer():
                     self.cursor_.setActivatedCheckIntegrity(True)
                     self.cursor_.commit()
-                    self.cursor_.setModeAccess(self.initialModeAccess)
+                    self.cursor_.setModeAccess(self._initial_mode_access)
                     self.accepted_ = False
                     self.cursor_.transaction()
                     self.cursor_.prev()
@@ -789,7 +788,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 if self.cursor_.commitBuffer():
                     self.cursor_.setActivatedCheckIntegrity(True)
                     self.cursor_.commit()
-                    self.cursor_.setModeAccess(self.initialModeAccess)
+                    self.cursor_.setModeAccess(self._initial_mode_access)
                     self.accepted_ = False
                     self.cursor_.transaction()
                     self.cursor_.next()
@@ -811,7 +810,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 if self.cursor_.commitBuffer():
                     self.cursor_.setActivatedCheckIntegrity(True)
                     self.cursor_.commit()
-                    self.cursor_.setModeAccess(self.initialModeAccess)
+                    self.cursor_.setModeAccess(self._initial_mode_access)
                     self.accepted_ = False
                     self.cursor_.transaction()
                     self.cursor_.last()
@@ -847,9 +846,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.initTransLevel = cur.transactionLevel()
 
             if cur.modeAccess() == pnsqlcursor.PNSqlCursor.Insert:
-                self.showAcceptContinue_ = True
+                self._show_accept_continue = True
             else:
-                self.showAcceptContinue_ = False
+                self._show_accept_continue = False
 
             self.loadControls()
 
