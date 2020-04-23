@@ -8,7 +8,6 @@ from PyQt5 import QtCore, QtWidgets
 from pineboolib.core.utils import logging
 from pineboolib.core import decorators, settings
 
-hh
 from . import pnsqlquery, utils
 from pineboolib.application.utils import xpm
 from pineboolib.application import types, qsadictmodules
