@@ -57,7 +57,7 @@
 
 """
 
-from pineboolib.application.parsers.qsaparser import postparse
+from pineboolib.application.parsers.parser_qsa import postparse
 
 if __name__ == "__main__":
     postparse.main()
