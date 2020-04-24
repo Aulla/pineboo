@@ -9,11 +9,11 @@ class FLPixmapView(QtWidgets.QScrollArea):
 
     # frame_ = None
     # scrollView = None
-    autoScaled_: bool
-    path_: str
-    pixmap_: QtGui.QPixmap
-    pixmapView_: QtWidgets.QLabel
-    lay_: QtWidgets.QHBoxLayout
+    _auto_scaled: bool
+    _path: str
+    _pixmap: QtGui.QPixmap
+    _pixmapview: QtWidgets.QLabel
+    _lay: QtWidgets.QHBoxLayout
     # gB_ = None
     _parent: QtWidgets.QWidget
 
@@ -21,16 +21,16 @@ class FLPixmapView(QtWidgets.QScrollArea):
         """Inicialize."""
 
         super(FLPixmapView, self).__init__(parent)
-        self.autoScaled_ = False
-        self.lay_ = QtWidgets.QHBoxLayout(self)
-        self.lay_.setContentsMargins(0, 2, 0, 2)
-        self.pixmap_ = QtGui.QPixmap()
-        self.pixmapView_ = QtWidgets.QLabel(self)
-        self.lay_.addWidget(self.pixmapView_)
-        self.pixmapView_.setAlignment(
+        self._auto_scaled = False
+        self._lay = QtWidgets.QHBoxLayout(self)
+        self._lay.setContentsMargins(0, 2, 0, 2)
+        self._pixmap = QtGui.QPixmap()
+        self._pixmapview = QtWidgets.QLabel(self)
+        self._lay.addWidget(self._pixmapview)
+        self._pixmapview.setAlignment(
             cast(QtCore.Qt.AlignmentFlag, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignCenter)
         )
-        self.pixmapView_.installEventFilter(self)
+        self._pixmapview.installEventFilter(self)
         self.setStyleSheet("QScrollArea { border: 1px solid darkgray; border-radius: 3px; }")
         self._parent = parent
 
@@ -42,59 +42,59 @@ class FLPixmapView(QtWidgets.QScrollArea):
         #    return
 
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
-        self.pixmap_ = pix
-        if self.pixmapView_ is not None:
-            self.pixmapView_.clear()
-            self.pixmapView_.setPixmap(self.pixmap_)
+        self._pixmap = pix
+        if self._pixmapview is not None:
+            self._pixmapview.clear()
+            self._pixmapview.setPixmap(self._pixmap)
         self.repaint()
         QtWidgets.QApplication.restoreOverrideCursor()
 
-    def eventFilter(self, obj: QtCore.QObject, ev: QtCore.QEvent) -> bool:
+    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
         """Event filter process."""
 
-        if isinstance(obj, QtWidgets.QLabel) and isinstance(ev, QtGui.QResizeEvent):
+        if isinstance(obj, QtWidgets.QLabel) and isinstance(event, QtGui.QResizeEvent):
             self.resizeContents()
 
-        return super(FLPixmapView, self).eventFilter(obj, ev)
+        return super().eventFilter(obj, event)
 
     def resizeContents(self) -> None:
         """Resize contents to actual control size."""
 
-        if self.pixmap_ is None or self.pixmap_.isNull():
+        if self._pixmap is None or self._pixmap.isNull():
             return
 
-        new_pix = self.pixmap_
+        new_pix = self._pixmap
         if (
-            self.autoScaled_ is not None
-            and self.pixmap_ is not None
-            and self.pixmapView_ is not None
+            self._auto_scaled is not None
+            and self._pixmap is not None
+            and self._pixmapview is not None
         ):
             if (
-                self.pixmap_.height() > self.pixmapView_.height()
-                or self.pixmap_.width() > self.pixmapView_.width()
+                self._pixmap.height() > self._pixmapview.height()
+                or self._pixmap.width() > self._pixmapview.width()
             ):
-                new_pix = self.pixmap_.scaled(self.pixmapView_.size(), QtCore.Qt.KeepAspectRatio)
+                new_pix = self._pixmap.scaled(self._pixmapview.size(), QtCore.Qt.KeepAspectRatio)
 
             elif (
-                self.pixmap_.height() < self.pixmapView_.pixmap().height()
-                or self.pixmap_.width() < self.pixmapView_.pixmap().width()
+                self._pixmap.height() < self._pixmapview.pixmap().height()
+                or self._pixmap.width() < self._pixmapview.pixmap().width()
             ):
-                new_pix = self.pixmap_.scaled(self.pixmapView_.size(), QtCore.Qt.KeepAspectRatio)
+                new_pix = self._pixmap.scaled(self._pixmapview.size(), QtCore.Qt.KeepAspectRatio)
 
-        if self.pixmapView_ is not None:
-            self.pixmapView_.clear()
-            self.pixmapView_.setPixmap(new_pix)
+        if self._pixmapview is not None:
+            self._pixmapview.clear()
+            self._pixmapview.setPixmap(new_pix)
 
     def previewUrl(self, url: str) -> None:
         """Set image from url."""
 
-        u = QtCore.QUrl(url)
-        if u.isLocalFile():
-            path = u.path()
+        qurl = QtCore.QUrl(url)
+        if qurl.isLocalFile():
+            path = qurl.path()
 
-        if not path == self.path_:
-            self.path_ = path
-            img = QtGui.QImage(self.path_)
+        if not path == self._path:
+            self._path = path
+            img = QtGui.QImage(self._path)
 
             if img is None:
                 return
@@ -110,15 +110,15 @@ class FLPixmapView(QtWidgets.QScrollArea):
     def clear(self) -> None:
         """Clear image into object."""
 
-        if self.pixmapView_ is not None:
-            self.pixmapView_.clear()
+        if self._pixmapview is not None:
+            self._pixmapview.clear()
 
     def pixmap(self) -> QtGui.QPixmap:
         """Return pixmap stored."""
 
-        return self.pixmap_
+        return self._pixmap
 
-    def setAutoScaled(self, autoScaled: bool) -> None:
+    def setAutoScaled(self, auto_scaled: bool) -> None:
         """Set auto sclate to the control."""
 
-        self.autoScaled_ = autoScaled
+        self._auto_scaled = auto_scaled

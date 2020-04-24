@@ -70,12 +70,12 @@ class FLNetwork(QtCore.QObject):
         cast(QtCore.pyqtSignal, self.reply.uploadProgress).connect(self._slotNetworkProgress)
 
     @decorators.beta_implementation
-    def copy(self, fromLocation: str, toLocation: str) -> None:
+    def copy(self, from_location: str, to_location: str) -> None:
         """Copy data from a location to another."""
 
-        self.request.setUrl(QtCore.QUrl("%s%s" % (self.url, fromLocation)))
+        self.request.setUrl(QtCore.QUrl("%s%s" % (self.url, from_location)))
         data = self.manager.get(self.request)
-        self.put(data.readAll(), toLocation)
+        self.put(data.readAll(), to_location)
 
     @decorators.pyqt_slot()
     def _slotNetworkStart(self) -> None:
@@ -94,12 +94,12 @@ class FLNetwork(QtCore.QObject):
     #    buffer = b
     #    self.data.emit(b)
 
-    def _slotNetworkProgress(self, bDone: int, bTotal: int) -> None:
+    def _slotNetworkProgress(self, bytes_done: int, bytes_total: int) -> None:
         """Process data received."""
 
         if self.reply is None:
             raise Exception("No reply in progress")
-        self.dataTransferProgress.emit(bDone, bTotal)
+        self.dataTransferProgress.emit(bytes_done, bytes_total)
         data_ = None
         reply_ = self.reply.readAll().data()
         try:

@@ -12,24 +12,24 @@ P69_5MM = 69
 class FLPosPrinter(object):
     """FLPosPrinter Class."""
 
-    printerName_: str
-    strBuffer: List[str]
-    escBuffer: List[str]
-    idxBuffer: List[str]
-    PaperWidth: List[int]
-    paperWidth_: int
+    _printer_name: str
+    _str_buffer: List[str]
+    _esc_buffer: List[str]
+    _idx_buffer: List[str]
+    _papers_width: List[int]
+    _paper_width: int
     server_: str
     queueName_: str
 
     def __init__(self) -> None:
         """Inicialize."""
 
-        self.strBuffer = []
-        self.escBuffer = []
-        self.idxBuffer = []
+        self._str_buffer = []
+        self._esc_buffer = []
+        self._idx_buffer = []
 
-        self.PaperWidth = [P57_5MM, P69_5MM, P76MM]
-        self.paperWidth_ = P76MM
+        self._papers_width = [P57_5MM, P69_5MM, P76MM]
+        self._paper_width = P76MM
 
     def __del__(self) -> None:
         """Destroyer."""
@@ -39,25 +39,25 @@ class FLPosPrinter(object):
     def paperWidths(self) -> List[int]:
         """Return page widths."""
 
-        return self.PaperWidth
+        return self._papers_width
 
     def paperWidth(self) -> int:
         """Return the current page width."""
 
-        return self.paperWidth_
+        return self._paper_width
 
-    def setPaperWidth(self, pW: int) -> None:
+    def setPaperWidth(self, paper_width: int) -> None:
         """Set the paper width."""
 
-        self.paperWidth_ = pW
+        self._paper_width = paper_width
 
     def printerName(self) -> str:
         """Return the name of the printer."""
 
-        return self.printerName_
+        return self._printer_name
 
     @decorators.not_implemented_warn
-    def metric(self, m: Any):
+    def metric(self, metric: Any):
         """Not implemented."""
 
         pass
@@ -65,19 +65,19 @@ class FLPosPrinter(object):
     def setPrinterName(self, name: str) -> None:
         """Set the name of the printer."""
 
-        self.printerName_ = name
+        self._printer_name = name
 
     @decorators.beta_implementation
     def cleanup(self) -> None:
         """Clean buffer values."""
 
-        if self.strBuffer:
-            self.strBuffer = []
+        if self._str_buffer:
+            self._str_buffer = []
 
-        if self.idxBuffer:
-            self.idxBuffer = []
+        if self._idx_buffer:
+            self._idx_buffer = []
 
-        self.idxBuffer = []
+        self._idx_buffer = []
 
     @decorators.not_implemented_warn
     def flush(self):
@@ -90,17 +90,17 @@ class FLPosPrinter(object):
         pass
 
     @decorators.not_implemented_warn
-    def sendStr(self, c: str, col: int, row: int):
+    def sendStr(self, text_: str, col: int, row: int):
         """Not implemented."""
         pass
 
     @decorators.not_implemented_warn
-    def sendEsc(self, e: str, col: int, row: int):
+    def sendEsc(self, esc_: str, col: int, row: int):
         """Not implemented."""
         pass
 
     @decorators.not_implemented_warn
-    def cmd(self, c: str, paint: Any, p: Any):
+    def cmd(self, command_: str, paint: Any, params: List[Any]):
         """Not implemented."""
         pass
 
@@ -109,11 +109,11 @@ class FLPosPrinter(object):
         """Return the number of columns from the paper width."""
 
         ret = -1
-        if self.paperWidth_ is P76MM:
+        if self._paper_width is P76MM:
             ret = 80
-        elif self.paperWidth_ is P69_5MM:
+        elif self._paper_width is P69_5MM:
             ret = 65
-        elif self.paperWidth_ is P57_5MM:
+        elif self._paper_width is P57_5MM:
             ret = 55
         return ret
 
@@ -124,26 +124,26 @@ class FLPosPrinter(object):
 
     @decorators.beta_implementation
     def initStrBuffer(self) -> None:
-        """Initialize the strBuffer buffer."""
+        """Initialize the _str_buffer buffer."""
 
-        if not self.strBuffer:
-            self.strBuffer = []
+        if not self._str_buffer:
+            self._str_buffer = []
         else:
-            self.strBuffer.clear()
+            self._str_buffer.clear()
 
     @decorators.beta_implementation
     def initEscBuffer(self) -> None:
-        """Initialize the escBuffer buffer."""
-        if not self.escBuffer:
-            self.escBuffer = []
+        """Initialize the _esc_buffer buffer."""
+        if not self._esc_buffer:
+            self._esc_buffer = []
         else:
-            self.escBuffer.clear()
+            self._esc_buffer.clear()
 
     @decorators.beta_implementation
     def parsePrinterName(self) -> None:
         """Resolve values ​​from the printer name."""
 
-        posdots = self.printerName_.find(":")
-        self.server_ = self.printerName_[:posdots]
-        self.queueName_ = self.printerName_[posdots:]
+        posdots = self._printer_name.find(":")
+        self.server_ = self._printer_name[:posdots]
+        self.queueName_ = self._printer_name[posdots:]
         print("FLPosPrinter:parsePinterName", self.server_, self.queueName_)
