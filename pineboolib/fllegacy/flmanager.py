@@ -364,7 +364,7 @@ class FLManager(QtCore.QObject, IManager):
         return table_metadata
 
     @decorators.not_implemented_warn
-    def metadataDev(self, n: str, quick: bool = False) -> bool:
+    def metadataDev(self, table_name: str, quick: bool = False) -> bool:
         """Return metadata (deprecated)."""
         return True
 
@@ -385,8 +385,7 @@ class FLManager(QtCore.QObject, IManager):
         if self.db_ is None:
             raise Exception("query. self.db_ is empty!")
 
-        qryName = "%s.qry" % name
-        qry_ = self.db_.connManager().managerModules().contentCached(qryName)
+        qry_ = self.db_.connManager().managerModules().contentCached("%s.qry" % name)
 
         if not qry_:
             return None
@@ -658,7 +657,7 @@ class FLManager(QtCore.QObject, IManager):
         logical also accepts the values ​​Yes and No (or its translation into the corresponding language).
         The dates are adapted to the YYYY-MM-DD form, which is the format recognized by PostgreSQL.
 
-        @param fMD PNFieldMetaData object that describes the metadata for the field
+        @param field_metadata PNFieldMetaData object that describes the metadata for the field
         @param v Value to be formatted for the indicated field
         @param upper If TRUE converts the value to uppercase (if it is a string type)
         """
@@ -723,19 +722,19 @@ class FLManager(QtCore.QObject, IManager):
 
         return "%s %s" % (field_name_, format_value_)
 
-    def formatValue(self, fMD_or_type: str, v: Any, upper: bool = False) -> str:
+    def formatValue(self, field_metadata_or_type: str, v: Any, upper: bool = False) -> str:
         """Return format value."""
 
         if not self.db_:
             raise Exception("formatValue. self.db_ is empty!")
 
-        if not fMD_or_type:
-            raise ValueError("fMD_or_type is required")
+        if not field_metadata_or_type:
+            raise ValueError("field_metadata_or_type is required")
 
-        if not isinstance(fMD_or_type, str):
-            fMD_or_type = fMD_or_type.type()
+        if not isinstance(field_metadata_or_type, str):
+            field_metadata_or_type = field_metadata_or_type.type()
 
-        return str(self.db_.formatValue(fMD_or_type, v, upper))
+        return str(self.db_.formatValue(field_metadata_or_type, v, upper))
 
     def formatAssignValue(self, *args, **kwargs) -> str:
         """Return format assign value."""
@@ -754,22 +753,22 @@ class FLManager(QtCore.QObject, IManager):
         # print("tipo 2", type(args[2]))]
 
         if isinstance(args[0], pnfieldmetadata.PNFieldMetaData) and len(args) == 3:
-            fMD = args[0]
-            mtd = fMD.metadata()
+            field_metadata = args[0]
+            mtd = field_metadata.metadata()
             if mtd is None:
-                field_name_ = fMD.name()
-                field_type_ = fMD.type()
+                field_name_ = field_metadata.name()
+                field_type_ = field_metadata.type()
                 value_ = args[1]
                 upper_ = args[2]
 
-            elif fMD.isPrimaryKey():
+            elif field_metadata.isPrimaryKey():
                 field_name_ = mtd.primaryKey(True)
-                field_type_ = fMD.type()
+                field_type_ = field_metadata.type()
                 value_ = args[1]
                 upper_ = args[2]
             else:
 
-                field_name_ = fMD.name()
+                field_name_ = field_metadata.name()
                 if mtd.isQuery() and "." not in field_name_:
                     prefix_table_ = mtd.name()
                     qry = self.query(mtd.query())
@@ -1163,45 +1162,45 @@ class FLManager(QtCore.QObject, IManager):
             LOGGER.warning(
                 "QtXml.QDomElement is deprecated for declare metadata relation. Please use xml.etree.ElementTree.ElementTree instead"
             )
-            no = relation.firstChild()
+            node = relation.firstChild()
 
-            while not no.isNull():
-                e = no.toElement()
-                if not e.isNull():
+            while not node.isNull():
+                elem = node.toElement()
+                if not elem.isNull():
 
-                    if e.tagName() == "table":
-                        foreign_table = e.text()
-                        no = no.nextSibling()
+                    if elem.tagName() == "table":
+                        foreign_table = elem.text()
+                        node = node.nextSibling()
                         continue
 
-                    elif e.tagName() == "field":
-                        foreign_field = e.text()
-                        no = no.nextSibling()
+                    elif elem.tagName() == "field":
+                        foreign_field = elem.text()
+                        node = node.nextSibling()
                         continue
 
-                    elif e.tagName() == "card":
-                        if e.text() == "1M":
+                    elif elem.tagName() == "card":
+                        if elem.text() == "1M":
                             relation_card = pnrelationmetadata.PNRelationMetaData.RELATION_1M
 
-                        no = no.nextSibling()
+                        node = node.nextSibling()
                         continue
 
-                    elif e.tagName() == "delC":
-                        delete_cascade = e.text() == "true"
-                        no = no.nextSibling()
+                    elif elem.tagName() == "delC":
+                        delete_cascade = elem.text() == "true"
+                        node = node.nextSibling()
                         continue
 
-                    elif e.tagName() == "updC":
-                        update_cascade = e.text() == "true"
-                        no = no.nextSibling()
+                    elif elem.tagName() == "updC":
+                        update_cascade = elem.text() == "true"
+                        node = node.nextSibling()
                         continue
 
-                    elif e.tagName() == "checkIn":
-                        check_integrity = e.text() == "true"
-                        no = no.nextSibling()
+                    elif elem.tagName() == "checkIn":
+                        check_integrity = elem.text() == "true"
+                        node = node.nextSibling()
                         continue
 
-                no = no.nextSibling()
+                node = node.nextSibling()
 
         elif isinstance(relation, dict):
             for key in relation.keys():
@@ -1343,19 +1342,19 @@ class FLManager(QtCore.QObject, IManager):
         self.db_.connManager().managerModules().loadAllIdModules()
         self.db_.connManager().managerModules().loadIdAreas()
 
-        q = pnsqlquery.PNSqlQuery(None, "dbAux")
-        q.exec_("SELECT tabla,xml FROM flmetadata")
-        while q.next():
-            self.dict_key_metadata_[str(q.value(0))] = str(q.value(1))
+        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry.exec_("SELECT tabla,xml FROM flmetadata")
+        while qry.next():
+            self.dict_key_metadata_[str(qry.value(0))] = str(qry.value(1))
 
-        c = pnsqlcursor.PNSqlCursor("flmetadata", True, "dbAux")
+        cursor = pnsqlcursor.PNSqlCursor("flmetadata", True, "dbAux")
 
-        q2 = pnsqlquery.PNSqlQuery(None, "dbAux")
-        q2.exec_(
+        qry2 = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry2.exec_(
             "SELECT nombre,sha FROM flfiles WHERE nombre LIKE '%.mtd' and nombre not like '%%alteredtable%'"
         )
-        while q2.next():
-            table = str(q2.value(0))
+        while qry2.next():
+            table = str(qry2.value(0))
             table = table.replace(".mtd", "")
             tmd = self.metadata(table)
             if not self.existsTable(table):
@@ -1370,12 +1369,12 @@ class FLManager(QtCore.QObject, IManager):
                 )
                 continue
 
-            c.select("tabla = '%s'" % table)
-            if c.next():
-                buffer = c.prime_update()
-                buffer.set_value("xml", q2.value(1))
-                c.update()
-            self.dict_key_metadata_[table] = q2.value(1)
+            cursor.select("tabla = '%s'" % table)
+            if cursor.next():
+                buffer = cursor.prime_update()
+                buffer.set_value("xml", qry2.value(1))
+                cursor.update()
+            self.dict_key_metadata_[table] = qry2.value(1)
 
     def isSystemTable(self, table_name: str) -> bool:
         """
@@ -1409,7 +1408,7 @@ class FLManager(QtCore.QObject, IManager):
         )
 
     def storeLargeValue(
-        self, mtd: "pntablemetadata.PNTableMetaData", largeValue: str
+        self, mtd: "pntablemetadata.PNTableMetaData", large_value: str
     ) -> Optional[str]:
         """
         Store large field values ​​in separate indexed tables by SHA keys of the value content.
@@ -1424,24 +1423,24 @@ class FLManager(QtCore.QObject, IManager):
 
 
         @param mtd Metadata of the table containing the field
-        @param largeValue Large field value
+        @param large_value Large field value
         @return Value reference key
         """
         if not self.db_:
             raise Exception("storeLareValue. self.db_ is empty!")
 
-        if largeValue[0:3] == "RK@":
+        if large_value[0:3] == "RK@":
             return None
 
-        tableName = mtd.name()
+        table_name = mtd.name()
 
-        tableLarge = "fllarge"
+        table_large = "fllarge"
 
         if not application.PROJECT.aq_app.singleFLLarge():
-            tableLarge = "fllarge_%s" % tableName
+            table_large = "fllarge_%s" % table_name
 
-            if not self.existsTable(tableLarge):
-                mtdLarge = pntablemetadata.PNTableMetaData(tableLarge, tableLarge)
+            if not self.existsTable(table_large):
+                mtd_large = pntablemetadata.PNTableMetaData(table_large, table_large)
                 field_refkey = pnfieldmetadata.PNFieldMetaData(
                     "refkey", "refkey", False, True, "string", 100
                 )
@@ -1452,49 +1451,51 @@ class FLManager(QtCore.QObject, IManager):
                     "contenido", "contenido", True, False, "stringlist"
                 )
 
-                mtdLarge.addFieldMD(field_refkey)
-                mtdLarge.addFieldMD(field_sha)
-                mtdLarge.addFieldMD(field_contenido)
+                mtd_large.addFieldMD(field_refkey)
+                mtd_large.addFieldMD(field_sha)
+                mtd_large.addFieldMD(field_contenido)
 
-                if not self.createTable(mtdLarge):
+                if not self.createTable(mtd_large):
                     return None
 
         util = flutil.FLUtil()
-        sha = str(util.sha1(largeValue))
-        refKey = "RK@%s@%s" % (tableName, sha)
-        q = pnsqlquery.PNSqlQuery(None, "dbAux")
-        q.setSelect("refkey")
-        q.setFrom(tableLarge)
-        q.setWhere(" refkey = '%s'" % refKey)
-        if q.exec_() and q.first():
-            if q.value(0) != sha:
+        sha = str(util.sha1(large_value))
+        ref_key = "RK@%s@%s" % (table_name, sha)
+        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry.setSelect("refkey")
+        qry.setFrom(table_large)
+        qry.setWhere(" refkey = '%s'" % ref_key)
+        if qry.exec_() and qry.first():
+            if qry.value(0) != sha:
                 sql = "UPDATE %s SET contenido = '%s' WHERE refkey ='%s'" % (
-                    tableLarge,
-                    largeValue,
-                    refKey,
+                    table_large,
+                    large_value,
+                    ref_key,
                 )
                 if not util.execSql(sql, "dbAux"):
                     LOGGER.warning(
-                        "FLManager::ERROR:StoreLargeValue.Update %s.%s", tableLarge, refKey
+                        "FLManager::ERROR:StoreLargeValue.Update %s.%s", table_large, ref_key
                     )
                     return None
         else:
             sql = "INSERT INTO %s (contenido,refkey) VALUES ('%s','%s')" % (
-                tableLarge,
-                largeValue,
-                refKey,
+                table_large,
+                large_value,
+                ref_key,
             )
             if not util.execSql(sql, "dbAux"):
-                LOGGER.warning("FLManager::ERROR:StoreLargeValue.Insert %s.%s", tableLarge, refKey)
+                LOGGER.warning(
+                    "FLManager::ERROR:StoreLargeValue.Insert %s.%s", table_large, ref_key
+                )
                 return None
 
-        return refKey
+        return ref_key
 
     def fetchLargeValue(self, ref_key: Optional[str]) -> Optional[str]:
         """
         Return the large value according to its reference key.
 
-        @param refKey Reference key. This key is usually obtained through FLManager :: storeLargeValue
+        @param ref_key Reference key. This key is usually obtained through FLManager :: storeLargeValue
         @return Large value stored
         """
         if ref_key and ref_key[0:3] == "RK@":
@@ -1506,12 +1507,12 @@ class FLManager(QtCore.QObject, IManager):
             )
 
             if self.existsTable(table_name):
-                q = pnsqlquery.PNSqlQuery(None, "dbAux")
-                q.setSelect("contenido")
-                q.setFrom(table_name)
-                q.setWhere("refkey = '%s'" % ref_key)
-                if q.exec_() and q.first():
-                    return xpm.cache_xpm(q.value(0))
+                qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+                qry.setSelect("contenido")
+                qry.setFrom(table_name)
+                qry.setWhere("refkey = '%s'" % ref_key)
+                if qry.exec_() and qry.first():
+                    return xpm.cache_xpm(qry.value(0))
 
         return None
 

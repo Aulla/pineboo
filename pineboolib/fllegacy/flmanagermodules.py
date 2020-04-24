@@ -7,7 +7,7 @@ from pineboolib.core import decorators
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings
 
-from pineboolib.application.metadata import pnaction
+from pineboolib.application.metadata import pnaction, pninfomod
 from pineboolib.application.staticloader import pnmodulesstaticloader
 from pineboolib.application.database import pnsqlquery, pnsqlcursor
 
@@ -58,17 +58,6 @@ de AbanQ.
 LOGGER = logging.get_logger(__name__)
 
 
-class FLInfoMod(object):
-    """FLInfoMod class."""
-
-    idModulo: str
-    idArea: str
-    descripcion: str
-    version: str
-    icono: str
-    areaDescripcion: str
-
-
 class FLManagerModules(object):
     """FLManagerModules class."""
 
@@ -106,7 +95,7 @@ class FLManagerModules(object):
     """
     Diccionario con información de los módulos
     """
-    dict_info_mods_: Dict[str, FLInfoMod]
+    dict_info_mods_: Dict[str, "pninfomod.PNInfoMod"]
 
     """
     Diccionario de identificadores de modulo de ficheros, para optimizar lecturas
@@ -126,7 +115,7 @@ class FLManagerModules(object):
     reports_dir_: str
     queries_dir_: str
     trans_dir_: str
-    filesCached_: Dict[str, str]
+    _files_cached: Dict[str, str]
 
     def __init__(self, db: "iconnection.IConnection") -> None:
         """Inicialize."""
@@ -140,7 +129,7 @@ class FLManagerModules(object):
         self.active_id_module_ = ""
         self.active_id_area_ = ""
         self.sha_local_ = ""
-        self.filesCached_ = {}
+        self._files_cached = {}
         self.dict_key_files_ = {}
         self.list_all_id_modules_ = []
         self.list_id_areas_ = []
@@ -176,8 +165,8 @@ class FLManagerModules(object):
         del self.dict_key_files_
         self.dict_key_files_ = {}
 
-        del self.filesCached_
-        self.filesCached_ = {}
+        del self._files_cached
+        self._files_cached = {}
 
     def content(self, file_name: str) -> str:
         """
@@ -270,8 +259,8 @@ class FLManagerModules(object):
             if str_ret:
                 return str_ret
 
-        if file_name in self.filesCached_.keys():
-            return self.filesCached_[file_name]
+        if file_name in self._files_cached.keys():
+            return self._files_cached[file_name]
 
         path_file = _path(file_name, False) or ""
         data = ""
@@ -288,7 +277,7 @@ class FLManagerModules(object):
             data = self.content(file_name)
 
         if data:
-            self.filesCached_[file_name] = data
+            self._files_cached[file_name] = data
         return data
 
     def setContent(self, file_name: str, id_module: str, content: str) -> None:
@@ -370,9 +359,9 @@ class FLManagerModules(object):
 
         root_ = tree.getroot()
 
-        UIVersion = root_.get("version")
-        if UIVersion is None:
-            UIVersion = "1.0"
+        ui_version = root_.get("version")
+        if ui_version is None:
+            ui_version = "1.0"
         if parent is None:
 
             wid = root_.find("widget")
@@ -382,7 +371,7 @@ class FLManagerModules(object):
             if xclass is None:
                 raise Exception("class was expected")
 
-            if UIVersion < "4.0":
+            if ui_version < "4.0":
                 if xclass == "QMainWindow":
                     parent = qmainwindow.QMainWindow()
                 elif xclass in ["QDialog", "QWidget"]:
@@ -396,16 +385,16 @@ class FLManagerModules(object):
             if parent is None:
                 raise Exception("xclass not found %s" % xclass)
 
-        LOGGER.info("Procesando %s (v%s)", file_name, UIVersion)
-        if UIVersion < "4.0":
+        LOGGER.info("Procesando %s (v%s)", file_name, ui_version)
+        if ui_version < "4.0":
             qt3ui.load_ui(form_path, parent)
         else:
             from PyQt5 import uic  # type: ignore
 
-            qtWidgetPlugings = utils_base.filedir("plugins/custom_widgets")
-            if qtWidgetPlugings not in uic.widgetPluginPath:
-                LOGGER.info("Añadiendo path %s a uic.widgetPluginPath", qtWidgetPlugings)
-                uic.widgetPluginPath.append(qtWidgetPlugings)
+            qt_widgets_path = utils_base.filedir("plugins/custom_widgets")
+            if qt_widgets_path not in uic.widgetPluginPath:
+                LOGGER.info("Añadiendo path %s a uic.widgetPluginPath", qt_widgets_path)
+                uic.widgetPluginPath.append(qt_widgets_path)
             uic.loadUi(form_path, parent)
 
         return parent
@@ -485,8 +474,8 @@ class FLManagerModules(object):
             return
 
         if id_module.upper() in self.dict_info_mods_.keys():
-            im = self.dict_info_mods_[id_module.upper()]
-            self.active_id_area_ = im.idArea
+            info_module = self.dict_info_mods_[id_module.upper()]
+            self.active_id_area_ = info_module.id_area
             self.active_id_module_ = id_module
 
     def activeIdArea(self) -> str:
@@ -520,11 +509,11 @@ class FLManagerModules(object):
         if not self.conn_.connManager().dbAux():
             return ret
 
-        q = pnsqlquery.PNSqlQuery(None, "dbAux")
-        q.setForwardOnly(True)
-        q.exec_("SELECT idarea FROM flareas WHERE idarea <> 'sys'")
-        while q.next():
-            ret.append(str(q.value(0)))
+        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry.setForwardOnly(True)
+        qry.exec_("SELECT idarea FROM flareas WHERE idarea <> 'sys'")
+        while qry.next():
+            ret.append(str(qry.value(0)))
 
         ret.append("sys")
 
@@ -540,8 +529,8 @@ class FLManagerModules(object):
 
         list_: List[str] = []
         for mod in self.dict_info_mods_.keys():
-            if self.dict_info_mods_[mod].idArea == id_area:
-                list_.append(self.dict_info_mods_[mod].idModulo)
+            if self.dict_info_mods_[mod].id_area == id_area:
+                list_.append(self.dict_info_mods_[mod].id_modulo)
 
         return list_
 
@@ -560,11 +549,11 @@ class FLManagerModules(object):
             return ret
 
         ret.append("sys")
-        q = pnsqlquery.PNSqlQuery(None, "dbAux")
-        q.setForwardOnly(True)
-        q.exec_("SELECT idmodulo FROM flmodules WHERE idmodulo <> 'sys'")
-        while q.next():
-            ret.append(str(q.value(0)))
+        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry.setForwardOnly(True)
+        qry.exec_("SELECT idmodulo FROM flmodules WHERE idmodulo <> 'sys'")
+        while qry.next():
+            ret.append(str(qry.value(0)))
 
         return ret
 
@@ -579,9 +568,9 @@ class FLManagerModules(object):
         if id_area is None:
             return ""
 
-        for areaObj in self.dict_info_mods_.values():
-            if areaObj.idArea and areaObj.idArea.upper() == id_area.upper():
-                return areaObj.areaDescripcion
+        for info_area in self.dict_info_mods_.values():
+            if info_area.id_area and info_area.id_area.upper() == id_area.upper():
+                return info_area.area_descripcion
 
         return ""
 
@@ -653,14 +642,14 @@ class FLManagerModules(object):
         if not self.conn_.connManager().dbAux():
             return ""
 
-        q = pnsqlquery.PNSqlQuery(None, "dbAux")
-        q.setForwardOnly(True)
-        q.exec_("SELECT sha FROM flserial")
-        if q.lastError is None:
+        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+        qry.setForwardOnly(True)
+        qry.exec_("SELECT sha FROM flserial")
+        if qry.lastError is None:
             return "error"
 
-        if q.next():
-            return str(q.value(0))
+        if qry.next():
+            return str(qry.value(0))
         else:
             return ""
 
@@ -682,16 +671,16 @@ class FLManagerModules(object):
         if not file_name[:3] == "sys" and not self.conn_.connManager().manager().isSystemTable(
             file_name
         ):
-            formatVal = (
+            format_value = (
                 self.conn_.connManager()
                 .manager()
                 .formatAssignValue("nombre", "string", file_name, True)
             )
-            q = pnsqlquery.PNSqlQuery(None, "dbAux")
+            qry = pnsqlquery.PNSqlQuery(None, "dbAux")
             # q.setForwardOnly(True)
-            q.exec_("SELECT sha FROM flfiles WHERE %s" % formatVal)
-            if q.next():
-                return str(q.value(0))
+            qry.exec_("SELECT sha FROM flfiles WHERE %s" % format_value)
+            if qry.next():
+                return str(qry.value(0))
 
         return ""
 
@@ -702,14 +691,14 @@ class FLManagerModules(object):
 
         self.dict_key_files_ = {}
         self.dict_module_files_ = {}
-        q = pnsqlquery.PNSqlQuery(None, "dbAux")
-        # q.setForwardOnly(True)
-        q.exec_("SELECT nombre, sha, idmodulo FROM flfiles")
-        name = None
-        while q.next():
-            name = str(q.value(0))
-            self.dict_key_files_[name] = str(q.value(1))
-            self.dict_module_files_[name.upper()] = str(q.value(2))
+        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+        # qry.setForwardOnly(True)
+        qry.exec_("SELECT nombre, sha, idmodulo FROM flfiles")
+
+        while qry.next():
+            name = str(qry.value(0))
+            self.dict_key_files_[name] = str(qry.value(1))
+            self.dict_module_files_[name.upper()] = str(qry.value(2))
 
     def loadAllIdModules(self) -> None:
         """
@@ -719,16 +708,16 @@ class FLManagerModules(object):
         self.list_all_id_modules_ = list(application.PROJECT.modules.keys())
         self.dict_info_mods_ = {}
         for id_module in self.list_all_id_modules_:
-            info_module_ = FLInfoMod()
-            info_module_.idModulo = id_module
-            info_module_.idArea = application.PROJECT.modules[id_module].areaid
+            info_module_ = pninfomod.PNInfoMod()
+            info_module_.id_modulo = id_module
+            info_module_.id_area = application.PROJECT.modules[id_module].areaid
             info_module_.descripcion = application.PROJECT.modules[id_module].description
             info_module_.version = ""
             info_module_.icono = application.PROJECT.modules[id_module].icon
-            info_module_.areaDescripcion = application.PROJECT.areas[
+            info_module_.area_descripcion = application.PROJECT.areas[
                 application.PROJECT.modules[id_module].areaid
             ].descripcion
-            self.dict_info_mods_[info_module_.idModulo.upper()] = info_module_
+            self.dict_info_mods_[info_module_.id_modulo.upper()] = info_module_
 
     def loadIdAreas(self) -> None:
         """
@@ -769,10 +758,10 @@ class FLManagerModules(object):
         Save the status of the module system.
         """
 
-        idDB = "noDB"
+        id_db = "noDB"
         db_aux = self.conn_.connManager().dbAux()
         if db_aux:
-            idDB = "%s%s%s%s%s" % (
+            id_db = "%s%s%s%s%s" % (
                 db_aux.database(),
                 db_aux.host(),
                 db_aux.user(),
@@ -789,9 +778,9 @@ class FLManagerModules(object):
         if self.sha_local_ is None:
             raise ValueError("sha_local_ is empty!")
 
-        settings.SETTINGS.setValue("Modules/activeIdModule/%s" % idDB, self.active_id_module_)
-        settings.SETTINGS.setValue("Modules/activeIdArea/%s" % idDB, self.active_id_area_)
-        settings.SETTINGS.setValue("Modules/shaLocal/%s" % idDB, self.sha_local_)
+        settings.SETTINGS.setValue("Modules/activeIdModule/%s" % id_db, self.active_id_module_)
+        settings.SETTINGS.setValue("Modules/activeIdArea/%s" % id_db, self.active_id_area_)
+        settings.SETTINGS.setValue("Modules/shaLocal/%s" % id_db, self.sha_local_)
 
     def readState(self) -> None:
         """
@@ -800,7 +789,7 @@ class FLManagerModules(object):
         db_aux = self.conn_.connManager().dbAux()
 
         if db_aux:
-            idDB = "%s%s%s%s%s" % (
+            id_db = "%s%s%s%s%s" % (
                 db_aux.database(),
                 db_aux.host(),
                 db_aux.user(),
@@ -809,10 +798,10 @@ class FLManagerModules(object):
             )
 
             self.active_id_module_ = settings.SETTINGS.value(
-                "Modules/activeIdModule/%s" % idDB, None
+                "Modules/activeIdModule/%s" % id_db, None
             )
-            self.active_id_area_ = settings.SETTINGS.value("Modules/activeIdArea/%s" % idDB, None)
-            self.sha_local_ = settings.SETTINGS.value("Modules/shaLocal/%s" % idDB, None)
+            self.active_id_area_ = settings.SETTINGS.value("Modules/activeIdArea/%s" % id_db, None)
+            self.sha_local_ = settings.SETTINGS.value("Modules/shaLocal/%s" % id_db, None)
 
             if (
                 self.active_id_module_ is None
@@ -833,13 +822,13 @@ class FLManagerModules(object):
         )
         if str_ret:
             mng = application.PROJECT.conn_manager.manager()
-            s = ""
+            text_ = ""
             util = flutil.FLUtil()
             sha = util.sha1(str_ret)
             if file_name in self.dict_key_files_.keys():
-                s = self.dict_key_files_[file_name]
+                text_ = self.dict_key_files_[file_name]
 
-            if s == sha:
+            if text_ == sha:
                 return ""
 
             elif self.dict_key_files_ and file_name.find(".qs") > -1:
@@ -862,8 +851,8 @@ class FLManagerModules(object):
         """
         Display dialog box to configure static load from local disk.
         """
-        ui = cast(
+        ui_ = cast(
             QtWidgets.QDialog,
             self.createUI(utils_base.filedir("./application/staticloader/ui/static_loader.ui")),
         )
-        pnmodulesstaticloader.PNStaticLoader.setup(self.static_db_info_, ui)
+        pnmodulesstaticloader.PNStaticLoader.setup(self.static_db_info_, ui_)
