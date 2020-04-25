@@ -1006,12 +1006,6 @@ class TestCorruption(unittest.TestCase):
         """Ensure test clear all data."""
         finish_testing()
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        """Ensure test clear all data."""
-        # application.VIRTUAL_DB = True
-        finish_testing()
-
 
 if __name__ == "__main__":
     unittest.main()
