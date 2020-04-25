@@ -1006,41 +1006,6 @@ class TestCorruption(unittest.TestCase):
         """Ensure test clear all data."""
         finish_testing()
 
-
-class TestAfterCommit(unittest.TestCase):
-    """TestAfterCommit Class."""
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        """Ensure pineboo is initialized for testing."""
-        # application.VIRTUAL_DB = False
-
-        init_testing()
-
-    def test_basic(self) -> None:
-        """Test sys.afertCommit_flfiles is called"""
-        from pineboolib import application
-        from pineboolib.plugins.mainform.eneboo import eneboo
-        from pineboolib.qsa import qsa
-
-        application.PROJECT.main_window = eneboo.MainForm()
-        application.PROJECT.main_window.initScript()
-
-        util = qsa.FLUtil()
-
-        self.assertEqual(util.sqlSelect("flserial", "sha", "1=1"), False)
-        qsa_sys = qsa.sys
-        path = fixture_path("principal.eneboopkg")
-        self.assertTrue(qsa_sys.loadModules(path, False))
-
-    def test_basic_2(self) -> None:
-        """Test size and sha."""
-        from pineboolib.qsa import qsa
-
-        util = qsa.FLUtil()
-        sha_ = util.sqlSelect("flserial", "sha", "1=1")
-        self.assertNotEqual(sha_, "")
-
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
