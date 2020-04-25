@@ -135,8 +135,8 @@ class PNBuffer(object):
                         value = value.strftime("%Y-%m-%d")
                     elif type_ == "time":
                         value = value.strftime("%H:%M:%S")
-                elif isinstance(value, decimal.Decimal):
-                    value = float(str(value))
+                elif isinstance(value, decimal.Decimal):  # type: ignore [unreachable] # noqa: F821
+                    value = float(str(value))  # type: ignore [unreachable] # noqa: F821
 
         return value
 
