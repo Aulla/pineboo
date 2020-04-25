@@ -40,7 +40,7 @@ class Fltest(BASE):
                 "partD": 2,
             },
             {"name": "bool_field", "alias": "Bool field", "type": "bool"},
-            {"name": "uint_field", "alias": "Unsigned int field", "type": "uint", "default": "0"},
+            {"name": "uint_field", "alias": "Unsigned int field", "type": "uint", "default": 0},
             {
                 "name": "bloqueo",
                 "alias": "Bloqueo",

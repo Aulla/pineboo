@@ -30,12 +30,13 @@ class Fltest5(BASE):
             },
             {
                 "name": "idmodulo",
-                "alias": "Id. del Mï¿œdulo",
+                "alias": "Id. del Módulo",
                 "type": "string",
                 "length": 15,
                 "null": False,
             },
             {"name": "string_timestamp", "alias": "String timestamp", "type": "timestamp"},
+            {"name": "uint_field", "alias": "Unsigned int field", "type": "uint"},
         ],
     }
 
@@ -46,6 +47,7 @@ class Fltest5(BASE):
     id = sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True)
     idmodulo = sqlalchemy.Column("idmodulo", sqlalchemy.String(15))
     string_timestamp = sqlalchemy.Column("string_timestamp", sqlalchemy.DateTime)
+    uint_field = sqlalchemy.Column("uint_field", sqlalchemy.BigInteger)
 
 
 # <--- Fields ---

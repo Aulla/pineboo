@@ -947,17 +947,39 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             # if m != self.Insert and self.refreshBuffer():
             #     self.updateBufferCopy()
 
+    def setNull(self, field_name: str) -> None:
+        """
+        Set the content of a field in the buffer to be null.
+
+        @param pos_or_name Name or pos of the field in the buffer.
+        """
+
+        if self.private_cursor.buffer_ is not None:
+            self.buffer().set_value(field_name, None)
+
+    def setCopyNull(self, field_name: str) -> None:
+        """
+        Set the content of a field in the buffer to be null.
+
+        @param pos_or_name Name or pos of the field in the buffer.
+        """
+
+        if self.private_cursor._buffer_copy is not None:
+            self.bufferCopy().set_value(field_name, None)
+
     def isNull(self, field_name: str) -> bool:
         """Get if a field is null."""
-        if not self.private_cursor.buffer_:
-            raise Exception("No buffer set")
-        return self.buffer().is_null(field_name)
+        if self.private_cursor.buffer_ is not None:
+            return self.buffer().is_null(field_name)
+        else:
+            return True
 
     def isCopyNull(self, field_name: str) -> bool:
         """Get if a field was null before changing."""
-        if not self.private_cursor._buffer_copy:
-            raise Exception("No buffer_copy set")
-        return self.bufferCopy().is_null(field_name)
+        if self.private_cursor._buffer_copy is not None:
+            return self.bufferCopy().is_null(field_name)
+        else:
+            return True
 
     def updateBufferCopy(self) -> None:
         """
@@ -1068,7 +1090,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 #    continue
 
                 value = None
-                if not self.bufferIsNull(field_name):
+                if not self.isNull(field_name):
                     value = self.buffer().value(field_name)
 
                 assoc_field_metadata = field.associatedField()
@@ -1091,7 +1113,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         continue
                     field_metadata_name = assoc_field_metadata.name()
                     assoc_value = None
-                    if not self.bufferIsNull(field_metadata_name):
+                    if not self.isNull(field_metadata_name):
                         assoc_value = self.private_cursor.buffer_.value(field_metadata_name)
                         # if not ss:
                         #     ss = None
@@ -1145,7 +1167,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             continue
 
                 if (
-                    self.bufferIsNull(field_name)
+                    self.isNull(field_name)
                     and not field.allowNull()
                     and not field.type() in ("serial")
                 ):
@@ -1298,7 +1320,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                 value = None
 
-                if not self.bufferIsNull(field.name()):
+                if not self.isNull(field.name()):
                     value = self.buffer().value(field.name())
                     # if s:
                     #    s = None
@@ -1492,52 +1514,46 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.private_cursor.buffer_ and self.modeAccess() != self.Insert:
             self.buffer().clear()
 
-    def bufferIsNull(self, field_name: str) -> bool:
-        """
-        Return if the content of a field in the buffer is null.
+    # ===============================================================================
+    #     def bufferIsNull(self, field_name: str) -> bool:
+    #         """
+    #         Return if the content of a field in the buffer is null.
+    #
+    #         @param pos_or_name Name or pos of the field in the buffer.
+    #         @return True or False
+    #         """
+    #
+    #         # if self.private_cursor.buffer_ is not None:
+    #         #    return self.private_cursor.buffer_.isNull(pos_or_name)
+    #         buffer_ = self.private_cursor.buffer_
+    #         if buffer_:
+    #             return buffer_.is_null(field_name)
+    #
+    #         return True
+    # ===============================================================================
 
-        @param pos_or_name Name or pos of the field in the buffer.
-        @return True or False
-        """
-
-        # if self.private_cursor.buffer_ is not None:
-        #    return self.private_cursor.buffer_.isNull(pos_or_name)
-        buffer_ = self.private_cursor.buffer_
-        if buffer_:
-            return buffer_.is_null(field_name)
-
-        return True
-
-    def bufferSetNull(self, field_name: str) -> None:
-        """
-        Set the content of a field in the buffer to be null.
-
-        @param pos_or_name Name or pos of the field in the buffer.
-        """
-
-        if self.private_cursor.buffer_ is not None:
-            self.buffer().set_value(field_name, None)
-
-    def bufferCopyIsNull(self, field_name: str) -> bool:
-        """
-        Return if the content of a field in the bufferCopy is null.
-
-        @param pos_or_name Name or pos of the field in the bufferCopy
-        """
-
-        if self.private_cursor._buffer_copy is not None:
-            return self.bufferCopy().is_null(field_name)
-        return True
-
-    def bufferCopySetNull(self, field_name: str) -> None:
-        """
-        Set the content of a field in the bufferCopy to be null.
-
-        @param pos_or_name Name or pos of the field in the bufferCopy
-        """
-
-        if self.private_cursor._buffer_copy is not None:
-            self.bufferCopy().set_value(field_name, None)
+    # ===============================================================================
+    #     def bufferCopyIsNull(self, field_name: str) -> bool:
+    #         """
+    #         Return if the content of a field in the bufferCopy is null.
+    #
+    #         @param pos_or_name Name or pos of the field in the bufferCopy
+    #         """
+    #
+    #         if self.private_cursor._buffer_copy is not None:
+    #             return self.bufferCopy().is_null(field_name)
+    #         return True
+    #
+    #     def bufferCopySetNull(self, field_name: str) -> None:
+    #         """
+    #         Set the content of a field in the bufferCopy to be null.
+    #
+    #         @param pos_or_name Name or pos of the field in the bufferCopy
+    #         """
+    #
+    #         if self.private_cursor._buffer_copy is not None:
+    #             self.bufferCopy().set_value(field_name, None)
+    # ===============================================================================
 
     def atFrom(self) -> int:
         """
@@ -1613,11 +1629,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     #    QSqlQuery.exec(self, query)
 
     #    return True
-
-    def setNull(self, name: str) -> None:
-        """Specify a field as Null."""
-
-        self.setValueBuffer(name, None)
 
     def db(self) -> "iconnection.IConnection":
         """
@@ -2855,7 +2866,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 field_name = field.name()
 
                 result = None
-                if not self.bufferIsNull(field_name):
+                if not self.isNull(field_name):
                     result = self.private_cursor.buffer_.value(  # type: ignore [union-attr] # noqa: F821
                         field_name
                     )

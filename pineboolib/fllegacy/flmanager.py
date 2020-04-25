@@ -932,7 +932,9 @@ class FLManager(QtCore.QObject, IManager):
                     reg_exp = field[tag]
 
                 elif tag == "default":
-                    default_value = utils_base.auto_qt_translate_text(field[tag])
+                    default_value = field[tag]
+                    if isinstance(default_value, str):
+                        default_value = utils_base.auto_qt_translate_text(default_value)
 
                 elif tag == "outtransaction":
                     out_transaction = field[tag]

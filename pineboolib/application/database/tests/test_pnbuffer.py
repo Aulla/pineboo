@@ -155,6 +155,32 @@ class TestPNBuffer(unittest.TestCase):
         # self.assertEqual(buffer_.modifiedFields(), ["double_field"])
         self.assertEqual(buffer_.value("double_field"), 1.02)
 
+    def test_null(self) -> None:
+        """Test null."""
+
+        cursor_1 = pnsqlcursor.PNSqlCursor("fltest")
+        cursor_1.setModeAccess(cursor_1.Insert)
+        cursor_1.refreshBuffer()
+        self.assertFalse(cursor_1.isNull("id"))
+        self.assertEqual(cursor_1.buffer().value("uint_field"), 0)
+        self.assertTrue(cursor_1.isNull("string_field"))
+        self.assertFalse(cursor_1.isNull("uint_field"))  # default 0
+
+        cursor_1.setNull("uint_field")
+        self.assertEqual(cursor_1.buffer().value("uint_field"), None)
+        self.assertTrue(cursor_1.isNull("uint_field"))
+
+        self.assertEqual(cursor_1.valueBuffer("uint_field"), 0)
+        self.assertEqual(cursor_1.buffer().value("uint_field"), None)
+
+        cursor_2 = pnsqlcursor.PNSqlCursor("fltest5")
+        cursor_2.setModeAccess(cursor_2.Insert)
+        cursor_2.refreshBuffer()
+        self.assertTrue(cursor_2.isNull("unit_field"))
+        self.assertTrue(cursor_2.isNull("uint_field"))
+        self.assertEqual(cursor_2.valueBuffer("uint_field"), 0)
+        self.assertEqual(cursor_2.buffer().value("uint_field"), None)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

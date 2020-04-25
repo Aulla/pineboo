@@ -120,21 +120,23 @@ class PNBuffer(object):
         """
 
         if field_name in self._cache_buffer.keys():
-            return self._cache_buffer[field_name]
+            value = self._cache_buffer[field_name]
 
-        value = getattr(self._orm_obj, field_name, None)
+        else:
+            value = getattr(self._orm_obj, field_name, None)
 
-        metadata = self.cursor_.metadata().field(field_name)
-        type_ = metadata.type()
+            metadata = self.cursor_.metadata().field(field_name)
+            if metadata is not None:
+                type_ = metadata.type()
 
-        if isinstance(value, datetime.datetime):
+                if isinstance(value, datetime.datetime):
 
-            if type_ == "date":
-                value = value.strftime("%Y-%m-%d")
-            elif type_ == "time":
-                value = value.strftime("%H:%M:%S")
-        elif isinstance(value, decimal.Decimal):
-            value = float(str(value))
+                    if type_ == "date":
+                        value = value.strftime("%Y-%m-%d")
+                    elif type_ == "time":
+                        value = value.strftime("%H:%M:%S")
+                elif isinstance(value, decimal.Decimal):
+                    value = float(str(value))
 
         return value
 
@@ -208,7 +210,7 @@ class PNBuffer(object):
     def is_null(self, field_name: str) -> bool:
         """Return if a field is null."""
 
-        return self.value(field_name) in [None, ""]
+        return self.value(field_name) is None
 
     def set_generated(self, field_name: str, status: bool):
         """Mark a field as generated."""
