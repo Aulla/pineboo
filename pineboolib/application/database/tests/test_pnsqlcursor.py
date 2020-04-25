@@ -1053,6 +1053,7 @@ class TestAfterCommit(unittest.TestCase):
                 "57574073C75DD72934509FAD2EC660B48B093A78",
                 "78FC400D112A9E135395A2ED10ED1E370F75C038",
                 "69CA2272F3BF428D75DCF1E978D4E7D541FAA7F3",
+                "6B0BB78C09114C8BE95DC7BE870C2A0028FA29DC",
             ],
             "los registros de la tabla son %s y el sha %s" % (count_, sha_),
         )
