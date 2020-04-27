@@ -570,14 +570,16 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         # print("COMMIT TRANSACCION!!", self.session().transaction)
         try:
+
             session_ = self.session()
+            LOGGER.debug("COMMIT session: %s, transaction: %s", session_, session_.transaction)
             # self.driver()._session = None
             session_.commit()
             # session_.close()
             # session_.begin()
             # session_.close()
             # self.driver()._session = None
-
+            LOGGER.debug("COMMIT OK transaction: %s", session_.transaction)
             return True
         except Exception as error:
             self._last_error = "No se pudo aceptar la transacción: %s" % str(error)

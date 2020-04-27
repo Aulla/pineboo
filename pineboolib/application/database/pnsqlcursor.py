@@ -2936,7 +2936,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             # Para cuando usamos npsqlcursors solos!
             if self.transactionLevel() == 0:
                 pk_value = self.buffer().value(self.primaryKey())
-                self.db().commit()
+                if not self.db().commitTransaction():
+                    LOGGER.warning("CommitBuffer cancelado. db().commitTransaction devolvió False.")
+                    return False
+
                 self.model().refresh()
                 pk_row = self.model().find_pk_row(pk_value)
 
