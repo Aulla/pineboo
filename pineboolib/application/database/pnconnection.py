@@ -312,6 +312,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 DB_SIGNALS.emitTransactionBegin(cursor)
 
                 self.driver()._transaction = +1
+                LOGGER.warning(
+                    "Creando transaccion número:%s, cursor:%s",
+                    self.driver()._transaction,
+                    cursor.curName(),
+                )
                 cursor.private_cursor._transactions_opened.insert(0, self.driver()._transaction)
                 return True
             else:
@@ -332,6 +337,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             self.savePoint(self.driver()._transaction)
 
             self.driver()._transaction = self.driver()._transaction + 1
+            LOGGER.warning(
+                "Creando savePoint número:%s, cursor:%s",
+                self.driver()._transaction,
+                cursor.curName(),
+            )
             if cursor.private_cursor._transactions_opened:
                 cursor.private_cursor._transactions_opened.insert(
                     0, self.driver()._transaction
@@ -397,6 +407,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 "send",
                 ["Deshaciendo Transacción... %s" % self.driver()._transaction],
             )
+            LOGGER.warning(
+                "Desaciendo transacción número:%s, cursor:%s",
+                self.driver()._transaction,
+                cur.curName(),
+            )
             if self.rollbackTransaction():
                 self._last_active_cursor = None
 
@@ -419,6 +434,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     "Restaurando punto de salvaguarda %s:%s..."
                     % (self._name, self.driver()._transaction)
                 ],
+            )
+            LOGGER.warning(
+                "Desaciendo savePoint número:%s, cursor:%s",
+                self.driver()._transaction,
+                cur.curName(),
             )
             self.rollbackSavePoint(self.driver()._transaction)
 
@@ -465,6 +485,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 ["Terminando Transacción... %s" % self.driver()._transaction],
             )
             try:
+                LOGGER.warning(
+                    "Aceptando transacción número:%s, cursor:%s",
+                    self.driver()._transaction,
+                    cur.curName(),
+                )
                 if self.commit():
                     self._last_active_cursor = None
 
@@ -492,6 +517,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     "Liberando punto de salvaguarda %s:%s..."
                     % (self._name, self.driver()._transaction)
                 ],
+            )
+            LOGGER.warning(
+                "Aceptando savePoint número:%s, cursor:%s",
+                self.driver()._transaction,
+                cur.curName(),
             )
             self.releaseSavePoint(self.driver()._transaction)
 
