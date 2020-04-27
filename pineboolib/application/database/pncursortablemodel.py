@@ -600,6 +600,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """Insert data from current buffer."""
         try:
             obj_ = self.buffer().current_object()
+
+            for name in self.metadata().fieldNames():
+                print("*", name, getattr(obj_, name, None))
+
             self.db().session().add(obj_)
             return True
         except Exception as error:
