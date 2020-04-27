@@ -628,16 +628,18 @@ class PNSqlSchema(object):
             self.db_._transaction_level += 1
 
         if not self.remove_index(new_metadata, query):
-            query.db().rollbackTransaction()
+            query.db().rollback()
+            self.db_._transaction_level -= 1
+            return False
 
         if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
-            query.db().rollbackTransaction()
+            query.db().rollback()
             self.db_._transaction_level -= 1
             return False
 
         if not self.db_.createTable(new_metadata):
 
-            query.db().rollbackTransaction()
+            query.db().rollback()
             self.db_._transaction_level -= 1
             return False
 

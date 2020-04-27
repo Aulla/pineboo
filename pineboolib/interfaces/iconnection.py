@@ -238,11 +238,6 @@ class IConnection:
 
         return True
 
-    def savePoint(self, save_point: int) -> bool:
-        """Create a save point."""
-
-        return True
-
     def releaseSavePoint(self, save_point: int) -> bool:
         """Release a save point."""
 
@@ -253,23 +248,13 @@ class IConnection:
 
         return
 
-    def rollbackSavePoint(self, save_point: int) -> bool:
-        """Roll back a save point."""
-
-        return True
-
     def transaction(self) -> bool:
-        """Create a transaction."""
+        """Create a transaction/savePoint."""
 
         return True
 
-    def commitTransaction(self) -> bool:
-        """Release a transaction."""
-
-        return True
-
-    def rollbackTransaction(self) -> bool:
-        """Roll back a transaction."""
+    def rollback(self) -> bool:
+        """Roll back a transaction/savepoint."""
 
         return True
 

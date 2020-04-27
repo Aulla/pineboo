@@ -1572,13 +1572,8 @@ class SysType(sysbasetype.SysBaseType):
 
         db_ = application.PROJECT.conn_manager.useConn("default")
 
-        transaction_level_ = db_._transaction_level
         # Create Transaction.
-        if transaction_level_ == 0:
-            db_.transaction()
-        else:
-            db_.savePoint(transaction_level_)
-
+        db_.transaction()
         db_._transaction_level += 1
 
         if self.interactiveGUI():
@@ -1606,16 +1601,10 @@ class SysType(sysbasetype.SysBaseType):
             if error_msg_ != "":
                 self.warnMsgBox(error_msg_)
 
-            if transaction_level_ == 0:
-                db_.rollbackTransaction()
-            else:
-                db_.rollbackSavePoint(transaction_level_)
+            db_.rollback()
 
         else:  # do Commit
-            if transaction_level_ == 0:
-                db_.commit()
-            else:
-                db_.releaseSavePoint(transaction_level_)
+            db_.commit()
 
         if self.interactiveGUI():
             AQS.Application_restoreOverrideCursor()

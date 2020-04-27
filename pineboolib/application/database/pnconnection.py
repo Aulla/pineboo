@@ -302,47 +302,30 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def doTransaction(self, cursor: "isqlcursor.ISqlCursor") -> bool:
         """Make a transaction or savePoint according to transaction level."""
 
-        if self._transaction_level == 0:
-            application.PROJECT.message_manager().send(
-                "status_help_msg", "send", ["Iniciando Transacción... %s" % self._transaction_level]
-            )
-            if self.transaction():
-                self._last_active_cursor = cursor
-                DB_SIGNALS.emitTransactionBegin(cursor)
-
-                self._transaction_level = +1
-                LOGGER.warning(
-                    "Creando transaccion número:%s, cursor:%s",
-                    self._transaction_level,
-                    cursor.curName(),
-                )
-                cursor.private_cursor._transactions_opened.insert(0, self._transaction_level)
-                return True
+        if settings.CONFIG.value("application/isDebuggerMode", False):
+            if self._transaction_level:
+                text_ = "Creando punto de salvaguarda %s:%s" % (self._name, self._transaction_level)
             else:
-                LOGGER.warning("doTransaction: Fallo al intentar iniciar la transacción")
-                return False
+                text_ = "Iniciando Transacción... %s" % self._transaction_level
 
-        else:
-            if settings.CONFIG.value("application/isDebuggerMode", False):
-                application.PROJECT.message_manager().send(
-                    "status_help_msg",
-                    "send",
-                    ["Creando punto de salvaguarda %s:%s" % (self._name, self._transaction_level)],
-                )
+            application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
-            self.savePoint(self._transaction_level)
+        LOGGER.warning(
+            "Creando transaccion/savePoint número:%s, cursor:%s",
+            self._transaction_level,
+            cursor.curName(),
+        )
 
-            self._transaction_level += 1
-            LOGGER.warning(
-                "Creando savePoint número:%s, cursor:%s", self._transaction_level, cursor.curName()
-            )
-            if cursor.private_cursor._transactions_opened:
-                cursor.private_cursor._transactions_opened.insert(
-                    0, self._transaction_level
-                )  # push
-            else:
-                cursor.private_cursor._transactions_opened.append(self._transaction_level)
-            return True
+        if not self.transaction():
+            return False
+
+        if not self._transaction_level:
+            self._last_active_cursor = cursor
+            DB_SIGNALS.emitTransactionBegin(cursor)
+
+        self._transaction_level += 1
+        cursor.private_cursor._transactions_opened.insert(0, self._transaction_level)
+        return True
 
     def transactionLevel(self) -> int:
         """Indicate the level of transaction."""
@@ -359,22 +342,19 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             and cur.private_cursor._ask_for_cancel_changes
         ):
 
-            dgi = application.PROJECT.DGI
+            msg_box = getattr(application.PROJECT.DGI, "msgBoxQuestion", None)
+            if msg_box is not None:
+                res = msg_box(
+                    "Todos los cambios se cancelarán.¿Está seguro?", None, "Cancelar Cambios"
+                )
 
-            if dgi:
-                msg_box = getattr(dgi, "msgBoxQuestion", None)
-                if msg_box is not None:
-                    res = msg_box(
-                        "Todos los cambios se cancelarán.¿Está seguro?", None, "Cancelar Cambios"
-                    )
-
-                    if res is not None:
-                        if res == QtWidgets.QMessageBox.No:
-                            return False
+                if res is not None:
+                    if res == QtWidgets.QMessageBox.No:
+                        return False
 
             cancel = True
 
-        if self._transaction_level > 0:
+        if self._transaction_level:
             if cur.private_cursor._transactions_opened:
                 trans = cur.private_cursor._transactions_opened.pop()
                 if not trans == self._transaction_level:
@@ -383,7 +363,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                         cur.curName(),
                         self._transaction_level,
                         trans,
-                        stack_info=True,
                     )
             else:
                 LOGGER.warning(
@@ -391,53 +370,39 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     self._transaction_level,
                 )
 
-            self._transaction_level = self._transaction_level - 1
+            self._transaction_level -= 1
         else:
             return True
 
-        if self._transaction_level == 0:
-            application.PROJECT.message_manager().send(
-                "status_help_msg",
-                "send",
-                ["Deshaciendo Transacción... %s" % self._transaction_level],
+        if self._transaction_level:
+            text_ = "Restaurando punto de salvaguarda %s:%s..." % (
+                self._name,
+                self._transaction_level,
             )
-            LOGGER.warning(
-                "Desaciendo transacción número:%s, cursor:%s",
-                self._transaction_level + 1,
-                cur.curName(),
-            )
-            if self.rollbackTransaction():
-                self._last_active_cursor = None
-
-                cur.setModeAccess(cur.Browse)
-                if cancel:
-                    cur.select()
-
-                DB_SIGNALS.emitTransactionRollback(cur)
-                return True
-            else:
-                LOGGER.warning("doRollback: Fallo al intentar deshacer transacción")
-                return False
-
         else:
+            text_ = "Deshaciendo Transacción... %s" % self._transaction_level
 
-            application.PROJECT.message_manager().send(
-                "status_help_msg",
-                "send",
-                [
-                    "Restaurando punto de salvaguarda %s:%s..."
-                    % (self._name, self._transaction_level)
-                ],
-            )
-            LOGGER.warning(
-                "Desaciendo savePoint número:%s, cursor:%s",
-                self._transaction_level + 1,
-                cur.curName(),
-            )
-            self.rollbackSavePoint(self._transaction_level)
+        application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
-            cur.setModeAccess(cur.Browse)
-            return True
+        LOGGER.warning(
+            "Desaciendo transacción número:%s, cursor:%s",
+            self._transaction_level + 1,
+            cur.curName(),
+        )
+
+        if not self.rollback():
+            return False
+
+        cur.setModeAccess(cur.Browse)
+
+        if not self._transaction_level:
+            self._last_active_cursor = None
+            DB_SIGNALS.emitTransactionRollback(cur)
+
+            if cancel:
+                cur.select()
+
+        return True
 
     def interactiveGUI(self) -> str:
         """Return if it is an interactive GUI."""
@@ -450,7 +415,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if not notify:
             cur.autoCommit.emit()
 
-        if self._transaction_level > 0:
+        if self._transaction_level:
             if cur.private_cursor._transactions_opened:
                 trans = cur.private_cursor._transactions_opened.pop()
                 if not trans == self._transaction_level:
@@ -467,126 +432,68 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     self._transaction_level,
                 )
 
-            self._transaction_level = self._transaction_level - 1
+            self._transaction_level -= 1
         else:
 
             return True
 
-        if self._transaction_level == 0:
-            application.PROJECT.message_manager().send(
-                "status_help_msg",
-                "send",
-                ["Terminando Transacción... %s" % self._transaction_level],
+        if self._transaction_level:
+            text_ = "Liberando punto de salvaguarda %s:%s..." % (
+                self._name,
+                self._transaction_level,
             )
-            try:
-                LOGGER.warning(
-                    "Aceptando transacción número:%s, cursor:%s",
-                    self._transaction_level + 1,
-                    cur.curName(),
-                )
-                if self.commit():
-                    self._last_active_cursor = None
-
-                    if notify:
-                        cur.setModeAccess(cur.Browse)
-
-                    DB_SIGNALS.emitTransactionEnd(cur)
-                    return True
-
-                else:
-                    LOGGER.error(
-                        "doCommit: Fallo al intentar terminar transacción: %s"
-                        % self._transaction_level
-                    )
-                    return False
-
-            except Exception as exception:
-                LOGGER.error("doCommit: Fallo al intentar terminar transacción: %s", exception)
-                return False
         else:
-            application.PROJECT.message_manager().send(
-                "status_help_msg",
-                "send",
-                ["Liberando punto de salvaguarda %s:%s..." % (self._name, self._transaction_level)],
-            )
-            LOGGER.warning(
-                "Aceptando savePoint número:%s, cursor:%s",
-                self._transaction_level + 1,
-                cur.curName(),
-            )
-            self.releaseSavePoint(self._transaction_level)
+            text_ = "Terminando Transacción... %s" % self._transaction_level
 
-            if notify:
-                cur.setModeAccess(cur.Browse)
+        application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
-            return True
+        LOGGER.warning(
+            "Aceptando transacción número:%s, cursor:%s", self._transaction_level + 1, cur.curName()
+        )
+
+        if not self.commit():
+            return False
+
+        if not self._transaction_level:
+            self._last_active_cursor = None
+            DB_SIGNALS.emitTransactionEnd(cur)
+
+        if notify:
+            cur.setModeAccess(cur.Browse)
+
+        return True
 
     def canDetectLocks(self) -> bool:
         """Indicate if the connection detects locks in the database."""
 
         return self.driver().canDetectLocks()
 
-    def commit(self) -> bool:
-        """Send the commit order to the database."""
-
-        return self.commitTransaction()
-
     def canOverPartition(self) -> bool:
         """Return True if the database supports the OVER statement."""
 
         return self.connManager().dbAux().driver().canOverPartition()
-
-    def savePoint(self, save_point: int) -> bool:
-        """Create a save point."""
-        # print("CREA SAVE_POINT!!", self.session().transaction)
-        try:
-            self.session().begin_nested()
-            return True
-        except Exception as error:
-            self._last_error = "No se pudo crear punto de salvaguarda: %s" % str(error)
-
-        return False
-
-    def releaseSavePoint(self, save_point: int) -> bool:
-        """Release a save point."""
-        # print("RELEASE SAVE_POINT!!", self.session().transaction)
-        try:
-            self.session().commit()
-            return True
-        except Exception as error:
-            self._last_error = "No se pudo release a punto de salvaguarda: %s" % str(error)
-
-        return False
 
     def Mr_Proper(self):
         """Clean the database of unnecessary tables and records."""
 
         self.connManager().dbAux().driver().Mr_Proper()
 
-    def rollbackSavePoint(self, save_point: int) -> bool:
-        """Roll back a save point."""
-        # print("CANCELA SAVE_POINT!!", self.session().transaction)
-        try:
-            self.session().rollback()
-            return True
-        except Exception as error:
-            self._last_error = "No se pudo rollback a punto de salvaguarda: %s" % str(error)
-
-        return False
-
     def transaction(self) -> bool:
         """Create a transaction."""
 
         try:
-            self.session()
-            # print("CREA TRANSACCION!!", self.session().transaction)
+            if not self._transaction_level:
+                self.session()
+            else:
+                self.session().begin_nested()
+
             return True
         except Exception as error:
             self._last_error = "No se pudo crear la transacción: %s" % str(error)
 
         return False
 
-    def commitTransaction(self) -> bool:
+    def commit(self) -> bool:
         """Release a transaction."""
 
         # print("COMMIT TRANSACCION!!", self.session().transaction)
@@ -607,7 +514,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return False
 
-    def rollbackTransaction(self) -> bool:
+    def rollback(self) -> bool:
         """Roll back a transaction."""
 
         # print("ROLLBACK TRANSACCION!!", self.session().transaction)
@@ -659,12 +566,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     "createTable: Error happened executing sql: %s...%s"
                     % (single_sql[:80], str(self.driver().last_error()))
                 )
-                self.rollbackTransaction()
+                self.rollback()
                 self.driver().set_last_error_null()
                 return False
 
         if do_transaction:
-            self.commitTransaction()
+            self.commit()
             self._transaction_level -= 1
 
         return True
