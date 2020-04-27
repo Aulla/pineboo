@@ -2702,7 +2702,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             LOGGER.warning("CommitBuffer cancelado. Problema de integridad.")
             return False
 
-        self.buffer().apply_buffer()
+        if not self.buffer().apply_buffer():
+            LOGGER.warning("CommitBuffer cancelado. Fallo al aplicar el buffer al objeto")
+            return False
 
         field_name_check = None
 

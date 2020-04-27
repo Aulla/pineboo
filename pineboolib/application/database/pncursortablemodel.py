@@ -601,8 +601,14 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         try:
             obj_ = self.buffer().current_object()
 
+            LOGGER.debug(
+                "Insertado objeto: %s en session: %s, transaccion: %s",
+                obj_,
+                self.db().session(),
+                self.db().session().transaction,
+            )
             for name in self.metadata().fieldNames():
-                print("*", name, getattr(obj_, name, None))
+                LOGGER.debug("Valor de %s: %s", name, getattr(obj_, name, None))
 
             self.db().session().add(obj_)
             return True

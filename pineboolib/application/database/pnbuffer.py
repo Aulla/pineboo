@@ -149,10 +149,16 @@ class PNBuffer(object):
 
         return True
 
-    def apply_buffer(self) -> None:
+    def apply_buffer(self) -> bool:
         """Aply buffer to object (commitBuffer)."""
+        ret_ = True
+
         for field_name in self._cache_buffer.keys():
-            self.set_value_to_objet(field_name, self._cache_buffer[field_name])
+            ret_ = self.set_value_to_objet(field_name, self._cache_buffer[field_name])
+            if not ret_:
+                break
+
+        return ret_
 
     def set_value_to_objet(self, field_name: str, value: TVALUES) -> bool:
         """
