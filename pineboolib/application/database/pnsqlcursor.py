@@ -1236,7 +1236,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         )
                         if not table_metadata:
                             continue
-                        qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                        qry = pnsqlquery.PNSqlQuery(None, self.db())
                         qry.setTablesList(table_metadata.name())
                         qry.setSelect(relation_m1.foreignField())
                         qry.setFrom(table_metadata.name())
