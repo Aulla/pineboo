@@ -128,7 +128,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("# Translated with pineboolib %s" % application.PROJECT.version.split(" ")[1])
     data.append('"""%s%s_model module."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("")
-    data.append("import sqlalchemy")
+
     # data.append("from sqlalchemy.ext.declarative import declarative_base")
     # data.append(
     #    "from sqlalchemy import Column, Integer, Numeric, String, BigInteger, Boolean, DateTime, ForeignKey, LargeBinary"
@@ -143,8 +143,9 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     # data.append("")
     # data.append("Base = declarative_base()")
     data.append("from sqlalchemy.ext import declarative # type: ignore [import] # noqa: F821")
+    data.append("import sqlalchemy # type: ignore [import] # noqa: F821")
     data.append("")
-    data.append("BASE = declarative.declarative_base()")
+    # data.append("BASE = declarative.declarative_base()")
     # data.append("ENGINE = application.PROJECT.conn_manager.mainConn().engine()")
     data.append("")
     # for field in mtd_table.fieldList():
@@ -152,8 +153,11 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     #        rel = field.relationM1()
     #        data.append("load_model('%s')" % rel.foreignTable())
 
-    data.append("")
-    data.append("class %s%s(BASE):" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
+    # data.append("")
+    data.append(
+        "class %s%s(declarative.declarative_base()): # type: ignore [misc] # noqa: F821"
+        % (mtd_table.name()[0].upper(), mtd_table.name()[1:])
+    )
     data.append('    """%s%s class."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("    __tablename__ = '%s'" % mtd_table.name())
     data.append("")
