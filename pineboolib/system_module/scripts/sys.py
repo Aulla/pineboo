@@ -96,7 +96,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
                     value = _v
 
-            _cur_serial = qsa.FLSqlCursor(u"flserial")
+            _cur_serial = qsa.FLSqlCursor(u"flserial", "dbaux")
             _cur_serial.select()
             if _cur_serial.first():
                 _cur_serial.setModeAccess(_cur_serial.Edit)
