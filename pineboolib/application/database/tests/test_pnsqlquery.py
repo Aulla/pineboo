@@ -298,7 +298,7 @@ class TestPNSqlQuery2(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
-        application.LOG_SQL = True
+        application.LOG_SQL = False
         init_testing()
 
     def test_basic_4(self) -> None:
