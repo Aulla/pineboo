@@ -2659,7 +2659,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
 
         if not self.private_cursor.buffer_ or not self.private_cursor.metadata_:
-            LOGGER.info(
+            LOGGER.warning(
                 "Cancelado. No hay buffer o metadata. buffer:%s, metadata:%s",
                 self.private_cursor.buffer_,
                 self.private_cursor.metadata_,
@@ -2693,7 +2693,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     return False
 
         if not self.checkIntegrity():
-            LOGGER.info("Cancelado. Problema de integridad.")
+            LOGGER.warning("Cancelado. Problema de integridad.")
             return False
 
         self.buffer().apply_buffer()
@@ -2758,7 +2758,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if func_ is not None:
                 value = func_(self)
                 if value and not isinstance(value, bool) or value is False:
-                    LOGGER.info("Cancelado. BeforeCommit devolvió False.")
+                    LOGGER.warning("Cancelado. BeforeCommit devolvió False.")
                     return False
 
         # primary_key = self.private_cursor.metadata_.primaryKey()
@@ -2838,7 +2838,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                 LOGGER.trace("commitBuffer -- Edit . 22 . ")
                 if not self.update(False):
-                    LOGGER.info("Cancelado. no se ha podido hacer update.")
+                    LOGGER.warning("Cancelado. no se ha podido hacer update.")
                     return False
 
                 LOGGER.trace("commitBuffer -- Edit . 25 . ")
@@ -2913,7 +2913,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                 cursor.setModeAccess(self.Del)
                                 cursor.refreshBuffer()
                                 if not cursor.commitBuffer(False):
-                                    LOGGER.info("Cancelado. delC devolvió False.")
+                                    LOGGER.warning("Cancelado. delC devolvió False.")
                                     return False
             try:
                 # transaction = self.db().session()
@@ -2948,13 +2948,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     value = func_(self)
 
                     if value and not isinstance(value, bool) or value is False:
-                        LOGGER.info("Cancelado. recordDelAfter devolvió False.")
+                        LOGGER.warning("Cancelado. recordDelAfter devolvió False.")
                         return False
 
             updated = True
 
         if updated and self.lastError():
-            LOGGER.info("Cancelado. Error encontrado: %s.", self.lastError())
+            LOGGER.warning("Cancelado. Error encontrado: %s.", self.lastError())
             return False
 
         if self.modeAccess() != self.Browse and function_after_commit:
@@ -2964,7 +2964,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if func_ is not None:
                 value = func_(self)
                 if value and not isinstance(value, bool) or value is False:
-                    LOGGER.info("Cancelado. afterCommit devolvió False.")
+                    LOGGER.warning("Cancelado. afterCommit devolvió False.")
                     return False
 
         if self.modeAccess() in (self.Del, self.Edit):
