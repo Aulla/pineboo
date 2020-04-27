@@ -3097,11 +3097,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         elif count > 0:
             LOGGER.trace("rollbackOpened: %s %s", count, self.curName())
 
-        i = 0
-        while i < count:
-            LOGGER.trace("Deshaciendo transacción abierta", self.transactionLevel())
-            self.rollback()
-            i = i + 1
+        # i = 0
+        # while i < count:
+        #    LOGGER.trace("Deshaciendo transacción abierta", self.transactionLevel())
+        #    self.rollback()
+        #    i = i + 1
 
     @decorators.pyqt_slot()
     def commitOpened(self, count: int = -1, message: str = None) -> None:
