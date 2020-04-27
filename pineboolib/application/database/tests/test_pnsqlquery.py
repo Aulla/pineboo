@@ -3,6 +3,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.database import pnsqlquery, pnsqlcursor
+from pineboolib import application
 from . import fixture_path
 
 
@@ -16,8 +17,7 @@ class TestPNSqlQuery1(unittest.TestCase):
 
     def test_basic_1(self) -> None:
         """Test basic_1."""
-        from pineboolib.application.database import pnparameterquery
-        from pineboolib.application.database import pngroupbyquery
+        from pineboolib.application.database import pnparameterquery, pngroupbyquery
 
         qry = pnsqlquery.PNSqlQuery("fltest2")
 
@@ -298,12 +298,12 @@ class TestPNSqlQuery2(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
+        application.LOG_SQL = True
         init_testing()
 
     def test_basic_4(self) -> None:
         """Test basic test 4."""
         from pineboolib.qsa import qsa
-        from pineboolib import application
         from pineboolib.application.metadata import pntablemetadata, pnfieldmetadata
         import os
 
@@ -532,4 +532,6 @@ class TestPNSqlQuery2(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
+
         finish_testing()
+        application.LOG_SQL = False
