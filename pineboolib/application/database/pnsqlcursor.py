@@ -2758,7 +2758,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if func_ is not None:
                 value = func_(self)
                 if value and not isinstance(value, bool) or value is False:
-                    LOGGER.warning("Cancelado. BeforeCommit devolvió False.")
+                    LOGGER.warning("Cancelado. %s devolvió False.", function_before_commit)
                     return False
 
         # primary_key = self.private_cursor.metadata_.primaryKey()
@@ -2860,7 +2860,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 value = func_(self)
 
                 if value and not isinstance(value, bool) or value is False:
-                    LOGGER.info("Cancelado. recordDelBefore devolvió False.")
+                    LOGGER.info("Cancelado. %s devolvió False.", function_record_del_before)
                     return False
 
             # if not self.private_cursor.buffer_:
@@ -2948,7 +2948,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     value = func_(self)
 
                     if value and not isinstance(value, bool) or value is False:
-                        LOGGER.warning("Cancelado. recordDelAfter devolvió False.")
+                        LOGGER.warning("Cancelado. %s devolvió False.", function_record_del_after)
                         return False
 
             updated = True
@@ -2964,7 +2964,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if func_ is not None:
                 value = func_(self)
                 if value and not isinstance(value, bool) or value is False:
-                    LOGGER.warning("Cancelado. afterCommit devolvió False.")
+                    LOGGER.warning("Cancelado. %s devolvió False.", function_after_commit)
                     return False
 
         if self.modeAccess() in (self.Del, self.Edit):
