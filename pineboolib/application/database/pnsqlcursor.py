@@ -807,11 +807,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return TRUE if there is one.
         """
-        if self.db():
-            if self.db().driver()._transaction > 0:
-                return True
 
-        return False
+        return True if self.db()._transaction_level else False
 
     def transaction(self, lock: bool = False) -> bool:
         """
@@ -3035,10 +3032,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return The current level of transaction nesting, 0 there is no transaction.
         """
 
-        if self.db():
-            return self.db().transactionLevel()
-        else:
-            return 0
+        return self.db().transactionLevel()
 
     @decorators.pyqt_slot()
     def transactionsOpened(self) -> List[str]:

@@ -1572,14 +1572,14 @@ class SysType(sysbasetype.SysBaseType):
 
         db_ = application.PROJECT.conn_manager.useConn("default")
 
-        transaction_level_ = db_.transactionLevel()
+        transaction_level_ = db_._transaction_level
         # Create Transaction.
         if transaction_level_ == 0:
             db_.transaction()
         else:
             db_.savePoint(transaction_level_)
 
-        db_.driver()._transaction += 1
+        db_._transaction_level += 1
 
         if self.interactiveGUI():
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
@@ -1600,7 +1600,7 @@ class SysType(sysbasetype.SysBaseType):
                 error_msg_ = self.translate("Error al ejecutar la función")
             raise Exception("%s: %s" % (error_msg_, error))
 
-        db_.driver()._transaction -= 1
+        db_._transaction_level -= 1
 
         if roll_back_:  # do RollBack
             if error_msg_ != "":

@@ -49,7 +49,6 @@ class PNSqlSchema(object):
     mobile_: bool
     pure_python_: bool
     defaultPort_: int
-    _transaction: int
     cursor_proxy: Dict[str, "result.ResultProxy"]
     open_: bool
     desktop_file: bool
@@ -93,7 +92,6 @@ class PNSqlSchema(object):
         self._safe_load = {"sqlalchemy": "sqlAlchemy"}
         self._database_not_found_keywords = ["does not exist", "no existe"]
 
-        self._transaction = 0
         self._sqlalchemy_name = ""
 
     def safe_load(self, exit: bool = False) -> bool:
@@ -623,24 +621,24 @@ class PNSqlSchema(object):
 
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
 
-        do_transaction = self._transaction > 0
+        do_transaction = self.db_._transaction_level > 0
 
         if do_transaction:
             query.db().transaction()
-            self._transaction += 1
+            self.db_._transaction_level += 1
 
         if not self.remove_index(new_metadata, query):
             query.db().rollbackTransaction()
 
         if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
             query.db().rollbackTransaction()
-            self._transaction -= 1
+            self.db_._transaction_level -= 1
             return False
 
         if not self.db_.createTable(new_metadata):
 
             query.db().rollbackTransaction()
-            self._transaction -= 1
+            self.db_._transaction_level -= 1
             return False
 
         cur = self.execute_query(
@@ -671,7 +669,7 @@ class PNSqlSchema(object):
                         "Field %s not found un metadata %s" % (new_name, new_metadata.name())
                     )
                     self.db_.connManager().dbAux().rollbackTransaction()
-                    self._transaction -= 1
+                    self.db_._transaction_level -= 1
                     return False
                 value = None
                 if new_name in old_field_names:
@@ -697,12 +695,12 @@ class PNSqlSchema(object):
         util.destroyProgressDialog()
         if not self.insertMulti(table_name, list_records):
             self.db_.connManager().dbAux().rollbackTransaction()
-            self._transaction -= 1
+            self.db_._transaction_level -= 1
             return False
         else:
             if do_transaction:
                 self.db_.connManager().dbAux().commit()
-                self._transaction -= 1
+                self.db_._transaction_level -= 1
 
         query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
         return True
