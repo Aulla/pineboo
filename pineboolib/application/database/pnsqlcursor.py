@@ -3090,13 +3090,15 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
 
         count = len(self.private_cursor._transactions_opened) if count < 0 else count
-        if count > 0 and message != "":
-            table_name: str = self.table() if self.private_cursor.metadata_ else self.curName()
-            message = "%sSqlCursor::rollbackOpened: %s %s" % (message, count, table_name)
-            self.private_cursor.msgBoxWarning(message, False)
-        elif count > 0:
-            LOGGER.trace("rollbackOpened: %s %s", count, self.curName())
+        if count > 0:
+            if message != "":
+                table_name: str = self.table() if self.private_cursor.metadata_ else self.curName()
+                message = "%sSqlCursor::rollbackOpened: %s %s" % (message, count, table_name)
+                self.private_cursor.msgBoxWarning(message, False)
+            else:
+                LOGGER.trace("rollbackOpened: %s %s", count, self.curName())
 
+            self.rollback()
         # i = 0
         # while i < count:
         #    LOGGER.trace("Deshaciendo transacción abierta", self.transactionLevel())
