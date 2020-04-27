@@ -2788,39 +2788,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     )
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
 
-            # if not (self.private_cursor._model.insert(self)):
-            try:
-                self.model().insert_current_buffer()
-                # obj_ = self._cursor_model()
-                # obj_ = (
-                #    self.private_cursor.buffer_._current_model_obj  # type: ignore [union-attr] # noqa: F821
-                # )
-                # session_ = self.db().session()
-                # for field in self.buffer().fieldsList():
-                #    if field.value is not None:
-                #        value = field.value
-                #    else:
-                #        value = self.metadata().field(field.name).defaultValue()
-
-                #    setattr(obj_, field.name, value)
-
-                # session_.add(obj_)
-                # print("ADD", obj_, session_, session_.transaction)
-
-            except Exception as error:
-                raise Exception("Error adding row!: %s" % error)
-
-            # self.selection().currentRowChanged.disconnect(
-            #    self.selection_currentRowChanged
-            # )  # Evita vaciado de buffer al hacer removeRows
-            # self.model().refresh()
-            # self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
-
-            # self.model().refresh()
-            # pk_row = self.model().find_pk_row(pk_value)
-
-            # if pk_row > -1:
-            #    self.move(pk_row)
+            if not self.model().insert_current_buffer():
+                LOGGER.warning(
+                    "CommitBuffer cancelado. model().insert_current_buffer() devolvió False."
+                )
+                return False
 
             updated = True
 
@@ -2828,17 +2800,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             database = self.db()
             if database is None:
                 raise Exception("db is not defined!")
-
-            # if not db.canSavePoint():
-            #    if db.currentSavePoint_:
-            #        db.currentSavePoint_.saveEdit(primary_key, self.bufferCopy(), self)
-
-            # if function_after and self.private_cursor._activated_commit_actions:
-            #    if not savePoint:
-            #        from . import pnsqlsavepoint
-
-            #        savePoint = pnsqlsavepoint.PNSqlSavePoint(None)
-            #    savePoint.saveEdit(primary_key, self.bufferCopy(), self)
 
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
                 if self.private_cursor.cursor_relation_.metadata():
@@ -2927,30 +2888,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                 if not cursor.commitBuffer(False):
                                     LOGGER.warning("CommitBuffer cancelado. delC devolvió False.")
                                     return False
-            try:
-                # transaction = self.db().session()
-                # obj_ = transaction.query(self._cursor_model).get(
-                #    self.buffer().value(self.primaryKey())
-                # )
-                # print(
-                #    "Borrando",
-                #    self.buffer()._current_model_obj,
-                #    getattr(self.buffer()._current_model_obj, self.primaryKey(), None),
-                # )
-                # query_class = sql_tools.DynamicFilter(
-                #    query=self.db().session().query(self._cursor_model),
-                #    model_class=self._cursor_model,
-                #    filter_condition=[
-                #        [self.primaryKey(), "eq", self.valueBuffer(self.primaryKey())]
-                #    ],
-                # )
-                # query_class.return_query().delete(synchronize_session=False)
-                # transaction.delete(self.buffer()._current_model_obj)
-                self.model().delete_current_buffer()
-            except Exception as error:
-                raise Exception("Error deleting row!: %s" % error)
-            # if not self.private_cursor._model.delete(self):
-            #    raise Exception("Error deleting row!")
+
+            if not self.model().delete_current_buffer():
+                LOGGER.warning(
+                    "CommitBuffer cancelado. model().insert_current_buffer() devolvió False."
+                )
+                return False
 
             if function_record_del_after:
                 # RECORD DEL AFTER!!
