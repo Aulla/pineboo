@@ -84,7 +84,8 @@ class FormInternalObj(qsa.FormDBWidget):
             _qry = qsa.FLSqlQuery()
             _qry.setSelect(u"sha")
             _qry.setFrom(u"flfiles")
-            _serial_value = cur_files_.valueBuffer(u"sha")
+            value = cur_files_.valueBuffer(u"sha")
+
             if _qry.exec_():
                 if _qry.first():
                     util = qsa.FLUtil()
@@ -93,7 +94,7 @@ class FormInternalObj(qsa.FormDBWidget):
                         if _qry.value(0) is not None:
                             _v = util.sha1(_v + _qry.value(0))
 
-                    _serial_value = _v
+                    value = _v
 
             _cur_serial = qsa.FLSqlCursor(u"flserial")
             _cur_serial.select()
@@ -102,8 +103,8 @@ class FormInternalObj(qsa.FormDBWidget):
             else:
                 _cur_serial.setModeAccess(_cur_serial.Insert)
             _cur_serial.refreshBuffer()
-            _cur_serial.setValueBuffer(u"sha", _serial_value)
-            _cur_serial.commitBuffer()
+            _cur_serial.setValueBuffer(u"sha", value)
+            return _cur_serial.commitBuffer()
 
         return True
 
