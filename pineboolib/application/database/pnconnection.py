@@ -409,7 +409,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             )
             LOGGER.warning(
                 "Desaciendo transacción número:%s, cursor:%s",
-                self.driver()._transaction,
+                self.driver()._transaction + 1,
                 cur.curName(),
             )
             if self.rollbackTransaction():
@@ -437,7 +437,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             )
             LOGGER.warning(
                 "Desaciendo savePoint número:%s, cursor:%s",
-                self.driver()._transaction,
+                self.driver()._transaction + 1,
                 cur.curName(),
             )
             self.rollbackSavePoint(self.driver()._transaction)
@@ -487,7 +487,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             try:
                 LOGGER.warning(
                     "Aceptando transacción número:%s, cursor:%s",
-                    self.driver()._transaction,
+                    self.driver()._transaction + 1,
                     cur.curName(),
                 )
                 if self.commit():
@@ -520,7 +520,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             )
             LOGGER.warning(
                 "Aceptando savePoint número:%s, cursor:%s",
-                self.driver()._transaction,
+                self.driver()._transaction + 1,
                 cur.curName(),
             )
             self.releaseSavePoint(self.driver()._transaction)
