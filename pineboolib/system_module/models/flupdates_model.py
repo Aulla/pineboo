@@ -2,14 +2,11 @@
 # Translated with pineboolib v0.71.18
 """Flupdates_model module."""
 
-import sqlalchemy
-
 from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
+import sqlalchemy  # type: ignore [import] # noqa: F821
 
-BASE = declarative.declarative_base()
 
-
-class Flupdates(BASE):
+class Flupdates(declarative.declarative_base()):  # type: ignore [misc] # noqa: F821
     """Flupdates class."""
 
     __tablename__ = "flupdates"

@@ -2,14 +2,11 @@
 # Translated with pineboolib v0.71.18
 """Flusers_model module."""
 
-import sqlalchemy
-
 from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
+import sqlalchemy  # type: ignore [import] # noqa: F821
 
-BASE = declarative.declarative_base()
 
-
-class Flusers(BASE):
+class Flusers(declarative.declarative_base()):  # type: ignore [misc] # noqa: F821
     """Fusers class."""
 
     __tablename__ = "flusers"

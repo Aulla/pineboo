@@ -2,14 +2,11 @@
 # Translated with pineboolib v0.71.18
 """Flvar_model module."""
 
-import sqlalchemy
-
 from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
+import sqlalchemy  # type: ignore [import] # noqa: F821
 
-BASE = declarative.declarative_base()
 
-
-class Flvar(BASE):
+class Flvar(declarative.declarative_base()):  # type: ignore [misc] # noqa: F821
     """Flvar class."""
 
     __tablename__ = "flvar"
