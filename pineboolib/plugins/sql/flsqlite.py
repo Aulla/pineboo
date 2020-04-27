@@ -320,7 +320,17 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 if self._dbname == main_conn.driver()._dbname:
                     return main_conn.driver().session()
 
-        if getattr(self, "_session", None) is None:
+        session = getattr(self, "_session", None)
+
+        new_session = False
+        if session:
+            if not session.transaction:
+                session.close()
+                new_session = True
+        else:
+            new_session = True
+
+        if new_session:
             Session = sessionmaker(bind=self.engine())
             self._session = Session()
             self._session.connection().execute("PRAGMA journal_mode=WAL")
