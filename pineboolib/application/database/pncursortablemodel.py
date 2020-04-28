@@ -601,12 +601,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         try:
             obj_ = self.buffer().current_object()
             current_session = self.db().session()
-            LOGGER.info(
-                "Insertado objeto: %s en session: %s, transaccion: %s",
-                obj_,
-                current_session,
-                current_session.transaction,
-            )
+            # LOGGER.info(
+            #    "Insertado objeto: %s en session: %s, transaccion: %s",
+            #    obj_,
+            #    current_session,
+            #    current_session.transaction,
+            # )
 
             current_session.add(obj_)
             current_session.flush()
