@@ -40,7 +40,7 @@ class QSADictModules:
         module_name = scriptname if scriptname != "sys" else "sys_module"
 
         ret_ = getattr(cls.qsa_dict_modules(), module_name, None)
-        if ret_ is None:
+        if ret_ is None and not module_name.endswith("orm"):
             LOGGER.warning("Module %s not found!", module_name)
 
         return ret_

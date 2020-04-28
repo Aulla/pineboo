@@ -204,22 +204,20 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self.driver().db_ = self
 
         LOGGER.info("**********************************")
-        LOGGER.info(" ESTABLISHING DATABASE CONNECTION ")
-        LOGGER.info(" * CONN NAME : %s", self.connectionName())
-        LOGGER.info(" * HOST      : %s", db_host)
-        LOGGER.info(" * PORT      : %s", db_port)
-        LOGGER.info(" * DB NAME   : %s", db_name)
-        LOGGER.info(" * USER NAME : %s", db_user_name)
+        LOGGER.info(
+            " NEW CONNECTION NAME: %s, HOST: %s, PORT: %s, DB NAME: %s, USER NAME: %s",
+            self._name,
+            db_host,
+            db_port,
+            db_name,
+            db_user_name,
+        )
         LOGGER.info("")
 
         result = self.driver().connect(
             db_name, db_host, db_port, db_user_name, db_password, limit_conn
         )
-        LOGGER.info(
-            " CONNECTION TO %s %s ",
-            self.connectionName(),
-            "FAILURE" if isinstance(result, bool) else "ESTABLISHED",
-        )
+        LOGGER.info("FAILURE" if not result else "ESTABLISHED")
         LOGGER.info("**********************************")
         return result
 
@@ -310,12 +308,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
-        LOGGER.warning(
-            "Creando transaccion/savePoint número:%s, cursor:%s, tabla:%s",
-            self._transaction_level,
-            cursor.curName(),
-            cursor.table(),
-        )
+        # LOGGER.warning(
+        #    "Creando transaccion/savePoint número:%s, cursor:%s, tabla:%s",
+        #    self._transaction_level,
+        #    cursor.curName(),
+        #    cursor.table(),
+        # )
 
         if not self.transaction():
             return False
@@ -385,9 +383,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
-        LOGGER.warning(
-            "Desaciendo transacción número:%s, cursor:%s", self._transaction_level, cur.curName()
-        )
+        # LOGGER.warning(
+        #    "Desaciendo transacción número:%s, cursor:%s", self._transaction_level, cur.curName()
+        # )
 
         if not self.rollback():
             return False
@@ -446,9 +444,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
-        LOGGER.warning(
-            "Aceptando transacción número:%s, cursor:%s", self._transaction_level, cur.curName()
-        )
+        # LOGGER.warning(
+        #    "Aceptando transacción número:%s, cursor:%s", self._transaction_level, cur.curName()
+        # )
 
         if not self.commit():
             return False
@@ -499,7 +497,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
 
             session_ = self.session()
-            LOGGER.debug("COMMIT session: %s, transaction: %s", session_, session_.transaction)
+            # LOGGER.debug("COMMIT session: %s, transaction: %s", session_, session_.transaction)
             # self.driver()._session = None
             session_.commit()
             # session_.close()
