@@ -311,9 +311,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
         LOGGER.warning(
-            "Creando transaccion/savePoint número:%s, cursor:%s",
+            "Creando transaccion/savePoint número:%s, cursor:%s, tabla:%s",
             self._transaction_level,
             cursor.curName(),
+            cursor.table(),
         )
 
         if not self.transaction():
