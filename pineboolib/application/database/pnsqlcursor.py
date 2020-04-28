@@ -3335,6 +3335,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             # if self.transactionLevel() == 0:
             #    self.db().session().transaction.commit()
+            self.db().session().flush()
             update_successful = True
 
             # dict_update = {

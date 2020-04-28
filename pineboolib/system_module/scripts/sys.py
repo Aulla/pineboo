@@ -108,5 +108,18 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return True
 
+    def afterCommit_fltest(self, cursor: "isqlcursor.ISqlCursor") -> bool:
+        """Aftercommit fltest."""
+        util = qsa.FLUtil()
+
+        if cursor.modeAccess() == cursor.Insert:
+            return cursor.valueBuffer(cursor.primaryKey()) == util.sqlSelect(
+                "fltest",
+                cursor.primaryKey(),
+                "%s = %s " % (cursor.primaryKey(), cursor.valueBuffer(cursor.primaryKey())),
+            )
+
+        return True
+
 
 form = None

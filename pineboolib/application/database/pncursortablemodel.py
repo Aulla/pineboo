@@ -600,15 +600,16 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """Insert data from current buffer."""
         try:
             obj_ = self.buffer().current_object()
-
+            current_session = self.db().session()
             LOGGER.info(
                 "Insertado objeto: %s en session: %s, transaccion: %s",
                 obj_,
-                self.db().session(),
-                self.db().session().transaction,
+                current_session,
+                current_session.transaction,
             )
 
-            self.db().session().add(obj_)
+            current_session.add(obj_)
+            current_session.flush()
             return True
         except Exception as error:
             LOGGER.warning("insert_current_buffer : %s" % error)
@@ -623,7 +624,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         try:
             obj_ = self.buffer().current_object()
-            self.db().session().delete(obj_)
+            current_session = self.db().session()
+            current_session.delete(obj_)
+            current_session.flush()
             return True
         except Exception as error:
             LOGGER.warning("delete_current_buffer : %s" % error)

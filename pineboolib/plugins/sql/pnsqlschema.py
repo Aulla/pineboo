@@ -745,12 +745,12 @@ class PNSqlSchema(object):
             query_ = sqlalchemy.text(query)
             result_ = session_.execute(query_)
 
-            LOGGER.warning(
-                "execute_query: %s, session: %s, transaction: %s",
-                query[:50],
-                session_,
-                session_.transaction,
-            )
+            # LOGGER.warning(
+            #    "execute_query: %s, session: %s, transaction: %s",
+            #    query[:50],
+            #    session_,
+            #    session_.transaction,
+            # )
         except Exception as error:
             self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
 
