@@ -27,7 +27,7 @@ class Fltest4(declarative.declarative_base()):  # type: ignore [misc] # noqa: F8
             },
             {
                 "name": "idmodulo",
-                "alias": "Id. del Mï¿œdulo",
+                "alias": "Id. del Módulo",
                 "type": "string",
                 "length": 15,
                 "relations": [{"card": "1M", "table": "fltest", "field": "id"}],

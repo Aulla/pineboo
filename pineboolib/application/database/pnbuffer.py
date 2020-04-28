@@ -129,11 +129,12 @@ class PNBuffer(object):
             if metadata is not None:
                 type_ = metadata.type()
 
-                if isinstance(value, datetime.datetime):
-
+                if isinstance(value, datetime.date):
                     if type_ == "date":
                         value = value.strftime("%Y-%m-%d")
-                    elif type_ == "time":
+
+                if isinstance(value, datetime.datetime):
+                    if type_ == "time":
                         value = value.strftime("%H:%M:%S")
                 elif isinstance(value, decimal.Decimal):  # type: ignore [unreachable] # noqa: F821
                     value = float(str(value))  # type: ignore [unreachable] # noqa: F821
@@ -173,7 +174,7 @@ class PNBuffer(object):
             metadata = self.cursor_.metadata().field(field_name)
             type_ = metadata.type()
             if type_ == "date":
-                value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
+                value = datetime.date.fromisoformat(str(value)[:10])
             elif type_ == "timestamp":
                 value = datetime.datetime.strptime(str(value), "%Y-%m-%d %H:%M:%S")
             elif type_ == "time":

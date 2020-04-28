@@ -56,7 +56,7 @@ class Fltest2(declarative.declarative_base()):  # type: ignore [misc] # noqa: F8
 
     id = sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True)
     string_field = sqlalchemy.Column("string_field", sqlalchemy.String)
-    date_field = sqlalchemy.Column("date_field", sqlalchemy.DateTime)
+    date_field = sqlalchemy.Column("date_field", sqlalchemy.Date)
     time_field = sqlalchemy.Column("time_field", sqlalchemy.DateTime)
     double_field = sqlalchemy.Column("double_field", sqlalchemy.Numeric(6, 2))
     bool_field = sqlalchemy.Column("bool_field", sqlalchemy.Boolean)

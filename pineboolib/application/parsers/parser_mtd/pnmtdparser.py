@@ -217,8 +217,11 @@ def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
     elif field.type() in ("bool", "unlock"):
         ret = "sqlalchemy.Boolean"
 
-    elif field.type() in ("time", "date", "timestamp"):
+    elif field.type() in ("time", "timestamp"):
         ret = "sqlalchemy.DateTime"
+
+    elif field.type() == "date":
+        ret = "sqlalchemy.Date"
 
     elif field.type() in ("bytearray"):
         ret = "sqlalchemy.LargeBinary"

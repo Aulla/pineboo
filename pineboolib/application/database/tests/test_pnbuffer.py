@@ -1,8 +1,9 @@
 """Test_pnbuffer module."""
 
 import unittest
+import datetime
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.application.database import pnsqlcursor
+from pineboolib.application.database import pnsqlcursor, pnsqlquery
 
 
 class TestPNBuffer(unittest.TestCase):
@@ -58,6 +59,15 @@ class TestPNBuffer(unittest.TestCase):
 
         # self.assertEqual(buffer_.value(2), "2019-01-01")
         self.assertEqual(buffer_.value("date_field"), "2019-01-01")
+        self.assertEqual(cursor.valueBuffer("date_field"), "2019-01-01")
+        qry = pnsqlquery.PNSqlQuery()
+        qry.setSelect("date_field")
+        qry.setFrom("fltest")
+        qry.setWhere("date_field = '2019-01-01'")
+        self.assertTrue(qry.exec_())
+        self.assertTrue(qry.first())
+        self.assertEqual(qry.value(0), "2019-01-01")
+
         # self.assertEqual(buffer_.count(), 8)
         # buffer_.clear_buffer()
         # buffer_.prime_update()

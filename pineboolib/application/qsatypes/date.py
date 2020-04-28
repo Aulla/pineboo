@@ -72,7 +72,6 @@ class Date(object):
                 self.time_.toString("mm"),
                 self.time_.toString("ss"),
             )
-
         return texto
 
     def getTime(self) -> int:

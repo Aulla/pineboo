@@ -97,7 +97,7 @@ class Flupdates(declarative.declarative_base()):  # type: ignore [misc] # noqa: 
 
     id = sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True)
     actual = sqlalchemy.Column("actual", sqlalchemy.Boolean)
-    fecha = sqlalchemy.Column("fecha", sqlalchemy.DateTime)
+    fecha = sqlalchemy.Column("fecha", sqlalchemy.Date)
     hora = sqlalchemy.Column("hora", sqlalchemy.DateTime)
     nombre = sqlalchemy.Column("nombre", sqlalchemy.String(255))
     modulesdef = sqlalchemy.Column("modulesdef", sqlalchemy.String)
