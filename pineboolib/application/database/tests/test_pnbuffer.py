@@ -65,7 +65,7 @@ class TestPNBuffer(unittest.TestCase):
         qry.setWhere("date_field = '2019-01-01'")
         self.assertTrue(qry.exec_())
         self.assertTrue(qry.first())
-        self.assertEqual(qry.value(0), "2019-01-01")
+        self.assertEqual(qry.value(0), "2019-01-01T00:00:00")
 
         # self.assertEqual(buffer_.count(), 8)
         # buffer_.clear_buffer()
