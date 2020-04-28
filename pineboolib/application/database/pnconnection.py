@@ -385,9 +385,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
         LOGGER.warning(
-            "Desaciendo transacción número:%s, cursor:%s",
-            self._transaction_level + 1,
-            cur.curName(),
+            "Desaciendo transacción número:%s, cursor:%s", self._transaction_level, cur.curName()
         )
 
         if not self.rollback():
@@ -448,7 +446,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         application.PROJECT.message_manager().send("status_help_msg", "send", [text_])
 
         LOGGER.warning(
-            "Aceptando transacción número:%s, cursor:%s", self._transaction_level + 1, cur.curName()
+            "Aceptando transacción número:%s, cursor:%s", self._transaction_level, cur.curName()
         )
 
         if not self.commit():

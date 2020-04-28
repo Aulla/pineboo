@@ -607,8 +607,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 self.db().session(),
                 self.db().session().transaction,
             )
-            for name in self.metadata().fieldNames():
-                LOGGER.info("Valor de %s: %s", name, str(getattr(obj_, name, None))[:80])
 
             self.db().session().add(obj_)
             return True

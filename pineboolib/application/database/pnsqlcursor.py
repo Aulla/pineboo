@@ -1251,8 +1251,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         if not qry.next():
                             LOGGER.warning(
                                 " msgCheckIntegrity. No se encuentra el valor en session: %s, transacción: %s, sql: %s, size: %s",
-                                self.db().session(),
-                                self.db().session().transaction,
+                                qry.db().session(),
+                                qry.db().session().transaction,
                                 qry.sql(),
                                 qry.size(),
                             )
