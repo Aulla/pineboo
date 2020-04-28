@@ -1,7 +1,6 @@
 """Test_pnbuffer module."""
 
 import unittest
-import datetime
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
 
