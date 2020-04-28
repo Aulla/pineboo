@@ -761,7 +761,7 @@ class FLUtil(object):
 
         where = "flkey = '%s'" % key
         found = cls.readDBSettingEntry(key)
-        cursor = application.PROJECT.conn_manager.useConn("default").engine().connect()
+        cursor = application.PROJECT.conn_manager.useConn("default").session()
         if found is None:
             sql = "INSERT INTO flsettings (flkey, valor) VALUES ('%s', '%s')" % (key, value)
         else:
