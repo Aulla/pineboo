@@ -199,35 +199,41 @@ def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
 
     # = "String"
     ret = ""
-    if field.type() in ("int, serial"):
+    type_ = field.type()
+    if type_ in ("int, serial"):
         ret = "sqlalchemy.Integer"
-    elif field.type() in ("uint"):
+    elif type_ in ("uint"):
         ret = "sqlalchemy.BigInteger"
-    elif field.type() in ("calculated"):
+    elif type_ in ("calculated"):
         ret = "sqlalchemy.String"
-    elif field.type() in ("double"):
-        ret = "sqlalchemy.Numeric"
-        ret += "(%s , %s)" % (field.partInteger(), field.partDecimal())
+    # elif field.type() in ("double"):
+    #    ret = "sqlalchemy.Numeric"
+    #    ret += "(%s , %s)" % (field.partInteger(), field.partDecimal())
+    elif type_ == "double":
+        ret = "sqlalchemy.Float"
 
-    elif field.type() in ("string", "stringlist", "pixmap"):
+    elif type_ in ("string", "stringlist", "pixmap"):
         ret = "sqlalchemy.String"
         if field.length():
             ret += "(%s)" % field.length()
 
-    elif field.type() in ("bool", "unlock"):
+    elif type_ in ("bool", "unlock"):
         ret = "sqlalchemy.Boolean"
 
-    elif field.type() in ("time", "timestamp"):
+    elif type_ == "timestamp":
         ret = "sqlalchemy.DateTime"
 
-    elif field.type() == "date":
+    elif type_ == "time":
+        ret = "sqlalchemy.Time"
+
+    elif type_ == "date":
         ret = "sqlalchemy.Date"
 
-    elif field.type() in ("bytearray"):
+    elif type_ in ("bytearray"):
         ret = "sqlalchemy.LargeBinary"
 
     else:
-        ret = "Desconocido %s" % field.type()
+        ret = "Desconocido %s" % type_
 
     data.append(ret)
 

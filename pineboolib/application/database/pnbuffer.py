@@ -125,19 +125,15 @@ class PNBuffer(object):
         else:
             value = getattr(self._orm_obj, field_name, None)
 
-            metadata = self.cursor_.metadata().field(field_name)
-            if metadata is not None:
-                type_ = metadata.type()
-
-                if isinstance(value, datetime.date):
+            if value is not None:
+                metadata = self.cursor_.metadata().field(field_name)
+                if metadata is not None:
+                    type_ = metadata.type()
                     if type_ == "date":
                         value = value.strftime("%Y-%m-%d")
 
-                if isinstance(value, datetime.datetime):
-                    if type_ == "time":
+                    elif type_ == "time":
                         value = value.strftime("%H:%M:%S")
-                elif isinstance(value, decimal.Decimal):  # type: ignore [unreachable] # noqa: F821
-                    value = float(str(value))  # type: ignore [unreachable] # noqa: F821
 
         return value
 
@@ -182,7 +178,7 @@ class PNBuffer(object):
                 if value.find("T") > -1:
                     value = value[value.find("T") + 1 :]
 
-                value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S")
+                value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S").time()
             elif type_ in ["bool", "unlock"]:
                 value = True if value in [True, 1, "1", "true"] else False
 
