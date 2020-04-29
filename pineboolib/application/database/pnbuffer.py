@@ -130,10 +130,10 @@ class PNBuffer(object):
                 if metadata is not None:
                     type_ = metadata.type()
                     if type_ == "date":
-                        value = value.strftime("%Y-%m-%d")
+                        value = value.strftime("%Y-%m-%d")  # type: ignore [union-attr] # noqa: F821
 
                     elif type_ == "time":
-                        value = value.strftime("%H:%M:%S")
+                        value = value.strftime("%H:%M:%S")  # type: ignore [union-attr] # noqa: F821
 
         return value
 
