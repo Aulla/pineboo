@@ -127,10 +127,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         private_cursor.mode_access_ = PNSqlCursor.Browse
 
-        if self.private_cursor.cursor_relation_:
-            self.private_cursor.cursor_relation_.bufferChanged.disconnect(self.refresh)
-            self.private_cursor.cursor_relation_.newBuffer.disconnect(self.refresh)
-            self.private_cursor.cursor_relation_.newBuffer.disconnect(self.clearPersistentFilter)
+        # if self.private_cursor.cursor_relation_:
+        #    self.private_cursor.cursor_relation_.bufferChanged.disconnect(self.refresh)
+        #    self.private_cursor.cursor_relation_.newBuffer.disconnect(self.refresh)
+        #    self.private_cursor.cursor_relation_.newBuffer.disconnect(self.clearPersistentFilter)
 
         private_cursor.cursor_relation_ = cursor_relation
         private_cursor.relation_ = relation_mtd
@@ -624,15 +624,21 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             value = buffer_copy.value(field_name)
 
         if value is not None:
-            if type_ in ("date"):
-
-                value = types.Date(value)
+            if type_ == "date":
+                if isinstance(value, datetime.date):
+                    value = types.Date(value.strftime("%Y-%m-%d"))
+            elif type_ == "time":
+                if isinstance(value, datetime.time):
+                    value = value.strftime("%H:%M:%S")
 
             elif type_ == "pixmap":
                 v_large = None
                 if not self.private_cursor._is_system_table:
+
                     v_large = self.db().connManager().manager().fetchLargeValue(value)
+
                 else:
+
                     v_large = xpm.cache_xpm(value)
 
                 if v_large:
@@ -642,6 +648,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 value = ""
             elif type_ in ("double", "int", "uint"):
                 value = 0
+
+            # self.private_cursor.buffer_.set_value(field_name, value)
 
         return value
 
@@ -2581,31 +2589,30 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not field_list:
             return
 
-        # ifdef AQ_MD5_CHECK
         if self.private_cursor.needUpdate():
-            primary_key = self.private_cursor.metadata_.primaryKey()
-            pk_value = self.valueBuffer(primary_key)
+            pk_value = self.valueBuffer(self.primaryKey())
             self.refresh()
-            pos = self.atFromBinarySearch(primary_key, str(pk_value))
+            self.model().find_pk_row(pk_value)
             if pos != self.at():
                 self.seek(pos, False, True)
-        # endif
 
-        buffer_aux = self.private_cursor.buffer_
+        old_data = {}
+        for item in field_list:
+            value = self.buffer().value(item.name())
+            if value is None:
+                continue
+            old_data[item.name()] = value
+
         self.insertRecord()
 
         for item in field_list:
+            if item.isPrimaryKey() or self.metadata().fieldListOfCompoundKey(item.name()):
+                continue
 
-            if (
-                self.buffer().is_null(item.name())
-                and not item.isPrimaryKey()
-                and not self.private_cursor.metadata_.fieldListOfCompoundKey(item.name())
-                and not item.calculated()
-            ):
-                self.private_cursor.buffer_.set_value(item.name(), buffer_aux.value(item.name()))
+            if item.name() in old_data.keys():
+                self.buffer().set_value(item.name(), old_data[item.name()])
 
-            del buffer_aux
-            self.newBuffer.emit()
+        self.newBuffer.emit()
 
     @decorators.pyqt_slot()
     def chooseRecord(self, wait: bool = True) -> None:
