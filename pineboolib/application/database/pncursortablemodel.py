@@ -7,8 +7,7 @@ Defines PNCursorTableModel class.
 from PyQt5 import QtCore, QtGui, Qt, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
-
-
+import sqlalchemy
 from pineboolib.application.utils import date_conversion, xpm, sql_tools
 from . import pnsqlquery
 
@@ -274,8 +273,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         res_color_function: List[str] = []
 
         # print("***", self._last_grid_row, row)
-        if self._last_grid_row != row:
-            # print("Cambio", self._last_grid_row, row)
+        if self._last_grid_row != row or (
+            self._last_grid_obj is not None and sqlalchemy.inspect(self._last_grid_obj).expired
+        ):
             self._last_grid_row = row
             self._last_grid_obj = self.get_obj_from_row(row)
 
@@ -764,13 +764,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 "%s = %s" % (self.metadata().primaryKey(), pk_value)
             )
             try:
-                result = query.return_query()
-                results_count = result.count()
-
-                if results_count == 1:
-                    ret_ = result.first()
-                elif results_count > 1:
-                    raise Exception("multiples matches with a single pk_value!")
+                ret_ = query.return_query().first()
             except Exception as error:
                 raise Exception("get_object_from_row %s (%s) : %s" % (row, pk_value, error))
             # for number, obj_ in enumerate(self._data_proxy):
