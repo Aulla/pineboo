@@ -50,11 +50,11 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         if self.is_open():
             cur = self.execute_query("SELECT nextval('%s_%s_seq')" % (table_name, field_name))
-            result_ = cur.fetchone() if cur else []
-            if not result_:
-                LOGGER.warning("not exec sequence")
-            else:
-                return result_[0]
+
+            if cur and cur.returns_rows:
+                return cur.fetchone()[0]  # type: ignore [index] # noqa: F821
+
+            LOGGER.warning("not exec sequence")
 
         return 0
 
@@ -276,7 +276,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             % name
         )
         cur = self.execute_query(sql)
-        result_ = cur.fetchone() if cur else []
+        result_: Any = cur.fetchone() if cur else []
         return True if result_ else False
 
     def vacuum(self):

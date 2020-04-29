@@ -2592,7 +2592,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.private_cursor.needUpdate():
             pk_value = self.valueBuffer(self.primaryKey())
             self.refresh()
-            self.model().find_pk_row(pk_value)
+            pos = self.model().find_pk_row(pk_value)
             if pos != self.at():
                 self.seek(pos, False, True)
 

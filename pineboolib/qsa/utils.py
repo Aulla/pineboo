@@ -15,6 +15,7 @@ from typing import Any, Optional, Union, Match, List, Generator, Callable, Itera
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import base  # type: ignore [import] # noqa: F401, F821
+    from sqlalchemy.orm import session as orm_session
 
 LOGGER = logging.get_logger(__name__)
 
@@ -195,9 +196,9 @@ class MathClass(object):
 
         return min([number1, number2])
 
-    def pow(self, base: float, exp: float) -> float:
+    def pow(self, base_: float, exp: float) -> float:
         """Raise base to the power of exp."""
-        return math.pow(base, exp)
+        return math.pow(base_, exp)
 
     def round(self, value_1: float, value_2: int = 2) -> float:
         """Round a number x to y decimal places."""
@@ -307,7 +308,7 @@ def parse_string(obj: Any) -> str:
     return obj.toString() if hasattr(obj, "toString") else str(obj)
 
 
-def parse_int(value: Union[float, int, str], base: int = 10) -> int:
+def parse_int(value: Union[float, int, str], base_: int = 10) -> int:
     """
     Convert to int almost any value.
 
@@ -325,7 +326,7 @@ def parse_int(value: Union[float, int, str], base: int = 10) -> int:
 
     if value is not None:
         # x = float(x)
-        ret_ = int(tmp_value, base)
+        ret_ = int(tmp_value, base_)
         # ret_ = int(str(x), base)
 
     return ret_
@@ -545,7 +546,7 @@ def user_id() -> str:
     return application.PROJECT.session_id()
 
 
-def session(conn_name: str = "default") -> "base.Connection":
+def session(conn_name: str = "default") -> "orm_session.Session":
     """Return session connection."""
 
     return application.PROJECT.conn_manager.useConn(conn_name).session()

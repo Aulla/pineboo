@@ -13,6 +13,7 @@ from typing import Optional, Union, List, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import base, result  # type: ignore [import] # noqa: F401, F821
+    from sqlalchemy.orm import session as orm_session  # noqa: F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -64,11 +65,11 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         if self.is_open():
             cur = self.execute_query("SELECT NEXT VALUE FOR %s_%s_seq" % (table_name, field_name))
-            result_ = cur.fetchone() if cur else []
-            if not result_:
-                LOGGER.warning("not exec sequence")
-            else:
-                return result_[0]
+
+            if cur and cur.returns_rows:
+                return cur.fetchone()[0]  # type: ignore [index] # noqa: F821
+
+            LOGGER.warning("not exec sequence")
 
         return 0
 
@@ -113,9 +114,8 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         cur = self.execute_query(
             "SELECT 1 FROM sys.Tables WHERE  Name = N'%s' AND Type = N'U'" % table_name
         )
-        result_ = cur.fetchone() if cur else []
 
-        return True if result_ else False
+        return True if cur and cur.returns_rows else False
 
     def sqlCreateTable(
         self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
@@ -264,68 +264,6 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
             LOGGER.trace("Detalle:", stack_info=True)
 
         return None
-
-    def getRow(
-        self,
-        number: int,
-        curname: str,
-        conn_db: "base.Connection",
-        data: Optional["result.ResultProxy"] = None,
-    ) -> List:
-        """Return a data row."""
-
-        if not self.is_open():
-            raise Exception("getRow: Database not open")
-
-        ret_: List[Any] = []
-        sql = "FETCH ABSOLUTE %s FROM %s" % (number + 1, curname)
-        sql_exists = "SELECT CURSOR_STATUS('global','%s')" % curname
-        conn_db.execute(sql_exists)
-        if conn_db.fetchone()[0] < 1:
-            return ret_
-
-        try:
-            conn_db.execute(sql)
-            ret_ = conn_db.fetchone()
-        except Exception as e:
-            LOGGER.error("getRow: %s", e)
-            LOGGER.trace("Detalle:", stack_info=True)
-
-        return ret_
-
-    def findRow(
-        self,
-        cursor: "base.Connection",
-        curname: str,
-        field_pos: int,
-        value: Any,
-        data_proxy: Optional["result.ResultProxy"] = None,
-    ) -> Optional[int]:
-        """Return index row."""
-        pos: Optional[int] = None
-
-        if not self.is_open():
-            raise Exception("findRow: Database not open")
-
-        try:
-            n = 0
-            while True:
-                sql = "FETCH %s FROM %s" % ("FIRST" if not n else "NEXT", curname)
-                cursor.execute(sql)
-                data_ = cursor.fetchone()
-                if not data_:
-                    break
-                if data_[field_pos] == value:
-                    pos = n
-                    break
-                else:
-                    n += 1
-
-        except Exception as e:
-            LOGGER.warning("finRow: %s", e)
-            LOGGER.warning("Detalle:", stack_info=True)
-
-        return pos
 
     def deleteCursor(self, cursor_name: str, cursor: Any) -> None:
         """Delete cursor."""

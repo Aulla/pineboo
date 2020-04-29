@@ -71,7 +71,7 @@ class PNSqlSchema(object):
         """Inicialize."""
         self.version_ = ""
         self.name_ = ""
-        self._connection = None
+        # self._connection = None
         self.errorList = []
         self.alias_ = ""
         self._dbname = ""
@@ -121,7 +121,7 @@ class PNSqlSchema(object):
         db_user_name: str,
         db_password: str,
         limit_conn=0,
-    ) -> "base.Connection":
+    ) -> Optional["base.Connection"]:
         """Connect to database."""
 
         self.setDBName(db_name)
@@ -134,7 +134,7 @@ class PNSqlSchema(object):
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
             if not application.PROJECT.DGI.localDesktop():
-                return False
+                return None
 
             last_error = self.last_error()
             found = False
@@ -154,7 +154,7 @@ class PNSqlSchema(object):
                     ),
                 )
                 if ret == QtWidgets.QMessageBox.No:
-                    return False
+                    return None
                 else:
                     try:
                         tmp_conn = self.getAlternativeConn(
@@ -171,7 +171,7 @@ class PNSqlSchema(object):
 
                                 tmp_conn.execute("ROLLBACK")
                                 tmp_conn.close()
-                                return False
+                                return None
 
                             tmp_conn.close()
                             conn_ = self.getConn(
@@ -187,7 +187,7 @@ class PNSqlSchema(object):
                             QtWidgets.QMessageBox.Ok,
                         )
                         LOGGER.error("ERROR: No se ha podido crear la Base de Datos %s", db_name)
-                        return False
+                        return None
 
         if conn_ is not None:
             # if settings.CONFIG.value("ebcomportamiento/orm_enabled", False):
@@ -197,7 +197,6 @@ class PNSqlSchema(object):
             self.session()
         else:
             LOGGER.error("connect: %s", self.last_error())
-            return False
 
         return conn_
 

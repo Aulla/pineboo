@@ -22,6 +22,8 @@ if TYPE_CHECKING:
     from . import pnconnectionmanager
 
     from sqlalchemy.engine import base  # type: ignore [import] # noqa: F821, F401
+    from sqlalchemy.orm import session as orm_session  # noqa: F401
+
 LOGGER = utils.logging.get_logger(__name__)
 
 
@@ -35,7 +37,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _db_port: Optional[int]
     _db_user_name: Optional[str]
     _db_password: str = ""
-    conn: Optional["base.Connection"] = None  # Connection from the actual driver
+    # conn: Optional["base.Connection"] = None  # Connection from the actual driver
 
     _driver_sql: "pnsqldrivers.PNSqlDrivers"
     _driver_name: str
@@ -169,7 +171,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self.update_activity_time()
         return self._driver
 
-    def session(self) -> "base.Connection":
+    def session(self) -> "orm_session.Session":
         """
         Sqlalchemy session.
 
@@ -269,13 +271,15 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self._db_password
 
-    def seek(self, offs, whence=0) -> Any:
-        """Position the cursor at a position in the database."""
-
-        if self.conn is None:
-            raise Exception("seek. Empty conn!!")
-
-        return self.conn.seek(offs, whence)
+    # ===============================================================================
+    #     def seek(self, offs, whence=0) -> bool:
+    #         """Position the cursor at a position in the database."""
+    #
+    #         if self.conn is None:
+    #             raise Exception("seek. Empty conn!!")
+    #
+    #         return self.conn.seek(offs, whence)
+    # ===============================================================================
 
     def setInteractiveGUI(self, b):
         """Set if it is an interactive GUI."""

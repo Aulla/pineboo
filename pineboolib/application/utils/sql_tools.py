@@ -622,7 +622,7 @@ class DynamicFilter(object):
         # ===============================================================================
         # print("Filtro final", self.filter_condition)
 
-    def filter_query(self, query, filter_condition) -> None:
+    def filter_query(self, query, filter_condition) -> "query.Query":
         """
         Return filtered queryset based on condition.
 

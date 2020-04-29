@@ -238,7 +238,7 @@ class PNBuffer(object):
             if not self._orm_obj:
                 return False
             value = getattr(self._orm_obj, pk_field)  # noqa: F841
-        except sqlalchemy.orm.exc.ObjectDeletedError:
+        except sqlalchemy.orm.exc.ObjectDeletedError:  # type: ignore [attr-defined] # noqa: F821
             return False
 
         return True
