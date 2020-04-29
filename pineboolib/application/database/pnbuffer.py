@@ -10,7 +10,7 @@ from pineboolib import logging
 
 import datetime
 import decimal
-import sqlalchemy  # type: ignore [import] # noqa: F821, F401
+import sqlalchemy
 
 from typing import List, Union, Optional, Callable, Dict, TYPE_CHECKING
 
@@ -123,6 +123,9 @@ class PNBuffer(object):
             value = self._cache_buffer[field_name]
 
         else:
+            if self._orm_obj and sqlalchemy.inspect(self._orm_obj).expired:
+                self._orm_obj = self.model().get_obj_from_row(self.cursor_.currentRegister())
+
             value = getattr(self._orm_obj, field_name, None)
 
             if value is not None:
