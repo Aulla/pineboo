@@ -917,6 +917,8 @@ class TestAfterCommit(unittest.TestCase):
         from pineboolib.qsa import qsa
 
         util = qsa.FLUtil()
+        size_ = util.sqlSelect("flfiles", "COUNT(*)")
+        self.assertEqual(size_, 147)
         sha_ = util.sqlSelect("flserial", "sha", "1=1")
         self.assertEqual(sha_, "79D7F8BEFE9C4ECAA33E3D746A86586EFC90AB86")
 
