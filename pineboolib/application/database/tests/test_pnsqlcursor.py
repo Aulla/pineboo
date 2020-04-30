@@ -154,6 +154,33 @@ class TestDeleteData(unittest.TestCase):
             pass_, 4, "Solo ha borrado %s registros! %s" % (pass_, ", ".join(borrados))
         )
 
+    def test_basic_3(self) -> None:
+        """Delete data from a database."""
+
+        cursor = pnsqlcursor.PNSqlCursor("flareas")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("bloqueo", True)
+        cursor.setValueBuffer("idarea", "T1")
+        cursor.setValueBuffer("descripcion", "Área de prueba T1")
+        self.assertTrue(cursor.commitBuffer())
+
+        cursor2 = pnsqlcursor.PNSqlCursor("flmodules")
+        cursor2.setModeAccess(cursor2.Insert)
+        cursor2.refreshBuffer()
+        cursor2.setValueBuffer("idmodulo", "M1")
+        cursor2.setValueBuffer("idarea", "T1")
+        cursor2.setValueBuffer("descripcion", "Módulo T")
+        cursor2.setValueBuffer("version", "0.0")
+        cursor2.commitBuffer()
+
+        cursor3 = pnsqlcursor.PNSqlCursor("flareas")
+        cursor3.select("idarea = 'T1'")
+        self.assertTrue(cursor3.first())
+        cursor3.setModeAccess(cursor3.Del)
+        cursor3.refreshBuffer()
+        self.assertFalse(cursor3.commitBuffer())
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
