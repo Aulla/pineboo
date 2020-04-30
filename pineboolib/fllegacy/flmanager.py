@@ -342,8 +342,8 @@ class FLManager(QtCore.QObject, IManager):
         table_metadata.setCompoundKey(compound_key)
 
         for assoc_with, assoc_by, field_name in assocs:
-            field_metadata = table_metadata.field(field_name)
-            assoc_field_mtd = table_metadata.field(assoc_with)
+            field_metadata = table_metadata.field(field_name or "")
+            assoc_field_mtd = table_metadata.field(assoc_with or "")
             if field_metadata and assoc_field_mtd and assoc_by:
                 field_metadata.setAssociatedField(assoc_field_mtd, assoc_by)
 

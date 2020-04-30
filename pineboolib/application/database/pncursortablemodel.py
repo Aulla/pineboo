@@ -745,7 +745,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             # print("RESULTADOS!", self._rows_loaded, self._data_index)
             self.need_update = False
             self._column_hints = [120] * len(self.sql_fields)
-            self.update_rows()
+
+            if self.parent_view:
+                self.update_rows()
 
     def get_obj_from_row(self, row: int) -> Optional[Callable]:
         """Return row object from proxy."""

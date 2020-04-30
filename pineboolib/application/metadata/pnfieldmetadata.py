@@ -360,9 +360,6 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         if is_relation_m1:
             self.private._relation_m1 = relation
         else:
-            if not self.private._relation_list:
-                self.private._relation_list = []
-
             self.private._relation_list.append(relation)
 
     def relationList(self) -> List["pnrelationmetadata.PNRelationMetaData"]:
