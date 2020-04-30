@@ -595,26 +595,22 @@ class FLManager(QtCore.QObject, IManager):
                 if not tmd:
                     return None
 
-                if self.existsTable(tmd.name()):
-                    self.list_tables_.append(n_or_tmd)
-                    return tmd
-                else:
-                    if not tmd.isQuery():
-                        LOGGER.warning("FLMAnager :: No existe tabla %s", n_or_tmd)
+                n_or_tmd = tmd
 
-                return self.createTable(tmd)
-            else:
-                if n_or_tmd.isQuery() or self.existsTable(n_or_tmd.name(), False):
-                    return n_or_tmd
+            if n_or_tmd in self.list_tables_:
+                return n_or_tmd
 
-                if not self.db_.createTable(n_or_tmd):
-                    LOGGER.warning(
-                        "createTable: %s",
-                        self.tr("No se ha podido crear la tabla ") + n_or_tmd.name(),
-                    )
-                    return None
-                # else:
-                #    LOGGER.info("createTable: Created new table %r", n_or_tmd.name())
+            if n_or_tmd.isQuery() or self.existsTable(n_or_tmd.name(), False):
+                self.list_tables_.append(n_or_tmd)
+                return n_or_tmd
+
+            elif not self.db_.createTable(n_or_tmd):
+                LOGGER.warning(
+                    "createTable: %s", self.tr("No se ha podido crear la tabla ") + n_or_tmd.name()
+                )
+                return None
+            # else:
+            #    LOGGER.info("createTable: Created new table %r", n_or_tmd.name())
 
         return n_or_tmd
 
@@ -1292,9 +1288,9 @@ class FLManager(QtCore.QObject, IManager):
         @return A PNTableMetaData object with the metadata of the table that was created, or
           False if the table could not be created or already existed.
         """
-        if not self.existsTable(table_name):
-            if self.createTable(self.metadata("%s.mtd" % table_name, True)):
-                return True
+        # if not self.existsTable(table_name):
+        if self.createTable(self.metadata("%s.mtd" % table_name, True)):
+            return True
 
         return False
 
