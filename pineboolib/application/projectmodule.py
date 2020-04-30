@@ -559,8 +559,7 @@ class Project(object):
             "flsettings",
         ):
 
-            if not self.conn_manager.manager().existsTable(table):
-                self.conn_manager.manager().createSystemTable(table)
+            self.conn_manager.manager().createSystemTable(table)
 
         return True
 
