@@ -553,7 +553,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if not sql:
             return False
 
-        if self._transaction_level == 0:
+        if not self._transaction_level:
             do_transaction = True
 
         if do_transaction:

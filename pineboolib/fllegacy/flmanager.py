@@ -61,7 +61,7 @@ class FLManager(QtCore.QObject, IManager):
         str, "pnaction.PNAction"
     ]  # Caché de definiciones de acciones, para optimizar lecturas
     # Caché de metadatos de talblas del sistema para optimizar lecturas
-    cache_metadata_sys_: Dict[str, "pntablemetadata.PNTableMetaData"]
+
     db_: "iconnection.IConnection"  # Base de datos a utilizar por el manejador
     init_count_: int = 0  # Indica el número de veces que se ha llamado a FLManager::init()
 
@@ -77,7 +77,6 @@ class FLManager(QtCore.QObject, IManager):
         self.list_tables_ = []
         self.dict_key_metadata_ = {}
         self.cache_metadata_ = {}
-        self.cache_metadata_sys_ = {}
         self._cache_action = {}
         QtCore.QTimer.singleShot(100, self.init)
         self.metadata_cache_fails_ = []
@@ -103,16 +102,12 @@ class FLManager(QtCore.QObject, IManager):
         if not self._cache_action:
             self._cache_action = {}
 
-        if not self.cache_metadata_sys_:
-            self.cache_metadata_sys_ = {}
-
     def finish(self) -> None:
         """Apply close process."""
 
         self.dict_key_metadata_ = {}
         self.list_tables_ = []
         self.cache_metadata_ = {}
-        self.cache_metadata_sys_ = {}
         self.metadata_cache_fails_ = []
         self._cache_action = {}
 
@@ -140,12 +135,14 @@ class FLManager(QtCore.QObject, IManager):
         @param quick If TRUE does not check, use carefully
         @return A PNTableMetaData object with the metadata of the requested table
         """
-        util = flutil.FLUtil()
+
         if not metadata_name_or_xml:
             return None
 
         if not self.db_:
             raise Exception("metadata. self.db_ is empty!")
+
+        util = flutil.FLUtil()
 
         if quick is None:
             dbadmin = settings.CONFIG.value("application/dbadmin_enabled", False)
@@ -161,12 +158,9 @@ class FLManager(QtCore.QObject, IManager):
             if metadata_name_or_xml in self.metadata_cache_fails_:
                 return None
 
-            elif is_system_table:
-                if key in self.cache_metadata_sys_.keys():
-                    ret = self.cache_metadata_sys_[key]
-            else:
-                if key in self.cache_metadata_.keys():
-                    ret = self.cache_metadata_[key]
+            if key in self.cache_metadata_.keys():
+                ret = self.cache_metadata_[key]
+
             if not ret:
                 table_name = (
                     metadata_name_or_xml
@@ -220,10 +214,7 @@ class FLManager(QtCore.QObject, IManager):
                 if not ret.isQuery() and not self.existsTable(metadata_name_or_xml):
                     self.createTable(ret)
 
-                if not is_system_table:
-                    self.cache_metadata_[key] = ret
-                else:
-                    self.cache_metadata_sys_[key] = ret
+                self.cache_metadata_[key] = ret
 
                 if (
                     not quick
