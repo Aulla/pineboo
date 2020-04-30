@@ -50,7 +50,7 @@ class FLManager(QtCore.QObject, IManager):
     @author InfoSiAL S.L.
     """
 
-    list_tables_: List[str] = []  # Lista de las tablas de la base de datos, para optimizar lecturas
+    list_tables_: List[str]  # Lista de las tablas de la base de datos, para optimizar lecturas
     dict_key_metadata_: Dict[
         str, str
     ]  # Diccionario de claves de metadatos, para optimizar lecturas
@@ -153,7 +153,6 @@ class FLManager(QtCore.QObject, IManager):
             acl: Any = None
             key = metadata_name_or_xml.strip()
             stream = None
-            is_system_table = self.isSystemTable(metadata_name_or_xml)
 
             if metadata_name_or_xml in self.metadata_cache_fails_:
                 return None
@@ -564,7 +563,7 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("alterTable. self.db_ is empty!")
 
-        return self.db_.connManager().dbAux().alterTable(new_metadata)
+        return self.db_.alterTable(new_metadata)
 
     def createTable(
         self, n_or_tmd: Union[str, "pntablemetadata.PNTableMetaData", None]
@@ -646,7 +645,8 @@ class FLManager(QtCore.QObject, IManager):
 
         @param field_metadata PNFieldMetaData object that describes the metadata for the field
         @param v Value to be formatted for the indicated field
-        @param upper If TRUE converts the value to uppercase (if it is a string type)
+        @param upper If TRUE converts the value to upper        if not self.list_tables_:
+            self.list_tables_ = []case (if it is a string type)
         """
         type_: str = ""
         field_name_: str = ""
@@ -1291,9 +1291,6 @@ class FLManager(QtCore.QObject, IManager):
         """
         if not self.db_:
             raise Exception("loadTables. self.db_ is empty!")
-
-        if not self.list_tables_:
-            self.list_tables_ = []
 
         self.list_tables_.clear()
 
