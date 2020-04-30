@@ -406,10 +406,11 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
 
         @return FLFieldMetaData object that defines the field associated with it, or 0 if there is no associated field.
         """
-        mtd = self.metadata()
-        if mtd is None:
-            return None
-        return mtd.field(self.private.associated_field_name)
+        table_mtd = self.metadata()
+        if table_mtd is not None:
+            return table_mtd.field(self.private.associated_field_name)
+
+        return None
 
     def associatedFieldFilterTo(self) -> str:
         """
@@ -488,22 +489,15 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         @param ol Text string with options for the field.
         """
         self.private._options_list = []
-        if ol.find("QT_TRANSLATE") != -1:
-            for componente in ol.split(";"):
-                self.private._options_list.append(utils_base.AQTT(componente))
-        else:
-            for componente in ol.split(","):
-                self.private._options_list.append(utils_base.AQTT(componente))
+        for componente in ol.split(";" if ol.find("QT_TRANSLATE") > -1 else ","):
+            self.private._options_list.append(utils_base.AQTT(componente))
 
     def isCheck(self) -> bool:
         """
         Get if the field is of type Check.
         """
 
-        if self.private.type_ == self.Check:
-            return True
-        else:
-            return False
+        return self.private.type_ == self.Check
 
     def hasOptionsList(self) -> bool:
         """
@@ -595,9 +589,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         @param ol Text string with options for the field.
         """
 
-        self.private._search_options = []
-        for dato in options_list.split(","):
-            self.private._search_options.append(dato)
+        self.private._search_options = options_list.split(",")
 
     def copy(self, other: "PNFieldMetaData") -> None:
         """
@@ -655,26 +647,11 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
             return "1 = 1"
 
         is_text = False
-        # if isinstance(value, str):
+
         if self.type() in ("string", "time", "date", "pixmap", "timestamp"):
             is_text = True
 
-        format_value: Any = None
-
-        if is_text:
-            format_value = "'%s'" % value
-        else:
-            format_value = value
-
-        # if isinstance(value, (int, float)):
-        # format_value = str(value)
-        # else:
-        # format_value = "'" + str(value) + "'"
-
-        # print("format_value es %s, %s y value era %s" % (format_value, type(format_value), value.toString()))
-
-        # if format_value == None:
-        #    return "1 = 1"
+        format_value: Any = "'%s'" % value if is_text else value
 
         if upper and is_text:
             field_name = "upper(%s)" % field_name

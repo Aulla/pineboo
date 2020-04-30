@@ -245,57 +245,51 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """Get action name from pnaction.PNAction related to the cursor. Returns empty string if none is set."""
         return self._action.name() if self._action else ""
 
-    def setAction(self, a: Union[str, "pnaction.PNAction"]) -> bool:
+    def setAction(self, action_or_name: Union[str, "pnaction.PNAction"]) -> bool:
         """
         Set action to be related to this cursor.
 
         @param PNAction object
         @return True if success, otherwise False.
         """
-        action = None
-        if isinstance(a, str):
-            action = self.db().connManager().manager().action(a.lower())
+        new_action = None
+        if isinstance(action_or_name, str):
+            new_action = self.db().connManager().manager().action(action_or_name.lower())
             # if action.table() == "":
             #    action.setTable(a)
         else:
-            action = a
+            new_action = action_or_name
+
+        if not new_action.table():
+            return False
 
         if self._action is None:
-            self._action = action
+            self._action = new_action
         else:
 
             if (
-                self._action.table() == action.table()
+                self._action.table() == new_action.table()
             ):  # Esto es para evitar que se setee en un FLTableDB con metadata inválido un action sobre un cursor del parentWidget.
 
                 LOGGER.debug(
                     "Se hace setAction sobre un cursor con la misma table %s\nAction anterior: %s\nAction nueva: %s",
-                    action.table(),
+                    new_action.table(),
                     self._action.name(),
-                    action.name(),
+                    new_action.name(),
                 )
-                self._action = action
+                self._action = new_action
                 return True
 
             else:  # La action previa existe y no es la misma tabla
-                self._action = action
+                self._action = new_action
                 self.private_cursor.buffer_ = None
+                self.private_cursor._model = None
                 self.private_cursor.metadata_ = None
 
-        if self._action is None:
-            raise Exception("Unexpected: Action is still None")
-
-        if not self._action.table():
-            return False
-
-        if self.private_cursor.metadata_ is None:
-            self.private_cursor.metadata_ = (
-                self.db().connManager().manager().metadata(self._action.table())
-            )
-
-        if self.private_cursor.metadata_ is not None:
-            self.private_cursor.doAcl()
-
+        self.private_cursor.metadata_ = (
+            self.db().connManager().manager().metadata(self._action.table())
+        )
+        self.private_cursor.doAcl()
         self.private_cursor._model = pncursortablemodel.PNCursorTableModel(self.conn(), self)
         # if not self.private_cursor._model:
         #    return False
@@ -341,7 +335,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @return String containing the connection name.
         """
-        return self.db().connectionName()
+        return self.db()._name
 
     def setAtomicValueBuffer(self, field_name: str, function_name: str) -> None:
         """
@@ -436,17 +430,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if field is None:
             LOGGER.warning("setValueBuffer(): No existe el campo %s:%s", self.table(), field_name)
             return
+
         database = self.db()
         manager = database.connManager().manager()
         if manager is None:
             raise Exception("no manager")
 
-        type_ = field.type()
-        # buff_field = self.private_cursor.buffer_.field(field_name)
-        # if buff_field and not buff_field.has_changed(value):
-        #    return
-
-        if value and type_ == "pixmap" and not self.private_cursor._is_system_table:
+        if value and field.type() == "pixmap" and not self.private_cursor._is_system_table:
             value = database.normalizeValue(value)
             value = manager.storeLargeValue(self.private_cursor.metadata_, value) or value
 
@@ -497,68 +487,46 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @param field_name field name
         """
-        mtd = self.private_cursor.metadata_
+        table_metadata = self.private_cursor.metadata_
 
         # if self.private_cursor.rawValues_:
         #    return self.valueBufferRaw(field_name)
 
-        if not mtd:
+        if not table_metadata:
             return None
 
-        if (
-            self.private_cursor._model.rowCount() and not self.modeAccess() == self.Insert
-        ) or not self.private_cursor.buffer_:
-            if not self.private_cursor.buffer_:
-                self.refreshBuffer()
-
-            if self.private_cursor.buffer_ is None:
+        if not self.private_cursor.buffer_:
+            if not self.refreshBuffer():
                 return None
 
-        field = mtd.field(field_name)
-        if field is None:
-            LOGGER.warning("valueBuffer(): No existe el campo %s:%s", self.table(), field_name)
+        field_metadata = table_metadata.field(field_name)
+        if field_metadata is None:
+            LOGGER.warning("valueBuffer(): No existe el campo %s:%s", self._name, field_name)
             return None
 
-        type_ = field.type()
+        value = self.private_cursor.buffer_.value(field_name)
 
-        value = None
         if (
-            field.outTransaction()
+            field_metadata.outTransaction()
             and self.db() is not self.db().connManager().dbAux()
             and self.modeAccess() != self.Insert
         ):
-            primary_key = mtd.primaryKey()
+            pk_name = table_metadata.primaryKey()
+            pk_value = self.private_cursor.buffer_.value(pk_name)
+            where = (
+                self.db().connManager().manager().formatAssignValue(mtd.field(pk_name), pk_value)
+            )
+            sql_query = "SELECT %s FROM %s WHERE %s" % (field_name, table_metadata.name(), where)
 
-            # if self.private_cursor.buffer_ is None:
-            #    return None
-            if primary_key:
+            qry = pnsqlquery.PNSqlQuery(None, "dbAux")
+            qry.exec_(sql_query)
+            if qry.next():
+                value = qry.value(0)
 
-                primary_key_value = self.private_cursor.buffer_.value(primary_key)
-                qry = pnsqlquery.PNSqlQuery(None, "dbAux")
-                sql_query = "SELECT %s FROM %s WHERE %s" % (
-                    field_name,
-                    mtd.name(),
-                    self.db()
-                    .connManager()
-                    .manager()
-                    .formatAssignValue(mtd.field(primary_key), primary_key_value),
-                )
-                # q.exec_(self.db().dbAux(), sql_query)
-                qry.exec_(sql_query)
-                if qry.next():
-                    value = qry.value(0)
-            else:
-                LOGGER.warning(
-                    "No se puede obtener el campo fuera de transacción porque no existe clave primaria"
-                )
-
-        else:
-
-            # if self.private_cursor.buffer_ is None:
-            #    return None
-            value = self.private_cursor.buffer_.value(field_name)
+        type_ = field_metadata.type()
 
         if value is not None:
+
             if type_ == "date":
                 if isinstance(value, datetime.date):
                     value = types.Date(value.strftime("%Y-%m-%d"))
@@ -567,14 +535,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     value = value.strftime("%H:%M:%S")
 
             elif type_ == "pixmap":
-                v_large = None
-                if not self.private_cursor._is_system_table:
-
-                    v_large = self.db().connManager().manager().fetchLargeValue(value)
-
-                else:
-
-                    v_large = xpm.cache_xpm(value)
+                v_large = (
+                    xpm.cache_xpm(value)
+                    if self.private_cursor._is_system_table
+                    else self.db().connManager().manager().fetchLargeValue(value)
+                )
 
                 if v_large:
                     value = v_large
@@ -583,8 +548,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 value = ""
             elif type_ in ("double", "int", "uint"):
                 value = 0
-
-            # self.private_cursor.buffer_.set_value(field_name, value)
 
         return value
 
@@ -598,11 +561,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @param field_name field name
         """
-        if not self.bufferCopy() or not self.private_cursor.metadata_:
+        if not self.private_cursor._buffer_copy or not self.private_cursor.metadata_:
             return None
 
-        field = self.private_cursor.metadata_.field(field_name)
-        if field is None:
+        field_metadata = self.private_cursor.metadata_.field(field_name)
+        if field_metadata is None:
             LOGGER.warning(
                 "FLSqlCursor::valueBufferCopy() : No existe el campo %s.%s",
                 self.table(),
@@ -610,20 +573,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
             return None
 
-        type_ = field.type()
-        buffer_copy = self.bufferCopy()
-        if buffer_copy is None:
-            raise Exception("no bufferCopy")
-        value: Any = None
-        if buffer_copy.is_null(field_name):
-            if type_ in ("double", "int", "uint"):
-                value = 0
-            elif type_ == "string":
-                value = ""
-        else:
-            value = buffer_copy.value(field_name)
+        value = self.bufferCopy().value(field_name)
+        type_ = field_metadata.type()
 
         if value is not None:
+
             if type_ == "date":
                 if isinstance(value, datetime.date):
                     value = types.Date(value.strftime("%Y-%m-%d"))
@@ -632,14 +586,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     value = value.strftime("%H:%M:%S")
 
             elif type_ == "pixmap":
-                v_large = None
-                if not self.private_cursor._is_system_table:
-
-                    v_large = self.db().connManager().manager().fetchLargeValue(value)
-
-                else:
-
-                    v_large = xpm.cache_xpm(value)
+                v_large = (
+                    xpm.cache_xpm(value)
+                    if self.private_cursor._is_system_table
+                    else self.db().connManager().manager().fetchLargeValue(value)
+                )
 
                 if v_large:
                     value = v_large
@@ -648,8 +599,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 value = ""
             elif type_ in ("double", "int", "uint"):
                 value = 0
-
-            # self.private_cursor.buffer_.set_value(field_name, value)
 
         return value
 
@@ -792,22 +741,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return TRUE si está deshabilitado y FALSE en caso contrario
         """
         if self.modeAccess() in (self.Insert, self.Edit):
+            if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
+                if self.private_cursor.cursor_relation_.metadata() is not None:
+                    field = self.private_cursor.relation_.field()
+                    if field.lower() == field_name.lower():
+                        return True
 
-            if (
-                self.private_cursor.cursor_relation_ is not None
-                and self.private_cursor.relation_ is not None
-            ):
-                if not self.private_cursor.cursor_relation_.metadata():
-                    return False
-                field = self.private_cursor.relation_.field()
-                if field.lower() == field_name.lower():
-                    return True
-                else:
-                    return False
-            else:
-                return False
-        else:
-            return False
+        return False
 
     def inTransaction(self) -> bool:
         """
@@ -869,7 +809,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         model = self.model()
         return model.rowCount() if model else 0
 
-    def openFormInMode(self, m: int, wait: bool = True, cont: bool = True) -> None:
+    def openFormInMode(self, mode_: int, wait: bool = True, cont: bool = True) -> None:
         """
         Open form associated with the table in the specified mode.
 
@@ -881,7 +821,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.private_cursor.metadata_:
             return
 
-        if (not self.isValid() or self.size() <= 0) and not m == self.Insert:
+        if (not self.isValid() or self.size() <= 0) and not mode_ == self.Insert:
             if not self.size():
                 self.private_cursor.msgBoxWarning(self.tr("No hay ningún registro seleccionado"))
                 # QtWidgets.QMessageBox.warning(
@@ -892,7 +832,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 return
             self.first()
 
-        if m == self.Del:
+        self.private_cursor.mode_access_ = mode_
+
+        if mode_ == self.Del:
             res = QtWidgets.QMessageBox.warning(
                 QtWidgets.QApplication.focusWidget(),
                 self.tr("Aviso"),
@@ -900,38 +842,24 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 QtWidgets.QMessageBox.Ok,
                 QtWidgets.QMessageBox.No,
             )
-            if res == QtWidgets.QMessageBox.No:
-                return
+            if res != QtWidgets.QMessageBox.No:
 
-            self.transaction()
-            self.private_cursor.mode_access_ = self.Del
-            if not self.refreshBuffer():
-                self.commit()
-            else:
-                if not self.commitBuffer():
+                if self.transaction():
+                    if not self.refreshBuffer():
+                        self.commit()
 
-                    self.rollback()
-                else:
-                    self.commit()
+                    elif not self.commitBuffer():
+                        self.rollback()
+                    else:
+                        self.commit()
 
-            return
-
-        self.private_cursor.mode_access_ = m
-
-        # if self.private_cursor.buffer_:
-        #    self.private_cursor.buffer_.clearValues()
-
-        # if not self.private_cursor._action:
-        # self.private_cursor.action_ = self.db().manager().action(self.table())
-
-        if not self._action:
+        elif not self._action:
             LOGGER.warning(
                 "Para poder abrir un registro de edición se necesita una acción asociada al cursor, "
                 "o una acción definida con el mismo nombre que la tabla de la que procede el cursor."
             )
-            return
 
-        if not self._action.formRecord():
+        elif not self._action.formRecord():
             QtWidgets.QMessageBox.warning(
                 QtWidgets.QApplication.focusWidget(),
                 self.tr("Aviso"),
@@ -940,17 +868,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     % self.curName()
                 ),
             )
-            return
 
-        if self.refreshBuffer():  # Hace doTransaction antes de abrir formulario y crear savepoint
-            if m != self.Insert:
+        elif self.refreshBuffer():  # Hace doTransaction antes de abrir formulario y crear savepoint
+            if mode_ != self.Insert:
                 self.updateBufferCopy()
 
             action = application.PROJECT.actions[self._action.name()]
             action.openDefaultFormRecord(self, wait)
-
-            # if m != self.Insert and self.refreshBuffer():
-            #     self.updateBufferCopy()
 
     def setNull(self, field_name: str) -> None:
         """
@@ -1016,15 +940,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return True if different. False if equal.
         """
 
-        if self.private_cursor.buffer_ and self.private_cursor.buffer_._cache_buffer:
-            return True
-            # buffer_copy = self.private_cursor._buffer_copy
-
-            # if buffer and buffer_copy:
-            #    if buffer.value(field_name) != buffer_copy.value(field_name):
-            #        return True
-
-        return False
+        return self.private_cursor.buffer_ and self.private_cursor.buffer_._cache_buffer
 
     def setAskForCancelChanges(self, a: bool) -> None:
         """
@@ -1080,9 +996,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return "\nEl registro ha sido borrado el la BD"
 
         if self.private_cursor.mode_access_ in [self.Insert, self.Edit]:
-            if not self.isModifiedBuffer() and self.private_cursor.mode_access_ == self.Edit:
-                return message
-            field_list = self.private_cursor.metadata_.fieldList()
+            if self.private_cursor.mode_access_ == self.Edit:
+                if not self.isModifiedBuffer():
+                    return message
+
+            field_list = self.metadata().fieldList()
             checked_compound_key = False
 
             if not field_list:
@@ -1091,85 +1009,82 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             for field in field_list:
                 field_name = field.name()
                 relation_m1 = field.relationM1()
-                # if not self.private_cursor.buffer_.isGenerated(field_name):
-                #    continue
-
                 value = None
+
                 if not self.isNull(field_name):
                     value = self.buffer().value(field_name)
 
-                assoc_field_metadata = field.associatedField()
-                if assoc_field_metadata and value is not None:
-                    if not relation_m1:
-                        message = (
-                            message
-                            + "\n"
-                            + "FLSqlCursor : Error en metadatos, el campo %s tiene un campo asociado pero no existe "
-                            "relación muchos a uno:%s" % (self.table(), field_name)
-                        )
-                        continue
+                    assoc_field_metadata = field.associatedField()
+                    if assoc_field_metadata:
+                        if not relation_m1:
+                            message = (
+                                message
+                                + "\n"
+                                + "FLSqlCursor : Error en metadatos, el campo %s tiene un campo asociado pero no existe "
+                                "relación muchos a uno:%s" % (self.table(), field_name)
+                            )
+                            continue
 
-                    if not relation_m1.checkIn():
-                        continue
-                    table_metadata = (
-                        self.db().connManager().manager().metadata(relation_m1.foreignTable())
-                    )
-                    if not table_metadata:
-                        continue
-                    field_metadata_name = assoc_field_metadata.name()
-                    assoc_value = None
-                    if not self.isNull(field_metadata_name):
-                        assoc_value = self.private_cursor.buffer_.value(field_metadata_name)
-                        # if not ss:
-                        #     ss = None
-                    if assoc_value:
-                        filter = "%s AND %s" % (
-                            self.db()
-                            .connManager()
-                            .manager()
-                            .formatAssignValue(
-                                field.associatedFieldFilterTo(),
-                                assoc_field_metadata,
-                                assoc_value,
-                                True,
-                            ),
-                            self.db()
-                            .connManager()
-                            .manager()
-                            .formatAssignValue(relation_m1.foreignField(), field, value, True),
+                        if not relation_m1.checkIn():
+                            continue
+
+                        foreign_table_mtd = (
+                            self.db().connManager().manager().metadata(relation_m1.foreignTable())
                         )
-                        qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
-                        qry.setTablesList(table_metadata.name())
-                        qry.setSelect(field.associatedFieldFilterTo())
-                        qry.setFrom(table_metadata.name())
-                        qry.setWhere(filter)
-                        qry.setForwardOnly(True)
-                        qry.exec_()
-                        if not qry.next():
-                            message += "\n%s:%s : %s no pertenece a %s" % (
+                        if foreign_table_mtd is None:
+                            continue
+
+                        field_metadata_name = assoc_field_metadata.name()
+
+                        if not self.isNull(field_metadata_name):
+                            assoc_value = self.private_cursor.buffer_.value(field_metadata_name)
+
+                            filter = "%s AND %s" % (
+                                self.db()
+                                .connManager()
+                                .manager()
+                                .formatAssignValue(
+                                    field.associatedFieldFilterTo(),
+                                    assoc_field_metadata,
+                                    assoc_value,
+                                    True,
+                                ),
+                                self.db()
+                                .connManager()
+                                .manager()
+                                .formatAssignValue(relation_m1.foreignField(), field, value, True),
+                            )
+
+                            qry = pnsqlquery.PNSqlQuery(None, self.db())
+                            qry.setTablesList(table_metadata.name())
+                            qry.setSelect(field.associatedFieldFilterTo())
+                            qry.setFrom(table_metadata.name())
+                            qry.setWhere(filter)
+                            qry.setForwardOnly(True)
+                            qry.exec_()
+                            if not qry.first():
+                                message += "\n%s:%s : %s no pertenece a %s" % (
+                                    self.table(),
+                                    field.alias(),
+                                    value,
+                                    assoc_value,
+                                )
+                            else:
+                                self.private_cursor.buffer_.set_value(
+                                    field_metadata_name, qry.value(0)
+                                )
+
+                        else:
+                            message += "\n%s:%s : %s no se puede asociar aun valor NULO" % (
                                 self.table(),
                                 field.alias(),
                                 value,
-                                assoc_value,
                             )
-                        else:
-                            self.private_cursor.buffer_.set_value(field_metadata_name, qry.value(0))
 
-                    else:
-                        message += "\n%s:%s : %s no se puede asociar aun valor NULO" % (
-                            self.table(),
-                            field.alias(),
-                            value,
-                        )
-                    if not table_metadata.inCache():
-                        del table_metadata
-
-                if self.private_cursor.mode_access_ == self.Edit:
-                    if self.private_cursor.buffer_ and self.private_cursor._buffer_copy:
-                        if self.private_cursor.buffer_.value(
-                            field_name
-                        ) == self.private_cursor._buffer_copy.value(field_name):
-                            continue
+                if self.private_cursor.mode_access_ == self.Edit and self.buffer().value(
+                    field_name
+                ) == self.bufferCopy().value(field_name):
+                    continue
 
                 if (
                     self.isNull(field_name)
@@ -1179,7 +1094,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     message += "\n%s:%s : No puede ser nulo" % (self.table(), field.alias())
 
                 if field.isUnique():
-                    primary_key = self.private_cursor.metadata_.primaryKey()
+                    primary_key = self.metadata().primaryKey()
                     if not self.buffer().is_null(primary_key) and value is not None:
                         value_primary_key = self.private_cursor.buffer_.value(primary_key)
                         field_mtd = self.private_cursor.metadata_.field(primary_key)
@@ -1207,7 +1122,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         )
                         qry.setForwardOnly(True)
                         qry.exec_()
-                        if qry.next():
+                        if qry.first():
                             message += (
                                 "\n%s:%s : Requiere valores únicos, y ya hay otro registro con el valor %s en este campo"
                                 % (self.table(), field.alias(), value)
@@ -1328,38 +1243,26 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         elif self.private_cursor.mode_access_ == self.Del:
 
             for field in self.metadata().fieldList():
-
-                value = None
-
-                if not self.isNull(field.name()):
-                    value = self.buffer().value(field.name())
-                    # if s:
-                    #    s = None
-
-                else:
+                if self.isNull(field.name()):
                     continue
 
-                relation_list = field.relationList()
-                for relation in relation_list:
+                value = self.buffer().value(field.name())
+
+                for relation in field.relationList():
                     if not relation.checkIn():
                         continue
                     metadata = self.db().connManager().manager().metadata(relation.foreignTable())
                     if not metadata:
                         continue
                     field_metadata = metadata.field(relation.foreignField())
-                    if field_metadata is not None:
+                    if field_metadata:
                         if field_metadata.relationM1():
-                            if field_metadata.relationM1().deleteCascade():
-                                if not metadata.inCache():
-                                    del metadata
-                                continue
-                            if not field_metadata.relationM1().checkIn():
-                                if not metadata.inCache():
-                                    del metadata
+                            if (
+                                field_metadata.relationM1().deleteCascade()
+                                or not field_metadata.relationM1().checkIn()
+                            ):
                                 continue
                         else:
-                            if not metadata.inCache():
-                                del metadata
                             continue
 
                     else:
@@ -1367,8 +1270,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             "\nFLSqlCursor : Error en metadatos, %s.%s no es válido.\nCampo relacionado con %s.%s."
                             % (metadata.name(), relation.foreignField(), self.table(), field.name())
                         )
-                        if not metadata.inCache():
-                            del metadata
                         continue
 
                     qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
@@ -1390,8 +1291,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             value,
                             metadata.name(),
                         )
-                    if not metadata.inCache():
-                        del metadata
 
         return message
 
