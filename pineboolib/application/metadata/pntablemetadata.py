@@ -197,7 +197,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Name of the field to be deleted
         """
 
-        if field_name.lower() in self.private._fields_dict.keys():
+        if field_name.lower() in self.private._field_names:
             del self.private._fields_dict[field_name.lower()]
 
         self.private.removeFieldName(field_name)
@@ -260,7 +260,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name
         """
         type_ = None
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             type_ = self.private._fields_dict[field_name].type()
 
         ret_ = 0
@@ -326,7 +326,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @author Andrés Otón Urbano (baxas@eresmas.com)
         """
 
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             return self.private._fields_dict[field_name].isCounter()
 
         return False
@@ -338,7 +338,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name
         """
 
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             return self.private._fields_dict[field_name].allowNull()
 
         return False
@@ -349,7 +349,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
         @param fN Field name.
         """
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             return self.private._fields_dict[field_name].isUnique()
 
         return False
@@ -364,7 +364,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
             empty without the field is not related.
         """
 
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             relation_ = self.private._fields_dict[field_name].relationM1()
             if relation_:
                 return relation_.foreignTable()
@@ -379,7 +379,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
             with another field from another table.
         @return The name of the foreign field related to the indicated.
         """
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             relation_ = self.private._fields_dict[field_name].relationM1()
             if relation_:
                 return relation_.foreignField()
@@ -399,7 +399,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
             when it exists If it does not exist, it returns False.
         """
 
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             relation_ = self.private._fields_dict[field_name].relationM1()
             if relation_:
                 if (
@@ -426,7 +426,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return field length.
         """
 
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             return self.private._fields_dict[field_name].length()
 
         return 0
@@ -439,7 +439,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return integer length.
         """
 
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             return self.private._fields_dict[field_name].partInteger()
 
         return 0
@@ -452,7 +452,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return part decimal length.
         """
 
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             return self.private._fields_dict[field_name].partDecimal()
 
         return 0
@@ -464,7 +464,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name.
         """
 
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             return self.private._fields_dict[field_name].calculated()
 
         return False
@@ -476,7 +476,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name.
         """
 
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             return self.private._fields_dict[field_name].visible()
 
         return False
@@ -489,7 +489,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return A FLFieldMetaData object with the information or metadata of a given field.
         """
 
-        if field_name in self.private._fields_dict.keys():
+        if field_name in self.private._field_names:
             return self.private._fields_dict[field_name]
 
         return None
@@ -512,7 +512,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         listado = []
-        for field_name in self.private._fields_dict.keys():
+        for field_name in self.private._field_names:
             listado.append(
                 "%s.%s" % (self.private._name, field_name) if prefix_table else field_name
             )
