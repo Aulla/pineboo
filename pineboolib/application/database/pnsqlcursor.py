@@ -283,27 +283,29 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             else:  # La action previa existe y no es la misma tabla
                 self._action = new_action
                 self.private_cursor.buffer_ = None
-                self.private_cursor._model = None
                 self.private_cursor.metadata_ = None
 
-        self.private_cursor.metadata_ = (
-            self.db().connManager().manager().metadata(self._action.table())
-        )
-        self.private_cursor.doAcl()
-        self.private_cursor._model = pncursortablemodel.PNCursorTableModel(self.conn(), self)
-        # if not self.private_cursor._model:
-        #    return False
+        if self._action:
+            self.private_cursor.metadata_ = (
+                self.db().connManager().manager().metadata(self._action.table())
+            )
+            self.private_cursor.doAcl()
+            self.private_cursor._model = pncursortablemodel.PNCursorTableModel(self.conn(), self)
+            # if not self.private_cursor._model:
+            #    return False
 
-        # if not self.private_cursor.buffer_:
-        #    self.prime_insert()
+            # if not self.private_cursor.buffer_:
+            #    self.prime_insert()
 
-        self._selection = QtCore.QItemSelectionModel(self.private_cursor._model)
-        self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
-        # self._currentregister = self.selection().currentIndex().row()
-        # self.private_cursor.metadata_ = self.db().manager().metadata(self._action.table())
-        self.private_cursor._activated_check_integrity = True
-        self.private_cursor._activated_commit_actions = True
-        return True
+            self._selection = QtCore.QItemSelectionModel(self.private_cursor._model)
+            self.selection().currentRowChanged.connect(self.selection_currentRowChanged)
+            # self._currentregister = self.selection().currentIndex().row()
+            # self.private_cursor.metadata_ = self.db().manager().metadata(self._action.table())
+            self.private_cursor._activated_check_integrity = True
+            self.private_cursor._activated_commit_actions = True
+            return True
+
+        return False
 
     def setMainFilter(self, filter: str = "", do_refresh: bool = True) -> None:
         """
@@ -461,7 +463,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     % (
                         mtd.name(),
                         field_name,
-                        manager.formatValue(type_, value),
+                        manager.formatValue(field.type(), value),
                         manager.formatAssignValue(mtd.field(primary_key), primary_key_value),
                     )
                 )
@@ -504,7 +506,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             LOGGER.warning("valueBuffer(): No existe el campo %s:%s", self._name, field_name)
             return None
 
-        value = self.private_cursor.buffer_.value(field_name)
+        value = self.buffer().value(field_name)
 
         if (
             field_metadata.outTransaction()
@@ -512,9 +514,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             and self.modeAccess() != self.Insert
         ):
             pk_name = table_metadata.primaryKey()
-            pk_value = self.private_cursor.buffer_.value(pk_name)
+            pk_value = self.buffer().value(pk_name)
             where = (
-                self.db().connManager().manager().formatAssignValue(mtd.field(pk_name), pk_value)
+                self.db()
+                .connManager()
+                .manager()
+                .formatAssignValue(table_metadata.field(pk_name), pk_value)
             )
             sql_query = "SELECT %s FROM %s WHERE %s" % (field_name, table_metadata.name(), where)
 
@@ -536,7 +541,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             elif type_ == "pixmap":
                 v_large = (
-                    xpm.cache_xpm(value)
+                    xpm.cache_xpm(str(value))
                     if self.private_cursor._is_system_table
                     else self.db().connManager().manager().fetchLargeValue(value)
                 )
@@ -587,7 +592,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             elif type_ == "pixmap":
                 v_large = (
-                    xpm.cache_xpm(value)
+                    xpm.cache_xpm(str(value))
                     if self.private_cursor._is_system_table
                     else self.db().connManager().manager().fetchLargeValue(value)
                 )
@@ -940,7 +945,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return True if different. False if equal.
         """
 
-        return self.private_cursor.buffer_ and self.private_cursor.buffer_._cache_buffer
+        return (
+            True
+            if self.private_cursor.buffer_ and self.private_cursor.buffer_._cache_buffer
+            else False
+        )
 
     def setAskForCancelChanges(self, a: bool) -> None:
         """
@@ -1028,10 +1037,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         if not relation_m1.checkIn():
                             continue
 
-                        foreign_table_mtd = (
+                        table_metadata = (
                             self.db().connManager().manager().metadata(relation_m1.foreignTable())
                         )
-                        if foreign_table_mtd is None:
+                        if table_metadata is None:
                             continue
 
                         field_metadata_name = assoc_field_metadata.name()

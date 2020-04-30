@@ -11,6 +11,8 @@ class SpinBox(QtWidgets.QWidget):
     _lay: "QtWidgets.QHBoxLayout"
 
     def __init__(self, parent=None):
+        """Initialize."""
+
         super().__init__(parent)
 
         self._lay = QtWidgets.QHBoxLayout(self)
