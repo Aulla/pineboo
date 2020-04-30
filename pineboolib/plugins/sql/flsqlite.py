@@ -332,9 +332,11 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             new_session = True
 
         if new_session:
-            Session = sessionmaker(bind=self.engine())
+            connection_ = self.connection()
+            connection_.execute("PRAGMA journal_mode=WAL")
+            connection_.execute("PRAGMA synchronous=NORMAL")
+
+            Session = sessionmaker(bind=connection_)
             self._session = Session()
-            self._session.connection().execute("PRAGMA journal_mode=WAL")
-            self._session.connection().execute("PRAGMA synchronous=NORMAL")
 
         return self._session
