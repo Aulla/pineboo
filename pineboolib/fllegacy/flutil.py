@@ -803,7 +803,7 @@ class FLUtil(object):
         cls,
         f: str,
         s: str,
-        w: str,
+        w: str = "1 = 1",
         tL: Optional[Union[str, List, types.Array]] = None,
         size_or_conn: Any = 0,
         conn: Union[str, "iconnection.IConnection"] = "default",
