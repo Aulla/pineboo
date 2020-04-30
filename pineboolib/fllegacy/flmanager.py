@@ -645,9 +645,9 @@ class FLManager(QtCore.QObject, IManager):
 
         @param field_metadata PNFieldMetaData object that describes the metadata for the field
         @param v Value to be formatted for the indicated field
-        @param upper If TRUE converts the value to upper        if not self.list_tables_:
-            self.list_tables_ = []case (if it is a string type)
+        @param upper If TRUE converts the value to uppercase (if it is a string type)
         """
+
         type_: str = ""
         field_name_: str = ""
         value_: Any = args[1]
