@@ -58,20 +58,21 @@ class PNBuffer(object):
     _orm_obj: Optional[Callable]
     _generated_fields: List[str]
     _cache_buffer: Dict[str, TVALUES]
+    _cursor: "isqlcursor.ISqlCursor"
 
     def __init__(self, cursor: "isqlcursor.ISqlCursor") -> None:
         """Create a Buffer from the specified PNSqlCursor."""
         super().__init__()
         if not cursor:
             raise Exception("Missing cursor")
-        self.cursor_ = cursor
+        self._cursor = cursor
         # self.field_dict_ = {}
         # self.line_: int = -1
         # self.inicialized_: bool = False
         self._orm_obj = None
         self._generated_fields = []
         self._cache_buffer = {}
-        # tmd = self.cursor_.metadata()
+        # tmd = self._cursor.metadata()
         # campos = tmd.fieldList()
 
     def prime_insert(self, row: int = None) -> None:
@@ -81,26 +82,26 @@ class PNBuffer(object):
         @param row = cursor line.
         """
         # if self.inicialized_:
-        #    LOGGER.debug("(%s)PNBuffer. Se inicializa nuevamente el cursor", self.cursor_.curName())
+        #    LOGGER.debug("(%s)PNBuffer. Se inicializa nuevamente el cursor", self._cursor.curName())
 
         # self.primeUpdate(row)
         self.clear()
 
-        self._orm_obj = self.cursor_._cursor_model()
+        self._orm_obj = self._cursor._cursor_model()
         self.inicialized_ = True
 
     def prime_update(self) -> None:
         """Set the initial copy of the cursor values into the buffer."""
 
         self.clear()
-        self._orm_obj = self.model().get_obj_from_row(self.cursor_.currentRegister())
+        self._orm_obj = self.model().get_obj_from_row(self._cursor.currentRegister())
 
     # def prime_delete(self) -> None:
     #    """Load registr for delete."""
 
     #    self.clear()
-    #    self._current_model_obj = self.cursor_.model().get_obj_from_row(
-    #        self.cursor_.currentRegister()
+    #    self._current_model_obj = self._cursor.model().get_obj_from_row(
+    #        self._cursor.currentRegister()
     #    )
 
     def setNull(self, name) -> None:
@@ -124,12 +125,12 @@ class PNBuffer(object):
 
         else:
             if self._orm_obj and sqlalchemy.inspect(self._orm_obj).expired:
-                self._orm_obj = self.model().get_obj_from_row(self.cursor_.currentRegister())
+                self._orm_obj = self.model().get_obj_from_row(self._cursor.currentRegister())
 
             value = getattr(self._orm_obj, field_name, None)
 
             if value is not None:
-                metadata = self.cursor_.metadata().field(field_name)
+                metadata = self._cursor.metadata().field(field_name)
                 if metadata is not None:
                     type_ = metadata.type()
                     if type_ == "date":
@@ -142,7 +143,7 @@ class PNBuffer(object):
 
     def set_value(self, field_name: str, value: TVALUES) -> bool:
         """Set values to cache_buffer."""
-        if field_name in self.cursor_.metadata().fieldNames():
+        if field_name in self._cursor.metadata().fieldNames():
             self._cache_buffer[field_name] = value
         else:
             return False
@@ -170,7 +171,7 @@ class PNBuffer(object):
         """
 
         if value not in [None, ""]:
-            metadata = self.cursor_.metadata().field(field_name)
+            metadata = self._cursor.metadata().field(field_name)
             type_ = metadata.type()
             if type_ == "date":
                 value = datetime.date.fromisoformat(str(value)[:10])
@@ -203,7 +204,7 @@ class PNBuffer(object):
     def model(self) -> "pncursortablemodel.PNCursorTableModel":
         """Return cursor table model."""
 
-        return self.cursor_.model()
+        return self._cursor.model()
 
     def clear(self):
         """Clear buffer object."""
@@ -235,7 +236,7 @@ class PNBuffer(object):
 
     def is_valid(self) -> bool:
         """Return if buffer object is valid."""
-        metadata = self.cursor_.metadata()
+        metadata = self._cursor.metadata()
         pk_field = metadata.primaryKey()
         try:
             if not self._orm_obj:
