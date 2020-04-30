@@ -597,11 +597,11 @@ class FLManager(QtCore.QObject, IManager):
 
                 n_or_tmd = tmd
 
-            if n_or_tmd in self.list_tables_:
+            if n_or_tmd.name() in self.list_tables_:
                 return n_or_tmd
 
             if n_or_tmd.isQuery() or self.existsTable(n_or_tmd.name(), False):
-                self.list_tables_.append(n_or_tmd)
+                self.list_tables_.append(n_or_tmd.name())
                 return n_or_tmd
 
             elif not self.db_.createTable(n_or_tmd):
