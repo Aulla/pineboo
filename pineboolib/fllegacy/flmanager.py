@@ -594,7 +594,7 @@ class FLManager(QtCore.QObject, IManager):
                 self.list_tables_.append(n_or_tmd.name())
                 return n_or_tmd
 
-            elif not self.db_.createTable(n_or_tmd):
+            elif not self.db_.connManager().useConn("default").createTable(n_or_tmd):
                 LOGGER.warning(
                     "createTable: %s", self.tr("No se ha podido crear la tabla ") + n_or_tmd.name()
                 )

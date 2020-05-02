@@ -10,19 +10,21 @@ from pineboolib.interfaces import iconnection
 from . import pnsqldrivers
 from pineboolib import application
 
+import sqlalchemy
+import time
+
 # from .pnsqlsavepoint import PNSqlSavePoint
 from . import DB_SIGNALS
 from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
-import time
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor
     from pineboolib.application.metadata import pntablemetadata
     from . import pnconnectionmanager
 
-    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F821, F401
-    from sqlalchemy.orm import session as orm_session  # noqa: F401
+    from sqlalchemy.engine import base
+    from sqlalchemy import orm  # type: ignore [name-defined] # noqa: F821
 
 LOGGER = utils.logging.get_logger(__name__)
 
@@ -171,14 +173,20 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self.update_activity_time()
         return self._driver
 
-    def session(self) -> "orm_session.Session":
+    def session(self) -> "orm.Session":
         """
         Sqlalchemy session.
 
         When using the ORM option this function returns the session for sqlAlchemy.
         """
+        if self._name == "main_conn":
+            raise Exception("main_conn no es valido para session")
 
-        return self.driver().session()
+        session_ = self.driver().session()
+        sqlalchemy.event.listen(session_, "before_flush", self.before_flush)
+        sqlalchemy.event.listen(session_, "after_flush", self.after_flush)
+
+        return session_
 
     def engine(self) -> Any:
         """Sqlalchemy connection."""
@@ -654,3 +662,49 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Return length formated."""
 
         return self.driver().sqlLength(field_name, size)
+
+    def before_flush(self, session, flush_context, instances=None) -> bool:
+        """Before flush."""
+
+        items = []
+        for item in session.new:
+            items.append(item)
+
+        for item in session.dirty:
+            items.append(item)
+
+        for item in session.deleted:
+            items.append(item)
+
+        try:
+            for item in items:
+                before_flush_func = getattr(item, "before_flush", None)
+                if before_flush_func:
+                    return before_flush_func(session)
+        except Exception as error:
+            print("****", error)
+
+        return True
+
+    def after_flush(self, session, flush_context) -> bool:
+        """Before flush."""
+
+        items = []
+        for item in session.new:
+            items.append(item)
+
+        for item in session.dirty:
+            items.append(item)
+
+        for item in session.deleted:
+            items.append(item)
+
+        try:
+            for item in items:
+                after_flush_func = getattr(item, "after_flush", None)
+                if after_flush_func:
+                    return after_flush_func(session)
+        except Exception as error:
+            print("**************", error)
+
+        return True

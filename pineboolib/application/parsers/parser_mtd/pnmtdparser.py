@@ -142,8 +142,8 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     # data.append("from pineboolib.qsa import qsa")
     # data.append("")
     # data.append("Base = declarative_base()")
-    data.append("from sqlalchemy.ext import declarative # type: ignore [import] # noqa: F821")
-    data.append("import sqlalchemy # type: ignore [import] # noqa: F821")
+    data.append("from sqlalchemy.ext import declarative")
+    data.append("import sqlalchemy")
     data.append("")
     # data.append("BASE = declarative.declarative_base()")
     # data.append("ENGINE = application.PROJECT.conn_manager.mainConn().engine()")
@@ -177,7 +177,17 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
     data.append("")
     data.append("# <--- Fields --- ")
+
     data.append("")
+    data.append("    def before_flush( session) -> bool:")
+    data.append('        """Before flush."""')
+    data.append("")
+    data.append("        return True")
+    data.append("")
+    data.append("    def after_flush( session) -> bool:")
+    data.append('        """After flush."""')
+    data.append("")
+    data.append("        return True")
 
     if not pk_found:
 

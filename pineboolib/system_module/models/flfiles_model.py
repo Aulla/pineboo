@@ -2,8 +2,8 @@
 # Translated with pineboolib v0.71.18
 """Flfiles_model module."""
 
-from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
-import sqlalchemy  # type: ignore [import] # noqa: F821
+from sqlalchemy.ext import declarative
+import sqlalchemy
 
 
 class Flfiles(declarative.declarative_base()):  # type: ignore [misc] # noqa: F821
@@ -66,5 +66,14 @@ class Flfiles(declarative.declarative_base()):  # type: ignore [misc] # noqa: F8
     contenido = sqlalchemy.Column("contenido", sqlalchemy.String)
     binario = sqlalchemy.Column("binario", sqlalchemy.LargeBinary)
 
+    # <--- Fields ---
 
-# <--- Fields ---
+    def before_flush(self, session) -> bool:
+        """Before flush."""
+
+        return True
+
+    def after_flush(self, session) -> bool:
+        """After flush."""
+
+        return True

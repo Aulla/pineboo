@@ -35,11 +35,11 @@ class TestPNConnection(unittest.TestCase):
         self.assertTrue(conn_manager.useConn("Aux").isOpen())
         self.assertFalse(conn_manager.useConn("conn_test").isOpen())
 
-        self.assertEqual([*dict_databases_1], ["dbAux", "default", "Aux", "conn_test"])
+        self.assertEqual([*dict_databases_1], ["default", "dbAux", "Aux", "conn_test"])
         self.assertTrue("flareas" in conn_aux.tables("Tables"))
         self.assertTrue(conn_manager.removeConn("conn_test"))
         dict_databases_2 = conn_manager.dictDatabases()
-        self.assertEqual([*dict_databases_2], ["dbAux", "default", "Aux"])
+        self.assertEqual([*dict_databases_2], ["default", "dbAux", "Aux"])
 
     def test_basic2(self) -> None:
         """Basic test 2."""
@@ -110,7 +110,7 @@ class TestPNConnection(unittest.TestCase):
         """Basic test 5."""
 
         conn_manager = application.PROJECT.conn_manager
-        conn_ = conn_manager.mainConn()
+        conn_ = conn_manager.useConn("default")
         cursor = pnsqlcursor.PNSqlCursor("flareas")
         conn_.doTransaction(cursor)
         cursor.setModeAccess(cursor.Insert)

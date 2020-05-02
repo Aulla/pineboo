@@ -2,8 +2,8 @@
 # Translated with pineboolib v0.71.18
 """FLareas_model module."""
 
-from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
-import sqlalchemy  # type: ignore [import] # noqa: F821
+from sqlalchemy.ext import declarative
+import sqlalchemy
 
 
 class Flareas(declarative.declarative_base()):  # type: ignore [misc] # noqa: F821
@@ -49,6 +49,36 @@ class Flareas(declarative.declarative_base()):  # type: ignore [misc] # noqa: F8
     bloqueo = sqlalchemy.Column("bloqueo", sqlalchemy.Boolean)
     idarea = sqlalchemy.Column("idarea", sqlalchemy.String(15), primary_key=True)
     descripcion = sqlalchemy.Column("descripcion", sqlalchemy.String(100))
+
+    def before_flush(self, session) -> bool:
+        """Before flush."""
+        # ===============================================================================
+        #         print("before_flush")
+        #
+        #         if self in session.new:
+        #             print("Estoy insertando")
+        #         elif self in session.dirty:
+        #             print("Estoy editando")
+        #         elif self in session.deleted:
+        #             print("Estoy borrando")
+        # ===============================================================================
+
+        return True
+
+    def after_flush(self, session) -> bool:
+        """After flush."""
+        # ===============================================================================
+        #         print("after_flush")
+        #
+        #         if self in session.new:
+        #             print("Estoy insertando")
+        #         elif self in session.dirty:
+        #             print("Estoy editando")
+        #         elif self in session.deleted:
+        #             print("Estoy borrando")
+        # ===============================================================================
+
+        return True
 
 
 # <--- Fields ---
