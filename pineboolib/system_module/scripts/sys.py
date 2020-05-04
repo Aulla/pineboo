@@ -80,33 +80,35 @@ class FormInternalObj(qsa.FormDBWidget):
     def afterCommit_flfiles(self, cur_files_: "isqlcursor.ISqlCursor") -> bool:
         """After commit flfiles."""
 
-        if cur_files_.modeAccess() != cur_files_.Browse:
-
-            value = cur_files_.valueBuffer("sha")
-
-            _qry = qsa.FLSqlQuery()
-
-            if _qry.exec_("SELECT sha FROM flfiles"):
-                if _qry.size():
-                    util = qsa.FLUtil()
-                    value_tmp = None
-                    while _qry.next():
-                        value_tmp = (
-                            util.sha1(_qry.value(0))
-                            if value_tmp is None
-                            else util.sha1(value_tmp + _qry.value(0))
-                        )
-
-                    value = value_tmp
-
-            _cur_serial = qsa.FLSqlCursor(u"flserial", "dbaux")
-            _cur_serial.select()
-            _cur_serial.setModeAccess(
-                _cur_serial.Edit if _cur_serial.first() else _cur_serial.Insert
-            )
-            _cur_serial.refreshBuffer()
-            _cur_serial.setValueBuffer(u"sha", value)
-            return _cur_serial.commitBuffer()
+        # ===============================================================================
+        #         if cur_files_.modeAccess() != cur_files_.Browse:
+        #
+        #             value = cur_files_.valueBuffer("sha")
+        #
+        #             _qry = qsa.FLSqlQuery()
+        #
+        #             if _qry.exec_("SELECT sha FROM flfiles"):
+        #                 if _qry.size():
+        #                     util = qsa.FLUtil()
+        #                     value_tmp = None
+        #                     while _qry.next():
+        #                         value_tmp = (
+        #                             util.sha1(_qry.value(0))
+        #                             if value_tmp is None
+        #                             else util.sha1(value_tmp + _qry.value(0))
+        #                         )
+        #
+        #                     value = value_tmp
+        #
+        #             _cur_serial = qsa.FLSqlCursor(u"flserial", "dbaux")
+        #             _cur_serial.select()
+        #             _cur_serial.setModeAccess(
+        #                 _cur_serial.Edit if _cur_serial.first() else _cur_serial.Insert
+        #             )
+        #             _cur_serial.refreshBuffer()
+        #             _cur_serial.setValueBuffer(u"sha", value)
+        #             return _cur_serial.commitBuffer()
+        # ===============================================================================
 
         return True
 

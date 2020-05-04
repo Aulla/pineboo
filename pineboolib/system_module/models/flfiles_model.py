@@ -4,6 +4,7 @@
 
 from sqlalchemy.ext import declarative
 import sqlalchemy
+from pineboolib.qsa import qsa
 
 
 class Flfiles(declarative.declarative_base()):  # type: ignore [misc] # noqa: F821
@@ -22,7 +23,6 @@ class Flfiles(declarative.declarative_base()):  # type: ignore [misc] # noqa: F8
                 "pk": True,
                 "type": "string",
                 "length": 255,
-                "regexp": "\w+\.(mtd|ts|ui|qs|qry|kut|xml|jrxml|svg)",  # noqa: W605
                 "null": False,
             },
             {
@@ -75,5 +75,30 @@ class Flfiles(declarative.declarative_base()):  # type: ignore [misc] # noqa: F8
 
     def after_flush(self, session) -> bool:
         """After flush."""
+
+        flfiles_class = qsa.from_project("flfiles_orm")
+        flserial_class = qsa.from_project("flserial_orm")
+
+        value = self.sha
+        util = qsa.FLUtil()
+        result_query = session.query(flfiles_class).all()
+        value_tmp = None
+        for file_ in result_query:
+            value_tmp = util.sha1(file_.sha if value_tmp is None else value_tmp + file_.sha)
+
+        if value_tmp is not None:
+            value = value_tmp
+
+        # session_dbaux = qsa.session("dbaux")
+        session_dbaux = qsa.session()
+        data_query = session_dbaux.query(flserial_class)
+
+        if data_query.count():
+            data_query.update({flserial_class.sha: value})
+        else:
+
+            obj_flserial = flserial_class()
+            obj_flserial.sha = value
+            session_dbaux.add(obj_flserial)
 
         return True
