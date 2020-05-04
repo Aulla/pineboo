@@ -2829,6 +2829,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if list_objs:
             obj_tdb = cast(fltabledb.FLTableDB, list_objs[0])
+            if not obj_tdb.loaded():
+                obj_tdb.load()
         if field_metadata is not None and obj_tdb is not None:
             # obj_tdb.setTableName(field.relationM1().foreignTable())
             # obj_tdb.setFieldRelation(field.associatedFieldFilterTo())
