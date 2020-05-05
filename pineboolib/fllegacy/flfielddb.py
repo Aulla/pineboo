@@ -1755,6 +1755,9 @@ class FLFieldDB(QtWidgets.QWidget):
                 self,
             )
 
+            self.cursor_.select()
+            self.cursor_.first()
+
         if not self.cursor_:
             self.cursor_ = self._cursor_aux
             if self.showed:
