@@ -18,7 +18,7 @@
     "qt5": {
         "android-32#qt_dir":        "/opt/Qt5.12.7/5.12.7/android_armv7",
 	"android-64#qt_dir":        "/opt/Qt5.12.7/5.12.7/android_arm64_v8a",
-	      "linux#qt_dir":       "/opt/Qt5.14.1/5.14.1/gcc_64",
+	      "linux#qt_dir":       "/opt/Qt5.14.2/5.14.2/gcc_64",
         "ios#qt_dir":               "/Users/aulla/Qt/*/ios",
 	"macos#source":   "qt-everywhere-src-5.14.1.tar.xz",
 	"win-32#qt_dir":		    "c:/Qt/5.14.1/msvc2017",
@@ -38,7 +38,7 @@
     "win#build_host_from_source": false,
     "build_target_from_source": true,
     "dynamic_loading": true,
-    "source": "Python-3.7.2.tar.xz"
+    "source": "Python-3.*.*.tar.xz"
   },
 
     "sip": {
