@@ -60,14 +60,14 @@ class QSADictModules:
 
     @classmethod
     def orm_(cls, script_name: str) -> Any:
-        """Return orm instance."""
+        """Return orm instance"""
 
         orm = cls.from_project("%s_orm" % (script_name))
         if orm is not None:
             init_fn = getattr(orm, "qsa_init", None)
             if init_fn:
                 sqlalchemy.event.listen(orm, "init", init_fn)
-        return orm() if orm else None
+        return orm
 
     @classmethod
     def action_exists(cls, scriptname: str) -> bool:
