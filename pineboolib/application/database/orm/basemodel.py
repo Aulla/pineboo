@@ -1,6 +1,7 @@
 """Basemodel module."""
 
 import sqlalchemy
+from sqlalchemy import orm
 
 from pineboolib.core.utils import logging
 from pineboolib import application
@@ -18,25 +19,26 @@ class BaseModel:
 
     __tablename__: str = ""
 
-    _session: Optional["sqlalchemy.orm.session.Session"]
+    _session: Optional["orm.session.Session"]
 
-    @sqlalchemy.orm.reconstructor  # type: ignore [misc] # noqa: F821
+    @orm.reconstructor  # type: ignore [misc] # noqa: F821
     def constructor_init(self) -> None:
         """Initialize from constructor."""
 
-        print("constructor", self)
+        # print("constructor", self)
         self._session = sqlalchemy.inspect(self).session
         self.init()
 
     def qsa_init(self, target, args=[], kwargs={}) -> None:
         """Initialize from qsa."""
-        print("orm", self)
+        # print("orm", self)
         self._session = None
         self.init()
 
     def init(self):
         """Initialize."""
-        print("--->", self, self._session)
+        # print("--->", self, self._session)
+        pass
 
     def after_new(self) -> bool:
         """After flush new instance."""
@@ -163,7 +165,7 @@ class BaseModel:
 
         return result
 
-    def set_session(self, session: "sqlalchemy.orm.session.Session") -> None:
+    def set_session(self, session: "orm.session.Session") -> None:
         """Set instance session."""
         LOGGER.warning("Set session %s to instance %s", session, self)
         if self._session is None:
@@ -172,7 +174,7 @@ class BaseModel:
         else:
             LOGGER.warning("This instance already belongs to a session")
 
-    def get_session(self) -> Optional["sqlalchemy.orm.session.Session"]:
+    def get_session(self) -> Optional["orm.session.Session"]:
         """Get instance session."""
 
         return self._session

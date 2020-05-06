@@ -27,25 +27,6 @@ class FormInternalObj(qsa.FormDBWidget):
         if not app_:
             return
 
-        # ===============================================================================
-        #         instance = qsa.orm_("flareas")()
-        #         model_class = instance.__class__
-        #
-        #         session = qsa.session()
-        #
-        #         instance.session = session
-        #         instance.bloqueo = True
-        #         instance.idarea = "z"
-        #         instance.descripcion = "Descripción M"
-        #
-        #         print("El resultado es", instance.save())
-        #
-        #         area_obj = session.query(model_class).filter(model_class.idarea == "z").first()
-        #         print("***", area_obj, area_obj.descripcion)
-        #
-        #         print("Borrado es", area_obj.delete())
-        # ===============================================================================
-
         if qsa.SysType().isLoadedModule("flfactppal"):
             codEjercicio = None
             try:
