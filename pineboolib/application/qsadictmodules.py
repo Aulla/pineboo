@@ -5,9 +5,11 @@ Manages read and writting QSA dynamic properties that are loaded during project 
 """
 from typing import Any, TYPE_CHECKING
 from pineboolib.core.utils import logging
-from pineboolib.application.xmlaction import XMLAction
-from pineboolib.application.proxy import DelayedObjectProxyLoader
-from pineboolib.application.safeqsa import SafeQSA
+from .xmlaction import XMLAction
+from .proxy import DelayedObjectProxyLoader
+from .safeqsa import SafeQSA
+
+import sqlalchemy
 
 LOGGER = logging.get_logger(__name__)
 
@@ -56,6 +58,11 @@ class QSADictModules:
             return ret_.class_()
         else:
             return None
+
+    @classmethod
+    def orm_(cls, script_name):
+        orm = cls.from_project("%s_orm" % (script_name))
+        return orm
 
     @classmethod
     def action_exists(cls, scriptname: str) -> bool:
