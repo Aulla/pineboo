@@ -139,10 +139,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not mtd:
             return
 
-        self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
+        self._cursor_model = qsadictmodules.QSADictModules.orm_("%s" % mtd.name())
         if not self._cursor_model and mtd:
             pnormmodelsfactory.register_metadata_as_model(mtd)
-            self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
+            self._cursor_model = qsadictmodules.QSADictModules.orm_("%s" % mtd.name())
 
         if not self._cursor_model:
             raise Exception("_cursor_model not found !")
@@ -875,8 +875,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
 
         elif self.refreshBuffer():  # Hace doTransaction antes de abrir formulario y crear savepoint
-            if mode_ != self.Insert:
-                self.updateBufferCopy()
+            # if mode_ != self.Insert:
+            #    self.updateBufferCopy()
 
             action = application.PROJECT.actions[self._action.name()]
             action.openDefaultFormRecord(self, wait)
@@ -922,6 +922,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         This copy allows later to check if the buffer was changed using
         FLSqlCursor::isModifiedBuffer().
         """
+
         if not self.private_cursor.buffer_:
             return None
 
@@ -929,7 +930,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             del self.private_cursor._buffer_copy
 
         self.private_cursor._buffer_copy = pnbuffer.PNBuffer(self)
-        self.bufferCopy()._orm_obj = self._cursor_model()
+        # self.bufferCopy()._orm_obj = self._cursor_model()
 
         for field_name in self.metadata().fieldNames():
             value = self.buffer().value(field_name)
