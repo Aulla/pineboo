@@ -2,11 +2,15 @@
 # Translated with pineboolib v0.71.18
 """FLareas_model module."""
 
+from pineboolib.application.database.orm import basemodel
+
 from sqlalchemy.ext import declarative
 import sqlalchemy
 
 
-class Flareas(declarative.declarative_base()):  # type: ignore [misc] # noqa: F821
+class Flareas(
+    declarative.declarative_base(), basemodel.BaseModel  # type: ignore [misc] # noqa: F821
+):
     """Flareas class."""
 
     __tablename__ = "flareas"
@@ -80,5 +84,9 @@ class Flareas(declarative.declarative_base()):  # type: ignore [misc] # noqa: F8
 
         return True
 
+    # <--- Fields ---
 
-# <--- Fields ---
+    def init(self) -> None:
+        """initialize."""
+
+        pass

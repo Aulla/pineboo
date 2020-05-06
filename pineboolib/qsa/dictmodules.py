@@ -1,7 +1,6 @@
 """dictmodules module."""
 
 from pineboolib import application
-import sqlalchemy
 
 from typing import Any
 
@@ -30,17 +29,8 @@ def orm_(action_name: str) -> Any:
         from pineboolib.application.qsadictmodules import QSADictModules
 
         orm = QSADictModules.orm_(table_name)
-        # orm = QSADictModules.from_project("%s_orm" % (table_name))
-        # if orm is not None:
-        #    sqlalchemy.event.listen(orm, "init", orm_event_init)
 
     return orm
-
-
-def orm_event_init(target, args, kwars):
-    func_init = getattr(target, "init", None)
-    if func_init is not None:
-        func_init()
 
 
 class Application:

@@ -8,7 +8,6 @@ from pineboolib.core.utils import logging
 from .xmlaction import XMLAction
 from .proxy import DelayedObjectProxyLoader
 from .safeqsa import SafeQSA
-
 import sqlalchemy
 
 LOGGER = logging.get_logger(__name__)
@@ -60,9 +59,15 @@ class QSADictModules:
             return None
 
     @classmethod
-    def orm_(cls, script_name):
+    def orm_(cls, script_name: str) -> Any:
+        """Return orm instance."""
+
         orm = cls.from_project("%s_orm" % (script_name))
-        return orm
+        if orm is not None:
+            init_fn = getattr(orm, "qsa_init", None)
+            if init_fn:
+                sqlalchemy.event.listen(orm, "init", init_fn)
+        return orm() if orm else None
 
     @classmethod
     def action_exists(cls, scriptname: str) -> bool:

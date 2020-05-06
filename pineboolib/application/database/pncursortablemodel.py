@@ -8,7 +8,8 @@ from PyQt5 import QtCore, QtGui, Qt, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 import sqlalchemy
-from pineboolib.application.utils import date_conversion, xpm, sql_tools
+from pineboolib.application.utils import date_conversion, xpm
+from .orm import utils as orm_utils
 from . import pnsqlquery
 
 import itertools
@@ -30,7 +31,7 @@ if TYPE_CHECKING:
 
 DEBUG = False
 CURSOR_COUNT = itertools.count()
-LOGGER = logging.get_logger("CursorTableModel")
+LOGGER = logging.get_logger(__name__)
 
 
 class PNCursorTableModel(QtCore.QAbstractTableModel):
@@ -758,7 +759,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             # print("get_obj_from_row", row, pk_value)
             session_ = self.db().session()
 
-            query = sql_tools.DynamicFilter(
+            query = orm_utils.DynamicFilter(
                 query=session_.query(self._parent._cursor_model),
                 model_class=self._parent._cursor_model,
             )
