@@ -3,9 +3,12 @@
 import sqlalchemy
 from sqlalchemy import orm
 
+
 from pineboolib.core.utils import logging
 from pineboolib import application
 from typing import Optional, TYPE_CHECKING
+
+import datetime
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -27,12 +30,20 @@ class BaseModel:
 
         # print("constructor", self)
         self._session = sqlalchemy.inspect(self).session
+
+        if not self._session:
+            raise Exception("session is empty!")
+
+        if self in self._session.new:
+            self.populate_default()
+
         self.init()
 
     def qsa_init(self, target, args=[], kwargs={}) -> None:
         """Initialize from qsa."""
         # print("orm", self)
         self._session = None
+        self.populate_default()
         self.init()
 
     def init(self):
@@ -108,6 +119,44 @@ class BaseModel:
         """Return table metadata."""
 
         return application.PROJECT.conn_manager.manager().metadata(self.__tablename__)
+
+    def populate_default(self) -> None:
+        """Populate with default values."""
+
+        metadata = self.table_metadata()
+        if metadata is None:
+            raise Exception("table_metadata is empty!")
+
+        for name in metadata.fieldNames():
+            field_mtd = metadata.field(name)
+
+            if field_mtd is None:
+                LOGGER.warning("%s metadata not found!", name)
+                continue
+
+            default_value = field_mtd.defaultValue()
+            if default_value is None:
+                continue
+
+            if isinstance(default_value, str):
+                type_ = field_mtd.type()
+
+                if type_ == "date":
+                    default_value = datetime.date.fromisoformat(str(default_value)[:10])
+                elif type_ == "timestamp":
+                    default_value = datetime.datetime.strptime(
+                        str(default_value), "%Y-%m-%d %H:%M:%S"
+                    )
+                elif type_ == "time":
+                    default_value = str(default_value)
+                    if default_value.find("T") > -1:
+                        default_value = default_value[default_value.find("T") + 1 :]
+
+                    default_value = datetime.datetime.strptime(
+                        str(default_value)[:8], "%H:%M:%S"
+                    ).time()
+
+            setattr(self, name, default_value)
 
     def save(self,) -> bool:
         """Save object."""
