@@ -26,7 +26,7 @@ def orm_(action_name: str) -> Any:
     table_name = action_name
 
     if action_name in application.PROJECT.actions.keys():
-        table_name: str = application.PROJECT.actions[action_name]._table
+        table_name = application.PROJECT.actions[action_name]._table
     orm = None
     if table_name:
         from pineboolib.application.qsadictmodules import QSADictModules
