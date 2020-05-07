@@ -142,6 +142,8 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     # data.append("from pineboolib.qsa import qsa")
     # data.append("")
     # data.append("Base = declarative_base()")
+    data.append("from pineboolib.application.database.orm import basemodel")
+    data.append("")
     data.append("from sqlalchemy.ext import declarative")
     data.append("import sqlalchemy")
     data.append("")
@@ -154,10 +156,11 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     #        data.append("load_model('%s')" % rel.foreignTable())
 
     # data.append("")
+    data.append("class %s%s(" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append(
-        "class %s%s(declarative.declarative_base()): # type: ignore [misc] # noqa: F821"
-        % (mtd_table.name()[0].upper(), mtd_table.name()[1:])
+        "    declarative.declarative_base(), basemodel.BaseModel # type: ignore [misc] # noqa: F821"
     )
+    data.append("):")
     data.append('    """%s%s class."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("    __tablename__ = '%s'" % mtd_table.name())
     data.append("")
@@ -178,16 +181,18 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("")
     data.append("# <--- Fields --- ")
 
-    data.append("")
-    data.append("    def before_flush(self, session) -> bool:")
-    data.append('        """Before flush."""')
-    data.append("")
-    data.append("        return True")
-    data.append("")
-    data.append("    def after_flush(self, session) -> bool:")
-    data.append('        """After flush."""')
-    data.append("")
-    data.append("        return True")
+    # ===========================================================================
+    # data.append("")
+    # data.append("    def before_flush(self, session) -> bool:")
+    # data.append('        """Before flush."""')
+    # data.append("")
+    # data.append("        return True")
+    # data.append("")
+    # data.append("    def after_flush(self, session) -> bool:")
+    # data.append('        """After flush."""')
+    # data.append("")
+    # data.append("        return True")
+    # ===========================================================================
 
     if not pk_found:
 
