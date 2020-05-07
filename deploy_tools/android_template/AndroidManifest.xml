@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<manifest package="org.eneboo.pineboo" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="0.70.25" android:versionCode="1" android:installLocation="auto">
+<manifest package="org.eneboo.pineboo" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="0.71.42" android:versionCode="1" android:installLocation="auto">
     <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="28"/>
 
     <uses-permission android:name="android.permission.INTERNET" />

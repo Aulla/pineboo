@@ -38,7 +38,7 @@ cd ..
 fi
 
 if [ ! -e "bzip2" ] ; then
-git clone https://github.com/dmcrystax/cosp-android-bzip2 bzip
+git clone https://github.com/Aulla/cosp-android-bzip2 bzip
 cd bzip
 build.sh $ANDROID_NDK_ROOT --prefix=./lib
 cd ..   
