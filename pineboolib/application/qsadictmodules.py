@@ -67,7 +67,8 @@ class QSADictModules:
             init_fn = getattr(orm, "qsa_init", None)
             if init_fn:
                 sqlalchemy.event.listen(orm, "init", init_fn)
-        return orm
+            return orm()
+        return None
 
     @classmethod
     def action_exists(cls, scriptname: str) -> bool:
