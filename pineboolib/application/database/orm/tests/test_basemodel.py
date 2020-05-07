@@ -18,7 +18,7 @@ class TestBaseModel(unittest.TestCase):
         """Basic test 1."""
 
         instance = qsa.orm_("flareas")
-        model_class = instance.__class__
+        # model_class = instance.__class__
 
         session = qsa.session()
 
@@ -33,7 +33,7 @@ class TestBaseModel(unittest.TestCase):
         """Basic test 2."""
 
         instance = qsa.orm_("flareas")
-        model_class = instance.__class__
+        # model_class = instance.__class__
 
         session = qsa.session()
 
