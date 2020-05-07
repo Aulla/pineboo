@@ -5,8 +5,12 @@
 from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
 import sqlalchemy  # type: ignore [import] # noqa: F821
 
+from pineboolib.application.database.orm import basemodel
 
-class Flusers(declarative.declarative_base()):  # type: ignore [misc] # noqa: F821
+
+class Flusers(
+    declarative.declarative_base(), basemodel.BaseModel  # type: ignore [misc] # noqa: F821
+):
     """Fusers class."""
 
     __tablename__ = "flusers"

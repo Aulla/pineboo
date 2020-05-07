@@ -2,12 +2,16 @@
 # Translated with pineboolib v0.71.18
 """Flfiles_model module."""
 
+from pineboolib.application.database.orm import basemodel
+
 from sqlalchemy.ext import declarative
 import sqlalchemy
 from pineboolib.qsa import qsa
 
 
-class Flfiles(declarative.declarative_base()):  # type: ignore [misc] # noqa: F821
+class Flfiles(
+    declarative.declarative_base(), basemodel.BaseModel  # type: ignore [misc] # noqa: F821
+):
     """Flfiles class."""
 
     __tablename__ = "flfiles"

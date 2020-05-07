@@ -2,11 +2,15 @@
 # Translated with pineboolib v0.71.18
 """Flacos_model module."""
 
+from pineboolib.application.database.orm import basemodel
+
 from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
 import sqlalchemy  # type: ignore [import] # noqa: F821
 
 
-class Flacos(declarative.declarative_base()):  # type: ignore [misc] # noqa: F821
+class Flacos(
+    declarative.declarative_base(), basemodel.BaseModel  # type: ignore [misc] # noqa: F821
+):
     """Flacos class."""
 
     __tablename__ = "flacos"
