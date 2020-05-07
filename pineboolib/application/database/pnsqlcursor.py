@@ -139,10 +139,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not mtd:
             return
 
-        self._cursor_model = qsadictmodules.QSADictModules.orm_("%s" % mtd.name())
+        self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
         if not self._cursor_model and mtd:
             pnormmodelsfactory.register_metadata_as_model(mtd)
-            self._cursor_model = qsadictmodules.QSADictModules.orm_("%s" % mtd.name())
+            self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
 
         if not self._cursor_model:
             raise Exception("_cursor_model not found !")
