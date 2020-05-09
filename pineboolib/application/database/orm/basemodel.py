@@ -80,6 +80,7 @@ class BaseModel:
             setattr(self._buffer_copy, field_name, getattr(self, field_name, None))
 
     def changes(self) -> Dict[str, Any]:
+        """Return field names changed and values."""
 
         changes = {}
 
