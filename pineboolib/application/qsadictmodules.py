@@ -6,6 +6,7 @@ Manages read and writting QSA dynamic properties that are loaded during project 
 from typing import Any, TYPE_CHECKING
 from pineboolib.core.utils import logging
 from .xmlaction import XMLAction
+from pineboolib import application
 from .proxy import DelayedObjectProxyLoader
 from .safeqsa import SafeQSA
 import sqlalchemy
@@ -59,16 +60,26 @@ class QSADictModules:
             return None
 
     @classmethod
-    def orm_(cls, script_name: str) -> Any:
+    def orm_(cls, script_name: str, conn_name: str) -> Any:
         """Return orm instance."""
 
+        if not script_name:
+            return
+
+        if not conn_name:
+            conn_name = "default"
+
+        ret_ = None
         orm = cls.from_project("%s_orm" % (script_name))
         if orm is not None:
             init_fn = getattr(orm, "qsa_init", None)
             if init_fn:
                 sqlalchemy.event.listen(orm, "init", init_fn)
-            return orm()
-        return None
+
+            ret_ = orm()
+            ret_.session = application.PROJECT.conn_manager.useConn(conn_name).session()
+
+        return ret_
 
     @classmethod
     def action_exists(cls, scriptname: str) -> bool:
