@@ -6,7 +6,7 @@ from sqlalchemy import orm
 
 from pineboolib.core.utils import logging
 from pineboolib import application
-from typing import Optional, Callable, Dict, Any, TYPE_CHECKING
+from typing import Optional, Dict, Any, TYPE_CHECKING
 
 import datetime
 
@@ -29,7 +29,7 @@ class BaseModel:
     __tablename__: str = ""
 
     _session: Optional["orm.session.Session"]
-    _buffer_copy: Callable
+    _buffer_copy: "Copy"
 
     @orm.reconstructor  # type: ignore [misc] # noqa: F821
     def constructor_init(self) -> None:
@@ -62,7 +62,7 @@ class BaseModel:
         # print("--->", self, self._session)
         pass
 
-    def buffer_copy(self) -> Callable:
+    def buffer_copy(self) -> "Copy":
         """Return buffer_copy."""
 
         return self._buffer_copy
@@ -72,14 +72,22 @@ class BaseModel:
         del self._buffer_copy
         self._buffer_copy = Copy()
 
-        for field_name in self.table_metadata().fieldNames():
+        table_mtd = self.table_metadata()
+        if table_mtd is None:
+            raise Exception("table_metadata is empty!")
+
+        for field_name in table_mtd.fieldNames():
             setattr(self._buffer_copy, field_name, getattr(self, field_name, None))
 
     def changes(self) -> Dict[str, Any]:
 
         changes = {}
 
-        for field_name in self.table_metadata().fieldNames():
+        table_mtd = self.table_metadata()
+        if table_mtd is None:
+            raise Exception("table_metadata is empty!")
+
+        for field_name in table_mtd.fieldNames():
             original_value = getattr(self._buffer_copy, field_name, None)
             current_value = getattr(self, field_name)
 
@@ -257,7 +265,7 @@ class BaseModel:
         """Return current transaction level."""
 
         ret_ = -1
-        parent_transaction = self._session.transaction
+        parent_transaction = self._session.transaction if self._session else None
         while parent_transaction:
             ret_ += 1
             parent_transaction = parent_transaction.parent
