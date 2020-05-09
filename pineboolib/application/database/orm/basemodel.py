@@ -6,7 +6,7 @@ from sqlalchemy import orm
 
 from pineboolib.core.utils import logging
 from pineboolib import application
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Callable, Dict, Any, TYPE_CHECKING
 
 import datetime
 
@@ -17,12 +17,19 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
+class Copy:
+    """Copy class."""
+
+    pass
+
+
 class BaseModel:
     """Base Model class."""
 
     __tablename__: str = ""
 
     _session: Optional["orm.session.Session"]
+    _buffer_copy: Callable
 
     @orm.reconstructor  # type: ignore [misc] # noqa: F821
     def constructor_init(self) -> None:
@@ -30,33 +37,65 @@ class BaseModel:
 
         # print("constructor", self)
         self._session = sqlalchemy.inspect(self).session
+        self._buffer_copy = Copy()
 
         if not self._session:
             raise Exception("session is empty!")
 
         if self in self._session.new:
             self.populate_default()
+        elif self in self._session.dirty:
+            self.update_buffer_copy()
 
         self.init()
 
-    def qsa_init(self, target, args=[], kwargs={}) -> None:
+    def qsa_init(target, args=[], kwargs={}) -> None:
         """Initialize from qsa."""
         # print("orm", self)
-        self._session = None
-        self.populate_default()
-        self.init()
+        target._session = None
+        target._buffer_copy = Copy()
+        target.populate_default()
+        target.init()
 
     def init(self):
         """Initialize."""
         # print("--->", self, self._session)
         pass
 
+    def buffer_copy(self) -> Callable:
+        """Return buffer_copy."""
+
+        return self._buffer_copy
+
+    def update_buffer_copy(self) -> None:
+        """Update buffer copy."""
+        del self._buffer_copy
+        self._buffer_copy = Copy()
+
+        for field_name in self.table_metadata().fieldNames():
+            setattr(self._buffer_copy, field_name, getattr(self, field_name, None))
+
+    def changes(self) -> Dict[str, Any]:
+
+        changes = {}
+
+        for field_name in self.table_metadata().fieldNames():
+            original_value = getattr(self._buffer_copy, field_name, None)
+            current_value = getattr(self, field_name)
+
+            if type(original_value) != type(current_value):
+                changes[field_name] = current_value
+            elif original_value != current_value:
+                changes[field_name] = current_value
+
+        return changes
+
     def after_new(self) -> bool:
         """After flush new instance."""
 
         return True
 
-    def after_update(self) -> bool:
+    def after_change(self) -> bool:
         """After update a instance."""
 
         return True
@@ -71,7 +110,7 @@ class BaseModel:
 
         return True
 
-    def before_update(self) -> bool:
+    def before_change(self) -> bool:
         """Before update a instance."""
 
         return True
@@ -94,10 +133,10 @@ class BaseModel:
             if result:
                 result = self.after_delete()
 
-            if result:
-                self._session.commit()
-            else:
-                self._session.rollback()
+            # if result:
+            #    self._session.commit()
+            # else:
+            #    self._session.rollback()
 
         return result
 
@@ -170,7 +209,7 @@ class BaseModel:
         if self in self._session.new:
             result = self.before_new()
         elif self in self._session.dirty:
-            result = self.before_update()
+            result = self.before_change()
         elif self in self._session.deleted:
             raise Exception("Trying to save a deleted instance!")
             # result = self.before_delete()
@@ -203,20 +242,31 @@ class BaseModel:
                 if self in self._session.new:
                     result = self.after_new()
                 elif self in self._session.dirty:
-                    result = self.after_update()
+                    result = self.after_change()
                 # elif self in self._session.delete:
                 #    result = self.after_delete()
 
-            if result:
-                self._session.commit()
-            else:
-                self._session.rollback()
+            # if result:
+            #    self._session.commit()
+            # else:
+            #    self._session.rollback()
 
         return result
 
+    def get_transaction_level(self) -> int:
+        """Return current transaction level."""
+
+        ret_ = -1
+        parent_transaction = self._session.transaction
+        while parent_transaction:
+            ret_ += 1
+            parent_transaction = parent_transaction.parent
+
+        return ret_
+
     def set_session(self, session: "orm.session.Session") -> None:
         """Set instance session."""
-        LOGGER.warning("Set session %s to instance %s", session, self)
+        # LOGGER.warning("Set session %s to instance %s", session, self)
         if self._session is None:
             # session.add(self)
             self._session = session
@@ -229,3 +279,4 @@ class BaseModel:
         return self._session
 
     session = property(get_session, set_session)
+    transaction_level = property(get_transaction_level)
