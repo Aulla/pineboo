@@ -597,22 +597,11 @@ class FLManagerModules(object):
         @param file_name File name
         @return Key sh associated with the files
         """
+        ret_ = ""
+        if not self.conn_.connManager().manager().isSystemTable(file_name):
+            ret_ = application.PROJECT.files[file_name].sha
 
-        if not file_name[:3] == "sys" and not self.conn_.connManager().manager().isSystemTable(
-            file_name
-        ):
-            format_value = (
-                self.conn_.connManager()
-                .manager()
-                .formatAssignValue("nombre", "string", file_name, True)
-            )
-            qry = pnsqlquery.PNSqlQuery(None, "dbAux")
-            # q.setForwardOnly(True)
-            qry.exec_("SELECT sha FROM flfiles WHERE %s" % format_value)
-            if qry.next():
-                return str(qry.value(0))
-
-        return ""
+        return ret_
 
     def loadKeyFiles(self) -> None:
         """
