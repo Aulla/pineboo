@@ -88,11 +88,6 @@ class FLManagerModules(object):
     list_all_id_modules_: List[str]
 
     """
-    Lista de todas los identificadores de areas cargadas, para optimizar lecturas
-    """
-    list_id_areas_: List[str]
-
-    """
     Diccionario con información de los módulos
     """
     dict_info_mods_: Dict[str, "pninfomod.PNInfoMod"]
@@ -132,7 +127,6 @@ class FLManagerModules(object):
         self._files_cached = {}
         self.dict_key_files_ = {}
         self.list_all_id_modules_ = []
-        self.list_id_areas_ = []
         self.dict_info_mods_ = {}
         self.dict_module_files_ = {}
 
@@ -148,9 +142,6 @@ class FLManagerModules(object):
 
         del self.list_all_id_modules_
         self.list_all_id_modules_ = []
-
-        del self.list_id_areas_
-        self.list_id_areas_ = []
 
         del self.dict_info_mods_
         self.dict_info_mods_ = {}
@@ -502,22 +493,7 @@ class FLManagerModules(object):
         @return List of area identifiers
         """
 
-        if self.list_id_areas_:
-            return self.list_id_areas_
-
-        ret: List[str] = []
-        if not self.conn_.connManager().dbAux():
-            return ret
-
-        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
-        qry.setForwardOnly(True)
-        qry.exec_("SELECT idarea FROM flareas WHERE idarea <> 'sys'")
-        while qry.next():
-            ret.append(str(qry.value(0)))
-
-        ret.append("sys")
-
-        return ret
+        return list(application.PROJECT.areas.keys())
 
     def listIdModules(self, id_area: str) -> List[str]:
         """
@@ -557,20 +533,15 @@ class FLManagerModules(object):
 
         return ret
 
-    def idAreaToDescription(self, id_area: Optional[str] = None) -> str:
+    def idAreaToDescription(self, id_area: str = "") -> str:
         """
         Return the description of an area from its identifier.
 
         @param id_area Area identifier.
         @return Area description text, if found or idA if not found.
         """
-
-        if id_area is None:
-            return ""
-
-        for info_area in self.dict_info_mods_.values():
-            if info_area.id_area and info_area.id_area.upper() == id_area.upper():
-                return info_area.area_descripcion
+        if id_area in application.PROJECT.areas.keys():
+            return application.PROJECT.areas[id_area].descripcion
 
         return ""
 
@@ -719,12 +690,15 @@ class FLManagerModules(object):
             ].descripcion
             self.dict_info_mods_[info_module_.id_modulo.upper()] = info_module_
 
+    @decorators.deprecated
     def loadIdAreas(self) -> None:
         """
         Load the list of all area identifiers.
         """
 
-        self.list_id_areas_ = list(application.PROJECT.areas.keys())
+        pass
+        # for key in application.PROJECT.areas.keys():
+        #    self.dict_areas[key] = application.PROJECT.areas[key].descripcion
 
     @decorators.not_implemented_warn
     def checkSignatures(self):
