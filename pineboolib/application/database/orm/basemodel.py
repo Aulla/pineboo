@@ -23,7 +23,7 @@ class Copy:
     pass
 
 
-class BaseModel:
+class BaseModel(object):
     """Base Model class."""
 
     __tablename__: str = ""
@@ -44,15 +44,20 @@ class BaseModel:
 
         if self in self._session.new:
             self.populate_default()
-        elif self in self._session.dirty:
-            self.update_buffer_copy()
+
+        self.update_copy()
 
         self.init()
 
     def qsa_init(target, args=[], kwargs={}) -> None:
         """Initialize from qsa."""
-        # print("orm", self)
+
         target._session = None
+        session_name = "default"
+        if "session" in kwargs:
+            session_name = kwargs["session"] or "default"
+
+        target._session = application.PROJECT.conn_manager.useConn(session_name).session()
         target._buffer_copy = Copy()
         target.populate_default()
         target.init()
@@ -62,12 +67,12 @@ class BaseModel:
         # print("--->", self, self._session)
         pass
 
-    def buffer_copy(self) -> "Copy":
+    def copy(self) -> "Copy":
         """Return buffer_copy."""
 
         return self._buffer_copy
 
-    def update_buffer_copy(self) -> None:
+    def update_copy(self) -> None:
         """Update buffer copy."""
         del self._buffer_copy
         self._buffer_copy = Copy()
@@ -287,5 +292,15 @@ class BaseModel:
 
         return self._session
 
+    def get_pk(self) -> str:
+        """Return primary key."""
+
+        table_meta = application.PROJECT.conn_manager.manager().metadata(self.__tablename__)
+        if table_meta is None:
+            raise Exception("TableMetaData is empty!!")
+
+        return table_meta.primaryKey()
+
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)
+    pk = property(get_pk)

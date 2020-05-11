@@ -6,7 +6,6 @@ Manages read and writting QSA dynamic properties that are loaded during project 
 from typing import Any, TYPE_CHECKING
 from pineboolib.core.utils import logging
 from .xmlaction import XMLAction
-from pineboolib import application
 from .proxy import DelayedObjectProxyLoader
 from .safeqsa import SafeQSA
 import sqlalchemy
@@ -76,8 +75,7 @@ class QSADictModules:
             if init_fn:
                 sqlalchemy.event.listen(orm, "init", init_fn)
 
-            ret_ = orm()
-            ret_.session = application.PROJECT.conn_manager.useConn(conn_name).session()
+            ret_ = orm
 
         return ret_
 

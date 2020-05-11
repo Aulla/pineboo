@@ -19,7 +19,7 @@ class TestOrm(unittest.TestCase):
         """Load model."""
 
         class1_ = qsa.from_project("flareas_orm")
-        obj_ = qsa.orm_("flareas")
+        obj_ = qsa.orm_("flareas")()
         self.assertEqual(class1_, obj_.__class__)
 
     # ===============================================================================
