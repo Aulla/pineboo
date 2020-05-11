@@ -7,7 +7,7 @@ from pineboolib.core import decorators
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings
 
-from pineboolib.application.metadata import pnaction, pninfomod
+from pineboolib.application.metadata import pnaction
 from pineboolib.application.staticloader import pnmodulesstaticloader
 from pineboolib.application.database import pnsqlquery, pnsqlcursor
 
@@ -62,12 +62,6 @@ class FLManagerModules(object):
     """FLManagerModules class."""
 
     """
-    Mantiene el identificador del area a la que pertenece el módulo activo.
-    """
-
-    active_id_area_: str
-
-    """
     Mantiene el identificador del módulo activo.
     """
     active_id_module_: str
@@ -81,11 +75,6 @@ class FLManagerModules(object):
     Diccionario de claves de ficheros, para optimizar lecturas
     """
     dict_key_files_: Dict[str, str]
-
-    """
-    Diccionario con información de los módulos
-    """
-    dict_info_mods_: Dict[str, "pninfomod.PNInfoMod"]
 
     """
     Diccionario de identificadores de modulo de ficheros, para optimizar lecturas
@@ -121,7 +110,7 @@ class FLManagerModules(object):
         self.sha_local_ = ""
         self._files_cached = {}
         self.dict_key_files_ = {}
-        self.dict_info_mods_ = {}
+
         self.dict_module_files_ = {}
 
     # """
@@ -133,9 +122,6 @@ class FLManagerModules(object):
 
     def finish(self) -> None:
         """Run tasks when closing the module."""
-
-        del self.dict_info_mods_
-        self.dict_info_mods_ = {}
 
         del self.dict_module_files_
         self.dict_module_files_ = {}
@@ -440,7 +426,7 @@ class FLManagerModules(object):
         LOGGER.trace("createFormRecord: load FormRecordDB")
         return flformrecorddb.FLFormRecordDB(action, parent_or_cursor, load=False)
 
-    def setActiveIdModule(self, id_module: Optional[str] = None) -> None:
+    def setActiveIdModule(self, id_module: str = "") -> None:
         """
         Set the active module.
 
@@ -450,15 +436,10 @@ class FLManagerModules(object):
         @param id_module Module identifier
         """
 
-        if id_module is None or not self.dict_info_mods_:
-            self.active_id_area_ = ""
-            self.active_id_module_ = ""
-            return
-
-        if id_module.upper() in self.dict_info_mods_.keys():
-            info_module = self.dict_info_mods_[id_module.upper()]
-            self.active_id_area_ = info_module.id_area
+        if id_module in application.PROJECT.modules.keys():
             self.active_id_module_ = id_module
+        else:
+            self.active_id_module_ = ""
 
     def activeIdArea(self) -> str:
         """
@@ -466,7 +447,11 @@ class FLManagerModules(object):
 
         @return Area identifier
         """
-        return self.active_id_area_
+
+        if self.active_id_module_ in application.PROJECT.modules:
+            return application.PROJECT.modules[self.active_id_module_].areaid
+
+        return ""
 
     def activeIdModule(self) -> str:
         """
@@ -493,13 +478,12 @@ class FLManagerModules(object):
         @param id_area Identifier of the area from which you want to get the modules list
         @return List of module identifiers
         """
+        ret_ = []
+        for key in application.PROJECT.modules.keys():
+            if application.PROJECT.modules[key].areaid == id_area:
+                ret_.append(key)
 
-        list_: List[str] = []
-        for mod in self.dict_info_mods_.keys():
-            if self.dict_info_mods_[mod].id_area == id_area:
-                list_.append(self.dict_info_mods_[mod].id_modulo)
-
-        return list_
+        return ret_
 
     def listAllIdModules(self) -> List[str]:
         """
@@ -527,20 +511,17 @@ class FLManagerModules(object):
 
         return ""
 
-    def idModuleToDescription(self, id_module: str) -> str:
+    def idModuleToDescription(self, id_module: str = "") -> str:
         """
         Return the description of a module from its identifier.
 
         @param id_module Module identifier.
         @return Module description text, if found or idM if not found.
         """
-        ret_ = id_module
+        if id_module in application.PROJECT.modules.keys():
+            return application.PROJECT.modules[id_module].description
 
-        if id_module.upper() in self.dict_info_mods_:
-            mod_obj = self.dict_info_mods_[id_module.upper()]
-            ret_ = getattr(mod_obj, "descripcion", id_module)
-
-        return ret_
+        return ""
 
     def iconModule(self, id_module: str) -> "QtGui.QPixmap":
         """
@@ -551,10 +532,11 @@ class FLManagerModules(object):
         """
 
         pix = QtGui.QPixmap()
-        mod_obj = self.dict_info_mods_.get(id_module.upper(), None)
-        mod_icono = getattr(mod_obj, "icono", None)
-        if mod_icono is not None:
-            pix = QtGui.QPixmap(xpm.cache_xpm(mod_icono))
+        # mod_obj = self.dict_info_mods_.get(id_module.upper(), None)
+        # mod_icono = getattr(mod_obj, "icono", None)
+        # if mod_icono is not None:
+        if id_module in application.PROJECT.modules.keys():
+            pix = QtGui.QPixmap(xpm.cache_xpm(application.PROJECT.modules[id_module].icon))
 
         return pix
 
@@ -653,23 +635,26 @@ class FLManagerModules(object):
             self.dict_key_files_[name] = str(qry.value(1))
             self.dict_module_files_[name.upper()] = str(qry.value(2))
 
+    @decorators.deprecated
     def loadAllIdModules(self) -> None:
         """
         Load the list of all module identifiers.
         """
 
-        self.dict_info_mods_ = {}
-        for id_module in application.PROJECT.modules.keys():
-            info_module_ = pninfomod.PNInfoMod()
-            info_module_.id_modulo = id_module
-            info_module_.id_area = application.PROJECT.modules[id_module].areaid
-            info_module_.descripcion = application.PROJECT.modules[id_module].description
-            info_module_.version = ""
-            info_module_.icono = application.PROJECT.modules[id_module].icon
-            info_module_.area_descripcion = application.PROJECT.areas[
-                application.PROJECT.modules[id_module].areaid
-            ].descripcion
-            self.dict_info_mods_[info_module_.id_modulo.upper()] = info_module_
+        # =======================================================================
+        # self.dict_info_mods_ = {}
+        # for id_module in application.PROJECT.modules.keys():
+        #     info_module_ = pninfomod.PNInfoMod()
+        #     info_module_.id_modulo = id_module
+        #     info_module_.id_area = application.PROJECT.modules[id_module].areaid
+        #     info_module_.descripcion = application.PROJECT.modules[id_module].description
+        #     info_module_.version = ""
+        #     info_module_.icono = application.PROJECT.modules[id_module].icon
+        #     info_module_.area_descripcion = application.PROJECT.areas[
+        #         application.PROJECT.modules[id_module].areaid
+        #     ].descripcion
+        #     self.dict_info_mods_[info_module_.id_modulo.upper()] = info_module_
+        # =======================================================================
 
     @decorators.deprecated
     def loadIdAreas(self) -> None:
