@@ -252,7 +252,6 @@ class DockListView(QtCore.QObject):
                             action = None
 
                     if action is not None:
-
                         if action_name.endswith("actiongroup_name"):
                             this_item = (
                                 parent_item
@@ -911,11 +910,10 @@ class MainForm(imainwindow.IMainWindow):
             action_group = QtWidgets.QActionGroup(self.ag_menu_)
             action_group.setObjectName(area)
             ag_action = QtWidgets.QAction(action_group)
-            ag_action.setObjectName("%s_actiongroup_name" % action_group.objectName())
-            ag_action.setText(mng.idAreaToDescription(action_group.objectName()))
+            ag_action.setObjectName("%s_actiongroup_name" % aarea)
+            ag_action.setText(mng.idAreaToDescription(area))
             ag_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("folder.png")))
-
-            modules = mng.listIdModules(action_group.objectName())
+            modules = mng.listIdModules(area)
             for module in modules:
                 if module == "sys" and QSA_SYS.isUserBuild():
                     continue
@@ -926,7 +924,7 @@ class MainForm(imainwindow.IMainWindow):
                 if QSA_SYS.isQuickBuild():
                     if module == "sys":
                         continue
-                actions = self.widgetActions("%s.ui" % action.objectName(), action)
+                actions = self.widgetActions("%s.ui" % module, action)
 
                 if not actions:
                     # ac.setObjectName("")
@@ -936,15 +934,14 @@ class MainForm(imainwindow.IMainWindow):
                         action.setObjectName(module)
 
                 ac_action = QtWidgets.QAction(action)
-                ac_action.setObjectName("%s_actiongroup_name" % action.objectName())
-                ac_action.setText(mng.idModuleToDescription(action.objectName()))
-                ac_action.setIcon(self.iconSet16x16(mng.iconModule(action.objectName())))
-
+                ac_action.setObjectName("%s_module_actiongroup_name" % module)
+                ac_action.setText(mng.idModuleToDescription(module))
+                ac_action.setIcon(self.iconSet16x16(mng.iconModule(module)))
                 ac_action.triggered.connect(self.act_sig_map_.map)
                 self.act_sig_map_.setMapping(
-                    ac_action, "triggered():initModule():%s_actiongroup_name" % action.objectName()
+                    ac_action, "triggered():initModule():%s_actiongroup_name" % module
                 )
-                if action.objectName() == "sys" and action_group.objectName() == "sys":
+                if module == "sys" and area == "sys":
                     if QSA_SYS.isDebuggerMode():
                         static_load = QtWidgets.QAction(action_group)
                         static_load.setObjectName("staticLoaderSetupAction")
