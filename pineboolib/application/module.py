@@ -26,7 +26,7 @@ LOGGER = logging.get_logger(__name__)
 class Module(object):
     """Information about loaded modules."""
 
-    def __init__(self, areaid: str, name: str, description: str, icon: str) -> None:
+    def __init__(self, areaid: str, name: str, description: str, icon: str, version: str) -> None:
         """
         Create module instance.
 
@@ -42,6 +42,7 @@ class Module(object):
         self.files: Dict[str, "File"] = {}
         self.tables: Dict[str, TableStruct] = {}
         self.loaded = False
+        self.version = version
 
     def add_project_file(self, fileobj: "File") -> None:
         """

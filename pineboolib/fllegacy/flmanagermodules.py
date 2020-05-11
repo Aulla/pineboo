@@ -548,13 +548,8 @@ class FLManagerModules(object):
         @return Chain with version
         """
 
-        if not self.dict_info_mods_:
-            return id_module
-
-        info_module = self.dict_info_mods_[id_module.upper()]
-
-        if info_module is not None:
-            return info_module.version
+        if id_module in application.PROJECT.modules.keys():
+            return application.PROJECT.modules[id_module].version
         else:
             return id_module
 
@@ -748,7 +743,7 @@ class FLManagerModules(object):
                 self.active_id_module_ is None
                 or self.active_id_module_ not in self.listAllIdModules()
             ):
-                self.setActiveIdModule(None)
+                self.active_id_module_ = ""
 
     def contentStatic(self, file_name: str, only_path: bool = False) -> str:
         """

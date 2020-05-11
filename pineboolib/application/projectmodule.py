@@ -530,7 +530,7 @@ class Project(object):
         icono = file_object.read()
         file_object.close()
 
-        self.modules["sys"] = module.Module("sys", "sys", "Administración", icono)
+        self.modules["sys"] = module.Module("sys", "sys", "Administración", icono, "1.0")
         for root, dirs, files in os.walk(
             utils_base.filedir(utils_base.get_base_dir(), "system_module")
         ):
@@ -576,15 +576,17 @@ class Project(object):
 
         # Obtener módulos activos
         result = conn.execute_query(
-            """SELECT idarea, idmodulo, descripcion, icono FROM flmodules WHERE bloqueo = %s """
+            """SELECT idarea, idmodulo, descripcion, icono, version FROM flmodules WHERE bloqueo = %s """
             % conn.driver().formatValue("bool", "True", False)
         )
 
-        for idarea, idmodulo, descripcion, icono in list(result):
+        for idarea, idmodulo, descripcion, icono, version in list(result):
             icono = xpm.cache_xpm(icono)
 
             if idmodulo not in self.modules:
-                self.modules[idmodulo] = module.Module(idarea, idmodulo, descripcion, icono)
+                self.modules[idmodulo] = module.Module(
+                    idarea, idmodulo, descripcion, icono, version
+                )
 
         result = conn.execute_query(
             """SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
