@@ -29,7 +29,7 @@ class TestAQObjectQueryList(unittest.TestCase):
             list_ = qsa.AQObjectQueryList(
                 application.PROJECT.main_window, "QAction", None, False, True
             )
-            self.assertTrue(len(list_) > 86)
+            self.assertTrue(len(list_) in [86, 92], "El tamaño devuelto es %s" % len(list_))
 
     @classmethod
     def tearDownClass(cls) -> None:
