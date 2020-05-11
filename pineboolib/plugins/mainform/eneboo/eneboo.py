@@ -490,9 +490,13 @@ class MainForm(imainwindow.IMainWindow):
                 )
                 if not action or not action.isVisible():
                     continue
-                module_name = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
-                    "%s.ui" % action.objectName()
-                )
+                module_name = ""
+                if action.objectName() in application.PROJECT.actions.keys():
+                    ui_name = application.PROJECT.actions[action.objectName()]._master_form
+                    if ui_name:
+                        module_name = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
+                            "%s.ui" % ui_name
+                        )
                 if module_name:
                     self.initModule(module_name)
 
