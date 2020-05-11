@@ -83,11 +83,6 @@ class FLManagerModules(object):
     dict_key_files_: Dict[str, str]
 
     """
-    Lista de todos los identificadores de módulos cargados, para optimizar lecturas
-    """
-    list_all_id_modules_: List[str]
-
-    """
     Diccionario con información de los módulos
     """
     dict_info_mods_: Dict[str, "pninfomod.PNInfoMod"]
@@ -126,7 +121,6 @@ class FLManagerModules(object):
         self.sha_local_ = ""
         self._files_cached = {}
         self.dict_key_files_ = {}
-        self.list_all_id_modules_ = []
         self.dict_info_mods_ = {}
         self.dict_module_files_ = {}
 
@@ -139,9 +133,6 @@ class FLManagerModules(object):
 
     def finish(self) -> None:
         """Run tasks when closing the module."""
-
-        del self.list_all_id_modules_
-        self.list_all_id_modules_ = []
 
         del self.dict_info_mods_
         self.dict_info_mods_ = {}
@@ -517,21 +508,12 @@ class FLManagerModules(object):
         @return List of module identifiers
         """
 
-        if self.list_all_id_modules_:
-            return self.list_all_id_modules_
+        ret_ = []
 
-        ret: List[str] = []
-        if not self.conn_.connManager().dbAux():
-            return ret
+        for key in application.PROJECT.modules.keys():
+            ret_.append(key)
 
-        ret.append("sys")
-        qry = pnsqlquery.PNSqlQuery(None, "dbAux")
-        qry.setForwardOnly(True)
-        qry.exec_("SELECT idmodulo FROM flmodules WHERE idmodulo <> 'sys'")
-        while qry.next():
-            ret.append(str(qry.value(0)))
-
-        return ret
+        return ret_
 
     def idAreaToDescription(self, id_area: str = "") -> str:
         """
@@ -676,9 +658,8 @@ class FLManagerModules(object):
         Load the list of all module identifiers.
         """
 
-        self.list_all_id_modules_ = list(application.PROJECT.modules.keys())
         self.dict_info_mods_ = {}
-        for id_module in self.list_all_id_modules_:
+        for id_module in application.PROJECT.modules.keys():
             info_module_ = pninfomod.PNInfoMod()
             info_module_.id_modulo = id_module
             info_module_.id_area = application.PROJECT.modules[id_module].areaid
@@ -708,22 +689,23 @@ class FLManagerModules(object):
 
         pass
 
-    def idModuleOfFile(self, name: str) -> str:
+    def idModuleOfFile(self, name: str = "") -> str:
         """
         Return the identifier of the module to which a given file belongs.
 
         @param n File name including extension
         @return Identifier of the module to which the file belongs
         """
-
         if name.endswith(".mtd"):
             if application.PROJECT.conn_manager.manager().isSystemTable(name):
                 return "sys"
 
-        cursor = self.conn_.execute_query("SELECT idmodulo FROM flfiles WHERE nombre='%s'" % name)
+        if name in application.PROJECT.files.keys():
 
-        for idmodulo in cursor:
-            return idmodulo[0]
+            return application.PROJECT.files[name].module
+
+        else:
+            LOGGER.warning("No encuentro %s", name, stack_info=True)
 
         return ""
 
