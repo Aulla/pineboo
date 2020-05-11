@@ -910,7 +910,7 @@ class MainForm(imainwindow.IMainWindow):
             action_group = QtWidgets.QActionGroup(self.ag_menu_)
             action_group.setObjectName(area)
             ag_action = QtWidgets.QAction(action_group)
-            ag_action.setObjectName("%s_actiongroup_name" % aarea)
+            ag_action.setObjectName("%s_actiongroup_name" % area)
             ag_action.setText(mng.idAreaToDescription(area))
             ag_action.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("folder.png")))
             modules = mng.listIdModules(area)
@@ -939,7 +939,7 @@ class MainForm(imainwindow.IMainWindow):
                 ac_action.setIcon(self.iconSet16x16(mng.iconModule(module)))
                 ac_action.triggered.connect(self.act_sig_map_.map)
                 self.act_sig_map_.setMapping(
-                    ac_action, "triggered():initModule():%s_actiongroup_name" % module
+                    ac_action, "triggered():initModule():%s_module_actiongroup_name" % module
                 )
                 if module == "sys" and area == "sys":
                     if QSA_SYS.isDebuggerMode():
@@ -1347,7 +1347,7 @@ class MainForm(imainwindow.IMainWindow):
 
         fn_ = sgt[1]
         if fn_ == "initModule()":
-            mw.initModule(ac.objectName().replace("_actiongroup_name", ""))
+            mw.initModule(ac.objectName().replace("_module_actiongroup_name", ""))
 
         elif fn_ == "openDefaultForm()":
             mw.addForm(ac.objectName(), ac.icon().pixmap(16, 16))
