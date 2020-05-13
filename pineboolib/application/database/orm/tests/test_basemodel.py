@@ -28,6 +28,7 @@ class TestBaseModel(unittest.TestCase):
         instance.descripcion = "Descripción M"
 
         self.assertTrue(instance.save())
+        instance.session.commit()
 
     def test_basic_2(self) -> None:
         """Basic test 2."""
@@ -43,6 +44,7 @@ class TestBaseModel(unittest.TestCase):
         instance.descripcion = "Descripción M"
 
         self.assertFalse(instance.save())
+        instance.session.rollback()
 
     def test_basic_3(self) -> None:
         """Basic test 3."""
@@ -103,6 +105,4 @@ class TestBaseModel(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
 
-        qsa.session().rollback
-        qsa.session()
         finish_testing()
