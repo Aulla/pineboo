@@ -333,10 +333,11 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                     new_session = True
             except sqlalchemy.exc.InvalidRequestError as error:
                 LOGGER.warning(
-                    "session inactive. rollback NOW! new: %s, dirty: %s, delete: %s",
+                    "session inactive. rollback NOW! new: %s, dirty: %s, delete: %s, error: %s",
                     session.new,
                     session.dirty,
                     session.deleted,
+                    str(error),
                 )
                 session.rollback()
                 session.close()
