@@ -287,9 +287,12 @@ class BaseModel(object):
         result = True
 
         # beforeCommit
+        mode = 0
         if self in self._session.new:
+            mode = 1
             result = self.before_new()
         elif self in self._session.dirty:
+            mode = 2
             result = self.before_change()
         elif self in self._session.deleted:
             raise Exception("Trying to save a deleted instance!")
@@ -320,9 +323,9 @@ class BaseModel(object):
             result = self._flush()
             if result:
                 # afterCommit
-                if self in self._session.new:
+                if mode == 1:
                     result = self.after_new()
-                elif self in self._session.dirty:
+                elif mode == 2:
                     result = self.after_change()
                 # elif self in self._session.delete:
                 #    result = self.after_delete()
