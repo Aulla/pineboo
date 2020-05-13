@@ -14,14 +14,13 @@ import os
 
 
 from typing import Optional, Any, List, Dict, Union, TYPE_CHECKING
-from sqlalchemy import create_engine  # type: ignore [import] # noqa: F821, F401
-from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
-import sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
-    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F401, F821
-    from sqlalchemy.orm import session  # type: ignore [import] # noqa: F821, F401
+    from sqlalchemy.engine import base  # noqa: F401, F821
+    from sqlalchemy.orm import session  # noqa: F821, F401
 
 LOGGER = logging.get_logger(__name__)
 
