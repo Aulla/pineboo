@@ -14,13 +14,13 @@ import os
 
 
 from typing import Optional, Any, List, Dict, Union, TYPE_CHECKING
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine  # type: ignore [import] # noqa: F821, F401
+from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
-    from sqlalchemy.engine import base  # noqa: F401, F821
-    from sqlalchemy.orm import session  # noqa: F821, F401
+    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F401, F821
+    from sqlalchemy.orm import session  # type: ignore [import] # noqa: F821, F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -322,16 +322,11 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         new_session = False
         if session:
 
-            try:
-                if session.connection().closed:
-                    session.close()
-                    new_session = True
-            except Exception as error:
-                LOGGER.warning("error: %s", str(error))
+            if session.connection().closed:
                 session.close()
                 new_session = True
 
-            if not new_session and not session.transaction:
+            elif not session.transaction:
                 session.close()
                 new_session = True
         else:

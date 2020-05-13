@@ -103,5 +103,6 @@ class TestBaseModel(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
 
-        qsa.session().rollback()
+        qsa.session().rollback
+        qsa.session()
         finish_testing()
