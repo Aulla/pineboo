@@ -43,7 +43,6 @@ flup
 xmljson
 twine
 fpdf2
-pymssql
 clipboard
 coloredlogs
 psycopg2
