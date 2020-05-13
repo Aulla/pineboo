@@ -12,6 +12,7 @@ import datetime
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
+    from sqlalchemy.orm import query as orm_query  # noqa: F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -29,38 +30,61 @@ class BaseModel(object):
     __tablename__: str = ""
 
     _session: Optional["orm.session.Session"]
+    _session_name: str
     _buffer_copy: "Copy"
 
     @orm.reconstructor  # type: ignore [misc] # noqa: F821
     def constructor_init(self) -> None:
         """Initialize from constructor."""
 
-        # print("constructor", self)
         self._session = sqlalchemy.inspect(self).session
-        self._buffer_copy = Copy()
+        for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
+            if conn.session() is self._session:
+                self._session_name = name
+                break
 
-        if not self._session:
-            raise Exception("session is empty!")
-
-        if self in self._session.new:
-            self.populate_default()
-
-        self.update_copy()
-
-        self.init()
+        self._common_init()
 
     def qsa_init(target, args=[], kwargs={}) -> None:
         """Initialize from qsa."""
 
-        target._session = None
+        # target._session = None
         session_name = "default"
         if "session" in kwargs:
             session_name = kwargs["session"] or "default"
-
         target._session = application.PROJECT.conn_manager.useConn(session_name).session()
-        target._buffer_copy = Copy()
-        target.populate_default()
-        target.init()
+        target._session_name = session_name
+
+        target._common_init()
+
+    def _common_init(self) -> None:
+        """Initialize."""
+
+        if not self._session:
+            raise Exception("session is empty!")
+
+        if not self._session_name:
+            raise Exception("Session_name not found!")
+
+        if self in self._session.new:
+            raise Exception("Common init with session.new instance!")
+
+        self.update_copy()
+
+        pk_name = self.pk
+        if getattr(self, pk_name, None) is None:
+            self._populate_default()
+
+            if self.type(pk_name) == "serial":
+                setattr(
+                    self,
+                    pk_name,
+                    application.PROJECT.conn_manager.useConn(self._session_name)
+                    .driver()
+                    .nextSerialVal(self.table_metadata().name(), pk_name),
+                )
+
+        self.init()
 
     def init(self):
         """Initialize."""
@@ -74,7 +98,8 @@ class BaseModel(object):
 
     def update_copy(self) -> None:
         """Update buffer copy."""
-        del self._buffer_copy
+        if hasattr(self, "_buffer_copy"):
+            del self._buffer_copy
         self._buffer_copy = Copy()
 
         table_mtd = self.table_metadata()
@@ -168,12 +193,54 @@ class BaseModel(object):
 
         return True
 
-    def table_metadata(self) -> Optional["pntablemetadata.PNTableMetaData"]:
+    @classmethod
+    def table_metadata(cls) -> "pntablemetadata.PNTableMetaData":
         """Return table metadata."""
 
-        return application.PROJECT.conn_manager.manager().metadata(self.__tablename__)
+        ret_ = application.PROJECT.conn_manager.manager().metadata(cls.__tablename__)
 
-    def populate_default(self) -> None:
+        if ret_ is None:
+            raise Exception("table_metadata is empty!")
+
+        return ret_
+
+    @classmethod
+    def type(cls, field_name: str = ""):
+        """Return field type."""
+
+        field_mtd = cls.table_metadata().field(field_name)
+        if field_mtd is not None:
+            return field_mtd.type()
+
+        return None
+
+    @classmethod
+    def get(cls, pk_value: str, session_name: str = "default") -> Any:
+        """Return instance selected by pk."""
+
+        if session_name in application.PROJECT.conn_manager.dictDatabases().keys():
+
+            return (
+                application.PROJECT.conn_manager.useConn(session_name)
+                .session()
+                .query(cls)
+                .get(pk_value)
+            )
+
+        LOGGER.warning("get: session_name %s not found", session_name)
+        return None
+
+    @classmethod
+    def query(cls, session_name="default") -> Optional["orm_query.Query"]:
+        """Return Session query."""
+
+        if session_name in application.PROJECT.conn_manager.dictDatabases().keys():
+            return application.PROJECT.conn_manager.useConn(session_name).session().query(cls)
+
+        LOGGER.warning("query: session_name %s not found", session_name)
+        return None
+
+    def _populate_default(self) -> None:
         """Populate with default values."""
 
         metadata = self.table_metadata()

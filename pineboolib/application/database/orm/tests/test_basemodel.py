@@ -67,6 +67,28 @@ class TestBaseModel(unittest.TestCase):
         meta = obj_().table_metadata()
         self.assertTrue(meta)
 
+    def test_serial(self) -> None:
+        """Test serial field."""
+
+        class_fltest = qsa.orm_("fltest")
+        obj_ = class_fltest()
+        self.assertEqual(obj_.id, 3)
+
+    def test_get(self) -> None:
+        """Test get classmethod."""
+
+        class_fltest = qsa.orm_("fltest")
+        obj_ = class_fltest()
+        self.assertTrue(obj_.save())
+        obj_.session.commit()
+
+        obj_2 = class_fltest.get(1)
+        self.assertEqual(obj_, obj_2)
+        obj_3 = class_fltest.query().get(1)
+        self.assertEqual(obj_, obj_3)
+        obj_4 = class_fltest.query().get(2)
+        self.assertNotEqual(obj_, obj_4)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
