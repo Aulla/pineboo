@@ -19,6 +19,10 @@ class TestInsertData(unittest.TestCase):
         utils_base.FORCE_DESKTOP = True
         init_testing()
 
+        from pineboolib.qsa import qsa
+
+        qsa.session().rollback()
+
     def test_basic(self) -> None:
         """Insert data into a database."""
 
