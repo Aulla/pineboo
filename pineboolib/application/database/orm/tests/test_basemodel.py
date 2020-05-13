@@ -53,6 +53,7 @@ class TestBaseModel(unittest.TestCase):
         area_obj = session.query(model_class).filter(model_class.idarea == "z").first()
         self.assertEqual(area_obj.descripcion, "Descripción M")
         self.assertTrue(area_obj.delete())
+        area_obj.session.commit()
 
     def test_default_value(self) -> None:
         """Test default values when new instances."""
@@ -82,12 +83,21 @@ class TestBaseModel(unittest.TestCase):
         self.assertTrue(obj_.save())
         obj_.session.commit()
 
+        self.assertTrue(obj_)
         obj_2 = class_fltest.get(1)
+        self.assertTrue(obj_2)
         self.assertEqual(obj_, obj_2)
         obj_3 = class_fltest.query().get(1)
         self.assertEqual(obj_, obj_3)
+        self.assertTrue(obj_3)
         obj_4 = class_fltest.query().get(2)
+        self.assertFalse(obj_4)
+        self.assertEqual(obj_3.id, 1)
         self.assertNotEqual(obj_, obj_4)
+
+        obj_5 = class_fltest.get(1)
+        self.assertTrue(obj_5.delete())
+        obj_5.session.commit()
 
     @classmethod
     def tearDownClass(cls) -> None:

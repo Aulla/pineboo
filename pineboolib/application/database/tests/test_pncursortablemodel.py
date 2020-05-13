@@ -77,14 +77,14 @@ class TestPNCursorTableModel(unittest.TestCase):
         model = cursor.model()
 
         self.assertEqual(model.data(model.index(0, 1)), "zzz")
-        self.assertEqual(model.data(model.index(0, 0)), 2)
+        self.assertEqual(model.data(model.index(0, 0)), 4)
         self.assertEqual(model.data(model.index(0, 2)), None)
         self.assertEqual(
             model.data(model.index(0, 4)), QtCore.QLocale.system().toString(float(0.01), "f", 2)
         )
         self.assertEqual(model.data(model.index(0, 5)), "No")
         self.assertEqual(model.data(model.index(1, 1)), "yyy")
-        self.assertEqual(model.data(model.index(1, 0)), 3)
+        self.assertEqual(model.data(model.index(1, 0)), 6)
 
         cursor.setSort("string_field DESC, double_field DESC")
         model.sort(0, QtCore.Qt.AscendingOrder)
@@ -132,7 +132,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         # self.assertFalse(model.findCKRow([]))
         # self.assertFalse(model.findCKRow([2, 2]))
         self.assertEqual(model.find_pk_row(21), -1)
-        self.assertEqual(model.find_pk_row(1), 2)
+        self.assertEqual(model.find_pk_row(4), 0)
 
     def test_basic_5(self) -> None:
         """Test basic 5."""
