@@ -322,7 +322,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         new_session = False
         if session:
-            
 
             try:
                 if session.connection().closed:
@@ -333,7 +332,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 session.close()
                 new_session = True
 
-            elif not session.transaction:
+            if not new_session and not session.transaction:
                 session.close()
                 new_session = True
         else:
