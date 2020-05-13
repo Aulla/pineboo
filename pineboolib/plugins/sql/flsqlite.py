@@ -16,6 +16,7 @@ import os
 from typing import Optional, Any, List, Dict, Union, TYPE_CHECKING
 from sqlalchemy import create_engine  # type: ignore [import] # noqa: F821, F401
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
+import sqlalchemy
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
@@ -322,13 +323,25 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         new_session = False
         if session:
 
-            if session.connection().closed:
+            try:
+                if session.connection().closed:
+                    session.close()
+                    new_session = True
+
+                elif not session.transaction:
+                    session.close()
+                    new_session = True
+            except sqlalchemy.exc.InvalidRequestError as error:
+                LOGGER.warning(
+                    "session inactive. rollback NOW! new: %s, dirty: %s, delete: %s",
+                    session.new,
+                    session.dirty,
+                    session.deleted,
+                )
+                session.rollback()
                 session.close()
                 new_session = True
 
-            elif not session.transaction:
-                session.close()
-                new_session = True
         else:
             new_session = True
 
