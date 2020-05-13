@@ -315,6 +315,7 @@ class BaseModel(object):
                     # self._session.update(self)
                     # raise Exception("pk already exists!!: %s" % pk_value)
                 else:
+                    mode = 1
                     self._session.add(self)
                     self.before_new()
 
