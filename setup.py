@@ -4,6 +4,11 @@ import setuptools  # type: ignore
 import pathlib
 import subprocess
 from pineboolib import application
+import os
+
+
+with open("requirements.txt") as f:
+    required = f.read().splitlines()
 
 prj_ = application.PROJECT
 prj_.load_version()
@@ -53,6 +58,7 @@ setuptools.setup(
         "pineboolib.plugins.mainform.eneboo": ["*.ui"],
         "pineboolib.plugins.mainform.eneboo_mdi": ["*.ui"],
     },
+    install_requires=required,
     keywords="erp pineboo eneboo accounting sales warehouse",
     python_requires="~=3.6",
     entry_points={
