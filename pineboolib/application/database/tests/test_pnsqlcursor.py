@@ -4,6 +4,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.core.utils import logging
 from pineboolib.application.database import pnsqlcursor
+from pineboolib import application
 from . import fixture_path
 from pineboolib.core.utils import utils_base
 
@@ -18,10 +19,6 @@ class TestInsertData(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         utils_base.FORCE_DESKTOP = True
         init_testing()
-
-        from pineboolib.qsa import qsa
-
-        qsa.session().rollback()
 
     def test_basic(self) -> None:
         """Insert data into a database."""
@@ -923,13 +920,16 @@ class TestAfterCommit(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
+        from pineboolib.qsa import qsa
 
-        # application.VIRTUAL_DB = True
+        application.VIRTUAL_DB = True
         init_testing()
+        session = qsa.session()
+        session.rollback()
 
-    def test_basic(self) -> None:
+    def test_basic_1(self) -> None:
         """Test sys.afertCommit_flfiles is called"""
-        from pineboolib import application
+
         from pineboolib.plugins.mainform.eneboo import eneboo
         from pineboolib.qsa import qsa
 
@@ -957,6 +957,11 @@ class TestAfterCommit(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
+        from pineboolib.qsa import qsa
+
+        session = qsa.session()
+        session.rollback()
+
         finish_testing()
 
 
