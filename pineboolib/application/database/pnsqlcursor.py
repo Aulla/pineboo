@@ -2223,7 +2223,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
         # FIXME: Pongo que tiene que haber mas de una trasaccion abierta
         # try:
-        message = None
+        # message = None
 
         if not hasattr(self, "private_cursor"):
             return
