@@ -926,7 +926,7 @@ class TestAfterCommit(unittest.TestCase):
         init_testing()
         session = qsa.session()
         session.rollback()
-        session.connection.close()
+        session.connection().close()
 
     def test_basic_1(self) -> None:
         """Test sys.afertCommit_flfiles is called"""
