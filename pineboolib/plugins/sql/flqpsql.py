@@ -169,7 +169,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         info = []
         sql = (
             "select pg_attribute.attname, pg_attribute.atttypid, pg_attribute.attnotnull, pg_attribute.attlen, pg_attribute.atttypmod, "
-            "pg_attrdef.adsrc from pg_class, pg_attribute "
+            "pg_get_expr(pg_attrdef.adbin, pg_attrdef.adrelid) from pg_class, pg_attribute "
             "left join pg_attrdef on (pg_attrdef.adrelid = pg_attribute.attrelid and pg_attrdef.adnum = pg_attribute.attnum)"
             " where lower(pg_class.relname) = '%s' and pg_attribute.attnum > 0 and pg_attribute.attrelid = pg_class.oid "
             "and pg_attribute.attisdropped = false order by pg_attribute.attnum" % tablename.lower()
@@ -214,7 +214,6 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                     None,  # is_pk
                 ]
             )
-
         return info
 
     def decodeSqlType(self, type_: Union[int, str]) -> str:
