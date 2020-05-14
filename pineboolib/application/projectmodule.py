@@ -489,13 +489,13 @@ class Project(object):
         @return ruta a la carpeta temporal
         """
         # FIXME: anti-pattern in Python. Getters for plain variables are wrong.
-        raise exceptions.CodeDoesNotBelongHereException("Use project.tmpdir instead, please.")
+        raise exceptions.CodeDoesNotBelongHereException("Use proje:q!ct.tmpdir instead, please.")
         # return self.tmpdir
 
     def load_version(self) -> str:
         """Initialize current version numbers."""
 
-        self.version = "0.71.44.7"
+        self.version = "0.71.44.8"
 
         if settings.CONFIG.value("application/dbadmin_enabled", False):
             self.version = "DBAdmin v%s" % self.version
