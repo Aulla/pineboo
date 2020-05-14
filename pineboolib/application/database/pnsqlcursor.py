@@ -2233,7 +2233,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 "FLSqlCursor(%s).Transacciones abiertas!! %s",
                 self.curName(),
                 self.private_cursor._transactions_opened,
+                stack_info=True,
             )
+            raise Exception("Transacctions opened!")
 
             message = (
                 "Se han detectado transacciones no finalizadas en la última operación.\n"
