@@ -2237,14 +2237,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
             raise Exception("Transacctions opened!")
 
-            message = (
-                "Se han detectado transacciones no finalizadas en la última operación.\n"
-                "Se van a cancelar las transacciones pendientes.\n"
-                "Los últimos datos introducidos no han sido guardados, por favor\n"
-                "revise sus últimas acciones y repita las operaciones que no\n"
-                "se han guardado.\nSqlCursor::~SqlCursor: %s\n" % self.table()
-            )
-            self.rollbackOpened(-1, message)
+            # ===================================================================
+            # message = (
+            #     "Se han detectado transacciones no finalizadas en la última operación.\n"
+            #     "Se van a cancelar las transacciones pendientes.\n"
+            #     "Los últimos datos introducidos no han sido guardados, por favor\n"
+            #     "revise sus últimas acciones y repita las operaciones que no\n"
+            #     "se han guardado.\nSqlCursor::~SqlCursor: %s\n" % self.table()
+            # )
+            # self.rollbackOpened(-1, message)
+            # ===================================================================
         # except Exception as error:
         #    LOGGER.warning("__del__: %s", error)
 
