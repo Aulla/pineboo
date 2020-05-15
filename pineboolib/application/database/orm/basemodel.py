@@ -2,11 +2,11 @@
 
 
 from pineboolib.core.utils import logging
+from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
-
 from pineboolib import application
 
-from typing import Optional, Dict, Union, Any, TYPE_CHECKING
+from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
 from sqlalchemy import orm, inspect
 import datetime
@@ -414,6 +414,50 @@ class BaseModel(object):
 
         return True
 
+    def relationM1(self, field_name: str = "") -> Any:
+        """Return relationM1 object if exists."""
+
+        if field_name:
+            meta = self.table_metadata().field(field_name)
+            if meta is not None:
+                meta_rel = meta.relationM1()
+                if meta_rel is not None:
+                    foreign_table_class = qsadictmodules.QSADictModules.orm_(
+                        meta_rel.foreignTable()
+                    )
+                    if foreign_table_class is not None:
+                        foreign_field_obj = getattr(foreign_table_class, meta_rel.foreignField())
+                        return (
+                            foreign_table_class.query(self._session_name)
+                            .filter(foreign_field_obj == getattr(self, field_name))
+                            .first()
+                        )
+
+        return None
+
+    def relation1M(self, field_name: str = "") -> Dict[str, List[Callable]]:
+        """Return relationed instances."""
+        ret_ = {}
+        field_metadata = self.table_metadata().field(field_name)
+        if field_metadata is not None:
+            relation_list = field_metadata.relationList()
+            for relation in relation_list:
+                if relation.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_M1:
+                    continue
+
+                ft_class = qsadictmodules.QSADictModules.orm_(relation.foreignTable())
+                if ft_class is not None:
+                    ff_obj = getattr(ft_class, relation.foreignField(), None)
+                    if ff_obj is not None:
+                        list_ = (
+                            ft_class.query(self._session_name)
+                            .filter(ff_obj == getattr(self, field_name))
+                            .all()
+                        )
+                        ret_["%s_%s" % (relation.foreignTable(), relation.foreignField())] = list_
+
+        return ret_
+
     def get_transaction_level(self) -> int:
         """Return current transaction level."""
 
@@ -453,27 +497,6 @@ class BaseModel(object):
         """Set pk value."""
 
         setattr(self, self.get_pk_name(), pk_value)
-
-    def relationM1(self, field_name: str = "") -> Any:
-        """Return relationM1 object if exists."""
-
-        if field_name:
-            meta = self.table_metadata().field(field_name)
-            if meta is not None:
-                meta_rel = meta.relationM1()
-                if meta_rel is not None:
-                    foreign_table_class = qsadictmodules.QSADictModules.orm_(
-                        meta_rel.foreignTable()
-                    )
-                    if foreign_table_class is not None:
-                        foreign_field_obj = getattr(foreign_table_class, meta_rel.foreignField())
-                        return (
-                            foreign_table_class.query(self._session_name)
-                            .filter(foreign_field_obj == getattr(self, field_name))
-                            .first()
-                        )
-
-        return None
 
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)

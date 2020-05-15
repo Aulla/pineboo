@@ -105,6 +105,40 @@ class TestBaseModel(unittest.TestCase):
         self.assertTrue(obj_rel)
         self.assertEqual(obj_rel, obj_)
 
+    def test_relation_1m(self) -> None:
+        """Test realtion 1M."""
+
+        obj_class = qsa.orm_("flareas")
+
+        obj_ = obj_class.query().get("F")
+
+        obj_2 = qsa.orm_("flmodules")()
+        obj_2.idmodulo = "mod4"
+        obj_2.idarea = "F"
+        obj_2.descripcion = "relation_m1"
+        self.assertTrue(obj_2.save())
+        # obj_2.session.commit()
+        relations_dict = obj_.relation1M("idarea")
+        modules_rel = relations_dict["flmodules_idarea"]
+        self.assertTrue(obj_2)
+        self.assertEqual(len(modules_rel), 2)
+        self.assertEqual(modules_rel[1], obj_2)
+
+    def test_cache_objects(self) -> None:
+        """Test cache objects."""
+
+        obj_class = qsa.orm_("flareas")
+        obj_ = obj_class()
+        obj_.idarea = "R"
+        obj_.descripcion = "Descripción de R"
+        self.assertTrue(obj_.save())
+
+        obj_2 = obj_class.query().first()
+        self.assertTrue(obj_2)
+        self.assertEqual(obj_, obj_2)
+        obj_2.descripcion = "Descripción de P"
+        self.assertEqual(obj_.descripcion, "Descripción de P")
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
