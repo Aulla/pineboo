@@ -275,8 +275,8 @@ class BaseModel(object):
     @classmethod
     def get(cls, pk_value: str, session_name: str = "default") -> Any:
         """Return instance selected by pk."""
-
-        return cls.query(session_name).get(pk_value)
+        qry = cls.query(session_name)
+        return qry.get(pk_value) if qry is not None else None
 
     @classmethod
     def query(cls, session: Union[str, "orm.Session"] = "default") -> Optional["orm.query.Query"]:
