@@ -1,19 +1,18 @@
 """Basemodel module."""
 
-import sqlalchemy
-from sqlalchemy import orm
-
 
 from pineboolib.core.utils import logging
-from pineboolib import application
-from pineboolib.qsa import qsa
-from typing import Optional, Dict, Any, TYPE_CHECKING
+from pineboolib.application import qsadictmodules
 
+from pineboolib import application
+
+from typing import Optional, Dict, Union, Any, TYPE_CHECKING
+
+from sqlalchemy import orm, inspect
 import datetime
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from sqlalchemy.orm import query as orm_query  # noqa: F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -38,7 +37,7 @@ class BaseModel(object):
     def constructor_init(self) -> None:
         """Initialize from constructor."""
 
-        self._session = sqlalchemy.inspect(self).session
+        self._session = inspect(self).session
         for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
             if conn.session() is self._session:
                 self._session_name = name
@@ -232,7 +231,7 @@ class BaseModel(object):
         return None
 
     @classmethod
-    def query(cls, session: str = "default") -> Optional["orm_query.Query"]:
+    def query(cls, session: Union[str, "orm.Session"] = "default") -> Optional["orm.query.Query"]:
         """Return Session query."""
 
         if session:
@@ -305,7 +304,7 @@ class BaseModel(object):
             raise Exception("Trying to save a deleted instance!")
             # result = self.before_delete()
         else:
-            table_meta = self.table_metadata()
+            # table_meta = self.table_metadata()
 
             if self.pk is None:
                 raise ValueError("pk is empty!")
@@ -318,15 +317,18 @@ class BaseModel(object):
                     # raise Exception("pk already exists!!: %s" % pk_value)
                 else:
                     mode = 1
-                    self._session.add(self)
 
         if mode:
-            if not self._check_integrity(mode):
-                result = False
-            elif mode == 1:
-                result = self.before_new()
-            elif mode == 2:
-                result = self.before_change()
+            if check_integrity:
+                result = self._check_integrity(mode)
+
+            if result:
+                if mode == 1:
+                    if self not in self.session.new:
+                        self._session.add(self)
+                    result = self.before_new()
+                if mode == 2:
+                    result = self.before_change()
         else:
             result = False
 
@@ -373,7 +375,9 @@ class BaseModel(object):
                 field_name = field.name()
                 relation_m1 = field.relationM1()
                 if relation_m1 is not None:
-                    foreign_class_ = qsa.orm_(relation_m1.foreignTable())
+                    foreign_class_ = qsadictmodules.QSADictModules.orm_(
+                        relation_m1.foreignTable(), self._session_name
+                    )
 
                     if foreign_class_ is not None:
                         foreign_field_obj = getattr(
