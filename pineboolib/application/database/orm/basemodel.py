@@ -168,6 +168,40 @@ class BaseModel(object):
         self._session.delete(self)
         result = self.before_delete()
         if result:
+            for field in self.table_metadata().fieldList():
+
+                relation_list = field.relationList()
+                for relation in relation_list:
+
+                    foreign_table_mtd = application.PROJECT.conn_manager.manager().metadata(
+                        relation.foreignTable()
+                    )
+                    if foreign_table_mtd is not None:
+
+                        foreign_field_mtd = foreign_table_mtd.field(relation.foreignField())
+                        if foreign_field_mtd is not None:
+
+                            relation_m1 = foreign_field_mtd.relationM1()
+
+                            if relation_m1 is not None and relation_m1.deleteCascade():
+                                foreign_table_class = qsadictmodules.QSADictModules.orm_(
+                                    foreign_table_mtd.name()
+                                )
+                                foreign_field_object = getattr(
+                                    foreign_table_class, relation.foreignField()
+                                )
+                                relation_objects = (
+                                    foreign_table_class.query(self._session_name)
+                                    .filter(foreign_field_object == getattr(self, field.name()))
+                                    .all()
+                                )
+                                for obj in relation_objects:
+                                    print("Borrando!", obj)
+                                    if not obj.delete():
+                                        LOGGER.warning("obj: %s, pk_value: %s can't deleted")
+                                        return False
+
+        if result:
             result = self._flush()
             if result:
                 result = self.after_delete()
@@ -218,17 +252,7 @@ class BaseModel(object):
     def get(cls, pk_value: str, session_name: str = "default") -> Any:
         """Return instance selected by pk."""
 
-        if session_name in application.PROJECT.conn_manager.dictDatabases().keys():
-
-            return (
-                application.PROJECT.conn_manager.useConn(session_name)
-                .session()
-                .query(cls)
-                .get(pk_value)
-            )
-
-        LOGGER.warning("get: session_name %s not found", session_name)
-        return None
+        return cls.query(session_name).get(pk_value)
 
     @classmethod
     def query(cls, session: Union[str, "orm.Session"] = "default") -> Optional["orm.query.Query"]:
@@ -455,6 +479,9 @@ class BaseModel(object):
                             .all()
                         )
                         ret_["%s_%s" % (relation.foreignTable(), relation.foreignField())] = list_
+
+        else:
+            LOGGER.warning("RELATION_1M: invalid field_name %s", field_name)
 
         return ret_
 

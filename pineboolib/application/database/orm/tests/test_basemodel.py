@@ -139,6 +139,29 @@ class TestBaseModel(unittest.TestCase):
         obj_2.descripcion = "Descripción de P"
         self.assertEqual(obj_.descripcion, "Descripción de P")
 
+    def test_z_delete(self) -> None:
+        """Test delete."""
+
+        obj_class = qsa.orm_("flareas")
+        obj_ = obj_class.get("F")
+        self.assertTrue(obj_)
+        self.assertEqual(obj_class.query().all()[1], obj_)
+
+        self.assertFalse(obj_.relation1M())
+
+        obj_2_class = qsa.orm_("flmodules")
+        obj2_ = obj_2_class()
+        obj2_.idarea = "F"
+        obj2_.descripcion = "Desc"
+        obj2_.idmodulo = "mr1"
+        self.assertTrue(obj2_.save())
+        obj2_.session.commit()
+
+        self.assertTrue(obj_.relation1M("idarea"))
+        self.assertTrue(obj_.delete())
+        obj_.session.commit()
+        self.assertFalse(obj_.relation1M("idarea")["flmodules_idarea"])
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
