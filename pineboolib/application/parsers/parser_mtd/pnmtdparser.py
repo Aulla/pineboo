@@ -143,6 +143,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     # data.append("")
     # data.append("Base = declarative_base()")
     data.append("from pineboolib.application.database.orm import basemodel")
+    data.append("from pineboolib.qsa import qsa")
     data.append("")
     data.append("from sqlalchemy.ext import declarative")
     data.append("import sqlalchemy")
