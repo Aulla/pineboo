@@ -436,7 +436,7 @@ class BaseModel(object):
                             .first()
                         )
 
-                        if qry_data is None:
+                        if qry_data is None and not field.allowNull():
                             LOGGER.warning(
                                 "INTEGRITY::Relation %s.%s M1 %s.%s with value %s is invalid"
                                 % (
