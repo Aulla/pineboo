@@ -6,6 +6,7 @@ from sqlalchemy import orm
 
 from pineboolib.core.utils import logging
 from pineboolib import application
+from pineboolib.qsa import qsa
 from typing import Optional, Dict, Any, TYPE_CHECKING
 
 import datetime
@@ -71,7 +72,7 @@ class BaseModel(object):
 
         self.update_copy()
 
-        pk_name = self.pk
+        pk_name = self.pk_name
         if getattr(self, pk_name, None) is None:
             self._populate_default()
 
@@ -231,13 +232,21 @@ class BaseModel(object):
         return None
 
     @classmethod
-    def query(cls, session_name="default") -> Optional["orm_query.Query"]:
+    def query(cls, session: str = "default") -> Optional["orm_query.Query"]:
         """Return Session query."""
 
-        if session_name in application.PROJECT.conn_manager.dictDatabases().keys():
-            return application.PROJECT.conn_manager.useConn(session_name).session().query(cls)
+        if session:
+            session_ = None
+            if isinstance(session, str):
+                if session in application.PROJECT.conn_manager.dictDatabases().keys():
+                    session_ = application.PROJECT.conn_manager.useConn(session).session()
+            else:
+                session_ = session
 
-        LOGGER.warning("query: session_name %s not found", session_name)
+            if isinstance(session_, orm.Session):
+                return session_.query(cls)
+
+        LOGGER.warning("query: Invalid session %s ", session)
         return None
 
     def _populate_default(self) -> None:
@@ -278,7 +287,7 @@ class BaseModel(object):
 
             setattr(self, name, default_value)
 
-    def save(self,) -> bool:
+    def save(self, check_integrity=True) -> bool:
         """Save object."""
 
         if self._session is None:
@@ -290,34 +299,36 @@ class BaseModel(object):
         mode = 0
         if self in self._session.new:
             mode = 1
-            result = self.before_new()
         elif self in self._session.dirty:
             mode = 2
-            result = self.before_change()
         elif self in self._session.deleted:
             raise Exception("Trying to save a deleted instance!")
             # result = self.before_delete()
         else:
             table_meta = self.table_metadata()
-            if not table_meta:
-                raise Exception("%s metadata not found" % self.__tablename__)
 
-            pk_name = table_meta.primaryKey()
-            pk_value = getattr(self, pk_name, None)
-
-            if pk_value is None:
+            if self.pk is None:
                 raise ValueError("pk is empty!")
             else:
-                current_data = self._session.query(self.__class__).get(pk_value)
+                current_data = self._session.query(self.__class__).get(self.pk)
                 if current_data:
-                    LOGGER.warning("Current pk %s already exists!", pk_value)
-                    result = False
+                    LOGGER.warning("Current pk %s already exists!", self.pk)
+                    # result = False
                     # self._session.update(self)
                     # raise Exception("pk already exists!!: %s" % pk_value)
                 else:
                     mode = 1
                     self._session.add(self)
-                    self.before_new()
+
+        if mode:
+            if not self._check_integrity(mode):
+                result = False
+            elif mode == 1:
+                result = self.before_new()
+            elif mode == 2:
+                result = self.before_change()
+        else:
+            result = False
 
         # añade la instancio a la transaccion
         if result:
@@ -328,6 +339,7 @@ class BaseModel(object):
                     result = self.after_new()
                 elif mode == 2:
                     result = self.after_change()
+
                 # elif self in self._session.delete:
                 #    result = self.after_delete()
 
@@ -337,6 +349,68 @@ class BaseModel(object):
             #    self._session.rollback()
 
         return result
+
+    def _check_integrity(self, mode: int) -> bool:
+        """Check data integrity."""
+
+        table_meta = self.table_metadata()
+
+        if not table_meta.isQuery():
+
+            for field in table_meta.fieldList():
+                if mode in [1, 2]:
+                    # not Null fields.
+                    if not field.allowNull():
+                        if getattr(self, field.name(), None) is None:
+                            LOGGER.warning(
+                                "INTEGRITY::Field %s.%s need a value"
+                                % (table_meta.name(), field.name())
+                            )
+                            return False
+
+            for field in table_meta.fieldList():
+                # para poder comprobar relaciones , tengo que mirar primero que los campos not null esten ok, si no , da error.
+                field_name = field.name()
+                relation_m1 = field.relationM1()
+                if relation_m1 is not None:
+                    foreign_class_ = qsa.orm_(relation_m1.foreignTable())
+
+                    if foreign_class_ is not None:
+                        foreign_field_obj = getattr(
+                            foreign_class_, relation_m1.foreignField(), None
+                        )
+
+                        qry_data = (
+                            foreign_class_.query(self._session)
+                            .filter(foreign_field_obj == getattr(self, field_name))
+                            .first()
+                        )
+
+                        if qry_data is None:
+                            LOGGER.warning(
+                                "INTEGRITY::Relation %s.%s M1 %s.%s with value %s is invalid"
+                                % (
+                                    table_meta.name(),
+                                    field_name,
+                                    relation_m1.foreignTable(),
+                                    relation_m1.foreignField(),
+                                    getattr(self, field_name),
+                                )
+                            )
+                            return False
+                    else:
+                        LOGGER.warning(
+                            "INTEGRITY::Relationed table %s.%s M1 %s.%s is invalid"
+                            % (
+                                table_meta.name(),
+                                field_name,
+                                relation_m1.foreignTable(),
+                                relation_m1.foreignField(),
+                            )
+                        )
+                        return False
+
+        return True
 
     def get_transaction_level(self) -> int:
         """Return current transaction level."""
@@ -363,15 +437,22 @@ class BaseModel(object):
 
         return self._session
 
-    def get_pk(self) -> str:
+    def get_pk_name(self) -> str:
         """Return primary key."""
 
-        table_meta = application.PROJECT.conn_manager.manager().metadata(self.__tablename__)
-        if table_meta is None:
-            raise Exception("TableMetaData is empty!!")
+        return self.table_metadata().primaryKey()
 
-        return table_meta.primaryKey()
+    def get_pk_value(self) -> Any:
+        """Return pk value."""
+
+        return getattr(self, self.get_pk_name())
+
+    def set_pk_value(self, pk_value: Any) -> None:
+        """Set pk value."""
+
+        setattr(self, self.get_pk_name(), pk_value)
 
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)
-    pk = property(get_pk)
+    pk_name = property(get_pk_name)
+    pk = property(get_pk_value, set_pk_value)
