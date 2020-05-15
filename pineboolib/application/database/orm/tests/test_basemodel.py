@@ -100,6 +100,8 @@ class TestBaseModel(unittest.TestCase):
         obj_2.descripcion = "PRUEBA relation M1"
 
         obj_rel = obj_2.relationM1("idarea")
+        obj_rel_1 = obj_2.relationM1("idmodulo")
+        self.assertFalse(obj_rel_1)
         self.assertTrue(obj_rel)
         self.assertEqual(obj_rel, obj_)
 
