@@ -278,7 +278,7 @@ class PNSqlSchema(object):
     def session(self) -> "session.Session":  # noqa: F811
         """Create a sqlAlchemy session."""
         if not getattr(self, "_session", None):
-            Session = sessionmaker(bind=self.connection())
+            Session = sessionmaker(bind=self.connection(), autoflush=False)
             self._session = Session()
 
         return self._session

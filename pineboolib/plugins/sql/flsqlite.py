@@ -351,7 +351,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             connection_.execute("PRAGMA journal_mode=WAL")
             connection_.execute("PRAGMA synchronous=NORMAL")
 
-            Session = sessionmaker(bind=connection_)
+            Session = sessionmaker(bind=connection_, autoflush=False)
             self._session = Session()
 
         return self._session
