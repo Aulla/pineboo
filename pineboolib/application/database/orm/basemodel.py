@@ -227,6 +227,30 @@ class BaseModel(object):
 
         return True
 
+    # ===============================================================================
+    #     def _check_unlock(self) -> bool:
+    #         """Return if unloks field are locked."""
+    #
+    #         field_list = self.table_metadata().fieldsList()
+    #         copy_object = self.query("dbAux").get(self.pk)
+    #         for field in field_list:
+    #             field_name = field.name()
+    #             if field.isLocked():
+    #                 if not getattr(copy_object, field_name, True):
+    #                     return False
+    #
+    #             relation_m1 = field.relationM1()
+    #             if relation_m1 is not None:
+    #                 foreign_table_class = qsadictmodules.QSADictModules.orm_(relation_m1.foreignTable())
+    #                 if foreign_table_class is not None:
+    #                     foreign_field_obj = foreign_table_class.get(getattr(self, field.name()))
+    #                     if foreign_field_obj is not None:
+    #                         if not foreign_field_obj._check_unlock():
+    #                             return False
+    #
+    #         return True
+    # ===============================================================================
+
     @classmethod
     def table_metadata(cls) -> "pntablemetadata.PNTableMetaData":
         """Return table metadata."""
