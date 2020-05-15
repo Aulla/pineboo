@@ -375,9 +375,7 @@ class BaseModel(object):
                 field_name = field.name()
                 relation_m1 = field.relationM1()
                 if relation_m1 is not None:
-                    foreign_class_ = qsadictmodules.QSADictModules.orm_(
-                        relation_m1.foreignTable(), self._session_name
-                    )
+                    foreign_class_ = qsadictmodules.QSADictModules.orm_(relation_m1.foreignTable())
 
                     if foreign_class_ is not None:
                         foreign_field_obj = getattr(
@@ -455,6 +453,27 @@ class BaseModel(object):
         """Set pk value."""
 
         setattr(self, self.get_pk_name(), pk_value)
+
+    def relationM1(self, field_name: str = "") -> Any:
+        """Return relationM1 object if exists."""
+
+        if field_name:
+            meta = self.table_metadata().field(field_name)
+            if meta is not None:
+                meta_rel = meta.relationM1()
+                if meta_rel is not None:
+                    foreign_table_class = qsadictmodules.QSADictModules.orm_(
+                        meta_rel.foreignTable()
+                    )
+                    if foreign_table_class is not None:
+                        foreign_field_obj = getattr(foreign_table_class, meta_rel.foreignField())
+                        return (
+                            foreign_table_class.query(self._session_name)
+                            .filter(foreign_field_obj == getattr(self, field_name))
+                            .first()
+                        )
+
+        return None
 
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)

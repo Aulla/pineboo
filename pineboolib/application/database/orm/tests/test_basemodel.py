@@ -85,6 +85,24 @@ class TestBaseModel(unittest.TestCase):
         obj_3.descripcion = "PRUEBA"
         self.assertTrue(obj_3.save(False))
 
+    def test_relation_m1(self) -> None:
+        """Test relationM1."""
+
+        obj_ = qsa.orm_("flareas")()
+        obj_.idarea = "T"
+        obj_.descripcion = "Area"
+        self.assertTrue(obj_.save())
+        obj_.session.commit()
+
+        obj_2 = qsa.orm_("flmodules")()
+        obj_2.idmodulo = "mod1"
+        obj_2.idarea = "T"
+        obj_2.descripcion = "PRUEBA relation M1"
+
+        obj_rel = obj_2.relationM1("idarea")
+        self.assertTrue(obj_rel)
+        self.assertEqual(obj_rel, obj_)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
