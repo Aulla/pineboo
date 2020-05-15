@@ -62,6 +62,29 @@ class TestBaseModel(unittest.TestCase):
     #         obj_5.session.commit()
     # ===============================================================================
 
+    def test_integrity(self) -> None:
+        """test _check_integrity."""
+
+        obj_ = qsa.orm_("flmodules")()
+        obj_.idmodulo = "mod2"
+        obj_.idarea = "F"
+
+        self.assertFalse(obj_.save())
+        obj_.descripcion = "PRUEBA"
+        self.assertFalse(obj_.save())
+        obj_2 = qsa.orm_("flareas")()
+        obj_2.idarea = "F"
+        obj_2.descripcion = "Area"
+        self.assertTrue(obj_2.save())
+        obj_2.session.commit()
+
+        self.assertTrue(obj_.save())
+        obj_3 = qsa.orm_("flmodules")()
+        obj_3.idmodulo = "mod1"
+        obj_3.idarea = "G"
+        obj_3.descripcion = "PRUEBA"
+        self.assertTrue(obj_3.save(False))
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
