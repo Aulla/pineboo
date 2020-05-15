@@ -20,7 +20,7 @@ def class_(object_name: str) -> Any:
     return QSADictModules.class_(object_name)
 
 
-def orm_(action_name: str = "", session_name: str = "default") -> Any:
+def orm_(action_name: str = "") -> Any:
     """Get Orm from project."""
 
     table_name = action_name
@@ -31,7 +31,7 @@ def orm_(action_name: str = "", session_name: str = "default") -> Any:
     if table_name:
         from pineboolib.application.qsadictmodules import QSADictModules
 
-        orm = QSADictModules.orm_(table_name, session_name)
+        orm = QSADictModules.orm_(table_name)
 
     return orm
 
