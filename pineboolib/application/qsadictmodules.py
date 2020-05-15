@@ -59,7 +59,7 @@ class QSADictModules:
             return None
 
     @classmethod
-    def orm_(cls, script_name: str, conn_name: str) -> Any:
+    def orm_(cls, script_name: str, conn_name: str = "") -> Any:
         """Return orm instance."""
 
         if not script_name:
