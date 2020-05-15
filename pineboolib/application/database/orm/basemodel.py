@@ -448,19 +448,17 @@ class BaseModel(object):
                                 )
                             )
                             return False
-                    # ===========================================================
-                    # else:
-                    #     LOGGER.warning(
-                    #         "INTEGRITY::Relationed table %s.%s M1 %s.%s is invalid"
-                    #         % (
-                    #             table_meta.name(),
-                    #             field_name,
-                    #             relation_m1.foreignTable(),
-                    #             relation_m1.foreignField(),
-                    #         )
-                    #     )
-                    #     return False
-                    # ===========================================================
+                    elif not field.allowNull():
+                        LOGGER.warning(
+                            "INTEGRITY::Relationed table %s.%s M1 %s.%s is invalid"
+                            % (
+                                table_meta.name(),
+                                field_name,
+                                relation_m1.foreignTable(),
+                                relation_m1.foreignField(),
+                            )
+                        )
+                        return False
 
         return True
 
