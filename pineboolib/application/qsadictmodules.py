@@ -68,7 +68,7 @@ class QSADictModules:
         ret_ = None
         orm = cls.from_project("%s_orm" % (script_name))
         if orm is not None:
-            init_fn = getattr(orm, "qsa_init", None)
+            init_fn = getattr(orm, "_qsa_init", None)
             if init_fn:
                 sqlalchemy.event.listen(orm, "init", init_fn)
 

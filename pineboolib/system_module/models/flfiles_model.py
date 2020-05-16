@@ -72,14 +72,15 @@ class Flfiles(
 
     # <--- Fields ---
 
-    def before_flush(self, session) -> bool:
+    def before_flush(self) -> bool:
         """Before flush."""
 
         return True
 
-    def after_flush(self, session) -> bool:
+    def after_flush(self) -> bool:
         """After flush."""
 
+        session = self.session
         flfiles_class = qsa.from_project("flfiles_orm")
         flserial_class = qsa.from_project("flserial_orm")
 

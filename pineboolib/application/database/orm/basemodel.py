@@ -32,9 +32,11 @@ class BaseModel(object):
     _session: Optional["orm.session.Session"]
     _session_name: str
     _buffer_copy: "Copy"
+    _result_before_flush: bool
+    _result_after_flush: bool
 
     @orm.reconstructor  # type: ignore [misc] # noqa: F821
-    def constructor_init(self) -> None:
+    def _constructor_init(self) -> None:
         """Initialize from constructor."""
 
         self._session = inspect(self).session
@@ -45,7 +47,7 @@ class BaseModel(object):
 
         self._common_init()
 
-    def qsa_init(target, args=[], kwargs={}) -> None:
+    def _qsa_init(target, args=[], kwargs={}) -> None:
         """Initialize from qsa."""
 
         # target._session = None
@@ -144,6 +146,11 @@ class BaseModel(object):
 
         return True
 
+    def after_flush(self) -> bool:
+        """After flush."""
+
+        return True
+
     def before_new(self) -> bool:
         """Before flush new instance."""
 
@@ -159,59 +166,59 @@ class BaseModel(object):
 
         return True
 
+    def before_flush(self) -> bool:
+        """Before flush."""
+
+        return True
+
     def delete(self) -> bool:
-        """Delete instance."""
+        """Flush instance to current session."""
 
-        if self._session is None:
-            raise ValueError("session is empty!!")
+        if self._session:
+            self._session.delete(self)
+            return self._flush()
+        else:
+            raise Exception("_session is empty!")
 
-        self._session.delete(self)
-        result = self.before_delete()
-        if result:
-            for field in self.table_metadata().fieldList():
+    def _delete_cascade(self) -> bool:
+        """Delete cascade instances if proceed."""
 
-                relation_list = field.relationList()
-                for relation in relation_list:
+        for field in self.table_metadata().fieldList():
 
-                    foreign_table_mtd = application.PROJECT.conn_manager.manager().metadata(
-                        relation.foreignTable()
-                    )
-                    if foreign_table_mtd is not None:
+            relation_list = field.relationList()
+            for relation in relation_list:
 
-                        foreign_field_mtd = foreign_table_mtd.field(relation.foreignField())
-                        if foreign_field_mtd is not None:
+                foreign_table_mtd = application.PROJECT.conn_manager.manager().metadata(
+                    relation.foreignTable()
+                )
+                if foreign_table_mtd is not None:
 
-                            relation_m1 = foreign_field_mtd.relationM1()
+                    foreign_field_mtd = foreign_table_mtd.field(relation.foreignField())
+                    if foreign_field_mtd is not None:
 
-                            if relation_m1 is not None and relation_m1.deleteCascade():
-                                foreign_table_class = qsadictmodules.QSADictModules.orm_(
-                                    foreign_table_mtd.name()
-                                )
-                                foreign_field_object = getattr(
-                                    foreign_table_class, relation.foreignField()
-                                )
-                                relation_objects = (
-                                    foreign_table_class.query(self._session_name)
-                                    .filter(foreign_field_object == getattr(self, field.name()))
-                                    .all()
-                                )
-                                for obj in relation_objects:
-                                    print("Borrando!", obj)
-                                    if not obj.delete():
-                                        LOGGER.warning("obj: %s, pk_value: %s can't deleted")
-                                        return False
+                        relation_m1 = foreign_field_mtd.relationM1()
 
-        if result:
-            result = self._flush()
-            if result:
-                result = self.after_delete()
+                        if relation_m1 is not None and relation_m1.deleteCascade():
+                            foreign_table_class = qsadictmodules.QSADictModules.orm_(
+                                foreign_table_mtd.name()
+                            )
+                            foreign_field_object = getattr(
+                                foreign_table_class, relation.foreignField()
+                            )
+                            relation_objects = (
+                                foreign_table_class.query(self._session_name)
+                                .filter(foreign_field_object == getattr(self, field.name()))
+                                .all()
+                            )
+                            for obj in relation_objects:
+                                print("Borrando CASCADA!", obj)
+                                if not obj.delete():
+                                    LOGGER.warning(
+                                        "obj: %s, pk_value: %s can't deleted", obj, obj.pk
+                                    )
+                                    return False
 
-            # if result:
-            #    self._session.commit()
-            # else:
-            #    self._session.rollback()
-
-        return result
+        return True
 
     def _flush(self) -> bool:
         """Flush data."""
@@ -219,13 +226,55 @@ class BaseModel(object):
         if self._session is None:
             raise ValueError("session is empty!!")
 
+        self._result_before_flush = True
+        self._result_after_flush = True
         try:
-            self._session.flush()
+            ret_ = True
+            if self.mode_access == 3:
+                ret_ = self._delete_cascade()
+            if ret_:
+                self._session.flush()
         except Exception as error:
             LOGGER.error("%s flush: %s", self, str(error))
             return False
 
-        return True
+        return self._result_before_flush and self._result_after_flush
+
+    def _before_flush(self, session, flush_context):
+        """Before flush."""
+        if not hasattr(self, "_session"):
+            self._session = session
+
+        ret_ = self.before_flush()
+
+        if ret_:
+            mode = self.mode_access
+            if mode == 1:
+                ret_ = self.before_new()
+            elif mode == 2:
+                ret_ = self.before_change()
+            elif mode == 3:
+                ret_ = self.before_delete()
+
+        self._result_before_flush = ret_
+
+    def _after_flush(self, session, flush_context) -> None:
+        """After flush."""
+
+        self._result_after_flush = False
+        if self._result_before_flush:
+            mode = self.mode_access
+
+            ret_ = self.after_flush()
+            if ret_:
+                if mode == 1:
+                    ret_ = self.after_new()
+                elif mode == 2:
+                    ret_ = self.after_change()
+                elif mode == 3:
+                    ret_ = self.after_delete()
+
+            self._result_after_flush = ret_
 
     # ===============================================================================
     #     def _check_unlock(self) -> bool:
@@ -335,73 +384,30 @@ class BaseModel(object):
             setattr(self, name, default_value)
 
     def save(self, check_integrity=True) -> bool:
-        """Save object."""
+        """Flush instance to current session."""
+
+        if not hasattr(self, "_session"):
+            raise Exception("This new instance was not initialized with qsa.orm_(class_name)")
 
         if self._session is None:
-            raise ValueError("session is empty!!")
+            raise Exception("_session is empty!")
 
         result = True
+        if self.mode_access == 1:
+            self._session.add(self)
 
-        # beforeCommit
-        mode = 0
-        if self in self._session.new:
-            mode = 1
-        elif self in self._session.dirty:
-            mode = 2
-        elif self in self._session.deleted:
-            raise Exception("Trying to save a deleted instance!")
-            # result = self.before_delete()
-        else:
-            # table_meta = self.table_metadata()
+        if check_integrity:
+            result = self._check_integrity()
 
-            if self.pk is None:
-                raise ValueError("pk is empty!")
-            else:
-                current_data = self._session.query(self.__class__).get(self.pk)
-                if current_data:
-                    LOGGER.warning("Current pk %s already exists!", self.pk)
-                    # result = False
-                    # self._session.update(self)
-                    # raise Exception("pk already exists!!: %s" % pk_value)
-                else:
-                    mode = 1
-
-        if mode:
-            if check_integrity:
-                result = self._check_integrity(mode)
-
-            if result:
-                if mode == 1:
-                    if self not in self.session.new:
-                        self._session.add(self)
-                    result = self.before_new()
-                if mode == 2:
-                    result = self.before_change()
-        else:
-            result = False
-
-        # añade la instancio a la transaccion
         if result:
             result = self._flush()
-            if result:
-                # afterCommit
-                if mode == 1:
-                    result = self.after_new()
-                elif mode == 2:
-                    result = self.after_change()
-
-                # elif self in self._session.delete:
-                #    result = self.after_delete()
-
-            # if result:
-            #    self._session.commit()
-            # else:
-            #    self._session.rollback()
 
         return result
 
-    def _check_integrity(self, mode: int) -> bool:
+    def _check_integrity(self) -> bool:
         """Check data integrity."""
+
+        mode = self.mode_access
 
         table_meta = self.table_metadata()
 
@@ -549,7 +555,23 @@ class BaseModel(object):
 
         setattr(self, self.get_pk_name(), pk_value)
 
+    def get_mode_access(self) -> int:
+        """Return mode_access."""
+
+        session = self.session
+
+        mode = 0
+        if self in session.deleted:
+            mode = 3
+        elif self in session.dirty:
+            mode = 2
+        else:
+            mode = 1
+
+        return mode
+
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)
     pk_name = property(get_pk_name)
     pk = property(get_pk_value, set_pk_value)
+    mode_access = property(get_mode_access)

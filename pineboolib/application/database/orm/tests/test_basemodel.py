@@ -124,6 +124,20 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(len(modules_rel), 2)
         self.assertEqual(modules_rel[1], obj_2)
 
+    def test_(self) -> None:
+        """Test."""
+
+        obj_class = qsa.orm_("flareas")
+        obj_ = obj_class()
+        self.assertEqual(obj_.mode_access, 1)
+        obj_.idarea = "O"
+        obj_.descripcion = "Descripcion O"
+        self.assertTrue(obj_.save())
+
+        obj_new = obj_class.query().get("O")
+        obj_new.descripcion = "Nueva descripción"
+        self.assertTrue(obj_new.save())
+
     def test_cache_objects(self) -> None:
         """Test cache objects."""
 
@@ -133,7 +147,7 @@ class TestBaseModel(unittest.TestCase):
         obj_.descripcion = "Descripción de R"
         self.assertTrue(obj_.save())
 
-        obj_2 = obj_class.query().first()
+        obj_2 = obj_class.query().all()[1]
         self.assertTrue(obj_2)
         self.assertEqual(obj_, obj_2)
         obj_2.descripcion = "Descripción de P"
@@ -145,7 +159,7 @@ class TestBaseModel(unittest.TestCase):
         obj_class = qsa.orm_("flareas")
         obj_ = obj_class.get("F")
         self.assertTrue(obj_)
-        self.assertEqual(obj_class.query().all()[1], obj_)
+        self.assertEqual(obj_class.query().all()[2], obj_)
 
         self.assertFalse(obj_.relation1M())
 

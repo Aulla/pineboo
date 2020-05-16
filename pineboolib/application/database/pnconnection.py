@@ -678,11 +678,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         try:
             for item in items:
-                before_flush_func = getattr(item, "before_flush", None)
+                before_flush_func = getattr(item, "_before_flush", None)
                 if before_flush_func:
-                    return before_flush_func(session)
+                    return before_flush_func(session, flush_context)
         except Exception as error:
-            print("****", error)
+            LOGGER.warning("BEFORE FLUSH! %s", str(error), stack_info=True)
 
         return True
 
@@ -690,6 +690,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Before flush."""
 
         items = []
+
         for item in session.new:
             items.append(item)
 
@@ -701,10 +702,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         try:
             for item in items:
-                after_flush_func = getattr(item, "after_flush", None)
+
+                after_flush_func = getattr(item, "_after_flush", None)
                 if after_flush_func:
-                    return after_flush_func(session)
+                    return after_flush_func(session, flush_context)
         except Exception as error:
-            print("**************", error)
+            LOGGER.warning("AFTER FLUSH! %s", str(error))
 
         return True
