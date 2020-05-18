@@ -111,21 +111,21 @@ class TestOrm(unittest.TestCase):
         obj_ = class_()
 
         setattr(obj_, "bloqueo", True)
-        setattr(obj_, "idarea", "A")
-        setattr(obj_, "descripcion", "Area A")
-
-        session_.add(obj_)  # Introduce el nuevo registro en la BD
+        setattr(obj_, "idarea", "B")
+        setattr(obj_, "descripcion", "Area B")
+        self.assertTrue(obj_.save())
+        # session_.add(obj_)  # Introduce el nuevo registro en la BD
         session_.commit()
         session_2 = qsa.session()
 
-        obj2_ = session_2.query(class_).get("A")  # Recupera el registro de la BD
-        self.assertEqual(obj2_.descripcion, "Area A")
-        obj2_.descripcion = "Area A modificada"
+        obj2_ = session_2.query(class_).get("B")  # Recupera el registro de la BD
+        self.assertEqual(obj2_.descripcion, "Area B")
+        obj2_.descripcion = "Area B modificada"
         session_2.commit()  # Guarda el cambio permanentemente.
 
         session_3 = qsa.session()
-        obj3_ = session_3.query(class_).get("A")
-        self.assertEqual(obj3_.descripcion, "Area A modificada")
+        obj3_ = session_3.query(class_).get("B")
+        self.assertEqual(obj3_.descripcion, "Area B modificada")
 
     def test_legacy_metadata(self) -> None:
         """Compares metadata with rom metadata."""
@@ -158,8 +158,8 @@ class TestOrm(unittest.TestCase):
 
         class_ = qsa.from_project("flareas_orm")
         obj_ = class_()
-        obj_.idarea = "B"
-        obj_.descripcion = "Descripción B"
+        obj_.idarea = "C"
+        obj_.descripcion = "Descripción C"
         obj_.bloqueo = True
 
         session_.add(obj_)
@@ -168,14 +168,14 @@ class TestOrm(unittest.TestCase):
 
         obj_.descripcion = "Descripción Nueva"
 
-        obj2_ = session_.query(class_).get("B")
+        obj2_ = session_.query(class_).get("C")
 
         self.assertEqual(obj_.descripcion, "Descripción Nueva")
         self.assertEqual(obj2_.descripcion, "Descripción Nueva")
 
         session_.rollback()  # rollback save_point
 
-        self.assertEqual(obj_.descripcion, "Descripción B")
+        self.assertEqual(obj_.descripcion, "Descripción C")
 
         session_.rollback()  # rollback transaccion
 
