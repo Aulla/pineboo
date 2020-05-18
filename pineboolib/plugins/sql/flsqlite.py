@@ -6,6 +6,7 @@ from pineboolib.application.utils import path
 from pineboolib import logging, application
 
 from pineboolib.fllegacy import flutil
+from sqlalchemy import event
 
 from . import pnsqlschema
 
@@ -58,21 +59,23 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         main_conn = None
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
-            if name == main_conn.driver()._dbname:
+            if self.db_filename == main_conn.driver().db_filename:
                 self._engine = main_conn.driver()._engine
                 self._connection = main_conn.driver()._connection
-                self._session = main_conn.driver()._session
                 return self._connection
+                # self._session = main_conn.driver()._session
+                # return self._connection
 
-        if self.db_._name == "main_conn":
+        # if self.db_._name == "main_conn":
 
-            if hasattr(self, "_connection") and self._connection:
-                self._connection.close()
-                del self._connection
+        #    if hasattr(self, "_connection") and self._connection:
+        #        self._connection.close()
+        #        del self._connection
 
         queqe_params: Dict[str, Union[int, bool, str, Dict[str, int]]] = {}
         # queqe_params["connect_args"] = {"timeout": 5}
         queqe_params["encoding"] = "UTF-8"
+        queqe_params["isolation_level"] = "AUTOCOMMIT"
         if application.LOG_SQL:
             queqe_params["echo"] = True
 
@@ -96,7 +99,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 LOGGER.warning("La base de datos %s no existe", self.db_filename)
 
             if conn_ is not None:
-                self.session()
+                # self.session()
+                self._connection = conn_
 
         return conn_
 
@@ -310,48 +314,16 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return True
 
-    def session(self) -> "session.Session":  # noqa: F811
-        """Create a sqlAlchemy session."""
-        if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
-            main_conn = application.PROJECT.conn_manager.mainConn()
-            if self != main_conn.driver():
-                if self._dbname == main_conn.driver()._dbname:
-                    return main_conn.driver().session()
+    def connection(self) -> "base.Connection":
+        """Retrun connection."""
 
-        session = getattr(self, "_session", None)
+        if not getattr(self, "_connection", None) or self._connection.closed:
+            if getattr(self, "_engine", None):
+                self._connection = self._engine.connect()
+                self._connection.execute("PRAGMA journal_mode=WAL")
+                self._connection.execute("PRAGMA synchronous=NORMAL")
 
-        new_session = False
-        if session:
-
-            try:
-                if session.connection().closed:
-                    session.close()
-                    new_session = True
-
-                elif not session.transaction:
-                    session.close()
-                    new_session = True
-            except sqlalchemy.exc.InvalidRequestError as error:
-                LOGGER.warning(
-                    "session inactive. rollback NOW! new: %s, dirty: %s, delete: %s, error: %s",
-                    session.new,
-                    session.dirty,
-                    session.deleted,
-                    str(error),
-                )
-                session.rollback()
-                session.close()
-                new_session = True
-
-        else:
-            new_session = True
-
-        if new_session:
-            connection_ = self.connection()
-            connection_.execute("PRAGMA journal_mode=WAL")
-            connection_.execute("PRAGMA synchronous=NORMAL")
-
-            Session = sessionmaker(bind=connection_, autoflush=False)
-            self._session = Session()
-
-        return self._session
+                event.listen(self._engine, "close", self.close_emited)
+            else:
+                raise Exception("Engine is not loaded!")
+        return self._connection
