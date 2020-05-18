@@ -57,7 +57,7 @@ class Flmodules(
                 "alias": "Versión",
                 "type": "string",
                 "length": 3,
-                "regexp": "[0-9]\.[0-9]",  # noqa: W605
+                "regexp": "[0-9]\\.[0-9]",  # noqa: W605
                 "null": False,
                 "default": "0.0",
                 "editable": False,
