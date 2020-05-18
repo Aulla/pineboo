@@ -19,7 +19,7 @@ from pineboolib.fllegacy import flutil
 from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noqa: F821
 from sqlalchemy.inspection import inspect  # type: ignore [import] # noqa: F821, F401
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
-from sqlalchemy import event  # type: ignore [import] # noqa: F821, F401
+from sqlalchemy import event
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
 
@@ -454,8 +454,9 @@ class PNSqlSchema(object):
 
     def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""
-        if self._engine and self._connection:
-            return table_name in self._engine.table_names(None, self._connection)
+
+        if self._engine:
+            return table_name in self._engine.table_names(None, self.session().connection())
         else:
             raise Exception("No engine or connection exists!")
 
