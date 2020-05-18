@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 
 LOGGER = logging.get_logger(__name__)
 
+relation_proxy_objects: Dict[str, List] = {}
+
 
 class Copy:
     """Copy class."""
@@ -100,7 +102,7 @@ class BaseModel(object):
 
     def update_copy(self) -> None:
         """Update buffer copy."""
-        if hasattr(self, "_buffer_copy"):
+        if getattr(self, "_buffer_copy", None):
             del self._buffer_copy
         self._buffer_copy = Copy()
 
@@ -468,7 +470,7 @@ class BaseModel(object):
 
         return True
 
-    def relationM1(self, field_name: str = "") -> Any:
+    def relationM1(self, field_name: str = "") -> Optional[Callable]:
         """Return relationM1 object if exists."""
 
         if field_name:
