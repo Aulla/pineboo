@@ -185,6 +185,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         session_ = self.driver().session()
         sqlalchemy.event.listen(session_, "before_flush", self.before_flush)
         sqlalchemy.event.listen(session_, "after_flush", self.after_flush)
+        # sqlalchemy.event.listen(session_, "after_bulk_delete", self.after_bulk_delete)
+        # sqlalchemy.event.listen(session_, "after_bulk_update", self.after_bulk_update)
 
         return session_
 
@@ -710,3 +712,34 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             LOGGER.warning("AFTER FLUSH! %s", str(error))
 
         return True
+
+
+# ===============================================================================
+#     def after_bulk_delete(self, delete_context) -> None:
+#         """After bulk delete."""
+#
+#         objects = delete_context.query.all()
+#         print(
+#             "**",
+#             objects,
+#             delete_context.query,
+#             delete_context.context,
+#             delete_context.result.fetchall(),
+#         )
+#         for obj in objects:
+#             print("*", obj)
+#             obj.mode_access = 3
+#             obj._alfter_flush()
+#             if not obj._result_after_flush:
+#                 return
+#
+#     def after_bulk_update(self, update_context) -> None:
+#         """After bulk delete."""
+#
+#         objects = update_context.query.all()
+#         for obj in objects:
+#             obj.mode_access = 2
+#             obj._alfter_flush()
+#             if not obj._result_after_flush:
+#                 return
+# ===============================================================================
