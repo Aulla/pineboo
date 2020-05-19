@@ -165,6 +165,14 @@ class TestPNConnection(unittest.TestCase):
         self.assertTrue(conn_default.doTransaction(cursor))
         self.assertTrue(conn_default.doRollback(cursor))
 
+    def test_isolation_sessions(self) -> None:
+        """Test isolated sessions."""
+
+        conn_manager = application.PROJECT.conn_manager
+        default = conn_manager.default()
+        db_aux = conn_manager.dbAux()
+        self.assertNotEqual(default.session(), db_aux.session())
+
     @classmethod
     def tearDown(cls) -> None:
         """Ensure test clear all data."""
