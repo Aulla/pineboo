@@ -220,10 +220,12 @@ class TestBaseModel(unittest.TestCase):
 
         # self.assertEqual(obj_modules_1.parent[0], obj_areas)
         # self.assertEqual(obj_modules_2.parent[0], obj_areas)
-
         self.assertEqual(len(modules_class.query().filter(modules_class.idarea == "I").all()), 2)
-
         self.assertEqual(len(obj_areas.children), 2)
+
+        # for child in obj_areas.children: #Modo correcto para lanzar eventos ... si no hay legacy_metadata.deleteCascade()
+        #    self.assertTrue(child.delete())
+
         self.assertTrue(obj_areas.delete())
         obj_areas.session.commit()
         self.assertEqual(len(modules_class.query().filter(modules_class.idarea == "I").all()), 0)
