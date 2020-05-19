@@ -8,7 +8,7 @@ from pineboolib import application
 
 from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
-from sqlalchemy import orm, inspect
+from sqlalchemy import orm, inspect, event
 import datetime
 
 if TYPE_CHECKING:
@@ -36,6 +36,7 @@ class BaseModel(object):
     _buffer_copy: "Copy"
     _result_before_flush: bool
     _result_after_flush: bool
+    _force_mode: int
 
     @orm.reconstructor  # type: ignore [misc] # noqa: F821
     def _constructor_init(self) -> None:
@@ -74,7 +75,7 @@ class BaseModel(object):
             raise Exception("Common init with session.new instance!")
 
         self.update_copy()
-
+        self._force_mode = 0
         pk_name = self.pk_name
         if getattr(self, pk_name, None) is None:
             self._populate_default()
@@ -145,12 +146,10 @@ class BaseModel(object):
 
     def after_delete(self) -> bool:
         """After delete a instance."""
-
         return True
 
     def after_flush(self) -> bool:
         """After flush."""
-
         return True
 
     def before_new(self) -> bool:
@@ -165,12 +164,10 @@ class BaseModel(object):
 
     def before_delete(self) -> bool:
         """Before delete a instance."""
-
         return True
 
     def before_flush(self) -> bool:
         """Before flush."""
-
         return True
 
     def delete(self) -> bool:
@@ -186,7 +183,6 @@ class BaseModel(object):
         """Delete cascade instances if proceed."""
 
         for field in self.table_metadata().fieldList():
-
             relation_list = field.relationList()
             for relation in relation_list:
 
@@ -199,7 +195,6 @@ class BaseModel(object):
                     if foreign_field_mtd is not None:
 
                         relation_m1 = foreign_field_mtd.relationM1()
-
                         if relation_m1 is not None and relation_m1.deleteCascade():
                             foreign_table_class = qsadictmodules.QSADictModules.orm_(
                                 foreign_table_mtd.name()
@@ -212,8 +207,8 @@ class BaseModel(object):
                                 .filter(foreign_field_object == getattr(self, field.name()))
                                 .all()
                             )
+
                             for obj in relation_objects:
-                                print("Borrando CASCADA!", obj)
                                 if not obj.delete():
                                     LOGGER.warning(
                                         "obj: %s, pk_value: %s can't deleted", obj, obj.pk
@@ -242,7 +237,7 @@ class BaseModel(object):
 
         return self._result_before_flush and self._result_after_flush
 
-    def _before_flush(self, session, flush_context):
+    def _before_flush(self, session=None, flush_context=None):
         """Before flush."""
         if not hasattr(self, "_session"):
             self._session = session
@@ -260,7 +255,7 @@ class BaseModel(object):
 
         self._result_before_flush = ret_
 
-    def _after_flush(self, session, flush_context) -> None:
+    def _after_flush(self, session=None, flush_context=None) -> None:
         """After flush."""
 
         self._result_after_flush = False
@@ -342,10 +337,48 @@ class BaseModel(object):
                 session_ = session
 
             if isinstance(session_, orm.Session):
-                return session_.query(cls)
+                ret_ = session_.query(cls)
+                event.listen(ret_, "before_compile_update", cls._before_compile_update)
+                event.listen(ret_, "before_compile_delete", cls._before_compile_delete)
+                return ret_
 
         LOGGER.warning("query: Invalid session %s ", session)
         return None
+
+    @classmethod
+    def _before_compile_update(cls, query, context) -> bool:
+        """Before compile Update!."""
+
+        for obj in query.all():
+            obj.mode_access = 2
+            obj._before_flush()
+            ret_ = obj._result_before_flush
+            if ret_:
+                obj._after_flush()
+                ret_ = obj._result_after_flush
+
+            if not ret_:
+                return False
+
+        return True
+
+    @classmethod
+    def _before_compile_delete(cls, query, context) -> bool:
+        """Before compile Update!."""
+        for obj in query.all():
+            obj.mode_access = 3
+            ret_ = obj._delete_cascade()
+            if ret_:
+                obj._before_flush()
+                ret_ = obj._result_before_flush
+                if ret_:
+                    obj._after_flush()
+                    ret_ = obj._result_after_flush
+
+            if not ret_:
+                return False
+
+        return True
 
     def _populate_default(self) -> None:
         """Populate with default values."""
@@ -559,6 +592,8 @@ class BaseModel(object):
 
     def get_mode_access(self) -> int:
         """Return mode_access."""
+        if hasattr(self, "_force_mode") and self._force_mode:
+            return self._force_mode
 
         session = self.session
 
@@ -572,8 +607,13 @@ class BaseModel(object):
 
         return mode
 
+    def set_mode_access(self, value: int) -> None:
+        """Set forced mode access."""
+
+        self._force_mode = value
+
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)
     pk_name = property(get_pk_name)
     pk = property(get_pk_value, set_pk_value)
-    mode_access = property(get_mode_access)
+    mode_access = property(get_mode_access, set_mode_access)
