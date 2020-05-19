@@ -5,6 +5,8 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
 
+from sqlalchemy import orm
+
 
 class TestBaseModel(unittest.TestCase):
     """TestBaseModel Class."""
@@ -170,11 +172,61 @@ class TestBaseModel(unittest.TestCase):
         obj2_.idmodulo = "mr1"
         self.assertTrue(obj2_.save())
         obj2_.session.commit()
-
-        self.assertTrue(obj_.relation1M("idarea"))
+        self.assertEqual(len(obj_.relation1M("idarea")["flmodules_idarea"]), 3)
+        self.assertEqual(obj_.relation1M("idarea")["flmodules_idarea"][2], obj2_)
         self.assertTrue(obj_.delete())
         obj_.session.commit()
         # self.assertFalse(obj_.relation1M("idarea")["flmodules_idarea"])
+
+    def test_z_real_relation(self) -> None:
+        """Test real relation."""
+
+        areas_class = qsa.orm_("flareas")
+        modules_class = qsa.orm_("flmodules")
+
+        # modules_class.parent = orm.relationship(
+        #    areas_class,
+        #    primaryjoin=(modules_class.idarea == areas_class.idarea),
+        #    foreign_keys=[areas_class.idarea],
+        # )
+
+        areas_class.children = orm.relationship(
+            modules_class,
+            primaryjoin=(areas_class.idarea == modules_class.idarea),
+            foreign_keys=[modules_class.idarea],
+            cascade="delete,delete-orphan",  # "all, delete-orphan"
+        )
+
+        obj_areas = areas_class()
+        obj_areas.idarea = "I"
+        obj_areas.descripcion = "Descripción I"
+        self.assertTrue(obj_areas.save())
+        obj_areas.session.commit()
+
+        obj_modules_1 = modules_class()
+        obj_modules_1.idarea = "I"
+        obj_modules_1.descripcion = "modulo 1"
+        obj_modules_1.idmodulo = "M1"
+
+        obj_modules_2 = modules_class()
+        obj_modules_2.idarea = "I"
+        obj_modules_2.descripcion = "modulo 2"
+        obj_modules_2.idmodulo = "M2"
+
+        self.assertTrue(obj_modules_1.save())
+        self.assertTrue(obj_modules_2.save())
+
+        obj_modules_1.session.commit()
+
+        # self.assertEqual(obj_modules_1.parent[0], obj_areas)
+        # self.assertEqual(obj_modules_2.parent[0], obj_areas)
+
+        self.assertEqual(len(modules_class.query().filter(modules_class.idarea == "I").all()), 2)
+
+        self.assertEqual(len(obj_areas.children), 2)
+        self.assertTrue(obj_areas.delete())
+        obj_areas.session.commit()
+        self.assertEqual(len(modules_class.query().filter(modules_class.idarea == "I").all()), 0)
 
     @classmethod
     def tearDownClass(cls) -> None:
