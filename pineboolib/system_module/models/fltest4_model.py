@@ -35,6 +35,13 @@ class Fltest4(
                 "type": "string",
                 "length": 15,
                 "relations": [{"card": "1M", "table": "fltest", "field": "id"}],
+            },
+            {
+                "name": "idarea",
+                "alias": "Área",
+                "type": "string",
+                "length": 15,
+                "relations": [{"card": "1M", "table": "fltest5", "field": "idarea"}],
                 "null": False,
             },
             {
@@ -54,6 +61,7 @@ class Fltest4(
 
     id = sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True)
     idmodulo = sqlalchemy.Column("idmodulo", sqlalchemy.String(15))
+    idarea = sqlalchemy.Column("idarea", sqlalchemy.String(15))
     other_field = sqlalchemy.Column("other_field", sqlalchemy.String(15))
 
 
