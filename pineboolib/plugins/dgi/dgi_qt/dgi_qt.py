@@ -10,7 +10,7 @@ from pineboolib.plugins.dgi import dgi_schema
 from .dgi_objects.dlg_about import about_pineboo
 
 from .dgi_objects import splash_screen, progress_dialog_manager, status_help_msg
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 LOGGER = logging.get_logger(__name__)
 
