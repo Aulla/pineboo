@@ -1,42 +1,50 @@
 """Filedialog module."""
 # -*- coding: utf-8 -*-
-from PyQt5.QtWidgets import QFileDialog, QApplication
+from PyQt5 import QtWidgets
+
+from pineboolib.core import system as core_system
 import os
-from typing import Optional, Any, List
+from typing import List
 
 
 class FileDialog(object):
     """FileDialog class."""
 
     @staticmethod
-    def getOpenFileName(path: str = "", *args: Any) -> Optional[str]:
+    def getOpenFileName(filter: str = "*", caption: str = "Pineboo") -> str:
         """Show a dialog to choose a file."""
 
-        obj = QFileDialog.getOpenFileName(QApplication.activeWindow(), path, *args)
-        return obj[0] if obj is not None else None
+        folder = core_system.System.getenv("HOME")
+
+        file_list = QtWidgets.QFileDialog.getOpenFileName(None, caption, folder, filter)
+        return file_list[0] if file_list else ""
 
     @staticmethod
-    def getOpenFileNames(path: str = "", *args: Any) -> List[str]:
+    def getOpenFileNames(
+        folder: str = ".", filter: str = "*", caption: str = "Pineboo"
+    ) -> List[str]:
         """Show a dialog to choose a file."""
-        obj = QFileDialog.getOpenFileNames(QApplication.activeWindow(), path, *args)
-        return obj[0] if obj is not None else []
+
+        obj = QtWidgets.QFileDialog.getOpenFileNames(None, caption, folder, filter)
+        return obj[0] if obj else []
 
     @staticmethod
-    def getSaveFileName(filter: str = "*", title: str = "Pineboo") -> Optional[str]:
+    def getSaveFileName(filter: str = "*", caption: str = "Pineboo") -> str:
         """Show a dialog to save a file."""
-        ret = QFileDialog.getSaveFileName(
-            QApplication.activeWindow(), title, os.getenv("HOME") or ".", filter
-        )
-        return ret[0] if ret else None
+
+        folder = core_system.System.getenv("HOME")
+
+        ret = QtWidgets.QFileDialog.getSaveFileName(None, caption, folder, filter)
+        return ret[0] if ret else ""
 
     @staticmethod
-    def getExistingDirectory(
-        basedir: Optional[str] = None, title: str = "Pineboo"
-    ) -> Optional[str]:
+    def getExistingDirectory(folder: str = "", caption: str = "Pineboo") -> str:
         """Show a dialog to choose a directory."""
 
-        dir_ = basedir if basedir and os.path.exists(basedir) else "%s/" % os.getenv("HOME")
-        ret = QFileDialog.getExistingDirectory(
-            QApplication.activeWindow(), title, dir_, QFileDialog.ShowDirsOnly
+        if not os.path.exists(folder):
+            folder = "%s/" % core_system.System.getenv("HOME")
+
+        ret = QtWidgets.QFileDialog.getExistingDirectory(
+            None, caption, folder, QtWidgets.QFileDialog.ShowDirsOnly
         )
-        return "%s/" % ret if ret else ret
+        return "%s/" % ret if ret else ""

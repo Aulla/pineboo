@@ -1287,7 +1287,7 @@ class SysType(sysbasetype.SysBaseType):
         dirAnt = settings.SETTINGS.value(key)
 
         dir_modules = FileDialog.getExistingDirectory(
-            str(dirAnt) if dirAnt else None, self.translate(u"Directorio de Módulos")
+            str(dirAnt) if dirAnt else ".", self.translate(u"Directorio de Módulos")
         )
         if not dir_modules:
             return
