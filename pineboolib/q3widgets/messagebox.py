@@ -30,6 +30,7 @@ class MessageBox:
         msg_box = getattr(QtWidgets.QMessageBox, typename, None)
         if msg_box is None:
             LOGGER.warning("Unknown type name %s", typename)
+            return None
         else:
 
             title = "Pineboo"
