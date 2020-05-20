@@ -709,7 +709,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 if after_flush_func:
                     return after_flush_func(session, flush_context)
         except Exception as error:
-            LOGGER.warning("AFTER FLUSH! %s", str(error))
+            LOGGER.warning("AFTER FLUSH! %s. items: %s", str(error), items, stack_info=True)
 
         return True
 
