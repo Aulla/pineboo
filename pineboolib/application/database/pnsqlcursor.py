@@ -745,14 +745,18 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param field_name Nombre del campo a comprobar
         @return TRUE si está deshabilitado y FALSE en caso contrario
         """
-        if self.modeAccess() in (self.Insert, self.Edit):
+        ret = False
+        mode_access = self.modeAccess()
+        if mode_access in (self.Insert, self.Edit):
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
                 if self.private_cursor.cursor_relation_.metadata() is not None:
                     field = self.private_cursor.relation_.field()
                     if field.lower() == field_name.lower():
-                        return True
+                        ret = True
+        elif mode_access == self.Browse:
+            ret = True
 
-        return False
+        return ret
 
     def inTransaction(self) -> bool:
         """
