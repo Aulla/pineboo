@@ -10,7 +10,6 @@ from pineboolib.interfaces import iconnection
 from . import pnsqldrivers
 from pineboolib import application
 
-import sqlalchemy
 import time
 
 # from .pnsqlsavepoint import PNSqlSavePoint
@@ -183,8 +182,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             raise Exception("main_conn no es valido para session")
 
         session_ = self.driver().session()
-        sqlalchemy.event.listen(session_, "before_flush", self.before_flush)
-        sqlalchemy.event.listen(session_, "after_flush", self.after_flush)
+        # sqlalchemy.event.listen(session_, "before_flush", self.before_flush)
+        # sqlalchemy.event.listen(session_, "after_flush", self.after_flush)
         # sqlalchemy.event.listen(session_, "after_bulk_delete", self.after_bulk_delete)
         # sqlalchemy.event.listen(session_, "after_bulk_update", self.after_bulk_update)
 
@@ -665,53 +664,56 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().sqlLength(field_name, size)
 
-    def before_flush(self, session, flush_context, instances=None) -> bool:
-        """Before flush."""
 
-        items = []
-        for item in session.new:
-            items.append(item)
-
-        for item in session.dirty:
-            items.append(item)
-
-        for item in session.deleted:
-            items.append(item)
-
-        try:
-            for item in items:
-                before_flush_func = getattr(item, "_before_flush", None)
-                if before_flush_func:
-                    return before_flush_func(session)
-        except Exception as error:
-            LOGGER.warning("BEFORE FLUSH! %s. items: %s", str(error), items)
-
-        return True
-
-    def after_flush(self, session, flush_context) -> bool:
-        """Before flush."""
-
-        items = []
-
-        for item in session.new:
-            items.append(item)
-
-        for item in session.dirty:
-            items.append(item)
-
-        for item in session.deleted:
-            items.append(item)
-
-        try:
-            for item in items:
-
-                after_flush_func = getattr(item, "_after_flush", None)
-                if after_flush_func:
-                    return after_flush_func(session)
-        except Exception as error:
-            LOGGER.warning("AFTER FLUSH! %s. items: %s", str(error), items)
-
-        return True
+# ===============================================================================
+#     def before_flush(self, session, flush_context, instances=None) -> bool:
+#         """Before flush."""
+#
+#         items = []
+#         for item in session.new:
+#             items.append(item)
+#
+#         for item in session.dirty:
+#             items.append(item)
+#
+#         for item in session.deleted:
+#             items.append(item)
+#
+#         try:
+#             for item in items:
+#                 before_flush_func = getattr(item, "_before_flush", None)
+#                 if before_flush_func:
+#                     return before_flush_func(session)
+#         except Exception as error:
+#             LOGGER.warning("BEFORE FLUSH! %s. items: %s", str(error), items)
+#
+#         return True
+#
+#     def after_flush(self, session, flush_context) -> bool:
+#         """Before flush."""
+#
+#         items = []
+#
+#         for item in session.new:
+#             items.append(item)
+#
+#         for item in session.dirty:
+#             items.append(item)
+#
+#         for item in session.deleted:
+#             items.append(item)
+#
+#         try:
+#             for item in items:
+#
+#                 after_flush_func = getattr(item, "_after_flush", None)
+#                 if after_flush_func:
+#                     return after_flush_func(session)
+#         except Exception as error:
+#             LOGGER.warning("AFTER FLUSH! %s. items: %s", str(error), items)
+#
+#         return True
+# ===============================================================================
 
 
 # ===============================================================================

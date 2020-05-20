@@ -223,8 +223,8 @@ class BaseModel(object):
         if self._session is None:
             raise ValueError("session is empty!!")
 
-        self._result_before_flush = True
-        self._result_after_flush = True
+        self._result_before_flush = False
+        self._result_after_flush = False
         try:
             ret_ = True
             if self.mode_access == 3:
@@ -234,7 +234,16 @@ class BaseModel(object):
                     LOGGER.warning("Delete_cascade: %s ", str(error))
                     ret_ = False
             if ret_:
-                self._session.flush()
+                self._before_flush()
+                if self._result_before_flush:
+                    try:
+                        self._session.flush()
+                    except Exception as error:
+                        LOGGER.warning("flush! %s", str(error))
+                        ret_ = False
+                    if ret_:
+                        self._after_flush()
+
         except Exception as error:
             LOGGER.error("%s flush: %s", self, str(error))
             return False
