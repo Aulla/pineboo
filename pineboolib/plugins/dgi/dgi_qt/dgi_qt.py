@@ -10,7 +10,7 @@ from pineboolib.plugins.dgi import dgi_schema
 from .dgi_objects.dlg_about import about_pineboo
 
 from .dgi_objects import splash_screen, progress_dialog_manager, status_help_msg
-from typing import Any
+from typing import Any, Optional
 
 LOGGER = logging.get_logger(__name__)
 
@@ -49,6 +49,78 @@ class DgiQt(dgi_schema.DgiSchema):
             )
 
         return cls
+
+    def msgBoxWarning(
+        self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
+    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+        """Show a message box warning."""
+
+        if parent is None:
+            parent = QtWidgets.qApp.activeWindow()
+
+        LOGGER.warning("%s", text)
+
+        if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
+            return QtWidgets.QMessageBox.warning(parent, title, text, QtWidgets.QMessageBox.Ok)
+
+        return None
+
+    def msgBoxQuestion(
+        self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
+    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+        """Show a message box warning."""
+
+        if parent is None:
+            parent = QtWidgets.qApp.activeWindow()
+
+        # LOGGER.warning("%s", text)
+
+        if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
+            return QtWidgets.QMessageBox.warning(
+                parent,
+                title,
+                text,
+                cast(
+                    QtWidgets.QMessageBox.StandardButton,
+                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                ),
+            )
+
+        return None
+
+    def msgBoxError(
+        self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
+    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+        """Show a message box warning."""
+
+        if parent is None:
+            parent = QtWidgets.qApp.activeWindow()
+
+        LOGGER.warning("%s", text)
+
+        if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
+
+            if parent is not None:
+                return QtWidgets.QMessageBox.critical(parent, title, text, QtWidgets.QMessageBox.Ok)
+
+        return None
+
+    def msgBoxInfo(
+        self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
+    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+        """Show a message box warning."""
+
+        if parent is None:
+            parent = QtWidgets.qApp.activeWindow()
+
+        LOGGER.warning("%s", text)
+
+        if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
+
+            if parent is not None:
+                return QtWidgets.QMessageBox.information(parent, title, text)
+
+        return None
 
     def about_pineboo(self) -> None:
         """Show about pineboo dialog."""
