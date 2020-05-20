@@ -613,7 +613,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             current_session.flush()
             return True
         except Exception as error:
-            LOGGER.warning("insert_current_buffer : %s" % error)
+            LOGGER.warning("insert_current_buffer : %s" % error, stack_info=True)
 
         return False
 
