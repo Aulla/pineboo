@@ -24,47 +24,34 @@ class MessageBox:
     Ignore = QtWidgets.QMessageBox.Ignore
 
     @classmethod
-    def msgbox(
-        cls, typename, text, button0, button1=None, button2=None, title=None, form=None
-    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def msgbox(cls, typename, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Return a messageBox."""
-        if application.PROJECT.main_window is None:
-            return None
 
-        if application.PROJECT._splash:
-            application.PROJECT._splash.hide()
+        msg_box = getattr(QtWidgets.QMessageBox, typename, None)
+        if msg_box is None:
+            LOGGER.warning("Unknown type name %s", typename)
+        else:
 
-        if not isinstance(text, str):
-            LOGGER.warning("MessageBox help!", stack_info=True)
-            # temp = text
-            text = button1
-            button1 = title
-            title = button0
-            button0 = button2
-            button2 = None
+            title = "Pineboo"
+            parent = QtWidgets.qApp.activeWindow()
+            buttons = []
+            text = ""
 
-        dgi_ = application.PROJECT.dgi
+            for number, argument in enumerate(args):
+                if number == 0:
+                    text = argument
+                else:
+                    if isinstance(argument, str):
+                        title = argument
+                    elif isinstance(argument, QtWidgets.QMessageBox.StandardButton):
+                        buttons.append(argument)
+                    elif argument:
+                        parent = argument
 
-        if dgi_ is not None:
+            if application.PROJECT._splash:
+                application.PROJECT._splash.hide()
 
-            message_box = None
-
-            if not title:
-                title = "Pineboo"
-
-            if typename == "question":
-                message_box = getattr(dgi_, "msgBoxQuestion", None)
-            elif typename == "information":
-                message_box = getattr(dgi_, "msgBoxInfo", None)
-            elif typename == "warning":
-                message_box = getattr(dgi_, "msgBoxWarning", None)
-            else:
-                message_box = getattr(dgi_, "msgBoxError", None)
-
-        if message_box is not None:
-            return message_box(text, None, title)
-
-        return None
+            return msg_box(parent, title, text, *buttons)
 
     @classmethod
     def question(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
@@ -75,7 +62,7 @@ class MessageBox:
     @classmethod
     def information(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Return an information messageBox."""
-        return cls.msgbox("question", *args)
+        return cls.msgbox("information", *args)
 
     @classmethod
     def warning(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
