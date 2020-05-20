@@ -753,9 +753,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     field = self.private_cursor.relation_.field()
                     if field.lower() == field_name.lower():
                         ret = True
-        elif mode_access == self.Browse:
-            ret = True
-
         return ret
 
     def inTransaction(self) -> bool:

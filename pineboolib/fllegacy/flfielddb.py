@@ -1137,7 +1137,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         hol = field.hasOptionsList()
 
-        field_dis = False
+        field_dis = mode_access == self.cursor_.Browse
 
         # if isinstance(v , QString): #Para quitar
         # v = str(v)
