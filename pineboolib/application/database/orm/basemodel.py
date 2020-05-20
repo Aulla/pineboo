@@ -290,7 +290,7 @@ class BaseModel(object):
             try:
                 mode = self.mode_access
             except Exception as error:
-                LOGGER.warning("Error retriving mode!")
+                LOGGER.warning("Error retriving mode! %s: %s", self, str(error))
                 self._result_after_flush = False
                 return
 
