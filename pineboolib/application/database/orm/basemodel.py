@@ -228,7 +228,11 @@ class BaseModel(object):
         try:
             ret_ = True
             if self.mode_access == 3:
-                ret_ = self._delete_cascade()
+                try:
+                    ret_ = self._delete_cascade()
+                except Exception as error:
+                    LOGGER.warning("Delete_cascade: %s ", str(error))
+                    ret_ = False
             if ret_:
                 self._session.flush()
         except Exception as error:
@@ -237,7 +241,7 @@ class BaseModel(object):
 
         return self._result_before_flush and self._result_after_flush
 
-    def _before_flush(self, session=None, flush_context=None):
+    def _before_flush(self, session=None):
         """Before flush."""
         if not hasattr(self, "_session"):
             self._session = session
@@ -245,32 +249,74 @@ class BaseModel(object):
         ret_ = self.before_flush()
 
         if ret_:
-            mode = self.mode_access
+            try:
+                mode = self.mode_access
+            except Exception as error:
+                LOGGER.warning("Error retriving mode! %s: %s", self, str(error))
+                self._result_before_flush = False
+                return
+
             if mode == 1:
-                ret_ = self.before_new()
+                try:
+                    ret_ = self.before_new()
+                except Exception as error:
+                    LOGGER.warning("Before_new %s: %s", self, str(error))
+                    self._result_before_flush = False
+                    return
+
             elif mode == 2:
-                ret_ = self.before_change()
+                try:
+                    ret_ = self.before_change()
+                except Exception as error:
+                    LOGGER.warning("Before_change %s: %s", self, str(error))
+                    self._result_before_flush = False
+                    return
             elif mode == 3:
-                ret_ = self.before_delete()
+                try:
+                    ret_ = self.before_delete()
+                except Exception as error:
+                    LOGGER.warning("Before_delete %s: %s", self, str(error))
+                    self._result_before_flush = False
+                    return
 
         self._result_before_flush = ret_
 
-    def _after_flush(self, session=None, flush_context=None) -> None:
+    def _after_flush(self, session=None) -> None:
         """After flush."""
 
         self._result_after_flush = False
         if self._result_before_flush:
-            mode = self.mode_access
+
+            try:
+                mode = self.mode_access
+            except Exception as error:
+                LOGGER.warning("Error retriving mode!")
+                self._result_after_flush = False
+                return
 
             ret_ = self.after_flush()
             if ret_:
                 if mode == 1:
-                    ret_ = self.after_new()
+                    try:
+                        ret_ = self.after_new()
+                    except Exception as error:
+                        LOGGER.warning("After_new %s: %s", self, str(error))
+                        self._result_after_flush = False
+                        return
                 elif mode == 2:
-                    ret_ = self.after_change()
+                    try:
+                        ret_ = self.after_change()
+                    except Exception as error:
+                        LOGGER.warning("After_change %s: %s", self, str(error))
+                        self._result_after_flush = False
+                        return
                 elif mode == 3:
-                    ret_ = self.after_delete()
-
+                    try:
+                        ret_ = self.after_delete()
+                    except Exception as error:
+                        LOGGER.warning("After_delete %s: %s", self, str(error))
+                        self._result_after_flush = False
+                        return
             self._result_after_flush = ret_
 
     # ===============================================================================

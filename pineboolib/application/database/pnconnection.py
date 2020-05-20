@@ -682,9 +682,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             for item in items:
                 before_flush_func = getattr(item, "_before_flush", None)
                 if before_flush_func:
-                    return before_flush_func(session, flush_context)
+                    return before_flush_func(session)
         except Exception as error:
-            LOGGER.warning("BEFORE FLUSH! %s", str(error), stack_info=True)
+            LOGGER.warning("BEFORE FLUSH! %s. items: %s", str(error), items)
 
         return True
 
@@ -707,9 +707,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
                 after_flush_func = getattr(item, "_after_flush", None)
                 if after_flush_func:
-                    return after_flush_func(session, flush_context)
+                    return after_flush_func(session)
         except Exception as error:
-            LOGGER.warning("AFTER FLUSH! %s. items: %s", str(error), items, stack_info=True)
+            LOGGER.warning("AFTER FLUSH! %s. items: %s", str(error), items)
 
         return True
 
