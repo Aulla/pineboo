@@ -52,7 +52,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     if not main_conn_established:
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
-    application.PROJECT.no_python_cache = True
+    # application.PROJECT.no_python_cache = True
     LOGGER.info("STARTUP_FRAMEWORK:(3/6) Loading database.")
     application.PROJECT.run()
     LOGGER.info("STARTUP_FRAMEWORK:(4/6) Loading area definitions.")
