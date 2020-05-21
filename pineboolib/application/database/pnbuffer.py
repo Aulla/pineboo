@@ -174,7 +174,7 @@ class PNBuffer(object):
             metadata = self._cursor.metadata().field(field_name)
             type_ = metadata.type()
             if type_ == "date":
-                value = datetime.date.fromisoformat(str(value)[:10])
+                value = datetime.datetime.strptime(str(value)[:10], "%Y-%m-%d")
             elif type_ == "timestamp":
                 value = datetime.datetime.strptime(str(value), "%Y-%m-%d %H:%M:%S")
             elif type_ == "time":
