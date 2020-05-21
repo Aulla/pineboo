@@ -37,6 +37,7 @@ class BaseModel(object):
     _result_before_flush: bool
     _result_after_flush: bool
     _force_mode: int
+    _current_mode: int
 
     @orm.reconstructor  # type: ignore [misc] # noqa: F821
     def _constructor_init(self) -> None:
@@ -146,10 +147,12 @@ class BaseModel(object):
 
     def after_delete(self) -> bool:
         """After delete a instance."""
+
         return True
 
     def after_flush(self) -> bool:
         """After flush."""
+
         return True
 
     def before_new(self) -> bool:
@@ -164,10 +167,12 @@ class BaseModel(object):
 
     def before_delete(self) -> bool:
         """Before delete a instance."""
+
         return True
 
     def before_flush(self) -> bool:
         """Before flush."""
+
         return True
 
     def delete(self) -> bool:
@@ -223,10 +228,11 @@ class BaseModel(object):
         if self._session is None:
             raise ValueError("session is empty!!")
 
+        self._current_mode = self.mode_access
         ret_ = False
         try:
             ret_ = True
-            if self.mode_access == 3:
+            if self._current_mode == 3:
                 try:
                     ret_ = self._delete_cascade()
                 except Exception as error:
@@ -247,20 +253,21 @@ class BaseModel(object):
             LOGGER.error("%s flush: %s", self, str(error))
             return False
 
+        self._current_mode = 0
         return ret_
 
     def _before_flush(self) -> bool:
         """Before flush."""
-
         ret_ = self.before_flush()
 
         if ret_:
             try:
-                mode = self.mode_access
+                mode = self._current_mode
             except Exception as error:
                 LOGGER.warning("Error retriving mode! %s: %s", self, str(error))
                 return False
 
+            print("*BF", self, mode)
             if mode == 1:
                 try:
                     ret_ = self.before_new()
@@ -290,7 +297,10 @@ class BaseModel(object):
         try:
             ret_ = self.after_flush()
             if ret_:
-                mode = self.mode_access
+                mode = self._current_mode
+
+                print("*AF", self, mode)
+
                 if mode == 1:
                     try:
                         ret_ = self.after_new()
