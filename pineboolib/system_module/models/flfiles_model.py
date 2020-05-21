@@ -6,7 +6,10 @@ from pineboolib.application.database.orm import basemodel
 
 from sqlalchemy.ext import declarative
 import sqlalchemy
+
 from pineboolib.qsa import qsa
+
+from typing import Optional
 
 
 class Flfiles(
@@ -72,10 +75,10 @@ class Flfiles(
 
     # <--- Fields ---
 
-    def before_flush(self) -> bool:
+    def before_flush(self) -> Optional[bool]:
         """Before flush."""
 
-        return True
+        pass
 
     def after_flush(self) -> bool:
         """After flush."""
