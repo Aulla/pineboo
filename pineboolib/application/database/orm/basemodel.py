@@ -223,8 +223,7 @@ class BaseModel(object):
         if self._session is None:
             raise ValueError("session is empty!!")
 
-        self._result_before_flush = False
-        self._result_after_flush = False
+        ret_ = False
         try:
             ret_ = True
             if self.mode_access == 3:
@@ -234,26 +233,24 @@ class BaseModel(object):
                     LOGGER.warning("Delete_cascade: %s ", str(error))
                     ret_ = False
             if ret_:
-                self._before_flush()
-                if self._result_before_flush:
+                ret_ = self._before_flush()
+                if ret_:
                     try:
                         self._session.flush()
                     except Exception as error:
                         LOGGER.warning("flush! %s", str(error))
                         ret_ = False
                     if ret_:
-                        self._after_flush()
+                        ret_ = self._after_flush()
 
         except Exception as error:
             LOGGER.error("%s flush: %s", self, str(error))
             return False
 
-        return self._result_before_flush and self._result_after_flush
+        return ret_
 
-    def _before_flush(self, session=None):
+    def _before_flush(self) -> bool:
         """Before flush."""
-        if not hasattr(self, "_session"):
-            self._session = session
 
         ret_ = self.before_flush()
 
@@ -262,71 +259,61 @@ class BaseModel(object):
                 mode = self.mode_access
             except Exception as error:
                 LOGGER.warning("Error retriving mode! %s: %s", self, str(error))
-                self._result_before_flush = False
-                return
+                return False
 
             if mode == 1:
                 try:
                     ret_ = self.before_new()
                 except Exception as error:
                     LOGGER.warning("Before_new %s: %s", self, str(error))
-                    self._result_before_flush = False
-                    return
+                    return False
 
             elif mode == 2:
                 try:
                     ret_ = self.before_change()
                 except Exception as error:
                     LOGGER.warning("Before_change %s: %s", self, str(error))
-                    self._result_before_flush = False
-                    return
+                    return False
             elif mode == 3:
                 try:
                     ret_ = self.before_delete()
                 except Exception as error:
                     LOGGER.warning("Before_delete %s: %s", self, str(error))
-                    self._result_before_flush = False
-                    return
+                    return False
 
-        self._result_before_flush = ret_
+        return ret_
 
-    def _after_flush(self, session=None) -> None:
+    def _after_flush(self) -> bool:
         """After flush."""
 
-        self._result_after_flush = False
-        if self._result_before_flush:
-
-            try:
-                mode = self.mode_access
-            except Exception as error:
-                LOGGER.warning("Error retriving mode! %s: %s", self, str(error))
-                self._result_after_flush = False
-                return
-
+        ret_ = False
+        try:
             ret_ = self.after_flush()
             if ret_:
+                mode = self.mode_access
                 if mode == 1:
                     try:
                         ret_ = self.after_new()
                     except Exception as error:
                         LOGGER.warning("After_new %s: %s", self, str(error))
-                        self._result_after_flush = False
-                        return
+                        return False
                 elif mode == 2:
                     try:
                         ret_ = self.after_change()
                     except Exception as error:
                         LOGGER.warning("After_change %s: %s", self, str(error))
-                        self._result_after_flush = False
-                        return
+                        return False
                 elif mode == 3:
                     try:
                         ret_ = self.after_delete()
                     except Exception as error:
                         LOGGER.warning("After_delete %s: %s", self, str(error))
-                        self._result_after_flush = False
-                        return
-            self._result_after_flush = ret_
+                        return False
+        except Exception as error:
+            LOGGER.warning("_after_flush: %s", str(error))
+            ret_ = False
+
+        return ret_
 
     # ===============================================================================
     #     def _check_unlock(self) -> bool:
@@ -424,11 +411,9 @@ class BaseModel(object):
             obj.mode_access = 3
             ret_ = obj._delete_cascade()
             if ret_:
-                obj._before_flush()
-                ret_ = obj._result_before_flush
+                ret_ = obj._before_flush()
                 if ret_:
-                    obj._after_flush()
-                    ret_ = obj._result_after_flush
+                    ret_ = obj._after_flush()
 
             if not ret_:
                 return False
