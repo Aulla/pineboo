@@ -258,10 +258,9 @@ class BaseModel(object):
 
     def _before_flush(self) -> bool:
         """Before flush."""
-        ret_ = False
+        ret_ = None
         try:
             ret_ = self.before_flush()
-            ret_ = True if ret_ is None else ret_
             if ret_:
 
                 mode = self._current_mode
@@ -269,38 +268,34 @@ class BaseModel(object):
                 if mode == 1:
                     try:
                         ret_ = self.before_new()
-                        ret_ = True if ret_ is None else ret_
                     except Exception as error:
                         LOGGER.warning("Before_new %s: %s", self, str(error))
-                        return False
+                        ret_ = False
 
                 elif mode == 2:
                     try:
                         ret_ = self.before_change()
-                        ret_ = True if ret_ is None else ret_
                     except Exception as error:
                         LOGGER.warning("Before_change %s: %s", self, str(error))
-                        return False
+                        ret_ = False
                 elif mode == 3:
                     try:
                         ret_ = self.before_delete()
-                        ret_ = True if ret_ is None else ret_
                     except Exception as error:
                         LOGGER.warning("Before_delete %s: %s", self, str(error))
-                        return False
+                        ret_ = False
         except Exception as error:
             LOGGER.warning("_before_flush: %s", str(error))
             ret_ = False
 
-        return ret_
+        return True if ret_ else False
 
     def _after_flush(self) -> bool:
         """After flush."""
 
-        ret_ = False
+        ret_ = None
         try:
             ret_ = self.after_flush()
-            ret_ = True if ret_ is None else ret_
             if ret_:
 
                 mode = self._current_mode
@@ -308,29 +303,26 @@ class BaseModel(object):
                 if mode == 1:
                     try:
                         ret_ = self.after_new()
-                        ret_ = True if ret_ is None else ret_
                     except Exception as error:
                         LOGGER.warning("After_new %s: %s", self, str(error))
-                        return False
+                        ret_ = False
                 elif mode == 2:
                     try:
                         ret_ = self.after_change()
-                        ret_ = True if ret_ is None else ret_
                     except Exception as error:
                         LOGGER.warning("After_change %s: %s", self, str(error))
-                        return False
+                        ret_ = False
                 elif mode == 3:
                     try:
                         ret_ = self.after_delete()
-                        ret_ = True if ret_ is None else ret_
                     except Exception as error:
                         LOGGER.warning("After_delete %s: %s", self, str(error))
-                        return False
+                        ret_ = False
         except Exception as error:
             LOGGER.warning("_after_flush: %s", str(error))
             ret_ = False
 
-        return ret_
+        return True if ret_ else False
 
     # ===============================================================================
     #     def _check_unlock(self) -> bool:
