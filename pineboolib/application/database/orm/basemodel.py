@@ -135,42 +135,42 @@ class BaseModel(object):
 
         return changes
 
-    def after_new(self) -> bool:
+    def after_new(self) -> Optional[bool]:
         """After flush new instance."""
 
         return True
 
-    def after_change(self) -> bool:
+    def after_change(self) -> Optional[bool]:
         """After update a instance."""
 
         return True
 
-    def after_delete(self) -> bool:
+    def after_delete(self) -> Optional[bool]:
         """After delete a instance."""
 
         return True
 
-    def after_flush(self) -> bool:
+    def after_flush(self) -> Optional[bool]:
         """After flush."""
 
         return True
 
-    def before_new(self) -> bool:
+    def before_new(self) -> Optional[bool]:
         """Before flush new instance."""
 
         return True
 
-    def before_change(self) -> bool:
+    def before_change(self) -> Optional[bool]:
         """Before update a instance."""
 
         return True
 
-    def before_delete(self) -> bool:
+    def before_delete(self) -> Optional[bool]:
         """Before delete a instance."""
 
         return True
 
-    def before_flush(self) -> bool:
+    def before_flush(self) -> Optional[bool]:
         """Before flush."""
 
         return True
@@ -258,35 +258,39 @@ class BaseModel(object):
 
     def _before_flush(self) -> bool:
         """Before flush."""
-        ret_ = self.before_flush()
+        ret_ = False
+        try:
+            ret_ = self.before_flush()
+            ret_ = True if ret_ is None else ret_
+            if ret_:
 
-        if ret_:
-            try:
                 mode = self._current_mode
-            except Exception as error:
-                LOGGER.warning("Error retriving mode! %s: %s", self, str(error))
-                return False
 
-            print("*BF", self, mode)
-            if mode == 1:
-                try:
-                    ret_ = self.before_new()
-                except Exception as error:
-                    LOGGER.warning("Before_new %s: %s", self, str(error))
-                    return False
+                if mode == 1:
+                    try:
+                        ret_ = self.before_new()
+                        ret_ = True if ret_ is None else ret_
+                    except Exception as error:
+                        LOGGER.warning("Before_new %s: %s", self, str(error))
+                        return False
 
-            elif mode == 2:
-                try:
-                    ret_ = self.before_change()
-                except Exception as error:
-                    LOGGER.warning("Before_change %s: %s", self, str(error))
-                    return False
-            elif mode == 3:
-                try:
-                    ret_ = self.before_delete()
-                except Exception as error:
-                    LOGGER.warning("Before_delete %s: %s", self, str(error))
-                    return False
+                elif mode == 2:
+                    try:
+                        ret_ = self.before_change()
+                        ret_ = True if ret_ is None else ret_
+                    except Exception as error:
+                        LOGGER.warning("Before_change %s: %s", self, str(error))
+                        return False
+                elif mode == 3:
+                    try:
+                        ret_ = self.before_delete()
+                        ret_ = True if ret_ is None else ret_
+                    except Exception as error:
+                        LOGGER.warning("Before_delete %s: %s", self, str(error))
+                        return False
+        except Exception as error:
+            LOGGER.warning("_before_flush: %s", str(error))
+            ret_ = False
 
         return ret_
 
@@ -296,26 +300,29 @@ class BaseModel(object):
         ret_ = False
         try:
             ret_ = self.after_flush()
+            ret_ = True if ret_ is None else ret_
             if ret_:
-                mode = self._current_mode
 
-                print("*AF", self, mode)
+                mode = self._current_mode
 
                 if mode == 1:
                     try:
                         ret_ = self.after_new()
+                        ret_ = True if ret_ is None else ret_
                     except Exception as error:
                         LOGGER.warning("After_new %s: %s", self, str(error))
                         return False
                 elif mode == 2:
                     try:
                         ret_ = self.after_change()
+                        ret_ = True if ret_ is None else ret_
                     except Exception as error:
                         LOGGER.warning("After_change %s: %s", self, str(error))
                         return False
                 elif mode == 3:
                     try:
                         ret_ = self.after_delete()
+                        ret_ = True if ret_ is None else ret_
                     except Exception as error:
                         LOGGER.warning("After_delete %s: %s", self, str(error))
                         return False
