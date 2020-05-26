@@ -138,6 +138,6 @@ class IManager(object):
         """Create query."""
         return None
 
-    def storeLargeValue(self, mtd, largeValue: str) -> Optional[str]:
+    def storeLargeValue(self, mtd, large_value: str) -> Optional[str]:
         """Store value in fllarge."""
         return None

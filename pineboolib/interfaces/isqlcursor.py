@@ -381,7 +381,7 @@ class ISqlCursor(QtCore.QObject):
         """Get action name."""
         pass
 
-    def setAction(self, a) -> Any:
+    def setAction(self, action) -> Any:
         """Set Action object."""
         pass
 
@@ -389,7 +389,7 @@ class ISqlCursor(QtCore.QObject):
         """Set Main filter for this cursor."""
         pass
 
-    def setModeAccess(self, m) -> Any:
+    def setModeAccess(self, mode_access) -> Any:
         """Set Access mode for the cursor."""
         pass
 
@@ -457,11 +457,11 @@ class ISqlCursor(QtCore.QObject):
         """Rollback transaction."""
         pass
 
-    def commit(self, notify=True) -> Any:
+    def commit(self, notify=True) -> bool:
         """Commit transaction."""
         pass
 
-    def size(self) -> Any:
+    def size(self) -> int:
         """Get current cursor size in rows."""
         pass
 
@@ -469,7 +469,7 @@ class ISqlCursor(QtCore.QObject):
         """Open record form in specified mode."""
         pass
 
-    def isNull(self, field_name) -> Any:
+    def isNull(self, field_name) -> bool:
         """Get if field is null."""
         pass
 
@@ -477,7 +477,7 @@ class ISqlCursor(QtCore.QObject):
         """Refresh buffer copy."""
         pass
 
-    def isModifiedBuffer(self) -> Any:
+    def isModifiedBuffer(self) -> bool:
         """Get if buffer is modified."""
         pass
 
@@ -505,7 +505,7 @@ class ISqlCursor(QtCore.QObject):
         """Activate Buffer changed."""
         pass
 
-    def activatedBufferChanged(self) -> Any:
+    def activatedBufferChanged(self) -> bool:
         """Get buffer changed status."""
         pass
 
@@ -513,7 +513,7 @@ class ISqlCursor(QtCore.QObject):
         """Activate buffer committed."""
         pass
 
-    def activatedBufferCommited(self) -> Any:
+    def activatedBufferCommited(self) -> bool:
         """Get buffer committed status."""
         pass
 
@@ -529,7 +529,7 @@ class ISqlCursor(QtCore.QObject):
         """Set unlock field."""
         pass
 
-    def isLocked(self) -> Any:
+    def isLocked(self) -> bool:
         """Get if record is locked."""
         pass
 
@@ -565,7 +565,7 @@ class ISqlCursor(QtCore.QObject):
         """Return database object."""
         pass
 
-    def curName(self) -> Any:
+    def curName(self) -> str:
         """Get cursor name."""
         pass
 
@@ -585,19 +585,19 @@ class ISqlCursor(QtCore.QObject):
         """Get selection."""
         pass
 
-    def at(self) -> Any:
+    def at(self) -> int:
         """Get row number."""
         pass
 
-    def isValid(self) -> Any:
+    def isValid(self) -> bool:
         """Return if cursor is valid."""
         pass
 
-    def refresh(self, field_name=None) -> Any:
+    def refresh(self, field_name=None) -> None:
         """Refresh cursor."""
         pass
 
-    def refreshBuffer(self) -> Any:
+    def refreshBuffer(self) -> bool:
         """Refresh buffer."""
         pass
 
@@ -605,31 +605,31 @@ class ISqlCursor(QtCore.QObject):
         """Set cursor in edit mode."""
         pass
 
-    def seek(self, i, relative=None, emite=None) -> Any:
+    def seek(self, i, relative=None, emite=None) -> bool:
         """Move cursor without fetching."""
         pass
 
-    def next(self, emite=True) -> Any:
+    def next(self, emite=True) -> bool:
         """Get next row."""
         pass
 
-    def moveby(self, pos) -> Any:
+    def moveby(self, pos) -> bool:
         """Move cursor down "pos" rows."""
         pass
 
-    def prev(self, emite=True) -> Any:
+    def prev(self, emite=True) -> bool:
         """Get previous row."""
         pass
 
-    def move(self, row) -> Any:
+    def move(self, row) -> bool:
         """Move cursor to row number."""
         pass
 
-    def first(self, emite=True) -> Any:
+    def first(self, emite=True) -> bool:
         """Move cursor to first row."""
         pass
 
-    def last(self, emite=True) -> Any:
+    def last(self, emite=True) -> bool:
         """Move cursor to last row."""
         pass
 
@@ -665,23 +665,23 @@ class ISqlCursor(QtCore.QObject):
         """Emit chooseRecord."""
         pass
 
-    def setForwardOnly(self, value) -> Any:
+    def setForwardOnly(self, value) -> None:
         """Set forward only."""
         pass
 
-    def commitBuffer(self, emite=True, check_locks=False) -> Any:
+    def commitBuffer(self, emite=True, check_locks=False) -> bool:
         """Commit current buffer to db."""
         pass
 
-    def commitBufferCursorRelation(self) -> Any:
+    def commitBufferCursorRelation(self) -> bool:
         """Commit buffer from cursor relation."""
         pass
 
-    def transactionLevel(self) -> Any:
+    def transactionLevel(self) -> int:
         """Get number of nested transactions."""
         pass
 
-    def transactionsOpened(self) -> Any:
+    def transactionsOpened(self) -> List[str]:
         """Return if any transaction is open."""
         pass
 

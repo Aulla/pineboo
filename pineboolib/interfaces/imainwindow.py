@@ -87,7 +87,7 @@ class IMainWindow(QtWidgets.QMainWindow):
 
         return True
 
-    def windowMenuActivated(self, id) -> None:
+    def windowMenuActivated(self, id_window: int) -> None:
         """Signal called when user clicks on menu."""
 
         pass
@@ -117,7 +117,7 @@ class IMainWindow(QtWidgets.QMainWindow):
 
         pass
 
-    def setMainWidget(self, w) -> None:
+    def setMainWidget(self, widget: QtWidgets.QWidget) -> None:
         """Set mainWidget."""
 
         pass
