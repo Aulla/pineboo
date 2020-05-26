@@ -265,7 +265,7 @@ class PNApplication(QtCore.QObject):
         return tab_names
 
     @decorators.not_implemented_warn
-    def getWidgetList(self, wn, c):
+    def getWidgetList(self, widget_name: str, class_name: str) -> List:
         """Get widgets."""
         pass
 
@@ -310,13 +310,13 @@ class PNApplication(QtCore.QObject):
         self._inicializing = True
 
         if application.PROJECT.main_window:
-            mw = application.PROJECT.main_window
+            main_window = application.PROJECT.main_window
 
-            if mw is not None:
-                mw.writeState()
-                mw.writeStateModule()
-                if hasattr(mw, "_p_work_space"):
-                    mw._p_work_space = None
+            if main_window is not None:
+                main_window.writeState()
+                main_window.writeStateModule()
+                if hasattr(main_window, "_p_work_space"):
+                    main_window._p_work_space = None
 
         QtCore.QTimer.singleShot(0, self.reinitP)
         from pineboolib.application.parsers.parser_mtd.pnormmodelsfactory import empty_base
@@ -352,14 +352,14 @@ class PNApplication(QtCore.QObject):
             return
 
         roll_back_done = False
-        for it in dict_db.values():
-            if it.transactionLevel() <= 0:
+        for item in dict_db.values():
+            if item.transactionLevel() <= 0:
                 continue
             roll_back_done = True
-            last_active_cursor = it.lastActiveCursor()
+            last_active_cursor = item.lastActiveCursor()
             if last_active_cursor is not None:
                 last_active_cursor.rollbackOpened(-1)
-            if it.transactionLevel() <= 0:
+            if item.transactionLevel() <= 0:
                 continue
 
         if not roll_back_done:

@@ -35,8 +35,8 @@ class PNTranslator(Qt.QTranslator):
         self,
         parent: Optional["QtWidgets.QWidget"] = None,
         name: Optional[str] = None,
-        multiLang: bool = False,
-        sysTrans: bool = False,
+        multi_lang: bool = False,
+        sys_trans: bool = False,
     ) -> None:
         """Inicialize."""
         super().__init__()
@@ -46,8 +46,8 @@ class PNTranslator(Qt.QTranslator):
             raise Exception("Name is mandatory")
         self._id_module = name[: name.rfind("_")]
         self._lang = name[name.rfind("_") + 1 :]
-        self._multi_lang = multiLang
-        self._sys_trans = sysTrans
+        self._multi_lang = multi_lang
+        self._sys_trans = sys_trans
         self._ts_translation_contexts = {}
         self._translation_from_qm = settings.CONFIG.value(
             "ebcomportamiento/translations_from_qm", False
@@ -105,7 +105,7 @@ class PNTranslator(Qt.QTranslator):
         return ret_
 
     def translate(
-        self, context: str, source_text: str, disambiguation: str = None, n: int = -1
+        self, context: str, source_text: str, disambiguation: str = None, num: int = -1
     ) -> Optional[str]:
         """Return a translated text."""
 

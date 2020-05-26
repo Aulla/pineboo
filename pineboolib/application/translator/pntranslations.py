@@ -2,8 +2,8 @@
 
 # -*- coding: utf-8 -*-
 import os
-from pineboolib import logging
 from pineboolib.core import decorators
+from pineboolib import application, logging
 
 from PyQt5 import QtCore, Qt
 from typing import Any, Union
@@ -31,13 +31,13 @@ class PNTranslations(object):
         """
 
         # qm_file_name = "%s.qm" % ts_file_name[:-3]
-        ok = False
+        ret_ = False
         if os.path.exists(ts_file_name):
-            ok = tor.load(ts_file_name)
+            ret_ = tor.load(ts_file_name)
 
-        if not ok:
+        if not ret_:
             LOGGER.warning("For some reason, I cannot load '%s'", ts_file_name)
-        return ok
+        return ret_
 
     @decorators.deprecated
     def releaseTsFile(self, ts_file_name: str, verbose: bool, stripped: bool) -> None:
@@ -68,19 +68,17 @@ class PNTranslations(object):
         @param stripped. Not used.
         """
 
-        from pineboolib import application
-
         verbose = False
-        metTranslations = False
+        meta_trans = False
 
-        f = Qt.QFile(ts_input_file)
-        if not f.open(QtCore.QIODevice.ReadOnly):
+        file_ = Qt.QFile(ts_input_file)
+        if not file_.open(QtCore.QIODevice.ReadOnly):
             LOGGER.warning("Cannot open file '%s'", ts_input_file)
             return
 
-        t = Qt.QTextStream(f)
-        full_text = t.readAll()
-        f.close()
+        stream = Qt.QTextStream(file_)
+        full_text = stream.readAll()
+        file_.close()
 
         if full_text.find("<!DOCTYPE TS>") >= 0:
             self.releaseTsFile(ts_input_file, verbose, stripped)
@@ -90,15 +88,13 @@ class PNTranslations(object):
                 raise Exception("Project has no connection yet")
 
             key = application.PROJECT.conn_manager.managerModules().shaOfFile(ts_input_file)
-            tagMap = full_text
-            # TODO: hay que cargar todo el contenido del fichero en un diccionario
-            for key, value in tagMap:
+            for key, value in full_text:
                 toks = value.split(" ")
 
-                for t in toks:
+                for token in toks:
                     if key == "TRANSLATIONS":
-                        metTranslations = True
-                        self.releaseTsFile(t, verbose, stripped)
+                        meta_trans = True
+                        self.releaseTsFile(token, verbose, stripped)
 
-            if not metTranslations:
+            if not meta_trans:
                 LOGGER.warning("Met no 'TRANSLATIONS' entry in project file '%s'", ts_input_file)

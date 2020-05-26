@@ -160,9 +160,9 @@ class DynamicFilter(object):
                 extra_filter = ""
 
                 if len(raw) == 3:
-                    key, op, value = raw
+                    key, option, value = raw
                 elif len(raw) == 4:
-                    func_or_extra, key, op, value = raw
+                    func_or_extra, key, option, value = raw
 
                     if func_or_extra in ["and", "or"]:
                         extra_filter = func_or_extra
@@ -170,7 +170,7 @@ class DynamicFilter(object):
                         func_ = func_or_extra
 
                 elif len(raw) == 5:
-                    extra_filter, func_, key, op, value = raw
+                    extra_filter, func_, key, option, value = raw
                 else:
                     raise Exception("arguments length error", raw)
 
@@ -185,7 +185,7 @@ class DynamicFilter(object):
 
             if not column:
                 raise Exception("Invalid filter column: %s" % key, raw)
-            if op == "in":
+            if option == "in":
                 if isinstance(value, list):
                     filt = column.in_(value)
                 else:
@@ -193,11 +193,13 @@ class DynamicFilter(object):
             else:
                 try:
                     attr = (
-                        list(filter(lambda e: hasattr(column, e % op), ["%s", "%s_", "__%s__"]))[0]
-                        % op
+                        list(
+                            filter(lambda e: hasattr(column, e % option), ["%s", "%s_", "__%s__"])
+                        )[0]
+                        % option
                     )
                 except IndexError:
-                    raise Exception("Invalid filter operator: %s" % op)
+                    raise Exception("Invalid filter operator: %s" % option)
                 if value == "null":
                     value = None
 
