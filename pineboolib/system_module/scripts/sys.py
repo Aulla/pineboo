@@ -123,5 +123,10 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return True
 
+    def get_description(*args) -> str:
+        """Retrun description string."""
+
+        return "Área de prueba T."
+
 
 form = None
