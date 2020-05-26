@@ -180,9 +180,11 @@ class BaseModel(object):
 
         if self._session:
             self._session.delete(self)
-            return self._flush()
+            self._flush()
         else:
             raise Exception("_session is empty!")
+
+        return True
 
     def _delete_cascade(self) -> bool:
         """Delete cascade instances if proceed."""
@@ -222,7 +224,7 @@ class BaseModel(object):
 
         return True
 
-    def _flush(self) -> bool:
+    def _flush(self) -> None:
         """Flush data."""
 
         if self._session is None:
@@ -251,10 +253,11 @@ class BaseModel(object):
 
         except Exception as error:
             LOGGER.error("%s flush: %s", self, str(error))
-            return False
-
-        self._current_mode = 0
-        return ret_
+            ret_ = False
+        else:
+            self._current_mode = 0
+        if not ret_:
+            raise Exception("I can't flush!")
 
     def _before_flush(self) -> bool:
         """Before flush."""
@@ -484,9 +487,11 @@ class BaseModel(object):
             result = self._check_integrity()
 
         if result:
-            result = self._flush()
+            self._flush()
+        else:
+            raise Exception("I can't save!")
 
-        return result
+        return True
 
     def _check_integrity(self) -> bool:
         """Check data integrity."""

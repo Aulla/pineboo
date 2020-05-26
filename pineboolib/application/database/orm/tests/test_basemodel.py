@@ -70,10 +70,13 @@ class TestBaseModel(unittest.TestCase):
         obj_ = qsa.orm_("flmodules")()
         obj_.idmodulo = "mod2"
         obj_.idarea = "F"
+        with self.assertRaises(Exception):
+            obj_.save()
 
-        self.assertFalse(obj_.save())
         obj_.descripcion = "PRUEBA"
-        self.assertFalse(obj_.save())
+        with self.assertRaises(Exception):
+            obj_.save()
+
         obj_2 = qsa.orm_("flareas")()
         obj_2.idarea = "F"
         obj_2.descripcion = "Area"
@@ -113,7 +116,7 @@ class TestBaseModel(unittest.TestCase):
         obj_class = qsa.orm_("flareas")
 
         obj_ = obj_class.query().get("F")
-
+        self.assertTrue(obj_)
         obj_2 = qsa.orm_("flmodules")()
         obj_2.idmodulo = "mod4"
         obj_2.idarea = "F"
