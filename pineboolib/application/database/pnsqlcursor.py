@@ -378,7 +378,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if primary_key and self.db() is not db_aux:
             primary_key_value = self.private_cursor.buffer_.value(primary_key)
             db_aux.transaction()
-
+            print("*", function_name, [field_name, self.private_cursor.buffer_.value(field_name)])
             value = application.PROJECT.call(
                 function_name,
                 [field_name, self.private_cursor.buffer_.value(field_name)],

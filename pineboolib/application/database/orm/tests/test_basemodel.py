@@ -88,6 +88,17 @@ class TestBaseModel(unittest.TestCase):
         obj_3.idmodulo = "mod1"
         obj_3.idarea = "G"
         obj_3.descripcion = "PRUEBA"
+
+        self.assertEqual(
+            obj_3.changes(),
+            {
+                "bloqueo": True,
+                "descripcion": "PRUEBA",
+                "idarea": "G",
+                "idmodulo": "mod1",
+                "version": "0.0",
+            },
+        )
         self.assertTrue(obj_3.save(False))
 
     def test_relation_m1(self) -> None:

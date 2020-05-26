@@ -20,7 +20,7 @@ class TestInsertData(unittest.TestCase):
         utils_base.FORCE_DESKTOP = True
         init_testing()
 
-    def test_basic(self) -> None:
+    def test_basic_1(self) -> None:
         """Insert data into a database."""
 
         cursor = pnsqlcursor.PNSqlCursor("flareas")
@@ -32,6 +32,15 @@ class TestInsertData(unittest.TestCase):
         self.assertTrue(cursor.commitBuffer())
         mode_access = cursor.modeAccess()
         self.assertEqual(mode_access, cursor.Edit)
+
+    def test_basic_2(self) -> None:
+        """SetAtomitValuebuffer."""
+
+        cursor = pnsqlcursor.PNSqlCursor("flareas")
+        cursor.select()
+        self.assertTrue(cursor.first())
+        cursor.setAtomicValueBuffer("descripcion", "sys.iface.get_description")
+        self.assertEqual(cursor.valueBuffer("descripcion"), "Área de prueba T.")
 
     @classmethod
     def tearDownClass(cls) -> None:
