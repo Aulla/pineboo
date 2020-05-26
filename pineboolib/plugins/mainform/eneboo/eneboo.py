@@ -924,7 +924,7 @@ class MainForm(imainwindow.IMainWindow):
                 if QSA_SYS.isQuickBuild():
                     if module == "sys":
                         continue
-                actions = self.widgetActions("%s.ui" % module, action)
+                actions = self.widgetActions("%s.ui" % module, cast(QtWidgets.QWidget, action))
 
                 if not actions:
                     # ac.setObjectName("")
@@ -1150,7 +1150,9 @@ class MainForm(imainwindow.IMainWindow):
         if hide_group:
             action_group.setVisible(False)
 
-    def widgetActions(self, ui_file: str, parent: QtWidgets.QWidget) -> QtWidgets.QActionGroup:
+    def widgetActions(
+        self, ui_file: str, parent: QtWidgets.QWidget
+    ) -> Optional[QtWidgets.QActionGroup]:
         """Collect the actions provided by a widget."""
         mng = application.PROJECT.conn_manager.managerModules()
         doc = QtXml.QDomDocument()
