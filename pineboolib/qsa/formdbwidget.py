@@ -74,13 +74,13 @@ class FormDBWidget(QtWidgets.QWidget):
         if not signal_slot:
             return
 
-        for sl in self._formconnections:
+        for conn_ in self._formconnections:
             # PyQt5-Stubs misses signal.signal
             if (
-                sl[0].signal == getattr(signal_slot[0], "signal")
-                and sl[1].__name__ == signal_slot[1].__name__
+                conn_[0].signal == getattr(signal_slot[0], "signal")
+                and conn_[1].__name__ == signal_slot[1].__name__
             ):
-                self._formconnections.remove(sl)
+                self._formconnections.remove(conn_)
                 break
 
     def obj(self) -> "FormDBWidget":

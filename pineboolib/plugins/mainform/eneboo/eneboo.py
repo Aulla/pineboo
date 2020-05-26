@@ -1004,29 +1004,29 @@ class MainForm(imainwindow.IMainWindow):
     def initHelpMenu(self) -> None:
         """Initialize help menu."""
 
-        aboutQt = cast(
+        about_qt = cast(
             QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "aboutQtAction")
         )
-        aboutQt.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("aboutqt.png")))
-        # aboutQt.triggered.connect(flapplication.aqApp.aboutQt)
+        about_qt.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("aboutqt.png")))
+        # about_qt.triggered.connect(flapplication.aqApp.aboutQt)
 
-        aboutPineboo = cast(
+        about_pineboo = cast(
             QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "aboutPinebooAction")
         )
-        aboutPineboo.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("pineboo-logo-32.png")))
-        # aboutPineboo.triggered.connect(flapplication.aqApp.aboutPineboo)
+        about_pineboo.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("pineboo-logo-32.png")))
+        # about_pineboo.triggered.connect(flapplication.aqApp.aboutPineboo)
 
-        helpIndex = cast(
+        help_index = cast(
             QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "helpIndexAction")
         )
-        helpIndex.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("help_index.png")))
-        # helpIndex.triggered.connect(flapplication.aqApp.helpIndex)
+        help_index.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("help_index.png")))
+        # help_index.triggered.connect(flapplication.aqApp.helpIndex)
 
-        urlPineboo = cast(
+        url_pineboo = cast(
             QtWidgets.QAction, self.main_widget.findChild(QtWidgets.QAction, "urlPinebooAction")
         )
-        urlPineboo.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("pineboo-logo-32.png")))
-        # urlPineboo.triggered.connect(flapplication.aqApp.urlPineboo)
+        url_pineboo.setIcon(self.iconSet16x16(AQS.pixmap_fromMimeSource("pineboo-logo-32.png")))
+        # url_pineboo.triggered.connect(flapplication.aqApp.urlPineboo)
 
     def initConfigMenu(self) -> None:
         """Initialize config menu."""
@@ -1074,21 +1074,21 @@ class MainForm(imainwindow.IMainWindow):
             AQS.DockLeft, self.dck_mod_.doc_widget
         )
 
-        windowMenu = cast(
+        window_menu = cast(
             QtWidgets.QMenu, self.main_widget.findChild(QtWidgets.QMenu, "windowMenu")
         )
-        sub_menu = windowMenu.addMenu(self.tr("&Vistas"))
+        sub_menu = window_menu.addMenu(self.tr("&Vistas"))
 
         docks = cast(List[DockListView], self.main_widget.findChildren(DockListView))
         for dock in docks:
-            ac = sub_menu.addAction(dock.doc_widget.windowTitle())
-            ac.setCheckable(True)
+            action = sub_menu.addAction(dock.doc_widget.windowTitle())
+            action.setCheckable(True)
             # FIXME: Comprobar si estoy visible o no
-            # ac.setChecked(dock.doc_widget.isVisible())
-            dock.set_visible.connect(ac.setChecked)
-            ac.triggered.connect(dock.change_state)
-            cast(QtCore.pyqtSignal, dock.doc_widget.topLevelChanged).connect(ac.setChecked)
-            # dock.doc_widget.Close.connect(ac.setChecked)
+            # action.setChecked(dock.doc_widget.isVisible())
+            dock.set_visible.connect(action.setChecked)
+            action.triggered.connect(dock.change_state)
+            cast(QtCore.pyqtSignal, dock.doc_widget.topLevelChanged).connect(action.setChecked)
+            # dock.doc_widget.Close.connect(action.setChecked)
 
     def cloneAction(self, act, parent) -> Any:
         """Clone one action into another."""
@@ -1150,36 +1150,36 @@ class MainForm(imainwindow.IMainWindow):
         if hide_group:
             action_group.setVisible(False)
 
-    def widgetActions(self, ui_file: str, parent: Any) -> Any:
+    def widgetActions(self, ui_file: str, parent: QtWidgets.QWidget) -> QtWidgets.QActionGroup:
         """Collect the actions provided by a widget."""
         mng = application.PROJECT.conn_manager.managerModules()
         doc = QtXml.QDomDocument()
-        cc = mng.contentCached(ui_file)
-        if not cc or not doc.setContent(cc):
-            if cc:
+        content_cached = mng.contentCached(ui_file)
+        if not content_cached or not doc.setContent(content_cached):
+            if content_cached:
                 LOGGER.warning("No se ha podido cargar %s" % (ui_file))
             return None
 
-        w = mng.createUI(ui_file)
-        if w is None:
+        widget = mng.createUI(ui_file)
+        if widget is None:
             raise Exception("Failed to create UI from %r" % ui_file)
-        if not isinstance(w, QtWidgets.QMainWindow):
-            if w:
-                self.main_widgets_[w.objectName()] = w
+        if not isinstance(widget, QtWidgets.QMainWindow):
+            if widget:
+                self.main_widgets_[widget.objectName()] = widget
 
             return None
 
-        w.setObjectName(parent.objectName())
+        widget.setObjectName(parent.objectName())
 
         if application.PROJECT.aq_app.acl_:
-            application.PROJECT.aq_app.acl_.process(w)
+            application.PROJECT.aq_app.acl_.process(widget)
 
-        # flapplication.aqApp.setMainWidget(w)
+        # flapplication.aqApp.setMainWidget(widget)
 
         # if (QSA_SYS.isNebulaBuild()):
-        #    w.show()
+        #    widget.show()
 
-        w.hide()
+        widget.hide()
 
         reduced = settings.CONFIG.value("ebcomportamiento/ActionsMenuRed", False)
         root = doc.documentElement().toElement()
@@ -1192,15 +1192,15 @@ class MainForm(imainwindow.IMainWindow):
 
         else:
             widgets = root.elementsByTagName("widget")
-            for widget in range(widgets.size()):
-                if widgets.item(widget).toElement().attribute("class") == "QToolBar":
-                    bars = widgets.item(widget).toElement()
-                elif widgets.item(widget).toElement().attribute("class") == "QMenuBar":
-                    menu_ = widgets.item(widget)
+            for item in range(widgets.size()):
+                if widgets.item(item).toElement().attribute("class") == "QToolBar":
+                    bars = widgets.item(item).toElement()
+                elif widgets.item(item).toElement().attribute("class") == "QMenuBar":
+                    menu_ = widgets.item(item)
                     items = menu_.toElement().elementsByTagName("widget")
 
         if not reduced:
-            self.addWidgetActions(bars, ag, w.findChild(QtWidgets.QToolBar))
+            self.addWidgetActions(bars, ag, widget.findChild(QtWidgets.QToolBar))
 
         if len(items) > 0:
             if not reduced:
@@ -1242,7 +1242,7 @@ class MainForm(imainwindow.IMainWindow):
                 sub_menu_ag_name.setObjectName("%s_actiongroup_name" % sub_menu_ag.objectName())
                 sub_menu_ag_name.setText(QSA_SYS.toUnicode(text, "iso-8859-1"))
 
-                self.addWidgetActions(itn, sub_menu_ag, w.findChild(QtWidgets.QMenu, name))
+                self.addWidgetActions(itn, sub_menu_ag, widget.findChild(QtWidgets.QMenu, name))
 
         conns = root.namedItem("connections").toElement()
         connections = conns.elementsByTagName("connection")
@@ -1271,7 +1271,7 @@ class MainForm(imainwindow.IMainWindow):
                 # print("Guardando señales  %s:%s:%s de %s" % (signal, slot, ac.name, ac))
 
         # flapplication.aqApp.setMainWidget(None)
-        w.close()
+        widget.close()
         return ag
 
     def iconSet16x16(self, pix: "QtGui.QPixmap") -> "QtGui.QIcon":
