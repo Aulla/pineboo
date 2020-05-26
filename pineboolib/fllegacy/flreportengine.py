@@ -15,17 +15,17 @@ class FLReportEngine(QtCore.QObject):
     """FLReportEngine class."""
 
     report_: Any
-    rt: Optional[str]
+    rt_: Optional[str]
 
     def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
         """Inicialize."""
 
         super().__init__(parent)
-        self.d_ = FLReportEngine.FLReportEnginePrivate(self)
-        self.relDpi_ = 78.0
+        self.private_ = FLReportEngine.FLReportEnginePrivate(self)
+        self.rel_dpi_ = 78.0
         self.report_ = None
-        self.rt = ""
-        self.rd: Optional[QtXml.QDomDocument] = None
+        self.rt_ = ""
+        self.rd_: Optional[QtXml.QDomDocument] = None
 
         from pineboolib.application.parsers.parser_kut import kut2fpdf
 
@@ -35,39 +35,39 @@ class FLReportEngine(QtCore.QObject):
         """FLReportEnginePrivate."""
 
         rows_: Any
-        qFieldMtdList_: List[Any]
-        qFieldList_: List[str]
-        qDoubleFieldList_: List[str]
-        qGroupDict_: Dict[int, str]
-        qImgFields_: List[int]
+        q_field_mtd_list_: List[Any]
+        q_field_list_: List[str]
+        q_double_field_list_: List[str]
+        q_group_dict_: Dict[int, str]
+        q_img_fields_: List[int]
         qry_: Optional[PNSqlQuery]
 
         def __init__(self, q: "FLReportEngine") -> None:
             """Inicialize."""
             self.qry_ = None
-            self.qFieldMtdList_ = []
-            self.qGroupDict_ = {}
+            self.q_field_mtd_list_ = []
+            self.q_group_dict_ = {}
             self.q_ = q
             self.template_ = ""
             self.rows_ = []
-            self.qFieldList_ = []
-            self.qDoubleFieldList_ = []
-            self.qImgFields_ = []
+            self.q_field_list_ = []
+            self.q_double_field_list_ = []
+            self.q_img_fields_ = []
             self.report_ = None
 
-        def addRowToReportData(self, l: int) -> None:
+        def addRowToReportData(self, level: int) -> None:
             """Add row to report data."""
             if not self.qry_ or not self.qry_.isValid():
                 return
 
             row = self.q_.rptXmlData().createElement("Row")
-            row.setAttribute("level", l)
-            i = 0
-            for it in self.qFieldList_:
+            row.setAttribute("level", level)
+
+            for i, it in enumerate(self.q_field_list_):
                 strVal = str(self.qry_.value(it, False))
-                if self.qImgFields_:
-                    if self.qImgFields_[-1] == i:
-                        self.qImgFields_.append(self.qImgFields_.pop())
+                if self.q_img_fields_:
+                    if self.q_img_fields_[-1] == i:
+                        self.q_img_fields_.append(self.q_img_fields_.pop())
                         if strVal in ["", "None"]:
                             row.setAttribute(it, strVal)
                             continue
@@ -77,24 +77,23 @@ class FLReportEngine(QtCore.QObject):
 
                 else:
                     row.setAttribute(it, strVal)
-                i += 1
 
             self.rows_.appendChild(row)
 
-        def groupBy(self, levelMax: int, vA: List[Any]) -> None:
+        def groupBy(self, levelMax: int, va_: List[Any]) -> None:
             """Add a group by."""
             if not self.qry_ or not self.qry_.isValid():
                 return
 
-            # self.qGroupDict_
+            # self.q_group_dict_
             lev = 0
 
-            while lev < levelMax and str(self.qry_.value(self.qGroupDict_[lev])) == str(vA[lev]):
+            while lev < levelMax and str(self.qry_.value(self.q_group_dict_[lev])) == str(va_[lev]):
                 lev += 1
 
             for i in range(lev, levelMax):
                 self.addRowToReportData(i)
-                vA[i] = str(self.qry_.value(self.qGroupDict_[i]))
+                va_[i] = str(self.qry_.value(self.q_group_dict_[i]))
 
             self.addRowToReportData(levelMax)
 
@@ -103,46 +102,46 @@ class FLReportEngine(QtCore.QObject):
             self.qry_ = qry
 
             if self.qry_:
-                self.qFieldList_ = self.qry_.fieldList()
-                self.qFieldMtdList_ = self.qry_.fieldMetaDataList()
-                self.qGroupDict_ = self.qry_.groupDict()
-                self.qDoubleFieldList_.clear()
-                self.qImgFields_.clear()
+                self.q_field_list_ = self.qry_.fieldList()
+                self.q_field_mtd_list_ = self.qry_.fieldMetaDataList()
+                self.q_group_dict_ = self.qry_.groupDict()
+                self.q_double_field_list_.clear()
+                self.q_img_fields_.clear()
 
-                if not self.qFieldMtdList_:
+                if not self.q_field_mtd_list_:
                     return
 
-                i = len(self.qFieldList_) - 1
+                i = len(self.q_field_list_) - 1
                 while i >= 0:
-                    it = self.qFieldList_[i]
+                    it = self.q_field_list_[i]
                     key = it[it.find(".") + 1 :].lower()
-                    for f in self.qFieldMtdList_:
+                    for f in self.q_field_mtd_list_:
                         if f.name() == key:
                             fmtd = f
                             if fmtd.type() == "pixmap":
-                                self.qImgFields_.append(i)
+                                self.q_img_fields_.append(i)
                             elif fmtd.type() == "double":
-                                self.qDoubleFieldList_.append(it)
+                                self.q_double_field_list_.append(it)
                             break
                     i -= 1
             else:
-                self.qFieldList_.clear()
-                self.qDoubleFieldList_.clear()
-                self.qImgFields_.clear()
-                self.qFieldMtdList_ = []
-                self.qGroupDict_ = {}
+                self.q_field_list_.clear()
+                self.q_double_field_list_.clear()
+                self.q_img_fields_.clear()
+                self.q_field_mtd_list_ = []
+                self.q_group_dict_ = {}
 
     def rptXmlData(self) -> Any:
         """Return report Xml Data."""
-        return self.rd
+        return self.rd_
 
     def rptXmlTemplate(self) -> Optional[str]:
         """Return report Xml Template."""
-        return self.rt
+        return self.rt_
 
     def relDpi(self) -> float:
         """Return dpi size."""
-        return self.relDpi_
+        return self.rel_dpi_
 
     def setReportData(
         self, q: Optional[Union[FLDomNodeInterface, PNSqlQuery]] = None
@@ -154,18 +153,18 @@ class FLReportEngine(QtCore.QObject):
         if q is None:
             return None
 
-        self.rd = QtXml.QDomDocument("KugarData")
+        self.rd_ = QtXml.QDomDocument("KugarData")
 
-        self.d_.rows_ = (
-            self.rd.createDocumentFragment()
+        self.private_.rows_ = (
+            self.rd_.createDocumentFragment()
         )  # FIXME: Don't set the private from the public.
-        self.d_.setQuery(q)
+        self.private_.setQuery(q)
         q.setForwardOnly(True)
         if q.exec_() and q.next():
-            g = self.d_.qGroupDict_
+            g = self.private_.q_group_dict_
             if not g:
                 while True:
-                    self.d_.addRowToReportData(0)
+                    self.private_.addRowToReportData(0)
                     if not q.next():
                         break
             else:
@@ -175,24 +174,24 @@ class FLReportEngine(QtCore.QObject):
 
                 ok = True
                 while ok:
-                    self.d_.groupBy(len(g), vA)
+                    self.private_.groupBy(len(g), vA)
                     if not q.next():
                         ok = False
 
-        data = self.rd.createElement("KugarData")
-        data.appendChild(self.d_.rows_)
-        self.rd.appendChild(data)
-        self.d_.rows_.clear()
+        data = self.rd_.createElement("KugarData")
+        data.appendChild(self.private_.rows_)
+        self.rd_.appendChild(data)
+        self.private_.rows_.clear()
 
         self.initData()
         return True
 
     def setFLReportData(self, n: Any) -> bool:
         """Set data to report."""
-        self.d_.setQuery(None)
+        self.private_.setQuery(None)
         tmp_doc = QtXml.QDomDocument("KugarData")
         tmp_doc.appendChild(n)
-        self.rd = tmp_doc
+        self.rd_ = tmp_doc
         return True
         # return super(FLReportEngine, self).setReportData(n)
 
@@ -200,9 +199,9 @@ class FLReportEngine(QtCore.QObject):
         """Set template to report."""
         # buscamos el .kut o el .rlab
 
-        self.d_.template_ = t
+        self.private_.template_ = t
 
-        if not self.d_.qry_:
+        if not self.private_.qry_:
             from pineboolib import application
 
             if application.PROJECT.conn_manager is None:
@@ -210,11 +209,11 @@ class FLReportEngine(QtCore.QObject):
             mgr = application.PROJECT.conn_manager.managerModules()
 
         else:
-            mgr = self.d_.qry_.db().connManager().managerModules()
+            mgr = self.private_.qry_.db().connManager().managerModules()
 
-        self.rt = mgr.contentCached("%s.kut" % t)
+        self.rt_ = mgr.contentCached("%s.kut" % t)
 
-        if not self.rt:
+        if not self.rt_:
             LOGGER.error("FLReportEngine::No se ha podido cargar %s.kut", t)
             return False
 
@@ -222,11 +221,11 @@ class FLReportEngine(QtCore.QObject):
 
     def rptQueryData(self) -> Optional[PNSqlQuery]:
         """Return report query data."""
-        return self.d_.qry_
+        return self.private_.qry_
 
     def rptNameTemplate(self) -> str:
         """Return report template name."""
-        return self.d_.template_
+        return self.private_.template_
 
     @decorators.beta_implementation
     def setReportTemplate(self, t: Any):
@@ -239,11 +238,11 @@ class FLReportEngine(QtCore.QObject):
 
     def reportData(self) -> Any:
         """Return report data."""
-        return self.rd if self.rd else QtXml.QDomDocument()
+        return self.rd_ if self.rd_ else QtXml.QDomDocument()
 
     def reportTemplate(self) -> Any:
         """Return report template."""
-        return self.rt if self.rt else QtXml.QDomDocument()
+        return self.rt_ if self.rt_ else QtXml.QDomDocument()
 
     @decorators.not_implemented_warn
     def csvData(self) -> str:
@@ -263,13 +262,15 @@ class FLReportEngine(QtCore.QObject):
         self, init_row: int = 0, init_col: int = 0, flags: List[int] = [], pages: Any = None
     ) -> "QtCore.QObject":
         """Render report."""
-        if self.rd and self.rt and self.rt.find("KugarTemplate") > -1:
-            data = self.rd.toString(1)
-            self.report_ = self.parser_.parse(self.d_.template_, self.rt, data, self.report_, flags)
+        if self.rd_ and self.rt_ and self.rt_.find("KugarTemplate") > -1:
+            data = self.rd_.toString(1)
+            self.report_ = self.parser_.parse(
+                self.private_.template_, self.rt_, data, self.report_, flags
+            )
 
         return QtCore.QObject()  # return self.pages!
 
-        # # print(self.rd.toString(1))
+        # # print(self.rd_.toString(1))
         # """
         # fr = MReportEngine.RenderReportFlags.FillRecords.value
         #
@@ -285,17 +286,17 @@ class FLReportEngine(QtCore.QObject):
         # )
         #
         # pgs.setPageCollection(pgc)
-        # if not fRec or not self.d_.qry_ or not self.d_.qFieldMtdList_ or not self.d_.qDoubleFieldList_:
+        # if not fRec or not self.private_.qry_ or not self.private_.q_field_mtd_list_ or not self.private_.q_double_field_list_:
         #     return pgs
         #
-        # nl = QtXml.QDomNodeList(self.rd.elementsByTagName("Row"))
+        # nl = QtXml.QDomNodeList(self.rd_.elementsByTagName("Row"))
         # for i in range(nl.count()):
         #     itm = nl.item(i)
         #     if itm.isNull():
         #         continue
         #     nm = itm.attributes()
         #
-        #     for it in self.d_.qDoubleFieldList_:
+        #     for it in self.private_.q_double_field_list_:
         #         ita = nm.namedItem(it)
         #         if ita.isNull():
         #             continue
@@ -305,7 +306,7 @@ class FLReportEngine(QtCore.QObject):
         #         dVal = float(sVal)
         #         if not dVal:
         #             dVal = 0
-        #         decimals = self.d_.qFieldMtdList_.find(
+        #         decimals = self.private_.q_field_mtd_list_.find(
         #             it.section('.', 1, 1).lower()).partDecimal()
         #         ita.setNodeValue(FLUtil.formatoMiles(round(dVal, decimals)))
         # return pgs
@@ -313,9 +314,9 @@ class FLReportEngine(QtCore.QObject):
 
     def initData(self) -> None:
         """Inialize data."""
-        if not self.rd:
+        if not self.rd_:
             raise Exception("RD is missing. Initialize properly before calling initData")
-        n = self.rd.firstChild()
+        n = self.rd_.firstChild()
         while not n.isNull():
             if n.nodeName() == "KugarData":
                 self.records_ = n.childNodes()
