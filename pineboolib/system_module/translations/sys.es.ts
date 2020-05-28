@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="es_ES" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.1" language="es_ES">
 <context>
     <name>@default</name>
     <message>
         <location filename="../../application/acls/pnaccesscontrollists.py" line="91"/>
-        <source>Lista de control de acceso err&#xc3;&#xb3;nea</source>
+        <source>Lista de control de acceso errÃ³nea</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -20,7 +21,7 @@
         <source>Dialog</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/staticloader/ui/static_loader.ui" line="31"/>
         <source>Directorios de búsqueda</source>
         <translation type="unfinished"></translation>
@@ -128,44 +129,44 @@
         <source>Ruta profiles :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="490"/>
         <source>Contraseña :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="239"/>
         <source>Descripción :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="414"/>
         <source>Contraseña BD :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="457"/>
         <source>Rep. Contraseña BD :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="520"/>
         <source>Rep. Contraseña :</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="576"/>
         <source>Acceso sin contraseña</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="615"/>
         <source>Desarrollado por la comunidad Eneboo
  basandose en el proyecto pineboo de:
  David Martínez Martí</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../loader/dlgconnect/dlgconnect.ui" line="644"/>
         <source>Copyright © 2012-2019 David Martínez Martí
 
@@ -307,12 +308,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <name>FLSerialPort</name>
     <message>
         <location filename="../../fllegacy/flserialport.py" line="84"/>
-        <source>Opci&#xc3;&#xb3;n deshabilitada</source>
+        <source>OpciÃ³n deshabilitada</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../fllegacy/flserialport.py" line="84"/>
-        <source>FLSerialPort no est&#xc3;&#xa1; disponible para IOS</source>
+        <source>FLSerialPort no estÃ¡ disponible para IOS</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -335,17 +336,17 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <name>FLTableDB</name>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="2589"/>
-        <source>Opci&#xc3;&#xb3;n deshabilitada</source>
+        <source>OpciÃ³n deshabilitada</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="2589"/>
-        <source>Esta opci&#xc3;&#xb3;n ha sido deshabilitada por el administrador</source>
+        <source>Esta opciÃ³n ha sido deshabilitada por el administrador</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="2667"/>
-        <source>S&#xc3;&#xad;</source>
+        <source>SÃ­</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -355,7 +356,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="1462"/>
-        <source>Campo,Condici&#xc3;&#xb3;n,Valor,Desde,Hasta</source>
+        <source>Campo,CondiciÃ³n,Valor,Desde,Hasta</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -405,12 +406,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="1523"/>
-        <source>Vac&#xc3;&#xad;o</source>
+        <source>VacÃ­o</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../fllegacy/fltabledb.py" line="1524"/>
-        <source>No Vac&#xc3;&#xad;o</source>
+        <source>No VacÃ­o</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -471,27 +472,27 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>Ctrl+V</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="182"/>
         <source>&amp;Países</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="191"/>
         <source>Países</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="208"/>
         <source>&amp;Series de Facturación</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="211"/>
         <source>Series de Facturación (Ctrl+S)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/packager/tests/fixtures/principal/forms/flfactppal.ui" line="214"/>
         <source>Series de Facturación</source>
         <translation type="unfinished"></translation>
@@ -864,29 +865,29 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>idgroup</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="40"/>
         <source>Pineboo es un port del motor AbanQ/Eneboo a PyQt5, mantenido por la comunidad Eneboo basandose en el proyecto pineboo de: David Martínez Martí
 
 https://github.com/deavid/pineboo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="148"/>
         <source>José A. Fdez Fdez (aullasistemas@gmail.com)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="162"/>
         <source>Miguel J. (miguelajsmaps@gmail.com) *Documentación</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="187"/>
         <source>Librerías</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui" line="247"/>
         <source>Copyright © 2012 David Martínez Martí
 
@@ -909,7 +910,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <translation type="unfinished"></translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>Form1</name>
     <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/form_record_qt3.ui" line="16"/>
@@ -951,7 +952,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
         <source>checkBox1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/form_record_qt3.ui" line="47"/>
         <source>Botón uno</source>
         <translation type="unfinished"></translation>
@@ -1001,7 +1002,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="153"/>
-        <source>Salir de la aplicaci&#xc3;&#xb3;n (Ctrl+Q)</source>
+        <source>Salir de la aplicaciÃ³n (Ctrl+Q)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1021,12 +1022,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="252"/>
-        <source>&amp;M&#xc3;&#xb3;dulos</source>
+        <source>&amp;MÃ³dulos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo_mdi/eneboo_mdi.py" line="367"/>
-        <source>Carga Est&#xc3;&#xa1;tica desde Disco Duro</source>
+        <source>Carga EstÃ¡tica desde Disco Duro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1081,7 +1082,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo/eneboo.py" line="741"/>
-        <source>A&#xc3;&#xb1;adir Marcadores</source>
+        <source>AÃ±adir Marcadores</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1091,12 +1092,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo/eneboo.py" line="899"/>
-        <source>Men&#xc3;&#xba;</source>
+        <source>MenÃº</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo/eneboo.py" line="948"/>
-        <source>Configurar carga est&#xc3;&#xa1;tica</source>
+        <source>Configurar carga estÃ¡tica</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1121,7 +1122,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1072"/>
-        <source>M&#xc3;&#xb3;dulos</source>
+        <source>MÃ³dulos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1131,7 +1132,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     </message>
     <message>
         <location filename="../../plugins/mainform/eneboo/eneboo.py" line="1127"/>
-        <source>M&#xc3;&#xa1;s</source>
+        <source>MÃ¡s</source>
         <translation type="obsolete">Mais!</translation>
     </message>
     <message>
@@ -1153,12 +1154,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</sour
     <message>
         <location filename="../../application/pnapplication.py" line="368"/>
         <source>Se han detectado transacciones abiertas en estado inconsistente.
-Esto puede suceder por un error en la conexi&#xc3;&#xb3;n o en la ejecuci&#xc3;&#xb3;n
-de alg&#xc3;&#xba;n proceso de la aplicaci&#xc3;&#xb3;n.
+Esto puede suceder por un error en la conexiÃ³n o en la ejecuciÃ³n
+de algÃºn proceso de la aplicaciÃ³n.
 Para mantener la consistencia de los datos se han deshecho las
-&#xc3;&#xba;ltimas operaciones sobre la base de datos.
-Los &#xc3;&#xba;ltimos datos introducidos no han sido guardados, por favor
-revise sus &#xc3;&#xba;ltimas acciones y repita las operaciones que no
+Ãºltimas operaciones sobre la base de datos.
+Los Ãºltimos datos introducidos no han sido guardados, por favor
+revise sus Ãºltimas acciones y repita las operaciones que no
 se han guardado.
 </source>
         <translation type="unfinished"></translation>
@@ -1181,7 +1182,7 @@ se han guardado.
     </message>
     <message>
         <location filename="../../application/pnapplication.py" line="727"/>
-        <source>&#xc2;&#xbf; Quiere salir de la aplicaci&#xc3;&#xb3;n ?</source>
+        <source>¿ Quiere salir de la aplicación ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1199,17 +1200,17 @@ se han guardado.
     </message>
     <message>
         <location filename="../../application/database/pnsqlcursor.py" line="2494"/>
-        <source>No hay ning&#xc3;&#xba;n registro seleccionado</source>
+        <source>No hay ningÃºn registro seleccionado</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../application/database/pnsqlcursor.py" line="843"/>
-        <source>El registro activo ser&#xc3;&#xa1; borrado. &#xc2;&#xbf; Est&#xc3;&#xa1; seguro ?</source>
+        <source>El registro activo serÃ¡ borrado. Â¿ EstÃ¡ seguro ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../application/database/pnsqlcursor.py" line="868"/>
-        <source>No hay definido ning&#xc3;&#xba;n formulario para manejar
+        <source>No hay definido ningÃºn formulario para manejar
 registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1243,7 +1244,7 @@ registros de esta tabla : %s</source>
     </message>
     <message>
         <location filename="../../application/staticloader/pnmodulesstaticloader.py" line="276"/>
-        <source>El registro activo ser&#xc3;&#xa1; borrado. &#xc2;&#xbf; Est&#xc3;&#xa1; seguro ?</source>
+        <source>El registro activo serÃ¡ borrado. Â¿ EstÃ¡ seguro ?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1300,7 +1301,7 @@ registros de esta tabla : %s</source>
         <source>No se ha podido crear los metadatatos para la tabla %s</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../plugins/sql/pnsqlschema.py" line="306"/>
         <source>Sí</source>
         <translation type="unfinished"></translation>
@@ -1571,52 +1572,52 @@ registros de esta tabla : %s</source>
         <source>Opciones de comportamiento</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="61"/>
         <source>Estas opciones permiten modificar el comportamiento del control FLTableDB. Es muy aconsejable para que el módulo de control de acceso no tenga vulnerabilidaddes</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="74"/>
         <source>Desactivar edición con doble click.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="88"/>
         <source>Desactivar exportar a hoja de cálculo.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="121"/>
         <source>Resolución máxima de imágenes(default 600)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="213"/>
         <source>Menú de acciones</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="234"/>
         <source>Mostrar menú de acciones reducido (sin acciones de la barra de herramientas).</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="265"/>
         <source>Usar en modo DBAdmin. Habilita menú de sistema y funciones en la gestión de tablas.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="328"/>
         <source>Carga Estática</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="349"/>
         <source>Mostrar carga estática en consola.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="387"/>
         <source>Convertir a Python los script QSA al cargar un módulo en la BD.</source>
         <translation type="unfinished"></translation>
@@ -1626,47 +1627,47 @@ registros de esta tabla : %s</source>
         <source>Activar ORM SqlAlchemy.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="525"/>
         <source>Eliminar carpeta caché al iniciar.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="563"/>
         <source>Mostrar botón para capturar pantalla en formularios.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="625"/>
         <source>Caché</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="680"/>
         <source>No borrar caché común al iniciar.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="896"/>
         <source>Imágenes</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="711"/>
         <source>No cachear Imágenes.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="846"/>
         <source>Descripción (acepta HTML)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="860"/>
         <source>Mostrar información de conexión en la barra de tareas.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/ebcomportamiento.ui" line="902"/>
         <source>Usar múltiples tablas FLLarge (modo AbanQ).</source>
         <translation type="unfinished"></translation>
@@ -1780,7 +1781,7 @@ registros de esta tabla : %s</source>
         <source>departamentos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/packager/tests/fixtures/principal/forms/agentes.ui" line="463"/>
         <source>Dirección</source>
         <translation type="unfinished"></translation>
@@ -1887,7 +1888,7 @@ registros de esta tabla : %s</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>mainwindow</name>
     <message>
         <location filename="../../plugins/mainform/eneboo/mainform.ui" line="89"/>
@@ -1944,7 +1945,7 @@ registros de esta tabla : %s</source>
         <source>A&amp;yuda</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../plugins/mainform/eneboo/mainform.ui" line="94"/>
         <source>&amp;Configuración</source>
         <translation type="unfinished"></translation>
@@ -2092,77 +2093,77 @@ registros de esta tabla : %s</source>
         <source>hola python</source>
         <translation>Holaaaaa</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flfiles.py" line="56"/>
         <source>Opción no disponible</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flmodules.py" line="131"/>
         <source>Error de conversión</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flmodules.py" line="227"/>
         <source>Sí, acepto este acuerdo de licencia.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flmodules.py" line="437"/>
         <source>* Exportación finalizada.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadlast.py" line="24"/>
         <source>Módulo a cargar (*.mod)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadlast.py" line="24"/>
         <source>Módulo a cargar</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadlast.py" line="104"/>
         <source>Error al crear el área:
 </source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flloadmod.py" line="35"/>
         <source>Imposible cargar el módulo.
 Licencia del módulo no aceptada.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flloadmod.py" line="89"/>
         <source>Este módulo depende del módulo </source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadbatch.py" line="21"/>
         <source>Directorio de Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadbatch.py" line="36"/>
         <source>Error al buscar los módulos en el directorio:
 </source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadbatch.py" line="60"/>
         <source>Error al cargar el módulo:
 </source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../scripts/flreloadbatch.py" line="118"/>
         <source>Seleccione módulos a cargar</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>sys</name>
     <message>
         <location filename="../forms/sys.ui" line="14"/>
@@ -2334,117 +2335,117 @@ Licencia del módulo no aceptada.</source>
         <source>Opciones de comportamiento del ejecutable</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/sys.ui" line="122"/>
         <source>Cargar pa&amp;quete de módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/sys.ui" line="125"/>
         <source>Cargar paquete de módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="135"/>
         <source>&amp;Cargar Módulo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/sys.ui" line="143"/>
         <source>Cargar Módulo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="232"/>
         <source>Cargar Directorio de Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/sys.ui" line="173"/>
         <source>Recargar Ú&amp;ltimo Módulo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/sys.ui" line="176"/>
         <source>Recargar Último Módulo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="86"/>
         <source>&amp;Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../forms/sys.ui" line="206"/>
         <source>Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="16"/>
         <source>Administración</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="19"/>
         <source>Administración del sistema</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="92"/>
         <source>Módulos (Ctrl+M)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="95"/>
         <source>Administración de los módulos de aplicación (Ctrl+M)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="112"/>
         <source>Á&amp;reas</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="115"/>
         <source>Áreas (Ctrl+R)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="118"/>
         <source>Áreas de negocio</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="138"/>
         <source>Cargar Módulo (Ctrl+C)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="141"/>
         <source>Carga un módulo desde disco</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="158"/>
         <source>Recargar último módulo</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="260"/>
         <source>Cargar Paquete de Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="263"/>
         <source>Cargar Pa&amp;quete de Módulos</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="266"/>
         <source>Cargar Paquete de Módulos (CTRL + Q)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../../application/parsers/parser_ui/tests/fixtures/main_form_qt3.ui" line="269"/>
         <source>Carga Paquetes de Módulos .eneboopkg o .abanq2.4</source>
         <translation type="unfinished"></translation>
