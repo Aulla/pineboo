@@ -73,6 +73,9 @@ class QSADictModules:
                 sqlalchemy.event.listen(orm, "init", init_fn)
 
             ret_ = orm
+        else:
+            LOGGER.error("Model %s not found!", script_name, stack_info = True)
+            raise Exception()
 
         return ret_
 
