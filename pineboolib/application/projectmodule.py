@@ -184,7 +184,7 @@ class Project(object):
             if file_.filename.endswith(".mtd"):
 
                 if "%s_model.py" % file_.filename[:-4] in self.files.keys():
-                    LOGGER.warning("Ya existe un model para el mtd, no se convertirá el mtd.")
+                    LOGGER.warning("Ya existe un model para %s.mtd, no se convertirá a model.", file_.filename[:-4])
                     continue
 
                 dest_file = pnmtdparser.mtd_parse(file_.filename, file_.path())
