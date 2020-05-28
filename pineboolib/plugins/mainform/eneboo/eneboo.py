@@ -7,7 +7,6 @@ from PyQt5 import QtWidgets, QtCore, QtGui, QtXml
 from pineboolib.core import settings
 from pineboolib.core.utils import utils_base
 
-from pineboolib.q3widgets import qmessagebox
 
 from pineboolib.fllegacy.aqsobjects import aqsobjectfactory
 

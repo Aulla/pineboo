@@ -77,7 +77,7 @@ def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> N
     else:
         LOGGER.warning("Parsing %s", name_)
         path_ = pnmtdparser.mtd_parse(metadata)
-        
+
         loader = machinery.SourceFileLoader("model", path_)
         model_module = loader.load_module()  # type: ignore [call-arg] # noqa: F821
         model_class = getattr(model_module, "%s%s" % (name_[0].upper(), name_[1:]), None)

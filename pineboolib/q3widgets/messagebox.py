@@ -8,7 +8,7 @@ from pineboolib.core.utils import logging
 
 import clipboard  # type: ignore [import] # noqa: F821
 
-from typing import Optional
+from typing import Optional, List
 
 LOGGER = logging.get_logger(__name__)
 
@@ -35,7 +35,7 @@ class MessageBox:
 
             title = "Pineboo"
             parent = QtWidgets.qApp.activeWindow()
-            buttons = []
+            buttons: List["QtWidgets.QMessageBox.StandardButton"] = []
             default_button = None
             text = ""
 
