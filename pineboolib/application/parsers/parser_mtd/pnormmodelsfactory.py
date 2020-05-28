@@ -71,7 +71,7 @@ def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> N
     from pineboolib.application import qsadictmodules
     name_ = metadata.name()
 
-    if "%s_model" % name_ in PROCESSED or qsadictmodules.QSADictModules.from_project("%s_orm" % name_):
+    if "%s_model" % name_ in PROCESSED:
         LOGGER.warning("%s already exists as model" % name_)
         return
     else:
