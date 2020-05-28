@@ -74,7 +74,7 @@ class QSADictModules:
 
             ret_ = orm
         else:
-            LOGGER.error("Model %s not found!", script_name, stack_info = True)
+            LOGGER.error("Model %s not found!", script_name, stack_info=True)
             raise Exception()
 
         return ret_
