@@ -68,19 +68,21 @@ def empty_base():
 def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> None:
     """Register a mtd as model."""
 
-    from pineboolib.application.qsadictmodules import QSADictModules
+    from pineboolib.application import qsadictmodules
+    name_ = metadata.name()
 
-    if "%s_model" % metadata.name() in PROCESSED:
-        LOGGER.warning("%s already exists as model" % metadata.name())
+    if "%s_model" % name_ in PROCESSED or qsadictmodules.QSADictModules.from_project("%s_orm" % name_):
+        LOGGER.warning("%s already exists as model" % name_)
         return
     else:
+        LOGGER.warning("Parsing %s", name_)
         path_ = pnmtdparser.mtd_parse(metadata)
-        name_ = metadata.name()
+        
         loader = machinery.SourceFileLoader("model", path_)
         model_module = loader.load_module()  # type: ignore [call-arg] # noqa: F821
         model_class = getattr(model_module, "%s%s" % (name_[0].upper(), name_[1:]), None)
         if model_class is not None:
-            QSADictModules.save_other("%s_orm" % name_, model_class)
+            qsadictmodules.QSADictModules.save_other("%s_orm" % name_, model_class)
 
         PROCESSED.append(name_)
 
