@@ -36,6 +36,7 @@ class MessageBox:
             title = "Pineboo"
             parent = QtWidgets.qApp.activeWindow()
             buttons = []
+            default_button = None
             text = ""
 
             for number, argument in enumerate(args):
@@ -45,14 +46,20 @@ class MessageBox:
                     if isinstance(argument, str):
                         title = argument
                     elif isinstance(argument, QtWidgets.QMessageBox.StandardButton):
-                        buttons.append(argument)
+                        if len(buttons) < 2:
+                            buttons.append(argument)
+                        else:
+                            default_button = argument
                     elif argument:
                         parent = argument
 
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
 
-            return msg_box(parent, title, text, *buttons)
+            if not default_button:
+                return msg_box(parent, title, text, *buttons)
+            else:
+                return msg_box(parent, title, text, *buttons, default_button)
 
     @classmethod
     def question(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
