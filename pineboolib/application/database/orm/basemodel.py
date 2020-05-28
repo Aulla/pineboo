@@ -261,34 +261,34 @@ class BaseModel(object):
 
     def _before_flush(self) -> bool:
         """Before flush."""
-        ret_ = None
+        ret_ = True
         try:
-            ret_ = self.before_flush()
+            self.before_flush()
             if ret_:
 
                 mode = self._current_mode
 
                 if mode == 1:
                     try:
-                        ret_ = self.before_new()
+                        self.before_new()
                     except Exception as error:
-                        LOGGER.warning("Before_new %s: %s", self, str(error))
+                        LOGGER.warning("Before_new %s: %s", self, str(error), stack_info=True)
                         ret_ = False
 
                 elif mode == 2:
                     try:
-                        ret_ = self.before_change()
+                        self.before_change()
                     except Exception as error:
-                        LOGGER.warning("Before_change %s: %s", self, str(error))
+                        LOGGER.warning("Before_change %s: %s", self, str(error), stack_info=True)
                         ret_ = False
                 elif mode == 3:
                     try:
-                        ret_ = self.before_delete()
+                        self.before_delete()
                     except Exception as error:
-                        LOGGER.warning("Before_delete %s: %s", self, str(error))
+                        LOGGER.warning("Before_delete %s: %s", self, str(error), stack_info=True)
                         ret_ = False
         except Exception as error:
-            LOGGER.warning("_before_flush: %s", str(error))
+            LOGGER.warning("_before_flush: %s", str(error), stack_info=True)
             ret_ = False
 
         return True if ret_ else False
@@ -296,33 +296,33 @@ class BaseModel(object):
     def _after_flush(self) -> bool:
         """After flush."""
 
-        ret_ = None
+        ret_ = True
         try:
-            ret_ = self.after_flush()
+            self.after_flush()
             if ret_:
 
                 mode = self._current_mode
 
                 if mode == 1:
                     try:
-                        ret_ = self.after_new()
+                        self.after_new()
                     except Exception as error:
-                        LOGGER.warning("After_new %s: %s", self, str(error))
+                        LOGGER.warning("After_new %s: %s", self, str(error), stack_info=True)
                         ret_ = False
                 elif mode == 2:
                     try:
-                        ret_ = self.after_change()
+                        self.after_change()
                     except Exception as error:
-                        LOGGER.warning("After_change %s: %s", self, str(error))
+                        LOGGER.warning("After_change %s: %s", self, str(error), stack_info=True)
                         ret_ = False
                 elif mode == 3:
                     try:
-                        ret_ = self.after_delete()
+                        self.after_delete()
                     except Exception as error:
-                        LOGGER.warning("After_delete %s: %s", self, str(error))
+                        LOGGER.warning("After_delete %s: %s", self, str(error), stack_info=True)
                         ret_ = False
         except Exception as error:
-            LOGGER.warning("_after_flush: %s", str(error))
+            LOGGER.warning("_after_flush: %s", str(error), stack_info=True)
             ret_ = False
 
         return True if ret_ else False
