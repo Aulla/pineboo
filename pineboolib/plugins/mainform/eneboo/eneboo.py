@@ -355,15 +355,7 @@ class MainForm(imainwindow.IMainWindow):
 
     def exit(self) -> bool:
         """Process exit events."""
-        res = qmessagebox.QMessageBox.information(
-            "¿ Quiere salir de la aplicación ?",
-            qmessagebox.QMessageBox.Yes,
-            qmessagebox.QMessageBox.No,
-            None,
-            "Pineboo",
-        )
-
-        do_exit = res == qmessagebox.QMessageBox.Yes
+        do_exit = application.PROJECT.aq_app.queryExit()
         if do_exit:
             self.writeState()
             self.main_widget.removeEventFilter(self.main_widget)
