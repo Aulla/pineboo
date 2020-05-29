@@ -233,23 +233,22 @@ class BaseModel(object):
         self._current_mode = self.mode_access
         ret_ = False
         try:
-            ret_ = True
-            if self._current_mode == 3:
-                try:
-                    ret_ = self._delete_cascade()
-                except Exception as error:
-                    LOGGER.warning("Delete_cascade: %s ", str(error))
-                    ret_ = False
+            ret_ = self._before_flush()
             if ret_:
-                ret_ = self._before_flush()
-                if ret_:
+                if self._current_mode == 3:
                     try:
-                        self._session.flush()
+                        ret_ = self._delete_cascade()
                     except Exception as error:
-                        LOGGER.warning("flush! %s", str(error))
+                        LOGGER.warning("Delete_cascade: %s ", str(error))
                         ret_ = False
-                    if ret_:
-                        ret_ = self._after_flush()
+
+                try:
+                    self._session.flush()
+                except Exception as error:
+                    LOGGER.warning("flush! %s", str(error))
+                    ret_ = False
+                if ret_:
+                    ret_ = self._after_flush()
 
         except Exception as error:
             LOGGER.error("%s flush: %s", self, str(error))
