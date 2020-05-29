@@ -10,6 +10,8 @@ from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
 from sqlalchemy import orm, inspect, event
 import datetime
+import traceback
+import sys
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -67,31 +69,33 @@ class BaseModel(object):
         """Initialize."""
 
         if not self._session:
-            raise Exception("session is empty!")
+            self._error_manager("_common_init", "session is empty!")
+        else:
+            if not self._session_name:
+                self._error_manager("_common_init", "Session_name not found!")
 
-        if not self._session_name:
-            raise Exception("Session_name not found!")
+            if self in self._session.new:
+                self._error_manager("_common_init", "Common init with session.new instance!")
 
-        if self in self._session.new:
-            raise Exception("Common init with session.new instance!")
+            self.update_copy()
+            self._force_mode = 0
+            pk_name = self.pk_name
+            if getattr(self, pk_name, None) is None:
+                self._populate_default()
 
-        self.update_copy()
-        self._force_mode = 0
-        pk_name = self.pk_name
-        if getattr(self, pk_name, None) is None:
-            self._populate_default()
-
-            if self.type(pk_name) == "serial":
-                setattr(
-                    self,
-                    pk_name,
-                    application.PROJECT.conn_manager.useConn(self._session_name)
-                    .driver()
-                    .nextSerialVal(self.table_metadata().name(), pk_name),
-                )
-
-        self.init_new()
-        self.init()
+                if self.type(pk_name) == "serial":
+                    setattr(
+                        self,
+                        pk_name,
+                        application.PROJECT.conn_manager.useConn(self._session_name)
+                        .driver()
+                        .nextSerialVal(self.table_metadata().name(), pk_name),
+                    )
+            try:
+                self.init_new()
+                self.init()
+            except Exception as error:
+                self._error_manager("_common_init", error)
 
     def init(self):
         """Initialize."""
@@ -110,8 +114,6 @@ class BaseModel(object):
         self._buffer_copy = Copy()
 
         table_mtd = self.table_metadata()
-        if table_mtd is None:
-            raise Exception("table_metadata is empty!")
 
         for field_name in table_mtd.fieldNames():
             setattr(self._buffer_copy, field_name, getattr(self, field_name, None))
@@ -122,8 +124,6 @@ class BaseModel(object):
         changes = {}
 
         table_mtd = self.table_metadata()
-        if table_mtd is None:
-            raise Exception("table_metadata is empty!")
 
         for field_name in table_mtd.fieldNames():
             original_value = getattr(self._buffer_copy, field_name, None)
@@ -175,7 +175,7 @@ class BaseModel(object):
         """Before flush."""
 
         return True
-    
+
     def init_new(self) -> None:
         """Init for new instances."""
 
@@ -188,11 +188,11 @@ class BaseModel(object):
             self._session.delete(self)
             self._flush()
         else:
-            raise Exception("_session is empty!")
+            self._error_manager("delete", "_session is empty!")
 
         return True
 
-    def _delete_cascade(self) -> bool:
+    def _delete_cascade(self) -> None:
         """Delete cascade instances if proceed."""
 
         for field in self.table_metadata().fieldList():
@@ -223,114 +223,89 @@ class BaseModel(object):
 
                             for obj in relation_objects:
                                 if not obj.delete():
-                                    LOGGER.warning(
-                                        "obj: %s, pk_value: %s can't deleted", obj, obj.pk
+                                    self._error_manager(
+                                        "_delete_cascade",
+                                        "obj: %s, pk_value: %s can't deleted" % (obj, obj.pk),
                                     )
-                                    return False
-
-        return True
 
     def _flush(self) -> None:
         """Flush data."""
 
         if self._session is None:
-            raise ValueError("session is empty!!")
+            self._error_manager("_flush", "_session is empty")
+        else:
+            self._current_mode = self.mode_access
+            try:
+                self._before_flush()
 
-        self._current_mode = self.mode_access
-        ret_ = False
-        try:
-            ret_ = self._before_flush()
-            if ret_:
                 if self._current_mode == 3:
-                    try:
-                        ret_ = self._delete_cascade()
-                    except Exception as error:
-                        LOGGER.warning("Delete_cascade: %s ", str(error))
-                        ret_ = False
+                    self._delete_cascade()
 
                 try:
                     self._session.flush()
                 except Exception as error:
-                    LOGGER.warning("flush! %s", str(error))
-                    ret_ = False
-                if ret_:
-                    ret_ = self._after_flush()
+                    self._error_manager("_flush", error)
 
-        except Exception as error:
-            LOGGER.error("%s flush: %s", self, str(error))
-            ret_ = False
-        else:
-            self._current_mode = 0
-        if not ret_:
-            raise Exception("I can't flush!")
+                self._after_flush()
 
-    def _before_flush(self) -> bool:
+            except Exception as error:
+                self._error_manager("_flush", error)
+            else:
+                self._current_mode = 0
+
+    def _before_flush(self) -> None:
         """Before flush."""
-        ret_ = True
+
         try:
             self.before_flush()
-            if ret_:
+            mode = self._current_mode
 
-                mode = self._current_mode
+            if mode == 1:
+                try:
+                    self.before_new()
+                except Exception as error:
+                    self._error_manager("_before_new", error)
 
-                if mode == 1:
-                    try:
-                        self.before_new()
-                    except Exception as error:
-                        LOGGER.warning("Before_new %s: %s", self, str(error), stack_info=True)
-                        ret_ = False
+            elif mode == 2:
+                try:
+                    self.before_change()
+                except Exception as error:
+                    self._error_manager("_before_change", error)
 
-                elif mode == 2:
-                    try:
-                        self.before_change()
-                    except Exception as error:
-                        LOGGER.warning("Before_change %s: %s", self, str(error), stack_info=True)
-                        ret_ = False
-                elif mode == 3:
-                    try:
-                        self.before_delete()
-                    except Exception as error:
-                        LOGGER.warning("Before_delete %s: %s", self, str(error), stack_info=True)
-                        ret_ = False
+            elif mode == 3:
+                try:
+                    self.before_delete()
+                except Exception as error:
+                    self._error_manager("_before_delete", error)
         except Exception as error:
-            LOGGER.warning("_before_flush: %s", str(error), stack_info=True)
-            ret_ = False
+            self._error_manager("_before_flush", error)
 
-        return True if ret_ else False
-
-    def _after_flush(self) -> bool:
+    def _after_flush(self) -> None:
         """After flush."""
 
-        ret_ = True
         try:
             self.after_flush()
-            if ret_:
+            mode = self._current_mode
 
-                mode = self._current_mode
+            if mode == 1:
+                try:
+                    self.after_new()
+                except Exception as error:
+                    self._error_manager("_after_new", error)
 
-                if mode == 1:
-                    try:
-                        self.after_new()
-                    except Exception as error:
-                        LOGGER.warning("After_new %s: %s", self, str(error), stack_info=True)
-                        ret_ = False
-                elif mode == 2:
-                    try:
-                        self.after_change()
-                    except Exception as error:
-                        LOGGER.warning("After_change %s: %s", self, str(error), stack_info=True)
-                        ret_ = False
-                elif mode == 3:
-                    try:
-                        self.after_delete()
-                    except Exception as error:
-                        LOGGER.warning("After_delete %s: %s", self, str(error), stack_info=True)
-                        ret_ = False
+            elif mode == 2:
+                try:
+                    self.after_change()
+                except Exception as error:
+                    self._error_manager("_after_change", error)
+
+            elif mode == 3:
+                try:
+                    self.after_delete()
+                except Exception as error:
+                    self._error_manager("_after_delete", error)
         except Exception as error:
-            LOGGER.warning("_after_flush: %s", str(error), stack_info=True)
-            ret_ = False
-
-        return True if ret_ else False
+            self._error_manager("_after_flush", error)
 
     # ===============================================================================
     #     def _check_unlock(self) -> bool:
@@ -363,9 +338,9 @@ class BaseModel(object):
         ret_ = application.PROJECT.conn_manager.manager().metadata(cls.__tablename__)
 
         if ret_ is None:
-            raise Exception("table_metadata is empty!")
+            cls._error_manager("table_metadata", "%s tablemetadata is empty" % cls.__tablename__)
 
-        return ret_
+        return ret_  # type: ignore [return-value] # noqa: F723
 
     @classmethod
     def type(cls, field_name: str = ""):
@@ -397,52 +372,50 @@ class BaseModel(object):
 
             if isinstance(session_, orm.Session):
                 ret_ = session_.query(cls)
-                event.listen(ret_, "before_compile_update", cls._before_compile_update)
-                event.listen(ret_, "before_compile_delete", cls._before_compile_delete)
+                # event.listen(ret_, "before_compile_update", cls._before_compile_update)
+                # event.listen(ret_, "before_compile_delete", cls._before_compile_delete)
                 return ret_
 
         LOGGER.warning("query: Invalid session %s ", session)
         return None
 
-    @classmethod
-    def _before_compile_update(cls, query, context) -> bool:
-        """Before compile Update!."""
+    # @classmethod
+    # def _before_compile_update(cls, query, context) -> bool:
+    #    """Before compile Update!."""
 
-        for obj in query.all():
-            obj.mode_access = 2
-            obj._before_flush()
-            ret_ = obj._result_before_flush
-            if ret_:
-                obj._after_flush()
-                ret_ = obj._result_after_flush
+    #    for obj in query.all():
+    #        obj.mode_access = 2
+    #        obj._before_flush()
+    #        ret_ = obj._result_before_flush
+    #        if ret_:
+    #            obj._after_flush()
+    #            ret_ = obj._result_after_flush
 
-            if not ret_:
-                return False
+    #        if not ret_:
+    #            return False
 
-        return True
+    #    return True
 
-    @classmethod
-    def _before_compile_delete(cls, query, context) -> bool:
-        """Before compile Update!."""
-        for obj in query.all():
-            obj.mode_access = 3
-            ret_ = obj._delete_cascade()
-            if ret_:
-                ret_ = obj._before_flush()
-                if ret_:
-                    ret_ = obj._after_flush()
+    # @classmethod
+    # def _before_compile_delete(cls, query, context) -> bool:
+    #    """Before compile Update!."""
+    #    for obj in query.all():
+    #        obj.mode_access = 3
+    #        ret_ = obj._delete_cascade()
+    #        if ret_:
+    #            ret_ = obj._before_flush()
+    #            if ret_:
+    #                ret_ = obj._after_flush()
 
-            if not ret_:
-                return False
+    #        if not ret_:
+    #            return False
 
-        return True
+    #    return True
 
     def _populate_default(self) -> None:
         """Populate with default values."""
 
         metadata = self.table_metadata()
-        if metadata is None:
-            raise Exception("table_metadata is empty!")
 
         for name in metadata.fieldNames():
             field_mtd = metadata.field(name)
@@ -479,22 +452,22 @@ class BaseModel(object):
         """Flush instance to current session."""
 
         if not hasattr(self, "_session"):
-            raise Exception("This new instance was not initialized with qsa.orm_(class_name)")
-
-        if self._session is None:
-            raise Exception("_session is empty!")
-
-        result = True
-        if self.mode_access == 1:
-            self._session.add(self)
-
-        if check_integrity:
-            result = self._check_integrity()
-
-        if result:
-            self._flush()
+            self._error_manager(
+                "save", "This new instance was not initialized with qsa.orm_(class_name)"
+            )
         else:
-            raise Exception("I can't save!")
+
+            if self._session is None:
+                self._error_manager("save", "_session is empty!")
+            else:
+
+                if self.mode_access == 1:
+                    self._session.add(self)
+
+                if check_integrity:
+                    self._check_integrity()
+
+                self._flush()
 
         return True
 
@@ -512,11 +485,11 @@ class BaseModel(object):
                     # not Null fields.
                     if not field.allowNull():
                         if getattr(self, field.name(), None) is None:
-                            LOGGER.warning(
+                            self._error_manager(
+                                "_check_integrity",
                                 "INTEGRITY::Field %s.%s need a value"
-                                % (table_meta.name(), field.name())
+                                % (table_meta.name(), field.name()),
                             )
-                            return False
 
             for field in table_meta.fieldList():
                 # para poder comprobar relaciones , tengo que mirar primero que los campos not null esten ok, si no , da error.
@@ -537,7 +510,8 @@ class BaseModel(object):
                         )
 
                         if qry_data is None and not field.allowNull():
-                            LOGGER.warning(
+                            self._error_manager(
+                                "_check_integrity",
                                 "INTEGRITY::Relation %s.%s M1 %s.%s with value %s is invalid"
                                 % (
                                     table_meta.name(),
@@ -545,20 +519,20 @@ class BaseModel(object):
                                     relation_m1.foreignTable(),
                                     relation_m1.foreignField(),
                                     getattr(self, field_name),
-                                )
+                                ),
                             )
-                            return False
+
                     elif not field.allowNull():
-                        LOGGER.warning(
+                        self._error_manager(
+                            "_check_integrity",
                             "INTEGRITY::Relationed table %s.%s M1 %s.%s is invalid"
                             % (
                                 table_meta.name(),
                                 field_name,
                                 relation_m1.foreignTable(),
                                 relation_m1.foreignField(),
-                            )
+                            ),
                         )
-                        return False
 
         return True
 
@@ -670,6 +644,23 @@ class BaseModel(object):
         """Set forced mode access."""
 
         self._force_mode = value
+
+    @classmethod
+    def _error_manager(cls, text: str, error: Union[Exception, str]) -> None:
+        """Return custom error message."""
+
+        stack_info = "".join(traceback.format_stack(limit=None))
+
+        if isinstance(error, str):
+            exception_ = Exception
+            error_message = text
+
+        else:
+            error_info = sys.exc_info()
+            exception_ = error_info[0]
+            error_message = error_info[1]
+
+        raise exception_("ERROR : %s,\nSTACK : %s" % (error_message, stack_info))
 
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)
