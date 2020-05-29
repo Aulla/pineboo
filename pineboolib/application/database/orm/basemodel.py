@@ -651,7 +651,13 @@ class BaseModel(object):
             exception_ = error_info[0]
             error_message = str(error_info[1])
 
-        raise exception_("ERROR : %s,\nSTACK : %s" % (error_message, stack_info))
+        LOGGER.warning(
+            "%s\n\n==== STACK EXCEPTION ====\n\n%s\n\n ==== APP STACK ====\n\n%s\n\n",
+            error_message,
+            "".join(traceback.format_exc(limit=None)),
+            "".join(traceback.format_stack(limit=None)),
+        )
+        raise exception_(error_message)
 
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)
