@@ -8,7 +8,7 @@ from pineboolib import application
 
 from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
-from sqlalchemy import orm, inspect
+from sqlalchemy import orm, inspect, event
 import datetime
 import traceback
 import sys
@@ -372,45 +372,35 @@ class BaseModel(object):
 
             if isinstance(session_, orm.Session):
                 ret_ = session_.query(cls)
-                # event.listen(ret_, "before_compile_update", cls._before_compile_update)
-                # event.listen(ret_, "before_compile_delete", cls._before_compile_delete)
+                event.listen(ret_, "before_compile_update", cls._before_compile_update)
+                event.listen(ret_, "before_compile_delete", cls._before_compile_delete)
                 return ret_
 
         LOGGER.warning("query: Invalid session %s ", session)
         return None
 
-    # @classmethod
-    # def _before_compile_update(cls, query, context) -> bool:
-    #    """Before compile Update!."""
+    @classmethod
+    def _before_compile_update(cls, query, context) -> bool:
+        """Before compile Update!."""
+        for obj in query.all():
+            obj.mode_access = 2
+            obj._before_flush()
 
-    #    for obj in query.all():
-    #        obj.mode_access = 2
-    #        obj._before_flush()
-    #        ret_ = obj._result_before_flush
-    #        if ret_:
-    #            obj._after_flush()
-    #            ret_ = obj._result_after_flush
+            obj._after_flush()
 
-    #        if not ret_:
-    #            return False
+        return True
 
-    #    return True
+    @classmethod
+    def _before_compile_delete(cls, query, context) -> bool:
+        """Before compile Update!."""
+        for obj in query.all():
+            obj.mode_access = 3
+            obj._before_flush()
+            obj._delete_cascade()
 
-    # @classmethod
-    # def _before_compile_delete(cls, query, context) -> bool:
-    #    """Before compile Update!."""
-    #    for obj in query.all():
-    #        obj.mode_access = 3
-    #        ret_ = obj._delete_cascade()
-    #        if ret_:
-    #            ret_ = obj._before_flush()
-    #            if ret_:
-    #                ret_ = obj._after_flush()
+            obj._after_flush()
 
-    #        if not ret_:
-    #            return False
-
-    #    return True
+        return True
 
     def _populate_default(self) -> None:
         """Populate with default values."""
