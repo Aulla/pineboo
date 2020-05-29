@@ -90,6 +90,7 @@ class BaseModel(object):
                     .nextSerialVal(self.table_metadata().name(), pk_name),
                 )
 
+        self.init_new()
         self.init()
 
     def init(self):
@@ -174,6 +175,11 @@ class BaseModel(object):
         """Before flush."""
 
         return True
+    
+    def init_new(self) -> None:
+        """Init for new instances."""
+
+        pass
 
     def delete(self) -> bool:
         """Flush instance to current session."""
