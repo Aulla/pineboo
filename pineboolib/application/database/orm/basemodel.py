@@ -8,7 +8,7 @@ from pineboolib import application
 
 from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
-from sqlalchemy import orm, inspect, event
+from sqlalchemy import orm, inspect
 import datetime
 import traceback
 import sys
@@ -650,6 +650,7 @@ class BaseModel(object):
         """Return custom error message."""
 
         stack_info = "".join(traceback.format_stack(limit=None))
+        exception_: Any = None
 
         if isinstance(error, str):
             exception_ = Exception
@@ -658,7 +659,7 @@ class BaseModel(object):
         else:
             error_info = sys.exc_info()
             exception_ = error_info[0]
-            error_message = error_info[1]
+            error_message = str(error_info[1])
 
         raise exception_("ERROR : %s,\nSTACK : %s" % (error_message, stack_info))
 
