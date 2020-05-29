@@ -639,7 +639,6 @@ class BaseModel(object):
     def _error_manager(cls, text: str, error: Union[Exception, str]) -> None:
         """Return custom error message."""
 
-        stack_info = "".join(traceback.format_stack(limit=None))
         exception_: Any = None
 
         if isinstance(error, str):
