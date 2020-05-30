@@ -1358,7 +1358,8 @@ class FLManager(QtCore.QObject, IManager):
                 cursor.update()
             self.dict_key_metadata_[table] = qry2.value(1)
 
-    def isSystemTable(self, table_name: str) -> bool:
+    @classmethod
+    def isSystemTable(cls, table_name: str) -> bool:
         """
         Return if the given table is a system table.
 

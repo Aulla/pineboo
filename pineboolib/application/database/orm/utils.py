@@ -1,11 +1,31 @@
 """Utils module."""
 
-from typing import List, TYPE_CHECKING
+from typing import List, Any, TYPE_CHECKING
 
+
+from pineboolib.application import qsadictmodules
 import sqlalchemy
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import query
+
+
+class OrmManager(object):
+    """OrmManager class."""
+
+    def __getattr__(self, name: str) -> Any:
+        """Return model."""
+
+        return qsadictmodules.QSADictModules.orm_(name)
+
+    def models(self) -> List[str]:
+        """Return available models list."""
+        result_list: List[str] = []
+        for name in list(qsadictmodules.QSADictModules.qsa_dict_modules()):
+            if str(name).endswith("_model"):
+                result_list.append(name[:-6])
+
+        return result_list
 
 
 class DynamicFilter(object):

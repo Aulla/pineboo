@@ -181,6 +181,7 @@ from pineboolib.fllegacy.aqsobjects.aqobjectquerylist import (  # noqa: F401
 
 
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
+from pineboolib.application.database.orm.utils import OrmManager
 
 if not __is_deployed():
     from pineboolib.fllegacy.aqsobjects.aqods import AQOdsGenerator, AQOdsSpreadSheet  # noqa: F401
@@ -193,6 +194,8 @@ from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagState  # no
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagStateList  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsbuttongroup import AQSButtonGroup  # noqa: F401
 
+
+ORM_MANAGER = OrmManager()
 
 QSA_SYS = SysType()
 
