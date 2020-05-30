@@ -5,8 +5,6 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
 
-from sqlalchemy import orm
-
 
 class TestUtils(unittest.TestCase):
     """Testutils Class."""

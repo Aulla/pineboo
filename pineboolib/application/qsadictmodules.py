@@ -191,7 +191,6 @@ class QSADictModules:
     def clean_all(cls):
         """Clean all saved data."""
         qsa_dict_modules = cls.qsa_dict_modules()
-        from pineboolib.fllegacy import flmanager
 
         SafeQSA.clean_all()
         list_ = [attr for attr in dir(qsa_dict_modules) if not attr[0] == "_"]
