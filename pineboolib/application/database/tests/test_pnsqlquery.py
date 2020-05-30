@@ -420,8 +420,8 @@ class TestPNSqlQuery2(unittest.TestCase):
         self.assertEqual(
             mtd_tareas.fieldListArray(False), ["idtarea", "nombre", "fechaini", "fechafinal"]
         )
-        application.PROJECT.conn_manager.manager().cache_metadata_["tareas"] = mtd_tareas
-        application.PROJECT.conn_manager.manager().createTable("tareas")
+        application.PROJECT.conn_manager.manager().cache_metadata_["tareas.mtd"] = mtd_tareas
+        self.assertTrue(application.PROJECT.conn_manager.manager().createTable("tareas"))
         self.assertTrue(application.PROJECT.conn_manager.manager().existsTable("tareas"))
 
         cur_tareas = qsa.FLSqlCursor("tareas")
