@@ -402,6 +402,7 @@ class PNApplication(QtCore.QObject):
     def reinitP(self) -> None:
         """Reinitialize application.PROJECT."""
         from pineboolib.application.qsadictmodules import QSADictModules
+        from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
 
         self.db().managerModules().finish()
         self.db().manager().finish()
@@ -426,8 +427,10 @@ class PNApplication(QtCore.QObject):
                 application.PROJECT.main_window.initialized_mods_ = []
 
         QSADictModules.clean_all()
+        pnormmodelsfactory.PROCESSED = []
 
         application.PROJECT.run()
+        application.PROJECT.load_orm()
         # application.PROJECT.load_modules()
 
         self.db().managerModules().loadIdAreas()

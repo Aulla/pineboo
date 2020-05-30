@@ -75,7 +75,6 @@ class QSADictModules:
             ret_ = orm
         else:
             LOGGER.error("Model %s not found!", script_name, stack_info=True)
-            raise Exception()
 
         return ret_
 
@@ -197,5 +196,5 @@ class QSADictModules:
         list_ = [attr for attr in dir(qsa_dict_modules) if not attr[0] == "_"]
         for name in list_:
             att = getattr(qsa_dict_modules, name)
-            if isinstance(att, DelayedObjectProxyLoader):
+            if isinstance(att, DelayedObjectProxyLoader) or name.endswith("_orm"):
                 delattr(qsa_dict_modules, name)

@@ -157,15 +157,11 @@ class FLManager(QtCore.QObject, IManager):
             if metadata_name_or_xml in self.metadata_cache_fails_:
                 return None
 
-            if key in self.cache_metadata_.keys():
-                ret = self.cache_metadata_[key]
+            table_name = key if key.endswith(".mtd") else "%s.mtd" % key
 
+            if table_name in self.cache_metadata_.keys():
+                ret = self.cache_metadata_[table_name]
             if not ret:
-                table_name = (
-                    metadata_name_or_xml
-                    if metadata_name_or_xml.endswith(".mtd")
-                    else "%s.mtd" % metadata_name_or_xml
-                )
 
                 # Buscamos primero si es un model_.
                 model_name = (
