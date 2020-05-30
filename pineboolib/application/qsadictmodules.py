@@ -191,10 +191,13 @@ class QSADictModules:
     def clean_all(cls):
         """Clean all saved data."""
         qsa_dict_modules = cls.qsa_dict_modules()
+        from pineboolib.fllegacy import flmanager
 
         SafeQSA.clean_all()
         list_ = [attr for attr in dir(qsa_dict_modules) if not attr[0] == "_"]
         for name in list_:
             att = getattr(qsa_dict_modules, name)
-            if isinstance(att, DelayedObjectProxyLoader) or name.endswith("_orm"):
+            if isinstance(att, DelayedObjectProxyLoader) or (
+                name.endswith("_orm") and not name.startswith("fl")
+            ):
                 delattr(qsa_dict_modules, name)
