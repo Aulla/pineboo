@@ -21,9 +21,9 @@ class OrmManager(object):
     def models(self) -> List[str]:
         """Return available models list."""
         result_list: List[str] = []
-        for name in list(qsadictmodules.QSADictModules.qsa_dict_modules()):
-            if str(name).endswith("_model"):
-                result_list.append(name[:-6])
+        for name in list(dir(qsadictmodules.QSADictModules.qsa_dict_modules())):
+            if str(name).endswith("_orm"):
+                result_list.append(name[:-4])
 
         return result_list
 

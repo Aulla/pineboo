@@ -23,6 +23,11 @@ class TestUtils(unittest.TestCase):
         model_areas_2 = qsa.orm.flareas
         self.assertEqual(model_areas, model_areas_2)
 
+    def test_basic_2(self) -> None:
+        """Test basic 2."""
+
+        self.assertEqual(len(qsa.orm.models()), 20)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
