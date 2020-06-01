@@ -804,15 +804,12 @@ class PNSqlSchema(object):
             # field_names = []
             # field_values = []
             model_obj = model_()
-            for data in line:
-                field = data[0]
-                value: Any = ""
+            for field, value in line:
                 if field.generated():
-                    value = data[1]
+
                     if field.type() in ("string", "stringlist"):
-                        value = self.normalizeValue(value)
-                    value = self.formatValue(field.type(), value, False)
-                    if field.type() in ("string", "stringlist"):
+                        # value = self.normalizeValue(value)
+                        value = self.formatValue(field.type(), value, False)
                         if value in ["Null", "NULL"]:
                             value = "''"
                         else:
