@@ -154,7 +154,7 @@ def load_models() -> None:
             if model_class is not None:
                 # print(3)
                 QSADictModules.save_other("%s_orm" % mod_[:-6], model_class)
-            meta_new = application.PROJECT.conn_manager.manager().metadata(
+            meta_new = application.PROJECT.conn_manager.manager().metadata(  # noqa: F841
                 mod_[:-6]
             )  # para mismatchedtable.
         except exc.InvalidRequestError as error:

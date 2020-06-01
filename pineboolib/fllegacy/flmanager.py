@@ -149,6 +149,7 @@ class FLManager(QtCore.QObject, IManager):
             quick = not bool(dbadmin)
 
         if isinstance(metadata_name_or_xml, str):
+
             ret: Any = False
             acl: Any = None
             key = metadata_name_or_xml.strip()
@@ -210,7 +211,7 @@ class FLManager(QtCore.QObject, IManager):
                     self.createTable(ret)
 
                 if not quick:
-                    self.cache_metadata_[key] = ret
+                    self.cache_metadata_[table_name] = ret
 
                 if (
                     not quick
