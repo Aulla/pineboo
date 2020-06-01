@@ -209,7 +209,8 @@ class FLManager(QtCore.QObject, IManager):
                 if not ret.isQuery() and not self.existsTable(metadata_name_or_xml):
                     self.createTable(ret)
 
-                self.cache_metadata_[key] = ret
+                if not quick:
+                    self.cache_metadata_[key] = ret
 
                 if (
                     not quick
@@ -468,7 +469,9 @@ class FLManager(QtCore.QObject, IManager):
         if cache and table_name in self.list_tables_:
             return True
         else:
-            return self.db_.existsTable(table_name)
+            return self.db_.existsTable(
+                table_name if not table_name.endswith(".mtd") else table_name[:-4]
+            )
 
     def checkMetaData(
         self,
