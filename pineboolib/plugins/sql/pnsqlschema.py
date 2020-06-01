@@ -621,26 +621,19 @@ class PNSqlSchema(object):
 
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
 
-        do_transaction = self.db_._transaction_level > 0
-
-        if do_transaction:
-            query.db().transaction()
-            self.db_._transaction_level += 1
+        query.db().session().begin_nested()
 
         if not self.remove_index(new_metadata, query):
-            query.db().rollback()
-            self.db_._transaction_level -= 1
+            query.db().session().rollback()
             return False
 
         if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
-            query.db().rollback()
-            self.db_._transaction_level -= 1
+            query.db().session().rollback()
             return False
 
         if not self.db_.createTable(new_metadata):
 
-            query.db().rollback()
-            self.db_._transaction_level -= 1
+            query.db().session().rollback()
             return False
 
         cur = self.execute_query(
@@ -670,8 +663,8 @@ class PNSqlSchema(object):
                     LOGGER.warning(
                         "Field %s not found un metadata %s" % (new_name, new_metadata.name())
                     )
-                    self.db_.connManager().dbAux().rollbackTransaction()
-                    self.db_._transaction_level -= 1
+                    query.db().session().rollback()
+
                     return False
                 value = None
                 if new_name in old_field_names:
@@ -696,13 +689,11 @@ class PNSqlSchema(object):
 
         util.destroyProgressDialog()
         if not self.insertMulti(table_name, list_records):
-            self.db_.connManager().dbAux().rollbackTransaction()
-            self.db_._transaction_level -= 1
+            query.db().session().rollback()
             return False
         else:
-            if do_transaction:
-                self.db_.connManager().dbAux().commit()
-                self.db_._transaction_level -= 1
+
+            query.db().session().commit()
 
         query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
         return True
@@ -797,12 +788,11 @@ class PNSqlSchema(object):
         """Insert several rows at once."""
 
         model_ = qsadictmodules.QSADictModules.from_project("%s_orm" % table_name)
+        session_ = self.db_.connManager().dbAux().session()
         if not model_:
             return False
 
-        for line in list_records:
-            # field_names = []
-            # field_values = []
+        for number, line in enumerate(list_records):
             model_obj = model_()
             for field, value in line:
                 if field.generated():
@@ -828,12 +818,13 @@ class PNSqlSchema(object):
 
             # if sql:
             try:
-                self.session().add(model_obj)
+                session_.add(model_obj)
+
             #        self.session().execute(sql)
             except Exception as error:
                 LOGGER.error("insertMulti: %s", str(error))
                 return False
-
+        session_.flush()
         return True
 
     def Mr_Proper(self) -> None:
