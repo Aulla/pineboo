@@ -101,6 +101,32 @@ class TestBaseModel(unittest.TestCase):
         )
         self.assertTrue(obj_3.save(False))
 
+    def test_integrity_2(self) -> None:
+        """Test integrity"""
+
+        orm = qsa.orm
+
+        class_modulos = qsa.orm.flmodules
+        self.assertTrue(class_modulos)
+        mod_1 = class_modulos()
+        mod_1.idmodulo = "prueba"
+        mod_1.descripcion = "descripcion"
+        mod_1.idarea = ""
+        with self.assertRaises(Exception):
+            mod_1._check_integrity()
+
+        class_test4 = orm.fltest4
+        self.assertTrue(class_test4)
+        obj_ = class_test4()
+        obj_.idarea = 0
+        obj_.id_test = 0
+        obj_.other_field = "NO"
+        with self.assertRaises(Exception):
+            obj_._check_integrity()
+
+        obj_.id_test = 1
+        obj_._check_integrity()
+
     def test_relation_m1(self) -> None:
         """Test relationM1."""
 
