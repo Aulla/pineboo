@@ -502,7 +502,7 @@ class BaseModel(object):
                         if qry_data is None and not field.allowNull():
                             self._error_manager(
                                 "_check_integrity",
-                                "INTEGRITY::Relation %s.%s M1 %s.%s with value %s is invalid"
+                                "INTEGRITY::Relation %s.%s M1 %s.%s with value '%s' is invalid"
                                 % (
                                     table_meta.name(),
                                     field_name,
