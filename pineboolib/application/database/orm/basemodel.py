@@ -643,7 +643,7 @@ class BaseModel(object):
 
         if isinstance(error, str):
             exception_ = Exception
-            error_message = text
+            error_message = error
 
         else:
             error_info = sys.exc_info()
