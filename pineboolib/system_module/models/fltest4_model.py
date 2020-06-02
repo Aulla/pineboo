@@ -30,11 +30,10 @@ class Fltest4(
                 "editable": False,
             },
             {
-                "name": "idmodulo",
-                "alias": "Id. del Módulo",
-                "type": "string",
-                "length": 15,
-                "relations": [{"card": "1M", "table": "fltest", "field": "id"}],
+                "name": "id_test",
+                "alias": "Id. test",
+                "type": "uint",
+                "relations": [{"card": "M1", "table": "fltest", "field": "id"}],
             },
             {
                 "name": "idarea",
@@ -60,7 +59,7 @@ class Fltest4(
     # --- Fields --->
 
     id = sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True)
-    idmodulo = sqlalchemy.Column("idmodulo", sqlalchemy.String(15))
+    id_test = sqlalchemy.Column("id_test", sqlalchemy.Integer)
     idarea = sqlalchemy.Column("idarea", sqlalchemy.String(15))
     other_field = sqlalchemy.Column("other_field", sqlalchemy.String(15))
 
