@@ -250,6 +250,21 @@ class Project(object):
         conn = self.conn_manager.mainConn()
         db_name = conn.DBName()
 
+        cache_ver = self.version
+        if os.path.exists(path._dir("cache/%s" % db_name)) and not self.delete_cache:
+            if not os.path.exists(path._dir("cache/%s/cache_version.txt" % db_name)):
+                self.delete_cache = True
+            else:
+                cache_ver = ""
+                file_ver = open(path._dir("cache/%s/cache_version.txt" % db_name), "r")
+                cache_ver = file_ver.read()
+                file_ver.close()
+                if cache_ver != self.version.split(" ")[1][1:]:
+                    self.delete_cache = True
+
+            if self.delete_cache:
+                LOGGER.warning("Pineboo version has changed !. Deleting cache.")
+
         if self.delete_cache and os.path.exists(path._dir("cache/%s" % db_name)):
 
             self.message_manager().send("splash", "showMessage", ["Borrando caché ..."])
@@ -295,6 +310,10 @@ class Project(object):
         # FIXME: ACLs needed at this level?
         # self.acl_ = FLAccessControlLists()
         # self.acl_.init()
+
+        file_ver = open(path._dir("cache/%s/cache_version.txt" % db_name), "w")
+        file_ver.write(self.version.split(" ")[1][1:])
+        file_ver.close()
 
         return True
 
