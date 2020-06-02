@@ -3,7 +3,7 @@
 from pineboolib.core.utils import logging
 from .utils.path import _path
 
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from pineboolib.application.staticloader import pnmodulesstaticloader
 from pineboolib import application
@@ -19,7 +19,7 @@ import os
 if TYPE_CHECKING:
     from pineboolib.qsa import formdbwidget
     from pineboolib.application import xmlaction
-    from sqlalchemy.ext.declarative import api
+    from sqlalchemy.ext.declarative import api  # noqa: F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -206,7 +206,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     return script_loaded.FormInternalObj(action_)  # type: ignore[attr-defined] # noqa: F821
 
 
-def load_model(script_name: str, script_path_py: str) -> "api.DeclarativeMeta":
+def load_model(script_name: str, script_path_py: str) -> Optional["api.DeclarativeMeta"]:
     """Return class from path."""
 
     # script_path_py = _path("%s.py" % script_name, False)

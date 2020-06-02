@@ -37,9 +37,6 @@ Ejemplo de uso:
 
 """
 from pineboolib.application.utils.path import _path
-from importlib import machinery
-
-from sqlalchemy import exc  # type: ignore
 
 from pineboolib.application import load_script
 from pineboolib import logging, application
@@ -94,7 +91,6 @@ def save_model(path_, name: str) -> None:
 def load_models() -> None:
     """Load all sqlAlchemy models."""
     # print("LOADING MODELS!!!")
-    from pineboolib.application.qsadictmodules import QSADictModules
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
