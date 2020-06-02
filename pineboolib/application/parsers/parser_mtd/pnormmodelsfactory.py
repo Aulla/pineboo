@@ -41,6 +41,7 @@ from importlib import machinery
 
 from sqlalchemy import exc  # type: ignore
 
+from pineboolib.application import load_script
 from pineboolib import logging, application
 from . import pnmtdparser
 
@@ -68,24 +69,26 @@ def empty_base():
 def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> None:
     """Register a mtd as model."""
 
-    from pineboolib.application import qsadictmodules
-
     name_ = metadata.name()
 
     if "%s_model" % name_ in PROCESSED:
-        LOGGER.warning("%s already exists as model" % name_)
-        return
-    else:
-        LOGGER.warning("Parsing %s", name_)
-        path_ = pnmtdparser.mtd_parse(metadata)
+        LOGGER.warning("Overwriting %s model" % name_)
 
-        loader = machinery.SourceFileLoader("model", path_)
-        model_module = loader.load_module()  # type: ignore [call-arg] # noqa: F821
-        model_class = getattr(model_module, "%s%s" % (name_[0].upper(), name_[1:]), None)
-        if model_class is not None:
-            qsadictmodules.QSADictModules.save_other("%s_orm" % name_, model_class)
+    path_ = pnmtdparser.mtd_parse(metadata)
+    save_model(path_, name_)
 
-        PROCESSED.append(name_)
+
+def save_model(path_, name: str) -> None:
+    """Save model."""
+
+    from pineboolib.application import qsadictmodules
+
+    model_class = load_script.load_model(name, path_)
+
+    if model_class is not None:
+        qsadictmodules.QSADictModules.save_other("%s_orm" % name, model_class)
+        application.PROJECT.conn_manager.manager().metadata(name)
+        PROCESSED.append(name)
 
 
 def load_models() -> None:
@@ -141,24 +144,7 @@ def load_models() -> None:
                 models_[name] = file_.path()
 
     for mod_ in models_.keys():
-        # if mod_ in processed:
-        #    continue
-
-        # print("Guardando", mod_, "como", "%s_orm" % mod_[:-6])
-        try:
-            loader = machinery.SourceFileLoader("model", models_[mod_])
-            # print(1, mod_)
-            model_module = loader.load_module()  # type: ignore [call-arg] # noqa: F821
-            # print(2, model_module, "%s%s" % (mod_[0].upper(), mod_[1:-6]))
-            model_class = getattr(model_module, "%s%s" % (mod_[0].upper(), mod_[1:-6]), None)
-            if model_class is not None:
-                # print(3)
-                QSADictModules.save_other("%s_orm" % mod_[:-6], model_class)
-            meta_new = application.PROJECT.conn_manager.manager().metadata(  # noqa: F841
-                mod_[:-6]
-            )  # para mismatchedtable.
-        except exc.InvalidRequestError as error:
-            LOGGER.warning(str(error))
+        save_model(models_[mod_], mod_[:-6])
 
 
 # ===============================================================================

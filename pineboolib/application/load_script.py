@@ -19,6 +19,7 @@ import os
 if TYPE_CHECKING:
     from pineboolib.qsa import formdbwidget
     from pineboolib.application import xmlaction
+    from sqlalchemy.ext.declarative import api
 
 LOGGER = logging.get_logger(__name__)
 
@@ -203,6 +204,31 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     # script_loaded.form = script_loaded.FormInternalObj(action_)
     # LOGGER.info("<-----   END LOADING SCRIPT %s", script_name.upper())
     return script_loaded.FormInternalObj(action_)  # type: ignore[attr-defined] # noqa: F821
+
+
+def load_model(script_name: str, script_path_py: str) -> "api.DeclarativeMeta":
+    """Return class from path."""
+
+    # script_path_py = _path("%s.py" % script_name, False)
+    model_class = None
+
+    mng_modules = application.PROJECT.conn_manager.managerModules()
+    if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
+
+        script_path_py_static = pnmodulesstaticloader.PNStaticLoader.content(
+            "%s_model.py" % script_name, mng_modules.static_db_info_, True
+        )  # Con True solo devuelve el path
+        if script_path_py_static:
+            script_path_py = script_path_py_static
+
+    if script_path_py:
+        loader = machinery.SourceFileLoader("model", script_path_py)
+        script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
+        model_class = getattr(
+            script_loaded, "%s%s" % (script_name[0].upper(), script_name[1:]), None
+        )
+
+    return model_class
 
 
 def load_class(script_name):
