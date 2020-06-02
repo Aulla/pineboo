@@ -471,24 +471,26 @@ class BaseModel(object):
         if not table_meta.isQuery():
 
             for field in table_meta.fieldList():
+                field_name = field.name()
+
                 if mode in [1, 2]:
                     # not Null fields.
                     if not field.allowNull():
-                        if getattr(self, field.name(), None) is None:
+
+                        if getattr(self, field_name, None) is None:
                             self._error_manager(
                                 "_check_integrity",
                                 "INTEGRITY::Field %s.%s need a value"
-                                % (table_meta.name(), field.name()),
+                                % (table_meta.name(), field_name),
                             )
-
-            for field in table_meta.fieldList():
                 # para poder comprobar relaciones , tengo que mirar primero que los campos not null esten ok, si no , da error.
-                field_name = field.name()
+
                 relation_m1 = field.relationM1()
                 if relation_m1 is not None:
                     foreign_class_ = qsadictmodules.QSADictModules.orm_(relation_m1.foreignTable())
 
                     if foreign_class_ is not None:
+                        foreign_class_.table_metadata()
                         foreign_field_obj = getattr(
                             foreign_class_, relation_m1.foreignField(), None
                         )
@@ -499,7 +501,8 @@ class BaseModel(object):
                             .first()
                         )
 
-                        if qry_data is None and not field.allowNull():
+                        value = getattr(self, field_name)
+                        if qry_data is None and (not field.allowNull() or value is not None):
                             self._error_manager(
                                 "_check_integrity",
                                 "INTEGRITY::Relation %s.%s M1 %s.%s with value '%s' is invalid"
@@ -508,7 +511,7 @@ class BaseModel(object):
                                     field_name,
                                     relation_m1.foreignTable(),
                                     relation_m1.foreignField(),
-                                    getattr(self, field_name),
+                                    value,
                                 ),
                             )
 
