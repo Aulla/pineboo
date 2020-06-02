@@ -597,6 +597,8 @@ class Project(object):
 
         result = conn.execute_query("""SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
         for idarea, descripcion in list(result):
+            if idarea == "sys":
+                continue
             self.areas[idarea] = AreaStruct(idarea=idarea, descripcion=descripcion)
 
         self.areas["sys"] = AreaStruct(idarea="sys", descripcion="Area de Sistema")
