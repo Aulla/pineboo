@@ -19,8 +19,6 @@ sys.path.insert(0, os.path.abspath("../.."))
 from pineboolib.loader.main import init_cli  # noqa: F402
 from pineboolib import application
 
-application.PROJECT.load_version()
-
 init_cli()
 # -- Project information -----------------------------------------------------
 
@@ -29,7 +27,7 @@ copyright = "2019, David Martínez Martí, Jose Antonio Fernández Fernández an
 author = "David Martínez Martí, Jose Antonio Fernández Fernández and others"
 
 # The full version, including alpha/beta/rc tags
-release = application.PROJECT.version.split(" ")[1]
+release = application.PINEBOO_VER
 
 
 # -- General configuration ---------------------------------------------------
