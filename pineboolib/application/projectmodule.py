@@ -522,7 +522,9 @@ class Project(object):
     def load_version(self) -> str:
         """Initialize current version numbers."""
 
-        self.version = "0.71.47"
+        from pineboolib import application
+
+        self.version = application.PINEBOO_VER
 
         if settings.CONFIG.value("application/dbadmin_enabled", False):
             self.version = "DBAdmin v%s" % self.version
