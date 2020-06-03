@@ -104,7 +104,7 @@ class MainForm(imainwindow.IMainWindow):
         if self.db() is not None:
             self.container_.setWindowTitle(self.db().mainConn().DBName())
         else:
-            self.container_.setWindowTitle("Pineboo %s" % application.PROJECT.version)
+            self.container_.setWindowTitle("Pineboo %s" % application.PROJECT.load_version())
 
         # FLDiskCache.init(self)
 
@@ -1001,7 +1001,7 @@ class MainForm(imainwindow.IMainWindow):
             if self.db() is not None:
                 self.container_.setWindowTitle(self.db().mainConn().DBName())
             else:
-                self.container_.setWindowTitle("Pineboo %s" % application.PROJECT.version)
+                self.container_.setWindowTitle("Pineboo %s" % application.PROJECT.load_version())
 
             return
 

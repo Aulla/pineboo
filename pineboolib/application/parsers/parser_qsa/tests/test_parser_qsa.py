@@ -84,7 +84,7 @@ class TestParser(unittest.TestCase):
         flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
 
         # Delete version translator tag.
-        pos_ini = flfacturac_qs_py.find("# Translated with pineboolib v")
+        pos_ini = flfacturac_qs_py.find("# Translated with pineboolib ")
         pos_fin = flfacturac_qs_py[pos_ini:].find("\n")
         flfacturac_qs_py = flfacturac_qs_py.replace(
             flfacturac_qs_py[pos_ini : pos_ini + pos_fin + 1], ""
@@ -104,7 +104,7 @@ class TestParser(unittest.TestCase):
         flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
 
         # Delete version translator tag.
-        pos_ini = flfacturac_qs_py.find("# Translated with pineboolib v")
+        pos_ini = flfacturac_qs_py.find("# Translated with pineboolib ")
         pos_fin = flfacturac_qs_py[pos_ini:].find("\n")
         flfacturac_qs_py = flfacturac_qs_py.replace(
             flfacturac_qs_py[pos_ini : pos_ini + pos_fin + 1], ""
@@ -208,7 +208,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         flfacturac_qs_py = qs2py(flfacturac_qs, parser_template="file_template")
 
         # Delete version translator tag.
-        pos_ini = flfacturac_qs_py.find("# Translated with pineboolib v")
+        pos_ini = flfacturac_qs_py.find("# Translated with pineboolib ")
         pos_fin = flfacturac_qs_py[pos_ini:].find("\n")
         flfacturac_qs_py = flfacturac_qs_py.replace(
             flfacturac_qs_py[pos_ini : pos_ini + pos_fin + 1], ""
@@ -317,7 +317,7 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         simple_qs_py = file_.read()
 
         # Delete version translator tag.
-        pos_ini = simple_qs_py.find("# Translated with pineboolib v")
+        pos_ini = simple_qs_py.find("# Translated with pineboolib ")
         pos_fin = simple_qs_py[pos_ini:].find("\n")
         simple_qs_py = simple_qs_py.replace(simple_qs_py[pos_ini : pos_ini + pos_fin + 1], "")
 

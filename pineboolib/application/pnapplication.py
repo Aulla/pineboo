@@ -907,7 +907,7 @@ class PNApplication(QtCore.QObject):
 
     def version(self):
         """Return app version."""
-        return application.PROJECT.version
+        return application.PROJECT.load_version()
 
     def dialogGetFileImage(self) -> Optional[str]:
         """Get image file name."""

@@ -26,7 +26,7 @@ class AboutPineboo(QtWidgets.QDialog):
         from pineboolib.core.utils.utils_base import filedir
 
         dlg_ = filedir("plugins/dgi/dgi_qt/dgi_objects/dlg_about/about_pineboo.ui")
-        version_ = application.PROJECT.version
+        version_ = application.PROJECT.load_version()
         self.ui_: Any = application.PROJECT.conn_manager.managerModules().createUI(dlg_, None, self)
         if self.ui_ is None:
             raise Exception("Error creating UI About Dialog")

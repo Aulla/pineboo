@@ -2518,13 +2518,13 @@ def file_template(
 ) -> ASTGenerator:
     """Create a new file template."""
 
-    from pineboolib.application import projectmodule
+    from pineboolib.application import projectmodule, PINEBOO_VER
 
     prj = projectmodule.Project()
     prj.load_version()
 
     yield "line", "# -*- coding: utf-8 -*-"
-    yield "line", "# Translated with pineboolib %s" % prj.version.split(" ")[1]
+    yield "line", "# Translated with pineboolib %s" % PINEBOO_VER
     yield "line", "from typing import TYPE_CHECKING, Any, Union"
 
     if not STRICT_MODE:

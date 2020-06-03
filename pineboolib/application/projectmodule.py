@@ -231,6 +231,7 @@ class Project(object):
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
         LOGGER.info("RUN: Loading project data.")
+        from pineboolib import application
 
         self.pending_conversion_list = []
 
@@ -250,7 +251,7 @@ class Project(object):
         conn = self.conn_manager.mainConn()
         db_name = conn.DBName()
 
-        cache_ver = self.version
+        cache_ver = application.PINEBOO_VER
         if os.path.exists(path._dir("cache/%s" % db_name)) and not self.delete_cache:
             if not os.path.exists(path._dir("cache/%s/cache_version.txt" % db_name)):
                 self.delete_cache = True
@@ -259,7 +260,7 @@ class Project(object):
                 file_ver = open(path._dir("cache/%s/cache_version.txt" % db_name), "r")
                 cache_ver = file_ver.read()
                 file_ver.close()
-                if cache_ver != self.version.split(" ")[1][1:]:
+                if cache_ver != application.PINEBOO_VER:
                     self.delete_cache = True
 
             if self.delete_cache:
@@ -312,7 +313,7 @@ class Project(object):
         # self.acl_.init()
 
         file_ver = open(path._dir("cache/%s/cache_version.txt" % db_name), "w")
-        file_ver.write(self.version.split(" ")[1][1:])
+        file_ver.write(application.PINEBOO_VER)
         file_ver.close()
 
         return True
@@ -524,14 +525,12 @@ class Project(object):
 
         from pineboolib import application
 
-        self.version = application.PINEBOO_VER
-
         if settings.CONFIG.value("application/dbadmin_enabled", False):
-            self.version = "DBAdmin v%s" % self.version
+            ret = "DBAdmin v%s" % application.PINEBOO_VER
         else:
-            self.version = "Quick v%s" % self.version
+            ret = "Quick v%s" % application.PINEBOO_VER
 
-        return self.version
+        return ret
 
     def message_manager(self):
         """Return message manager for splash and progress."""

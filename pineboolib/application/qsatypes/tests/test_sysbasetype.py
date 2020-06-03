@@ -36,7 +36,7 @@ class TestSysBaseClassGeneral(unittest.TestCase):
         self.assertEqual(base_type.osName(), os_name)
         self.assertEqual(base_type.nameBD(), "temp_db")
         self.assertEqual(base_type.installPrefix(), filedir(".."))
-        self.assertEqual(base_type.version(), str(application.PROJECT.version))
+        self.assertEqual(base_type.version(), str(application.PROJECT.load_version()))
         file_path = "%s/test_sysbasetype.txt" % application.PROJECT.tmpdir
 
         if os.path.exists(file_path):

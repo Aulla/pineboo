@@ -134,7 +134,7 @@ class SysBaseType(object):
     @classmethod
     def version(self) -> str:
         """Get version number as string."""
-        return str(application.PROJECT.version)
+        return str(application.PROJECT.load_version())
 
     @classmethod
     def processEvents(self) -> None:

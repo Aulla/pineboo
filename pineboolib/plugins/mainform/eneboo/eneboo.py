@@ -1398,7 +1398,7 @@ class MainForm(imainwindow.IMainWindow):
         """Set application title."""
 
         value = "- %s" % value if value else ""
-        self.setWindowTitle("Pineboo %s %s" % (application.PROJECT.version, value))
+        self.setWindowTitle("Pineboo %s %s" % (application.PROJECT.load_version(), value))
 
 
 # mainWindow: MainForm

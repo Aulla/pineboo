@@ -125,7 +125,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     )
 
     data.append("# -*- coding: utf-8 -*-")
-    data.append("# Translated with pineboolib %s" % application.PROJECT.version.split(" ")[1])
+    data.append("# Translated with pineboolib %s" % application.PINEBOO_VER)
     data.append('"""%s%s_model module."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("")
 
