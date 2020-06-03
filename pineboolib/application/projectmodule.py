@@ -304,11 +304,12 @@ class Project(object):
             LOGGER.warning("RUN: Creating %s folder.", path._dir("cache/%s" % db_name))
             os.makedirs(path._dir("cache/%s" % db_name))
 
+        ret_ = True
         if not self.load_system_module():
-            return False
+            ret_ = False
 
         if not self.load_database_modules():
-            return False
+            ret_ = False
 
         # FIXME: ACLs needed at this level?
         # self.acl_ = FLAccessControlLists()
@@ -318,7 +319,7 @@ class Project(object):
         file_ver.write(application.PINEBOO_VER)
         file_ver.close()
 
-        return True
+        return ret_
 
     def call(
         self,
