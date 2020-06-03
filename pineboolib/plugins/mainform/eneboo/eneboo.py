@@ -1285,6 +1285,7 @@ class MainForm(imainwindow.IMainWindow):
 
         super(MainForm, self).show()
         self.activateWindow()
+        self.setCaptionMainWidget()
 
     def initScript(self) -> None:
         """Startup process."""
@@ -1393,10 +1394,11 @@ class MainForm(imainwindow.IMainWindow):
 
         return self.main_widget.findChild(QtWidgets.QWidget, name)
 
-    def setCaptionMainWidget(self, value) -> None:
+    def setCaptionMainWidget(self, value: str = "") -> None:
         """Set application title."""
-
-        self.setWindowTitle("Pineboo %s - %s" % (application.PROJECT.version, value))
+        print("**", value)
+        value = "- %s" % value if value else ""
+        self.setWindowTitle("Pineboo %s %s" % (application.PROJECT.version, value))
 
 
 # mainWindow: MainForm
