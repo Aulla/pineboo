@@ -230,8 +230,10 @@ class Project(object):
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
-        LOGGER.info("RUN: Loading project data.")
+
         from pineboolib import application
+
+        LOGGER.info("RUN: Loading project data.")
 
         self.pending_conversion_list = []
 

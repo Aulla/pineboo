@@ -39,11 +39,14 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     init_logging()
     init_cli(catch_ctrl_c=False)
     pytnyzer.STRICT_MODE = False
-    application.PROJECT.load_version()
+
+    LOGGER.info("PINEBOOAPI %s.", application.PINEBOO_VER)
+    # application.PROJECT.load_version()
     application.PROJECT.setDebugLevel(1000)
     application.PROJECT.set_app(qapp)
     dgi = load_dgi("qt", None)
     application.PROJECT.init_dgi(dgi)
+
     LOGGER.info("STARTUP_FRAMEWORK:(1/7) Setting profile data.")
     conn_ = connect_to_db(conn)
     LOGGER.info("STARTUP_FRAMEWORK:(2/7) Establishing connection.")
@@ -255,7 +258,8 @@ def init_testing() -> None:
         init_cli(catch_ctrl_c=False)
 
         pytnyzer.STRICT_MODE = False
-        application.PROJECT.load_version()
+        LOGGER.info("PINEBOO TESTING %s.", application.PINEBOO_VER)
+        # application.PROJECT.load_version()
         application.PROJECT.setDebugLevel(1000)
         application.PROJECT.set_app(qapp)
         dgi = load_dgi("qt", None)
