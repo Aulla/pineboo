@@ -12,7 +12,7 @@ with open("requirements.txt") as f:
 
 prj_ = application.PROJECT
 prj_.load_version()
-version_ = prj_.version[prj_.version.find(" v") + 2 :]
+version_ = application.PINEBOO_VER
 # Create/Update translations
 
 languages = ["es", "en", "ca", "de", "fr", "gl", "it", "pt"]
