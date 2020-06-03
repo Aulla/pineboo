@@ -304,12 +304,9 @@ class Project(object):
             LOGGER.warning("RUN: Creating %s folder.", path._dir("cache/%s" % db_name))
             os.makedirs(path._dir("cache/%s" % db_name))
 
-        ret_ = True
-        if not self.load_system_module():
-            ret_ = False
-
-        if not self.load_database_modules():
-            ret_ = False
+        ret_ = False
+        if self.load_system_module() and self.load_database_modules():
+            ret_ = True
 
         # FIXME: ACLs needed at this level?
         # self.acl_ = FLAccessControlLists()
