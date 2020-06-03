@@ -1396,7 +1396,7 @@ class MainForm(imainwindow.IMainWindow):
 
     def setCaptionMainWidget(self, value: str = "") -> None:
         """Set application title."""
-        print("**", value)
+
         value = "- %s" % value if value else ""
         self.setWindowTitle("Pineboo %s %s" % (application.PROJECT.version, value))
 
