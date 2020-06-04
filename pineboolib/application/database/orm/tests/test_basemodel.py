@@ -22,6 +22,23 @@ class TestBaseModel(unittest.TestCase):
         obj_ = qsa.orm_("flareas")()
         self.assertEqual(obj_.bloqueo, True)
 
+    def test_cursor_mode_access(self) -> None:
+        """Test mode access."""
+
+        obj_ = qsa.orm.flareas()
+        cursor = obj_.cursor
+        self.assertEqual(cursor.modeAccess(), cursor.Insert)
+        obj_.idarea = "TT"
+        self.assertEqual(cursor.modeAccess(), cursor.Insert)
+
+        obj1_ = qsa.orm.flareas.get("O")
+        self.assertFalse(obj1_.changes())
+        self.assertEqual(obj1_.pk, "O")
+        self.assertEqual(obj1_.cursor.modeAccess(), obj1_.cursor.Browse)
+        obj1_.descripcion = "prueba nuevo"
+        self.assertTrue(obj1_.changes())
+        self.assertEqual(obj1_.cursor.modeAccess(), obj1_.cursor.Edit)
+
     def test_2_metadata(self) -> None:
         """Test table_metadata."""
 
@@ -171,7 +188,7 @@ class TestBaseModel(unittest.TestCase):
 
         obj_class = qsa.orm_("flareas")
         obj_ = obj_class()
-        self.assertEqual(obj_.mode_access, 1)
+        self.assertEqual(obj_.mode_access, 0)  # Insert
         obj_.idarea = "O"
         obj_.descripcion = "Descripcion O"
         self.assertTrue(obj_.save())

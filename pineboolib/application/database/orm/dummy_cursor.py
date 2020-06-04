@@ -2,7 +2,10 @@
 
 from pineboolib.core.utils import logging
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from . import basemodel
 
 LOGGER = logging.get_logger(__name__)
 
@@ -17,7 +20,7 @@ class DummyCursor(object):
 
     _parent: Any
 
-    def __init__(self, parent_model) -> None:
+    def __init__(self, parent_model: "basemodel.BaseModel") -> None:
         """Initialize."""
 
         self._parent = parent_model
@@ -29,8 +32,10 @@ class DummyCursor(object):
 
     def modeAccess(self) -> int:
         """Return mode_access."""
+        if self._parent._current_mode is not None:
+            return self._parent._current_mode
 
-        return self._parent._current_mode
+        return self._parent.mode_access
 
     def valueBufferCopy(self, field_name: str) -> Any:
         """Return field value copy."""
@@ -50,7 +55,7 @@ class DummyCursor(object):
     def isNull(self, field_name: str) -> bool:
         """Return if value is Null."""
 
-        return getattr(self._parent, field_name) in [None, ""]
+        return getattr(self._parent, field_name) is None
 
     def setNull(self, field_name):
         """Set value to Null."""
@@ -65,4 +70,4 @@ class DummyCursor(object):
     def getattr(self, name: str) -> None:
         """Search unknown functions."""
 
-        raise Exception("PLEASE IMPLEMENT DummyCursor.%s" % name)
+        raise Exception("PLEASE IMPLEMENT DummyCursor.%s." % name)

@@ -14,6 +14,7 @@ from sqlalchemy import orm, inspect, event
 import datetime
 import traceback
 import sys
+import time
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -41,23 +42,27 @@ class BaseModel(object):
     _result_before_flush: bool
     _result_after_flush: bool
     _force_mode: int
-    _current_mode: int
+    _current_mode: Optional[int]
     _cursor: "dummy_cursor.DummyCursor"
     _before_commit_function: str
     _after_commit_function: str
     _module_iface: Any
+    _new_object: bool
 
-    @orm.reconstructor  # type: ignore [misc] # noqa: F821
-    def _constructor_init(self) -> None:
-        """Initialize from constructor."""
+    @classmethod
+    def _constructor_init(cls, target, args) -> None:
 
-        self._session = inspect(self).session
+        target._session = inspect(target).session
         for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
-            if conn.session() is self._session:
-                self._session_name = name
+            if conn.session() is target._session:
+                target._session_name = name
                 break
 
-        self._common_init()
+        if not target._session_name:
+            raise Exception("session_name not found!")
+
+        target._new_object = False
+        target._common_init()
 
     def _qsa_init(target, args=[], kwargs={}) -> None:
         """Initialize from qsa."""
@@ -68,6 +73,8 @@ class BaseModel(object):
             session_name = kwargs["session"] or "default"
         target._session = application.PROJECT.conn_manager.useConn(session_name).session()
         target._session_name = session_name
+
+        target._new_object = True
 
         target._common_init()
 
@@ -84,6 +91,7 @@ class BaseModel(object):
                 self._error_manager("_common_init", "Common init with session.new instance!")
 
             self.update_copy()
+            self._current_mode = None
             # self._force_mode =  3 #browse
             pk_name = self.pk_name
             if getattr(self, pk_name, None) is None:
@@ -130,18 +138,18 @@ class BaseModel(object):
 
     def update_copy(self) -> None:
         """Update buffer copy."""
-        if getattr(self, "_buffer_copy", None):
-            del self._buffer_copy
         self._buffer_copy = Copy()
 
         table_mtd = self.table_metadata()
+
+        while not self._new_object and self.pk is None:
+            time.sleep(10)
 
         for field_name in table_mtd.fieldNames():
             setattr(self._buffer_copy, field_name, getattr(self, field_name, None))
 
     def changes(self) -> Dict[str, Any]:
         """Return field names changed and values."""
-
         changes = {}
 
         table_mtd = self.table_metadata()
@@ -271,8 +279,9 @@ class BaseModel(object):
 
             except Exception as error:
                 self._error_manager("_flush", error)
-            else:
-                self._current_mode = 3  # browse
+            # else:
+            #    self._current_mode = 3  # edit
+        self._current_mode = None
 
     def _before_flush(self) -> None:
         """Before flush."""
@@ -391,7 +400,11 @@ class BaseModel(object):
     def get(cls, pk_value: str, session_name: str = "default") -> Any:
         """Return instance selected by pk."""
         qry = cls.query(session_name)
-        return qry.get(pk_value) if qry is not None else None
+        ret_ = qry.get(pk_value) if qry is not None else None
+        if ret_ is not None:
+            cls._constructor_init(ret_, None)
+
+        return ret_
 
     @classmethod
     def query(cls, session: Union[str, "orm.Session"] = "default") -> Optional["orm.query.Query"]:
@@ -658,13 +671,16 @@ class BaseModel(object):
 
         session = self.session
 
-        mode = 3  # browse
+        mode = 3
         if self in session.deleted:
             mode = 2  # delete
         elif self in session.dirty:
             mode = 1  # edit
-        else:
+        elif self._new_object:
             mode = 0  # insert
+
+        if mode in [1, 3] and not self.changes():
+            mode = 3
 
         return mode
 
@@ -672,6 +688,11 @@ class BaseModel(object):
         """Set forced mode access."""
 
         self._force_mode = value
+
+    def get_cursor(self) -> "dummy_cursor.DummyCursor":
+        """Return dummy cursor."""
+
+        return self._cursor
 
     @classmethod
     def _error_manager(cls, text: str, error: Union[Exception, str]) -> None:
@@ -701,3 +722,4 @@ class BaseModel(object):
     pk_name = property(get_pk_name)
     pk = property(get_pk_value, set_pk_value)
     mode_access = property(get_mode_access, set_mode_access)
+    cursor = property(get_cursor)

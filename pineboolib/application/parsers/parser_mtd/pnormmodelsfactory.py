@@ -42,6 +42,7 @@ from pineboolib.application import load_script
 from pineboolib import logging, application
 from . import pnmtdparser
 
+
 from typing import Any, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -83,6 +84,7 @@ def save_model(path_, name: str) -> None:
     model_class = load_script.load_model(name, path_)
 
     if model_class is not None:
+        # event.listen(model_class, "load", model_class._constructor_init)
         qsadictmodules.QSADictModules.save_other("%s_orm" % name, model_class)
         application.PROJECT.conn_manager.manager().metadata(name)
         PROCESSED.append(name)
