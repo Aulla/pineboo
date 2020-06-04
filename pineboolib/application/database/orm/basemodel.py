@@ -6,6 +6,8 @@ from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
 from pineboolib import application
 
+from . import dummy_cursor
+
 from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
 from sqlalchemy import orm, inspect, event
@@ -40,6 +42,10 @@ class BaseModel(object):
     _result_after_flush: bool
     _force_mode: int
     _current_mode: int
+    _cursor: "dummy_cursor.DummyCursor"
+    _before_commit_function: str
+    _after_commit_function: str
+    _module_iface: Any
 
     @orm.reconstructor  # type: ignore [misc] # noqa: F821
     def _constructor_init(self) -> None:
@@ -78,7 +84,7 @@ class BaseModel(object):
                 self._error_manager("_common_init", "Common init with session.new instance!")
 
             self.update_copy()
-            self._force_mode = 0
+            # self._force_mode =  3 #browse
             pk_name = self.pk_name
             if getattr(self, pk_name, None) is None:
                 self._populate_default()
@@ -91,6 +97,21 @@ class BaseModel(object):
                         .driver()
                         .nextSerialVal(self.table_metadata().name(), pk_name),
                     )
+            self._cursor = dummy_cursor.DummyCursor(self)
+
+            table_name: str = self.table_metadata().name()
+            self._before_commit_function = "beforeCommit_%s" % table_name
+            self._after_commit_function = "afterCommit_%s" % table_name
+            id_module = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
+                "%s.mtd" % table_name
+            )
+
+            action = application.PROJECT.actions[
+                id_module if id_module in application.PROJECT.actions.keys() else "sys"
+            ]
+            module_script = action.load_master_widget()
+            self._module_iface = getattr(module_script, "iface", None)
+
             try:
                 self.init_new()
                 self.init()
@@ -238,7 +259,7 @@ class BaseModel(object):
             try:
                 self._before_flush()
 
-                if self._current_mode == 3:
+                if self._current_mode == 2:  # delete
                     self._delete_cascade()
 
                 try:
@@ -251,28 +272,35 @@ class BaseModel(object):
             except Exception as error:
                 self._error_manager("_flush", error)
             else:
-                self._current_mode = 0
+                self._current_mode = 3  # browse
 
     def _before_flush(self) -> None:
         """Before flush."""
 
         try:
-            self.before_flush()
             mode = self._current_mode
 
-            if mode == 1:
+            func_ = getattr(self._module_iface, self._before_commit_function, None)
+            if func_ is not None:
+                value = func_(self._cursor)
+                if value and not isinstance(value, bool) or value is False:
+                    self._error_manager("beforeCommit", "%s return False" % func_)
+
+            self.before_flush()
+
+            if mode == 0:  # insert
                 try:
                     self.before_new()
                 except Exception as error:
                     self._error_manager("_before_new", error)
 
-            elif mode == 2:
+            elif mode == 1:  # edit
                 try:
                     self.before_change()
                 except Exception as error:
                     self._error_manager("_before_change", error)
 
-            elif mode == 3:
+            elif mode == 2:  # delete
                 try:
                     self.before_delete()
                 except Exception as error:
@@ -284,22 +312,29 @@ class BaseModel(object):
         """After flush."""
 
         try:
-            self.after_flush()
             mode = self._current_mode
 
-            if mode == 1:
+            func_ = getattr(self._module_iface, self._after_commit_function, None)
+            if func_ is not None:
+                value = func_(self._cursor)
+                if value and not isinstance(value, bool) or value is False:
+                    self._error_manager("afterCommit", "%s return False" % func_)
+
+            self.after_flush()
+
+            if mode == 0:  # insert
                 try:
                     self.after_new()
                 except Exception as error:
                     self._error_manager("_after_new", error)
 
-            elif mode == 2:
+            elif mode == 1:  # edit
                 try:
                     self.after_change()
                 except Exception as error:
                     self._error_manager("_after_change", error)
 
-            elif mode == 3:
+            elif mode == 2:  # delete
                 try:
                     self.after_delete()
                 except Exception as error:
@@ -383,7 +418,7 @@ class BaseModel(object):
     def _before_compile_update(cls, query, context) -> bool:
         """Before compile Update!."""
         for obj in query.all():
-            obj.mode_access = 2
+            obj.mode_access = 1  # edit
             obj._before_flush()
 
             obj._after_flush()
@@ -394,7 +429,7 @@ class BaseModel(object):
     def _before_compile_delete(cls, query, context) -> bool:
         """Before compile Update!."""
         for obj in query.all():
-            obj.mode_access = 3
+            obj.mode_access = 2  # delete
             obj._before_flush()
             obj._delete_cascade()
 
@@ -451,7 +486,7 @@ class BaseModel(object):
                 self._error_manager("save", "_session is empty!")
             else:
 
-                if self.mode_access == 1:
+                if self.mode_access == 0:  # insert
                     self._session.add(self)
 
                 if check_integrity:
@@ -473,7 +508,7 @@ class BaseModel(object):
             for field in table_meta.fieldList():
                 field_name = field.name()
 
-                if mode in [1, 2]:
+                if mode < 2:  # 0 insert,1 edit
                     # not Null fields.
                     if not field.allowNull():
 
@@ -623,13 +658,13 @@ class BaseModel(object):
 
         session = self.session
 
-        mode = 0
+        mode = 3  # browse
         if self in session.deleted:
-            mode = 3
+            mode = 2  # delete
         elif self in session.dirty:
-            mode = 2
+            mode = 1  # edit
         else:
-            mode = 1
+            mode = 0  # insert
 
         return mode
 
