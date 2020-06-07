@@ -51,10 +51,9 @@ class BaseModel(object):
 
     @classmethod
     def _constructor_init(cls, target, args) -> None:
-
         target._session = inspect(target).session
         for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
-            if conn.session() is target._session:
+            if conn.connection() is target._session.connection():
                 target._session_name = name
                 break
 
@@ -71,12 +70,18 @@ class BaseModel(object):
         session_name = "default"
         if "session" in kwargs:
             session_name = kwargs["session"] or "default"
-        target._session = application.PROJECT.conn_manager.useConn(session_name).session()
+        target._session = target.get_session_from_connection(session_name)
+        target._session.begin()
         target._session_name = session_name
-
         target._new_object = True
 
         target._common_init()
+
+    @classmethod
+    def get_session_from_connection(cls, conn_name: str) -> "orm.session":
+        """Return new session from a connection."""
+
+        return application.PROJECT.conn_manager.useConn(conn_name).driver().session()
 
     def _common_init(self) -> None:
         """Initialize."""
@@ -214,6 +219,11 @@ class BaseModel(object):
         """Flush instance to current session."""
 
         if self._session:
+            if not self._session.transaction:
+                self._session.begin()
+            else:
+                self._session.begin_nested()
+
             self._session.delete(self)
             self._flush()
         else:
@@ -410,22 +420,41 @@ class BaseModel(object):
     def query(cls, session: Union[str, "orm.Session"] = "default") -> Optional["orm.query.Query"]:
         """Return Session query."""
 
+        ret_ = None
         if session:
             session_ = None
             if isinstance(session, str):
                 if session in application.PROJECT.conn_manager.dictDatabases().keys():
-                    session_ = application.PROJECT.conn_manager.useConn(session).session()
+                    session_ = cls.get_session_from_connection(session)
             else:
                 session_ = session
 
             if isinstance(session_, orm.Session):
+                if not session_.transaction:
+                    session_.begin()
+
                 ret_ = session_.query(cls)
                 event.listen(ret_, "before_compile_update", cls._before_compile_update)
                 event.listen(ret_, "before_compile_delete", cls._before_compile_delete)
-                return ret_
 
-        LOGGER.warning("query: Invalid session %s ", session)
-        return None
+        if ret_ is None:
+            LOGGER.warning("query: Invalid session %s ", session)
+        else:
+            session_name = None
+            print("XXX")
+            for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
+                print("Y", name, conn)
+                if conn.connection() is session_.connection():
+                    print("Z", name)
+                    session_name = name
+                    break
+
+            if session_name is not None:
+                for item in ret_:
+                    cls._constructor_init(item, [])
+                    print("T", item, item._session_name)
+
+        return ret_
 
     @classmethod
     def _before_compile_update(cls, query, context) -> bool:

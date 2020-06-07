@@ -495,10 +495,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         try:
             if not self._transaction_level:
-                print("CREA TR", self.session())
+
                 self.session().begin()
             else:
-                print("CREA SP", self.session())
+
                 self.session().begin_nested()
 
             return True
@@ -523,7 +523,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             # self.driver()._session = None
             return True
         except Exception as error:
-            print("*****", error)
+            LOGGER.warning("Commit: %s", str(error))
             self._last_error = "No se pudo aceptar la transacción: %s" % str(error)
 
         return False
@@ -535,7 +535,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
             session_ = self.session()
             # self.driver()._session = None
-            print("rollback!", self.session(), session_)
+
             session_.rollback()
             # session_.close()
             # session_.begin()

@@ -162,26 +162,26 @@ class TestBaseModel(unittest.TestCase):
         obj_rel_1 = obj_2.relationM1("idmodulo")
         self.assertFalse(obj_rel_1)
         self.assertTrue(obj_rel)
-        self.assertEqual(obj_rel, obj_)
+        self.assertEqual(obj_rel.idarea, obj_.idarea)
 
     def test_relation_1m(self) -> None:
         """Test realtion 1M."""
 
         obj_class = qsa.orm_("flareas")
 
-        obj_ = obj_class.query().get("F")
-        self.assertTrue(obj_)
         obj_2 = qsa.orm_("flmodules")()
         obj_2.idmodulo = "mod4"
         obj_2.idarea = "F"
         obj_2.descripcion = "relation_m1"
         self.assertTrue(obj_2.save())
+        obj_ = obj_class.query(obj_2.session).get("F")
+        self.assertTrue(obj_)
         # obj_2.session.commit()
         relations_dict = obj_.relation1M("idarea")
         modules_rel = relations_dict["flmodules_idarea"]
         self.assertTrue(obj_2)
         self.assertEqual(len(modules_rel), 2)
-        self.assertEqual(modules_rel[1], obj_2)
+        self.assertEqual(modules_rel[1].idmodulo, obj_2.idmodulo, modules_rel)
 
     def test_(self) -> None:
         """Test."""
@@ -193,7 +193,7 @@ class TestBaseModel(unittest.TestCase):
         obj_.descripcion = "Descripcion O"
         self.assertTrue(obj_.save())
 
-        obj_new = obj_class.query().get("O")
+        obj_new = obj_class.get("O")
         obj_new.descripcion = "Nueva descripción"
         self.assertTrue(obj_new.save())
 
@@ -206,9 +206,9 @@ class TestBaseModel(unittest.TestCase):
         obj_.descripcion = "Descripción de R"
         self.assertTrue(obj_.save())
 
-        obj_2 = obj_class.query().all()[1]
+        obj_2 = obj_class.query(obj_.session).all()[1]
         self.assertTrue(obj_2)
-        self.assertEqual(obj_, obj_2)
+        self.assertEqual(obj_, obj_2, obj_class.query(obj_.session).all())
         obj_2.descripcion = "Descripción de P"
         self.assertEqual(obj_.descripcion, "Descripción de P")
 
@@ -218,7 +218,7 @@ class TestBaseModel(unittest.TestCase):
         obj_class = qsa.orm_("flareas")
         obj_ = obj_class.get("F")
         self.assertTrue(obj_)
-        self.assertEqual(obj_class.query().all()[2], obj_)
+        self.assertEqual(obj_class.query().all()[2].idarea, obj_.idarea)
 
         self.assertFalse(obj_.relation1M())
 
@@ -230,7 +230,7 @@ class TestBaseModel(unittest.TestCase):
         self.assertTrue(obj2_.save())
         obj2_.session.commit()
         self.assertEqual(len(obj_.relation1M("idarea")["flmodules_idarea"]), 3)
-        self.assertEqual(obj_.relation1M("idarea")["flmodules_idarea"][2], obj2_)
+        self.assertEqual(obj_.relation1M("idarea")["flmodules_idarea"][2].idmodulo, obj2_.idmodulo)
         self.assertTrue(obj_.delete())
         obj_.session.commit()
         # self.assertFalse(obj_.relation1M("idarea")["flmodules_idarea"])
