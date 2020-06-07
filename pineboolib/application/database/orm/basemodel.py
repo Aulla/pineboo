@@ -78,7 +78,7 @@ class BaseModel(object):
         target._common_init()
 
     @classmethod
-    def get_session_from_connection(cls, conn_name: str) -> "orm.session":
+    def get_session_from_connection(cls, conn_name: str) -> "orm.session.Session":
         """Return new session from a connection."""
 
         return application.PROJECT.conn_manager.useConn(conn_name).driver().session()
@@ -422,14 +422,14 @@ class BaseModel(object):
 
         ret_ = None
         if session:
-            session_ = None
+            session_: "orm.session.Session"
             if isinstance(session, str):
                 if session in application.PROJECT.conn_manager.dictDatabases().keys():
                     session_ = cls.get_session_from_connection(session)
             else:
                 session_ = session
 
-            if isinstance(session_, orm.Session):
+            if isinstance(session_, orm.session.Session):
                 if not session_.transaction:
                     session_.begin()
 
@@ -441,18 +441,17 @@ class BaseModel(object):
             LOGGER.warning("query: Invalid session %s ", session)
         else:
             session_name = None
-            print("XXX")
+
             for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
-                print("Y", name, conn)
+
                 if conn.connection() is session_.connection():
-                    print("Z", name)
+
                     session_name = name
                     break
 
             if session_name is not None:
                 for item in ret_:
                     cls._constructor_init(item, [])
-                    print("T", item, item._session_name)
 
         return ret_
 

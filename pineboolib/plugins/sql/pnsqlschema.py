@@ -624,8 +624,12 @@ class PNSqlSchema(object):
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
 
         session_ = query.db().session()
+        query.db().transaction()
 
-        session_.begin()
+        # if session_.transaction:
+        #    session_.begin_nested()
+        # else:
+        #    session_.begin()
 
         if not self.remove_index(new_metadata, query):
             session_.rollback()

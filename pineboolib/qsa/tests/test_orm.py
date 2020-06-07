@@ -61,7 +61,7 @@ class TestOrm(unittest.TestCase):
         setattr(obj_, "bloqueo", True)
         setattr(obj_, "idarea", "A")
         setattr(obj_, "descripcion", "Area A")
-
+        session_.begin()
         session_.add(
             obj_
         )  # Introduce el nuevo registro en la BD. A partir de ahora los cambios posteriores se guardarán en la BD.
@@ -88,13 +88,14 @@ class TestOrm(unittest.TestCase):
         setattr(obj_, "idarea", "A")
         setattr(obj_, "descripcion", "Area A")
 
+        session_.begin()
         session_.add(obj_)
         session_.commit()  # Se cierra la sesión (Transacción)
 
         session_2 = qsa.session()
         obj2_ = session_2.query(class_).get("A")  # Recupera el registro de la BD
         self.assertTrue(obj2_)
-
+        session_2.begin()
         session_2.delete(obj2_)
         session_2.commit()
 
@@ -113,11 +114,12 @@ class TestOrm(unittest.TestCase):
         setattr(obj_, "bloqueo", True)
         setattr(obj_, "idarea", "B")
         setattr(obj_, "descripcion", "Area B")
+        session_.begin()
         self.assertTrue(obj_.save())
         # session_.add(obj_)  # Introduce el nuevo registro en la BD
         session_.commit()
         session_2 = qsa.session()
-
+        session_2.begin()
         obj2_ = session_2.query(class_).get("B")  # Recupera el registro de la BD
         self.assertEqual(obj2_.descripcion, "Area B")
         obj2_.descripcion = "Area B modificada"
@@ -161,7 +163,7 @@ class TestOrm(unittest.TestCase):
         obj_.idarea = "C"
         obj_.descripcion = "Descripción C"
         obj_.bloqueo = True
-
+        session_.begin()
         session_.add(obj_)
 
         session_.begin_nested()  # Save point

@@ -184,6 +184,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             raise Exception("main_conn no es valido para session")
         if self._current_session is None or self._current_session.connection().closed:
             self._current_session = self.driver().session()
+
+            if self._current_session is None:
+                raise ValueError("Invalid session!")
         # sqlalchemy.event.listen(session_, "before_flush", self.before_flush)
         # sqlalchemy.event.listen(session_, "after_flush", self.after_flush)
         # sqlalchemy.event.listen(session_, "after_bulk_delete", self.after_bulk_delete)
@@ -494,7 +497,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Create a transaction."""
 
         try:
-            if not self._transaction_level:
+            if not self.session().transaction:
 
                 self.session().begin()
             else:
@@ -561,18 +564,17 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def createTable(self, tmd: "pntablemetadata.PNTableMetaData") -> bool:
         """Create a table in the database, from a PNTableMetaData."""
 
-        do_transaction = False
-
         sql = self.driver().sqlCreateTable(tmd)
         if not sql:
             return False
 
-        if not self._transaction_level:
-            do_transaction = True
+        self.transaction()
+        # if not self._transaction_level:
+        #    do_transaction = True
 
-        if do_transaction:
-            self.transaction()
-            self._transaction_level += 1
+        # if do_transaction:
+        #    self.transaction()
+        #    self._transaction_level += 1
 
         for single_sql in sql.split(";"):
             self.execute_query(single_sql)
@@ -585,9 +587,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 self.driver().set_last_error_null()
                 return False
 
-        if do_transaction:
-            self.commit()
-            self._transaction_level -= 1
+        self.commit()
+        # if do_transaction:
+        #    self.commit()
+        #    self._transaction_level -= 1
 
         return True
 
