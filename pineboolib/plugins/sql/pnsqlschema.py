@@ -277,11 +277,13 @@ class PNSqlSchema(object):
 
     def session(self) -> "session.Session":  # noqa: F811
         """Create a sqlAlchemy session."""
-        if not getattr(self, "_session", None) or self._session.connection().closed:
-            Session = sessionmaker(bind=self.connection(), autoflush=False)
-            self._session = Session()
+        # if not getattr(self, "_session", None) or self._session.connection().closed:
+        #    Session = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
+        #    self._session = Session()
 
-        return self._session
+        # return self._session
+        Session = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
+        return Session()
 
     def connection(self) -> "base.Connection":
         """Return a cursor connection."""
@@ -621,19 +623,21 @@ class PNSqlSchema(object):
 
         query = pnsqlquery.PNSqlQuery(None, "dbAux")
 
-        query.db().session().begin_nested()
+        session_ = query.db().session()
+
+        session_.begin()
 
         if not self.remove_index(new_metadata, query):
-            query.db().session().rollback()
+            session_.rollback()
             return False
 
         if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
-            query.db().session().rollback()
+            session_.rollback()
             return False
 
         if not self.db_.createTable(new_metadata):
 
-            query.db().session().rollback()
+            session_.rollback()
             return False
 
         cur = self.execute_query(
@@ -663,7 +667,7 @@ class PNSqlSchema(object):
                     LOGGER.warning(
                         "Field %s not found un metadata %s" % (new_name, new_metadata.name())
                     )
-                    query.db().session().rollback()
+                    session_.rollback()
 
                     return False
                 value = None
@@ -689,11 +693,11 @@ class PNSqlSchema(object):
 
         util.destroyProgressDialog()
         if not self.insertMulti(table_name, list_records):
-            query.db().session().rollback()
+            session_.rollback()
             return False
         else:
 
-            query.db().session().commit()
+            session_.commit()
 
         query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
         return True

@@ -55,6 +55,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _last_activity_time: float
     # _current_transaction: Optional["session.Session"]
     _last_error: str
+    _current_session: Optional["orm.Session"]
 
     def __init__(
         self,
@@ -107,6 +108,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         # self._current_transaction = None
         self._last_error = ""
         self._is_open = False
+        self._current_session = None
         # if self._driver_name and self._driver_sql.loadDriver(self._driver_name):
         #    self.conn = self.conectar(db_name, db_host, db_port, db_user_name, db_password)
         #    if self.conn is False:
@@ -180,14 +182,14 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """
         if self._name == "main_conn":
             raise Exception("main_conn no es valido para session")
-
-        session_ = self.driver().session()
+        if self._current_session is None or self._current_session.connection().closed:
+            self._current_session = self.driver().session()
         # sqlalchemy.event.listen(session_, "before_flush", self.before_flush)
         # sqlalchemy.event.listen(session_, "after_flush", self.after_flush)
         # sqlalchemy.event.listen(session_, "after_bulk_delete", self.after_bulk_delete)
         # sqlalchemy.event.listen(session_, "after_bulk_update", self.after_bulk_update)
 
-        return session_
+        return self._current_session
 
     def engine(self) -> Any:
         """Sqlalchemy connection."""
@@ -493,8 +495,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         try:
             if not self._transaction_level:
-                self.session()
+                print("CREA TR", self.session())
+                self.session().begin()
             else:
+                print("CREA SP", self.session())
                 self.session().begin_nested()
 
             return True
@@ -517,9 +521,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             # session_.begin()
             # session_.close()
             # self.driver()._session = None
-            LOGGER.debug("COMMIT OK transaction: %s", session_.transaction)
             return True
         except Exception as error:
+            print("*****", error)
             self._last_error = "No se pudo aceptar la transacción: %s" % str(error)
 
         return False
@@ -531,6 +535,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
             session_ = self.session()
             # self.driver()._session = None
+            print("rollback!", self.session(), session_)
             session_.rollback()
             # session_.close()
             # session_.begin()

@@ -669,13 +669,17 @@ class FLManagerModules(object):
         if name.endswith(".mtd"):
             if application.PROJECT.conn_manager.manager().isSystemTable(name):
                 return "sys"
+            elif "%s_model.py" % name[:-4] in application.PROJECT.files.keys():
+                return application.PROJECT.files["%s_model.py" % name[:-4]].module
 
         if name in application.PROJECT.files.keys():
 
             return application.PROJECT.files[name].module
 
         else:
-            LOGGER.warning("No encuentro %s", name, stack_info=True)
+            LOGGER.warning(
+                "No encuentro %s ** %s", name, application.PROJECT.files.keys(), stack_info=True
+            )
 
         return ""
 
