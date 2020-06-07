@@ -806,7 +806,7 @@ class PNSqlSchema(object):
                 if field.generated():
 
                     if field.type() in ("string", "stringlist"):
-                        # value = self.normalizeValue(value)
+                        value = self.normalizeValue(value)
                         value = self.formatValue(field.type(), value, False)
                         if value in ["Null", "NULL"]:
                             value = "''"
