@@ -47,8 +47,10 @@ class TestQueryOrm(unittest.TestCase):
         # session.commit()
         self.assertTrue(class_area.query().filter(class_area.idarea == "E").first())
         # session = qsa.session()
+        new_obj = class_area.get("E")
+        self.assertEqual(len(class_child.query().all()), 2)
         obj_area.query().filter(class_area.idarea == "E").delete()
-        self.assertEqual(len(class_child.query().all()), 0)
+
         # session.commit()
         self.assertEqual(len(class_child.query().all()), 0)
 

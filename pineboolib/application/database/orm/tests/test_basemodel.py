@@ -187,15 +187,20 @@ class TestBaseModel(unittest.TestCase):
         """Test."""
 
         obj_class = qsa.orm_("flareas")
+        session = qsa.session()
+        session.begin()
+
         obj_ = obj_class()
         self.assertEqual(obj_.mode_access, 0)  # Insert
         obj_.idarea = "O"
         obj_.descripcion = "Descripcion O"
         self.assertTrue(obj_.save())
+        obj_.session.commit()
 
-        obj_new = obj_class.get("O")
+        obj_new = obj_class.get("O", session)
         obj_new.descripcion = "Nueva descripción"
         self.assertTrue(obj_new.save())
+        session.commit()
 
     def test_cache_objects(self) -> None:
         """Test cache objects."""
@@ -228,6 +233,7 @@ class TestBaseModel(unittest.TestCase):
         obj2_.descripcion = "Desc"
         obj2_.idmodulo = "mr1"
         self.assertTrue(obj2_.save())
+        obj_.session.begin()
         obj2_.session.commit()
         self.assertEqual(len(obj_.relation1M("idarea")["flmodules_idarea"]), 3)
         self.assertEqual(obj_.relation1M("idarea")["flmodules_idarea"][2].idmodulo, obj2_.idmodulo)
@@ -282,7 +288,7 @@ class TestBaseModel(unittest.TestCase):
 
         # for child in obj_areas.children: #Modo correcto para lanzar eventos ... si no hay legacy_metadata.deleteCascade()
         #    self.assertTrue(child.delete())
-
+        obj_areas.session.begin()
         self.assertTrue(obj_areas.delete())
         obj_areas.session.commit()
         self.assertEqual(len(modules_class.query().filter(modules_class.idarea == "I").all()), 0)

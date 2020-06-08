@@ -50,12 +50,17 @@ class BaseModel(object):
     _new_object: bool
 
     @classmethod
-    def _constructor_init(cls, target, args) -> None:
+    def _constructor_init(cls, target, kwargs={}) -> None:
+        print("**", target)
         target._session = inspect(target).session
-        for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
-            if conn.connection() is target._session.connection():
-                target._session_name = name
-                break
+        if "session_name" in kwargs:
+            target._session_name = kwargs["session_name"]
+        else:
+
+            for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
+                if conn.connection() is target._session.connection():
+                    target._session_name = name
+                    break
 
         if not target._session_name:
             raise Exception("session_name not found!")
@@ -68,9 +73,14 @@ class BaseModel(object):
 
         # target._session = None
         session_name = "default"
+        if "session_name" in kwargs:
+            session_name = kwargs["session_name"]
+
         if "session" in kwargs:
-            session_name = kwargs["session"] or "default"
-        target._session = target.get_session_from_connection(session_name)
+            target._session = kwargs["session"]
+        else:
+            target._session = target.get_session_from_connection(session_name)
+
         target._session.begin()
         target._session_name = session_name
         target._new_object = True
@@ -80,8 +90,8 @@ class BaseModel(object):
     @classmethod
     def get_session_from_connection(cls, conn_name: str) -> "orm.session.Session":
         """Return new session from a connection."""
-
-        return application.PROJECT.conn_manager.useConn(conn_name).driver().session()
+        new_session = application.PROJECT.conn_manager.useConn(conn_name).driver().session()
+        return new_session
 
     def _common_init(self) -> None:
         """Initialize."""
@@ -219,10 +229,10 @@ class BaseModel(object):
         """Flush instance to current session."""
 
         if self._session:
-            if not self._session.transaction:
-                self._session.begin()
-            else:
-                self._session.begin_nested()
+            # if not self._session.transaction:
+            #    self._session.begin()
+            # else:
+            #    self._session.begin_nested()
 
             self._session.delete(self)
             self._flush()
@@ -407,31 +417,52 @@ class BaseModel(object):
         return None
 
     @classmethod
-    def get(cls, pk_value: str, session_name: str = "default") -> Any:
+    def get(cls, pk_value: str, session: Union[str, "orm.Session"] = "default") -> Any:
         """Return instance selected by pk."""
-        qry = cls.query(session_name)
+        qry = cls.query(session)
         ret_ = qry.get(pk_value) if qry is not None else None
+        print("****", ret_, pk_value, session)
         if ret_ is not None:
-            cls._constructor_init(ret_, None)
+            session_name = None
+            if isinstance(session, str):
+                session_name = session
+            else:
+                session_name = cls._resolve_session_name(session)
+
+            cls._constructor_init(ret_, {"session_name": session_name})
 
         return ret_
+
+    @classmethod
+    def _resolve_session_name(cls, session: "orm.Session") -> str:
+        """Return session name."""
+
+        for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
+            if conn.connection() is session.connection():
+                return name
+
+        print("NO ENCONTRE SESSION NAME!!!")
+        return "default"
 
     @classmethod
     def query(cls, session: Union[str, "orm.Session"] = "default") -> Optional["orm.query.Query"]:
         """Return Session query."""
 
         ret_ = None
-        if session:
+        session_name = None
+        if session is not None:
             session_: "orm.session.Session"
             if isinstance(session, str):
+                session_name = session
                 if session in application.PROJECT.conn_manager.dictDatabases().keys():
                     session_ = cls.get_session_from_connection(session)
             else:
                 session_ = session
+                session_name = cls._resolve_session_name(session)
 
             if isinstance(session_, orm.session.Session):
-                if not session_.transaction:
-                    session_.begin()
+                # if not session_.transaction:
+                #    session_.begin()
 
                 ret_ = session_.query(cls)
                 event.listen(ret_, "before_compile_update", cls._before_compile_update)
@@ -440,18 +471,10 @@ class BaseModel(object):
         if ret_ is None:
             LOGGER.warning("query: Invalid session %s ", session)
         else:
-            session_name = None
-
-            for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
-
-                if conn.connection() is session_.connection():
-
-                    session_name = name
-                    break
 
             if session_name is not None:
                 for item in ret_:
-                    cls._constructor_init(item, [])
+                    cls._constructor_init(item, {"session_name": session_name})
 
         return ret_
 
@@ -459,7 +482,7 @@ class BaseModel(object):
     def _before_compile_update(cls, query, context) -> bool:
         """Before compile Update!."""
         for obj in query.all():
-            obj.mode_access = 1  # edit
+            obj._current_mode = 1  # edit
             obj._before_flush()
 
             obj._after_flush()
@@ -470,7 +493,7 @@ class BaseModel(object):
     def _before_compile_delete(cls, query, context) -> bool:
         """Before compile Update!."""
         for obj in query.all():
-            obj.mode_access = 2  # delete
+            obj._current_mode = 2  # delete
             obj._before_flush()
             obj._delete_cascade()
 
