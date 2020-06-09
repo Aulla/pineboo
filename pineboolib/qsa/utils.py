@@ -549,4 +549,6 @@ def user_id() -> str:
 def session(conn_name: str = "default") -> "orm_session.Session":
     """Return session connection."""
 
-    return application.PROJECT.conn_manager.useConn(conn_name).driver().session()
+    session = application.PROJECT.conn_manager.useConn(conn_name).driver().session()
+    setattr(session, "_conn_name", conn_name)
+    return session
