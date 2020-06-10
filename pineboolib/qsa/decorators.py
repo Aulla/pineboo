@@ -21,12 +21,12 @@ def atomic(conn_name="default") -> TYPEFN:
             new_session.begin()
 
             id_thread = threading.current_thread().ident
-            LOGGER.warning(
-                "NUEVA session: %s, thread: %s, trans: %s",
-                new_session,
-                id_thread,
-                new_session.transaction,
-            )
+            # LOGGER.warning(
+            #    "NUEVA session: %s, thread: %s, trans: %s",
+            #    new_session,
+            #    id_thread,
+            #    new_session.transaction,
+            # )
 
             application.PROJECT.conn_manager.thread_sessions[id_thread] = new_session
 
