@@ -12,6 +12,7 @@ from typing import Dict, Union, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
     from pineboolib.fllegacy import flmanagermodules
+    from sqlalchemy import orm
 
 LOGGER = logging.get_logger(__name__)
 
@@ -25,11 +26,14 @@ class PNConnectionManager(QtCore.QObject):
     limit_connections: int = 50  # Limit of connections to use.
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
+    thread_sessions: Dict[int, "orm.session.Session"]
+
     def __init__(self):
         """Initialize."""
 
         super().__init__()
         self.connections_dict = {}
+        self.thread_sessions = {}
 
         LOGGER.info("Initializing PNConnection Manager:")
         LOGGER.info("LIMIT CONNECTIONS = %s.", self.limit_connections)
