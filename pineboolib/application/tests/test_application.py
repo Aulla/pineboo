@@ -24,7 +24,7 @@ class TestVirtualExists(unittest.TestCase):
     def test_use_channel(self) -> None:
         """Test use channel."""
 
-        self.assertFalse(application.USE_CHANNEL)
+        self.assertFalse(application.USE_WEBSOCKET_CHANNEL)
         from pineboolib.qsa import qsa
 
         self.assertFalse(
