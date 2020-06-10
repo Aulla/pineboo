@@ -32,12 +32,17 @@ def atomic(conn_name: str = "default") -> TYPEFN:
 
             application.PROJECT.conn_manager.thread_sessions[key] = new_session
 
-            result_ = fun_(*args, **kwargs)
-
-            if result_ is False:
+            try:
+                result_ = fun_(*args, **kwargs)
+            except Exception as error:
                 new_session.rollback()
-            else:
-                new_session.commit()
+                new_session.close()
+                del application.PROJECT.conn_manager.thread_sessions[key]
+                LOGGER.warning("ATOMIC: Error : %s", str(error), stack_info=True)
+                raise Exception(error)
+
+            new_session.commit()
+
             new_session.close()
             del application.PROJECT.conn_manager.thread_sessions[key]
             return result_
