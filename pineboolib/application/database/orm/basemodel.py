@@ -87,7 +87,7 @@ class BaseModel(object):
         if target.session is None:
             target._error_manager("_qsa_init", "session is empty!")
 
-        target._session_name = target._session._conn_name
+        target._session_name = target._session._conn_name  # type: ignore [union-attr] # noqa: F821
         target._new_object = True
 
         target._common_init()

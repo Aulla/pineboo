@@ -27,7 +27,9 @@ class TestVirtualExists(unittest.TestCase):
         self.assertFalse(application.USE_CHANNEL)
         from pineboolib.qsa import qsa
 
-        self.assertFalse(qsa.ws_channel_send({}, "nobody"))
+        self.assertFalse(
+            qsa.ws_channel_send({}, "nobody")  # type: ignore [func-returns-value] # noqa: F821
+        )
 
     @classmethod
     def tearDownClass(cls) -> None:

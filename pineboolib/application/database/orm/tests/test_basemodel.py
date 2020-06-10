@@ -4,7 +4,7 @@ import unittest
 
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
-from pineboolib import application
+
 from sqlalchemy import orm
 
 
@@ -155,23 +155,25 @@ class TestBaseModel(unittest.TestCase):
         """Test relationM1."""
         qsa.session_free()
         qsa.session()
-        qsa.session_current().begin()
-        obj_ = qsa.orm_("flareas")()
-        obj_.idarea = "T"
-        obj_.descripcion = "Area"
-        self.assertTrue(obj_.save())
-        obj_.session.commit()
+        current_session = qsa.session_current()
+        if current_session:
+            current_session.begin()
+            obj_ = qsa.orm_("flareas")()
+            obj_.idarea = "T"
+            obj_.descripcion = "Area"
+            self.assertTrue(obj_.save())
+            obj_.session.commit()
 
-        obj_2 = qsa.orm_("flmodules")()
-        obj_2.idmodulo = "mod1"
-        obj_2.idarea = "T"
-        obj_2.descripcion = "PRUEBA relation M1"
+            obj_2 = qsa.orm_("flmodules")()
+            obj_2.idmodulo = "mod1"
+            obj_2.idarea = "T"
+            obj_2.descripcion = "PRUEBA relation M1"
 
-        obj_rel = obj_2.relationM1("idarea")
-        obj_rel_1 = obj_2.relationM1("idmodulo")
-        self.assertFalse(obj_rel_1)
-        self.assertTrue(obj_rel)
-        self.assertEqual(obj_rel.idarea, obj_.idarea)
+            obj_rel = obj_2.relationM1("idarea")
+            obj_rel_1 = obj_2.relationM1("idmodulo")
+            self.assertFalse(obj_rel_1)
+            self.assertTrue(obj_rel)
+            self.assertEqual(obj_rel.idarea, obj_.idarea)
 
     def test_relation_1m(self) -> None:
         """Test realtion 1M."""
@@ -212,7 +214,7 @@ class TestBaseModel(unittest.TestCase):
 
     def test_cache_objects(self) -> None:
         """Test cache objects."""
-        session = qsa.session()
+        qsa.session()
         obj_class = qsa.orm_("flareas")
         obj_ = obj_class()
         obj_.idarea = "R"
@@ -277,42 +279,48 @@ class TestBaseModel(unittest.TestCase):
             cascade="delete,delete-orphan",  # "all, delete-orphan"
         )
         current_session = qsa.session_current()
-        current_session.begin()
+        if current_session:
 
-        obj_areas = areas_class()
-        obj_areas.idarea = "I"
-        obj_areas.descripcion = "Descripción I"
-        self.assertTrue(obj_areas.save())
-        obj_areas.session.commit()
+            current_session.begin()
 
-        obj_modules_1 = modules_class()
-        obj_modules_1.idarea = "I"
-        obj_modules_1.descripcion = "modulo 1"
-        obj_modules_1.idmodulo = "M1"
+            obj_areas = areas_class()
+            obj_areas.idarea = "I"
+            obj_areas.descripcion = "Descripción I"
+            self.assertTrue(obj_areas.save())
+            obj_areas.session.commit()
 
-        obj_modules_2 = modules_class()
-        obj_modules_2.idarea = "I"
-        obj_modules_2.descripcion = "modulo 2"
-        obj_modules_2.idmodulo = "M2"
+            obj_modules_1 = modules_class()
+            obj_modules_1.idarea = "I"
+            obj_modules_1.descripcion = "modulo 1"
+            obj_modules_1.idmodulo = "M1"
 
-        current_session.begin()
+            obj_modules_2 = modules_class()
+            obj_modules_2.idarea = "I"
+            obj_modules_2.descripcion = "modulo 2"
+            obj_modules_2.idmodulo = "M2"
 
-        self.assertTrue(obj_modules_1.save())
-        self.assertTrue(obj_modules_2.save())
+            current_session.begin()
 
-        obj_modules_1.session.commit()
+            self.assertTrue(obj_modules_1.save())
+            self.assertTrue(obj_modules_2.save())
 
-        # self.assertEqual(obj_modules_1.parent[0], obj_areas)
-        # self.assertEqual(obj_modules_2.parent[0], obj_areas)
-        self.assertEqual(len(modules_class.query().filter(modules_class.idarea == "I").all()), 2)
-        self.assertEqual(len(obj_areas.children), 2)
+            obj_modules_1.session.commit()
 
-        # for child in obj_areas.children: #Modo correcto para lanzar eventos ... si no hay legacy_metadata.deleteCascade()
-        #    self.assertTrue(child.delete())
-        obj_areas.session.begin()
-        self.assertTrue(obj_areas.delete())
-        obj_areas.session.commit()
-        self.assertEqual(len(modules_class.query().filter(modules_class.idarea == "I").all()), 0)
+            # self.assertEqual(obj_modules_1.parent[0], obj_areas)
+            # self.assertEqual(obj_modules_2.parent[0], obj_areas)
+            self.assertEqual(
+                len(modules_class.query().filter(modules_class.idarea == "I").all()), 2
+            )
+            self.assertEqual(len(obj_areas.children), 2)
+
+            # for child in obj_areas.children: #Modo correcto para lanzar eventos ... si no hay legacy_metadata.deleteCascade()
+            #    self.assertTrue(child.delete())
+            obj_areas.session.begin()
+            self.assertTrue(obj_areas.delete())
+            obj_areas.session.commit()
+            self.assertEqual(
+                len(modules_class.query().filter(modules_class.idarea == "I").all()), 0
+            )
 
     @classmethod
     def tearDownClass(cls) -> None:

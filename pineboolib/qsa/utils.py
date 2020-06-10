@@ -560,8 +560,6 @@ def user_id() -> str:
 
 def session(conn_name: str = "default") -> "orm_session.Session":
     """Return session connection."""
-    if conn_name is None:
-        conn_name = "default"
 
     current = session_current(conn_name)
     if current:
@@ -579,7 +577,7 @@ def session(conn_name: str = "default") -> "orm_session.Session":
     return session
 
 
-def session_new(conn_name: Optional[str] = None) -> "orm_session.Session":
+def session_new(conn_name: str = "default") -> "orm_session.Session":
     """Return session new."""
 
     return session(conn_name)
@@ -600,7 +598,8 @@ def session_current(conn_name: Optional[str] = None) -> Optional["orm_session.Se
     return None
 
 
-def session_free(session_name: Optional[str] = None):
+def session_free(session_name: Optional[str] = None) -> None:
+    """Close and delete current thread session."""
     if session_name is None:
         session_name = "default"
 
@@ -608,26 +607,36 @@ def session_free(session_name: Optional[str] = None):
     session_key = "%s_%s" % (id_thread, session_name)
     if session_key in application.PROJECT.conn_manager.last_thread_session.keys():
         application.PROJECT.conn_manager.last_thread_session[session_key].close()
-        application.PROJECT.conn_manager.last_thread_session[session_key] = None
         del application.PROJECT.conn_manager.last_thread_session[session_key]
 
 
 def thread() -> int:
     """Return thread id."""
 
-    return threading.current_thread().ident
+    return threading.current_thread().ident or -1
+
+
+def session_atomic(conn_name: str = "default") -> Optional["orm_session.Session"]:
+    """Return atomic_session."""
+
+    id_thread = threading.current_thread().ident
+    session_key = "%s_%s" % (id_thread, conn_name)
+    if session_key in application.PROJECT.conn_manager.thread_sessions.keys():
+        return application.PROJECT.conn_manager.thread_sessions[session_key]
+
+    return None
 
 
 def ws_channel_send(json: Dict, group_name: str = "") -> None:
     """Send message to websocket channel."""
 
     if application.USE_CHANNEL:
-        from asgiref.sync import async_to_sync
-        from channels.layers import get_channel_layer
+        from asgiref.sync import async_to_sync  # type: ignore [import] # noqa: F723
+        from channels.layers import get_channel_layer  # type: ignore [import] # noqa: F723
 
         channel_layer = get_channel_layer()
-        user_id = application.PROJECt.session_id()
-        if grupo:
+        user_id = application.PROJECT.session_id()
+        if group_name:
             async_to_sync(channel_layer.group_send)(group_name, json)
         else:
             async_to_sync(channel_layer.send)(user_id, json)

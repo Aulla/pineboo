@@ -1,6 +1,9 @@
+"""Decorators module."""
 from pineboolib.core.utils import logging
 from pineboolib import application
-from typing import Callable, Any, Dict, TypeVar, cast
+from . import utils
+
+from typing import Callable, Any, TypeVar, cast
 import threading
 import functools
 
@@ -8,15 +11,13 @@ TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 
 LOGGER = logging.get_logger(__name__)
 
-from . import utils
 
-
-def atomic(conn_name="default") -> TYPEFN:
+def atomic(conn_name: str = "default") -> TYPEFN:
     """Return pineboo atomic decorator."""
 
-    def decorator(fun_):
+    def decorator(fun_: TYPEFN) -> TYPEFN:
         @functools.wraps(fun_)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             new_session = utils.session(conn_name)
             new_session.begin()
 
@@ -38,10 +39,10 @@ def atomic(conn_name="default") -> TYPEFN:
             else:
                 new_session.commit()
             new_session.close()
-            application.PROJECT.conn_manager.thread_sessions[key] = None
+            del application.PROJECT.conn_manager.thread_sessions[key]
             return result_
 
-        mock_fn: TYPEFN = cast(TYPEFN, wrapper)  # type: ignore
+        mock_fn: TYPEFN = cast(TYPEFN, wrapper)
         return mock_fn
 
-    return decorator
+    return decorator  # type: ignore [return-value] # noqa: F723
