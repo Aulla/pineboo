@@ -12,7 +12,18 @@ from pineboolib.core.utils.utils_base import ustr
 from pineboolib.core.utils import logging
 from pineboolib import application
 
-from typing import Any, Optional, Union, Match, List, Generator, Callable, Iterable, TYPE_CHECKING
+from typing import (
+    Any,
+    Optional,
+    Union,
+    Match,
+    List,
+    Generator,
+    Callable,
+    Iterable,
+    Dict,
+    TYPE_CHECKING,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import base  # type: ignore [import] # noqa: F401, F821
@@ -605,3 +616,18 @@ def thread() -> int:
     """Return thread id."""
 
     return threading.current_thread().ident
+
+
+def ws_channel_send(json: Dict, group_name: str = "") -> None:
+    """Send message to websocket channel."""
+
+    if application.USE_CHANNEL:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+
+        channel_layer = get_channel_layer()
+        user_id = application.PROJECt.session_id()
+        if grupo:
+            async_to_sync(channel_layer.group_send)(group_name, json)
+        else:
+            async_to_sync(channel_layer.send)(user_id, json)

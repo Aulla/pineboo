@@ -21,6 +21,14 @@ class TestVirtualExists(unittest.TestCase):
             os.path.exists("%s/sqlite_databases/temp_db.sqlite3" % application.PROJECT.tmpdir)
         )
 
+    def test_use_channel(self) -> None:
+        """Test use channel."""
+
+        self.assertFalse(application.USE_CHANNEL)
+        from pineboolib.qsa import qsa
+
+        self.assertFalse(qsa.ws_channel_send({}, "nobody"))
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
