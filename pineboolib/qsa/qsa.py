@@ -30,7 +30,14 @@ from .utils import debug, isnan, replace, length, text  # noqa: F401
 from .utils import format_exc, Sort, splice  # noqa: F401
 from .utils import Switch as switch  # noqa: F401
 from .utils import QsaRegExp as qsaRegExp  # noqa: F401
-from .utils import session, user_id  # noqa: F401
+from .utils import (
+    session,
+    user_id,
+    session_new,
+    session_current,
+    session_free,
+    thread,
+)  # noqa: F401
 from .decorators import atomic  # noqa: F401
 from .dictmodules import Application, from_project, class_, orm_  # noqa: F401
 

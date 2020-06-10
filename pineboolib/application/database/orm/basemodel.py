@@ -13,6 +13,7 @@ from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 from sqlalchemy import orm, inspect, event
 import datetime
 import traceback
+import threading
 import sys
 import time
 
@@ -51,19 +52,15 @@ class BaseModel(object):
 
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
-        print("**", target)
         target._session = inspect(target).session
-        if "session_name" in kwargs:
-            target._session_name = kwargs["session_name"]
-        else:
 
-            for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
-                if conn.connection() is target._session.connection():
-                    target._session_name = name
-                    break
+        target._session_name = target._session._conn_name
 
-        if not target._session_name:
-            raise Exception("session_name not found!")
+        if not target._session:
+            cls._error_manager("_constructor_init", "session is empty!")
+
+        elif not target._session_name:
+            cls._error_manager("_constructor_init", "session is invalid!")
 
         target._new_object = False
         target._common_init()
@@ -71,18 +68,26 @@ class BaseModel(object):
     def _qsa_init(target, args=[], kwargs={}) -> None:
         """Initialize from qsa."""
 
-        # target._session = None
-        session_name = "default"
-        if "session_name" in kwargs:
-            session_name = kwargs["session_name"]
+        target._session = None
 
         if "session" in kwargs:
             target._session = kwargs["session"]
         else:
-            target._session = target.get_session_from_connection(session_name)
+            id_thread = threading.current_thread().ident
+            key = "%s_%s" % (
+                id_thread,
+                kwargs["conn_name"] if "conn_name" in kwargs.keys() else "default",
+            )
 
-        target._session.begin()
-        target._session_name = session_name
+            if key in application.PROJECT.conn_manager.thread_sessions.keys():
+                target._session = application.PROJECT.conn_manager.thread_sessions[key]
+            elif key in application.PROJECT.conn_manager.last_thread_session.keys():
+                target._session = application.PROJECT.conn_manager.last_thread_session[key]
+
+        if target.session is None:
+            target._error_manager("_qsa_init", "session is empty!")
+
+        target._session_name = target._session._conn_name
         target._new_object = True
 
         target._common_init()
@@ -91,6 +96,7 @@ class BaseModel(object):
     def get_session_from_connection(cls, conn_name: str) -> "orm.session.Session":
         """Return new session from a connection."""
         new_session = application.PROJECT.conn_manager.useConn(conn_name).driver().session()
+        setattr(new_session, "_conn_name", conn_name)
         return new_session
 
     def _common_init(self) -> None:
@@ -421,7 +427,6 @@ class BaseModel(object):
         """Return instance selected by pk."""
         qry = cls.query(session)
         ret_ = qry.get(pk_value) if qry is not None else None
-        print("****", ret_, pk_value, session)
         if ret_ is not None:
             session_name = None
             if isinstance(session, str):
@@ -454,7 +459,15 @@ class BaseModel(object):
             session_: "orm.session.Session"
             if isinstance(session, str):
                 session_name = session
-                if session in application.PROJECT.conn_manager.dictDatabases().keys():
+
+                id_thread = threading.current_thread().ident
+                key = "%s_%s" % (id_thread, session)
+                if key in application.PROJECT.conn_manager.thread_sessions.keys():
+                    session_ = application.PROJECT.conn_manager.thread_sessions[key]
+                elif key in application.PROJECT.conn_manager.last_thread_session.keys():
+                    session_ = application.PROJECT.conn_manager.last_thread_session[key]
+
+                elif session in application.PROJECT.conn_manager.dictDatabases().keys():
                     session_ = cls.get_session_from_connection(session)
             else:
                 session_ = session
@@ -689,7 +702,7 @@ class BaseModel(object):
     def set_session(self, session: "orm.session.Session") -> None:
         """Set instance session."""
         # LOGGER.warning("Set session %s to instance %s", session, self)
-        if self._session is None:
+        if not hasattr(self, "_session") or self._session is None:
             # session.add(self)
             self._session = session
         else:

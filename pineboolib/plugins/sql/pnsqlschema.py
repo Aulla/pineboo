@@ -283,7 +283,9 @@ class PNSqlSchema(object):
 
         # return self._session
         Session = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
-        return Session()
+        new_session = Session()
+        setattr(new_session, "_conn_name", self.db_._name)
+        return new_session
 
     def connection(self) -> "base.Connection":
         """Return a cursor connection."""

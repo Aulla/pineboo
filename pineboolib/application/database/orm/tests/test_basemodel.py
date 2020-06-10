@@ -4,7 +4,7 @@ import unittest
 
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa
-
+from pineboolib import application
 from sqlalchemy import orm
 
 
@@ -41,11 +41,12 @@ class TestBaseModel(unittest.TestCase):
 
     def test_2_metadata(self) -> None:
         """Test table_metadata."""
-
+        session = qsa.session()
         obj_class = qsa.orm_("fltest")
-        obj_ = obj_class()
+        obj_ = obj_class(session=session)
         meta = obj_.table_metadata()
         self.assertTrue(meta)
+        session.begin()
         self.assertTrue(obj_.save())
         obj_.session.commit()
 
@@ -60,7 +61,8 @@ class TestBaseModel(unittest.TestCase):
         """Test get classmethod."""
 
         class_fltest = qsa.orm_("fltest")
-        obj_ = class_fltest.get(1)
+        session = qsa.session()
+        obj_ = class_fltest.get(1, session)
         self.assertTrue(obj_)
 
     #
@@ -84,6 +86,10 @@ class TestBaseModel(unittest.TestCase):
     def test_integrity(self) -> None:
         """test _check_integrity."""
 
+        session = qsa.session_current()
+        qsa.session_free()
+        new_session = qsa.session_new()
+        self.assertNotEqual(session, new_session)
         obj_ = qsa.orm_("flmodules")()
         obj_.idmodulo = "mod2"
         obj_.idarea = "F"
@@ -97,6 +103,7 @@ class TestBaseModel(unittest.TestCase):
         obj_2 = qsa.orm_("flareas")()
         obj_2.idarea = "F"
         obj_2.descripcion = "Area"
+        obj_2.session.begin()
         self.assertTrue(obj_2.save())
         obj_2.session.commit()
 
@@ -146,7 +153,9 @@ class TestBaseModel(unittest.TestCase):
 
     def test_relation_m1(self) -> None:
         """Test relationM1."""
-
+        qsa.session_free()
+        qsa.session()
+        qsa.session_current().begin()
         obj_ = qsa.orm_("flareas")()
         obj_.idarea = "T"
         obj_.descripcion = "Area"
@@ -185,18 +194,17 @@ class TestBaseModel(unittest.TestCase):
 
     def test_(self) -> None:
         """Test."""
-
-        obj_class = qsa.orm_("flareas")
         session = qsa.session()
         session.begin()
-
-        obj_ = obj_class()
+        obj_class = qsa.orm_("flareas")
+        obj_ = obj_class(session=session)
         self.assertEqual(obj_.mode_access, 0)  # Insert
         obj_.idarea = "O"
         obj_.descripcion = "Descripcion O"
         self.assertTrue(obj_.save())
         obj_.session.commit()
 
+        session.begin()
         obj_new = obj_class.get("O", session)
         obj_new.descripcion = "Nueva descripción"
         self.assertTrue(obj_new.save())
@@ -204,7 +212,7 @@ class TestBaseModel(unittest.TestCase):
 
     def test_cache_objects(self) -> None:
         """Test cache objects."""
-
+        session = qsa.session()
         obj_class = qsa.orm_("flareas")
         obj_ = obj_class()
         obj_.idarea = "R"
@@ -220,8 +228,15 @@ class TestBaseModel(unittest.TestCase):
     def test_z_delete(self) -> None:
         """Test delete."""
 
+        qsa.session_free()
+        self.assertFalse(qsa.session_current())
+
+        session = qsa.session()
         obj_class = qsa.orm_("flareas")
+
         obj_ = obj_class.get("F")
+        self.assertEqual(session, obj_.session)
+
         self.assertTrue(obj_)
         self.assertEqual(obj_class.query().all()[2].idarea, obj_.idarea)
 
@@ -233,8 +248,10 @@ class TestBaseModel(unittest.TestCase):
         obj2_.descripcion = "Desc"
         obj2_.idmodulo = "mr1"
         self.assertTrue(obj2_.save())
-        obj_.session.begin()
+        session.begin()
+
         obj2_.session.commit()
+        session.begin()
         self.assertEqual(len(obj_.relation1M("idarea")["flmodules_idarea"]), 3)
         self.assertEqual(obj_.relation1M("idarea")["flmodules_idarea"][2].idmodulo, obj2_.idmodulo)
         self.assertTrue(obj_.delete())
@@ -259,6 +276,8 @@ class TestBaseModel(unittest.TestCase):
             foreign_keys=[modules_class.idarea],
             cascade="delete,delete-orphan",  # "all, delete-orphan"
         )
+        current_session = qsa.session_current()
+        current_session.begin()
 
         obj_areas = areas_class()
         obj_areas.idarea = "I"
@@ -275,6 +294,8 @@ class TestBaseModel(unittest.TestCase):
         obj_modules_2.idarea = "I"
         obj_modules_2.descripcion = "modulo 2"
         obj_modules_2.idmodulo = "M2"
+
+        current_session.begin()
 
         self.assertTrue(obj_modules_1.save())
         self.assertTrue(obj_modules_2.save())

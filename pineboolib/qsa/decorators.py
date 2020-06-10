@@ -21,6 +21,7 @@ def atomic(conn_name="default") -> TYPEFN:
             new_session.begin()
 
             id_thread = threading.current_thread().ident
+            key = "%s_%s" % (id_thread, conn_name)
             # LOGGER.warning(
             #    "NUEVA session: %s, thread: %s, trans: %s",
             #    new_session,
@@ -28,7 +29,7 @@ def atomic(conn_name="default") -> TYPEFN:
             #    new_session.transaction,
             # )
 
-            application.PROJECT.conn_manager.thread_sessions[id_thread] = new_session
+            application.PROJECT.conn_manager.thread_sessions[key] = new_session
 
             result_ = fun_(*args, **kwargs)
 
@@ -36,8 +37,8 @@ def atomic(conn_name="default") -> TYPEFN:
                 new_session.rollback()
             else:
                 new_session.commit()
-
-            application.PROJECT.conn_manager.thread_sessions[id_thread] = None
+            new_session.close()
+            application.PROJECT.conn_manager.thread_sessions[key] = None
             return result_
 
         mock_fn: TYPEFN = cast(TYPEFN, wrapper)  # type: ignore

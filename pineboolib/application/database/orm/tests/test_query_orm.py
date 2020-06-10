@@ -20,8 +20,8 @@ class TestQueryOrm(unittest.TestCase):
     def test_delete(self) -> None:
         """Test delete with children."""
 
-        # session = qsa.session()
-
+        session = qsa.session()
+        session.begin()
         class_area = qsa.orm_("fltest4")
         obj_area = class_area()
 
@@ -39,18 +39,20 @@ class TestQueryOrm(unittest.TestCase):
         child_2.idarea = "E"
         self.assertTrue(child_1.save())
         child_1.session.commit()
+        session.begin()
         self.assertTrue(child_2.save())
         child_2.session.commit()
 
         self.assertEqual(len(class_child.query().all()), 2)
 
         # session.commit()
+        session.begin()
         self.assertTrue(class_area.query().filter(class_area.idarea == "E").first())
         # session = qsa.session()
         new_obj = class_area.get("E")
         self.assertEqual(len(class_child.query().all()), 2)
         obj_area.query().filter(class_area.idarea == "E").delete()
-
+        session.commit()
         # session.commit()
         self.assertEqual(len(class_child.query().all()), 0)
 

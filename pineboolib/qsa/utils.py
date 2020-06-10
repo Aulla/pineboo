@@ -5,6 +5,7 @@ import traceback
 import re
 import math
 import sys
+import threading
 
 from PyQt5 import QtCore
 from pineboolib.core.utils.utils_base import ustr
@@ -548,7 +549,59 @@ def user_id() -> str:
 
 def session(conn_name: str = "default") -> "orm_session.Session":
     """Return session connection."""
+    if conn_name is None:
+        conn_name = "default"
 
+    current = session_current(conn_name)
+    if current:
+        if current.transaction is not None:
+            raise Exception("The last session continues in transaction")
+        else:
+            session_free(conn_name)
+
+    id_thread = threading.current_thread().ident
     session = application.PROJECT.conn_manager.useConn(conn_name).driver().session()
-    setattr(session, "_conn_name", conn_name)
+
+    session_key = "%s_%s" % (id_thread, conn_name)
+    application.PROJECT.conn_manager.last_thread_session[session_key] = session
+
     return session
+
+
+def session_new(conn_name: Optional[str] = None) -> "orm_session.Session":
+    """Return session new."""
+
+    return session(conn_name)
+
+
+def session_current(conn_name: Optional[str] = None) -> Optional["orm_session.Session"]:
+    """Return session current."""
+
+    if conn_name is None:
+        conn_name = "default"
+
+    id_thread = threading.current_thread().ident
+    session_key = "%s_%s" % (id_thread, conn_name)
+
+    if session_key in application.PROJECT.conn_manager.last_thread_session.keys():
+        return application.PROJECT.conn_manager.last_thread_session[session_key]
+
+    return None
+
+
+def session_free(session_name: Optional[str] = None):
+    if session_name is None:
+        session_name = "default"
+
+    id_thread = threading.current_thread().ident
+    session_key = "%s_%s" % (id_thread, session_name)
+    if session_key in application.PROJECT.conn_manager.last_thread_session.keys():
+        application.PROJECT.conn_manager.last_thread_session[session_key].close()
+        application.PROJECT.conn_manager.last_thread_session[session_key] = None
+        del application.PROJECT.conn_manager.last_thread_session[session_key]
+
+
+def thread() -> int:
+    """Return thread id."""
+
+    return threading.current_thread().ident

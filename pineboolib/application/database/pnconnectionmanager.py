@@ -27,6 +27,7 @@ class PNConnectionManager(QtCore.QObject):
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
     thread_sessions: Dict[int, "orm.session.Session"]
+    last_thread_session: Dict[int, "orm.session.Session"]
 
     def __init__(self):
         """Initialize."""
@@ -34,6 +35,7 @@ class PNConnectionManager(QtCore.QObject):
         super().__init__()
         self.connections_dict = {}
         self.thread_sessions = {}
+        self.last_thread_session = {}
 
         LOGGER.info("Initializing PNConnection Manager:")
         LOGGER.info("LIMIT CONNECTIONS = %s.", self.limit_connections)

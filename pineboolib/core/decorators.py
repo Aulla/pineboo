@@ -244,6 +244,7 @@ def pyqt_slot(*args: Any) -> Callable[[TYPEFN], TYPEFN]:
     return _pyqt_slot
 
 
+
 # NOTE: Does not work with Python 3.6 or newer :-(
 # def typecheck(fn: T_FN) -> T_FN:
 #     """
