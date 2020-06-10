@@ -59,14 +59,6 @@ def prueba2():
     id_thread = threading.current_thread().ident
     key = "%s_%s" % (id_thread, "dbaux")
     result = key in application.PROJECT.conn_manager.thread_sessions.keys()
-    if (
-        application.PROJECT.conn_manager.thread_sessions[
-            key
-        ]._conn_name.lower()  # type: ignore [attr-defined] # noqa: F821
-        != "dbaux"
-    ):
-        result = False
-
     if application.PROJECT.conn_manager.thread_sessions[key] != qsa.session_atomic("dbaux"):
         result = False
 
