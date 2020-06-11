@@ -584,6 +584,17 @@ def thread_session_new(conn_name: str = "default") -> "orm_session.Session":
     return session
 
 
+def available_thread_sessions():
+    """Return available thread sessions."""
+
+    sessions = application.PROJECT.conn_manager.get_current_thread_sessions()
+    sessions_dict = {}
+    for item in sessions:
+        sessions_dict[item._conn_name.lower()] = item
+
+    return sessions_dict
+
+
 def thread_session_current(conn_name: Optional[str] = None) -> Optional["orm_session.Session"]:
     """Return session current."""
 

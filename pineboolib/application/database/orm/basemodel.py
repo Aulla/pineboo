@@ -87,9 +87,10 @@ class BaseModel(object):
             sessions = application.PROJECT.conn_manager.get_current_thread_sessions()
             session_list = []
             for item in sessions:
-                session_list.append(
-                    item._conn_name.lower()  # type: ignore [attr-defined] # noqa: F821
-                )
+                if not item.closed:
+                    session_list.append(
+                        item._conn_name.lower()  # type: ignore [attr-defined] # noqa: F821
+                    )
 
             target._error_manager(
                 "_qsa_init",
