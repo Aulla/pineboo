@@ -6,6 +6,7 @@ from . import utils
 from typing import Callable, Any, TypeVar, cast
 import threading
 import functools
+import traceback
 
 TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 
@@ -35,6 +36,12 @@ def atomic(conn_name: str = "default") -> TYPEFN:
             try:
                 result_ = fun_(*args, **kwargs)
             except Exception as error:
+                LOGGER.warning(
+                    "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
+                    "".join(traceback.format_exc(limit=None)),
+                    "".join(traceback.format_stack(limit=None)),
+                    stack_info=True,
+                )
                 new_session.rollback()
                 new_session.close()
                 del application.PROJECT.conn_manager.thread_atomic_sessions[key]

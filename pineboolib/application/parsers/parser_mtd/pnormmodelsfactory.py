@@ -41,7 +41,7 @@ from pineboolib.application.utils.path import _path
 from pineboolib.application import load_script
 from pineboolib import logging, application
 from . import pnmtdparser
-
+import sqlalchemy
 
 from typing import Any, List, Dict, TYPE_CHECKING
 
@@ -86,6 +86,7 @@ def save_model(path_, name: str) -> None:
     if model_class is not None:
         # event.listen(model_class, "load", model_class._constructor_init)
         qsadictmodules.QSADictModules.save_other("%s_orm" % name, model_class)
+        sqlalchemy.event.listen(model_class, "load", model_class._constructor_init)
         application.PROJECT.conn_manager.manager().metadata(name)
         PROCESSED.append(name)
 

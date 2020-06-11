@@ -121,13 +121,15 @@ class BaseModel(object):
             if self in self._session.new:
                 self._error_manager("_common_init", "Common init with session.new instance!")
 
-            self.update_copy()
-            self._current_mode = None
-            # self._force_mode =  3 #browse
-            pk_name = self.pk_name
-            if getattr(self, pk_name, None) is None:
+            if not hasattr(self, "_buffer_copy"):
+                self.update_copy()
+                self._current_mode = None
+                # self._force_mode =  3 #browse
+
+            if self._new_object:
                 self._populate_default()
 
+                pk_name = self.pk_name
                 if self.type(pk_name) == "serial":
                     setattr(
                         self,
@@ -437,14 +439,14 @@ class BaseModel(object):
         """Return instance selected by pk."""
         qry = cls.query(session)
         ret_ = qry.get(pk_value) if qry is not None else None
-        if ret_ is not None:
-            session_name = None
-            if isinstance(session, str):
-                session_name = session
-            else:
-                session_name = cls._resolve_session_name(session)
+        # if ret_ is not None:
+        # session_name = None
+        # if isinstance(session, str):
+        #    session_name = session
+        # else:
+        #    session_name = cls._resolve_session_name(session)
 
-            cls._constructor_init(ret_, {"session_name": session_name})
+        # cls._constructor_init(ret_, {"session_name": session_name})
 
         return ret_
 
@@ -481,23 +483,23 @@ class BaseModel(object):
                     session_ = cls.get_session_from_connection(session)
             else:
                 session_ = session
-                session_name = cls._resolve_session_name(session)
+                # session_name = cls._resolve_session_name(session)
 
             if isinstance(session_, orm.session.Session):
                 # if not session_.transaction:
                 #    session_.begin()
 
                 ret_ = session_.query(cls)
-                event.listen(ret_, "before_compile_update", cls._before_compile_update)
-                event.listen(ret_, "before_compile_delete", cls._before_compile_delete)
+            #    event.listen(ret_, "before_compile_update", cls._before_compile_update)
+            #    event.listen(ret_, "before_compile_delete", cls._before_compile_delete)
 
         if ret_ is None:
             LOGGER.warning("query: Invalid session %s ", session)
-        else:
+        # else:
 
-            if session_name is not None:
-                for item in ret_:
-                    cls._constructor_init(item, {"session_name": session_name})
+        # if session_name is not None:
+        #    for item in ret_:
+        #        cls._constructor_init(item, {"session_name": session_name})
 
         return ret_
 
@@ -618,11 +620,17 @@ class BaseModel(object):
                         )
 
                         qry_data = (
-                            foreign_class_.query(self._session)
+                            self._session.query(  # type: ignore [union-attr] # noqa: F821
+                                foreign_class_
+                            )
                             .filter(foreign_field_obj == getattr(self, field_name))
                             .first()
                         )
-
+                        # qry_data = (
+                        #    foreign_class_.query(self._session)
+                        #    .filter(foreign_field_obj == getattr(self, field_name))
+                        #    .first()
+                        # )
                         value = getattr(self, field_name)
                         if qry_data is None and (not field.allowNull() or value is not None):
                             self._error_manager(
@@ -665,11 +673,12 @@ class BaseModel(object):
                     if foreign_table_class is not None:
                         foreign_field_obj = getattr(foreign_table_class, meta_rel.foreignField())
                         return (
-                            foreign_table_class.query(self._session_name)
+                            self._session.query(  # type: ignore [union-attr] # noqa: F821
+                                foreign_table_class
+                            )
                             .filter(foreign_field_obj == getattr(self, field_name))
                             .first()
                         )
-
         return None
 
     def relation1M(self, field_name: str = "") -> Dict[str, List[Callable]]:
