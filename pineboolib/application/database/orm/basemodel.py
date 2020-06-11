@@ -74,18 +74,26 @@ class BaseModel(object):
             target._session = kwargs["session"]
         else:
             id_thread = threading.current_thread().ident
-            key = "%s_%s" % (
-                id_thread,
-                kwargs["conn_name"] if "conn_name" in kwargs.keys() else "default",
-            )
+            conn_name = kwargs["conn_name"] if "conn_name" in kwargs.keys() else "default"
+            key = "%s_%s" % (id_thread, conn_name)
 
-            if key in application.PROJECT.conn_manager.thread_sessions.keys():
-                target._session = application.PROJECT.conn_manager.thread_sessions[key]
+            if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
+                target._session = application.PROJECT.conn_manager.thread_atomic_sessions[key]
             elif key in application.PROJECT.conn_manager.last_thread_session.keys():
                 target._session = application.PROJECT.conn_manager.last_thread_session[key]
 
         if target.session is None:
-            target._error_manager("_qsa_init", "session is empty!")
+
+            sessions = application.PROJECT.conn_manager.get_current_thread_sessions()
+            session_list = []
+            for item in sessions:
+                session_list.append(item._conn_name.lower())
+
+            target._error_manager(
+                "_qsa_init",
+                "An active session was not found on the '%s' connection (Available sessions: %s)"
+                % (conn_name, ", ".join(session_list)),
+            )
 
         target._session_name = target._session._conn_name  # type: ignore [union-attr] # noqa: F821
         target._new_object = True
@@ -462,8 +470,8 @@ class BaseModel(object):
 
                 id_thread = threading.current_thread().ident
                 key = "%s_%s" % (id_thread, session)
-                if key in application.PROJECT.conn_manager.thread_sessions.keys():
-                    session_ = application.PROJECT.conn_manager.thread_sessions[key]
+                if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
+                    session_ = application.PROJECT.conn_manager.thread_atomic_sessions[key]
                 elif key in application.PROJECT.conn_manager.last_thread_session.keys():
                     session_ = application.PROJECT.conn_manager.last_thread_session[key]
 
@@ -773,8 +781,10 @@ class BaseModel(object):
             exception_ = error_info[0]
             error_message = str(error_info[1])
 
-        LOGGER.warning(
-            "%s\n\n==== STACK EXCEPTION ====\n\n%s\n\n ==== APP STACK ====\n\n%s\n\n",
+        LOGGER.error(
+            "%s.%s:: %s\n\n==== STACK EXCEPTION ====\n\n%s\n\n ==== APP STACK ====\n\n%s\n\n",
+            cls.__name__,
+            text,
             error_message,
             "".join(traceback.format_exc(limit=None)),
             "".join(traceback.format_stack(limit=None)),

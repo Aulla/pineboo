@@ -30,21 +30,20 @@ def atomic(conn_name: str = "default") -> TYPEFN:
             #    new_session.transaction,
             # )
 
-            application.PROJECT.conn_manager.thread_sessions[key] = new_session
+            application.PROJECT.conn_manager.thread_atomic_sessions[key] = new_session
 
             try:
                 result_ = fun_(*args, **kwargs)
             except Exception as error:
                 new_session.rollback()
                 new_session.close()
-                del application.PROJECT.conn_manager.thread_sessions[key]
-                LOGGER.warning("ATOMIC: Error : %s", str(error), stack_info=True)
-                raise Exception(error)
+                del application.PROJECT.conn_manager.thread_atomic_sessions[key]
+                raise error
 
             new_session.commit()
 
             new_session.close()
-            del application.PROJECT.conn_manager.thread_sessions[key]
+            del application.PROJECT.conn_manager.thread_atomic_sessions[key]
             return result_
 
         mock_fn: TYPEFN = cast(TYPEFN, wrapper)

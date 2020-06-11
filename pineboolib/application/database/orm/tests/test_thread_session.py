@@ -22,16 +22,21 @@ class TestThreadSession(unittest.TestCase):
         """Test basic 1."""
         id_thread = threading.current_thread().ident
         key = "%s_%s" % (id_thread, "default")
-        self.assertFalse(key in application.PROJECT.conn_manager.thread_sessions.keys())
+        self.assertFalse(key in application.PROJECT.conn_manager.thread_atomic_sessions.keys())
         self.assertTrue(prueba(1))
-        self.assertFalse(key in application.PROJECT.conn_manager.thread_sessions.keys())
+        self.assertFalse(key in application.PROJECT.conn_manager.thread_atomic_sessions.keys())
 
     def test_basic_2(self) -> None:
         """Test basic 2."""
         id_thread = threading.current_thread().ident
         key = "%s_dbaux" % id_thread
         self.assertTrue(prueba2())
-        self.assertFalse(key in application.PROJECT.conn_manager.thread_sessions.keys())
+        self.assertFalse(key in application.PROJECT.conn_manager.thread_atomic_sessions.keys())
+
+    def test_basic_3(self) -> None:
+        """Test basic 2."""
+        with self.assertRaises(Exception):
+            prueba3()
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -44,9 +49,9 @@ class TestThreadSession(unittest.TestCase):
 def prueba(value: int):
     id_thread = threading.current_thread().ident
     key = "%s_%s" % (id_thread, "default")
-    result = key in application.PROJECT.conn_manager.thread_sessions.keys()
+    result = key in application.PROJECT.conn_manager.thread_atomic_sessions.keys()
 
-    if application.PROJECT.conn_manager.thread_sessions[key] != qsa.session_atomic():
+    if application.PROJECT.conn_manager.thread_atomic_sessions[key] != qsa.session_atomic():
         result = False
 
     if value != 1:
@@ -58,8 +63,20 @@ def prueba(value: int):
 def prueba2():
     id_thread = threading.current_thread().ident
     key = "%s_%s" % (id_thread, "dbaux")
-    result = key in application.PROJECT.conn_manager.thread_sessions.keys()
-    if application.PROJECT.conn_manager.thread_sessions[key] != qsa.session_atomic("dbaux"):
+    result = key in application.PROJECT.conn_manager.thread_atomic_sessions.keys()
+    if application.PROJECT.conn_manager.thread_atomic_sessions[key] != qsa.session_atomic("dbaux"):
         result = False
 
     return result
+
+
+@qsa.atomic("dbaux")
+def prueba3():
+
+    obj_ = qsa.orm.fltest4()
+
+    id_thread = threading.current_thread().ident
+    key = "%s_%s" % (id_thread, "dbaux")
+
+    result = obj_.session == qsa.session_atomic("dbaux")
+    return not result

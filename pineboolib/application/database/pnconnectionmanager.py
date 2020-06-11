@@ -7,6 +7,8 @@ from pineboolib.interfaces import iconnection
 from . import pnconnection
 from . import pnsqlcursor
 
+import threading
+
 from typing import Dict, Union, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -26,7 +28,7 @@ class PNConnectionManager(QtCore.QObject):
     limit_connections: int = 50  # Limit of connections to use.
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
-    thread_sessions: Dict[str, "orm.session.Session"]
+    thread_atomic_sessions: Dict[str, "orm.session.Session"]
     last_thread_session: Dict[str, "orm.session.Session"]
 
     def __init__(self):
@@ -34,7 +36,7 @@ class PNConnectionManager(QtCore.QObject):
 
         super().__init__()
         self.connections_dict = {}
-        self.thread_sessions = {}
+        self.thread_atomic_sessions = {}
         self.last_thread_session = {}
 
         LOGGER.info("Initializing PNConnection Manager:")
@@ -277,6 +279,21 @@ class PNConnectionManager(QtCore.QObject):
         """Return session identifier."""
 
         return application.PROJECT.session_id()
+
+    def get_current_thread_sessions(self) -> List["orm.session.Session"]:
+        """Return thread sessions openend."""
+
+        id_thread = threading.current_thread().ident
+        result: List["orm.session.Session"] = []
+        for key in self.thread_atomic_sessions.keys():
+            if str(id_thread) in key:
+                result.append(self.thread_atomic_sessions[key])
+
+        for key in self.last_thread_session.keys():
+            if str(id_thread) in key:
+                result.append(self.last_thread_session[key])
+
+        return result
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""
