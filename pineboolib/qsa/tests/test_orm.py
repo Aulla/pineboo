@@ -17,10 +17,11 @@ class TestOrm(unittest.TestCase):
 
     def test_load(self) -> None:
         """Load model."""
-
+        qsa.thread_session_new()
         class1_ = qsa.from_project("flareas_orm")
         obj_ = qsa.orm_("flareas")()
         self.assertEqual(class1_, obj_.__class__)
+        qsa.thread_session_free()
 
     # ===============================================================================
     #     def test_sessions_isolation(self) -> None:
@@ -106,7 +107,7 @@ class TestOrm(unittest.TestCase):
     def test_modify_data(self) -> None:
         """Insert object to database."""
 
-        session_ = qsa.session()
+        session_ = qsa.thread_session_new()
         class_ = qsa.from_project("flareas_orm")
 
         obj_ = class_()
@@ -128,6 +129,7 @@ class TestOrm(unittest.TestCase):
         session_3 = qsa.session()
         obj3_ = session_3.query(class_).get("B")
         self.assertEqual(obj3_.descripcion, "Area B modificada")
+        qsa.thread_session_free()
 
     def test_legacy_metadata(self) -> None:
         """Compares metadata with rom metadata."""
@@ -154,7 +156,7 @@ class TestOrm(unittest.TestCase):
         """Save points."""
 
         session_ = (
-            qsa.session()
+            qsa.thread_session_new()
         )  # implica nueva Transaccion si en la llama anterior se hizo rollback o commit.
         # Si no continua en la transaccion que se abrio la última vez
 
@@ -180,6 +182,7 @@ class TestOrm(unittest.TestCase):
         self.assertEqual(obj_.descripcion, "Descripción C")
 
         session_.rollback()  # rollback transaccion
+        qsa.thread_session_free()
 
     @classmethod
     def tearDownClass(cls) -> None:

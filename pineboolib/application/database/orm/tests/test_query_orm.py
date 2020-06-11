@@ -20,7 +20,7 @@ class TestQueryOrm(unittest.TestCase):
     def test_delete(self) -> None:
         """Test delete with children."""
 
-        session = qsa.session()
+        session = qsa.thread_session_new()
         session.begin()
         class_area = qsa.orm_("fltest4")
         obj_area = class_area()

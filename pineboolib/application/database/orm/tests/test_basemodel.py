@@ -52,7 +52,7 @@ class TestBaseModel(unittest.TestCase):
 
     def test_serial(self) -> None:
         """Test serial field."""
-
+        qsa.thread_session_new()
         class_fltest = qsa.orm_("fltest")
         obj_ = class_fltest()
         self.assertEqual(obj_.id, 2)
@@ -214,7 +214,7 @@ class TestBaseModel(unittest.TestCase):
 
     def test_cache_objects(self) -> None:
         """Test cache objects."""
-        qsa.session()
+        qsa.thread_session_new()
         obj_class = qsa.orm_("flareas")
         obj_ = obj_class()
         obj_.idarea = "R"
@@ -233,7 +233,7 @@ class TestBaseModel(unittest.TestCase):
         qsa.thread_session_free()
         self.assertFalse(qsa.thread_session_current())
 
-        session = qsa.session()
+        session = qsa.thread_session_new()
         obj_class = qsa.orm_("flareas")
 
         obj_ = obj_class.get("F")
