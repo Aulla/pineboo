@@ -584,13 +584,13 @@ def thread_session_new(conn_name: str = "default") -> "orm_session.Session":
     return session
 
 
-def available_thread_sessions():
+def available_thread_sessions() -> Dict[str, "orm_session.Session"]:
     """Return available thread sessions."""
 
     sessions = application.PROJECT.conn_manager.get_current_thread_sessions()
     sessions_dict = {}
     for item in sessions:
-        sessions_dict[item._conn_name.lower()] = item
+        sessions_dict[item._conn_name.lower()] = item  # type: ignore [attr-defined] # noqa: F821
 
     return sessions_dict
 
