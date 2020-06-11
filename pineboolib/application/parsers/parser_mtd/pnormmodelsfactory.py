@@ -86,7 +86,11 @@ def save_model(path_, name: str) -> None:
     if model_class is not None:
         # event.listen(model_class, "load", model_class._constructor_init)
         qsadictmodules.QSADictModules.save_other("%s_orm" % name, model_class)
-        sqlalchemy.event.listen(model_class, "load", model_class._constructor_init)
+        sqlalchemy.event.listen(
+            model_class,
+            "load",
+            model_class._constructor_init,  # type: ignore [attr-defined] # noqa: F821
+        )
         application.PROJECT.conn_manager.manager().metadata(name)
         PROCESSED.append(name)
 

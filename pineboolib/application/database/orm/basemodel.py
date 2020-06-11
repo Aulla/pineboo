@@ -10,7 +10,7 @@ from . import dummy_cursor
 
 from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
-from sqlalchemy import orm, inspect, event
+from sqlalchemy import orm, inspect
 import datetime
 import traceback
 import threading
@@ -466,12 +466,9 @@ class BaseModel(object):
         """Return Session query."""
 
         ret_ = None
-        session_name = None
         if session is not None:
             session_: "orm.session.Session"
             if isinstance(session, str):
-                session_name = session
-
                 id_thread = threading.current_thread().ident
                 key = "%s_%s" % (id_thread, session)
                 if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
@@ -483,23 +480,12 @@ class BaseModel(object):
                     session_ = cls.get_session_from_connection(session)
             else:
                 session_ = session
-                # session_name = cls._resolve_session_name(session)
 
             if isinstance(session_, orm.session.Session):
-                # if not session_.transaction:
-                #    session_.begin()
-
                 ret_ = session_.query(cls)
-            #    event.listen(ret_, "before_compile_update", cls._before_compile_update)
-            #    event.listen(ret_, "before_compile_delete", cls._before_compile_delete)
 
         if ret_ is None:
             LOGGER.warning("query: Invalid session %s ", session)
-        # else:
-
-        # if session_name is not None:
-        #    for item in ret_:
-        #        cls._constructor_init(item, {"session_name": session_name})
 
         return ret_
 
