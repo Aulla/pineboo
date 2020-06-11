@@ -568,18 +568,20 @@ def session(conn_name: str = "default") -> "orm_session.Session":
 def thread_session_new(conn_name: str = "default") -> "orm_session.Session":
     """Return thread session new."""
 
-    current = session_current(conn_name)
+    current = thread_session_current(conn_name)
     if current:
         if current.transaction is not None:
             raise Exception("The last session continues in transaction")
         else:
-            session_free(conn_name)
+            thread_session_free(conn_name)
 
     id_thread = threading.current_thread().ident
     session = application.PROJECT.conn_manager.useConn(conn_name).driver().session()
 
     session_key = "%s_%s".lower() % (id_thread, conn_name)
     application.PROJECT.conn_manager.last_thread_session[session_key] = session
+
+    return session
 
 
 def thread_session_current(conn_name: Optional[str] = None) -> Optional["orm_session.Session"]:

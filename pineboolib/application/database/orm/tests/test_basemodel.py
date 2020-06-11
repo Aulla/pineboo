@@ -86,9 +86,9 @@ class TestBaseModel(unittest.TestCase):
     def test_integrity(self) -> None:
         """test _check_integrity."""
 
-        session = qsa.session_current()
-        qsa.session_free()
-        new_session = qsa.session_new()
+        session = qsa.thread_session_current()
+        qsa.thread_session_free()
+        new_session = qsa.thread_session_new()
         self.assertNotEqual(session, new_session)
         obj_ = qsa.orm_("flmodules")()
         obj_.idmodulo = "mod2"
@@ -153,9 +153,9 @@ class TestBaseModel(unittest.TestCase):
 
     def test_relation_m1(self) -> None:
         """Test relationM1."""
-        qsa.session_free()
+        qsa.thread_session_free()
         qsa.session()
-        current_session = qsa.session_current()
+        current_session = qsa.thread_session_current()
         if current_session:
             current_session.begin()
             obj_ = qsa.orm_("flareas")()
@@ -230,8 +230,8 @@ class TestBaseModel(unittest.TestCase):
     def test_z_delete(self) -> None:
         """Test delete."""
 
-        qsa.session_free()
-        self.assertFalse(qsa.session_current())
+        qsa.thread_session_free()
+        self.assertFalse(qsa.thread_session_current())
 
         session = qsa.session()
         obj_class = qsa.orm_("flareas")
@@ -278,7 +278,7 @@ class TestBaseModel(unittest.TestCase):
             foreign_keys=[modules_class.idarea],
             cascade="delete,delete-orphan",  # "all, delete-orphan"
         )
-        current_session = qsa.session_current()
+        current_session = qsa.thread_session_current()
         if current_session:
 
             current_session.begin()

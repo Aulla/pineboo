@@ -70,13 +70,9 @@ def prueba2():
     return result
 
 
-@qsa.atomic("dbaux")
+@qsa.atomic("dbaux")  # type: ignore [misc] # noqa: F821
 def prueba3():
 
     obj_ = qsa.orm.fltest4()
-
-    id_thread = threading.current_thread().ident
-    key = "%s_%s" % (id_thread, "dbaux")
-
     result = obj_.session == qsa.session_atomic("dbaux")
     return not result
