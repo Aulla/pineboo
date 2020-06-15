@@ -147,17 +147,18 @@ class BaseModel(object):
                 "%s.mtd" % table_name
             )
 
-            action = application.PROJECT.actions[
-                id_module if id_module in application.PROJECT.actions.keys() else "sys"
-            ]
-            module_script = action.load_master_widget()
-            self._module_iface = getattr(module_script, "iface", None)
+            if "sys" in application.PROJECT.actions.keys():
+                action = application.PROJECT.actions[
+                    id_module if id_module in application.PROJECT.actions.keys() else "sys"
+                ]
+                module_script = action.load_master_widget()
+                self._module_iface = getattr(module_script, "iface", None)
 
-            try:
-                self.init_new()
-                self.init()
-            except Exception as error:
-                self._error_manager("_common_init", error)
+                try:
+                    self.init_new()
+                    self.init()
+                except Exception as error:
+                    self._error_manager("_common_init", error)
 
     def init(self):
         """Initialize."""
