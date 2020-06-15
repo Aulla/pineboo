@@ -579,8 +579,8 @@ class PNSqlSchema(object):
     def normalizeValue(self, text: str) -> str:
         """Return a database friendly text."""
 
-        result = str(text).replace("'", "''")
-        return result.replace(":", ": ")
+        res = str(text).replace("'", "''")
+        return res.replace(":", ": ")
 
     def hasCheckColumn(self, metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Retrieve if MTD has a check column."""
