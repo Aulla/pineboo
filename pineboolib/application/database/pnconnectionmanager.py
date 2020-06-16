@@ -234,6 +234,14 @@ class PNConnectionManager(QtCore.QObject):
         """
         return self.useConn("default")
 
+    def reinit_user_connections(self) -> None:
+        """Reinit users connection."""
+
+        connections = self.dictDatabases()
+        for conn_name in connections.keys():
+            self.removeConn(conn_name)
+            self.useConn(conn_name)
+
     def check_alive_connections(self):
         """Check alive connections."""
 
