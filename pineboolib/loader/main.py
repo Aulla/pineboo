@@ -36,7 +36,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
         raise Exception("conn is empty!")
 
     qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
-    init_logging()
+    init_logging(True)
     init_cli(catch_ctrl_c=False)
     pytnyzer.STRICT_MODE = False
     application.PROJECT.load_version()
@@ -102,7 +102,7 @@ def startup(enable_gui: bool = None) -> None:
 
 
 def init_logging(
-    loglevel: int = logging.INFO, logtime: bool = False, trace_loggers: List[str] = []
+    logtime: bool = False, loglevel: int = logging.INFO, trace_loggers: List[str] = []
 ) -> None:
     """Initialize pineboo logging."""
 
@@ -249,7 +249,7 @@ def init_testing() -> None:
     else:
         qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
 
-        init_logging()  # NOTE: Use pytest --log-level=0 for debug
+        init_logging(True)  # NOTE: Use pytest --log-level=0 for debug
         init_cli(catch_ctrl_c=False)
 
         pytnyzer.STRICT_MODE = False
