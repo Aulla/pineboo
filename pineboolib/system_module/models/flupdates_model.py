@@ -18,7 +18,7 @@ class Flupdates(
     # --- Metadata --->
     legacy_metadata = {
         "name": "flupdates",
-        "alias": "Registro de instalaciÃ³n/actualizaciÃ³n de paquetes",
+        "alias": "Registro de instalación/actualización de paquetes",
         "fields": [
             {
                 "name": "id",
@@ -44,7 +44,6 @@ class Flupdates(
                 "alias": "Nombre del Paquete",
                 "type": "string",
                 "length": 255,
-                "regexp": "\w+\.(abanq)",  # noqa: W605
                 "null": False,
                 "editable": False,
             },
