@@ -204,7 +204,7 @@ class FormDBWidget(QtWidgets.QWidget):
                 ret_ = self._get_form()
             else:
                 form = self._get_form()
-                if not isinstance(form, FormDBWidget):
+                if not isinstance(form, FormDBWidget):  # type: ignore [unreachable] # noqa: F821
                     ret_ = getattr(form, name, None)
 
         if ret_ is None and not TYPE_CHECKING:

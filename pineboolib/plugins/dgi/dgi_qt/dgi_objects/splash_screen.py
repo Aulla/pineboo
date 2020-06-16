@@ -22,7 +22,7 @@ class SplashScreen(object):
 
         frame_geo = self._splash.frameGeometry()
         screen = QtWidgets.QApplication.desktop().screenNumber(
-            QtWidgets.QApplication.desktop().cursor().pos()
+            QtWidgets.QApplication.desktop().cursor().pos()  # type: ignore [misc] # noqa: F821
         )
         center_point = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
         frame_geo.moveCenter(center_point)

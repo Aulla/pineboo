@@ -328,7 +328,7 @@ class Kut2FPDF(object):
             if draw_if:
                 show = bool(data.get(draw_if))
 
-            if section.get("Level") == str(data_level) and show not in ("", "False", "None"):
+            if section.get("Level") == str(data_level) and show:
 
                 if section_name in ("DetailHeader", "Detail"):
                     height_calculated = (
