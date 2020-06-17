@@ -91,7 +91,18 @@ def save_model(path_, name: str) -> None:
             "load",
             model_class._constructor_init,  # type: ignore [attr-defined] # noqa: F821
         )
-        application.PROJECT.conn_manager.manager().metadata(name)
+
+        metadata = application.PROJECT.conn_manager.manager().metadata(name)
+        if metadata:
+            for field_name in metadata.fieldNames():
+                obj = getattr(model_class, field_name, None)
+                if obj is not None:
+                    sqlalchemy.event.listen(
+                        obj,
+                        "set",
+                        model_class._changes_slot,  # type: ignore [attr-defined] # noqa: F821
+                    )
+
         PROCESSED.append(name)
 
 

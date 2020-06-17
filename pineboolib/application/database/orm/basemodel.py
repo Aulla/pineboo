@@ -1,12 +1,11 @@
 """Basemodel module."""
 
-
 from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
 from pineboolib import application
 
-from . import dummy_cursor
+from . import dummy_cursor, dummy_signal
 
 from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
@@ -49,6 +48,8 @@ class BaseModel(object):
     _after_commit_function: str
     _module_iface: Any
     _new_object: bool
+    _deny_buffer_changed: List[str]
+    bufferChanged: "dummy_signal.FakeSignal"
 
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
@@ -111,6 +112,9 @@ class BaseModel(object):
 
     def _common_init(self) -> None:
         """Initialize."""
+        self.bufferChanged = dummy_signal.FakeSignal()
+
+        self._deny_buffer_changed = []
 
         if not self._session:
             self._error_manager("_common_init", "session is empty!")
@@ -763,6 +767,36 @@ class BaseModel(object):
         """Return dummy cursor."""
 
         return self._cursor
+
+    def allow_buffer_changed(self, field_name: str, allow: bool = False) -> None:
+        """Enable or diable buffer changed signal."""
+
+        if allow:
+            if field_name in self._deny_buffer_changed:
+                self._deny_buffer_changed.remove(field_name)
+        else:
+            if field_name not in self._deny_buffer_changed:
+                self._deny_buffer_changed.append(field_name)
+
+    def emit_buffer_changed(self, field_name: str) -> None:
+        """Emit buffer changed if field is allow."""
+
+        if field_name not in self._deny_buffer_changed:
+            print("EMITE! ", field_name)
+            self.bufferChanged.emit(field_name)
+
+    @classmethod
+    def _changes_slot(  # type: ignore [attr-defined] # noqa: F821
+        cls,
+        target,
+        new_value: Any,
+        old_value: Any,
+        event: "orm.attributes.Event",  # type: ignore [name-defined] # noqa: F821
+    ) -> None:
+        """Change slot."""
+
+        if hasattr(target, "_deny_buffer_changed"):
+            target.emit_buffer_changed(event.key)
 
     @classmethod
     def _error_manager(cls, text: str, error: Union[Exception, str]) -> None:
