@@ -145,8 +145,12 @@ class FLManagerModules(object):
                 if dir_path.active_:
                     self._file_watcher.addPath(dir_path.path_)
 
-            self._file_watcher.fileChanged.connect(self.static_db_info_.msg_static_changed)
-            self._file_watcher.directoryChanged.connect(self.static_db_info_.msg_static_changed)
+            self._file_watcher.fileChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.static_db_info_.msg_static_changed
+            )
+            self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.static_db_info_.msg_static_changed
+            )
 
         self.active_id_module_ = ""
         self.active_id_area_ = ""
@@ -181,8 +185,12 @@ class FLManagerModules(object):
                 if dir_path.active_:
                     self._file_watcher.addPath(dir_path.path_)
 
-            self._file_watcher.fileChanged.connect(self.static_db_info_.msg_static_changed)
-            self._file_watcher.directoryChanged.connect(self.static_db_info_.msg_static_changed)
+            self._file_watcher.fileChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.static_db_info_.msg_static_changed
+            )
+            self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.static_db_info_.msg_static_changed
+            )
 
     def finish(self) -> None:
         """Run tasks when closing the module."""
