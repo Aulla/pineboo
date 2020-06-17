@@ -92,6 +92,12 @@ class AQStaticBdInfo(object):
         settings.CONFIG.set_value("%sdirs" % self.key_, dirs)
         settings.CONFIG.set_value("%sactiveDirs" % self.key_, ",".join(active_dirs))
 
+    def msg_static_changed(self) -> None:
+        """Show reinit msg."""
+
+        LOGGER.warning("STATIC LOADER FILE HAS BEEN CHANGED. REINIT!")
+        application.PROJECT.aq_app.reinit()
+
 
 class FLStaticLoaderWarning(QtCore.QObject):
     """Create warning about static loading."""

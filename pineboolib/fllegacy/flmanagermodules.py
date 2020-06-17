@@ -1,7 +1,7 @@
 """Flmanagermodules module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 
 from pineboolib.core import decorators
 from pineboolib.core.utils import utils_base
@@ -118,7 +118,7 @@ class FLManagerModules(object):
     Informacion para la carga estatica desde el disco local
     """
     static_db_info_: pnmodulesstaticloader.AQStaticBdInfo
-
+    _file_watcher: "QtCore.QFileSystemWatcher"
     root_dir_: str
     scripts_dir_: str
     tables_dir_: str
@@ -135,8 +135,19 @@ class FLManagerModules(object):
         if db is None:
             raise ValueError("Database is required")
         self.conn_ = db
-
+        self._file_watcher = QtCore.QFileSystemWatcher()
         self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
+
+        if self.static_db_info_.enabled_:
+            # Mapear los scripts!
+            self.static_db_info_.readSettings()
+            for dir_path in self.static_db_info_.dirs_:
+                if dir_path.active_:
+                    self._file_watcher.addPath(dir_path.path_)
+
+            self._file_watcher.fileChanged.connect(self.static_db_info_.msg_static_changed)
+            self._file_watcher.directoryChanged.connect(self.static_db_info_.msg_static_changed)
+
         self.active_id_module_ = ""
         self.active_id_area_ = ""
         self.sha_local_ = ""
@@ -153,6 +164,25 @@ class FLManagerModules(object):
     # @decorators.not_implemented_warn
     # def init(self):
     #    pass
+
+    def reloadStaticLoader(self) -> None:
+        """Reload static loader."""
+
+        del self.static_db_info_
+        del self._file_watcher
+
+        self._file_watcher = QtCore.QFileSystemWatcher()
+        self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
+
+        if self.static_db_info_.enabled_:
+            # Mapear los scripts!
+            self.static_db_info_.readSettings()
+            for dir_path in self.static_db_info_.dirs_:
+                if dir_path.active_:
+                    self._file_watcher.addPath(dir_path.path_)
+
+            self._file_watcher.fileChanged.connect(self.static_db_info_.msg_static_changed)
+            self._file_watcher.directoryChanged.connect(self.static_db_info_.msg_static_changed)
 
     def finish(self) -> None:
         """Run tasks when closing the module."""

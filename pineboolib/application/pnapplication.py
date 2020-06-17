@@ -429,6 +429,7 @@ class PNApplication(QtCore.QObject):
 
         application.PROJECT.run()
         # application.PROJECT.load_modules()
+        self.db().managerModules().reloadStaticLoader()
 
         self.db().managerModules().loadIdAreas()
         self.db().managerModules().loadAllIdModules()
