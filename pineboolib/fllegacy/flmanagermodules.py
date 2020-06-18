@@ -108,8 +108,11 @@ class FLManagerModules(object):
 
         if self.static_db_info_.enabled_:
             # Mapear los scripts!
+            LOGGER.warning("Static load is enabled!")
+
             self.static_db_info_.readSettings()
             for dir_path in self.static_db_info_.dirs_:
+                LOGGER.warning("Static load: %s is %s", dir_path.path_, dir_path.active_)
                 if dir_path.active_:
                     self._file_watcher.addPath(dir_path.path_)
 
@@ -146,8 +149,10 @@ class FLManagerModules(object):
 
         if self.static_db_info_.enabled_:
             # Mapear los scripts!
+            LOGGER.warning("Static load is enabled!")
             self.static_db_info_.readSettings()
             for dir_path in self.static_db_info_.dirs_:
+                LOGGER.warning("Static load: %s is %s", dir_path.path_, dir_path.active_)
                 if dir_path.active_:
                     self._file_watcher.addPath(dir_path.path_)
 
