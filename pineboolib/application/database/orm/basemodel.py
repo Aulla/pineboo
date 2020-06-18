@@ -18,6 +18,7 @@ import time
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
+    from pineboolib.application import xmlaction  # noqa: F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -50,6 +51,7 @@ class BaseModel(object):
     _new_object: bool
     _deny_buffer_changed: List[str]
     bufferChanged: "dummy_signal.FakeSignal"
+    _action: Optional["xmlaction.XMLAction"]
 
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
@@ -64,6 +66,16 @@ class BaseModel(object):
             cls._error_manager("_constructor_init", "session is invalid!")
 
         target._new_object = False
+
+        if "sys" in application.PROJECT.actions.keys():
+            table_name: str = target.table_metadata().name()
+            id_module = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
+                "%s.mtd" % table_name
+            )
+            target._action = application.PROJECT.actions[
+                id_module if id_module in application.PROJECT.actions.keys() else "sys"
+            ]
+
         target._common_init()
 
     def _qsa_init(target, args=[], kwargs={}) -> None:
@@ -100,6 +112,15 @@ class BaseModel(object):
 
         target._session_name = target._session._conn_name  # type: ignore [union-attr] # noqa: F821
         target._new_object = True
+
+        if "sys" in application.PROJECT.actions.keys():
+            table_name: str = target.table_metadata().name()
+            id_module = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
+                "%s.mtd" % table_name
+            )
+            target._action = application.PROJECT.actions[
+                id_module if id_module in application.PROJECT.actions.keys() else "sys"
+            ]
 
         target._common_init()
 
@@ -147,22 +168,47 @@ class BaseModel(object):
             table_name: str = self.table_metadata().name()
             self._before_commit_function = "beforeCommit_%s" % table_name
             self._after_commit_function = "afterCommit_%s" % table_name
-            id_module = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
-                "%s.mtd" % table_name
-            )
 
-            if "sys" in application.PROJECT.actions.keys():
-                action = application.PROJECT.actions[
-                    id_module if id_module in application.PROJECT.actions.keys() else "sys"
-                ]
-                module_script = action.load_master_widget()
-                self._module_iface = getattr(module_script, "iface", None)
+            module_script = self._action.load_master_widget() if self._action is not None else None
+            self._module_iface = getattr(module_script, "iface", None)
 
-                try:
+            try:
+                if self._new_object:
+                    if self._action is not None and self._action._record_widget is not None:
+                        iface = getattr(
+                            self._action._record_widget, "iface", self._action._record_widget
+                        )
+                        if iface is not None:
+                            func_ = getattr(iface, "iniciaValoresCursor", None)
+                            if func_ is not None:
+                                try:
+                                    func_(self.cursor)
+                                except Exception as error:
+                                    self._error_manager("_common_init.iniciaValoresCursor", error)
+
                     self.init_new()
-                    self.init()
-                except Exception as error:
-                    self._error_manager("_common_init", error)
+                self.init()
+            except Exception as error:
+                self._error_manager("_common_init", error)
+
+    def _validate_cursor(self) -> None:
+        """Validate cursor."""
+
+        if self._action is not None and self._action._record_widget is not None:
+            iface = getattr(self._action._record_widget, "iface", self._action._record_widget)
+            if iface is not None:
+                func_ = getattr(iface, "validateCursor", None)
+                if func_ is not None:
+                    result = True
+                    try:
+                        result = func_(self.cursor)
+                    except Exception as error:
+                        self._error_manager("_common_init.validateCursor", error)
+
+                    if result is False:
+                        self._error_manager(
+                            "_common_init.validateCursor", "validateCursor returned False"
+                        )
 
     def init(self):
         """Initialize."""
@@ -342,12 +388,14 @@ class BaseModel(object):
 
             if mode == 0:  # insert
                 try:
+                    self._validate_cursor()
                     self.before_new()
                 except Exception as error:
                     self._error_manager("_before_new", error)
 
             elif mode == 1:  # edit
                 try:
+                    self._validate_cursor()
                     self.before_change()
                 except Exception as error:
                     self._error_manager("_before_change", error)
