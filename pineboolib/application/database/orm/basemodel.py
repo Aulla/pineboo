@@ -830,7 +830,7 @@ class BaseModel(object):
         """Emit buffer changed if field is allow."""
 
         if field_name not in self._deny_buffer_changed:
-            print("EMITE! ", field_name)
+            # print("EMITE! ", field_name)
             self.bufferChanged.emit(field_name)
 
     @classmethod
