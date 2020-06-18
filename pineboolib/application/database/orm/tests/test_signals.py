@@ -93,6 +93,22 @@ class TestSignals(unittest.TestCase):
         self.assertEqual(VALUE_1, 2)
         self.assertEqual(VALUE_2, "idarea")
 
+    def test_basic_5(self) -> None:
+        global VALUE_1, VALUE_2
+
+        VALUE_1 = 0
+        VALUE_2 = ""
+        qsa.thread_session_new()
+        obj_ = qsa.orm.fltest4()
+        self.assertTrue(obj_)
+        obj_.cursor.bufferChanged.connect(update_value)
+        obj_.bufferChanged.connect(update_value_2)
+        self.assertEqual(obj_.cursor.bufferChanged, obj_.bufferChanged)
+        obj_.idarea = "juas"
+        qsa.thread_session_free()
+        self.assertEqual(VALUE_1, 2)
+        self.assertEqual(VALUE_2, "idarea")
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

@@ -67,7 +67,14 @@ class DummyCursor(object):
 
         return self._parent.pk_name
 
+    def get_bc_signal(self):
+        """Return beforeCommit fake signal."""
+
+        return self._parent.bufferChanged
+
     def getattr(self, name: str) -> None:
         """Search unknown functions."""
 
         raise Exception("PLEASE IMPLEMENT DummyCursor.%s." % name)
+
+    bufferChanged = property(get_bc_signal)
