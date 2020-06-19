@@ -7,7 +7,7 @@ from pineboolib import application
 import os
 
 
-with open("requirements.txt") as f:
+with open("requirements_api.txt") as f:
     required = f.read().splitlines()
 
 prj_ = application.PROJECT
