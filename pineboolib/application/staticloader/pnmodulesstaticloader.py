@@ -92,10 +92,10 @@ class AQStaticBdInfo(object):
         settings.CONFIG.set_value("%sdirs" % self.key_, dirs)
         settings.CONFIG.set_value("%sactiveDirs" % self.key_, ",".join(active_dirs))
 
-    def msg_static_changed(self) -> None:
+    def msg_static_changed(self, field_name: str = "unknown") -> None:
         """Show reinit msg."""
 
-        LOGGER.warning("STATIC LOADER FILE HAS BEEN CHANGED. REINIT!")
+        LOGGER.warning("STATIC LOADER DIRECTORY %s HAS BEEN CHANGED. REINIT!", field_name.upper())
         application.PROJECT.aq_app.reinit()
 
 
