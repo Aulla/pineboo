@@ -38,7 +38,6 @@ class BaseModel(object):
     __tablename__: str = ""
 
     _session: Optional["orm.session.Session"]
-    _session_name: str
     _buffer_copy: "Copy"
     _result_before_flush: bool
     _result_after_flush: bool
@@ -56,32 +55,22 @@ class BaseModel(object):
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
         target._session = inspect(target).session
-
-        target._session_name = target._session._conn_name
+        target._action = None
 
         if not target._session:
             cls._error_manager("_constructor_init", "session is empty!")
 
-        elif not target._session_name:
+        elif not target._session._conn_name:
             cls._error_manager("_constructor_init", "session is invalid!")
 
         target._new_object = False
-
-        if "sys" in application.PROJECT.actions.keys():
-            table_name: str = target.table_metadata().name()
-            id_module = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
-                "%s.mtd" % table_name
-            )
-            target._action = application.PROJECT.actions[
-                id_module if id_module in application.PROJECT.actions.keys() else "sys"
-            ]
-
         target._common_init()
 
     def _qsa_init(target, args=[], kwargs={}) -> None:
         """Initialize from qsa."""
 
         target._session = None
+        target._action = None
 
         if "session" in kwargs:
             target._session = kwargs["session"]
@@ -110,17 +99,7 @@ class BaseModel(object):
                 % (conn_name, ", ".join(session_list)),
             )
 
-        target._session_name = target._session._conn_name  # type: ignore [union-attr] # noqa: F821
         target._new_object = True
-
-        if "sys" in application.PROJECT.actions.keys():
-            table_name: str = target.table_metadata().name()
-            id_module = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
-                "%s.mtd" % table_name
-            )
-            target._action = application.PROJECT.actions[
-                id_module if id_module in application.PROJECT.actions.keys() else "sys"
-            ]
 
         target._common_init()
 
@@ -135,12 +114,21 @@ class BaseModel(object):
         """Initialize."""
         self.bufferChanged = dummy_signal.FakeSignal()
 
+        if "sys" in application.PROJECT.actions.keys():
+            table_name: str = self.table_metadata().name()
+            id_module = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
+                "%s.mtd" % table_name
+            )
+            self._action = application.PROJECT.actions[
+                id_module if id_module in application.PROJECT.actions.keys() else "sys"
+            ]
+
         self._deny_buffer_changed = []
 
         if not self._session:
             self._error_manager("_common_init", "session is empty!")
         else:
-            if not self._session_name:
+            if not self._session._conn_name:  # type: ignore [attr-defined] # noqa: F821
                 self._error_manager("_common_init", "Session_name not found!")
 
             if self in self._session.new:
@@ -159,13 +147,14 @@ class BaseModel(object):
                     setattr(
                         self,
                         pk_name,
-                        application.PROJECT.conn_manager.useConn(self._session_name)
+                        application.PROJECT.conn_manager.useConn(
+                            self._session._conn_name  # type: ignore [attr-defined] # noqa: F821
+                        )
                         .driver()
                         .nextSerialVal(self.table_metadata().name(), pk_name),
                     )
             self._cursor = dummy_cursor.DummyCursor(self)
 
-            table_name: str = self.table_metadata().name()
             self._before_commit_function = "beforeCommit_%s" % table_name
             self._after_commit_function = "afterCommit_%s" % table_name
 
@@ -334,7 +323,9 @@ class BaseModel(object):
                                 foreign_table_class, relation.foreignField()
                             )
                             relation_objects = (
-                                foreign_table_class.query(self._session_name)
+                                foreign_table_class.query(
+                                    self._session._conn_name  # type: ignore [union-attr] # noqa: F821
+                                )
                                 .filter(foreign_field_object == getattr(self, field.name()))
                                 .all()
                             )
@@ -492,27 +483,7 @@ class BaseModel(object):
         """Return instance selected by pk."""
         qry = cls.query(session)
         ret_ = qry.get(pk_value) if qry is not None else None
-        # if ret_ is not None:
-        # session_name = None
-        # if isinstance(session, str):
-        #    session_name = session
-        # else:
-        #    session_name = cls._resolve_session_name(session)
-
-        # cls._constructor_init(ret_, {"session_name": session_name})
-
         return ret_
-
-    @classmethod
-    def _resolve_session_name(cls, session: "orm.Session") -> str:
-        """Return session name."""
-
-        for name, conn in application.PROJECT.conn_manager.dictDatabases().items():
-            if conn.connection() is session.connection():
-                return name
-
-        print("NO ENCONTRE SESSION NAME!!!")
-        return "default"
 
     @classmethod
     def query(cls, session: Union[str, "orm.Session"] = "default") -> Optional["orm.query.Query"]:
@@ -735,7 +706,9 @@ class BaseModel(object):
                     ff_obj = getattr(ft_class, relation.foreignField(), None)
                     if ff_obj is not None:
                         list_ = (
-                            ft_class.query(self._session_name)
+                            ft_class.query(
+                                self._session._conn_name  # type: ignore [union-attr] # noqa: F821
+                            )
                             .filter(ff_obj == getattr(self, field_name))
                             .all()
                         )
