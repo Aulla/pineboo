@@ -114,8 +114,8 @@ class BaseModel(object):
         """Initialize."""
         self.bufferChanged = dummy_signal.FakeSignal()
 
+        table_name: str = self.table_metadata().name()
         if "sys" in application.PROJECT.actions.keys():
-            table_name: str = self.table_metadata().name()
             id_module = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
                 "%s.mtd" % table_name
             )
