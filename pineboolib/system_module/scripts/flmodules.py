@@ -323,15 +323,15 @@ class FormInternalObj(qsa.FormDBWidget):
                 if not dir.fileExists(qsa.ustr(directorio, u"/translations")):
                     dir.mkdir(qsa.ustr(directorio, u"/translations"))
                 curFiles.first()
-                file = None
-                tipo = None
-                contenido = ""
+                # file = None
+                # tipo = None
+                # contenido = ""
                 self.setDisabled(True)
                 s01_dowhile_1stloop = True
                 while s01_dowhile_1stloop or curFiles.next():
                     s01_dowhile_1stloop = False
-                    file = curFiles.valueBuffer(u"nombre")
-                    tipo = self.tipoDeFichero(file)
+                    file_name = curFiles.valueBuffer(u"nombre")
+                    tipo = self.tipoDeFichero(file_name)
                     contenido = curFiles.valueBuffer(u"contenido")
                     if contenido:
                         codec: str = ""
@@ -354,14 +354,35 @@ class FormInternalObj(qsa.FormDBWidget):
                         else:
                             log.append(
                                 qsa.util.translate(
-                                    u"scripts", qsa.ustr(u"* Omitiendo ", file, u".")
+                                    u"scripts", qsa.ustr(u"* Omitiendo ", file_name, u".")
                                 )
                             )
                             continue
 
-                        qsa.sys.write(codec, qsa.ustr(directorio, u"/", file), contenido)
+                        sub_carpeta = ""
+                        if tipo in (".py", ".qs"):
+                            sub_carpeta = "scripts"
+                        elif tipo == ".qry":
+                            sub_carpeta = "queries"
+                        elif tipo == ".mtd":
+                            sub_carpeta = "tables"
+                        elif tipo == ".ts":
+                            sub_carpeta = "translations"
+                        elif tipo == ".ui":
+                            sub_carpeta = "forms"
+
+                        print(
+                            "Escribiendo",
+                            codec,
+                            qsa.ustr(directorio, "/%s/" % sub_carpeta, file_name),
+                        )
+                        qsa.sys.write(
+                            codec, qsa.ustr(directorio, "/%s/" % sub_carpeta, file_name), contenido
+                        )
                         log.append(
-                            qsa.util.translate(u"scripts", qsa.ustr(u"* Exportando ", file, u"."))
+                            qsa.util.translate(
+                                u"scripts", qsa.ustr(u"* Exportando ", file_name, u".")
+                            )
                         )
 
                     # qsa.sys.processEvents()
