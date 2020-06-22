@@ -12,12 +12,12 @@ def from_project(scriptname: str) -> Any:
     return QSADictModules.from_project(scriptname)
 
 
-def class_(object_name: str) -> Any:
-    """Get class from project."""
+# def class_(object_name: str) -> Any:
+#    """Get class from project."""
 
-    from pineboolib.application.qsadictmodules import QSADictModules
+#    from pineboolib.application.qsadictmodules import QSADictModules
 
-    return QSADictModules.class_(object_name)
+#    return QSADictModules.class_(object_name)
 
 
 def orm_(action_name: str = "") -> Any:

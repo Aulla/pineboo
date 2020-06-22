@@ -3,8 +3,9 @@ Provide some functions based on data.
 """
 
 from pineboolib.core.utils import logging
-from pineboolib.application import types
+from pineboolib.application import types, qsadictmodules, load_script
 from pineboolib import application
+
 
 from . import pnsqlcursor, pnsqlquery
 
@@ -14,6 +15,7 @@ from typing import Any, Union, List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
 
     from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401
+    from pineboolib.application import file as file_app  # noqa : F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -404,3 +406,33 @@ def exec_sql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default"
     except Exception as exc:
         LOGGER.exception("execSql: Error al ejecutar la consulta SQL: %s %s", sql_, exc)
         return False
+
+
+def process_file_class(file_obj: "file_app.File") -> None:
+    """Process file class."""
+    name = file_obj.filename[:-3]
+    module_ = load_script.load_module(name)
+    main_class = getattr(module_, "public_class", None)
+    if main_class is not None:
+        print("Guardando", "%s_class" % main_class, getattr(module_, main_class, None))
+        qsadictmodules.QSADictModules.save_other(
+            "%s_class" % main_class, getattr(module_, main_class, None)
+        )
+
+
+class ClassManager(object):
+    """ClassManager class."""
+
+    def __getattr__(self, name: str) -> Any:
+        """Return class."""
+
+        return qsadictmodules.QSADictModules.from_project("%s_class" % name)
+
+    def classes(self) -> List[str]:
+        """Return available models list."""
+        result_list: List[str] = []
+        for name in list(dir(qsadictmodules.QSADictModules.qsa_dict_modules())):
+            if str(name).endswith("_class"):
+                result_list.append(name[:-6])
+
+        return result_list

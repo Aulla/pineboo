@@ -258,6 +258,33 @@ def load_class(script_name):
     return class_loaded
 
 
+def load_module(script_name):
+    """Return class from path."""
+
+    script_path_py = _path("%s.py" % script_name, False)
+    script_loaded = None
+
+    mng_modules = application.PROJECT.conn_manager.managerModules()
+    if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
+        script_path_py_static = pnmodulesstaticloader.PNStaticLoader.content(
+            "%s.py" % script_name, mng_modules.static_db_info_, True
+        )  # Con True solo devuelve el path
+        if script_path_py_static:
+            script_path_py = script_path_py_static
+
+    if script_path_py:
+        try:
+            loader = machinery.SourceFileLoader(script_name, script_path_py)
+            script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
+            # class_loaded = getattr(
+            #    script_loaded, "%s%s" % (script_name[0].upper(), script_name[1:]), None
+            # )
+        except Exception as error:
+            LOGGER.error("Error loading module %s: %s", script_name, str(error))
+
+    return script_loaded
+
+
 def get_static_flag(database_path: str, static_path: str) -> "ET.Element":
     """Return static_info."""
 

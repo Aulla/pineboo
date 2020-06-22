@@ -46,17 +46,17 @@ class QSADictModules:
 
         return ret_
 
-    @classmethod
-    def class_(cls, scriptname: str) -> Any:
-        """
-        Return project class for given name.
-        """
+    # @classmethod
+    # def class_(cls, scriptname: str) -> Any:
+    #    """
+    #    Return project class for given name.
+    #    """
 
-        ret_ = getattr(cls.qsa_dict_modules(), scriptname, None)
-        if ret_ is not None:
-            return ret_.class_()
-        else:
-            return None
+    #    ret_ = getattr(cls.qsa_dict_modules(), scriptname, None)
+    #    if ret_ is not None:
+    #        return ret_.class_()
+    #    else:
+    #        return None
 
     @classmethod
     def orm_(cls, script_name: str) -> Any:
@@ -197,6 +197,6 @@ class QSADictModules:
         for name in list_:
             att = getattr(qsa_dict_modules, name)
             if isinstance(att, DelayedObjectProxyLoader) or (
-                name.endswith("_orm") and not name.startswith("fl")
+                name.endswith(("_orm", "_class")) and not name.startswith("fl")
             ):
                 delattr(qsa_dict_modules, name)

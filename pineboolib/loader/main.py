@@ -65,6 +65,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     LOGGER.info("STARTUP_FRAMEWORK:(6/7) Loading modules. Making QSA Tree.")
     application.PROJECT.load_modules()
     LOGGER.info("STARTUP_FRAMEWORK:(7/7) Loading orm models. Making QSA Tree.")
+    application.PROJECT.load_classes()
     application.PROJECT.load_orm()
     LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
 
@@ -280,6 +281,7 @@ def init_testing() -> None:
         application.PROJECT.conn_manager.managerModules().loadAllIdModules()
 
         application.PROJECT.load_modules()
+        application.PROJECT.load_classes()
     else:
         raise Exception("Project initialization failed!")
 
@@ -487,6 +489,7 @@ def exec_main(options: Values) -> int:
     application.PROJECT.conn_manager.managerModules().loadAllIdModules()
 
     application.PROJECT.load_modules()
+    application.PROJECT.load_classes()
     application.PROJECT.load_orm()
 
     # FIXME: move this code to pineboo.application

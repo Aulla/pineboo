@@ -43,9 +43,9 @@ class TestXMLAction(unittest.TestCase):
         self.assertTrue(os.path.exists(path))
         qsa_sys.loadModules(path, False)
 
-        class_usuarios = qsa.class_("usuarios")
-        self.assertTrue(class_usuarios)
-        self.assertNotEqual(class_usuarios(), class_usuarios())
+        # class_usuarios = qsa.class_("usuarios")
+        # self.assertTrue(class_usuarios)
+        # self.assertNotEqual(class_usuarios(), class_usuarios())
 
     @classmethod
     def tearDownClass(cls) -> None:

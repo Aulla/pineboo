@@ -182,6 +182,7 @@ from pineboolib.fllegacy.aqsobjects.aqobjectquerylist import (  # noqa: F401
 
 from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 from pineboolib.application.database.orm.utils import OrmManager
+from pineboolib.application.database.utils import ClassManager
 
 if not __is_deployed():
     from pineboolib.fllegacy.aqsobjects.aqods import AQOdsGenerator, AQOdsSpreadSheet  # noqa: F401
@@ -196,6 +197,7 @@ from pineboolib.fllegacy.aqsobjects.aqsbuttongroup import AQSButtonGroup  # noqa
 
 
 ORM_MANAGER = OrmManager()
+CLASS_MANAGER = ClassManager()
 
 QSA_SYS = SysType()
 

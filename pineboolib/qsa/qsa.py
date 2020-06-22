@@ -34,7 +34,7 @@ from .utils import ws_channel_send, thread, user_id, session_atomic, session  # 
 from .utils import thread_session_new, thread_session_current, thread_session_free  # noqa: F401
 from .utils import available_thread_sessions  # noqa: F401
 from .decorators import atomic  # noqa: F401
-from .dictmodules import Application, from_project, class_, orm_  # noqa: F401
+from .dictmodules import Application, from_project, orm_  # noqa: F401
 
 
 # QT
@@ -98,6 +98,7 @@ from pineboolib.application.process import Process, ProcessStatic  # noqa: F401
 from .pncontrolsfactory import SysType, System  # noqa: F401
 from .pncontrolsfactory import AQ_APP as aqApp  # noqa: F401
 from .pncontrolsfactory import ORM_MANAGER as orm  # noqa: F401
+from .pncontrolsfactory import CLASS_MANAGER as class_  # noqa: F401
 
 QSProject = QS_PROJECT
 sys = QSA_SYS

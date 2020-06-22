@@ -17,6 +17,7 @@ from pineboolib.core.utils import logging, utils_base
 from pineboolib.core.utils.struct import AreaStruct
 from pineboolib.core import exceptions, settings, message_manager, decorators
 from pineboolib.application.database import pnconnectionmanager
+from pineboolib.application.database import utils as db_utils
 from pineboolib.application.utils import path, xpm
 from pineboolib.application import module, file, load_script, pnapplication
 
@@ -207,6 +208,19 @@ class Project(object):
 
         self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
         pnormmodelsfactory.load_models()
+
+    def load_classes(self) -> None:
+        """Load class files into qsa tree."""
+
+        # print("* loading_classes")
+        for key in list(self.files.keys()):
+            if not key.endswith(".py"):
+                continue
+
+            if len(key) > 5 and key[0:5] == "test_":
+                continue
+
+            db_utils.process_file_class(self.files[key])
 
     def setDebugLevel(self, level: int) -> None:
         """
