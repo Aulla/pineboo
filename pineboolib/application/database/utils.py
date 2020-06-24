@@ -414,7 +414,7 @@ def process_file_class(file_obj: "file_app.File") -> None:
     module_ = load_script.load_module(name)
     main_class = getattr(module_, "public_class", None)
     if main_class is not None:
-        print("Guardando", "%s_class" % main_class, getattr(module_, main_class, None))
+        # print("Guardando", "%s_class" % main_class, getattr(module_, main_class, None))
         qsadictmodules.QSADictModules.save_other(
             "%s_class" % main_class, getattr(module_, main_class, None)
         )
