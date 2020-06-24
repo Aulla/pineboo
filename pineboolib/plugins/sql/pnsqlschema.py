@@ -580,7 +580,7 @@ class PNSqlSchema(object):
         """Return a database friendly text."""
 
         res = str(text).replace("'", "''")
-        return res.replace(":", ": ")
+        return res.replace(":", "\\:")
 
     def hasCheckColumn(self, metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Retrieve if MTD has a check column."""
@@ -744,8 +744,8 @@ class PNSqlSchema(object):
         result_ = None
         try:
             try:
-                query_ = sqlalchemy.text(query)
-                result_ = session_.execute(query_)
+                # query_ = sqlalchemy.text(query)
+                result_ = session_.connection().execute(query)
 
                 # LOGGER.warning(
                 #    "execute_query: %s, session: %s, transaction: %s",
