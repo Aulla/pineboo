@@ -1,7 +1,7 @@
 """Flmanagermodules module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui
 
 from pineboolib.core import decorators
 from pineboolib.core.utils import utils_base
@@ -26,7 +26,7 @@ from . import flformrecorddb
 from pineboolib import logging
 
 from typing import Union, List, Dict, Optional, cast, TYPE_CHECKING
-from watchdog import observers, events
+from watchdog import observers, events  # type: ignore [import] # noqa: F821
 import os
 import codecs
 
