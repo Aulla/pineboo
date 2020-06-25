@@ -117,9 +117,9 @@ class SysBaseType(object):
         return val.encode(format_encode, "replace").decode("utf-8", "replace")
 
     @classmethod
-    def fromUnicode(self, val: str, format: str) -> str:
+    def fromUnicode(self, val: str, format_encode: str) -> str:
         """Convert from unicode to string."""
-        return val.encode("utf-8").decode(format, "replace")
+        return val.encode("utf-8", "replace").decode(format_encode, "replace")
 
     @classmethod
     def Mr_Proper(self) -> None:
