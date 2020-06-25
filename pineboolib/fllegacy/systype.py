@@ -687,15 +687,22 @@ class SysType(sysbasetype.SysBaseType):
         if input_ is None:
             dir_ = types.Dir(self.installPrefix())
             dir_.setCurrent()
+            setting = (
+                "scripts/sys/lastDirPackages_%s"
+                % application.PROJECT.conn_manager.mainConn().DBName()
+            )
+            util = flutil.FLUtil()
+            last_path = util.readSettingEntry(setting)
             path_tuple = QtWidgets.QFileDialog.getOpenFileName(
                 QtWidgets.QApplication.focusWidget(),
-                u"Eneboo/AbanQ Packages",
-                self.translate(u"scripts", u"Seleccionar Fichero"),
-                "*.eneboopkg, *.eneboopkg",
+                self.translate(u"scripts", u"Seleccionar Eneboo/Abanq Package"),
+                last_path,
+                "Eneboo Package (*.eneboopkg);;Abanq Package (*.abanq)",
             )
             input_ = path_tuple[0]
 
         if input_:
+            util.writeSettingEntry(setting, os.path.dirname(input_))
             ret_ = self.loadAbanQPackage(input_, warnBackup)
 
         return ret_
@@ -850,9 +857,9 @@ class SysType(sysbasetype.SysBaseType):
         cur.setValueBuffer(u"idmodulo", fil["module"])
         cur.setValueBuffer(u"sha", fil["shatext"])
         if len(fil["text"]) > 0:
-            encode = "iso-8859-15" if fil["id"].endswith(u".qs") else "UTF-8"
+            encode = "iso-8859-15" if not fil["id"].endswith((".py")) else "UTF-8"
             try:
-                if fil["id"].endswith(u".qs"):
+                if not fil["id"].endswith((".py")):
                     cur.setValueBuffer(u"contenido", self.toUnicode(un.getText(), encode))
                 else:
                     cur.setValueBuffer(u"contenido", un.getText())
