@@ -26,8 +26,10 @@ from . import flformrecorddb
 from pineboolib import logging
 
 from typing import Union, List, Dict, Optional, cast, TYPE_CHECKING
+from watchdog import observers, events
 import os
 import codecs
+
 from xml.etree import ElementTree as ET
 
 if TYPE_CHECKING:
@@ -86,7 +88,7 @@ class FLManagerModules(object):
     Informacion para la carga estatica desde el disco local
     """
     static_db_info_: pnmodulesstaticloader.AQStaticBdInfo
-    _file_watcher: "QtCore.QFileSystemWatcher"
+    _file_watcher: "observers.Observer"
     root_dir_: str
     scripts_dir_: str
     tables_dir_: str
@@ -103,8 +105,9 @@ class FLManagerModules(object):
         if db is None:
             raise ValueError("Database is required")
         self.conn_ = db
-        self._file_watcher = QtCore.QFileSystemWatcher()
+        self._file_watcher = observers.Observer()
         self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
+        event_handler = events.FileSystemEventHandler()
 
         if self.static_db_info_.enabled_:
             # Mapear los scripts!
@@ -114,19 +117,22 @@ class FLManagerModules(object):
             for dir_path in self.static_db_info_.dirs_:
                 LOGGER.warning("Static load: %s is %s", dir_path.path_, dir_path.active_)
                 if dir_path.active_:
-                    self._file_watcher.addPath(dir_path.path_)
+                    # self._file_watcher.addPath(dir_path.path_)
+                    self._file_watcher.schedule(event_handler, dir_path.path_, recursive=True)
 
-            self._file_watcher.fileChanged.connect(  # type: ignore [attr-defined] # noqa: F821
-                self.static_db_info_.msg_static_changed
-            )
-            self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
-                self.static_db_info_.msg_static_changed
-            )
-            LOGGER.warning(
-                "Monitoring...\nfiles:%s\nfolders:%s",
-                self._file_watcher.files(),
-                self._file_watcher.directories(),
-            )
+            # self._file_watcher.fileChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+            #    self.static_db_info_.msg_static_changed
+            # )
+            # self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+            #    self.static_db_info_.msg_static_changed
+            # )
+            # LOGGER.warning(
+            #    "Monitoring...\nfiles:%s\nfolders:%s",
+            #    self._file_watcher.files(),
+            #    self._file_watcher.directories(),
+            # )
+            event_handler.on_any_event = self.static_db_info_.msg_static_changed
+            self._file_watcher.start()
 
         self.active_id_module_ = ""
         self.active_id_area_ = ""
@@ -146,33 +152,40 @@ class FLManagerModules(object):
     def reloadStaticLoader(self) -> None:
         """Reload static loader."""
 
+        self._file_watcher.stop()
         del self.static_db_info_
         del self._file_watcher
 
-        self._file_watcher = QtCore.QFileSystemWatcher()
+        # self._file_watcher = QtCore.QFileSystemWatcher()
         self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
 
         if self.static_db_info_.enabled_:
             # Mapear los scripts!
             LOGGER.warning("Static load is enabled!")
+            self._file_watcher = observers.Observer()
+            event_handler = events.FileSystemEventHandler()
+            event_handler.on_any_event = self.static_db_info_.msg_static_changed
+
             self.static_db_info_.readSettings()
             for dir_path in self.static_db_info_.dirs_:
                 LOGGER.warning("Static load: %s is %s", dir_path.path_, dir_path.active_)
                 if dir_path.active_:
-                    self._file_watcher.addPath(dir_path.path_)
 
-            self._file_watcher.fileChanged.connect(  # type: ignore [attr-defined] # noqa: F821
-                self.static_db_info_.msg_static_changed
-            )
-            self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
-                self.static_db_info_.msg_static_changed
-            )
+                    # self._file_watcher.addPath(dir_path.path_)
+                    self._file_watcher.schedule(event_handler, dir_path.path_, recursive=True)
 
-            LOGGER.warning(
-                "Monitoring...\nfiles:%s\nfolders:%s",
-                self._file_watcher.files(),
-                self._file_watcher.directories(),
-            )
+            # self._file_watcher.fileChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+            #    self.static_db_info_.msg_static_changed
+            # )
+            # self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+            #    self.static_db_info_.msg_static_changed
+            # )
+            self._file_watcher.start()
+            # LOGGER.warning(
+            #    "Monitoring...\nfiles:%s\nfolders:%s",
+            #    self._file_watcher.files(),
+            #    self._file_watcher.directories(),
+            # )
 
     def finish(self) -> None:
         """Run tasks when closing the module."""

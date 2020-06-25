@@ -18,6 +18,7 @@ sqlalchemy==1.3.16
 sqlparse==0.3.1
 twine==3.1.1
 keyrings.alt>=3.4.0
+watchdog>=0.10.2
 
 
 

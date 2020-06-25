@@ -46,3 +46,4 @@ fpdf2
 clipboard
 coloredlogs
 psycopg2
+watchdog>=0.10.2
