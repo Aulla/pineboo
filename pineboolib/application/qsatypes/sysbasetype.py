@@ -112,9 +112,9 @@ class SysBaseType(object):
         return application.PROJECT.conn_manager.mainConn().DBName()
 
     @classmethod
-    def toUnicode(self, val: str, format: str) -> str:
+    def toUnicode(self, val: str, format_encode: str) -> str:
         """Convert string to unicode."""
-        return val.encode(format).decode("utf-8", "replace")
+        return val.encode(format_encode, "replace").decode("utf-8", "replace")
 
     @classmethod
     def fromUnicode(self, val: str, format: str) -> str:
