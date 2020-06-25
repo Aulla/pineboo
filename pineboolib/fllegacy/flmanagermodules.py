@@ -122,6 +122,11 @@ class FLManagerModules(object):
             self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
                 self.static_db_info_.msg_static_changed
             )
+            LOGGER.warning(
+                "Monitoring...\nfiles:%s\nfolders:%s",
+                self._file_watcher.files(),
+                self._file_watcher.directories(),
+            )
 
         self.active_id_module_ = ""
         self.active_id_area_ = ""
@@ -161,6 +166,12 @@ class FLManagerModules(object):
             )
             self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
                 self.static_db_info_.msg_static_changed
+            )
+
+            LOGGER.warning(
+                "Monitoring...\nfiles:%s\nfolders:%s",
+                self._file_watcher.files(),
+                self._file_watcher.directories(),
             )
 
     def finish(self) -> None:

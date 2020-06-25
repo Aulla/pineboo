@@ -684,14 +684,16 @@ class SysType(sysbasetype.SysBaseType):
     def loadModules(self, input_: Optional[Any] = None, warnBackup: bool = True) -> bool:
         """Load modules from a package."""
         ret_ = False
+
         if input_ is None:
+            util = flutil.FLUtil()
             dir_ = types.Dir(self.installPrefix())
             dir_.setCurrent()
             setting = (
                 "scripts/sys/lastDirPackages_%s"
                 % application.PROJECT.conn_manager.mainConn().DBName()
             )
-            util = flutil.FLUtil()
+
             last_path = util.readSettingEntry(setting)
             path_tuple = QtWidgets.QFileDialog.getOpenFileName(
                 QtWidgets.QApplication.focusWidget(),
@@ -700,9 +702,11 @@ class SysType(sysbasetype.SysBaseType):
                 "Eneboo Package (*.eneboopkg);;Abanq Package (*.abanq)",
             )
             input_ = path_tuple[0]
+            if input_:
+                util.writeSettingEntry(setting, os.path.dirname(input_))
 
         if input_:
-            util.writeSettingEntry(setting, os.path.dirname(input_))
+
             ret_ = self.loadAbanQPackage(input_, warnBackup)
 
         return ret_
