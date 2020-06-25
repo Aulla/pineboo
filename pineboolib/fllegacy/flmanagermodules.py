@@ -101,7 +101,6 @@ class FLManagerModules(object):
     def __init__(self, db: "iconnection.IConnection") -> None:
         """Inicialize."""
 
-        super(FLManagerModules, self).__init__()
         if db is None:
             raise ValueError("Database is required")
         self.conn_ = db
@@ -151,10 +150,10 @@ class FLManagerModules(object):
 
     def reloadStaticLoader(self) -> None:
         """Reload static loader."""
-
-        self._file_watcher.stop()
+        if hasattr(self, "_file_watcher"):
+            self._file_watcher.stop()
+            del self._file_watcher
         del self.static_db_info_
-        del self._file_watcher
 
         # self._file_watcher = QtCore.QFileSystemWatcher()
         self.static_db_info_ = pnmodulesstaticloader.AQStaticBdInfo(self.conn_)
