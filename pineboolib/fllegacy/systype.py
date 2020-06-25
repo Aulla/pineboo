@@ -850,10 +850,15 @@ class SysType(sysbasetype.SysBaseType):
         cur.setValueBuffer(u"idmodulo", fil["module"])
         cur.setValueBuffer(u"sha", fil["shatext"])
         if len(fil["text"]) > 0:
-            if fil["id"].endswith(u".qs"):
-                cur.setValueBuffer(u"contenido", self.toUnicode(un.getText(), u"iso-8859-15"))
-            else:
-                cur.setValueBuffer(u"contenido", un.getText())
+            encode = "iso-8859-15" if fil["id"].endswith(u".qs") else "UTF-8"
+            try:
+                if fil["id"].endswith(u".qs"):
+                    cur.setValueBuffer(u"contenido", self.toUnicode(un.getText(), encode))
+                else:
+                    cur.setValueBuffer(u"contenido", un.getText())
+            except UnicodeEncodeError as error:
+                LOGGER.error("The %s file does not have the correct encode (%s)", fil["id"], encode)
+                raise error
 
         if len(fil["binary"]) > 0:
             un.getBinary()
