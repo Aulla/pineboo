@@ -275,9 +275,9 @@ def load_module(script_name):
         try:
             loader = machinery.SourceFileLoader(script_name, script_path_py)
             script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
-            class_loaded = getattr(
-                script_loaded, "%s%s" % (script_name[0].upper(), script_name[1:]), None
-            )
+            # class_loaded = getattr(
+            #    script_loaded, "%s%s" % (script_name[0].upper(), script_name[1:]), None
+            # )
         except Exception as error:
             LOGGER.error("Error loading module %s: %s", script_name, str(error), stack_info=True)
 
