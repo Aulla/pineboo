@@ -261,9 +261,8 @@ def load_class(script_name):
 def load_module(script_name):
     """Return class from path."""
 
-    script_path_py = _path("%s.py" % script_name, False)
+    script_path_py = _path(script_name, False)
     script_loaded = None
-
     mng_modules = application.PROJECT.conn_manager.managerModules()
     if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
         script_path_py_static = pnmodulesstaticloader.PNStaticLoader.content(
@@ -276,11 +275,11 @@ def load_module(script_name):
         try:
             loader = machinery.SourceFileLoader(script_name, script_path_py)
             script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
-            # class_loaded = getattr(
-            #    script_loaded, "%s%s" % (script_name[0].upper(), script_name[1:]), None
-            # )
+            class_loaded = getattr(
+                script_loaded, "%s%s" % (script_name[0].upper(), script_name[1:]), None
+            )
         except Exception as error:
-            LOGGER.error("Error loading module %s: %s", script_name, str(error))
+            LOGGER.error("Error loading module %s: %s", script_name, str(error), stack_info=True)
 
     return script_loaded
 

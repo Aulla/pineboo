@@ -410,14 +410,18 @@ def exec_sql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default"
 
 def process_file_class(file_obj: "file_app.File") -> None:
     """Process file class."""
-    name = file_obj.filename[:-3]
-    module_ = load_script.load_module(name)
-    main_class = getattr(module_, "public_class", None)
-    if main_class is not None:
-        # print("Guardando", "%s_class" % main_class, getattr(module_, main_class, None))
-        qsadictmodules.QSADictModules.save_other(
-            "%s_class" % main_class, getattr(module_, main_class, None)
-        )
+    file_ = open(file_obj.path(), "r", encoding="UTF-8", errors="replace")
+    text_ = file_.read()
+    class_name = ""
+    if text_.find("public_class =") > -1:
+        class_name = text_[text_.find("public_class =") + 15 :].split(" ")[0][1:-1]
+        if class_name.find('"') > -1:
+            class_name = class_name[0 : class_name.find('"')]
+        if class_name.find("'") > -1:
+            class_name = class_name[0 : class_name.find("'")]
+
+    if class_name:
+        application.FILE_CLASSES[class_name] = file_obj.filename
 
 
 class ClassManager(object):
@@ -426,13 +430,18 @@ class ClassManager(object):
     def __getattr__(self, name: str) -> Any:
         """Return class."""
 
-        return qsadictmodules.QSADictModules.from_project("%s_class" % name)
+        class_ = None
+        if name in application.FILE_CLASSES.keys():
+            class_ = getattr(
+                qsadictmodules.QSADictModules.qsa_dict_modules(), "%s_class" % name, None
+            )
+            if class_ is None:
+                module_ = load_script.load_module(application.FILE_CLASSES[name])
+                main_class = getattr(module_, name, None)
+                qsadictmodules.QSADictModules.save_other("%s_class" % name, main_class)
+                class_ = main_class
+        return class_
 
     def classes(self) -> List[str]:
         """Return available models list."""
-        result_list: List[str] = []
-        for name in list(dir(qsadictmodules.QSADictModules.qsa_dict_modules())):
-            if str(name).endswith("_class"):
-                result_list.append(name[:-6])
-
-        return result_list
+        return list(application.FILE_CLASSES.keys())
