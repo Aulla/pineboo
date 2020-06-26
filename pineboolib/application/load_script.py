@@ -273,7 +273,7 @@ def load_module(script_name):
 
     if script_path_py:
         try:
-            loader = machinery.SourceFileLoader(script_name, script_path_py)
+            loader = machinery.SourceFileLoader(script_name[:-3], script_path_py)
             script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
             # class_loaded = getattr(
             #    script_loaded, "%s%s" % (script_name[0].upper(), script_name[1:]), None
