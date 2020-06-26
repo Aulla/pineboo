@@ -50,6 +50,7 @@ from pineboolib.q3widgets.qpopupmenu import QPopupMenu  # noqa: F401
 from pineboolib.q3widgets.qiconset import QIconSet  # noqa: F401
 from pineboolib.q3widgets.qhbuttongroup import QHButtonGroup  # noqa: F401
 from pineboolib.q3widgets.qvbuttongroup import QVButtonGroup  # noqa: F401
+from pineboolib.q3widgets.qobject import QObject  # noqa: F401
 
 from pineboolib.q3widgets.qeventloop import QEventLoop  # noqa: F401
 from pineboolib.q3widgets.qlistviewwidget import QListViewWidget  # noqa: F401
@@ -79,7 +80,7 @@ from PyQt5.QtWidgets import QMessageBox  # noqa: F401
 
 from PyQt5.QtCore import QSignalMapper  # noqa: F401
 from PyQt5.QtCore import QSize  # noqa: F401
-from PyQt5.QtCore import QObject  # noqa: F401
+
 from PyQt5.QtCore import QBuffer  # noqa: F401
 
 from PyQt5.QtGui import QPainter  # noqa: F401
