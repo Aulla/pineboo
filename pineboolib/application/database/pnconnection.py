@@ -12,8 +12,6 @@ from pineboolib import application
 
 import time
 
-# from .pnsqlsavepoint import PNSqlSavePoint
-from . import DB_SIGNALS
 from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
 
@@ -338,7 +336,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if not self._transaction_level:
             self._last_active_cursor = cursor
-            DB_SIGNALS.emitTransactionBegin(cursor)
+            application.PROJECT.aq_app.emitTransactionBegin(cursor)
 
         self._transaction_level += 1
         cursor.private_cursor._transactions_opened.insert(0, self._transaction_level)
@@ -412,7 +410,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if not self._transaction_level:
             self._last_active_cursor = None
-            DB_SIGNALS.emitTransactionRollback(cur)
+            application.PROJECT.aq_app.emitTransactionRollback(cur)
 
             if cancel:
                 cur.select()
@@ -471,7 +469,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if not self._transaction_level:
             self._last_active_cursor = None
-            DB_SIGNALS.emitTransactionEnd(cur)
+            application.PROJECT.aq_app.emitTransactionEnd(cur)
 
         if notify:
             cur.setModeAccess(cur.Browse)

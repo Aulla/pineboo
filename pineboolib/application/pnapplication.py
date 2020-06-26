@@ -524,6 +524,21 @@ class PNApplication(QtCore.QObject):
         """Protect against window close."""
         self._not_exit = value
 
+    def setNotifyEndTransaction(self, value: bool) -> None:
+        """Set notify end transaction mode."""
+
+        database.DB_SIGNALS.notify_end_transaction_ = value
+
+    def setNotifyBeginTransaction(self, value: bool) -> None:
+        """Set notify begin transaction mode."""
+
+        database.DB_SIGNALS.notify_begin_transaction_ = value
+
+    def setNotifyRollbackTransaction(self, value: bool) -> None:
+        """Set notify rollback transaction mode."""
+
+        database.DB_SIGNALS.notify_roll_back_transaction_ = value
+
     @decorators.not_implemented_warn
     def printTextEdit(self, editor_):
         """Not implemented."""
