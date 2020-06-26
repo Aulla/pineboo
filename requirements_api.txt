@@ -12,7 +12,7 @@ fpdf2==2.0.5
 ninja==1.10.0.post1
 odfpy
 ply
-psycopg2-binary==2.7.6.1
+psycopg2-binary==2.7.7
 pyroma==2.6
 sqlalchemy==1.3.16
 sqlparse==0.3.1
