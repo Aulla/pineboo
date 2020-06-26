@@ -91,7 +91,7 @@ class FormDBWidget(QtWidgets.QWidget):
     def mainWidget(self) -> "FormDBWidget":
         """Return mainWidget."""
 
-        return (
+        return (  # type: ignore [return-value] # noqa : F821
             self._action.load_master_widget()  # type: ignore [return-value] # noqa : F821
             if self._action
             else None
