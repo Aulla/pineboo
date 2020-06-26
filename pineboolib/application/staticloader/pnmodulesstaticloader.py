@@ -95,7 +95,11 @@ class AQStaticBdInfo(object):
     def msg_static_changed(self, event) -> None:
         """Show reinit msg."""
 
-        LOGGER.warning("STATIC LOADER:  %s HAS BEEN CHANGED. REINIT!", event.src_path)
+        LOGGER.warning(
+            "STATIC LOADER:  %s HAS BEEN %s. REINIT!",
+            event.src_path.upper(),
+            event.event_type.uppder(),
+        )
         application.PROJECT.aq_app.reinit()
 
 
