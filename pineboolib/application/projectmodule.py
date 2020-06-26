@@ -248,7 +248,7 @@ class Project(object):
         from pineboolib import application
 
         LOGGER.info("RUN: Loading project data.")
-
+        application.FILE_CLASSES = {}
         self.pending_conversion_list = []
 
         self.actions = {}
