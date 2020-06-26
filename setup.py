@@ -63,8 +63,8 @@ setuptools.setup(
     python_requires="~=3.6",
     entry_points={
         "console_scripts": [
-            "pineboo-parse=pineboolib.application.parsers.qsaparser.postparse:main",
-            "pineboo-pyconvert=pineboolib.application.parsers.qsaparser.pyconvert:main",
+            "pineboo-parse=pineboolib.application.parsers.parser_qsa.postparse:main",
+            "pineboo-pyconvert=pineboolib.application.parsers.parser_qsa.pyconvert:main",
             "pineboo-core=pineboolib.loader.main:startup_no_x",
             "pineboo=pineboolib.loader.main:startup",
         ]
