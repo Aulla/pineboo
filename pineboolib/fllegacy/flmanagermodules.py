@@ -150,6 +150,7 @@ class FLManagerModules(object):
 
     def reloadStaticLoader(self) -> None:
         """Reload static loader."""
+        pnmodulesstaticloader.SHOW_REINIT_MESSAGE = True
         if hasattr(self, "_file_watcher"):
             self._file_watcher.stop()
             del self._file_watcher
@@ -163,7 +164,6 @@ class FLManagerModules(object):
             LOGGER.warning("Static load is enabled!")
             self._file_watcher = observers.Observer()
             event_handler = events.FileSystemEventHandler()
-            event_handler.on_any_event = self.static_db_info_.msg_static_changed
 
             self.static_db_info_.readSettings()
             for dir_path in self.static_db_info_.dirs_:
@@ -179,6 +179,7 @@ class FLManagerModules(object):
             # self._file_watcher.directoryChanged.connect(  # type: ignore [attr-defined] # noqa: F821
             #    self.static_db_info_.msg_static_changed
             # )
+            event_handler.on_any_event = self.static_db_info_.msg_static_changed
             self._file_watcher.start()
             # LOGGER.warning(
             #    "Monitoring...\nfiles:%s\nfolders:%s",

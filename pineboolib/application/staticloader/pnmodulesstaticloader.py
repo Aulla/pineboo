@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 
 LOGGER = logging.get_logger(__name__)
 
+SHOW_REINIT_MESSAGE = True
+
 
 class AQStaticDirInfo(object):
     """Store information about a filesystem folder."""
@@ -94,6 +96,16 @@ class AQStaticBdInfo(object):
 
     def msg_static_changed(self, event) -> None:
         """Show reinit msg."""
+
+        global SHOW_REINIT_MESSAGE
+
+        if event.src_path.find(".") > -1:
+            return
+
+        if not SHOW_REINIT_MESSAGE:
+            return
+
+        SHOW_REINIT_MESSAGE = False
 
         LOGGER.warning(
             "STATIC LOADER:  %s HAS BEEN %s. REINIT!",
