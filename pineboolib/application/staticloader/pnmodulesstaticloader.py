@@ -98,7 +98,7 @@ class AQStaticBdInfo(object):
         LOGGER.warning(
             "STATIC LOADER:  %s HAS BEEN %s. REINIT!",
             event.src_path.upper(),
-            event.event_type.uppder(),
+            event.event_type.upper(),
         )
         application.PROJECT.aq_app.reinit()
 
