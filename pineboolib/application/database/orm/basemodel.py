@@ -344,21 +344,18 @@ class BaseModel(object):
             self._error_manager("_flush", "_session is empty")
         else:
             self._current_mode = self.mode_access
+
+            self._before_flush()
+
+            if self._current_mode == 2:  # delete
+                self._delete_cascade()
+
             try:
-                self._before_flush()
-
-                if self._current_mode == 2:  # delete
-                    self._delete_cascade()
-
-                try:
-                    self._session.flush()
-                except Exception as error:
-                    self._error_manager("_flush", error)
-
-                self._after_flush()
-
+                self._session.flush()
             except Exception as error:
                 self._error_manager("_flush", error)
+
+            self._after_flush()
             # else:
             #    self._current_mode = 3  # edit
         self._current_mode = None
@@ -375,29 +372,34 @@ class BaseModel(object):
                 if value and not isinstance(value, bool) or value is False:
                     self._error_manager("beforeCommit", "%s return False" % func_)
 
-            self.before_flush()
-
-            if mode == 0:  # insert
-                try:
-                    self._validate_cursor()
-                    self.before_new()
-                except Exception as error:
-                    self._error_manager("_before_new", error)
-
-            elif mode == 1:  # edit
-                try:
-                    self._validate_cursor()
-                    self.before_change()
-                except Exception as error:
-                    self._error_manager("_before_change", error)
-
-            elif mode == 2:  # delete
-                try:
-                    self.before_delete()
-                except Exception as error:
-                    self._error_manager("_before_delete", error)
         except Exception as error:
             self._error_manager("_before_flush", error)
+
+        try:
+            self.before_flush()
+
+        except Exception as error:
+            self._error_manager("before_flush", error)
+
+        if mode == 0:  # insert
+            try:
+                self._validate_cursor()
+                self.before_new()
+            except Exception as error:
+                self._error_manager("before_new", error)
+
+        elif mode == 1:  # edit
+            try:
+                self._validate_cursor()
+                self.before_change()
+            except Exception as error:
+                self._error_manager("before_change", error)
+
+        elif mode == 2:  # delete
+            try:
+                self.before_delete()
+            except Exception as error:
+                self._error_manager("before_delete", error)
 
     def _after_flush(self) -> None:
         """After flush."""
@@ -410,52 +412,31 @@ class BaseModel(object):
                 value = func_(self._cursor)
                 if value and not isinstance(value, bool) or value is False:
                     self._error_manager("afterCommit", "%s return False" % func_)
-
-            self.after_flush()
-
-            if mode == 0:  # insert
-                try:
-                    self.after_new()
-                except Exception as error:
-                    self._error_manager("_after_new", error)
-
-            elif mode == 1:  # edit
-                try:
-                    self.after_change()
-                except Exception as error:
-                    self._error_manager("_after_change", error)
-
-            elif mode == 2:  # delete
-                try:
-                    self.after_delete()
-                except Exception as error:
-                    self._error_manager("_after_delete", error)
         except Exception as error:
             self._error_manager("_after_flush", error)
 
-    # ===============================================================================
-    #     def _check_unlock(self) -> bool:
-    #         """Return if unloks field are locked."""
-    #
-    #         field_list = self.table_metadata().fieldsList()
-    #         copy_object = self.query("dbAux").get(self.pk)
-    #         for field in field_list:
-    #             field_name = field.name()
-    #             if field.isLocked():
-    #                 if not getattr(copy_object, field_name, True):
-    #                     return False
-    #
-    #             relation_m1 = field.relationM1()
-    #             if relation_m1 is not None:
-    #                 foreign_table_class = qsadictmodules.QSADictModules.orm_(relation_m1.foreignTable())
-    #                 if foreign_table_class is not None:
-    #                     foreign_field_obj = foreign_table_class.get(getattr(self, field.name()))
-    #                     if foreign_field_obj is not None:
-    #                         if not foreign_field_obj._check_unlock():
-    #                             return False
-    #
-    #         return True
-    # ===============================================================================
+        try:
+            self.after_flush()
+        except Exception as error:
+            self._error_manager("after_flush", error)
+
+        if mode == 0:  # insert
+            try:
+                self.after_new()
+            except Exception as error:
+                self._error_manager("after_new", error)
+
+        elif mode == 1:  # edit
+            try:
+                self.after_change()
+            except Exception as error:
+                self._error_manager("after_change", error)
+
+        elif mode == 2:  # delete
+            try:
+                self.after_delete()
+            except Exception as error:
+                self._error_manager("after_delete", error)
 
     @classmethod
     def table_metadata(cls) -> "pntablemetadata.PNTableMetaData":
@@ -834,14 +815,7 @@ class BaseModel(object):
             exception_ = error_info[0]
             error_message = str(error_info[1])
 
-        LOGGER.error(
-            "%s.%s:: %s\n\n==== STACK EXCEPTION ====\n\n%s\n\n ==== APP STACK ====\n\n%s\n\n",
-            cls.__name__,
-            text,
-            error_message,
-            "".join(traceback.format_exc(limit=None)),
-            "".join(traceback.format_stack(limit=None)),
-        )
+        LOGGER.error("%s.%s:: %s", cls.__name__, text, error_message, stack_info=False)
         raise exception_(error_message)
 
     session = property(get_session, set_session)
