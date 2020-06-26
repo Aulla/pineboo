@@ -21,6 +21,7 @@ from typing import Any, Optional, List, cast, Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from .database import pnsqlcursor  # noqa: F401
     from .database import pnsqlquery  # noqa: F401
+    from pineboolib.interfaces import isqlcursor  # noqa: F401
     from PyQt5 import QtXml  # noqa: F401
 
 LOGGER = logging.get_logger(__name__)
@@ -670,15 +671,21 @@ class PNApplication(QtCore.QObject):
             self.call(self.script_entry_function_, [], self)
             # self.script_entry_function_ = None
 
-    def emitTransactionBegin(self, cursor: "pnsqlcursor.PNSqlCursor") -> None:
+    def emitTransactionBegin(
+        self, cursor: Union["pnsqlcursor.PNSqlCursor", "isqlcursor.ISqlCursor"]
+    ) -> None:
         """Emit signal."""
         database.DB_SIGNALS.emitTransactionBegin(cursor)
 
-    def emitTransactionEnd(self, cursor: "pnsqlcursor.PNSqlCursor") -> None:
+    def emitTransactionEnd(
+        self, cursor: Union["pnsqlcursor.PNSqlCursor", "isqlcursor.ISqlCursor"]
+    ) -> None:
         """Emit signal."""
         database.DB_SIGNALS.emitTransactionEnd(cursor)
 
-    def emitTransactionRollback(self, cursor: "pnsqlcursor.PNSqlCursor") -> None:
+    def emitTransactionRollback(
+        self, cursor: Union["pnsqlcursor.PNSqlCursor", "isqlcursor.ISqlCursor"]
+    ) -> None:
         """Emit signal."""
         database.DB_SIGNALS.emitTransactionRollback(cursor)
 

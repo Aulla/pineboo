@@ -11,7 +11,6 @@ from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
 from sqlalchemy import orm, inspect
 import datetime
-import traceback
 import threading
 import sys
 import time
