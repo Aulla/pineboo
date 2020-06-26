@@ -38,6 +38,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
         self._module = sys.modules[self.__module__]
         self._action = action
+        self.name = self.__module__
         self.iface = None
         self.cursor_ = None
         self._loaded = False
@@ -86,6 +87,15 @@ class FormDBWidget(QtWidgets.QWidget):
     def obj(self) -> "FormDBWidget":
         """Return self."""
         return self
+
+    def mainWidget(self) -> "FormDBWidget":
+        """Return mainWidget."""
+
+        return (
+            self._action.load_master_widget()  # type: ignore [return-value] # noqa : F821
+            if self._action
+            else None
+        )
 
     def parent(self) -> QtWidgets.QWidget:
         """Return parent widget."""
