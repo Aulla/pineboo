@@ -151,8 +151,6 @@ class FLManagerModules(object):
     def reloadStaticLoader(self) -> None:
         """Reload static loader."""
         pnmodulesstaticloader.SHOW_REINIT_MESSAGE = True
-        LOGGER.warning("RELOAD STATIC LOADER!")
-
         if hasattr(self, "_file_watcher"):
             self._file_watcher.stop()
             del self._file_watcher
