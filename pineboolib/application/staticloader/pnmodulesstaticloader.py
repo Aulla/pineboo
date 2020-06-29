@@ -112,6 +112,7 @@ class AQStaticBdInfo(object):
             event.src_path.upper(),
             event.event_type.upper(),
         )
+        print("**", application.PROJECT, application.PROJECT.aq_app.reinit)
         application.PROJECT.aq_app.reinit()
 
 
