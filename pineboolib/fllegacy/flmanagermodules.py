@@ -115,7 +115,7 @@ class FLManagerModules(object):
             self.static_db_info_.readSettings()
             for dir_path in self.static_db_info_.dirs_:
                 LOGGER.warning("Static load: %s is %s", dir_path.path_, dir_path.active_)
-                if dir_path.active_:
+                if dir_path.active_ and os.path.exists(dir_path.path_):
                     # self._file_watcher.addPath(dir_path.path_)
                     self._file_watcher.schedule(event_handler, dir_path.path_, recursive=True)
 
@@ -168,7 +168,7 @@ class FLManagerModules(object):
             self.static_db_info_.readSettings()
             for dir_path in self.static_db_info_.dirs_:
                 LOGGER.warning("Static load: %s is %s", dir_path.path_, dir_path.active_)
-                if dir_path.active_:
+                if dir_path.active_ and os.path.exists(dir_path.path_):
 
                     # self._file_watcher.addPath(dir_path.path_)
                     self._file_watcher.schedule(event_handler, dir_path.path_, recursive=True)
