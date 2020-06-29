@@ -268,7 +268,7 @@ class Project(object):
         db_name = conn.DBName()
         delete_cache = self.delete_cache
         cache_ver = application.PINEBOO_VER
-        if os.path.exists(path._dir("cache/%s" % db_name)) and not delete_cache:
+        if os.path.exists(path._dir("cache/%s" % db_name)):
             if not os.path.exists(path._dir("cache/%s/cache_version.txt" % db_name)):
                 delete_cache = True
             else:
@@ -279,7 +279,7 @@ class Project(object):
                 if cache_ver != application.PINEBOO_VER:
                     delete_cache = True
 
-            if self.delete_cache:
+            if delete_cache:
                 LOGGER.warning("Pineboo version has changed !. Deleting cache.")
 
         if delete_cache and os.path.exists(path._dir("cache/%s" % db_name)):
