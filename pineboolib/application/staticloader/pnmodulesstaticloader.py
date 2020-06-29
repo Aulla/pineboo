@@ -107,10 +107,13 @@ class AQStaticBdInfo(object):
 
         SHOW_REINIT_MESSAGE = False
 
-        raise Exception(
-            "STATIC LOADER:  %s HAS BEEN %s. REINIT!"
-            % (event.src_path.upper(), event.event_type.upper())
+        LOGGER.warning(
+            "STATIC LOADER:  %s HAS BEEN %s. REINIT!",
+            event.src_path.upper(),
+            event.event_type.upper(),
         )
+
+        application.PROJECT.aq_app.reinit()
 
 
 class FLStaticLoaderWarning(QtCore.QObject):
