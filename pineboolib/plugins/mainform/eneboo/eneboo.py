@@ -465,8 +465,9 @@ class MainForm(imainwindow.IMainWindow):
                 raise Exception("tab_widget is empty!")
 
             for number in range(self.tab_widget.count()):
-                self.tab_widget.widget(number).close()
-                self.tab_widget.removeTab(number)
+                if self.tab_widget.widget(number) is not None:
+                    self.tab_widget.widget(number).close()
+                    self.tab_widget.removeTab(number)
 
             actions_opened: List[str] = []
             for open_action in open_actions:
