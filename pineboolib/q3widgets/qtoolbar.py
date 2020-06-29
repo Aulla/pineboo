@@ -8,9 +8,9 @@ class QToolBar(QtWidgets.QToolBar):
 
     _label: str
 
-    def setLabel(self, l: str) -> None:
+    def setLabel(self, label: str) -> None:
         """Set label."""
-        self._label = l
+        self._label = label
 
     def getLabel(self) -> str:
         """Get label."""

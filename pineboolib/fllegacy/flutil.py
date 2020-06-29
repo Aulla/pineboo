@@ -909,7 +909,7 @@ class FLUtil(object):
         )
 
     @classmethod
-    def setLabelText(cls, l: str, id_: str = "default") -> None:
+    def setLabelText(cls, label: str, id_: str = "default") -> None:
         """
         Change the text of the dialog label.
 
@@ -917,7 +917,7 @@ class FLUtil(object):
         """
 
         application.PROJECT.message_manager().send(
-            "progress_dialog_manager", "setLabelText", [l, id_]
+            "progress_dialog_manager", "setLabelText", [label, id_]
         )
 
     @classmethod

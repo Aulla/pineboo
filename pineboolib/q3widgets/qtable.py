@@ -175,10 +175,10 @@ class QTable(Q3TableWidget):
                 col, QtWidgets.QHeaderView.ResizeMode(QtWidgets.QHeaderView.AdjustToContents)
             )
 
-    def setHeaderLabel(self, l: str) -> None:
+    def setHeaderLabel(self, label: str) -> None:
         """Set header label."""
 
-        self.cols_list.append(l)
+        self.cols_list.append(label)
         self.setColumnLabels(",", ",".join(self.cols_list))
 
     def insertRows(self, numero, n: int = 1) -> None:

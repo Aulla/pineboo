@@ -8,11 +8,11 @@ class PNGroupByQuery(object):
     level_: int
     field_: str
 
-    def __init__(self, l: int, f: str) -> None:
+    def __init__(self, label: int, field: str) -> None:
         """Specify the level and field."""
 
-        self.level_ = l
-        self.field_ = f
+        self.level_ = label
+        self.field_ = field
 
     def level(self) -> int:
         """Return the level GroupBy."""
