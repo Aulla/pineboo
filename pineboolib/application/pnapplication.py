@@ -319,10 +319,10 @@ class PNApplication(QtCore.QObject):
                 if hasattr(main_window, "_p_work_space"):
                     main_window._p_work_space = None
 
-        QtCore.QTimer.singleShot(0, self.reinitP)
         from pineboolib.application.parsers.parser_mtd.pnormmodelsfactory import empty_base
 
         empty_base()
+        self.reinitP()
 
     def startTimerIdle(self) -> None:
         """Start timer."""
@@ -468,8 +468,6 @@ class PNApplication(QtCore.QObject):
         reinit_func = getattr(application.PROJECT.main_window, "reinitScript", None)
         if reinit_func is not None:
             reinit_func()
-        
-        LOGGER.warning("REINIT finished!")
 
     def showDocPage(self, url_: str) -> None:
         """Show documentation."""
