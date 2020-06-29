@@ -450,25 +450,29 @@ class PNApplication(QtCore.QObject):
         self.loadScripts()
         application.PROJECT.load_orm()
         # self.db().managerModules().setShaFromGlobal()
-        self.call("sys.init()", [])
-        if application.PROJECT.main_window:
-            if hasattr(application.PROJECT.main_window, "initToolBox"):
-                application.PROJECT.main_window.initToolBox()
 
-            # mw.readState()
+        if not utils_base.is_library():
+            self.call("sys.init()", [])
+            if application.PROJECT.main_window:
+                if hasattr(application.PROJECT.main_window, "initToolBox"):
+                    application.PROJECT.main_window.initToolBox()
 
-            container = getattr(application.PROJECT.main_window, "container_", None)
-            if container is not None:
-                container.installEventFilter(self)
-            # self.container_.setDisable(False)
+                # mw.readState()
 
-        self.callScriptEntryFunction()
+                container = getattr(application.PROJECT.main_window, "container_", None)
+                if container is not None:
+                    container.installEventFilter(self)
+                # self.container_.setDisable(False)
 
-        self._inicializing = False
+            self.callScriptEntryFunction()
 
-        reinit_func = getattr(application.PROJECT.main_window, "reinitScript", None)
-        if reinit_func is not None:
-            reinit_func()
+            self._inicializing = False
+
+            reinit_func = getattr(application.PROJECT.main_window, "reinitScript", None)
+            if reinit_func is not None:
+                reinit_func()
+        else:
+            self._inicializing = False
 
     def showDocPage(self, url_: str) -> None:
         """Show documentation."""
