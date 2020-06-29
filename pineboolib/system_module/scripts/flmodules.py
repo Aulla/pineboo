@@ -249,7 +249,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     )
                     return
 
-            qsa.sys.cleanupMetaData()
+            # qsa.sys.cleanupMetaData()
             qsa.sys.processEvents()
             if self.cursor().commitBuffer():
 

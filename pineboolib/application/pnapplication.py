@@ -443,7 +443,7 @@ class PNApplication(QtCore.QObject):
         self.db().manager().init()
 
         self.db().managerModules()
-        self.db().manager().cleanupMetaData()
+        # self.db().manager().cleanupMetaData()
         if self.acl_:
             self.acl_.init()
 

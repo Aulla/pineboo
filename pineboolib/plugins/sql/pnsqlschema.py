@@ -765,6 +765,9 @@ class PNSqlSchema(object):
                 )
 
         except Exception as error:
+            LOGGER.warning(
+                "Se ha producido un error al ejecutar la consulta %s.", query, stack_info=True
+            )
             self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
 
         return result_
