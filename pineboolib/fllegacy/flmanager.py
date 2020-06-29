@@ -20,7 +20,6 @@ from pineboolib.application import qsadictmodules
 from pineboolib.interfaces import IManager
 
 from pineboolib import logging, application
-
 from . import flutil
 
 from xml.etree import ElementTree
@@ -1456,8 +1455,8 @@ class FLManager(QtCore.QObject, IManager):
             if qry.value(0) != sha:
                 sql = "UPDATE %s SET contenido = '%s' WHERE refkey ='%s'" % (
                     table_large,
-                    large_value,
-                    ref_key,
+                    self.db_.formatValue("pixmap", large_value, False),
+                    self.db_.formatValue("string", ref_key, False),
                 )
                 if not util.execSql(sql, "dbAux"):
                     LOGGER.warning(
@@ -1465,10 +1464,10 @@ class FLManager(QtCore.QObject, IManager):
                     )
                     return None
         else:
-            sql = "INSERT INTO %s (contenido,refkey) VALUES ('%s','%s')" % (
+            sql = "INSERT INTO %s (contenido,refkey) VALUES (%s,%s)" % (
                 table_large,
-                large_value,
-                ref_key,
+                self.db_.formatValue("pixmap", large_value, False),
+                self.db_.formatValue("string", ref_key, False),
             )
             if not util.execSql(sql, "dbAux"):
                 LOGGER.warning(
