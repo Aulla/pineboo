@@ -745,7 +745,7 @@ class PNSqlSchema(object):
         try:
             try:
                 # query_ = sqlalchemy.text(query)
-                result_ = session_.connection().execute(query)
+                result_ = session_.connection().execute("""%s""" % query)
 
                 # LOGGER.warning(
                 #    "execute_query: %s, session: %s, transaction: %s",
