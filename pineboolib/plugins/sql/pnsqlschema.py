@@ -61,6 +61,7 @@ class PNSqlSchema(object):
     _text_cascade: str
     _safe_load: Dict[str, str]
     _database_not_found_keywords: List[str]
+    _parse_porc: bool
 
     _sqlalchemy_name: str
     _connection: "base.Connection"
@@ -78,6 +79,7 @@ class PNSqlSchema(object):
         self.mobile_ = False
         self.pure_python_ = False
         self.defaultPort_ = 0
+        self._parse_porc = True
 
         self.lastError_ = ""
         self.db_ = None
@@ -580,6 +582,8 @@ class PNSqlSchema(object):
         """Return a database friendly text."""
 
         res = str(text).replace("'", "''")
+        if self._parse_porc:
+            res = res.replace("%", "%%")
         return res.replace(":", "\\:")
 
     def hasCheckColumn(self, metadata: "pntablemetadata.PNTableMetaData") -> bool:
@@ -766,7 +770,8 @@ class PNSqlSchema(object):
 
         except Exception as error:
             LOGGER.warning(
-                "Se ha producido un error al ejecutar la consulta %s.", query, stack_info=True
+                "Se ha producido un error al ejecutar la consulta %s.\n%s" % (query, str(error)),
+                stack_info=True,
             )
             self.set_last_error("No se pudo ejecutar la query %s.\n%s" % (query, str(error)), query)
 

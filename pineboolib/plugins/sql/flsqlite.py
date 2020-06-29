@@ -44,6 +44,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self._null = ""
         self._text_like = ""
         self._text_cascade = ""
+        self._parse_porc = False
 
         self._sqlalchemy_name = "sqlite"
 
