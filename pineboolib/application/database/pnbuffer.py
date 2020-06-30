@@ -160,9 +160,9 @@ class PNBuffer(object):
             value = self._cache_buffer[field_name]
             type_ = self._cursor.metadata().field(field_name).type()
             if type_ == "double":
-                value = float(value or 0)  # type: ignore [arg-type] #noqa: F821
+                value = float(value or 0)  # type: ignore [arg-type] # noqa: F821
             elif type_ in ("int", "uint", "serial"):
-                value = int(value or 0)  # type: ignore [arg-type] #noqa: F821
+                value = int(value or 0)  # type: ignore [arg-type] # noqa: F821
             elif type_ in ("string", "pixmap", "stringlist", "counter"):
                 value = str(value)
             elif type_ in ("boolean", "unlock"):
