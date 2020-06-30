@@ -1123,7 +1123,11 @@ class FLFieldDB(QtWidgets.QWidget):
             return
         type_ = field.type()
 
-        if not type_ == "pixmap" and not self.editor_ and field_name is not None:
+        if (
+            not type_ == "pixmap"
+            and getattr(self, "editor_", None) is None
+            and field_name is not None
+        ):
             self._refresh_later = field_name
             return
 
@@ -1451,7 +1455,7 @@ class FLFieldDB(QtWidgets.QWidget):
             editor_le = cast(fllineedit.FLLineEdit, self.editor_)
             # part_decimal = self._part_decimal if self._part_decimal > -1 else field.partDecimal()
 
-            e_text = editor_le.text() if editor_le.text() != "" else 0.0
+            e_text = editor_le.text() if editor_le.text() else 0.0
             if float(str(e_text)) == float(value):
                 return
             try:
