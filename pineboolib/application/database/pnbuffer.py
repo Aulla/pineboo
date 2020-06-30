@@ -6,6 +6,7 @@ Manage buffers used by PNSqlCursor.
 Buffers are the data records pointed to by a PNSqlCursor.
 """
 from pineboolib.application import types
+from pineboolib.core.utils import utils_base
 from pineboolib import logging
 
 import datetime
@@ -143,6 +144,7 @@ class PNBuffer(object):
 
     def set_value(self, field_name: str, value: TVALUES) -> bool:
         """Set values to cache_buffer."""
+
         if field_name in self._cursor.metadata().fieldNames():
             self._cache_buffer[field_name] = value
         else:
@@ -155,7 +157,18 @@ class PNBuffer(object):
         ret_ = True
 
         for field_name in self._cache_buffer.keys():
-            ret_ = self.set_value_to_objet(field_name, self._cache_buffer[field_name])
+            value = self._cache_buffer[field_name]
+            type_ = self._cursor.metadata().field(field_name).type()
+            if type_ == "double":
+                value = float(value or 0)
+            elif type_ in ("int", "uint", "serial"):
+                value = int(value or 0)
+            elif type_ in ("string", "pixmap", "stringlist", "counter"):
+                value = str(value)
+            elif type_ in ("boolean", "unlock"):
+                value = utils_base.text2bool(str(value or 0))
+
+            ret_ = self.set_value_to_objet(field_name, value)
             if not ret_:
                 break
 
