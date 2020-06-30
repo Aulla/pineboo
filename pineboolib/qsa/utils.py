@@ -639,7 +639,24 @@ def session_atomic(conn_name: str = "default") -> Optional["orm_session.Session"
     return None
 
 
-def ws_channel_send(json: Dict, group_name: str = "") -> None:
+def ws_channel_send(msg: Any = "", group_name: str = "") -> None:
+    """Send message to websocket channel."""
+
+    if application.USE_WEBSOCKET_CHANNEL:
+        from asgiref.sync import async_to_sync  # type: ignore [import] # noqa: F723
+        from channels.layers import get_channel_layer  # type: ignore [import] # noqa: F723
+
+        json = {"type": "send.msg", "content": msg}
+
+        channel_layer = get_channel_layer()
+        user_id = application.PROJECT.session_id()
+        if group_name:
+            async_to_sync(channel_layer.group_send)(group_name, json)
+        else:
+            async_to_sync(channel_layer.send)(user_id, json)
+
+
+def ws_channel_send_type(json: Dict, group_name: str = "") -> None:
     """Send message to websocket channel."""
 
     if application.USE_WEBSOCKET_CHANNEL:
