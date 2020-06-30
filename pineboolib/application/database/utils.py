@@ -396,6 +396,9 @@ def exec_sql(sql_: str, conn_: Union[str, "iconnection.IConnection"] = "default"
     try:
         last = my_conn.lastError()
         LOGGER.info("execSql: Ejecutando la consulta : %s", sql_)
+        if my_conn.driver()._parse_porc:
+            sql_ = sql_.replace("%", "%%")
+
         # sql = conn_.db().driver().fix_query(sql)
         # cur.execute(sql)
         # conn_.conn.commit()
