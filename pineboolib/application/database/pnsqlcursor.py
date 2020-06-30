@@ -549,9 +549,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if v_large:
                     value = v_large
             elif type_ == "double":
-                value = float(value)
+                value = float(value)  # type: ignore [arg-type] #noqa: F821
             elif type_ in ("int", "uint"):
-                value = int(value)
+                value = int(value)  # type: ignore [arg-type] #noqa: F821
 
         else:
             if type_ in ("string", "stringlist", "date", "timestamp"):
