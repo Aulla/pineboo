@@ -378,7 +378,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if primary_key and self.db() is not db_aux:
             primary_key_value = self.private_cursor.buffer_.value(primary_key)
             db_aux.transaction()
-            print("*", function_name, [field_name, self.private_cursor.buffer_.value(field_name)])
+
             value = application.PROJECT.call(
                 function_name,
                 [field_name, self.private_cursor.buffer_.value(field_name)],
@@ -530,7 +530,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         type_ = field_metadata.type()
 
-        if value is not None:
+        if value:
 
             if type_ == "date":
                 if isinstance(value, datetime.date):
@@ -548,12 +548,18 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                 if v_large:
                     value = v_large
+            elif type_ == "double":
+                value = float(value)
+            elif type_ in ("int", "uint"):
+                value = int(value)
+
         else:
             if type_ in ("string", "stringlist", "date", "timestamp"):
                 value = ""
             elif type_ in ("double", "int", "uint"):
                 value = 0
 
+        # print("******************* Devolviendo", field_name, type_, value, type(value))
         return value
 
     def fetchLargeValue(self, value: str) -> Any:
@@ -581,7 +587,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         value = self.bufferCopy().value(field_name)
         type_ = field_metadata.type()
 
-        if value is not None:
+        if value:
 
             if type_ == "date":
                 if isinstance(value, datetime.date):
@@ -1159,7 +1165,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             % (self.table(), field.alias(), value)
                         )
 
-                if relation_m1 and value is not None:
+                if relation_m1 and value:
                     if relation_m1.checkIn() and not relation_m1.foreignTable() == self.table():
                         # r = field.relationM1()
                         table_metadata = (
@@ -1266,7 +1272,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     if not metadata:
                         continue
                     field_metadata = metadata.field(relation.foreignField())
-                    if field_metadata:
+                    if field_metadata is not None:
                         if field_metadata.relationM1():
                             if (
                                 field_metadata.relationM1().deleteCascade()
@@ -2620,10 +2626,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             LOGGER.warning("CommitBuffer cancelado. Problema de integridad.")
             return False
 
-        if not self.buffer().apply_buffer():
-            LOGGER.warning("CommitBuffer cancelado. Fallo al aplicar el buffer al objeto")
-            return False
-
         field_name_check = None
 
         function_before_commit = (
@@ -2706,6 +2708,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     )
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
 
+            if not self.buffer().apply_buffer():
+                LOGGER.warning(
+                    "CommitBuffer en Insert cancelado. Fallo al aplicar el buffer al objeto"
+                )
+                return False
+
             if not self.model().insert_current_buffer():
                 LOGGER.warning(
                     "CommitBuffer cancelado. model().insert_current_buffer() devolvió False."
@@ -2724,6 +2732,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
             LOGGER.trace("commitBuffer -- Edit . 20 . ")
             if self.isModifiedBuffer():
+
+                if not self.buffer().apply_buffer():
+                    LOGGER.warning(
+                        "CommitBuffer en Edit cancelado. Fallo al aplicar el buffer al objeto"
+                    )
+                    return False
 
                 LOGGER.trace("commitBuffer -- Edit . 22 . ")
                 if not self.update(False):
@@ -2753,6 +2767,12 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         "CommitBuffer cancelado. %s devolvió False.", function_record_del_before
                     )
                     return False
+
+            if not self.buffer().apply_buffer():
+                LOGGER.warning(
+                    "CommitBuffer en Delete cancelado. Fallo al aplicar el buffer al objeto"
+                )
+                return False
 
             # if not self.private_cursor.buffer_:
 
