@@ -119,9 +119,10 @@ class BaseModel(object):
         if table_name in application.PROJECT.actions.keys():
             self._action = application.PROJECT.actions[table_name]
             if self._action is not None:
-                if self._action._record_script:
+                if self._action._record_script and not self._action._record_widget:
                     self._action.load_record_widget()
-                if self._action._master_script:
+
+                if self._action._master_script and not self._action._master_widget:
                     module_script = self._action.load_master_widget()
                     self._module_iface = getattr(module_script, "iface", None)
 
