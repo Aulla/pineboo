@@ -112,6 +112,7 @@ class BaseModel(object):
     def _common_init(self) -> None:
         """Initialize."""
         self.bufferChanged = dummy_signal.FakeSignal()
+        self._module_iface = None
 
         table_name: str = self.table_metadata().name()
 
@@ -622,7 +623,8 @@ class BaseModel(object):
                         #    .first()
                         # )
                         value = getattr(self, field_name)
-                        if qry_data and (not field.allowNull() or value):
+
+                        if qry_data is None and (not field.allowNull() or value):
 
                             self._error_manager(
                                 "_check_integrity",
