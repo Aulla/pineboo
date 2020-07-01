@@ -584,7 +584,8 @@ class PNSqlSchema(object):
         res = str(text).replace("'", "''")
         if self._parse_porc:
             res = res.replace("%", "%%")
-        return res.replace(":", "\\:")
+        # res = res.replace(":", "\\:")
+        return res
 
     def hasCheckColumn(self, metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Retrieve if MTD has a check column."""
@@ -812,37 +813,41 @@ class PNSqlSchema(object):
             return False
 
         for number, line in enumerate(list_records):
-            model_obj = model_()
+            # model_obj = model_()
+            field_names = []
+            field_values = []
             for field, value in line:
                 if field.generated():
 
-                    if field.type() in ("string", "stringlist"):
+                    if field.type() in ("string", "stringlist", "bytearray"):
                         value = self.normalizeValue(value)
-                        value = self.formatValue(field.type(), value, False)
+
                         if value in ["Null", "NULL"]:
                             value = "''"
                         else:
-                            value = sqlalchemy.text(value)
+                            value = self.formatValue(field.type(), value, False)
+                    else:
+                        value = self.formatValue(field.type(), value, False)
 
-                setattr(model_obj, field.name(), value)
+                # setattr(model_obj, field.name(), value)
 
-                # field_names.append(field.name())
-                # field_values.append(value)
+                field_names.append(field.name())
+                field_values.append(value)
 
-            # sql = """INSERT INTO %s(%s) values (%s)""" % (
-            #    table_name,
-            #    ", ".join(field_names),
-            #    ", ".join(map(str, field_values)),
-            # )
+            sql = None
+            if field_names:
+                sql = """INSERT INTO %s(%s) values (%s)""" % (
+                    table_name,
+                    ", ".join(field_names),
+                    ", ".join(map(str, field_values)),
+                )
 
-            # if sql:
-            try:
-                session_.add(model_obj)
-
-            #        self.session().execute(sql)
-            except Exception as error:
-                LOGGER.error("insertMulti: %s", str(error))
-                return False
+            if sql:
+                try:
+                    session_.connection().execute(sql)
+                except Exception as error:
+                    LOGGER.error("insertMulti: %s", str(error))
+                    return False
         session_.flush()
         return True
 
