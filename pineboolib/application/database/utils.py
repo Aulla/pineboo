@@ -5,9 +5,9 @@ Provide some functions based on data.
 from pineboolib.core.utils import logging
 from pineboolib.application import types, qsadictmodules, load_script
 from pineboolib import application
-
-
+from pineboolib.application.database.orm import dummy_cursor
 from . import pnsqlcursor, pnsqlquery
+
 
 from typing import Any, Union, List, Optional, TYPE_CHECKING
 
@@ -22,7 +22,7 @@ LOGGER = logging.get_logger(__name__)
 
 def next_counter(
     name_or_series: str,
-    cursor_or_name: Union[str, "isqlcursor.ISqlCursor"],
+    cursor_or_name: Union[str, "isqlcursor.ISqlCursor", "dummy_cursor.DummyCursor"],
     cursor_: Optional["isqlcursor.ISqlCursor"] = None,
 ) -> Optional[Union[str, int]]:
     """
@@ -66,7 +66,7 @@ def next_counter(
     """
     if cursor_ is None:
 
-        if not isinstance(cursor_or_name, pnsqlcursor.PNSqlCursor):
+        if not isinstance(cursor_or_name, (pnsqlcursor.PNSqlCursor, dummy_cursor.DummyCursor)):
             raise ValueError
         return _next_counter2(name_or_series, cursor_or_name)
     else:
@@ -75,7 +75,9 @@ def next_counter(
         return _next_counter3(name_or_series, cursor_or_name, cursor_)
 
 
-def _next_counter2(name_: str, cursor_: "isqlcursor.ISqlCursor") -> Optional[Union[str, int]]:
+def _next_counter2(
+    name_: str, cursor_: Union["isqlcursor.ISqlCursor", "dummy_cursor.DummyCursor"]
+) -> Optional[Union[str, int]]:
 
     if not cursor_:
         return None
