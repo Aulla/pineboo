@@ -114,13 +114,15 @@ class BaseModel(object):
         self.bufferChanged = dummy_signal.FakeSignal()
 
         table_name: str = self.table_metadata().name()
-        if "sys" in application.PROJECT.actions.keys():
-            id_module = application.PROJECT.conn_manager.managerModules().idModuleOfFile(
-                "%s.mtd" % table_name
-            )
-            self._action = application.PROJECT.actions[
-                id_module if id_module in application.PROJECT.actions.keys() else "sys"
-            ]
+
+        if table_name in application.PROJECT.actions.keys():
+            self._action = application.PROJECT.actions[table_name]
+            if self._action is not None:
+                if self._action._record_script:
+                    self._action.load_record_widget()
+                if self._action._master_script:
+                    module_script = self._action.load_master_widget()
+                    self._module_iface = getattr(module_script, "iface", None)
 
         self._deny_buffer_changed = []
 
@@ -157,12 +159,10 @@ class BaseModel(object):
             self._before_commit_function = "beforeCommit_%s" % table_name
             self._after_commit_function = "afterCommit_%s" % table_name
 
-            module_script = self._action.load_master_widget() if self._action is not None else None
-            self._module_iface = getattr(module_script, "iface", None)
-
             try:
                 if self._new_object:
-                    if self._action is not None and self._action._record_widget is not None:
+
+                    if self._action and self._action._record_widget is not None:
                         iface = getattr(
                             self._action._record_widget, "iface", self._action._record_widget
                         )
@@ -622,7 +622,8 @@ class BaseModel(object):
                         #    .first()
                         # )
                         value = getattr(self, field_name)
-                        if qry_data is None and (not field.allowNull() or value is not None):
+                        if qry_data and (not field.allowNull() or value):
+
                             self._error_manager(
                                 "_check_integrity",
                                 "INTEGRITY::Relation %s.%s M1 %s.%s with value '%s' is invalid"
