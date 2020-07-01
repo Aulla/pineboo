@@ -1,11 +1,14 @@
 """Dummy_cursor module."""
 
 from pineboolib.core.utils import logging
+from pineboolib.application.metadata import pntablemetadata
+from pineboolib import application
 
 from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from . import basemodel
+    from pineboolib.interfaces import iconnection
 
 LOGGER = logging.get_logger(__name__)
 
@@ -61,6 +64,16 @@ class DummyCursor(object):
         """Set value to Null."""
 
         setattr(self._parent, field_name, None)
+
+    def metadata(self) -> "pntablemetadata.PNTableMetaData":
+        """Return metadata."""
+
+        return self._parent.table_metadata()
+
+    def db(self) -> "iconnection.IConnection":
+        """Return pnconnection."""
+
+        return application.PROJECT.conn_manager.useConn(self._parent._session._conn_name)
 
     def primaryKey(self) -> str:
         """Return primery key name."""
