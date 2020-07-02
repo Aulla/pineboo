@@ -273,7 +273,7 @@ def init_testing() -> None:
     if not main_conn_established:
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
-    application.PROJECT.no_python_cache = True
+    application.PROJECT.no_python_cache = False
     if application.PROJECT.run():
 
         # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
