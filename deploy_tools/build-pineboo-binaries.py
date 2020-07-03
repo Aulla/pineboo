@@ -83,7 +83,11 @@ if not target:
         sys.exit(2)
 
 # rename al files in scripts for deploy
-path_list = ["../pineboolib/system_module/scripts", "../pineboolib/plugins/custom_widgets"]
+path_list = [
+    "../pineboolib/system_module/scripts",
+    "../pineboolib/plugins/custom_widgets",
+    "../pineboolib/system_module/models",
+]
 for path_ in path_list:
     path_ = "%s/%s" % (os.path.dirname(os.path.abspath(__file__)), path_)
     script_files = os.listdir(path_)

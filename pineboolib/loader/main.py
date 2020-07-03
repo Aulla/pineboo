@@ -96,7 +96,11 @@ def startup(enable_gui: bool = None) -> None:
     if options.enable_profiler:
         ret = exec_main_with_profiler(options)
     else:
+        # try:
         ret = exec_main(options)
+        # except Exception as error:
+        #     QtWidgets.QMessageBox.information(None, "Pineboo", "FAllo al arrancar : %s" % error)
+
     # setup()
     # exec_()
     gc.collect()
