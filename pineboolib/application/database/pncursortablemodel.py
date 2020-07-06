@@ -693,7 +693,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         parent = QtCore.QModelIndex()
 
-        rows = self._rows_loaded
+        rows = self.rowCount()
         self.beginRemoveRows(parent, 0, rows)
         self.endRemoveRows()
         if rows > 0:
@@ -740,7 +740,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         if result_query.returns_rows:
             data_fetched = result_query.fetchall()
-            self._rows_loaded = len(result_query.keys())
+            # self._rows_loaded = len(data_fetched)
             self._data_index = [data[0] for data in data_fetched]
             self.need_update = False
             self._column_hints = [120] * len(self.sql_fields)
@@ -752,7 +752,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """Return row object from proxy."""
         ret_ = None
 
-        if row > -1 and row < self._rows_loaded:
+        if row > -1 and row < self.rowCount():
             pk_value = self._data_index[row]
             # print("get_obj_from_row", row, pk_value)
             session_ = self.db().session()
@@ -861,6 +861,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @return Row number present in table.
         """
+        if not self._rows_loaded:
+            self._rows_loaded = len(getattr(self, "_data_index", []))
+
         return self._rows_loaded
 
     def headerData(
@@ -920,3 +923,4 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def set_parent_view(self, parent_view: "fldatatable.FLDataTable") -> None:
         """Set the parent view."""
         self.parent_view = parent_view
+

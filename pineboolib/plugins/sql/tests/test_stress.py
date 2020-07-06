@@ -20,7 +20,7 @@ class TestStress(unittest.TestCase):
         cursor = qsa.FLSqlCursor("fltest")
         util = qsa.FLUtil()
 
-        for number in range(100000):
+        for number in range(10000):
             cursor.setModeAccess(cursor.Insert)
             cursor.refreshBuffer()
             texto = util.enLetra(randint(0, 10000000))
