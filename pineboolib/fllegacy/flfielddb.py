@@ -252,12 +252,14 @@ class FLFieldDB(QtWidgets.QWidget):
             # print("Hay topWidget en %s", self)
 
         if self.cursor_ and self.cursor_.private_cursor.buffer_:
-            LOGGER.info(
-                "*** FLFieldDB::loaded: cursor: %r name: %r at:%r",
-                self.cursor_,
-                self.cursor_.curName(),
-                self.cursor_.at(),
-            )
+
+            pass
+            # LOGGER.info(
+            #    "*** FLFieldDB::loaded: cursor: %r name: %r at:%r",
+            #    self.cursor_,
+            #    self.cursor_.curName(),
+            #    self.cursor_.at(),
+            # )
             # cur_values = [f.value for f in self.cursor_.private_cursor.buffer_.fieldsList()]
             # LOGGER.info("*** cursor Buffer: %r", cur_values)
         else:
@@ -754,14 +756,13 @@ class FLFieldDB(QtWidgets.QWidget):
             cast(fllineedit.FLLineEdit, self.editor_).setText(value)
 
         elif type_ == "double":
-            num_ = ""
-            if value:
-                num_ = str(
-                    round(
-                        float(value),
-                        self._part_decimal if self._part_decimal else field.partDecimal(),
-                    )
+            num_ = value if value else 0
+
+            num_ = str(
+                round(
+                    float(value), self._part_decimal if self._part_decimal else field.partDecimal()
                 )
+            )
 
             cast(fllineedit.FLLineEdit, self.editor_).setText(num_)
 
@@ -873,7 +874,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         elif type_ == "time":
             if self.editor_:
-                value = cast(fltimeedit.FLTimeEdit, self.editor_).time
+                value = cast(fltimeedit.FLTimeEdit, self.editor_).time().toString()
 
         elif type_ == "bool":
             if self.editor_:
@@ -1146,10 +1147,10 @@ class FLFieldDB(QtWidgets.QWidget):
         # if isinstance(v , QString): #Para quitar
         # v = str(v)
 
-        LOGGER.info(
-            "FLFieldDB:: refresh field_name:%r fieldName:%r v:%s"
-            % (field_name, self._field_name, repr(value)[:64])
-        )
+        # LOGGER.info(
+        #    "FLFieldDB:: refresh field_name:%r fieldName:%r v:%s"
+        #    % (field_name, self._field_name, repr(value)[:64])
+        # )
 
         if self._keep_disabled or self.cursor_.fieldDisabled(self._field_name):
             field_dis = True
