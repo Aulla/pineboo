@@ -3,7 +3,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.fllegacy import fldateedit
-from datetime import datetime, time
+from datetime import datetime
 
 
 class TestFLFieldDBString(unittest.TestCase):
