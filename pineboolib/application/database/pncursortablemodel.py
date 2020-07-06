@@ -727,7 +727,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             # print("****", sql_query)
         else:
 
-            sql_query = "SELECT %s FROM %s %s" % (
+            sql_query = "SELECT COUNT(%s), %s FROM %s %s" % (
+                self.metadata().primaryKey(),
                 self.metadata().primaryKey(),
                 self.metadata().name(),
                 where_filter,
@@ -740,10 +741,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         if result_query.returns_rows:
             data_fetched = result_query.fetchall()
-            self._rows_loaded = len(data_fetched)
-            if self._rows_loaded:
-                self._data_index = [data[0] for data in data_fetched]
-            # print("RESULTADOS!", self._rows_loaded, self._data_index)
+            self._rows_loaded = data_fetched[0][0]
+            self._data_index = [data[1] for data in data_fetched]
             self.need_update = False
             self._column_hints = [120] * len(self.sql_fields)
 
