@@ -3,6 +3,7 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.fllegacy import fldateedit
+from datetime import datetime, time
 
 
 class TestFLFieldDBString(unittest.TestCase):
@@ -193,6 +194,39 @@ class TestFLFieldDBString(unittest.TestCase):
         self.assertEqual(field.echoMode(), fllineedit.FLLineEdit.Password)
 
         self.assertTrue(field.cursor_)
+
+    def test_basic_3(self) -> None:
+        """Test basics 3."""
+        from pineboolib.qsa import qsa
+
+        cur_test = qsa.FLSqlCursor("fltest")
+        cur_test.openFormInMode(cur_test.Insert, False)
+        form_ = qsa.from_project("formRecordfltest").form
+        self.assertEqual(form_.child("fdb_double").value(), 0.0)
+        self.assertEqual(form_.child("fdb_double").editor_.text(), "0.0")
+        self.assertEqual(form_.child("fdb_id").value(), None)
+        self.assertEqual(form_.child("fdb_date").value(), "")
+        self.assertEqual(form_.child("fdb_time").value(), "00:00:00")
+        self.assertEqual(form_.child("fdb_uint").value(), 0)
+        cursor = form_.cursor()
+
+        self.assertFalse(form_.child("fdb_bool").value())
+        cursor.setValueBuffer("bool_field", True)
+        self.assertTrue(form_.child("fdb_bool").value())
+        cursor.setValueBuffer("uint_field", 10)
+        self.assertEqual(form_.child("fdb_uint").value(), 10)
+        cursor.setValueBuffer("uint_field", 11.01)
+        self.assertEqual(form_.child("fdb_uint").value(), 11)
+        cursor.setValueBuffer("uint_field", 12.99)
+        self.assertEqual(form_.child("fdb_uint").value(), 12)
+        cursor.setValueBuffer("double_field", 6.99)
+        self.assertEqual(form_.child("fdb_double").value(), 6.99)
+        today = qsa.Date()
+        time_now = datetime.now().time()
+        cursor.setValueBuffer("date_field", today)
+        self.assertEqual(str(form_.child("fdb_date").value())[:10], str(today)[:10])
+        cursor.setValueBuffer("time_field", time_now)
+        self.assertEqual(form_.child("fdb_time").value(), str(time_now)[:8])
 
     @classmethod
     def tearDownClass(cls) -> None:
