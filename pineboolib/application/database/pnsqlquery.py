@@ -197,6 +197,9 @@ class PNSqlQuery(object):
 
         self._last_query = sql
 
+        if self.private_query._db.driver()._parse_porc:
+            sql = sql.replace("%", "%%")
+
         LOGGER.trace(
             "exec_: Ejecutando consulta: <%s> en <%s>", sql, self.db()._name
         )  # type: ignore [misc] # noqa: F821, F401
