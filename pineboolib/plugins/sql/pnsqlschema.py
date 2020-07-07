@@ -925,7 +925,7 @@ class PNSqlSchema(object):
                                 target,
                             )  # 1 a 1 , si busco especifico me da problemas mssql
 
-                            cursor_finder = conn_dbaux.execute_query(sql, conn_dbaux.cursor())
+                            cursor_finder = conn_dbaux.execute_query(sql)
                             for result_finder in list(cursor_finder):
                                 if result_finder[0] == line[0]:
                                     found = True
