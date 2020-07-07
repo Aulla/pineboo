@@ -258,7 +258,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 result_list += cursor.fetchall() if cursor else []
             if type_name in ("SystemTables", ""):
                 cursor = self.execute_query(
-                    "select relname from pg_class where ( relkind = 'r' ) AND ( relname like 'pg_%' ) "
+                    "select relname from pg_class where ( relkind = 'r' ) AND ( relname like 'pg_%%' ) "
                 )
                 result_list += cursor.fetchall() if cursor else []
 
