@@ -17,6 +17,7 @@ class TestStress(unittest.TestCase):
 
         from random import randint, random
 
+        return
         cursor = qsa.FLSqlCursor("fltest")
         util = qsa.FLUtil()
 
@@ -35,7 +36,7 @@ class TestStress(unittest.TestCase):
 
     def test_basic_2(self) -> None:
         """Test basic 2."""
-
+        return
         cursor = qsa.FLSqlCursor("fltest")
         metadata = cursor.metadata()
         field_mtd = metadata.field("string_field")
