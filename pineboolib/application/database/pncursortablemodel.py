@@ -762,7 +762,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 model_class=self._parent._cursor_model,
             )
             query.set_filter_condition_from_string(
-                "%s = %s" % (self.metadata().primaryKey(), pk_value)
+                "%s = %s"
+                % (self.metadata().primaryKey(), str(pk_value).replace(" ", "_|_space_|_"))
             )
             try:
                 ret_ = query.return_query().first()

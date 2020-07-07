@@ -78,6 +78,9 @@ class DynamicFilter(object):
 
             for number, part in enumerate(list_):
 
+                if part.find("_|_space_|_") > -1:
+                    part = part.replace("_|_space_|_", " ")
+
                 if pasa:
                     pasa -= 1
                     continue
