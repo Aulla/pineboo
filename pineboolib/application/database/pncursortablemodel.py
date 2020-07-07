@@ -986,7 +986,7 @@ class ProxyIndex:
         return index
 
     def fetch_more(self, fetch_size: int = 2000) -> bool:
-        """fetch more data to cached data."""
+        """Fetch more data to cached data."""
 
         if self._rows_loaded < self._total_rows and self._query:
 
