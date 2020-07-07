@@ -924,4 +924,3 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def set_parent_view(self, parent_view: "fldatatable.FLDataTable") -> None:
         """Set the parent view."""
         self.parent_view = parent_view
-
