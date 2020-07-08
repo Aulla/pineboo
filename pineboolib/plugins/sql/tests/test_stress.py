@@ -28,13 +28,15 @@ class TestStress(unittest.TestCase):
                 "INSERT INTO fltest(string_field, double_field, bool_field, uint_field, bloqueo) VALUES ('%s',%s,%s,%s, True)"
                 % (texto, random(), True if randint(0, 10) > 4 else False, randint(0, 100000))
             )
+        cursor = qsa.FLSqlCursor("fltest")
+        cursor.select()
+        self.assertEqual(cursor.size(), 100000)
 
     def test_basic_2(self) -> None:
         """Test basic 2."""
 
         cursor = qsa.FLSqlCursor("fltest")
         cursor.select()
-        self.assertEqual(cursor.size(), 100000)
         cursor.first()
         steps = 0
         while cursor.next():
@@ -54,6 +56,7 @@ class TestStress(unittest.TestCase):
         metadata = cursor.metadata()
 
         field_str = metadata.field("string_field")
+        print(field_str)
 
     def test_basic_6(self) -> None:
         """Test basic 6."""
