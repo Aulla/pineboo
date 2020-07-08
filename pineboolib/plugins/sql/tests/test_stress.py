@@ -17,25 +17,46 @@ class TestStress(unittest.TestCase):
 
         from random import randint, random
 
-        return
-        cursor = qsa.FLSqlCursor("fltest")
         util = qsa.FLUtil()
 
-        for number in range(10000):
-            cursor.setModeAccess(cursor.Insert)
-            cursor.refreshBuffer()
+        for number in range(100000):
             texto = util.enLetra(randint(0, 10000000))
             if randint(0, 8) > 7:
                 texto += ' % :) :: " "'
-            cursor.setValueBuffer("string_field", texto)
 
-            cursor.setValueBuffer("double_field", random())
-            cursor.setValueBuffer("bool_field", True if randint(0, 10) > 4 else False)
-            cursor.setValueBuffer("uint_field", randint(0, 100000))
-            cursor.commitBuffer()
+            util.execSql(
+                "INSERT INTO fltest(string_field, double_field, bool_field, uint_field, bloqueo) VALUES ('%s',%s,%s,%s, True)"
+                % (texto, random(), True if randint(0, 10) > 4 else False, randint(0, 100000))
+            )
 
     def test_basic_2(self) -> None:
         """Test basic 2."""
+
+        cursor = qsa.FLSqlCursor("fltest")
+        cursor.select()
+        self.assertEqual(cursor.size(), 100000)
+        cursor.first()
+        steps = 0
+        while cursor.next():
+            steps += 1
+
+        self.assertEqual(steps, cursor.at())
+
+        while cursor.prev():
+            steps -= 1
+
+        self.assertEqual(steps, cursor.at())
+
+    def test_basic_3(self) -> None:
+        """Test basic 3."""
+
+        cursor = qsa.FLSqlCursor("fltest")
+        metadata = cursor.metadata()
+
+        field_str = metadata.field("string_field")
+
+    def test_basic_6(self) -> None:
+        """Test basic 6."""
         return
         cursor = qsa.FLSqlCursor("fltest")
         metadata = cursor.metadata()
