@@ -18,7 +18,7 @@ class TestStress(unittest.TestCase):
         from random import randint, random
 
         cursor = qsa.FLSqlCursor("fltest")
-        cursor.select()
+
         util = qsa.FLUtil()
 
         for number in range(100000):
@@ -30,7 +30,7 @@ class TestStress(unittest.TestCase):
                 "INSERT INTO fltest(string_field, double_field, bool_field, uint_field, bloqueo) VALUES ('%s',%s,%s,%s, True)"
                 % (texto, random(), True if randint(0, 10) > 4 else False, randint(0, 100000))
             )
-
+        cursor.select()
         self.assertEqual(cursor.size(), 100000)
 
     def test_basic_2(self) -> None:
