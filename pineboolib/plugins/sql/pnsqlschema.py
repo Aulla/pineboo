@@ -368,7 +368,7 @@ class PNSqlSchema(object):
             if isinstance(v, bool):
                 s = self._true if v else self._false
             else:
-                s = self._true if utils_base.text2bool(v) else self._false
+                s = self._true if utils_base.text2bool(str(v)) else self._false
 
         elif type_ == "date":
             if len(str(v).split("-")[0]) < 3:
