@@ -176,9 +176,9 @@ def copy_dir_recursive(from_dir: str, to_dir: str, replace_on_conflict: bool = F
 def text2bool(text: str) -> bool:
     """Convert input text into boolean, if possible."""
 
-    if text.lower().startswith(("t", "y", "1", "on", "s")):
+    if str(text).lower().startswith(("t", "y", "1", "on", "s")):
         return True
-    elif text.lower().startswith(("f", "n", "0", "off")):
+    elif str(text).lower().startswith(("f", "n", "0", "off")):
         return False
 
     raise ValueError("Valor booleano no comprendido '%s'" % text)
