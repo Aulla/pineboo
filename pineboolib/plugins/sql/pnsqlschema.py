@@ -295,13 +295,26 @@ class PNSqlSchema(object):
     def connection(self) -> "base.Connection":
         """Return a cursor connection."""
 
+        build = False
+
         if not getattr(self, "_connection", None) or self._connection.closed:
 
+            build = True
+        else:
+            try:
+                self._connection.execute("""SELECT 1""")
+            except Exception:
+                build = True
+                self._connection.close()
+                del self._connection
+
+        if build:
             if getattr(self, "_engine", None):
                 self._connection = self._engine.connect()
                 event.listen(self._engine, "close", self.close_emited)
             else:
                 raise Exception("Engine is not loaded!")
+
         return self._connection
 
     def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
@@ -465,7 +478,8 @@ class PNSqlSchema(object):
         """Return if exists a table specified by name."""
 
         if self._engine:
-            return table_name in self._engine.table_names(None, self.session().connection())
+
+            return table_name in self._engine.table_names(None, self.connection())
         else:
             raise Exception("No engine or connection exists!")
 
