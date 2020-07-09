@@ -713,7 +713,6 @@ class PNSqlSchema(object):
                             continue
                 else:
                     continue
-
                 new_buffer.append([new_field, value])
 
             list_records.append(new_buffer)
@@ -847,7 +846,6 @@ class PNSqlSchema(object):
                         value = self.formatValue(field.type(), value, False)
 
                 # setattr(model_obj, field.name(), value)
-
                 field_names.append(field.name())
                 field_values.append(value)
 

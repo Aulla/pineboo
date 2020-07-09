@@ -19,10 +19,10 @@ class TestStress(unittest.TestCase):
         from random import randint, random
 
         cursor = qsa.FLSqlCursor("fltest")
-
+        registers = 100000
         util = qsa.FLUtil()
 
-        for number in range(100000):
+        for number in range(registers):
             texto = util.enLetra(randint(0, 10000000))
             if randint(0, 8) > 7:
                 texto += ' % :) :: " "'
@@ -32,7 +32,7 @@ class TestStress(unittest.TestCase):
                 % (texto, random(), True if randint(0, 10) > 4 else False, randint(0, 100000))
             )
         cursor.select()
-        self.assertEqual(cursor.size(), 100000)
+        self.assertEqual(cursor.size(), registers)
 
     def test_basic_2(self) -> None:
         """Test basic 2."""
@@ -104,14 +104,8 @@ class TestStress(unittest.TestCase):
         self.assertEqual(len(before_change_structure), 8)
         self.assertEqual(len(after_change_structure), 9)
 
-        new_cursor = qsa.FLSqlCursor("fltest")
-        new_cursor.select()
-        self.assertTrue(new_cursor.first())
-        self.assertEqual(new_cursor.at(), 0)
-        self.assertEqual(new_cursor.valueBuffer("new_string"), "nada")
-        new_cursor.last()
-        self.assertEqual(new_cursor.at(), 99999)
-        self.assertEqual(new_cursor.valueBuffer("new_string"), "nada")
+        total = qsa.FLUtil().quickSqlSelect("fltest", "new_string", "id = 9")
+        self.assertEqual(total, "nada")
 
     @classmethod
     def tearDownClass(cls) -> None:
