@@ -1,6 +1,7 @@
 """Test_Stress module."""
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
+from pineboolib.application.metadata import pnfieldmetadata
 from pineboolib.qsa import qsa
 
 
@@ -57,32 +58,29 @@ class TestStress(unittest.TestCase):
         metadata = cursor.metadata()
 
         field_str = metadata.field("string_field")
-        print(field_str)
+        self.assertEqual(field_str.length(), 0)
+        before_change_structure = cursor.db().driver().recordInfo2("fltest")
+        field_str.private.length_ = 180
 
-    def test_basic_6(self) -> None:
-        """Test basic 6."""
-        return
+        cursor.db().alterTable(metadata)
+        after_change_structure = cursor.db().driver().recordInfo2("fltest")
+
+        self.assertEqual(before_change_structure[1][3], 0)
+        self.assertEqual(after_change_structure[1][3], 180)
+
+    def test_basic_4(self) -> None:
+        """Test basic 4."""
+
         cursor = qsa.FLSqlCursor("fltest")
         metadata = cursor.metadata()
-        field_mtd = metadata.field("string_field")
-        self.assertNotEqual(field_mtd, None)
-        # self.assertEqual(field_mtd.length(), 10)
-
-        # def test_basic_3(self) -> None:
-        #    """Test basic 3."""
-
-        # cursor = qsa.FLSqlCursor("fltest")
-        """metadata = cursor.metadata()
-
-        from pineboolib.application.metadata import pnfieldmetadata
 
         field = pnfieldmetadata.PNFieldMetaData(
-            "new_double",
-            "Nuevo Double",
+            "new_string",
+            "Nuevo String",
             False,
             False,
-            "double",
-            0,
+            "string",
+            50,
             False,
             True,
             True,
@@ -91,13 +89,29 @@ class TestStress(unittest.TestCase):
             False,
             False,
             False,
-            0.01,
+            "nada",
             False,
             None,
             True,
+            True,
             False,
-            False,
-        )"""
+        )
+
+        metadata.addFieldMD(field)
+        before_change_structure = cursor.db().driver().recordInfo2("fltest")
+        cursor.db().alterTable(metadata)
+        after_change_structure = cursor.db().driver().recordInfo2("fltest")
+        self.assertEqual(len(before_change_structure), 8)
+        self.assertEqual(len(after_change_structure), 9)
+
+        new_cursor = qsa.FLSqlCursor("fltest")
+        new_cursor.select()
+        self.assertTrue(new_cursor.first())
+        self.assertEqual(new_cursor.at(), 0)
+        self.assertEqual(new_cursor.valueBuffer("new_string"), "nada")
+        new_cursor.last()
+        self.assertEqual(new_cursor.at(), 99999)
+        self.assertEqual(new_cursor.valueBuffer("new_string"), "nada")
 
     @classmethod
     def tearDownClass(cls) -> None:
