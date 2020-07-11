@@ -441,6 +441,8 @@ class TestACLS(unittest.TestCase):
         )
 
         # descripcion = 'rw'
+
+        # unlock deja a editable a false!!
         self.assertFalse(field_descripcion.editable())  # type: ignore [union-attr] # noqa: F821
         self.assertTrue(field_descripcion.visible())  # type: ignore [union-attr] # noqa: F821
 
