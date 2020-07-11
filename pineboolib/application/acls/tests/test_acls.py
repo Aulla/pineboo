@@ -441,7 +441,7 @@ class TestACLS(unittest.TestCase):
         )
 
         # descripcion = 'rw'
-        self.assertTrue(field_descripcion.editable())  # type: ignore [union-attr] # noqa: F821
+        self.assertFalse(field_descripcion.editable())  # type: ignore [union-attr] # noqa: F821
         self.assertTrue(field_descripcion.visible())  # type: ignore [union-attr] # noqa: F821
 
     def test_tables_globals(self) -> None:

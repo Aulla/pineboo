@@ -184,17 +184,25 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
                     mask_field_perm += 1
 
             if mask_field_perm == 0:
-                field.setVisible(False)
-                field.setEditable(False)
+                if field.visible():
+                    field.setVisible(False)
+                if field.editable():
+                    field.setEditable(False)
             elif mask_field_perm == 1:
-                field.setVisible(False)
-                field.setEditable(True)
+                if field.visible():
+                    field.setVisible(False)
+                if field.editable():
+                    field.setEditable(True)
             elif mask_field_perm == 2:
-                field.setVisible(True)
-                field.setEditable(False)
+                if field.visible():
+                    field.setVisible(True)
+                if field.editable():
+                    field.setEditable(False)
             elif mask_field_perm == 3:
-                field.setVisible(True)
-                field.setEditable(True)
+                if field.visible():
+                    field.setVisible(True)
+                if field.editable():
+                    field.setEditable(True)
 
     def setFromObject(self, table_mtd: Optional["pntablemetadata.PNTableMetaData"]) -> None:
         """Apply permissions from a pntablemetadata.PNTableMetaData."""
