@@ -271,7 +271,7 @@ class ISqlCursor(QtCore.QObject):
 
     transactionBegin: QtCore.pyqtSignal = QtCore.pyqtSignal()
     transactionEnd: QtCore.pyqtSignal = QtCore.pyqtSignal()
-    transactionRollBack: QtCore.pyqtSignal = QtCore.pyqtSignal()
+    transactionRollback: QtCore.pyqtSignal = QtCore.pyqtSignal()
 
     """
     signals:
