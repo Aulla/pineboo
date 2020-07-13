@@ -19,7 +19,7 @@ class TestStress(unittest.TestCase):
         from random import randint, random
 
         cursor = qsa.FLSqlCursor("fltest")
-        registers = 100000
+        registers = 1000
         util = qsa.FLUtil()
 
         for number in range(registers):
@@ -106,6 +106,125 @@ class TestStress(unittest.TestCase):
 
         total = qsa.FLUtil().quickSqlSelect("fltest", "new_string", "id = 9")
         self.assertEqual(total, "nada")
+
+    def test_basic_5(self) -> None:
+        """Test basic 5."""
+
+        cursor = qsa.FLSqlCursor("fltest")
+        metadata = cursor.metadata()
+
+        field = pnfieldmetadata.PNFieldMetaData(
+            "new_bool",
+            "Nuevo Bool",
+            False,
+            False,
+            "bool",
+            50,
+            False,
+            True,
+            True,
+            5,
+            8,
+            False,
+            False,
+            False,
+            False,  # default value
+            False,
+            None,
+            True,
+            True,
+            False,
+        )
+
+        metadata.addFieldMD(field)
+        before_change_structure = cursor.db().driver().recordInfo2("fltest")
+        cursor.db().alterTable(metadata)
+        after_change_structure = cursor.db().driver().recordInfo2("fltest")
+        self.assertEqual(len(before_change_structure), 9)
+        self.assertEqual(len(after_change_structure), 10)
+
+        total = qsa.FLUtil().quickSqlSelect("fltest", "new_bool", "id = 100")
+        self.assertEqual(total, False)
+
+    def test_basic_6(self) -> None:
+        """Test basic 6."""
+
+        cursor = qsa.FLSqlCursor("fltest")
+        metadata = cursor.metadata()
+
+        field = pnfieldmetadata.PNFieldMetaData(
+            "new_bool2",
+            "Nuevo Bool 2",
+            True,  # allow null.
+            False,
+            "bool",
+            50,
+            False,
+            True,
+            True,
+            5,
+            8,
+            False,
+            False,
+            False,
+            None,  # default value
+            False,
+            None,
+            True,
+            True,
+            False,
+        )
+
+        metadata.addFieldMD(field)
+        before_change_structure = cursor.db().driver().recordInfo2("fltest")
+        cursor.db().alterTable(metadata)
+        after_change_structure = cursor.db().driver().recordInfo2("fltest")
+        self.assertEqual(len(before_change_structure), 10)
+        self.assertEqual(len(after_change_structure), 11)
+        cursor.select()
+        self.assertTrue(cursor.size())
+
+        total = qsa.FLUtil().quickSqlSelect("fltest", "new_bool2", "id = 100")
+        self.assertEqual(total, False)
+
+    def test_basic_7(self) -> None:
+        """Test basic 7."""
+
+        cursor = qsa.FLSqlCursor("fltest")
+        metadata = cursor.metadata()
+
+        field = pnfieldmetadata.PNFieldMetaData(
+            "new_bool3",
+            "Nuevo Bool 3",
+            False,
+            False,
+            "bool",
+            50,
+            False,
+            True,
+            True,
+            5,
+            8,
+            False,
+            False,
+            False,
+            True,  # default value
+            False,
+            None,
+            True,
+            True,
+            False,
+        )
+
+        metadata.addFieldMD(field)
+        before_change_structure = cursor.db().driver().recordInfo2("fltest")
+        cursor.db().alterTable(metadata)
+        after_change_structure = cursor.db().driver().recordInfo2("fltest")
+        self.assertEqual(len(before_change_structure), 11)
+        self.assertEqual(len(after_change_structure), 12)
+
+        total = qsa.FLUtil().quickSqlSelect("fltest", "new_bool3", "id = 666")
+        self.assertEqual(total, True)
 
     @classmethod
     def tearDownClass(cls) -> None:
