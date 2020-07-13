@@ -68,6 +68,10 @@ class PNApplication(QtCore.QObject):
     window_menu: Optional[QtWidgets.QMenu] = None
     modules_menu: Any
 
+    transactionBegin: QtCore.pyqtSignal = QtCore.pyqtSignal()
+    transactionEnd: QtCore.pyqtSignal = QtCore.pyqtSignal()
+    transactionRollback: QtCore.pyqtSignal = QtCore.pyqtSignal()
+
     def __init__(self) -> None:
         """Create new FLApplication."""
         super().__init__()
@@ -680,19 +684,27 @@ class PNApplication(QtCore.QObject):
         self, cursor: Union["pnsqlcursor.PNSqlCursor", "isqlcursor.ISqlCursor"]
     ) -> None:
         """Emit signal."""
+        self.transactionBegin.emit()
         database.DB_SIGNALS.emitTransactionBegin(cursor)
 
     def emitTransactionEnd(
         self, cursor: Union["pnsqlcursor.PNSqlCursor", "isqlcursor.ISqlCursor"]
     ) -> None:
         """Emit signal."""
+        self.transactionEnd.emit()
         database.DB_SIGNALS.emitTransactionEnd(cursor)
 
     def emitTransactionRollback(
         self, cursor: Union["pnsqlcursor.PNSqlCursor", "isqlcursor.ISqlCursor"]
     ) -> None:
         """Emit signal."""
+        self.transactionRollback.emit()
         database.DB_SIGNALS.emitTransactionRollback(cursor)
+
+    def self_(self) -> "PNApplication":
+        """Return self."""
+
+        return self
 
     @decorators.not_implemented_warn
     def gsExecutable(self):
