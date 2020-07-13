@@ -296,6 +296,7 @@ def id_translate(name: str, qsa_exclude: Set[str] = None, transform: Dict[str, s
         "print",
         "str",
         "qsa",
+        "self",
     ]
     if "(" in name:
         raise ValueError("Parenthesis not allowed in ID for translation")

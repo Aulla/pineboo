@@ -40,6 +40,12 @@ class TestKnownBugs(unittest.TestCase):
 
         self.assertEqual(qsa.System.getenv("TEST_PINEBOO"), "¡hola!")
 
+    def test_self(self) -> None:
+        """Test self."""
+
+        value = "aqApp.self()"
+        self.assertEqual(qs2py(value), "qsa.aqApp.self_()")
+
     def test_index_of(self) -> None:
         """Check indexOf translation."""
 
