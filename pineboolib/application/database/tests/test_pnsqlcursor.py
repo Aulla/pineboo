@@ -915,9 +915,7 @@ class TestAcos(unittest.TestCase):
             if cur_grupos.valueBuffer("descripcion") == "desc c":
                 self.assertFalse(field_2.editable())
             else:
-                self.assertFalse(
-                    field_2.editable()
-                )  # control de acceso predomina sobre acl de cursor. Si acl retornaría True
+                self.assertTrue(field_2.editable())
 
     @classmethod
     def tearDownClass(cls) -> None:
