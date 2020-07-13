@@ -62,7 +62,7 @@ class TestStress(unittest.TestCase):
         before_change_structure = cursor.db().driver().recordInfo2("fltest")
         field_str.private.length_ = 180
 
-        cursor.db().alterTable(metadata)
+        self.assertTrue(cursor.db().alterTable(metadata))
         after_change_structure = cursor.db().driver().recordInfo2("fltest")
 
         self.assertEqual(before_change_structure[1][3], 0)
@@ -99,7 +99,7 @@ class TestStress(unittest.TestCase):
 
         metadata.addFieldMD(field)
         before_change_structure = cursor.db().driver().recordInfo2("fltest")
-        cursor.db().alterTable(metadata)
+        self.assertTrue(cursor.db().alterTable(metadata))
         after_change_structure = cursor.db().driver().recordInfo2("fltest")
         self.assertEqual(len(before_change_structure), 8)
         self.assertEqual(len(after_change_structure), 9)
@@ -138,7 +138,7 @@ class TestStress(unittest.TestCase):
 
         metadata.addFieldMD(field)
         before_change_structure = cursor.db().driver().recordInfo2("fltest")
-        cursor.db().alterTable(metadata)
+        self.assertTrue(cursor.db().alterTable(metadata))
         after_change_structure = cursor.db().driver().recordInfo2("fltest")
         self.assertEqual(len(before_change_structure), 9)
         self.assertEqual(len(after_change_structure), 10)
@@ -177,12 +177,12 @@ class TestStress(unittest.TestCase):
 
         metadata.addFieldMD(field)
         before_change_structure = cursor.db().driver().recordInfo2("fltest")
-        cursor.db().alterTable(metadata)
+        self.assertTrue(cursor.db().alterTable(metadata))
         after_change_structure = cursor.db().driver().recordInfo2("fltest")
         self.assertEqual(len(before_change_structure), 10)
         self.assertEqual(len(after_change_structure), 11)
-        cursor.select()
-        self.assertTrue(cursor.size())
+        # cursor.select()
+        # self.assertTrue(cursor.size())
 
         total = qsa.FLUtil().quickSqlSelect("fltest", "new_bool2", "id = 100")
         self.assertEqual(total, False)
@@ -257,10 +257,10 @@ class TestStress(unittest.TestCase):
 
         metadata.addFieldMD(field)
         before_change_structure = cursor.db().driver().recordInfo2("fltest")
-        cursor.db().alterTable(metadata)
+        self.assertTrue(cursor.db().alterTable(metadata))
         after_change_structure = cursor.db().driver().recordInfo2("fltest")
         self.assertEqual(len(before_change_structure), 12)
-        self.assertEqual(len(after_change_structure), 13)
+        self.assertEqual(len(after_change_structure), 12 + 1)
 
         total = qsa.FLUtil().quickSqlSelect("fltest", "new_date", "id = 731")
         self.assertEqual(total, "")
