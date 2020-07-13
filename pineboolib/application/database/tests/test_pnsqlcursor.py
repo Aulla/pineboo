@@ -900,9 +900,7 @@ class TestAcos(unittest.TestCase):
             raise Exception("field is None!")
 
         while cur_grupos.next():
-            self.assertFalse(
-                field.editable()
-            )  # control de acceso predomina sobre acl de cursor. Si acl retornaría True
+            self.assertTrue(field.editable())
 
         cur_grupos.setAcTable("r-")
         cur_grupos.setAcosCondition("descripcion", cur_grupos.Value, "desc c")
