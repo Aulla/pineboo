@@ -19,7 +19,7 @@ class TestStress(unittest.TestCase):
         from random import randint, random
 
         cursor = qsa.FLSqlCursor("fltest")
-        registers = 1000
+        registers = 100000
         util = qsa.FLUtil()
 
         for number in range(registers):
@@ -225,6 +225,45 @@ class TestStress(unittest.TestCase):
 
         total = qsa.FLUtil().quickSqlSelect("fltest", "new_bool3", "id = 666")
         self.assertEqual(total, True)
+
+    def test_basic_8(self) -> None:
+        """Test basic 8."""
+
+        cursor = qsa.FLSqlCursor("fltest")
+        metadata = cursor.metadata()
+
+        field = pnfieldmetadata.PNFieldMetaData(
+            "new_date",
+            "Nuevo Date",
+            True,
+            False,
+            "date",
+            0,
+            False,
+            True,
+            True,
+            5,
+            8,
+            False,
+            False,
+            False,
+            None,  # default value
+            False,
+            None,
+            True,
+            True,
+            False,
+        )
+
+        metadata.addFieldMD(field)
+        before_change_structure = cursor.db().driver().recordInfo2("fltest")
+        cursor.db().alterTable(metadata)
+        after_change_structure = cursor.db().driver().recordInfo2("fltest")
+        self.assertEqual(len(before_change_structure), 12)
+        self.assertEqual(len(after_change_structure), 13)
+
+        total = qsa.FLUtil().quickSqlSelect("fltest", "new_date", "id = 731")
+        self.assertEqual(total, "")
 
     @classmethod
     def tearDownClass(cls) -> None:

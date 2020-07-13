@@ -44,7 +44,7 @@ class TestKnownBugs(unittest.TestCase):
         """Test self."""
 
         value = "aqApp.self()"
-        self.assertEqual(qs2py(value), "qsa.aqApp.self_()")
+        self.assertEqual(qs2py(value), "qsa.aqApp.self_()\n")
 
     def test_index_of(self) -> None:
         """Check indexOf translation."""
