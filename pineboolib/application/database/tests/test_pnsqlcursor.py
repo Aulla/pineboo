@@ -409,7 +409,7 @@ class TestEmits(unittest.TestCase):
 
         cursor.transactionBegin.connect(self.mark_transaction_begin)
         cursor.transactionEnd.connect(self.mark_transaction_end)
-        cursor.transactionRollBack.connect(self.mark_transaction_roll_back)
+        cursor.transactionRollback.connect(self.mark_transaction_roll_back)
 
         signals.emitTransactionBegin(cursor)
         signals.emitTransactionEnd(cursor)
