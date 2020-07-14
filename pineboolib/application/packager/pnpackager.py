@@ -22,7 +22,7 @@ LOGGER = logging.get_logger(__name__)
 
 
 def main() -> None:
-    """Main function."""
+    """Run main program."""
 
     option = sys.argv[1] if len(sys.argv) > 1 else None
 
