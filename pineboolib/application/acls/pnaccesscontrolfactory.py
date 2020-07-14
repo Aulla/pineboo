@@ -184,19 +184,17 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
                     mask_field_perm += 1
 
             if mask_field_perm == 0:
-                if field.visible():
-                    field.setVisible(False)
-                if field.editable():
-                    field.setEditable(False)
+                field.setVisible(False)
+                field.setEditable(False)
             elif mask_field_perm == 1:
-                if field.visible():
-                    field.setVisible(False)
-                if field.editable():
-                    field.setEditable(True)
+                field.setEditable(False)
+                if not field.visible():
+                    continue
+                else:
+                    field.setVisible(True)
             elif mask_field_perm == 2:
                 field.setVisible(True)
-                if field.editable():
-                    field.setEditable(False)
+                field.setEditable(False)
             elif mask_field_perm == 3:
                 field.setVisible(True)
                 field.setEditable(True)
