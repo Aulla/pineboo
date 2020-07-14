@@ -102,7 +102,7 @@ class AQStaticBdInfo(object):
         if not isinstance(event.src_path, str):
             return
 
-        if event.src_path.upper().find(".") or event.src_path.upper().find("__PYCACHE__") > -1:
+        if event.src_path.upper().find("__PYCACHE__") > -1:
             return
 
         if not SHOW_REINIT_MESSAGE:
