@@ -191,6 +191,7 @@ class PNPackager(object):
         <module>%s</module>
         <name>%s</name>
         <text>%s</text>
+        <skip>false</skip>
         <shatext>%s</shatext>
       </file>
     """
