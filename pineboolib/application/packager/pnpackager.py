@@ -27,7 +27,7 @@ def main() -> None:
     if option == "create":
         folders = sys.argv[2] if len(sys.argv) > 1 else ""
 
-        dest_name = None
+        dest_name = ""
         emulate_abanq = False
 
         if len(sys.argv) == 4:
@@ -59,7 +59,7 @@ class PNPackager(object):
     _modnames: List[str]
     _ignored_ext: Set[str]
 
-    def __init__(self, dest_file: str) -> None:
+    def __init__(self, dest_file: str = "") -> None:
         """Initialize."""
         self._encode_utf8 = True
         self._filter = ""
@@ -108,7 +108,7 @@ class PNPackager(object):
     def modulesDef(self, module_folder_list: List) -> bytes:
         """Return modules definition."""
 
-        modules_list = []
+        modules_list: List[str] = []
         for modulefolder in module_folder_list:
             modules_list = modules_list + self._find_files(modulefolder, "*.mod", True)
 
