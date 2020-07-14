@@ -1,0 +1,6 @@
+#!/usr/bin/python3
+
+from pineboolib.application.packager import pnpackager
+
+if __name__ == "__main__":
+    pnpackager.main()

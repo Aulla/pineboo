@@ -7,16 +7,42 @@ Build .eneboopkg packages.
 from PyQt5 import QtCore
 
 from pineboolib.core import decorators
-from pineboolib import application, logging
+from pineboolib import logging
+from pineboolib.application import PINEBOO_VER
 
 import os
 import re
 import hashlib
 import fnmatch
+import sys
 
 from typing import List, Any, Set
 
 LOGGER = logging.get_logger(__name__)
+
+
+def main() -> None:
+    option = sys.argv[1] if len(sys.argv) > 1 else None
+
+    if option == "create":
+        folders = sys.argv[2] if len(sys.argv) > 1 else ""
+
+        dest_name = None
+        emulate_abanq = False
+
+        if len(sys.argv) == 4:
+            if sys.argv[3] == "-a":
+                emulate_abanq = True
+            else:
+                dest_name = sys.argv[3]
+        elif len(sys.argv) == 5:
+            dest_name = sys.argv[3]
+            emulate_abanq = sys.argv[4] == "-a"
+
+        packager = PNPackager(dest_name)
+        packager.pack(folders, emulate_abanq)
+    else:
+        print("Opción %s desconocida." % option)
 
 
 class PNPackager(object):
@@ -79,27 +105,34 @@ class PNPackager(object):
             retfiles += pass_files
         return retfiles
 
-    def modulesDef(self, module_folder: str) -> bytes:
+    def modulesDef(self, module_folder_list: List) -> bytes:
         """Return modules definition."""
 
-        modules_list = self._find_files(module_folder, "*.mod", True)
+        modules_list = []
+        for modulefolder in module_folder_list:
+            modules_list = modules_list + self._find_files(modulefolder, "*.mod", True)
 
         modlines = []
         for module in sorted(modules_list):
             self._file_folders.append(os.path.dirname(module))
             self._modnames.append(os.path.basename(module))
             inittag = False
-            for line_iso in open(
-                os.path.abspath(os.path.join(module_folder, module)), encoding="ISO-8859-15"
-            ):
-                line_unicode = line_iso
-                line = line_unicode
-                if line.find("<MODULE>") != -1:
-                    inittag = True
-                if inittag:
-                    modlines.append(line)
-                if line.find("</MODULE>") != -1:
-                    inittag = False
+            for modulefolder in module_folder_list:
+                if not os.path.exists(os.path.join(modulefolder, module)):
+                    continue
+
+                for line_iso in open(
+                    os.path.abspath(os.path.join(modulefolder, module)), encoding="ISO-8859-15"
+                ):
+                    line_unicode = line_iso
+                    line = line_unicode
+                    if line.find("<MODULE>") != -1:
+                        inittag = True
+                    if inittag:
+                        modlines.append(line)
+                    if line.find("</MODULE>") != -1:
+                        inittag = False
+                break
 
         data = """<!DOCTYPE modules_def>
         <modules>
@@ -109,19 +142,36 @@ class PNPackager(object):
         )
         return data.encode("utf-8")
 
-    def filesDef(self, module_folder: str) -> bytes:
+    def filesDef(self, module_folder_list: List) -> bytes:
         """Retrun files definitions."""
-
+        list_modules = []
         filelines = []
         shasum = ""
         load_ext = set([".qs", ".mtd", ".ts", ".ar", ".kut", ".qry", ".ui", ".xml", ".xpm", ".py"])
 
         for folder, module in zip(self._file_folders, self._modnames):
-            fpath = os.path.join(module_folder, folder)
+            fpath = ""
+            for modulefolder in module_folder_list:
+                if not os.path.exists(modulefolder):
+                    continue
+
+                fpath = os.path.join(modulefolder, folder)
+
+                if not os.path.exists(fpath):
+                    continue
+
+                break
+
             files = self._find_files(fpath)
             module_name: Any = re.search(r"^\w+", module)
             module_name = module_name.group(0) if module_name else ""
+            if module_name in list_modules:
+                print("módulo %s (%s) Duplicado. Ignorado." % (module_name, fpath))
+                continue
+
             self._addLog("%s -> %s" % (fpath, module_name))
+            list_modules.append(module_name)
+
             for filename in files:
                 bname, ext = os.path.splitext(filename)
                 if ext not in load_ext:
@@ -158,26 +208,42 @@ class PNPackager(object):
 
         return data.encode("utf-8")
 
-    def pack(self, module_folder: str, option: bool = True) -> bool:
+    def pack(self, module_folder: str, emulate=False) -> bool:
         """Add files to package."""
-        if module_folder.endswith(("/", "\\")):
-            module_folder = module_folder[:-1]
 
-        LOGGER.warning("FIXME : ARGUMENT option %s", option)
+        module_folder_list = module_folder.split(",")
 
-        self._addLog("Creando paquete de módulos de %s" % module_folder)
+        current_list = list(module_folder_list)
+        module_folder_list = []
 
-        modules_def = self.modulesDef(module_folder)
-        files_def = self.filesDef(module_folder)
+        for current_folder in current_list:
+            if module_folder.endswith(("/", "\\")):
+                module_folder = module_folder[:-1]
 
-        file_ = QtCore.QFile(QtCore.QDir.cleanPath(self._dest_file))
+            module_folder_list.append(module_folder)
+
+        self._addLog("Creando paquete de módulos de %s . . ." % ", ".join(module_folder_list))
+        outputfile = module_folder_list[0] + ".eneboopkg"
+
+        if self._dest_file:
+            outputfile = self._dest_file
+
+        modules_def = self.modulesDef(module_folder_list)
+        files_def = self.filesDef(module_folder_list)
+
+        file_ = QtCore.QFile(QtCore.QDir.cleanPath(outputfile))
         if not file_.open(QtCore.QIODevice.WriteOnly):
-            error = "Error opening file %r" % self._dest_file
+            error = "Error opening file %r" % outputfile
             self._addError("pack", error)
             raise Exception(error)
 
         stream = QtCore.QDataStream(file_)
-        stream.writeBytes(application.PROJECT.load_version().encode("utf-8"))
+        if emulate:
+            package_name = "Pineboo %s " % PINEBOO_VER
+        else:
+            package_name = "AbanQ Packager (Pineboo %s)" % PINEBOO_VER
+
+        stream.writeBytes(package_name.encode())
         stream = stream.writeBytes(b"")
         stream = stream.writeBytes(b"")
         stream = stream.writeBytes(b"")
@@ -186,6 +252,8 @@ class PNPackager(object):
         # FILE CONTENTS
         try:
             for filepath in self._file_list:
+                sys.stdout.write(".")
+                sys.stdout.flush()
                 stream = stream.writeBytes(QtCore.qCompress(open(filepath, "rb").read()).data())
 
         except Exception as exception:
@@ -193,15 +261,20 @@ class PNPackager(object):
 
             return False
 
-        file_modules_def = open("%s/modules.def" % os.path.dirname(self._dest_file), "bw")
+        file_modules_def = open("%s/modules.def" % os.path.dirname(outputfile), "bw")
         file_modules_def.write(modules_def)
         file_modules_def.close()
 
-        file_files_def = open("%s/files.def" % os.path.dirname(self._dest_file), "bw")
+        file_files_def = open("%s/files.def" % os.path.dirname(outputfile), "bw")
         file_files_def.write(files_def)
         file_files_def.close()
 
-        self._addLog("Paquete creado. Extensiones ignoradas: %s " % "".join(self._ignored_ext))
+        sys.stdout.write("\n")
+        sys.stdout.flush()
+        self._addLog(
+            "Paquete %s creado. Extensiones ignoradas: [%s] "
+            % (outputfile, ", ".join(self._ignored_ext))
+        )
         return True
 
     @decorators.not_implemented_warn

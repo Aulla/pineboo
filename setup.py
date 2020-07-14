@@ -66,6 +66,7 @@ setuptools.setup(
             "pineboo-parse=pineboolib.application.parsers.parser_qsa.postparse:main",
             "pineboo-pyconvert=pineboolib.application.parsers.parser_qsa.pyconvert:main",
             "pineboo-core=pineboolib.loader.main:startup_no_x",
+            "pineboo-packager=pineboolib.application.packager.pnpackager:main",
             "pineboo=pineboolib.loader.main:startup",
         ]
     },
