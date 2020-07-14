@@ -98,7 +98,7 @@ class AQStaticBdInfo(object):
         """Show reinit msg."""
 
         global SHOW_REINIT_MESSAGE
-
+        print("CHANGED DETECTED!")
         if not isinstance(event.src_path, str):
             return
 
