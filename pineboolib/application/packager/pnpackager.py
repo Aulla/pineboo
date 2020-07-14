@@ -113,7 +113,7 @@ class PNPackager(object):
             modules_list = modules_list + self._find_files(modulefolder, "*.mod", True)
 
         modlines = []
-        for module in sorted(modules_list):
+        for module in modules_list:
             self._file_folders.append(os.path.dirname(module))
             self._modnames.append(os.path.basename(module))
             inittag = False
@@ -166,7 +166,7 @@ class PNPackager(object):
             module_name: Any = re.search(r"^\w+", module)
             module_name = module_name.group(0) if module_name else ""
             if module_name in list_modules:
-                print("módulo %s (%s) Duplicado. Ignorado." % (module_name, fpath))
+                self._addLog("módulo %s (%s) Duplicado. Ignorado." % (module_name, fpath))
                 continue
 
             self._addLog("%s -> %s" % (fpath, module_name))
@@ -218,14 +218,12 @@ class PNPackager(object):
         module_folder_list = []
 
         for current_folder in current_list:
-            if module_folder.endswith(("/", "\\")):
-                module_folder = module_folder[:-1]
+            if current_folder.endswith(("/", "\\")):
+                current_folder = current_folder[:-1]
 
-            module_folder_list.append(module_folder)
-
+            module_folder_list.append(current_folder)
         self._addLog("Creando paquete de módulos de %s . . ." % ", ".join(module_folder_list))
         outputfile = module_folder_list[0] + ".eneboopkg"
-
         if self._dest_file:
             outputfile = self._dest_file
 
