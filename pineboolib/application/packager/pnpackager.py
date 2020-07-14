@@ -144,8 +144,8 @@ class PNPackager(object):
 
     def filesDef(self, module_folder_list: List) -> bytes:
         """Retrun files definitions."""
-        list_modules = []
-        filelines = []
+        list_modules: List[str] = []
+        filelines: List[str] = []
         shasum = ""
         load_ext = set([".qs", ".mtd", ".ts", ".ar", ".kut", ".qry", ".ui", ".xml", ".xpm", ".py"])
 
