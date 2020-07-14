@@ -85,16 +85,20 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
             script_path_py_static = pnmodulesstaticloader.PNStaticLoader.content(
                 "%s.py" % script_name, mng_modules.static_db_info_, True
             )  # Con True solo devuelve el path
-            if not script_path_py_static:
-                script_path_qs_static = pnmodulesstaticloader.PNStaticLoader.content(
-                    "%s.qs" % script_name, mng_modules.static_db_info_, True
-                )  # Con True solo devuelve el path
-            else:
+
+            script_path_qs_static = pnmodulesstaticloader.PNStaticLoader.content(
+                "%s.qs" % script_name, mng_modules.static_db_info_, True
+            )  # Con True solo devuelve el path
+
+            if script_path_qs_static and not script_path_py_static:
+
+                script_path_py = ""
+
+            elif script_path_py_static:
                 old_script_path_py = script_path_py
                 script_path_py = script_path_py_static
 
         if script_path_py:
-
             if os.path.exists(static_flag):
                 os.remove(static_flag)
 
@@ -143,7 +147,6 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                         replace_static = False
 
                 if replace_static:
-
                     shutil.copy(script_path_qs_static, script_path_qs)  # Lo copiamos en tempdata
                     if os.path.exists(script_path_py):  # Borramos el py existente
                         os.remove(script_path_py)
@@ -153,7 +156,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                     file_ = open(static_flag, "wb")
                     file_.write(my_data)
                 else:
-                    need_parse = False
+                    need_parse = not os.path.exists(script_path_py)
             else:
                 if os.path.exists(script_path_py) and not application.PROJECT.no_python_cache:
                     need_parse = False
