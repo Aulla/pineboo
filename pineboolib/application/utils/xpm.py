@@ -33,7 +33,7 @@ def cache_xpm(value: str) -> str:
         os.mkdir(cache_dir)
 
     if value.find("cacheXPM") > -1:
-        file_name = value
+        file_name = "%s/%s" % (cache_dir, value[value.find("cacheXPM") + 9 :])
     else:
         file_name = "%s/%s.xpm" % (cache_dir, xpm_name)
 
