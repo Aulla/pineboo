@@ -314,7 +314,7 @@ class PNPackager(object):
     def _addLog(self, message: str) -> None:
         """Add message to log."""
         self._log_messages.append(message)
-        LOGGER.warning(message)
+        print(message)
 
     def _addError(self, fun: str, message: str) -> None:
         """Add error message to log."""
