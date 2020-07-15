@@ -435,6 +435,18 @@ class SqlInspector(object):
 
             ret_ = types.Date(str(ret_))
         elif type_ == "time":
+
+            if isinstance(ret_, datetime.timedelta):
+                days, seconds = ret_.days, ret_.seconds
+                hours = days * 24 + seconds // 3600
+                minutes = (seconds % 3600) // 60
+                seconds = seconds % 60
+                ret_ = "%s:%s:%s" % (
+                    hours,
+                    minutes if len(str(minutes)) > 1 else "0%s" % minutes,
+                    seconds if len(str(seconds)) > 1 else "0%s" % seconds,
+                )
+
             ret_ = str(ret_)
             if ret_.find(".") > -1:
                 ret_ = ret_[0 : ret_.find(".")]
