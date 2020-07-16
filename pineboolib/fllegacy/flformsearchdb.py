@@ -68,6 +68,11 @@ class FLFormSearchDB(flformdb.FLFormDB):
             cursor = args[0]
             if len(args) > 2 and args[2]:
                 parent = args[2]
+        elif isinstance(args[0], pnsqlcursor.PNSqlCursor):
+            cursor = args[0]
+            parent = args[1]
+            action = cursor.action()
+
         else:
             raise Exception("Wrong size of arguments")
 
