@@ -71,7 +71,9 @@ class FLFormSearchDB(flformdb.FLFormDB):
         elif isinstance(args[0], pnsqlcursor.PNSqlCursor):
             cursor = args[0]
             parent = args[1]
-            action = cursor.action()
+            action_ = cursor.action()
+            if action_:
+                action = action_
 
         else:
             raise Exception("Wrong size of arguments")
