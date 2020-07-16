@@ -2,15 +2,12 @@
 # Translated with pineboolib v0.71.18
 """Fltest3_model module."""
 
-from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
 import sqlalchemy  # type: ignore [import] # noqa: F821
 
 from pineboolib.application.database.orm import basemodel
 
 
-class Fltest3(
-    declarative.declarative_base(), basemodel.BaseModel  # type: ignore [misc] # noqa: F821
-):
+class Fltest3(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
     """Fltest3 class."""
 
     __tablename__ = "fltest3"

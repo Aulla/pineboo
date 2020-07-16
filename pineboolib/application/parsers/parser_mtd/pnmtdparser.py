@@ -145,7 +145,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("from pineboolib.application.database.orm import basemodel")
     data.append("from pineboolib.qsa import qsa")
     data.append("")
-    data.append("from sqlalchemy.ext import declarative")
+    # data.append("from sqlalchemy.ext import declarative")
     data.append("import sqlalchemy")
     data.append("")
     # data.append("BASE = declarative.declarative_base()")
@@ -158,9 +158,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
     # data.append("")
     data.append("class %s%s(" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
-    data.append(
-        "    declarative.declarative_base(), basemodel.BaseModel # type: ignore [misc] # noqa: F821"
-    )
+    data.append("    basemodel.BaseModel # type: ignore [misc] # noqa: F821")
     data.append("):")
     data.append('    """%s%s class."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("    __tablename__ = '%s'" % mtd_table.name())

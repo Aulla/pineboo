@@ -2,15 +2,12 @@
 # Translated with pineboolib v0.71.18
 """Flvar_model module."""
 
-from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
 import sqlalchemy  # type: ignore [import] # noqa: F821
 
 from pineboolib.application.database.orm import basemodel
 
 
-class Flvar(
-    declarative.declarative_base(), basemodel.BaseModel  # type: ignore [misc] # noqa: F821
-):
+class Flvar(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
     """Flvar class."""
 
     __tablename__ = "flvar"

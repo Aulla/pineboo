@@ -4,13 +4,11 @@
 
 from pineboolib.application.database.orm import basemodel
 
-from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
 import sqlalchemy  # type: ignore [import] # noqa: F821
 
 
-class Flacls(
-    declarative.declarative_base(), basemodel.BaseModel  # type: ignore [misc] # noqa: F821
-):
+class Flacls(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
+
     """Flacls class."""
 
     __tablename__ = "flacls"

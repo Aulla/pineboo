@@ -2,15 +2,12 @@
 # Translated with pineboolib v0.71.18
 """Flseqs_model module."""
 
-from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
 import sqlalchemy  # type: ignore [import] # noqa: F821
 
 from pineboolib.application.database.orm import basemodel
 
 
-class Flseqs(
-    declarative.declarative_base(), basemodel.BaseModel  # type: ignore [misc] # noqa: F821
-):
+class Flseqs(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
     """Flseqs class."""
 
     __tablename__ = "flseqs"

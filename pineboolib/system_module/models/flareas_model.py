@@ -4,13 +4,10 @@
 
 from pineboolib.application.database.orm import basemodel
 
-from sqlalchemy.ext import declarative
 import sqlalchemy
 
 
-class Flareas(
-    declarative.declarative_base(), basemodel.BaseModel  # type: ignore [misc] # noqa: F821
-):
+class Flareas(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
     """Flareas class."""
 
     __tablename__ = "flareas"

@@ -2,15 +2,12 @@
 # Translated with pineboolib v0.71.18
 """Flmodules_model module."""
 
-from sqlalchemy.ext import declarative  # type: ignore [import] # noqa: F821
 import sqlalchemy  # type: ignore [import] # noqa: F821
 
 from pineboolib.application.database.orm import basemodel
 
 
-class Flmodules(
-    declarative.declarative_base(), basemodel.BaseModel  # type: ignore [misc] # noqa: F821
-):
+class Flmodules(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
     """Flmodules class."""
 
     __tablename__ = "flmodules"

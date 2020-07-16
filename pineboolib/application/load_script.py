@@ -10,7 +10,7 @@ from pineboolib import application
 
 import xml.etree.ElementTree as ET
 from importlib import machinery
-
+from sqlalchemy.ext import declarative
 
 import shutil
 import time
@@ -209,7 +209,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     return script_loaded.FormInternalObj(action_)  # type: ignore[attr-defined] # noqa: F821
 
 
-def load_model(script_name: str, script_path_py: str) -> Optional["api.DeclarativeMeta"]:
+def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
     """Return class from path."""
 
     # script_path_py = _path("%s.py" % script_name, False)
@@ -227,9 +227,9 @@ def load_model(script_name: str, script_path_py: str) -> Optional["api.Declarati
     if script_path_py:
         loader = machinery.SourceFileLoader("model", script_path_py)
         script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
-        model_class = getattr(
-            script_loaded, "%s%s" % (script_name[0].upper(), script_name[1:]), None
-        )
+        class_name = "%s%s" % (script_name[0].upper(), script_name[1:])
+        module_class = getattr(script_loaded, class_name, None)
+        model_class = type(class_name, (module_class, declarative.declarative_base()), {})
 
     return model_class
 
