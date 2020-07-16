@@ -1091,6 +1091,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                     field_metadata_name, qry.value(0)
                                 )
 
+                        elif field.type() == "uint" and value == 0:
+                            pass
                         else:
                             message += "\n%s:%s : %s no se puede asociar aun valor NULO" % (
                                 self.table(),
