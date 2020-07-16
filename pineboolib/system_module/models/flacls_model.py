@@ -8,7 +8,6 @@ import sqlalchemy  # type: ignore [import] # noqa: F821
 
 
 class Flacls(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
-
     """Flacls class."""
 
     __tablename__ = "flacls"
