@@ -1052,9 +1052,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             continue
 
                         field_metadata_name = assoc_field_metadata.name()
+                        assoc_value = self.private_cursor.buffer_.value(field_metadata_name)
+                        if field.type() == "uint" and value == 0:
+                            LOGGER.warning(
+                                "El id 0 , no pertenece a %s.Sin embargo, se permite por temas de compatibilidad."
+                                % assoc_value
+                            )
 
-                        if not self.isNull(field_metadata_name):
-                            assoc_value = self.private_cursor.buffer_.value(field_metadata_name)
+                        elif not self.isNull(field_metadata_name):
 
                             filter = "%s AND %s" % (
                                 self.db()
@@ -1091,8 +1096,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                     field_metadata_name, qry.value(0)
                                 )
 
-                        elif field.type() == "uint" and value == 0:
-                            pass
                         else:
                             message += "\n%s:%s : %s no se puede asociar aun valor NULO" % (
                                 self.table(),
