@@ -229,7 +229,9 @@ def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
         loader = machinery.SourceFileLoader("model.%s" % class_name, script_path_py)
         script_loaded = loader.load_module()  # type: ignore[call-arg] # noqa: F821
         module_class = getattr(script_loaded, class_name, None)
-        model_class = type(class_name, (module_class, declarative.declarative_base()), {})
+        if module_class:
+            module_class.__metaclass__ = "Base"
+            model_class = type(class_name, (module_class, declarative.declarative_base()), {})
 
     return model_class
 
