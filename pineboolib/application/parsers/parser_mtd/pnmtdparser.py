@@ -157,28 +157,36 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     #        data.append("load_model('%s')" % rel.foreignTable())
 
     # data.append("")
-    data.append("class %s%s(" % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
-    data.append("    basemodel.BaseModel # type: ignore [misc] # noqa: F821")
-    data.append("):")
-    data.append('    """%s%s class."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
+
+    class_name = "%s%s" % (mtd_table.name()[0].upper(), mtd_table.name()[1:])
+
+    data.append("# @class_declaration Oficial")
+    data.append("class Oficial(basemodel.BaseModel): # type: ignore [misc] # noqa: F821")
+    data.append('    """ Oficial class."""')
     data.append("    __tablename__ = '%s'" % mtd_table.name())
     data.append("")
-    data.append("# --- Metadata ---> ")
+    data.append("    # --- Metadata ---> ")
     data.append("    legacy_metadata = {%s}" % ", ".join(metadata_table))
     data.append("")
-    data.append("# <--- Metadata --- ")
+    data.append("    # <--- Metadata --- ")
     # data.append("    __actionname__ = '%s'" % action_name)
     data.append("")
 
     data.append("")
-    data.append("# --- Fields ---> ")
+    data.append("    # --- Fields ---> ")
     data.append("")
 
     for data_field in list_data_field:
         data.append(data_field)
 
     data.append("")
-    data.append("# <--- Fields --- ")
+    data.append("    # <--- Fields --- ")
+
+    data.append("")
+    data.append("# @class_declaration %s" % class_name)
+    data.append("class %s(Oficial): # type: ignore [misc] # noqa: F821" % class_name)
+    data.append('    """ %s class."""' % class_name)
+    data.append("    pass")
 
     # ===========================================================================
     # data.append("")
