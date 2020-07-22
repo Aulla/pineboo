@@ -684,7 +684,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             if where_filter.find(";") > -1:  # Si el where termina en ; ...
                 where_filter = where_filter.replace(";", " ORDER BY %s;" % self.getSortOrder())
             else:
-                where_filter = "%sORDER BY %s" % (where_filter, self.getSortOrder())
+                where_filter = "%s ORDER BY %s" % (where_filter, self.getSortOrder())
 
         if where_filter.strip() and not where_filter.strip().startswith("ORDER"):
             where_filter = "WHERE %s" % where_filter
