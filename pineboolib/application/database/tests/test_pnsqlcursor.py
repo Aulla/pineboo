@@ -418,6 +418,7 @@ class TestEmits(unittest.TestCase):
         self.assertTrue(self._transaction_begin)
         self.assertTrue(self._transaction_end)
         self.assertTrue(self._transaction_roll_back)
+        self.assertTrue(cursor.rollback())
 
     def mark_transaction_begin(self) -> None:
         """Mark transaction begin."""
