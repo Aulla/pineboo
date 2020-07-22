@@ -370,6 +370,8 @@ class FormInternalObj(qsa.FormDBWidget):
                             sub_carpeta = "translations"
                         elif tipo == ".ui":
                             sub_carpeta = "forms"
+                        elif tipo == ".kut":
+                            sub_carpeta = "reports"
 
                         print(
                             "Escribiendo",
