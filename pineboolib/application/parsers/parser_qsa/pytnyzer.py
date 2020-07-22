@@ -401,7 +401,7 @@ class ASTPythonBase(object):
         self.source: Optional["Source"] = None
 
     @classmethod
-    def can_process_tag(self, tagname: str) -> bool:
+    def can_process_tag(cls, tagname: str) -> bool:
         """Return if this instance can process given tagname."""
         return False
 
@@ -2472,7 +2472,7 @@ class Unknown(ASTPython):
     """Process Unknown XML tags."""
 
     @classmethod
-    def can_process_tag(self, tagname: str) -> bool:
+    def can_process_tag(cls, tagname: str) -> bool:
         """Catch all and process it for reporting errors."""
         return True
 
