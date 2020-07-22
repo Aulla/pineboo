@@ -1170,7 +1170,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             % (self.table(), field.alias(), value)
                         )
 
-                if relation_m1 and value:
+                if relation_m1 and value and str(value) != "NULL":
                     if relation_m1.checkIn() and not relation_m1.foreignTable() == self.table():
                         # r = field.relationM1()
                         table_metadata = (
