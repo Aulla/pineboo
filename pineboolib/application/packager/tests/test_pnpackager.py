@@ -32,7 +32,7 @@ class TestProcess(unittest.TestCase):
         self.assertTrue(os.path.exists("%s/files.def" % os.path.dirname(file_name)))
 
         qsa_sys = systype.SysType()
-        qsa_sys.loadModules(file_name, False)
+        self.assertTrue(qsa_sys.loadModules(file_name, False))
 
     @classmethod
     def tearDownClass(cls) -> None:

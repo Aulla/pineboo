@@ -20,7 +20,7 @@ class TestFLReportEngine(unittest.TestCase):
 
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
-        qsa.sys.loadModules(path, False)
+        self.assertTrue(qsa.sys.loadModules(path, False))
 
         qry = qsa.FLSqlQuery()
         qry.setTablesList("flfiles")

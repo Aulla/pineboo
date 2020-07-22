@@ -55,7 +55,7 @@ class TestEnebooGUI(unittest.TestCase):
         application.PROJECT.main_window.triggerAction(
             "triggered():initModule():flfactppal_actiongroup_name"
         )
-        qsa_sys.loadModules(path, False)
+        self.assertTrue(qsa_sys.loadModules(path, False))
 
         # application.PROJECT.main_window = application.PROJECT.main_form.mainWindow  # type: ignore
         application.PROJECT.main_window.show()
