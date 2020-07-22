@@ -1279,6 +1279,7 @@ class With(ASTPython):
         "setFrom",
         "setWhere",
         "setForwardOnly",
+        "setOrderBy",
         "setModeAccess",
         "commitBuffer",
         "commit",
