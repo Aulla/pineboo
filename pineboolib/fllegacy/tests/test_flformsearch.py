@@ -25,7 +25,7 @@ class TestFLFormsearchDB(unittest.TestCase):
 
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
-        qsa.sys.loadModules(path, False)
+        self.assertTrue(qsa.sys.loadModules(path, False))
 
         form_search_1 = qsa.FLFormSearchDB("bancos")
         self.assertEqual(form_search_1.cursor().metadata().name(), "bancos")

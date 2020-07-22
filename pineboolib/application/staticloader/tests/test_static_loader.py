@@ -27,6 +27,10 @@ class TestStaticLoader(unittest.TestCase):
         from pineboolib import application
 
         self.assertEqual(qsa.from_project("sys").saluda(), "Hola!")
+        self.assertTrue(
+            "sys" in application.PROJECT.actions.keys(),
+            "Los actions disponibles son %s" % application.PROJECT.actions.keys(),
+        )
         action = application.PROJECT.actions["sys"]
         script = application.load_script.load_script("sys.qs", action)
         self.assertEqual(script.form.saluda(), "Hola!")
