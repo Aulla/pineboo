@@ -460,6 +460,7 @@ class PNApplication(QtCore.QObject):
         application.PROJECT.load_orm()
         # self.db().managerModules().setShaFromGlobal()
 
+        self._inicializing = False
         if not utils_base.is_library():
             self.call("sys.init()", [])
             if application.PROJECT.main_window:
@@ -475,13 +476,9 @@ class PNApplication(QtCore.QObject):
 
             self.callScriptEntryFunction()
 
-            self._inicializing = False
-
             reinit_func = getattr(application.PROJECT.main_window, "reinitScript", None)
             if reinit_func is not None:
                 reinit_func()
-        else:
-            self._inicializing = False
 
         return True
 
