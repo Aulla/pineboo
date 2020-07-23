@@ -2588,14 +2588,12 @@ class FLTableDB(QtWidgets.QWidget):
         if settings.CONFIG.value("ebcomportamiento/FLTableExport2Calc", False):
             ods_enabled = False
 
-        print(1, ods_enabled)
         global_function_qsa = "flfactppal.exportFLTablesGranted"
 
         ret = application.PROJECT.call(global_function_qsa, [], None, False, None)
         if isinstance(ret, bool):
             ods_enabled = ret
 
-        print(2, ods_enabled, ret)
         id_module = (
             self.cursor_.db()
             .managerModules()
@@ -2604,9 +2602,8 @@ class FLTableDB(QtWidgets.QWidget):
         function_qsa = "%s.exportFLTableGranted_%s" % (id_module, self.cursor_.metadata().name())
         ret = application.PROJECT.call(function_qsa, [], None, False, None)
         if isinstance(ret, bool):
-            ods_ = ret
+            ods_enabled = ret
 
-        print(3, ods_enabled, ret)
         if not ods_enabled:
             QtWidgets.QMessageBox.information(
                 QtWidgets.QApplication.activeModalWidget(),

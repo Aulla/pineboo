@@ -1336,7 +1336,7 @@ class SysType(sysbasetype.SysBaseType):
         flutil.FLUtil.destroyProgressDialog()
         flutil.FLUtil.writeSettingEntry(key, dir_modules)
         self.infoMsgBox(self.translate(u"Importación de módulos finalizada."))
-        AQTimer.singleShot(0, self.reinit)
+        AQTimer.singleShot(0, self.reinit)  # type: ignore [arg-type]
 
     @classmethod
     def selectModsDialog(self, listFilesMod: List = []) -> types.Array:
