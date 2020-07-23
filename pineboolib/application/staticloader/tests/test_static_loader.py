@@ -29,9 +29,6 @@ class TestStaticLoader(unittest.TestCase):
 
         self.assertEqual(qsa.from_project("sys").saluda(), "Hola!")
 
-        while qsa.aqApp._inicializing:
-            QtWidgets.QApplication.processEvents()
-
         self.assertTrue(
             "sys" in application.PROJECT.actions.keys(),
             "Los actions disponibles son %s" % application.PROJECT.actions.keys(),
