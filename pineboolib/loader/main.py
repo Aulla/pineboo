@@ -267,12 +267,12 @@ def init_testing() -> None:
         # application.PROJECT.load_version()
         application.PROJECT.setDebugLevel(1000)
         application.PROJECT.set_app(qapp)
-        application.PROJECT.aq_app._inicializing = False
 
         dgi = load_dgi("qt", None)
 
         application.PROJECT.init_dgi(dgi)
 
+    application.PROJECT.aq_app._inicializing = False
     conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
     main_conn_established = application.PROJECT.init_conn(connection=conn)
 
