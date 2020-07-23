@@ -28,13 +28,14 @@ class TestStaticLoader(unittest.TestCase):
         from pineboolib import application
 
         self.assertEqual(qsa.from_project("sys").saluda(), "Hola!")
+
+        while qsa.aqApp._inicializing:
+            QtWidgets.QApplication.processEvents()
+
         self.assertTrue(
             "sys" in application.PROJECT.actions.keys(),
             "Los actions disponibles son %s" % application.PROJECT.actions.keys(),
         )
-
-        while qsa.aqApp._inicializing:
-            QtWidgets.QApplication.processEvents()
 
         action = application.PROJECT.actions["sys"]
         script = application.load_script.load_script("sys.qs", action)
