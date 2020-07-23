@@ -3,7 +3,6 @@
 import unittest
 from pineboolib.core import settings
 from pineboolib.loader.main import init_testing, finish_testing
-from PyQt5 import QtWidgets
 
 
 class TestStaticLoader(unittest.TestCase):
