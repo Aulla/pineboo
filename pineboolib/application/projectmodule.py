@@ -340,6 +340,7 @@ class Project(object):
         args: List[Any],
         object_context: Any = None,
         show_exceptions: bool = True,
+        default_value: Any = True,
     ) -> Optional[Any]:
         """
         Call to a QS project function.
@@ -422,7 +423,7 @@ class Project(object):
         if function_name_object is None:
             if show_exceptions:
                 LOGGER.error("No existe la función %s en %s", function_name, array_fun[0])
-            return True
+            return default_value
             # FIXME: debería ser false, pero igual se usa por el motor para detectar propiedades
 
         try:
