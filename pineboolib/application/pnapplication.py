@@ -308,10 +308,12 @@ class PNApplication(QtCore.QObject):
     def reinit(self) -> bool:
         """Cleanup and restart."""
         if self._inicializing:
-            while self._inicializing:
-                QtWidgets.QApplication.processEvents()
-            return True
+            LOGGER.warning("NUEVO REINIT!", stack_info=True)
+            # while self._inicializing:
+            #    QtWidgets.QApplication.processEvents()
+            return False
 
+        LOGGER.warning("REINIT INICIAL!", stack_info=True)
         if self._destroying:
             return False
 
