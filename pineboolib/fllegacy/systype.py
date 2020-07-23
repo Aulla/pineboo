@@ -207,7 +207,15 @@ class SysType(sysbasetype.SysBaseType):
     def reinit(self) -> bool:
         """Call reinit script."""
 
-        return application.PROJECT.aq_app.reinit()
+        result = False
+        if application.PROJECT.aq_app._inicializing:
+            while application.PROJECT.aq_app._inicializing:
+                QtWidgets.QApplication.processEvents()
+            result = True
+        else:
+            result = application.PROJECT.aq_app.reinit()
+
+        return result
 
     @classmethod
     def modMainWidget(self, id_module_: str) -> Optional[QtWidgets.QWidget]:
