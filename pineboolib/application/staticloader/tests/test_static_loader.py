@@ -3,6 +3,7 @@
 import unittest
 from pineboolib.core import settings
 from pineboolib.loader.main import init_testing, finish_testing
+from PyQt5 import QtWidgets
 
 
 class TestStaticLoader(unittest.TestCase):
@@ -31,6 +32,10 @@ class TestStaticLoader(unittest.TestCase):
             "sys" in application.PROJECT.actions.keys(),
             "Los actions disponibles son %s" % application.PROJECT.actions.keys(),
         )
+
+        while qsa.aqApp._inicializing:
+            QtWidgets.QApplication.processEvents()
+
         action = application.PROJECT.actions["sys"]
         script = application.load_script.load_script("sys.qs", action)
         self.assertEqual(script.form.saluda(), "Hola!")
