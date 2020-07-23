@@ -305,10 +305,10 @@ class PNApplication(QtCore.QObject):
         if id_module in application.PROJECT.modules.keys():
             application.PROJECT.modules[id_module].load()
 
-    def reinit(self) -> None:
+    def reinit(self) -> bool:
         """Cleanup and restart."""
         if self._inicializing or self._destroying:
-            return
+            return False
 
         self.stopTimerIdle()
         # self.apAppIdle()
@@ -326,7 +326,7 @@ class PNApplication(QtCore.QObject):
         from pineboolib.application.parsers.parser_mtd.pnormmodelsfactory import empty_base
 
         empty_base()
-        self.reinitP()
+        return self.reinitP()
 
     def startTimerIdle(self) -> None:
         """Start timer."""
@@ -404,7 +404,7 @@ class PNApplication(QtCore.QObject):
         """Set acl to pineboo."""
         self.acl_ = acl
 
-    def reinitP(self) -> None:
+    def reinitP(self) -> bool:
         """Reinitialize application.PROJECT."""
         from pineboolib.application.qsadictmodules import QSADictModules
         from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
@@ -477,6 +477,8 @@ class PNApplication(QtCore.QObject):
                 reinit_func()
         else:
             self._inicializing = False
+
+        return True
 
     def showDocPage(self, url_: str) -> None:
         """Show documentation."""
