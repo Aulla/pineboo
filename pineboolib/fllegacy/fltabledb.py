@@ -2584,12 +2584,34 @@ class FLTableDB(QtWidgets.QWidget):
         if self.cursor().sort():
             filter_ += " ORDER BY %s" % self.cursor().sort()
         cursor.select(filter_)
-
+        ods_enabled = True
         if settings.CONFIG.value("ebcomportamiento/FLTableExport2Calc", False):
+            ods_enabled = False
+
+        print(1, ods_enabled)
+        global_function_qsa = "flfactppal.exportFLTablesGranted"
+
+        ret = application.PROJECT.call(global_function_qsa, [], None, False, None)
+        if isinstance(ret, bool):
+            ods_enabled = ret
+
+        print(2, ods_enabled, ret)
+        id_module = (
+            self.cursor_.db()
+            .managerModules()
+            .idModuleOfFile("%s.mtd" % self.cursor_.metadata().name())
+        )
+        function_qsa = "%s.exportFLTableGranted_%s" % (id_module, self.cursor_.metadata().name())
+        ret = application.PROJECT.call(function_qsa, [], None, False, None)
+        if isinstance(ret, bool):
+            ods_ = ret
+
+        print(3, ods_enabled, ret)
+        if not ods_enabled:
             QtWidgets.QMessageBox.information(
                 QtWidgets.QApplication.activeModalWidget(),
                 self.tr("Opción deshabilitada"),
-                self.tr("Esta opción ha sido deshabilitada por el administrador"),
+                self.tr("Esta opción ha sido deshabilitada."),
                 QtWidgets.QMessageBox.Ok,
             )
             return
