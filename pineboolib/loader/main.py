@@ -46,7 +46,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     application.PROJECT.set_app(qapp)
     dgi = load_dgi("qt", None)
     application.PROJECT.init_dgi(dgi)
-
+    application.PROJECT.aq_app._inicializing = False
     LOGGER.info("STARTUP_FRAMEWORK:(1/7) Setting profile data.")
     conn_ = connect_to_db(conn)
     LOGGER.info("STARTUP_FRAMEWORK:(2/7) Establishing connection.")
@@ -267,6 +267,8 @@ def init_testing() -> None:
         # application.PROJECT.load_version()
         application.PROJECT.setDebugLevel(1000)
         application.PROJECT.set_app(qapp)
+        application.PROJECT.aq_app._inicializing = False
+
         dgi = load_dgi("qt", None)
 
         application.PROJECT.init_dgi(dgi)

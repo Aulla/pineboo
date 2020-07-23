@@ -305,17 +305,10 @@ class PNApplication(QtCore.QObject):
         if id_module in application.PROJECT.modules.keys():
             application.PROJECT.modules[id_module].load()
 
-    def reinit(self) -> bool:
+    def reinit(self) -> None:
         """Cleanup and restart."""
-        if self._inicializing:
-            LOGGER.warning("NUEVO REINIT!", stack_info=True)
-            # while self._inicializing:
-            #    QtWidgets.QApplication.processEvents()
-            return False
-
-        LOGGER.warning("REINIT INICIAL!", stack_info=True)
-        if self._destroying:
-            return False
+        if self._inicializing or self._destroying:
+            return
 
         self.stopTimerIdle()
         # self.apAppIdle()
@@ -333,7 +326,7 @@ class PNApplication(QtCore.QObject):
         from pineboolib.application.parsers.parser_mtd.pnormmodelsfactory import empty_base
 
         empty_base()
-        return self.reinitP()
+        self.reinitP()
 
     def startTimerIdle(self) -> None:
         """Start timer."""
@@ -411,7 +404,7 @@ class PNApplication(QtCore.QObject):
         """Set acl to pineboo."""
         self.acl_ = acl
 
-    def reinitP(self) -> bool:
+    def reinitP(self) -> None:
         """Reinitialize application.PROJECT."""
         from pineboolib.application.qsadictmodules import QSADictModules
         from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
@@ -481,8 +474,6 @@ class PNApplication(QtCore.QObject):
             reinit_func = getattr(application.PROJECT.main_window, "reinitScript", None)
             if reinit_func is not None:
                 reinit_func()
-
-        return True
 
     def showDocPage(self, url_: str) -> None:
         """Show documentation."""

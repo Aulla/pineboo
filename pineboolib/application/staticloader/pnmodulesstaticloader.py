@@ -115,6 +115,9 @@ class AQStaticBdInfo(object):
             event.event_type.upper(),
         )
 
+        while application.PROJECT.aq_app._inicializing:
+            QtWidgets.QApplication.processEvents()
+
         application.PROJECT.aq_app.reinit()
 
 

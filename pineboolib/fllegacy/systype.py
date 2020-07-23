@@ -204,10 +204,13 @@ class SysType(sysbasetype.SysBaseType):
             func_()
 
     @classmethod
-    def reinit(self) -> bool:
+    def reinit(self) -> None:
         """Call reinit script."""
 
-        return application.PROJECT.aq_app.reinit()
+        while application.PROJECT.aq_app._inicializing:
+            QtWidgets.QApplication.processEvents()
+
+        application.PROJECT.aq_app.reinit()
 
     @classmethod
     def modMainWidget(self, id_module_: str) -> Optional[QtWidgets.QWidget]:
@@ -773,7 +776,7 @@ class SysType(sysbasetype.SysBaseType):
             else:
                 self.registerUpdate(input_)
                 self.infoMsgBox(self.translate(u"La carga de módulos se ha realizado con éxito."))
-                ok = self.reinit()
+                self.reinit()
 
                 tmp_var = flvar.FLVar()
                 tmp_var.set(u"mrproper", u"dirty")
