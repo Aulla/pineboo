@@ -308,6 +308,7 @@ class PNApplication(QtCore.QObject):
     def reinit(self) -> bool:
         """Cleanup and restart."""
         if self._inicializing or self._destroying:
+            print("***", self._inicializing, self._destroying)
             return False
 
         self.stopTimerIdle()
