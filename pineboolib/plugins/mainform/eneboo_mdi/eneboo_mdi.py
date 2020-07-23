@@ -398,8 +398,8 @@ class MainForm(imainwindow.IMainWindow):
                             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("reload.png"))
                         )
                         new_area_bar.addAction(new_module_action)
-                        new_module_action.triggered.connect(
-                            application.PROJECT.aq_app.reinit  # type: ignore [arg-type]
+                        new_module_action.triggered.connect(  # type: ignore [arg-type] # noqa: F821
+                            application.PROJECT.aq_app.reinit  # type: ignore [arg-type] # noqa: F821
                         )
                         action_group.addAction(new_module_action)
                         char_num += 1
