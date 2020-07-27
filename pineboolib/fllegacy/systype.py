@@ -260,27 +260,14 @@ class SysType(sysbasetype.SysBaseType):
         diag.setWidth(500)
         html = u'<html><table border="1">'
         if locks is not None and len(locks):
-            j = 0
-            item = u""
+
             fields = locks[0].split(u"@")
             closeInfo = False
             closeRecord = False
             headInfo = u'<table border="1"><tr>'
-            i = 0
-            while_pass = True
-            while i < len(fields):
-                if not while_pass:
-                    i += 1
-                    while_pass = True
-                    continue
-                while_pass = False
-                headInfo += utils_base.ustr(u"<td><b>", fields[i], u"</b></td>")
-                i += 1
-                while_pass = True
-                try:
-                    i < len(fields)
-                except Exception:
-                    break
+
+            for field in fields:
+                headInfo += utils_base.ustr(u"<td><b>", field, u"</b></td>")
 
             headInfo += u"</tr>"
             headRecord = utils_base.ustr(
@@ -288,15 +275,8 @@ class SysType(sysbasetype.SysBaseType):
                 self.translate(u"scripts", u"Registro bloqueado"),
                 u"</b></td></tr>",
             )
-            i = 1
-            while_pass = True
-            while i < len(locks):
-                if not while_pass:
-                    i += 1
-                    while_pass = True
-                    continue
-                while_pass = False
-                item = locks[i]
+
+            for item in locks:
                 if item[0:2] == u"##":
                     if closeInfo:
                         html += u"</table>"
@@ -315,32 +295,12 @@ class SysType(sysbasetype.SysBaseType):
                         html += headInfo
                     html += u"<tr>"
                     fields = item.split(u"@")
-                    j = 0
-                    while_pass = True
-                    while j < len(fields):
-                        if not while_pass:
-                            j += 1
-                            while_pass = True
-                            continue
-                        while_pass = False
-                        html += utils_base.ustr(u"<td>", fields[j], u"</td>")
-                        j += 1
-                        while_pass = True
-                        try:
-                            j < len(fields)
-                        except Exception:
-                            break
+                    for fiend in fields:
+                        html += utils_base.ustr(u"<td>", field, u"</td>")
 
                     html += u"</tr>"
                     closeRecord = False
                     closeInfo = True
-
-                i += 1
-                while_pass = True
-                try:
-                    i < len(locks)
-                except Exception:
-                    break
 
         html += u"</table></table></html>"
         txtEdit.text = html
@@ -360,27 +320,14 @@ class SysType(sysbasetype.SysBaseType):
             return doc_ret_
         str_xml_ = u""
         nodes = doc.childNodes()
-        i = 0
-        while_pass = True
-        while i < len(nodes):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            it = nodes.item(i)
-            if it.isComment():
-                data = it.toComment().data()
+
+        for number in range(len(nodes)):
+            it_ = nodes.item(number)
+            if it_.isComment():
+                data = it_.toComment().data()
                 if not data == "" and data.startswith(u"<mvproject "):
                     str_xml_ = data
                     break
-
-            i += 1
-            while_pass = True
-            try:
-                i < len(nodes)
-            except Exception:
-                break
 
         if str_xml_ == "":
             return doc_ret_
@@ -393,25 +340,12 @@ class SysType(sysbasetype.SysBaseType):
         ret = types.Array()
         doc = self.mvProjectXml()
         mods = doc.elementsByTagName(u"module")
-        i = 0
-        while_pass = True
-        while i < len(mods):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            it = mods.item(i).toElement()
-            mod = {"name": (it.attribute(u"name")), "version": (it.attribute(u"version"))}
+        for number in range(len(mods)):
+            it_ = mods.item(number).toElement()
+            mod = {"name": (it_.attribute(u"name")), "version": (it_.attribute(u"version"))}
             if len(mod["name"]) == 0:
                 continue
             ret[mod["name"]] = mod
-            i += 1
-            while_pass = True
-            try:
-                i < len(mods)
-            except Exception:
-                break
 
         return ret
 
@@ -422,25 +356,13 @@ class SysType(sysbasetype.SysBaseType):
         ret = types.Array()
         doc = self.mvProjectXml()
         exts = doc.elementsByTagName(u"extension")
-        i = 0
-        while_pass = True
-        while i < len(exts):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            it = exts.item(i).toElement()
-            ext = {"name": (it.attribute(u"name")), "version": (it.attribute(u"version"))}
+
+        for number in range(len(exts)):
+            it_ = exts.item(number).toElement()
+            ext = {"name": (it_.attribute(u"name")), "version": (it_.attribute(u"version"))}
             if len(ext["name"]) == 0:
                 continue
             ret[ext["name"]] = ext
-            i += 1
-            while_pass = True
-            try:
-                i < len(exts)
-            except Exception:
-                break
 
         return ret
 
@@ -448,18 +370,18 @@ class SysType(sysbasetype.SysBaseType):
     def calculateShaGlobal(self) -> str:
         """Return sha global value."""
 
-        v = ""
+        value = ""
         qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"sha")
         qry.setFrom(u"flfiles")
         if qry.exec_() and qry.first():
-            v = utils_base.sha1(str(qry.value(0)))
+            value = utils_base.sha1(str(qry.value(0)))
             while qry.next():
-                v = utils_base.sha1(v + str(qry.value(0)))
+                value = utils_base.sha1(value + str(qry.value(0)))
         else:
-            v = utils_base.sha1("")
+            value = utils_base.sha1("")
 
-        return v
+        return value
 
     @classmethod
     def registerUpdate(self, input_: Any = None) -> None:
@@ -472,21 +394,8 @@ class SysType(sysbasetype.SysBaseType):
         if len(errors) != 0:
             msg = self.translate(u"Hubo los siguientes errores al intentar cargar los módulos:")
             msg += u"\n"
-            i = 0
-            while_pass = True
-            while i < len(errors):
-                if not while_pass:
-                    i += 1
-                    while_pass = True
-                    continue
-                while_pass = False
-                msg += utils_base.ustr(errors[i], u"\n")
-                i += 1
-                while_pass = True
-                try:
-                    i < len(errors)
-                except Exception:
-                    break
+            for number in range(len(errors)):
+                msg += utils_base.ustr(errors[number], u"\n")
 
             self.errorMsgBox(msg)
             return
@@ -612,28 +521,6 @@ class SysType(sysbasetype.SysBaseType):
                 ba.string = shaSumTxt + sha
                 shaSumTxt = ba.sha1()
 
-            # try:
-            #    if self.binaryPacking(fName):
-            #        ne = doc.createElement(u"binary")
-            #        nf.appendChild(ne)
-            #        nt = doc.createTextNode(utils_base.ustr(fName, u".qso"))
-            #        ne.appendChild(nt)
-            #        sha = AQS.sha1(qry.value(3))
-            #        ne = doc.createElement(u"shabinary")
-            #        nf.appendChild(ne)
-            #        nt = doc.createTextNode(sha)
-            #        ne.appendChild(nt)
-            #        ba = QByteArray()
-            #        ba.string = shaSum + sha
-            #        shaSum = ba.sha1()
-            #        ba = QByteArray()
-            #        ba.string = shaSumBin + sha
-            #        shaSumBin = ba.sha1()
-
-            # except Exception:
-            #    e = traceback.format_exc()
-            #    LOGGER.error(e)
-
         qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(u"idmodulo,icono")
         qry.setFrom(u"flmodules")
@@ -717,7 +604,7 @@ class SysType(sysbasetype.SysBaseType):
     @classmethod
     def loadAbanQPackage(self, input_: str, warnBackup: bool = True) -> bool:
         """Load and process a Abanq/Eneboo package."""
-        ok = False
+        ok_ = False
         if warnBackup and self.interactiveGUI():
             txt = u""
             txt += self.translate(u"Asegúrese de tener una copia de seguridad de todos los datos\n")
@@ -729,12 +616,12 @@ class SysType(sysbasetype.SysBaseType):
                 return False
 
         if input_:
-            ok = True
+            ok_ = True
             changes = self.localChanges()
             if changes["size"] != 0:
                 if not self.warnLocalChanges(changes):
                     return False
-            if ok:
+            if ok_:
                 unpacker = pnunpacker.PNUnpacker(input_)
                 errors = unpacker.errorMessages()
                 if len(errors) != 0:
@@ -742,34 +629,21 @@ class SysType(sysbasetype.SysBaseType):
                         u"Hubo los siguientes errores al intentar cargar los módulos:"
                     )
                     msg += u"\n"
-                    i = 0
-                    while_pass = True
-                    while i < len(errors):
-                        if not while_pass:
-                            i += 1
-                            while_pass = True
-                            continue
-                        while_pass = False
-                        msg += utils_base.ustr(errors[i], u"\n")
-                        i += 1
-                        while_pass = True
-                        try:
-                            i < len(errors)
-                        except Exception:
-                            break
 
+                    for number in range(len(errors)):
+                        msg += utils_base.ustr(errors[number], u"\n")
                     self.errorMsgBox(msg)
-                    ok = False
+                    ok_ = False
 
                 unpacker.jump()
                 unpacker.jump()
                 unpacker.jump()
-                if ok:
-                    ok = self.loadModulesDef(unpacker)
-                if ok:
-                    ok = self.loadFilesDef(unpacker)
+                if ok_:
+                    ok_ = self.loadModulesDef(unpacker)
+                if ok_:
+                    ok_ = self.loadFilesDef(unpacker)
 
-            if not ok:
+            if not ok_:
                 self.errorMsgBox(
                     self.translate(u"No se ha podido realizar la carga de los módulos.")
                 )
@@ -781,7 +655,7 @@ class SysType(sysbasetype.SysBaseType):
                 tmp_var = flvar.FLVar()
                 tmp_var.set(u"mrproper", u"dirty")
 
-        return ok
+        return ok_
 
     @classmethod
     def loadFilesDef(self, un: Any) -> bool:
@@ -794,29 +668,24 @@ class SysType(sysbasetype.SysBaseType):
                 self.translate(u"Error XML al intentar cargar la definición de los ficheros.")
             )
             return False
-        ok = True
+        ok_ = True
         root = doc.firstChild()
         files = root.childNodes()
         flutil.FLUtil.createProgressDialog(self.translate(u"Registrando ficheros"), len(files))
-        i = 0
-        while_pass = True
-        while i < len(files):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            it = files.item(i)
+
+        for number in range(len(files)):
+
+            it_ = files.item(number)
             fil = {
-                "id": it.namedItem(u"name").toElement().text(),
-                "skip": it.namedItem(u"skip").toElement().text(),
-                "module": it.namedItem(u"module").toElement().text(),
-                "text": it.namedItem(u"text").toElement().text(),
-                "shatext": it.namedItem(u"shatext").toElement().text(),
-                "binary": it.namedItem(u"binary").toElement().text(),
-                "shabinary": it.namedItem(u"shabinary").toElement().text(),
+                "id": it_.namedItem(u"name").toElement().text(),
+                "skip": it_.namedItem(u"skip").toElement().text(),
+                "module": it_.namedItem(u"module").toElement().text(),
+                "text": it_.namedItem(u"text").toElement().text(),
+                "shatext": it_.namedItem(u"shatext").toElement().text(),
+                "binary": it_.namedItem(u"binary").toElement().text(),
+                "shabinary": it_.namedItem(u"shabinary").toElement().text(),
             }
-            flutil.FLUtil.setProgress(i)
+            flutil.FLUtil.setProgress(number)
             flutil.FLUtil.setLabelText(
                 utils_base.ustr(self.translate(u"Registrando fichero"), u" ", fil["id"])
             )
@@ -828,17 +697,11 @@ class SysType(sysbasetype.SysBaseType):
                         self.translate(u"Error registrando el fichero"), u" ", fil["id"]
                     )
                 )
-                ok = False
-                break
-            i += 1
-            while_pass = True
-            try:
-                i < len(files)
-            except Exception:
+                ok_ = False
                 break
 
         flutil.FLUtil.destroyProgressDialog()
-        return ok
+        return ok_
 
     @classmethod
     def registerFile(self, fil: Dict[str, Any], un: Any) -> bool:
@@ -883,12 +746,11 @@ class SysType(sysbasetype.SysBaseType):
         """Return if te project name is valid."""
         if not proName or proName is None:
             proName = u""
-        dbProName = flutil.FLUtil.readDBSettingEntry(u"projectname")
-        if not dbProName:
-            dbProName = u""
+        dbProName = flutil.FLUtil.readDBSettingEntry(u"projectname") or ""
         if proName == dbProName:
             return True
-        if not proName == "" and dbProName == "":
+
+        if proName and not dbProName:
             return flutil.FLUtil.writeDBSettingEntry(u"projectname", proName)
         txt = u""
         txt += self.translate(u"¡¡ CUIDADO !! POSIBLE INCOHERENCIA EN LOS MÓDULOS\n\n")
@@ -926,26 +788,19 @@ class SysType(sysbasetype.SysBaseType):
         root = doc.firstChild()
         if not self.checkProjectName(root.toElement().attribute(u"projectname", u"")):
             return False
-        ok = True
+        ok_ = True
         modules = root.childNodes()
         flutil.FLUtil.createProgressDialog(self.translate(u"Registrando módulos"), len(modules))
-        i = 0
-        while_pass = True
-        while i < len(modules):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            it = modules.item(i)
+        for number in range(len(modules)):
+            it_ = modules.item(number)
             mod = {
-                "id": it.namedItem(u"name").toElement().text(),
-                "alias": self.trTagText(it.namedItem(u"alias").toElement().text()),
-                "area": it.namedItem(u"area").toElement().text(),
-                "areaname": self.trTagText(it.namedItem(u"areaname").toElement().text()),
-                "version": it.namedItem(u"version").toElement().text(),
+                "id": it_.namedItem(u"name").toElement().text(),
+                "alias": self.trTagText(it_.namedItem(u"alias").toElement().text()),
+                "area": it_.namedItem(u"area").toElement().text(),
+                "areaname": self.trTagText(it_.namedItem(u"areaname").toElement().text()),
+                "version": it_.namedItem(u"version").toElement().text(),
             }
-            flutil.FLUtil.setProgress(i)
+            flutil.FLUtil.setProgress(number)
             flutil.FLUtil.setLabelText(
                 utils_base.ustr(self.translate(u"Registrando módulo"), u" ", mod["id"])
             )
@@ -953,17 +808,11 @@ class SysType(sysbasetype.SysBaseType):
                 self.errorMsgBox(
                     utils_base.ustr(self.translate(u"Error registrando el módulo"), u" ", mod["id"])
                 )
-                ok = False
-                break
-            i += 1
-            while_pass = True
-            try:
-                i < len(modules)
-            except Exception:
+                ok_ = False
                 break
 
         flutil.FLUtil.destroyProgressDialog()
-        return ok
+        return ok_
 
     @classmethod
     def registerArea(self, mod: Dict[str, Any]) -> bool:
@@ -1170,32 +1019,18 @@ class SysType(sysbasetype.SysBaseType):
     @classmethod
     def fileWriteIso(self, file_name: str, content: str) -> None:
         """Write data into a file with ISO-8859-15 encode."""
-        # from PyQt5.QtCore import QtCore.QTextStream
 
         fileISO = types.File(file_name, "ISO8859-15")
         fileISO.write(content.encode("ISO8859-15", "ignore"))
-        # if not fileISO.open(types.File.WriteOnly):
-        #    LOGGER.warning(utils_base.ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
-        #    return False
-        # tsISO = QtCore.QTextStream(fileISO)
-        # tsISO.setCodec(AQS.TextCodec_codecForName(u"ISO8859-15"))
-        # tsISO.opIn(content)
+
         fileISO.close()
 
     @classmethod
     def fileWriteUtf8(self, file_name: str, content: str) -> None:
         """Write data into a file with UTF-8 encode."""
 
-        # from PyQt5.QtCore import QtCore.QTextStream
-
         fileUTF = types.File(file_name, "UTF-8")
         fileUTF.write(content)
-        # if not fileUTF.open(types.File.WriteOnly):
-        #    LOGGER.warning(utils_base.ustr(u"Error abriendo fichero ", fileName, u" para escritura"))
-        #    return False
-        # tsUTF = QtCore.QTextStream(fileUTF.ioDevice)
-        # tsUTF.setCodec(AQS.TextCodec_codecForName(u"utf8"))
-        # tsUTF.opIn(content)
         fileUTF.close()
 
     @classmethod
@@ -1233,58 +1068,23 @@ class SysType(sysbasetype.SysBaseType):
         while qry.next():
             name = qry.value(0)
             content = qry.value(1)
-            type = name[(len(name) - (len(name) - name.rfind(u"."))) :]
-            if content == "":
-                continue
-            s02_when = type
-            s02_do_work, s02_work_done = False, False
-            if s02_when == u".xml":
-                s02_do_work, s02_work_done = True, True
-            if s02_do_work:
+            type_ = name[(len(name) - (len(name) - name.rfind(u"."))) :]
+            if type_ == ".xml":
                 self.fileWriteIso(utils_base.ustr(dirPath, u"/", name), content)
-                s02_do_work = False  # BREAK
-            if s02_when == u".ui":
-                s02_do_work, s02_work_done = True, True
-            if s02_do_work:
+            elif type_ == ".ui":
                 self.fileWriteIso(utils_base.ustr(dirPath, u"/forms/", name), content)
-                s02_do_work = False  # BREAK
-            if s02_when == u".qs":
-                s02_do_work, s02_work_done = True, True
-            if s02_do_work:
+            elif type_ == ".qs":
                 self.fileWriteIso(utils_base.ustr(dirPath, u"/scripts/", name), content)
-                s02_do_work = False  # BREAK
-            if s02_when == u".qry":
-                s02_do_work, s02_work_done = True, True
-            if s02_do_work:
+            elif type_ == ".qry":
                 self.fileWriteIso(utils_base.ustr(dirPath, u"/queries/", name), content)
-                s02_do_work = False  # BREAK
-            if s02_when == u".mtd":
-                s02_do_work, s02_work_done = True, True
-            if s02_do_work:
+            elif type_ == ".mtd":
                 self.fileWriteIso(utils_base.ustr(dirPath, u"/tables/", name), content)
-                s02_do_work = False  # BREAK
-            if s02_when == u".kut":
-                s02_do_work, s02_work_done = True, True
-            if s02_do_work:
-                pass
-            if s02_when == u".ar":
-                s02_do_work, s02_work_done = True, True
-            if s02_do_work:
-                pass
-            if s02_when == u".jrxml":
-                s02_do_work, s02_work_done = True, True
-            if s02_do_work:
-                pass
-            if s02_when == u".svg":
-                s02_do_work, s02_work_done = True, True
-            if s02_do_work:
+            elif type_ in (".kut", ".ar", ".jrxml", ".svg"):
                 self.fileWriteIso(utils_base.ustr(dirPath, u"/reports/", name), content)
-                s02_do_work = False  # BREAK
-            if s02_when == u".ts":
-                s02_do_work, s02_work_done = True, True  # noqa
-            if s02_do_work:
+            elif type_ == ".ts":
                 self.fileWriteIso(utils_base.ustr(dirPath, u"/translations/", name), content)
-                s02_do_work = False  # BREAK
+            elif type_ == ".py":
+                self.fileWriteUtf8(utils_base.ustr(dirPath, u"/scripts/", name), content)
 
     @classmethod
     def importModules(self, warnBackup: bool = True) -> None:
@@ -1316,24 +1116,12 @@ class SysType(sysbasetype.SysBaseType):
         listFilesMod = self.selectModsDialog(flutil.FLUtil.findFiles(dir_modules, u"*.mod", False))
         flutil.FLUtil.createProgressDialog(self.translate(u"Importando"), len(listFilesMod))
         flutil.FLUtil.setProgress(1)
-        i = 0
-        while_pass = True
-        while i < len(listFilesMod):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            flutil.FLUtil.setLabelText(listFilesMod[i])
-            flutil.FLUtil.setProgress(i)
-            if not self.importModule(listFilesMod[i]):
-                self.errorMsgBox(self.translate(u"Error al cargar el módulo:\n") + listFilesMod[i])
-                break
-            i += 1
-            while_pass = True
-            try:
-                i < len(listFilesMod)
-            except Exception:
+
+        for number, value in enumerate(listFilesMod):
+            flutil.FLUtil.setLabelText(value)
+            flutil.FLUtil.setProgress(number)
+            if not self.importModule(value):
+                self.errorMsgBox(self.translate(u"Error al cargar el módulo:\n") + value)
                 break
 
         flutil.FLUtil.destroyProgressDialog()
@@ -1430,6 +1218,8 @@ class SysType(sysbasetype.SysBaseType):
                 return False
             if not self.importFiles(mod_folder, u"*.qs", mod["id"]):
                 return False
+            if not self.importFiles(mod_folder, u"*.py", mod["id"]):
+                return False
             if not self.importFiles(mod_folder, u"*.qry", mod["id"]):
                 return False
             if not self.importFiles(mod_folder, u"*.mtd", mod["id"]):
@@ -1454,34 +1244,22 @@ class SysType(sysbasetype.SysBaseType):
     @classmethod
     def importFiles(self, dir_path_: str, ext: str, id_module_: str) -> bool:
         """Import files with a exension from a path."""
-        ok = True
+        ok_ = True
         util = flutil.FLUtil()
         list_files_ = util.findFiles(dir_path_, ext, False)
         util.createProgressDialog(self.translate(u"Importando"), len(list_files_))
         util.setProgress(1)
-        i = 0
-        while_pass = True
-        while i < len(list_files_):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            util.setLabelText(list_files_[i])
-            util.setProgress(i)
-            if not self.importFile(list_files_[i], id_module_):
-                self.errorMsgBox(self.translate(u"Error al cargar :\n") + list_files_[i])
-                ok = False
-                break
-            i += 1
-            while_pass = True
-            try:
-                i < len(list_files_)
-            except Exception:
+
+        for number, value in enumerate(list_files_):
+            util.setLabelText(value)
+            util.setProgress(number)
+            if not self.importFile(value, id_module_):
+                self.errorMsgBox(self.translate(u"Error al cargar :\n") + value)
+                ok_ = False
                 break
 
         util.destroyProgressDialog()
-        return ok
+        return ok_
 
     @classmethod
     def importFile(self, file_path_: str, id_module_: str) -> bool:
@@ -1496,17 +1274,21 @@ class SysType(sysbasetype.SysBaseType):
             self.errorMsgBox(utils_base.ustr(self.translate(u"Error leyendo fichero."), u"\n", e))
             return False
 
-        ok = True
+        ok_ = True
         name = file.name
         if (
             not flutil.FLUtil.isFLDefFile(content)
             and not name.endswith(u".qs")
+            and not name.endswith(u".py")
             and not name.endswith(u".ar")
             and not name.endswith(u".svg")
         ) or name.endswith(u"untranslated.ts"):
-            return ok
+            return ok_
         cur = pnsqlcursor.PNSqlCursor(u"flfiles")
         cur.select(utils_base.ustr(u"nombre = '", name, u"'"))
+        ba = QByteArray()
+        ba.string = content
+
         if not cur.first():
             if name.endswith(u".ar"):
                 if not self.importReportAr(file_path_, id_module_, content):
@@ -1515,17 +1297,14 @@ class SysType(sysbasetype.SysBaseType):
             cur.refreshBuffer()
             cur.setValueBuffer(u"nombre", name)
             cur.setValueBuffer(u"idmodulo", id_module_)
-            ba = QByteArray()
-            ba.string = content
             cur.setValueBuffer(u"sha", ba.sha1())
             cur.setValueBuffer(u"contenido", content)
-            ok = cur.commitBuffer()
+            ok_ = cur.commitBuffer()
 
         else:
             cur.setModeAccess(aqsql.AQSql.Edit)
             cur.refreshBuffer()
-            ba = QByteArray()
-            ba.string = content
+
             shaCnt = ba.sha1()
             if cur.valueBuffer(u"sha") != shaCnt:
                 contenidoCopia = cur.valueBuffer(u"contenido")
@@ -1543,12 +1322,12 @@ class SysType(sysbasetype.SysBaseType):
                 cur.setValueBuffer(u"idmodulo", id_module_)
                 cur.setValueBuffer(u"sha", shaCnt)
                 cur.setValueBuffer(u"contenido", content)
-                ok = cur.commitBuffer()
+                ok_ = cur.commitBuffer()
                 if name.endswith(u".ar"):
                     if not self.importReportAr(file_path_, id_module_, content):
                         return True
 
-        return ok
+        return ok_
 
     @classmethod
     def importReportAr(self, file_path_: str, id_module_: str, content: str) -> bool:
@@ -1916,12 +1695,10 @@ class AbanQDbDumper(QtCore.QObject):
         self.dumpDatabase()
         if gui:
             self.w_.enable = True
-        if self.state_.ok:
-            if gui:
+            if self.state_.ok:
                 SysType.infoMsgBox(self.state_.msg)
-            self.w_.close()
-        else:
-            if gui:
+                self.w_.close()
+            else:
                 SysType.errorMsgBox(self.state_.msg)
 
     def genFileName(self) -> str:
@@ -1960,10 +1737,10 @@ class AbanQDbDumper(QtCore.QObject):
         else:
             LOGGER.warning(msg)
 
-    def setState(self, ok: int, msg: str) -> None:
+    def setState(self, ok_: int, msg: str) -> None:
         """Set state."""
 
-        self.state_.ok = ok
+        self.state_.ok = ok_
         self.state_.msg = msg
 
     def state(self) -> types.Array:
@@ -2038,16 +1815,16 @@ class AbanQDbDumper(QtCore.QObject):
             self.funLog_(self.state_.msg)
             return False
 
-        ok = True
+        ok_ = True
         if typeBd == 1:
-            ok = self.dumpPostgreSQL()
+            ok_ = self.dumpPostgreSQL()
 
         if typeBd == 2:
-            ok = self.dumpMySQL()
+            ok_ = self.dumpMySQL()
 
-        if not ok:
+        if not ok_:
             self.dumpAllTablesToCsv()
-        if not ok:
+        if not ok_:
             self.setState(
                 False, SysType.translate(u"No se ha podido realizar la copia de seguridad.")
             )
@@ -2060,7 +1837,7 @@ class AbanQDbDumper(QtCore.QObject):
             )
             self.funLog_(self.state_.msg)
 
-        return ok
+        return ok_
 
     def dumpPostgreSQL(self) -> bool:
         """Dump database to PostgreSql file."""
@@ -2169,25 +1946,8 @@ class AbanQDbDumper(QtCore.QObject):
         qry.setFrom(table)
         if not qry.exec_():
             return False
-        rec = u""
-        fieldNames = qry.fieldList()
-        i = 0
-        while_pass = True
-        while i < len(fieldNames):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            if i > 0:
-                rec += self.SEP_CSV
-            rec += fieldNames[i]
-            i += 1
-            while_pass = True
-            try:
-                i < len(fieldNames)
-            except Exception:
-                break
+
+        rec = str("%s" % self.SEP_CSV).join(qry.fieldList())
 
         ts.device().write(utils_base.ustr(rec, u"\n").encode())
         # ts.opIn(utils_base.ustr(rec, u"\n"))
@@ -2196,26 +1956,12 @@ class AbanQDbDumper(QtCore.QObject):
         )
         p = 0
         while qry.next():
-            rec = u""
-            i = 0
-            while_pass = True
-            while i < len(fieldNames):
-                if not while_pass:
-                    i += 1
-                    while_pass = True
-                    continue
-                while_pass = False
-                if i > 0:
-                    rec += self.SEP_CSV
-                rec += str(qry.value(i))
-                i += 1
-                while_pass = True
-                try:
-                    i < len(fieldNames)
-                except Exception:
-                    break
+            values = []
+            for field_name in qry.fieldList():
+                values.append(str(qry.value(field_name)))
 
-            # ts.opIn(utils_base.ustr(rec, u"\n"))
+            rec = str("%s" % self.SEP_CSV).join(values)
+
             ts.device().write(utils_base.ustr(rec, u"\n").encode())
             p += 1
             flutil.FLUtil.setProgress(p)
