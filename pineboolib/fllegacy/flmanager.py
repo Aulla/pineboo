@@ -208,32 +208,30 @@ class FLManager(QtCore.QObject, IManager):
                 if ret is None:
                     return None
 
-                if not ret.isQuery() and not self.existsTable(metadata_name_or_xml):
-                    self.createTable(ret)
-
                 if not quick:
                     self.cache_metadata_[table_name] = copy.copy(ret)
 
-                if (
-                    not quick
-                    and not ret.isQuery()
-                    and self.db_.mismatchedTable(metadata_name_or_xml, ret)
-                    and self.existsTable(metadata_name_or_xml)
-                ):
-                    msg = util.translate(
-                        "application",
-                        "La estructura de los metadatos de la tabla '%s' y su estructura interna en la base de datos no coinciden.\n"
-                        "Regenerando la base de datos." % metadata_name_or_xml,
-                    )
-                    LOGGER.warning(msg)
+                    if not ret.isQuery():
 
-                    # must_alter = self.db_.mismatchedTable(metadata_name_or_xml, ret)
-                    # if must_alter:
-                    # if not self.alterTable(stream, stream, "", True):
-                    if not self.alterTable(ret):
-                        LOGGER.warning(
-                            "La regeneración de la tabla %s ha fallado", metadata_name_or_xml
-                        )
+                        if not self.existsTable(metadata_name_or_xml):
+                            self.createTable(ret)
+                        else:
+                            if self.db_.mismatchedTable(metadata_name_or_xml, ret):
+                                msg = util.translate(
+                                    "application",
+                                    "La estructura de los metadatos de la tabla '%s' y su estructura interna en la base de datos no coinciden.\n"
+                                    "Regenerando la base de datos." % metadata_name_or_xml,
+                                )
+                                LOGGER.warning(msg)
+
+                                # must_alter = self.db_.mismatchedTable(metadata_name_or_xml, ret)
+                                # if must_alter:
+                                # if not self.alterTable(stream, stream, "", True):
+                                if not self.alterTable(ret):
+                                    LOGGER.warning(
+                                        "La regeneración de la tabla %s ha fallado",
+                                        metadata_name_or_xml,
+                                    )
 
                 # throwMsgWarning(self.db_, msg)
 
@@ -592,11 +590,11 @@ class FLManager(QtCore.QObject, IManager):
             if n_or_tmd.name() in self.list_tables_:
                 return n_or_tmd
 
-            if n_or_tmd.isQuery() or self.existsTable(n_or_tmd.name(), False):
+            elif n_or_tmd.isQuery() or self.existsTable(n_or_tmd.name(), False):
                 self.list_tables_.append(n_or_tmd.name())
                 return n_or_tmd
 
-            elif not self.db_.connManager().useConn("default").createTable(n_or_tmd):
+            elif not self.db_.connManager().default().createTable(n_or_tmd):
                 LOGGER.warning(
                     "createTable: %s", self.tr("No se ha podido crear la tabla ") + n_or_tmd.name()
                 )
