@@ -42,7 +42,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     # rows: int
     cols: int
     _use_timer = True
-    _rows_loaded: int
     where_filter: str
     where_filters: Dict[str, str] = {}
     _metadata: Optional["pntablemetadata.PNTableMetaData"]
@@ -81,7 +80,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     grid_row_tmp: Dict[int, List[Any]]
 
     # _data_proxy: List[Callable]
-    _data_index: Optional["ProxyIndex"]
+    _data_proxy: Optional["ProxyIndex"]
 
     _last_grid_obj: Any
     _lost_grid_row: int
@@ -100,7 +99,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         metadata = self._parent.private_cursor.metadata_
 
-        self._rows_loaded = 0
         # self.rows = 0
         self.cols = 0
         self._metadata = None
@@ -147,7 +145,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._column_hints = []
         self.updateColumnsCount()
 
-        self._rows_loaded = 0
         # self.pendingRows = 0
         # self.lastFetch = 0.0
         # self._fetched_rows = 0
@@ -173,7 +170,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._initialized = None
         self.grid_row_tmp = {}
         # self._data_proxy = []
-        self._data_index = None
+        self._data_proxy = None
 
         # self.refresh()
 
@@ -658,36 +655,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if self._disable_refresh and self.rowCount():
             return
 
-        # self._rows_loaded = 0
         self._last_grid_row = -1
         self._last_grid_obj = None
         self._parent.clear_buffer()
         # session_ = self.db().session()
 
-        where_filter = ""
-        for k, wfilter in sorted(self.where_filters.items()):
-            if not wfilter:
-                continue
-
-            wfilter = wfilter.strip()
-
-            if not wfilter:
-                continue
-            if not where_filter:
-                where_filter = wfilter
-            elif wfilter not in where_filter:
-                if where_filter not in wfilter:
-                    where_filter += " AND " + wfilter
-
-        # Si no existe un orderBy y se ha definido uno desde FLTableDB ...
-        if where_filter.find("ORDER BY") == -1 and self.getSortOrder():
-            if where_filter.find(";") > -1:  # Si el where termina en ; ...
-                where_filter = where_filter.replace(";", " ORDER BY %s;" % self.getSortOrder())
-            else:
-                where_filter = "%s ORDER BY %s" % (where_filter, self.getSortOrder())
-
-        if where_filter.strip() and not where_filter.strip().startswith("ORDER"):
-            where_filter = "WHERE %s" % where_filter
+        where_filter = self.buildWhere()
 
         # """ FIN """
 
@@ -745,27 +718,186 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         # print("QUERY", sql_query)
         result_count = self.db().session().execute(sql_count)
-        self._data_index = None
-        self._rows_loaded = result_count.fetchone()[0]
+        self._data_proxy = None
+        rows_loaded = result_count.fetchone()[0]
 
-        if self._rows_loaded:
+        if rows_loaded:
             result_query = self.db().session().execute(sql_query)
-            self._data_index = ProxyIndex(result_query, self._rows_loaded)
-            # self._rows_loaded = len(self._data_index)
-            # self._data_index = [data[0] for data in data_fetched]
+            self._data_proxy = ProxyIndex(result_query, rows_loaded)
+            # self._rows_loaded = len(self._data_proxy)
+            # self._data_proxy = [data[0] for data in data_fetched]
             self.need_update = False
             self._column_hints = [120] * len(self.sql_fields)
 
             if self.parent_view:
                 self.update_rows()
 
+    def buildWhere(self) -> str:
+        """Return valid where."""
+
+        where_filter = ""
+        for k, wfilter in sorted(self.where_filters.items()):
+            if not wfilter:
+                continue
+
+            wfilter = wfilter.strip()
+
+            if not wfilter:
+                continue
+            if not where_filter:
+                where_filter = wfilter
+            elif wfilter not in where_filter:
+                if where_filter not in wfilter:
+                    where_filter += " AND " + wfilter
+
+        # Si no existe un orderBy y se ha definido uno desde FLTableDB ...
+        if where_filter.find("ORDER BY") == -1 and self.getSortOrder():
+            if where_filter.find(";") > -1:  # Si el where termina en ; ...
+                where_filter = where_filter.replace(";", " ORDER BY %s;" % self.getSortOrder())
+            else:
+                where_filter = "%s ORDER BY %s" % (where_filter, self.getSortOrder())
+
+        if where_filter.strip() and not where_filter.strip().startswith("ORDER"):
+            where_filter = "WHERE %s" % where_filter
+
+        return where_filter
+
+    def updateCacheData(self, mode: int) -> bool:
+        """Update cache data without refresh."""
+        # print("* updateCacheData", mode)
+        # mode 1- Insert, 2 - Edit, 3 - Del
+
+        if not self.rowCount() or self.disable_refresh:
+            # Fuerza un refresh tradicional.
+            return False
+
+        pk_name = self._parent.primaryKey()
+        pk_value = self._parent.buffer().value(pk_name)
+        where_filter = self.buildWhere()
+
+        sql_query = "SELECT %s FROM %s %s" % (
+            self.metadata().primaryKey(),
+            self.metadata().name(),
+            where_filter,
+        )
+        order_by = ""
+        if sql_query.find("ORDER BY") > 1:
+            sql_query = sql_query[: sql_query.find("ORDER BY")]
+            order_by = sql_query[sql_query.find("ORDER BY") :]
+
+        if sql_query.find("WHERE") > -1:
+            sql_query += " AND"
+        else:
+            sql_query += " WHERE"
+
+        sql_query += " %s" % (
+            self.db()
+            .connManager()
+            .manager()
+            .formatAssignValue(self.metadata().field(pk_name), pk_value)
+        )
+        result = self.db().session().execute(sql_query)
+
+        if mode == 1:
+            if result.returns_rows:
+                if order_by:
+                    LOGGER.warning("FIXME! update chache whit alternative order_by")
+                    return False
+                else:
+
+                    current_pos = None
+                    upper = False
+                    min_val = 0
+                    max_val = self._data_proxy._total_rows
+
+                    while True:
+                        if current_pos is None:
+                            current_pos = max_val // 2
+
+                        while current_pos < self._data_proxy._rows_loaded:
+                            if not self._data_proxy.fetch_more():
+                                break
+
+                        data = self._data_proxy._cached_data[current_pos]
+
+                        upper = None
+                        # print("Compara", pk_value, "con", data, "current_pos", current_pos)
+                        if pk_value > data:
+                            if current_pos == max_val or current_pos == 0:
+                                upper = True
+                            else:
+                                # LOGGER.warning(
+                                #    "MI valor %s es mayor que (%s) %s", pk_value, current_pos, data
+                                # )
+                                min_val = current_pos
+                                current_pos += (max_val - min_val) // 2
+                        else:
+                            if current_pos == min_val or current_pos == 0:
+                                upper = False
+                            else:
+                                # LOGGER.warning(
+                                #    "MI valor %s es menor que (%s) %s", pk_value, current_pos, data
+                                # )
+                                max_val = current_pos
+                                current_pos -= (max_val - min_val) // 2
+
+                        if (max_val - min_val) // 2 == 0:
+                            upper = True
+
+                        if upper is not None:
+                            # print("***", current_pos, new_current_pos, max_val, min_val)
+                            new_data = result.fetchone()
+                            if upper:
+                                current_pos += 1
+
+                            try:
+                                self._data_proxy._cached_data.insert(current_pos, new_data[0])
+                            except TypeError:
+                                print(
+                                    "**", self._data_proxy._cached_data, self.rowCount(), new_data
+                                )
+                            # print(
+                            #    "Insertando",
+                            #    new_data[0],
+                            #    "en pos",
+                            #    current_pos,
+                            #    "Despues" if upper else "Antes",
+                            #    "de",
+                            #    data,
+                            #    "==",
+                            #    self._data_proxy._cached_data,
+                            # )
+                            self._data_proxy._total_rows += 1
+                            break
+
+                        # LOGGER.warning("CURRENT ahora es %s", current_pos)
+
+            return True
+
+        elif mode == 2:
+            if result.returns_rows:
+                index = self._data_proxy.index(pk_value)
+                self._data_proxy._cached_data[index] = result.fetchone()
+
+            return True
+
+        elif mode == 3:
+            # print("modo3")
+            index = self._data_proxy.index(pk_value)
+            del self._data_proxy._cached_data[index]
+            self._data_proxy._total_rows -= 1
+
+            return True
+
+        return False
+
     def get_obj_from_row(self, row: int) -> Optional[Callable]:
         """Return row object from proxy."""
         ret_ = None
 
-        if row > -1 and row < self.rowCount() and self._data_index:
-            # print("get_obj_from_row", row, self._data_index[row])
-            pk_value = self._data_index[row]
+        if row > -1 and row < self.rowCount() and self._data_proxy:
+            # print("get_obj_from_row", row, self._data_proxy[row])
+            pk_value = self._data_proxy[row]
             # print("get_obj_from_row", row, pk_value)
             session_ = self.db().session()
 
@@ -819,8 +951,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         ret_ = -1
         try:
-            if self._data_index:
-                ret_ = self._data_index.index(pk_value)
+            if self._data_proxy:
+                ret_ = self._data_proxy.index(pk_value)
         except ValueError:
             pass
 
@@ -875,7 +1007,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         @return Row number present in table.
         """
-        return self._rows_loaded
+        return self._data_proxy._total_rows if getattr(self, "_data_proxy", None) else 0
 
     def headerData(
         self, section: int, orientation: QtCore.Qt.Orientation, role: int = QtCore.Qt.DisplayRole

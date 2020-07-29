@@ -2696,7 +2696,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     return False
 
         # primary_key = self.private_cursor.metadata_.primaryKey()
-        updated = False
+        updated = 0
+
         # savePoint = None
 
         if self.modeAccess() == self.Insert:
@@ -2724,7 +2725,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 )
                 return False
 
-            updated = True
+            updated = 1
 
         elif self.modeAccess() == self.Edit:
             database = self.db()
@@ -2750,7 +2751,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                 LOGGER.trace("commitBuffer -- Edit . 25 . ")
 
-                updated = True
+                updated = 2
                 self.setNotGenerateds()
             LOGGER.trace("commitBuffer -- Edit . 30 . ")
 
@@ -2850,7 +2851,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         )
                         return False
 
-            updated = True
+            updated = 3
 
         if updated and self.lastError():
             LOGGER.warning("CommitBuffer cancelado. Error encontrado: %s.", self.lastError())
@@ -2885,7 +2886,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     )
                     return False
 
-                self.model().refresh()
+                if self.metadata().isQuery() or not self.model().updateCacheData(updated):
+                    if not self.metadata().isQuery() and self.size():
+                        LOGGER.warning("update_cache_failed. Using classic method")
+                    self.model().refresh()
+
                 pk_row = self.model().find_pk_row(pk_value)
 
                 if pk_row > -1:
