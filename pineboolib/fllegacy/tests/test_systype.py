@@ -233,11 +233,18 @@ class TestSysType(unittest.TestCase):
         systype.SysType().selectModsDialog(["flfactppal", "flfactinfo", "flfactalma"])
 
     def test_exec_qsa(self) -> None:
-        """Test execQSA"""
+        """Test execQSA."""
 
         path = fixture_path("test.qs")
         result = systype.SysType.execQSA(path)
         self.assertEqual(result, "Hola")
+
+    def test_basic_2(self) -> None:
+        """test basic2."""
+        from pineboolib.q3widgets.messagebox import MessageBox
+
+        self.assertFalse(systype.SysType.modMainWidget("sys"))
+        self.assertEqual(systype.SysType().questionMsgBox("msg"), True)
 
     @classmethod
     def tearDownClass(cls) -> None:

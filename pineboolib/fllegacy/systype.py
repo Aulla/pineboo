@@ -107,7 +107,7 @@ class SysType(sysbasetype.SysBaseType):
     AQGlobalFunctions = AQGlobalFunctions_class()
 
     @classmethod
-    def translate(self, *args) -> str:
+    def translate(cls, *args) -> str:
         """Translate a text."""
 
         from pineboolib.core import translate
@@ -181,13 +181,13 @@ class SysType(sysbasetype.SysBaseType):
         return application.PROJECT.aq_app.scalePixmap(pix_, w_, h_, mode_)
 
     @classmethod
-    def transactionLevel(self) -> int:
+    def transactionLevel(cls) -> int:
         """Return transaction level."""
 
         return application.PROJECT.conn_manager.useConn("default").transactionLevel()
 
     @classmethod
-    def installACL(self, idacl) -> None:
+    def installACL(cls, idacl) -> None:
         """Install a acl."""
         from pineboolib.application.acls import pnaccesscontrollists
 
@@ -197,14 +197,14 @@ class SysType(sysbasetype.SysBaseType):
             acl_.install_acl(idacl)
 
     @classmethod
-    def updateAreas(self) -> None:
+    def updateAreas(cls) -> None:
         """Update areas in mdi."""
         func_ = getattr(application.PROJECT.main_window, "initToolBox", None)
         if func_ is not None:
             func_()
 
     @classmethod
-    def reinit(self) -> None:
+    def reinit(cls) -> None:
         """Call reinit script."""
 
         while application.PROJECT.aq_app._inicializing:
@@ -213,13 +213,13 @@ class SysType(sysbasetype.SysBaseType):
         application.PROJECT.aq_app.reinit()
 
     @classmethod
-    def modMainWidget(self, id_module_: str) -> Optional[QtWidgets.QWidget]:
+    def modMainWidget(cls, id_module_: str) -> Optional[QtWidgets.QWidget]:
         """Set module MainWinget."""
 
         return application.PROJECT.aq_app.modMainWidget(id_module_)
 
     @classmethod
-    def setCaptionMainWidget(self, title: str) -> None:
+    def setCaptionMainWidget(cls, title: str) -> None:
         """Set caption in the main widget."""
 
         application.PROJECT.aq_app.setCaptionMainWidget(title)
@@ -251,7 +251,7 @@ class SysType(sysbasetype.SysBaseType):
             sqlCursor.checkRisksLocks(True)
 
     @classmethod
-    def mvProjectXml(self) -> QtXml.QDomDocument:
+    def mvProjectXml(cls) -> QtXml.QDomDocument:
         """Extract a module defition to a QDomDocument."""
 
         doc_ret_ = QtXml.QDomDocument()
@@ -278,10 +278,10 @@ class SysType(sysbasetype.SysBaseType):
         return doc_ret_
 
     @classmethod
-    def mvProjectModules(self) -> types.Array:
+    def mvProjectModules(cls) -> types.Array:
         """Return modules defitions Dict."""
         ret = types.Array()
-        doc = self.mvProjectXml()
+        doc = cls.mvProjectXml()
         mods = doc.elementsByTagName(u"module")
         for number in range(len(mods)):
             it_ = mods.item(number).toElement()
@@ -293,11 +293,11 @@ class SysType(sysbasetype.SysBaseType):
         return ret
 
     @classmethod
-    def mvProjectExtensions(self) -> types.Array:
+    def mvProjectExtensions(cls) -> types.Array:
         """Return project extensions Dict."""
 
         ret = types.Array()
-        doc = self.mvProjectXml()
+        doc = cls.mvProjectXml()
         exts = doc.elementsByTagName(u"extension")
 
         for number in range(len(exts)):
@@ -310,7 +310,7 @@ class SysType(sysbasetype.SysBaseType):
         return ret
 
     @classmethod
-    def calculateShaGlobal(self) -> str:
+    def calculateShaGlobal(cls) -> str:
         """Return sha global value."""
 
         value = ""
@@ -326,7 +326,6 @@ class SysType(sysbasetype.SysBaseType):
 
         return value
 
-    @classmethod
     def registerUpdate(self, input_: Any = None) -> None:
         """Install a package."""
 
@@ -367,7 +366,7 @@ class SysType(sysbasetype.SysBaseType):
         )
 
     @classmethod
-    def warnLocalChanges(self, changes: Optional[Dict[str, Any]] = None) -> bool:
+    def warnLocalChanges(cls, changes: Optional[Dict[str, Any]] = None) -> bool:
         """Show local changes warning."""
 
         if changes is None:
@@ -793,16 +792,15 @@ class SysType(sysbasetype.SysBaseType):
         cur.setValueBuffer(u"version", mod["version"])
         return cur.commitBuffer()
 
-    @classmethod
     def questionMsgBox(
         self,
         msg: str,
-        keyRemember: str,
-        txtRemember: str,
-        forceShow: bool,
-        txtCaption: str,
-        txtYes: str,
-        txtNo: str,
+        keyRemember: str = "",
+        txtRemember: str = "",
+        forceShow: bool = True,
+        txtCaption: str = "Pineboo",
+        txtYes: str = "Sí",
+        txtNo: str = "No",
     ) -> Any:
         """Return a messagebox result."""
 
@@ -815,7 +813,7 @@ class SysType(sysbasetype.SysBaseType):
         if not self.interactiveGUI():
             return True
         diag = QDialog()
-        diag.caption = txtCaption if txtCaption else u"Pineboo"
+        diag.caption = txtCaption
         diag.setModal(True)
         lay = QVBoxLayout(diag)
         # lay.setMargin(6)
