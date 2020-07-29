@@ -225,7 +225,7 @@ class SysType(sysbasetype.SysBaseType):
         application.PROJECT.aq_app.setCaptionMainWidget(title)
 
     @staticmethod
-    def execQSA(fileQSA=None, args=None) -> None:
+    def execQSA(fileQSA=None, args=[]) -> None:
         """Execute a QS file."""
         from pineboolib.application import types
 
@@ -251,61 +251,62 @@ class SysType(sysbasetype.SysBaseType):
             sqlCursor.checkRisksLocks(True)
 
     @classmethod
-    def statusDbLocksDialog(self, locks: Optional[List[str]] = None) -> None:
+    def statusDbLocksDialog(cls, locks: Optional[List[str]] = None) -> None:
         """Show Database locks status."""
 
         diag = Dialog()
-        txtEdit = QTextEdit()
-        diag.caption = self.translate(u"scripts", u"Bloqueos de la base de datos")
+        txt_edit = QTextEdit()
+        diag.caption = cls.translate(u"scripts", u"Bloqueos de la base de datos")
         diag.setWidth(500)
         html = u'<html><table border="1">'
-        if locks is not None and len(locks):
+        if locks:
 
             fields = locks[0].split(u"@")
-            closeInfo = False
-            closeRecord = False
-            headInfo = u'<table border="1"><tr>'
+            close_info = False
+            close_record = False
+            head_info = u'<table border="1"><tr>'
 
             for field in fields:
-                headInfo += utils_base.ustr(u"<td><b>", field, u"</b></td>")
+                head_info += utils_base.ustr(u"<td><b>", field, u"</b></td>")
 
-            headInfo += u"</tr>"
-            headRecord = utils_base.ustr(
+            head_info += u"</tr>"
+            head_record = utils_base.ustr(
                 u'<table border="1"><tr><td><b>',
-                self.translate(u"scripts", u"Registro bloqueado"),
+                cls.translate(u"scripts", u"Registro bloqueado"),
                 u"</b></td></tr>",
             )
 
             for item in locks:
                 if item[0:2] == u"##":
-                    if closeInfo:
+                    if close_info:
                         html += u"</table>"
-                    if not closeRecord:
-                        html += headRecord
+                    if not close_record:
+                        html += head_record
                     html += utils_base.ustr(
                         u"<tr><td>", item[(len(item) - (len(item) - 2)) :], u"</td></tr>"
                     )
-                    closeRecord = True
-                    closeInfo = False
+                    close_record = True
+                    close_info = False
 
                 else:
-                    if closeRecord:
+                    if close_record:
                         html += u"</table>"
-                    if not closeInfo:
-                        html += headInfo
+                    if not close_info:
+                        html += head_info
                     html += u"<tr>"
                     fields = item.split(u"@")
                     for fiend in fields:
                         html += utils_base.ustr(u"<td>", field, u"</td>")
 
                     html += u"</tr>"
-                    closeRecord = False
-                    closeInfo = True
+                    close_record = False
+                    close_info = True
 
         html += u"</table></table></html>"
-        txtEdit.text = html
-        diag.add(txtEdit)
-        diag.exec_()
+        txt_edit.text = html
+        diag.add(txt_edit)
+        if not utils_base.is_library():
+            diag.exec_()
 
     @classmethod
     def mvProjectXml(self) -> QtXml.QDomDocument:
@@ -404,11 +405,11 @@ class SysType(sysbasetype.SysBaseType):
         unpacker.jump()
         unpacker.jump()
         now = str(types.Date())
-        file = types.File(input_)
-        fileName = file.name
-        modulesDef = self.toUnicode(unpacker.getText(), u"utf8")
-        filesDef = self.toUnicode(unpacker.getText(), u"utf8")
-        shaGlobal = self.calculateShaGlobal()
+        file_ = types.File(input_)
+        file_name = file_.name
+        modules_def = self.toUnicode(unpacker.getText(), u"utf8")
+        files_def = self.toUnicode(unpacker.getText(), u"utf8")
+        sha_global = self.calculateShaGlobal()
         aqsql.AQSql.update(u"flupdates", [u"actual"], [False], "1=1")
         aqsql.AQSql.insert(
             u"flupdates",
@@ -416,10 +417,10 @@ class SysType(sysbasetype.SysBaseType):
             [
                 now[: now.find("T")],
                 str(now)[(len(str(now)) - (8)) :],
-                fileName,
-                modulesDef,
-                filesDef,
-                shaGlobal,
+                file_name,
+                modules_def,
+                files_def,
+                sha_global,
             ],
         )
 
@@ -470,7 +471,10 @@ class SysType(sysbasetype.SysBaseType):
         lay2.addWidget(pbAccept)
         application.connections.connect(pbAccept, "clicked()", diag, "accept()")
         application.connections.connect(pbCancel, "clicked()", diag, "reject()")
-        return False if (diag.exec_() == 0) else True
+        if not utils_base.is_library():
+            return False if (diag.exec_() == 0) else True
+        else:
+            return True
 
     @classmethod
     def xmlFilesDefBd(self) -> QtXml.QDomDocument:
@@ -605,13 +609,15 @@ class SysType(sysbasetype.SysBaseType):
     def loadAbanQPackage(self, input_: str, warnBackup: bool = True) -> bool:
         """Load and process a Abanq/Eneboo package."""
         ok_ = False
+
+        txt = u""
+        txt += self.translate(u"Asegúrese de tener una copia de seguridad de todos los datos\n")
+        txt += self.translate(u"y de que  no hay ningun otro  usuario conectado a la base de\n")
+        txt += self.translate(u"datos mientras se realiza la carga.\n\n")
+        txt += u"\n\n"
+        txt += self.translate(u"¿Desea continuar?")
+
         if warnBackup and self.interactiveGUI():
-            txt = u""
-            txt += self.translate(u"Asegúrese de tener una copia de seguridad de todos los datos\n")
-            txt += self.translate(u"y de que  no hay ningun otro  usuario conectado a la base de\n")
-            txt += self.translate(u"datos mientras se realiza la carga.\n\n")
-            txt += u"\n\n"
-            txt += self.translate(u"¿Desea continuar?")
             if MessageBox.Yes != MessageBox.warning(txt, MessageBox.No, MessageBox.Yes):
                 return False
 
@@ -742,16 +748,12 @@ class SysType(sysbasetype.SysBaseType):
         return cur.commitBuffer()
 
     @classmethod
-    def checkProjectName(self, proName: str) -> bool:
+    def checkProjectName(self, project_name: str) -> bool:
         """Return if te project name is valid."""
-        if not proName or proName is None:
-            proName = u""
-        dbProName = flutil.FLUtil.readDBSettingEntry(u"projectname") or ""
-        if proName == dbProName:
-            return True
+        if not project_name:
+            project_name = u""
+        db_project_name = flutil.FLUtil.readDBSettingEntry(u"projectname") or ""
 
-        if proName and not dbProName:
-            return flutil.FLUtil.writeDBSettingEntry(u"projectname", proName)
         txt = u""
         txt += self.translate(u"¡¡ CUIDADO !! POSIBLE INCOHERENCIA EN LOS MÓDULOS\n\n")
         txt += self.translate(u"Está intentando cargar un proyecto o rama de módulos cuyo\n")
@@ -763,15 +765,23 @@ class SysType(sysbasetype.SysBaseType):
         txt += self.translate(
             u"podría dañar el código, datos y la estructura de tablas de Eneboo.\n\n"
         )
-        txt += self.translate(u"- Nombre del proyecto instalado: %s\n") % (str(dbProName))
-        txt += self.translate(u"- Nombre del proyecto a cargar: %s\n\n") % (str(proName))
+
+        if project_name == db_project_name:
+            return True
+
+        if project_name and not db_project_name:
+            return flutil.FLUtil.writeDBSettingEntry(u"projectname", project_name)
+
+        txt += self.translate(u"- Nombre del proyecto instalado: %s\n") % (str(db_project_name))
+        txt += self.translate(u"- Nombre del proyecto a cargar: %s\n\n") % (str(project_name))
         txt += u"\n\n"
+
         if not self.interactiveGUI():
             LOGGER.warning(txt)
             return False
         txt += self.translate(u"¿Desea continuar?")
         return MessageBox.Yes == MessageBox.warning(
-            txt, MessageBox.No, MessageBox.Yes, MessageBox.NoButton, u"AbanQ"
+            txt, MessageBox.No, MessageBox.Yes, MessageBox.NoButton, u"Pineboo"
         )
 
     @classmethod
@@ -863,7 +873,7 @@ class SysType(sysbasetype.SysBaseType):
         if not self.interactiveGUI():
             return True
         diag = QDialog()
-        diag.caption = txtCaption if txtCaption else u"Eneboo"
+        diag.caption = txtCaption if txtCaption else u"Pineboo"
         diag.setModal(True)
         lay = QVBoxLayout(diag)
         # lay.setMargin(6)
@@ -899,6 +909,10 @@ class SysType(sysbasetype.SysBaseType):
             chkRemember = QtWidgets.QCheckBox(txtRemember, diag)
             chkRemember.setChecked(valRemember)
             lay.addWidget(chkRemember)
+
+        if utils_base.is_library():
+            return MessageBox.Yes
+
         ret = MessageBox.No if (diag.exec_() == 0) else MessageBox.Yes
         if chkRemember is not None:
             settings.SETTINGS.set_value(key + keyRemember, chkRemember.isChecked())

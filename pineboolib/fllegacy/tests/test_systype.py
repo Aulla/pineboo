@@ -232,6 +232,17 @@ class TestSysType(unittest.TestCase):
         application.PROJECT.conn_manager.mainConn().setInteractiveGUI(False)
         systype.SysType().selectModsDialog(["flfactppal", "flfactinfo", "flfactalma"])
 
+    def test_exec_qsa(self) -> None:
+        """Test execQSA"""
+
+        path = fixture_path("test.qs")
+        result = systype.SysType.execQSA(path)
+        self.assertEqual(result, "Hola")
+
+    # def test_others(self) -> None:
+    #    systype.SysType.statusDbLocksDialog(["bloqueo"])
+    #    systype.SysType.importModules(False)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
