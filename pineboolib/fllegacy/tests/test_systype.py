@@ -241,7 +241,6 @@ class TestSysType(unittest.TestCase):
 
     def test_basic_2(self) -> None:
         """test basic2."""
-        from pineboolib.q3widgets.messagebox import MessageBox
 
         self.assertFalse(systype.SysType.modMainWidget("sys"))
         self.assertEqual(systype.SysType().questionMsgBox("msg"), True)

@@ -365,8 +365,7 @@ class SysType(sysbasetype.SysBaseType):
             ],
         )
 
-    @classmethod
-    def warnLocalChanges(cls, changes: Optional[Dict[str, Any]] = None) -> bool:
+    def warnLocalChanges(self, changes: Optional[Dict[str, Any]] = None) -> bool:
         """Show local changes warning."""
 
         if changes is None:
@@ -515,7 +514,6 @@ class SysType(sysbasetype.SysBaseType):
         root.appendChild(ns)
         return doc
 
-    @classmethod
     def loadModules(self, input_: Optional[Any] = None, warnBackup: bool = True) -> bool:
         """Load modules from a package."""
         ret_ = False
@@ -546,7 +544,6 @@ class SysType(sysbasetype.SysBaseType):
 
         return ret_
 
-    @classmethod
     def loadAbanQPackage(self, input_: str, warnBackup: bool = True) -> bool:
         """Load and process a Abanq/Eneboo package."""
         ok_ = False
