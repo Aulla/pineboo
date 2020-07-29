@@ -219,7 +219,8 @@ class FLManager(QtCore.QObject, IManager):
                             if self.db_.mismatchedTable(metadata_name_or_xml, ret):
                                 msg = util.translate(
                                     "application",
-                                    "La estructura de los metadatos de la tabla '%s' y su estructura interna en la base de datos no coinciden.\n"
+                                    "La estructura de los metadatos de la tabla '%s'"
+                                    " y su estructura interna en la base de datos no coinciden.\n"
                                     "Regenerando la base de datos." % metadata_name_or_xml,
                                 )
                                 LOGGER.warning(msg)

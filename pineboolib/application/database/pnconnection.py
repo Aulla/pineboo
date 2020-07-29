@@ -151,7 +151,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         types = ["", "Tables", "SystemTables", "Views"]
 
         if isinstance(tables_type, int):
-            item = ""
+            item = None
             if tables_type < len(types):
                 item = types[tables_type]
         else:
