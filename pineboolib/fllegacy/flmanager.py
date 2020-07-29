@@ -22,6 +22,8 @@ from pineboolib.interfaces import IManager
 from pineboolib import logging, application
 from . import flutil
 
+import copy
+
 from xml.etree import ElementTree
 
 from typing import Optional, Union, Any, List, Dict, TYPE_CHECKING
@@ -160,7 +162,7 @@ class FLManager(QtCore.QObject, IManager):
             table_name = key if key.endswith(".mtd") else "%s.mtd" % key
 
             if table_name in self.cache_metadata_.keys():
-                ret = self.cache_metadata_[table_name]
+                ret = copy.copy(self.cache_metadata_[table_name])
             if not ret:
 
                 # Buscamos primero si es un model_.
@@ -210,7 +212,7 @@ class FLManager(QtCore.QObject, IManager):
                     self.createTable(ret)
 
                 if not quick:
-                    self.cache_metadata_[table_name] = ret
+                    self.cache_metadata_[table_name] = copy.copy(ret)
 
                 if (
                     not quick
@@ -236,6 +238,7 @@ class FLManager(QtCore.QObject, IManager):
                 # throwMsgWarning(self.db_, msg)
 
             acl = application.PROJECT.aq_app.acl()
+
             if acl:
                 acl.process(ret)
 
