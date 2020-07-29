@@ -239,10 +239,6 @@ class TestSysType(unittest.TestCase):
         result = systype.SysType.execQSA(path)
         self.assertEqual(result, "Hola")
 
-    # def test_others(self) -> None:
-    #    systype.SysType.statusDbLocksDialog(["bloqueo"])
-    #    systype.SysType.importModules(False)
-
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

@@ -225,18 +225,18 @@ class SysType(sysbasetype.SysBaseType):
         application.PROJECT.aq_app.setCaptionMainWidget(title)
 
     @staticmethod
-    def execQSA(fileQSA=None, args=[]) -> None:
+    def execQSA(fileQSA=None, args=None) -> Any:
         """Execute a QS file."""
         from pineboolib.application import types
 
         try:
             with open(fileQSA, "r") as file:
-                fn = types.function(file.read())
-                fn(args)
+                fn = types.function("exec_qsa", file.read())
+                return fn(args)
         except Exception:
             e = traceback.format_exc()
             LOGGER.warning(e)
-            return
+            return None
 
     @staticmethod
     def dumpDatabase() -> None:
@@ -249,64 +249,6 @@ class SysType(sysbasetype.SysBaseType):
         """Set check risk locks to False in a cursor."""
         if sqlCursor is not None:
             sqlCursor.checkRisksLocks(True)
-
-    @classmethod
-    def statusDbLocksDialog(cls, locks: Optional[List[str]] = None) -> None:
-        """Show Database locks status."""
-
-        diag = Dialog()
-        txt_edit = QTextEdit()
-        diag.caption = cls.translate(u"scripts", u"Bloqueos de la base de datos")
-        diag.setWidth(500)
-        html = u'<html><table border="1">'
-        if locks:
-
-            fields = locks[0].split(u"@")
-            close_info = False
-            close_record = False
-            head_info = u'<table border="1"><tr>'
-
-            for field in fields:
-                head_info += utils_base.ustr(u"<td><b>", field, u"</b></td>")
-
-            head_info += u"</tr>"
-            head_record = utils_base.ustr(
-                u'<table border="1"><tr><td><b>',
-                cls.translate(u"scripts", u"Registro bloqueado"),
-                u"</b></td></tr>",
-            )
-
-            for item in locks:
-                if item[0:2] == u"##":
-                    if close_info:
-                        html += u"</table>"
-                    if not close_record:
-                        html += head_record
-                    html += utils_base.ustr(
-                        u"<tr><td>", item[(len(item) - (len(item) - 2)) :], u"</td></tr>"
-                    )
-                    close_record = True
-                    close_info = False
-
-                else:
-                    if close_record:
-                        html += u"</table>"
-                    if not close_info:
-                        html += head_info
-                    html += u"<tr>"
-                    fields = item.split(u"@")
-                    for fiend in fields:
-                        html += utils_base.ustr(u"<td>", field, u"</td>")
-
-                    html += u"</tr>"
-                    close_record = False
-                    close_info = True
-
-        html += u"</table></table></html>"
-        txt_edit.text = html
-        diag.add(txt_edit)
-        if not utils_base.is_library():
-            diag.exec_()
 
     @classmethod
     def mvProjectXml(self) -> QtXml.QDomDocument:
@@ -471,7 +413,7 @@ class SysType(sysbasetype.SysBaseType):
         lay2.addWidget(pbAccept)
         application.connections.connect(pbAccept, "clicked()", diag, "accept()")
         application.connections.connect(pbCancel, "clicked()", diag, "reject()")
-        if not utils_base.is_library():
+        if not application.PROJECT.app.platformName() != "offscreen":
             return False if (diag.exec_() == 0) else True
         else:
             return True
@@ -910,7 +852,7 @@ class SysType(sysbasetype.SysBaseType):
             chkRemember.setChecked(valRemember)
             lay.addWidget(chkRemember)
 
-        if utils_base.is_library():
+        if not application.PROJECT.app.platformName() == "offscreen":
             return MessageBox.Yes
 
         ret = MessageBox.No if (diag.exec_() == 0) else MessageBox.Yes
