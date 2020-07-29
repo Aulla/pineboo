@@ -889,7 +889,7 @@ class PNSqlSchema(object):
         if not multi_fllarge:
             fllarge_tables_list.append("fllarge")
 
-        tables = self.tables("Tables")
+        tables = self.db_.tables("Tables")
         altered_tables = []
         for table_name in tables:
             if table_name.find("alteredtable") > -1:
@@ -1013,7 +1013,7 @@ class PNSqlSchema(object):
 
         util.destroyProgressDialog()
 
-        tables = self.tables("Tables")
+        tables = self.db_.tables("Tables")
 
         util.createProgressDialog(
             util.translate("application", "Comprobando base de datos"), len(tables) + 2
@@ -1084,7 +1084,7 @@ class PNSqlSchema(object):
             if must_alter:
                 conn_dbaux = self.db_.connManager().dbAux()
                 reg_exp = re.compile("^.*\\d{6,9}$")
-                bad_list_tables = list(filter(reg_exp.match, self.tables("Tables")))
+                bad_list_tables = list(filter(reg_exp.match, self.db_.tables("Tables")))
 
                 sql = "SELECT nombre FROM flfiles WHERE nombre%s" % self.formatValueLike(
                     "string", "%%alteredtable", False
