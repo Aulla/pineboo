@@ -33,7 +33,7 @@ class SysBaseType(object):
     time_user_ = QtCore.QDateTime.currentDateTime()
 
     @classmethod
-    def nameUser(self) -> str:
+    def nameUser(cls) -> str:
         """Get current database user."""
         ret_ = None
 
@@ -45,53 +45,53 @@ class SysBaseType(object):
         return ret_ or ""
 
     @classmethod
-    def interactiveGUI(self) -> str:
+    def interactiveGUI(cls) -> str:
         """Check if running in GUI mode."""
         return application.PROJECT.DGI.interactiveGUI()
 
     @classmethod
-    def isUserBuild(self) -> bool:
+    def isUserBuild(cls) -> bool:
         """Check if this build is an user build."""
-        return self.version().upper().find("USER") > -1
+        return cls.version().upper().find("USER") > -1
 
     @classmethod
-    def isDeveloperBuild(self) -> bool:
+    def isDeveloperBuild(cls) -> bool:
         """Check if this build is a developer build."""
-        return self.version().upper().find("DEVELOPER") > -1
+        return cls.version().upper().find("DEVELOPER") > -1
 
     @classmethod
-    def isNebulaBuild(self) -> bool:
+    def isNebulaBuild(cls) -> bool:
         """Check if this build is a nebula build."""
-        return self.version().upper().find("NEBULA") > -1
+        return cls.version().upper().find("NEBULA") > -1
 
     @classmethod
-    def isDebuggerMode(self) -> bool:
+    def isDebuggerMode(cls) -> bool:
         """Check if running in debugger mode."""
         return bool(settings.CONFIG.value("application/isDebuggerMode", False))
 
     @classmethod
     @decorators.not_implemented_warn
-    def isCloudMode(self) -> bool:
+    def isCloudMode(cls) -> bool:
         """Check if running on cloud mode."""
         return False
 
     @classmethod
-    def isDebuggerEnabled(self) -> bool:
+    def isDebuggerEnabled(cls) -> bool:
         """Check if this debugger is on."""
         return bool(settings.CONFIG.value("application/dbadmin_enabled", False))
 
     @classmethod
-    def isQuickBuild(self) -> bool:
+    def isQuickBuild(cls) -> bool:
         """Check if this build is a Quick build."""
-        return not self.isDebuggerEnabled()
+        return not cls.isDebuggerEnabled()
 
     @classmethod
-    def isLoadedModule(self, modulename: str) -> bool:
+    def isLoadedModule(cls, modulename: str) -> bool:
         """Check if a module has been loaded."""
         return modulename in application.PROJECT.conn_manager.managerModules().listAllIdModules()
 
     @classmethod
-    def osName(self) -> str:
+    def osName(cls) -> str:
         """
         Get operating system name.
 
@@ -99,7 +99,7 @@ class SysBaseType(object):
         """
         if platform.system() == "Windows":
             return "WIN32"
-        elif platform.system() == "Linux" or platform.system() == "Linux2":
+        elif platform.system() in ["Linux", "Linux2"]:
             return "LINUX"
         elif platform.system() == "Darwin":
             return "MACX"
@@ -107,42 +107,42 @@ class SysBaseType(object):
             return platform.system()
 
     @classmethod
-    def nameBD(self) -> str:
+    def nameBD(cls) -> str:
         """Get database name."""
         return application.PROJECT.conn_manager.mainConn().DBName()
 
     @classmethod
-    def toUnicode(self, val: str, format_encode: str) -> str:
+    def toUnicode(cls, val: str, format_encode: str) -> str:
         """Convert string to unicode."""
         return val.encode(format_encode, "replace").decode("utf-8", "replace")
 
     @classmethod
-    def fromUnicode(self, val: str, format_encode: str) -> str:
+    def fromUnicode(cls, val: str, format_encode: str) -> str:
         """Convert from unicode to string."""
         return val.encode("utf-8", "replace").decode(format_encode, "replace")
 
     @classmethod
-    def Mr_Proper(self) -> None:
+    def Mr_Proper(cls) -> None:
         """Cleanup database like Mr. Proper."""
         application.PROJECT.conn_manager.mainConn().Mr_Proper()
 
     @classmethod
-    def installPrefix(self) -> str:
+    def installPrefix(cls) -> str:
         """Get folder where app is installed."""
         return filedir("..")
 
     @classmethod
-    def version(self) -> str:
+    def version(cls) -> str:
         """Get version number as string."""
         return str(application.PROJECT.load_version())
 
     @classmethod
-    def processEvents(self) -> None:
+    def processEvents(cls) -> None:
         """Process event loop."""
         QtWidgets.QApplication.processEvents()
 
     @classmethod
-    def write(self, encode_: str, dir_: str, contenido: str) -> None:
+    def write(cls, encode_: str, dir_: str, contenido: str) -> None:
         """Write to file."""
         from pineboolib.application.types import File
 
@@ -151,22 +151,22 @@ class SysBaseType(object):
         file_iso.close()
 
     @classmethod
-    def cleanupMetaData(self, conn_name: str = "default") -> None:
+    def cleanupMetaData(cls, conn_name: str = "default") -> None:
         """Clean up metadata."""
         application.PROJECT.conn_manager.manager().cleanupMetaData()
 
     @classmethod
-    def nameDriver(self, conn_name: str = "default") -> Any:
+    def nameDriver(cls, conn_name: str = "default") -> Any:
         """Get driver name."""
         return application.PROJECT.conn_manager.useConn(conn_name).driverName()
 
     @classmethod
-    def nameHost(self, conn_name: str = "default") -> Any:
+    def nameHost(cls, conn_name: str = "default") -> Any:
         """Get database host name."""
         return application.PROJECT.conn_manager.useConn(conn_name).host()
 
     @classmethod
-    def addDatabase(self, *args: Any) -> bool:
+    def addDatabase(cls, *args: Any) -> bool:
         """Add a new database."""
         # def addDatabase(self, driver_name = None, db_name = None, db_user_name = None,
         #                 db_password = None, db_host = None, db_port = None, connName="default"):
@@ -212,18 +212,18 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def removeDatabase(self, conn_name: str = "default") -> Any:
+    def removeDatabase(cls, conn_name: str = "default") -> Any:
         """Remove a database."""
         return application.PROJECT.conn_manager.removeConn(conn_name)
 
     @classmethod
-    def idSession(self) -> str:
+    def idSession(cls) -> str:
         """Get Session ID."""
         # FIXME: Code copied from flapplication.aqApp
-        return self.time_user_.toString(QtCore.Qt.ISODate)
+        return cls.time_user_.toString(QtCore.Qt.ISODate)
 
     @classmethod
-    def reportChanges(self, changes: Dict[str, str] = {}):
+    def reportChanges(cls, changes: Dict[str, str] = {}):
         """Create a report for project changes."""
         ret = u""
         # DEBUG:: FOR-IN: ['key', 'changes']
@@ -240,10 +240,10 @@ class SysBaseType(object):
         return ret
 
     @classmethod
-    def diffXmlFilesDef(self, xml_old: QtXml.QDomNode, xml_new: QtXml.QDomNode) -> Dict[str, Any]:
+    def diffXmlFilesDef(cls, xml_old: QtXml.QDomNode, xml_new: QtXml.QDomNode) -> Dict[str, Any]:
         """Create a Diff for XML."""
-        array_old = self.filesDefToArray(xml_old)
-        array_new = self.filesDefToArray(xml_new)
+        array_old = cls.filesDefToArray(xml_old)
+        array_new = cls.filesDefToArray(xml_new)
         ret: Dict[str, Any] = {}
         size = 0
         # DEBUG:: FOR-IN: ['key', 'array_old']
@@ -279,7 +279,7 @@ class SysBaseType(object):
         return ret
 
     @classmethod
-    def filesDefToArray(self, xml: QtXml.QDomNode) -> Dict[str, Dict[str, str]]:
+    def filesDefToArray(cls, xml: QtXml.QDomNode) -> Dict[str, Dict[str, str]]:
         """Convert Module MOD xml to array."""
         root = xml.firstChild()
         files = root.childNodes()
@@ -303,7 +303,7 @@ class SysBaseType(object):
         return ret
 
     @classmethod
-    def textPacking(self, ext: str = "") -> bool:
+    def textPacking(cls, ext: str = "") -> bool:
         """Determine if file is text."""
         return ext.endswith(
             (
@@ -323,16 +323,16 @@ class SysBaseType(object):
         )
 
     @classmethod
-    def binaryPacking(self, ext: str = "") -> bool:
+    def binaryPacking(cls, ext: str = "") -> bool:
         """Determine if file is binary."""
         return ext.endswith(".qs")
 
     @classmethod
-    def infoMsgBox(self, msg: str = "") -> None:
+    def infoMsgBox(cls, msg: str = "") -> None:
         """Show information message box."""
         msg = ustr(msg)
         msg += u"\n"
-        if self.interactiveGUI():
+        if cls.interactiveGUI():
             # QtWidgets.QMessageBox.information(
             #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
             # )
@@ -341,14 +341,14 @@ class SysBaseType(object):
             LOGGER.warning(ustr(u"INFO: ", msg))
 
     @classmethod
-    def warnMsgBox(self, msg: str = "", *buttons: Any) -> None:
+    def warnMsgBox(cls, msg: str = "", *buttons: Any) -> None:
         """Show Warning message box."""
         new_list = []
         new_list.append("%s.\n" % ustr(msg))
         for button in buttons:
             new_list.append(button)
 
-        if self.interactiveGUI():
+        if cls.interactiveGUI():
             # QtWidgets.QMessageBox.warning(
             #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
             # )
@@ -357,11 +357,11 @@ class SysBaseType(object):
             LOGGER.warning(ustr(u"WARN: ", msg))
 
     @classmethod
-    def errorMsgBox(self, msg: str = None) -> None:
+    def errorMsgBox(cls, msg: str = None) -> None:
         """Show error message box."""
         msg = ustr(msg)
         msg += u"\n"
-        if self.interactiveGUI():
+        if cls.interactiveGUI():
             # QtWidgets.QMessageBox.critical(
             #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
             # )
@@ -370,22 +370,22 @@ class SysBaseType(object):
             LOGGER.warning(ustr(u"ERROR: ", msg))
 
     @classmethod
-    def translate(self, text: str, arg2: Optional[str] = None) -> str:
+    def translate(cls, text: str, arg2: Optional[str] = None) -> str:
         """Translate text."""
         if arg2:
             return arg2
         return text
 
     @classmethod
-    def _warnHtmlPopup(self, html: str, options: List) -> None:
+    def _warnHtmlPopup(cls, html: str, options: List) -> None:
         """Show a fancy html popup."""
         raise Exception("not implemented.")
 
     @classmethod
-    def infoPopup(self, msg: Optional[str] = None) -> None:
+    def infoPopup(cls, msg: Optional[str] = None) -> None:
         """Show information popup."""
         msg = ustr(msg)
-        caption = self.translate(u"AbanQ Información")
+        caption = cls.translate(u"AbanQ Información")
         msg = msg.replace("\n", "<br>")
         msg_html = ustr(
             u'<img source="about.png" align="right">',
@@ -395,14 +395,14 @@ class SysBaseType(object):
             msg,
             u"<br>",
         )
-        self._warnHtmlPopup(msg_html, [])
+        cls._warnHtmlPopup(msg_html, [])
 
     @classmethod
-    def warnPopup(self, msg: str = "") -> None:
+    def warnPopup(cls, msg: str = "") -> None:
         """Show warning popup."""
         msg = ustr(msg)
         msg = msg.replace("\n", "<br>")
-        caption = self.translate(u"AbanQ Aviso")
+        caption = cls.translate(u"AbanQ Aviso")
         msg_html = ustr(
             u'<img source="bug.png" align="right">',
             u"<b><u>",
@@ -411,14 +411,14 @@ class SysBaseType(object):
             msg,
             u"<br>",
         )
-        self._warnHtmlPopup(msg_html, [])
+        cls._warnHtmlPopup(msg_html, [])
 
     @classmethod
-    def errorPopup(self, msg: str = "") -> None:
+    def errorPopup(cls, msg: str = "") -> None:
         """Show error popup."""
         msg = ustr(msg)
         msg = msg.replace("\n", "<br>")
-        caption = self.translate(u"AbanQ Error")
+        caption = cls.translate(u"AbanQ Error")
         msg_html = ustr(
             u'<img source="remove.png" align="right">',
             u"<b><u>",
@@ -427,33 +427,33 @@ class SysBaseType(object):
             msg,
             u"<br>",
         )
-        self._warnHtmlPopup(msg_html, [])
+        cls._warnHtmlPopup(msg_html, [])
 
     @classmethod
-    def trTagText(self, tag_text: str = "") -> str:
+    def trTagText(cls, tag_text: str = "") -> str:
         """Process QT_TRANSLATE_NOOP tags."""
         if not tag_text.startswith(u"QT_TRANSLATE_NOOP"):
             return tag_text
         txt = tag_text[len("QT_TRANSLATE_NOOP") + 1 :]
         txt = "[%s]" % txt[0 : len(txt) - 1]
         arr = ast.literal_eval(txt)  # FIXME: Don't use "ast.literal_eval"
-        return self.translate(arr[0], arr[1])
+        return cls.translate(arr[0], arr[1])
 
     @classmethod
-    def updatePineboo(self) -> None:
+    def updatePineboo(cls) -> None:
         """Execute auto-updater."""
         QtWidgets.QMessageBox.warning(
             QtWidgets.QApplication.focusWidget(),
             "Pineboo",
-            self.translate(u"Funcionalidad no soportada aún en Pineboo."),
+            cls.translate(u"Funcionalidad no soportada aún en Pineboo."),
             QtWidgets.QMessageBox.Ok,
         )
         return
 
     @classmethod
-    def setObjText(self, container: QtWidgets.QWidget, component: str, value: str = "") -> bool:
+    def setObjText(cls, container: QtWidgets.QWidget, component: str, value: str = "") -> bool:
         """Set text to random widget."""
-        object_ = self.testObj(container, component)
+        object_ = cls.testObj(container, component)
         if object_ is None:
             return False
         clase = object_.__class__.__name__
@@ -461,35 +461,35 @@ class SysBaseType(object):
         if clase in ["QPushButton", "QToolButton"]:
             pass
         elif clase == u"QLabel":
-            self.runObjMethod(container, component, u"text", value)
+            cls.runObjMethod(container, component, u"text", value)
         elif clase == u"FLFieldDB":
-            self.runObjMethod(container, component, u"setValue", value)
+            cls.runObjMethod(container, component, u"setValue", value)
         else:
             return False
         return True
 
     @classmethod
-    def disableObj(self, container: QtWidgets.QWidget, component: str) -> bool:
+    def disableObj(cls, container: QtWidgets.QWidget, component: str) -> bool:
         """Disable random widget."""
-        object_ = self.testObj(container, component)
+        object_ = cls.testObj(container, component)
         if not object_:
             return False
 
         clase = object_.__class__.__name__
 
         if clase in ["QToolButton", "QPushButton"]:
-            self.runObjMethod(container, component, u"setEnabled", False)
+            cls.runObjMethod(container, component, u"setEnabled", False)
         elif clase == u"FLFieldDB":
-            self.runObjMethod(container, component, u"setDisabled", True)
+            cls.runObjMethod(container, component, u"setDisabled", True)
         else:
             return False
 
         return True
 
     @classmethod
-    def enableObj(self, container: QtWidgets.QWidget, component: str) -> bool:
+    def enableObj(cls, container: QtWidgets.QWidget, component: str) -> bool:
         """Enable random widget."""
-        object_ = self.testObj(container, component)
+        object_ = cls.testObj(container, component)
         if not object_:
             return False
 
@@ -498,17 +498,17 @@ class SysBaseType(object):
         if clase == u"QPushButton":
             pass
         elif clase == u"QToolButton":
-            self.runObjMethod(container, component, u"setEnabled", True)
+            cls.runObjMethod(container, component, u"setEnabled", True)
         elif clase == u"FLFieldDB":
-            self.runObjMethod(container, component, u"setDisabled", False)
+            cls.runObjMethod(container, component, u"setDisabled", False)
         else:
             return False
         return True
 
     @classmethod
-    def filterObj(self, container: QtWidgets.QWidget, component: str, filter: str = "") -> bool:
+    def filterObj(cls, container: QtWidgets.QWidget, component: str, filter: str = "") -> bool:
         """Apply filter to random widget."""
-        object_ = self.testObj(container, component)
+        object_ = cls.testObj(container, component)
         if object_ is None:
             return False
 
@@ -517,7 +517,7 @@ class SysBaseType(object):
         if clase == u"FLTableDB":
             pass
         elif clase == u"FLFieldDB":
-            self.runObjMethod(container, component, u"setFilter", filter)
+            cls.runObjMethod(container, component, u"setFilter", filter)
         else:
             return False
 
@@ -525,7 +525,7 @@ class SysBaseType(object):
 
     @classmethod
     def testObj(
-        self, container: QtWidgets.QWidget = None, component: str = ""
+        cls, container: QtWidgets.QWidget = None, component: str = ""
     ) -> Optional[QtWidgets.QWidget]:
         """Test if object does exist."""
 
@@ -539,19 +539,19 @@ class SysBaseType(object):
 
     @classmethod
     def testAndRun(
-        self, container: QtWidgets.QWidget, component: str, method: str = "", param: Any = None
+        cls, container: QtWidgets.QWidget, component: str, method: str = "", param: Any = None
     ) -> bool:
         """Test and execute object."""
-        object_ = self.testObj(container, component)
+        object_ = cls.testObj(container, component)
         if not object_:
             return False
-        if not self.runObjMethod(container, component, method, param):
+        if not cls.runObjMethod(container, component, method, param):
             return False
         return True
 
     @classmethod
     def runObjMethod(
-        self, container: QtWidgets.QWidget, component: str, method: str, param: Any = None
+        cls, container: QtWidgets.QWidget, component: str, method: str, param: Any = None
     ) -> bool:
         """Execute method from object."""
         object_ = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
@@ -565,7 +565,7 @@ class SysBaseType(object):
 
     @classmethod
     def connectSS(
-        self, sender: QtWidgets.QWidget, signal: str, receiver: QtWidgets.QWidget, slot: str
+        cls, sender: QtWidgets.QWidget, signal: str, receiver: QtWidgets.QWidget, slot: str
     ) -> bool:
         """Connect signal to slot."""
         if not sender:
@@ -574,7 +574,7 @@ class SysBaseType(object):
         return True
 
     @classmethod
-    def openUrl(self, url: Union[str, List[str]] = "") -> bool:
+    def openUrl(cls, url: Union[str, List[str]] = "") -> bool:
         """Open given URL in a browser."""
         if not url:
             return False
@@ -582,38 +582,38 @@ class SysBaseType(object):
         if isinstance(url, List):
             url = url[0]
 
-        os_name = self.osName()
+        os_name = cls.osName()
         if os_name == "LINUX":
-            if self.launchCommand([u"xdg-open", url]):
+            if cls.launchCommand([u"xdg-open", url]):
                 return True
-            elif self.launchCommand([u"gnome-open", url]):
+            elif cls.launchCommand([u"gnome-open", url]):
                 return True
-            elif self.launchCommand([u"kfmclient openURL", url]):
+            elif cls.launchCommand([u"kfmclient openURL", url]):
                 return True
-            elif self.launchCommand([u"kfmclient exec", url]):
+            elif cls.launchCommand([u"kfmclient exec", url]):
                 return True
-            elif self.launchCommand([u"firefox", url]):
+            elif cls.launchCommand([u"firefox", url]):
                 return True
-            elif self.launchCommand([u"mozilla", url]):
+            elif cls.launchCommand([u"mozilla", url]):
                 return True
-            elif self.launchCommand([u"opera", url]):
+            elif cls.launchCommand([u"opera", url]):
                 return True
-            elif self.launchCommand([u"google-chrome", url]):
+            elif cls.launchCommand([u"google-chrome", url]):
                 return True
             return False
 
         elif os_name == u"WIN32":
             if url.startswith(u"mailto"):
                 url = url.replace("&", "^&")
-            return self.launchCommand([u"cmd.exe", u"/C", u"start", u"", url])
+            return cls.launchCommand([u"cmd.exe", u"/C", u"start", u"", url])
 
         elif os_name == u"MACX":
-            return self.launchCommand([u"open", url])
+            return cls.launchCommand([u"open", url])
 
         return False
 
     @classmethod
-    def launchCommand(self, comando: Union[str, List[str]]) -> bool:
+    def launchCommand(cls, comando: Union[str, List[str]]) -> bool:
         """Execute a program."""
         try:
             proc = Process()
