@@ -19,7 +19,7 @@ from pineboolib.core import exceptions, settings, message_manager, decorators
 from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.database import utils as db_utils
 from pineboolib.application.utils import path, xpm
-from pineboolib.application import module, file, load_script, pnapplication
+from pineboolib.application import module, file, pnapplication
 
 from pineboolib.application.parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
 from pineboolib.application.parsers import parser_qsa
@@ -374,15 +374,15 @@ class Project(object):
                 return None
 
             fun_action = self.actions[array_fun[0]]
+            main_window = fun_action.load_master_widget()
+            object_context = None
             if array_fun[1] == "iface" or len(array_fun) == 2:
-                main_window = fun_action.load_master_widget()
                 if len(array_fun) == 2:
-                    object_context = None
-                    if hasattr(main_window, array_fun[1]):
-                        object_context = main_window
 
                     if hasattr(main_window.iface, array_fun[1]):
                         object_context = main_window.iface
+                    elif hasattr(main_window, array_fun[1]):
+                        object_context = main_window
 
                     if not object_context:
                         object_context = main_window
@@ -391,8 +391,12 @@ class Project(object):
                     object_context = main_window.iface
 
             elif array_fun[1] == "widget":
-                script = load_script.load_script(array_fun[0], fun_action)
-                object_context = getattr(script, "iface", None)
+                # script = load_script.load_script(array_fun[0], fun_action)
+                # object_context = getattr(script, "iface", None)
+                if hasattr(main_window.iface, array_fun[2]):
+                    object_context = main_window.iface
+                elif hasattr(main_window, array_fun[2]):
+                    object_context = main_window
             else:
                 return False
 
