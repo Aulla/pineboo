@@ -767,7 +767,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # print("* updateCacheData", mode)
         # mode 1- Insert, 2 - Edit, 3 - Del
 
-        if not self.rowCount() or self.disable_refresh:
+        if not self.rowCount() or self._disable_refresh:
             # Fuerza un refresh tradicional.
             return False
 
