@@ -35,7 +35,7 @@ class TestStaticLoader(unittest.TestCase):
 
         action = application.PROJECT.actions["sys"]
         script = application.load_script.load_script("sys.qs", action)
-        self.assertEqual(script.saluda(), "Hola!")
+        self.assertEqual(script.saluda(), "Hola!")  # type: ignore [operator] # noqa: F821
 
     @classmethod
     def tearDownClass(cls) -> None:
