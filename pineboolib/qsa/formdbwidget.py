@@ -169,11 +169,12 @@ class FormDBWidget(QtWidgets.QWidget):
         form = self._get_form()
         if form:
             ret = form.child(child_name)
-            if ret is None:
-                if child_name == super().objectName():
-                    return form
-                else:
-                    ret = getattr(form, child_name, None)
+
+        if ret is None:
+            if child_name == super().objectName():
+                return form
+            else:
+                ret = getattr(form, child_name, None)
 
         if ret is None:
             parent = self.parent()
@@ -237,11 +238,10 @@ class FormDBWidget(QtWidgets.QWidget):
     def _get_form(self) -> Optional[Union["flformdb.FLFormDB", "FormDBWidget"]]:
         """Return form widget."""
 
-        if self._form is None:
+        if self._form in [self, None]:
             if self._action is not None:
-                if self is self._action._master_widget:
-                    if self._action._master_form:
-                        self._action.load_master_form()
+                if self is self._action._master_widget and self._action._master_form:
+                    self._action.load_master_form()
 
                 elif self is self._action._record_widget and self._action._record_form:
                     self._action.load_record_form()
@@ -250,6 +250,6 @@ class FormDBWidget(QtWidgets.QWidget):
             sys.modules[self.__module__], "form", self._form
         )  # Con esto seteamos el global form en el módulo
 
-        return self._form
+        return self._form if self._form is not self else None
 
     form = property(_get_form, _set_form)
