@@ -767,11 +767,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # print("* updateCacheData", mode)
         # mode 1- Insert, 2 - Edit, 3 - Del
 
-        if not self.rowCount() or self._disable_refresh:
+        if not self.rowCount() or self._disable_refresh or self._data_proxy is None:
             # Fuerza un refresh tradicional.
             return False
 
-        pk_name = self._parent.primaryKey()  # type: ignore [unreachable] # noqa: F821
+        pk_name = self._parent.primaryKey()
         pk_value = self._parent.buffer().value(pk_name)
         where_filter = self.buildWhere()
 
@@ -806,7 +806,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 else:
 
                     current_pos = None
-                    upper = False
                     min_val = 0
                     max_val = self._data_proxy._total_rows
 
