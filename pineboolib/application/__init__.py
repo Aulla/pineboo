@@ -12,5 +12,5 @@ SHOW_CURSOR_EVENTS: bool = False
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest
 LOG_SQL = False
 USE_WEBSOCKET_CHANNEL = False
-PINEBOO_VER = "0.73.4"
+PINEBOO_VER = "0.73.5"
 FILE_CLASSES: Dict[str, str] = {}
