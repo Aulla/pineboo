@@ -771,7 +771,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             # Fuerza un refresh tradicional.
             return False
 
-        pk_name = self._parent.primaryKey()  # type: ignore [unreachable] # noqa: F841
+        pk_name = self._parent.primaryKey()  # type: ignore [unreachable] # noqa: F821
         pk_value = self._parent.buffer().value(pk_name)
         where_filter = self.buildWhere()
 
@@ -1008,7 +1008,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         @return Row number present in table.
         """
         return (
-            self._data_proxy._total_rows  # type: ignore [union-attr] # noqa: F841
+            self._data_proxy._total_rows  # type: ignore [union-attr] # noqa: F821
             if getattr(self, "_data_proxy", None)
             else 0
         )
