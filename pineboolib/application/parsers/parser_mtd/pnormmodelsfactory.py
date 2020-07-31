@@ -42,7 +42,6 @@ from pineboolib import logging, application
 from . import pnmtdparser
 import sqlalchemy
 
-from time import time
 
 from typing import Any, List, Dict, TYPE_CHECKING
 
