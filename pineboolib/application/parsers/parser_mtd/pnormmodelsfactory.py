@@ -121,10 +121,13 @@ def load_models() -> None:
     # QSADictModules.save_other("engine", main_conn.engine())
 
     models_: Dict[str, Any] = {}
+    for action_name, action in application.PROJECT.actions.items():
+        class_orm = action._class_orm
 
-    for action_name in application.PROJECT.actions:
-        class_orm = application.PROJECT.actions[action_name]._class_orm
         if class_orm:
+            if class_orm in PROCESSED:
+                continue
+
             path_class_orm = _path(class_orm, False)
             if not path_class_orm:
                 LOGGER.warning(
@@ -133,15 +136,12 @@ def load_models() -> None:
                     action_name,
                 )
                 continue
-            if class_orm in PROCESSED:
-                continue
 
             models_[class_orm] = path_class_orm
             # print("***", class_orm)
             PROCESSED.append(class_orm)
 
-    for key in application.PROJECT.files.keys():
-        file_ = application.PROJECT.files[key]
+    for key, file_ in application.PROJECT.files.items():
         if file_.filename.endswith("_model.py"):
             name = key[:-3]
             if name.endswith(".mtd_model"):
