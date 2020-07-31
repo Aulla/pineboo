@@ -114,10 +114,8 @@ class BaseModel(object):
         self.bufferChanged = dummy_signal.FakeSignal()
         self._module_iface = None
 
-        table_name: str = self.table_metadata().name()
-
-        if table_name in application.PROJECT.actions.keys():
-            self._action = application.PROJECT.actions[table_name]
+        if self.__tablename__ in application.PROJECT.actions.keys():
+            self._action = application.PROJECT.actions[self.__tablename__]
             if self._action is not None:
                 if self._action._record_script and not self._action._record_widget:
                     self._action.load_record_widget()
@@ -154,12 +152,12 @@ class BaseModel(object):
                             self._session._conn_name  # type: ignore [attr-defined] # noqa: F821
                         )
                         .driver()
-                        .nextSerialVal(self.table_metadata().name(), pk_name),
+                        .nextSerialVal(self.__tablename__, pk_name),
                     )
             self._cursor = dummy_cursor.DummyCursor(self)
 
-            self._before_commit_function = "beforeCommit_%s" % table_name
-            self._after_commit_function = "afterCommit_%s" % table_name
+            self._before_commit_function = "beforeCommit_%s" % self.__tablename__
+            self._after_commit_function = "afterCommit_%s" % self.__tablename__
 
             try:
                 if self._new_object:
@@ -214,21 +212,23 @@ class BaseModel(object):
         """Update buffer copy."""
         self._buffer_copy = Copy()
 
-        table_mtd = self.table_metadata()
+        # table_mtd = self.table_metadata()
 
         while not self._new_object and self.pk is None:
             time.sleep(10)
 
-        for field_name in table_mtd.fieldNames():
+        for field in self.legacy_metadata["fields"]:
+            field_name = field["name"]
             setattr(self._buffer_copy, field_name, getattr(self, field_name, None))
 
     def changes(self) -> Dict[str, Any]:
         """Return field names changed and values."""
         changes = {}
 
-        table_mtd = self.table_metadata()
+        # table_mtd = self.table_metadata()
 
-        for field_name in table_mtd.fieldNames():
+        for field in self.legacy_metadata["fields"]:
+            field_name = field["name"]
             original_value = getattr(self._buffer_copy, field_name, None)
             current_value = getattr(self, field_name)
 

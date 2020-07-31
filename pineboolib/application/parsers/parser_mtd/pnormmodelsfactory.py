@@ -37,11 +37,12 @@ Ejemplo de uso:
 
 """
 from pineboolib.application.utils.path import _path
-
-from pineboolib.application import load_script
+from pineboolib.application import load_script, qsadictmodules
 from pineboolib import logging, application
 from . import pnmtdparser
 import sqlalchemy
+
+from time import time
 
 from typing import Any, List, Dict, TYPE_CHECKING
 
@@ -79,10 +80,8 @@ def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> N
 def save_model(path_, name: str) -> None:
     """Save model."""
 
-    from pineboolib.application import qsadictmodules
-
     model_class = load_script.load_model(name, path_)
-
+    init_time = time()
     if model_class is not None:
         # event.listen(model_class, "load", model_class._constructor_init)
         qsadictmodules.QSADictModules.save_other("%s_orm" % name, model_class)
@@ -92,18 +91,17 @@ def save_model(path_, name: str) -> None:
             model_class._constructor_init,  # type: ignore [attr-defined] # noqa: F821
         )
 
-        metadata = application.PROJECT.conn_manager.manager().metadata(name)
-        if metadata:
-            for field_name in metadata.fieldNames():
-                obj = getattr(model_class, field_name, None)
-                if obj is not None:
-                    sqlalchemy.event.listen(
-                        obj,
-                        "set",
-                        model_class._changes_slot,  # type: ignore [attr-defined] # noqa: F821
-                    )
+        for field in model_class.legacy_metadata["fields"]:
+            obj = getattr(model_class, field["name"], None)
+            if obj is not None:
+                sqlalchemy.event.listen(
+                    obj,
+                    "set",
+                    model_class._changes_slot,  # type: ignore [attr-defined] # noqa: F821
+                )
 
-        PROCESSED.append(name)
+        if name not in PROCESSED:
+            PROCESSED.append(name)
 
 
 def load_models() -> None:
@@ -119,7 +117,6 @@ def load_models() -> None:
     # QSADictModules.save_other("Base", main_conn.declarative_base())
     # QSADictModules.save_other("session", main_conn.session())
     # QSADictModules.save_other("engine", main_conn.engine())
-
     models_: Dict[str, Any] = {}
     for action_name, action in application.PROJECT.actions.items():
         class_orm = action._class_orm
@@ -157,8 +154,8 @@ def load_models() -> None:
                 PROCESSED.append(name)
                 models_[name] = file_.path()
 
-    for mod_ in models_.keys():
-        save_model(models_[mod_], mod_[:-6])
+    for key, data in models_.items():
+        save_model(data, key[:-6])
 
 
 # ===============================================================================
