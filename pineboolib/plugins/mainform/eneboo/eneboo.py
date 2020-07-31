@@ -1286,20 +1286,17 @@ class MainForm(imainwindow.IMainWindow):
 
         super(MainForm, self).show()
         self.activateWindow()
-        self.setCaptionMainWidget()
+        # self.setCaptionMainWidget()
 
     def initScript(self) -> None:
         """Startup process."""
 
         self.main_widget = self
-
         self.createUi(utils_base.filedir("plugins/mainform/eneboo/mainform.ui"))
-
         self.init()
-
         self.updateMenuAndDocks()
         self.initModule("sys")
-        self.show()
+        # self.show()
         self.readState()
 
     def reinitScript(self) -> None:
@@ -1397,8 +1394,7 @@ class MainForm(imainwindow.IMainWindow):
 
     def setCaptionMainWidget(self, value: str = "") -> None:
         """Set application title."""
-
-        value = "- %s" % value if value else ""
+        value = "- " + value
         self.setWindowTitle("Pineboo %s %s" % (application.PROJECT.load_version(), value))
 
 
