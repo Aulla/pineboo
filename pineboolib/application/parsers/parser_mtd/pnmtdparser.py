@@ -90,7 +90,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
     try:
         mtd_table.primaryKey()
-    except Exception as error:
+    except Exception as error:  # noqa: F841
         pass
 
     for field in mtd_table.fieldList():  # Crea los campos
