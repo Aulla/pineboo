@@ -479,7 +479,11 @@ class PNSqlSchema(object):
 
         if self._engine:
 
-            return table_name in self._engine.table_names(None, self.connection())
+            if table_name in self.tables():
+                return True
+            else:
+                LOGGER.warning("No existe la tabla %s.", table_name)
+                return False
         else:
             raise Exception("No engine or connection exists!")
 
@@ -495,6 +499,8 @@ class PNSqlSchema(object):
     ) -> bool:
         """Return if a table is mismatched."""
 
+        ret = False
+
         dict_metadata = {}
         dict_database = {}
 
@@ -506,19 +512,34 @@ class PNSqlSchema(object):
         diff = list(set(list(dict_database.keys())) - set(list(dict_metadata.keys())))
 
         if len(diff) > 0:
-            return True
+            LOGGER.warning("Diff failed : %s", diff)
+            ret = True
 
-        if not dict_database and dict_metadata:
-            return True
+        elif not dict_database and dict_metadata:
+            LOGGER.warning(
+                "Dict empty:  database -> %s, metadata -> %s", dict_database, dict_metadata
+            )
+            ret = True
 
-        for name in dict_metadata.keys():
-            if name in dict_database.keys():
-                if self.notEqualsFields(dict_database[name], dict_metadata[name]):
-                    return True
-            else:
-                return True
+        if not ret:
+            for name in dict_metadata.keys():
+                if name in dict_database.keys():
+                    if self.notEqualsFields(dict_database[name], dict_metadata[name]):
+                        LOGGER.warning(
+                            "Mismatched field %s.%s:\nMetadata : %s.\nDataBase : %s\n",
+                            table2_metadata.name(),
+                            name,
+                            dict_metadata[name],
+                            dict_database[name],
+                        )
+                        ret = True
+                        break
+                else:
+                    LOGGER.warning("Name : %s not found.", name)
+                    ret = True
+                    break
 
-        return False
+        return ret
 
     @decorators.not_implemented_warn
     def recordInfo2(self, tablename: str) -> List[List[Any]]:
@@ -554,39 +575,38 @@ class PNSqlSchema(object):
 
         ret = False
         try:
-            if not field1[2] == field2[2] and not field2[6]:
-                ret = True
+            # if field1[2] != field2[2]:
+            #    ret = True
 
-            if field1[1] == "stringlist" and not field2[1] in ("stringlist", "pixmap"):
+            if field1[1] == "string":
+                if field2[1] not in ("string", "time", "date"):
+                    print(2)
+                    ret = True
+                elif field1[3] != field2[3] and field2[3] not in [0, 255]:
+                    print(3)
+                    ret = True
 
-                ret = True
-
-            elif field1[1] == "string" and (
-                field2[1] not in ("string", "time", "date") or field1[3] != field2[3]
-            ):
-                if field2[1] in ("time", "date") and field1[3] == 20:
-                    ret = False
-                elif field1[1] == "string" and field2[3] != 0:
-                    if field1[3] == 1 and field2[3] == 0:
-                        ret = False
-                    elif field1[3] == 0 and field2[3] == 255:  # mysql
-                        ret = False
-                    else:
-                        ret = True
             elif field1[1] == "uint" and not field2[1] in ("int", "uint", "serial"):
+                print(4)
                 ret = True
             elif field1[1] == "bool" and not field2[1] in ("bool", "unlock"):
+                print(5)
                 ret = True
             elif field1[1] == "double" and not field2[1] == "double":
+                print(6)
+                ret = True
+            elif field1[1] == "stringlist" and not field2[1] in ("stringlist", "pixmap", "string"):
+                print(7)
                 ret = True
             elif field1[1] == "timestamp" and not field2[1] == "timestamp":
+                print(8)
                 ret = True
 
         except Exception:
             LOGGER.error("notEqualsFields %s %s", field1, field2)
 
-        if ret:
-            LOGGER.warning("Falla database: %s, metadata: %s", field1, field2)
+        # if ret:
+        #    LOGGER.warning("Falla database: %s, metadata: %s", field1, field2)
 
         return ret
 
@@ -727,7 +747,14 @@ class PNSqlSchema(object):
 
             session_.commit()
 
-        query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
+        if new_metadata.name() in self.tables("Views"):
+            try:
+                query.exec_("DROP VIEW %s %s" % (renamed_table, self._text_cascade))
+            except Exception:
+                query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
+        else:
+            query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
+
         return True
 
     def cascadeSupport(self) -> bool:
