@@ -221,7 +221,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         if not self.private._primary_key:
             if len(self.fieldList()) == 1:
                 field = self.fieldList()[0]
-                LOGGER.warning(
+                LOGGER.debug(
                     "Forzando %s(%s) como primaryKey de %s.Solo hay un campo definido.",
                     field.name(),
                     field.type(),
@@ -234,7 +234,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
                 for field in self.fieldList():
                     if field.type() == "serial":
-                        LOGGER.warning(
+                        LOGGER.debug(
                             "Forzando %s(serial) como primaryKey de %s", field.name(), self.name()
                         )
                         self.private._primary_key = field.name()
