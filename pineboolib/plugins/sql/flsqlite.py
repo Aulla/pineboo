@@ -278,7 +278,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    def tables(self, type_name: Optional[str] = "All") -> List[str]:
+    def tables(self, type_name: Optional[str] = "") -> List[str]:
         """Return a tables list specified by type."""
 
         table_list: List[str] = []

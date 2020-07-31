@@ -570,7 +570,7 @@ class PNSqlSchema(object):
         """Return the specific field type."""
         return ""
 
-    def notEqualsFields(self, field1: List[Any], field2: List[Any]) -> bool:
+    def notEqualsFields(self, field_db: List[Any], field_meta: List[Any]) -> bool:
         """Return if a field has changed."""
 
         ret = False
@@ -578,32 +578,29 @@ class PNSqlSchema(object):
             # if field1[2] != field2[2]:
             #    ret = True
 
-            if field1[1] == "string":
-                if field2[1] not in ("string", "time", "date"):
-                    print(2)
+            if field_db[1] == "string":
+                if field_meta[1] not in ("string", "time", "date"):
                     ret = True
-                elif field1[3] != field2[3] and field2[3] not in [0, 255]:
-                    print(3)
+                elif field_db[3] != field_meta[3] and field_meta[3] not in [0, 255]:
                     ret = True
 
-            elif field1[1] == "uint" and not field2[1] in ("int", "uint", "serial"):
-                print(4)
+            elif field_db[1] == "uint" and not field_meta[1] in ("int", "uint", "serial"):
                 ret = True
-            elif field1[1] == "bool" and not field2[1] in ("bool", "unlock"):
-                print(5)
+            elif field_db[1] == "bool" and not field_meta[1] in ("bool", "unlock"):
                 ret = True
-            elif field1[1] == "double" and not field2[1] == "double":
-                print(6)
+            elif field_db[1] == "double" and not field_meta[1] == "double":
                 ret = True
-            elif field1[1] == "stringlist" and not field2[1] in ("stringlist", "pixmap", "string"):
-                print(7)
+            elif field_db[1] == "stringlist" and not field_meta[1] in (
+                "stringlist",
+                "pixmap",
+                "string",
+            ):
                 ret = True
-            elif field1[1] == "timestamp" and not field2[1] == "timestamp":
-                print(8)
+            elif field_db[1] == "timestamp" and not field_meta[1] == "timestamp":
                 ret = True
 
         except Exception:
-            LOGGER.error("notEqualsFields %s %s", field1, field2)
+            LOGGER.error("notEqualsFields %s %s", field_db, field_meta)
 
         # if ret:
         #    LOGGER.warning("Falla database: %s, metadata: %s", field1, field2)
