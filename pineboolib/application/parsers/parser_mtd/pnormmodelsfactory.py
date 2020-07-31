@@ -81,7 +81,7 @@ def save_model(path_, name: str) -> None:
     """Save model."""
 
     model_class = load_script.load_model(name, path_)
-    init_time = time()
+
     if model_class is not None:
         # event.listen(model_class, "load", model_class._constructor_init)
         qsadictmodules.QSADictModules.save_other("%s_orm" % name, model_class)
@@ -91,7 +91,9 @@ def save_model(path_, name: str) -> None:
             model_class._constructor_init,  # type: ignore [attr-defined] # noqa: F821
         )
 
-        for field in model_class.legacy_metadata["fields"]:
+        for field in model_class.legacy_metadata[  # type: ignore [attr-defined] # noqa: F821
+            "fields"
+        ]:
             obj = getattr(model_class, field["name"], None)
             if obj is not None:
                 sqlalchemy.event.listen(

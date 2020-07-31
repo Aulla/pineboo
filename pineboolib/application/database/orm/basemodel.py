@@ -50,6 +50,7 @@ class BaseModel(object):
     _deny_buffer_changed: List[str]
     bufferChanged: "dummy_signal.FakeSignal"
     _action: Optional["xmlaction.XMLAction"]
+    legacy_metadata: Dict[str, Any]
 
     @classmethod
     def _constructor_init(cls, target, kwargs={}) -> None:
