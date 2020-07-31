@@ -558,10 +558,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().existsTable(name)
 
-    def createTable(self, tmd: "pntablemetadata.PNTableMetaData") -> bool:
+    def createTable(self, tmd: "pntablemetadata.PNTableMetaData", is_view: bool = False) -> bool:
         """Create a table in the database, from a PNTableMetaData."""
 
-        sql = self.driver().sqlCreateTable(tmd)
+        sql = self.driver().sqlCreateTable(tmd, True, is_view)
         if not sql:
             return False
 

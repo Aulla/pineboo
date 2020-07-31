@@ -118,13 +118,16 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         return True if cur and cur.returns_rows else False
 
     def sqlCreateTable(
-        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
+        self,
+        tmd: "pntablemetadata.PNTableMetaData",
+        create_index: bool = True,
+        is_view: bool = True,
     ) -> Optional[str]:
         """Return a create table query."""
         util = flutil.FLUtil()
 
         primary_key = ""
-        sql = "CREATE TABLE %s (" % tmd.name()
+        sql = "CREATE %s %s (" % ("VIEW" if is_view else "TABLE", tmd.name())
         seq = None
 
         field_list = tmd.fieldList()

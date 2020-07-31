@@ -489,14 +489,15 @@ class PNSqlSchema(object):
 
     @decorators.not_implemented_warn
     def sqlCreateTable(
-        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
+        self,
+        tmd: "pntablemetadata.PNTableMetaData",
+        create_index: bool = True,
+        is_view: bool = False,
     ) -> Optional[str]:
         """Return a create table query."""
         return ""
 
-    def mismatchedTable(
-        self, table1_name: str, table2_metadata: "pntablemetadata.PNTableMetaData"
-    ) -> bool:
+    def mismatchedTable(self, table_name: str, metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Return if a table is mismatched."""
 
         ret = False
@@ -504,40 +505,41 @@ class PNSqlSchema(object):
         dict_metadata = {}
         dict_database = {}
 
-        for rec_m in self.recordInfo(table2_metadata):
+        for rec_m in self.recordInfo(metadata):
             dict_metadata[rec_m[0]] = rec_m
-        for rec_d in self.recordInfo2(table1_name):
+        for rec_d in self.recordInfo2(table_name):
             dict_database[rec_d[0]] = rec_d
 
-        diff = list(set(list(dict_database.keys())) - set(list(dict_metadata.keys())))
+        if table_name not in self.tables("Views"):
+            diff = list(set(list(dict_database.keys())) - set(list(dict_metadata.keys())))
 
-        if len(diff) > 0:
-            LOGGER.warning("Diff failed : %s", diff)
-            ret = True
+            if len(diff) > 0:
+                LOGGER.warning("Diff failed : %s", diff)
+                ret = True
 
-        elif not dict_database and dict_metadata:
-            LOGGER.warning(
-                "Dict empty:  database -> %s, metadata -> %s", dict_database, dict_metadata
-            )
-            ret = True
+            elif not dict_database and dict_metadata:
+                LOGGER.warning(
+                    "Dict empty:  database -> %s, metadata -> %s", dict_database, dict_metadata
+                )
+                ret = True
+            else:
 
-        if not ret:
-            for name in dict_metadata.keys():
-                if name in dict_database.keys():
-                    if self.notEqualsFields(dict_database[name], dict_metadata[name]):
-                        LOGGER.warning(
-                            "Mismatched field %s.%s:\nMetadata : %s.\nDataBase : %s\n",
-                            table2_metadata.name(),
-                            name,
-                            dict_metadata[name],
-                            dict_database[name],
-                        )
+                for name in dict_metadata.keys():
+                    if name in dict_database.keys():
+                        if self.notEqualsFields(dict_database[name], dict_metadata[name]):
+                            LOGGER.warning(
+                                "Mismatched field %s.%s:\nMetadata : %s.\nDataBase : %s\n",
+                                table_name,
+                                name,
+                                dict_metadata[name],
+                                dict_database[name],
+                            )
+                            ret = True
+                            break
+                    else:
+                        LOGGER.warning("Name : %s not found.", name)
                         ret = True
                         break
-                else:
-                    LOGGER.warning("Name : %s not found.", name)
-                    ret = True
-                    break
 
         return ret
 
@@ -581,7 +583,7 @@ class PNSqlSchema(object):
             if field_db[1] == "string":
                 if field_meta[1] not in ("string", "time", "date"):
                     ret = True
-                elif field_db[3] != field_meta[3] and field_meta[3] not in [0, 255]:
+                elif field_db[3] != field_meta[3] and field_db[3] not in [0, 255]:
                     ret = True
 
             elif field_db[1] == "uint" and not field_meta[1] in ("int", "uint", "serial"):
@@ -676,12 +678,12 @@ class PNSqlSchema(object):
         if not self.remove_index(new_metadata, query):
             session_.rollback()
             return False
-
+        is_view = table_name in self.tables("Views")
         if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
             session_.rollback()
             return False
 
-        if not self.db_.createTable(new_metadata):
+        if not self.db_.createTable(new_metadata, is_view):
 
             session_.rollback()
             return False

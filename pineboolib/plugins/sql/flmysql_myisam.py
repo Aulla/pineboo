@@ -107,13 +107,16 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         return "%s(%s)" % (res_, leng) if leng else res_
 
     def sqlCreateTable(
-        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
+        self,
+        tmd: "pntablemetadata.PNTableMetaData",
+        create_index: bool = True,
+        is_view: bool = False,
     ) -> Optional[str]:
         """Create a table from given MTD."""
 
         util = flutil.FLUtil()
         primary_key = ""
-        sql = "CREATE TABLE %s (" % tmd.name()
+        sql = "CREATE %s %s (" % ("VIEW" if is_view else "TABLE", tmd.name())
         # seq = None
 
         field_list = tmd.fieldList()
