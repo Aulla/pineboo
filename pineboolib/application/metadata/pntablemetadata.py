@@ -219,7 +219,30 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if not self.private._primary_key:
-            raise Exception("No primaryKey in %s" % self.private._name)
+            if len(self.fieldList()) == 1:
+                field = self.fieldList()[0]
+                LOGGER.warning(
+                    "Forzando %s(%s) como primaryKey de %s.Solo hay un campo definido.",
+                    field.name(),
+                    field.type(),
+                    self.name(),
+                )
+
+                self.private._primary_key = field.name()
+                field.setIsPrimaryKey(True)
+            else:
+
+                for field in self.fieldList():
+                    if field.type() == "serial":
+                        LOGGER.warning(
+                            "Forzando %s(serial) como primaryKey de %s", field.name(), self.name()
+                        )
+                        self.private._primary_key = field.name()
+                        field.setIsPrimaryKey(True)
+                        break
+
+            if not self.private._primary_key:
+                raise Exception("No primaryKey in %s" % self.private._name)
 
         ret_ = self.private._primary_key
 

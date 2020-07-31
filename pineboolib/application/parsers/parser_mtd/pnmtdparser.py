@@ -88,6 +88,11 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     field_list: List[List[str]] = []
     pk_found = False
 
+    try:
+        mtd_table.primaryKey()
+    except Exception as error:
+        pass
+
     for field in mtd_table.fieldList():  # Crea los campos
 
         if field.isPrimaryKey():
@@ -201,8 +206,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     # data.append("        return True")
     # ===========================================================================
 
-    if not pk_found:
-
+    if not pk_found and not mtd_table.isQuery():
         LOGGER.warning(
             "La tabla %s no tiene definida una clave primaria. No se generará el model."
             % (mtd_table.name())
