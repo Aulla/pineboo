@@ -121,7 +121,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         self,
         tmd: "pntablemetadata.PNTableMetaData",
         create_index: bool = True,
-        is_view: bool = True,
+        is_view: bool = False,
     ) -> Optional[str]:
         """Return a create table query."""
         util = flutil.FLUtil()
