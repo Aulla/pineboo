@@ -479,11 +479,7 @@ class PNSqlSchema(object):
 
         if self._engine:
 
-            if table_name in self.tables():
-                return True
-            else:
-                LOGGER.warning("No existe la tabla %s.", table_name)
-                return False
+            return table_name in self.tables()
         else:
             raise Exception("No engine or connection exists!")
 
@@ -583,7 +579,11 @@ class PNSqlSchema(object):
             if field_db[1] == "string":
                 if field_meta[1] not in ("string", "time", "date"):
                     ret = True
-                elif field_db[3] != field_meta[3] and field_db[3] not in [0, 255]:
+                elif (
+                    field_meta[1] == "string"
+                    and field_db[3] != field_meta[3]
+                    and field_db[3] not in [0, 255]
+                ):
                     ret = True
 
             elif field_db[1] == "uint" and not field_meta[1] in ("int", "uint", "serial"):
