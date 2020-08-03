@@ -52,7 +52,7 @@ class Project(object):
     acl_ = None
     dgi: Optional["dgi_schema.dgi_schema"] = None
     delete_cache: bool = False
-    parse_project: bool = False
+    parse_project: bool
     path = None
     _splash = None
     sql_drivers_manager = None
@@ -82,7 +82,7 @@ class Project(object):
         self.parser = None
         # self.main_form_name: Optional[str] = None
         self.delete_cache = False
-        self.parse_project = False
+        self.parse_project = True
         self.translator_ = []  # FIXME: Add proper type
         self.actions = {}  # FIXME: Add proper type
         # self.tables = {}  # FIXME: Add proper type
@@ -150,7 +150,7 @@ class Project(object):
             self.apppath = utils_base.filedir("..")
 
             self.delete_cache = settings.CONFIG.value("ebcomportamiento/deleteCache", False)
-            self.parse_project = settings.CONFIG.value("ebcomportamiento/parseProject", False)
+            self.parse_project = settings.CONFIG.value("ebcomportamiento/parseProject", True)
 
         return result
 
