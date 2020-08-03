@@ -57,7 +57,7 @@ class Project(object):
     _splash = None
     sql_drivers_manager = None
     timer_ = None
-    no_python_cache = False  # TODO: Fill this one instead
+    no_python_cache: bool
     _msg_mng = None
     alternative_folder: Optional[str]
     _session_func_: Optional[Callable]
@@ -83,6 +83,7 @@ class Project(object):
         # self.main_form_name: Optional[str] = None
         self.delete_cache = False
         self.parse_project = True
+        self.no_python_cache = False
         self.translator_ = []  # FIXME: Add proper type
         self.actions = {}  # FIXME: Add proper type
         # self.tables = {}  # FIXME: Add proper type
@@ -151,6 +152,10 @@ class Project(object):
 
             self.delete_cache = settings.CONFIG.value("ebcomportamiento/deleteCache", False)
             self.parse_project = settings.CONFIG.value("ebcomportamiento/parseProject", True)
+            if not self.no_python_cache:
+                self.no_python_cache = settings.CONFIG.value(
+                    "ebcomportamiento/noPythonCache", False
+                )
 
         return result
 
@@ -701,7 +706,12 @@ class Project(object):
 
         log_file.close()
         LOGGER.info("RUN: End populating cache.")
-        self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
+
+        self.message_manager().send(
+            "splash",
+            "showMessage",
+            ["Convirtiendo a Python %s ..." % ("(forzado)" if self.no_python_cache else "")],
+        )
         if not list_files:
             for module_name in self.modules.keys():
                 if "%s.qs" % module_name in self.files.keys():

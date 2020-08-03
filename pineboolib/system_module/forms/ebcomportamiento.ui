@@ -382,6 +382,13 @@
                </widget>
               </item>
               <item>
+               <widget class="QCheckBox" name="cbNoPythonCache">
+                <property name="text">
+                 <string>Sobreescribir caché siempre.</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QCheckBox" name="cbParseModulesOnLoad">
                 <property name="text">
                  <string>Convertir a Python los script QSA al cargar un módulo en la BD.</string>

@@ -73,6 +73,9 @@ class FormInternalObj(qsa.FormDBWidget):
         w.findChild(QtWidgets.QWidget, u"cbParseProject").setChecked(
             self.leerValorLocal("parseProject")
         )
+        w.findChild(QtWidgets.QWidget, u"cbNoPythonCache").setChecked(
+            self.leerValorLocal("noPythonCache")
+        )
         w.findChild(QtWidgets.QWidget, u"cbActionsMenuRed").setChecked(
             self.leerValorLocal("ActionsMenuRed")
         )
@@ -260,6 +263,9 @@ class FormInternalObj(qsa.FormDBWidget):
         )
         self.grabarValorLocal(
             "parseProject", w.findChild(QtWidgets.QWidget, u"cbParseProject").isChecked()
+        )
+        self.grabarValorLocal(
+            "noPythonCache", w.findChild(QtWidgets.QWidget, u"cbNoPythonCache").isChecked()
         )
         self.grabarValorLocal("mobileMode", w.findChild(QtWidgets.QWidget, u"cbMobile").isChecked())
         self.grabarValorLocal(

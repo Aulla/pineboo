@@ -56,7 +56,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     if not main_conn_established:
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
-    application.PROJECT.no_python_cache = False
+    # application.PROJECT.no_python_cache = False
     LOGGER.info("STARTUP_FRAMEWORK:(3/7) Loading database.")
     application.PROJECT.run()
     LOGGER.info("STARTUP_FRAMEWORK:(4/7) Loading area definitions.")
@@ -280,7 +280,7 @@ def init_testing() -> None:
     if not main_conn_established:
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
-    application.PROJECT.no_python_cache = False
+    # application.PROJECT.no_python_cache = False
     if application.PROJECT.run():
 
         # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
@@ -453,7 +453,8 @@ def exec_main(options: Values) -> int:
 
     settings.SETTINGS.set_value("DBA/lastDB", conn.DBName())
 
-    application.PROJECT.no_python_cache = options.no_python_cache
+    if options.no_python_cache:
+        application.PROJECT.no_python_cache = options.no_python_cache
 
     if options.enable_gui:
         from pineboolib.plugins import mainform
