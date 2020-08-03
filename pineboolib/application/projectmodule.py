@@ -702,6 +702,15 @@ class Project(object):
         log_file.close()
         LOGGER.info("RUN: End populating cache.")
         self.message_manager().send("splash", "showMessage", ["Convirtiendo a Python ..."])
+        if not list_files:
+            for module_name in self.modules.keys():
+                if "%s.qs" % module_name in self.files.keys():
+                    file_ = self.files["%s.qs" % module_name]
+                    file_name = path._dir("cache", file_.filekey)
+                    if self.no_python_cache or not os.path.exists(
+                        "%spy" % file_name[:-2]
+                    ):  # si es forzado o no existe el .py
+                        list_files.append(file_name)
 
         if list_files:
             LOGGER.info("RUN: Parsing QSA files. (%s): %s", len(list_files), list_files)
