@@ -218,7 +218,10 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
                 if sender is None or receiver is None:
                     continue
 
-                if hasattr(receiver, "iface"):
+                if slot_name in ("openDefaultForm()", "execDefaultScript()"):
+                    continue
+
+                elif hasattr(receiver, "iface"):
                     # iface = getattr(receiver, "iface")
                     # try:
                     #    receiver.connect(
@@ -232,7 +235,7 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
                     #    LOGGER.exception(
                     #        "Error connecting: %s:%s %s.iface:%s", sender, signal_name, receiver, slot_name
                     #    )
-                    LOGGER.debug(
+                    LOGGER.warning(
                         "DEPRECATED: This type of connection must be made in the module init: %s %s %s %s",
                         sender_name,
                         signal_name,
