@@ -940,6 +940,10 @@ class FLFormDB(QtWidgets.QDialog):
             center_point = QtWidgets.QDesktopWidget().availableGeometry().center()
             qt_rectangle.moveCenter(center_point)
             self.move(qt_rectangle.topLeft())
+
+        if not self.showed:  # Prueba al restaurar tabs no inicializan scripts
+            self.initScript()
+
         # if settings.readBoolEntry("application/isDebuggerMode", False):
         #    LOGGER.warning("INFO:: Tiempo de carga de %s: %.3fs %s (iface %s)" %
         #                     (self._action_name, tiempo_fin - self.tiempo_ini, self, self.iface))
