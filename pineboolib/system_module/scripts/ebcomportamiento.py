@@ -101,15 +101,6 @@ class FormInternalObj(qsa.FormDBWidget):
         w.findChild(QtWidgets.QWidget, "cb_dbadmin").setChecked(
             self.leerValorLocal("dbadmin_enabled")
         )
-        w.findChild(QtWidgets.QWidget, "cb_orm_enabled").setChecked(
-            self.leerValorLocal("orm_enabled")
-        )
-        w.findChild(QtWidgets.QWidget, "cb_disable_mtdparser").setChecked(
-            self.leerValorLocal("orm_parser_disabled")
-        )
-        w.findChild(QtWidgets.QWidget, "cb_disable_orm_load").setChecked(
-            self.leerValorLocal("orm_load_disabled")
-        )
         autoComp = self.leerValorLocal("autoComp")
         if not autoComp or autoComp == "OnDemandF4":
             autoComp = "Bajo Demanda (F4)"
@@ -302,16 +293,6 @@ class FormInternalObj(qsa.FormDBWidget):
         )
         self.grabarValorLocal(
             "dbadmin_enabled", w.findChild(QtWidgets.QWidget, "cb_dbadmin").isChecked()
-        )
-        self.grabarValorLocal(
-            "orm_enabled", w.findChild(QtWidgets.QWidget, "cb_orm_enabled").isChecked()
-        )
-        self.grabarValorLocal(
-            "orm_parser_disabled",
-            w.findChild(QtWidgets.QWidget, "cb_disable_mtdparser").isChecked(),
-        )
-        self.grabarValorLocal(
-            "orm_load_disabled", w.findChild(QtWidgets.QWidget, "cb_disable_orm_load").isChecked()
         )
 
         autoComp = w.findChild(QtWidgets.QWidget, u"cbAutoComp").currentText()
