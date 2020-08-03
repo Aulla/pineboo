@@ -6,6 +6,7 @@ from typing import Any, Optional, TYPE_CHECKING
 
 
 from pineboolib.core import settings
+from .preload import preload_actions
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import imainwindow  # noqa: F401
@@ -24,11 +25,9 @@ def init_project(
     #     splash.showMessage("Iniciando proyecto ...", QtCore.Qt.AlignLeft, QtCore.Qt.white)
     #     dgi.processEvents()
 
-    LOGGER.info("Iniciando proyecto ...")
+    project.message_manager().send("splash", "showMessage", ["Iniciando proyecto ..."])
 
     if options.preload:
-        from .preload import preload_actions
-
         preload_actions(project, options.forceload)
 
         LOGGER.info("Finished preloading")
@@ -48,18 +47,16 @@ def init_project(
 
     call_function = settings.SETTINGS.value("application/callFunction", None)
     if call_function:
+        LOGGER.info("callFunction (%s)", call_function)
         project.call(call_function, [])
 
-    project.message_manager().send("splash", "showMessage", ["Creando interface ..."])
-
     if main_window is not None:
-        LOGGER.info("Creando interfaz ...")
+        project.message_manager().send("splash", "showMessage", ["Creando interface ..."])
         # main_window = main_form.mainWindow
         main_window.initScript()
         ret = 0
 
         project.message_manager().send("splash", "showMessage", ["Abriendo interfaz ..."])
-        LOGGER.info("Abriendo interfaz ...")
         main_window.show()
         project.message_manager().send("splash", "showMessage", ["Listo ..."])
         project.message_manager().send("splash", "hide")

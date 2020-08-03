@@ -18,6 +18,7 @@ from pineboolib.loader.connection import config_dbconn, connect_to_db
 from pineboolib.loader.connection import DEFAULT_SQLITE_CONN, IN_MEMORY_SQLITE_CONN
 from pineboolib import application
 from pineboolib.application.parsers.parser_qsa import pytnyzer
+from .init_project import init_project
 
 if TYPE_CHECKING:
     from pineboolib.loader import projectconfig  # noqa: F401
@@ -503,8 +504,6 @@ def exec_main(options: Values) -> int:
         "splash", "showMessage", ["Cargando traducciones ..."]
     )
     application.PROJECT.aq_app.loadTranslations()
-
-    from .init_project import init_project
 
     ret = init_project(
         dgi,
