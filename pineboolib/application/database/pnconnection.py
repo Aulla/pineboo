@@ -179,7 +179,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """
         if self._name == "main_conn":
             raise Exception("main_conn no es valido para session")
-        if self._current_session is None or self._current_session.connection().closed:
+        if (
+            self._current_session is None
+            or not hasattr(self._current_session.connection(), "_Connection__connection")
+            or self._current_session.connection().closed
+        ):
             self._current_session = self.driver().session()
 
             if self._current_session is None:
