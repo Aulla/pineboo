@@ -46,6 +46,13 @@ class Date(object):
 
             elif isinstance(date_, QtCore.QDate):
                 self.date_ = date_
+            elif isinstance(date_, (float, int)):
+                date_time = QtCore.QDateTime().setMSecsSinceEpoch(int(date_))
+                self.date_ = date_time.date()
+                self.time_ = date_time.time()
+            else:
+                raise ValueError("Unexpected type %s" % type(date_))
+
             if not self.time_:
                 self.time_ = QtCore.QTime(0, 0)
         else:
