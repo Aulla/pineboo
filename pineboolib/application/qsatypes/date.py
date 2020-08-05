@@ -47,7 +47,8 @@ class Date(object):
             elif isinstance(date_, QtCore.QDate):
                 self.date_ = date_
             elif isinstance(date_, (float, int)):
-                date_time = QtCore.QDateTime().setMSecsSinceEpoch(int(date_))
+                date_time = QtCore.QDateTime()
+                date_time.setMSecsSinceEpoch(int(date_))
                 self.date_ = date_time.date()
                 self.time_ = date_time.time()
             else:
