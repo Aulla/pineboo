@@ -1650,10 +1650,10 @@ class Member(ASTPython):
                 if fun_name.find("(") > -1:
                     fun_name = fun_name[: fun_name.find("(")]
 
-                if full_fun_name.find("_%s" % fun_name):
+                if full_fun_name.endswith("_%s" % fun_name):
                     class_name = full_fun_name.replace("_%s" % fun_name, "")
                 else:
-                    class_name = full_fun_name.split("_")[0]
+                    class_name = full_fun_name.split("_")[0]  # happy parse...
 
                 arguments[2] = arguments[2][2:]
                 arguments[0:2] = [
