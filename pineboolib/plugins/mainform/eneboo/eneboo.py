@@ -607,7 +607,7 @@ class MainForm(imainwindow.IMainWindow):
         if idx is not None:
             if isinstance(self.tab_widget.widget(idx), QtWidgets.QDialog):
                 self.tab_widget.widget(idx).close()
-                self.tab_widget.removeTab(idx)
+                # self.tab_widget.removeTab(idx)
 
     def removeAllPages(self) -> None:
         """Close all tabs."""
