@@ -75,6 +75,11 @@ class DummyCursor(object):
 
         return application.PROJECT.conn_manager.useConn(self._parent._session._conn_name)
 
+    def table(self) -> str:
+        """Return table name."""
+
+        return self._parent.__tablename__  # type: ignore [attr-defined] # noqa: F821
+
     def primaryKey(self) -> str:
         """Return primery key name."""
 
