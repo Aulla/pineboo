@@ -685,6 +685,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         # self._data_proxy = dynamic_filter_class.return_query()
         if self.metadata().isQuery():
+
             meta_qry = pnsqlquery.PNSqlQuery(self.metadata().query())
             order_by = ""
             if where_filter.strip().lower().startswith("order"):
@@ -692,14 +693,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
                 where_filter = "1 = 1"
 
-            meta_qry.setWhere(where_filter)
+            meta_qry.setWhere(where_filter.replace("WHERE ", ""))
             if order_by:
                 meta_qry.setOrderBy(order_by)
 
             sql_query = meta_qry.sql()
-            # print("****", sql_query)
         else:
-
             sql_query = "SELECT %s FROM %s %s" % (
                 self.metadata().primaryKey(),
                 self.metadata().name(),
