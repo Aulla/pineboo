@@ -179,19 +179,32 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """
         if self._name == "main_conn":
             raise Exception("main_conn no es valido para session")
-        if (
-            self._current_session is None
-            or not hasattr(self._current_session.connection(), "_Connection__connection")
-            or self._current_session.connection().closed
-        ):
+
+        force_new = False
+        if self._current_session is None:
+            force_new = True
+        else:
+            try:
+                result = hasattr(  # noqa: F841
+                    self._current_session.connection(), "_Connection__connection"
+                )
+            except AttributeError as error:
+                LOGGER.warning(
+                    "Very possibly, you are trying to use a session in which"
+                    " a previous error has occurred and has not"
+                    " been recovered with a rollback. Current session is discarded.\n%s.",
+                    str(error),
+                )
+                force_new = True
+            else:
+                if self._current_session.connection().closed:
+                    force_new = True
+
+        if force_new:
             self._current_session = self.driver().session()
 
-            if self._current_session is None:
-                raise ValueError("Invalid session!")
-        # sqlalchemy.event.listen(session_, "before_flush", self.before_flush)
-        # sqlalchemy.event.listen(session_, "after_flush", self.after_flush)
-        # sqlalchemy.event.listen(session_, "after_bulk_delete", self.after_bulk_delete)
-        # sqlalchemy.event.listen(session_, "after_bulk_update", self.after_bulk_update)
+        if self._current_session is None:
+            raise ValueError("Invalid session!")
 
         return self._current_session
 
