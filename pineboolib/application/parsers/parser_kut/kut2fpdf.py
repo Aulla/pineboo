@@ -80,6 +80,7 @@ class Kut2FPDF(object):
         self._actual_append_page_no = -1
         self.reset_page_count = False
         self.new_page = False
+        self._document = None
 
     def parse(
         self, name: str, kut: str, data: str, report: "FPDF" = None, flags: List[int] = []
