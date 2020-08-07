@@ -813,11 +813,25 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                         if current_pos is None:
                             current_pos = max_val // 2
 
-                        while current_pos < self._data_proxy._rows_loaded:
+                        while current_pos > self._data_proxy._rows_loaded:
                             if not self._data_proxy.fetch_more():
+                                # LOGGER.warning("can't fetch more!")
                                 break
+                            # else:
+                            #    LOGGER.warning("FECTHING MORE! %s", self._data_proxy._rows_loaded)
 
-                        data = self._data_proxy._cached_data[current_pos]
+                        try:
+                            data = self._data_proxy._cached_data[current_pos]
+                        except IndexError:
+                            LOGGER.warning(
+                                "Error seek possition %s over %s (len %s). Total: %s"
+                                % (
+                                    current_pos,
+                                    self._data_proxy._rows_loaded,
+                                    len(self._data_proxy._cached_data),
+                                    self._data_proxy._total_rows,
+                                )
+                            )
 
                         upper = None
                         # print("Compara", pk_value, "con", data, "current_pos", current_pos)
