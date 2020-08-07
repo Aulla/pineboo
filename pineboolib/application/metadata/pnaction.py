@@ -94,17 +94,19 @@ class PNAction(object):
     def __repr__(self):
         """Return the values ​​in a text string."""
 
-        return (
-            "<PNAction name=%r scriptForm=%r scriptFormRecord=%r form=%r formRecord=%r caption=%r>"
-            % (
-                self._name,
-                self._script_form,
-                self._script_form_record,
-                self._form,
-                self._form_record,
-                self._caption,
-            )
-        )
+        return self._name
+
+        # return (
+        #    "<PNAction name=%r scriptForm=%r scriptFormRecord=%r form=%r formRecord=%r caption=%r>"
+        #    % (
+        #        self._name,
+        #        self._script_form,
+        #        self._script_form_record,
+        #        self._form,
+        #        self._form_record,
+        #        self._caption,
+        #    )
+        # )
 
     def setName(self, name: str) -> None:
         """Set the name of the action."""
