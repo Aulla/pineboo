@@ -4,11 +4,12 @@ from pineboolib.core.utils import logging
 from pineboolib.application.metadata import pntablemetadata
 from pineboolib import application
 
-from typing import Any, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from . import basemodel
     from pineboolib.interfaces import iconnection
+    from pineboolib.application.database import pnsqlcursor
 
 LOGGER = logging.get_logger(__name__)
 
@@ -81,9 +82,15 @@ class DummyCursor(object):
         return self._parent.__tablename__  # type: ignore [attr-defined] # noqa: F821
 
     def primaryKey(self) -> str:
-        """Return primery key name."""
+        """Return primary key name."""
 
         return self._parent.pk_name
+
+    def cursorRelation(self) -> Optional["pnsqlcursor.PNSqlCursor"]:
+        """Return cursor Relation."""
+
+        LOGGER.warning("DummyCursor return a empty cursorRelation ever!")
+        return None
 
     def get_bc_signal(self):
         """Return beforeCommit fake signal."""
