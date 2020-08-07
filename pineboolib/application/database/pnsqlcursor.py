@@ -2860,7 +2860,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.modeAccess() != self.Browse and function_after_commit:
             # AFTER_COMMIT
             func_ = getattr(module_iface, function_after_commit, None)
-            LOGGER.warning("Paso 0 %s", func_)
+
             if func_ is not None:
                 value = func_(self)
                 if value and not isinstance(value, bool) or value is False:
@@ -2878,7 +2878,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if updated:
             # Para cuando usamos npsqlcursors solos!
             if self.transactionLevel() == 0:
-                LOGGER.warning("Paso 1 %s", self.curName())
                 pk_value = self.buffer().value(self.primaryKey())
                 if not self.commit():
                     LOGGER.warning(
@@ -2886,21 +2885,19 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         stack_info=True,
                     )
                     return False
-                LOGGER.warning("Paso 2 %s", self.curName(), self.size())
-                if self.metadata().isQuery() or not self.model().updateCacheData(updated):
-                    if not self.metadata().isQuery() and self.size():
+
+                if self.metadata().isQuery():
+                    self.model().refresh()
+                elif not self.model().updateCacheData(updated):
+                    if self.size():
                         LOGGER.warning("update_cache_failed. Using classic method")
-                    LOGGER.warning("Paso 2.1 %s", self.curName())
+
                     self.model().refresh()
 
-                LOGGER.warning("Paso 3 %s -> %s", self.curName(), pk_value)
                 pk_row = self.model().find_pk_row(pk_value)
 
-                LOGGER.warning("Paso 4 %s", self.curName())
                 if pk_row > -1:
-                    LOGGER.warning("Paso 5 %s", self.curName())
                     self.move(pk_row)
-                    LOGGER.warning("Paso 6 %s", self.curName())
                     self.refreshBuffer()
 
             # if self.transactionLevel() == 0:
@@ -2914,11 +2911,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
             self.setFilter("")
             # self.clearMapCalcFields()
-            LOGGER.warning("Paso 7 %s", self.curName())
+
             if emite:
                 self.cursorUpdated.emit()
 
-        LOGGER.warning("Paso 8 %s", self.curName())
         self.bufferCommited.emit()
         return True
 

@@ -764,12 +764,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
     def updateCacheData(self, mode: int) -> bool:
         """Update cache data without refresh."""
-        print("* updateCacheData", mode)
+        # print("* updateCacheData", mode)
         # mode 1- Insert, 2 - Edit, 3 - Del
 
-        if not self.rowCount() or self._disable_refresh or self._data_proxy is None:
-            # Fuerza un refresh tradicional.
-            return False
+        if self._disable_refresh:
+            return True
 
         pk_name = self._parent.primaryKey()
         pk_value = self._parent.buffer().value(pk_name)
@@ -798,7 +797,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         )
         result = self.db().session().execute(sql_query)
 
+        if self._data_proxy is None:
+            LOGGER.debug("data_proxy is empty!")
+            return True
+
         if mode == 1:
+
             if result.returns_rows:
                 if order_by:
                     LOGGER.warning("FIXME! update chache whit alternative order_by")
@@ -810,52 +814,58 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                     max_val = self._data_proxy._total_rows
 
                     while True:
-                        if current_pos is None:
-                            current_pos = max_val // 2
-
-                        while current_pos > self._data_proxy._rows_loaded:
-                            if not self._data_proxy.fetch_more():
-                                # LOGGER.warning("can't fetch more!")
-                                break
-                            # else:
-                            #    LOGGER.warning("FECTHING MORE! %s", self._data_proxy._rows_loaded)
-
-                        try:
-                            data = self._data_proxy._cached_data[current_pos]
-                        except IndexError:
-                            LOGGER.warning(
-                                "Error seek possition %s over %s (len %s). Total: %s"
-                                % (
-                                    current_pos,
-                                    self._data_proxy._rows_loaded,
-                                    len(self._data_proxy._cached_data),
-                                    self._data_proxy._total_rows,
-                                )
-                            )
-
                         upper = None
-                        # print("Compara", pk_value, "con", data, "current_pos", current_pos)
-                        if pk_value > data:
-                            if current_pos == max_val or current_pos == 0:
-                                upper = True
-                            else:
-                                # LOGGER.warning(
-                                #    "MI valor %s es mayor que (%s) %s", pk_value, current_pos, data
-                                # )
-                                min_val = current_pos
-                                current_pos += (max_val - min_val) // 2
-                        else:
-                            if current_pos == min_val or current_pos == 0:
-                                upper = False
-                            else:
-                                # LOGGER.warning(
-                                #    "MI valor %s es menor que (%s) %s", pk_value, current_pos, data
-                                # )
-                                max_val = current_pos
-                                current_pos -= (max_val - min_val) // 2
 
-                        if (max_val - min_val) // 2 == 0:
-                            upper = True
+                        if self.rowCount():
+
+                            if current_pos is None:
+                                current_pos = max_val // 2
+
+                            while current_pos > self._data_proxy._rows_loaded:
+                                if not self._data_proxy.fetch_more():
+                                    # LOGGER.warning("can't fetch more!")
+                                    break
+                                # else:
+                                #    LOGGER.warning("FECTHING MORE! %s", self._data_proxy._rows_loaded)
+
+                            try:
+                                data = self._data_proxy._cached_data[current_pos]
+                            except IndexError:
+                                LOGGER.warning(
+                                    "Error seek possition %s over %s (len %s). Total: %s"
+                                    % (
+                                        current_pos,
+                                        self._data_proxy._rows_loaded,
+                                        len(self._data_proxy._cached_data),
+                                        self._data_proxy._total_rows,
+                                    )
+                                )
+
+                            # print("Compara", pk_value, "con", data, "current_pos", current_pos)
+                            if pk_value > data:
+                                if current_pos == max_val or current_pos == 0:
+                                    upper = True
+                                else:
+                                    # LOGGER.warning(
+                                    #    "MI valor %s es mayor que (%s) %s", pk_value, current_pos, data
+                                    # )
+                                    min_val = current_pos
+                                    current_pos += (max_val - min_val) // 2
+                            else:
+                                if current_pos == min_val or current_pos == 0:
+                                    upper = False
+                                else:
+                                    # LOGGER.warning(
+                                    #    "MI valor %s es menor que (%s) %s", pk_value, current_pos, data
+                                    # )
+                                    max_val = current_pos
+                                    current_pos -= (max_val - min_val) // 2
+
+                            if (max_val - min_val) // 2 == 0:
+                                upper = True
+                        elif self._data_proxy is not None:
+                            upper = False
+                            current_pos = 0
 
                         if upper is not None:
                             # print("***", current_pos, new_current_pos, max_val, min_val)
