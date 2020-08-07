@@ -77,6 +77,11 @@ def proxy_fn(weak_ref_method: weakref.WeakMethod, weak_ref: weakref.ref, slot: s
         args_num = get_expected_args_num(function_method)
 
         if args_num:
+            while len(args) < args_num:
+                args_list = list(args)
+                args_list.append(None)
+                args = tuple(args_list)
+
             return function_method(*args[0:args_num], **kwargs)
         else:
             return function_method()
