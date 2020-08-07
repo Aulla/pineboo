@@ -23,6 +23,7 @@ class TestAQSql(unittest.TestCase):
         cur_areas.setValueBuffer("idarea", "X")
         cur_areas.setValueBuffer("descripcion", "descripcion area x")
         self.assertTrue(cur_areas.commitBuffer())
+        cur_areas.select()
         self.assertEqual(cur_areas.size(), 1)
         aq_ = aqsql.AQSql()
 

@@ -147,7 +147,7 @@ class TestDeleteData(unittest.TestCase):
         cursor.setValueBuffer("idarea", "T4")
         cursor.setValueBuffer("descripcion", "Área de prueba T4")
         self.assertTrue(cursor.commitBuffer())
-
+        cursor.select()
         self.assertEqual(cursor.size(), 4)
         pass_ = 0
         borrados = []
@@ -240,7 +240,7 @@ class TestMove(unittest.TestCase):
         cursor.setValueBuffer("idarea", "E")
         cursor.setValueBuffer("descripcion", "Área de prueba E")
         self.assertTrue(cursor.commitBuffer())
-
+        cursor.select()
         cursor.first()
         self.assertEqual(cursor.valueBuffer("idarea"), "A")
         res_1 = cursor.prev()
@@ -298,7 +298,7 @@ class TestBuffer(unittest.TestCase):
         cursor.setValueBuffer("idarea", "V")
         cursor.setValueBuffer("descripcion", "Área de prueba V")
         self.assertTrue(cursor.commitBuffer())
-
+        cursor.select()
         self.assertEqual(cursor.size(), 2)
         cursor.select("1=1 ORDER BY idarea ASC")
         cursor.setModeAccess(cursor.Edit)

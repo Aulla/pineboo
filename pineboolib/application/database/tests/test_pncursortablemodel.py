@@ -35,8 +35,9 @@ class TestPNCursorTableModel(unittest.TestCase):
 
         # cursor.setValueBuffer("check_field", True)
         cursor.commitBuffer()
-
+        cursor.select()
         cursor.setSort("string_field ASC")
+        cursor.last()
         self.assertEqual(cursor.currentRegister(), 2)
         cursor.select()
         self.assertTrue(cursor.last())
@@ -177,6 +178,7 @@ class TestFetchMore(unittest.TestCase):
             cur_test.setValueBuffer("string_field", "Registro %s" % i)
             self.assertTrue(cur_test.commitBuffer())
 
+        cur_test.select()
         self.assertEqual(cur_test.size(), size)
 
     def test_basic_2(self) -> None:

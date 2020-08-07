@@ -721,8 +721,8 @@ class BaseModel(object):
         if not hasattr(self, "_session") or self._session is None:
             # session.add(self)
             self._session = session
-        else:
-            LOGGER.warning("This instance already belongs to a session")
+        # else:
+        #    LOGGER.warning("This instance already belongs to a session")
 
     def get_session(self) -> Optional["orm.session.Session"]:
         """Get instance session."""
