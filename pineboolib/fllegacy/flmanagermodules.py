@@ -25,7 +25,7 @@ from . import flformrecorddb
 
 from pineboolib import logging
 
-from typing import Union, List, Dict, Optional, cast, TYPE_CHECKING
+from typing import Union, List, Dict, Optional, cast, Any, TYPE_CHECKING
 from watchdog import observers, events  # type: ignore [import] # noqa: F821
 import os
 import codecs
@@ -401,11 +401,21 @@ class FLManagerModules(object):
 
         wid = root_.find("widget")
         geometry = []
-        for prop in wid.findall("property"):
-            if prop.get("name") == "geometry":
-                geometry.append(prop.find("rect").find("width").text)
-                geometry.append(prop.find("rect").find("height").text)
-                break
+
+        if wid is not None:
+            for prop in wid.findall("property"):
+                if prop.get("name") == "geometry":
+                    geometry.append(
+                        prop.find("rect")  # type: ignore [union-attr] # noqa: F821
+                        .find("width")  # type: ignore [union-attr] # noqa: F821
+                        .text
+                    )
+                    geometry.append(
+                        prop.find("rect")  # type: ignore [union-attr] # noqa: F821
+                        .find("height")  # type: ignore [union-attr] # noqa: F821
+                        .text
+                    )
+                    break
 
         if parent is None:
 
@@ -443,10 +453,12 @@ class FLManagerModules(object):
             uic.loadUi(form_path, parent)
 
         if geometry[0]:
-            form_parent = parent
+            form_parent: Any = parent
             if parent.parent() is not None:
                 form_parent = parent.parent()
-            form_parent.resize(int(geometry[0]), int(geometry[1]))
+            form_parent.resize(
+                int(geometry[0]), int(geometry[1])  # type: ignore [arg-type] # noqa: F821
+            )
         return parent
 
     def createForm(
