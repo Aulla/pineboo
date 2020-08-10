@@ -310,6 +310,10 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
         result = 'if qsa.sys.interactiveGUI() == "Django":\n    sessi: Any = qsa.session()\n'
         self.assertEqual(qs2py(qsa), result)
 
+        qsa2 = 'if (sys.interactiveGUI() == "Django") { \nvar session = new session();}'
+        result2 = 'if qsa.sys.interactiveGUI() == "Django":\n    session: Any = qsa.session()\n'
+        self.assertEqual(qs2py(qsa2), result2)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
