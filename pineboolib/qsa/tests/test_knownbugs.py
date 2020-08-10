@@ -303,6 +303,13 @@ res: Any = qsa.util.translate("scripts", "Uno %s para %s. ¿Desea continuar?") %
         fun_ = qsa.from_project("sys").iface.execMainScript
         self.assertTrue(fun_ is not None)
 
+    def test_session(self) -> None:
+        """Test session conversion."""
+
+        qsa = 'if (sys.interactiveGUI() == "Django") { \nvar sessi = new session();}'
+        result = 'if qsa.sys.interactiveGUI() == "Django":\n    sessi: Any = qsa.session()\n'
+        self.assertEqual(qs2py(qsa), result)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
