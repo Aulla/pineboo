@@ -2700,7 +2700,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         use_nested = False
         # savePoint = None
 
-        session = self.db().session()
         if not self.transactionLevel():
             self.db().transaction()
             use_nested = True
