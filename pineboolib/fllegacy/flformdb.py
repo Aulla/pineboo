@@ -839,11 +839,22 @@ class FLFormDB(QtWidgets.QDialog):
         # --> Para mostrar form sin negro previo
         # QtWidgets.QApplication.processEvents()
         # <--
+
         if not self.loaded():
             return
 
         if not self.showed:
             self.showed = True
+
+            size = geometry.load_geometry_form(self.geoName())
+            if size:
+                self.resize(size)
+
+            parent = self.parent()
+
+            if parent and isinstance(parent, QtWidgets.QMdiSubWindow):
+                parent.resize(size)
+                parent.repaint()
 
             # self.initMainWidget()
 
@@ -853,16 +864,6 @@ class FLFormDB(QtWidgets.QDialog):
                 return
 
             # self.bindIface()
-
-        size = geometry.load_geometry_form(self.geoName())
-        if size:
-            self.resize(size)
-
-            parent = self.parent()
-
-            if parent and isinstance(parent, QtWidgets.QMdiSubWindow):
-                parent.resize(size)
-                parent.repaint()
 
     # def cursorDestroyed(self, obj_: Optional[Any] = None) -> None:
     #    """Clean up. Called when cursor has been deleted."""

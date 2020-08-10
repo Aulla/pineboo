@@ -395,14 +395,24 @@ class FLManagerModules(object):
         root_ = tree.getroot()
 
         ui_version = root_.get("version")
+
         if ui_version is None:
             ui_version = "1.0"
+
+        wid = root_.find("widget")
+        geometry = []
+        for prop in wid.findall("property"):
+            if prop.get("name") == "geometry":
+                geometry.append(prop.find("rect").find("width").text)
+                geometry.append(prop.find("rect").find("height").text)
+                break
+
         if parent is None:
 
-            wid = root_.find("widget")
             if wid is None:
                 raise Exception("No parent provided and also no <widget> found")
             xclass = wid.get("class")
+
             if xclass is None:
                 raise Exception("class was expected")
 
@@ -432,6 +442,11 @@ class FLManagerModules(object):
                 uic.widgetPluginPath.append(qt_widgets_path)
             uic.loadUi(form_path, parent)
 
+        if geometry[0]:
+            form_parent = parent
+            if parent.parent() is not None:
+                form_parent = parent.parent()
+            form_parent.resize(int(geometry[0]), int(geometry[1]))
         return parent
 
     def createForm(
