@@ -2697,8 +2697,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         # primary_key = self.private_cursor.metadata_.primaryKey()
         updated = 0
-
+        use_nested = False
         # savePoint = None
+
+        session = self.db().session()
+        if not self.transactionLevel():
+            self.db().transaction()
+            use_nested = True
 
         if self.modeAccess() == self.Insert:
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
@@ -2877,13 +2882,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if updated:
             # Para cuando usamos npsqlcursors solos!
-            if self.transactionLevel() == 0:
+            if use_nested:
                 pk_value = self.buffer().value(self.primaryKey())
                 if not self.commit():
                     LOGGER.warning(
                         "CommitBuffer cancelado. db().commitTransaction devolvió False.",
                         stack_info=True,
                     )
+                    self.db().rollback()
                     return False
 
                 if self.metadata().isQuery():
@@ -2899,6 +2905,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if pk_row > -1:
                     self.move(pk_row)
                     self.refreshBuffer()
+                self.db().commit()
 
             # if self.transactionLevel() == 0:
             #    self.db().commit()

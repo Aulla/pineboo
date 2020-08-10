@@ -512,10 +512,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         try:
             if not self.session().transaction:
-
                 self.session().begin()
             else:
-
                 self.session().begin_nested()
 
             return True
