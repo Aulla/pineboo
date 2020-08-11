@@ -21,6 +21,12 @@ def atomic(conn_name: str = "default") -> TYPEFN:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             new_session = utils.session(conn_name)
             new_session.begin()
+            LOGGER.debug(
+                "New atomic session : %s, connection : %s, transaction: %s",
+                new_session,
+                conn_name,
+                new_session.transaction,
+            )
 
             id_thread = threading.current_thread().ident
             key = "%s_%s" % (id_thread, conn_name)
