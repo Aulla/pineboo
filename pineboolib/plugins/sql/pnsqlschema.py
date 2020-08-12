@@ -787,7 +787,9 @@ class PNSqlSchema(object):
         # if self._session:
         #    session_ = self._session
         # else:
-        session_ = self.session()
+
+        session_ = self.db_.session() if self.db_._name != "main_conn" else self.session()
+
         result_ = None
         try:
             try:
