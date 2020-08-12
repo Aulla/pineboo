@@ -11,6 +11,7 @@ from . import pnsqldrivers
 from pineboolib import application
 
 import time
+import threading
 
 from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
@@ -179,6 +180,14 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """
         if self._name == "main_conn":
             raise Exception("main_conn no es valido para session")
+
+        id_thread = threading.current_thread().ident
+        key = "%s_%s" % (id_thread, self._name)
+        if (
+            key in self._conn_manager.thread_atomic_sessions.keys()
+        ):  # si estoy en atomic retorno sessión atomica.
+            LOGGER.debug("Returning atomic session %s!", key)
+            return self._conn_manager.thread_atomic_sessions[key]
 
         force_new = False
         if self._current_session is None:
