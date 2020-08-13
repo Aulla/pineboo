@@ -365,20 +365,22 @@ class PNStaticLoader(QtCore.QObject):
             if not WARN_:
                 WARN_ = FLStaticLoaderWarning()
 
-            if len(candidates) > 1:  # Si hay mas de un candidato muestra warning
-                LOGGER.warning("MULTIPLES CANIDATES FOUND. USING FIRST:")
-                for num, candidate in enumerate(candidates):
-                    LOGGER.warning("    %s) - %s", num, candidate[0])
-
             file_path, content_path = candidates[0]
 
             msg = "%s -> ...%s" % (name, file_path[0:40])
 
             if msg not in WARN_.warns_:
+                if len(candidates) > 1:  # Si hay mas de un candidato muestra warning
+                    LOGGER.warning(
+                        "STATIC LOAD: MULTIPLES CANIDATES FOUND FOR %s. USING FIRST:", name.upper()
+                    )
+                    for num, candidate in enumerate(candidates):
+                        LOGGER.warning("    %s) - %s/%s", num + 1, candidate[0], name)
+
                 WARN_.warns_.append(msg)
                 WARN_.paths_.append("%s:%s" % (name, file_path))
                 if settings.CONFIG.value("ebcomportamiento/SLConsola", False):
-                    LOGGER.warning("CARGA ESTATICA ACTIVADA:%s -> %s", name, file_path)
+                    LOGGER.warning("STATIC LOAD: ACTIVATED %s -> %s", name, file_path)
                 if settings.CONFIG.value("ebcomportamiento/SLGUI", False):
                     QtCore.QTimer.singleShot(500, WARN_.popupWarnings)
 
