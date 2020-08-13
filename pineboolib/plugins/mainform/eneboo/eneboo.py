@@ -773,7 +773,10 @@ class MainForm(imainwindow.IMainWindow):
 
         for obj_ in action_group.children():
             o_name = obj_.objectName()
-            if not getattr(obj_, "isVisible", None) or not obj_.isVisible():
+            if (
+                not getattr(obj_, "isVisible", None)
+                or not obj_.isVisible()  # type: ignore [attr-defined] # noqa: F821
+            ):
                 continue
 
             action = None
@@ -795,8 +798,13 @@ class MainForm(imainwindow.IMainWindow):
                     ):
                         new_menu = menu
                     else:
-                        new_menu = menu.addMenu(action_obj.icon(), action_obj.text())
-                        new_menu.triggered.connect(action_obj.trigger)
+                        new_menu = menu.addMenu(
+                            action_obj.icon(),  # type: ignore [attr-defined] # noqa: F821
+                            action_obj.text(),  # type: ignore [attr-defined] # noqa: F821
+                        )
+                        new_menu.triggered.connect(
+                            action_obj.trigger  # type: ignore [attr-defined] # noqa: F821
+                        )
                     self.updateMenu(obj_, new_menu)
 
             elif obj_.objectName().endswith("_actiongroup_name"):
