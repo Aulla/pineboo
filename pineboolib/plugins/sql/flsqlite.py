@@ -6,7 +6,6 @@ from pineboolib.application.utils import path
 from pineboolib import logging, application
 
 from pineboolib.fllegacy import flutil
-from sqlalchemy import event
 
 from . import pnsqlschema
 

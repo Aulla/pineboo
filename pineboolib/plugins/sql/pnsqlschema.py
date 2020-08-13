@@ -1143,8 +1143,12 @@ class PNSqlSchema(object):
         return must_alter
 
     @classmethod
-    def close_connection_warning(cls, dbapi_connection) -> None:
+    def close_connection_warning(cls, dbapi_connection, connection_record=None) -> None:
         """Show connection closed message."""
-
-        LOGGER.warning("The %s connection was closed!!", dbapi_connection)
+        if application.SHOW_CLOSED_CONNECTION_WARNING:
+            LOGGER.warning(
+                "The connection was closed: connection: %s, record : %s !!",
+                dbapi_connection,
+                connection_record,
+            )
 

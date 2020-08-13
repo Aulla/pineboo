@@ -9,6 +9,7 @@ from typing import Dict
 
 PROJECT = Project()
 SHOW_CURSOR_EVENTS: bool = False
+SHOW_CLOSED_CONNECTION_WARNING: bool = False
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest
 LOG_SQL = False
 USE_WEBSOCKET_CHANNEL = False
