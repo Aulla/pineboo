@@ -351,40 +351,47 @@ class PNStaticLoader(QtCore.QObject):
         """Get content from given path."""
         global WARN_
         info.readSettings()
+        candidates: List[str] = []
+
         separator = "\\" if sysbasetype.SysBaseType.osName().find("WIN") > -1 else "/"
         for info_item in info.dirs_:
-            content_path = "%s%s%s" % (info_item.path_, separator, name)
-            if info_item.active_ and os.path.exists(content_path):
-                if not WARN_:
-                    WARN_ = FLStaticLoaderWarning()
+            content_path_candidate = "%s%s%s" % (info_item.path_, separator, name)
+            if info_item.active_ and os.path.exists(
+                content_path_candidate
+            ):  # Buscamos todos los candidatos
+                candidates.append([info_item.path_, content_path_candidate])
 
-                # timer = QtCore.QTimer
-                # if not warn_.warns_ and config.value("ebcomportamiento/SLInterface", True):
-                #    timer.singleShot(500, warn_.popupWarnings)
+        if candidates:
+            if not WARN_:
+                WARN_ = FLStaticLoaderWarning()
 
-                # if not warn_.paths_:
-                #    timer.singleShot(1500, warn_.updateScripts)
+            if len(candidates) > 1:  # Si hay mas de un candidato muestra warning
+                LOGGER.warning("MULTIPLES CANIDATES FOUND. USING FIRST:")
+                for num, candidate in enumerate(candidates):
+                    LOGGER.warning("    %s) - %s", num, candidate[0])
 
-                msg = "%s -> ...%s" % (name, info_item.path_[0:40])
+            file_path, content_path = candidates[0]
 
-                if msg not in WARN_.warns_:
-                    WARN_.warns_.append(msg)
-                    WARN_.paths_.append("%s:%s" % (name, info_item.path_))
-                    if settings.CONFIG.value("ebcomportamiento/SLConsola", False):
-                        LOGGER.warning("CARGA ESTATICA ACTIVADA:%s -> %s", name, info_item.path_)
-                    if settings.CONFIG.value("ebcomportamiento/SLGUI", False):
-                        QtCore.QTimer.singleShot(500, WARN_.popupWarnings)
+            msg = "%s -> ...%s" % (name, file_path[0:40])
 
-                if only_path:
-                    return content_path
-                else:
+            if msg not in WARN_.warns_:
+                WARN_.warns_.append(msg)
+                WARN_.paths_.append("%s:%s" % (name, file_path))
+                if settings.CONFIG.value("ebcomportamiento/SLConsola", False):
+                    LOGGER.warning("CARGA ESTATICA ACTIVADA:%s -> %s", name, file_path)
+                if settings.CONFIG.value("ebcomportamiento/SLGUI", False):
+                    QtCore.QTimer.singleShot(500, WARN_.popupWarnings)
 
-                    if application.PROJECT.conn_manager is None:
-                        raise Exception("Project is not connected yet")
+            if only_path:
+                return content_path
+            else:
 
-                    return application.PROJECT.conn_manager.managerModules().contentFS(
-                        info_item.path_ + separator + name
-                    )
+                if application.PROJECT.conn_manager is None:
+                    raise Exception("Project is not connected yet")
+
+                return application.PROJECT.conn_manager.managerModules().contentFS(
+                    file_path + separator + name
+                )
 
         return ""
 
