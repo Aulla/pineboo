@@ -351,7 +351,7 @@ class PNStaticLoader(QtCore.QObject):
         """Get content from given path."""
         global WARN_
         info.readSettings()
-        candidates: List[str] = []
+        candidates: List[List[str]] = []
 
         separator = "\\" if sysbasetype.SysBaseType.osName().find("WIN") > -1 else "/"
         for info_item in info.dirs_:
