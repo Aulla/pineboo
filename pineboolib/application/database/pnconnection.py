@@ -194,20 +194,22 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             force_new = True
         else:
             try:
-                result = hasattr(  # noqa: F841
-                    self._current_session.connection(), "_Connection__connection"
+                result = (  # noqa: F841
+                    self._current_session.connection()  # type: ignore [attr-defined] # noqa: F821
                 )
+
             except AttributeError as error:
                 LOGGER.warning(
                     "Very possibly, you are trying to use a session in which"
                     " a previous error has occurred and has not"
-                    " been recovered with a rollback. Current session is discarded.\n%s.",
+                    " been recovered with a rollback. Current session will be rollbacked and discarded.\n%s.",
                     str(error),
                 )
+                self._current_session.rollback()  # type: ignore [attr-defined] # noqa: F821
+                self._current_session.close()  # type: ignore [attr-defined] # noqa: F821
+
+            if self._current_session.connection().closed:
                 force_new = True
-            else:
-                if self._current_session.connection().closed:
-                    force_new = True
 
         if force_new:
             self._current_session = self.driver().session()
@@ -682,20 +684,28 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.DBName()
 
-    def close(self) -> bool:
+    def close(self):
         """Close connection."""
 
         self._is_open = False
         self.driver().close()
         if hasattr(self, "_current_session"):
             if self._current_session is not None:
-                if not hasattr(self._current_session.connection(), "_Connection__connection"):
-                    self._current_session.invalidate()
-                    return False
-                else:
-                    self._current_session.close()
+                try:
+                    result = self._current_session.connection()  # noqa: F841
 
-        return True
+                except AttributeError as error:  # _Connection__connection
+                    LOGGER.warning(
+                        "Very possibly, you are trying to close a session in which"
+                        " a previous error has occurred and has not"
+                        " been recovered with a rollback. Current session will be rollbacked first.\n%s.",
+                        str(error),
+                    )
+                    self._current_session.rollback()
+
+                self._current_session.close()  # type: ignore [attr-defined] # noqa: F821
+
+            del self._current_session
 
     def sqlLength(self, field_name: str, size: int) -> str:
         """Return length formated."""

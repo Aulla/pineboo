@@ -178,12 +178,7 @@ class PNConnectionManager(QtCore.QObject):
 
             self.connections_dict[name_conn_]._is_open = False
             if self.connections_dict[name_conn_].conn not in [None, self.mainConn().conn]:
-                if not self.connections_dict[  # Si no se cierra correctamente la conexión.
-                    name_conn_
-                ].close():
-                    self.connections_dict[
-                        name_conn_
-                    ] = None  # type: ignore [assignment] # noqa: F821
+                self.connections_dict[name_conn_].close()
 
             del self.connections_dict[name_conn_]
             return True
