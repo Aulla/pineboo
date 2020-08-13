@@ -189,27 +189,20 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             LOGGER.debug("Returning atomic session %s!", key)
             return self._conn_manager.thread_atomic_sessions[key]
 
-        force_new = False
-        if self._current_session is None:
-            force_new = True
-        else:
+        force_new = True
+
+        if self._current_session is not None:
             try:
-                result = (  # noqa: F841
-                    self._current_session.connection()  # type: ignore [attr-defined] # noqa: F821
-                )
+                if not self._current_session.connection().closed:
+                    force_new = False
 
             except AttributeError as error:
                 LOGGER.warning(
                     "Very possibly, you are trying to use a session in which"
                     " a previous error has occurred and has not"
-                    " been recovered with a rollback. Current session will be rollbacked and discarded.\n%s.",
+                    " been recovered with a rollback. Current session is discarded.\n%s.",
                     str(error),
                 )
-                self._current_session.rollback()  # type: ignore [attr-defined] # noqa: F821
-                self._current_session.close()  # type: ignore [attr-defined] # noqa: F821
-
-            if self._current_session.connection().closed:
-                force_new = True
 
         if force_new:
             self._current_session = self.driver().session()
@@ -690,21 +683,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._is_open = False
         self.driver().close()
         if hasattr(self, "_current_session"):
-            if self._current_session is not None:
-                try:
-                    result = self._current_session.connection()  # noqa: F841
+            try:
+                self._current_session.close()
+            except AttributeError:
+                pass
 
-                except AttributeError as error:  # _Connection__connection
-                    LOGGER.warning(
-                        "Very possibly, you are trying to close a session in which"
-                        " a previous error has occurred and has not"
-                        " been recovered with a rollback. Current session will be rollbacked first.\n%s.",
-                        str(error),
-                    )
-                    self._current_session.rollback()
-
-                self._current_session.close()  # type: ignore [attr-defined] # noqa: F821
-
+            self._current_session = None
             del self._current_session
 
     def sqlLength(self, field_name: str, size: int) -> str:
