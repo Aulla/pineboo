@@ -1151,4 +1151,3 @@ class PNSqlSchema(object):
                 dbapi_connection,
                 connection_record,
             )
-
