@@ -604,7 +604,13 @@ class BaseModel(object):
 
                 relation_m1 = field.relationM1()
                 if relation_m1 is not None:
-                    foreign_class_ = qsadictmodules.QSADictModules.orm_(relation_m1.foreignTable())
+                    foreign_class_ = None
+                    if qsadictmodules.QSADictModules.action_exists(
+                        "%s_orm" % relation_m1.foreignTable()
+                    ):
+                        foreign_class_ = qsadictmodules.QSADictModules.orm_(
+                            relation_m1.foreignTable()
+                        )
 
                     if foreign_class_ is not None:
                         foreign_class_.table_metadata()
