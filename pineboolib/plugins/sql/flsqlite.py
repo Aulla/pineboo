@@ -91,6 +91,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             )
 
             event.listen(self._engine, "close_detached", self.close_connection_warning)
+            event.listen(self._engine, "close", self.close_connection_warning)
 
             conn_ = self._engine.connect()
 
