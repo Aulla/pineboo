@@ -179,6 +179,11 @@ class PNConnectionManager(QtCore.QObject):
             if self.connections_dict[name_conn_].conn not in [None, self.mainConn().conn]:
                 self.connections_dict[name_conn_].close()
 
+            if not hasattr(
+                self.connections_dict[name_conn_].connection(), "_Connection__connection"
+            ):
+                self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
+
             del self.connections_dict[name_conn_]
             return True
         else:
