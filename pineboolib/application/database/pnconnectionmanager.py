@@ -180,7 +180,7 @@ class PNConnectionManager(QtCore.QObject):
             if self.connections_dict[name_conn_].conn not in [None, self.mainConn().conn]:
                 self.connections_dict[name_conn_].close()
 
-            self.connections_dict[name_conn_] = None
+            self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
             del self.connections_dict[name_conn_]
             return True
         else:

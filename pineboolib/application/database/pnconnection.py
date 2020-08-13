@@ -684,7 +684,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self.driver().close()
         if hasattr(self, "_current_session"):
             try:
-                self._current_session.close()
+                self._current_session.close()  # type: ignore [union-attr] # noqa: F821
             except AttributeError:
                 pass
 
