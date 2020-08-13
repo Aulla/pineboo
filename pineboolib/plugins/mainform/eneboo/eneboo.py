@@ -768,35 +768,41 @@ class MainForm(imainwindow.IMainWindow):
 
         return True
 
-    def updateMenu(self, action_group: "QtWidgets.QActionGroup", parent: Any) -> None:
+    def updateMenu(self, action_group: "QtWidgets.QActionGroup", menu: Any) -> None:
         """Update the modules menu with the available options."""
-        object_list = cast(
-            List[Union[QtWidgets.QAction, QtWidgets.QActionGroup]], action_group.children()
-        )
-        for obj_ in object_list:
+
+        for obj_ in action_group.children():
             o_name = obj_.objectName()
             if not getattr(obj_, "isVisible", None) or not obj_.isVisible():
                 continue
+
+            action = None
             if isinstance(obj_, QtWidgets.QActionGroup):
-                new_parent = parent
+                action_obj = obj_.findChild(QtWidgets.QAction, "%s_actiongroup_name" % o_name)
+                if action_obj is None:
+                    action_obj = obj_.findChild(
+                        QtWidgets.QAction, "%s_module_actiongroup_name" % o_name
+                    )
+                if action_obj is None:
+                    action_obj = obj_.findChild(
+                        QtWidgets.QAction,
+                        "%sActions_actiongroup_name" % o_name.replace("ActionsMore", ""),
+                    )
 
-                ac_obj = cast(
-                    QtWidgets.QAction,
-                    obj_.findChild(QtWidgets.QAction, "%s_actiongroup_name" % o_name),
-                )
-                if ac_obj:
-                    if not o_name.endswith("Actions") or o_name.endswith("MoreActions"):
-                        new_parent = parent.addMenu(ac_obj.icon(), ac_obj.text())
-                        new_parent.triggered.connect(ac_obj.trigger)
+                if action_obj is not None:
+                    if obj_.objectName().endswith("Actions") and not obj_.objectName().endswith(
+                        "MoreActions"
+                    ):
+                        new_menu = menu
+                    else:
+                        new_menu = menu.addMenu(action_obj.icon(), action_obj.text())
+                        new_menu.triggered.connect(action_obj.trigger)
+                    self.updateMenu(obj_, new_menu)
 
-                self.updateMenu(obj_, new_parent)
+            elif obj_.objectName().endswith("_actiongroup_name"):
                 continue
-
-            elif o_name.endswith("_actiongroup_name"):
-                continue
-
             elif o_name == "separator":
-                action = parent.addAction("")
+                action = menu.addAction("")
                 action.setSeparator(True)
             else:
                 if isinstance(obj_, QtWidgets.QAction):
@@ -807,13 +813,15 @@ class MainForm(imainwindow.IMainWindow):
                         )
                         if obj_real is not None:
                             obj_ = obj_real  # Fix invalid QActions
-                    action = parent.addAction(obj_.text())
+                    action = menu.addAction(obj_.text())
                     action.setIcon(obj_.icon())
                     action.triggered.connect(obj_.trigger)
                 else:
+                    print("PASA!!!")
                     continue
 
-            action.setObjectName(o_name)
+            if action is not None:
+                action.setObjectName(o_name)
 
     def updateMenuAndDocks(self) -> None:
         """Update the main menu and dockers."""
