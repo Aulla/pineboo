@@ -682,11 +682,20 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.DBName()
 
-    def close(self):
+    def close(self) -> bool:
         """Close connection."""
 
         self._is_open = False
         self.driver().close()
+        if hasattr(self, "_current_session"):
+            if self._current_session is not None:
+                if not hasattr(self._current_session.connection(), "_Connection__connection"):
+                    self._current_session.invalidate()
+                    return False
+                else:
+                    self._current_session.close()
+
+        return True
 
     def sqlLength(self, field_name: str, size: int) -> str:
         """Return length formated."""

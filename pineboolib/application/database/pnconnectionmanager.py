@@ -175,19 +175,15 @@ class PNConnectionManager(QtCore.QObject):
             name_conn_ = "%s|%s" % (application.PROJECT.session_id(), name)
 
         if name_conn_ in self.connections_dict.keys():
+
             self.connections_dict[name_conn_]._is_open = False
             if self.connections_dict[name_conn_].conn not in [None, self.mainConn().conn]:
-                self.connections_dict[name_conn_].close()
-
-            if not hasattr(
-                self.connections_dict[name_conn_].connection(), "_Connection__connection"
-            ):
-                self.connections_dict[name_conn_].invalidate()
-                LOGGER.warning(
-                    "An attempt was made to delete an invalid connection named %s without _Connection__connection",
-                    name,
-                )
-                self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
+                if not self.connections_dict[  # Si no se cierra correctamente la conexión.
+                    name_conn_
+                ].close():
+                    self.connections_dict[
+                        name_conn_
+                    ] = None  # type: ignore [assignment] # noqa: F821
 
             del self.connections_dict[name_conn_]
             return True
