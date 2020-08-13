@@ -13,5 +13,5 @@ SHOW_CLOSED_CONNECTION_WARNING: bool = False
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest
 LOG_SQL = False
 USE_WEBSOCKET_CHANNEL = False
-PINEBOO_VER = "0.73.17.2"
+PINEBOO_VER = "0.73.17.3"
 FILE_CLASSES: Dict[str, str] = {}
