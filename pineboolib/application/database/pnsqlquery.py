@@ -756,10 +756,11 @@ class PNSqlQuery(object):
 
         table_list = table_list.replace(" ", "")
         for tabla in table_list.split(","):
-            if not self.db().connManager().manager().existsTable(tabla) and len(
-                table_list.split(",")
+            if (
+                not self.db().connManager().manager().existsTable(tabla)
+                and not self.db().connManager().manager().metadata(tabla)
+                and len(table_list.split(","))
             ):
-                print("**", self.db().connManager().manager().metadata(tabla))
                 self._invalid_tables_list = True
                 LOGGER.warning("setTablesList: table not found %r. Query will not execute.", tabla)
 
