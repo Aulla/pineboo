@@ -110,14 +110,17 @@ class FLManagerModules(object):
 
         if self.static_db_info_.enabled_:
             # Mapear los scripts!
-            LOGGER.warning("Static load is enabled!")
+            LOGGER.warning("STATIC LOAD IS ENABLED!")
 
             self.static_db_info_.readSettings()
             for dir_path in self.static_db_info_.dirs_:
-                LOGGER.warning("Static load: %s is %s", dir_path.path_, dir_path.active_)
-                if dir_path.active_ and os.path.exists(dir_path.path_):
-                    # self._file_watcher.addPath(dir_path.path_)
-                    self._file_watcher.schedule(event_handler, dir_path.path_, recursive=True)
+                LOGGER.warning("STATIC LOAD: %s IS %s", dir_path.path_, dir_path.active_)
+                if dir_path.active_:
+                    if os.path.exists(dir_path.path_):
+                        # self._file_watcher.addPath(dir_path.path_)
+                        self._file_watcher.schedule(event_handler, dir_path.path_, recursive=True)
+                    else:
+                        LOGGER.warning("STATIC LOAD: %s FOLDER DOESN'T EXISTS !", dir_path.path_)
 
             # self._file_watcher.fileChanged.connect(  # type: ignore [attr-defined] # noqa: F821
             #    self.static_db_info_.msg_static_changed
@@ -161,17 +164,19 @@ class FLManagerModules(object):
 
         if self.static_db_info_.enabled_:
             # Mapear los scripts!
-            LOGGER.warning("Static load is enabled!")
+            LOGGER.warning("STATIC LOAD IS ENABLED!")
             self._file_watcher = observers.Observer()
             event_handler = events.FileSystemEventHandler()
 
             self.static_db_info_.readSettings()
             for dir_path in self.static_db_info_.dirs_:
-                LOGGER.warning("Static load: %s is %s", dir_path.path_, dir_path.active_)
-                if dir_path.active_ and os.path.exists(dir_path.path_):
+                LOGGER.warning("STATIC LOAD: %s IS %s", dir_path.path_, dir_path.active_)
+                if dir_path.active_:
+                    if os.path.exists(dir_path.path_):
 
-                    # self._file_watcher.addPath(dir_path.path_)
-                    self._file_watcher.schedule(event_handler, dir_path.path_, recursive=True)
+                        self._file_watcher.schedule(event_handler, dir_path.path_, recursive=True)
+                    else:
+                        LOGGER.warning("STATIC LOAD: %s FOLDER DOESN'T EXISTS !", dir_path.path_)
 
             # self._file_watcher.fileChanged.connect(  # type: ignore [attr-defined] # noqa: F821
             #    self.static_db_info_.msg_static_changed
