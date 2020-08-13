@@ -182,6 +182,10 @@ class PNConnectionManager(QtCore.QObject):
             if not hasattr(
                 self.connections_dict[name_conn_].connection(), "_Connection__connection"
             ):
+                LOGGER.warning(
+                    "An attempt was made to delete an invalid connection named %s without _Connection__connection"
+                    % name
+                )
                 self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
 
             del self.connections_dict[name_conn_]
