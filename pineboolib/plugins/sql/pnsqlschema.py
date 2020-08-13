@@ -238,6 +238,9 @@ class PNSqlSchema(object):
             self._engine = create_engine(
                 self.loadConnectionString(name, host, port, usern, passw_), **queqe_params
             )
+
+            event.listen(self._engine, "close_detached", self.close_connection_warning)
+
             conn_ = self._engine.connect()
 
         except Exception as error:
@@ -1137,3 +1140,10 @@ class PNSqlSchema(object):
                 conn_dbaux.commit()
 
         return must_alter
+
+    @classmethod
+    def close_connection_warning(cls, dbapi_connection) -> None:
+        """Show connection closed message."""
+
+        LOGGER.warning("The %s connection was closed!!", dbapi_connection)
+

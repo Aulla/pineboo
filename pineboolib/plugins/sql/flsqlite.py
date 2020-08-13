@@ -15,7 +15,7 @@ import os
 
 
 from typing import Optional, Any, List, Dict, Union, TYPE_CHECKING
-from sqlalchemy import create_engine  # type: ignore [import] # noqa: F821, F401
+from sqlalchemy import create_engine, event  # type: ignore [import] # noqa: F821, F401
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
@@ -89,6 +89,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             self._engine = create_engine(
                 self.loadConnectionString(name, host, port, usern, passw_), **queqe_params
             )
+
+            event.listen(self._engine, "close_detached", self.close_connection_warning)
+
             conn_ = self._engine.connect()
 
             if not os.path.exists("%s" % self.db_filename) and self.db_filename not in [
