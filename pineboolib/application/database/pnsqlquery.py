@@ -452,7 +452,7 @@ class PNSqlQuery(object):
             if self._last_query:
                 return self._last_query
 
-            LOGGER.warning("sql(): No select yet. Returning empty")
+            LOGGER.warning("sql(): No select yet. Returning empty", stack_info=True)
             return ""
 
         select = ",".join(self.private_query._field_list)
