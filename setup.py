@@ -44,6 +44,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_data={
         "pineboolib": ["py.typed"],
+        "pineboolib.application.staticloader.ui": ["*.ui"],
         "pineboolib.core.fonts.Noto_Sans": ["*"],
         "pineboolib.core.images.icono_pi": ["*"],
         "pineboolib.core.images.icons": ["*"],

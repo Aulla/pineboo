@@ -1,0 +1,3 @@
+""" 
+Staticloader ui module.
+"""
