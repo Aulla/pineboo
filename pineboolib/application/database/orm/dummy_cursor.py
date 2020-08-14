@@ -89,7 +89,7 @@ class DummyCursor(object):
     def cursorRelation(self) -> Optional["pnsqlcursor.PNSqlCursor"]:
         """Return cursor Relation."""
 
-        LOGGER.warning("DummyCursor return a empty cursorRelation ever!")
+        LOGGER.warning("DummyCursor return a empty cursorRelation ever!", stack_info=True)
         return None
 
     def get_bc_signal(self):
