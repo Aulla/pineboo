@@ -191,7 +191,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         force_new = True
 
-        if self._current_session is not None:
+        if hasattr(self, "_current_session") and self._current_session is not None:
             try:
                 if not self._current_session.connection().closed:
                     force_new = False
