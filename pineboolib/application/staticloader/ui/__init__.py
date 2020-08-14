@@ -1,3 +1,1 @@
-""" 
-Staticloader ui module.
-"""
+""" Staticloader ui module."""
