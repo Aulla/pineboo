@@ -380,7 +380,7 @@ class PNStaticLoader(QtCore.QObject):
                 WARN_.warns_.append(msg)
                 WARN_.paths_.append("%s:%s" % (name, file_path))
                 if settings.CONFIG.value("ebcomportamiento/SLConsola", False):
-                    LOGGER.warning("STATIC LOAD: ACTIVATED %s -> %s", name, file_path)
+                    LOGGER.info("STATIC LOAD: ACTIVATED %s -> %s", name, file_path)
                 if settings.CONFIG.value("ebcomportamiento/SLGUI", False):
                     QtCore.QTimer.singleShot(500, WARN_.popupWarnings)
 
