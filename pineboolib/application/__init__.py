@@ -10,8 +10,9 @@ from typing import Dict
 PROJECT = Project()
 SHOW_CURSOR_EVENTS: bool = False
 SHOW_CLOSED_CONNECTION_WARNING: bool = False
+SHOW_NESTED_WARNING: bool = False
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest
 LOG_SQL = False
 USE_WEBSOCKET_CHANNEL = False
-PINEBOO_VER = "0.73.17.7"
+PINEBOO_VER = "0.73.18.1"
 FILE_CLASSES: Dict[str, str] = {}

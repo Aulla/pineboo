@@ -2701,7 +2701,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         # savePoint = None
 
         if not self.transactionLevel():
+
             self.db().transaction()
+            if application.SHOW_NESTED_WARNING:
+                LOGGER.warning(
+                    "NESTED STARTED: %s, SESSION : %s, PARENT : %s, CURRENT : %s,",
+                    self.curName().upper(),
+                    self.db().session(),
+                    self.db().session().transaction.parent,
+                    self.db().session().transaction,
+                )
             use_nested = True
 
         if self.modeAccess() == self.Insert:
@@ -2739,7 +2748,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if self.private_cursor.cursor_relation_ and self.private_cursor.relation_:
                 if self.private_cursor.cursor_relation_.metadata():
                     self.private_cursor.cursor_relation_.setAskForCancelChanges(True)
-            LOGGER.trace("commitBuffer -- Edit . 20 . ")
+
             if self.isModifiedBuffer():
 
                 if not self.buffer().apply_buffer():
@@ -2748,16 +2757,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     )
                     return False
 
-                LOGGER.trace("commitBuffer -- Edit . 22 . ")
                 if not self.update(False):
                     LOGGER.warning("CommitBuffer cancelado. no se ha podido hacer update.")
                     return False
 
-                LOGGER.trace("commitBuffer -- Edit . 25 . ")
-
-                updated = 2
                 self.setNotGenerateds()
-            LOGGER.trace("commitBuffer -- Edit . 30 . ")
+
+            updated = 2
 
         elif self.modeAccess() == self.Del:
 
@@ -2879,7 +2885,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         elif self.modeAccess() == self.Insert:
             self.setModeAccess(self.Edit)
 
-        if updated:
+        if updated or use_nested:
             # Para cuando usamos npsqlcursors solos!
             if use_nested:
                 pk_value = self.buffer().value(self.primaryKey())
@@ -2904,7 +2910,23 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if pk_row > -1:
                     self.move(pk_row)
                     self.refreshBuffer()
+
+                if application.SHOW_NESTED_WARNING:
+                    LOGGER.warning(
+                        "ENDING NESTED : %s, SESSION : %s, PARENT : %s, CURRENT : %s,",
+                        self.curName().upper(),
+                        self.db().session(),
+                        self.db().session().transaction.parent,
+                        self.db().session().transaction,
+                    )
                 self.db().commit()
+
+                if application.SHOW_NESTED_WARNING:
+                    LOGGER.warning(
+                        "RESULT NESTED : %s, CURRENT : %s",
+                        self.curName().upper(),
+                        self.db().session().transaction,
+                    )
 
             # if self.transactionLevel() == 0:
             #    self.db().commit()
