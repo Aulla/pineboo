@@ -122,8 +122,10 @@ class BaseModel(object):
                     self._action.load_record_widget()
 
                 if self._action._master_script and not self._action._master_widget:
-                    module_script = self._action.load_master_widget()
-                    self._module_iface = getattr(module_script, "iface", None)
+                    module_action = application.PROJECT.actions[self._action._mod.module_name]
+                    if module_action is not None:
+                        module_script = module_action.load_master_widget()
+                        self._module_iface = getattr(module_script, "iface", module_script)
 
         self._deny_buffer_changed = []
 

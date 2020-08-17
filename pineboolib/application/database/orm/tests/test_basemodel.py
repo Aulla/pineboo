@@ -26,6 +26,8 @@ class TestBaseModel(unittest.TestCase):
         """Test mode access."""
 
         obj_ = qsa.orm.flareas()
+        self.assertTrue(obj_._module_iface)
+
         cursor = obj_.cursor
         self.assertEqual(cursor.modeAccess(), cursor.Insert)
         obj_.idarea = "TT"
