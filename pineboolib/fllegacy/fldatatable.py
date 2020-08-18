@@ -699,7 +699,6 @@ class FLDataTable(QtWidgets.QTableView):
 
             self.cur.setFilter(filter)
             if self.sort_:
-                print("*", self.sort_)
                 self.cur.setSort(self.sort_)
 
             last_pk = None
@@ -882,7 +881,7 @@ class FLDataTable(QtWidgets.QTableView):
         Return the metadata of a field according to visual position.
         """
 
-        logical_idx = self.visual_index_to_logical_index(pos_)
+        logical_idx = self.visual_index_to_column_index(pos_)
 
         if logical_idx < 0:
             return None
