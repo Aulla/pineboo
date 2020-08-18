@@ -663,6 +663,14 @@ class FLDataTable(QtWidgets.QTableView):
     #    #    self.refresh()
     #    super().focusInEvent(e)
 
+    def sortByColumn(self, column, order) -> None:
+        """Overload Sort by column."""
+
+        super().sortByColumn(column, order)
+        if self.cursor_ is not None:
+            mtdfield = self.cursor_.metadata().indexFieldObject(column)
+            self.sort_ = "%s %s" % (mtdfield.name(), "ASC" if not order else "DESC")
+
     def refresh(self, refresh_option: Any = None) -> None:
         """
         Refresh the cursor.
@@ -691,6 +699,7 @@ class FLDataTable(QtWidgets.QTableView):
 
             self.cur.setFilter(filter)
             if self.sort_:
+                print("*", self.sort_)
                 self.cur.setSort(self.sort_)
 
             last_pk = None
@@ -873,11 +882,13 @@ class FLDataTable(QtWidgets.QTableView):
         Return the metadata of a field according to visual position.
         """
 
-        col_idx = self.visual_index_to_column_index(pos_)
-        if col_idx < 0:
+        logical_idx = self.visual_index_to_logical_index(pos_)
+
+        if logical_idx < 0:
             return None
 
-        logical_idx = self.logical_index_to_visual_index(col_idx)
+        # logical_idx = self.logical_index_to_visual_index(col_idx)
+
         model: "pncursortablemodel.PNCursorTableModel" = self.model()
         mtd = model.metadata()
         mtdfield = mtd.indexFieldObject(logical_idx)

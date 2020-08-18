@@ -2042,12 +2042,13 @@ class FLTableDB(QtWidgets.QWidget):
                 field_1 = self.tableRecords_.visual_index_to_field(self.sortColumn_)
                 field_2 = self.tableRecords_.visual_index_to_field(self.sortColumn2_)
                 field_3 = self.tableRecords_.visual_index_to_field(self.sortColumn3_)
-                if field_1:
+
+                if field_1 is not None:
                     s.append("%s %s" % (field_1.name(), "ASC" if self.orderAsc_ else "DESC"))
-                if field_2:
-                    s.append("%s %s" % (field_2.name(), "ASC" if self.orderAsc_ else "DESC"))
-                if field_3:
-                    s.append("%s %s" % (field_3.name(), "ASC" if self.orderAsc_ else "DESC"))
+                if field_2 is not None:
+                    s.append("%s %s" % (field_2.name(), "ASC" if self.orderAsc2_ else "DESC"))
+                if field_3 is not None:
+                    s.append("%s %s" % (field_3.name(), "ASC" if self.orderAsc3_ else "DESC"))
 
                 id_mod = (
                     self.cursor()
@@ -2834,7 +2835,7 @@ class FLTableDB(QtWidgets.QWidget):
     ) -> None:
         """Set sort columns order."""
         if isinstance(ascending, int):
-            ascending = True if ascending == 1 else False
+            ascending = ascending == 1
 
         order = QtCore.Qt.AscendingOrder if ascending else QtCore.Qt.DescendingOrder
 
@@ -2854,6 +2855,7 @@ class FLTableDB(QtWidgets.QWidget):
                 if not self.tableRecords_.isColumnHidden(column):
                     break
                 col += 1
+
             self.tableRecords_.sortByColumn(column, order)
 
     def isSortOrderAscending(self) -> bool:
