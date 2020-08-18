@@ -135,10 +135,16 @@ class PNBuffer(object):
                 if metadata is not None:
                     type_ = metadata.type()
                     if type_ == "date":
-                        value = value.strftime("%Y-%m-%d")  # type: ignore [union-attr] # noqa: F821
+                        if not isinstance(value, str):
+                            value = value.strftime(  # type: ignore [union-attr] # noqa: F821
+                                "%Y-%m-%d"
+                            )
 
                     elif type_ == "time":
-                        value = value.strftime("%H:%M:%S")  # type: ignore [union-attr] # noqa: F821
+                        if not isinstance(value, str):
+                            value = value.strftime(  # type: ignore [union-attr] # noqa: F821
+                                "%H:%M:%S"
+                            )
 
         return value
 
