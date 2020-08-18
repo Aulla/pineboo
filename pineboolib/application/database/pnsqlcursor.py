@@ -556,7 +556,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         else:
             if type_ in ("string", "stringlist", "date", "timestamp"):
                 value = ""
-            elif type_ in ("double", "int", "uint"):
+            elif type_ in ("double", "int", "uint", "serial"):
                 value = 0
 
         # print("******************* Devolviendo", field_name, type_, value, type(value))
