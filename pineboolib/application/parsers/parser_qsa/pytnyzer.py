@@ -94,6 +94,7 @@ QSA_KNOWN_ATTRS = {
     "FLPosPrinter",
     "FLReportEngine",
     "FLJasperEngine",
+    "FLJasperViewer",
     "FLReportViewer",
     "FLSerialPort",
     "FLSpinBox",
