@@ -110,6 +110,7 @@ class TestBaseModel(unittest.TestCase):
         obj_2.session.commit()
 
         self.assertTrue(obj_.save())
+        self.assertEqual(qsa.FLUtil().sqlSelect("flmodules", "idmodulo", "idarea='F'"), "mod2")
         obj_3 = qsa.orm_("flmodules")()
         obj_3.idmodulo = "mod1"
         obj_3.idarea = "G"
