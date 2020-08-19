@@ -1362,6 +1362,16 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         return self.private_cursor.relation_
 
+    def obj(self) -> Optional["QtWidgets.QTableView"]:
+        """Return parent widget."""
+
+        ret = None
+        model = self.model()
+        if model is not None:
+            ret = model.parent_view
+
+        return ret
+
     def setUnLock(self, field_name: str, v: bool) -> None:
         """
         Unlock the current cursor record.
