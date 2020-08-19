@@ -161,6 +161,16 @@ class Process(ProcessBaseClass):
 
         return self.exitCode()
 
+    def readStderr(self) -> str:
+        """Return standart error."""
+
+        return self.stderr
+
+    def readStdout(self) -> str:
+        """Return standart output."""
+
+        return self.stdout
+
     def executeNoSplit(self, comando: Union[list, "types.Array"], stdin_buffer: str = "") -> int:
         """Execute command no splitted."""
 
