@@ -495,7 +495,7 @@ class BaseModel(object):
                 elif key in application.PROJECT.conn_manager.last_thread_session.keys():
                     session_ = application.PROJECT.conn_manager.last_thread_session[key]
 
-                elif session in application.PROJECT.conn_manager.dictDatabases().keys():
+                elif session_or_name in application.PROJECT.conn_manager.dictDatabases().keys():
                     session_ = cls.get_session_from_connection(session_or_name)
             else:
                 session_ = session_or_name
