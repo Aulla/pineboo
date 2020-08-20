@@ -756,13 +756,7 @@ class FLFieldDB(QtWidgets.QWidget):
             cast(fllineedit.FLLineEdit, self.editor_).setText(value)
 
         elif type_ == "double":
-            num_ = value if value else 0
-
-            num_ = str(
-                round(
-                    float(value), self._part_decimal if self._part_decimal else field.partDecimal()
-                )
-            )
+            num_ = str(round(float(value or 0), self._part_decimal or field.partDecimal()))
 
             cast(fllineedit.FLLineEdit, self.editor_).setText(num_)
 
