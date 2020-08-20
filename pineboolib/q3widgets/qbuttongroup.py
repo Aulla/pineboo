@@ -13,11 +13,12 @@ class QButtonGroup(qgroupbox.QGroupBox):
     """QButtonGroup class."""
 
     pressed = QtCore.pyqtSignal(int)
+    clicked = QtCore.pyqtSignal(int)
 
     def __init__(self, *args) -> None:
         """Inicialize."""
 
-        super(QButtonGroup, self).__init__(*args)
+        super().__init__(*args)
         self.bg_ = QtWidgets.QButtonGroup(self)
         self.selectedId = -1
 

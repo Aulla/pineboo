@@ -39,6 +39,7 @@ class QRadioButton(QtWidgets.QRadioButton):
 
         if self.parent() and hasattr(self.parent(), "selectedId"):
             cast(QButtonGroup, self.parent()).presset.emit(self.dg_id)
+            cast(QButtonGroup, self.parent()).clicked.emit(self.dg_id)
 
     def get_checked(self) -> bool:
         """Return is checked."""
