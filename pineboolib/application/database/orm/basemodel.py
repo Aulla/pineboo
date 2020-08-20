@@ -479,30 +479,32 @@ class BaseModel(object):
         return ret_
 
     @classmethod
-    def query(cls, session: Union[str, "orm.Session"] = "default") -> Optional["orm.query.Query"]:
+    def query(
+        cls, session_or_name: Union[str, "orm.Session"] = "default"
+    ) -> Optional["orm.query.Query"]:
         """Return Session query."""
 
         ret_ = None
-        if session is not None:
-            session_: "orm.session.Session"
-            if isinstance(session, str):
+        session_: Optional["orm.session.Session"] = None
+        if session_or_name is not None:
+            if isinstance(session_or_name, str):
                 id_thread = threading.current_thread().ident
-                key = "%s_%s" % (id_thread, session)
+                key = "%s_%s" % (id_thread, session_or_name)
                 if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
                     session_ = application.PROJECT.conn_manager.thread_atomic_sessions[key]
                 elif key in application.PROJECT.conn_manager.last_thread_session.keys():
                     session_ = application.PROJECT.conn_manager.last_thread_session[key]
 
                 elif session in application.PROJECT.conn_manager.dictDatabases().keys():
-                    session_ = cls.get_session_from_connection(session)
+                    session_ = cls.get_session_from_connection(session_or_name)
             else:
-                session_ = session
+                session_ = session_or_name
 
             if isinstance(session_, orm.session.Session):
                 ret_ = session_.query(cls)
 
         if ret_ is None:
-            LOGGER.warning("query: Invalid session %s ", session)
+            LOGGER.warning("query: Invalid session %s ", session_or_name)
 
         return ret_
 

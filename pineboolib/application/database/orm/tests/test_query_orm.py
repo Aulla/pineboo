@@ -17,6 +17,22 @@ class TestQueryOrm(unittest.TestCase):
         application.PROJECT.conn_manager.manager().createTable("fltest4")
         application.PROJECT.conn_manager.manager().createTable("fltest5")
 
+    def test_session(self) -> None:
+        """Test session query."""
+
+        session = qsa.session()
+        session.begin()
+        class_area = qsa.orm_("fltest4")
+        obj_area = class_area()
+        session.close()
+        obj_area.idarea = "E"
+        obj_area.other_field = "DSGDSGSDG**"
+        self.assertTrue(obj_area.save())
+
+        class_area = qsa.orm_("fltest4")
+        result = class_area.query().filter(class_area.idarea == "E").first()
+        self.assertTrue(result)
+
     def test_delete(self) -> None:
         """Test delete with children."""
 
@@ -60,6 +76,7 @@ class TestQueryOrm(unittest.TestCase):
         self.assertEqual(len(class_child.query().all()), 0)
 
         self.assertFalse(class_area.get("E"))
+        session.close()
 
     @classmethod
     def tearDownClass(cls) -> None:
