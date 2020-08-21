@@ -38,7 +38,7 @@ class FLFastCgi(object):
     def read(self, block_size: int = 65535) -> str:
         """Return xml entity decode."""
 
-        return 0
+        return ""
 
     @decorators.not_implemented_warn
     def write(self, data: str) -> int:
