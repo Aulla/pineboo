@@ -128,7 +128,7 @@ class SysType(sysbasetype.SysBaseType):
         application.PROJECT.aq_app.printTextEdit(editor)
 
     def diskCacheAbsDirPath(self) -> str:
-        """Returns Absolute disk cache path."""
+        """Return Absolute disk cache path."""
 
         return os.path.abspath(application.PROJECT.tmpdir)
 
