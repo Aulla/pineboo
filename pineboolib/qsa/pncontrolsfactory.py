@@ -134,6 +134,7 @@ from pineboolib.fllegacy.flreportviewer import FLReportViewer  # noqa: F401
 from pineboolib.fllegacy.flreportengine import FLReportEngine  # noqa: F401
 from pineboolib.fllegacy.fljasperengine import FLJasperEngine  # noqa: F401
 from pineboolib.fllegacy.fljasperviewer import FLJasperViewer  # noqa: F401
+from pineboolib.fllegacy.flfastcgi import FLFastCgi  # noqa: F401
 
 from pineboolib.fllegacy.flapplication import FLApplication  # noqa: F401
 from pineboolib.fllegacy.flvar import FLVar  # noqa: F401

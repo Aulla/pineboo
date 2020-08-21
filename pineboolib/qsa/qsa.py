@@ -58,7 +58,7 @@ from .pncontrolsfactory import QPopupMenu, QBuffer, QHButtonGroup, QVButtonGroup
 from .pncontrolsfactory import QHttp, QHttpResponseHeader, QHttpRequestHeader  # noqa: F401
 
 # FL
-from .pncontrolsfactory import FLDomDocument, FLDomElement, FLDomNode  # noqa: F401
+from .pncontrolsfactory import FLDomDocument, FLDomElement, FLDomNode, FLFastCgi  # noqa: F401
 from .pncontrolsfactory import FLDomNodeList, FLLineEdit, FLTimeEdit, FLDateEdit  # noqa: F401
 from .pncontrolsfactory import FLPixmapView, FLDataTable, FLCheckBox  # noqa: F401
 from .pncontrolsfactory import FLTextEditOutput, FLSpinBox, FLTableDB, FLFieldDB  # noqa: F401
