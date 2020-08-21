@@ -146,7 +146,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                             replace_static = True
                         else:
                             replace_static = False
-                    except Exception as error:
+                    except Exception:
                         flag_file = open(static_flag, "r", encoding="UTF8")
                         flag_data = flag_file.read()
                         flag_file.close()

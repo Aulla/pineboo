@@ -51,4 +51,3 @@ class FLFastCgi(object):
         """Return error."""
 
         return 0
-
