@@ -147,14 +147,14 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
                         else:
                             replace_static = False
                     except Exception as error:
-                        file_ = open(static_flag, "r", encoding="UTF8")
-                        data = file_.read()
-                        file_.close()
+                        flag_file = open(static_flag, "r", encoding="UTF8")
+                        flag_data = flag_file.read()
+                        flag_file.close()
 
                         LOGGER.warning(
                             "A problem found reading %s data: %s. Forcing realoading",
                             static_flag,
-                            data,
+                            flag_data,
                         )
 
                         replace_static = True
