@@ -135,16 +135,22 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
             if script_path_qs_static:
                 replace_static = True
                 if os.path.exists(static_flag):
-                    tree = ET.parse(static_flag)
-                    root = tree.getroot()
-                    if root.get("path_legacy") != script_path_qs:
+                    try:
+                        tree = ET.parse(static_flag)
+                        root = tree.getroot()
+                        if root.get("path_legacy") != script_path_qs:
+                            replace_static = True
+                        elif root.get("last_modified_remote") != str(
+                            time.ctime(os.path.getmtime(script_path_qs_static))
+                        ):
+                            replace_static = True
+                        else:
+                            replace_static = False
+                    except Exception as error:
+                        LOGGER.warning(
+                            "A problem found reading %s. Forcing realoading", replace_static
+                        )
                         replace_static = True
-                    elif root.get("last_modified_remote") != str(
-                        time.ctime(os.path.getmtime(script_path_qs_static))
-                    ):
-                        replace_static = True
-                    else:
-                        replace_static = False
 
                 if replace_static:
                     shutil.copy(script_path_qs_static, script_path_qs)  # Lo copiamos en tempdata
