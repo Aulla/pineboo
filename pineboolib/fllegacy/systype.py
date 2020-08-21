@@ -127,6 +127,11 @@ class SysType(sysbasetype.SysBaseType):
 
         application.PROJECT.aq_app.printTextEdit(editor)
 
+    def diskCacheAbsDirPath(self) -> str:
+        """Returns Absolute disk cache path."""
+
+        return os.path.abspath(application.PROJECT.tmpdir)
+
     def dialogGetFileImage(self) -> Optional[str]:
         """Show a file dialog and return a file name."""
 
