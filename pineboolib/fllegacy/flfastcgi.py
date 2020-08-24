@@ -4,6 +4,8 @@ from pineboolib.core import decorators
 
 
 class FLFastCgi(object):
+    """FLFastCgi class."""
+
     @decorators.not_implemented_warn
     def getFullEnv(self) -> str:
         """Return full enviroment."""
