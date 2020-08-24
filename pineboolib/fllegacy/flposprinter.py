@@ -19,7 +19,7 @@ class FLPosPrinter(object):
     _papers_width: List[int]
     _paper_width: int
     server_: str
-    queueName_: str
+    _queue_name: str
 
     def __init__(self) -> None:
         """Inicialize."""
@@ -145,5 +145,5 @@ class FLPosPrinter(object):
 
         posdots = self._printer_name.find(":")
         self.server_ = self._printer_name[:posdots]
-        self.queueName_ = self._printer_name[posdots:]
-        print("FLPosPrinter:parsePinterName", self.server_, self.queueName_)
+        self._queue_name = self._printer_name[posdots:]
+        print("FLPosPrinter:parsePinterName", self.server_, self._queue_name)

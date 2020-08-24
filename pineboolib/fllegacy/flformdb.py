@@ -1018,6 +1018,7 @@ class FLFormDB(QtWidgets.QDialog):
         return getattr(self.action_widget, "iface", None)
 
     def init_tool_bar(self) -> None:
+        """Init bottomtoolbar."""
 
         self.bottomToolbar.setMinimumSize(self._icon_size)
         hblay = QtWidgets.QHBoxLayout()

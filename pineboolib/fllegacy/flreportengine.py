@@ -42,12 +42,12 @@ class FLReportEngine(QtCore.QObject):
         q_img_fields_: List[int]
         qry_: Optional[PNSqlQuery]
 
-        def __init__(self, q: "FLReportEngine") -> None:
+        def __init__(self, report_engine: "FLReportEngine") -> None:
             """Inicialize."""
             self.qry_ = None
             self.q_field_mtd_list_ = []
             self.q_group_dict_ = {}
-            self.q_ = q
+            self.report_engine = report_engine
             self.template_ = ""
             self.rows_ = []
             self.q_field_list_ = []
@@ -60,27 +60,27 @@ class FLReportEngine(QtCore.QObject):
             if not self.qry_ or not self.qry_.isValid():
                 return
 
-            row = self.q_.rptXmlData().createElement("Row")
+            row = self.report_engine.rptXmlData().createElement("Row")
             row.setAttribute("level", level)
 
-            for i, it in enumerate(self.q_field_list_):
-                strVal = str(self.qry_.value(it, False))
+            for num, item in enumerate(self.q_field_list_):
+                str_val = str(self.qry_.value(item, False))
                 if self.q_img_fields_:
-                    if self.q_img_fields_[-1] == i:
+                    if self.q_img_fields_[-1] == num:
                         self.q_img_fields_.append(self.q_img_fields_.pop())
-                        if strVal in ["", "None"]:
-                            row.setAttribute(it, strVal)
+                        if str_val in ["", "None"]:
+                            row.setAttribute(item, str_val)
                             continue
 
-                    key = self.qry_.value(i, False)
-                    row.setAttribute(it, key)
+                    key = self.qry_.value(num, False)
+                    row.setAttribute(item, key)
 
                 else:
-                    row.setAttribute(it, strVal)
+                    row.setAttribute(item, str_val)
 
             self.rows_.appendChild(row)
 
-        def groupBy(self, levelMax: int, va_: List[Any]) -> None:
+        def groupBy(self, level_max: int, va_: List[Any]) -> None:
             """Add a group by."""
             if not self.qry_ or not self.qry_.isValid():
                 return
@@ -88,14 +88,16 @@ class FLReportEngine(QtCore.QObject):
             # self.q_group_dict_
             lev = 0
 
-            while lev < levelMax and str(self.qry_.value(self.q_group_dict_[lev])) == str(va_[lev]):
+            while lev < level_max and str(self.qry_.value(self.q_group_dict_[lev])) == str(
+                va_[lev]
+            ):
                 lev += 1
 
-            for i in range(lev, levelMax):
-                self.addRowToReportData(i)
-                va_[i] = str(self.qry_.value(self.q_group_dict_[i]))
+            for num in range(lev, level_max):
+                self.addRowToReportData(num)
+                va_[num] = str(self.qry_.value(self.q_group_dict_[num]))
 
-            self.addRowToReportData(levelMax)
+            self.addRowToReportData(level_max)
 
         def setQuery(self, qry: Optional[PNSqlQuery]) -> None:
             """Set query to the report."""
@@ -111,19 +113,18 @@ class FLReportEngine(QtCore.QObject):
                 if not self.q_field_mtd_list_:
                     return
 
-                i = len(self.q_field_list_) - 1
-                while i >= 0:
-                    it = self.q_field_list_[i]
-                    key = it[it.find(".") + 1 :].lower()
-                    for f in self.q_field_mtd_list_:
-                        if f.name() == key:
-                            fmtd = f
-                            if fmtd.type() == "pixmap":
-                                self.q_img_fields_.append(i)
-                            elif fmtd.type() == "double":
-                                self.q_double_field_list_.append(it)
+                size = len(self.q_field_list_) - 1
+                while size >= 0:
+                    item = self.q_field_list_[size]
+                    key = item[item.find(".") + 1 :].lower()
+                    for field in self.q_field_mtd_list_:
+                        if field.name() == key:
+                            if field.type() == "pixmap":
+                                self.q_img_fields_.append(size)
+                            elif field.type() == "double":
+                                self.q_double_field_list_.append(item)
                             break
-                    i -= 1
+                    size -= 1
             else:
                 self.q_field_list_.clear()
                 self.q_double_field_list_.clear()
@@ -144,13 +145,13 @@ class FLReportEngine(QtCore.QObject):
         return self.rel_dpi_
 
     def setReportData(
-        self, q: Optional[Union[FLDomNodeInterface, PNSqlQuery]] = None
+        self, qry: Optional[Union[FLDomNodeInterface, PNSqlQuery]] = None
     ) -> Optional[bool]:
         """Set data source to report."""
 
-        if isinstance(q, FLDomNodeInterface):
-            return self.setFLReportData(q)
-        if q is None:
+        if isinstance(qry, FLDomNodeInterface):
+            return self.setFLReportData(qry)
+        if qry is None:
             return None
 
         self.rd_ = QtXml.QDomDocument("KugarData")
@@ -158,25 +159,25 @@ class FLReportEngine(QtCore.QObject):
         self.private_.rows_ = (
             self.rd_.createDocumentFragment()
         )  # FIXME: Don't set the private from the public.
-        self.private_.setQuery(q)
-        q.setForwardOnly(True)
-        if q.exec_() and q.next():
-            g = self.private_.q_group_dict_
-            if not g:
+        self.private_.setQuery(qry)
+        qry.setForwardOnly(True)
+        if qry.exec_() and qry.next():
+            group = self.private_.q_group_dict_
+            if not group:
                 while True:
                     self.private_.addRowToReportData(0)
-                    if not q.next():
+                    if not qry.next():
                         break
             else:
-                vA: List[None] = []
-                for i in range(10):
-                    vA.append(None)
+                values_: List[None] = []
+                for item in range(10):
+                    values_.append(None)
 
-                ok = True
-                while ok:
-                    self.private_.groupBy(len(g), vA)
-                    if not q.next():
-                        ok = False
+                ok_ = True
+                while ok_:
+                    self.private_.groupBy(len(group), values_)
+                    if not qry.next():
+                        ok_ = False
 
         data = self.rd_.createElement("KugarData")
         data.appendChild(self.private_.rows_)
