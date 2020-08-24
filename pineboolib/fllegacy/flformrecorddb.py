@@ -221,23 +221,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         if self.bottomToolbar and self.toolButtonClose:
             self.toolButtonClose.hide()
 
-        self.bottomToolbar = QtWidgets.QFrame()
-
-        if self.bottomToolbar:
-            self.bottomToolbar.setMinimumSize(self._icon_size)
-            hblay = QtWidgets.QHBoxLayout()
-            hblay.setContentsMargins(0, 0, 0, 0)
-            hblay.setSpacing(0)
-            hblay.addStretch()
-            self.bottomToolbar.setLayout(hblay)
-            self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
-            self.layout_.addWidget(self.bottomToolbar)
-
-        else:
-            raise Exception("bottomToolbar is missing!")
-        # if self.layout:
-        #    self.layout = None
-        # Limpiamos la toolbar
+        self.init_tool_bar()
 
         size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy(0), QtWidgets.QSizePolicy.Policy(0)

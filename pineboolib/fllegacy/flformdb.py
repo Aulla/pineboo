@@ -631,26 +631,8 @@ class FLFormDB(QtWidgets.QDialog):
 
         if self.bottomToolbar and self.toolButtonClose:
             self.toolButtonClose.hide()
-        self.bottomToolbar = QtWidgets.QFrame()
 
-        if self.bottomToolbar is None:
-            raise Exception("bottomToolBar is empty!")
-
-        if self._icon_size is not None:
-            self.bottomToolbar.setMinimumSize(self._icon_size)
-
-        hblay = QtWidgets.QHBoxLayout()
-
-        hblay.setContentsMargins(0, 0, 0, 0)
-        hblay.setSpacing(0)
-        hblay.addStretch()
-        self.bottomToolbar.setLayout(hblay)
-        self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
-        if self.layout_ is not None:
-            self.layout_.addWidget(self.bottomToolbar)
-        # if self.layout:
-        #    self.layout = None
-        # Limpiamos la toolbar
+        self.init_tool_bar()
 
         size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy(0), QtWidgets.QSizePolicy.Policy(0)
@@ -1035,6 +1017,19 @@ class FLFormDB(QtWidgets.QDialog):
 
         return getattr(self.action_widget, "iface", None)
 
+    def init_tool_bar(self) -> None:
+        self.bottomToolbar = QtWidgets.QFrame()
+
+        self.bottomToolbar.setMinimumSize(self._icon_size)
+        hblay = QtWidgets.QHBoxLayout()
+        hblay.setContentsMargins(0, 0, 0, 0)
+        hblay.setSpacing(0)
+        hblay.addStretch()
+        self.bottomToolbar.setLayout(hblay)
+        self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.layout_.addWidget(self.bottomToolbar)
+
     action_widget = property(get_action_widget, set_action_widget)
     cursor_ = property(get_cursor, set_cursor)  # type: ignore [assignment] # noqa: F821
     iface = property(get_iface)
+

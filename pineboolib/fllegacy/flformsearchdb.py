@@ -127,17 +127,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
     def loadControls(self) -> None:
         """Load form controls."""
 
-        self.bottomToolbar = QtWidgets.QFrame()
-        if self.bottomToolbar:
-            self.bottomToolbar.setMaximumHeight(64)
-            self.bottomToolbar.setMinimumHeight(16)
-            hblay = QtWidgets.QHBoxLayout()
-            hblay.setContentsMargins(0, 0, 0, 0)
-            hblay.setSpacing(0)
-            hblay.addStretch()
-            self.bottomToolbar.setLayout(hblay)
-            self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
-            self.layout_.addWidget(self.bottomToolbar)
+        self.init_tool_bar()
 
         size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy(0), QtWidgets.QSizePolicy.Policy(0)
