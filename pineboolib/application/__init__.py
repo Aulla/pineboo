@@ -14,5 +14,5 @@ SHOW_NESTED_WARNING: bool = False
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest
 LOG_SQL = False
 USE_WEBSOCKET_CHANNEL = False
-PINEBOO_VER = "0.73.21.5"
+PINEBOO_VER = "0.73.22"
 FILE_CLASSES: Dict[str, str] = {}
