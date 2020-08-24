@@ -156,7 +156,7 @@ class FLFormDB(QtWidgets.QDialog):
 
     known_instances: Dict[Tuple[Type["FLFormDB"], str], "FLFormDB"] = {}
 
-    bottomToolbar: Optional[QtWidgets.QFrame]
+    bottomToolbar: QtWidgets.QFrame
 
     toolButtonClose: Optional[QtWidgets.QToolButton]
 
@@ -230,7 +230,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         self.pushButtonCancel = None
         self.toolButtonClose = None
-        self.bottomToolbar = None
+        self.bottomToolbar = QtWidgets.QFrame()
         # self.cursor_ = None
         self._init_focus_widget = None
         self.showed = False
@@ -1018,7 +1018,6 @@ class FLFormDB(QtWidgets.QDialog):
         return getattr(self.action_widget, "iface", None)
 
     def init_tool_bar(self) -> None:
-        self.bottomToolbar = QtWidgets.QFrame()
 
         self.bottomToolbar.setMinimumSize(self._icon_size)
         hblay = QtWidgets.QHBoxLayout()
@@ -1032,4 +1031,3 @@ class FLFormDB(QtWidgets.QDialog):
     action_widget = property(get_action_widget, set_action_widget)
     cursor_ = property(get_cursor, set_cursor)  # type: ignore [assignment] # noqa: F821
     iface = property(get_iface)
-

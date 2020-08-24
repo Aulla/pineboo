@@ -123,7 +123,6 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.setCursor(cursor)
         LOGGER.trace("__init__: load formRecord")
         self._ui_name = action.formRecord()
-        self.bottomToolbar = None
         self.pushButtonAccept = None
         self.pushButtonAcceptContinue = None
         self.pushButtonFirst = None
