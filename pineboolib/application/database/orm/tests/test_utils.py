@@ -24,7 +24,7 @@ class TestUtils(unittest.TestCase):
     def test_basic_2(self) -> None:
         """Test basic 2."""
 
-        self.assertEqual(len(qsa.orm.models()), 20)
+        self.assertEqual(len(qsa.orm.models()), 17)
 
     @classmethod
     def tearDownClass(cls) -> None:
