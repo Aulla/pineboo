@@ -11,5 +11,5 @@ class FLMYSQL_INNODB(FLMYSQL_MYISAM):
         super().__init__()
         self.name_ = "FLMYSQL_INNODB"
         self.alias_ = "MySQL INNODB (MYSQLDB)"
-        self.noInnoDB = False
+        self._no_inno_db = False
         self._default_charset = "DEFAULT CHARACTER SET = UTF8MB4 COLLATE = UTF8MB4_BIN"

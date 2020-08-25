@@ -34,7 +34,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         super().__init__()
         self.version_ = "0.9"
         self.name_ = "FLsqlite"
-        self.errorList = []
+        self.error_list = []
         self.alias_ = "SQLite3 (SQLITE3)"
         self.db_filename = None
         self.db_ = None

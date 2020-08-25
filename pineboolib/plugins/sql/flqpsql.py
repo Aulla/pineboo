@@ -25,9 +25,9 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         super().__init__()
         self.version_ = "0.9"
         self.name_ = "FLQPSQL"
-        self.errorList = []
+        self.error_list = []
         self.alias_ = "PostgreSQL (PSYCOPG2)"
-        self.defaultPort_ = 5432
+        self.default_port = 5432
         self._true = True
         self._false = False
         self._like_true = "'t'"

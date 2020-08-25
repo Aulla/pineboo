@@ -27,9 +27,9 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         super().__init__()
         self.version_ = "0.9"
         self.name_ = "FLMSSQL"
-        self.errorList = []
+        self.error_list = []
         self.alias_ = "SQL Server (PYMSSQL)"
-        self.defaultPort_ = 1433
+        self.default_port = 1433
         self.savepoint_command = "SAVE TRANSACTION"
         self.rollback_savepoint_command = "ROLLBACK TRANSACTION"
         self.commit_transaction_command = "COMMIT"
@@ -73,7 +73,7 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
         return 0
 
-    def releaseSavePoint(self, n: int) -> bool:
+    def releaseSavePoint(self, num: int) -> bool:
         """Set release savepoint."""
 
         return True
@@ -261,8 +261,8 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         try:
             conn_db.execute(sql)
             conn_db.execute("OPEN %s" % curname)
-        except Exception as e:
-            LOGGER.error("refreshQuery: %s", e)
+        except Exception as error:
+            LOGGER.error("refreshQuery: %s", error)
             LOGGER.info("SQL: %s", sql)
             LOGGER.trace("Detalle:", stack_info=True)
 

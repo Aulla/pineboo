@@ -25,8 +25,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self.version_ = "0.9"
         self.name_ = "FLMYSQL_MyISAM"
         self.alias_ = "MySQL MyISAM (MYSQLDB)"
-        self.noInnoDB = True
-        self.defaultPort_ = 3306
+        self._no_inno_db = True
+        self.default_port = 3306
         self.active_create_index = True
         self.rollback_savepoint_command = "ROLLBACK TO SAVEPOINT"
         self.commit_transaction_command = "COMMIT"
@@ -174,7 +174,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             if number != len(field_list) - 1:
                 sql += ","
 
-        engine = ") ENGINE=INNODB" if not self.noInnoDB else ") ENGINE=MyISAM"
+        engine = ") ENGINE=INNODB" if not self._no_inno_db else ") ENGINE=MyISAM"
         sql += engine
 
         sql += " %s" % self._default_charset

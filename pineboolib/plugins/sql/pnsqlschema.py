@@ -42,13 +42,13 @@ class PNSqlSchema(object):
     version_: str
     name_: str
     alias_: str
-    errorList: List[str]
-    lastError_: str
+    error_list: List[str]
+    _last_error: str
     db_: Any
     _dbname: str
     mobile_: bool
     pure_python_: bool
-    defaultPort_: int
+    default_port: int
     cursor_proxy: Dict[str, "result.ResultProxy"]
     open_: bool
     desktop_file: bool
@@ -73,15 +73,15 @@ class PNSqlSchema(object):
         self.version_ = ""
         self.name_ = ""
         # self._connection = None
-        self.errorList = []
+        self.error_list = []
         self.alias_ = ""
         self._dbname = ""
         self.mobile_ = False
         self.pure_python_ = False
-        self.defaultPort_ = 0
+        self.default_port = 0
         self._parse_porc = True
 
-        self.lastError_ = ""
+        self._last_error = ""
         self.db_ = None
 
         self._text_cascade = "CASCADE"
@@ -141,10 +141,10 @@ class PNSqlSchema(object):
             if not application.PROJECT.DGI.localDesktop():
                 return None
 
-            last_error = self.last_error()
+            _last_error = self.last_error()
             found = False
             for key in self._database_not_found_keywords:
-                if key in last_error:
+                if key in _last_error:
                     found = True
                     break
 
@@ -291,8 +291,8 @@ class PNSqlSchema(object):
         #    self._session = Session()
 
         # return self._session
-        Session = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
-        new_session = Session()
+        session_class = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
+        new_session = session_class()
         setattr(new_session, "_conn_name", self.db_._name)
         return new_session
 
@@ -321,31 +321,31 @@ class PNSqlSchema(object):
 
         return self._connection
 
-    def formatValueLike(self, type_: str, v: Any, upper: bool) -> str:
+    def formatValueLike(self, type_: str, value: Any, upper: bool) -> str:
         """Return a string with the format value like."""
 
         util = flutil.FLUtil()
         res = "IS NULL"
 
         if type_ == "bool":
-            s = str(v[0]).upper()
-            if s == str(util.translate("application", "Sí")[0]).upper():
+            value = str(value[0]).upper()
+            if value == str(util.translate("application", "Sí")[0]).upper():
                 res = "=%s" % self._like_true
             else:
                 res = "=%s" % self._like_false
 
         elif type_ == "date":
-            dateamd = util.dateDMAtoAMD(str(v))
+            dateamd = util.dateDMAtoAMD(str(value))
             if dateamd is None:
                 dateamd = ""
             res = self._text_like + "LIKE '%%" + dateamd + "'"
 
         elif type_ == "time":
-            t = v.toTime()
-            res = self._text_like + "LIKE '" + t.toString(QtCore.Qt.ISODate) + "%%'"
+            time_ = value.toTime()
+            res = self._text_like + "LIKE '" + time_.toString(QtCore.Qt.ISODate) + "%%'"
 
         else:
-            res = str(v)
+            res = str(value)
             if upper:
                 res = "%s" % res.upper()
 
@@ -353,55 +353,35 @@ class PNSqlSchema(object):
 
         return res
 
-    def formatValue(self, type_: str, v: Any, upper: bool) -> Optional[Union[int, str, bool]]:
+    def formatValue(self, type_: str, value: Any, upper: bool) -> Optional[Union[int, str, bool]]:
         """Return a string with the format value."""
-        util = flutil.FLUtil()
 
-        s: Any = None
-
-        # if v is None:
-        #    return "NULL"
+        result: Any = value
 
         if type_ == "pixmap":
-            if v.find("'") > -1:
-                s = "'%s'" % self.normalizeValue(v)
-            else:
-                s = "'%s'" % v
+            result = "'%s'" % self.normalizeValue(value) if value.find("'") > -1 else value
 
         elif type_ in ("bool", "unlock"):
-            if isinstance(v, bool):
-                s = self._true if v else self._false
-            else:
-                s = self._true if utils_base.text2bool(str(v)) else self._false
+            result = self._true if utils_base.text2bool(str(value)) else self._false
 
         elif type_ == "date":
-            if len(str(v).split("-")[0]) < 3:
-                date_ = str(util.dateDMAtoAMD(v))
-            else:
-                date_ = "%s" % v
-
-            s = "'%s'" % date_
+            result = "'%s'" % str(flutil.FLUtil.dateDMAtoAMD(value))
 
         elif type_ == "time":
-            s = "'%s'" % v if v else ""
+            result = "'" + value + "'" if value else ""
 
         elif type_ in ("uint", "int", "double", "serial"):
-            s = v or 0
+            result = value or 0
 
         elif type_ in ("string", "stringlist", "timestamp"):
-            if not v:
-                s = self._null
-            else:
-                if type_ == "string":
-                    v = utils_base.auto_qt_translate_text(v)
-                    if upper:
-                        v = v.upper()
+            if type_ == "string":
+                value = utils_base.auto_qt_translate_text(value)
+                if upper:
+                    value = value.upper()
 
-            s = "'%s'" % v
-        else:
-            s = v
+            result = "'%s'" % value or self._null
 
-        return str(s)
+        return str(result)
 
     def canOverPartition(self) -> bool:
         """Return can override partition option ready."""
@@ -462,16 +442,16 @@ class PNSqlSchema(object):
 
     def set_last_error_null(self) -> None:
         """Set lastError flag Null."""
-        self.lastError_ = ""
+        self._last_error = ""
 
     def set_last_error(self, text: str, command: str) -> None:
         """Set last error."""
-        self.lastError_ = "%s (%s)" % (text, command)
-        LOGGER.error(self.lastError_)
+        self._last_error = "%s (%s)" % (text, command)
+        LOGGER.error(self._last_error)
 
     def last_error(self) -> str:
         """Return last error."""
-        return self.lastError_
+        return self._last_error
 
     @decorators.not_implemented_warn
     def setType(self, type_: str, leng: int = 0) -> str:
@@ -614,7 +594,7 @@ class PNSqlSchema(object):
         return ret
 
     @decorators.not_implemented_warn
-    def tables(self, typeName: Optional[str] = None) -> List[str]:
+    def tables(self, type_name: Optional[str] = None) -> List[str]:
         """Return a tables list specified by type."""
         return []
 
