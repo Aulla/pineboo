@@ -395,20 +395,30 @@ class FLManager(QtCore.QObject, IManager):
         group_xml = root_.findall("group") or []
 
         if elem_select is not None and elem_select.text:
-            qry.setSelect(elem_select.text.strip(" \t\n\r"))
+            qry.setSelect(
+                elem_select.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+            )
 
         if elem_from is not None and elem_from.text:
-            qry.setFrom(elem_from.text.strip(" \t\n\r"))
+            qry.setFrom(
+                elem_from.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+            )
 
         for where in root_.iter("where"):
             if where is not None and where.text:
-                qry.setWhere(where.text.strip(" \t\n\r"))
+                qry.setWhere(
+                    where.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+                )
 
         if elem_tables is not None and elem_tables.text:
-            qry.setTablesList(elem_tables.text.strip(" \t\n\r"))
+            qry.setTablesList(
+                elem_tables.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+            )
 
         if elem_order is not None and elem_order.text:
-            qry.setOrderBy(elem_order.text.strip(" \t\n\r"))
+            qry.setOrderBy(
+                elem_order.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+            )
 
         for level, item in enumerate(group_xml):
             elem_level = item.find("level")
@@ -419,10 +429,24 @@ class FLManager(QtCore.QObject, IManager):
                 and elem_level is not None
                 and elem_level.text
             ):
-                if float(elem_level.text.strip(" \t\n\r")) == level:
+                if (
+                    float(
+                        elem_level.text.replace("\t", "")
+                        .replace("\n", "")
+                        .replace("\r", "")
+                        .strip()
+                    )
+                    == level
+                ):
                     # print("LEVEL %s -> %s" % (i,gr.xpath("field/text()")[0].strip(' \t\n\r')))
                     qry.addGroup(
-                        pngroupbyquery.PNGroupByQuery(level, elem_field.text.strip(" \t\n\r"))
+                        pngroupbyquery.PNGroupByQuery(
+                            level,
+                            elem_field.text.replace("\t", "")
+                            .replace("\n", "")
+                            .replace("\r", "")
+                            .strip(),
+                        )
                     )
 
         return qry
