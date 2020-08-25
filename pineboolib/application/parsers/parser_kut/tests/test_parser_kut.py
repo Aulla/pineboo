@@ -64,8 +64,9 @@ class TestParser(unittest.TestCase):
         rpt_viewer_.setReportData(qry_paises)
 
         rpt_viewer_.renderReport()
-        if rpt_viewer_.rptEngine_ and hasattr(rpt_viewer_.rptEngine_, "parser_"):
-            pdf_file = rpt_viewer_.rptEngine_.parser_.get_file_name()
+        pdf_file = None
+        if rpt_viewer_.report_engine_ and hasattr(rpt_viewer_.report_engine_, "parser_"):
+            pdf_file = rpt_viewer_.report_engine_.parser_.get_file_name()
 
         self.assertTrue(pdf_file)
 
