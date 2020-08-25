@@ -289,7 +289,6 @@ class MainForm(imainwindow.IMainWindow):
     act_sig_map_: QtCore.QSignalMapper
 
     main_widgets_: Dict[str, QtWidgets.QWidget] = {}
-    debugLevel: int
     # lista_tabs_ = []
 
     def __init__(self) -> None:
@@ -1098,23 +1097,23 @@ class MainForm(imainwindow.IMainWindow):
             cast(QtCore.pyqtSignal, dock.doc_widget.topLevelChanged).connect(action.setChecked)
             # dock.doc_widget.Close.connect(action.setChecked)
 
-    def cloneAction(self, act, parent) -> Any:
+    def cloneAction(self, old_action, parent) -> Any:
         """Clone one action into another."""
 
-        ac = QtWidgets.QAction(parent)
-        ac.setObjectName(act.objectName())
-        ac.setText(act.text())
-        ac.setStatusTip(act.statusTip())
-        ac.setToolTip(act.toolTip())
-        ac.setWhatsThis(act.whatsThis())
-        ac.setEnabled(act.isEnabled())
-        ac.setVisible(act.isVisible())
-        ac.triggered.connect(act.trigger)
-        ac.toggled.connect(act.toggle)
-        if not act.icon().isNull():
-            ac.setIcon(self.iconSet16x16(act.icon().pixmap(16, 16)))
+        new_action = QtWidgets.QAction(parent)
+        new_action.setObjectName(old_action.objectName())
+        new_action.setText(old_action.text())
+        new_action.setStatusTip(old_action.statusTip())
+        new_action.setToolTip(old_action.toolTip())
+        new_action.setWhatsThis(old_action.whatsThis())
+        new_action.setEnabled(old_action.isEnabled())
+        new_action.setVisible(old_action.isVisible())
+        new_action.triggered.connect(old_action.trigger)
+        new_action.toggled.connect(old_action.toggle)
+        if not old_action.icon().isNull():
+            new_action.setIcon(self.iconSet16x16(old_action.icon().pixmap(16, 16)))
 
-        return ac
+        return new_action
 
     def addWidgetActions(self, node, action_group, widget) -> None:
         """Add actions belonging to a widget."""
@@ -1193,8 +1192,8 @@ class MainForm(imainwindow.IMainWindow):
 
         reduced = settings.CONFIG.value("ebcomportamiento/ActionsMenuRed", False)
         root = doc.documentElement().toElement()
-        ag = QtWidgets.QActionGroup(parent)
-        ag.setObjectName("%sActions" % parent.objectName())
+        action_group = QtWidgets.QActionGroup(parent)
+        action_group.setObjectName("%sActions" % parent.objectName())
         if root.attribute("version") == "3.3":
             bars = root.namedItem("toolbars").toElement()
             menu = root.namedItem("menubar").toElement()
@@ -1210,23 +1209,23 @@ class MainForm(imainwindow.IMainWindow):
                     items = menu_.toElement().elementsByTagName("widget")
 
         if not reduced:
-            self.addWidgetActions(bars, ag, widget.findChild(QtWidgets.QToolBar))
+            self.addWidgetActions(bars, action_group, widget.findChild(QtWidgets.QToolBar))
 
         if len(items) > 0:
             if not reduced:
-                sep_ = ag.addAction("separator")
+                sep_ = action_group.addAction("separator")
                 sep_.setObjectName("separator")
                 sep_.setSeparator(True)
 
-                menu_ag = QtWidgets.QActionGroup(ag)
-                menu_ag.setObjectName("%sMore" % ag.objectName())
+                menu_ag = QtWidgets.QActionGroup(action_group)
+                menu_ag.setObjectName("%sMore" % action_group.objectName())
                 menu_ag_name = QtWidgets.QAction(menu_ag)
-                menu_ag_name.setObjectName("%s_actiongroup_name" % ag.objectName())
+                menu_ag_name.setObjectName("%s_actiongroup_name" % action_group.objectName())
                 menu_ag_name.setText(self.tr("Mas"))
                 menu_ag_name.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("plus.png")))
             else:
-                menu_ag = QtWidgets.QActionGroup(ag)
-                menu_ag.setObjectName(ag.objectName())
+                menu_ag = QtWidgets.QActionGroup(action_group)
+                menu_ag.setObjectName(action_group.objectName())
 
             for i in range(len(items)):
                 itn = items.at(i).toElement()
@@ -1260,8 +1259,8 @@ class MainForm(imainwindow.IMainWindow):
         for i in range(connections.length()):
             itn = connections.at(i).toElement()
             sender = itn.namedItem("sender").toElement().text()
-            ac = ag.findChild(QtWidgets.QAction, sender)
-            if ac:
+            action = action_group.findChild(QtWidgets.QAction, sender)
+            if action:
 
                 signal = itn.namedItem("signal").toElement().text()
                 if signal in ["activated()", "triggered()"]:
@@ -1270,10 +1269,10 @@ class MainForm(imainwindow.IMainWindow):
 
                 slot = itn.namedItem("slot").toElement().text()
                 if self.act_sig_map_ is not None:
-                    map_name = "%s:%s:%s" % (signal, slot, ac.objectName())
+                    map_name = "%s:%s:%s" % (signal, slot, action.objectName())
                     if map_name not in mapped_list:
-                        getattr(ac, signal_fix).connect(self.act_sig_map_.map)
-                        self.act_sig_map_.setMapping(ac, map_name)
+                        getattr(action, signal_fix).connect(self.act_sig_map_.map)
+                        self.act_sig_map_.setMapping(action, map_name)
                         mapped_list.append(map_name)
                 # getattr(ac, signal).connect(self.act_sig_map_.map)
                 # ac.triggered.connect(self.triggerAction)
@@ -1282,16 +1281,12 @@ class MainForm(imainwindow.IMainWindow):
 
         # flapplication.aqApp.setMainWidget(None)
         widget.close()
-        return ag
+        return action_group
 
     def iconSet16x16(self, pix: "QtGui.QPixmap") -> "QtGui.QIcon":
         """Reduce the size of a pixmap to 16 * 16."""
 
-        p_ = QtGui.QPixmap(pix)
-        # img_ = p_.convertToImage()
-        # img_.smoothScale(16, 16)
-        # ret = QtGui.QIconSet(QPixmap(img_))
-        img_ = QtGui.QImage(p_)
+        img_ = QtGui.QImage(QtGui.QPixmap(pix))
         if not img_.isNull():
             img_ = img_.scaled(16, 16)
         ret = QtGui.QIcon(QtGui.QPixmap(img_))
@@ -1333,21 +1328,24 @@ class MainForm(imainwindow.IMainWindow):
 
     def triggerAction(self, signature: str) -> None:
         """Start a process according to a given pattern."""
-        mw = self
+
         sgt = signature.split(":")
         # ok = True
-        if mw.ag_menu_ is None:
+        if self.ag_menu_ is None:
             raise Exception("Not initialized")
-        ac: Optional[QtWidgets.QAction] = cast(
-            QtWidgets.QAction, mw.ag_menu_.findChild(QtWidgets.QAction, sgt[2])
+        action: Optional[QtWidgets.QAction] = cast(
+            QtWidgets.QAction, self.ag_menu_.findChild(QtWidgets.QAction, sgt[2])
         )
-        if ac is None:
+
+        if action is None:
             LOGGER.debug("triggerAction: Action not Found: %s" % signature)
             return
 
+        action_name = action.objectName()
+
         signal = sgt[0]
         if signal == "triggered()":
-            if not ac.isVisible() or not ac.isEnabled():
+            if not action.isVisible() or not action.isEnabled():
                 return
         else:
             LOGGER.debug("triggerAction: Unhandled signal: %s" % signature)
@@ -1355,15 +1353,14 @@ class MainForm(imainwindow.IMainWindow):
 
         fn_ = sgt[1]
         if fn_ == "initModule()":
-            mw.initModule(ac.objectName().replace("_module_actiongroup_name", ""))
+            self.initModule(action_name.replace("_module_actiongroup_name", ""))
 
         elif fn_ == "openDefaultForm()":
-            mw.addForm(ac.objectName(), ac.icon().pixmap(16, 16))
-            mw.addRecent(ac)
+            self.addForm(action_name, action.icon().pixmap(16, 16))
+            self.addRecent(action)
 
         elif fn_ == "execDefaultScript()":
-            mw.addRecent(ac)
-            action_name = ac.objectName()
+            self.addRecent(action)
             if action_name in application.PROJECT.actions.keys():
                 application.PROJECT.actions[action_name].execMainScript(action_name)
 
@@ -1396,12 +1393,6 @@ class MainForm(imainwindow.IMainWindow):
 
         else:
             LOGGER.debug("tiggerAction: Unhandled slot : %s" % signature)
-
-    @classmethod
-    def setDebugLevel(self, q: int) -> None:
-        """Specify debug level."""
-
-        self.debugLevel = q
 
     def child(self, name: str) -> Optional[QtCore.QObject]:
         """Find a child widget."""

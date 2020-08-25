@@ -35,7 +35,6 @@ class MainForm(imainwindow.IMainWindow):
 
     mdi_toolbuttons: List[QtWidgets.QToolButton]
 
-    debug_level: int
     tool_box_: Any
     toogle_bars_: Any
     last_text_caption_: str
@@ -64,11 +63,6 @@ class MainForm(imainwindow.IMainWindow):
 
         if self._dict_main_widgets:
             self._dict_main_widgets = {}
-
-    @classmethod
-    def setdebug_level(self, level: int) -> None:
-        """Set a new debug level."""
-        MainForm.debug_level = level
 
     def initScript(self) -> None:
         """Inicialize main script."""
@@ -339,8 +333,8 @@ class MainForm(imainwindow.IMainWindow):
 
         char_num = 65
 
-        for it in self.db().managerModules().listIdAreas():
-            descript_area = self.db().managerModules().idAreaToDescription(it)
+        for id_area in self.db().managerModules().listIdAreas():
+            descript_area = self.db().managerModules().idAreaToDescription(id_area)
             new_area_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
             new_area_bar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
             # new_area_bar.setFrameStyle(QFrame.NoFrame)
@@ -353,7 +347,7 @@ class MainForm(imainwindow.IMainWindow):
             # ac.setText(descript_area)
             # ac.setUsesDropDown(True)
 
-            list_modules = self.db().managerModules().listIdModules(it)
+            list_modules = self.db().managerModules().listIdModules(id_area)
             list_modules.sort()
 
             for mod in list_modules:
@@ -627,25 +621,25 @@ class MainForm(imainwindow.IMainWindow):
             if self.sender():
                 idm = self.sender().objectName()
 
-        if idm is None:
+        if not idm:
             return
 
         self.writeStateModule()
 
-        w = None
+        widget = None
         if idm in self.db().managerModules().listAllIdModules():
-            w = self._dict_main_widgets[idm] if idm in self._dict_main_widgets.keys() else None
-            if w is None:
-                w = self.db().managerModules().createUI(file_name="%s.ui" % idm)
-                if not w:
+            widget = self._dict_main_widgets[idm] if idm in self._dict_main_widgets.keys() else None
+            if widget is None:
+                widget = self.db().managerModules().createUI(file_name="%s.ui" % idm)
+                if widget is None:
                     return
 
-                if w.findChild(pncore.PNCore):
+                if widget.findChild(pncore.PNCore):
                     doc = QtXml.QDomDocument()
                     ui_file = "%s.ui" % idm
-                    cc = self.db().managerModules().contentCached(ui_file)
-                    if not cc or not doc.setContent(cc):
-                        if cc:
+                    content_cached = self.db().managerModules().contentCached(ui_file)
+                    if not content_cached or not doc.setContent(content_cached):
+                        if content_cached is None:
                             LOGGER.warning("No se ha podido cargar %s" % (ui_file))
                             return None
 
@@ -661,40 +655,39 @@ class MainForm(imainwindow.IMainWindow):
                         receiver = itn.namedItem("receiver").toElement().text()
                         slot = itn.namedItem("slot").toElement().text()
                         if receiver == "pncore" and signal == "triggered()":
-                            ac = cast(QtWidgets.QAction, w.findChild(QtWidgets.QAction, sender))
-                            if ac is not None and sender in application.PROJECT.actions.keys():
-                                sl = getattr(
+                            action = cast(
+                                QtWidgets.QAction, widget.findChild(QtWidgets.QAction, sender)
+                            )
+                            if action is not None and sender in application.PROJECT.actions.keys():
+                                slot_obj = getattr(
                                     application.PROJECT.actions[sender],
                                     slot[0 : slot.find("(")],
                                     None,
                                 )
-                                ac.triggered.connect(sl)
+                                action.triggered.connect(slot_obj)
                             else:
                                 LOGGER.warning("Action %s not found", sender)
 
-                w.setWindowModality(QtCore.Qt.WindowModal)
-                self._dict_main_widgets[idm] = w
-                w.setObjectName(idm)
+                widget.setWindowModality(QtCore.Qt.WindowModal)
+                self._dict_main_widgets[idm] = widget
+                widget.setObjectName(idm)
                 if application.PROJECT.aq_app.acl_:
-                    application.PROJECT.aq_app.acl_.process(w)
+                    application.PROJECT.aq_app.acl_.process(widget)
 
-                self.setMainWidget(w)
+                self.setMainWidget(widget)
                 application.PROJECT.aq_app.call("%s.init()" % idm, [])
-                w.removeEventFilter(self)
+                widget.removeEventFilter(self)
                 self.db().managerModules().setActiveIdModule(idm)
-                self.setMainWidget(w)
+                self.setMainWidget(widget)
                 self.initMainWidget()
-                self.showMainWidget(w)
-                w.installEventFilter(self)
+                self.showMainWidget(widget)
+                widget.installEventFilter(self)
                 return
 
-        if not w:
-            self.db().managerModules().setActiveIdModule("")
-        else:
-            self.db().managerModules().setActiveIdModule(idm)
+        self.db().managerModules().setActiveIdModule("" if widget is None else idm)
 
-        self.setMainWidget(w)
-        self.showMainWidget(w)
+        self.setMainWidget(widget)
+        self.showMainWidget(widget)
 
     def writeState(self) -> None:
         """Write settings back to disk."""
@@ -707,23 +700,23 @@ class MainForm(imainwindow.IMainWindow):
             _list = QtWidgets.QApplication.topLevelWidgets()
 
             if self._inicializing:
-                for it in _list:
-                    it.removeEventFilter(self)
-                    if it.objectName() in self._dict_main_widgets.keys():
-                        if it != self.container_:
-                            if it.isVisible():
-                                windows_opened.append(it.objectName())
-                            it.hide()
+                for item in _list:
+                    item.removeEventFilter(self)
+                    if item.objectName() in self._dict_main_widgets.keys():
+                        if item != self.container_:
+                            if item.isVisible():
+                                windows_opened.append(item.objectName())
+                            item.hide()
                         else:
-                            it.setDisabled(True)
+                            item.setDisabled(True)
             else:
-                for it in _list:
+                for item in _list:
                     if (
-                        it != self.container_
-                        and it.isVisible()
-                        and it.objectName() in self._dict_main_widgets.keys()
+                        item != self.container_
+                        and item.isVisible()
+                        and item.objectName() in self._dict_main_widgets.keys()
                     ):
-                        windows_opened.append(it.objectName())
+                        windows_opened.append(item.objectName())
 
             settings.SETTINGS.set_value("windowsOpened/Main", windows_opened)
             settings.SETTINGS.set_value(
@@ -735,12 +728,12 @@ class MainForm(imainwindow.IMainWindow):
                 settings.SETTINGS.set_value("Geometry/MainWindowWidth", self.container_.width())
                 settings.SETTINGS.set_value("Geometry/MainWindowHeight", self.container_.height())
 
-        for map in self._map_geometry_form:  # FIXME esto no se rellena nunca
-            k = "Geometry/%s/" % map.key()
-            settings.SETTINGS.set_value("%s/X" % k, map.x())
-            settings.SETTINGS.set_value("%s/Y" % k, map.y())
-            settings.SETTINGS.set_value("%s/Width" % k, map.width())
-            settings.SETTINGS.set_value("%s/Height" % k, map.height())
+        for map_ in self._map_geometry_form:  # FIXME esto no se rellena nunca
+            key = "Geometry/%s/" % map_.key()
+            settings.SETTINGS.set_value("%s/X" % key, map_.x())
+            settings.SETTINGS.set_value("%s/Y" % key, map_.y())
+            settings.SETTINGS.set_value("%s/Width" % key, map_.width())
+            settings.SETTINGS.set_value("%s/Height" % key, map_.height())
 
     def writeStateModule(self) -> None:
         """Write settings for modules."""
@@ -749,25 +742,24 @@ class MainForm(imainwindow.IMainWindow):
         if not idm:
             return
 
-        main_widget = self.main_widget
-        if main_widget is None or main_widget.objectName() != idm:
+        if self.main_widget is None or self.main_widget.objectName() != idm:
             return
 
         windows_opened: List[str] = []
-        if main_widget is not None and self._p_work_space is not None:
-            for w in self._p_work_space.subWindowList():
-                s = w.findChild(QtWidgets.QDialog)
-                if s is not None:
-                    windows_opened.append(s.idMDI())
+        if self._p_work_space is not None:
+            for sub_window in self._p_work_space.subWindowList():
+                child = sub_window.findChild(QtWidgets.QDialog)
+                if child is not None:
+                    windows_opened.append(child.idMDI())
 
         settings.SETTINGS.set_value("windowsOpened/%s" % idm, windows_opened)
 
-        k = "Geometry/%s" % idm
-        settings.SETTINGS.set_value("%s/Maximized" % k, main_widget.isMaximized())
-        settings.SETTINGS.set_value("%s/X" % k, main_widget.x())
-        settings.SETTINGS.set_value("%s/Y" % k, main_widget.y())
-        settings.SETTINGS.set_value("%s/Width" % k, main_widget.width())
-        settings.SETTINGS.set_value("%s/Height" % k, main_widget.height())
+        key = "Geometry/%s" % idm
+        settings.SETTINGS.set_value("%s/Maximized" % key, self.main_widget.isMaximized())
+        settings.SETTINGS.set_value("%s/X" % key, self.main_widget.x())
+        settings.SETTINGS.set_value("%s/Y" % key, self.main_widget.y())
+        settings.SETTINGS.set_value("%s/Width" % key, self.main_widget.width())
+        settings.SETTINGS.set_value("%s/Height" % key, self.main_widget.height())
 
     def readState(self) -> None:
         """Read settings."""
@@ -775,23 +767,25 @@ class MainForm(imainwindow.IMainWindow):
         self._dict_main_widgets = {}
 
         if self.container_:
-            r = QtCore.QRect(self.container_.pos(), self.container_.size())
+            rect_ = QtCore.QRect(self.container_.pos(), self.container_.size())
             self._multi_lang_enabled = settings.SETTINGS.value("MultiLang/Enabled", False)
             self._multi_lang_id = settings.SETTINGS.value(
                 "MultiLang/LangId", QtCore.QLocale().name()[:2].upper()
             )
 
             if not settings.SETTINGS.value("Geometry/MainWindowMaximized", False):
-                r.setX(settings.SETTINGS.value("Geometry/MainWindowX", r.x()))
-                r.setY(settings.SETTINGS.value("Geometry/MainWindowY", r.y()))
-                r.setWidth(settings.SETTINGS.value("Geometry/MainWindowWidth", r.width()))
-                r.setHeight(settings.SETTINGS.value("Geometry/MainWindowHeight", r.height()))
+                rect_.setX(settings.SETTINGS.value("Geometry/MainWindowX", rect_.x()))
+                rect_.setY(settings.SETTINGS.value("Geometry/MainWindowY", rect_.y()))
+                rect_.setWidth(settings.SETTINGS.value("Geometry/MainWindowWidth", rect_.width()))
+                rect_.setHeight(
+                    settings.SETTINGS.value("Geometry/MainWindowHeight", rect_.height())
+                )
 
                 desk = QtWidgets.QApplication.desktop().availableGeometry(self.container_)
-                inter = desk.intersected(r)
-                self.container_.resize(r.size())
-                if inter.width() * inter.height() > (r.width() * r.height() / 20):
-                    self.container_.move(r.topLeft())
+                inter = desk.intersected(rect_)
+                self.container_.resize(rect_.size())
+                if inter.width() * inter.height() > (rect_.width() * rect_.height() / 20):
+                    self.container_.move(rect_.topLeft())
 
             else:
                 self.container_.resize(
@@ -804,10 +798,10 @@ class MainForm(imainwindow.IMainWindow):
 
             for id_module in windows_opened:
                 if id_module in self.db().managerModules().listAllIdModules():
-                    w = None
+                    widget = None
                     if id_module in self._dict_main_widgets.keys():
-                        w = self._dict_main_widgets[id_module]
-                    if w is None:
+                        widget = self._dict_main_widgets[id_module]
+                    if widget is None:
                         act = cast(
                             QtWidgets.QAction,
                             self.container_.findChild(QtWidgets.QAction, id_module),
@@ -816,35 +810,32 @@ class MainForm(imainwindow.IMainWindow):
                             continue
 
                         self.activateModule(id_module)
-                        # w = self.db().managerModules().createUI("%s.ui" % it)
-                        # self._dict_main_widgets[it] = w
 
-                        w = self._dict_main_widgets[id_module]
-                        w.setObjectName(id_module)
+                        widget = self._dict_main_widgets[id_module]
+                        widget.setObjectName(id_module)
                         if application.PROJECT.aq_app.acl_:
-                            application.PROJECT.aq_app.acl_.process(w)
+                            application.PROJECT.aq_app.acl_.process(widget)
 
                         self.setCaptionMainWidget("")
-                        self.setMainWidget(w)
+                        self.setMainWidget(widget)
                         application.PROJECT.aq_app.call("%s.init()" % id_module, [])
                         self.db().managerModules().setActiveIdModule(id_module)
-                        self.setMainWidget(w)
+                        self.setMainWidget(widget)
                         self.initMainWidget()
 
-            for k in self._dict_main_widgets.keys():
-                w = self._dict_main_widgets[k]
-                if w.objectName() != active_id_module:
-                    w.installEventFilter(self)
-                    w.show()
-                    w.setFont(QtWidgets.QApplication.font())
-                    if not isinstance(w, QtWidgets.QMainWindow):
+            for key, widget in self._dict_main_widgets.items():
+                if widget.objectName() != active_id_module:
+                    widget.installEventFilter(self)
+                    widget.show()
+                    widget.setFont(QtWidgets.QApplication.font())
+                    if not isinstance(widget, QtWidgets.QMainWindow):
                         continue
 
-                    view_back = w.centralWidget()
+                    view_back = widget.centralWidget()
                     if view_back is not None:
                         self._p_work_space = cast(
                             flworkspace.FLWorkSpace,
-                            view_back.findChild(QtCore.QObject, w.objectName()),
+                            view_back.findChild(QtCore.QObject, widget.objectName()),
                         )
 
             if active_id_module:
@@ -873,18 +864,18 @@ class MainForm(imainwindow.IMainWindow):
         # application.PROJECT.aq_app.openMasterForm(it, act.icon())
         #            application.PROJECT.aq_app.openMasterForm(it)
 
-        r = QtCore.QRect(main_widget.pos(), main_widget.size())
-        k = "Geometry/%s" % idm
-        if not settings.SETTINGS.value("%s/Maximized" % k, False):
-            r.setX(settings.SETTINGS.value("%s/X" % k, r.x()))
-            r.setY(settings.SETTINGS.value("%s/Y" % k, r.y()))
-            r.setWidth(settings.SETTINGS.value("%s/Width" % k, r.width()))
-            r.setHeight(settings.SETTINGS.value("%s/Height" % k, r.height()))
+        rect_ = QtCore.QRect(main_widget.pos(), main_widget.size())
+        key = "Geometry/%s" % idm
+        if not settings.SETTINGS.value("%s/Maximized" % key, False):
+            rect_.setX(settings.SETTINGS.value("%s/X" % key, rect_.x()))
+            rect_.setY(settings.SETTINGS.value("%s/Y" % key, rect_.y()))
+            rect_.setWidth(settings.SETTINGS.value("%s/Width" % key, rect_.width()))
+            rect_.setHeight(settings.SETTINGS.value("%s/Height" % key, rect_.height()))
             desk = QtWidgets.QApplication.desktop().availableGeometry(main_widget)
-            inter = desk.intersected(r)
-            main_widget.resize(r.size())
-            if (inter.width() * inter.height()) - 100 > (r.width() * r.height()):
-                main_widget.move(r.topLeft())
+            inter = desk.intersected(rect_)
+            main_widget.resize(rect_.size())
+            if (inter.width() * inter.height()) - 100 > (rect_.width() * rect_.height()):
+                main_widget.move(rect_.topLeft())
             else:
                 main_widget.hide()
                 main_widget.resize(
@@ -896,25 +887,14 @@ class MainForm(imainwindow.IMainWindow):
         """Cleanup."""
         self._destroying = True
         application.PROJECT.aq_app.stopTimerIdle()
-        # self.checkAndFixTransactionLAvel("%s:%s" % (__name__, __class__))
-        # app_db = self.db()
-        # if app_db:
-        #     app_db.setInteractiveGUI(False)
-        #     app_db.setQsaExceptions(False)
 
         if self._dict_main_widgets:
-            for mw in self._dict_main_widgets:
+            for key in self._dict_main_widgets.keys():
+                del self._dict_main_widgets[key]
 
-                del mw
-            del self._dict_main_widgets
             self._dict_main_widgets = {}
 
-        # self.clearProject()
-        # self.project_ = None
         self._ted_output = None
-
-        # if app_db:
-        #     app_db.finish()
         self.aqApp = None
 
     def initView(self) -> None:
@@ -946,22 +926,17 @@ class MainForm(imainwindow.IMainWindow):
         if not self.container_:
             return
 
-        # if w == self.container_ or w is None:
-        #    QtWidgets.QApplication.setActiveWindow(self.container_)
-        #    application.PROJECT.aq_app.main_widget_ = None
-        #    return
-
         application.PROJECT.aq_app.setMainWidget(w)
-        # QtWidgets.QApplication.setActiveWindow(w)
-        # application.PROJECT.aq_app.main_widget_ = w
 
-        mw = self.main_widget if isinstance(self.main_widget, QtWidgets.QMainWindow) else None
+        main_widget = (
+            self.main_widget if isinstance(self.main_widget, QtWidgets.QMainWindow) else None
+        )
 
-        if mw is None:
+        if main_widget is None:
             return
 
         if self.toogle_bars_:
-            tool_bar = cast(QtWidgets.QToolBar, mw.findChild(QtWidgets.QToolBar))
+            tool_bar = cast(QtWidgets.QToolBar, main_widget.findChild(QtWidgets.QToolBar))
             for ac in self.toogle_bars_.actions():
                 if ac.objectName() == "Herramientas":
                     a = ac
@@ -971,7 +946,7 @@ class MainForm(imainwindow.IMainWindow):
             if tool_bar:
                 a.setChecked(tool_bar.isVisible())
 
-            b.setChecked(mw.statusBar().isVisible())
+            b.setChecked(main_widget.statusBar().isVisible())
 
     def showMainWidget(self, w) -> None:
         """Show UI."""
@@ -1038,14 +1013,14 @@ class MainForm(imainwindow.IMainWindow):
 
     def initMainWidget(self) -> None:
         """Init mainwidget UI."""
-        mw = cast(QtWidgets.QMainWindow, self.main_widget)
-        if not mw or not self.container_:
+        main_widget = cast(QtWidgets.QMainWindow, self.main_widget)
+        if not main_widget or not self.container_:
             return
 
-        if mw:
-            ac = mw.menuBar().addMenu(self.window_menu)
+        if main_widget:
+            ac = main_widget.menuBar().addMenu(self.window_menu)
             ac.setText(self.tr("&Ventana"))
-            # mw.setCentralWidget(None)
+            # main_widget.setCentralWidget(None)
 
         self.initView()
         self.initActions()
@@ -1083,15 +1058,15 @@ class MainForm(imainwindow.IMainWindow):
 
     def initStatusBar(self) -> None:
         """Initialize statusbar."""
-        mw = self.main_widget
+        main_widget = self.main_widget
 
-        if not mw:
+        if not main_widget:
             return
 
         application.PROJECT.aq_app.statusHelpMsg(self.tr("Listo."))
 
-        if mw is not None:
-            status_bar = cast(QtWidgets.QMainWindow, mw).statusBar()
+        if main_widget is not None:
+            status_bar = cast(QtWidgets.QMainWindow, main_widget).statusBar()
             status_bar.setSizeGripEnabled(False)
 
             conexion = QtWidgets.QLabel(status_bar)
@@ -1100,12 +1075,12 @@ class MainForm(imainwindow.IMainWindow):
 
     def toggleToolBar(self, toggle: bool) -> None:
         """Show or hide toolbar."""
-        mw = cast(QtWidgets.QToolBar, self.main_widget)
+        main_widget = cast(QtWidgets.QToolBar, self.main_widget)
 
-        if not mw:
+        if not main_widget:
             return
 
-        tb = cast(QtWidgets.QToolBar, mw.findChild(QtWidgets.QToolBar))
+        tb = cast(QtWidgets.QToolBar, main_widget.findChild(QtWidgets.QToolBar))
 
         if not tb:
             return
@@ -1117,13 +1092,13 @@ class MainForm(imainwindow.IMainWindow):
 
     def toggleStatusBar(self, toggle: bool) -> None:
         """Toggle status bar."""
-        mw = cast(QtWidgets.QMainWindow, self.main_widget)
-        if not mw:
+        main_widget = cast(QtWidgets.QMainWindow, self.main_widget)
+        if not main_widget:
             return
         if toggle:
-            mw.statusBar().show()
+            main_widget.statusBar().show()
         else:
-            mw.statusBar().hide()
+            main_widget.statusBar().hide()
 
     def generalExit(self, ask_exit=True) -> bool:
         """Perform before close checks."""
@@ -1145,8 +1120,8 @@ class MainForm(imainwindow.IMainWindow):
                 self.db().manager().finish()
                 # QtCore.QTimer.singleShot(0, application.PROJECT.aq_app.quit)
 
-            for mw in self._dict_main_widgets.values():
-                mw.close()
+            for main_widget in self._dict_main_widgets.values():
+                main_widget.close()
 
             return True
         else:
