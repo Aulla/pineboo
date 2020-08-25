@@ -96,7 +96,7 @@ class FLReportViewer(QtWidgets.QWidget):
     ) -> None:
         """Inicialize."""
 
-        super(FLReportViewer, self).__init__(parent)
+        super().__init__(parent)
 
         self.loop_ = False
         self.eventloop = QtCore.QEventLoop()
