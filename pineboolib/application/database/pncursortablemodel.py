@@ -1122,6 +1122,8 @@ class ProxyIndex:
             while not found:
                 if item < self._rows_loaded:
                     result = self._cached_data[item]
+                    if isinstance(result, sqlalchemy.engine.result.RowProxy):
+                        result = result[0]
                     found = True
                 else:
                     found = not self.fetch_more(item)
