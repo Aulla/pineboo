@@ -356,22 +356,22 @@ class PNSqlSchema(object):
     def formatValue(self, type_: str, value: Any, upper: bool) -> Optional[Union[int, str, bool]]:
         """Return a string with the format value."""
 
-        result: Any = value
+        result_: Any = value
 
         if type_ == "pixmap":
-            result = "'%s'" % self.normalizeValue(value) if value.find("'") > -1 else value
+            result_ = "'%s'" % self.normalizeValue(value) if value.find("'") > -1 else value
 
         elif type_ in ("bool", "unlock"):
-            result = self._true if utils_base.text2bool(str(value)) else self._false
+            result_ = self._true if utils_base.text2bool(str(value)) else self._false
 
         elif type_ == "date":
-            result = "'%s'" % str(flutil.FLUtil.dateDMAtoAMD(value))
+            result_ = "'%s'" % str(flutil.FLUtil.dateDMAtoAMD(value))
 
         elif type_ == "time":
-            result = "'" + value + "'" if value else ""
+            result_ = "'" + value + "'" if value else ""
 
         elif type_ in ("uint", "int", "double", "serial"):
-            result = value or 0
+            result_ = value or 0
 
         elif type_ in ("string", "stringlist", "timestamp"):
             if type_ == "string":
@@ -379,9 +379,9 @@ class PNSqlSchema(object):
                 if upper:
                     value = value.upper()
 
-            result = "'%s'" % value or self._null
+            result_ = "'%s'" % value or self._null
 
-        return str(result)
+        return str(result_)
 
     def canOverPartition(self) -> bool:
         """Return can override partition option ready."""
