@@ -15,7 +15,7 @@ class FLReportEngine(QtCore.QObject):
     """FLReportEngine class."""
 
     report_: Any
-    rt_: Optional[str]
+    report_template_: Optional[str]
 
     def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
         """Inicialize."""
@@ -24,8 +24,8 @@ class FLReportEngine(QtCore.QObject):
         self.private_ = FLReportEngine.FLReportEnginePrivate(self)
         self.rel_dpi_ = 78.0
         self.report_ = None
-        self.rt_ = ""
-        self.rd_: Optional[QtXml.QDomDocument] = None
+        self.report_template_ = ""
+        self.report_data_: Optional[QtXml.QDomDocument] = None
 
         from pineboolib.application.parsers.parser_kut import kut2fpdf
 
@@ -134,11 +134,11 @@ class FLReportEngine(QtCore.QObject):
 
     def rptXmlData(self) -> Any:
         """Return report Xml Data."""
-        return self.rd_
+        return self.report_data_
 
     def rptXmlTemplate(self) -> Optional[str]:
         """Return report Xml Template."""
-        return self.rt_
+        return self.report_template_
 
     def relDpi(self) -> float:
         """Return dpi size."""
@@ -154,10 +154,10 @@ class FLReportEngine(QtCore.QObject):
         if qry is None:
             return None
 
-        self.rd_ = QtXml.QDomDocument("KugarData")
+        self.report_data_ = QtXml.QDomDocument("KugarData")
 
         self.private_.rows_ = (
-            self.rd_.createDocumentFragment()
+            self.report_data_.createDocumentFragment()
         )  # FIXME: Don't set the private from the public.
         self.private_.setQuery(qry)
         qry.setForwardOnly(True)
@@ -179,28 +179,28 @@ class FLReportEngine(QtCore.QObject):
                     if not qry.next():
                         ok_ = False
 
-        data = self.rd_.createElement("KugarData")
+        data = self.report_data_.createElement("KugarData")
         data.appendChild(self.private_.rows_)
-        self.rd_.appendChild(data)
+        self.report_data_.appendChild(data)
         self.private_.rows_.clear()
 
         self.initData()
         return True
 
-    def setFLReportData(self, n: Any) -> bool:
+    def setFLReportData(self, data: Any) -> bool:
         """Set data to report."""
         self.private_.setQuery(None)
         tmp_doc = QtXml.QDomDocument("KugarData")
-        tmp_doc.appendChild(n)
-        self.rd_ = tmp_doc
+        tmp_doc.appendChild(data)
+        self.report_data_ = tmp_doc
         return True
         # return super(FLReportEngine, self).setReportData(n)
 
-    def setFLReportTemplate(self, t: Any) -> bool:
+    def setFLReportTemplate(self, template: Any) -> bool:
         """Set template to report."""
         # buscamos el .kut o el .rlab
 
-        self.private_.template_ = t
+        self.private_.template_ = template
 
         if not self.private_.qry_:
             from pineboolib import application
@@ -212,10 +212,10 @@ class FLReportEngine(QtCore.QObject):
         else:
             mgr = self.private_.qry_.db().connManager().managerModules()
 
-        self.rt_ = mgr.contentCached("%s.kut" % t)
+        self.report_template_ = mgr.contentCached("%s.kut" % template)
 
-        if not self.rt_:
-            LOGGER.error("FLReportEngine::No se ha podido cargar %s.kut", t)
+        if not self.report_template_:
+            LOGGER.error("FLReportEngine::No se ha podido cargar %s.kut", template)
             return False
 
         return True
@@ -229,21 +229,21 @@ class FLReportEngine(QtCore.QObject):
         return self.private_.template_
 
     @decorators.beta_implementation
-    def setReportTemplate(self, t: Any):
+    def setReportTemplate(self, template: Any):
         """Set template to report."""
 
-        if isinstance(t, FLDomNodeInterface):
-            return self.setFLReportData(t)
+        if isinstance(template, FLDomNodeInterface):
+            return self.setFLReportData(template)
 
-        return self.setFLReportData(t)
+        return self.setFLReportData(template)
 
     def reportData(self) -> Any:
         """Return report data."""
-        return self.rd_ if self.rd_ else QtXml.QDomDocument()
+        return self.report_data_ if self.report_data_ else QtXml.QDomDocument()
 
     def reportTemplate(self) -> Any:
         """Return report template."""
-        return self.rt_ if self.rt_ else QtXml.QDomDocument()
+        return self.report_template_ if self.report_template_ else QtXml.QDomDocument()
 
     @decorators.not_implemented_warn
     def csvData(self) -> str:
@@ -263,15 +263,19 @@ class FLReportEngine(QtCore.QObject):
         self, init_row: int = 0, init_col: int = 0, flags: List[int] = [], pages: Any = None
     ) -> "QtCore.QObject":
         """Render report."""
-        if self.rd_ and self.rt_ and self.rt_.find("KugarTemplate") > -1:
-            data = self.rd_.toString(1)
+        if (
+            self.report_data_
+            and self.report_template_
+            and self.report_template_.find("KugarTemplate") > -1
+        ):
+            data = self.report_data_.toString(1)
             self.report_ = self.parser_.parse(
-                self.private_.template_, self.rt_, data, self.report_, flags
+                self.private_.template_, self.report_template_, data, self.report_, flags
             )
 
         return QtCore.QObject()  # return self.pages!
 
-        # # print(self.rd_.toString(1))
+        # # print(self.report_data_.toString(1))
         # """
         # fr = MReportEngine.RenderReportFlags.FillRecords.value
         #
@@ -290,7 +294,7 @@ class FLReportEngine(QtCore.QObject):
         # if not fRec or not self.private_.qry_ or not self.private_.q_field_mtd_list_ or not self.private_.q_double_field_list_:
         #     return pgs
         #
-        # nl = QtXml.QDomNodeList(self.rd_.elementsByTagName("Row"))
+        # nl = QtXml.QDomNodeList(self.report_data_.elementsByTagName("Row"))
         # for i in range(nl.count()):
         #     itm = nl.item(i)
         #     if itm.isNull():
@@ -315,20 +319,20 @@ class FLReportEngine(QtCore.QObject):
 
     def initData(self) -> None:
         """Inialize data."""
-        if not self.rd_:
+        if not self.report_data_:
             raise Exception("RD is missing. Initialize properly before calling initData")
-        n = self.rd_.firstChild()
-        while not n.isNull():
-            if n.nodeName() == "KugarData":
-                self.records_ = n.childNodes()
-                attr = n.attributes()
+        child = self.report_data_.firstChild()
+        while not child.isNull():
+            if child.nodeName() == "KugarData":
+                self.records_ = child.childNodes()
+                attr = child.attributes()
                 tempattr = attr.namedItem("Template")
                 tempname = tempattr.nodeValue() or None
                 if tempname is not None:
                     # FIXME: We need to add a signal:
                     # self.preferedTemplate.emit(tempname)
                     break
-            n = n.nextSibling()
+            child = child.nextSibling()
 
     def number_pages(self) -> int:
         """Return page numbers."""

@@ -6,16 +6,15 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flformdb import FLFormDB
-    from PyQt5 import QtWidgets
 
 
-def aq_form_db(action_name: str, parent: "QtWidgets.QWidget") -> "FLFormDB":
+def aq_form_db(*args) -> "FLFormDB":
     """Return a FLFormDB instance."""
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    ac_xml = application.PROJECT.actions[action_name]
+    ac_xml = application.PROJECT.actions[args[0]]
     ac_xml.load_master_form()
     if ac_xml._master_widget is None:
         raise Exception("mainform_widget is emtpy!")
