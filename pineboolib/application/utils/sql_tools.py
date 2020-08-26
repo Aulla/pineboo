@@ -244,14 +244,14 @@ class SqlInspector(object):
                 # Comprueba si hay field_names compuestos
                 if field.find("(") > -1 and not field.find(")") > -1:  # si es multiple de verdad
                     inicio_parentesis.append(str(idx_ + 1))
-                    print("INI", inicio_parentesis[-1])
                     composed_field[inicio_parentesis[-1]] = []
                     composed_field[inicio_parentesis[-1]].append(field)
                     continue
                 elif field == "":
                     continue
-                elif field.find(")") > -1 and not field.find("(") > -1:  # si es multiple de verdad
-                    print("FIN", inicio_parentesis[-1])
+                elif (
+                    field.find(")") > -1 and not field.find("(") > -1 and inicio_parentesis
+                ):  # si es multiple de verdad
                     composed_field[inicio_parentesis[-1]].append(field)
                     if len(inicio_parentesis) == 1:
                         new_fields_list.append(" ".join(composed_field[inicio_parentesis[-1]]))
@@ -263,11 +263,10 @@ class SqlInspector(object):
                     composed_field[inicio_parentesis[-1]] = []
                     del composed_field[inicio_parentesis[-1]]
                     del inicio_parentesis[-1]
+                elif inicio_parentesis:  # si estoy en medio de un multiple
+                    composed_field[inicio_parentesis[-1]].append(field)
                 else:
-                    if inicio_parentesis:
-                        composed_field[inicio_parentesis[-1]].append(field)
-                    else:
-                        new_fields_list.append(field)
+                    new_fields_list.append(field)
 
             # Repasa si hay alias en los fieldnames.
             old_list = list(new_fields_list)
@@ -280,10 +279,10 @@ class SqlInspector(object):
                     continue
                 else:
                     if expect_alias:
+                        expect_alias = False
                         del new_fields_list[num - 1]
 
                     new_fields_list.append(field_name)
-                    expect_alias = False
 
             tables_list: List[str] = []
             if "where" in list_sql:
