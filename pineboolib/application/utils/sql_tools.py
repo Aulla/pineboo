@@ -244,15 +244,22 @@ class SqlInspector(object):
                 # Comprueba si hay field_names compuestos
                 if field.find("(") > -1 and not field.find(")") > -1:  # si es multiple de verdad
                     inicio_parentesis.append(str(idx_ + 1))
+                    print("INI", inicio_parentesis[-1])
                     composed_field[inicio_parentesis[-1]] = []
                     composed_field[inicio_parentesis[-1]].append(field)
                     continue
                 elif field == "":
                     continue
                 elif field.find(")") > -1 and not field.find("(") > -1:  # si es multiple de verdad
-
+                    print("FIN", inicio_parentesis[-1])
                     composed_field[inicio_parentesis[-1]].append(field)
-                    new_fields_list.append(" ".join(composed_field[inicio_parentesis[-1]]))
+                    if len(inicio_parentesis) == 1:
+                        new_fields_list.append(" ".join(composed_field[inicio_parentesis[-1]]))
+                    else:
+                        composed_field[inicio_parentesis[-2]] += composed_field[
+                            inicio_parentesis[-1]
+                        ]
+
                     composed_field[inicio_parentesis[-1]] = []
                     del composed_field[inicio_parentesis[-1]]
                     del inicio_parentesis[-1]

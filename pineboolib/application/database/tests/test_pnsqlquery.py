@@ -534,7 +534,7 @@ class TestPNSqlQuery2(unittest.TestCase):
         sql = (
             "SELECT idpedido, "
             + "SUM(CASE WHEN operacion = 'C' THEN importe ELSE 0 END) AS cobros, "
-            + "SUM(CASE WHEN operacion = 'V' THEN importe ELSE 0 END) AS ventas "
+            + "SUM(CASE WHEN operacion = 'V' THEN importe ELSE ( 0 ) END) AS ventas "
             + " FROM coe_cobrosventasped "
             + " WHERE idpedido = "
             + "str(idpedido)"
