@@ -401,23 +401,24 @@ class FLManager(QtCore.QObject, IManager):
 
         if elem_from is not None and elem_from.text:
             qry.setFrom(
-                elem_from.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+                elem_from.text.replace("\t", "").replace("\n", " ").replace("\r", "").strip()
             )
+            print("*", qry.from_())
 
         for where in root_.iter("where"):
             if where is not None and where.text:
                 qry.setWhere(
-                    where.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+                    where.text.replace("\t", "").replace("\n", " ").replace("\r", "").strip()
                 )
 
         if elem_tables is not None and elem_tables.text:
             qry.setTablesList(
-                elem_tables.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+                elem_tables.text.replace("\t", "").replace("\n", " ").replace("\r", "").strip()
             )
 
         if elem_order is not None and elem_order.text:
             qry.setOrderBy(
-                elem_order.text.replace("\t", "").replace("\n", "").replace("\r", "").strip()
+                elem_order.text.replace("\t", "").replace("\n", " ").replace("\r", "").strip()
             )
 
         for level, item in enumerate(group_xml):
