@@ -31,38 +31,49 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                     time.sleep(0.01)
 
             new_session = utils.session(conn_name)
-            with new_session.begin():
-                LOGGER.debug(
-                    "New atomic session : %s, connection : %s, transaction: %s",
-                    new_session,
-                    conn_name,
-                    new_session.transaction,
-                )
-
-                application.PROJECT.conn_manager.thread_atomic_sessions[key] = new_session
-
-                try:
-                    result_ = fun_(*args, **kwargs)
-                except Exception as error:
-                    LOGGER.warning(
-                        "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
-                        "".join(traceback.format_exc(limit=None)),
-                        "".join(traceback.format_stack(limit=None)),
-                        stack_info=True,
+            result_ = None
+            try:
+                with new_session.begin():
+                    LOGGER.debug(
+                        "New atomic session : %s, connection : %s, transaction: %s",
+                        new_session,
+                        conn_name,
+                        new_session.transaction,
                     )
-                    # new_session.rollback()
-                    # new_session.close()
-                    del application.PROJECT.conn_manager.thread_atomic_sessions[key]
-                    if application.USE_ATOMIC_LIST:
-                        application.ATOMIC_LIST.remove(key)
-                    raise error
 
-            # new_session.commit()
-            new_session.close()
+                    application.PROJECT.conn_manager.thread_atomic_sessions[key] = new_session
 
-            del application.PROJECT.conn_manager.thread_atomic_sessions[key]
-            if application.USE_ATOMIC_LIST:
-                application.ATOMIC_LIST.remove(key)
+                    try:
+                        result_ = fun_(*args, **kwargs)
+                    except Exception as error:
+                        LOGGER.warning(
+                            "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
+                            "".join(traceback.format_exc(limit=None)),
+                            "".join(traceback.format_stack(limit=None)),
+                            stack_info=True,
+                        )
+                        # new_session.rollback()
+                        # new_session.close()
+                        del application.PROJECT.conn_manager.thread_atomic_sessions[key]
+                        if application.USE_ATOMIC_LIST:
+                            application.ATOMIC_LIST.remove(key)
+
+                        raise error
+
+                # new_session.commit()
+                new_session.close()
+            except Exception as error:
+                del application.PROJECT.conn_manager.thread_atomic_sessions[key]
+                if application.USE_ATOMIC_LIST:
+                    application.ATOMIC_LIST.remove(key)
+
+                raise error
+
+            else:
+                del application.PROJECT.conn_manager.thread_atomic_sessions[key]
+                if application.USE_ATOMIC_LIST:
+                    application.ATOMIC_LIST.remove(key)
+
             return result_
 
         mock_fn: TYPEFN = cast(TYPEFN, wrapper)
