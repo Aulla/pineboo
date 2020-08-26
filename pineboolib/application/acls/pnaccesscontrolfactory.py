@@ -34,22 +34,16 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
         """Process the object."""
         if main_window is None:
             return
-        list1 = main_window.findChildren(QtWidgets.QAction)
 
-        if self._perm != "":
-            for action in list1:
-                act = cast(QtWidgets.QAction, action)
-                if act.objectName() in self._acos_perms.keys():
-                    continue
-                if self._perm in ["-w", "--"]:
-                    act.setVisible(False)
+        if self._perm:
+            for action in main_window.findChildren(QtWidgets.QAction):
+                action_name = action.objectName()
+                if action_name in self._acos_perms.keys():
+                    if self._acos_perms[action_name] in ["-w", "--"]:
+                        action.setVisible(False)
 
-        for a_name, perm in self._acos_perms.items():
-            for child in list1:
-                wid = cast(QtWidgets.QWidget, child)
-                if wid.objectName() == a_name:
-                    if perm in ["-w", "--"]:
-                        wid.setVisible(False)
+                elif self._perm in ["-w", "--"]:
+                    action.setVisible(False)
 
     def setFromObject(self, object: QtWidgets.QMainWindow) -> None:
         """Not implemented jet."""
