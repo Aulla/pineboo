@@ -52,7 +52,7 @@ class TestThreadSession(unittest.TestCase):
             time.sleep(0.1)
 
         for session in SESSION_LIST:
-            self.assertFalse(session.transaction)
+            self.assertFalse(session.transaction)  # type: ignore [union-attr] # noqa: F821
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -64,8 +64,13 @@ class TestThreadSession(unittest.TestCase):
 @qsa.atomic()  # type: ignore [misc] # noqa: F821
 def massive(value: int):
     """Massive test."""
-    print("____inicio", value, qsa.session_atomic(), qsa.session_atomic().transaction)
-    if not qsa.session_atomic().transaction:
+    print(
+        "____inicio",
+        value,
+        qsa.session_atomic(),  # type: ignore [union-attr] # noqa: F821
+        qsa.session_atomic().transaction,  # type: ignore [union-attr] # noqa: F821
+    )
+    if not qsa.session_atomic().transaction:  # type: ignore [union-attr] # noqa: F821
         raise Exception("Transaction is empty!")
 
     SESSION_LIST.append(qsa.session_atomic())
@@ -101,4 +106,3 @@ def prueba3():
 
     obj_ = qsa.orm.fltest4()
     return not obj_.session == qsa.session_atomic("dbaux")
-
