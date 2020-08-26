@@ -6,7 +6,8 @@ from pineboolib.fllegacy import systype
 from pineboolib.core import settings
 from pineboolib.core.utils import utils_base
 from pineboolib.application.acls import pnaccesscontrollists
-from pineboolib import application
+from pineboolib import application, qsa
+from . import fixture_path
 
 
 class TestACLS(unittest.TestCase):
@@ -17,6 +18,13 @@ class TestACLS(unittest.TestCase):
         """Ensure pineboo is initialized for testing."""
         init_testing()
         utils_base.FORCE_DESKTOP = True
+
+        # Install package
+        qsa_sys = qsa.qsa.sys
+        path = fixture_path("controlacceso.eneboopkg")
+        if not qsa_sys.loadModules(path, False):
+            raise Exception("error loading controlacceso.eneboopkg")
+
         # install acls
         from pineboolib.application.database import pnsqlcursor
 
@@ -366,7 +374,6 @@ class TestACLS(unittest.TestCase):
         application.PROJECT.aq_app.set_acl(acl)
 
         settings.CONFIG.set_value("application/dbadmin_enabled", True)
-
         project = application.PROJECT
         main_form_class = getattr(eneboo, "MainForm", None)
         # main_form_ = getattr(project.main_form, "MainForm", None)
