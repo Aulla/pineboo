@@ -16,5 +16,5 @@ ATOMIC_LIST: List[str] = []
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest
 LOG_SQL = False
 USE_WEBSOCKET_CHANNEL = False
-PINEBOO_VER = "0.73.25.1"
+PINEBOO_VER = "0.73.25.2"
 FILE_CLASSES: Dict[str, str] = {}
