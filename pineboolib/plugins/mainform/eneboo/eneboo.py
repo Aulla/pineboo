@@ -771,6 +771,7 @@ class MainForm(imainwindow.IMainWindow):
         """Update the modules menu with the available options."""
 
         for obj_ in action_group.children():
+
             o_name = obj_.objectName()
             if (
                 not getattr(obj_, "isVisible", None)
@@ -823,8 +824,8 @@ class MainForm(imainwindow.IMainWindow):
                     action = menu.addAction(obj_.text())
                     action.setIcon(obj_.icon())
                     action.triggered.connect(obj_.trigger)
+                    action.setVisible(obj_.isVisible())
                 else:
-                    print("PASA!!!")
                     continue
 
             if action is not None:
