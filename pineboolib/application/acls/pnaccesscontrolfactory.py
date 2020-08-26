@@ -40,10 +40,10 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
                 action_name = action.objectName()
                 if action_name in self._acos_perms.keys():
                     if self._acos_perms[action_name] in ["-w", "--"]:
-                        action.setVisible(False)
+                        action.setVisible(False)  # type: ignore [attr-defined] # noqa: F821
 
                 elif self._perm in ["-w", "--"]:
-                    action.setVisible(False)
+                    action.setVisible(False)  # type: ignore [attr-defined] # noqa: F821
 
     def setFromObject(self, object: QtWidgets.QMainWindow) -> None:
         """Not implemented jet."""
