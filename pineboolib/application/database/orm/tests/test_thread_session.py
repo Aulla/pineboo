@@ -74,5 +74,4 @@ def prueba2():
 def prueba3():
 
     obj_ = qsa.orm.fltest4()
-    result = obj_.session == qsa.session_atomic("dbaux")
-    return not result
+    return not obj_.session == qsa.session_atomic("dbaux")
