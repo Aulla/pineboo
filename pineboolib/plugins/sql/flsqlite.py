@@ -14,7 +14,8 @@ import os
 
 
 from typing import Optional, Any, List, Dict, Union, TYPE_CHECKING
-from sqlalchemy import create_engine, event  # type: ignore [import] # noqa: F821, F401
+from sqlalchemy import create_engine, event, pool  # type: ignore [import] # noqa: F821, F401
+
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
@@ -74,6 +75,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         # queqe_params["connect_args"] = {"timeout": 5}
         queqe_params["encoding"] = "UTF-8"
         queqe_params["isolation_level"] = "AUTOCOMMIT"
+        queqe_params["poolclass"] = pool.NullPool
         if application.LOG_SQL:
             queqe_params["echo"] = True
 

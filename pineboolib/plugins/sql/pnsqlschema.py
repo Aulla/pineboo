@@ -19,7 +19,8 @@ from pineboolib.fllegacy import flutil
 from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noqa: F821
 from sqlalchemy.inspection import inspect  # type: ignore [import] # noqa: F821, F401
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
-from sqlalchemy import event
+
+from sqlalchemy import event, pool
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
 
@@ -228,11 +229,13 @@ class PNSqlSchema(object):
         queqe_params: Dict[str, Any] = {}
 
         queqe_params["encoding"] = "UTF-8"
-        if limit_conn > 0:
-            queqe_params["pool_size"] = limit_conn
-            queqe_params["max_overflow"] = int(limit_conn * 2)
-            if application.LOG_SQL:
-                queqe_params["echo"] = True
+        queqe_params["poolclass"] = pool.NullPool
+
+        # if limit_conn > 0:
+        #    queqe_params["pool_size"] = limit_conn
+        #    queqe_params["max_overflow"] = int(limit_conn * 2)
+        if application.LOG_SQL:
+            queqe_params["echo"] = True
 
         try:
             self._engine = create_engine(
