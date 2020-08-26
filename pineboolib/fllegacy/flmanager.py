@@ -403,7 +403,6 @@ class FLManager(QtCore.QObject, IManager):
             qry.setFrom(
                 elem_from.text.replace("\t", "").replace("\n", " ").replace("\r", "").strip()
             )
-            print("*", qry.from_())
 
         for where in root_.iter("where"):
             if where is not None and where.text:
