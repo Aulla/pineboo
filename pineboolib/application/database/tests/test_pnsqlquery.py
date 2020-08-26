@@ -529,6 +529,19 @@ class TestPNSqlQuery2(unittest.TestCase):
         # qry2.exec_("select 1")
         # self.assertTrue(qry2.isValid())
 
+    def test_as_in_select(self) -> None:
+        """Test as in select."""
+        sql = """ SELECT idpedido, 
+            SUM(CASE WHEN operacion = 'C' THEN importe ELSE 0 END) AS cobros, 
+            SUM(CASE WHEN operacion = 'V' THEN importe ELSE 0 END) AS ventas
+            FROM coe_cobrosventasped
+            WHERE idpedido = " + str(idpedido) + " GROUP BY idpedido"""
+
+        qry = pnsqlquery.PNSqlQuery()
+        qry.sql_inspector.set_sql(sql)
+        qry.sql_inspector.resolve()
+        self.assertEqual(qry.sql_inspector.field_list(), {"idpedido": 0, "cobros": 1, "ventas": 2})
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
