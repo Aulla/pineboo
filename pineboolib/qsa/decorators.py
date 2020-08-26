@@ -20,42 +20,36 @@ def atomic(conn_name: str = "default") -> TYPEFN:
         @functools.wraps(fun_)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             new_session = utils.session(conn_name)
-            new_session.begin()
-            LOGGER.debug(
-                "New atomic session : %s, connection : %s, transaction: %s",
-                new_session,
-                conn_name,
-                new_session.transaction,
-            )
-
-            id_thread = threading.current_thread().ident
-            key = "%s_%s" % (id_thread, conn_name)
-            # LOGGER.warning(
-            #    "NUEVA session: %s, thread: %s, trans: %s",
-            #    new_session,
-            #    id_thread,
-            #    new_session.transaction,
-            # )
-
-            application.PROJECT.conn_manager.thread_atomic_sessions[key] = new_session
-
-            try:
-                result_ = fun_(*args, **kwargs)
-            except Exception as error:
-                LOGGER.warning(
-                    "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
-                    "".join(traceback.format_exc(limit=None)),
-                    "".join(traceback.format_stack(limit=None)),
-                    stack_info=True,
+            with new_session.begin():
+                LOGGER.debug(
+                    "New atomic session : %s, connection : %s, transaction: %s",
+                    new_session,
+                    conn_name,
+                    new_session.transaction,
                 )
-                new_session.rollback()
-                new_session.close()
-                del application.PROJECT.conn_manager.thread_atomic_sessions[key]
-                raise error
 
-            new_session.commit()
+                id_thread = threading.current_thread().ident
+                key = "%s_%s" % (id_thread, conn_name)
 
+                application.PROJECT.conn_manager.thread_atomic_sessions[key] = new_session
+
+                try:
+                    result_ = fun_(*args, **kwargs)
+                except Exception as error:
+                    LOGGER.warning(
+                        "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
+                        "".join(traceback.format_exc(limit=None)),
+                        "".join(traceback.format_stack(limit=None)),
+                        stack_info=True,
+                    )
+                    # new_session.rollback()
+                    # new_session.close()
+                    del application.PROJECT.conn_manager.thread_atomic_sessions[key]
+                    raise error
+
+            # new_session.commit()
             new_session.close()
+
             del application.PROJECT.conn_manager.thread_atomic_sessions[key]
             return result_
 
