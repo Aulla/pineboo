@@ -237,10 +237,46 @@ class SqlInspector(object):
 
             fields_list = new_fields_list
             new_fields_list = []
+            inicio_parentesis = []
+            composed_field = {}
             for field in list(fields_list):
-                if field == "":
+                idx_ = len(inicio_parentesis)
+                # Comprueba si hay field_names compuestos
+                if field.find("(") > -1 and not field.find(")") > -1:  # si es multiple de verdad
+                    inicio_parentesis.append(str(idx_ + 1))
+                    composed_field[inicio_parentesis[-1]] = []
+                    composed_field[inicio_parentesis[-1]].append(field)
                     continue
-                new_fields_list.append(field)
+                elif field == "":
+                    continue
+                elif field.find(")") > -1 and not field.find("(") > -1:  # si es multiple de verdad
+
+                    composed_field[inicio_parentesis[-1]].append(field)
+                    new_fields_list.append(" ".join(composed_field[inicio_parentesis[-1]]))
+                    composed_field[inicio_parentesis[-1]] = []
+                    del composed_field[inicio_parentesis[-1]]
+                    del inicio_parentesis[-1]
+                else:
+                    if inicio_parentesis:
+                        composed_field[inicio_parentesis[-1]].append(field)
+                    else:
+                        new_fields_list.append(field)
+
+            # Repasa si hay alias en los fieldnames.
+            old_list = list(new_fields_list)
+            new_fields_list = []
+            expect_alias = False
+            for field_name in old_list:
+                num = len(new_fields_list)
+                if field_name == "as":
+                    expect_alias = True
+                    continue
+                else:
+                    if expect_alias:
+                        del new_fields_list[num - 1]
+
+                    new_fields_list.append(field_name)
+                    expect_alias = False
 
             tables_list: List[str] = []
             if "where" in list_sql:
