@@ -237,8 +237,8 @@ class SqlInspector(object):
 
             fields_list = new_fields_list
             new_fields_list = []
-            inicio_parentesis = []
-            composed_field = {}
+            inicio_parentesis: List[str] = []
+            composed_field: Dict[str, List[str]] = {}
             for field in list(fields_list):
                 idx_ = len(inicio_parentesis)
                 # Comprueba si hay field_names compuestos

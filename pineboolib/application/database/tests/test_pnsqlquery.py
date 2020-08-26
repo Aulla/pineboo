@@ -531,11 +531,15 @@ class TestPNSqlQuery2(unittest.TestCase):
 
     def test_as_in_select(self) -> None:
         """Test as in select."""
-        sql = """ SELECT idpedido, 
-            SUM(CASE WHEN operacion = 'C' THEN importe ELSE 0 END) AS cobros, 
-            SUM(CASE WHEN operacion = 'V' THEN importe ELSE 0 END) AS ventas
-            FROM coe_cobrosventasped
-            WHERE idpedido = " + str(idpedido) + " GROUP BY idpedido"""
+        sql = (
+            "SELECT idpedido, "
+            + "SUM(CASE WHEN operacion = 'C' THEN importe ELSE 0 END) AS cobros, "
+            + "SUM(CASE WHEN operacion = 'V' THEN importe ELSE 0 END) AS ventas "
+            + " FROM coe_cobrosventasped "
+            + " WHERE idpedido = "
+            + "str(idpedido)"
+            + " GROUP BY idpedido"
+        )
 
         qry = pnsqlquery.PNSqlQuery()
         qry.sql_inspector.set_sql(sql)
