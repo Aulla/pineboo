@@ -8,14 +8,17 @@ from .projectmodule import Project
 from typing import Dict, List
 
 PROJECT = Project()
-SHOW_CURSOR_EVENTS: bool = False
-SHOW_CLOSED_CONNECTION_WARNING: bool = False
-SHOW_NESTED_WARNING: bool = False
-USE_ATOMIC_LIST: bool = False
-SQLALCHEMY_NULL_POOL: bool = False
+
 ATOMIC_LIST: List[str] = []
-VIRTUAL_DB: bool = True  # Enable :memory: database on pytest
-LOG_SQL = False
-USE_WEBSOCKET_CHANNEL = False
-PINEBOO_VER = "0.73.26"
 FILE_CLASSES: Dict[str, str] = {}
+
+PINEBOO_VER = "0.73.26"
+
+SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
+SHOW_CLOSED_CONNECTION_WARNING: bool = False  # Enable show debug when connection is closed.
+SHOW_NESTED_WARNING: bool = False  # Enable show nested debug.
+USE_ATOMIC_LIST: bool = False  # Enable process queue.
+SQLALCHEMY_NULL_POOL: bool = False  # Disable conections pool. Use for minimize problems with concurrences threads and sessions.
+VIRTUAL_DB: bool = True  # Enable :memory: database on pytest.
+LOG_SQL = False  # Enable sqlalchemy logs.
+USE_WEBSOCKET_CHANNEL = False  # Enable websockets features.
