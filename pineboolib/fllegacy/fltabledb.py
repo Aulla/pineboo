@@ -1656,24 +1656,24 @@ class FLTableDB(QtWidgets.QWidget):
 
         return self._all
 
-    def tdbFilterBuildWhere(self) -> Optional[str]:
+    def tdbFilterBuildWhere(self) -> str:
         """
         Build the filter clause in SQL from the contents of the values defined in the filter tab.
         """
         if not self._top_widget:
-            return None
+            return ""
 
         if self._tdb_filter is None:
-            return None
+            return ""
 
         rows_count = self._tdb_filter.numRows()
         # rows_count = self.cursor().model().columnCount()
         if not rows_count or not self.cursor():
-            return None
+            return ""
 
         table_metadata = self.cursor().metadata()
         if not table_metadata:
-            return None
+            return ""
 
         where = ""
 
@@ -2207,8 +2207,6 @@ class FLTableDB(QtWidgets.QWidget):
         """Call method FLSqlCursor.insertRecord."""
 
         w = cast(QtWidgets.QWidget, self.sender())
-        # if (w and (not self.cursor() or self._req_read_only or self._req_edit_only or self._req_only_table or (self.cursor().cursorRelation()
-        #      and self.cursor().cursorRelation().isLocked()))):
         relationLock = False
         cur_relation = self.cursor().cursorRelation()
         if cur_relation is not None:
