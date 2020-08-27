@@ -229,7 +229,8 @@ class PNSqlSchema(object):
         queqe_params: Dict[str, Any] = {}
 
         queqe_params["encoding"] = "UTF-8"
-        queqe_params["poolclass"] = pool.NullPool
+        if application.SQLALCHEMY_NULL_POOL:
+            queqe_params["poolclass"] = pool.NullPool
 
         # if limit_conn > 0:
         #    queqe_params["pool_size"] = limit_conn

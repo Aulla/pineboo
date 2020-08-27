@@ -75,7 +75,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         # queqe_params["connect_args"] = {"timeout": 5}
         queqe_params["encoding"] = "UTF-8"
         queqe_params["isolation_level"] = "AUTOCOMMIT"
-        queqe_params["poolclass"] = pool.NullPool  # type: ignore [assignment] # noqa: F821
+        if application.SQLALCHEMY_NULL_POOL:
+            queqe_params["poolclass"] = pool.NullPool  # type: ignore [assignment] # noqa: F821
         if application.LOG_SQL:
             queqe_params["echo"] = True
 

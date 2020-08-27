@@ -12,6 +12,7 @@ SHOW_CURSOR_EVENTS: bool = False
 SHOW_CLOSED_CONNECTION_WARNING: bool = False
 SHOW_NESTED_WARNING: bool = False
 USE_ATOMIC_LIST: bool = False
+SQLALCHEMY_NULL_POOL: bool = False
 ATOMIC_LIST: List[str] = []
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest
 LOG_SQL = False
