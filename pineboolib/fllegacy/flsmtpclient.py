@@ -149,26 +149,26 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
 
         return self.reply_to_
 
-    def setTo(self, to: str) -> None:
+    def setTo(self, to_: str) -> None:
         """Set to."""
-        self.to_ = to
+        self.to_ = to_
 
     def to(self) -> Optional[str]:
         """Return to."""
         return self.to_
 
-    def setCC(self, cc: str) -> None:
+    def setCC(self, cc_: str) -> None:
         """Set cc."""
-        self.cc_ = cc
+        self.cc_ = cc_
 
     def CC(self) -> Optional[str]:
         """Return cc."""
         return self.cc_
 
-    def setBCC(self, cc: str) -> None:
+    def setBCC(self, cc_: str) -> None:
         """Set bcc."""
 
-        self.bcc_ = cc
+        self.bcc_ = cc_
 
     def BCC(self) -> Optional[str]:
         """Return bcc."""
@@ -279,9 +279,9 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
         """Return password."""
         return self.password_
 
-    def setConnectionType(self, c: int) -> None:
+    def setConnectionType(self, conn: int) -> None:
         """Set connection type."""
-        self.connection_type_ = c
+        self.connection_type_ = conn
 
     def connectionType(self) -> int:
         """Return connection type."""
@@ -343,9 +343,9 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
                 logo = "%s/logo.png" % application.PROJECT.tmpdir
                 Qt.QPixmap(utils_base.pixmap_from_mime_source("pineboo-logo.png")).save(logo, "PNG")
 
-            fp = open(logo, "rb")
-            logo_part = MIMEImage(fp.read())
-            fp.close()
+            fp_ = open(logo, "rb")
+            logo_part = MIMEImage(fp_.read())
+            fp_.close()
 
             logo_part.add_header("Content-ID", "<image>")
             outer.attach(logo_part)
@@ -368,9 +368,9 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
         self.sendStepNumber.emit(step)
 
         try:
-            s = smtplib.SMTP("%s:%s" % (self.mail_server_ or "", self.port_ or 25))
+            smtp = smtplib.SMTP("%s:%s" % (self.mail_server_ or "", self.port_ or 25))
             if self.connection_type_ == ConnectionType.TlsConnection:
-                s.starttls()
+                smtp.starttls()
                 self.changeStatus("StartTTLS", State.StartTTLS)
 
             if self.user_ and self.password_:
@@ -380,7 +380,7 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
                 elif self.auth_method_ == State.SendAuthPlain:
                     self.changeStatus(status_msg, State.SendAuthPlain)
 
-                s.login(self.user_, self.password_)
+                smtp.login(self.user_, self.password_)
 
                 self.changeStatus(
                     status_msg,
@@ -389,9 +389,9 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
                     else State.WaitingForAuthPlain,
                 )
 
-            s.sendmail(self.from_value_ or "", self.to_ or "", composed)
+            smtp.sendmail(self.from_value_ or "", self.to_ or "", composed)
             self.changeStatus("Correo enviado", State.SendOk)
-            s.quit()
+            smtp.quit()
             return True
 
         except smtplib.SMTPHeloError:
@@ -432,8 +432,8 @@ class FLSmtpClient(QtCore.QObject, AuthMethod, ConnectionType, State):
             )
             self.changeStatus(status_msg, State.SmtpError)
             return False
-        except Exception as e:
-            status_msg = "Error sending mail %s." % e
+        except Exception as error:
+            status_msg = "Error sending mail %s." % error
             return False
 
     def changeStatus(self, status_msg: str, state_code: int) -> None:

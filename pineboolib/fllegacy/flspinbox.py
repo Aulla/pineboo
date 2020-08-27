@@ -17,10 +17,10 @@ class FLSpinBox(qspinbox.QSpinBox):
         super().__init__(parent)
         # editor()setAlignment(Qt::AlignRight);
 
-    def setMaxValue(self, v: int) -> None:
+    def setMaxValue(self, value: int) -> None:
         """Set maximum value."""
 
-        self.setMaximum(v)
+        self.setMaximum(value)
 
     def getValue(self) -> int:
         """Return actual value."""

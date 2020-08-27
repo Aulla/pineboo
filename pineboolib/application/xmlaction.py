@@ -217,7 +217,7 @@ class XMLAction(struct.ActionStruct):
 
         if self.is_form_loaded(self._record_widget):
             if self._record_widget is not None and self._record_widget.form is not None:
-                if self._record_widget.form.showed:
+                if self._record_widget.form._showed:
 
                     QtWidgets.QMessageBox.information(
                         QtWidgets.QApplication.activeWindow(),

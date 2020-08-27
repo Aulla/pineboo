@@ -81,7 +81,7 @@ class FLFieldDB(QtWidgets.QWidget):
         "isqlcursor.ISqlCursor"
     ]  # Cursor auxiliar de uso interno para almacenar los registros de la tabla relacionada con la de origen
 
-    showed: bool
+    _showed: bool
     _show_alias: bool
     _auto_com_popup: Optional[fldatatable.FLDataTable]
     _auto_com_frame: Optional[QtWidgets.QWidget]
@@ -140,7 +140,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self._auto_com_frame = None
         self._auto_com_field_relation = None
         self.setObjectName("FLFieldDB")
-        self.showed = False
+        self._showed = False
         self._refresh_later = None
         self._keep_disabled = False
         self._init_not_null_color = False
@@ -1632,7 +1632,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self,
                 )
             self.cursor_.setModeAccess(pnsqlcursor.PNSqlCursor.Browse)
-            if self.showed:
+            if self._showed:
                 try:
                     self.cursor_.cursorUpdated.disconnect(self.refresh)
                 except Exception:
@@ -1654,14 +1654,14 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if not self._table_name or not self._foreign_field or not self._field_relation:
             if self._foreign_field and self._field_relation:
-                if self.showed:
+                if self._showed:
                     try:
                         self.cursor_.bufferChanged.disconnect(self.refresh)
                     except Exception:
                         LOGGER.exception("Error al desconectar señal")
                 self.cursor_.bufferChanged.connect(self.refresh)
 
-            if self.showed:
+            if self._showed:
                 try:
                     self.cursor_.newBuffer.disconnect(self.refresh)
                 except Exception:
@@ -1759,7 +1759,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         if not self.cursor_:
             self.cursor_ = self._cursor_aux
-            if self.showed:
+            if self._showed:
                 try:
                     self.cursor_.newBuffer.disconnect(self.refresh)
                 except Exception:
@@ -1775,7 +1775,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self._cursor_aux = None
             return
         else:
-            if self.showed:
+            if self._showed:
                 try:
                     self.cursor_.newBuffer.disconnect(self.setNoShowed)
                 except Exception:
@@ -1783,7 +1783,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.cursor_.newBuffer.connect(self.setNoShowed)
 
         self.cursor_.setModeAccess(pnsqlcursor.PNSqlCursor.Browse)
-        if self.showed:
+        if self._showed:
             try:
                 self.cursor_.newBuffer.disconnect(self.refresh)
             except Exception:
@@ -1905,7 +1905,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if self._push_button_db:
                 self._push_button_db.hide()
 
-            if self.showed:
+            if self._showed:
                 try:
                     self.editor_.textChanged.disconnect(self.updateValue)
                 except Exception:
@@ -1954,14 +1954,14 @@ class FLFieldDB(QtWidgets.QWidget):
                         self._pbaux3.setToolTip("Abrir fichero de imagen")
                         self._pbaux3.setWhatsThis("Abrir fichero de imagen")
                         self._buttons_layout.addWidget(self._pbaux3)
-                        # if self.showed:
+                        # if self._showed:
                         #    try:
                         #        self._pbaux3.clicked.disconnect(self.searchPixmap)
                         #    except Exception:
                         #        LOGGER.exception("Error al desconectar señal")
                         self._pbaux3.clicked.connect(self.searchPixmap)
                         if not has_push_button_db:
-                            if self.showed:
+                            if self._showed:
                                 try:
                                     self.keyF2Pressed.disconnect(self._pbaux3.animateClick)
                                 except Exception:
@@ -1987,7 +1987,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self._pbaux4.setToolTip("Pegar imagen desde el portapapeles")
                         self._pbaux4.setWhatsThis("Pegar imagen desde el portapapeles")
                         self._buttons_layout.addWidget(self._pbaux4)
-                        # if self.showed:
+                        # if self._showed:
                         #    try:
                         #        self._pbaux4.clicked.disconnect(self.setPixmapFromClipboard)
                         #    except Exception:
@@ -2007,7 +2007,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self._pbaux.setToolTip("Borrar imagen")
                         self._pbaux.setWhatsThis("Borrar imagen")
                         self._buttons_layout.addWidget(self._pbaux)
-                        # if self.showed:
+                        # if self._showed:
                         #    try:
                         #        self._pbaux.clicked.disconnect(self.clearPixmap)
                         #    except Exception:
@@ -2034,7 +2034,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self._pbaux2.setToolTip("Guardar imagen como...")
                         self._pbaux2.setWhatsThis("Guardar imagen como...")
                         self._buttons_layout.addWidget(self._pbaux2)
-                        # if self.showed:
+                        # if self._showed:
                         #    try:
                         #        savepixmap_.triggered.disconnect(self.savePixmap)
                         #    except Exception:
@@ -2082,14 +2082,14 @@ class FLFieldDB(QtWidgets.QWidget):
                 #    #self._pbaux.setWhatsThis("Seleccionar fecha (F2)")
                 #    # self._buttons_layout.addWidget(self._pbaux) FIXME
                 #    # self._widgets_layout.addWidget(self._pbaux)
-                #    # if self.showed:
+                #    # if self._showed:
                 #        # self._pbaux.clicked.disconnect(self.toggleDatePicker)
                 #        # self.KeyF2Pressed_.disconnect(self._pbaux.animateClick)
                 #    # self._pbaux.clicked.connect(self.toggleDatePicker)
                 #    # self.keyF2Pressed_.connect(self._pbaux.animateClick) #FIXME
                 self.editor_.setCalendarPopup(True)
 
-            if self.showed:
+            if self._showed:
                 try:
                     cast(QtCore.pyqtSignal, self.editor_.dateChanged).disconnect(self.updateValue)
                 except Exception:
@@ -2120,7 +2120,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.installEventFilter(self)
             if self._push_button_db:
                 self._push_button_db.hide()
-            if self.showed:
+            if self._showed:
                 try:
                     cast(QtCore.pyqtSignal, self.editor_.timeChanged).disconnect(self.updateValue)
                 except Exception:
@@ -2167,7 +2167,7 @@ class FLFieldDB(QtWidgets.QWidget):
             # self._horizontal_layout.addItem(verticalSpacer)
             self.editor_.installEventFilter(self)
 
-            if self.showed:
+            if self._showed:
                 try:
                     cast(QtCore.pyqtSignal, self.editor_.textChanged).disconnect(self.updateValue)
                 except Exception:
@@ -2209,7 +2209,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if self._widgets_layout:
                 self._widgets_layout.addWidget(self.editor_)
 
-            if self.showed:
+            if self._showed:
                 try:
                     self.editor_.toggled.disconnect(self.updateValue)
                 except Exception:
@@ -2291,7 +2291,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 old_translated.append(item)
             self.editor_.addItems(old_translated)
             self.editor_.installEventFilter(self)
-            if self.showed:
+            if self._showed:
                 try:
                     cast(QtCore.pyqtSignal, self.editor_.activated).disconnect(self.updateValue)
                 except Exception:
@@ -2367,7 +2367,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
             self.editor_.installEventFilter(self)
 
-            if self.showed:
+            if self._showed:
                 try:
                     self.editor_.lostFocus.disconnect(self.emitLostFocus)
                     self.editor_.textChanged.disconnect(self.updateValue)
@@ -2380,7 +2380,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.textChanged.connect(self.emitTextChanged)
 
             if has_push_button_db and self._push_button_db:
-                if self.showed:
+                if self._showed:
                     try:
                         self.keyF2Pressed.disconnect(self._push_button_db.animateClick)
                         self.labelClicked.disconnect(self.openFormRecordRelation)
@@ -2850,7 +2850,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     obj_tdb.setInitSearch(cur_value)
                     obj_tdb.putFirstCol(field_relation.foreignField())
 
-                QtCore.QTimer.singleShot(0, obj_tdb.lineEditSearch.setFocus)
+                QtCore.QTimer.singleShot(0, obj_tdb._line_edit_search.setFocus)
 
         value = form_search.exec_(field_relation.foreignField())
         form_search.close()
@@ -3078,7 +3078,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """Set the control is not shown."""
 
         if self._foreign_field and self._field_relation:
-            self.showed = False
+            self._showed = False
             if self.isVisible():
                 self.showWidget()
 
@@ -3334,9 +3334,9 @@ class FLFieldDB(QtWidgets.QWidget):
         Show the widget.
         """
         if self._loaded:
-            if not self.showed:
+            if not self._showed:
                 if self._top_widget:
-                    self.showed = True
+                    self._showed = True
                     if not self._first_refresh:
                         self.refresh()
                         self._first_refresh = True
@@ -3413,7 +3413,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 else:
                     self.initFakeEditor()
 
-                self.showed = True
+                self._showed = True
 
     def editor(self) -> "QtWidgets.QWidget":
         """Return editor control."""

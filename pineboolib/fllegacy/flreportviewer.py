@@ -76,13 +76,13 @@ class FLReportViewer(QtWidgets.QWidget):
     Append: int
     Display: int
     PageBreak: int
-    spnResolution_: int
+    _spn_resolution: int
     report_: List[Any]
     qry_: Any
     xml_data_: Any
     template_: Any
     autoClose_: bool
-    styleName_: str
+    _style_name: str
 
     PrintGrayScale = 0
     PrintColor = 1
@@ -229,7 +229,7 @@ class FLReportViewer(QtWidgets.QWidget):
     ) -> bool:
         """Set template to report."""
         if isinstance(template, QtXml.QDomNode):
-            self.xmlTemplate_ = template
+            self._xml_template = template
             self.template_ = ""
 
             if not self.report_engine_:
@@ -243,10 +243,10 @@ class FLReportViewer(QtWidgets.QWidget):
             return True
         else:
             self.template_ = template
-            self.styleName_ = style
+            self._style_name = style
             if self.report_engine_ and self.report_engine_.setFLReportTemplate(template):
                 # self.setStyleName(style)
-                self.xmlTemplate_ = self.report_engine_.rptXmlTemplate()
+                self._xml_template = self.report_engine_.rptXmlTemplate()
                 return True
 
         return False
@@ -291,10 +291,10 @@ class FLReportViewer(QtWidgets.QWidget):
         """Set default values."""
         import platform
 
-        self.spnResolution_ = 300
+        self._spn_resolution = 300
         system = platform.system()
         if system == "Linux":
-            self.spnPixel_ = 780
+            self._spn_pixel = 780
         elif system == "Windows":
             # FIXME
             pass
@@ -311,13 +311,13 @@ class FLReportViewer(QtWidgets.QWidget):
             if not self.report_engine_:
                 self.setReportEngine(FLReportEngine(self))
 
-            self.setResolution(self.spnResolution_)
+            self.setResolution(self._spn_resolution)
             self.setPixel(self.spnPixel_)
 
             if self.template_ and self.template_ != "":
-                self.setReportTemplate(self.template_, self.styleName_)
+                self.setReportTemplate(self.template_, self._style_name)
             else:
-                self.setReportTemplate(self.xmlTemplate_, self.styleName_)
+                self.setReportTemplate(self._xml_template, self._style_name)
 
             if self.qry_:
                 self.setReportData(self.qry_)
@@ -415,7 +415,9 @@ class FLReportViewer(QtWidgets.QWidget):
         pass
 
     @decorators.beta_implementation
-    def setPageSize(self, size: Union[QtCore.QSize, int], h: Optional[int] = None) -> None:
+    def setPageSize(
+        self, size: Union[QtCore.QSize, int], orientation: Optional[int] = None
+    ) -> None:
         """Set page size."""
         # FIXME: self.report_ is just a List[]
         # if self.report_:
@@ -471,7 +473,7 @@ class FLReportViewer(QtWidgets.QWidget):
     @decorators.beta_implementation
     def setStyleName(self, style: str) -> None:
         """Set style name."""
-        self.styleName_ = style
+        self._style_name = style
 
     @decorators.beta_implementation
     def setReportPages(self, pgs: Any) -> None:

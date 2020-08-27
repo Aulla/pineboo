@@ -161,12 +161,12 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
         return 0
 
     @decorators.not_implemented_warn
-    def putch(self, ch: int) -> int:
+    def putch(self, char_: int) -> int:
         """Send a char."""
         return 0
 
     @decorators.not_implemented_warn
-    def ungetch(self, ch: int) -> int:
+    def ungetch(self, char_: int) -> int:
         """Return unsigned char?."""
         return 0
 
@@ -191,10 +191,10 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
         """Return number of bytes avalaible to read."""
         return 0
 
-    def setRts(self, b: bool) -> None:
+    def setRts(self, value: bool) -> None:
         """Emit RTS. signal."""
-        self._obj.setRequestToSend(b)
+        self._obj.setRequestToSend(value)
 
-    def setDtr(self, b: bool) -> None:
+    def setDtr(self, value: bool) -> None:
         """Emit DTR signal."""
-        self._obj.setDataTerminalReady(b)
+        self._obj.setDataTerminalReady(value)

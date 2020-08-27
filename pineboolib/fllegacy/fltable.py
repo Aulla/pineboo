@@ -13,7 +13,7 @@ class FLTable(qtable.QTable):
     AlwaysOff: bool
 
     @decorators.not_implemented_warn
-    def setColumnMovingEnabled(self, b: bool) -> None:
+    def setColumnMovingEnabled(self, value: bool) -> None:
         """Set that columns can be moved."""
         pass
 

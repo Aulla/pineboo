@@ -87,7 +87,7 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Indica que la ventana ya ha sido mostrada una vez
     """
-    showed: bool
+    _showed: bool
 
     """
     Guarda el contexto anterior que tenia el cursor
@@ -233,7 +233,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.bottomToolbar = QtWidgets.QFrame()
         # self.cursor_ = None
         self._init_focus_widget = None
-        self.showed = False
+        self._showed = False
         self._is_closing = False
         self.accepted_ = False
         self.main_widget = None
@@ -501,7 +501,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         Used in documentation to avoid conflicts when capturing forms.
         """
-        self.showed = True
+        self._showed = True
         if self.main_widget:
             self.main_widget.show()
             self.resize(self.main_widget.size())
@@ -825,8 +825,8 @@ class FLFormDB(QtWidgets.QDialog):
         if not self.loaded():
             return
 
-        if not self.showed:
-            self.showed = True
+        if not self._showed:
+            self._showed = True
 
             size = geometry.load_geometry_form(self.geoName())
             if size:
@@ -924,7 +924,7 @@ class FLFormDB(QtWidgets.QDialog):
             qt_rectangle.moveCenter(center_point)
             self.move(qt_rectangle.topLeft())
 
-        if not self.showed:  # Prueba al restaurar tabs no inicializan scripts
+        if not self._showed:  # Prueba al restaurar tabs no inicializan scripts
             self.initScript()
 
         # if settings.readBoolEntry("application/isDebuggerMode", False):
@@ -938,7 +938,7 @@ class FLFormDB(QtWidgets.QDialog):
         if widget is not None:
             self.main_widget = widget
 
-        if self.main_widget and not getattr(self.main_widget, "showed", False):
+        if self.main_widget and not getattr(self.main_widget, "_showed", False):
             self.main_widget.show()
 
     def child(self, child_name: str) -> Optional[QtWidgets.QWidget]:
