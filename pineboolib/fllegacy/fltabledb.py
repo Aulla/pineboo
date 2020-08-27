@@ -258,7 +258,7 @@ class FLTableDB(QtWidgets.QWidget):
     """
     Almacena la última claúsula de filtro aplicada en el refresco
     """
-    _tdb_filter_last_where: Optional[str]
+    _tdb_filter_last_where: str
 
     """
     Diccionario que relaciona literales descriptivos de una condición de filtro
@@ -376,7 +376,7 @@ class FLTableDB(QtWidgets.QWidget):
             self.setObjectName(name)
         self._check_column_visible = False
         self._check_column_enabled = False
-        self._tdb_filter_last_where = None
+        self._tdb_filter_last_where = ""
 
         self._icon_size = []
 
@@ -1422,7 +1422,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         Refresh the data tab by applying the filter.
         """
-        if self._filter is not None and self._tdb_filter_last_where is not None:
+        if self._filter and self._tdb_filter_last_where:
             self._filter = self._filter.replace(self._tdb_filter_last_where, "")
 
         self._tdb_filter_last_where = self.tdbFilterBuildWhere()
@@ -1675,7 +1675,7 @@ class FLTableDB(QtWidgets.QWidget):
         if not table_metadata:
             return None
 
-        where: str = ""
+        where = ""
 
         for idx in range(rows_count):
             if self._tdb_filter is None:
@@ -2207,18 +2207,19 @@ class FLTableDB(QtWidgets.QWidget):
         """Call method FLSqlCursor.insertRecord."""
 
         w = cast(QtWidgets.QWidget, self.sender())
-
-        relation_lock = False
+        # if (w and (not self.cursor() or self._req_read_only or self._req_edit_only or self._req_only_table or (self.cursor().cursorRelation()
+        #      and self.cursor().cursorRelation().isLocked()))):
+        relationLock = False
         cur_relation = self.cursor().cursorRelation()
         if cur_relation is not None:
-            relation_lock = cur_relation.isLocked()
+            relationLock = cur_relation.isLocked()
 
         if w and (
             not self.cursor()
             or self._req_read_only
             or self._req_edit_only
             or self._req_only_table
-            or relation_lock
+            or relationLock
         ):
             w.setDisabled(True)
             return

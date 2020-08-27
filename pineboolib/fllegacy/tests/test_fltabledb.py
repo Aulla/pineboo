@@ -268,7 +268,7 @@ class TestFLTableDB(unittest.TestCase):
             return
 
         fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
-        fltable.filter_ = None
+        fltable._filter = ""
         fltable.activeTabFilter(True)
         fltable.tdbFilterClear()
         widget_cb = fltable._tdb_filter.cellWidget(1, 1)
@@ -300,6 +300,12 @@ class TestFLTableDB(unittest.TestCase):
         fltable.activeTabData(True)
         fltable.refresh()
         cursor3 = fltable.cursor()
+        cursor3.first()
+        print("*", cursor3.valueBuffer("idarea"))
+        while cursor3.next():
+            print("**", cursor3.valueBuffer("idarea"))
+        print("***", fltable.tdbFilterBuildWhere())
+        print("****", cursor3.filter())
         self.assertEqual(cursor3.size(), 5)
 
         fltable.activeTabFilter(True)
