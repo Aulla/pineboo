@@ -13,6 +13,7 @@ from pineboolib.application.database import utils, pnsqlquery
 from pineboolib.application import types
 
 from pineboolib.core import decorators, translate, settings
+from pineboolib.core.utils import utils_base
 from pineboolib import logging, application
 
 
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
     from PyQt5 import QtXml
     from pineboolib.interfaces import isqlcursor, iconnection  # noqa : F401
 
-logger = logging.get_logger(__name__)
+LOGGER = logging.get_logger(__name__)
 
 
 class FLUtil(object):
@@ -97,30 +98,8 @@ class FLUtil(object):
         "novecientos",
     ]
 
-    # @staticmethod
-    # def deleteCascade(collector, field, sub_objs, using) -> None:  # FIXME TIPEADO
-    #    for o in sub_objs:
-    #        try:
-    #            from pineboolib.application.database.pnsqlcursor import PNSqlCursor
-
-    #            cursor = PNSqlCursor(field.model._meta.db_table)
-    #            cursor.select(field.model._meta.pk.name + "=" + str(o.pk))
-    #            if cursor.next():
-    #                cursor.setModeAccess(cursor.Del)
-    #                if not cursor.commitBuffer():
-    #                    raise Exception(
-    #                        "No pudo eliminar "
-    #                        + str(field.model._meta.db_table)
-    #                        + " : "
-    #                        + str(o.pk)
-    #                    )
-    #        except Exception:
-    #            raise Exception(
-    #                "No pudo eliminar " + str(field.model._meta.db_table) + " : " + str(o.pk)
-    #            )
-
     @staticmethod
-    def partInteger(n: float) -> int:
+    def partInteger(num: float) -> int:
         """
         Return the integer part of a number.
 
@@ -130,11 +109,11 @@ class FLUtil(object):
         @param n Number to get the whole part from. Must be positive
         @return The whole part of the number, which can be zero
         """
-        i, d = divmod(n, 1)
-        return int(i)
+        integer, decimal = divmod(num, 1)
+        return int(integer)
 
     @staticmethod
-    def partDecimal(n: float) -> int:
+    def partDecimal(num: float) -> int:
         """
         Return the decimal part of a number.
 
@@ -143,51 +122,49 @@ class FLUtil(object):
         @param n Number from which to obtain the decimal part. Must be positive
         @return The decimal part of the number, which can be zero
         """
-        i, d = divmod(n, 1)
-        d = round(d, 2)
-        d = d * 100
-        return int(d)
+        integer, decimal = divmod(num, 1)
+        return int(round(decimal, 2) * 100)
 
     @classmethod
-    def unidades(cls, n: int) -> str:
+    def unidades(cls, num: int) -> str:
         """
         Statement of the units of a number.
 
         @param n Number to deal with. Must be positive.
         """
-        if n >= 0:
-            return cls.vecUnidades[n]
+        if num >= 0:
+            return cls.vecUnidades[num]
         else:
-            raise ValueError("Parameter 'n' must be a positive integer")
+            raise ValueError("Parameter 'num' must be a positive integer")
 
-    @staticmethod
-    def utf8(text: str) -> str:
+    @classmethod
+    def utf8(cls, text: str) -> str:
         """
         Return a string to utf-8 encoding.
         """
         return text.encode().decode("utf-8", "ignore")
 
     @classmethod
-    def centenamillar(cls, n: int) -> str:
+    def centenamillar(cls, num: int) -> str:
         """
         Statement of the hundreds of thousands of a number.
 
         @param n Number to deal with. Must be positive.
         """
         buffer = ""
-        if n < 0:
+        if num < 0:
             raise ValueError("Param n must be positive integer")
-        if n < 10000:
-            buffer = cls.decenasmillar(n)
+        if num < 10000:
+            buffer = cls.decenasmillar(num)
         else:
-            buffer = cls.centenas(n / 1000)
+            buffer = cls.centenas(num / 1000)
             buffer = buffer + " mil "
-            buffer = buffer + cls.centenas(n % 1000)
+            buffer = buffer + cls.centenas(num % 1000)
 
         return buffer
 
     @classmethod
-    def decenas(cls, n: Union[int, float]) -> str:
+    def decenas(cls, num: Union[int, float]) -> str:
         """
         Statement of the tens of a number.
 
@@ -195,62 +172,60 @@ class FLUtil(object):
         """
         buffer = ""
 
-        if n < 0:
+        if num < 0:
             raise ValueError("Param n must be positive integer")
-        if n < 30:
-            buffer = cls.unidades(int(n))
+        if num < 30:
+            buffer = cls.unidades(int(num))
         else:
-            buffer = cls.vecDecenas[cls.partInteger(n / 10)]
-            if n % 10:
+            buffer = cls.vecDecenas[cls.partInteger(num / 10)]
+            if num % 10:
                 buffer = buffer + " y "
-                buffer = buffer + cls.unidades(int(n % 10))
+                buffer = buffer + cls.unidades(int(num % 10))
 
         return buffer
 
     @classmethod
-    def centenas(cls, n: Union[int, float]) -> str:
+    def centenas(cls, num: Union[int, float]) -> str:
         """
         Statement of the hundreds of a number.
 
         @param n Number to deal with. It must be positive.
         """
         buffer = ""
-        if n < 0:
+        if num < 0:
             raise ValueError("Param n must be positive integer")
-        if n == 100:
+        if num == 100:
             buffer = "cien"
 
-        elif n < 100:
-            buffer = cls.decenas(int(n))
+        elif num < 100:
+            buffer = cls.decenas(int(num))
         else:
-            buffer += cls.vecCentenas[cls.partInteger(n / 100)]
+            buffer += cls.vecCentenas[cls.partInteger(num / 100)]
             buffer += " "
-            buffer += cls.decenas(int(n % 100))
+            buffer += cls.decenas(int(num % 100))
 
         return buffer
 
     @classmethod
-    def unidadesmillar(cls, n: int) -> str:
+    def unidadesmillar(cls, num: int) -> str:
         """
         Statement of the thousand units of a number.
 
-        @param n Number to deal with. Must be positive.
+        @param num Number to deal with. Must be positive.
         """
         buffer = ""
-        if n < 1000:
+        if num < 1000:
             buffer = ""
 
-        elif n / 1000 == 1:
+        elif num / 1000 == 1:
             buffer = "mil"
 
-        elif n / 1000 > 1:
-            buffer = cls.unidades(int(n / 1000))
+        elif num / 1000 > 1:
+            buffer = cls.unidades(int(num / 1000))
             buffer += " mil"
 
-        centenas = cls.centenas(int(n % 1000))
-        # if buffer:
-        #    buffer += " %s" % centenas
-        # else:
+        centenas = cls.centenas(int(num % 1000))
+
         if buffer and centenas:
             buffer += " "
         buffer += centenas
@@ -258,23 +233,23 @@ class FLUtil(object):
         return buffer
 
     @classmethod
-    def decenasmillar(cls, n: int) -> str:
+    def decenasmillar(cls, num: int) -> str:
         """
         Statement of tens of thousands of a number.
 
         @param n Number to deal with. Must be positive.
         """
         buffer = ""
-        if n < 10000:
-            buffer = cls.unidadesmillar(n)
+        if num < 10000:
+            buffer = cls.unidadesmillar(num)
         else:
-            buffer = cls.decenas(n / 1000)
+            buffer = cls.decenas(num / 1000)
             buffer = buffer + " mil "
-            buffer = buffer + cls.centenas(int(n % 10000))
+            buffer = buffer + cls.centenas(int(num % 10000))
         return buffer
 
     @classmethod
-    def enLetra(cls, n: int) -> str:
+    def enLetra(cls, num: int) -> str:
         """
         Return the expression in text of how a number is stated, in Spanish.
 
@@ -286,27 +261,27 @@ class FLUtil(object):
         @return Text string with its spoken expression.
         """
         buffer = ""
-        if n > 1000000000:
+        if num > 1000000000:
             buffer = "Sólo hay capacidad hasta mil millones"
 
-        elif n < 1000000:
+        elif num < 1000000:
 
-            buffer = cls.centenamillar(int(n))
+            buffer = cls.centenamillar(int(num))
 
         else:
-            if n / 1000000 == 1:
+            if num / 1000000 == 1:
                 buffer = "un millon"
             else:
-                buffer = cls.centenas(int(n / 1000000))
+                buffer = cls.centenas(int(num / 1000000))
                 buffer = buffer + " millones "
 
-            buffer = buffer + cls.centenamillar(int(n % 1000000))
+            buffer = buffer + cls.centenamillar(int(num % 1000000))
 
         return buffer.upper()
 
     @classmethod
     @decorators.beta_implementation
-    def enLetraMoneda(cls, n: Union[int, str, float], m: str) -> str:
+    def enLetraMoneda(cls, num: Union[int, str, float], currency: str) -> str:
         """
         Return the expression in text of how a monetary amount is stated, in Spanish and in any currency indicated.
 
@@ -314,38 +289,38 @@ class FLUtil(object):
         state in spoken form in the indicated currency; for example given the number 130.25,
         will return the text string "one hundred thirty 'currency' with twenty-five cents".
 
-        @param n Number to be transferred to your spoken form. Must be positive
-        @param m Currency name
+        @param num Number to be transferred to your spoken form. Must be positive
+        @param currency Currency name
         @return Text string with its spoken expression.
         """
-        if isinstance(n, str):
-            n = float(n)
+        if isinstance(num, str):
+            num = float(num)
 
-        nTemp = n * -1.00 if n < 0.00 else n
-        entero = cls.partInteger(nTemp)
-        decimal = cls.partDecimal(nTemp)
+        num_tmp = num * -1.00 if num < 0.00 else num
+        entero = cls.partInteger(num_tmp)
+        decimal = cls.partDecimal(num_tmp)
         res = ""
 
         if entero > 0:
-            res = "%s %s" % (cls.enLetra(entero), m)
+            res = "%s %s" % (cls.enLetra(entero), currency)
 
             if decimal > 0:
-                # res += QString(" ") + QT_TR_NOOP("con") + " " + enLetra(decimal) + " " + QT_TR_NOOP("céntimos");
+
                 res += " con %s céntimos" % cls.enLetra(decimal)
 
         if entero <= 0 and decimal > 0:
-            # res = enLetra(decimal) + " " + QT_TR_NOOP("céntimos");
+
             res = "%s céntimos" % cls.enLetra(decimal)
 
-        if n < 0.00:
-            # res = QT_TR_NOOP("menos") + QString(" ") + res;
+        if num < 0.00:
+
             res = "menos %s" % res
 
         return res.upper()
 
     @classmethod
     @decorators.beta_implementation
-    def enLetraMonedaEuro(cls, n: Union[int, float]) -> str:
+    def enLetraMonedaEuro(cls, num: Union[int, float]) -> str:
         """
         Return the expression in text of how a monetary amount is stated, in Spanish and in Euros.
 
@@ -353,42 +328,42 @@ class FLUtil(object):
         states in a spoken way in euros; for example given the number 130.25,
         will return the text string "one hundred thirty euros with twenty-five cents".
 
-        @param n Number to be transferred to your spoken form. Must be positive
+        @param num Number to be transferred to your spoken form. Must be positive
         @return Text string with its spoken expression.
         """
         # return enLetraMoneda(n, QT_TR_NOOP("euros"));
-        return cls.enLetraMoneda(n, "euros")
+        return cls.enLetraMoneda(num, "euros")
 
     @classmethod
-    def letraDni(cls, n: int) -> str:
+    def letraDni(cls, num: int) -> str:
         """
         Return the letter associated with the number of the D.N.I. Spanish.
 
-        @param n Number of D.N.I
+        @param num Number of D.N.I
         @return Character associated with the number of D.N.I
         """
         letras = "TRWAGMYFPDXBNJZSQVHLCKE"
-        return letras[n % 23]
+        return letras[num % 23]
 
     @classmethod
-    def nombreCampos(cls, tablename: str) -> List[str]:
+    def nombreCampos(cls, table_name: str) -> List[str]:
         """
         Return the list of field names from the specified table.
 
         The first string in the list contains the number of fields in the table
 
-        @param table. Table name.
+        @param table_name. Table name.
         @return Field List.
         """
-        metadata = application.PROJECT.conn_manager.manager().metadata(tablename)
+        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
+        campos = []
         if metadata is not None:
             campos = metadata.fieldNames()
-            return [str(len(campos))] + campos
-        else:
-            return ["0"]
+
+        return [str(len(campos))] + campos
 
     @classmethod
-    def calcularDC(cls, n: int) -> str:
+    def calcularDC(cls, num: int) -> str:
         """
         Return the control digit number, for bank accounts.
 
@@ -408,28 +383,28 @@ class FLUtil(object):
         @return Character with the check digit associated with the given number
         """
 
-        Tabla: List[int] = [6, 3, 7, 9, 10, 5, 8, 4, 2, 1]
+        table: List[int] = [6, 3, 7, 9, 10, 5, 8, 4, 2, 1]
 
-        DC = None
-        Suma = 0
-        nDigitos = len(str(n)) - 1
+        dc_ = None
+        sum_ = 0
+        digits_ = len(str(num)) - 1
 
-        ct = 1
+        ct_ = 1
 
-        while ct <= len(str(n)):
-            valor_tabla: int = Tabla[nDigitos]
-            valor_n = str(n)[ct - 1]
-            Suma += valor_tabla * int(valor_n)
-            nDigitos = nDigitos - 1
-            ct = ct + 1
+        while ct_ <= len(str(num)):
+            valor_table: int = table[digits_]
+            valor_n = str(num)[ct_ - 1]
+            sum_ += valor_table * int(valor_n)
+            digits_ = digits_ - 1
+            ct_ += 1
 
-        DC = 11 - (Suma % 11)
-        if DC == 11:
-            DC = 0
-        elif DC == 10:
-            DC = 1
+        dc_ = 11 - (sum_ % 11)
+        if dc_ == 11:
+            dc_ = 0
+        elif dc_ == 10:
+            dc_ = 1
 
-        char = chr(DC + 48)
+        char = chr(dc_ + 48)
         return char
 
     @classmethod
@@ -437,7 +412,7 @@ class FLUtil(object):
         """
         Return dates of type DD-MM-YYYY, DD / MM / YYYY or DDMMAAAA to type YYYY-MM-DD.
 
-        @param f Text string with the date to transform.
+        @param date_str Text string with the date to transform.
         @return Text string with the date transformed.
         """
 
@@ -448,7 +423,7 @@ class FLUtil(object):
         """
         Return dates of type YYYY-MM-DD, YYYY-MM-DD or YYYYMMDD to type DD-MM-YYYY.
 
-        @param f Text string with the date to transform
+        @param date_str Text string with the date to transform
         @return Text string with the date transformed
         """
 
@@ -456,31 +431,31 @@ class FLUtil(object):
 
     @classmethod
     @decorators.beta_implementation
-    def formatoMiles(cls, s: str) -> str:
+    def formatoMiles(cls, value: str) -> str:
         """
         Format a text string by placing thousands separators.
 
         The string that is passed is supposed to be a number, converting it
         with QString :: toDouble (), if the string is not number the result is unpredictable.
 
-        @param s Text string that wants thousands of separators
+        @param value Text string that wants thousands of separators
         @return Returns the formatted string with thousands separators
         """
-        s = str(s)
+        value = str(value)
         decimal = ""
         entera = ""
         ret = ""
         # dot = QApplication::tr(".")
         dot = "."
-        neg = s[0] == "-"
+        neg = value[0] == "-"
 
-        if "." in s:
+        if "." in value:
             # decimal = QApplication::tr(",") + s.section('.', -1, -1)
-            aStr = s.split(".")
-            decimal = "," + aStr[-1]
-            entera = aStr[-2].replace(".", "")
+            value_list = value.split(".")
+            decimal = "," + value_list[-1]
+            entera = value_list[-2].replace(".", "")
         else:
-            entera = s
+            entera = value
 
         if neg:
             entera = entera.replace("-", "")
@@ -495,7 +470,7 @@ class FLUtil(object):
         ret = entera + ret + decimal
 
         if neg:
-            ret = "-" + ret
+            ret = "-%s" % ret
 
         return ret
 
@@ -530,13 +505,13 @@ class FLUtil(object):
         @return Returns true if the card number is valid
         """
         list_ = []
-        for s in num:
-            list_.append(int(s))
+        for item in num:
+            list_.append(int(item))
 
-        for i in range(0, len(num), 2):
-            list_[i] = list_[i] * 2
-            if list_[i] >= 10:
-                list_[i] = list_[i] // 10 + list_[i] % 10
+        for idx in range(0, len(list_), 2):
+            list_[idx] = list_[idx] * 2
+            if list_[idx] >= 10:
+                list_[idx] = list_[idx] // 10 + list_[idx] % 10
 
         return sum(list_) % 10 == 0
 
@@ -584,27 +559,22 @@ class FLUtil(object):
             with the first three or four lines of the file you don't empty.
         @return TRUE if it is a supported file, FALSE otherwise.
         """
-        while head.startswith(" "):
-            head = head[1:]
 
-        ret = False
-
-        if head.find("<!DOCTYPE UI>") == 0:
-            ret = True
-        elif head.find("<!DOCTYPE QRY>") == 0:
-            ret = True
-        elif head.find("<!DOCTYPE KugarTemplate") == 0:
-            ret = True
-        elif head.find("<!DOCTYPE TMD>") == 0:
-            ret = True
-        elif head.find("<!DOCTYPE TS>") == 0:
-            ret = True
-        elif head.find("<ACTIONS>") == 0:
-            ret = True
-        elif head.find("<jasperReport") == 0:
-            ret = True
-
-        return ret
+        return (
+            True
+            if str(head.strip()).startswith(
+                (
+                    "<!DOCTYPE UI>",
+                    "<!DOCTYPE QRY>",
+                    "<!DOCTYPE KugarTemplate",
+                    "<!DOCTYPE TMD>",
+                    "<!DOCTYPE TS>",
+                    "<ACTIONS>",
+                    "<jasperReport",
+                )
+            )
+            else False
+        )
 
     @classmethod
     def addDays(cls, fecha: Union[types.Date, str], offset: int) -> "types.Date":
@@ -652,51 +622,51 @@ class FLUtil(object):
         return fecha.addYears(offset)
 
     @classmethod
-    def daysTo(cls, d1: Union[types.Date, str, date], d2: Union[types.Date, str, date]) -> int:
+    def daysTo(
+        cls, date1: Union[types.Date, str, date], date2: Union[types.Date, str, date]
+    ) -> int:
         """
         Return difference of days from one date to another.
 
-        @param d1 Date of departure
-        @param d2 Destination Date
-        @return Number of days between d1 and d2. It will be negative if d2 is earlier than d1.
+        @param date1 Date of departure
+        @param date2 Destination Date
+        @return Number of days between date1 and date2. It will be negative if date2 is earlier than date1.
         """
-        date1: str
-        date2: str
 
-        if isinstance(d1, (types.Date, date, str)):
-            date1 = str(d1)
+        if isinstance(date1, (types.Date, date, str)):
+            date1 = str(date1)
 
         date1 = date1[:10]
 
-        if isinstance(d2, (types.Date, date, str)):
-            date2 = str(d2)
+        if isinstance(date2, (types.Date, date, str)):
+            date2 = str(date2)
 
         date2 = date2[:10]
 
-        r1 = datetime.datetime.strptime(date1, "%Y-%m-%d").date()
-        r2 = datetime.datetime.strptime(date2, "%Y-%m-%d").date()
-        return (r2 - r1).days
+        r1_ = datetime.datetime.strptime(date1, "%Y-%m-%d").date()
+        r2_ = datetime.datetime.strptime(date2, "%Y-%m-%d").date()
+        return (r2_ - r1_).days
 
     @classmethod
-    def buildNumber(cls, v: Union[int, float, str], tipo: str, part_decimal: int = 0) -> str:
+    def buildNumber(cls, value: Union[int, float, str], type_: str, part_decimal: int = 0) -> str:
         """
         Return a string from a number, specifying the format and accuracy.
 
-        @param v. Number to convert to QString
-        @param type. Number format
-        @param partDecimal. Accuracy (number of decimal places) of the number
+        @param value. Number to convert to QString
+        @param type_. Number format
+        @param part_decimal. Accuracy (number of decimal places) of the number
 
         @return String containing the formatted number
         """
         import math
 
-        number = float(v)
+        number = float(value)
 
         multiplier = 10 ** part_decimal
         return str(math.floor(number * multiplier + 0.5) / multiplier)
 
     @classmethod
-    def readSettingEntry(cls, key: str, def_: Any = u"") -> Any:
+    def readSettingEntry(cls, key: str, def_: Any = "") -> Any:
         """
         Return the value of a setting in the AbanQ installation directory.
 
@@ -732,20 +702,15 @@ class FLUtil(object):
         @return Setting value.
         """
 
-        ret = None
-        q = pnsqlquery.PNSqlQuery()
-        q.setSelect("valor")
-        q.setFrom("flsettings")
-        q.setWhere("flkey = '%s'" % key)
-        q.setTablesList("flsettings")
-        if q.exec_() and q.first():
-            ret = q.value(0)
-            if ret in ["false", "False"]:
-                ret = False
-            elif ret in ["true", "True"]:
-                ret = True
+        qry = pnsqlquery.PNSqlQuery()
+        qry.setSelect("valor")
+        qry.setFrom("flsettings")
+        qry.setWhere("flkey = '%s'" % key)
+        qry.setTablesList("flsettings")
+        if qry.exec_() and qry.first():
+            return utils_base.text2bool(str(qry.value(0)))
 
-        return ret
+        return None
 
     @classmethod
     def writeDBSettingEntry(cls, key: str, value: Any) -> bool:
@@ -761,21 +726,19 @@ class FLUtil(object):
 
         where = "flkey = '%s'" % key
         found = cls.readDBSettingEntry(key)
-        cursor = application.PROJECT.conn_manager.useConn("default").session()
+        session_ = application.PROJECT.conn_manager.useConn("default").session()
         if found is None:
             sql = "INSERT INTO flsettings (flkey, valor) VALUES ('%s', '%s')" % (key, value)
         else:
             sql = "UPDATE flsettings SET valor = '%s' WHERE %s" % (value, where)
         try:
-            cursor.execute(sql)
+            session_.execute(sql)
 
         except Exception:
-            logger.exception("writeDBSettingEntry: Error al ejecutar SQL: %s", sql)
-            # FIXME: Quito el rollback porque esta función no inicia transacción
-            # cursor.rollback()
+            LOGGER.exception("writeDBSettingEntry: Error al ejecutar SQL: %s", sql)
             return False
 
-        cursor.close()
+        session_.close()
         return True
 
     @classmethod
@@ -785,30 +748,42 @@ class FLUtil(object):
         """
         Round a value based on the specified accuracy for a double type field in the database.
 
-        @param n. Number to be rounded
+        @param value. Number to be rounded
         @param table. Table name
         @param field. Field Name
 
         @return Rounded Number
         """
 
-        tmd = application.PROJECT.conn_manager.manager().metadata(table_name)
-        if tmd is None:
-            return ""
-        fmd = tmd.field(field_name)
-        return cls.buildNumber(value, "float", fmd.partDecimal()) if fmd is not None else ""
+        metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
+        if metadata is not None:
+            field_metadata = metadata.field(field_name)
+            if field_metadata is not None:
+                cls.buildNumber(value, "float", field_metadata.partDecimal())
+
+        return ""
 
     @classmethod
     def sqlSelect(
         cls,
-        f: str,
-        s: str,
-        w: str = "1 = 1",
-        tL: Optional[Union[str, List, types.Array]] = None,
+        from_: str,
+        select_: str,
+        where_: str = "1 = 1",
+        tables_list: Optional[Union[str, List, types.Array]] = None,
         size_or_conn: Any = 0,
         conn: Union[str, "iconnection.IConnection"] = "default",
     ) -> Any:
-        """Return a value from a query."""
+        """
+        Return a value from a query.
+
+        @param from_ From clausule.
+        @param select_ Select clausule.
+        @param where_ Where clausule.
+        @param tables_list Tables list.
+        @param size_or_conn Size result limits or connection name.
+        @param conn connection name.
+        @return query value.
+        """
 
         if not isinstance(size_or_conn, int):
             size = 0
@@ -816,60 +791,105 @@ class FLUtil(object):
         else:
             size = size_or_conn
 
-        return utils.sql_select(f, s, w, tL, size, conn)
+        return utils.sql_select(from_, select_, where_, tables_list, size, conn)
 
     @classmethod
     def quickSqlSelect(
-        cls, f: str, s: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"
+        cls,
+        from_: str,
+        select_: str,
+        where_: str,
+        conn: Union[str, "iconnection.IConnection"] = "default",
     ) -> Any:
-        """Return a value from a quick query."""
+        """
+        Return a value from a quick query.
 
-        return utils.quick_sql_select(f, s, w, conn)
+        @param from_ From clausule.
+        @param select_ Select clausule.
+        @param where_ Where clausule.
+        @param conn connection name.
+        @return query value.
+        """
+
+        return utils.quick_sql_select(from_, select_, where_, conn)
 
     @classmethod
     def sqlInsert(
         cls,
-        t: str,
-        fL: Union[str, List, types.Array],
-        vL: Union[str, List, bool, int, float, types.Array],
+        table_name: str,
+        fields_list: Union[str, List, types.Array],
+        values_list: Union[str, List, bool, int, float, types.Array],
         conn: Union[str, "iconnection.IConnection"] = "default",
     ) -> Any:
-        """Insert values to a table."""
+        """
+        Insert values to a table.
 
-        return utils.sql_insert(t, fL, vL, conn)
+        @param table_name Table name.
+        @param fields_list Field names.
+        @param values_list Values.
+        @param conn connection name.
+        @return query value.
+        """
+
+        return utils.sql_insert(table_name, fields_list, values_list, conn)
 
     @classmethod
     def sqlUpdate(
         cls,
-        t: str,
-        fL: Union[str, List, types.Array],
-        vL: Union[str, List, bool, int, float, types.Array],
-        w: str,
+        table_name: str,
+        fields_list: Union[str, List, types.Array],
+        values_list: Union[str, List, bool, int, float, types.Array],
+        where: str,
         conn: Union[str, "iconnection.IConnection"] = "default",
     ) -> bool:
-        """Update values to a table."""
+        """
+        Update values to a table.
 
-        return utils.sql_update(t, fL, vL, w, conn)
+        @param table_name Table name.
+        @param fields_list Field names.
+        @param values_list Values.
+        @param where Where.
+        @param conn connection name.
+        """
+
+        return utils.sql_update(table_name, fields_list, values_list, where, conn)
 
     @classmethod
     def sqlDelete(
-        cls, t: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"
+        cls, table_name: str, where: str, conn: Union[str, "iconnection.IConnection"] = "default"
     ) -> bool:
-        """Delete a value from a table."""
+        """
+        Delete a value from a table.
 
-        return utils.sql_delete(t, w, conn)
+        @param table_name Table name.
+        @param where Where.
+        @param conn connection name.
+        """
+
+        return utils.sql_delete(table_name, where, conn)
 
     @classmethod
     def quickSqlDelete(
-        cls, t: str, w: str, conn: Union[str, "iconnection.IConnection"] = "default"
+        cls, table_name: str, where: str, conn: Union[str, "iconnection.IConnection"] = "default"
     ) -> bool:
-        """Quick delete a value from a table."""
+        """
+        Quick delete a value from a table.
 
-        return utils.quick_sql_delete(t, w, conn)
+        @param table_name Table name.
+        @param where Where.
+        @param conn connection name.
+        """
+
+        return utils.quick_sql_delete(table_name, where, conn)
 
     @classmethod
     def execSql(cls, sql: str, conn: Union[str, "iconnection.IConnection"] = "default") -> bool:
-        """Set a query to a database."""
+        """
+        Set a query to a database.
+
+        @param sql Query.
+        @param conn connection name.
+        """
 
         return utils.exec_sql(sql, conn)
 
@@ -880,8 +900,8 @@ class FLUtil(object):
         """
         Create a progress dialog.
 
-        @param l Label of the dialogue
-        @param tS Total number of steps to perform
+        @param steps Total number of steps to perform
+        @param id_ Probressbar identifier.
         """
 
         return application.PROJECT.message_manager().send(
@@ -892,20 +912,23 @@ class FLUtil(object):
     def destroyProgressDialog(cls, id_: str = "default") -> None:
         """
         Destroy the progress dialog.
+        
+        @param id_ Probressbar identifier.
         """
 
         application.PROJECT.message_manager().send("progress_dialog_manager", "destroy", [id_])
 
     @classmethod
-    def setProgress(cls, step_number: Union[int, float], id_: str = "default") -> None:
+    def setProgress(cls, num: Union[int, float], id_: str = "default") -> None:
         """
         Set the degree of progress of the dialogue.
 
-        @param p Degree of progress
+        @param num Degree of progress.
+        @param id_ Probressbar identifier.
         """
 
         application.PROJECT.message_manager().send(
-            "progress_dialog_manager", "setProgress", [step_number, id_]
+            "progress_dialog_manager", "setProgress", [num, id_]
         )
 
     @classmethod
@@ -913,7 +936,8 @@ class FLUtil(object):
         """
         Change the text of the dialog label.
 
-        @param l Tag
+        @param label Tag.
+        @param id_ Probressbar identifier.
         """
 
         application.PROJECT.message_manager().send(
@@ -921,15 +945,16 @@ class FLUtil(object):
         )
 
     @classmethod
-    def setTotalSteps(cls, tS: int, id_: str = "default") -> None:
+    def setTotalSteps(cls, num: int, id_: str = "default") -> None:
         """
         Set the total number of steps in the dialog.
 
-        @param ts Total number of steps
+        @param num Total number of steps.
+        @param id_ Probressbar identifier.
         """
 
         application.PROJECT.message_manager().send(
-            "progress_dialog_manager", "setTotalSteps", [tS, id_]
+            "progress_dialog_manager", "setTotalSteps", [num, id_]
         )
 
     @classmethod
@@ -944,28 +969,18 @@ class FLUtil(object):
         @param content XML content
         @return FALSE if there was a failure, TRUE otherwise.
         """
-        if not content:
-            logger.warning("Se ha intentado cargar un fichero XML vacío", stack_info=True)
-            return False
+        if content:
+            if doc.setContent(content):
+                return True
+            else:
+                LOGGER.warning("Error en fichero XML", stack_info=True)
+        else:
+            LOGGER.warning("Se ha intentado cargar un fichero XML vacío", stack_info=True)
 
-        ErrMsg = ""
-        errLine = 0
-        errColumn = 0
-
-        # if not doc.setContent(content, ErrMsg, errLine, errColumn):
-        if not doc.setContent(content):
-            logger.warning(
-                "Error en fichero XML.\nError : %s\nLinea : %s\nColumna : %s",
-                ErrMsg,
-                errLine,
-                errColumn,
-            )
-            return False
-
-        return True
+        return False
 
     @classmethod
-    def sha1(cls, value: Union[str, bytes, None]) -> str:
+    def sha1(cls, value: Union[str, bytes, None] = "") -> str:
         """
         Return the SHA1 key of a text string.
 
@@ -979,8 +994,8 @@ class FLUtil(object):
             value = value.encode()
 
         sha_ = hashlib.new("sha1", value)
-        st = "%s" % sha_.hexdigest()
-        return st.upper()
+        string = "%s" % sha_.hexdigest()
+        return string.upper()
 
     @classmethod
     @decorators.not_implemented_warn
@@ -995,44 +1010,44 @@ class FLUtil(object):
 
     @classmethod
     @decorators.not_implemented_warn
-    def snapShotUI(cls, n):
+    def snapShotUI(cls, field_name):
         """
         Return the image or screenshot of a form.
 
-        @param n Name of the file that contains the description of the form.
+        @param field_name Name of the file that contains the description of the form.
         """
         pass
 
     @classmethod
     @decorators.not_implemented_warn
-    def saveSnapShotUI(cls, n, pathFile):
+    def saveSnapShotUI(cls, file_name, file_path):
         """
         Save the image or screenshot of a form in a PNG format file.
 
-        @param n Name of the file that contains the description of the form.
-        @param pathFile Path and file name where to save the image
+        @param file_name Name of the file that contains the description of the form.
+        @param file_path Path and file name where to save the image
         """
         pass
 
     @classmethod
     @decorators.not_implemented_warn
-    def flDecodeType(cls, fltype):
+    def flDecodeType(cls, fl_type):
         """
         Decode a type of AbanQ to a QVariant type.
 
-        @param fltype AbanQ data type.
+        @param fl_type AbanQ data type.
         @return QVariant data type.
         """
         pass
 
     @classmethod
     @decorators.not_implemented_warn
-    def saveIconFile(cls, data, pathFile):
+    def saveIconFile(cls, data, file_path):
         """
         Save the icon image of a button on a form in a png file. Used for documentation.
 
         @param data Image content in a character string
-        @param pathFile Full path to the file where the image will be saved
+        @param file_path Full path to the file where the image will be saved
         """
         pass
 
@@ -1087,16 +1102,16 @@ class FLUtil(object):
         @return List of the names of the files found
         """
 
-        list_path = []
+        list_path: List[str] = []
+        files_found: List[str] = []
+
         if isinstance(path_, str):
             list_path.append(path_)
         else:
             list_path = path_
 
-        files_found = []
-
-        for p in list_path:
-            for file_name in glob.iglob("%s/**/%s" % (p, filter_), recursive=True):
+        for item in list_path:
+            for file_name in glob.iglob("%s/**/%s" % (item, filter_), recursive=True):
                 files_found.append(file_name)
                 if break_on_first_match:
                     break
@@ -1117,7 +1132,7 @@ class FLUtil(object):
         pass
 
     @classmethod
-    def fieldType(cls, fn: str, tn: str, conn_name: str = "default") -> Optional[str]:
+    def fieldType(cls, field_name: str, table_name: str, conn_name: str = "default") -> str:
         """
         Return the numeric type of a field.
 
@@ -1128,179 +1143,176 @@ class FLUtil(object):
         """
 
         conn = application.PROJECT.conn_manager.useConn(conn_name)
-        mtd = conn.connManager().manager().metadata(tn)
+        metadata = conn.connManager().manager().metadata(table_name)
+        if metadata is not None:
+            return metadata.fieldType(field_name)
 
-        return None if mtd is None else mtd.fieldType(fn)
+        return ""
 
     @classmethod
-    def fieldLength(cls, fn: str, tn: Optional[str], conn_name: str = "default") -> int:
+    def fieldLength(cls, field_name: str, table_name: str, conn_name: str = "default") -> int:
         """
         Return the length of a field.
 
-        @param fn. Field Name
-        @param tn. Name of the table containing the field
+        @param field_name. Field Name
+        @param table_name. Name of the table containing the field
         @param conn_name. Name of the connection to use
         @return requested field length
         """
-        if tn is None:
-            return 0
-
         conn = application.PROJECT.conn_manager.useConn(conn_name)
-        mtd = conn.connManager().manager().metadata(tn)
+        metadata = conn.connManager().manager().metadata(table_name)
+        if metadata is not None:
+            return metadata.fieldLength(field_name)
 
-        return 0 if mtd is None else mtd.fieldLength(fn)
+        return 0
 
     @classmethod
-    def fieldNameToAlias(cls, fn: str, tn: Optional[str], conn_name: str = "default") -> str:
+    def fieldNameToAlias(cls, field_name: str, table_name: str, conn_name: str = "default") -> str:
         """
         Return the alias of a field from its name.
 
-        @param fn. Field Name.
-        @param tn. Name of the table containing the field.
+        @param field_name. Field Name.
+        @param table_name. Name of the table containing the field.
         @param conn_name. Name of the connection to use.
         @return Alias ​​of the specified field.
         """
-        if tn is None:
-            return fn
-
         conn = application.PROJECT.conn_manager.useConn(conn_name)
-        mtd = conn.connManager().manager().metadata(tn)
+        metadata = conn.connManager().manager().metadata(table_name)
+        if metadata is not None:
+            return metadata.fieldNameToAlias(field_name)
 
-        return fn if mtd is None else mtd.fieldNameToAlias(fn)
+        return field_name
 
     @classmethod
-    def tableNameToAlias(cls, tn: Optional[str], conn_name: str = "default") -> Optional[str]:
+    def tableNameToAlias(cls, table_name: str = "", conn_name: str = "default") -> str:
         """
         Return the name of a table from its alias.
 
-        @param tn. Table name
+        @param table_name. Table name
         @param conn_name. Name of the connection to use
         @return Alias ​​of the specified table
         """
-
-        if tn is None:
-            return None
-
         conn = application.PROJECT.conn_manager.useConn(conn_name)
-        mtd = conn.connManager().manager().metadata(tn)
+        metadata = conn.connManager().manager().metadata(table_name)
+        if metadata is not None:
+            return metadata.alias()
 
-        return None if mtd is None else mtd.alias()
+        return ""
 
     @classmethod
-    def fieldAliasToName(cls, an: str, tn: Optional[str], conn_name: str = "default") -> str:
+    def fieldAliasToName(cls, alias: str, table_name: str, conn_name: str = "default") -> str:
         """
         Return the name of a field from its alias.
 
-        @param fn. Field Name
-        @param tn. Name of the table containing the field
+        @param alias. Field Name
+        @param table_name. Name of the table containing the field
         @param conn_name. Name of the connection to use
         @return Alias ​​of the specified field
         """
-
-        if tn is None:
-            return an
-
         conn = application.PROJECT.conn_manager.useConn(conn_name)
-        mtd = conn.connManager().manager().metadata(tn)
+        metadata = conn.connManager().manager().metadata(table_name)
+        if metadata is not None:
+            return metadata.fieldAliasToName(alias)
 
-        return an if mtd is None else mtd.fieldAliasToName(an)
+        return alias
 
     @classmethod
-    def fieldAllowNull(cls, fn: str, tn: Optional[str], conn_name: str = "default") -> bool:
+    def fieldAllowNull(cls, field_name: str, table_name: str, conn_name: str = "default") -> bool:
         """
         Return if the field allows to be left blank.
 
-        @param fn. Field Name
-        @param tn. Name of the table containing the field
+        @param field_name. Field Name
+        @param table_name. Name of the table containing the field
         @param conn_name. Name of the connection to use
         @return Boolean. Whether or not to accept the value of the field
         """
 
-        if tn is None:
-            return False
-
         conn = application.PROJECT.conn_manager.useConn(conn_name)
-        mtd = conn.connManager().manager().metadata(tn)
+        metadata = conn.connManager().manager().metadata(table_name)
+        if metadata is not None:
+            field = metadata.field(field_name)
+            if field is not None:
+                return field.allowNull()
 
-        return False if mtd is None else mtd.fieldAllowNull(fn)
+        return False
 
     @classmethod
-    def fieldIsPrimaryKey(cls, fn: str, tn: Optional[str], conn_name: str = "default") -> bool:
+    def fieldIsPrimaryKey(
+        cls, field_name: str, table_name: str, conn_name: str = "default"
+    ) -> bool:
         """
         Return if the field is the primary key of the table.
 
-        @param fn. Field Name
-        @param tn. Name of the table containing the field
+        @param field_name. Field Name
+        @param table_name. Name of the table containing the field
         @param conn_name. Name of the connection to use
         @return Boolean. If it is primary key or not
         """
-        if tn is None:
-            return False
 
         conn = application.PROJECT.conn_manager.useConn(conn_name)
-        mtd = conn.connManager().manager().metadata(tn)
+        metadata = conn.connManager().manager().metadata(table_name)
+        if metadata is not None:
+            field = metadata.field(field_name)
+            if field is not None:
+                return field.isPrimaryKey()
 
-        return False if mtd is None else mtd.fieldIsPrimaryKey(fn)
+        return False
 
     @classmethod
-    def fieldIsCompoundKey(cls, fn: str, tn: Optional[str], conn_name: str = "default") -> bool:
+    def fieldIsCompoundKey(
+        cls, field_name: str, table_name: str, conn_name: str = "default"
+    ) -> bool:
         """
         Return if the field is a composite key of the table.
 
-        @param fn. Field Name
-        @param tn. Name of the table containing the field
+        @param field_name. Field Name
+        @param table_name. Name of the table containing the field
         @param conn_name. Name of the connection to use
         @return Boolean. If it is a composite key or not
         """
-        if tn is None:
-            return False
 
         conn = application.PROJECT.conn_manager.useConn(conn_name)
-        mtd = conn.connManager().manager().metadata(tn)
+        metadata = conn.connManager().manager().metadata(table_name)
+        if metadata is not None:
+            field = metadata.field(field_name)
+            if field is not None:
+                return field.isCompoundKey()
 
-        if mtd is None:
-            return False
         return False
-        # field = None  # FIXME: field is not defined anywhere
-        # return False if field is None else field.isCompoundKey()
 
     @classmethod
-    def fieldDefaultValue(cls, fn: str, tn: Optional[str], conn_name: str = "default") -> Any:
+    def fieldDefaultValue(cls, field_name: str, table_name: str, conn_name: str = "default") -> Any:
         """
         Return the default value of a field.
 
-        @param fn. Field Name
-        @param tn. Name of the table containing the field
+        @param field_name. Field Name
+        @param table_name. Name of the table containing the field
         @param conn_name. Name of the connection to use
         @return Default field value
         """
-        if tn is None:
-            return None  # return QVariant
 
         conn = application.PROJECT.conn_manager.useConn(conn_name)
-        mtd = conn.connManager().manager().metadata(tn)
+        metadata = conn.connManager().manager().metadata(table_name)
+        if metadata is not None:
+            field = metadata.field(field_name)
+            if field is not None:
+                return field.defaultValue()
 
-        if mtd is None:
-            return None  # return QVariant
-
-        field = mtd.field(fn)
-        if field is None:
-            return None  # return QVariant
-
-        return field.defaultValue()
+        return None
 
     @classmethod
-    def formatValue(cls, t: str, v: Any, upper: bool, conn_name: str = "default") -> str:
+    def formatValue(cls, type_: str, value: Any, upper: bool, conn_name: str = "default") -> str:
         """
         Return formatted value.
 
-        @param t. Field type
-        @param v. Field Value
+        @param type_. Field type
+        @param value. Field Value
+        @param upper. True if upper else False
         @param conn_name. Name of the connection to use
         @return Formatted Value
         """
         conn = application.PROJECT.conn_manager.useConn(conn_name)
-        return conn.connManager().manager().formatValue(t, v, upper)
+        return conn.connManager().manager().formatValue(type_, value, upper)
 
     @classmethod
     def nameUser(cls) -> str:

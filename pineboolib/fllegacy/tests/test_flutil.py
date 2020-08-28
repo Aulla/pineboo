@@ -38,7 +38,7 @@ class TestFLUtil(unittest.TestCase):
         cursor_areas.setValueBuffer("idarea", "Y")
         cursor_areas.setValueBuffer("descripcion", "123oX")
         self.assertTrue(cursor_areas.commitBuffer())
-        cx = cursor_areas.db()
+        cx_ = cursor_areas.db()
 
         util = qsa.FLUtil()
         self.assertEqual(util.sqlSelect("flareas", "descripcion", "idarea='Y'"), "123oX")
@@ -49,7 +49,7 @@ class TestFLUtil(unittest.TestCase):
             util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], 0), "123oX"
         )
         self.assertEqual(
-            util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], cx), "123oX"
+            util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], cx_), "123oX"
         )
         self.assertEqual(
             util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], 0, "default"),
@@ -57,7 +57,7 @@ class TestFLUtil(unittest.TestCase):
         )
 
         self.assertEqual(
-            util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], 0, cx), "123oX"
+            util.sqlSelect("flareas", "descripcion", "idarea='Y'", ["flareas"], 0, cx_), "123oX"
         )
 
     def test_basic_1(self) -> None:

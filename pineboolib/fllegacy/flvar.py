@@ -18,12 +18,12 @@ from typing import Any
 class FLVar(object):
     """Store user variables in database."""
 
-    def set(self, n: str, v: Any) -> bool:
+    def set(self, name: str, value: Any) -> bool:
         """Save a variable to database."""
         from pineboolib.application.database import pnsqlquery
 
         id_sesion = application.PROJECT.aq_app.timeUser().toString(QtCore.Qt.ISODate)
-        where = "idvar = '%s' AND idsesion ='%s'" % (n, id_sesion)
+        where = "idvar = '%s' AND idsesion ='%s'" % (name, id_sesion)
 
         qry = pnsqlquery.PNSqlQuery()
         qry.setTablesList("flvar")
@@ -35,9 +35,9 @@ class FLVar(object):
         if not qry.exec_():
             return False
         if qry.next():
-            return utils.sql_update("flvar", "valor", str(v), "id='%s'" % str(qry.value(0)))
+            return utils.sql_update("flvar", "valor", str(value), "id='%s'" % str(qry.value(0)))
 
-        values = "%s,%s,%s" % (n, id_sesion, str(v))
+        values = "%s,%s,%s" % (name, id_sesion, str(value))
         return utils.sql_insert("flvar", "idvar,idsesion,valor", values)
 
     def get(self, name: str) -> Any:

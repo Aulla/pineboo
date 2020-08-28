@@ -10,18 +10,16 @@ class FLTimeEdit(QtWidgets.QTimeEdit):
     def __init__(self, parent: QtWidgets.QWidget) -> None:
         """Inicialize."""
 
-        super(FLTimeEdit, self).__init__(parent)
+        super().__init__(parent)
         self.setDisplayFormat("hh:mm:ss")
         self.setMinimumWidth(90)
         self.setMaximumWidth(90)
 
-    def setTime(self, v: Union[str, QtCore.QTime]) -> None:  # type: ignore
+    def setTime(self, value: Union[str, QtCore.QTime]) -> None:  # type: ignore
         """Set the time in the control."""
 
-        if isinstance(v, str):
-            list_v: List[str] = v.split(":")
-            time = QtCore.QTime(int(list_v[0]), int(list_v[1]), int(list_v[2]))
-        else:
-            time = v
+        if isinstance(value, str):
+            list_: List[str] = value.split(":")
+            value = QtCore.QTime(int(list_[0]), int(list_[1]), int(list_[2]))
 
-        super().setTime(time)
+        super().setTime(value)
