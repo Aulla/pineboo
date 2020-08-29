@@ -951,7 +951,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         Hide or show the frame to switch between data and filter.
 
-        @param h TRUE hides it, FALSE shows it
+        @param value TRUE hides it, FALSE shows it
         """
         # if self._filter_hidden is not h:
         #    self._filter_hidden = h
