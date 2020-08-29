@@ -356,7 +356,7 @@ class FLUtil(object):
         @return Field List.
         """
         metadata = application.PROJECT.conn_manager.manager().metadata(table_name)
-        campos = []
+        campos: List[str] = []
         if metadata is not None:
             campos = metadata.fieldNames()
 
@@ -912,7 +912,7 @@ class FLUtil(object):
     def destroyProgressDialog(cls, id_: str = "default") -> None:
         """
         Destroy the progress dialog.
-        
+
         @param id_ Probressbar identifier.
         """
 
