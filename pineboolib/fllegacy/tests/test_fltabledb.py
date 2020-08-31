@@ -301,11 +301,6 @@ class TestFLTableDB(unittest.TestCase):
         fltable.refresh()
         cursor3 = fltable.cursor()
         cursor3.first()
-        print("*", cursor3.valueBuffer("idarea"))
-        while cursor3.next():
-            print("**", cursor3.valueBuffer("idarea"))
-        print("***", fltable.tdbFilterBuildWhere())
-        print("****", cursor3.filter())
         self.assertEqual(cursor3.size(), 5)
 
         fltable.activeTabFilter()
