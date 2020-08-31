@@ -100,12 +100,12 @@ def p_parse(token: Any) -> None:
     }
     token[0] = tok0
 
-    for n in reversed(range(len(tok0["50-contents"]))):
-        contents = tok0["50-contents"][n]
+    for num in reversed(range(len(tok0["50-contents"]))):
+        contents = tok0["50-contents"][num]
         if contents["01-type"] == tok0["00-toktype"]:
             # If the first element is same type, unpack left. This is for recursing lists
             # Makes tree calculation faster and less recursive.
-            tok0["50-contents"][n : n + 1] = contents["99-value"]["50-contents"]
+            tok0["50-contents"][num : num + 1] = contents["99-value"]["50-contents"]
 
     numelems: int = len([s for s in token.slice[1:] if s.type != "empty" and s.value is not None])
 
@@ -114,13 +114,13 @@ def p_parse(token: Any) -> None:
         token[0] = None
     else:
         rvalues = []
-        for n, s in enumerate(token.slice[1:]):
-            if s.type != "empty" and s.value is not None:
+        for num, item in enumerate(token.slice[1:]):
+            if item.type != "empty" and item.value is not None:
                 val = None
-                if isinstance(s.value, str):
-                    val = token.lexspan(n + 1)[0] + len(s.value) - 1
+                if isinstance(item.value, str):
+                    val = token.lexspan(num + 1)[0] + len(item.value) - 1
                 else:
-                    val = token.lexspan(n + 1)[1]
+                    val = token.lexspan(num + 1)[1]
                 rvalues.append(val)
         rspan = max(rvalues)
     lexspan[1] = rspan
@@ -190,8 +190,8 @@ def p_error(text: Any) -> Any:
                 try:
                     print("HINT: Last lexspan:", LAST_LEXSPAN)
                     print("HINT: Last line:", TOKE_LINES[LAST_LEXSPAN[0]])
-                except Exception as e:
-                    print("ERROR:", e)
+                except Exception as error:
+                    print("ERROR:", error)
         LAST_ERROR_TOKEN = "EOF"
         return text
     text = parser.token()
@@ -604,18 +604,18 @@ def print_tokentree(token: Any, depth: int = 0) -> None:
 
     if str(token.__class__) == "ply.yacc.YaccProduction":
         print(token.lexer)
-        for tk in token.slice:
-            if tk.value == token:
+        for token in token.slice:
+            if token.value == token:
                 continue
-            print("  " * (depth + 1), tk.type, end=" ")
+            print("  " * (depth + 1), token.type, end=" ")
             try:
-                print(tk.lexpos, end=" ")
-                print(tk.endlexpos, end=" ")
+                print(token.lexpos, end=" ")
+                print(token.endlexpos, end=" ")
             except Exception:
                 pass
             print()
 
-            print_tokentree(tk.value, depth + 1)
+            print_tokentree(token.value, depth + 1)
 
 
 def calctree(
@@ -660,7 +660,7 @@ def calctree(
     if otype in ctype_alias:
         otype = ctype_alias[otype]
     # print " " * depth , obj['02-size']
-    for n, content in enumerate(obj["50-contents"]):
+    for num_, content in enumerate(obj["50-contents"]):
         if not isinstance(content, dict):
             print("ERROR: content is not a dict!:", repr(content))
             print(".. obj:", repr(obj))
@@ -674,7 +674,7 @@ def calctree(
         #    if depth == 0: print "--"
         #    print_tree(value,depth,num)
         #    continue
-        # print " " * depth , "%s:" % ".".join(num+[str(n)]), ctype,
+        # print " " * depth , "%s:" % ".".join(num+[str(num_)]), ctype,
 
         if type(value) is dict:
             # print "*"
@@ -682,13 +682,13 @@ def calctree(
             if depth < 300:
                 try:
                     tree_obj = calctree(
-                        value, depth + 1, num + [str(n)], ctype, alias_mode=alias_mode
+                        value, depth + 1, num + [str(num_)], ctype, alias_mode=alias_mode
                     )
-                except Exception as e:
-                    print("ERROR: trying to calculate member:", e)
+                except Exception as error:
+                    print("ERROR: trying to calculate member:", error)
                     continue
             else:
-                print("PANIC: *** Stack overflow trying to calculate member %d on:" % n, ctype)
+                print("PANIC: *** Stack overflow trying to calculate member %d on:" % num_, ctype)
                 continue
 
             if type(tree_obj) is dict:
@@ -841,20 +841,21 @@ def parse(data: str, clean: bool = True) -> Optional[Dict[str, Any]]:
     INPUT_DATA = data
     flex.lexer.lineno = 1
     ERROR_COUNT = 0
-    p = parser.parse(data, debug=0, tracking=1, tokenfunc=my_tokenfunc)
+    parser_ = parser.parse(data, debug=0, tracking=1, tokenfunc=my_tokenfunc)
     if ERROR_COUNT > 0:
         print("ERRORS (%d)" % ERROR_COUNT)
-    if p is None:
-        return p
-    try:
-        p["error_count"] = ERROR_COUNT
-    except Exception as e:
-        print(e)
-        return None
+    if parser_ is not None:
 
-    if parser.error:
-        return None
-    return p
+        try:
+            parser_["error_count"] = ERROR_COUNT
+        except Exception as error:
+            print(error)
+            return None
+
+        if parser.error:
+            return None
+
+    return parser_
 
 
 def main() -> None:
