@@ -12,7 +12,7 @@ PROJECT = Project()
 ATOMIC_LIST: List[str] = []
 FILE_CLASSES: Dict[str, str] = {}
 
-PINEBOO_VER = "0.73.26.6"
+PINEBOO_VER = "0.73.26.7"
 
 SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
 SHOW_CLOSED_CONNECTION_WARNING: bool = False  # Enable show debug when connection is closed.
