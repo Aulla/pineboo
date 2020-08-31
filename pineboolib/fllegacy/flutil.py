@@ -13,7 +13,6 @@ from pineboolib.application.database import utils, pnsqlquery
 from pineboolib.application import types
 
 from pineboolib.core import decorators, translate, settings
-from pineboolib.core.utils import utils_base
 from pineboolib import logging, application
 
 
@@ -708,7 +707,7 @@ class FLUtil(object):
         qry.setWhere("flkey = '%s'" % key)
         qry.setTablesList("flsettings")
         if qry.exec_() and qry.first():
-            return utils_base.text2bool(str(qry.value(0)))
+            return str(qry.value(0))
 
         return None
 
