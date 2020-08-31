@@ -588,6 +588,8 @@ class BaseModel(object):
 
                 self._flush()
 
+        self.update_copy()
+
         return True
 
     def _check_integrity(self) -> bool:
