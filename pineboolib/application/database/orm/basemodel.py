@@ -104,9 +104,9 @@ class BaseModel(object):
         target._common_init()
 
     @classmethod
-    def get_session_from_connection(cls, conn_name: str) -> "orm.session.Session":
+    def get_session_from_connection(cls, conn_name: str = "default") -> "orm.session.Session":
         """Return new session from a connection."""
-        new_session = application.PROJECT.conn_manager.useConn(conn_name).driver().session()
+        new_session = application.PROJECT.conn_manager.useConn(conn_name).session()
         setattr(new_session, "_conn_name", conn_name)
         return new_session
 
@@ -510,7 +510,7 @@ class BaseModel(object):
 
     @classmethod
     def _before_compile_update(cls, query, context) -> bool:
-        """Before compile Update!."""
+        """Before compile Update."""
         for obj in query.all():
             obj._current_mode = 1  # edit
             obj._before_flush()
@@ -521,7 +521,7 @@ class BaseModel(object):
 
     @classmethod
     def _before_compile_delete(cls, query, context) -> bool:
-        """Before compile Update!."""
+        """Before compile Delete."""
         for obj in query.all():
             obj._current_mode = 2  # delete
             obj._before_flush()

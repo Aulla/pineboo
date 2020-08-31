@@ -22,6 +22,9 @@ class TestBaseModel(unittest.TestCase):
         obj_ = qsa.orm_("flareas")()
         self.assertEqual(obj_.bloqueo, True)
 
+        self.assertTrue(obj_.get_session_from_connection())
+        self.assertTrue(obj_.copy())
+
     def test_cursor_mode_access(self) -> None:
         """Test mode access."""
 
@@ -38,8 +41,13 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(obj1_.pk, "O")
         self.assertEqual(obj1_.cursor.modeAccess(), obj1_.cursor.Browse)
         obj1_.descripcion = "prueba nuevo"
+        obj1_.pk = "O"
         self.assertTrue(obj1_.changes())
         self.assertEqual(obj1_.cursor.modeAccess(), obj1_.cursor.Edit)
+        obj1_.allow_buffer_changed("idarea", False)
+        self.assertTrue("idarea" in obj1_._deny_buffer_changed)
+        obj1_.allow_buffer_changed("idarea", True)
+        self.assertFalse("idarea" in obj1_._deny_buffer_changed)
 
     def test_2_metadata(self) -> None:
         """Test table_metadata."""
@@ -109,6 +117,9 @@ class TestBaseModel(unittest.TestCase):
         self.assertTrue(obj_2.save())
         obj_2.session.commit()
 
+        self.assertTrue(obj_.relationM1("idarea"))
+        self.assertEqual(obj_.get_transaction_level(), -1)
+
         self.assertTrue(obj_.save())
         self.assertEqual(qsa.FLUtil().sqlSelect("flmodules", "idmodulo", "idarea='F'"), "mod2")
         obj_3 = qsa.orm_("flmodules")()
@@ -127,6 +138,8 @@ class TestBaseModel(unittest.TestCase):
             },
         )
         self.assertTrue(obj_3.save(False))
+        obj_3.mode_access = 3
+        self.assertEqual(obj_3.mode_access, 3)
 
     def test_integrity_2(self) -> None:
         """Test integrity"""
