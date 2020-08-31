@@ -2,7 +2,7 @@
 
 import unittest
 
-from pineboolib.loader.main import init_testing, finish_testing
+from pineboolib.loader.main import init_testing
 from pineboolib.qsa import qsa
 
 
@@ -17,7 +17,7 @@ class TestDummyCursor(unittest.TestCase):
     def test_basic_1(self) -> None:
         """Test basic."""
 
-        new_session = qsa.thread_session_new()
+        qsa.thread_session_new()
         class_area = qsa.orm.flareas
         self.assertTrue(class_area)
         obj_ = class_area()
