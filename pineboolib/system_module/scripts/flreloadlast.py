@@ -175,42 +175,32 @@ class FormInternalObj(qsa.FormDBWidget):
         util = qsa.FLUtil()
         if cadena.find(u"QT_TRANSLATE_NOOP") == -1:
             return cadena
-        cadena = qsa.QString(cadena).mid(41, len(cadena) - 43)
+        cadena_list = qsa.QString(cadena)[18:-1].split(",")
+        cadena = cadena_list[1][1:-1]
         nombre_fichero = None
         try:
             nombre_fichero = qsa.ustr(
                 path, u"/translations/", modulo, u".", util.getIdioma(), u".ts"
             )
-        except Exception as e:
-            qsa.debug(str(e))
+        except Exception as error:
+            qsa.debug(str(error))
             return cadena
 
         if not qsa.FileStatic.exists(nombre_fichero):
             return cadena
+
         fichero = qsa.File(nombre_fichero)
         fichero.open(qsa.File.ReadOnly)
         f = fichero.read()
         xmlTranslations = qsa.FLDomDocument()
         if xmlTranslations.setContent(f):
             nodeMess = xmlTranslations.elementsByTagName(u"message")
-            i = 0
-            while_pass = True
-            while i < len(nodeMess):
-                if not while_pass:
-                    i += 1
-                    while_pass = True
-                    continue
-                while_pass = False
-                if nodeMess.item(i).namedItem(u"source").toElement().text() == cadena:
-                    traduccion = nodeMess.item(i).namedItem(u"translation").toElement().text()
+            for item in range(len(nodeMess)):
+                if nodeMess.item(item).namedItem(u"source").toElement().text() == cadena:
+                    traduccion = nodeMess.item(item).namedItem(u"translation").toElement().text()
                     if traduccion:
                         cadena = traduccion
-                i += 1
-                while_pass = True
-                try:
-                    i < len(nodeMess)
-                except Exception:
-                    break
+                        break
 
         return cadena
 

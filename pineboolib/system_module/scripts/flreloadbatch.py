@@ -167,7 +167,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def dameValor(self, linea: str) -> str:
         """Return value."""
-        return linea
+        return qsa.from_project("formflreloadlast").dameValor(linea)
 
 
 form = None
