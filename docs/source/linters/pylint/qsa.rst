@@ -1,4 +1,4 @@
-pineboolib.qsa (9.36/10)
+pineboolib.qsa (9.89/10)
 ===================================
 
 .. raw:: html
