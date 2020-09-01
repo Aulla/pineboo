@@ -7,6 +7,7 @@ from pineboolib import application
 
 
 class TestSmtp(unittest.TestCase):
+    """TestSmtp class."""
 
     cli: flsmtpclient.FLSmtpClient
 

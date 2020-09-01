@@ -6,6 +6,8 @@ from pineboolib.fllegacy import flsettings
 
 
 class TestSettings(unittest.TestCase):
+    """TestSettings class."""
+
     def test_settings(self) -> None:
         """Test read functions."""
 
