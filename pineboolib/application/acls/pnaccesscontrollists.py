@@ -67,7 +67,7 @@ class PNAccessControlLists(object):
         """
         return self._name
 
-    def init(self, _acl_xml: str = None) -> None:
+    def init(self, _acl_xml: str = "") -> None:
         """
         Read the file "acl.xml" and establish a new access control list.
 
@@ -76,11 +76,7 @@ class PNAccessControlLists(object):
 
         @param _acl_xml XML content with the definition of the access control list.
         """
-        if _acl_xml is None:
-
-            if application.PROJECT.conn_manager is None:
-                raise Exception("Project is not connected yet")
-
+        if not _acl_xml:
             _acl_xml = application.PROJECT.conn_manager.managerModules().content("acl.xml")
 
         doc = QtXml.QDomDocument("ACL")
@@ -122,7 +118,7 @@ class PNAccessControlLists(object):
         LOGGER.warning(QtCore.QObject().tr("Lista de control de acceso cargada"))
 
     def process(
-        self, obj: Optional[Union[QtWidgets.QWidget, "pntablemetadata.PNTableMetaData"]] = None
+        self, obj: Optional[Union["QtWidgets.QWidget", "pntablemetadata.PNTableMetaData"]] = None
     ) -> None:
         """
         Process a high-level object according to the established access control list.
@@ -141,9 +137,6 @@ class PNAccessControlLists(object):
             name_ = obj.name()  # type: ignore[union-attr] # noqa: F821
         else:
             name_ = obj.objectName()  # type: ignore[union-attr] # noqa: F821
-
-        if application.PROJECT.conn_manager is None:
-            raise Exception("Project is not connected yet")
 
         user_ = application.PROJECT.conn_manager.mainConn().user()
 
@@ -189,16 +182,13 @@ class PNAccessControlLists(object):
                 self.make_rule(qry, doc)
                 # progress.setProgress(++step)
 
-            from pineboolib import application
-
-            if application.PROJECT.conn_manager is None:
-                raise Exception("Project is not connected yet")
-
             application.PROJECT.conn_manager.managerModules().setContent(
                 "acl.xml", "sys", doc.toString()
             )
 
-    def make_rule(self, qry: pnsqlquery.PNSqlQuery, dom_document: QtXml.QDomDocument) -> None:
+    def make_rule(
+        self, qry: "pnsqlquery.PNSqlQuery" = None, dom_document: "QtXml.QDomDocument" = None
+    ) -> None:
         """
         Create the corresponding DOM node (s) to a record in the "flacs" table.
 
@@ -210,16 +200,21 @@ class PNAccessControlLists(object):
         @param q Query about the "flacs" table positioned in the register to be used to construct the rule (s).
         @param d DOM / XML document in which you will insert the node (s) that describe the access control rule (s).
         """
-        if not qry or not dom_document:
+        if not qry:
             return
 
-        if qry.value(5):
-            self.make_rule_group(qry, dom_document, str(qry.value(4)))
-        else:
-            self.make_rule_user(qry, dom_document, str(qry.value(3)))
+        if not dom_document:
+            return
+
+        self.make_rule_group(qry, dom_document, str(qry.value(4))) if qry.value(
+            5
+        ) else self.make_rule_user(qry, dom_document, str(qry.value(3)))
 
     def make_rule_user(
-        self, qry: pnsqlquery.PNSqlQuery, dom_document: QtXml.QDomDocument, iduser: str
+        self,
+        qry: "pnsqlquery.PNSqlQuery" = None,
+        dom_document: "QtXml.QDomDocument" = None,
+        iduser: str = "",
     ) -> None:
         """
         Create a DOM node corresponding to a record in the "flacs" table and for a given user.
@@ -228,7 +223,12 @@ class PNAccessControlLists(object):
         @param d DOM / XML document in which you will insert the node that describes the access control rule.
         @param iduser Identifier of the user used in the access control rule.
         """
-        if not iduser or not qry or not dom_document:
+        if not iduser:
+            return
+
+        if not qry:
+            return
+        if not dom_document:
             return
 
         rule = pnaccesscontrolfactory.PNAccessControlFactory().create(str(qry.value(1)))

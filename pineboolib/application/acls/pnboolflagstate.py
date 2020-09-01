@@ -17,14 +17,14 @@ class PNBoolFlagState(object):
 class PNBoolFlagStateList(object):
     """PNBoolFlagStateList Class."""
 
-    data_list_: List[PNBoolFlagState]
+    data_list_: List["PNBoolFlagState"]
 
     def __init__(self):
         """Initialize the list."""
 
         self.data_list_ = []
 
-    def append(self, data: PNBoolFlagState) -> None:
+    def append(self, data: "PNBoolFlagState" = None) -> None:
         """
         Add a state to the list.
 
@@ -34,7 +34,7 @@ class PNBoolFlagStateList(object):
         if data is not None:
             self.data_list_.append(data)
 
-    def pushOnTop(self, data: PNBoolFlagState) -> None:
+    def pushOnTop(self, data: "PNBoolFlagState") -> None:
         """
         Add a state to the list first.
 
@@ -43,7 +43,7 @@ class PNBoolFlagStateList(object):
 
         self.data_list_.insert(0, data)
 
-    def erase(self, data: PNBoolFlagState) -> None:
+    def erase(self, data: "PNBoolFlagState") -> None:
         """
         Erase a state to the list first.
 
@@ -51,7 +51,7 @@ class PNBoolFlagStateList(object):
         """
         self.data_list_.remove(data)
 
-    def find(self, data: str) -> Optional[PNBoolFlagState]:
+    def find(self, data: str) -> Optional["PNBoolFlagState"]:
         """
         Search for a state in the list from a value.
 
@@ -65,7 +65,7 @@ class PNBoolFlagStateList(object):
 
         return None
 
-    def current(self) -> Optional[PNBoolFlagState]:
+    def current(self) -> Optional["PNBoolFlagState"]:
         """
         Return the first state of the list.
 

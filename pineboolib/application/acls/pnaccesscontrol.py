@@ -281,15 +281,5 @@ class PNAccessControl(object):
 
         return acos
 
-    def processObject(self, obj: Any) -> None:
-        """To be overloaded."""
-
-        raise ValueError("Cannot access base class")
-
-    def setFromObject(self, obj: Any) -> None:
-        """To be overloaded."""
-
-        raise ValueError("Cannot access base class")
-
 
 # endif

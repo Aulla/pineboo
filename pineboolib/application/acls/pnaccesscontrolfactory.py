@@ -30,7 +30,7 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
 
         return "mainwindow"
 
-    def processObject(self, main_window: Optional[QtWidgets.QMainWindow]) -> None:
+    def processObject(self, main_window: Optional["QtWidgets.QMainWindow"]) -> None:
         """Process the object."""
         if main_window is None:
             return
@@ -74,7 +74,7 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         """Return target type."""
         return "form"
 
-    def processObject(self, widget: Optional[QtWidgets.QWidget]) -> None:
+    def processObject(self, widget: Optional["QtWidgets.QWidget"]) -> None:
         """
         Process objects that are of the FLFormDB class.
 
@@ -217,10 +217,10 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
 class PNAccessControlFactory(object):
     """PNAccessControlFactory Class."""
 
-    def create(self, type_: str) -> pnaccesscontrol.PNAccessControl:
+    def create(self, type_: str = "") -> "pnaccesscontrol.PNAccessControl":
         """Create a control instance according to the type that we pass."""
 
-        if type_ is None:
+        if not type_:
             raise ValueError("type_ must be set")
 
         if type_ == "mainwindow":
@@ -233,7 +233,7 @@ class PNAccessControlFactory(object):
         raise ValueError("type_ %r unknown" % type_)
 
     def type(
-        self, obj: Optional[Union[QtWidgets.QWidget, pntablemetadata.PNTableMetaData]] = None
+        self, obj: Optional[Union["QtWidgets.QWidget", "pntablemetadata.PNTableMetaData"]] = None
     ) -> str:
         """Return the type of instance target."""
 
