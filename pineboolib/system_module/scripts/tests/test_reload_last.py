@@ -13,6 +13,8 @@ from pineboolib.core import settings
 class TestFLReloadLast(unittest.TestCase):
     """TestFlReloadLast class."""
 
+    prev_main_window_name: str
+
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
@@ -68,4 +70,6 @@ class TestFLReloadLast(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
+
+        settings.CONFIG.set_value("ebcomportamiento/main_form_name", cls.prev_main_window_name)
         finish_testing()
