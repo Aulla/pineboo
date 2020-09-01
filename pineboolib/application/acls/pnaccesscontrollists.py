@@ -145,11 +145,9 @@ class PNAccessControlLists(object):
 
         key = "%s::%s::%s" % (type_, name_, user_)
         if key in self._access_control_list.keys():
-            self._access_control_list[
+            self._access_control_list[  # type: ignore [attr-defined] # noqa: F821
                 key
-            ].processObject(  # type: ignore [attr-defined] # noqa: F821
-                obj
-            )
+            ].processObject(obj)
 
     def install_acl(self, idacl: str) -> None:
         """
