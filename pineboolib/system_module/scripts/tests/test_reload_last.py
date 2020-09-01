@@ -4,7 +4,6 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 
-from pineboolib import application
 from pineboolib.qsa import qsa
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings
