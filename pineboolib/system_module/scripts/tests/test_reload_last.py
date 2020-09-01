@@ -7,6 +7,7 @@ from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
 from pineboolib.qsa import qsa
 from pineboolib.core.utils import utils_base
+from pineboolib.core import settings
 
 
 class TestFLReloadLast(unittest.TestCase):
@@ -15,6 +16,14 @@ class TestFLReloadLast(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
+
+        settings.CONFIG.set_value("application/isDebuggerMode", True)
+        settings.CONFIG.set_value("application/dbadmin_enabled", True)
+        cls.prev_main_window_name = settings.CONFIG.value(
+            "ebcomportamiento/main_form_name", "eneboo"
+        )
+        settings.CONFIG.set_value("ebcomportamiento/main_form_name", "eneboo")
+
         init_testing()
 
     def test_main(self) -> None:
@@ -42,7 +51,6 @@ class TestFLReloadLast(unittest.TestCase):
 
         mod_ = qsa.from_project("formflreloadlast")
         tr_dir = utils_base.filedir(utils_base.get_base_dir(), "system_module")
-        print("**", tr_dir)
         self.assertEqual(mod_.traducirCadena("unodostres", tr_dir, "sys"), "unodostres")
         self.assertEqual(
             mod_.traducirCadena(
