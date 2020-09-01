@@ -7,6 +7,7 @@ from pineboolib.application import qsadictmodules
 import sqlalchemy
 
 if TYPE_CHECKING:
+    from sqlalchemy.ext import declarative
     from sqlalchemy.orm import query
 
 
@@ -31,26 +32,36 @@ class OrmManager(object):
 class DynamicFilter(object):
     """DynamicFilter class."""
 
-    def __init__(self, query=None, model_class=None, filter_condition=None):
+    query_: "query.Query"
+    model_class: "declarative.DeclarativeMeta"
+    filter_condition: List[List[str]]
+    order_by: List[List[str]]
+
+    def __init__(
+        self,
+        query: "query.Query",
+        model_class: "declarative.DeclarativeMeta",
+        filter_condition: List[List[str]] = [],
+    ):
         """Initialize."""
 
-        self.query = query
+        self.query_ = query
         self.model_class = model_class
         self.filter_condition = filter_condition
-        self.order_by: List[List[str]] = []
+        self.order_by = []
 
     # def get_query(self):
     #    """
     #    Returns query with all the objects
     #    :return:
     #    """
-    # if not self.query:
-    #    self.query = self.session.query(self.model_class)
-    #    return self.query
+    # if not self.query_:
+    #    self.query_ = self.session.query(self.model_class)
+    #    return self.query_
 
     def set_filter_condition_from_string(self, filter_str: str) -> None:
         """Set filter condition from string."""
-        filter_list = []
+        filter_list: List[List[str]] = []
         order_by_list = []
         order_by_str: str = ""
 
@@ -155,7 +166,9 @@ class DynamicFilter(object):
         # ===============================================================================
         # print("Filtro final", self.filter_condition)
 
-    def filter_query(self, query, filter_condition) -> "query.Query":
+    def filter_query(
+        self, query_: "query.Query", filter_condition: List[List[str]]
+    ) -> "query.Query":
         """
         Return filtered queryset based on condition.
 
@@ -209,8 +222,8 @@ class DynamicFilter(object):
             if not column:
                 raise Exception("Invalid filter column: %s" % key, raw)
             if option == "in":
-                if isinstance(value, list):
-                    filt = column.in_(value)
+                if isinstance(value, list):  # type: ignore [unreachable] # noqa: F821
+                    filt = column.in_(value)  # type: ignore [unreachable] # noqa: F821
                 else:
                     filt = column.in_(value.split(","))
             else:
@@ -224,7 +237,7 @@ class DynamicFilter(object):
                 except IndexError:
                     raise Exception("Invalid filter operator: %s" % option)
                 if value == "null":
-                    value = None
+                    value = ""
 
                 filt = getattr(column if not func_class else func_class(column), attr)(value)
 
@@ -234,15 +247,15 @@ class DynamicFilter(object):
                 else:
                     raise Exception("Unknown extra filter", extra_filter)
 
-            query = query.filter(filt)
+            query_ = query_.filter(filt)
 
         for name, ord in self.order_by:
             column_order = getattr(model_class, name, None)
-            query = query.order_by(column_order.desc() if ord == "desc" else column_order.asc())
+            query_ = query_.order_by(column_order.desc() if ord == "desc" else column_order.asc())
 
-        return query
+        return query_
 
     def return_query(self) -> "query.Query":
         """Return query object."""
 
-        return self.filter_query(self.query, self.filter_condition)
+        return self.filter_query(self.query_, self.filter_condition)

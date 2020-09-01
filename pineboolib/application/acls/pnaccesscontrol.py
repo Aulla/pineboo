@@ -57,7 +57,7 @@ as the module selector, or each of the main windows of the modules.
 """
 
 
-from typing import List, Dict, Any, Optional, TYPE_CHECKING
+from typing import List, Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PyQt5 import QtXml

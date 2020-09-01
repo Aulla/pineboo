@@ -14,13 +14,13 @@ class FakeSignal(object):
 
         self._remote_funcs = []
 
-    def connect(self, func_) -> None:
+    def connect(self, func_: Callable) -> None:
         """Set a function to connect."""
 
         if func_ not in self._remote_funcs:
             self._remote_funcs.append(func_)
 
-    def disconnect(self, func_) -> None:
+    def disconnect(self, func_: Callable) -> None:
         """Set a function to disconnect."""
 
         if func_ in self._remote_funcs:

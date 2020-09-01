@@ -22,7 +22,7 @@ class DummyCursor(object):
     Del: int = 2
     Browse: int = 3
 
-    _parent: Any
+    _parent: "basemodel.BaseModel"
 
     def __init__(self, parent_model: "basemodel.BaseModel") -> None:
         """Initialize."""
@@ -61,7 +61,7 @@ class DummyCursor(object):
 
         return getattr(self._parent, field_name) is None
 
-    def setNull(self, field_name):
+    def setNull(self, field_name: str):
         """Set value to Null."""
 
         setattr(self._parent, field_name, None)
@@ -74,7 +74,9 @@ class DummyCursor(object):
     def db(self) -> "iconnection.IConnection":
         """Return pnconnection."""
 
-        return application.PROJECT.conn_manager.useConn(self._parent._session._conn_name)
+        return application.PROJECT.conn_manager.useConn(
+            self._parent._session._conn_name  # type: ignore [union-attr] # noqa: F821
+        )
 
     def table(self) -> str:
         """Return table name."""

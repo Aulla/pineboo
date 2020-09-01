@@ -127,10 +127,10 @@ class PNAccessControlLists(object):
         """
 
         if obj is None or not self._access_control_list:
-            return
+            return None
 
         if not self._access_control_list:
-            return
+            return None
         type_: str = pnaccesscontrolfactory.PNAccessControlFactory().type(obj)
 
         if hasattr(obj, "name"):
@@ -141,11 +141,15 @@ class PNAccessControlLists(object):
         user_ = application.PROJECT.conn_manager.mainConn().user()
 
         if "" in (type_, name_, user_):
-            return
+            return None
 
         key = "%s::%s::%s" % (type_, name_, user_)
         if key in self._access_control_list.keys():
-            self._access_control_list[key].processObject(obj)
+            self._access_control_list[
+                key
+            ].processObject(  # type: ignore [attr-defined] # noqa: F821
+                obj
+            )
 
     def install_acl(self, idacl: str) -> None:
         """
@@ -201,14 +205,15 @@ class PNAccessControlLists(object):
         @param d DOM / XML document in which you will insert the node (s) that describe the access control rule (s).
         """
         if not qry:
-            return
+            return None
 
         if not dom_document:
-            return
+            return None
 
-        self.make_rule_group(qry, dom_document, str(qry.value(4))) if qry.value(
-            5
-        ) else self.make_rule_user(qry, dom_document, str(qry.value(3)))
+        if qry.value(5):
+            self.make_rule_group(qry, dom_document, str(qry.value(4)))
+        else:
+            self.make_rule_user(qry, dom_document, str(qry.value(3)))
 
     def make_rule_user(
         self,
@@ -224,12 +229,12 @@ class PNAccessControlLists(object):
         @param iduser Identifier of the user used in the access control rule.
         """
         if not iduser:
-            return
+            return None
 
         if not qry:
-            return
+            return None
         if not dom_document:
-            return
+            return None
 
         rule = pnaccesscontrolfactory.PNAccessControlFactory().create(str(qry.value(1)))
         if rule:

@@ -567,7 +567,7 @@ class BaseModel(object):
 
             setattr(self, name, default_value)
 
-    def save(self, check_integrity=True) -> bool:
+    def save(self, check_integrity: bool = True) -> bool:
         """Flush instance to current session."""
 
         if not hasattr(self, "_session"):
