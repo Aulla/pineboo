@@ -28,16 +28,16 @@ class TestFLReloadLast(unittest.TestCase):
 
         init_testing()
 
-    def test_main(self) -> None:
-        """Test main."""
+    # def test_main(self) -> None:
+    #    """Test main."""
 
-        from pineboolib.plugins.mainform import eneboo
+    #    from pineboolib.plugins.mainform import eneboo
 
-        application.PROJECT.main_window = eneboo.MainForm()
-        application.PROJECT.main_window.initScript()
+    #    application.PROJECT.main_window = eneboo.MainForm()
+    #    application.PROJECT.main_window.initScript()
 
-        mod_ = qsa.from_project("formflreloadlast")
-        mod_.main()
+    #    mod_ = qsa.from_project("formflreloadlast")
+    #    mod_.main()
 
     def test_comparar_versiones(self) -> None:
         """Test comparar_versiones."""
