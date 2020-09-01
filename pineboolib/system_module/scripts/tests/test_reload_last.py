@@ -4,17 +4,29 @@
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 
+from pineboolib import application
 from pineboolib.qsa import qsa
 from pineboolib.core.utils import utils_base
 
 
-class TestFlModules(unittest.TestCase):
-    """TestFlModules class."""
+class TestFLReloadLast(unittest.TestCase):
+    """TestFlReloadLast class."""
 
     @classmethod
     def setUpClass(cls) -> None:
         """Ensure pineboo is initialized for testing."""
         init_testing()
+
+    def test_main(self) -> None:
+        """Test main."""
+
+        from pineboolib.plugins.mainform import eneboo
+
+        application.PROJECT.main_window = eneboo.MainForm()
+        application.PROJECT.main_window.initScript()
+
+        mod_ = qsa.from_project("formflreloadlast")
+        mod_.main()
 
     def test_comparar_versiones(self) -> None:
         """Test comparar_versiones."""
