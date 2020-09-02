@@ -485,7 +485,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.closed.emit()
 
         super().closeEvent(event)
-        self.deleteLater()
+        # self.deleteLater()
 
     def validateForm(self) -> bool:
         """
