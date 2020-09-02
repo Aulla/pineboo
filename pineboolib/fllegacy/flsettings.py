@@ -15,8 +15,11 @@ class FLSettings(object):
 
     def readListEntry(self, key: str) -> List[str]:
         """Return a value list."""
-        ret_ = self._settings.value(key)
-        return ret_.split(",") if ret_ is not None else []
+        ret_ = self._settings.value(key, [])
+        if not isinstance(ret_, list):
+            ret_ = ret_.split(",")
+
+        return ret_
 
     def readEntry(self, _key: str, _def: Any = None) -> Any:
         """Return a value."""
