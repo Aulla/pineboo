@@ -754,7 +754,7 @@ class FunctionCall(ASTPython):
                 if class_ is not None:
                     extends = class_.get("extends")
                     if extends == name:
-                        name = "super(%s, self).__init__" % class_.get("name")
+                        name = "super().__init__"
 
                 if not name.find("["):  # if don't search a array
                     functions = parent.findall('Function[@name="%s"]' % name)
@@ -1664,8 +1664,7 @@ class Member(ASTPython):
 
                 arguments[2] = arguments[2][2:]
                 arguments[0:2] = [
-                    'super(getattr(self._module, "%s"), %s)'
-                    % (class_name, ".".join(arguments[0:2]))
+                    "super(self.module.%s, %s)" % (class_name, ".".join(arguments[0:2]))
                 ]
 
         # Lectura del self.iface.__init() al nuevo estilo yeboyebo
@@ -1696,8 +1695,7 @@ class Member(ASTPython):
                     class_name = full_fun_name.split("_")[0]
                 arguments[1] = arguments[1][2:]
                 arguments[0:1] = [
-                    'super(getattr(self._module, "%s"), %s)'
-                    % (class_name, ".".join(arguments[0:1]))
+                    "super(self.module.%s, %s)" % (class_name, ".".join(arguments[0:1]))
                 ]
         if arguments[0] == "qsa.File":
             arguments[0] = "qsa.FileStatic"
