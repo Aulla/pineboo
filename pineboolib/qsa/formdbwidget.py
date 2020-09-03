@@ -227,4 +227,4 @@ class FormDBWidget(QtWidgets.QWidget):
         return sys.modules[self.__module__]
 
     form = property(_get_form, _set_form)
-    _module = property(get_module)
+    module = property(get_module)
