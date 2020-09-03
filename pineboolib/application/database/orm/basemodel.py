@@ -341,7 +341,6 @@ class BaseModel(object):
             self._error_manager("_flush", "_session is empty")
         else:
             self._current_mode = self.mode_access
-
             self._before_flush()
 
             if self._current_mode == 2:  # delete
@@ -830,15 +829,15 @@ class BaseModel(object):
     def get_module_iface(self) -> Optional[types.ModuleType]:
         """Return module iface."""
         action = self._action
-
-        if action is not None and action._master_script and not action._master_widget:
+        if action is not None:
             module_action = None
             if action._mod is not None and action._mod.module_name in application.PROJECT.actions:
-
                 module_action = application.PROJECT.actions[action._mod.module_name]
 
                 if module_action is not None:
-                    module_script = module_action.load_master_widget()
+                    module_script = module_action._master_widget
+                    if module_script is None:
+                        module_script = module_action.load_master_widget()
                     return getattr(module_script, "iface", module_script)
 
         return None
