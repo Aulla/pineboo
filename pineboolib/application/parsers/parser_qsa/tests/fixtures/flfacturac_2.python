@@ -25,7 +25,7 @@ class interna(object):
 # /** @class_declaration oficial */
 class oficial(interna):
     def __init__(self, context):
-        super(oficial, self).__init__(context)
+        super().__init__(context)
 
     def bufferChanged(self, fN):
         return self.ctx.oficial_bufferChanged(fN)
@@ -37,13 +37,13 @@ class oficial(interna):
 # /** @class_declaration head */
 class head(oficial):
     def __init__(self, context):
-        super(head, self).__init__(context)
+        super().__init__(context)
 
 
 # /** @class_declaration ifaceCtx */
 class ifaceCtx(head):
     def __init__(self, context):
-        super(ifaceCtx, self).__init__(context)
+        super().__init__(context)
 
 
 # /** @class_declaration FormInternalObj */

@@ -72,7 +72,7 @@ class oficial(interna):
     curAsiento_: "qsa.FLSqlCursor"
 
     def __init__(self, context):
-        super(oficial, self).__init__(context)
+        super().__init__(context)
 
     def obtenerHueco(self, codSerie: "str", codEjercicio: "str", tipo: "str"):
         return self.ctx.oficial_obtenerHueco(codSerie, codEjercicio, tipo)
@@ -338,13 +338,13 @@ class oficial(interna):
 # /** @class_declaration head */
 class head(oficial):
     def __init__(self, context):
-        super(head, self).__init__(context)
+        super().__init__(context)
 
 
 # /** @class_declaration ifaceCtx */
 class ifaceCtx(head):
     def __init__(self, context):
-        super(ifaceCtx, self).__init__(context)
+        super().__init__(context)
 
     def pub_cerosIzquierda(self, numero: "str", totalCifras) -> "str":
         return self.cerosIzquierda(numero, totalCifras)
