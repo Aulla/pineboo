@@ -54,7 +54,8 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                         )
                         # new_session.rollback()
                         # new_session.close()
-                        del application.PROJECT.conn_manager.thread_atomic_sessions[key]
+                        if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
+                            del application.PROJECT.conn_manager.thread_atomic_sessions[key]
                         if application.USE_ATOMIC_LIST:
                             application.ATOMIC_LIST.remove(key)
 
@@ -63,14 +64,16 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                 # new_session.commit()
                 new_session.close()
             except Exception as error:
-                del application.PROJECT.conn_manager.thread_atomic_sessions[key]
+                if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
+                    del application.PROJECT.conn_manager.thread_atomic_sessions[key]
                 if application.USE_ATOMIC_LIST:
                     application.ATOMIC_LIST.remove(key)
 
                 raise error
 
             else:
-                del application.PROJECT.conn_manager.thread_atomic_sessions[key]
+                if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
+                    del application.PROJECT.conn_manager.thread_atomic_sessions[key]
                 if application.USE_ATOMIC_LIST:
                     application.ATOMIC_LIST.remove(key)
 
