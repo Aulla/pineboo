@@ -29,7 +29,10 @@ class TestBaseModel(unittest.TestCase):
         """Test mode access."""
 
         obj_ = qsa.orm.flareas()
-        self.assertTrue(obj_._module_iface)
+        self.assertTrue(obj_.module_iface)
+
+        obj2_ = qsa.orm.flareas()
+        self.assertTrue(obj2_.module_iface)
 
         cursor = obj_.cursor
         self.assertEqual(cursor.modeAccess(), cursor.Insert)
@@ -37,6 +40,7 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(cursor.modeAccess(), cursor.Insert)
 
         obj1_ = qsa.orm.flareas.get("O")
+        self.assertTrue(obj1_.module_iface)
         self.assertFalse(obj1_.changes())
         self.assertEqual(obj1_.pk, "O")
         self.assertEqual(obj1_.cursor.modeAccess(), obj1_.cursor.Browse)

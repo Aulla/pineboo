@@ -14,6 +14,7 @@ import datetime
 import threading
 import sys
 import time
+import types
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
@@ -45,7 +46,6 @@ class BaseModel(object):
     _cursor: "dummy_cursor.DummyCursor"
     _before_commit_function: str
     _after_commit_function: str
-    _module_iface: Any
     _new_object: bool
     _deny_buffer_changed: List[str]
     bufferChanged: "dummy_signal.FakeSignal"
@@ -113,27 +113,12 @@ class BaseModel(object):
     def _common_init(self) -> None:
         """Initialize."""
         self.bufferChanged = dummy_signal.FakeSignal()
-        self._module_iface = None
 
         if self.__tablename__ in application.PROJECT.actions.keys():
             self._action = application.PROJECT.actions[self.__tablename__]
             if self._action is not None:
                 if self._action._record_script and not self._action._record_widget:
                     self._action.load_record_widget()
-
-                if self._action._master_script and not self._action._master_widget:
-                    module_action = None
-                    if (
-                        self._action._mod.module_name  # type: ignore [union-attr] # noqa: F821
-                        in application.PROJECT.actions
-                    ):
-                        module_action = application.PROJECT.actions[
-                            self._action._mod.module_name  # type: ignore [union-attr] # noqa: F821
-                        ]
-
-                    if module_action is not None:
-                        module_script = module_action.load_master_widget()
-                        self._module_iface = getattr(module_script, "iface", module_script)
 
         self._deny_buffer_changed = []
 
@@ -378,7 +363,7 @@ class BaseModel(object):
         try:
             mode = self._current_mode
 
-            func_ = getattr(self._module_iface, self._before_commit_function, None)
+            func_ = getattr(self.module_iface, self._before_commit_function, None)
             if func_ is not None:
                 value = func_(self._cursor)
                 if value and not isinstance(value, bool) or value is False:
@@ -419,7 +404,7 @@ class BaseModel(object):
         try:
             mode = self._current_mode
 
-            func_ = getattr(self._module_iface, self._after_commit_function, None)
+            func_ = getattr(self.module_iface, self._after_commit_function, None)
             if func_ is not None:
                 value = func_(self._cursor)
                 if value and not isinstance(value, bool) or value is False:
@@ -842,9 +827,26 @@ class BaseModel(object):
         LOGGER.error("%s.%s:: %s", cls.__name__, text, error_message, stack_info=False)
         raise exception_(error_message)
 
+    def get_module_iface(self) -> Optional[types.ModuleType]:
+        """Return module iface."""
+        action = self._action
+
+        if action is not None and action._master_script and not action._master_widget:
+            module_action = None
+            if action._mod is not None and action._mod.module_name in application.PROJECT.actions:
+
+                module_action = application.PROJECT.actions[action._mod.module_name]
+
+                if module_action is not None:
+                    module_script = module_action.load_master_widget()
+                    return getattr(module_script, "iface", module_script)
+
+        return None
+
     session = property(get_session, set_session)
     transaction_level = property(get_transaction_level)
     pk_name = property(get_pk_name)
     pk = property(get_pk_value, set_pk_value)
     mode_access = property(get_mode_access, set_mode_access)
     cursor = property(get_cursor)
+    module_iface = property(get_module_iface)
