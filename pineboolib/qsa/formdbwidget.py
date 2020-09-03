@@ -4,7 +4,6 @@ from PyQt5 import QtWidgets, QtCore
 
 from pineboolib.application import connections
 from pineboolib.fllegacy import flsqlcursor
-from pineboolib.application.database import pnsqlcursor
 from pineboolib.core.garbage_collector import check_gc_referrers
 from pineboolib import logging, application
 
