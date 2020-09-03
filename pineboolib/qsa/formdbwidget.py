@@ -12,6 +12,7 @@ from pineboolib import logging, application
 from typing import Set, Tuple, Optional, Any, cast, Union, TYPE_CHECKING
 import weakref
 import sys
+import types
 
 
 if TYPE_CHECKING:
@@ -27,6 +28,8 @@ class FormDBWidget(QtWidgets.QWidget):
     closed = QtCore.pyqtSignal()
     cursor_: Optional["flsqlcursor.FLSqlCursor"]
     _form: Optional[Union["flformdb.FLFormDB", "FormDBWidget"]]
+    _action: Optional["xmlaction.XMLAction"]
+    _formconnections: Set[Tuple]
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
     _loaded: bool
@@ -36,24 +39,13 @@ class FormDBWidget(QtWidgets.QWidget):
 
         super().__init__()
 
-        self._module = sys.modules[self.__module__]
         self._action = action
         self.name = self.__module__
         self.iface = None
         self.cursor_ = None
         self._loaded = False
-        # self.parent_ = parent or QtWidgets.QWidget()
-
-        # if parent and hasattr(parent, "parentWidget"):
-        #    self.parent_ = parent.parentWidget()
-
-        self._form = None  # Limpiar self.form al inicializar... Luego flformdb se asigna..
-        # from pineboolib.fllegacy import flformdb
-
-        # if isinstance(parent, flformdb.FLFormDB):
-        #    self.form = parent
-
-        self._formconnections: Set[Tuple] = set([])
+        self._form = None
+        self._formconnections = set([])
 
         self._class_init()
 
@@ -106,10 +98,6 @@ class FormDBWidget(QtWidgets.QWidget):
         """Initialize the class."""
         pass
 
-    # def init(self):
-    #    """Evento init del motor. Llama a interna_init en el QS"""
-    #    pass
-
     def closeEvent(self, event: QtCore.QEvent) -> None:
         """Close event."""
 
@@ -141,14 +129,6 @@ class FormDBWidget(QtWidgets.QWidget):
                     action._name,
                 )
 
-                # if hasattr(self.iface, "ctx"):
-                #    delattr(self.iface, "ctx")
-
-            # del self._action._record_widget
-
-            # self.iface = None
-            # self._action._record_widget = None
-
     def clear_connections(self) -> None:
         """Clear al conecctions established on the module."""
 
@@ -166,20 +146,13 @@ class FormDBWidget(QtWidgets.QWidget):
         """Return child from name."""
         ret = None
 
-        form = self._get_form()
-        if form:
+        form = self.form
+        if child_name == super().objectName():
+            return form
+        elif form is not None:
             ret = form.child(child_name)
-
-        if ret is None:
-            if child_name == super().objectName():
-                return form
-            else:
+            if ret is None:
                 ret = getattr(form, child_name, None)
-
-        if ret is None:
-            parent = self.parent()
-            if parent is not None:
-                ret = getattr(parent, child_name, None)
 
         if ret is None:
             raise Exception("control %s not found!, form: %s" % (child_name, form))
@@ -188,14 +161,11 @@ class FormDBWidget(QtWidgets.QWidget):
 
     def cursor(self) -> "flsqlcursor.FLSqlCursor":  # type: ignore [override] # noqa F821
         """Return cursor associated."""
-        action = self._action
-        if action is None:
+
+        if self._action is None:
             raise Exception("action is empty!!")
-        cursor = action.cursor()
-        if cursor is None:
-            cursor = pnsqlcursor.PNSqlCursor(action._name)
-            action.setCursor(cursor)
-        return cast(flsqlcursor.FLSqlCursor, cursor)
+
+        return cast(flsqlcursor.FLSqlCursor, self._action.cursor())
 
     def __getattr__(self, name: str) -> QtWidgets.QWidget:
         """Guess if attribute can be found in other related objects."""
@@ -252,4 +222,10 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return self._form if self._form is not self else None
 
+    def get_module(self) -> types.ModuleType:
+        """Return module."""
+
+        return sys.modules[self.__module__]
+
     form = property(_get_form, _set_form)
+    _module = property(get_module)
