@@ -10,7 +10,7 @@ import optparse
 import os
 import pathlib
 import re
-from xml import etree
+from xml.etree import ElementTree as ET
 from typing import Any, Generator, Tuple, Type, List, Dict, Set, cast, Optional, TextIO, Callable
 
 from pineboolib.core.utils import logging
@@ -399,11 +399,11 @@ CONT_DO_WHILE = 0
 class ASTPythonBase(object):
     """Generate python lines. Base class."""
 
-    elem: etree.ElementTree.Element
+    elem: ET.Element
 
-    def __init__(self, elem: etree.ElementTree.Element) -> None:
+    def __init__(self, elem: ET.Element) -> None:
         """Create ASTPythonBase."""
-        self.elem: etree.ElementTree.Element = elem
+        self.elem: ET.Element = elem
         self.parent: Optional["ASTPythonBase"] = None
         self.source: Optional["Source"] = None
 
@@ -465,7 +465,7 @@ class ASTPython(ASTPythonBase, metaclass=ASTPythonFactory):
         """Return if the class can process specified tag name."""
         return self.__name__ == tagname or tagname in self.tags
 
-    def __init__(self, elem: etree.ElementTree.Element) -> None:
+    def __init__(self, elem: ET.Element) -> None:
         """Create new ASTPython class."""
         super().__init__(elem)
         self.internal_generate = self.generate
@@ -475,9 +475,7 @@ class ASTPython(ASTPythonBase, metaclass=ASTPythonFactory):
 
     def generate(self, **kwargs: Any) -> ASTGenerator:
         """Generate Python code. Abstract method. Generates debug for unknown AST."""
-        yield "debug", "* not-known-seq * %s" % etree.ElementTree.tostring(
-            self.elem, encoding="UTF-8"
-        )
+        yield "debug", "* not-known-seq * %s" % ET.tostring(self.elem, encoding="UTF-8")
 
     def debug(self, text: str) -> None:
         """Print debug on the generated file."""
@@ -520,7 +518,7 @@ class Source(ASTPython):
     locals: Set[str]
     locals_transform: Dict[str, str]
 
-    def __init__(self, elem: etree.ElementTree.Element) -> None:
+    def __init__(self, elem: ET.Element) -> None:
         """Create Source parser. Tracks local variables."""
         super().__init__(elem)
         self.locals = set()
@@ -613,10 +611,10 @@ class Function(ASTPython):
             name = "_anonymous_fn_"
             anonymous = True
         withoutself = self.elem.get("withoutself")
-        parent = cast(etree.ElementTree.Element, self.elem.get("parent_"))  # FIXME
+        parent = cast(ET.Element, self.elem.get("parent_"))  # FIXME
         grandparent = None
         if parent is not None:
-            grandparent = cast(Optional[etree.ElementTree.Element], parent.get("parent_"))  # FIXME
+            grandparent = cast(Optional[ET.Element], parent.get("parent_"))  # FIXME
 
         if grandparent is not None and grandparent.get("name") == "FormInternalObj":
             class_name = name.split("_")[0]
@@ -651,7 +649,7 @@ class Function(ASTPython):
 
         for number, arg in enumerate(self.elem.findall("Arguments/*")):
             expr = []
-            # FIXME: etree.ElementTree.Element.set expects a string not Element.
+            # FIXME: ET.Element.set expects a string not Element.
             arg.set("parent_", self.elem)  # type: ignore
             for dtype, data in parse_ast(arg, parent=self).generate():
                 if dtype == "expr":
@@ -662,7 +660,7 @@ class Function(ASTPython):
             if not expr:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 if len(expr) == 1:
 
@@ -697,7 +695,7 @@ class Function(ASTPython):
         yield "begin", "block-def-%s" % (name)
         # if returns:  yield "debug", "Returns: %s" % returns
         for source in self.elem.findall("Source"):
-            # FIXME: etree.ElementTree.Element.set expects a string not Element.
+            # FIXME: ET.Element.set expects a string not Element.
             source.set("parent_", self.elem)  # type: ignore
             for obj in parse_ast(source, parent=self).generate(declare_identifiers=id_list):
                 yield obj
@@ -719,7 +717,7 @@ class FunctionCall(ASTPython):
         """Generate python code."""
         name: str = self.local_var(self.elem.get("name", "noname"), is_member=is_member)
         # FIXME:
-        parent = cast(etree.ElementTree.Element, self.elem.get("parent_"))
+        parent = cast(ET.Element, self.elem.get("parent_"))
         # data_ = None
         if name == "":
             arg = self.elem[0]
@@ -736,7 +734,7 @@ class FunctionCall(ASTPython):
             if len(expr) == 0:
                 name = "unknownFn"
                 yield "debug", "Function name not understood"
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             elif len(expr) > 1:
                 name = "unknownFn"
                 yield "debug", "Multiple function names"
@@ -747,12 +745,12 @@ class FunctionCall(ASTPython):
         if parent is not None:
             if parent.tag == "InstructionCall":
                 class_ = None
-                class_parent: Optional[etree.ElementTree.Element] = parent
+                class_parent: Optional[ET.Element] = parent
                 while class_parent is not None:
                     if class_parent.tag == "Class":
                         class_ = class_parent
                         break
-                    class_parent = cast(etree.ElementTree.Element, class_parent.get("parent_"))
+                    class_parent = cast(ET.Element, class_parent.get("parent_"))
 
                 if class_ is not None:
                     extends = class_.get("extends")
@@ -762,7 +760,7 @@ class FunctionCall(ASTPython):
                 if not name.find("["):  # if don't search a array
                     functions = parent.findall('Function[@name="%s"]' % name)
                     for func_element in functions:
-                        # yield "debug", "Function to:" + etree.ElementTree.tostring(f)
+                        # yield "debug", "Function to:" + ET.tostring(f)
                         name = "self.%s" % name
                         break
 
@@ -781,7 +779,7 @@ class FunctionCall(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 arg1 = " ".join(expr)
                 arg1 = arg1.replace("( ", "(")
@@ -833,7 +831,7 @@ class If(ASTPython):
             if not expr:
                 main_expr.append("False")
                 yield "debug", "Expression %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 if len(expr) == 3:
                     # FIXME: This works if the pattern is alone in the IF. But if it has AND/Or does not work
@@ -931,7 +929,7 @@ class While(ASTPython):
             if len(expr) == 0:
                 main_expr.append("False")
                 yield "debug", "Expression %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
 
@@ -962,7 +960,7 @@ class DoWhile(ASTPython):
             if len(expr) == 0:
                 main_expr.append("False")
                 yield "debug", "Expression %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
         # TODO .....
@@ -1123,7 +1121,7 @@ class OldSwitch(ASTPython):
             if len(expr) == 0:
                 main_expr.append("False")
                 yield "debug", "Expression %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
         yield "line", "%s = %s" % (name, " ".join(main_expr))
@@ -1142,7 +1140,7 @@ class OldSwitch(ASTPython):
                 if len(expr) == 0:
                     value_expr.append("False")
                     yield "debug", "Expression %d not understood" % number
-                    yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                    yield "debug", ET.tostring(arg)  # type: ignore
                 else:
                     value_expr.append(" ".join(expr))
 
@@ -1226,7 +1224,7 @@ class Switch(ASTPython):
             if len(expr) == 0:
                 main_expr.append("False")
                 yield "debug", "Expression %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 main_expr.append(" ".join(expr))
         yield "line", "for case in qsa.switch(%s):" % (" ".join(main_expr))
@@ -1245,7 +1243,7 @@ class Switch(ASTPython):
                 if not expr:
                     value_expr.append("False")
                     yield "debug", "Expression %d not understood" % number
-                    yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                    yield "debug", ET.tostring(arg)  # type: ignore
                 else:
                     value_expr.append(" ".join(expr))
 
@@ -1447,7 +1445,7 @@ class InstructionUpdate(ASTPython):
             ):
                 if dtype == "expr":
                     if not data:
-                        raise ValueError(etree.ElementTree.tostring(arg))
+                        raise ValueError(ET.tostring(arg))
                     elif data == "[]":
                         data = "qsa.Array()"
                     expr.append(data)
@@ -1457,7 +1455,7 @@ class InstructionUpdate(ASTPython):
             if not expr:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 if number == 0 and len(expr) == 1:
                     identifier = expr[0]
@@ -1486,7 +1484,7 @@ class InlineUpdate(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
         ctype = self.elem.get("type")
@@ -1523,7 +1521,7 @@ class InstructionCall(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
         yield "line", " ".join(arguments)
@@ -1547,7 +1545,7 @@ class Instruction(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
         if arguments:
@@ -1573,7 +1571,7 @@ class InstructionFlow(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
 
@@ -1620,7 +1618,7 @@ class Member(ASTPython):
             if len(expr) == 0:
                 txtarg = "unknownarg"
                 yield "debug", "Argument %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 txtarg = " ".join(expr)
             arguments.append(txtarg)
@@ -1643,14 +1641,14 @@ class Member(ASTPython):
         ):
             # From: self.iface.__function()
             # to: super(class_name, self.iface).function()
-            parent = cast(etree.ElementTree.Element, self.elem.get("parent_"))
+            parent = cast(ET.Element, self.elem.get("parent_"))
             # funs = None
             # p_ = parent
             while parent:
                 if parent.tag == "Function":
                     # funs = p_
                     break
-                parent = cast(etree.ElementTree.Element, parent.get("parent_"))
+                parent = cast(ET.Element, parent.get("parent_"))
 
             if parent:
                 # fun = funs[-1]
@@ -1674,14 +1672,14 @@ class Member(ASTPython):
         if len(arguments) >= 2 and arguments[0:1] == ["_i"] and arguments[1].startswith("__"):
             # From: self.iface.__function()
             # to: super(class_name, self.iface).function()
-            parent = cast(etree.ElementTree.Element, self.elem.get("parent_"))
+            parent = cast(ET.Element, self.elem.get("parent_"))
             # funs = None
             # p_ = parent
             while parent:
                 if parent.tag == "Function":
                     # funs = parent
                     break
-                parent = cast(etree.ElementTree.Element, parent.get("parent_"))
+                parent = cast(ET.Element, parent.get("parent_"))
 
             if parent:
                 # fun = funs[-1]
@@ -1941,7 +1939,7 @@ class ArrayMember(ASTPython):
             if len(expr) == 0:
                 arguments.append("unknownarg")
                 yield "debug", "Argument %d not understood" % number
-                yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                yield "debug", ET.tostring(arg)  # type: ignore
             else:
                 arguments.append(" ".join(expr))
 
@@ -1961,7 +1959,7 @@ class Value(ASTPython):
             child_ast = parse_ast(child, parent=self)
             for dtype, data in child_ast.generate():
                 if data is None:
-                    raise ValueError(etree.ElementTree.tostring(child))
+                    raise ValueError(ET.tostring(child))
                 yield dtype, data
         if isolate:
             yield "expr", ")"
@@ -2151,7 +2149,7 @@ class New(ASTPython):
                     data = data + "()"
                 ident = data[: data.find("(")]
                 if ident.find(".") == -1:
-                    parent_class = cast(etree.ElementTree.Element, self.elem.get("parent_"))
+                    parent_class = cast(ET.Element, self.elem.get("parent_"))
                     # classIdent_ = False
                     while parent_class is not None:
                         if parent_class.tag == "Source":
@@ -2159,7 +2157,7 @@ class New(ASTPython):
                                 if item.get("name") == ident:
                                     # classIdent_ = True
                                     break
-                        parent_class = cast(etree.ElementTree.Element, parent_class.get("parent_"))
+                        parent_class = cast(ET.Element, parent_class.get("parent_"))
 
                 yield dtype, data
 
@@ -2209,7 +2207,7 @@ class Constant(ASTPython):
                         if len(expr) == 0:
                             arguments.append("unknownarg")
                             yield "debug", "Argument %d not understood" % number
-                            yield "debug", etree.ElementTree.tostring(arg)  # type: ignore
+                            yield "debug", ET.tostring(arg)  # type: ignore
                         else:
                             arguments.append(" ".join(expr))
 
@@ -2440,7 +2438,7 @@ class DeclarationBlock(ASTPython):
             for dtype, data in parse_ast(var, parent=self).generate(force_value=True):
                 if dtype == "expr":
                     if data is None:
-                        raise ValueError(etree.ElementTree.tostring(var))
+                        raise ValueError(ET.tostring(var))
                     expr.append(data)
                 else:
                     yield dtype, data
@@ -2488,7 +2486,7 @@ class Unknown(ASTPython):
 # -----------------
 
 
-def astparser_for(elem: etree.ElementTree.Element) -> ASTPythonBase:
+def astparser_for(elem: ET.Element) -> ASTPythonBase:
     """Construct proper AST parser for given XML element."""
     for cls in ASTPythonFactory.ast_class_types:
         if cls.can_process_tag(elem.tag):
@@ -2496,7 +2494,7 @@ def astparser_for(elem: etree.ElementTree.Element) -> ASTPythonBase:
     raise ValueError("No suitable class for %r" % elem.tag)
 
 
-def parse_ast(elem: etree.ElementTree.Element, parent: Optional[ASTPython] = None) -> ASTPythonBase:
+def parse_ast(elem: ET.Element, parent: Optional[ASTPython] = None) -> ASTPythonBase:
     """Parse XML Element."""
     elemparser = astparser_for(elem)
     elemparser.parent = parent
@@ -2523,9 +2521,7 @@ def parse_ast(elem: etree.ElementTree.Element, parent: Optional[ASTPython] = Non
     return elemparser
 
 
-def file_template(
-    ast: etree.ElementTree.Element, import_refs: Dict[str, Tuple[str, str]] = {}
-) -> ASTGenerator:
+def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {}) -> ASTGenerator:
     """Create a new file template."""
 
     from pineboolib.application import projectmodule, PINEBOO_VER
@@ -2548,20 +2544,20 @@ def file_template(
     yield "line", ""
     yield "line", ""
 
-    sourceclasses = etree.ElementTree.Element("Source")
-    for cls in ast.findall("Class"):
-        # LOGGER.warning("Element %s type(%s)", cls, type(cls))
-        # cls.set("parent_", cast(str, ast))  # FIXME: AST is an XML Element, not a string.
-        sourceclasses.append(cast(etree.ElementTree.Element, cls))
+    sourceclasses = ET.Element("Source")
+    for cls_ in ast.findall("Class"):
+        # LOGGER.warning("Element %s type(%s)", cls, type(cls_))
+        # cls_.set("parent_", cast(str, ast))  # FIXME: AST is an XML Element, not a string.
+        sourceclasses.append(cls_)
 
-    mainclass = etree.ElementTree.SubElement(
+    mainclass = ET.SubElement(
         sourceclasses, "Class", name="FormInternalObj", extends="qsa.FormDBWidget"
     )
-    mainsource = etree.ElementTree.SubElement(mainclass, "Source")
+    mainsource = ET.SubElement(mainclass, "Source")
 
-    constructor = etree.ElementTree.SubElement(mainsource, "Function", name="_class_init")
+    constructor = ET.SubElement(mainsource, "Function", name="_class_init")
     # args = etree.SubElement(constructor, "Arguments")
-    csource = etree.ElementTree.SubElement(constructor, "Source")
+    csource = ET.SubElement(constructor, "Source")
 
     for child in ast:
         if child.tag != "Function":
@@ -2569,10 +2565,10 @@ def file_template(
                 def_iface = copy.deepcopy(child)
                 def_iface.set("definition", "1")
                 child.set("constructor", "1")
-                csource.append(cast(etree.ElementTree.Element, child))
+                csource.append(child)
                 mainsource.insert(0, def_iface)
         else:
-            mainsource.append(cast(etree.ElementTree.Element, child))
+            mainsource.append(child)
 
     for dtype, data in parse_ast(sourceclasses).generate():
         yield dtype, data
@@ -2586,7 +2582,7 @@ def file_template(
 
 
 def expression_template(
-    ast: etree.ElementTree.Element, import_refs: Dict[str, Tuple[str, str]] = {}
+    ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {}
 ) -> ASTGenerator:
     """Create a new file template."""
 
@@ -2595,12 +2591,13 @@ def expression_template(
 
 
 def write_python_file(
-    fobj: TextIO, ast: etree.ElementTree.Element, import_refs: Dict[str, Tuple[str, str]] = {}
+    fobj: TextIO, ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {}
 ) -> None:
     """Write python file."""
-    template_list: Dict[
-        str, Callable[[etree.ElementTree.Element, Dict[str, Tuple[str, str]]], ASTGenerator]
-    ] = {"file_template": file_template, "expression_template": expression_template}
+    template_list: Dict[str, Callable[[ET.Element, Dict[str, Tuple[str, str]]], ASTGenerator]] = {
+        "file_template": file_template,
+        "expression_template": expression_template,
+    }
     indent: List[str] = []
     indent_text = "    "
     last_line_for_indent: Dict[int, int] = {}
@@ -2666,9 +2663,9 @@ def pythonize(filename: str, destfilename: str, debugname: Optional[str] = None)
     """Convert given QS filename into Python saved as destfilename."""
     # bname = os.path.basename(filename)
     ASTPython.debug_file = open(debugname, "w", encoding="UTF-8") if debugname else None
-    parser = etree.ElementTree.XMLParser(encoding="UTF-8")
+    parser = ET.XMLParser(encoding="UTF-8")
     try:
-        ast_tree = etree.ElementTree.parse(open(filename, "r", encoding="UTF-8"), parser)
+        ast_tree = ET.parse(open(filename, "r", encoding="UTF-8"), parser)
     except Exception:
         print("filename:", filename)
         raise
@@ -2693,14 +2690,12 @@ def pythonize(filename: str, destfilename: str, debugname: Optional[str] = None)
         file_.close()
 
 
-def pythonize2(
-    root_ast: etree.ElementTree.Element, known_refs: Dict[str, Tuple[str, str]] = {}
-) -> str:
+def pythonize2(root_ast: ET.Element, known_refs: Dict[str, Tuple[str, str]] = {}) -> str:
     """Convert AST into Python. Faster version of pythonize as does not read/save XML."""
     from io import StringIO
 
     ASTPython.debug_file = None
-    ident: etree.ElementTree.Element
+    ident: ET.Element
     ident_set = set()
     if known_refs:
         for ident in root_ast.findall(".//Identifier[@name]"):

@@ -5,12 +5,11 @@ Simplify AST-XML structures for later generation of Python files.
 from optparse import OptionParser
 import os
 import sys
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 from xml.dom import minidom  # type: ignore
 from pineboolib import logging
 from . import pytnyzer, flscriptparse
 from typing import List, Type, Optional, Dict, Tuple, Any, Callable, cast, Iterable
-
 
 TreeData = Dict[str, Any]
 
@@ -118,7 +117,7 @@ class TagObject(TagObjectBase, metaclass=TagObjectFactory):
     def __init__(self, tagname: str) -> None:
         """Create new processor."""
         super().__init__(tagname)
-        self.xml = ElementTree.Element(self.tagname(tagname))
+        self.xml = ET.Element(self.tagname(tagname))
         self.xmlname: Optional[str] = None
         self.subelems: List[Any] = []
         self.values: List[Tuple[str, str]] = []
@@ -846,7 +845,7 @@ def pythonify_string(
     return pytnyzer.pythonize2(ast, known_refs)
 
 
-def common_parse(data: str) -> "ElementTree":
+def common_parse(data: str) -> "ET":
 
     prog = flscriptparse.parse(data)
     if not prog:
@@ -998,7 +997,7 @@ def execute(options: Any, args: List[str]) -> None:
             else:
                 destname = filename + ".xml"
 
-            xml_str = minidom.parseString(ElementTree.tostring(ast)).toprettyxml(indent="   ")
+            xml_str = minidom.parseString(ET.tostring(ast)).toprettyxml(indent="   ")
             with open(destname, "w", encoding="UTF-8") as file_:
                 file_.write(xml_str)
 
