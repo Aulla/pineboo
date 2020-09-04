@@ -841,11 +841,12 @@ def pythonify_string(
     """Convert QS string to Python. For unit-testing, only evaluates expressions."""
 
     ast = common_parse(qs_code)
-    ast.set("parser-template", parser_template)
+    ast.set("parser-template", parser_template)  # type: ignore [attr-defined] # noqa: F821
     return pytnyzer.pythonize2(ast, known_refs)
 
 
-def common_parse(data: str) -> "ET":
+def common_parse(data: str):
+    """Run common parse code."""
 
     prog = flscriptparse.parse(data)
     if not prog:
