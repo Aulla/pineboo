@@ -7,18 +7,18 @@ import sys
 import os
 import os.path
 import codecs
-import xml.etree.ElementTree as ET
-from multiprocessing import Pool
+
+import multiprocessing
 from typing import List, Tuple, TypeVar, cast, Dict, Optional
+from xml import etree
 from pineboolib import logging
-from pineboolib.core.utils.struct import ActionStruct
-from pineboolib.application.parsers import parser_qsa
-from . import postparse, pytnyzer
+from pineboolib.core.utils import struct
+from . import postparse, pytnyzer, USE_THREADS
 
 LOGGER = logging.get_logger(__name__)
 
 
-class Action(ActionStruct):
+class Action(struct.ActionStruct):
     """Represent actions from XML."""
 
     modname: str = ""
@@ -69,7 +69,7 @@ def get_modules(from_path: str = ".") -> ModList:
 def mod_xml_parse(path: str, mod_name: str) -> Optional[Dict[str, Action]]:
     """Parse Module XML and retrieve actions."""
     try:
-        tree = ET.parse(source=codecs.open(path, "r", encoding="iso-8859-15"))
+        tree = etree.ElementTree.parse(source=codecs.open(path, "r", encoding="iso-8859-15"))
     except Exception:
         LOGGER.exception("Error trying to parse %r", path)
         return None
@@ -108,7 +108,7 @@ class PythonifyItem(object):
 
 def pythonify_item(item: PythonifyItem) -> bool:
     """Parse QS into Python. For multiprocessing.map."""
-    if parser_qsa.USE_THREADS:
+    if USE_THREADS:
         LOGGER.info("(%.2f%%) Parsing QS %r", 100 * item.number / item.len, item.src_path)
     try:
         pycode = postparse.pythonify2(item.src_path, known_refs=item.known)
@@ -147,7 +147,7 @@ def main() -> None:
     _touch(os.path.join(dst_path, "__init__.py"))
     mypy_ini = os.path.join(src_path, "mypy.ini")
     if not os.path.exists(mypy_ini):
-        with open(mypy_ini, "w") as file_:
+        with open(mypy_ini, "w", encoding="UTF-8") as file_:
             file_.write("[mypy]\n")
             file_.write("python_version = 3.7\n")
             file_.write("check_untyped_defs = True\n")
@@ -229,8 +229,8 @@ def main() -> None:
 
     pycode_list: List[bool] = []
 
-    if parser_qsa.USE_THREADS:
-        with Pool(CPU_COUNT) as cpu:
+    if USE_THREADS:
+        with multiprocessing.Pool(CPU_COUNT) as cpu:
             # TODO: Add proper signatures to Python files to avoid reparsing
             pycode_list = cpu.map(pythonify_item, itemlist, chunksize=2)
     else:

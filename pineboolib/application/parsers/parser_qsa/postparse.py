@@ -4,20 +4,12 @@ Simplify AST-XML structures for later generation of Python files.
 """
 from optparse import OptionParser
 import os
-import os.path
 import sys
 from xml.etree import ElementTree
 from xml.dom import minidom  # type: ignore
 from pineboolib import logging
-import importlib
-from importlib import machinery
-from . import pytnyzer
-from . import flscriptparse
+from . import pytnyzer, flscriptparse
 from typing import List, Type, Optional, Dict, Tuple, Any, Callable, cast, Iterable
-
-STRICT_MODE = pytnyzer.STRICT_MODE
-importlib.reload(pytnyzer)
-pytnyzer.STRICT_MODE = STRICT_MODE
 
 
 TreeData = Dict[str, Any]
@@ -716,6 +708,7 @@ class Module(object):
     def loadModule(self):
         """Import and return Python file."""
         try:
+            from importlib import machinery
 
             name = self.name[: self.name.find(".")]
             loader = machinery.SourceFileLoader(name, os.path.join(self.path, self.name))
@@ -837,15 +830,7 @@ def pythonify2(filename: str, known_refs: Dict[str, Tuple[str, str]] = {}) -> st
     """Convert File to Python. Faster version as does not write to disk. Avoids re-parsing XML."""
 
     filecontent = open(filename, "r", encoding="latin-1").read()
-    prog = flscriptparse.parse(filecontent)
-    if not prog:
-        raise Exception("Parse failed")
-    if prog["error_count"] > 0:
-        raise Exception("Found %d errors parsing %r" % (prog["error_count"], filename))
-
-    tree_data: TreeData = flscriptparse.calctree(prog, alias_mode=0)
-    ast = post_parse(tree_data)
-
+    ast = common_parse(filecontent)
     return pytnyzer.pythonize2(ast, known_refs)
 
 
@@ -856,21 +841,25 @@ def pythonify_string(
 ) -> str:
     """Convert QS string to Python. For unit-testing, only evaluates expressions."""
 
-    prog = flscriptparse.parse(qs_code)
+    ast = common_parse(qs_code)
+    ast.set("parser-template", parser_template)
+    return pytnyzer.pythonize2(ast, known_refs)
+
+
+def common_parse(data: str) -> "ElementTree":
+
+    prog = flscriptparse.parse(data)
     if not prog:
         raise Exception("Parse failed")
     if prog["error_count"] > 0:
         raise Exception("Found %d errors parsing string" % (prog["error_count"]))
 
     tree_data: TreeData = flscriptparse.calctree(prog, alias_mode=0)
-    ast = post_parse(tree_data)
-    ast.set("parser-template", parser_template)
-    return pytnyzer.pythonize2(ast, known_refs)
+    return post_parse(tree_data)
 
 
 def execute(options: Any, args: List[str]) -> None:
     """Execute conversion orders given by options and args. Can be used to emulate program calls."""
-    from . import pytnyzer
 
     pytnyzer.STRICT_MODE = options.strict
 
@@ -920,7 +909,6 @@ def execute(options: Any, args: List[str]) -> None:
                 LOGGER.error("Error cargando modulo %s" % name)
 
     elif options.topython:
-        from .pytnyzer import pythonize
         import io
 
         if options.cache:
@@ -951,7 +939,7 @@ def execute(options: Any, args: List[str]) -> None:
             stream = io.StringIO()
             sys.stdout = stream
             try:
-                pythonize(filename, destname, destname + ".debug")
+                pytnyzer.pythonize(filename, destname, destname + ".debug")
             except Exception:
                 LOGGER.exception("Error al pythonificar %r:" % filename)
             sys.stdout = old_stderr

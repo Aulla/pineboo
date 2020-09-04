@@ -1,7 +1,7 @@
 """
 Simple parser for FacturaLUX Scripting Language (QSA).
 """
-from optparse import OptionParser
+import optparse
 import pprint
 import sys
 import math
@@ -738,72 +738,74 @@ def printtree(
     L = 0
 
     for ctype, value in tree["content"]:
-        if nuevalinea and ctype in closingtokens:
-            nuevalinea = False
-
         if nuevalinea:
-            for i in range(int(math.ceil(L / 2.0))):
-                lines.append(sep * depth)
-            nuevalinea = False
+            if ctype in closingtokens:
+                nuevalinea = False
 
-        if type(value) is dict and ctype == otype:
-            tname, tlines, trange = printtree(value, depth, ctype)
-            if name == "" and tname:
-                name = tname
-
-            lines += tlines
-        elif type(value) is dict:
-            L = 0
-            if ctype in marginblocks:
-                L = marginblocks[ctype]
-
-            for i in range(int(math.floor(L / 2.0))):
-                lines.append(sep * depth)
-            tname, tlines, trange = printtree(value, depth + 1, ctype)
-            # lines.append(sep * depth + "<!-- %d -->" % (len("".join(tlines))))
-
-            if value["has_data"] > 0 and value["has_objects"] == 0 and False:
-                pass
-                # Do it inline!
-                # if value["has_data"] == 1 and tname:
-                #     lines.append(sep * depth + '<%s id="%s" />' % (ctype, tname))
-                # else:
-                #     txt = "".join([x.strip() for x in tlines])
-                #     lines.append(sep * depth + "<%s>%s</%s>" % (ctype, txt, ctype))
             else:
-                attrs = []
-                if tname:
-                    attrs.append(("id", tname))
+                for item in range(int(math.ceil(L / 2.0))):
+                    lines.append(sep * depth)
+                nuevalinea = False
 
-                txtinline = "".join([line.strip() for line in tlines])
+        if isinstance(value, dict):
+            if ctype == otype:
+                tname, tlines, trange = printtree(value, depth, ctype)
+                if name == "" and tname:
+                    name = tname
 
-                # if len(tlines)>1:
-                txthash = hashlib.sha1(txtinline.encode("utf8")).hexdigest()[:16]
-                # hashes.append(("depth:",depth,"hash:",txthash,"element:",ctype+":"+tname))
-                hashes.append((txthash, ctype + ":" + tname + "(%d)" % len(txtinline)))
-                ranges.append([depth, txthash] + trange + [ctype + ":" + tname, len(txtinline)])
-                # ,"start:",trange[0],"end:",trange[1]))
-                # attrs.append(("start",trange[0]))
-                # attrs.append(("end",trange[1]))
-                # attrs.append(("hash",txthash))
+                lines += tlines
+            else:
+                L = 0
+                if ctype in marginblocks:
+                    L = marginblocks[ctype]
 
-                txtattrs = ""
-                for name1, val1 in attrs:
-                    txtattrs += ' %s="%s"' % (name1, cnvrt(val1))
+                for i in range(int(math.floor(L / 2.0))):
+                    lines.append(sep * depth)
+                tname, tlines, trange = printtree(value, depth + 1, ctype)
+                # lines.append(sep * depth + "<!-- %d -->" % (len("".join(tlines))))
 
-                lines.append(sep * depth + "<%s%s>" % (ctype, txtattrs))
-                if depth > 50:
-                    lines.append(sep * (depth + 1) + "...")
+                if value["has_data"] > 0 and value["has_objects"] == 0 and False:
+                    pass
+                    # Do it inline!
+                    # if value["has_data"] == 1 and tname:
+                    #     lines.append(sep * depth + '<%s id="%s" />' % (ctype, tname))
+                    # else:
+                    #     txt = "".join([x.strip() for x in tlines])
+                    #     lines.append(sep * depth + "<%s>%s</%s>" % (ctype, txt, ctype))
                 else:
-                    if len(txtinline) < 80:
-                        lines.append(sep * (depth + 1) + txtinline)
-                    else:
-                        lines += tlines
-                if txtattrs:
-                    txtattrs = "<!--%s -->" % txtattrs
-                lines.append(sep * depth + "</%s>" % (ctype))
+                    attrs = []
+                    if tname:
+                        attrs.append(("id", tname))
 
-                nuevalinea = True
+                    txtinline = "".join([line.strip() for line in tlines])
+
+                    # if len(tlines)>1:
+                    txthash = hashlib.sha1(txtinline.encode("utf8")).hexdigest()[:16]
+                    # hashes.append(("depth:",depth,"hash:",txthash,"element:",ctype+":"+tname))
+                    hashes.append((txthash, ctype + ":" + tname + "(%d)" % len(txtinline)))
+                    ranges.append([depth, txthash] + trange + [ctype + ":" + tname, len(txtinline)])
+                    # ,"start:",trange[0],"end:",trange[1]))
+                    # attrs.append(("start",trange[0]))
+                    # attrs.append(("end",trange[1]))
+                    # attrs.append(("hash",txthash))
+
+                    txtattrs = ""
+                    for name1, val1 in attrs:
+                        txtattrs += ' %s="%s"' % (name1, cnvrt(val1))
+
+                    lines.append(sep * depth + "<%s%s>" % (ctype, txtattrs))
+                    if depth > 50:
+                        lines.append(sep * (depth + 1) + "...")
+                    else:
+                        if len(txtinline) < 80:
+                            lines.append(sep * (depth + 1) + txtinline)
+                        else:
+                            lines += tlines
+                    if txtattrs:
+                        txtattrs = "<!--%s -->" % txtattrs
+                    lines.append(sep * depth + "</%s>" % (ctype))
+
+                    nuevalinea = True
         else:
             if ctype == "ID" and name == "":
                 name = value
@@ -818,7 +820,7 @@ def printtree(
             output.write("\t".join([str(x) for x in row]))
             output.write("\n")
             output.flush()
-    if mode == "xml":
+    elif mode == "xml":
         for strrow in lines:
             output.write(strrow)
             output.write("\n")
@@ -861,7 +863,7 @@ def parse(data: str, clean: bool = True) -> Optional[Dict[str, Any]]:
 def main() -> None:
     """Manage direct script calls for flscriptparse. Deprecated."""
     global start
-    parser = OptionParser()
+    parser = optparse.OptionParser()
     parser.add_option(
         "-O",
         "--output",
