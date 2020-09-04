@@ -828,7 +828,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                                 #    LOGGER.warning("FECTHING MORE! %s", self._data_proxy._rows_loaded)
 
                             try:
-                                data = self._data_proxy._cached_data[current_pos]
+                                data = self._data_proxy[current_pos]
                             except IndexError:
                                 LOGGER.warning(
                                     "Error seek possition %s over %s (len %s). Total: %s"
