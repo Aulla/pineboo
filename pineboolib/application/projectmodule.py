@@ -589,6 +589,9 @@ class Project(object):
             utils_base.filedir(utils_base.get_base_dir(), "system_module")
         ):
             for nombre in files:
+                if utils_base.is_library() and nombre.endswith("ui"):
+                    continue
+
                 if root.find("modulos") == -1:
                     fileobj = file.File("sys", nombre, basedir=root, db_name=db_name)
                     self.files[nombre] = fileobj
@@ -655,6 +658,9 @@ class Project(object):
         for idmodulo, nombre, sha, contenido in list(result):
             if idmodulo not in self.modules:
                 continue  # I
+
+            if utils_base.is_library() and nombre.endswith("ui"):
+                continue
 
             fileobj = file.File(idmodulo, nombre, sha, db_name=db_name)
 
