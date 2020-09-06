@@ -1012,12 +1012,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.buffer().is_valid():
             return "\nEl registro ha sido borrado el la BD"
 
+        field_list = self.metadata().fieldList()
+
         if self.private_cursor.mode_access_ in [self.Insert, self.Edit]:
             if self.private_cursor.mode_access_ == self.Edit:
                 if not self.isModifiedBuffer():
                     return message
 
-            field_list = self.metadata().fieldList()
             checked_compound_key = False
 
             if not field_list:
@@ -1027,13 +1028,19 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 field_name = field.name()
                 relation_m1 = field.relationM1()
                 value = None
+                table_metadata = (
+                    self.db().connManager().manager().metadata(relation_m1.foreignTable())
+                    if relation_m1
+                    else None
+                )
 
                 if not self.isNull(field_name):
-                    value = self.buffer().value(field_name)
-
                     assoc_field_metadata = field.associatedField()
                     if assoc_field_metadata:
-                        if not relation_m1:
+                        if relation_m1:
+                            if not relation_m1.checkIn() or table_metadata is None:
+                                continue
+                        else:
                             message = (
                                 message
                                 + "\n"
@@ -1042,15 +1049,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             )
                             continue
 
-                        if not relation_m1.checkIn():
-                            continue
-
-                        table_metadata = (
-                            self.db().connManager().manager().metadata(relation_m1.foreignTable())
-                        )
-                        if table_metadata is None:
-                            continue
-
+                        value = self.buffer().value(field_name)
                         field_metadata_name = assoc_field_metadata.name()
                         assoc_value = self.private_cursor.buffer_.value(field_metadata_name)
                         if field.type() == "uint" and value == 0:
@@ -1061,7 +1060,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                         elif not self.isNull(field_metadata_name):
 
-                            filter = "%s AND %s" % (
+                            filter_ = "%s AND %s" % (
                                 self.db()
                                 .connManager()
                                 .manager()
@@ -1081,7 +1080,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             qry.setTablesList(table_metadata.name())
                             qry.setSelect(field.associatedFieldFilterTo())
                             qry.setFrom(table_metadata.name())
-                            qry.setWhere(filter)
+                            qry.setWhere(filter_)
                             qry.setForwardOnly(True)
                             qry.exec_()
                             if not qry.first():
@@ -1103,10 +1102,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                 value,
                             )
 
-                if self.private_cursor.mode_access_ == self.Edit and self.buffer().value(
-                    field_name
-                ) == self.bufferCopy().value(field_name):
-                    continue
+                if self.private_cursor.mode_access_ == self.Edit:
+                    if self.buffer().value(field_name) == self.bufferCopy().value(field_name):
+                        continue
 
                 if (
                     self.isNull(field_name)
@@ -1170,14 +1168,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             % (self.table(), field.alias(), value)
                         )
 
-                if relation_m1 and value and str(value) != "NULL":
+                if relation_m1 and value and str(value) != "NULL" and table_metadata is not None:
                     if relation_m1.checkIn() and not relation_m1.foreignTable() == self.table():
                         # r = field.relationM1()
-                        table_metadata = (
-                            self.db().connManager().manager().metadata(relation_m1.foreignTable())
-                        )
-                        if not table_metadata:
-                            continue
                         qry = pnsqlquery.PNSqlQuery(None, self.db())
                         qry.setTablesList(table_metadata.name())
                         qry.setSelect(relation_m1.foreignField())
@@ -1221,50 +1214,49 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     and not checked_compound_key
                     and self.private_cursor.mode_access_ == self.Insert
                 ):
-                    if field_list_compound_key:
-                        filter_compound_key: str = ""
-                        field_1: str = ""
-                        values_fields: str = ""
-                        for field_compound_key in field_list_compound_key:
-                            value_compound_key = self.private_cursor.buffer_.value(
-                                field_compound_key.name()
-                            )
-                            if filter_compound_key:
-                                filter_compound_key += " AND "
-
-                            filter_compound_key += "%s" % self.db().connManager().manager().formatAssignValue(
-                                field_compound_key, value_compound_key, True
-                            )
-
-                            if field_1:
-                                field_1 += "+"
-
-                            field_1 += "%s" % field_compound_key.alias()
-
-                            if values_fields:
-                                values_fields += "+"
-
-                            values_fields = "%s" % str(value_compound_key)
-
-                        qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
-                        qry.setTablesList(self.table())
-                        qry.setSelect(field_name)
-                        qry.setFrom(self.table())
+                    filter_compound_key: str = ""
+                    field_1: str = ""
+                    values_fields: str = ""
+                    for field_compound_key in field_list_compound_key:
+                        value_compound_key = self.private_cursor.buffer_.value(
+                            field_compound_key.name()
+                        )
                         if filter_compound_key:
-                            qry.setWhere(filter_compound_key)
-                        qry.setForwardOnly(True)
-                        qry.exec_()
+                            filter_compound_key += " AND "
 
-                        if qry.next():
-                            message += (
-                                "\n%s : Requiere valor único, y ya hay otro registro con el valor %s en la tabla %s"
-                                % (field_1, values_fields, self.table())
-                            )
-                        checked_compound_key = True
+                        filter_compound_key += "%s" % self.db().connManager().manager().formatAssignValue(
+                            field_compound_key, value_compound_key, True
+                        )
+
+                        if field_1:
+                            field_1 += "+"
+
+                        field_1 += "%s" % field_compound_key.alias()
+
+                        if values_fields:
+                            values_fields += "+"
+
+                        values_fields = "%s" % str(value_compound_key)
+
+                    qry = pnsqlquery.PNSqlQuery(None, self.db().connectionName())
+                    qry.setTablesList(self.table())
+                    qry.setSelect(field_name)
+                    qry.setFrom(self.table())
+                    if filter_compound_key:
+                        qry.setWhere(filter_compound_key)
+                    qry.setForwardOnly(True)
+                    qry.exec_()
+
+                    if qry.next():
+                        message += (
+                            "\n%s : Requiere valor único, y ya hay otro registro con el valor %s en la tabla %s"
+                            % (field_1, values_fields, self.table())
+                        )
+                    checked_compound_key = True
 
         elif self.private_cursor.mode_access_ == self.Del:
 
-            for field in self.metadata().fieldList():
+            for field in field_list:
                 if self.isNull(field.name()):
                     continue
 
