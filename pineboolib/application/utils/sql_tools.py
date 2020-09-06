@@ -147,7 +147,7 @@ class SqlInspector(object):
 
         @return fields list.
         """
-        return [v for k, v in sorted(self._field_list.items(), key=lambda item: item[1])]
+        return [k for k, v in sorted(self._field_list.items(), key=lambda item: item[1])]
 
     def field_list(self) -> Dict[str, int]:
         """
