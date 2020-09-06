@@ -500,25 +500,35 @@ class PNSqlSchema(object):
                     for rec_d in self.recordInfo2(table_name)
                 ]
             )
-
-            diff = list(set(list(dict_database.keys())) - set(list(dict_metadata.keys())))
-            if diff:
-                LOGGER.warning("Diff failed : %s", diff)
+            if len(dict_metadata.keys()) != len(dict_database.keys()):
                 ret = True
             else:
                 for name, meta in dict_metadata.items():
-                    if self.notEqualsFields(dict_database[name], meta):
-                        LOGGER.warning(
-                            "Mismatched field %s.%s:\nMetadata : %s.\nDataBase : %s\n",
-                            table_name,
-                            name,
-                            meta,
-                            dict_database[name],
-                        )
+                    if (
+                        name in dict_database.keys()
+                    ):  # si falla una key, los campos en el metadata y database no son los mismos.
+                        if self.notEqualsFields(dict_database[name], meta):
+                            LOGGER.warning(
+                                "Mismatched field %s.%s:\nMetadata : %s.\nDataBase : %s\n",
+                                table_name,
+                                name,
+                                meta,
+                                dict_database[name],
+                            )
+                            ret = True
+                            break
+                        else:
+                            del dict_database[
+                                name
+                            ]  # dict_database mas peuqeño cada vez, para comparar mas rápido
+                    else:
+                        LOGGER.warning("Field %s not found in database", name)
                         ret = True
                         break
-                    else:
-                        del dict_database[name]
+
+                # if not ret and dict_database:
+                #    LOGGER.warning("Fields %s not found in metadata", dict_database)
+                #    ret = True
 
         return ret
 
