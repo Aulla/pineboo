@@ -486,15 +486,21 @@ class PNSqlSchema(object):
 
         ret = False
 
-        dict_metadata = dict([[rec_m[0], rec_m] for rec_m in self.recordInfo(metadata)])
-        dict_database = dict([[rec_d[0], rec_d] for rec_d in self.recordInfo2(table_name)])
-
-        # for rec_m in self.recordInfo(metadata):
-        #    dict_metadata[rec_m[0]] = rec_m
-        # for rec_d in self.recordInfo2(table_name):
-        #    dict_database[rec_d[0]] = rec_d
-
         if table_name not in self.tables("Views"):
+            dict_metadata: Dict[str, List[Any]] = dict(
+                [
+                    [rec_m[0], rec_m]  # type: ignore [misc] # noqa: F821
+                    for rec_m in self.recordInfo(metadata)
+                ]
+            )
+
+            dict_database: Dict[str, List[Any]] = dict(
+                [
+                    [rec_d[0], rec_d]  # type: ignore [misc] # noqa: F821
+                    for rec_d in self.recordInfo2(table_name)
+                ]
+            )
+
             diff = list(set(list(dict_database.keys())) - set(list(dict_metadata.keys())))
             if diff:
                 LOGGER.warning("Diff failed : %s", diff)
