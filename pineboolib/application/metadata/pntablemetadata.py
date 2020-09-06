@@ -534,13 +534,10 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @return String with the names of the fields separated by commas.
         """
 
-        listado = []
-        for field_name in self.private._field_names:
-            listado.append(
-                "%s.%s" % (self.private._name, field_name) if prefix_table else field_name
-            )
-
-        return listado
+        return [
+            "%s.%s" % (self.private._name, field_name) if prefix_table else field_name
+            for field_name in self.private._field_names
+        ]
 
     # def fieldListObject(self):
     #    #print("FiledList count", len(self.private._field_list))
