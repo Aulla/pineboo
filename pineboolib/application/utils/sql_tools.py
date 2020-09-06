@@ -141,14 +141,13 @@ class SqlInspector(object):
 
         self._sql = sql
 
-    def field_names(self) -> List[str]:  # FIXME: This does NOT preserve order!
+    def field_names(self) -> List[str]:
         """
         Return a list with the name of the fields.
 
         @return fields list.
         """
-
-        return list(self._field_list.keys())
+        return [v for k, v in sorted(self._field_list.items(), key=lambda item: item[1])]
 
     def field_list(self) -> Dict[str, int]:
         """

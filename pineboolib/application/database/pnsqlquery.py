@@ -272,24 +272,9 @@ class PNSqlQuery(object):
 
         @return text string with the query SELECT.
         """
-        ret_: List[str]
-
-        if self.private_query._field_list:
-            ret_ = self.private_query._field_list
-        else:
-            field_names = self.sql_inspector.field_list()
-            size_dict: int = len(field_names.keys())
-            list_: List[str] = []
-            if size_dict > 0:
-                i = -1
-                while len(list_) != size_dict:
-                    i += 1
-                    for k in field_names.keys():
-                        if int(field_names[k]) == i:
-                            list_.append(k)
-                            break
-
-            ret_ = list_
+        ret_: List[
+            str
+        ] = self.private_query._field_list if self.private_query._field_list else self.sql_inspector.field_names()
 
         return ",".join(ret_)
 
