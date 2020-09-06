@@ -478,7 +478,7 @@ class PNSqlQuery(object):
                         parameter = dialog.getText(
                             QtWidgets.QApplication.activeWindow(),
                             "Entrada de parámetros de la consulta",
-                            parameter_dict,
+                            key,
                         )
                         if parameter:
                             parameter = parameter[0]
