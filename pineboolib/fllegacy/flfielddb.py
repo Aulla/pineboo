@@ -936,7 +936,7 @@ class FLFieldDB(QtWidgets.QWidget):
             else:
                 self._text_label_db.hide()
 
-    def insertAccel(self, key: str) -> int:
+    def insertAccel(self, key: str) -> str:
         """
         Insert a key combination as a keyboard accelerator, returning its identifier.
 
@@ -944,12 +944,12 @@ class FLFieldDB(QtWidgets.QWidget):
         @return The identifier internally associated with the key combination acceleration inserted
         """
 
-        if key not in self._accel.keys():
+        if str(key) not in self._accel.keys():
             accel = QtWidgets.QShortcut(QtGui.QKeySequence(key), self)
             # accel.activated.connect(self.ActivatedAccel)
             self._accel[str(accel.id())] = accel
 
-        return accel.id()
+        return str(accel.id())
 
     def removeAccel(self, key: str) -> bool:
         """
@@ -958,8 +958,8 @@ class FLFieldDB(QtWidgets.QWidget):
         @param identifier Accelerator key combination identifier
         """
 
-        if key in self._accel.keys():
-            del self._accel[key]
+        if str(key) in self._accel.keys():
+            del self._accel[str(key)]
 
         return True
 
