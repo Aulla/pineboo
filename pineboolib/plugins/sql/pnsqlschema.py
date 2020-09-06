@@ -501,24 +501,18 @@ class PNSqlSchema(object):
                 ret = True
             else:
                 for name, meta in dict_metadata.items():
-                    if name in dict_database.keys():
-                        if self.notEqualsFields(dict_database[name], meta):
-                            LOGGER.warning(
-                                "Mismatched field %s.%s:\nMetadata : %s.\nDataBase : %s\n",
-                                table_name,
-                                name,
-                                meta,
-                                dict_database[name],
-                            )
-                            ret = True
-                            break
-                        else:
-                            del dict_database[name]
-
-                    else:
-                        LOGGER.warning("Name : %s not found.", name)
+                    if self.notEqualsFields(dict_database[name], meta):
+                        LOGGER.warning(
+                            "Mismatched field %s.%s:\nMetadata : %s.\nDataBase : %s\n",
+                            table_name,
+                            name,
+                            meta,
+                            dict_database[name],
+                        )
                         ret = True
                         break
+                    else:
+                        del dict_database[name]
 
         return ret
 

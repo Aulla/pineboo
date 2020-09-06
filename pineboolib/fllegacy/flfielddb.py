@@ -530,15 +530,15 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.keyReturnPressed.emit()
                 return True
 
-            if key_.key() == QtCore.Qt.Key_Up:
+            elif key_.key() == QtCore.Qt.Key_Up:
                 self.focusNextPrevChild(False)
                 return True
 
-            if key_.key() == QtCore.Qt.Key_Down:
+            elif key_.key() == QtCore.Qt.Key_Down:
                 self.focusNextPrevChild(True)
                 return True
 
-            if key_.key() == QtCore.Qt.Key_F2:
+            elif key_.key() == QtCore.Qt.Key_F2:
                 self.keyF2Pressed.emit()
                 return True
 
@@ -929,13 +929,12 @@ class FLFieldDB(QtWidgets.QWidget):
         Set the state of the showAlias ​​property.
         """
 
-        if not self._show_alias == value:
-            self._show_alias = value
-            if self._text_label_db:
-                if self._show_alias:
-                    self._text_label_db.show()
-                else:
-                    self._text_label_db.hide()
+        self._show_alias = value
+        if self._text_label_db:
+            if self._show_alias:
+                self._text_label_db.show()
+            else:
+                self._text_label_db.hide()
 
     def insertAccel(self, key: str) -> bool:
         """
@@ -948,9 +947,9 @@ class FLFieldDB(QtWidgets.QWidget):
         if key not in self._accel.keys():
             accel = QtWidgets.QShortcut(QtGui.QKeySequence(key), self)
             # accel.activated.connect(self.ActivatedAccel)
-            self._accel[key] = accel
+            self._accel[accel.id()] = accel
 
-        return True
+        return str(accel.id())
 
     def removeAccel(self, key: str) -> bool:
         """

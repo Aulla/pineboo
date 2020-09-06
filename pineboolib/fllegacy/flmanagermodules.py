@@ -535,10 +535,9 @@ class FLManagerModules(object):
         @param id_module Module identifier
         """
 
-        if id_module in application.PROJECT.modules.keys():
-            self.active_id_module_ = id_module
-        else:
-            self.active_id_module_ = ""
+        self.active_id_module_ = (
+            id_module if id_module in application.PROJECT.modules.keys() else ""
+        )
 
     def activeIdArea(self) -> str:
         """
@@ -547,10 +546,11 @@ class FLManagerModules(object):
         @return Area identifier
         """
 
-        if self.active_id_module_ in application.PROJECT.modules:
-            return application.PROJECT.modules[self.active_id_module_].areaid
-
-        return ""
+        return (
+            application.PROJECT.modules[self.active_id_module_].areaid
+            if self.active_id_module_ in application.PROJECT.modules
+            else ""
+        )
 
     def activeIdModule(self) -> str:
         """
@@ -591,12 +591,7 @@ class FLManagerModules(object):
         @return List of module identifiers
         """
 
-        ret_ = []
-
-        for key in application.PROJECT.modules.keys():
-            ret_.append(key)
-
-        return ret_
+        return [key for key in application.PROJECT.modules.keys()]
 
     def idAreaToDescription(self, id_area: str = "") -> str:
         """
@@ -605,10 +600,12 @@ class FLManagerModules(object):
         @param id_area Area identifier.
         @return Area description text, if found or idA if not found.
         """
-        if id_area in application.PROJECT.areas.keys():
-            return application.PROJECT.areas[id_area].descripcion
 
-        return ""
+        return (
+            application.PROJECT.areas[id_area].descripcion
+            if id_area in application.PROJECT.areas.keys()
+            else ""
+        )
 
     def idModuleToDescription(self, id_module: str = "") -> str:
         """
@@ -617,10 +614,12 @@ class FLManagerModules(object):
         @param id_module Module identifier.
         @return Module description text, if found or idM if not found.
         """
-        if id_module in application.PROJECT.modules.keys():
-            return application.PROJECT.modules[id_module].description
 
-        return ""
+        return (
+            application.PROJECT.modules[id_module].description
+            if id_module in application.PROJECT.modules.keys()
+            else ""
+        )
 
     def iconModule(self, id_module: str) -> "QtGui.QPixmap":
         """
@@ -630,14 +629,11 @@ class FLManagerModules(object):
         @return QPixmap with the icon
         """
 
-        pix = QtGui.QPixmap()
-        # mod_obj = self.dict_info_mods_.get(id_module.upper(), None)
-        # mod_icono = getattr(mod_obj, "icono", None)
-        # if mod_icono is not None:
-        if id_module in application.PROJECT.modules.keys():
-            pix = QtGui.QPixmap(xpm.cache_xpm(application.PROJECT.modules[id_module].icon))
-
-        return pix
+        return (
+            QtGui.QPixmap(xpm.cache_xpm(application.PROJECT.modules[id_module].icon))
+            if id_module in application.PROJECT.modules.keys()
+            else QtGui.QPixmap()
+        )
 
     def versionModule(self, id_module: str) -> str:
         """
@@ -647,10 +643,11 @@ class FLManagerModules(object):
         @return Chain with version
         """
 
-        if id_module in application.PROJECT.modules.keys():
-            return application.PROJECT.modules[id_module].version
-        else:
-            return id_module
+        return (
+            application.PROJECT.modules[id_module].version
+            if id_module in application.PROJECT.modules.keys()
+            else id_module
+        )
 
     def shaLocal(self) -> Optional[str]:
         """
@@ -771,10 +768,8 @@ class FLManagerModules(object):
             elif "%s_model.py" % name[:-4] in application.PROJECT.files.keys():
                 return application.PROJECT.files["%s_model.py" % name[:-4]].module
 
-        if name in application.PROJECT.files.keys():
-
+        elif name in application.PROJECT.files.keys():
             return application.PROJECT.files[name].module
-
         else:
             LOGGER.warning(
                 "No encuentro %s ** %s", name, application.PROJECT.files.keys(), stack_info=True
