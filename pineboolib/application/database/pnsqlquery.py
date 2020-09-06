@@ -343,15 +343,10 @@ class PNSqlQuery(object):
                         prev = "%s," % field_
 
         elif isinstance(select, list):
-            list_fields = list(select)
+            list_fields = select
         else:
-            for key, value in select:
-                list_fields.append(value)
+            list_fields = [value for key, value in select]
 
-            # s = s.split(sep)
-
-        # self.private_query.select_ = s.strip_whitespace()
-        # self.private_query.select_ = self.private_query.select_.simplifyWhiteSpace()
         self.private_query._field_list.clear()
 
         if not list_fields and isinstance(select, str) and not "*" == select:
@@ -455,17 +450,9 @@ class PNSqlQuery(object):
 
         if self.private_query._group_dict and not self.private_query._order_by:
             res = res + " ORDER BY "
-            init_gd = False
-            i = 0
-            while i < len(self.private_query._group_dict):
-                group_dict: str = self.private_query._group_dict[i]
-                if not init_gd:
-                    res = res + group_dict
-                    init_gd = True
-                else:
-                    res = res + ", " + group_dict
-
-                i = i + 1
+            res += ", ".join(
+                [group_dict for key, group_dict in self.private_query._group_dict.items()]
+            )
 
         elif self.private_query._order_by:
             res += " ORDER BY %s" % self.private_query._order_by
@@ -483,23 +470,21 @@ class PNSqlQuery(object):
                 LOGGER.warning("It is highly recommended to use order by next to offset")
 
         if self.private_query._parameter_dict:
-            for parameter_dict in self.private_query._parameter_dict.keys():
-                value = self.private_query._parameter_dict[parameter_dict]
-
-                if value is None:
+            for key, parameter in self.private_query._parameter_dict.items():
+                if parameter is None:
                     dialog = QtWidgets.QInputDialog()
 
                     if dialog is not None:
-                        value = dialog.getText(
+                        parameter = dialog.getText(
                             QtWidgets.QApplication.activeWindow(),
                             "Entrada de parámetros de la consulta",
                             parameter_dict,
                         )
-                        if value:
-                            value = value[0]
+                        if parameter:
+                            parameter = parameter[0]
 
                 res = res.replace(
-                    "[%s]" % parameter_dict, "'%s'" % value
+                    "[%s]" % key, "'%s'" % parameter
                 )  # FIXME: ajustar al tipo de dato pnparameterquery.setValue!!
 
         return res
@@ -634,7 +619,7 @@ class PNSqlQuery(object):
 
         if isinstance(field_name, str):
             pos: int = self.sql_inspector.fieldNameToPos(field_name.lower())
-        if isinstance(field_name, int):
+        elif isinstance(field_name, int):
             pos = field_name
 
         if self._row:
@@ -874,7 +859,7 @@ class PNSqlQuery(object):
         """Set forward only option value."""
         self.private_query._forward_only = forward
 
-    def seek(self, postition: int, relative=False) -> bool:
+    def seek(self, position: int, relative=False) -> bool:
         """
         Position the cursor on a given result.
 
@@ -883,13 +868,12 @@ class PNSqlQuery(object):
         @return True or False.
         """
 
-        pos = postition
         if relative:
-            pos = postition + self._posicion
+            position += self._posicion
 
         if self._datos:
-            if pos >= 0 and pos <= len(self._datos) - 1:
-                self._posicion = pos
+            if position >= 0 and position < len(self._datos):
+                self._posicion = position
                 self._row = self._datos[self._posicion]
                 return True
 
