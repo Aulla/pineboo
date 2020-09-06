@@ -626,9 +626,7 @@ class PNSqlSchema(object):
         table_name = new_metadata.name()
 
         old_columns_info = self.recordInfo2(table_name)
-        old_field_names: List[str] = []
-        for old_column in old_columns_info:
-            old_field_names.append(old_column[0])
+        old_field_names: List[str] = [old_column[0] for old_column in old_columns_info]
 
         renamed_table = "%salteredtable%s" % (
             table_name,
