@@ -532,8 +532,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         qry_file = self.metadata().query()
         qry_tables = []
         qry = None
-        # if qry is None:
-        #    return
+
         if is_query:
             qry = self.db().connManager().manager().query(qry_file)
             if qry is None:
@@ -687,16 +686,13 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if self.metadata().isQuery():
 
             meta_qry = pnsqlquery.PNSqlQuery(self.metadata().query())
-            order_by = ""
             if where_filter.strip().lower().startswith("order"):
                 order_by = where_filter.lower().replace("order by", "")
-
+                if order_by:
+                    meta_qry.setOrderBy(order_by)
                 where_filter = "1 = 1"
 
             meta_qry.setWhere(where_filter.replace("WHERE ", ""))
-            if order_by:
-                meta_qry.setOrderBy(order_by)
-
             sql_query = meta_qry.sql()
         else:
             sql_query = "SELECT %s FROM %s %s" % (
