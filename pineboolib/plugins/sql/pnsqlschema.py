@@ -576,15 +576,15 @@ class PNSqlSchema(object):
                 elif meta_type not in ("string", "time", "date"):
                     ret = True
 
-            elif db_type == "uint" and not meta_type in ("int", "uint", "serial"):
+            elif db_type == "uint" and meta_type not in ("int", "uint", "serial"):
                 ret = True
-            elif db_type == "bool" and not meta_type in ("bool", "unlock"):
+            elif db_type == "bool" and meta_type not in ("bool", "unlock"):
                 ret = True
-            elif db_type == "double" and not meta_type == "double":
+            elif db_type == "double" and meta_type != "double":
                 ret = True
-            elif db_type == "stringlist" and not meta_type in ("stringlist", "pixmap", "string"):
+            elif db_type == "stringlist" and meta_type not in ("stringlist", "pixmap", "string"):
                 ret = True
-            elif db_type == "timestamp" and not meta_type == "timestamp":
+            elif db_type == "timestamp" and meta_type != "timestamp":
                 ret = True
 
         except Exception:
