@@ -362,7 +362,18 @@ class PNSqlSchema(object):
 
         result_: Any = value
 
-        if type_ == "pixmap":
+        if type_ in ("uint", "int", "double", "serial"):
+            result_ = value or 0
+
+        elif type_ in ("string", "stringlist", "timestamp"):
+            if type_ == "string":
+                value = utils_base.auto_qt_translate_text(value)
+                if upper:
+                    value = value.upper()
+
+            result_ = "'%s'" % value or self._null
+
+        elif type_ == "pixmap":
             result_ = "'%s'" % self.normalizeValue(value) if value.find("'") > -1 else value
 
         elif type_ in ("bool", "unlock"):
@@ -373,17 +384,6 @@ class PNSqlSchema(object):
 
         elif type_ == "time":
             result_ = "'" + value + "'" if value else ""
-
-        elif type_ in ("uint", "int", "double", "serial"):
-            result_ = value or 0
-
-        elif type_ in ("string", "stringlist", "timestamp"):
-            if type_ == "string":
-                value = utils_base.auto_qt_translate_text(value)
-                if upper:
-                    value = value.upper()
-
-            result_ = "'%s'" % value or self._null
 
         return str(result_)
 
@@ -486,40 +486,35 @@ class PNSqlSchema(object):
 
         ret = False
 
-        dict_metadata = {}
-        dict_database = {}
+        dict_metadata = dict([[rec_m[0], rec_m] for rec_m in self.recordInfo(metadata)])
+        dict_database = dict([[rec_d[0], rec_d] for rec_d in self.recordInfo2(table_name)])
 
-        for rec_m in self.recordInfo(metadata):
-            dict_metadata[rec_m[0]] = rec_m
-        for rec_d in self.recordInfo2(table_name):
-            dict_database[rec_d[0]] = rec_d
+        # for rec_m in self.recordInfo(metadata):
+        #    dict_metadata[rec_m[0]] = rec_m
+        # for rec_d in self.recordInfo2(table_name):
+        #    dict_database[rec_d[0]] = rec_d
 
         if table_name not in self.tables("Views"):
             diff = list(set(list(dict_database.keys())) - set(list(dict_metadata.keys())))
-
-            if len(diff) > 0:
+            if diff:
                 LOGGER.warning("Diff failed : %s", diff)
                 ret = True
-
-            elif not dict_database and dict_metadata:
-                LOGGER.warning(
-                    "Dict empty:  database -> %s, metadata -> %s", dict_database, dict_metadata
-                )
-                ret = True
             else:
-
-                for name in dict_metadata.keys():
+                for name, meta in dict_metadata.items():
                     if name in dict_database.keys():
-                        if self.notEqualsFields(dict_database[name], dict_metadata[name]):
+                        if self.notEqualsFields(dict_database[name], meta):
                             LOGGER.warning(
                                 "Mismatched field %s.%s:\nMetadata : %s.\nDataBase : %s\n",
                                 table_name,
                                 name,
-                                dict_metadata[name],
+                                meta,
                                 dict_database[name],
                             )
                             ret = True
                             break
+                        else:
+                            del dict_database[name]
+
                     else:
                         LOGGER.warning("Name : %s not found.", name)
                         ret = True
@@ -535,21 +530,18 @@ class PNSqlSchema(object):
     def recordInfo(self, table_metadata: "pntablemetadata.PNTableMetaData") -> List[list]:
         """Obtain current cursor information on columns."""
 
-        info = []
-
-        for field in table_metadata.fieldList():
-            info.append(
-                [
-                    field.name(),
-                    field.type(),
-                    not field.allowNull(),
-                    field.length(),
-                    field.partDecimal(),
-                    field.defaultValue(),
-                    field.isPrimaryKey(),
-                ]
-            )
-        return info
+        return [
+            [
+                field.name(),
+                field.type(),
+                not field.allowNull(),
+                field.length(),
+                field.partDecimal(),
+                field.defaultValue(),
+                field.isPrimaryKey(),
+            ]
+            for field in table_metadata.fieldList()
+        ]
 
     @decorators.not_implemented_warn
     def decodeSqlType(self, type_: str) -> str:
@@ -564,29 +556,25 @@ class PNSqlSchema(object):
             # if field1[2] != field2[2]:
             #    ret = True
 
-            if field_db[1] == "string":
-                if field_meta[1] not in ("string", "time", "date"):
-                    ret = True
-                elif (
-                    field_meta[1] == "string"
-                    and field_db[3] != field_meta[3]
-                    and field_db[3] not in [0, 255]
-                ):
+            db_type = field_db[1]
+            meta_type = field_meta[1]
+
+            if db_type == "string":
+                if field_meta[1] == "string":
+                    if field_db[3] not in [field_meta[3], 0, 255]:
+                        ret = True
+                elif meta_type not in ("string", "time", "date"):
                     ret = True
 
-            elif field_db[1] == "uint" and not field_meta[1] in ("int", "uint", "serial"):
+            elif db_type == "uint" and not meta_type in ("int", "uint", "serial"):
                 ret = True
-            elif field_db[1] == "bool" and not field_meta[1] in ("bool", "unlock"):
+            elif db_type == "bool" and not meta_type in ("bool", "unlock"):
                 ret = True
-            elif field_db[1] == "double" and not field_meta[1] == "double":
+            elif db_type == "double" and not meta_type == "double":
                 ret = True
-            elif field_db[1] == "stringlist" and not field_meta[1] in (
-                "stringlist",
-                "pixmap",
-                "string",
-            ):
+            elif db_type == "stringlist" and not meta_type in ("stringlist", "pixmap", "string"):
                 ret = True
-            elif field_db[1] == "timestamp" and not field_meta[1] == "timestamp":
+            elif db_type == "timestamp" and not meta_type == "timestamp":
                 ret = True
 
         except Exception:
