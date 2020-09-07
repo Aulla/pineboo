@@ -2,18 +2,15 @@
 Collect information from the query, such as field tables, lines, etc ...
 """
 
-from pineboolib.core.utils import logging
-from pineboolib import application
+
+from pineboolib import application, logging
+from pineboolib.application import types
 
 import datetime
 from typing import Dict, Any, List, TYPE_CHECKING
 
-# from sqlalchemy import func, desc, asc, # type: ignore [import] # noqa: F821, F401
-import sqlalchemy  # type: ignore [import] # noqa: F821, F401
-
 if TYPE_CHECKING:
     from pineboolib.interfaces import ifieldmetadata  # noqa: F401
-    from sqlalchemy.orm import query  # noqa: F401
 
 LOGGER = logging.get_logger(__name__)
 
@@ -439,16 +436,19 @@ class SqlInspector(object):
             if isinstance(value, datetime.time):
                 value = str(value)[0:8]
             return value
-
-        type_ = "double"
-        if pos not in self._mtd_fields.keys():
-            if pos not in self._field_list.values():
-                LOGGER.warning("SQL_TOOLS : resolve_value : No se encuentra la posición %s", pos)
-                return None
         else:
-            mtd = self._mtd_fields[pos]
-            if mtd is not None:
-                type_ = mtd.type()
+            type_ = "double"
+            field_metadata = None
+            if pos not in self._mtd_fields.keys():
+                if pos not in self._field_list.values():
+                    LOGGER.warning(
+                        "SQL_TOOLS : resolve_value : No se encuentra la posición %s", pos
+                    )
+                    return None
+            else:
+                field_metadata = self._mtd_fields[pos]
+                if field_metadata is not None:
+                    type_ = field_metadata.type()
 
         ret_: Any = value
         if type_ in ("string", "stringlist", "timestamp"):
@@ -466,13 +466,14 @@ class SqlInspector(object):
             if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
-            metadata = mtd.metadata()
-            if metadata is None:
+            table_metadata = field_metadata.metadata()
+            if table_metadata is None:
                 raise Exception("Metadata not found")
-            if raw or not application.PROJECT.conn_manager.manager().isSystemTable(metadata.name()):
+            if raw or not application.PROJECT.conn_manager.manager().isSystemTable(
+                table_metadata.name()
+            ):
                 ret_ = application.PROJECT.conn_manager.manager().fetchLargeValue(ret_)
         elif type_ == "date":
-            from pineboolib.application import types
 
             ret_ = types.Date(str(ret_))
         elif type_ == "time":
@@ -495,8 +496,6 @@ class SqlInspector(object):
                 ret_ = ret_[0 : ret_.find("+")]
 
         elif type_ in ("unlock", "bool"):
-            from pineboolib.application import types
-
             ret_ = types.boolean(ret_)
         elif type_ == "bytearray":
             ret_ = bytearray(ret_)
@@ -547,5 +546,3 @@ class SqlInspector(object):
                     if table_name not in self._invalid_tables:
                         self._invalid_tables.append(table_name)
                     # tables_list.remove(table_name)
-
-    # https://ruddra.com/posts/dynamically-constructing-filters-based-on-string-input-using-sqlalchemy/

@@ -368,7 +368,7 @@ class Project(object):
 
         array_fun = function.split(".")
 
-        if not object_context:
+        if object_context is None:
             if not array_fun[0] in self.actions:
                 if len(array_fun) > 1:
                     msg = "%s en el módulo %s" % (array_fun[1], array_fun[0])
@@ -377,11 +377,11 @@ class Project(object):
                 if show_exceptions:
                     LOGGER.warning("No existe la acción %s", msg)
                 return None
+            else:
 
-            fun_action = self.actions[array_fun[0]]
-            main_window = fun_action.load_master_widget()
-            object_context = None
-            if array_fun[1] == "iface" or len(array_fun) == 2:
+                fun_action = self.actions[array_fun[0]]
+                main_window = fun_action.load_master_widget()
+
                 if len(array_fun) == 2:
 
                     if hasattr(main_window.iface, array_fun[1]):
@@ -389,21 +389,19 @@ class Project(object):
                     elif hasattr(main_window, array_fun[1]):
                         object_context = main_window
 
-                    if not object_context:
+                    if object_context is None:
                         object_context = main_window
 
-                else:
+                elif array_fun[1] == "iface":
                     object_context = main_window.iface
 
-            elif array_fun[1] == "widget":
-                # script = load_script.load_script(array_fun[0], fun_action)
-                # object_context = getattr(script, "iface", None)
-                if hasattr(main_window.iface, array_fun[2]):
-                    object_context = main_window.iface
-                elif hasattr(main_window, array_fun[2]):
-                    object_context = main_window
-            else:
-                return False
+                elif array_fun[1] == "widget":
+                    if hasattr(main_window.iface, array_fun[2]):
+                        object_context = main_window.iface
+                    elif hasattr(main_window, array_fun[2]):
+                        object_context = main_window
+                else:
+                    return False
 
             if not object_context:
                 if show_exceptions:
@@ -415,25 +413,25 @@ class Project(object):
                 return None
 
         function_name_object = None
-        if len(array_fun) == 1:  # Si no hay puntos en la llamada a functión
-            function_name = array_fun[0]
+        function_name = None
 
+        if len(array_fun) == 0:
+            function_name_object = object_context
+        elif len(array_fun) == 1:  # Si no hay puntos en la llamada a functión
+            function_name = array_fun[0]
+        elif len(array_fun) == 2:  # si no exite self.iface
+            function_name = array_fun[1]
         elif len(array_fun) > 2:  # si existe self.iface por ejemplo
             function_name = array_fun[2]
-        elif len(array_fun) == 2:
-            function_name = array_fun[1]  # si no exite self.iiface
-        else:
-            if len(array_fun) == 0:
-                function_name_object = object_context
-
-        if not function_name_object:
-            function_name_object = getattr(object_context, function_name, None)
 
         if function_name_object is None:
-            if show_exceptions:
-                LOGGER.error("No existe la función %s en %s", function_name, array_fun[0])
-            return default_value
-            # FIXME: debería ser false, pero igual se usa por el motor para detectar propiedades
+            function_name_object = getattr(object_context, function_name, None)
+
+            if function_name_object is None:
+                if show_exceptions:
+                    LOGGER.error("No existe la función %s en %s", function_name, array_fun[0])
+                return default_value
+                # FIXME: debería ser false, pero igual se usa por el motor para detectar propiedades
 
         try:
             return function_name_object(*args)
@@ -548,15 +546,13 @@ class Project(object):
 
     def load_version(self) -> str:
         """Initialize current version numbers."""
-
         from pineboolib import application
 
-        if settings.CONFIG.value("application/dbadmin_enabled", False):
-            ret = "DBAdmin v%s" % application.PINEBOO_VER
-        else:
-            ret = "Quick v%s" % application.PINEBOO_VER
-
-        return ret
+        return (
+            "DBAdmin v%s" % application.PINEBOO_VER
+            if settings.CONFIG.value("application/dbadmin_enabled", False)
+            else "Quick v%s" % application.PINEBOO_VER
+        )
 
     def message_manager(self):
         """Return message manager for splash and progress."""
@@ -656,19 +652,19 @@ class Project(object):
         list_files: List[str] = []
         LOGGER.info("RUN: Populating cache.")
         for idmodulo, nombre, sha, contenido in list(result):
-            if idmodulo not in self.modules:
-                continue  # I
-
-            if utils_base.is_library() and nombre.endswith("ui"):
+            if idmodulo not in self.modules:  # Si el módulo no existe.
                 continue
 
-            fileobj = file.File(idmodulo, nombre, sha, db_name=db_name)
+            elif utils_base.is_library() and nombre.endswith("ui"):  # Si es un UI en modo librería.
+                continue
 
-            if nombre in self.files:
+            elif nombre in self.files:  # Si se sobreescribe un fichero ya existente.
                 if self.files[nombre].module == "sys":
                     continue
+                else:
+                    LOGGER.warning("run: file %s already loaded, overwritting..." % nombre)
 
-                LOGGER.warning("run: file %s already loaded, overwritting..." % nombre)
+            fileobj = file.File(idmodulo, nombre, sha, db_name=db_name)
             self.files[nombre] = fileobj
 
             self.modules[idmodulo].add_project_file(fileobj)

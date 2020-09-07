@@ -7,60 +7,51 @@ Can be overloaded with a custom class to enhance/change available
 functions. See pineboolib/pnobjectsfactory.py
 """
 
-from pineboolib import logging
-from typing import List, Union
-
-from pineboolib import application
-from pineboolib.application.metadata import pnfieldmetadata, pntablemetadata
-
+from pineboolib import application, logging
 import os
+
+from typing import List, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.application.metadata import pnfieldmetadata, pntablemetadata
+
 
 LOGGER = logging.get_logger(__name__)
 
 RESERVER_WORDS = ["pass"]
 
 
-def mtd_parse(table_name: Union[str, pntablemetadata.PNTableMetaData], path_mtd: str = "") -> str:
+def mtd_parse(table_name: Union[str, "pntablemetadata.PNTableMetaData"], path_mtd: str = "") -> str:
     """
     Parse MTD into SqlAlchemy model.
     """
-    # if not action._table:
-    #    return ""
-
-    # table_name = action._table
-
-    # if table_name.endswith(".mtd"):
-    #    table_name = table_name[:-4]
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    # if mtd_.isQuery():
-    #    return None
     if isinstance(table_name, str):
-
         dest_file = "%s_model.py" % path_mtd
-
         if not os.path.exists(dest_file):
-            # print("GENERANDO", dest_file)
             mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
             if mtd_ is None:
                 return ""
         else:
             return dest_file
+
     else:
         dest_file = "%s/cache/%s_model.py" % (application.PROJECT.tmpdir, table_name.name())
         mtd_ = table_name
 
-    lines = generate_model(mtd_)
+        return "" if mtd_ is None else dest_file
 
-    if lines:
+    lines = generate_model(mtd_)
+    if not lines:
+        dest_file = ""
+    else:
         file_ = open(dest_file, "w", encoding="UTF-8")
         for line in lines:
             file_.write("%s\n" % line)
         file_.close()
-    else:
-        dest_file = ""
 
     return dest_file
 
@@ -85,13 +76,13 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     if mtd_table.FTSFunction():
         metadata_table.append("'ftsfunction' :'%s'" % mtd_table.FTSFunction())
 
-    field_list: List[List[str]] = []
-    pk_found = False
-
     try:
         mtd_table.primaryKey()
     except Exception as error:  # noqa: F841
         pass
+
+    field_list: List[List[str]] = []
+    pk_found = False
 
     for field in mtd_table.fieldList():  # Crea los campos
 
@@ -134,34 +125,12 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append('"""%s%s_model module."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
     data.append("")
 
-    # data.append("from sqlalchemy.ext.declarative import declarative_base")
-    # data.append(
-    #    "from sqlalchemy import Column, Integer, Numeric, String, BigInteger, Boolean, DateTime, ForeignKey, LargeBinary"
-    # )
-    # data.append("from sqlalchemy import String as Calculated")
-    # data.append("from sqlalchemy.orm import relationship, validates")
-    # data.append(
-    #    "from pineboolib.application.parsers.mtdparser.pnormmodelsfactory import Calculated"
-    # )
-    # data.append("from pineboolib import application")
-    # data.append("from pineboolib.qsa import qsa")
-    # data.append("")
-    # data.append("Base = declarative_base()")
     data.append("from pineboolib.application.database.orm import basemodel")
     data.append("from pineboolib.qsa import qsa")
     data.append("")
-    # data.append("from sqlalchemy.ext import declarative")
     data.append("import sqlalchemy")
     data.append("")
-    # data.append("BASE = declarative.declarative_base()")
-    # data.append("ENGINE = application.PROJECT.conn_manager.mainConn().engine()")
     data.append("")
-    # for field in mtd_table.fieldList():
-    #    if field.relationM1():
-    #        rel = field.relationM1()
-    #        data.append("load_model('%s')" % rel.foreignTable())
-
-    # data.append("")
 
     class_name = "%s%s" % (mtd_table.name()[0].upper(), mtd_table.name()[1:])
 
@@ -174,7 +143,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("    legacy_metadata = {%s}" % ", ".join(metadata_table))
     data.append("")
     data.append("    # <--- Metadata --- ")
-    # data.append("    __actionname__ = '%s'" % action_name)
+
     data.append("")
 
     data.append("")
@@ -192,19 +161,6 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("class %s(Oficial): # type: ignore [misc] # noqa: F821" % class_name)
     data.append('    """ %s class."""' % class_name)
     data.append("    pass")
-
-    # ===========================================================================
-    # data.append("")
-    # data.append("    def before_flush(self, session) -> bool:")
-    # data.append('        """Before flush."""')
-    # data.append("")
-    # data.append("        return True")
-    # data.append("")
-    # data.append("    def after_flush(self, session) -> bool:")
-    # data.append('        """After flush."""')
-    # data.append("")
-    # data.append("        return True")
-    # ===========================================================================
 
     if not pk_found and not mtd_table.isQuery():
         LOGGER.warning(

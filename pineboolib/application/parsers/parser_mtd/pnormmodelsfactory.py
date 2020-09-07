@@ -36,7 +36,7 @@ Ejemplo de uso:
         instance.saluda()
 
 """
-from pineboolib.application.utils.path import _path
+from pineboolib.application.utils import path
 from pineboolib.application import load_script, qsadictmodules
 from pineboolib import logging, application
 from . import pnmtdparser
@@ -112,12 +112,6 @@ def load_models() -> None:
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    # main_conn = application.PROJECT.conn_manager.mainConn()
-    # db_name = main_conn.DBName()
-    # print("Cargando modelos")
-    # QSADictModules.save_other("Base", main_conn.declarative_base())
-    # QSADictModules.save_other("session", main_conn.session())
-    # QSADictModules.save_other("engine", main_conn.engine())
     models_: Dict[str, Any] = {}
     for action_name, action in application.PROJECT.actions.items():
         class_orm = action._class_orm
@@ -126,7 +120,7 @@ def load_models() -> None:
             if class_orm in PROCESSED:
                 continue
 
-            path_class_orm = _path(class_orm, False)
+            path_class_orm = path._path(class_orm, False)
             if not path_class_orm:
                 LOGGER.warning(
                     "Se ha especificado un model (%s) en el action %s, pero el fichero no existe",
@@ -146,58 +140,11 @@ def load_models() -> None:
                 name = "%s_model" % name[:-10]
 
             if name in PROCESSED:
-                # LOGGER.warning(
-                #    "Se está cargando el model %s, pero ya existe desde action. Omitido" % name
-                # )
                 continue
             else:
-                # print("****", name)
                 PROCESSED.append(name)
                 models_[name] = file_.path()
 
     for key, data in models_.items():
         save_model(data, key[:-6])
 
-
-# ===============================================================================
-#
-#     for action_name in application.PROJECT.actions:
-#         table = application.PROJECT.actions[action_name]._table
-#
-#         if not table or table in tables_loaded:
-#             continue
-#
-#         model_name = "%s%s" % (table[0].upper(), table[1:])
-#         class_orm = application.PROJECT.actions[action_name]._class_orm
-#         if _path(class_orm, False):
-#             action_model = application.PROJECT.actions[action_name]._class_orm
-#         else:
-#             if class_orm:
-#                 LOGGER.warning(
-#                     "Se ha especificado un model (%s) en el action %s, pero el fichero no existe",
-#                     application.PROJECT.actions[action_name]._class_orm,
-#                     action_name,
-#                 )
-#             action_model = ""
-#
-#         if action_model:
-#
-#             model_path = _path("%s.py" % action_model)
-#         else:
-#             print("FIXME! buscar ruta carga model", action_name)
-#             model_path = _path("%s_model.py" % table, False) or ""
-#
-#         if model_path:
-#             try:
-#                 loader = machinery.SourceFileLoader("model", model_path)
-#                 model_module = loader.load_module()  # type: ignore [call-arg] # noqa: F821
-#                 model_class = getattr(model_module, model_name, None)
-#                 if model_class is not None:
-#                     QSADictModules.save_other("%s_orm" % table, model_class)
-#
-#             except exc.InvalidRequestError as error:
-#                 LOGGER.warning(str(error))
-#
-#             else:
-#                 tables_loaded.append(table)
-# ===============================================================================
