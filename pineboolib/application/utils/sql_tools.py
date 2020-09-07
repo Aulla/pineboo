@@ -466,6 +466,9 @@ class SqlInspector(object):
             if application.PROJECT.conn_manager is None:
                 raise Exception("Project is not connected yet")
 
+            if field_metadata is None:
+                raise Exception("Field metadata not found")
+
             table_metadata = field_metadata.metadata()
             if table_metadata is None:
                 raise Exception("Metadata not found")

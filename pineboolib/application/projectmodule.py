@@ -413,7 +413,7 @@ class Project(object):
                 return None
 
         function_name_object = None
-        function_name = None
+        function_name = ""
 
         if len(array_fun) == 0:
             function_name_object = object_context
