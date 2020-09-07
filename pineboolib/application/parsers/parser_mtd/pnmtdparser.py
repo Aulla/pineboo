@@ -40,6 +40,9 @@ def mtd_parse(table_name: Union[str, "pntablemetadata.PNTableMetaData"], path_mt
 
     else:
         dest_file = "%s/cache/%s_model.py" % (application.PROJECT.tmpdir, table_name.name())
+        if os.path.exists(dest_file):
+            return dest_file
+
         mtd_ = table_name
 
     lines = generate_model(mtd_)
