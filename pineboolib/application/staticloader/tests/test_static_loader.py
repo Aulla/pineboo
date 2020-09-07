@@ -1,8 +1,10 @@
 """Test_static_loader module."""
 
 import unittest
+import os
 from pineboolib.core import settings
 from pineboolib.loader.main import init_testing, finish_testing
+from . import fixture_path
 
 
 class TestStaticLoader(unittest.TestCase):
@@ -36,6 +38,16 @@ class TestStaticLoader(unittest.TestCase):
         action = application.PROJECT.actions["sys"]
         script = application.load_script.load_script("sys.qs", action)
         self.assertEqual(script.saluda(), "Hola!")  # type: ignore [operator] # noqa: F821
+
+    def test_static_loader(self) -> None:
+        """Test script overloaded again."""
+        from pineboolib.qsa import qsa
+
+        path = fixture_path("principal.eneboopkg")
+        self.assertTrue(os.path.exists(path))
+        self.assertTrue(qsa.sys.loadModules(path, False))
+        func_ = qsa.from_project("flfactppal").iface.ejercicioActual2
+        self.assertTrue(func_)
 
     @classmethod
     def tearDownClass(cls) -> None:
