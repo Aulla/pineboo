@@ -521,35 +521,14 @@ class FLManager(QtCore.QObject, IManager):
             if mtd1 is None or mtd2 is None:
                 return False
 
+            if len(mtd1.fieldList()) != len(mtd2.fieldList()):
+                return False
+
             for field1 in mtd1.fieldList():
                 if field1.isCheck():
                     continue
 
                 field2 = mtd2.field(field1.name())
-                if field2 is None:
-                    return False
-
-                if field2.isCheck():
-                    continue
-
-                if field1.type() != field2.type() or field1.allowNull() != field2.allowNull():
-                    return False
-
-                if field1.isUnique() != field2.isUnique() or field1.isIndex() != field2.isIndex():
-                    return False
-
-                if (
-                    field1.length() != field2.length()
-                    or field1.partDecimal() != field2.partDecimal()
-                    or field1.partInteger() != field2.partInteger()
-                ):
-                    return False
-
-            for field1 in mtd2.fieldList():
-                if field1.isCheck():
-                    continue
-
-                field2 = mtd1.field(field1.name())
                 if field2 is None:
                     return False
 
