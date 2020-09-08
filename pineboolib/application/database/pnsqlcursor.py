@@ -1054,9 +1054,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                         assoc_value = self.private_cursor.buffer_.value(field_metadata_name)
                         if field.type() == "uint" and value == 0:
                             LOGGER.warning(
-                                "El id 0 , no pertenece a %s.Sin embargo, se permite por temas de compatibilidad."
+                                "El id 0 , no pertenece a %s.Sin embargo, se permite por temas de compatibilidad.Convirtiendo a Nulo"
                                 % assoc_value
                             )
+                            self.buffer().setNull(field_name)
 
                         elif not self.isNull(field_metadata_name):
 
