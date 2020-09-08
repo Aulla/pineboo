@@ -48,6 +48,7 @@ class TestFLReloadLast(unittest.TestCase):
         form_record.child(u"lineas").cursor().first()
         form_record.exportarADisco(fixture_path("."))
         ruta = fixture_path("principal")
+        self.assertTrue(os.path.exists(ruta))
         settings.CONFIG.set_value("scripts/sys/modLastModule_temp_db", ruta)
 
         mod_ = qsa.from_project("formflreloadlast")
