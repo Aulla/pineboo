@@ -44,15 +44,29 @@ class TestFLReloadLast(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         self.assertTrue(qsa.sys.loadModules(path, False))
-        form_record = qsa.from_project("formRecordflmodules")
-        form_record.child(u"lineas").cursor().first()
-        form_record.exportarADisco(fixture_path("."))
-        ruta = fixture_path("principal")
-        self.assertTrue(os.path.exists(ruta))
-        settings.CONFIG.set_value("scripts/sys/modLastModule_temp_db", ruta)
+        cursor = qsa.FLSqlCursor("flmodules")
+        cursor.select("idmodulo = 'flfactppal'")
+        self.assertTrue(cursor.first())
+        cursor.editRecord(False)
+        self.assertEqual(cursor.size(), 1)
+        form = qsa.from_project("formRecordflmodules").formRecordWidget()
+        self.assertTrue(form)
+        form.child("lineas").cursor().select()
+        self.assertTrue(fixture_path("."))
+        self.assertTrue(form.exportarADisco)
+        form.exportarADisco(fixture_path("."))
+        for root, dirs, files in os.walk(fixture_path("."), topdown=False):
+            print("*", root, dirs, files)
 
-        mod_ = qsa.from_project("formflreloadlast")
-        mod_.main()
+        # ruta = fixture_path("principal")
+        # self.assertTrue(os.path.exists(ruta))
+        # qsa.from_project("formRecordflmodules").iface.exportarADisco(fixture_path("."))
+        # ruta = fixture_path("principal")
+        # self.assertTrue(os.path.exists(ruta))
+        # settings.CONFIG.set_value("scripts/sys/modLastModule_temp_db", ruta)
+
+        # mod_ = qsa.from_project("formflreloadlast")
+        # mod_.main()
 
     def test_comparar_versiones(self) -> None:
         """Test comparar_versiones."""
