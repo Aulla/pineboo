@@ -2,17 +2,21 @@
 
 
 import unittest
+import os
 from pineboolib.loader.main import init_testing, finish_testing
-
+from pineboolib import application
 from pineboolib.qsa import qsa
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings
+
+from . import fixture_path
 
 
 class TestFLReloadLast(unittest.TestCase):
     """TestFlReloadLast class."""
 
     prev_main_window_name: str
+    prev_reload_last: str
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -24,19 +28,30 @@ class TestFLReloadLast(unittest.TestCase):
             "ebcomportamiento/main_form_name", "eneboo"
         )
         settings.CONFIG.set_value("ebcomportamiento/main_form_name", "eneboo")
+        cls.prev_reload_last = settings.CONFIG.value("scripts/sys/modLastModule_temp_db", False)
 
         init_testing()
 
-    # def test_main(self) -> None:
-    #    """Test main."""
+    def test_main(self) -> None:
+        """Test main."""
 
-    #    from pineboolib.plugins.mainform import eneboo
+        from pineboolib.plugins.mainform import eneboo
+        from pineboolib.qsa import qsa
 
-    #    application.PROJECT.main_window = eneboo.MainForm()
-    #    application.PROJECT.main_window.initScript()
+        application.PROJECT.main_window = eneboo.MainForm()
+        application.PROJECT.main_window.initScript()
 
-    #    mod_ = qsa.from_project("formflreloadlast")
-    #    mod_.main()
+        path = fixture_path("principal.eneboopkg")
+        self.assertTrue(os.path.exists(path))
+        self.assertTrue(qsa.sys.loadModules(path, False))
+        form_record = qsa.from_project("formRecordflmodules")
+        form_record.child(u"lineas").cursor().first()
+        form_record.exportarADisco(fixture_path("."))
+        ruta = fixture_path("principal")
+        settings.CONFIG.set_value("scripts/sys/modLastModule_temp_db", ruta)
+
+        mod_ = qsa.from_project("formflreloadlast")
+        mod_.main()
 
     def test_comparar_versiones(self) -> None:
         """Test comparar_versiones."""
@@ -69,6 +84,6 @@ class TestFLReloadLast(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
-
+        settings.CONFIG.set_value("scripts/sys/modLastModule_temp_db", cls.prev_reload_last)
         settings.CONFIG.set_value("ebcomportamiento/main_form_name", cls.prev_main_window_name)
         finish_testing()
