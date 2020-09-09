@@ -142,32 +142,19 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return True
 
-    def compararVersiones(self, v1: str, v2: str) -> int:
+    def compararVersiones(self, ver_1: str = "", ver_2: str = "") -> int:
         """Compare versions."""
-        a1 = None
-        a2 = None
-        if v1 and v2:
-            a1 = v1.split(u".")
-            a2 = v2.split(u".")
-            i = 0
-            while_pass = True
-            while i < len(a1):
-                if not while_pass:
-                    i += 1
-                    while_pass = True
-                    continue
-                while_pass = False
-                if qsa.parseInt(a1[i]) > qsa.parseInt(a2[i]):
-                    return 1
-                if qsa.parseInt(a1[i]) < qsa.parseInt(a2[i]):
-                    return 2
-                i += 1
-                while_pass = True
-                try:
-                    i < len(a1)
-                except Exception:
-                    break
 
+        if ver_1 and ver_2:
+
+            list_1 = ver_1.split(u".")
+            list_2 = ver_2.split(u".")
+
+            for num, item in enumerate(list_1):
+                if qsa.parseInt(item) > qsa.parseInt(list_2[num]):
+                    return 1
+                if qsa.parseInt(item) < qsa.parseInt(list_2[num]):
+                    return 2
         return 0
 
     def traducirCadena(self, cadena: str, path: str, modulo: str) -> str:
@@ -179,14 +166,13 @@ class FormInternalObj(qsa.FormDBWidget):
         cadena = cadena_list[1][1:-1]
         nombre_fichero = None
         try:
-            nombre_fichero = qsa.ustr(
-                path, u"/translations/", modulo, u".", util.getIdioma(), u".ts"
-            )
+            nombre_fichero = "%s/translations/%s.%s.ts" % (path, modulo, util.getIdioma())
         except Exception as error:
             qsa.debug(str(error))
             return cadena
 
         if not qsa.FileStatic.exists(nombre_fichero):
+            qsa.debug("flreloadlast.traducirCadena: No se encuentra el fichero %s" % nombre_fichero)
             return cadena
 
         fichero = qsa.File(nombre_fichero)
