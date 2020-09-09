@@ -50,7 +50,7 @@ class FormInternalObj(qsa.FormDBWidget):
         xmlModule = qsa.FLDomDocument()
         if xmlModule.setContent(f):
             nodeModule = xmlModule.namedItem(u"MODULE")
-            if not nodeModule:
+            if nodeModule is None:
                 qsa.MessageBox.critical(
                     util.translate(u"scripts", u"Error en la carga del fichero xml .mod"),
                     qsa.MessageBox.Ok,
@@ -64,7 +64,7 @@ class FormInternalObj(qsa.FormDBWidget):
             nombreIcono = nodeModule.namedItem(u"icon").toElement().text()
             # if nodeModule.namedItem(u"flversion"):
             #    versionMinimaFL = nodeModule.namedItem(u"flversion").toElement().text()
-            if nodeModule.namedItem(u"dependencies"):
+            if nodeModule.namedItem(u"dependencies") is not None:
                 nodeDepend = xmlModule.elementsByTagName(u"dependency")
                 i = 0
                 while_pass = True
