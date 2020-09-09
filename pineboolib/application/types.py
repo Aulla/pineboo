@@ -613,7 +613,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
         if not isinstance(data, str):
             data = data.decode(self._encode)
 
-        file_ = codecs.open(self._file_name, mode, encoding=self._encode)
+        file_ = codecs.open(self._file_name, mode, encoding=self._encode, errors="replace")
         file_.write(data)
         file_.close()
 
@@ -624,7 +624,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         data_string = data.decode(self._encode)
 
-        file_ = codecs.open(self._file_name, "w", encoding=self._encode)
+        file_ = codecs.open(self._file_name, "w", encoding=self._encode, errors="replace")
         file_.write(data_string)
         file_.close()
 
