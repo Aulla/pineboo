@@ -47,29 +47,17 @@ class FormInternalObj(qsa.FormDBWidget):
         modulos = self.elegirOpcion(opciones)
         if not modulos:
             return
-        i = 0
-        while_pass = True
-        while i < len(modulos):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
+
+        for modulo in modulos:
             qsa.sys.processEvents()
-            if not self.cargarModulo(modulos[i]):
+            if not self.cargarModulo(modulo):
                 qsa.MessageBox.warning(
-                    util.translate(u"scripts", u"Error al cargar el módulo:\n") + modulos[i],
+                    util.translate(u"scripts", u"Error al cargar el módulo:\n") + modulo,
                     qsa.MessageBox.Ok,
                     qsa.MessageBox.NoButton,
                     qsa.MessageBox.NoButton,
                 )
                 return
-            i += 1
-            while_pass = True
-            try:
-                i < len(modulos)
-            except Exception:
-                break
 
         util.writeSettingEntry(setting, dirMods)
         app_ = qsa.aqApp
@@ -118,56 +106,19 @@ class FormInternalObj(qsa.FormDBWidget):
         bgroup.setTitle(util.translate(u"scripts", u"Seleccione módulos a cargar"))
         dialog.add(bgroup)
         resultado = qsa.Array()
-        cB = qsa.Array()
-        i = 0
-        while_pass = True
-        while i < len(opciones):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            cB[i] = qsa.CheckBox()
-            bgroup.add(cB[i])
-            cB[i].text = opciones[i]
-            cB[i].checked = True
-            i += 1
-            while_pass = True
-            try:
-                i < len(opciones)
-            except Exception:
-                break
+        check_box_list = qsa.Array()
+        for num, opcion in enumerate(opciones):
+            check_box_list[num] = qsa.CheckBox()
+            bgroup.add(check_box_list[num])
+            check_box_list[num].text = opcion
+            check_box_list[num].checked = True
 
-        indice = 0
         if dialog.exec_():
-            i = 0
-            while_pass = True
-            while i < len(opciones):
-                if not while_pass:
-                    i += 1
-                    while_pass = True
-                    continue
-                while_pass = False
-                if cB[i].checked:
-                    resultado[indice] = opciones[i]
-                    indice += 1
-                i += 1
-                while_pass = True
-                try:
-                    i < len(opciones)
-                except Exception:
-                    break
+            for num, opcion in enumerate(opciones):
+                if check_box_list[num].checked:
+                    resultado[len(resultado)] = opciones[num]
 
-        else:
-            return qsa.Array()
-
-        if len(resultado) == 0:
-            return qsa.Array()
-        return resultado
-
-    def dameValor(self, linea: str) -> str:
-        """Return value."""
-        return qsa.from_project("formflreloadlast").dameValor(linea)
+        return resultado if len(resultado) else qsa.Array()
 
 
 form = None
