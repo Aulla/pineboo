@@ -773,7 +773,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
     def getPath(self) -> str:
         """Return getPath."""
 
-        return os.path.dirname(self._file_name)
+        return os.path.abspath(os.path.dirname(self._file_name))
 
     def readable(self) -> bool:
         """Return if file is readable."""
