@@ -636,6 +636,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         # LOGGER.warning("REFRESCANDO!", stack_info=True)
         # print("REFESCANDO", self._tablename, self, self.db().session())
+        if utils_base.is_library():
+            self._initialized = False
+
         if (
             self._initialized is None and self.parent_view
         ):  # Si es el primer refresh y estoy conectado a un FLDatatable()
