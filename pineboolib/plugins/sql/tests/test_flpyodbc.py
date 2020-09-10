@@ -42,7 +42,7 @@ class TestFLMSSql(unittest.TestCase):
             + " DECIMAL(8,2) NULL,bool_field BIT NULL,uint_field BIGINT NULL,bloqueo BIT NOT NULL)"
         )
 
-        driver = flmssql.FLMSSQL()
+        driver = flpyodbc.FLPYODBC()
         print(driver.sqlCreateTable(cursor.metadata(), False))
         self.assertEqual(sql, driver.sqlCreateTable(cursor.metadata(), False))
 
