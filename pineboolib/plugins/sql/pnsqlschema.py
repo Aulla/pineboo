@@ -63,6 +63,8 @@ class PNSqlSchema(object):
     _safe_load: Dict[str, str]
     _database_not_found_keywords: List[str]
     _parse_porc: bool
+    _queqe_params: Dict[str, Any]
+    _create_isolation: bool
 
     _sqlalchemy_name: str
     _connection: "base.Connection"
@@ -94,6 +96,8 @@ class PNSqlSchema(object):
         self._text_like = "::text "
         self._safe_load = {"sqlalchemy": "sqlAlchemy"}
         self._database_not_found_keywords = ["does not exist", "no existe"]
+        self._queqe_params = {}
+        self._create_isolation = True
 
         self._sqlalchemy_name = ""
 
@@ -169,9 +173,11 @@ class PNSqlSchema(object):
                         if tmp_conn is not None:
                             self.set_last_error_null()
                             try:
-                                tmp_conn.connection.set_isolation_level(0)
+                                if self._create_isolation:
+                                    tmp_conn.connection.set_isolation_level(0)
                                 tmp_conn.execute("CREATE DATABASE %s" % db_name)
-                                tmp_conn.connection.set_isolation_level(1)
+                                if self._create_isolation:
+                                    tmp_conn.connection.set_isolation_level(1)
                             except Exception as error:
                                 self.set_last_error(str(error), "LOGGIN")
 
@@ -226,21 +232,20 @@ class PNSqlSchema(object):
 
         conn_ = None
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
-        queqe_params: Dict[str, Any] = {}
 
-        queqe_params["encoding"] = "UTF-8"
+        self._queqe_params["encoding"] = "UTF-8"
         if application.SQLALCHEMY_NULL_POOL:
-            queqe_params["poolclass"] = pool.NullPool
+            self._queqe_params["poolclass"] = pool.NullPool
 
         # if limit_conn > 0:
         #    queqe_params["pool_size"] = limit_conn
         #    queqe_params["max_overflow"] = int(limit_conn * 2)
         if application.LOG_SQL:
-            queqe_params["echo"] = True
+            self._queqe_params["echo"] = True
 
         try:
             self._engine = create_engine(
-                self.loadConnectionString(name, host, port, usern, passw_), **queqe_params
+                self.loadConnectionString(name, host, port, usern, passw_), **self._queqe_params
             )
 
             event.listen(self._engine, "close_detached", self.close_connection_warning)

@@ -5,6 +5,7 @@ from pineboolib.core import decorators
 
 from pineboolib.application.metadata import pntablemetadata
 from pineboolib import logging
+from sqlalchemy.engine import create_engine
 
 from pineboolib.fllegacy import flutil
 from . import pnsqlschema
@@ -19,46 +20,42 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class FLMSSQL(pnsqlschema.PNSqlSchema):
+class FLPYODBC(pnsqlschema.PNSqlSchema):
     """FLQPSQL class."""
 
     def __init__(self):
         """Inicialize."""
         super().__init__()
         self.version_ = "0.9"
-        self.name_ = "FLMSSQL"
+        self.name_ = "FLPYODBC"
         self.error_list = []
-        self.alias_ = "SQL Server (PYMSSQL)"
+        self.alias_ = "SQL Server (PYODBC)"
         self.default_port = 1433
         self.savepoint_command = "SAVE TRANSACTION"
         self.rollback_savepoint_command = "ROLLBACK TRANSACTION"
         self.commit_transaction_command = "COMMIT"
         self._like_true = "1"
         self._like_false = "0"
-        self._safe_load = {"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"}
-        self._database_not_found_keywords = ["does not exist", "no existe"]
+        self._safe_load = {"pyodbc": "pyodbc", "sqlalchemy": "sqlAlchemy"}
+        self._database_not_found_keywords = ["does not exist", "no existe", "42000"]
         self._text_like = ""
-        self._sqlalchemy_name = "mssql+pymssql"
+        self._sqlalchemy_name = "mssql+pyodbc"
+        self._create_isolation = False
 
-    # def loadSpecialConfig(self) -> None:
-    #    """Set special config."""
+    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
 
-    #    self.conn_.autocommit(True)
+        conn_ = self.getConn("master", host, port, usern, passw_)
+        conn_.execute("set transaction isolation level read uncommitted;")
+        return conn_
 
-    # def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-    #    """Return connection."""
+    def loadConnectionString(self, name: str, host: str, port: int, usern: str, passw_: str) -> str:
+        """Set special config."""
 
-    #    import pymssql  # type: ignore
-
-    #    conn_ = None
-
-    #    try:
-    #        conn_ = pymssql.connect(server=host, user="SA", password=passw_, port=port)
-    #        conn_.autocommit(True)
-    #    except Exception as error:
-    #        self.setLastError(str(error), "CONNECT")
-
-    #    return conn_
+        return (
+            super().loadConnectionString(name, host, port, usern, passw_)
+            + "?driver=ODBC+Driver+17+for+SQL+Server&autocommit=true"
+        )
 
     def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
@@ -110,12 +107,12 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
 
     def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""
-
-        cur = self.execute_query(
-            "SELECT 1 FROM sys.Tables WHERE  Name = N'%s' AND Type = N'U'" % table_name
+        sql = (
+            "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE "
+            + "TABLE_NAME = N'%s' AND TABLE_CATALOG = '%s'" % (table_name, self._dbname)
         )
-
-        return True if cur and cur.returns_rows else False
+        cur = self.execute_query(sql)
+        return True if cur and cur.fetchone() else False
 
     def sqlCreateTable(
         self,

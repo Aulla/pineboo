@@ -71,25 +71,26 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         #        self._connection.close()
         #        del self._connection
 
-        queqe_params: Dict[str, Union[int, bool, str, Dict[str, int]]] = {}
-        # queqe_params["connect_args"] = {"timeout": 5}
-        queqe_params["encoding"] = "UTF-8"
-        queqe_params["isolation_level"] = "AUTOCOMMIT"
+        # self._queqe_params["connect_args"] = {"timeout": 5}
+        self._queqe_params["encoding"] = "UTF-8"
+        self._queqe_params["isolation_level"] = "AUTOCOMMIT"
         if application.SQLALCHEMY_NULL_POOL:
-            queqe_params["poolclass"] = pool.NullPool  # type: ignore [assignment] # noqa: F821
+            self._queqe_params[
+                "poolclass"
+            ] = pool.NullPool  # type: ignore [assignment] # noqa: F821
         if application.LOG_SQL:
-            queqe_params["echo"] = True
+            self._queqe_params["echo"] = True
 
         # if limit_conn > 0:
-        #    queqe_params["pool_size"] = limit_conn
-        # queqe_params["max_overflow"] = int(limit_conn * 2)
+        #    self._queqe_params["pool_size"] = limit_conn
+        # self._queqe_params["max_overflow"] = int(limit_conn * 2)
 
         if conn_ is None:
             if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):
                 os.mkdir("%s/sqlite_databases/" % application.PROJECT.tmpdir)
 
             self._engine = create_engine(
-                self.loadConnectionString(name, host, port, usern, passw_), **queqe_params
+                self.loadConnectionString(name, host, port, usern, passw_), **self._queqe_params
             )
 
             event.listen(self._engine, "close_detached", self.close_connection_warning)
