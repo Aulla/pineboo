@@ -1,7 +1,7 @@
 """Test_flmssql module."""
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.plugins.sql import flmssql
+from pineboolib.plugins.sql import flpyodbc
 
 
 class TestFLMSSql(unittest.TestCase):
@@ -15,7 +15,7 @@ class TestFLMSSql(unittest.TestCase):
     def test_basic_1(self) -> None:
         """Basics test 1."""
 
-        driver = flmssql.FLMSSQL()
+        driver = flpyodbc.FLPYODBC()
 
         self.assertEqual(driver.formatValueLike("bool", "true", False), "=0")
         self.assertEqual(driver.formatValueLike("date", "2020-01-27", True), "LIKE '%%27-01-2020'")

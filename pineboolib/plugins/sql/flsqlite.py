@@ -13,7 +13,7 @@ from . import pnsqlschema
 import os
 
 
-from typing import Optional, Any, List, Dict, Union, TYPE_CHECKING
+from typing import Optional, Any, List, TYPE_CHECKING
 from sqlalchemy import create_engine, event, pool  # type: ignore [import] # noqa: F821, F401
 
 
@@ -49,7 +49,14 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self._sqlalchemy_name = "sqlite"
 
     def getConn(
-        self, name: str, host: str, port: int, usern: str, passw_: str, limit_conn=0
+        self,
+        name: str,
+        host: str,
+        port: int,
+        usern: str,
+        passw_: str,
+        limit_conn=0,
+        alternative: bool = False,
     ) -> "base.Connection":
         """Return connection."""
 

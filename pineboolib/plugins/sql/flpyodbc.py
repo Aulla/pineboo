@@ -5,7 +5,6 @@ from pineboolib.core import decorators
 
 from pineboolib.application.metadata import pntablemetadata
 from pineboolib import logging
-from sqlalchemy.engine import create_engine
 
 from pineboolib.fllegacy import flutil
 from . import pnsqlschema
