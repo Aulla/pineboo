@@ -62,10 +62,14 @@ def get_dependency_errors(dict_: DependencyCheck) -> DependencyError:
 
             version = namespaces.__version__
 
-        if key == "barcode":
+        elif key == "barcode":
             import barcode  # type: ignore
 
             version = barcode.version
+        elif key == "pyodbc":
+            import pyodbc  # type: ignore
+
+            version = pyodbc.version
 
         if not isinstance(version, str):
             error[(key, suggested_pkg)] = (
