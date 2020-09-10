@@ -194,7 +194,8 @@ class SysBaseType(object):
                     conn_db._is_open = True
 
         else:
-            conn_db = application.PROJECT.conn_manager.useConn(args[6])
+            print("**", args[6], args[1])
+            conn_db = application.PROJECT.conn_manager.useConn(args[6], args[1])
             if not conn_db.isOpen():
                 if conn_db._driver_sql is None:
                     raise Exception("driverSql not loaded!")

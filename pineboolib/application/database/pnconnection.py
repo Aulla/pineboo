@@ -82,6 +82,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if "main_conn" in conn_manager.connections_dict.keys():
             main_conn_ = conn_manager.connections_dict["main_conn"]
+            print("*", main_conn_._db_name, db_name)
             if main_conn_._db_name == db_name and db_host is None:
                 db_host = main_conn_._db_host
                 db_port = main_conn_._db_port

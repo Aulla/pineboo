@@ -102,13 +102,14 @@ class PNConnectionManager(QtCore.QObject):
         del self
 
     def useConn(
-        self, name_or_conn: Union[str, "iconnection.IConnection"] = "default"
+        self, name_or_conn: Union[str, "iconnection.IConnection"] = "default", db_name: str = ""
     ) -> "iconnection.IConnection":
         """
         Select another connection which can be not the default one.
 
         Allow you to select a connection.
         """
+
         name: str
         if isinstance(name_or_conn, iconnection.IConnection):
             name = name_or_conn.connectionName()
@@ -120,9 +121,13 @@ class PNConnectionManager(QtCore.QObject):
         #    return self
         self.check_alive_connections()
 
-        if name_conn_ in self.connections_dict.keys():
+        if name_conn_ in self.connections_dict.keys() and not db_name:
             connection_ = self.connections_dict[name_conn_]
         else:
+            if db_name:
+                if not self.removeConn(name):
+                    raise Exception("a problem existes deleting older connection")
+
             if len(self.connections_dict.keys()) > self.limit_connections:
                 raise Exception("Connections limit reached!")
             # if self._driver_sql is None:
@@ -131,7 +136,7 @@ class PNConnectionManager(QtCore.QObject):
             main_conn = self.mainConn()
             if main_conn is None:
                 raise Exception("main_conn is empty!!")
-            connection_ = pnconnection.PNConnection(main_conn._db_name)
+            connection_ = pnconnection.PNConnection(main_conn._db_name if not db_name else db_name)
             connection_._name = name
 
             if name in ["default", "dbAux", "Aux"]:  # Las abrimos automáticamene!
