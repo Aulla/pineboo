@@ -142,7 +142,9 @@ class PNSqlSchema(object):
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
         conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password, limit_conn)
 
-        if conn_ is None:  # Si no existe la conexión
+        if (
+            conn_ is None and self.db_._name == "main_conn"
+        ):  # Si no existe la conexión y soy main_conn
             if application.PROJECT._splash:
                 application.PROJECT._splash.hide()
             if not application.PROJECT.DGI.localDesktop():
