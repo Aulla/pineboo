@@ -187,10 +187,8 @@ class PNConnectionManager(QtCore.QObject):
 
             self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
             del self.connections_dict[name_conn_]
-            return True
-        else:
-            LOGGER.warning("An attempt was made to delete an invalid connection named %s", name)
-            return False
+
+        return True
 
     def manager(self) -> "flmanager.FLManager":
         """
