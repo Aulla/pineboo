@@ -37,16 +37,18 @@ class FLPYODBC(pnsqlschema.PNSqlSchema):
         self._like_true = "1"
         self._like_false = "0"
         self._safe_load = {"pyodbc": "pyodbc", "sqlalchemy": "sqlAlchemy"}
-        self._database_not_found_keywords = ["does not exist", "no existe", "42000"]
+        self._database_not_found_keywords = ["4060"]
         self._text_like = ""
         self._sqlalchemy_name = "mssql+pyodbc"
         self._create_isolation = False
 
     def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
         """Return connection."""
-
+        self._queqe_params["connect_args"] = {"autocommit": True}
         conn_ = self.getConn("master", host, port, usern, passw_)
-        conn_.execute("set transaction isolation level read uncommitted;")
+        del self._queqe_params["connect_args"]
+
+        # conn_.execute("set transaction isolation level read uncommitted;")
         return conn_
 
     def loadConnectionString(self, name: str, host: str, port: int, usern: str, passw_: str) -> str:
@@ -54,7 +56,7 @@ class FLPYODBC(pnsqlschema.PNSqlSchema):
 
         return (
             super().loadConnectionString(name, host, port, usern, passw_)
-            + "?driver=ODBC+Driver+17+for+SQL+Server&autocommit=true"
+            + "?driver=ODBC+Driver+17+for+SQL+Server"
         )
 
     def nextSerialVal(self, table_name: str, field_name: str) -> int:

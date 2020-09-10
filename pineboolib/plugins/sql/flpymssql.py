@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 LOGGER = logging.get_logger(__name__)
 
 
-class FLMSSQL(pnsqlschema.PNSqlSchema):
+class FLPYMSSQL(pnsqlschema.PNSqlSchema):
     """FLQPSQL class."""
 
     def __init__(self):
@@ -36,29 +36,28 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
         self._like_true = "1"
         self._like_false = "0"
         self._safe_load = {"pymssql": "pymssql", "sqlalchemy": "sqlAlchemy"}
-        self._database_not_found_keywords = ["does not exist", "no existe"]
+        self._database_not_found_keywords = ["20018"]
         self._text_like = ""
         self._sqlalchemy_name = "mssql+pymssql"
+        self._create_isolation = False
 
-    # def loadSpecialConfig(self) -> None:
-    #    """Set special config."""
+    def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
+        """Return connection."""
+        self._queqe_params["connect_args"] = {"autocommit": True}
+        conn_ = self.getConn("master", host, port, usern, passw_)
+        del self._queqe_params["connect_args"]
+        # conn_.execute("set transaction isolation level read uncommitted;")
+        return conn_
 
-    #    self.conn_.autocommit(True)
+    def existsTable(self, table_name: str) -> bool:
+        """Return if exists a table specified by name."""
 
-    # def getAlternativeConn(self, name: str, host: str, port: int, usern: str, passw_: str) -> Any:
-    #    """Return connection."""
-
-    #    import pymssql  # type: ignore
-
-    #    conn_ = None
-
-    #    try:
-    #        conn_ = pymssql.connect(server=host, user="SA", password=passw_, port=port)
-    #        conn_.autocommit(True)
-    #    except Exception as error:
-    #        self.setLastError(str(error), "CONNECT")
-
-    #    return conn_
+        sql = (
+            "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE "
+            + "TABLE_NAME = N'%s' AND TABLE_CATALOG = '%s'" % (table_name, self._dbname)
+        )
+        cur = self.execute_query(sql)
+        return True if cur and cur.fetchone() else False
 
     def nextSerialVal(self, table_name: str, field_name: str) -> int:
         """Return next serial value."""
@@ -107,15 +106,6 @@ class FLMSSQL(pnsqlschema.PNSqlSchema):
             leng = 0
 
         return "%s(%s)" % (res_, leng) if leng else res_
-
-    def existsTable(self, table_name: str) -> bool:
-        """Return if exists a table specified by name."""
-
-        cur = self.execute_query(
-            "SELECT 1 FROM sys.Tables WHERE  Name = N'%s' AND Type = N'U'" % table_name
-        )
-
-        return True if cur and cur.returns_rows else False
 
     def sqlCreateTable(
         self,

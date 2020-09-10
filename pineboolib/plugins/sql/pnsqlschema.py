@@ -70,6 +70,7 @@ class PNSqlSchema(object):
     _connection: "base.Connection"
     _engine: "base.Engine"
     _session: "session.Session"
+    _extra_alternative: str
 
     def __init__(self):
         """Inicialize."""
@@ -98,6 +99,7 @@ class PNSqlSchema(object):
         self._database_not_found_keywords = ["does not exist", "no existe"]
         self._queqe_params = {}
         self._create_isolation = True
+        self._extra_alternative = ""
 
         self._sqlalchemy_name = ""
 
@@ -226,7 +228,14 @@ class PNSqlSchema(object):
         return None
 
     def getConn(
-        self, name: str, host: str, port: int, usern: str, passw_: str, limit_conn=0
+        self,
+        name: str,
+        host: str,
+        port: int,
+        usern: str,
+        passw_: str,
+        limit_conn=0,
+        alternative=False,
     ) -> Optional["base.Connection"]:
         """Return connection."""
 
@@ -236,7 +245,6 @@ class PNSqlSchema(object):
         self._queqe_params["encoding"] = "UTF-8"
         if application.SQLALCHEMY_NULL_POOL:
             self._queqe_params["poolclass"] = pool.NullPool
-
         # if limit_conn > 0:
         #    queqe_params["pool_size"] = limit_conn
         #    queqe_params["max_overflow"] = int(limit_conn * 2)
@@ -244,9 +252,11 @@ class PNSqlSchema(object):
             self._queqe_params["echo"] = True
 
         try:
-            self._engine = create_engine(
-                self.loadConnectionString(name, host, port, usern, passw_), **self._queqe_params
-            )
+            str_conn = self.loadConnectionString(name, host, port, usern, passw_)
+            if alternative:
+                str_conn += self._extra_alternative
+
+            self._engine = create_engine(str_conn, **self._queqe_params)
 
             event.listen(self._engine, "close_detached", self.close_connection_warning)
             event.listen(self._engine, "close", self.close_connection_warning)
