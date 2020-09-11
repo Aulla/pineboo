@@ -57,7 +57,8 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                         if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
                             del application.PROJECT.conn_manager.thread_atomic_sessions[key]
                         if application.USE_ATOMIC_LIST:
-                            application.ATOMIC_LIST.remove(key)
+                            if key in application.ATOMIC_LIST:
+                                application.ATOMIC_LIST.remove(key)
 
                         raise error
 
@@ -67,7 +68,8 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                 if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
                     del application.PROJECT.conn_manager.thread_atomic_sessions[key]
                 if application.USE_ATOMIC_LIST:
-                    application.ATOMIC_LIST.remove(key)
+                    if key in application.ATOMIC_LIST:
+                        application.ATOMIC_LIST.remove(key)
 
                 raise error
 
@@ -75,7 +77,8 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                 if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
                     del application.PROJECT.conn_manager.thread_atomic_sessions[key]
                 if application.USE_ATOMIC_LIST:
-                    application.ATOMIC_LIST.remove(key)
+                    if key in application.ATOMIC_LIST:
+                        application.ATOMIC_LIST.remove(key)
 
             return result_
 
