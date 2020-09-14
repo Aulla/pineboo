@@ -2548,7 +2548,7 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
     for cls_ in ast.findall("Class"):
         # LOGGER.warning("Element %s type(%s)", cls, type(cls_))
         # cls_.set("parent_", cast(str, ast))  # FIXME: AST is an XML Element, not a string.
-        sourceclasses.append(cls_)
+        sourceclasses.append(cast(ET.Element, cls_))
 
     mainclass = ET.SubElement(
         sourceclasses, "Class", name="FormInternalObj", extends="qsa.FormDBWidget"

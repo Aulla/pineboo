@@ -1,7 +1,7 @@
 """
 Module for Manager class.
 """
-from PyQt5 import QtWidgets
+# from PyQt5 import QtWidgets
 from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:

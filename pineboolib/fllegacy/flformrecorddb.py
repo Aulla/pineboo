@@ -7,7 +7,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings, decorators
 
-from pineboolib.application.database import pnsqlcursor, pnsqlquery
+from pineboolib.application.database import pnsqlcursor
 from pineboolib import logging, application
 
 

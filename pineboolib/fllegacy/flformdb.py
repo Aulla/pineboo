@@ -61,12 +61,12 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Capa principal del formulario
     """
-    layout_: QtWidgets.QVBoxLayout
+    layout_: "QtWidgets.QVBoxLayout"
 
     """
     Widget principal del formulario
     """
-    main_widget: Optional[QtWidgets.QWidget]
+    main_widget: Optional["QtWidgets.QWidget"]
     """
     Identificador de ventana MDI.
 
@@ -77,12 +77,12 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Capa para botones
     """
-    layoutButtons: QtWidgets.QHBoxLayout
+    layoutButtons: "QtWidgets.QHBoxLayout"
 
     """
     Boton Cancelar
     """
-    pushButtonCancel: Optional[QtWidgets.QToolButton]
+    pushButtonCancel: Optional["QtWidgets.QToolButton"]
 
     """
     Indica que la ventana ya ha sido mostrada una vez
@@ -102,7 +102,7 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Componente con el foco inicial
     """
-    _init_focus_widget: Optional[QtWidgets.QWidget]
+    _init_focus_widget: Optional["QtWidgets.QWidget"]
 
     """
     Guarda el último objeto de formulario unido a la interfaz de script (con bindIface())
@@ -112,7 +112,7 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Boton Debug Script
     """
-    pushButtonDebug: Optional[QtWidgets.QToolButton]
+    pushButtonDebug: Optional["QtWidgets.QToolButton"]
 
     """
     Almacena que se aceptado, es decir NO se ha pulsado, botón cancelar
@@ -132,7 +132,7 @@ class FLFormDB(QtWidgets.QDialog):
     """
     Tamaño de icono por defecto
     """
-    _icon_size: QtCore.QSize
+    _icon_size: "QtCore.QSize"
 
     # protected slots:
 
@@ -164,6 +164,8 @@ class FLFormDB(QtWidgets.QDialog):
 
     loop: bool
     _action: "pnaction.PNAction"
+
+    eventloop: "QtCore.QEventLoop"
 
     def __init__(
         self,
@@ -1015,7 +1017,6 @@ class FLFormDB(QtWidgets.QDialog):
 
     def get_iface(self) -> Callable:
         """Return script iface."""
-        from time import time
 
         fun = getattr(self.action_widget, "iface", None)
         return fun

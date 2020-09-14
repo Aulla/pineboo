@@ -24,7 +24,7 @@ from . import pncursortablemodel
 import weakref
 import datetime
 
-from typing import Any, Optional, List, Dict, Union, cast, TYPE_CHECKING
+from typing import Any, Optional, List, Dict, Union, TYPE_CHECKING
 
 
 from pineboolib.application.acls import pnboolflagstate
