@@ -1148,11 +1148,12 @@ class FLTableDB(QtWidgets.QWidget):
                 if self._table_records:
                     QtCore.QTimer.singleShot(0, self._table_records.ensureRowSelectedVisible)
             else:
-                self.refresh(True)
-                if self._table_records and self._table_records.numRows() <= 0:
-                    self.refresh(False, True)
-                else:
-                    self.refreshDelayed()
+                # self.refresh(True)
+                # if self._table_records and self._table_records.numRows() <= 0:
+                #    self.refresh(False, True)
+                # else:
+
+                self.refreshDelayed()
 
         elif (
             isinstance(self._top_widget, flformrecorddb.FLFormRecordDB)
