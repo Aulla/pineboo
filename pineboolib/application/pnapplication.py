@@ -433,11 +433,12 @@ class PNApplication(QtCore.QObject):
 
         QSADictModules.clean_all()
         pnormmodelsfactory.PROCESSED = []
+        application.PROJECT.files = []
         application.PROJECT.conn_manager.useConn("default")
         application.PROJECT.conn_manager.useConn("dbaux")
         application.PROJECT.run()
-        application.PROJECT.load_classes()
-        application.PROJECT.load_orm()
+        # application.PROJECT.load_classes()
+        # application.PROJECT.load_orm()
         # application.PROJECT.load_modules()
         self.db().managerModules().reloadStaticLoader()
 
