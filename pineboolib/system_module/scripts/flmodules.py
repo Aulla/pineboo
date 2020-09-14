@@ -140,17 +140,9 @@ class FormInternalObj(qsa.FormDBWidget):
         log = self.child(u"log")
         if log is None:
             raise Exception("log is empty!.")
-        i = 0
-
         settings = qsa.FLSettings()
-        while_pass = True
-        while i < len(ficheros):
-            if not while_pass:
-                i += 1
-                while_pass = True
-                continue
-            while_pass = False
-            path_ = qsa.Dir.cleanDirPath(qsa.ustr(directorio, u"/", ficheros[i]))
+        for fichero in ficheros:
+            path_ = qsa.Dir.cleanDirPath(qsa.ustr(directorio, u"/", fichero))
             if settings.readBoolEntry("ebcomportamiento/parseModulesOnLoad", False):
                 file_py_path_ = "%s.py" % path_
                 if os.path.exists(file_py_path_):
@@ -162,7 +154,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     if not isinstance(value_py, str):
                         raise Exception("value_py must be string not bytes.")
 
-                    self.cargarFicheroEnBD("%s.py" % ficheros[i][-3], value_py, log, directorio)
+                    self.cargarFicheroEnBD("%s.py" % fichero[-3], value_py, log, directorio)
 
             encode = "ISO-8859-1"
             if path_.endswith((".ts", ".py")):
@@ -177,14 +169,8 @@ class FormInternalObj(qsa.FormDBWidget):
             if not isinstance(value, str):
                 raise Exception("value must be string not bytes.")
 
-            self.cargarFicheroEnBD(ficheros[i], value, log, directorio)
-            qsa.sys.processEvents()
-            i += 1
-            while_pass = True
-            try:
-                i < len(ficheros)
-            except Exception:
-                break
+            self.cargarFicheroEnBD(fichero, value, log, directorio)
+            # qsa.sys.processEvents()
 
     def botonCargar_clicked(self) -> None:
         """Load a directory from file system."""
