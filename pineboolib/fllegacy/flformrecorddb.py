@@ -557,8 +557,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if fun_ != self.validateForm:
                 ret_ = fun_()
 
-            if isinstance(ret_, bool):
-                return ret_
+                if isinstance(ret_, bool):
+                    return ret_
 
         return True
 
