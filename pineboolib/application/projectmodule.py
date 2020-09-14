@@ -21,9 +21,6 @@ from pineboolib.application.database import utils as db_utils
 from pineboolib.application.utils import path, xpm
 from pineboolib.application import module, file, pnapplication
 
-from pineboolib.application.parsers.parser_qsa import postparse, pytnyzer, pyconvert
-
-
 from pineboolib.application.parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
 from pineboolib.application.parsers import parser_qsa
 
@@ -450,6 +447,7 @@ class Project(object):
 
         @param scriptname, Nombre del script a convertir
         """
+        from pineboolib.application.parsers.parser_qsa import postparse
 
         # Intentar convertirlo a Python primero con flscriptparser2
         if not os.path.isfile(scriptname):
@@ -476,6 +474,8 @@ class Project(object):
 
     def parse_script_list(self, path_list: List[str]) -> bool:
         """Convert QS scripts list into Python and stores it in the same folders."""
+
+        from pineboolib.application.parsers.parser_qsa import pytnyzer, pyconvert
 
         if not path_list:
             return True
