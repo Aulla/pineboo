@@ -41,7 +41,7 @@ class Manager(object):
                     ret_ = attr_()
                 else:
                     ret_ = attr_(*data_)
-                QtWidgets.QApplication.processEvents()
+                # QtWidgets.QApplication.processEvents()
 
         if ret_ is not None:
             return ret_
