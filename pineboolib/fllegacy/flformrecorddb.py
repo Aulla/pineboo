@@ -500,66 +500,66 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         @return TRUE if the form has been validated correctly.
         """
+
         if not self.cursor_:
             return True
-        mtd = self.cursor_.metadata()
-        if not mtd:
-            return True
+        # metadata = self.cursor_.metadata()
 
-        if self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Edit and mtd.concurWarn():
-            col_fields = self.cursor_.concurrencyFields()
+        # if self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Edit and metadata.concurWarn():
+        #    col_fields = self.cursor_.concurrencyFields()
 
-            if col_fields:
-                pk_name = mtd.primaryKey()
-                pk_where = (
-                    self.cursor_.db()
-                    .connManager()
-                    .manager()
-                    .formatAssignValue(mtd.field(pk_name), self.cursor_.valueBuffer(pk_name))
-                )
-                qry = pnsqlquery.PNSqlQuery(None, self.cursor_.db().connectionName())
-                qry.setTablesList(mtd.name())
-                qry.setSelect(col_fields)
-                qry.setFrom(mtd.name())
-                qry.setWhere(pk_where)
-                qry.setForwardOnly(True)
+        #    if col_fields:
+        #        pk_name = metadata.primaryKey()
+        #        pk_where = (
+        #            self.cursor_.db()
+        #            .connManager()
+        #            .manager()
+        #            .formatAssignValue(metadata.field(pk_name), self.cursor_.valueBuffer(pk_name))
+        #        )
+        #        qry = pnsqlquery.PNSqlQuery(None, self.cursor_.db().connectionName())
+        #        qry.setTablesList(metadata.name())
+        #        qry.setSelect(col_fields)
+        #        qry.setFrom(metadata.name())
+        #        qry.setWhere(pk_where)
+        #        qry.setForwardOnly(True)
 
-                if qry.exec_() and qry.next():
-                    i = 0
-                    for field in col_fields:
-                        # msg = "El campo '%s' con valor '%s' ha sido modificado\npor otro usuario con el valor '%s'" % (
-                        #    mtd.fieldNameToAlias(field), self.cursor_.valueBuffer(field), q.value(i))
-                        res = QtWidgets.QMessageBox.warning(
-                            QtWidgets.QApplication.focusWidget(),
-                            "Aviso de concurrencia",
-                            "\n\n ¿ Desea realmente modificar este campo ?\n\n"
-                            "Sí : Ignora el cambio del otro usuario y utiliza el valor que acaba de introducir\n"
-                            "No : Respeta el cambio del otro usuario e ignora el valor que ha introducido\n"
-                            "Cancelar : Cancela el guardado del registro y vuelve a la edición del registro\n\n",
-                            cast(
-                                QtWidgets.QMessageBox.StandardButtons,
-                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Default,
-                            ),
-                            cast(
-                                QtWidgets.QMessageBox.StandardButton,
-                                QtWidgets.QMessageBox.No
-                                | QtWidgets.QMessageBox.Cancel
-                                | QtWidgets.QMessageBox.Escape,
-                            ),
-                        )
-                        if res == QtWidgets.QMessageBox.Cancel:
-                            return False
+        #        if qry.exec_() and qry.next():
+        #            i = 0
+        #            for field in col_fields:
+        #                # msg = "El campo '%s' con valor '%s' ha sido modificado\npor otro usuario con el valor '%s'" % (
+        #                #    mtd.fieldNameToAlias(field), self.cursor_.valueBuffer(field), q.value(i))
+        #                res = QtWidgets.QMessageBox.warning(
+        #                    QtWidgets.QApplication.focusWidget(),
+        #                    "Aviso de concurrencia",
+        #                    "\n\n ¿ Desea realmente modificar este campo ?\n\n"
+        #                    "Sí : Ignora el cambio del otro usuario y utiliza el valor que acaba de introducir\n"
+        #                    "No : Respeta el cambio del otro usuario e ignora el valor que ha introducido\n"
+        #                    "Cancelar : Cancela el guardado del registro y vuelve a la edición del registro\n\n",
+        #                    cast(
+        #                        QtWidgets.QMessageBox.StandardButtons,
+        #                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Default,
+        #                    ),
+        #                    cast(
+        #                        QtWidgets.QMessageBox.StandardButton,
+        #                        QtWidgets.QMessageBox.No
+        #                        | QtWidgets.QMessageBox.Cancel
+        #                        | QtWidgets.QMessageBox.Escape,
+        #                    ),
+        #                )
+        #                if res == QtWidgets.QMessageBox.Cancel:
+        #                    return False
 
-                        if res == QtWidgets.QMessageBox.No:
-                            self.cursor_.setValueBuffer(field, qry.value(i))
+        #                if res == QtWidgets.QMessageBox.No:
+        #                    self.cursor_.setValueBuffer(field, qry.value(i))
 
-        if self.iface and self.cursor_.modeAccess() in [self.cursor_.Insert, self.cursor_.Edit]:
-            ret_ = True
+        if self.cursor_.modeAccess() in [self.cursor_.Insert, self.cursor_.Edit]:
             fun_ = getattr(self.iface, "validateForm", self.validateForm)
             if fun_ != self.validateForm:
                 ret_ = fun_()
 
-            return ret_ if isinstance(ret_, bool) else True
+            if isinstance(ret_, bool):
+                return ret_
+
         return True
 
     def acceptedForm(self) -> None:
@@ -570,10 +570,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
         the form is accepted and just before committing the registration.
         """
 
-        if self.iface:
-            fun_ = getattr(self.iface, "acceptedForm", self.acceptedForm)
-            if fun_ != self.acceptedForm:
-                fun_()
+        fun_ = getattr(self.iface, "acceptedForm", self.acceptedForm)
+        if fun_ != self.acceptedForm:
+            fun_()
 
     def afterCommitBuffer(self) -> None:
         """
@@ -582,11 +581,10 @@ class FLFormRecordDB(flformdb.FLFormDB):
         Call the "afterCommitBuffer" function of the script associated with the form
         right after committing the registry buffer.
         """
-        if self.iface:
-            try:
-                self.iface.afterCommitBuffer()
-            except Exception:
-                pass
+
+        fun_ = getattr(self.iface, "afterCommitBuffer", self.afterCommitBuffer)
+        if fun_ != self.afterCommitBuffer:
+            fun_()
 
     def afterCommitTransaction(self) -> None:
         """
@@ -595,11 +593,10 @@ class FLFormRecordDB(flformdb.FLFormDB):
         Call the "afterCommitTransaction" function of the script associated with the form,
         right after finishing the current transaction accepting.
         """
-        if self.iface:
-            try:
-                self.iface.afterCommitTransaction()
-            except Exception:
-                pass
+
+        fun_ = getattr(self.iface, "afterCommitTransaction", self.afterCommitTransaction)
+        if fun_ != self.afterCommitTransaction:
+            fun_()
 
     def canceledForm(self) -> None:
         """
@@ -608,11 +605,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
         Call the "canceledForm" function of the script associated with the form, when
         cancel the form.
         """
-        if self.iface:
-            try:
-                self.iface.canceledForm()
-            except Exception:
-                pass
+        fun_ = getattr(self.iface, "canceledForm", self.canceledForm)
+        if fun_ != self.canceledForm:
+            fun_()
 
     @decorators.pyqt_slot()
     def accept(self) -> None:
@@ -728,10 +723,6 @@ class FLFormRecordDB(flformdb.FLFormDB):
         Go to the previous record.
         """
         if self.cursor_ and self.cursor_.isValid():
-            if self.cursor_.at() == 0:
-                self.lastRecord()
-                return
-
             if not self.validateForm():
                 return
 
@@ -744,7 +735,10 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     self.cursor_.setModeAccess(self._initial_mode_access)
                     self.accepted_ = False
                     self.cursor_.transaction()
-                    self.cursor_.prev()
+                    if self.cursor_.at() == 0:
+                        self.lastRecord()
+                    else:
+                        self.cursor_.prev()
                     self.setCaptionWidget()
                     self.initScript()
 
@@ -753,11 +747,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
         """
         Go to the next record.
         """
-        if self.cursor_ and self.cursor_.isValid():
-            if self.cursor_.at() == (self.cursor_.size() - 1):
-                self.firstRecord()
-                return
 
+        if self.cursor_ and self.cursor_.isValid():
             if not self.validateForm():
                 return
 
@@ -770,7 +761,10 @@ class FLFormRecordDB(flformdb.FLFormDB):
                     self.cursor_.setModeAccess(self._initial_mode_access)
                     self.accepted_ = False
                     self.cursor_.transaction()
-                    self.cursor_.next()
+                    if self.cursor_.at() == (self.cursor_.size() - 1):
+                        self.cursor_.first()
+                    else:
+                        self.cursor_.next()
                     self.setCaptionWidget()
                     self.initScript()
 
@@ -779,7 +773,11 @@ class FLFormRecordDB(flformdb.FLFormDB):
         """
         Go to the last record.
         """
-        if self.cursor_ and not self.cursor_.at() == (self.cursor_.size() - 1):
+        if (
+            self.cursor_
+            and not self.cursor_.at() == (self.cursor_.size() - 1)
+            and self.cursor_.isValid()
+        ):
             if not self.validateForm():
                 return
 
