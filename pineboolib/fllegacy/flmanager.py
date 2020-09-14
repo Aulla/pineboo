@@ -495,9 +495,13 @@ class FLManager(QtCore.QObject, IManager):
         if cache and table_name in self.list_tables_:
             return True
         else:
-            return self.db_.existsTable(
+            ret = self.db_.existsTable(
                 table_name if not table_name.endswith(".mtd") else table_name[:-4]
             )
+            if ret:
+                self.list_tables_.append(table_name)
+
+            return ret
 
     def checkMetaData(
         self,
@@ -595,7 +599,6 @@ class FLManager(QtCore.QObject, IManager):
                 return n_or_tmd
 
             elif n_or_tmd.isQuery() or self.existsTable(n_or_tmd.name(), False):
-                self.list_tables_.append(n_or_tmd.name())
                 return n_or_tmd
 
             elif not self.db_.connManager().default().createTable(n_or_tmd):
