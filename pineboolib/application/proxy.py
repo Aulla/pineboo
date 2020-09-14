@@ -45,9 +45,12 @@ class DelayedObjectProxyLoader(object):
 
         @return objeto nuevo o si ya existe , cacheado
         """
-        if self.loaded_obj:
-            if getattr(self.loaded_obj, "_loader", True):
-                return self.loaded_obj
+        list_name = self._name.split(".")
+
+        if not list_name[-1].startswith("formRecord"):
+            if self.loaded_obj:
+                if getattr(self.loaded_obj, "_loader", True):
+                    return self.loaded_obj
 
         LOGGER.debug(
             "DelayedObjectProxyLoader: loading %s %s( *%s **%s)",
