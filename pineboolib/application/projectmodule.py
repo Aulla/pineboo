@@ -21,6 +21,9 @@ from pineboolib.application.database import utils as db_utils
 from pineboolib.application.utils import path, xpm
 from pineboolib.application import module, file, pnapplication
 
+from pineboolib.application.parsers.parser_qsa import postparse, pytnyzer, pyconvert
+
+
 from pineboolib.application.parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
 from pineboolib.application.parsers import parser_qsa
 
@@ -63,9 +66,9 @@ class Project(object):
     _session_func_: Optional[Callable]
 
     areas: Dict[str, AreaStruct]
-    files: Dict[Any, Any]
-    tables: Dict[Any, Any]
-    actions: Dict[Any, "xmlaction.XMLAction"]
+    files: Dict[str, Any]
+    tables: Dict[str, Any]
+    actions: Dict[str, "xmlaction.XMLAction"]
     translator_: List[Any]
     modules: Dict[str, "module.Module"]
     pending_conversion_list: List[str]
@@ -250,11 +253,10 @@ class Project(object):
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
-
-        from pineboolib import application
+        from . import PINEBOO_VER
 
         LOGGER.info("RUN: Loading project data.")
-        application.FILE_CLASSES = {}
+
         self.pending_conversion_list = []
 
         self.actions = {}
@@ -273,7 +275,7 @@ class Project(object):
         conn = self.conn_manager.mainConn()
         db_name = conn.DBName()
         delete_cache = self.delete_cache
-        cache_ver = application.PINEBOO_VER
+        cache_ver = PINEBOO_VER
         if os.path.exists(path._dir("cache/%s" % db_name)):
             if not os.path.exists(path._dir("cache/%s/cache_version.txt" % db_name)):
                 delete_cache = True
@@ -282,7 +284,7 @@ class Project(object):
                 file_ver = open(path._dir("cache/%s/cache_version.txt" % db_name), "r")
                 cache_ver = file_ver.read()
                 file_ver.close()
-                if cache_ver != application.PINEBOO_VER:
+                if cache_ver != PINEBOO_VER:
                     delete_cache = True
 
             if delete_cache:
@@ -335,7 +337,7 @@ class Project(object):
         # self.acl_.init()
 
         file_ver = open(path._dir("cache/%s/cache_version.txt" % db_name), "w")
-        file_ver.write(application.PINEBOO_VER)
+        file_ver.write(PINEBOO_VER)
         file_ver.close()
 
         return ret_
@@ -448,7 +450,6 @@ class Project(object):
 
         @param scriptname, Nombre del script a convertir
         """
-        from pineboolib.application.parsers.parser_qsa import postparse
 
         # Intentar convertirlo a Python primero con flscriptparser2
         if not os.path.isfile(scriptname):
@@ -475,7 +476,6 @@ class Project(object):
 
     def parse_script_list(self, path_list: List[str]) -> bool:
         """Convert QS scripts list into Python and stores it in the same folders."""
-        from pineboolib.application.parsers.parser_qsa import pytnyzer, pyconvert
 
         if not path_list:
             return True
@@ -547,12 +547,12 @@ class Project(object):
 
     def load_version(self) -> str:
         """Initialize current version numbers."""
-        from pineboolib import application
+        from . import PINEBOO_VER
 
         return (
-            "DBAdmin v%s" % application.PINEBOO_VER
+            "DBAdmin v%s" % PINEBOO_VER
             if settings.CONFIG.value("application/dbadmin_enabled", False)
-            else "Quick v%s" % application.PINEBOO_VER
+            else "Quick v%s" % PINEBOO_VER
         )
 
     def message_manager(self):
@@ -707,7 +707,7 @@ class Project(object):
                     ):  # si es forzado o no existe el .py
                         list_files.append(file_name)
 
-            elif nombre == "%s.qs" % module_name:  # si no se parsea todo y es de modulo
+            elif nombre == "%s.qs" % idmodulo:  # si no se parsea todo y es de modulo
                 if self.no_python_cache or not os.path.exists("%spy" % file_name[:-2]):
                     list_files.append(file_name)
 

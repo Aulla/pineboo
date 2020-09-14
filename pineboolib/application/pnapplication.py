@@ -6,8 +6,10 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from pineboolib.core import decorators, settings
 from pineboolib.core.utils import logging, utils_base
 
+from pineboolib.plugins import mainform
+
 from pineboolib import application
-from . import database
+from .database import DB_SIGNALS
 from .qsatypes import sysbasetype
 from .acls import pnaccesscontrollists
 from .database import utils
@@ -90,9 +92,9 @@ class PNApplication(QtCore.QObject):
         self.fl_factory_ = None
         self.op_check_update_ = False
         self.window_menu = None
-        database.DB_SIGNALS.notify_begin_transaction_ = False
-        database.DB_SIGNALS.notify_end_transaction_ = False
-        database.DB_SIGNALS.notify_roll_back_transaction_ = False
+        DB_SIGNALS.notify_begin_transaction_ = False
+        DB_SIGNALS.notify_end_transaction_ = False
+        DB_SIGNALS.notify_roll_back_transaction_ = False
         self._ted_output = None
         self.style = False
         self.init_single_fl_large = False
@@ -417,7 +419,6 @@ class PNApplication(QtCore.QObject):
         self.clearProject()
 
         if application.PROJECT.main_window is None and not utils_base.is_library():
-            from pineboolib.plugins import mainform
 
             main_form_name = settings.CONFIG.value("ebcomportamiento/main_form_name", "eneboo")
             main_form = getattr(mainform, main_form_name, None)
@@ -433,7 +434,7 @@ class PNApplication(QtCore.QObject):
 
         QSADictModules.clean_all()
         pnormmodelsfactory.PROCESSED = []
-        application.PROJECT.files = []
+        application.PROJECT.files = {}
         application.PROJECT.conn_manager.useConn("default")
         application.PROJECT.conn_manager.useConn("dbaux")
         application.PROJECT.run()
@@ -535,17 +536,17 @@ class PNApplication(QtCore.QObject):
     def setNotifyEndTransaction(self, value: bool) -> None:
         """Set notify end transaction mode."""
 
-        database.DB_SIGNALS.notify_end_transaction_ = value
+        DB_SIGNALS.notify_end_transaction_ = value
 
     def setNotifyBeginTransaction(self, value: bool) -> None:
         """Set notify begin transaction mode."""
 
-        database.DB_SIGNALS.notify_begin_transaction_ = value
+        DB_SIGNALS.notify_begin_transaction_ = value
 
     def setNotifyRollbackTransaction(self, value: bool) -> None:
         """Set notify rollback transaction mode."""
 
-        database.DB_SIGNALS.notify_roll_back_transaction_ = value
+        DB_SIGNALS.notify_roll_back_transaction_ = value
 
     @decorators.not_implemented_warn
     def printTextEdit(self, editor_):
@@ -683,21 +684,21 @@ class PNApplication(QtCore.QObject):
     ) -> None:
         """Emit signal."""
         self.transactionBegin.emit()
-        database.DB_SIGNALS.emitTransactionBegin(cursor)
+        DB_SIGNALS.emitTransactionBegin(cursor)
 
     def emitTransactionEnd(
         self, cursor: Union["pnsqlcursor.PNSqlCursor", "isqlcursor.ISqlCursor"]
     ) -> None:
         """Emit signal."""
         self.transactionEnd.emit()
-        database.DB_SIGNALS.emitTransactionEnd(cursor)
+        DB_SIGNALS.emitTransactionEnd(cursor)
 
     def emitTransactionRollback(
         self, cursor: Union["pnsqlcursor.PNSqlCursor", "isqlcursor.ISqlCursor"]
     ) -> None:
         """Emit signal."""
         self.transactionRollback.emit()
-        database.DB_SIGNALS.emitTransactionRollback(cursor)
+        DB_SIGNALS.emitTransactionRollback(cursor)
 
     def self_(self) -> "PNApplication":
         """Return self."""
