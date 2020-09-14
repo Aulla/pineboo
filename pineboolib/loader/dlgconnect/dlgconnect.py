@@ -360,7 +360,7 @@ class DlgConnect(QtWidgets.QWidget):
         Update the name of the database with the description name.
         """
         self._user_interface.leDBName.setText(
-            self._user_interface.leDescription.text().replace(" ", "_")
+            self._user_interface.leDescription.text().replace(" ", "_").lower()
         )
 
     @decorators.pyqt_slot(int)
