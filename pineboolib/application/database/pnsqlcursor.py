@@ -1010,7 +1010,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return message
 
         if not self.buffer().is_valid():
-            return "\nEl registro ha sido borrado el la BD"
+            return "\nEl registro ha sido borrado de la BD"
 
         field_list = self.metadata().fieldList()
 
@@ -1793,6 +1793,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         @param field_name Name of the buffer field that has changed
         """
+
         if not self.private_cursor.metadata_:
             return
 
