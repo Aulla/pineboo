@@ -1321,10 +1321,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param showError If TRUE shows the dialog box with the error that occurs when the pass integrity checks
         @return TRUE if the buffer could be delivered to the cursor, and FALSE if any verification failed of integrity
         """
-        if not self.private_cursor.buffer_ or not self.private_cursor.metadata_:
-            return False
         if not self.private_cursor._activated_check_integrity:
             return True
+        if not self.private_cursor.buffer_ or not self.private_cursor.metadata_:
+            return False
         msg = self.msgCheckIntegrity()
         if msg:
             if showError:
@@ -2604,38 +2604,37 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             )
             return False
 
-        if (
-            self.db().interactiveGUI()
-            and self.db().canDetectLocks()
-            and (
-                check_locks or self.metadata().detectLocks()
-            )  # type: ignore [union-attr] # noqa: F821
-        ):
-            self.checkRisksLocks()
-            if self.private_cursor._in_risks_locks:
-                ret = QtWidgets.QMessageBox.warning(
-                    QtWidgets.QApplication.activeWindow(),
-                    "Bloqueo inminente",
-                    "Los registros que va a modificar están bloqueados actualmente.\n"
-                    "Si continua hay riesgo de que su conexión quede congelada hasta finalizar el bloqueo.\n"
-                    "\n¿ Desa continuar aunque exista riesgo de bloqueo ?",
-                    QtWidgets.QMessageBox.Ok,
-                    cast(
-                        QtWidgets.QMessageBox.StandardButton,
-                        QtWidgets.QMessageBox.No
-                        | QtWidgets.QMessageBox.Default
-                        | QtWidgets.QMessageBox.Escape,
-                    ),
-                )
-                if ret == QtWidgets.QMessageBox.No:
-                    return False
+        # if (
+        #    self.db().interactiveGUI()
+        #    and self.db().canDetectLocks()
+        #    and (
+        #        check_locks or self.metadata().detectLocks()
+        #    )  # type: ignore [union-attr] # noqa: F821
+        # ):
+        #    self.checkRisksLocks()
+        #    if self.private_cursor._in_risks_locks:
+        #        ret = QtWidgets.QMessageBox.warning(
+        #            QtWidgets.QApplication.activeWindow(),
+        #            "Bloqueo inminente",
+        #            "Los registros que va a modificar están bloqueados actualmente.\n"
+        #            "Si continua hay riesgo de que su conexión quede congelada hasta finalizar el bloqueo.\n"
+        #            "\n¿ Desa continuar aunque exista riesgo de bloqueo ?",
+        #            QtWidgets.QMessageBox.Ok,
+        #            cast(
+        #                QtWidgets.QMessageBox.StandardButton,
+        #                QtWidgets.QMessageBox.No
+        #                | QtWidgets.QMessageBox.Default
+        #                | QtWidgets.QMessageBox.Escape,
+        #            ),
+        #        )
+        #        if ret == QtWidgets.QMessageBox.No:
+        #            return False
 
         if not self.checkIntegrity():
             LOGGER.warning("CommitBuffer cancelado. Problema de integridad.")
             return False
 
         field_name_check = None
-
         function_before_commit = (
             "beforeCommit_%s" % self.table() if self.activatedCommitActions() else ""
         )
@@ -2653,7 +2652,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if action_ is not None:
                     script_record = action_.load_record_widget()
                     script_record_iface = getattr(script_record, "iface", None)
-
         if self.modeAccess() in [self.Edit, self.Insert]:
             field_list = self.metadata().fieldList()
 
@@ -2678,7 +2676,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             self.setValueBuffer(field.name(), value)
 
         id_module = self.db().connManager().managerModules().idModuleOfFile("%s.mtd" % self.table())
-
         # FIXME: module_script is FLFormDB
         action = application.PROJECT.actions[
             id_module if id_module in application.PROJECT.actions.keys() else "sys"
@@ -2687,7 +2684,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         module_script = action.load_master_widget()
 
         module_iface: Any = getattr(module_script, "iface", None)
-
         if self.modeAccess() != PNSqlCursor.Browse and function_before_commit:
             # BEFORE_COMMIT
             func_ = getattr(module_iface, function_before_commit, None)

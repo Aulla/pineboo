@@ -718,6 +718,7 @@ class PNSqlQuery(object):
 
         @param table_list Text list (or a list) with the names of the tables separated by commas, e.g. "table1, table2, table3"
         """
+
         self.private_query._tables_list = []
         if isinstance(table_list, list):
             table_list = ",".join(table_list)
@@ -726,14 +727,14 @@ class PNSqlQuery(object):
 
         table_list = table_list.replace(" ", "")
         for tabla in table_list.split(","):
-            if (
-                not self.db().connManager().manager().existsTable(tabla)
-                and not self.db().connManager().manager().metadata(tabla)
-                and len(table_list.split(","))
-            ):
-                self._invalid_tables_list = True
-                LOGGER.warning("setTablesList: table not found %r. Query will not execute.", tabla)
+            if not self.db().connManager().manager().existsTable(tabla):
 
+                if not self.db().connManager().manager().metadata(tabla):
+                    if tabla == table_list:
+                        self._invalid_tables_list = True
+                        LOGGER.warning(
+                            "setTablesList: table not found %r. Query will not execute.", tabla
+                        )
             self.private_query._tables_list.append(tabla)
 
     def setValueParam(self, param_name: str, value: Any) -> None:

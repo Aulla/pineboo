@@ -350,10 +350,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         #    cursor.curName(),
         #    cursor.table(),
         # )
-
         if not self.transaction():
             return False
-
         if not self._transaction_level:
             self._last_active_cursor = cursor
             application.PROJECT.aq_app.emitTransactionBegin(cursor)
