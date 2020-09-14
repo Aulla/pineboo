@@ -294,11 +294,12 @@ class FLFormDB(QtWidgets.QDialog):
             if self.action_widget:
                 self.action_widget.clear_connections()
 
-            iface = self.iface
-            if hasattr(iface, "init"):
-                iface.init()
-            elif hasattr(self.action_widget, "init"):
-                self.action_widget.init()
+            fun = getattr(self.iface, "init", None)
+            if fun is None:
+                fun = getattr(self.action_widget, "init", None)
+
+            if fun is not None:
+                fun()
 
             return True
 
@@ -1014,8 +1015,10 @@ class FLFormDB(QtWidgets.QDialog):
 
     def get_iface(self) -> Callable:
         """Return script iface."""
+        from time import time
 
-        return getattr(self.action_widget, "iface", None)
+        fun = getattr(self.action_widget, "iface", None)
+        return fun
 
     def init_tool_bar(self) -> None:
         """Init bottomtoolbar."""
