@@ -2,7 +2,7 @@
 Module for MYISAM driver.
 """
 
-from pineboolib.fllegacy import flutil
+
 from pineboolib import logging
 from . import pnsqlschema
 
@@ -113,6 +113,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         is_view: bool = False,
     ) -> Optional[str]:
         """Create a table from given MTD."""
+        from pineboolib.fllegacy import flutil
 
         util = flutil.FLUtil()
         primary_key = ""

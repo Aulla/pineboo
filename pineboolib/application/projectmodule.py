@@ -19,7 +19,7 @@ from pineboolib.core import exceptions, settings, message_manager, decorators
 from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.database import utils as db_utils
 from pineboolib.application.utils import path, xpm
-from pineboolib.application import module, file, pnapplication
+from pineboolib.application import module, file
 
 from pineboolib.application.parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
 from pineboolib.application.parsers import parser_qsa
@@ -28,7 +28,8 @@ from pineboolib.application.parsers import parser_qsa
 if TYPE_CHECKING:
     from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401
     from pineboolib.application.database import pnconnection
-    from pineboolib.application import xmlaction  # noqa: F401
+    from pineboolib.application import xmlaction, pnapplication  # noqa: F401
+
 
 LOGGER = logging.get_logger(__name__)
 
@@ -117,6 +118,8 @@ class Project(object):
     def aq_app(self) -> "pnapplication.PNApplication":
         """Retrieve current Qt Application or throw error."""
         if self._aq_app is None:
+            from pineboolib.application import pnapplication
+
             self._aq_app = pnapplication.PNApplication()
         return self._aq_app
 
