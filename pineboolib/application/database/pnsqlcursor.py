@@ -47,6 +47,56 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     Database Cursor class.
     """
 
+    """
+    signals:
+    """
+
+    """
+    Indica que se ha cargado un nuevo buffer
+    """
+    newBuffer = QtCore.pyqtSignal()
+
+    """
+    Indica ha cambiado un campo del buffer, junto con la señal se envía el nombre del campo que
+    ha cambiado.
+    """
+    bufferChanged = QtCore.pyqtSignal(str)
+
+    """
+    Indica que se ha actualizado el cursor
+    """
+    cursorUpdated = QtCore.pyqtSignal()
+
+    """
+    Indica que se ha elegido un registro, mediante doble clic sobre él o bien pulsando la tecla Enter
+    """
+    recordChoosed = QtCore.pyqtSignal()
+
+    """
+    Indica que la posicion del registro activo dentro del cursor ha cambiado
+    """
+    currentChanged = QtCore.pyqtSignal(int)
+
+    """
+    Indica que se ha realizado un commit automático para evitar bloqueos
+    """
+    autoCommit = QtCore.pyqtSignal()
+
+    """
+    Indica que se ha realizado un commitBuffer
+    """
+    bufferCommited = QtCore.pyqtSignal()
+
+    """
+    Indica que se ha cambiado la conexión de base de datos del cursor. Ver changeConnection
+    """
+    connectionChanged = QtCore.pyqtSignal()
+
+    """
+    Indica que se ha realizado un commit
+    """
+    commited = QtCore.pyqtSignal()
+
     def __init__(
         self,
         name: str = "",
@@ -170,18 +220,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
     def conn(self) -> "iconnection.IConnection":
         """Get current connection for this cursor."""
         return self.db()
-
-        # def close(self) -> None:
-        # """Close cursor connection."""
-
-    #    session = self.db().session()
-    # print("*********", session, session.transaction)
-    # session.close()
-    # print("*****", session.transaction, self.db().session(), session.is_active)
-
-    #    model = self.model()
-    #    if model is not None:
-    #        model._cursor_db.close()
 
     def table(self) -> str:
         """Get current table or empty string."""
@@ -418,6 +456,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param field_name field name
         @param value Value to be set to the buffer field.
         """
+
         mtd = self.private_cursor.metadata_
 
         if not field_name or mtd is None:
@@ -473,12 +512,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 )
 
         else:
-            # if type_ == "date":
-            # value = time.strptime(repr(value))
-            #    print("**", value)
-            self.private_cursor.buffer_.set_value(field_name, value)
 
-        # LOGGER.trace("(%s)bufferChanged.emit(%s)" % (self.curName(),field_name))
+            self.private_cursor.buffer_.set_value(field_name, value)
 
         self.bufferChanged.emit(field_name)
         QtWidgets.QApplication.processEvents()
@@ -490,9 +525,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param field_name field name
         """
         table_metadata = self.private_cursor.metadata_
-
-        # if self.private_cursor.rawValues_:
-        #    return self.valueBufferRaw(field_name)
 
         if not table_metadata:
             return None
@@ -559,7 +591,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             elif type_ in ("double", "int", "uint", "serial"):
                 value = 0
 
-        # print("******************* Devolviendo", field_name, type_, value, type(value))
         return value
 
     def fetchLargeValue(self, value: str) -> Any:
@@ -1847,8 +1878,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return
 
         obj = self.sender()
-
-        if not obj or not obj.inherits("QTimer"):
+        if obj is None or not obj.inherits("QTimer"):
             self.private_cursor.timer_.start(msec)
             return
         else:
@@ -1861,9 +1891,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         #    return
 
         self.setFilter("")
-
-        self.select()
         pos = self.atFrom()
+        self.select()
         if not self.seek(pos, False, True):
             self.newBuffer.emit()
 
@@ -1922,11 +1951,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self._action:
             raise Exception("Not initialized")
 
-        if (
-            isinstance(self.sender(), QtCore.QTimer)
-            and self.private_cursor.mode_access_ != self.Browse
-        ):
-            return False
+        # if (
+        #    isinstance(self.sender(), QtCore.QTimer)
+        #    and self.private_cursor.mode_access_ != self.Browse
+        # ):
+        #    return False
 
         if self.private_cursor.mode_access_ != self.Insert:
             if not self.isValid():
@@ -2070,13 +2099,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return True if ok or False.
         """
         result = self.move(index)
-
         if result:
             if emite:
                 self.currentChanged.emit(self.at())
 
             result = self.refreshBuffer()
-
         return result
 
     @decorators.pyqt_slot()
