@@ -856,6 +856,8 @@ class LoadWidget:
                 LOGGER.warning("Icono %s.%s no encontrado." % (widget.objectName(), value1))
                 return
             else:
+                if value1 is None:
+                    return
                 value = value1
 
         else:
@@ -1059,6 +1061,8 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
         if text in ICONS.keys():
 
             return ICONS[text]
+        else:
+            LOGGER.warning("Icon %s not found:", text)
         return
     elif variant.tag == "string":
         return parse_string(text)
