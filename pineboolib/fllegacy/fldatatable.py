@@ -132,7 +132,7 @@ class FLDataTable(QtWidgets.QTableView):
         self.readonly_ = False
         self.editonly_ = False
         self.insertonly_ = False
-        self.refreshing_ = False
+        # self.refreshing_ = False
         self.filter_ = ""
         self.sort_ = ""
         self.row_selected = -1
@@ -223,8 +223,8 @@ class FLDataTable(QtWidgets.QTableView):
         """
         if id_pk is not None and self.numRows():
             pos = self.model().find_pk_row(id_pk)
-            if pos > -1 and pos != self.cur.currentRegister():
-                self.cur.move(pos)
+            if pos > -1 and pos != self.cursor_.currentRegister():
+                self.cursor_.move(pos)
             # self.ensureRowSelectedVisible()
 
     def setPersistentFilter(self, p_filter: Optional[str] = None) -> None:
@@ -333,7 +333,7 @@ class FLDataTable(QtWidgets.QTableView):
         """
 
         self.pk_checked.clear()
-        model = self.cur.model()
+        model = self.cursor_.model()
         for idx in model._check_column.keys():
             model._checkColumn[idx].setChecked(False)
 
@@ -342,7 +342,7 @@ class FLDataTable(QtWidgets.QTableView):
         Set the status selected by check for a record, indicating the value of its primary key.
         """
 
-        model = self.cur.model()
+        model = self.cursor_.model()
         if on_:
             if pk_value not in self.pk_checked:
                 self.pk_checked.append(pk_value)
@@ -417,7 +417,7 @@ class FLDataTable(QtWidgets.QTableView):
         Return the name of the field according to a position.
         """
 
-        field = self.cur.metadata().indexFieldObject(self.indexOf(col))
+        field = self.cursor_.metadata().indexFieldObject(self.indexOf(col))
         if field is None:
             raise Exception("Field not found")
         return field.name()
@@ -612,13 +612,13 @@ class FLDataTable(QtWidgets.QTableView):
 
         row = index.row()
         col = index.column()
-        field = self.cur.metadata().indexFieldObject(col)
+        field = self.cursor_.metadata().indexFieldObject(col)
         _type = field.type()
 
         if _type != "check":
             return
-        model = self.cur.model()
-        primary_key = str(model.value(row, self.cur.metadata().primaryKey()))
+        model = self.cursor_.model()
+        primary_key = str(model.value(row, self.cursor_.metadata().primaryKey()))
         model._check_column[primary_key].setChecked(
             not model._check_column[primary_key].isChecked()
         )
@@ -683,33 +683,33 @@ class FLDataTable(QtWidgets.QTableView):
         # if not self.refreshing_ and self.cursor_ and not self.cursor_.aqWasDeleted() and self.cursor_.metadata():
         if not self.refreshing_:
 
-            # if self.function_get_color and self.cur.model():
-            #    if self.cur.model().color_function_ != self.function_get_color:
-            #        self.cur.model().setColorFunction(self.function_get_color)
+            # if self.function_get_color and self.cursor_.model():
+            #    if self.cursor_.model().color_function_ != self.function_get_color:
+            #        self.cursor_.model().setColorFunction(self.function_get_color)
 
             self.refreshing_ = True
             self.hide()
-            filter: str = self.persistent_filter_
+            filter_: str = self.persistent_filter_
             if self.filter_:
                 if self.filter_ not in self.persistent_filter_:
                     if self.persistent_filter_:
-                        filter = "%s AND %s" % (filter, self.filter_)
+                        filter_ = "%s AND %s" % (filter_, self.filter_)
                     else:
-                        filter = self.filter_
+                        filter_ = self.filter_
 
-            self.cur.setFilter(filter)
+            self.cursor_.setFilter(filter_)
             if self.sort_:
-                self.cur.setSort(self.sort_)
+                self.cursor_.setSort(self.sort_)
 
             last_pk = None
-            buffer = self.cur.private_cursor.buffer_
+            buffer = self.cursor_.private_cursor.buffer_
             if buffer:
-                last_pk = buffer.value(self.cur.primaryKey())
+                last_pk = buffer.value(self.cursor_.primaryKey())
 
-            self.cur.refresh()
-
-            self.marcaRow(last_pk)
-            self.cur.refreshBuffer()
+            self.cursor_.refresh()
+            if last_pk is not None:
+                self.marcaRow(last_pk)
+                self.cursor_.refreshBuffer()
             self.show()
             self.refreshing_ = False
 
@@ -724,15 +724,15 @@ class FLDataTable(QtWidgets.QTableView):
     #    """
     #    Make the selected row visible.
     #    """
-    #    print("****", position, self.cur.at(), self.cur.isValid())
+    #    print("****", position, self.cursor_.at(), self.cursor_.isValid())
 
     #    if position is None:
     #        if self.cursor():
-    #            position = self.cur.at()
+    #            position = self.cursor_.at()
     #        else:
     #            return
 
-    # index = self.cur.model().index(position, 0)
+    # index = self.cursor_.model().index(position, 0)
     # if index is not None:
     #    self.scrollTo(index)
 

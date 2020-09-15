@@ -1995,7 +1995,7 @@ class FLTableDB(QtWidgets.QWidget):
                 if field_check is None:
                     raise Exception("field_check is empty!")
 
-                self.tableRecords().cur.model().updateColumnsCount()
+                self.tableRecords().cursor_.model().updateColumnsCount()
                 self.tableRecords().header().reset()
                 self.tableRecords().header().swapSections(
                     self.tableRecords().column_name_to_column_index(field_check.name()),
@@ -2519,7 +2519,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         if self._table_records:
             self._table_records.selectRow(row)
-            self._table_records.scrollTo(self._table_records.cur.model().index(row, 0))
+            self._table_records.scrollTo(self._table_records.cursor_.model().index(row, 0))
 
     @decorators.not_implemented_warn
     def columnWidth(self, col: int) -> None:
