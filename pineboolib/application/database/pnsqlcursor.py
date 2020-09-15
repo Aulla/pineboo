@@ -1828,7 +1828,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return
 
         obj = self.sender()
-        if obj is None or not obj.inherits("QTimer"):
+        if not obj or not obj.inherits("QTimer"):
             self.private_cursor.timer_.start(msec)
             return
         else:

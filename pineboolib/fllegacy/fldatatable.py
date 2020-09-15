@@ -223,8 +223,8 @@ class FLDataTable(QtWidgets.QTableView):
         """
         if id_pk is not None and self.numRows():
             pos = self.model().find_pk_row(id_pk)
-            if pos > -1 and pos != self.cursor_.currentRegister():
-                self.cursor_.move(pos)
+            if pos > -1 and pos != self.cur.currentRegister():
+                self.cur.move(pos)
             # self.ensureRowSelectedVisible()
 
     def setPersistentFilter(self, p_filter: Optional[str] = None) -> None:
@@ -331,9 +331,8 @@ class FLDataTable(QtWidgets.QTableView):
         """
         Clear the list with the primary keys of the records selected by check.
         """
-
         self.pk_checked.clear()
-        model = self.cursor_.model()
+        model = self.cur.model()
         for idx in model._check_column.keys():
             model._checkColumn[idx].setChecked(False)
 
@@ -342,7 +341,7 @@ class FLDataTable(QtWidgets.QTableView):
         Set the status selected by check for a record, indicating the value of its primary key.
         """
 
-        model = self.cursor_.model()
+        model = self.cur.model()
         if on_:
             if pk_value not in self.pk_checked:
                 self.pk_checked.append(pk_value)
@@ -390,7 +389,6 @@ class FLDataTable(QtWidgets.QTableView):
         """
         Set if the control is only Table mode.
         """
-
         if not self.cursor_ or self.cursor_.aqWasDeleted():
             return
 
@@ -417,7 +415,7 @@ class FLDataTable(QtWidgets.QTableView):
         Return the name of the field according to a position.
         """
 
-        field = self.cursor_.metadata().indexFieldObject(self.indexOf(col))
+        field = self.cur.metadata().indexFieldObject(self.indexOf(col))
         if field is None:
             raise Exception("Field not found")
         return field.name()
@@ -612,13 +610,13 @@ class FLDataTable(QtWidgets.QTableView):
 
         row = index.row()
         col = index.column()
-        field = self.cursor_.metadata().indexFieldObject(col)
+        field = self.cur.metadata().indexFieldObject(col)
         _type = field.type()
 
         if _type != "check":
             return
-        model = self.cursor_.model()
-        primary_key = str(model.value(row, self.cursor_.metadata().primaryKey()))
+        model = self.cur.model()
+        primary_key = str(model.value(row, self.cur.metadata().primaryKey()))
         model._check_column[primary_key].setChecked(
             not model._check_column[primary_key].isChecked()
         )
