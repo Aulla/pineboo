@@ -5,11 +5,16 @@ Simplify AST-XML structures for later generation of Python files.
 from optparse import OptionParser
 import os
 import sys
+import importlib
 from xml.etree import ElementTree as ET
 from xml.dom import minidom  # type: ignore
 from pineboolib import logging
 from . import pytnyzer, flscriptparse
 from typing import List, Type, Optional, Dict, Tuple, Any, Callable, cast, Iterable
+
+STRICT_MODE = pytnyzer.STRICT_MODE
+importlib.reload(pytnyzer)
+pytnyzer.STRICT_MODE = STRICT_MODE
 
 TreeData = Dict[str, Any]
 
