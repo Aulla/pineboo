@@ -196,6 +196,12 @@ class XMLAction(struct.ActionStruct):
                         self._name,
                         self._record_form,
                     )
+            if self._record_widget._form is not None:
+                # FIXME: Borrar bien el formrecord viejo!
+                self._record_widget._form.setParent(None)
+                self._record_widget._form.deleteLater()
+                del self._record_widget._form
+                self._record_widget._form = None
 
             self._record_widget._form = form  # type: ignore [assignment] # noqa: F821
 
