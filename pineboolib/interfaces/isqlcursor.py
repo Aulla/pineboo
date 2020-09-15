@@ -251,6 +251,56 @@ class ISqlCursor(QtCore.QObject):
     Abstract class for PNSqlCursor.
     """
 
+    """
+    signals:
+    """
+
+    """
+    Indica que se ha cargado un nuevo buffer
+    """
+    newBuffer = QtCore.pyqtSignal()
+
+    """
+    Indica ha cambiado un campo del buffer, junto con la señal se envía el nombre del campo que
+    ha cambiado.
+    """
+    bufferChanged = QtCore.pyqtSignal(str)
+
+    """
+    Indica que se ha actualizado el cursor
+    """
+    cursorUpdated = QtCore.pyqtSignal()
+
+    """
+    Indica que se ha elegido un registro, mediante doble clic sobre él o bien pulsando la tecla Enter
+    """
+    recordChoosed = QtCore.pyqtSignal()
+
+    """
+    Indica que la posicion del registro activo dentro del cursor ha cambiado
+    """
+    currentChanged = QtCore.pyqtSignal(int)
+
+    """
+    Indica que se ha realizado un commit automático para evitar bloqueos
+    """
+    autoCommit = QtCore.pyqtSignal()
+
+    """
+    Indica que se ha realizado un commitBuffer
+    """
+    bufferCommited = QtCore.pyqtSignal()
+
+    """
+    Indica que se ha cambiado la conexión de base de datos del cursor. Ver changeConnection
+    """
+    connectionChanged = QtCore.pyqtSignal()
+
+    """
+    Indica que se ha realizado un commit
+    """
+    commited = QtCore.pyqtSignal()
+
     Insert = CursorAccessMode.Insert
     Edit = CursorAccessMode.Edit
     Del = CursorAccessMode.Del
