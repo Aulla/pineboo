@@ -41,11 +41,15 @@ class TestEnebooGUI(unittest.TestCase):
         from pineboolib.plugins.mainform.eneboo import eneboo
         import os
 
+        if hasattr(application.PROJECT, "main_window"):
+            del application.PROJECT.main_window
+            application.PROJECT.main_window = None
         # application.PROJECT.main_form = eneboo
         # eneboo.mainWindow = eneboo.MainForm()
         # eneboo.mainWindow.initScript()
         application.PROJECT.main_window = eneboo.MainForm()
         application.PROJECT.main_window.initScript()
+        application.PROJECT.main_window.reinitScript()
         # main_window = application.PROJECT.main_form.MainForm()  # type: ignore
         # main_window.initScript()
         self.assertTrue(application.PROJECT.main_window)
@@ -55,6 +59,7 @@ class TestEnebooGUI(unittest.TestCase):
         application.PROJECT.main_window.triggerAction(
             "triggered():initModule():flfactppal_actiongroup_name"
         )
+
         self.assertTrue(qsa_sys.loadModules(path, False))
 
         # application.PROJECT.main_window = application.PROJECT.main_form.mainWindow  # type: ignore
@@ -63,16 +68,18 @@ class TestEnebooGUI(unittest.TestCase):
         application.PROJECT.main_window.triggerAction(
             "triggered():initModule():sys_actiongroup_name"
         )
-        # self.assertTrue(False)
+
         application.PROJECT.main_window.triggerAction("triggered():openDefaultForm():clientes")
         application.PROJECT.main_window.triggerAction(
             "triggered():openDefaultForm():clientes"
         )  # Remove page and show again.
+
         action = cast(
             QtWidgets.QAction,
             application.PROJECT.main_window.findChild(QtWidgets.QAction, "clientes"),
         )
         application.PROJECT.main_window.addMark(action)
+
         if application.PROJECT.main_window.ag_mar_:
             application.PROJECT.main_window.ag_mar_.removeAction(action)
         application.PROJECT.main_window.dck_mar_.update(application.PROJECT.main_window.ag_mar_)
