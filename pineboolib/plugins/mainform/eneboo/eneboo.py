@@ -287,6 +287,7 @@ class MainForm(imainwindow.IMainWindow):
     w_: QtWidgets.QMainWindow
     # tw_corner = None  # deprecated
     act_sig_map_: QtCore.QSignalMapper
+    initialized_mods_: List[str]
 
     main_widgets_: Dict[str, QtWidgets.QWidget] = {}
     # lista_tabs_ = []
@@ -510,9 +511,9 @@ class MainForm(imainwindow.IMainWindow):
 
     def init(self) -> None:
         """Initialize UI."""
+
         cast(QtWidgets.QMainWindow, self.main_widget).statusBar().hide()
         self.main_widgets_ = {}
-        self.initialized_mods_ = []
         self.act_sig_map_ = QtCore.QSignalMapper(self.main_widget)
         self.act_sig_map_.setObjectName("pinebooActSignalMap")
         self.act_sig_map_.mapped[str].connect(self.triggerAction)  # type: ignore
@@ -527,7 +528,6 @@ class MainForm(imainwindow.IMainWindow):
         """Initialize UI from a base widget."""
         self.main_widget = main_window
         self.main_widgets_ = {}
-        self.initialized_mods_ = []
         self.act_sig_map_ = QtCore.QSignalMapper(self.main_widget)
         self.act_sig_map_.setObjectName("pinebooActSignalMap")
         self.tab_widget = cast(
@@ -1307,6 +1307,7 @@ class MainForm(imainwindow.IMainWindow):
         self.createUi(utils_base.filedir("plugins/mainform/eneboo/mainform.ui"))
         self.init()
         self.updateMenuAndDocks()
+        self.initialized_mods_ = []
         self.initModule("sys")
         # self.show()
         self.readState()
@@ -1324,6 +1325,7 @@ class MainForm(imainwindow.IMainWindow):
         ).triggered.disconnect(application.PROJECT.aq_app.aboutPineboo)
         self.main_widget = self
         self.updateMenuAndDocks()
+        self.initialized_mods_ = []
         self.initModule("sys")
         self.readState()
 
@@ -1357,12 +1359,25 @@ class MainForm(imainwindow.IMainWindow):
             self.initModule(action_name.replace("_module_actiongroup_name", ""))
 
         elif fn_ == "openDefaultForm()":
-            self.addForm(action_name, action.icon().pixmap(16, 16))
             self.addRecent(action)
+            if action_name in application.PROJECT.actions.keys():
+                module_name = module_name = application.PROJECT.actions[
+                    action_name
+                ]._mod.module_name
+                if module_name:
+                    self.initModule(module_name)
+
+            self.addForm(action_name, action.icon().pixmap(16, 16))
 
         elif fn_ == "execDefaultScript()":
             self.addRecent(action)
             if action_name in application.PROJECT.actions.keys():
+                module_name = module_name = application.PROJECT.actions[
+                    action_name
+                ]._mod.module_name
+                if module_name:
+                    self.initModule(module_name)
+
                 application.PROJECT.actions[action_name].execMainScript(action_name)
 
         elif fn_ == "loadModules()":
