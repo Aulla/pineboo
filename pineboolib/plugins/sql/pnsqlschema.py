@@ -391,7 +391,7 @@ class PNSqlSchema(object):
             result_ = "'%s'" % value or self._null
 
         elif type_ == "pixmap":
-            result_ = "'%s'" % self.normalizeValue(value) if value.find("'") > -1 else value
+            result_ = "'%s'" % self.normalizeValue(value)
 
         elif type_ in ("bool", "unlock"):
             result_ = self._true if utils_base.text2bool(str(value)) else self._false
