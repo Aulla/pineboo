@@ -712,11 +712,16 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if sql_count.find("ORDER BY") > 1:
             sql_count = sql_count[: sql_count.find("ORDER BY")]
 
+        self._data_proxy = None
         # print("COUNT", sql_count)
 
         # print("QUERY", sql_query)
-        result_count = self.db().session().execute(sql_count)
-        self._data_proxy = None
+        try:
+            result_count = self.db().session().execute(sql_count)
+        except Exception:
+            LOGGER.warning("Bad query: (%s)" % sql_query)
+            return
+
         rows_loaded = result_count.fetchone()[0]
 
         if rows_loaded:
@@ -734,7 +739,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """Return valid where."""
 
         where_filter = ""
-        for k, wfilter in sorted(self.where_filters.items()):
+        for key, wfilter in sorted(self.where_filters.items()):
             if not wfilter:
                 continue
 
