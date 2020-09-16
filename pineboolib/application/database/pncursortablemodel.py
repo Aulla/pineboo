@@ -719,7 +719,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         try:
             result_count = self.db().session().execute(sql_count)
         except Exception:
-            LOGGER.warning("Bad query: (%s)" % sql_query)
+            LOGGER.warning("Bad query: (%s)", sql_query)
             return
 
         rows_loaded = result_count.fetchone()[0]

@@ -1361,9 +1361,9 @@ class MainForm(imainwindow.IMainWindow):
         elif fn_ == "openDefaultForm()":
             self.addRecent(action)
             if action_name in application.PROJECT.actions.keys():
-                module_name = module_name = application.PROJECT.actions[
+                module_name = application.PROJECT.actions[
                     action_name
-                ]._mod.module_name
+                ]._mod.module_name  # type: ignore [union-attr] # noqa: F821
                 if module_name:
                     self.initModule(module_name)
 
@@ -1372,9 +1372,9 @@ class MainForm(imainwindow.IMainWindow):
         elif fn_ == "execDefaultScript()":
             self.addRecent(action)
             if action_name in application.PROJECT.actions.keys():
-                module_name = module_name = application.PROJECT.actions[
+                module_name = application.PROJECT.actions[
                     action_name
-                ]._mod.module_name
+                ]._mod.module_name  # type: ignore [union-attr] # noqa: F821
                 if module_name:
                     self.initModule(module_name)
 
