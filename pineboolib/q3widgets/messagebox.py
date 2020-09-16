@@ -5,7 +5,6 @@ from PyQt5 import QtWidgets
 
 from pineboolib import application
 from pineboolib.core.utils import logging
-
 import clipboard  # type: ignore [import] # noqa: F821
 
 from typing import Optional, List
@@ -26,6 +25,12 @@ class MessageBox:
     @classmethod
     def msgbox(cls, typename, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Return a messageBox."""
+
+        if QtWidgets.QApplication.platformName() == "offscreen":
+            LOGGER.warning(
+                "q3widget.MessageBox launch when library mode ON! (%s : %s)", typename, args
+            )
+            return
 
         msg_box = getattr(QtWidgets.QMessageBox, typename, None)
         if msg_box is None:
