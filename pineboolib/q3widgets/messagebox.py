@@ -30,7 +30,7 @@ class MessageBox:
             LOGGER.warning(
                 "q3widget.MessageBox launch when library mode ON! (%s : %s)", typename, args
             )
-            return
+            return None
 
         msg_box = getattr(QtWidgets.QMessageBox, typename, None)
         if msg_box is None:
