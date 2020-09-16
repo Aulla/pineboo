@@ -1458,31 +1458,23 @@ class FLManager(QtCore.QObject, IManager):
         qry = pnsqlquery.PNSqlQuery(None, "dbAux")
         qry.setSelect("refkey")
         qry.setFrom(table_large)
-        qry.setWhere(" refkey = '%s'" % ref_key)
+        qry.setWhere("refkey = '%s'" % ref_key)
         if qry.exec_() and qry.first():
             if qry.value(0) != sha:
                 sql = "UPDATE %s SET contenido = '%s' WHERE refkey ='%s'" % (
                     table_large,
-                    self.db_.formatValue("pixmap", large_value, False),
-                    self.db_.formatValue("string", ref_key, False),
+                    large_value,
+                    ref_key,
                 )
-                if not util.execSql(sql, "dbAux"):
-                    LOGGER.warning(
-                        "FLManager::ERROR:StoreLargeValue.Update %s.%s", table_large, ref_key
-                    )
-                    return None
-        else:
-            sql = "INSERT INTO %s (contenido,refkey) VALUES (%s,%s)" % (
-                table_large,
-                self.db_.formatValue("pixmap", large_value, False),
-                self.db_.formatValue("string", ref_key, False),
-            )
-            if not util.execSql(sql, "dbAux"):
-                LOGGER.warning(
-                    "FLManager::ERROR:StoreLargeValue.Insert %s.%s", table_large, ref_key
-                )
-                return None
 
+        else:
+            sql = "INSERT INTO %s (contenido,refkey) VALUES ('%s','%s')" % (
+                table_large,
+                large_value,
+                ref_key,
+            )
+
+        self.db_.connManager().useConn("dbAux").execute_query(sql)
         return ref_key
 
     def fetchLargeValue(self, ref_key: Optional[str]) -> Optional[str]:
