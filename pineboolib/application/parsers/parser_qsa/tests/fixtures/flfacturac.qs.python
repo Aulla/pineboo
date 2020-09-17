@@ -15,7 +15,7 @@ class interna(object):
     def beforeCommit_presupuestoscli(self, curPresupuesto: "qsa.FLSqlCursor") -> "bool":
         return self.ctx.interna_beforeCommit_presupuestoscli(curPresupuesto)
 
-    def beforeCommit_pedidoscli(self, curPedido: "qsa.FLSqlCursor") -> "bool":
+    def beforeCommit_pedidoscli(self, curPedido: "qsa.FLSqlCursor", optional: "Any" = None) -> "bool":
         return self.ctx.interna_beforeCommit_pedidoscli(curPedido)
 
     def beforeCommit_pedidosprov(self, curPedido: "qsa.FLSqlCursor") -> "bool":
@@ -490,7 +490,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return True
 
-    def interna_beforeCommit_lineasalbaranescli(self, curLinea: "qsa.FLSqlCursor") -> "bool":
+    def interna_beforeCommit_lineasalbaranescli(self, curLinea: "qsa.FLSqlCursor", optional: "Any" = None) -> "bool":
         util: "qsa.FLUtil" = qsa.FLUtil()
         for case in qsa.switch(curLinea.modeAccess()):
             if case(curLinea.Del):

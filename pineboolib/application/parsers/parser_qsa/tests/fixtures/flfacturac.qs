@@ -30,7 +30,7 @@ class interna {
 	function beforeCommit_presupuestoscli(curPresupuesto:FLSqlCursor):Boolean {
 		return this.ctx.interna_beforeCommit_presupuestoscli(curPresupuesto);
 	}
-	function beforeCommit_pedidoscli(curPedido:FLSqlCursor):Boolean {
+	function beforeCommit_pedidoscli(curPedido:FLSqlCursor, optional:Optional):Boolean {
 		return this.ctx.interna_beforeCommit_pedidoscli(curPedido);
 	}
 	function beforeCommit_pedidosprov(curPedido:FLSqlCursor):Boolean {
@@ -489,7 +489,7 @@ function interna_beforeCommit_pedidoscli(curPedido:FLSqlCursor):Boolean
 /** \C
 Si se borra la linea de albarán se actualiza la línea y el estado del pedido asociado a la misma.
 \end */
-function interna_beforeCommit_lineasalbaranescli(curLinea:FLSqlCursor):Boolean
+function interna_beforeCommit_lineasalbaranescli(curLinea:FLSqlCursor, optional: optional):Boolean
 {
 	var util:FLUtil = new FLUtil();
 

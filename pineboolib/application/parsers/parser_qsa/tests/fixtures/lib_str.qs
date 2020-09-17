@@ -15,7 +15,7 @@
  *                                                                         *
  ***************************************************************************/
 
-function entry_point(user, verb, model, params, method) {
+function entry_point(user, verb, model:Optional, params: Optional, method : optional) {
     debug("Hola");
     return;
     const f = get_api_function(verb, model, method);

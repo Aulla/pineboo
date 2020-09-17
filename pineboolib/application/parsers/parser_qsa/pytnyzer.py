@@ -674,11 +674,15 @@ class Function(ASTPython):
                             # dtype_ = "Union[int, float]"
                         elif dtype_ == "Boolean":
                             dtyping_ = "bool"
+                        elif dtype_.lower() == "optional":
+                            dtyping_ = "Any"
                         elif dtype_ in QSA_KNOWN_ATTRS:
                             dtyping_ = "qsa.%s" % dtype_
 
                     if dtyping_:
                         expr += [":", '"%s"' % dtyping_]
+                    if dtyping_ == "Any":
+                        expr += ["=", "None"]
                     # else:
                     #    pass
                     # def_value = "None"
