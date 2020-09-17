@@ -37,6 +37,8 @@ DECIMAL_SEPARATOR = (
 BASE_DIR = None
 FORCE_DESKTOP = False
 
+_showed_force_desktop_warning = False
+
 
 def auto_qt_translate_text(text: Optional[str]) -> str:
     """Remove QT_TRANSLATE from Eneboo XML files. This function does not translate."""
@@ -472,8 +474,13 @@ def is_deployed() -> bool:
 
 def is_library() -> bool:
     """Return if pineboolib is used as external library."""
+    global _showed_force_desktop_warning
+
     if FORCE_DESKTOP:
-        LOGGER.info("is_library: Force Desktop is Activated!")
+        if not _showed_force_desktop_warning:
+            LOGGER.info("is_library: Force Desktop is Activated!")
+            _showed_force_desktop_warning = True
+
         return False
     return QtWidgets.QApplication.platformName() == "offscreen"
 
