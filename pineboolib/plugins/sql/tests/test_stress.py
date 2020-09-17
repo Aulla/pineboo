@@ -58,8 +58,8 @@ class TestStress(unittest.TestCase):
         metadata = cursor.metadata()
 
         field_str = metadata.field("string_field")
-        self.assertTrue(field_str)
-        if field_str:
+        self.assertTrue(field_str is not None)
+        if field_str is not None:
             self.assertEqual(field_str.length(), 0)
             before_change_structure = cursor.db().driver().recordInfo2("fltest")
             field_str.private.length_ = 180
