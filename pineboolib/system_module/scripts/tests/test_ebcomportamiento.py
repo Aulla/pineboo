@@ -29,6 +29,9 @@ class TestEBComportamiento(unittest.TestCase):
         func_ = qsa.from_project("formebcomportamiento").main
         self.assertTrue(func_)
         func_()
+        func2_ = qsa.from_project("formebcomportamiento").guardar_clicked
+        self.assertTrue(func2_)
+        func2_()
 
     @classmethod
     def tearDownClass(cls) -> None:

@@ -33,7 +33,7 @@ class TestFLSqlite(unittest.TestCase):
         self.assertEqual(driver.setType("timestamp"), "TIMESTAMP")
 
     def test_basic_2(self) -> None:
-        """Basics test 1."""
+        """Basics test 2."""
         from pineboolib.application.database import pnsqlcursor
 
         cursor = pnsqlcursor.PNSqlCursor("fltest")
@@ -45,6 +45,21 @@ class TestFLSqlite(unittest.TestCase):
 
         driver = flmysql_myisam.FLMYSQL_MYISAM()
         self.assertEqual(sql, driver.sqlCreateTable(cursor.metadata(), False))
+
+    def test_basic_3(self) -> None:
+        """Basic test 3."""
+
+        driver = flmysql_myisam.FLMYSQL_MYISAM()
+        self.assertEqual(driver.decodeSqlType("char"), "string")
+        self.assertEqual(driver.decodeSqlType("int unsigned"), "uint")
+        self.assertEqual(driver.decodeSqlType("int"), "int")
+        self.assertEqual(driver.decodeSqlType("date"), "date")
+        self.assertEqual(driver.decodeSqlType("mediumtext"), "stringlist")
+        self.assertEqual(driver.decodeSqlType("tinyint"), "bool")
+        self.assertEqual(driver.decodeSqlType("decimal"), "double")
+        self.assertEqual(driver.decodeSqlType("longblob"), "bytearray")
+        self.assertEqual(driver.decodeSqlType("time"), "time")
+        self.assertEqual(driver.decodeSqlType("timestamp"), "timestamp")
 
     @classmethod
     def tearDownClass(cls) -> None:

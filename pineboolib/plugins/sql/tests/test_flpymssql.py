@@ -46,6 +46,21 @@ class TestFLMSSql(unittest.TestCase):
         print(driver.sqlCreateTable(cursor.metadata(), False))
         self.assertEqual(sql, driver.sqlCreateTable(cursor.metadata(), False))
 
+    def test_basic_3(self) -> None:
+        """Basic test 3."""
+
+        driver = flmysql_myisam.FLPYMSSQL()
+        self.assertEqual(driver.decodeSqlType("varchar"), "string")
+        self.assertEqual(driver.decodeSqlType("bigint"), "uint")
+        self.assertEqual(driver.decodeSqlType("int"), "int")
+        self.assertEqual(driver.decodeSqlType("date"), "date")
+        self.assertEqual(driver.decodeSqlType("text"), "stringlist")
+        self.assertEqual(driver.decodeSqlType("bit"), "bool")
+        self.assertEqual(driver.decodeSqlType("decimal"), "double")
+        self.assertEqual(driver.decodeSqlType("nvarchar"), "bytearray")
+        self.assertEqual(driver.decodeSqlType("time"), "time")
+        self.assertEqual(driver.decodeSqlType("datetime2"), "timestamp")
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

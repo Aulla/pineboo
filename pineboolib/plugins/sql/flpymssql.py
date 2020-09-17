@@ -20,7 +20,7 @@ LOGGER = logging.get_logger(__name__)
 
 
 class FLPYMSSQL(pnsqlschema.PNSqlSchema):
-    """FLQPSQL class."""
+    """FLPYMSSQL class."""
 
     def __init__(self):
         """Inicialize."""
