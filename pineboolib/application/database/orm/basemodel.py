@@ -631,7 +631,11 @@ class BaseModel(object):
                         value = getattr(self, field_name)
 
                         if isinstance(value, str) and value == "None":
-                            LOGGER.warning("String 'None' found, fixing to NoneType.")
+                            LOGGER.warning(
+                                "String 'None' found in field %s.%s, fixing to NoneType.",
+                                table_meta.name(),
+                                field_name,
+                            )
                             setattr(self, field_name, None)
                             value = None
 
