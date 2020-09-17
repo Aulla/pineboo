@@ -87,11 +87,11 @@ class Flfiles(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
         value = self.sha
         util = qsa.FLUtil()
         result_query = session.query(flfiles_class).all()
-        value_tmp = None
+        value_tmp = ""
         for file_ in result_query:
-            value_tmp = util.sha1(file_.sha if value_tmp is None else value_tmp + file_.sha)
+            value_tmp = util.sha1(file_.sha if not value_tmp else (value_tmp + file_.sha))
 
-        if value_tmp is not None:
+        if value_tmp:
             value = value_tmp
 
         # session_dbaux = qsa.session("dbaux")
