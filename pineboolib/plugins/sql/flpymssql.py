@@ -204,6 +204,8 @@ class FLPYMSSQL(pnsqlschema.PNSqlSchema):
             ret = "time"
         elif type_ == "varchar":
             ret = "string"
+        elif type_ == "nvarchar":
+            ret = "bytearray"
         elif type_ == "text":
             ret = "stringlist"
         elif type_ == "datetime2":

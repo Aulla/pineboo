@@ -1,7 +1,7 @@
 """Test_flmssql module."""
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.plugins.sql import flpymssql
+from .. import flpymssql
 
 
 class TestFLMSSql(unittest.TestCase):
@@ -49,7 +49,7 @@ class TestFLMSSql(unittest.TestCase):
     def test_basic_3(self) -> None:
         """Basic test 3."""
 
-        driver = flmysql_myisam.FLPYMSSQL()
+        driver = flpymssql.FLPYMSSQL()
         self.assertEqual(driver.decodeSqlType("varchar"), "string")
         self.assertEqual(driver.decodeSqlType("bigint"), "uint")
         self.assertEqual(driver.decodeSqlType("int"), "int")

@@ -1,7 +1,7 @@
 """Test_flsqlite module."""
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
-from pineboolib.plugins.sql import flsqlite
+from .. import flsqlite
 
 
 class TestFLSqlite(unittest.TestCase):

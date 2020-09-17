@@ -830,12 +830,12 @@ class PNSqlSchema(object):
 
         cur = self.execute_query(sql)
 
-        time_stamp_: Optional[str] = cur.fetchone()[0] if cur else None
+        time_stamp_: Any = cur.fetchone() if cur else None
 
         if time_stamp_ is None:
             raise Exception("timestamp is empty!")
 
-        return time_stamp_
+        return time_stamp_[0]
 
     def close_emited(self, *args):
         """."""
