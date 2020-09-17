@@ -630,17 +630,23 @@ class BaseModel(object):
                         # )
                         value = getattr(self, field_name)
 
+                        if isinstance(value, str) and value == "None":
+                            LOGGER.warning("String 'None' found, fixing to NoneType.")
+                            setattr(self, field_name, None)
+                            value = None
+
                         if qry_data is None and (not field.allowNull() or value):
 
                             self._error_manager(
                                 "_check_integrity",
-                                "INTEGRITY::Relation %s.%s M1 %s.%s with value '%s' is invalid"
+                                "INTEGRITY::Relation %s.%s M1 %s.%s with value '%s' type(%s) is invalid"
                                 % (
                                     table_meta.name(),
                                     field_name,
                                     relation_m1.foreignTable(),
                                     relation_m1.foreignField(),
                                     value,
+                                    type(value),
                                 ),
                             )
 
