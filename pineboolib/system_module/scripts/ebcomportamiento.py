@@ -33,7 +33,8 @@ class FormInternalObj(qsa.FormDBWidget):
         self.module_connect(boton_aceptar_tmp, u"clicked()", self, u"cambiar_temporales_clicked")
         self.cargarConfiguracion()
         self.initEventFilter()
-        w.show()
+        if qsa.sys.interactiveGUI() == "Pineboo":
+            w.show()
 
     def cargarConfiguracion(self) -> None:
         """Load configuration."""
