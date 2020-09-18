@@ -862,7 +862,7 @@ class FLDataTable(QtWidgets.QTableView):
 
         return ret_
 
-    def visual_index_to_logical_index(self, col_pos: int) -> int:
+    def visual_index_to_metadata_index(self, col_pos: int) -> int:
         """
         Visual to logical index.
         """
@@ -878,24 +878,18 @@ class FLDataTable(QtWidgets.QTableView):
         """
         Return the metadata of a field according to visual position.
         """
+        valid_idx = self.visual_index_to_column_index(pos_)  # corrige posición con ocultos.
+        logical_idx = self.visual_index_to_metadata_index(valid_idx)  # posicion en metadata.
+        table_metadata = self.model().metadata()
+        field_metadata = table_metadata.indexFieldObject(logical_idx)
 
-        logical_idx = self.visual_index_to_column_index(pos_)
-
-        if logical_idx < 0:
-            return None
-
-        # logical_idx = self.logical_index_to_visual_index(col_idx)
-
-        model: "pncursortablemodel.PNCursorTableModel" = self.model()
-        mtd = model.metadata()
-        mtdfield = mtd.indexFieldObject(logical_idx)
-        if not mtdfield.visibleGrid():
+        if not field_metadata.visibleGrid():
             raise ValueError(
                 "Se ha devuelto el field %s.%s que no es visible en el grid"
-                % (mtd.name(), mtdfield.name())
+                % (table_metadata.name(), field_metadata.name())
             )
-
-        return mtdfield
+        # print("POS", pos_, field_metadata.name())
+        return field_metadata
 
     def currentRow(self) -> int:
         """

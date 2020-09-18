@@ -850,7 +850,7 @@ class FLTableDB(QtWidgets.QWidget):
 
             for column in range(model.columnCount()):
                 alias_ = self._table_records.model().headerData(
-                    self._table_records.visual_index_to_logical_index(column),
+                    self._table_records.visual_index_to_metadata_index(column),
                     QtCore.Qt.Horizontal,
                     QtCore.Qt.DisplayRole,
                 )
@@ -2615,7 +2615,7 @@ class FLTableDB(QtWidgets.QWidget):
         row = aqods.AQOdsRow(sheet)
         row.addBgColor(aqods.aq_ods_color(0xE7E7E7))
         for idx in range(tdb_num_cols):
-            field = metadata.indexFieldObject(table_records.visual_index_to_logical_index(idx))
+            field = metadata.indexFieldObject(table_records.visual_index_to_metadata_index(idx))
             if field is not None and field.visibleGrid():
                 row.opIn(title_style)
                 row.opIn(border_bot)
@@ -2641,7 +2641,7 @@ class FLTableDB(QtWidgets.QWidget):
                 #    continue
 
                 field = metadata.indexFieldObject(
-                    table_records.visual_index_to_logical_index(idx_col)
+                    table_records.visual_index_to_metadata_index(idx_col)
                 )
                 if field is not None and field.visibleGrid():
                     val = cursor.valueBuffer(field.name())
@@ -2759,7 +2759,7 @@ class FLTableDB(QtWidgets.QWidget):
         refresh_data = False
 
         msec_refresh = 400
-        colidx = self._table_records.visual_index_to_logical_index(self._sort_column_1)
+        colidx = self._table_records.visual_index_to_metadata_index(self._sort_column_1)
         if colidx is None:
             raise Exception("Unexpected: Column not found")
         field = self.cursor().model().metadata().indexFieldObject(colidx)
