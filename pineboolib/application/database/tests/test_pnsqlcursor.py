@@ -307,12 +307,6 @@ class TestBuffer(unittest.TestCase):
         cursor.refreshBuffer()
         buffer_copy = cursor.bufferCopy()
         buffer = cursor.buffer()
-        if not buffer:
-            raise Exception("buffer is empty!")
-
-        if not buffer_copy:
-            raise Exception("buffer is empty!")
-
         self.assertNotEqual(buffer, None)
         self.assertEqual(cursor.valueBuffer("idarea"), "T")
         self.assertEqual(cursor.valueBufferCopy("descripcion"), "Área de prueba T")
@@ -321,8 +315,6 @@ class TestBuffer(unittest.TestCase):
         self.assertEqual(buffer_copy.value("idarea"), "T")
         cursor.next()
         buffer = cursor.buffer()
-        if not buffer:
-            raise Exception("buffer is empty!")
         self.assertEqual(buffer.value("idarea"), "V")
         self.assertEqual(buffer_copy.value("idarea"), "T")
 
@@ -1092,7 +1084,3 @@ class TestCorruption(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -22,8 +22,7 @@ class TestACLS(unittest.TestCase):
         # Install package
         qsa_sys = qsa.qsa.sys
         path = fixture_path("controlacceso.eneboopkg")
-        if not qsa_sys.loadModules(path, False):
-            raise Exception("error loading controlacceso.eneboopkg")
+        qsa_sys.loadModules(path, False)
 
         # install acls
         from pineboolib.application.database import pnsqlcursor

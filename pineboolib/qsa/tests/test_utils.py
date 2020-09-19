@@ -162,6 +162,7 @@ class TestUtils(unittest.TestCase):
     def test_timers(self) -> None:
         """Test Timers."""
 
+        self.my_fun()
         timer_1 = qsa.startTimer(1000, self.my_fun)
         timer_2 = qsa.startTimer(1000, self.my_fun)  # noqa: F841
         timer_3 = qsa.startTimer(1000, self.my_fun)  # noqa: F841

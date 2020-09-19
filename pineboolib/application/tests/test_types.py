@@ -311,7 +311,3 @@ class TestDir(unittest.TestCase):
         # self.assertEqual(os.path.realpath(my_dir.current), tmp_dir)
         # my_dir.rmdirs("test_change_dir")
         my_dir.cd(original_dir)
-
-
-if __name__ == "__main__":
-    unittest.main()

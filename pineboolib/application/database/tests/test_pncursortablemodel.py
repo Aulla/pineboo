@@ -98,10 +98,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         )
         system_date = date(2019, 1, 1)
         locale.setlocale(locale.LC_TIME, "")
-        if os.name == "nt":
-            date_format = "%%d/%%m/%%y"
-        else:
-            date_format = locale.nl_langinfo(locale.D_FMT)
+        date_format = "%%d/%%m/%%y" if os.name == "nt" else locale.nl_langinfo(locale.D_FMT)
 
         date_format = date_format.replace("y", "Y")  # Año con 4 dígitos
         date_format = date_format.replace("/", "-")  # Separadores
