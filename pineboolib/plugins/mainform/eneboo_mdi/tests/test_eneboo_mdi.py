@@ -52,9 +52,8 @@ class TestEnebooGUI(unittest.TestCase):
             application.PROJECT.main_window.windowMenuAboutToShow()
             application.PROJECT.main_window.show()
             application.PROJECT.main_window.activateModule("sys")
-            if application.PROJECT.main_window._p_work_space is not None:
-                for window in application.PROJECT.main_window._p_work_space.subWindowList():
-                    window.close()
+            # if application.PROJECT.main_window._p_work_space is not None:
+            #    for window in application.PROJECT.main_window._p_work_space.subWindowList():
 
             self.assertFalse(application.PROJECT.main_window.existFormInMDI("flusers"))
             application.PROJECT.actions["flusers"].openDefaultForm()

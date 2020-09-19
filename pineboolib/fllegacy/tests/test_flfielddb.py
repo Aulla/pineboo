@@ -102,8 +102,6 @@ class TestFLFieldDBString(unittest.TestCase):
         module_ = dictmodules.from_project("formRecordflmodules")
         parent = module_.parent()
         table_mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
-        if table_mtd is None:
-            raise Exception("table_mtd is empty!.")
         field_mtd = pnfieldmetadata.PNFieldMetaData(
             "date_control",
             "Date",
@@ -126,7 +124,8 @@ class TestFLFieldDBString(unittest.TestCase):
             False,
             False,
         )
-        table_mtd.addFieldMD(field_mtd)
+        if table_mtd is not None:
+            table_mtd.addFieldMD(field_mtd)
         new_field = flfielddb.FLFieldDB(parent)
         new_field.setName("date_control")
         self.assertEqual(new_field.objectName(), "date_control")
@@ -135,42 +134,39 @@ class TestFLFieldDBString(unittest.TestCase):
         cursor = new_field.cursor()
         self.assertEqual(module_.cursor(), cursor)
         field_mtd_2 = cursor.metadata().field("date_control")
-        if field_mtd_2 is None:
-            raise Exception("field_mtd_2 is empty!")
-
-        self.assertEqual(field_mtd, field_mtd_2)
-        self.assertEqual(field_mtd_2.type(), "date")
+        if field_mtd_2 is not None:
+            self.assertEqual(field_mtd, field_mtd_2)
+            self.assertEqual(field_mtd_2.type(), "date")
         editor = new_field.editor_
-        if not isinstance(editor, fldateedit.FLDateEdit):
-            raise Exception("wrong control!")
-        self.assertEqual(editor.DMY, "dd-MM-yyyy")
-        editor.date = "01-02-2001"
-        self.assertEqual(editor.date, "2001-02-01")
-        editor.date = None
-        self.assertEqual(editor.date, "")
+        if isinstance(editor, fldateedit.FLDateEdit):
+            self.assertEqual(editor.DMY, "dd-MM-yyyy")
+            editor.date = "01-02-2001"
+            self.assertEqual(editor.date, "2001-02-01")
+            editor.date = None
+            self.assertEqual(editor.date, "")
 
-        new_field.setValue("2011-03-02")
-        self.assertEqual(str(new_field.value())[:10], "2011-03-02")
+            new_field.setValue("2011-03-02")
+            self.assertEqual(str(new_field.value())[:10], "2011-03-02")
 
-        new_field.refresh()
-        new_field.refreshQuick()
-        new_field.setActionName("nueva_action")
-        self.assertEqual(new_field.actionName(), "nueva_action")
+            new_field.refresh()
+            new_field.refreshQuick()
+            new_field.setActionName("nueva_action")
+            self.assertEqual(new_field.actionName(), "nueva_action")
 
-        new_field.setFilter("nuevo_filtro")
-        self.assertEqual(new_field.filter(), "nuevo_filtro")
+            new_field.setFilter("nuevo_filtro")
+            self.assertEqual(new_field.filter(), "nuevo_filtro")
 
-        new_field.setForeignField("foreignfield")
-        self.assertEqual(new_field.foreignField(), "foreignfield")
+            new_field.setForeignField("foreignfield")
+            self.assertEqual(new_field.foreignField(), "foreignfield")
 
-        new_field.setFieldRelation("fieldrelation")
-        self.assertEqual(new_field.fieldRelation(), "fieldrelation")
+            new_field.setFieldRelation("fieldrelation")
+            self.assertEqual(new_field.fieldRelation(), "fieldrelation")
 
-        new_field.toggleAutoCompletion()
-
-        table_mtd.removeFieldMD(field_mtd.name())
-        # lay = parent.layout()
-        # lay.addWidget(new_field)
+            new_field.toggleAutoCompletion()
+            if table_mtd is not None:
+                table_mtd.removeFieldMD(field_mtd.name())
+        else:
+            self.assertTrue(False)
 
     def test_basic_2(self) -> None:
         """Test basics 2."""
@@ -232,7 +228,3 @@ class TestFLFieldDBString(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
-
-
-if __name__ == "__main__":
-    unittest.main()

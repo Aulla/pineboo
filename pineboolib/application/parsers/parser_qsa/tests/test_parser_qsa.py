@@ -247,11 +247,6 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         path = fixture_path("flfacturac.qs")
         tmp_path = "%s/%s" % (application.PROJECT.tmpdir, "temp_qs.qs")
         path_py = "%s.py" % tmp_path[:-3]
-        if os.path.exists(tmp_path):
-            os.remove(tmp_path)
-
-        if os.path.exists(path_py):
-            os.remove(path_py)
 
         shutil.copy(path, tmp_path)
         application.PROJECT.parse_script_list([tmp_path])
@@ -276,8 +271,6 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
         timer.singleShot(0, self.convert)
         timer.singleShot(0, self.convert)
         QtWidgets.QApplication.processEvents()
-        while NUMERO_MULTI < 3:
-            QtWidgets.QApplication.processEvents()
 
     def convert(self) -> None:
         """Convert a file."""
@@ -331,7 +324,3 @@ qsa.from_project("flfactppal").iface.replace(listaOutlet, ", ", " ", " ")\n""",
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
-
-
-if __name__ == "__main__":
-    unittest.main()

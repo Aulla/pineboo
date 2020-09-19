@@ -19,18 +19,11 @@ class TestSysType(unittest.TestCase):
         """Test FileWrite attributes."""
 
         from pineboolib.application import types
-        import os
 
         qsa_sys = systype.SysType()
         txt = "avión, cañita"
         path_1 = "%s/test_systype_one_iso_8859-15.txt" % application.PROJECT.tmpdir
         path_2 = "%s/test_systype_one_utf-8.txt" % application.PROJECT.tmpdir
-
-        if os.path.exists(path_1):
-            os.remove(path_1)
-
-        if os.path.exists(path_2):
-            os.remove(path_2)
 
         qsa_sys.fileWriteIso(path_1, txt)
         qsa_sys.fileWriteUtf8(path_2, txt)
@@ -249,7 +242,3 @@ class TestSysType(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
-
-
-if __name__ == "__main__":
-    unittest.main()

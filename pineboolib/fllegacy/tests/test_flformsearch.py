@@ -86,7 +86,3 @@ class TestNoFLFormsearchDB(unittest.TestCase):
 
         utils_base.FORCE_DESKTOP = True
         finish_testing()
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -177,7 +177,3 @@ class TestPNConnection(unittest.TestCase):
     def tearDown(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
-
-
-if __name__ == "__main__":
-    unittest.main()

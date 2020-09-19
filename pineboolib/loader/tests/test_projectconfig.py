@@ -87,7 +87,3 @@ class TestProjectConfig(unittest.TestCase):
             cfg3.SAVE_VERSION = VERSION_1_2
             cfg3.save_projectxml(True)
             self.assertEqual(open(cfg3.filename).read(), project_test3)
-
-
-if __name__ == "__main__":
-    unittest.main()
