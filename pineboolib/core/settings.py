@@ -61,8 +61,6 @@ class PinebooSettings(QSettings):
             classname = value["__class__"]
             if classname == "QSize":
                 return QSize(value["width"], value["height"])
-            else:
-                raise ValueError("Unknown classname %r" % classname)
         return value
 
     def value(self, key: str, def_value: Any = None, type: Type = None) -> Any:

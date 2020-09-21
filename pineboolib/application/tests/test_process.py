@@ -21,11 +21,8 @@ class TestProcess(unittest.TestCase):
 
         proc.execute("python3 --version")
 
-        salida = None
-        if proc.stderr != "":
-            salida = proc.stderr
-        else:
-            salida = proc.stdout
+        self.assertFalse(proc.stderr)
+        salida = proc.stdout
 
         self.assertTrue(salida.find("Python") > -1)
 
@@ -39,11 +36,8 @@ class TestProcess(unittest.TestCase):
 
         proc.execute("python3 --version")
 
-        salida = None
-        if proc.stderr != "":
-            salida = proc.stderr
-        else:
-            salida = proc.stdout
+        self.assertFalse(proc.stderr)
+        salida = proc.stdout
 
         comando_py = "python3"
         self.assertTrue(salida.find("Python") > -1)

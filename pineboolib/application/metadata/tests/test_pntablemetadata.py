@@ -101,60 +101,59 @@ class TestPNTableMetaData(unittest.TestCase):
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flgroups")
         mtd_2 = application.PROJECT.conn_manager.manager().metadata("flareas")
-        if mtd is None:
-            raise Exception
-        if mtd_2 is None:
-            raise Exception
-        self.assertEqual(mtd.fieldType("descripcion"), 3)
-        self.assertEqual(mtd.fieldIsPrimaryKey("descripcion"), False)
-        self.assertEqual(mtd.fieldIsPrimaryKey("idgroup"), True)
-        self.assertEqual(mtd.fieldIsIndex("descripcion"), 1)
-        self.assertEqual(mtd.fieldLength("descripcion"), 100)
-        self.assertEqual(mtd.fieldPartInteger("descripcion"), 4)
-        self.assertEqual(mtd.fieldPartDecimal("descripcion"), 0)
-        self.assertEqual(mtd.fieldCalculated("descripcion"), False)
-        self.assertEqual(mtd.fieldVisible("descripcion"), True)
+        self.assertTrue(mtd is not None)
+        self.assertTrue(mtd_2 is not None)
+        if mtd is not None and mtd_2 is not None:
+            self.assertEqual(mtd.fieldType("descripcion"), 3)
+            self.assertEqual(mtd.fieldIsPrimaryKey("descripcion"), False)
+            self.assertEqual(mtd.fieldIsPrimaryKey("idgroup"), True)
+            self.assertEqual(mtd.fieldIsIndex("descripcion"), 1)
+            self.assertEqual(mtd.fieldLength("descripcion"), 100)
+            self.assertEqual(mtd.fieldPartInteger("descripcion"), 4)
+            self.assertEqual(mtd.fieldPartDecimal("descripcion"), 0)
+            self.assertEqual(mtd.fieldCalculated("descripcion"), False)
+            self.assertEqual(mtd.fieldVisible("descripcion"), True)
 
-        field = mtd.field("descripcion")
-        if field is None:
-            raise Exception
-        self.assertEqual(field.name(), "descripcion")
+            field = mtd.field("descripcion")
+            self.assertTrue(field is not None)
+            if field is not None:
+                self.assertEqual(field.name(), "descripcion")
 
-        field_list = mtd.fieldList()
-        self.assertEqual(len(field_list), 2)
+                field_list = mtd.fieldList()
+                self.assertEqual(len(field_list), 2)
 
-        field_list_2 = mtd.fieldListArray(False)
-        self.assertEqual(field_list_2, ["idgroup", "descripcion"])
+                field_list_2 = mtd.fieldListArray(False)
+                self.assertEqual(field_list_2, ["idgroup", "descripcion"])
 
-        field_list_3 = mtd.fieldListArray(True)
-        self.assertEqual(field_list_3, ["flgroups.idgroup", "flgroups.descripcion"])
+                field_list_3 = mtd.fieldListArray(True)
+                self.assertEqual(field_list_3, ["flgroups.idgroup", "flgroups.descripcion"])
 
-        mtd.removeFieldMD("descripcion")
-        self.assertEqual(mtd.fieldIsIndex("descripcion"), -1)
-        self.assertEqual(mtd.fieldIsUnique("idgroup"), False)
+            mtd.removeFieldMD("descripcion")
+            self.assertEqual(mtd.fieldIsIndex("descripcion"), -1)
+            self.assertEqual(mtd.fieldIsUnique("idgroup"), False)
 
-        self.assertEqual(mtd.indexPos("idgroup"), 0)
-        self.assertEqual(mtd.fieldNames(), ["idgroup"])
-        self.assertEqual(mtd_2.fieldNamesUnlock(), ["bloqueo"])
+            self.assertEqual(mtd.indexPos("idgroup"), 0)
+            self.assertEqual(mtd.fieldNames(), ["idgroup"])
+            self.assertEqual(mtd_2.fieldNamesUnlock(), ["bloqueo"])
 
-        self.assertEqual(mtd.concurWarn(), False)
-        mtd.setConcurWarn(True)
-        self.assertEqual(mtd.concurWarn(), True)
+            self.assertEqual(mtd.concurWarn(), False)
+            mtd.setConcurWarn(True)
+            self.assertEqual(mtd.concurWarn(), True)
 
-        self.assertEqual(mtd.detectLocks(), False)
-        mtd.setDetectLocks(True)
-        self.assertEqual(mtd.detectLocks(), True)
+            self.assertEqual(mtd.detectLocks(), False)
+            mtd.setDetectLocks(True)
+            self.assertEqual(mtd.detectLocks(), True)
 
-        self.assertEqual(mtd.FTSFunction(), "")
-        mtd.setFTSFunction("1234_5678")
-        self.assertEqual(mtd.FTSFunction(), "1234_5678")
+            self.assertEqual(mtd.FTSFunction(), "")
+            mtd.setFTSFunction("1234_5678")
+            self.assertEqual(mtd.FTSFunction(), "1234_5678")
 
-        self.assertEqual(mtd.inCache(), False)
-        mtd.setInCache(True)
-        self.assertEqual(mtd.inCache(), True)
+            self.assertEqual(mtd.inCache(), False)
+            mtd.setInCache(True)
+            self.assertEqual(mtd.inCache(), True)
 
-        field_pos_0 = mtd.indexFieldObject(0)
-        self.assertEqual(field_pos_0.name(), "idgroup")
+            field_pos_0 = mtd.indexFieldObject(0)
+            self.assertEqual(field_pos_0.name(), "idgroup")
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -174,10 +173,10 @@ class TestRelationsPNTableMetaData(unittest.TestCase):
         """Test Relations M1 and 1M."""
 
         mtd_1 = application.PROJECT.conn_manager.manager().metadata("flusers")
-        if mtd_1 is None:
-            raise Exception
-        self.assertEqual(mtd_1.fieldTableM1("idgroup"), "flgroups")
-        self.assertEqual(mtd_1.fieldForeignFieldM1("idgroup"), "idgroup")
+        self.assertTrue(mtd_1)
+        if mtd_1 is not None:
+            self.assertEqual(mtd_1.fieldTableM1("idgroup"), "flgroups")
+            self.assertEqual(mtd_1.fieldForeignFieldM1("idgroup"), "idgroup")
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -197,18 +196,14 @@ class TestCompoundKeyPNTableMetaData(unittest.TestCase):
         """Test CompoundKey."""
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flseqs")
-        if mtd is None:
-            raise Exception
-        field_list = mtd.fieldListOfCompoundKey("campo")
-        if field_list is None:
-            raise Exception
-        self.assertEqual(field_list[0].name(), "campo")
+        self.assertTrue(mtd is not None)
+        if mtd is not None:
+            field_list = mtd.fieldListOfCompoundKey("campo")
+            self.assertTrue(field_list)
+            if field_list:
+                self.assertEqual(field_list[0].name(), "campo")
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
-
-
-if __name__ == "__main__":
-    unittest.main()
