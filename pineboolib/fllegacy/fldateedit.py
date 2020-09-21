@@ -17,7 +17,7 @@ class FLDateEdit(qdateedit.QDateEdit):
     DMY: str = "dd-MM-yyyy"
     _parent: QtWidgets.QWidget
 
-    def __init__(self, parent: QtWidgets.QWidget, name: str) -> None:
+    def __init__(self, parent: "QtWidgets.QWidget", name: str) -> None:
         """Inicialize."""
 
         super().__init__(parent, name)

@@ -30,7 +30,3 @@ class TestFLFormDB(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
-
-
-if __name__ == "__main__":
-    unittest.main()

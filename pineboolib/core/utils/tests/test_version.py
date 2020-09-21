@@ -38,7 +38,3 @@ class TestVersionNumber(unittest.TestCase):
         self.assertEqual(str(VersionNumber(None)), "")
         self.assertEqual(repr(VersionNumber("v1.0a.1 ")), "<VersionNumber '1.0a.1'>")
         self.assertEqual(repr(VersionNumber(None)), "<VersionNumber None>")
-
-
-if __name__ == "__main__":
-    unittest.main()

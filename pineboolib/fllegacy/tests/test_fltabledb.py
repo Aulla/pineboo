@@ -26,9 +26,7 @@ class TestFLTableDB(unittest.TestCase):
         widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ]._master_widget
-        # form = flformdb.FLFormDB(None, action)
-        # self.assertTrue(form)
-        # form.load()
+
         if widget is None:
             self.assertTrue(widget)
             return
@@ -40,11 +38,6 @@ class TestFLTableDB(unittest.TestCase):
         fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
         self.assertTrue(fltable)
         fltable.exportToOds()
-        # self.assertTrue(form._loaded)
-        # form.close()
-        # self.assertFalse(form._loaded)
-        # form.close()
-        # self.assertFalse(form._loaded)
 
     def test_export_to_ods_2(self) -> None:
         """Test export to ods."""
@@ -63,17 +56,10 @@ class TestFLTableDB(unittest.TestCase):
         if form is None:
             self.assertTrue(form)
             return
-        # form = flformdb.FLFormDB(None, action)
-        # self.assertTrue(form)
-        # form.load()
+
         fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
         self.assertTrue(fltable)
         fltable.exportToOds()
-        # self.assertTrue(form._loaded)
-        # form.close()
-        # self.assertFalse(form._loaded)
-        # form.close()
-        # self.assertFalse(form._loaded)
 
     def test_order_cols(self) -> None:
         """Test order cols."""

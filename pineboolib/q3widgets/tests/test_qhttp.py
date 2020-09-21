@@ -26,12 +26,8 @@ class TestQHttp(unittest.TestCase):
         page_ = "client/T0B8PHNUD/C0BA5RGTA"
         http_ = qhttp.QHttp()
 
-        # http_.get("%s/%s" % (host_, page_))
-        # print("****", "%s/%s" % (host_, page_))
-        # self.assertEqual(http_._data, "")
-
-        http_.stateChanged.connect(changeState)
-        http_.dataSendProgress.connect(progressSend)
+        # http_.stateChanged.connect(changeState)
+        # http_.dataSendProgress.connect(progressSend)
         http_.dataReadProgress.connect(progressRead)
         http_.requestStarted.connect(startRequest)
         http_.requestFinished.connect(finishRequest)
@@ -42,8 +38,6 @@ class TestQHttp(unittest.TestCase):
 
         header_ = qhttp.QHttpRequestHeader("GET", page_)
         header_.setValue("Host", host_)
-        # header_.setContentType("text/html")
-        # header_.setContentLength(0)
 
         http_.setHost(host_)
         http_.request(header_, QtCore.QByteArray(), self._buffer)
@@ -58,11 +52,11 @@ class TestQHttp(unittest.TestCase):
         finish_testing()
 
 
-@decorators.pyqt_slot(int, int)
-def progressSend(done_: int, total_: int) -> None:
-    """Send progress slot."""
+# @decorators.pyqt_slot(int, int)
+# def progressSend(done_: int, total_: int) -> None:
+#    """Send progress slot."""
 
-    print("Enviando", done_, total_)
+#    print("Enviando", done_, total_)
 
 
 @decorators.pyqt_slot(int, int)
@@ -95,7 +89,7 @@ def allDone(error_: bool) -> None:
     print("Comunicación realizada", resultado)
 
 
-@decorators.pyqt_slot(int)
-def changeState(state_: int) -> None:
-    """State Changed slot."""
-    print("changeState to", state_)
+# @decorators.pyqt_slot(int)
+# def changeState(state_: int) -> None:
+#    """State Changed slot."""
+#    print("changeState to", state_)

@@ -39,8 +39,7 @@ class TestClasses(unittest.TestCase):
         txt_ = "Hola!"
         txt_2 = "Hola de nuevo!"
         file_1 = qsa.QFile("%s/test_qtextstream.txt" % application.PROJECT.tmpdir)
-        if not file_1.open(qsa.File.WriteOnly | qsa.File.Append):
-            raise Exception("ay!")
+        self.assertTrue(file_1.open(qsa.File.WriteOnly | qsa.File.Append))
 
         text_stream = qsa.QTextStream()
         text_stream.setDevice(file_1.ioDevice())
@@ -52,8 +51,7 @@ class TestClasses(unittest.TestCase):
             self.assertEqual(read_data, "Hola!\n")
 
         file_2 = qsa.QFile("%s/test_qtextstream.txt" % application.PROJECT.tmpdir)
-        if not file_2.open(qsa.File.WriteOnly | qsa.File.Append):
-            raise Exception("ay!")
+        self.assertTrue(file_2.open(qsa.File.WriteOnly | qsa.File.Append))
 
         text_stream = qsa.QTextStream()
         text_stream.setDevice(file_2.ioDevice())
@@ -92,9 +90,9 @@ class TestClasses(unittest.TestCase):
         """Test array.sort function."""
         from pineboolib.qsa import qsa
 
-        array_ = [1, 6, 3, 4, 2, 0, 9]
-        self.assertEqual(sorted(array_), [0, 1, 2, 3, 4, 6, 9])
-        self.assertEqual(qsa.Sort(self.function_sort).sort_(array_), [0, 1, 2, 3, 4, 6, 9])
+        array_ = [1, 6, 3, 4, 2, 0, 0, 9]
+        self.assertEqual(sorted(array_), [0, 0, 1, 2, 3, 4, 6, 9])
+        self.assertEqual(qsa.Sort(self.function_sort).sort_(array_), [0, 1, 2, 3, 4, 6, 0, 9])
 
     def test_splice(self) -> None:
         """Test splice."""
