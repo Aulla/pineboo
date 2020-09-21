@@ -18,3 +18,6 @@ class TestSpinBox(unittest.TestCase):
         self.assertEqual(sb_.maximum, 100)
         self.assertEqual(sb_.minimum, 50)
         self.assertEqual(sb_.value, 75)
+
+        sb_.label = "Prueba"
+        self.assertEqual(sb_.label, "Prueba")

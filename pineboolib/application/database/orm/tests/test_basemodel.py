@@ -176,7 +176,7 @@ class TestBaseModel(unittest.TestCase):
         qsa.thread_session_free()
         qsa.session()
         current_session = qsa.thread_session_current()
-        if current_session:
+        if current_session is not None:
             current_session.begin()
             obj_ = qsa.orm_("flareas")()
             obj_.idarea = "T"

@@ -56,11 +56,8 @@ as the module selector, or each of the main windows of the modules.
 @author InfoSiAL S.L.
 """
 
-
-from typing import List, Dict, Optional, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from PyQt5 import QtXml
+from PyQt5 import QtXml
+from typing import List, Dict, Optional
 
 
 class PNAccessControl(object):
@@ -169,7 +166,7 @@ class PNAccessControl(object):
             del self._acos_perms
             self._acos_perms = {}
 
-    def type(self) -> Optional[str]:
+    def type(self) -> str:
         """
         Return a text constant that identifies the type.
 
@@ -179,7 +176,7 @@ class PNAccessControl(object):
         @return A text string that identifies the general object type of the rule, eg "table".
         """
 
-        return None
+        return ""
 
     def set(self, element: "QtXml.QDomElement") -> None:
         """
@@ -280,6 +277,3 @@ class PNAccessControl(object):
             acos.append(self._acos_perms[key])
 
         return acos
-
-
-# endif

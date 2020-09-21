@@ -20,28 +20,26 @@ class TestStringField(unittest.TestCase):
         """Test collect a field from the pntablemetadata flmodules and check the values"""
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
-        if mtd is None:
-            raise Exception
-        field = mtd.field("version")
-        if field is None:
-            raise Exception
+        self.assertTrue(mtd is not None)
+        if mtd is not None:
+            field = mtd.field("version")
+            self.assertNotEqual(field, None)
+            if field is not None:
+                self.assertEqual(field.name(), "version")
+                self.assertEqual(field.isPrimaryKey(), False)
+                self.assertEqual(field.isCompoundKey(), False)
+                self.assertEqual(field.length(), 3)
+                self.assertEqual(field.allowNull(), False)
+                self.assertEqual(field.visibleGrid(), True)
+                self.assertEqual(field.visible(), True)
+                self.assertEqual(field.editable(), False)
+                self.assertEqual(field.defaultValue(), "0.0")
+                self.assertEqual(field.regExpValidator(), "[0-9]\\.[0-9]")
 
-        self.assertNotEqual(field, None)
-        self.assertEqual(field.name(), "version")
-        self.assertEqual(field.isPrimaryKey(), False)
-        self.assertEqual(field.isCompoundKey(), False)
-        self.assertEqual(field.length(), 3)
-        self.assertEqual(field.allowNull(), False)
-        self.assertEqual(field.visibleGrid(), True)
-        self.assertEqual(field.visible(), True)
-        self.assertEqual(field.editable(), False)
-        self.assertEqual(field.defaultValue(), "0.0")
-        self.assertEqual(field.regExpValidator(), "[0-9]\\.[0-9]")
-
-        assign_value_1 = field.formatAssignValue("version", "a.1", False)
-        assign_value_2 = field.formatAssignValue("version", "b.1", True)
-        self.assertEqual(assign_value_1, "version = 'a.1'")
-        self.assertEqual(assign_value_2, "upper(version) = 'B.1'")
+                assign_value_1 = field.formatAssignValue("version", "a.1", False)
+                assign_value_2 = field.formatAssignValue("version", "b.1", True)
+                self.assertEqual(assign_value_1, "version = 'a.1'")
+                self.assertEqual(assign_value_2, "upper(version) = 'B.1'")
 
 
 class TestCopyField(unittest.TestCase):
@@ -58,23 +56,22 @@ class TestCopyField(unittest.TestCase):
         from pineboolib.application.metadata import pnfieldmetadata
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
-        if mtd is None:
-            raise Exception
-        field_1 = mtd.field("version")
+        if mtd is not None:
+            field_1 = mtd.field("version")
 
-        field_2 = pnfieldmetadata.PNFieldMetaData(field_1)
+            field_2 = pnfieldmetadata.PNFieldMetaData(field_1)
 
-        self.assertNotEqual(field_2, None)
-        self.assertEqual(field_2.name(), "version")
-        self.assertEqual(field_2.isPrimaryKey(), False)
-        self.assertEqual(field_2.isCompoundKey(), False)
-        self.assertEqual(field_2.length(), 3)
-        self.assertEqual(field_2.allowNull(), False)
-        self.assertEqual(field_2.visibleGrid(), True)
-        self.assertEqual(field_2.visible(), True)
-        self.assertEqual(field_2.editable(), False)
-        self.assertEqual(field_2.defaultValue(), "0.0")
-        self.assertEqual(field_2.regExpValidator(), "[0-9]\\.[0-9]")
+            self.assertNotEqual(field_2, None)
+            self.assertEqual(field_2.name(), "version")
+            self.assertEqual(field_2.isPrimaryKey(), False)
+            self.assertEqual(field_2.isCompoundKey(), False)
+            self.assertEqual(field_2.length(), 3)
+            self.assertEqual(field_2.allowNull(), False)
+            self.assertEqual(field_2.visibleGrid(), True)
+            self.assertEqual(field_2.visible(), True)
+            self.assertEqual(field_2.editable(), False)
+            self.assertEqual(field_2.defaultValue(), "0.0")
+            self.assertEqual(field_2.regExpValidator(), "[0-9]\\.[0-9]")
 
 
 class TestUintField(unittest.TestCase):
@@ -89,33 +86,33 @@ class TestUintField(unittest.TestCase):
         """Test collect a field from the pntablemetadata flseq and check the values"""
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flseqs")
-        if mtd is None:
-            raise Exception
-        field = mtd.field("seq")
-        if field is None:
-            raise Exception
+        self.assertTrue(mtd is not None)
+        if mtd is not None:
+            field = mtd.field("seq")
+            self.assertTrue(field is not None)
+            if field is not None:
 
-        self.assertNotEqual(field, None)
-        self.assertEqual(field.name(), "seq")
-        self.assertEqual(field.alias(), "Secuencia")
-        self.assertEqual(field.isPrimaryKey(), False)
-        self.assertEqual(field.isCompoundKey(), False)
-        self.assertEqual(field.length(), 0)
-        self.assertEqual(field.allowNull(), False)
-        self.assertEqual(field.visibleGrid(), True)
-        self.assertEqual(field.visible(), True)
-        self.assertEqual(field.editable(), True)
-        self.assertEqual(field.defaultValue(), None)
-        self.assertEqual(field.regExpValidator(), None)
+                self.assertNotEqual(field, None)
+                self.assertEqual(field.name(), "seq")
+                self.assertEqual(field.alias(), "Secuencia")
+                self.assertEqual(field.isPrimaryKey(), False)
+                self.assertEqual(field.isCompoundKey(), False)
+                self.assertEqual(field.length(), 0)
+                self.assertEqual(field.allowNull(), False)
+                self.assertEqual(field.visibleGrid(), True)
+                self.assertEqual(field.visible(), True)
+                self.assertEqual(field.editable(), True)
+                self.assertEqual(field.defaultValue(), None)
+                self.assertEqual(field.regExpValidator(), None)
 
-        assign_value = field.formatAssignValue("seq", 666, False)
+                assign_value = field.formatAssignValue("seq", 666, False)
 
-        self.assertEqual(assign_value, "seq = 666")
+                self.assertEqual(assign_value, "seq = 666")
 
-        table_metadata = field.metadata()
-        if table_metadata is None:
-            raise Exception
-        self.assertEqual(table_metadata.name(), "flseqs")
+                table_metadata = field.metadata()
+                self.assertTrue(table_metadata is not None)
+                if table_metadata is not None:
+                    self.assertEqual(table_metadata.name(), mtd.name())
 
 
 class TestStringListField(unittest.TestCase):
@@ -130,25 +127,25 @@ class TestStringListField(unittest.TestCase):
         """Test collect a field from the pntablemetadata flsettings and check the values"""
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flsettings")
-        if mtd is None:
-            raise Exception
-        field = mtd.field("valor")
-        if field is None:
-            raise Exception
+        self.assertTrue(mtd)
+        if mtd is not None:
+            field = mtd.field("valor")
+            self.assertTrue(field is not None)
+            if field is not None:
 
-        self.assertNotEqual(field, None)
-        self.assertEqual(field.name(), "valor")
-        self.assertEqual(field.alias(), "Valor")
-        self.assertEqual(field.isPrimaryKey(), False)
-        self.assertEqual(field.isCompoundKey(), False)
-        self.assertEqual(field.length(), 0)
-        self.assertEqual(field.allowNull(), True)
-        self.assertEqual(field.visibleGrid(), False)
-        self.assertEqual(field.visible(), True)
-        self.assertEqual(field.editable(), True)
-        self.assertEqual(field.defaultValue(), None)
-        self.assertEqual(field.regExpValidator(), None)
-        self.assertEqual(field.flDecodeType("stringlist"), "string")
+                self.assertNotEqual(field, None)
+                self.assertEqual(field.name(), "valor")
+                self.assertEqual(field.alias(), "Valor")
+                self.assertEqual(field.isPrimaryKey(), False)
+                self.assertEqual(field.isCompoundKey(), False)
+                self.assertEqual(field.length(), 0)
+                self.assertEqual(field.allowNull(), True)
+                self.assertEqual(field.visibleGrid(), False)
+                self.assertEqual(field.visible(), True)
+                self.assertEqual(field.editable(), True)
+                self.assertEqual(field.defaultValue(), None)
+                self.assertEqual(field.regExpValidator(), None)
+                self.assertEqual(field.flDecodeType("stringlist"), "string")
 
 
 class TestPixmapField(unittest.TestCase):
@@ -163,25 +160,23 @@ class TestPixmapField(unittest.TestCase):
         """Test collect a field from the pntablemetadata flmodules and check the values"""
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
-        if mtd is None:
-            raise Exception
+        self.assertTrue(mtd)
+        if mtd is not None:
+            field = mtd.field("icono")
+            if field is not None:
 
-        field = mtd.field("icono")
-        if field is None:
-            raise Exception
-
-        self.assertNotEqual(field, None)
-        self.assertEqual(field.name(), "icono")
-        self.assertEqual(field.isPrimaryKey(), False)
-        self.assertEqual(field.isCompoundKey(), False)
-        self.assertEqual(field.length(), 0)
-        self.assertEqual(field.allowNull(), True)
-        self.assertEqual(field.type(), "pixmap")
-        self.assertEqual(field.visibleGrid(), True)
-        self.assertEqual(field.visible(), True)
-        self.assertEqual(field.editable(), True)
-        self.assertEqual(field.defaultValue(), None)
-        self.assertEqual(field.flDecodeType("pixmap"), "string")
+                self.assertNotEqual(field, None)
+                self.assertEqual(field.name(), "icono")
+                self.assertEqual(field.isPrimaryKey(), False)
+                self.assertEqual(field.isCompoundKey(), False)
+                self.assertEqual(field.length(), 0)
+                self.assertEqual(field.allowNull(), True)
+                self.assertEqual(field.type(), "pixmap")
+                self.assertEqual(field.visibleGrid(), True)
+                self.assertEqual(field.visible(), True)
+                self.assertEqual(field.editable(), True)
+                self.assertEqual(field.defaultValue(), None)
+                self.assertEqual(field.flDecodeType("pixmap"), "string")
 
 
 class TestUnlockField(unittest.TestCase):
@@ -196,25 +191,23 @@ class TestUnlockField(unittest.TestCase):
         """Test collect a field from the pntablemetadata flmodules and check the values"""
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flmodules")
-        if mtd is None:
-            raise Exception
-
-        field = mtd.field("bloqueo")
-        if field is None:
-            raise Exception
-        self.assertNotEqual(field, None)
-        self.assertEqual(field.name(), "bloqueo")
-        self.assertEqual(field.isPrimaryKey(), False)
-        self.assertEqual(field.isCompoundKey(), False)
-        self.assertEqual(field.length(), 0)
-        self.assertEqual(field.allowNull(), False)
-        self.assertEqual(field.type(), "unlock")
-        self.assertEqual(field.visibleGrid(), True)
-        self.assertEqual(field.visible(), True)
-        self.assertEqual(field.editable(), True)
-        self.assertEqual(field.defaultValue(), True)
-        self.assertEqual(field.regExpValidator(), None)
-        self.assertEqual(field.flDecodeType("unlock"), "bool")
+        self.assertTrue(mtd)
+        if mtd is not None:
+            field = mtd.field("bloqueo")
+            if field is not None:
+                self.assertNotEqual(field, None)
+                self.assertEqual(field.name(), "bloqueo")
+                self.assertEqual(field.isPrimaryKey(), False)
+                self.assertEqual(field.isCompoundKey(), False)
+                self.assertEqual(field.length(), 0)
+                self.assertEqual(field.allowNull(), False)
+                self.assertEqual(field.type(), "unlock")
+                self.assertEqual(field.visibleGrid(), True)
+                self.assertEqual(field.visible(), True)
+                self.assertEqual(field.editable(), True)
+                self.assertEqual(field.defaultValue(), True)
+                self.assertEqual(field.regExpValidator(), None)
+                self.assertEqual(field.flDecodeType("unlock"), "bool")
 
 
 class TestBoolField(unittest.TestCase):
@@ -229,26 +222,25 @@ class TestBoolField(unittest.TestCase):
         """Test collect a field from the pntablemetadata flmetadata and check the values"""
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flmetadata")
-        if mtd is None:
-            raise Exception
+        self.assertTrue(mtd)
+        if mtd is not None:
+            field = mtd.field("bloqueo")
+            self.assertNotEqual(field, None)
+            if field is not None:
 
-        field = mtd.field("bloqueo")
-        if field is None:
-            raise Exception
-        self.assertNotEqual(field, None)
-        self.assertEqual(field.name(), "bloqueo")
-        self.assertEqual(field.alias(), "Tabla bloqueada")
-        self.assertEqual(field.isPrimaryKey(), False)
-        self.assertEqual(field.isCompoundKey(), False)
-        self.assertEqual(field.length(), 0)
-        self.assertEqual(field.allowNull(), True)
-        self.assertEqual(field.type(), "bool")
-        self.assertEqual(field.visibleGrid(), True)
-        self.assertEqual(field.visible(), True)
-        self.assertEqual(field.editable(), True)
-        self.assertEqual(field.defaultValue(), None)
-        self.assertEqual(field.regExpValidator(), None)
-        self.assertEqual(field.flDecodeType("bool"), "bool")
+                self.assertEqual(field.name(), "bloqueo")
+                self.assertEqual(field.alias(), "Tabla bloqueada")
+                self.assertEqual(field.isPrimaryKey(), False)
+                self.assertEqual(field.isCompoundKey(), False)
+                self.assertEqual(field.length(), 0)
+                self.assertEqual(field.allowNull(), True)
+                self.assertEqual(field.type(), "bool")
+                self.assertEqual(field.visibleGrid(), True)
+                self.assertEqual(field.visible(), True)
+                self.assertEqual(field.editable(), True)
+                self.assertEqual(field.defaultValue(), None)
+                self.assertEqual(field.regExpValidator(), None)
+                self.assertEqual(field.flDecodeType("bool"), "bool")
 
 
 class TestDateField(unittest.TestCase):
@@ -263,26 +255,25 @@ class TestDateField(unittest.TestCase):
         """Test collect a field from the pntablemetadata flupdates and check the values"""
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flupdates")
-        if mtd is None:
-            raise Exception
-        field = mtd.field("fecha")
-        if field is None:
-            raise Exception
+        self.assertTrue(mtd)
+        if mtd is not None:
+            field = mtd.field("fecha")
+            self.assertNotEqual(field, None)
+            if field is not None:
 
-        self.assertNotEqual(field, None)
-        self.assertEqual(field.name(), "fecha")
-        self.assertEqual(field.alias(), "Fecha")
-        self.assertEqual(field.isPrimaryKey(), False)
-        self.assertEqual(field.isCompoundKey(), False)
-        self.assertEqual(field.length(), 0)
-        self.assertEqual(field.type(), "date")
-        self.assertEqual(field.allowNull(), False)
-        self.assertEqual(field.visibleGrid(), True)
-        self.assertEqual(field.visible(), True)
-        self.assertEqual(field.editable(), False)
-        self.assertEqual(field.defaultValue(), None)
-        self.assertEqual(field.regExpValidator(), None)
-        self.assertEqual(field.flDecodeType("date"), "date")
+                self.assertEqual(field.name(), "fecha")
+                self.assertEqual(field.alias(), "Fecha")
+                self.assertEqual(field.isPrimaryKey(), False)
+                self.assertEqual(field.isCompoundKey(), False)
+                self.assertEqual(field.length(), 0)
+                self.assertEqual(field.type(), "date")
+                self.assertEqual(field.allowNull(), False)
+                self.assertEqual(field.visibleGrid(), True)
+                self.assertEqual(field.visible(), True)
+                self.assertEqual(field.editable(), False)
+                self.assertEqual(field.defaultValue(), None)
+                self.assertEqual(field.regExpValidator(), None)
+                self.assertEqual(field.flDecodeType("date"), "date")
 
 
 class TestTimeField(unittest.TestCase):
@@ -297,26 +288,25 @@ class TestTimeField(unittest.TestCase):
         """Test collect a field from the pntablemetadata flupdates and check the values"""
 
         mtd = application.PROJECT.conn_manager.manager().metadata("flupdates")
-        if mtd is None:
-            raise Exception
-        field = mtd.field("hora")
-        if field is None:
-            raise Exception
+        self.assertTrue(mtd)
+        if mtd is not None:
+            field = mtd.field("hora")
+            self.assertNotEqual(field, None)
+            if field is not None:
 
-        self.assertNotEqual(field, None)
-        self.assertEqual(field.name(), "hora")
-        self.assertEqual(field.alias(), "Hora")
-        self.assertEqual(field.isPrimaryKey(), False)
-        self.assertEqual(field.isCompoundKey(), False)
-        self.assertEqual(field.length(), 0)
-        self.assertEqual(field.type(), "time")
-        self.assertEqual(field.allowNull(), False)
-        self.assertEqual(field.visibleGrid(), True)
-        self.assertEqual(field.visible(), True)
-        self.assertEqual(field.editable(), False)
-        self.assertEqual(field.defaultValue(), None)
-        self.assertEqual(field.regExpValidator(), None)
-        self.assertEqual(field.flDecodeType("time"), "time")
+                self.assertEqual(field.name(), "hora")
+                self.assertEqual(field.alias(), "Hora")
+                self.assertEqual(field.isPrimaryKey(), False)
+                self.assertEqual(field.isCompoundKey(), False)
+                self.assertEqual(field.length(), 0)
+                self.assertEqual(field.type(), "time")
+                self.assertEqual(field.allowNull(), False)
+                self.assertEqual(field.visibleGrid(), True)
+                self.assertEqual(field.visible(), True)
+                self.assertEqual(field.editable(), False)
+                self.assertEqual(field.defaultValue(), None)
+                self.assertEqual(field.regExpValidator(), None)
+                self.assertEqual(field.flDecodeType("time"), "time")
 
 
 class TestDoubleField(unittest.TestCase):
@@ -433,7 +423,3 @@ class TestOptionsListField(unittest.TestCase):
             ["primero", "segundo", "tercero", "cuarto", "quinto", "sexto", "12345678901234567890"],
         )
         self.assertEqual(field.getIndexOptionsList("segundo"), 1)
-
-
-if __name__ == "__main__":
-    unittest.main()
