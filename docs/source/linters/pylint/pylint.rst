@@ -15,3 +15,5 @@ name our variables according to snake_case and so on.
    loader
    plugins
    qsa
+   q3widgets
+   system_module
