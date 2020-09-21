@@ -23,9 +23,10 @@ class TestPNAccessControl(unittest.TestCase):
         ac_ = pnaccesscontrol.PNAccessControl()
         ac_._acos_perms["uno"] = "uno:dos:tres"
         self.assertFalse(ac_.type())
-        ac_.set(None)
-        ac_.get(None)
+        ac_.set(None)  # type: ignore [arg-type] # noqa: F821
         ac_.set(QtXml.QDomElement())
+        ac_.get(None)  # type: ignore [arg-type] # noqa: F821
+        ac_.get(QtXml.QDomDocument())
 
     @classmethod
     def tearDownClass(cls) -> None:

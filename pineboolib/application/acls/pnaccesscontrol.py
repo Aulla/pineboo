@@ -57,7 +57,7 @@ as the module selector, or each of the main windows of the modules.
 """
 
 from PyQt5 import QtXml
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 
 class PNAccessControl(object):
@@ -218,8 +218,12 @@ class PNAccessControl(object):
 
         @param d DOM / XML document where the node built from the access control rule will be inserted.
         """
+
+        if dom_node is None:
+            return  # type: ignore [unreachable] # noqa: F821
+
         type_ = self.type()
-        if type_ is None or dom_node is None:
+        if not type_:
             return
 
         root = dom_node.firstChild().toElement()
