@@ -453,16 +453,14 @@ class TestGeneral(unittest.TestCase):
         self.assertEqual(cursor.table(), "fltest")
         action = cursor.action()
         action2 = cursor2.action()
-        self.assertTrue(action)
-        if action is None:
-            raise Exception("action is None!")
-
-        if action2 is None:
-            raise Exception("action2 is None!")
+        self.assertTrue(action is not None)
+        self.assertTrue(action2 is not None)
 
         self.assertEqual(cursor.actionName(), "fltest")
-        self.assertTrue(cursor.setAction(action))
-        self.assertTrue(cursor.setAction(action2))
+        if action is not None:
+            self.assertTrue(cursor.setAction(action))
+        if action2 is not None:
+            self.assertTrue(cursor.setAction(action2))
 
         cursor3 = pnsqlcursor.PNSqlCursor("fltest")
         cursor3.select()
@@ -740,7 +738,6 @@ class TestRelations(unittest.TestCase):
             self.assertEqual(cur_rel.valueBuffer("idarea"), "O")
         self.assertFalse(cur_areas.isLocked())
         self.assertFalse(cur_modulos.fieldDisabled("icono"))
-        # self.assertEqual(cur_modulos.msgCheckIntegrity(), "\nBuffer vacío o no hay metadatos")
         self.assertTrue(cur_modulos.isLocked())
         cur_modulos.setNull("icono")
         cur_modulos.setCopyNull("icono")
@@ -776,7 +773,6 @@ class TestRelations(unittest.TestCase):
         self.assertEqual(cur_areas.transactionsOpened(), ["1"])
 
         cur_modulos.refreshBuffer()
-        # cur_modulos.transaction()
 
         cur_modulos.rollbackOpened(-1, "Mensage de prueba 1º")
 
@@ -889,11 +885,10 @@ class TestAcos(unittest.TestCase):
 
         cur_grupos.select()
         field = cur_grupos.metadata().field("descripcion")
-        if field is None:
-            raise Exception("field is None!")
-
-        while cur_grupos.next():
-            self.assertTrue(field.editable())
+        self.assertTrue(field is not None)
+        if field is not None:
+            while cur_grupos.next():
+                self.assertTrue(field.editable())
 
         cur_grupos.setAcTable("r-")
         cur_grupos.setAcosCondition("descripcion", cur_grupos.Value, "desc c")
@@ -902,13 +897,12 @@ class TestAcos(unittest.TestCase):
         while cur_grupos.next():
             field_2 = cur_grupos.metadata().field("descripcion")
 
-            if field_2 is None:
-                raise Exception("field is None!")
-
-            if cur_grupos.valueBuffer("descripcion") == "desc c":
-                self.assertFalse(field_2.editable())
-            else:
-                self.assertTrue(field_2.editable())
+            self.assertTrue(field_2 is not None)
+            if field_2 is not None:
+                if cur_grupos.valueBuffer("descripcion") == "desc c":
+                    self.assertFalse(field_2.editable())
+                else:
+                    self.assertTrue(field_2.editable())
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -1043,16 +1037,10 @@ class TestCorruption(unittest.TestCase):
                 self.assertTrue(qsa.FLUtil().sqlDelete("fltest", "string_field = 'Linea 20'"))
                 i += 1
 
-            # print("Check linea", "Linea %s" % i)
-            # self.assertTrue(
-            #    cursor_3.valueBuffer("string_field").find("Linea %s" % i) > -1,
-            #    "Buscando %s , se ha encontrado %s" % (i, cursor_3.valueBuffer("string_field")),
-            # )
             self.assertEqual(cursor_3.size(), 99)
             i += 1
 
         cursor_3.setForwardOnly(False)
-        # self.assertTrue(qsa.FLUtil().sqlDelete("fltest", "string_field = 'Linea 20'"))
         cursor_3.select()
         self.assertEqual(cursor_3.size(), 98)
 

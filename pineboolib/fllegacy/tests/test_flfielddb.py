@@ -165,8 +165,6 @@ class TestFLFieldDBString(unittest.TestCase):
             new_field.toggleAutoCompletion()
             if table_mtd is not None:
                 table_mtd.removeFieldMD(field_mtd.name())
-        else:
-            self.assertTrue(False)
 
     def test_basic_2(self) -> None:
         """Test basics 2."""

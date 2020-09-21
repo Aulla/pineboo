@@ -164,19 +164,14 @@ class PNRelationMetaData:
     def copy(self, other: "PNRelationMetaData") -> None:
         """Copy a PNRelationMetaData to another."""
 
-        if other == self:
-            return
-        if not isinstance(other, PNRelationMetaData):
-            raise ValueError(
-                "FLRelationMetaData::copy requires an instance to a PNRelationMetaData class"
-            )
-        self.private.field_ = other.private.field_
-        self.private._foreign_table = other.private._foreign_table
-        self.private._foreign_field = other.private._foreign_field
-        self.private._cardinality = other.private._cardinality
-        self.private._delete_cascade = other.private._delete_cascade
-        self.private._update_cascade = other.private._update_cascade
-        self.private._check_integrity = other.private._check_integrity
+        if other is not self and isinstance(other, PNRelationMetaData):
+            self.private.field_ = other.private.field_
+            self.private._foreign_table = other.private._foreign_table
+            self.private._foreign_field = other.private._foreign_field
+            self.private._cardinality = other.private._cardinality
+            self.private._delete_cascade = other.private._delete_cascade
+            self.private._update_cascade = other.private._update_cascade
+            self.private._check_integrity = other.private._check_integrity
 
 
 class PNRelationMetaDataPrivate:

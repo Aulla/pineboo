@@ -45,7 +45,3 @@ class TestDate(unittest.TestCase):
 
         date3_ = date2_.parse("2019-06-02")
         self.assertEqual(date3_.getYear(), 2019)
-
-
-if __name__ == "__main__":
-    unittest.main()

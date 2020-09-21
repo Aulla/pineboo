@@ -66,7 +66,3 @@ class TestConfigDBConn(unittest.TestCase):
             project_password="myhardtoguesspassword",
         )
         self.assertEqual(cfg1, cfg2)
-
-
-if __name__ == "__main__":
-    unittest.main()

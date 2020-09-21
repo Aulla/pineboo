@@ -97,14 +97,12 @@ class TestPNConnection(unittest.TestCase):
         self.assertTrue(conn_.canOverPartition())
 
         mtd_seqs = conn_manager.manager().metadata("flseqs")
-
-        if mtd_seqs is None:
-            raise Exception("mtd_seqs is empty!.")
-
-        self.assertFalse(conn_.existsTable("fltest"))
-        self.assertTrue(conn_.existsTable("flseqs"))
-        self.assertFalse(conn_.mismatchedTable("flseqs", mtd_seqs))
-        self.assertEqual(conn_.normalizeValue("holá, 'avión'"), "holá, ''avión''")
+        self.assertTrue(mtd_seqs is not None)
+        if mtd_seqs is not None:
+            self.assertFalse(conn_.existsTable("fltest"))
+            self.assertTrue(conn_.existsTable("flseqs"))
+            self.assertFalse(conn_.mismatchedTable("flseqs", mtd_seqs))
+            self.assertEqual(conn_.normalizeValue("holá, 'avión'"), "holá, ''avión''")
 
     def test_basic5(self) -> None:
         """Basic test 5."""
