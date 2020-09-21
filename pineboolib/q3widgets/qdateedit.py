@@ -34,16 +34,16 @@ class QDateEdit(QtWidgets.QDateEdit):
         else:
             return ""
 
-    def setDate(self, v: Union[str, Any]) -> None:
+    def setDate(self, value: Union[str, Any]) -> None:
         """Set date."""
 
-        if not isinstance(v, str):
-            if hasattr(v, "toString"):
-                v = v.toString("yyyy%sMM%sdd" % (self.separator(), self.separator()))
-            else:
-                v = str(v)
+        if not isinstance(value, str):
+            if hasattr(value, "toString"):
+                value = value.toString("yyyy%sMM%sdd" % (self.separator(), self.separator()))
 
-        date = QtCore.QDate.fromString(v[:10], "yyyy-MM-dd")
+            value = str(value)
+
+        date = QtCore.QDate.fromString(value[:10], "yyyy-MM-dd")
         super().setDate(date)
         # if not project.DGI.localDesktop():
         #    project.DGI._par.addQueque("%s_setDate" % self._parent.objectName(), "QDateEdit")
