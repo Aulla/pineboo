@@ -435,6 +435,23 @@ class SqlInspector(object):
         if not self.mtd_fields():
             if isinstance(value, datetime.time):
                 value = str(value)[0:8]
+            elif isinstance(value, datetime.timedelta):
+                days, seconds = value.days, value.seconds
+                hours = days * 24 + seconds // 3600
+                minutes = (seconds % 3600) // 60
+                seconds = seconds % 60
+                value = "%s:%s:%s" % (
+                    hours,
+                    minutes if len(str(minutes)) > 1 else "0%s" % minutes,
+                    seconds if len(str(seconds)) > 1 else "0%s" % seconds,
+                )
+
+                value = str(value)
+                if value.find(".") > -1:
+                    value = value[0 : value.find(".")]
+                elif value.find("+") > -1:
+                    value = value[0 : value.find("+")]
+
             return value
         else:
             type_ = "double"
