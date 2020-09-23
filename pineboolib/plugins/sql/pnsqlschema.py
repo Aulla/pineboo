@@ -580,32 +580,37 @@ class PNSqlSchema(object):
 
         ret = False
         try:
-            # if field1[2] != field2[2]:
-            #    ret = True
+            if field_db[2] != field_meta[2]:  # nulos
+                ret = True
 
-            db_type = field_db[1]
-            meta_type = field_meta[1]
+            if not ret:
+                db_type = field_db[1]
+                meta_type = field_meta[1]
 
-            if db_type == "string":
-                if field_meta[1] == "string":
-                    if field_db[3] not in [field_meta[3], 0, 255]:
+                if db_type == "string":
+                    if meta_type == "string":
+                        if field_db[3] not in [field_meta[3], 0, 255]:
+                            ret = True
+                    elif meta_type not in ("string", "time", "date"):
                         ret = True
-                elif meta_type not in ("string", "time", "date"):
+
+                elif db_type == "uint" and meta_type not in ("int", "uint", "serial"):
+                    ret = True
+                elif db_type == "bool" and meta_type not in ("bool", "unlock"):
+                    ret = True
+                elif db_type == "double" and meta_type != "double":
+                    ret = True
+                elif db_type == "stringlist" and meta_type not in (
+                    "stringlist",
+                    "pixmap",
+                    "string",
+                ):
+                    ret = True
+                elif db_type == "timestamp" and meta_type != "timestamp":
                     ret = True
 
-            elif db_type == "uint" and meta_type not in ("int", "uint", "serial"):
-                ret = True
-            elif db_type == "bool" and meta_type not in ("bool", "unlock"):
-                ret = True
-            elif db_type == "double" and meta_type != "double":
-                ret = True
-            elif db_type == "stringlist" and meta_type not in ("stringlist", "pixmap", "string"):
-                ret = True
-            elif db_type == "timestamp" and meta_type != "timestamp":
-                ret = True
-
-        except Exception:
-            LOGGER.error("notEqualsFields %s %s", field_db, field_meta)
+        except Exception as error:
+            LOGGER.error("notEqualsFields %s %s (%s)", field_db, field_meta, str(error))
 
         # if ret:
         #    LOGGER.warning("Falla database: %s, metadata: %s", field1, field2)
