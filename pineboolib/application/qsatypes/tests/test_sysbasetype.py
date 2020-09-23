@@ -127,6 +127,13 @@ class TestSysBaseClassDataBase(unittest.TestCase):
                 "extra",
             )
         )
+        self.assertEqual(application.PROJECT.conn_manager.useConn("extra")._db_name, ":memory:")
+        self.assertEqual(
+            application.PROJECT.conn_manager.useConn("extra")._db_host, prueba_conn_1.host()
+        )
+        self.assertEqual(
+            application.PROJECT.conn_manager.useConn("extra")._db_host, prueba_conn_1.port()
+        )
 
     @classmethod
     def tearDownClass(cls) -> None:
