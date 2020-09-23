@@ -63,7 +63,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         db_port: Optional[int] = None,
         db_user_name: Optional[str] = None,
         db_password: str = "",
-        driver_alias: Optional[str] = None,
+        driver_alias: str = "",
     ) -> None:
         """Database connection through a sql driver."""
 
@@ -94,30 +94,14 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._db_user_name = db_user_name
         self._db_password = db_password
 
-        if driver_alias is None:
-            raise Exception("driver alias is empty!")
+        if driver_alias:
+            self._driver_name = self._driver_sql.aliasToName(driver_alias)
 
-        self._driver_name = self._driver_sql.aliasToName(driver_alias)
-
-        # self._transaction_level = 0
-        # self.stackSavePoints_ = []
-        # self.queueSavePoints_ = []
         self._interactive_gui = "Pineboo" if not utils_base.is_library() else "Pinebooapi"
         self._last_active_cursor = None
-        # self._current_transaction = None
         self._last_error = ""
         self._is_open = False
         self._current_session = None
-        # if self._driver_name and self._driver_sql.loadDriver(self._driver_name):
-        #    self.conn = self.conectar(db_name, db_host, db_port, db_user_name, db_password)
-        #    if self.conn is False:
-        #        return
-
-        # else:
-        #    LOGGER.error("PNConnection.ERROR: No se encontro el driver '%s'", driverAlias)
-        #    import sys
-
-        #    sys.exit(0)
 
     def connManager(self):
         """Return connection manager."""
