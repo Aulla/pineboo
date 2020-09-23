@@ -254,7 +254,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             field_name = columns[1]
             field_type = columns[2]
             field_size = 0
-            field_allow_null = columns[3] == 0
+            field_allow_null = columns[3] == 0 and columns[5] == 0
             field_primary_key = columns[5] == 1
             if field_type.find("VARCHAR(") > -1:
                 field_size = field_type[field_type.find("(") + 1 : len(field_type) - 1]
