@@ -194,6 +194,12 @@ class SysBaseType(object):
                     conn_db._is_open = True
 
         else:
+            if not args[6] or not args[1]:
+                raise Exception(
+                    "Invalid connection data. conn_name: %s, driver_name: %s, database_name: %s, user_name: %s, db_host: %s, port: %s"
+                    % (args[6], args[0], args[1], args[2], args[4], args[5])
+                )
+
             conn_db = application.PROJECT.conn_manager.useConn(args[6], args[1])
             if not conn_db.isOpen():
                 if conn_db._driver_sql is None:
