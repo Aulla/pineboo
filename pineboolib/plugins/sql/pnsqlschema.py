@@ -613,7 +613,7 @@ class PNSqlSchema(object):
             LOGGER.error("notEqualsFields %s %s (%s)", field_db, field_meta, str(error))
 
         # if ret:
-        #    LOGGER.warning("Falla database: %s, metadata: %s", field1, field2)
+        #    LOGGER.warning("Falla database: %s, metadata: %s", field_db, field_meta)
 
         return ret
 
