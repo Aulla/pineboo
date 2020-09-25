@@ -2320,7 +2320,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             self.private_cursor.cursor_relation_
             and self.private_cursor.relation_
             and self.private_cursor.metadata_
-            and self.private_cursor.cursor_relation_.metadata()
+            and self.private_cursor.cursor_relation_.private_cursor.metadata_ is not None
         ):
             relation_value = self.private_cursor.cursor_relation_.valueBuffer(
                 self.private_cursor.relation_.foreignField()
