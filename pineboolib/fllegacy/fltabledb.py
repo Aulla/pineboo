@@ -484,8 +484,8 @@ class FLTableDB(QtWidgets.QWidget):
 
                 table_metadata = manager_tmd
 
-            if table_metadata is None:
-                return
+            # if table_metadata is None:
+            #    return
 
             if not self._foreign_field or not self._field_relation:
                 if not self.cursor().metadata():
@@ -536,7 +536,11 @@ class FLTableDB(QtWidgets.QWidget):
             .metadata()
             .relation(self._foreign_field, self._field_relation, self._table_name)
         )
-        test_m1 = table_metadata.relation(self._field_relation, self._foreign_field, cursor_name)
+        test_m1 = (
+            table_metadata.relation(self._field_relation, self._foreign_field, cursor_name)
+            if table_metadata is not None
+            else None
+        )
         check_integrity = False
         if not relation_metadata:
             if test_m1:
@@ -583,7 +587,7 @@ class FLTableDB(QtWidgets.QWidget):
                 pass
 
         relation_metadata = test_m1
-        if not relation_metadata:
+        if not relation_metadata and table_metadata is not None:
             field_metadata = table_metadata.field(self._field_relation)
             if field_metadata is not None:
                 relation_metadata = pnrelationmetadata.PNRelationMetaData(
