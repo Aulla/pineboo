@@ -1355,7 +1355,7 @@ class FLTableDB(QtWidgets.QWidget):
         if (
             self.cursor()
             and self.cursor() is not t_cursor
-            and self.cursor().metadata()
+            and self.cursor().private_cursor.metadata_ is not None
             and (
                 not t_cursor
                 or (
@@ -1957,7 +1957,7 @@ class FLTableDB(QtWidgets.QWidget):
         if not self.cursor() or not self._table_records:
             return
 
-        table_metadata = self.cursor().metadata()
+        table_metadata = self.cursor().private_cursor.metadata_
         if not table_metadata:
             return
         if not self._table_name:
@@ -2553,7 +2553,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         Export to an ODS spreadsheet and view it.
         """
-        if not self.cursor():
+        if not self.cursor() or self.cursor().private_cursor.metadata_ is None:
             return
 
         cursor = pnsqlcursor.PNSqlCursor(self.cursor().curName())
@@ -2758,7 +2758,8 @@ class FLTableDB(QtWidgets.QWidget):
             return
         base_filter: Any = None
         if not self._table_records:
-            raise Exception("_table_records is not defined!")
+            LOGGER.warning("FLTableDB %s has no tablerecords defined!", self.objectName())
+            return
 
         refresh_data = False
 
