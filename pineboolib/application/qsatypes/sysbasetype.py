@@ -535,12 +535,14 @@ class SysBaseType(object):
     ) -> Optional[QtWidgets.QWidget]:
         """Test if object does exist."""
 
-        if not container or container is None:
-            return None
-        object_ = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
-        if not object_:
-            LOGGER.warning(ustr(component, u" no existe"))
-            return None
+        object_ = None
+        if container is not None:
+            object_ = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
+            if object_ is None and hasattr(container, "child"):
+                object_ = container.child(component)
+
+            if object_ is None:
+                LOGGER.warning("%s no existe en %s", component, container)
         return object_
 
     @classmethod
@@ -560,12 +562,12 @@ class SysBaseType(object):
         cls, container: QtWidgets.QWidget, component: str, method: str, param: Any = None
     ) -> bool:
         """Execute method from object."""
-        object_ = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
+        object_ = cls.testObj(container, component)
         attr = getattr(object_, method, None)
         if attr is not None:
             attr(param)
         else:
-            LOGGER.warning(ustr(method, u" no existe"))
+            LOGGER.warning("%s no existe en %s", method, component)
 
         return True
 
