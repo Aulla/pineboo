@@ -732,8 +732,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             self.need_update = False
             self._column_hints = [120] * len(self.sql_fields)
 
-            if self.parent_view:
-                self.update_rows()
+        if self.parent_view:
+            self.update_rows()
 
     def buildWhere(self) -> str:
         """Return valid where."""
