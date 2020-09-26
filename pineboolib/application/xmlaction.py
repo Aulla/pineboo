@@ -169,6 +169,13 @@ class XMLAction(struct.ActionStruct):
 
             self._master_widget._form = form  # type: ignore [assignment] # noqa: F821
 
+            if form is not None:
+                preload_main_filter = getattr(form.iface, "preloadMainFilter", None)
+                if preload_main_filter is not None:
+                    value = preload_main_filter()
+                    if value is not None and form.cursor_:
+                        form.cursor_.setMainFilter(value, False)
+
     def load_record_form(self, cursor: Optional["isqlcursor.ISqlCursor"] = None) -> None:
         """Load record_widget.form."""
 

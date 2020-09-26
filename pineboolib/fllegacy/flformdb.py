@@ -603,14 +603,6 @@ class FLFormDB(QtWidgets.QDialog):
 
             value = None
 
-            preload_main_filter = getattr(self.iface, "preloadMainFilter", None)
-
-            if preload_main_filter:
-                value = preload_main_filter()
-
-            if value is not None and self.cursor_:
-                self.cursor_.setMainFilter(value, False)
-
             # if self._loaded and not self.__class__.__name__ == "FLFormRecordDB":
             # application.PROJECT.conn_manager.managerModules().loadFLTableDBs(self)
 
