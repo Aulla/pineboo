@@ -1955,9 +1955,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
                     siguiente = None
                     if self._action.scriptFormRecord():
-                        context_ = SafeQSA.formrecord(
-                            "formRecord%s" % self._action.scriptFormRecord()[:-3]
-                        ).iface
+                        context_ = SafeQSA.formrecord("formRecord%s" % self._action.name()).iface
                         function_counter = getattr(context_, "calculateCounter", None)
                         if function_counter is None:
                             siguiente = utils.next_counter(field_name, self)
