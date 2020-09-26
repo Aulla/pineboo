@@ -263,7 +263,12 @@ class FLFieldDB(QtWidgets.QWidget):
             # cur_values = [f.value for f in self.cursor_.private_cursor.buffer_.fieldsList()]
             # LOGGER.info("*** cursor Buffer: %r", cur_values)
         else:
-            LOGGER.warning("*** FLFieldDB::loaded: SIN cursor ??")
+            LOGGER.warning(
+                "*** FLFieldDB::loaded: problem found!, top_widget: %s, cursor: %s, buffer. %s",
+                self._top_widget,
+                self.cursor_,
+                self.cursor_.private_cursor.buffer_,
+            )
 
         self._cursor_backup = None
         self._part_decimal = 0
@@ -2758,7 +2763,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         field_metadata = field.associatedField()
 
-        form_search: flformsearchdb.FLFormSearchDB
+        form_search: "flformsearchdb.FLFormSearchDB"
 
         if field_metadata is not None:
             fmd_relation = field_metadata.relationM1()
@@ -2802,7 +2807,6 @@ class FLFieldDB(QtWidgets.QWidget):
             #    a.setTable(field.relationM1().foreignField())
 
             form_search = flformsearchdb.FLFormSearchDB(cursor2, self._top_widget)
-
             form_search.setFilter(
                 mng.formatAssignValue(fmd_relation.foreignField(), field_metadata, value, True)
             )
@@ -2822,7 +2826,6 @@ class FLFieldDB(QtWidgets.QWidget):
             )
             # f = flformsearchdb.FLFormSearchDB(c, a.name(), self._top_widget)
             form_search = flformsearchdb.FLFormSearchDB(cursor, action_.name(), self._top_widget)
-
         form_search.setMainWidget()
 
         list_objs = form_search.findChildren(fltabledb.FLTableDB)
@@ -2853,8 +2856,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
         value = form_search.exec_(field_relation.foreignField())
         form_search.close()
-        if cursor:
-            del cursor
+        # if cursor:
+        #    del cursor
         if value:
             # self.setValue("")
             self.setValue(value)
