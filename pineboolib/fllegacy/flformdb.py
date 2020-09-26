@@ -601,8 +601,6 @@ class FLFormDB(QtWidgets.QDialog):
                 cursor = pnsqlcursor.PNSqlCursor(self._action.table())
                 self.setCursor(cursor)
 
-            value = None
-
             # if self._loaded and not self.__class__.__name__ == "FLFormRecordDB":
             # application.PROJECT.conn_manager.managerModules().loadFLTableDBs(self)
 

@@ -8,7 +8,7 @@ import platform
 import traceback
 import ast
 
-from typing import Any, Dict, Optional, List, Union, cast
+from typing import Any, Dict, Optional, List, Union
 
 from PyQt5 import QtCore, QtWidgets, QtXml
 
@@ -531,15 +531,17 @@ class SysBaseType(object):
 
     @classmethod
     def testObj(
-        cls, container: QtWidgets.QWidget = None, component: str = ""
+        cls, container: Optional[QtWidgets.QWidget] = None, component: str = ""
     ) -> Optional[QtWidgets.QWidget]:
         """Test if object does exist."""
 
-        object_ = None
+        object_: Any = None
         if container is not None:
-            object_ = cast(QtWidgets.QWidget, container.findChild(QtWidgets.QWidget, component))
-            if object_ is None and hasattr(container, "child"):
-                object_ = container.child(component)
+            object_ = container.findChild(QtWidgets.QWidget, component)
+            if object_ is None:
+                child_fun = getattr(container, "child", None)
+                if child_fun is not None:
+                    object_ = child_fun(component)
 
             if object_ is None:
                 LOGGER.warning("%s no existe en %s", component, container)

@@ -267,7 +267,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 "*** FLFieldDB::loaded: problem found!, top_widget: %s, cursor: %s, buffer. %s",
                 self._top_widget,
                 self.cursor_,
-                self.cursor_.private_cursor.buffer_,
+                self.cursor_.private_cursor.buffer_ if self.cursor_ is not None else None,
             )
 
         self._cursor_backup = None
