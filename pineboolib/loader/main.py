@@ -74,6 +74,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
 def startup(enable_gui: bool = None) -> None:
     """Start up pineboo."""
     # FIXME: No hemos cargado pineboo aún. No se pueden usar métodos internos.
+    print(chr(27) + "[2J")
     from pineboolib.core.utils.check_dependencies import check_dependencies_cli
 
     if not check_dependencies_cli(
