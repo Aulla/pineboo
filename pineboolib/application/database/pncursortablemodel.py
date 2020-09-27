@@ -710,6 +710,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         )
 
         if sql_count.find("ORDER BY") > 1:
+            if sql_count.find("WHERE") == -1:
+                sql_count += " WHERE 1 = 1"
             sql_count = sql_count[: sql_count.find("ORDER BY")]
 
         self._data_proxy = None
