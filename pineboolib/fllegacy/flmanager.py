@@ -586,30 +586,36 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("createTable. self.db_ is empty!")
 
+        ret_ = None
         if n_or_tmd is not None:
 
             if isinstance(n_or_tmd, str):
-                tmd = self.metadata(n_or_tmd)
-                if not tmd:
+                n_or_tmd = self.metadata(n_or_tmd)
+                if n_or_tmd is None:
                     return None
 
-                n_or_tmd = tmd
+            elif not self.existsTable(n_or_tmd.name()):
+                if not self.db_.connManager().default().createTable(n_or_tmd):
+                    LOGGER.warning(
+                        "createTable: %s",
+                        self.tr("No se ha podido crear la tabla ") + n_or_tmd.name(),
+                    )
+                    return None
+                elif not n_or_tmd.isQuery():
+                    self.list_tables_.append(n_or_tmd.name())
 
-            if n_or_tmd.name() in self.list_tables_:
+            if n_or_tmd.isQuery():
                 return n_or_tmd
 
-            elif n_or_tmd.isQuery() or self.existsTable(n_or_tmd.name(), False):
+            elif n_or_tmd.name() in self.list_tables_:
                 return n_or_tmd
 
             elif not self.db_.connManager().default().createTable(n_or_tmd):
                 LOGGER.warning(
                     "createTable: %s", self.tr("No se ha podido crear la tabla ") + n_or_tmd.name()
                 )
-                return None
-            # else:
-            #    LOGGER.info("createTable: Created new table %r", n_or_tmd.name())
 
-        return n_or_tmd
+        return None
 
     def formatValueLike(
         self,
