@@ -469,20 +469,17 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 print("ERROR: FLFormRecordDB @ closeEvent :: las transacciones aún no funcionan.")
 
             if self.accepted_:
-                if not self.cursor_.commit():
-                    return
-                self.afterCommitTransaction()
+                if self.cursor_.commit():
+                    self.afterCommitTransaction()
             else:
                 if not self.cursor_.rollback():
                     event.ignore()
-                    return
                 # else:
                 #    self.cursor_.select()
 
-            self.closed.emit()
             self.setCursor(None)
-        else:
-            self.closed.emit()
+
+        self.closed.emit()
 
         super().closeEvent(event)
         # self.deleteLater()
