@@ -586,11 +586,10 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("createTable. self.db_ is empty!")
 
-        ret_ = None
         if n_or_tmd is not None:
 
             if isinstance(n_or_tmd, str):
-                n_or_tmd = self.metadata(n_or_tmd)
+                n_or_tmd = self.metadata(n_or_tmd, False)
                 if n_or_tmd is None:
                     return None
 
@@ -614,6 +613,8 @@ class FLManager(QtCore.QObject, IManager):
                 LOGGER.warning(
                     "createTable: %s", self.tr("No se ha podido crear la tabla ") + n_or_tmd.name()
                 )
+            else:
+                return n_or_tmd
 
         return None
 
