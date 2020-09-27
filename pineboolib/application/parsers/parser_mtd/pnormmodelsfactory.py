@@ -147,3 +147,5 @@ def load_models() -> None:
 
     for key, data in models_.items():
         save_model(data, key[:-6])
+        application.PROJECT.conn_manager.manager().createTable(key[:-6])
+
