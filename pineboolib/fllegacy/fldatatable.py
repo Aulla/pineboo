@@ -880,6 +880,9 @@ class FLDataTable(QtWidgets.QTableView):
         """
         valid_idx = self.visual_index_to_column_index(pos_)  # corrige posición con ocultos.
         logical_idx = self.visual_index_to_metadata_index(valid_idx)  # posicion en metadata.
+        if logical_idx == -1:
+            return None
+
         table_metadata = self.model().metadata()
         field_metadata = table_metadata.indexFieldObject(logical_idx)
 
