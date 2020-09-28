@@ -91,6 +91,8 @@ class FLFormSearchDB(flformdb.FLFormDB):
         super().__init__(action, parent, load=False)
 
         self.setWindowModality(QtCore.Qt.ApplicationModal)
+        if cursor.actionName() != action.name():
+            cursor.setAction(action)
 
         self.setCursor(cursor)
 
