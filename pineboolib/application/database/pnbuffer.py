@@ -152,6 +152,10 @@ class PNBuffer(object):
         """Set values to cache_buffer."""
 
         if field_name in self._cursor.metadata().fieldNames():
+            type_ = self._cursor.metadata().field(field_name).type()
+            if type_ == "bool":
+                if isinstance(value, str):
+                    value = utils_base.text2bool(value)
             self._cache_buffer[field_name] = value
         else:
             return False
