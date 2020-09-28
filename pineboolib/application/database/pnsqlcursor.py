@@ -1794,7 +1794,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not field_name or self.private_cursor.relation_.foreignField() == field_name:
                 # if self.private_cursor.buffer_:
                 #    self.private_cursor.buffer_.clear_buffer()
-                self.refreshDelayed()
+                self.refreshDelayed(0)
                 return
         else:
             self.model().refresh()  # Hay que hacer refresh previo pq si no no recoge valores de un commitBuffer paralelo
@@ -1833,12 +1833,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return
         else:
             self.private_cursor.timer_.stop()
-
-        # self.private_cursor.timer_.start(msec)
-        # cFilter = self.filter()
-        # self.setFilter(None)
-        # if cFilter == self.filter() and self.isValid():
-        #    return
 
         self.setFilter("")
         pos = self.atFrom()
