@@ -950,7 +950,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def seek_row(self, row: int) -> bool:
         """Seek row selected."""
 
-        if row != self._current_row_index:
+        if not hasattr(self, "_current_row_index") or row != self._current_row_index:
             if row > -1 and row < self.rowCount():
                 object_ = self.get_obj_from_row(row)
                 if object_ is None:
