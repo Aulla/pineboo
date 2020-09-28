@@ -2209,7 +2209,7 @@ class FLTableDB(QtWidgets.QWidget):
     def refreshDelayed2(self) -> None:
         """Refresh the data when the time ends."""
         row = self.currentRow()
-        self.refresh(False, self._refresh_data)
+        self.refresh(True, self._refresh_data)
         self._refresh_data = False
         if row > -1:
             self.setCurrentRow(row)
