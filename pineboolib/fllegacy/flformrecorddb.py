@@ -704,12 +704,12 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if self.cursor_.checkIntegrity():
                 self.acceptedForm()
                 self.cursor_.setActivatedCheckIntegrity(False)
-                if self.cursor_.commitBuffer():
+                if self.cursor_.commitBuffer(False):
                     self.cursor_.setActivatedCheckIntegrity(True)
-                    self.cursor_.commit()
+                    # self.cursor_.commit()
                     self.cursor_.setModeAccess(self._initial_mode_access)
                     self.accepted_ = False
-                    self.cursor_.transaction()
+                    # self.cursor_.transaction()
                     self.cursor_.first()
                     self.setCaptionWidget()
                     self.initScript()
@@ -726,14 +726,14 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if self.cursor_.checkIntegrity():
                 self.acceptedForm()
                 self.cursor_.setActivatedCheckIntegrity(False)
-                if self.cursor_.commitBuffer():
+                if self.cursor_.commitBuffer(False):
                     self.cursor_.setActivatedCheckIntegrity(True)
-                    self.cursor_.commit()
+                    # self.cursor_.commit()
                     self.cursor_.setModeAccess(self._initial_mode_access)
                     self.accepted_ = False
-                    self.cursor_.transaction()
+                    # self.cursor_.transaction()
                     if self.cursor_.at() == 0:
-                        self.lastRecord()
+                        self.cursor_.last()
                     else:
                         self.cursor_.prev()
                     self.setCaptionWidget()
@@ -752,12 +752,12 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if self.cursor_.checkIntegrity():
                 self.acceptedForm()
                 self.cursor_.setActivatedCheckIntegrity(False)
-                if self.cursor_.commitBuffer():
+                if self.cursor_.commitBuffer(False):
                     self.cursor_.setActivatedCheckIntegrity(True)
-                    self.cursor_.commit()
+                    # self.cursor_.commit()
                     self.cursor_.setModeAccess(self._initial_mode_access)
                     self.accepted_ = False
-                    self.cursor_.transaction()
+                    # self.cursor_.transaction()
                     if self.cursor_.at() == (self.cursor_.size() - 1):
                         self.cursor_.first()
                     else:
@@ -781,12 +781,12 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if self.cursor_.checkIntegrity():
                 self.acceptedForm()
                 self.cursor_.setActivatedCheckIntegrity(False)
-                if self.cursor_.commitBuffer():
+                if self.cursor_.commitBuffer(False):
                     self.cursor_.setActivatedCheckIntegrity(True)
-                    self.cursor_.commit()
+                    # self.cursor_.commit()
                     self.cursor_.setModeAccess(self._initial_mode_access)
                     self.accepted_ = False
-                    self.cursor_.transaction()
+                    # self.cursor_.transaction()
                     self.cursor_.last()
                     self.setCaptionWidget()
                     self.initScript()
