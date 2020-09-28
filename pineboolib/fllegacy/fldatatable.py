@@ -664,15 +664,15 @@ class FLDataTable(QtWidgets.QTableView):
     def sortByColumn(self, column, order) -> None:
         """Overload Sort by column."""
 
-        fix_column = self.visual_index_to_metadata_index(column)
-        if fix_column < 0:  # Entiendo que no hay metadata aún , entonces si o si la columna es 0
-            fix_column = 0
+        fix_column = 0
 
-        super().sortByColumn(fix_column, order)
         if self.cursor_ is not None:
-            mtdfield = self.visual_index_to_field(column)
+            fix_column = self.visual_index_to_metadata_index(column)
+            mtdfield = self.visual_index_to_field(fix_column)
             if mtdfield is not None:
                 self.sort_ = "%s %s" % (mtdfield.name(), "ASC" if not order else "DESC")
+
+        super().sortByColumn(fix_column, order)
 
     def refresh(self, refresh_option: Any = None) -> None:
         """
