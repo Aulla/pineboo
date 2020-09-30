@@ -471,6 +471,12 @@ class Condition(ListObject):
     tags = ["condition"]
 
 
+class TypeOf(ListObject):
+    """Process Typeof_operator tags."""
+
+    tags = ["typeof_operator"]
+
+
 class Else(ListObject):
     """Process Else tags."""
 

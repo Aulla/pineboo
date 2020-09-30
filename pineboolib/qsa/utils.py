@@ -8,6 +8,7 @@ import sys
 import threading
 
 from PyQt5 import QtCore
+from pineboolib.application import types
 from pineboolib.core.utils.utils_base import ustr
 from pineboolib.core.utils import logging
 from pineboolib import application
@@ -669,3 +670,21 @@ def ws_channel_send_type(json: Dict, group_name: str = "") -> None:
             async_to_sync(channel_layer.group_send)(group_name, json)
         else:
             async_to_sync(channel_layer.send)(user_id, json)
+
+
+def typeof(obj: Any) -> str:
+
+    """Return type name froma n object."""
+    result = "unknown"
+
+    if isinstance(obj, str):
+        result = "string"
+    elif isinstance(obj, [int, float]):
+        result = "number"
+    elif isinstance(obj, bool):
+        result = "boolean"
+    elif isinstance(obj, dict, list, types.Array):
+        result = "object"
+
+    return result
+

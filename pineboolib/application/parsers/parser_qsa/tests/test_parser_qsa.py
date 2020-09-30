@@ -55,6 +55,11 @@ class TestParser(unittest.TestCase):
         self.assertEqual(qs2py("var a = new Array();"), "a: Any = qsa.Array()\n")
         self.assertEqual(qs2py("var b = new Array(0);"), "b: Any = []\n")
 
+    def test_typeof(self) -> None:
+        """Test typeof."""
+
+        self.assertEqual(qs2py("var a = typeof('juan')"), 'a: Any = qsa.typeof_("juan")\n')
+
     def test_process_class(self) -> None:
         """Test parsing the process class."""
         self.assertEqual(

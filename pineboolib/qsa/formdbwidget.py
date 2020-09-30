@@ -153,10 +153,15 @@ class FormDBWidget(QtWidgets.QWidget):
             if ret is None:
                 ret = getattr(form, child_name, None)
 
-        if ret is None:
-            raise Exception("control %s not found!, form: %s" % (child_name, form))
+        # if ret is None:
+        #    raise Exception("control %s not found!, form: %s" % (child_name, form))
 
         return ret
+
+    def eval(self, text: str) -> Any:
+        """Return eval value."""
+
+        return eval(text)
 
     def cursor(self) -> "flsqlcursor.FLSqlCursor":  # type: ignore [override] # noqa F821
         """Return cursor associated."""

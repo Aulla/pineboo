@@ -1507,6 +1507,24 @@ class InlineUpdate(ASTPython):
             yield linetype, arguments[0] + " ?= 1"
 
 
+class TypeOf(ASTPython):
+    """Process TypeOf XML tags."""
+
+    def generate(self, **kwargs: Any) -> ASTGenerator:
+        """Generate python code."""
+
+        arguments = ["qsa.typeof_"]
+        for number, arg in enumerate(self.elem):
+            arg.set("parent_", self.elem)  # type: ignore
+            expr = []
+            for dtype, data in parse_ast(arg, parent=self).generate():
+                if dtype == "expr":
+                    expr.append(data)
+
+            arguments += expr
+            yield dtype, " ".join(arguments)
+
+
 class InstructionCall(ASTPython):
     """Process InstructionCall XML tags."""
 
@@ -2669,7 +2687,7 @@ def pythonize(filename: str, destfilename: str, debugname: Optional[str] = None)
     ASTPython.debug_file = open(debugname, "w", encoding="UTF-8") if debugname else None
     parser = ET.XMLParser(encoding="UTF-8")
     try:
-        ast_tree = ET.parse(open(filename, "r", encoding="UTF-8"), parser)
+        ast_tree = ET.parse(open(filename, "r", encoding="UTF-8", errors="replace"), parser)
     except Exception:
         print("filename:", filename)
         raise
