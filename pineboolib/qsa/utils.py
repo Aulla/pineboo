@@ -683,8 +683,7 @@ def typeof(obj: Any) -> str:
         result = "number"
     elif isinstance(obj, bool):
         result = "boolean"
-    elif isinstance(obj, dict, list, types.Array):
+    elif isinstance(obj, (dict, list, types.Array)):
         result = "object"
 
     return result
-
