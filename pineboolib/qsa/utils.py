@@ -673,13 +673,13 @@ def ws_channel_send_type(json: Dict, group_name: str = "") -> None:
 
 
 def typeof(obj: Any) -> str:
-
     """Return type name froma n object."""
+
     result = "unknown"
 
     if isinstance(obj, str):
         result = "string"
-    elif isinstance(obj, [int, float]):
+    elif isinstance(obj, (int, float)):
         result = "number"
     elif isinstance(obj, bool):
         result = "boolean"
