@@ -26,7 +26,7 @@ class FLPYMSSQL(pnsqlschema.PNSqlSchema):
         """Inicialize."""
         super().__init__()
         self.version_ = "0.9"
-        self.name_ = "FLMSSQL"
+        self.name_ = "FLPYMSSQL"
         self.error_list = []
         self.alias_ = "SQL Server (PYMSSQL)"
         self.default_port = 1433
