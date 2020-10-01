@@ -17,12 +17,30 @@ def parse_options(custom_argv: Optional[List] = None) -> Values:
         metavar="PROJECT",
     )
     parser.add_option(
-        "-c",
-        "--connect",
+        "-s",
+        "--silentconn",
         dest="connection",
         help="connect to database with user and password.",
         metavar="user:passwd:driver_alias@host:port/database",
     )
+
+    parser.add_option(
+        "-c",
+        "--call",
+        dest="call_function",
+        help="call a specific function",
+        metavar="module.pub_function",
+    )
+
+    parser.add_option(
+        "-x",
+        "--exit",
+        action="store_true",
+        dest="quit_after_call",
+        help="exit after call a specific function",
+        default=False,
+    )
+
     parser.add_option(
         "-v", "--verbose", action="count", default=0, help="increase verbosity level"
     )  # default a 2 para ver los logger.info, 1 no los muestra

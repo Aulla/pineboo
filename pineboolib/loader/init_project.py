@@ -46,9 +46,16 @@ def init_project(
             raise ValueError("Action name %s not found" % options.action)
 
     call_function = settings.SETTINGS.value("application/callFunction", None)
+    if options.call_function:
+        call_function = options.call_function
+
     if call_function:
-        LOGGER.info("callFunction (%s)", call_function)
-        project.call(call_function, [])
+        LOGGER.debug("callFunction (%s)", call_function)
+        args = call_function.split(":")
+        project.call(call_function, args[1:] if args else [])
+
+        if options.quit_after_call:
+            return 0
 
     if main_window is not None:
         project.message_manager().send("splash", "showMessage", ["Creando interface ..."])
