@@ -27,7 +27,7 @@ from .utils import kill_timer as killTimer  # noqa: F401
 from .utils import kill_timers as killTimers  # noqa: F401
 from .utils import is_nan as isNaN  # noqa: F401
 from .utils import debug, isnan, replace, length, text  # noqa: F401
-from .utils import format_exc, Sort, splice, typeof  # noqa: F401
+from .utils import format_exc, Sort, splice, typeof_  # noqa: F401
 from .utils import Switch as switch  # noqa: F401
 from .utils import QsaRegExp as qsaRegExp  # noqa: F401
 from .utils import ws_channel_send, thread, user_id, session_atomic, session  # noqa: F401

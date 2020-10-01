@@ -672,7 +672,7 @@ def ws_channel_send_type(json: Dict, group_name: str = "") -> None:
             async_to_sync(channel_layer.send)(user_id, json)
 
 
-def typeof(obj: Any) -> str:
+def typeof_(obj: Any) -> str:
     """Return type name froma n object."""
 
     result = "unknown"
