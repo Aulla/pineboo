@@ -18,7 +18,7 @@ class TestConfigDBConn(unittest.TestCase):
     def test_connstring(self) -> None:
         """Test to provide a connstring."""
         # format: "user:passwd:driver_alias@host:port/database"
-        options = parse_options(["pineboo", "--connect", "user:pass@127.0.0.1:5433/mydb"])
+        options = parse_options(["pineboo", "--silentconn", "user:pass@127.0.0.1:5433/mydb"])
         cfg1 = config_dbconn(options)
         cfg2 = ProjectConfig(
             database="mydb",
@@ -30,7 +30,7 @@ class TestConfigDBConn(unittest.TestCase):
         )
         self.assertEqual(cfg1, cfg2)
 
-        options = parse_options(["pineboo", "--connect", "mydb"])
+        options = parse_options(["pineboo", "--silentconn", "mydb"])
         cfg1 = config_dbconn(options)
         cfg2 = ProjectConfig(
             database="mydb",
