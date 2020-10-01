@@ -100,7 +100,7 @@ def startup(enable_gui: bool = None) -> None:
     else:
         # try:
         ret = exec_main(options)
-    
+
         # except Exception as error:
         #     QtWidgets.QMessageBox.information(None, "Pineboo", "FAllo al arrancar : %s" % error)
     # setup()
