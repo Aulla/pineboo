@@ -3219,10 +3219,11 @@ class FLFieldDB(QtWidgets.QWidget):
                     if field is None:
                         raise Exception("field is empty!.")
 
-                    read_only(not enable)
                     if not enable or not field.editable():
                         self.editor_.setStyleSheet("background-color: #f0f0f0")
+                        read_only(True)
                     else:
+                        read_only(not enable)
                         if (
                             not field.allowNull()
                             and not (field.type() in ["date", "time"])
