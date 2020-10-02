@@ -2104,8 +2104,8 @@ class DictObject(ASTPython):
             for dtype, data in parse_ast(child, parent=self).generate():
                 empty = False
                 if key:
-                    if isinstance(data, bool):
-                        yield dtype, data
+                    if isinstance(data, bool):  # type: ignore [unreachable] # noqa: F821
+                        yield dtype, data  # type: ignore [unreachable] # noqa: F821
                     else:
                         yield dtype, "'%s'" % data if not data.startswith(
                             ("'", '"')
