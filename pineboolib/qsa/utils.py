@@ -679,10 +679,10 @@ def typeof_(obj: Any) -> str:
 
     if isinstance(obj, str):
         result = "string"
-    elif isinstance(obj, (int, float)):
-        result = "number"
     elif isinstance(obj, bool):
         result = "boolean"
+    elif isinstance(obj, (int, float)):
+        result = "number"
     elif isinstance(obj, (dict, list, types.Array)):
         result = "object"
 
