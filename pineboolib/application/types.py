@@ -222,7 +222,7 @@ class Array(object):
 
     def __getattr__(self, value: str) -> Any:
         """Support for attribute style access."""
-        return self._dict[value]
+        return self._dict[value] if value in self._dict.keys() else None
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Support for attribute style writes."""
