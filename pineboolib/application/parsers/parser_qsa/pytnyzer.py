@@ -858,7 +858,9 @@ class If(ASTPython):
                         elif expr[2] == "False":
                             expr = [expr[0]]
                     elif expr[1] == "in":
-                        expr = ["hasattr(%s, %s)" % (expr[2], expr[0])]
+                        expr = [
+                            "%s in %s or hasattr(%s, %s)" % (expr[0], expr[2], expr[2], expr[0])
+                        ]
 
                 main_expr.append(" ".join(expr))
 
