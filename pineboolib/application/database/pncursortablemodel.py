@@ -654,7 +654,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self._initialized = False
 
-        if self._disable_refresh and self.rowCount():
+        if (
+            self._disable_refresh or self._parent.modeAccess() == self._parent.Del
+        ) and self.rowCount():
             return
 
         self._last_grid_row = -1

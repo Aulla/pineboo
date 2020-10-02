@@ -315,10 +315,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         self.private_cursor.mode_access_ = m
 
-        if m == self.Del:
-            LOGGER.debug("setForwardOnly forzado a True por setModeAccess(Del)")
-            self.setForwardOnly(True)
-
     def connectionName(self) -> str:
         """
         Get database connection alias name.
