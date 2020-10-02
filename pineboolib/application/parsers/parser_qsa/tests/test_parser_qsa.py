@@ -59,6 +59,10 @@ class TestParser(unittest.TestCase):
         """Test typeof."""
 
         self.assertEqual(qs2py("var a = typeof('juan')"), 'a: Any = qsa.typeof_("juan")\n')
+        self.assertEqual(
+            qs2py('debug("hola " + " " + typeof("juan"));'),
+            'qsa.debug(qsa.ustr("hola ", " ", qsa.typeof_("juan")))\n',
+        )
 
     def test_process_class(self) -> None:
         """Test parsing the process class."""
