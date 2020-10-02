@@ -1524,6 +1524,9 @@ class TypeOf(ASTPython):
             for dtype, data in parse_ast(arg, parent=self).generate():
                 if dtype == "expr":
                     expr.append(data)
+            if expr[0] != "(":
+                expr = ["("] + expr
+                expr.append(")")
 
             arguments += expr
             yield dtype, " ".join(arguments)
