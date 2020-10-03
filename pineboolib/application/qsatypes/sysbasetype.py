@@ -44,10 +44,10 @@ class SysBaseType(object):
 
         return ret_ or ""
 
-    @classmethod
-    def interactiveGUI(cls) -> str:
-        """Check if running in GUI mode."""
-        return application.PROJECT.DGI.interactiveGUI()
+    # @classmethod
+    # def interactiveGUI(cls) -> str:
+    #    """Check if running in GUI mode."""
+    #    return application.PROJECT.DGI.interactiveGUI()
 
     @classmethod
     def isUserBuild(cls) -> bool:
