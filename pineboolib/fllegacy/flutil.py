@@ -758,7 +758,7 @@ class FLUtil(object):
         if metadata is not None:
             field_metadata = metadata.field(field_name)
             if field_metadata is not None:
-                return cls.buildNumber(value, "float", field_metadata.partDecimal())
+                return cls.buildNumber(value or 0.00, "float", field_metadata.partDecimal())
 
         return ""
 
