@@ -1799,7 +1799,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             # self.select()
             if pk_value:
                 if self.selection_pk(pk_value):
-                    emite = True
+                    if self.private_cursor.buffer_ is None:
+                        self.private_cursor.buffer_ = pnbuffer.PNBuffer(self)
+                        self.private_cursor.buffer_.prime_insert()
+                    else:
+                        self.private_cursor.buffer_.prime_update()
 
             else:
                 buffer = self.private_cursor.buffer_
