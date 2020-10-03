@@ -2940,7 +2940,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 active_widget_enabled = active_widget.isEnabled()
 
         if self.private_cursor.mode_access_ == self.Insert:
-            if cursor_relation.metadata() and cursor_relation.modeAccess() == self.Insert:
+            if (
+                cursor_relation.private_cursor.metadata_ is not None
+                and cursor_relation.modeAccess() == self.Insert
+            ):
                 if active_widget and active_widget_enabled:
                     active_widget.setEnabled(False)
                 if not cursor_relation.commitBuffer():
@@ -2956,7 +2959,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     active_widget.setEnabled(True)
 
         elif self.private_cursor.mode_access_ in [self.Browse, self.Edit]:
-            if cursor_relation.metadata() and cursor_relation.modeAccess() == self.Insert:
+            if (
+                cursor_relation.private_cursor.metadata_ is not None
+                and cursor_relation.modeAccess() == self.Insert
+            ):
                 if active_widget and active_widget_enabled:
                     active_widget.setEnabled(False)
 
