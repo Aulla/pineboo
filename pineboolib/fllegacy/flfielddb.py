@@ -264,10 +264,12 @@ class FLFieldDB(QtWidgets.QWidget):
             # LOGGER.info("*** cursor Buffer: %r", cur_values)
         else:
             LOGGER.warning(
-                "*** FLFieldDB::loaded: problem found!, top_widget: %s, cursor: %s, buffer. %s",
+                "FLFieldDB::loaded: problem found!, top_widget: %s, cursor: %s, curname: %s, buffer. %s",
                 self._top_widget,
                 self.cursor_,
+                self.cursor_.curName() if self.cursor_ is not None else None,
                 self.cursor_.private_cursor.buffer_ if self.cursor_ is not None else None,
+                stack_info=True,
             )
 
         self._cursor_backup = None
@@ -2846,13 +2848,25 @@ class FLFieldDB(QtWidgets.QWidget):
         if self._filter:
             form_search.setFilter(self._filter)
         if form_search.mainWidget():
+            cur_value = self.value()
             if obj_tdb:
-                cur_value = self.value()
+
                 if field.type() == "string" and cur_value:
                     obj_tdb.setInitSearch(cur_value)
                     obj_tdb.putFirstCol(field_relation.foreignField())
 
                 QtCore.QTimer.singleShot(0, obj_tdb._line_edit_search.setFocus)
+            else:
+                select = None
+                if cur_value:
+                    select = mng.formatAssignValue(
+                        cursor.primaryKey(),
+                        cursor.metadata().field(cursor.primaryKey()),
+                        cur_value,
+                        True,
+                    )
+                cursor.select(select)
+                cursor.first()
 
         value = form_search.exec_(field_relation.foreignField())
         form_search.close()
