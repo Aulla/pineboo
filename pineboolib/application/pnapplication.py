@@ -763,7 +763,7 @@ class PNApplication(QtCore.QObject):
         if self._not_exit:
             return False
 
-        if not sysbasetype.SysBaseType.interactiveGUI():
+        if not application.PROJECT.conn_manager.mainConn().interactiveGUI():
             return True
         main_widget = application.PROJECT.main_window
         if main_widget is not None:

@@ -338,13 +338,7 @@ class SysBaseType(object):
         """Show information message box."""
         msg = ustr(msg)
         msg += u"\n"
-        if cls.interactiveGUI():
-            # QtWidgets.QMessageBox.information(
-            #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
-            # )
-            application.PROJECT.message_manager().send("msgBoxInfo", None, [msg])
-        else:
-            LOGGER.warning(ustr(u"INFO: ", msg))
+        application.PROJECT.message_manager().send("msgBoxInfo", None, [msg])
 
     @classmethod
     def warnMsgBox(cls, msg: str = "", *buttons: Any) -> None:
@@ -354,26 +348,15 @@ class SysBaseType(object):
         for button in buttons:
             new_list.append(button)
 
-        if cls.interactiveGUI():
-            # QtWidgets.QMessageBox.warning(
-            #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
-            # )
-            application.PROJECT.message_manager().send("msgBoxWarning", None, new_list)
-        else:
-            LOGGER.warning(ustr(u"WARN: ", msg))
+        application.PROJECT.message_manager().send("msgBoxWarning", None, new_list)
 
     @classmethod
     def errorMsgBox(cls, msg: str = None) -> None:
         """Show error message box."""
         msg = ustr(msg)
         msg += u"\n"
-        if cls.interactiveGUI():
-            # QtWidgets.QMessageBox.critical(
-            #    QtWidgets.QApplication.focusWidget(), "Eneboo", msg, QtWidgets.QMessageBox.Ok
-            # )
-            application.PROJECT.message_manager().send("msgBoxError", None, [msg])
-        else:
-            LOGGER.warning(ustr(u"ERROR: ", msg))
+
+        application.PROJECT.message_manager().send("msgBoxError", None, [msg])
 
     @classmethod
     def translate(cls, text: str, arg2: Optional[str] = None) -> str:

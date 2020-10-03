@@ -25,7 +25,7 @@ class TestSysBaseClassGeneral(unittest.TestCase):
 
         base_type = sysbasetype.SysBaseType()
         self.assertEqual(base_type.nameUser(), "memory_user")
-        self.assertEqual(base_type.interactiveGUI(), "Pineboo")
+        # self.assertEqual(base_type.interactiveGUI(), "Pineboo")
         self.assertEqual(base_type.isLoadedModule("sys"), True)
         os_name = "LINUX"
         if platform.system() == "Windows":
