@@ -653,7 +653,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             if not self.sender():
                 return
 
-        print("REFRESH", self._tablename, self.rowCount())
         self._initialized = False
 
         if (
