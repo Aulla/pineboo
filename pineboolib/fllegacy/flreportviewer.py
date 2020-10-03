@@ -204,6 +204,36 @@ class FLReportViewer(QtWidgets.QWidget):
         self.report_ = self.report_viewer.reportPages()
         return ret
 
+    def renderReport2(
+        self,
+        init_row: int = 0,
+        init_col: int = 0,
+        append_or_flags: Union[bool, Sized, Mapping[int, Any]] = None,
+        display_report: bool = False,
+    ) -> bool:
+        """Render report."""
+        if not self.report_engine_:
+            return False
+
+        flags = [self.Append, self.Display]
+
+        if isinstance(append_or_flags, bool):
+            flags[0] = append_or_flags
+
+            if display_report is not None:
+                flags[0] = display_report
+        elif isinstance(append_or_flags, list):
+            if len(append_or_flags) > 0:
+                flags[0] = append_or_flags[0]  # display
+            if len(append_or_flags) > 1:
+                flags[1] = append_or_flags[1]  # append
+            if len(append_or_flags) > 2:
+                flags.append(append_or_flags[2])  # page_break
+
+        ret = self.report_viewer.renderReport(init_row, init_col, flags)
+        self.report_ = self.report_viewer.reportPages()
+        return ret
+
     def setReportData(self, data: Union[FLSqlCursor, FLSqlQuery, QtXml.QDomNode]) -> bool:
         """Set data to report."""
         if isinstance(data, FLSqlQuery):
