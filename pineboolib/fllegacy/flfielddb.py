@@ -2857,7 +2857,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 QtCore.QTimer.singleShot(0, obj_tdb._line_edit_search.setFocus)
             else:
-                select = None
+                select = ""
                 if cur_value:
                     select = mng.formatAssignValue(
                         cursor.primaryKey(),
