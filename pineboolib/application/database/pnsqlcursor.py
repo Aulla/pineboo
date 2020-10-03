@@ -1793,19 +1793,28 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 self.refreshDelayed(0)
                 return
         else:
+            emite = False
+            pk_value = self.valueBuffer(self.primaryKey())
             self.model().refresh()  # Hay que hacer refresh previo pq si no no recoge valores de un commitBuffer paralelo
-            buffer = self.private_cursor.buffer_
-            if buffer is not None:
-                buffer.clear()
             # self.select()
-            pos = self.atFrom()
-            if pos > self.size():
-                pos = self.size() - 1
+            if pk_value:
+                if self.selection_pk(pk_value):
+                    emite = True
 
-            if not self.seek(pos, False, True):
+            else:
+                buffer = self.private_cursor.buffer_
+                if buffer is not None:
+                    buffer.clear()
+                pos = self.atFrom()
+                if pos > self.size():
+                    pos = self.size() - 1
 
-                # if self.private_cursor.buffer_:
-                #    self.private_cursor.buffer_.clear_buffer()
+                if not self.seek(pos, False, True):
+                    emite = True
+
+                    # if self.private_cursor.buffer_:
+                    #    self.private_cursor.buffer_.clear_buffer()
+            if emite:
                 self.newBuffer.emit()
 
     @decorators.pyqt_slot()
