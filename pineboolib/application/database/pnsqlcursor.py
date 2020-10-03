@@ -1342,7 +1342,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         return ret
 
-    def setUnLock(self, field_name: str, v: bool) -> None:
+    def setUnLock(self, field_name: str, value: bool) -> None:
         """
         Unlock the current cursor record.
 
@@ -1368,7 +1368,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             raise Exception("Unexpected null buffer")
 
         self.setModeAccess(self.Edit)
-        self.private_cursor.buffer_.set_value(field_name, v)
+        self.private_cursor.buffer_.set_value(field_name, value)
+        self.private_cursor.buffer_.apply_buffer()
         self.update()
         self.refreshBuffer()
 
@@ -1799,7 +1800,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             # self.select()
             if pk_value:
                 if self.selection_pk(pk_value):
-                    if self.private_cursor.buffer_ is None:
+                    if (
+                        self.private_cursor.buffer_ is None
+                    ):  # Esto no debería pasar, pero por si acaso...
                         self.private_cursor.buffer_ = pnbuffer.PNBuffer(self)
                         self.private_cursor.buffer_.prime_insert()
                     else:
