@@ -427,7 +427,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                         pixmap = QtGui.QPixmap(
                             utils_base.filedir("./core/images/icons", "unlock.png")
                         )
-                    else:
+                    elif result in (False, "0"):
+
                         pixmap = QtGui.QPixmap(
                             utils_base.filedir("./core/images/icons", "lock.png")
                         )
@@ -652,6 +653,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             if not self.sender():
                 return
 
+        print("REFRESH", self._tablename, self.rowCount())
         self._initialized = False
 
         if (
