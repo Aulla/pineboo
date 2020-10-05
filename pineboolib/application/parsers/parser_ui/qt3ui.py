@@ -420,6 +420,7 @@ def load_action(
                 cstring = property.find("cstring")
                 if cstring is not None:
                     if cstring.text == action_name:
+                        menu_text = ""
                         for property2 in root_action.findall("property"):
                             name = property2.get("name")
                             cstring = property2.find("cstring")
@@ -440,6 +441,11 @@ def load_action(
                                 new_action.setStatusTip(string.text or "")
                             elif name == "whatsThis" and string is not None:
                                 new_action.setWhatsThis(string.text or "")
+                            elif name == "menuText" and string is not None:
+                                menu_text = string.text
+
+                        if menu_text:
+                            new_action.setText(menu_text)
 
 
 class WidgetResolver:
