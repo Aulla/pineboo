@@ -1899,7 +1899,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.setFont(self.font())
             self.editor_.setMaxValue(pow(10, field.partInteger()) - 1)
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy(0)
+                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Fixed
             )
             size_policy.setHeightForWidth(True)
             self.editor_.setSizePolicy(size_policy)
@@ -2058,7 +2058,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_ = fldateedit.FLDateEdit(self, "editor")
             self.editor_.setFont(self.font())
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed
+                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Fixed
             )
             size_policy.setHeightForWidth(True)
             self.editor_.setSizePolicy(size_policy)
@@ -2117,7 +2117,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.setFont(self.font())
             # self.editor_.setAutoAdvance(True)
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed
+                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Fixed
             )
             size_policy.setHeightForWidth(True)
             self.editor_.setSizePolicy(size_policy)
@@ -2208,7 +2208,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.fontMetrics().width(alias) + self.fontMetrics().maxWidth() * 2
             )
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy(0)
+                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Fixed
             )
             size_policy.setHeightForWidth(True)
             self.editor_.setSizePolicy(size_policy)
@@ -2408,7 +2408,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._text_label_db.setCursor(QtCore.Qt.PointingHandCursor)
 
         size_policy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy(0)
+            QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Fixed
         )
         size_policy.setHeightForWidth(True)
         self.editor_.setSizePolicy(size_policy)

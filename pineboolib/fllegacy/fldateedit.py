@@ -23,7 +23,7 @@ class FLDateEdit(qdateedit.QDateEdit):
         super().__init__(parent, name)
         self.DMY = "dd-MM-yyyy"
         self.setMinimumWidth(90)
-        self.setMaximumWidth(90)
+        # self.setMaximumWidth(90)
         self._parent = parent
 
     def setOrder(self, order: str) -> None:

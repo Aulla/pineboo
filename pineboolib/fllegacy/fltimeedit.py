@@ -13,7 +13,7 @@ class FLTimeEdit(QtWidgets.QTimeEdit):
         super().__init__(parent)
         self.setDisplayFormat("hh:mm:ss")
         self.setMinimumWidth(90)
-        self.setMaximumWidth(90)
+        # self.setMaximumWidth(90)
 
     def setTime(self, value: Union[str, QtCore.QTime]) -> None:  # type: ignore
         """Set the time in the control."""
