@@ -3259,10 +3259,8 @@ class FLFieldDB(QtWidgets.QWidget):
         if self._push_button_db:
             self._push_button_db.setEnabled(enable)
         return  # Mirar esto!! FIXME
-        if enable:
-            self.setAttribute(QtCore.Qt.WA_ForceDisabled, False)
-        else:
-            self.setAttribute(QtCore.Qt.WA_ForceDisabled, True)
+
+        self.setAttribute(QtCore.Qt.WA_ForceDisabled, not enable)
 
         if (
             not self.isTopLevel()
