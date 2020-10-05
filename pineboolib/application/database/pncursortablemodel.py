@@ -363,7 +363,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
             elif _type in ("string", "stringlist", "timestamp"):
                 if not result:
-                    result = ""
+                    if _type == "stringlist":
+                        result = "..."
+                    else:
+                        result = ""
                 else:
                     result = str(result)
 
