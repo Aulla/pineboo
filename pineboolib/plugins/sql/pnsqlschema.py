@@ -400,7 +400,10 @@ class PNSqlSchema(object):
             result_ = "'%s'" % str(flutil.FLUtil.dateDMAtoAMD(value))
 
         elif type_ == "time":
-            result_ = "'" + value + "'" if value else ""
+            if value:
+                result_ = "'%s'" % value
+            else:
+                result_ = ""
 
         return str(result_)
 
