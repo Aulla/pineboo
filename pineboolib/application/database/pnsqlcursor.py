@@ -409,6 +409,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             LOGGER.warning("setValueBuffer(): No fieldName, or no metadata found")
             return
 
+        field_name = str(field_name).lower()
+
         if not self.private_cursor.buffer_:
             LOGGER.warning("%s.setValueBuffer(%s): No buffer", self.table(), field_name)
             return
@@ -478,6 +480,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.private_cursor.buffer_:
             if not self.refreshBuffer():
                 return None
+
+        field_name = str(field_name).lower()
 
         field_metadata = table_metadata.field(field_name)
         if field_metadata is None:
