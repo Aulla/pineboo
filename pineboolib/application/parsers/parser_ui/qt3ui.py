@@ -420,7 +420,7 @@ def load_action(
                 cstring = property.find("cstring")
                 if cstring is not None:
                     if cstring.text == action_name:
-                        menu_text = ""
+                        menu_text: Optional[str] = None
                         for property2 in root_action.findall("property"):
                             name = property2.get("name")
                             cstring = property2.find("cstring")
