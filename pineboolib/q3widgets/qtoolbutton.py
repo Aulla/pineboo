@@ -62,4 +62,15 @@ class QToolButton(QtWidgets.QToolButton):
         """Set button group id."""
         self.groupId = id
 
+    def getEnabled(self) -> bool:
+        """Return if is enabled."""
+
+        return super().isEnabled()
+
+    def setEnabled(self, value: bool) -> None:
+        """Set if enabled."""
+
+        super().setEnabled(value)
+
     on = property(getOn, setOn)
+    enabled = property(getEnabled, setEnabled)
