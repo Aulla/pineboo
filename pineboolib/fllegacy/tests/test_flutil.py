@@ -119,6 +119,7 @@ class TestFLUtil(unittest.TestCase):
         self.assertEqual(util.buildNumber("123.451000", "", 1), "123.5")
         self.assertEqual(util.buildNumber("123.451000", "", 2), "123.45")
         self.assertEqual(util.buildNumber("-123.451000", "", 2), "-123.45")
+        self.assertEqual(util.buildNumber("-123.4", "", 2), "-123.40")
 
         self.assertEqual(util.nameBD(), "temp_db")
         self.assertEqual(util.nameUser(), "memory_user")
