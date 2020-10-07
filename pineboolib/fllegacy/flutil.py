@@ -662,7 +662,20 @@ class FLUtil(object):
         number = float(value)
 
         multiplier = 10 ** part_decimal
-        return str(math.floor(number * multiplier + 0.5) / multiplier)
+        result = str(math.floor(number * multiplier + 0.5) / multiplier)
+        pos_comma = result.find(".")
+        decimals = len(result) - part_decimal
+        if decimals != part_decimal:
+            if decimals < part_decimal:
+                while decimals < part_decimal:
+                    result += "0"
+                    decimals += 1
+            else:
+                while decimals > part_decimal:
+                    result = result[-1]
+                    decimals -= 1
+
+        return result
 
     @classmethod
     def readSettingEntry(cls, key: str, def_: Any = "") -> Any:
