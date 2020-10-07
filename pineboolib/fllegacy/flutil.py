@@ -663,8 +663,9 @@ class FLUtil(object):
 
         multiplier = 10 ** part_decimal
         result = str(math.floor(number * multiplier + 0.5) / multiplier)
-        pos_comma = result.find(".")
-        decimals = len(result) - part_decimal
+        pos_comma = result.find(".") + 1
+
+        decimals = len(result) - pos_comma
         if decimals != part_decimal:
             if decimals < part_decimal:
                 while decimals < part_decimal:
@@ -672,7 +673,7 @@ class FLUtil(object):
                     decimals += 1
             else:
                 while decimals > part_decimal:
-                    result = result[-1]
+                    result = result[:-1]
                     decimals -= 1
 
         return result
