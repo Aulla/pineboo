@@ -104,7 +104,7 @@ class KParserTools(object):
         if name:
             if name[0] == "[":
                 name = name[1:-1]
-            elif name in ("Fecha", "Date"):
+            if name in ("Fecha", "Date"):
                 ret = str(datetime.date.__format__(datetime.date.today(), "%d-%m-%Y"))
             elif name in ("NúmPágina", "PageNo", "NÃºmPÃ¡gina"):
                 ret = str(page_num)
@@ -378,16 +378,17 @@ class KParserTools(object):
 
     def calculate_sum(self, field_name: str, line: Element, xml_list: Iterable, level: int) -> str:
         """
-        Calculate sum for specified element line.
+        Calculate sum for specified element line. level equal or upper.
         """
         val = 0.0
-
         for item in xml_list:
             lev_ = int(item.get("level"))
+
             if lev_ == 0:
                 val = 0.0
             elif lev_ >= level:
                 val += float(item.get(field_name))
+
             if item is line:
                 break
 

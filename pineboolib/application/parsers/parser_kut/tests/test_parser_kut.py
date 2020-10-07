@@ -93,7 +93,7 @@ class TestParser(unittest.TestCase):
         child = xml_data.findall("Row")[0]
         element = parser_tools.convertToNode(child)
         self.assertTrue(element)
-        fecha_ = str(datetime.date.__format__(datetime.date.today(), "%d.%m.%Y"))
+        fecha_ = str(datetime.date.__format__(datetime.date.today(), "%d-%m-%Y"))
 
         self.assertEqual(parser_tools.getSpecial("Fecha"), fecha_)
         self.assertEqual(parser_tools.getSpecial("[Date]"), fecha_)
@@ -172,8 +172,12 @@ class TestParser(unittest.TestCase):
         ret_1 = float(
             parser_tools.calculate_sum("valor", et.Element("Empty"), xml.findall("Item"), 1)
         )
-        self.assertEqual(float(Decimal(format(ret_0, ".2f"))), 53.13)  # level > 0
-        self.assertEqual(float(Decimal(format(ret_1, ".2f"))), 26.29)  # level > 1
+        ret_2 = float(
+            parser_tools.calculate_sum("valor", et.Element("Empty"), xml.findall("Item"), 2)
+        )
+        self.assertEqual(float(Decimal(format(ret_0, ".2f"))), 53.13)  # level >= 0
+        self.assertEqual(float(Decimal(format(ret_1, ".2f"))), 53.13)  # level >= 1
+        self.assertEqual(float(Decimal(format(ret_2, ".2f"))), 26.29)  # level >= 2
 
     @classmethod
     def tearDownClass(cls) -> None:
