@@ -183,16 +183,10 @@ class KParserTools(object):
                     table_name += "_%s" % ref_key.split("@")[1]
 
                 qry = pnsqlquery.PNSqlQuery()
-                print("*")
                 if qry.exec_("SELECT contenido FROM %s WHERE refkey='%s'" % (table_name, ref_key)):
-                    print(
-                        "**", "SELECT contenido FROM %s WHERE refkey='%s'" % (table_name, ref_key)
-                    )
                     if qry.next():
-                        print("***")
                         value = xpm.cache_xpm(qry.value(0))
 
-                print("****", value)
                 if value:
                     ret = img_file
                     pix = QPixmap(value)
@@ -387,11 +381,12 @@ class KParserTools(object):
         Calculate sum for specified element line.
         """
         val = 0.0
+
         for item in xml_list:
             lev_ = int(item.get("level"))
             if lev_ == 0:
                 val = 0.0
-            if lev_ > level:
+            elif lev_ >= level:
                 val += float(item.get(field_name))
             if item is line:
                 break
