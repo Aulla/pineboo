@@ -10,7 +10,7 @@ from PyQt5 import QtWidgets, QtCore
 
 from pineboolib import application
 
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import logging, utils_base
 from pineboolib.core import settings, decorators
 from pineboolib.application.qsatypes import sysbasetype
 
@@ -109,16 +109,21 @@ class AQStaticBdInfo(object):
 
         SHOW_REINIT_MESSAGE = False
 
-        LOGGER.warning(
-            "STATIC LOADER:  %s HAS BEEN %s. REINIT!",
-            event.src_path.upper(),
-            event.event_type.upper(),
-        )
+        if utils_base.is_library():
+            LOGGER.warning(
+                "STATIC LOADER:  %s HAS BEEN %s. REINIT!",
+                event.src_path.upper(),
+                event.event_type.upper(),
+            )
 
-        while application.PROJECT.aq_app._inicializing:
-            QtWidgets.QApplication.processEvents()
+            while application.PROJECT.aq_app._inicializing:
+                QtWidgets.QApplication.processEvents()
 
-        application.PROJECT.aq_app.reinit()
+            application.PROJECT.aq_app.reinit()
+        else:
+            LOGGER.warning(
+                "STATIC LOADER:  %s HAS BEEN %s.", event.src_path.upper(), event.event_type.upper()
+            )
 
 
 class FLStaticLoaderWarning(QtCore.QObject):
