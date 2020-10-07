@@ -585,6 +585,8 @@ class Kut2FPDF(object):
 
         elif xml.tag == "Special":
             if text == "":
+                if xml.get("Type") == "0":
+                    text = "Date"
                 if xml.get("Type") == "1":
                     text = "PageNo"
             text = self._parser_tools.getSpecial(text, self._actual_append_page_no)

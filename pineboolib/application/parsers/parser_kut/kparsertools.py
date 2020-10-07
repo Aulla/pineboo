@@ -101,12 +101,13 @@ class KParserTools(object):
         """
         LOGGER.debug("%s:getSpecial %s" % (__name__, name))
         ret = "None"
-        if name[0] == "[":
-            name = name[1:-1]
-        if name in ("Fecha", "Date"):
-            ret = str(datetime.date.__format__(datetime.date.today(), "%d.%m.%Y"))
-        if name in ("NúmPágina", "PageNo", "NÃºmPÃ¡gina"):
-            ret = str(page_num)
+        if name:
+            if name[0] == "[":
+                name = name[1:-1]
+            elif name in ("Fecha", "Date"):
+                ret = str(datetime.date.__format__(datetime.date.today(), "%d-%m-%Y"))
+            elif name in ("NúmPágina", "PageNo", "NÃºmPÃ¡gina"):
+                ret = str(page_num)
 
         return ret
 
