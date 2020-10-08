@@ -488,9 +488,11 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
 
         @param ol Text string with options for the field.
         """
-        self.private._options_list = []
-        for componente in ol.split(";" if ol.find("QT_TRANSLATE") > -1 else ","):
-            self.private._options_list.append(utils_base.AQTT(componente))
+
+        self.private._options_list = [
+            utils_base.AQTT(componente).strip()
+            for componente in ol.split(";" if ol.find("QT_TRANSLATE") > -1 else ",")
+        ]
 
     def isCheck(self) -> bool:
         """
