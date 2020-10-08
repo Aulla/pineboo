@@ -71,12 +71,13 @@ class BaseModel(object):
 
         target._session = None
         target._action = None
-
+        conn_name = "default"
         if "session" in kwargs:
             target._session = kwargs["session"]
         else:
             id_thread = threading.current_thread().ident
-            conn_name = kwargs["conn_name"] if "conn_name" in kwargs.keys() else "default"
+            if "conn_name" in kwargs.keys():
+                conn_name = kwargs["conn_name"]
             key = "%s_%s" % (id_thread, conn_name)
 
             if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
