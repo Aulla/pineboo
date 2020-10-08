@@ -195,7 +195,7 @@ class SqlInspector(object):
                             if field_name in self._field_list.keys():
                                 return self._field_list[field_name]
 
-        raise Exception("No se encuentra el campo %s el la query:\n%s" % (name, self._sql))
+        raise Exception("No se encuentra el campo %s en la query:\n%s" % (name, self._sql))
 
     def posToFieldName(self, pos: int) -> str:
         """
