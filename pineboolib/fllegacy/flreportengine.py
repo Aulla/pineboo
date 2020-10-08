@@ -104,7 +104,7 @@ class FLReportEngine(QtCore.QObject):
             self.qry_ = qry
 
             if self.qry_:
-                self.q_field_list_ = self.qry_.private_query._field_list
+                self.q_field_list_ = self.qry_.fieldList(True)
                 self.q_field_mtd_list_ = self.qry_.fieldMetaDataList()
                 self.q_group_dict_ = self.qry_.groupDict()
                 self.q_double_field_list_.clear()
