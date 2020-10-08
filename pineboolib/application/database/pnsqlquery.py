@@ -513,7 +513,7 @@ class PNSqlQuery(object):
         @return List of text strings with the names of the fields in the query.
         """
         # return self.private_query._field_list if self.private_query._field_list else self.sql_inspector.field_names()
-        return self.sql_inspector.field_names() or self.private_query._field_list
+        return self.private_query._field_list or self.sql_inspector.field_names()
 
     def setGroupDict(self, group_dict: Dict[int, Any]) -> None:
         """
