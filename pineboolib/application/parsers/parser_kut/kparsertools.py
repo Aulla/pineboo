@@ -7,7 +7,7 @@ import sys
 import datetime
 import fnmatch
 from xml.etree.ElementTree import Element, ElementTree
-from typing import Any, Iterable, Optional, SupportsInt, Union, List
+from typing import Any, Iterable, Optional, List
 
 from pineboolib import logging
 from pineboolib.core.utils.utils_base import load2xml
@@ -123,12 +123,18 @@ class KParserTools(object):
         @param data. XML data line related.
         @return calculated value.
         """
-        precision = xml.get("Precision")
-        precision = 0 if precision is None else int(precision)
+
+        precision = 0
+        type_ = None
+        date_format_num = None
+        if xml is not None:
+            precision = int(xml.get("Precision") or 0)
+            type_ = xml.get("Type")
+            date_format_num = xml.get("DateFormat")
 
         ret_ = value
         if data_type == 2:  # Double
-            type_ = xml.get("Type")
+
             if type_ is None:
                 if value in (None, "None"):
                     return
@@ -140,7 +146,7 @@ class KParserTools(object):
                 ret_ = date_conversion.date_amd_to_dma(value)
             else:
                 ret_ = value
-            date_format_num = xml.get("DateFormat")
+
             sep = "-"
             if date_format_num is not None:
                 if date_format_num == "18":

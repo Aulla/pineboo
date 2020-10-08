@@ -73,6 +73,7 @@ class TestParser(unittest.TestCase):
     def test_parser_tools_1(self) -> None:
         """Test parser tools."""
         from .. import kparsertools
+        from xml.etree import ElementTree as et
         from pineboolib.core.utils.utils_base import load2xml
         from pineboolib.application.database import pnsqlquery, pnsqlcursor
         from pineboolib.qsa import qsa
@@ -103,8 +104,10 @@ class TestParser(unittest.TestCase):
         from PyQt5 import QtCore
 
         ret_ = QtCore.QLocale.system().toString(float("11.22"), "f", 2)
-
-        self.assertEqual(parser_tools.calculated("11.22", 2, 2), ret_)
+        xml = et.Element("data")
+        item_1 = et.SubElement(xml, "Item")
+        item_1.set("Precision", "2")
+        self.assertEqual(parser_tools.calculated("11.22", 2, item_1), ret_)
         self.assertEqual(parser_tools.calculated("2019-01-31T00:01:02", 3), "31-01-2019")
         self.assertEqual(parser_tools.calculated("codpais", 1, None, child), "ES")
 
