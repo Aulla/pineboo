@@ -14,6 +14,7 @@ from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.utils.check_dependencies import check_dependencies
 from . import kparsertools
 from pineboolib.core import settings
+from pineboolib.application import qsadictmodules, connections
 
 
 from typing import Any, Optional, Union, List, Dict, TYPE_CHECKING
@@ -584,29 +585,51 @@ class Kut2FPDF(object):
             text = data_row.get(field_name) or ""
 
         elif xml.tag == "Special":
-            if text == "":
-                if xml.get("Type") == "0":
-                    text = "Date"
-                if xml.get("Type") == "1":
-                    text = "PageNo"
+            alternative_text = text
+            if xml.get("Type") == "0":
+                text = "Date"
+            if xml.get("Type") == "1":
+                text = "PageNo"
+
             text = self._parser_tools.getSpecial(text, self._actual_append_page_no)
+            if text == "None":
+                text = alternative_text
 
         calculation_type = xml.get("CalculationType")
 
-        if calculation_type is not None and xml.tag != "Field":
+        if calculation_type is not None and xml.tag not in ["Field", "Special"]:
             if calculation_type == "6":
                 function_name = xml.get("FunctionName")
                 if function_name and data_row is not None:
                     try:
                         nodo = self._parser_tools.convertToNode(data_row)
+                        function_list = function_name.split(".")
+                        func_ = None
 
-                        ret_ = application.PROJECT.call(
-                            function_name, [nodo, field_name], None, False
-                        )
-                        if ret_ is False:
-                            return
+                        if len(function_list) == 2:
+                            func_ = getattr(
+                                qsadictmodules.QSADictModules.from_project(function_list[0]).iface,
+                                function_list[1],
+                                None,
+                            )
+                        elif len(function_list) == 3:
+                            module_ = getattr(
+                                qsadictmodules.QSADictModules.from_project(function_list[0]),
+                                function_list[1],
+                            )
+                            func_ = getattr(module_, function_list[2], None)
                         else:
-                            text = str(ret_)
+                            LOGGER.warning("PLEASE FIXME: diferent of 2 (%s)", function_list)
+                        if func_ is not None:
+                            arguments = [nodo, field_name]
+                            expected_arguments = connections.get_expected_args_num(func_)
+
+                            ret_ = func_(*arguments[:expected_arguments])
+
+                            if ret_ is False:
+                                return
+                            else:
+                                text = str(ret_)
 
                     except Exception:
                         LOGGER.exception("KUT2FPDF:: Error llamando a function %s", function_name)
@@ -625,15 +648,13 @@ class Kut2FPDF(object):
                 text = data_row.get(field_name) or ""
 
         if data_type is not None:
-            text = self._parser_tools.calculated(
-                text, int(data_type), xml.get("Precision"), data_row
-            )
+            text = self._parser_tools.calculated(text, int(data_type), xml, data_row)
 
-        if data_type == "5":
-            is_image = True
+            if data_type == "5":
+                is_image = True
 
-        elif data_type == "6":
-            is_barcode = True
+            elif data_type == "6":
+                is_barcode = True
 
         if xml.get("BlankZero") == "1" and text is not None:
             res_ = re.findall(r"\d+", text)

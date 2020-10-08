@@ -14,7 +14,7 @@ from pineboolib.core.utils.utils_base import load2xml
 from pineboolib.application.utils import date_conversion, xpm
 from pineboolib.core import settings
 
-from PyQt5 import QtXml
+from PyQt5 import QtXml, QtCore
 
 from pineboolib.application.database import pnsqlquery
 
@@ -112,11 +112,7 @@ class KParserTools(object):
         return ret
 
     def calculated(
-        self,
-        value: Any,
-        data_type: int,
-        precision: Union[bytes, str, SupportsInt] = None,
-        data: Element = None,
+        self, value: Any, data_type: int, xml: Element = None, data: Element = None
     ) -> Any:
         """
         Get value of type "calculated".
@@ -127,20 +123,32 @@ class KParserTools(object):
         @param data. XML data line related.
         @return calculated value.
         """
-
+        precision = xml.get("Precision")
         precision = 0 if precision is None else int(precision)
 
         ret_ = value
         if data_type == 2:  # Double
-            if value in (None, "None"):
-                return
-            from PyQt5 import QtCore  # type: ignore
+            type_ = xml.get("Type")
+            if type_ is None:
+                if value in (None, "None"):
+                    return
 
-            ret_ = QtCore.QLocale.system().toString(float(value), "f", precision)
+                ret_ = QtCore.QLocale.system().toString(float(value), "f", precision)
         elif data_type == 3:
             if value.find("T") > -1:
                 value = value[: value.find("T")]
-            ret_ = date_conversion.date_amd_to_dma(value)
+                ret_ = date_conversion.date_amd_to_dma(value)
+            else:
+                ret_ = value
+            date_format_num = xml.get("DateFormat")
+            sep = "-"
+            if date_format_num is not None:
+                if date_format_num == "18":
+                    ret_ = ret_.replace(sep, "/")
+                elif date_format_num == "19":
+                    ret_ = ret_.replace(sep, "-")
+                else:
+                    LOGGER.warning("UNKNOWN DateFormat %s (%s) -> %s", date_format_num, value, ret_)
 
         elif data_type in [0, 5, 6]:  # 5 Imagen, 6 Barcode
             pass
