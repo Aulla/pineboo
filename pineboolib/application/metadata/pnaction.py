@@ -3,7 +3,7 @@
 
 from pineboolib.core.utils.struct import ActionStruct
 from pineboolib import logging
-from typing import Union
+from typing import Union, Any
 
 LOGGER = logging.get_logger(__name__)
 
@@ -100,6 +100,14 @@ class PNAction(object):
         """Return the values ​​in a text string."""
 
         return self._name
+
+    def __eq__(self, other: Any) -> bool:
+        """Return compare result."""
+
+        if isinstance(other, str):
+            return self._name == other
+        else:
+            return self is other
 
     def setName(self, name: str) -> None:
         """Set the name of the action."""
