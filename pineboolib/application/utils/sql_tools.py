@@ -162,7 +162,7 @@ class SqlInspector(object):
         @param name. field name.
         @return index position.
         """
-
+        name = name.strip()
         if name in self._field_list.keys():
             return self._field_list[name]
         else:
