@@ -248,8 +248,7 @@ p_parse.__doc__ = """
     new_operator        : NEW funccall_1
                         | NEW identifier
 
-    typeof_operator     : TYPEOF variable
-                        | TYPEOF base_expression
+    typeof_operator     : TYPEOF parentheses
 
     expression  : base_expression
                 | funcdeclaration_anon
