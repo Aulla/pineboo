@@ -622,8 +622,11 @@ class Project(object):
 
     def load_database_modules(self) -> bool:
         """Load database modules."""
+        from .staticloader import pnmodulesstaticloader
+
         conn = self.conn_manager.dbAux()
         db_name = conn.DBName()
+        mng_modules = self.conn_manager.managerModules()
 
         result = conn.execute_query("""SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
         for idarea, descripcion in list(result):
@@ -656,6 +659,7 @@ class Project(object):
         list_files: List[str] = []
         LOGGER.info("RUN: Populating cache.")
         for idmodulo, nombre, sha, contenido in list(result):
+
             if idmodulo not in self.modules:  # Si el módulo no existe.
                 continue
 
@@ -677,7 +681,6 @@ class Project(object):
 
             fileobjdir = os.path.dirname(path._dir("cache", fileobj.filekey))
             file_name = path._dir("cache", fileobj.filekey)
-
             if not os.path.exists(
                 file_name
             ):  # Borra contenido de la carpeta si no existe el fichero destino
@@ -712,7 +715,11 @@ class Project(object):
 
             elif nombre == "%s.qs" % idmodulo:  # si no se parsea todo y es de modulo
                 if self.no_python_cache or not os.path.exists("%spy" % file_name[:-2]):
-                    list_files.append(file_name)
+                    if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
+                        if not pnmodulesstaticloader.PNStaticLoader.content(
+                            nombre, mng_modules.static_db_info_, True
+                        ):
+                            list_files.append(file_name)
 
         log_file.close()
         LOGGER.info("RUN: End populating cache.")
