@@ -142,6 +142,14 @@ def parse_options(custom_argv: Optional[List] = None) -> Values:
         "--main_form", dest="main_form", help="Change the main form", metavar="MAINFORMPARAMETER"
     )
 
+    parser.add_option(
+        "--version",
+        dest="pineboo_version",
+        help="Returns pineboo version",
+        action="store_true",
+        default=False,
+    )
+
     if custom_argv is None:
         (options, args) = parser.parse_args()
     else:
