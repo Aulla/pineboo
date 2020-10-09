@@ -551,7 +551,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         if self.cursor_.modeAccess() in [self.cursor_.Insert, self.cursor_.Edit]:
             fun_ = getattr(self.iface, "validateForm", self.validateForm)
-            if fun_ is not self.validateForm:
+            if fun_ != self.validateForm:
                 ret_ = fun_()
 
                 if isinstance(ret_, bool):
