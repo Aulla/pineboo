@@ -584,7 +584,12 @@ class PNSqlSchema(object):
         ret = False
         try:
             if field_db[2] != field_meta[2]:  # nulos
-                ret = True
+                if (
+                    not field_meta[2] and field_meta[6]
+                ):  # Si en meta , nulo false y pk , dejamos pasar
+                    pass
+                else:
+                    ret = True
 
             if not ret:
                 db_type = field_db[1]
