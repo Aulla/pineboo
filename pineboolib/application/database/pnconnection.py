@@ -182,11 +182,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
             except AttributeError as error:
                 LOGGER.warning(
-                    "Very possibly, you are trying to use a session in which"
+                    "AttributeError:: Quite possibly, you are trying to use a session in which"
                     " a previous error has occurred and has not"
-                    " been recovered with a rollback. Current session is discarded.\n%s.",
-                    str(error),
+                    " been recovered with a rollback. Current session is discarded."
                 )
+                raise error
 
         if force_new:
             self._current_session = self.driver().session()
