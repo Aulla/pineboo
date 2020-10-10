@@ -316,11 +316,17 @@ class PNSqlSchema(object):
         self.db_._conn_manager._thread_sessions[session_key] = new_session
         return (session_key, new_session)
 
-    def is_valid_session(self, session_id: str) -> bool:
+    def is_valid_session(self, session_or_id: Union[str, "orm_session.Session"]) -> bool:
         """Return if a session id is valid."""
         is_valid = False
-        if session_id and session_id in self.db_._conn_manager._thread_sessions:
-            session = self.db_._conn_manager._thread_sessions[session_id]
+
+        session = None
+        if not isinstance(session_or_id, str):
+            session = session_or_id
+        elif session_or_id and session_or_id in self.db_._conn_manager._thread_sessions:
+            session = self.db_._conn_manager._thread_sessions[session_or_id]
+
+        if session is not None:
             try:
                 if not session.connection().closed:
                     is_valid = True
