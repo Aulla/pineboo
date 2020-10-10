@@ -158,7 +158,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Return correct session."""
 
         session_key = self.session_key()
-        use_key = None
+        use_key = ""
         if session_key in self._conn_manager.current_atomic_sessions.keys():
             atomic_key = self._conn_manager.current_atomic_sessions[session_key]
             if atomic_key in self._conn_manager._thread_sessions.keys():
