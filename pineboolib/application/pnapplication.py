@@ -477,6 +477,8 @@ class PNApplication(QtCore.QObject):
             if reinit_func is not None:
                 reinit_func()
 
+        LOGGER.info("Reinit completed!!")
+
     def showDocPage(self, url_: str) -> None:
         """Show documentation."""
 
