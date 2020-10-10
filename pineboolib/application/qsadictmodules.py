@@ -3,11 +3,15 @@ QSADictModules.
 
 Manages read and writting QSA dynamic properties that are loaded during project startup.
 """
+
+from PyQt5 import QtWidgets
+
 from typing import Any, TYPE_CHECKING
 from pineboolib.core.utils import logging
 from .xmlaction import XMLAction
 from .proxy import DelayedObjectProxyLoader
 from .safeqsa import SafeQSA
+from . import PROJECT
 import sqlalchemy
 
 LOGGER = logging.get_logger(__name__)
@@ -39,6 +43,11 @@ class QSADictModules:
         Return project object for given name.
         """
         module_name = scriptname if scriptname != "sys" else "sys_module"
+
+        while (
+            PROJECT.aq_app._inicializing
+        ):  # Si estamos reiniciando , detiene las consultas hata que esten disponibles los datos
+            QtWidgets.QApplication.processEvents()
 
         ret_ = getattr(cls.qsa_dict_modules(), module_name, None)
         if ret_ is None and not module_name.endswith("orm"):
