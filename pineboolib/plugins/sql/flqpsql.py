@@ -49,7 +49,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         """Return next serial value."""
 
         if self.is_open():
-            session_ = self.session()
+            session_ = self.session()[1]
             seq_ = "%s_%s_seq" % (table_name, field_name)
             result_ = 0
             try:

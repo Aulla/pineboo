@@ -11,7 +11,7 @@ from pineboolib.application.database import pnsqlquery
 from pineboolib.application import qsadictmodules
 
 
-from typing import Iterable, Optional, Union, List, Any, Dict, cast, TYPE_CHECKING
+from typing import Iterable, Optional, Union, List, Any, Dict, cast, Tuple, TYPE_CHECKING
 from pineboolib.core import decorators
 
 from pineboolib.fllegacy import flutil
@@ -22,7 +22,8 @@ from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
 from sqlalchemy import event, pool
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
-
+import threading
+import time
 
 import re
 
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
     from pineboolib.interfaces import iconnection  # noqa: F401
     from sqlalchemy.engine import result  # type: ignore [import] # noqa: F821, F401
-    from sqlalchemy.orm import session  # type: ignore [import] # noqa: F821, F401
+    from sqlalchemy.orm import session as orm_session  # type: ignore [import] # noqa: F821, F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -69,7 +70,7 @@ class PNSqlSchema(object):
     _sqlalchemy_name: str
     _connection: "base.Connection"
     _engine: "base.Engine"
-    _session: "session.Session"
+    _session: "orm_session.Session"
     _extra_alternative: str
 
     def __init__(self):
@@ -305,17 +306,45 @@ class PNSqlSchema(object):
         """Return sqlAlchemy ORM engine."""
         return self._engine
 
-    def session(self) -> "session.Session":  # noqa: F811
+    def session(self) -> Tuple[str, "orm_session.Session"]:
         """Create a sqlAlchemy session."""
-        # if not getattr(self, "_session", None) or self._session.connection().closed:
-        #    Session = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
-        #    self._session = Session()
 
-        # return self._session
         session_class = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
         new_session = session_class()
         setattr(new_session, "_conn_name", self.db_._name)
-        return new_session
+        session_key = "%s_%s_%s" % (threading.current_thread().ident, self.db_._name, time.time())
+        self.db_._conn_manager._thread_sessions[session_key] = new_session
+        return (session_key, new_session)
+
+    def is_valid_session(self, session_id: str) -> bool:
+        """Return if a session id is valid."""
+        is_valid = False
+        if session_id and session_id in self.db_._conn_manager._thread_sessions:
+            session = self.db_._conn_manager._thread_sessions[session_id]
+            try:
+                if not session.connection().closed:
+                    is_valid = True
+
+            except AttributeError as error:
+                LOGGER.warning(
+                    "AttributeError:: Quite possibly, you are trying to use a session in which"
+                    " a previous error has occurred and has not"
+                    " been recovered with a rollback. Current session is discarded."
+                )
+                raise error
+
+        return is_valid
+
+    def delete_session(self, session_id: str) -> None:
+        """Delete a session."""
+
+        if session_id and session_id in self.db_._conn_manager._thread_sessions:
+            session = self.db_._conn_manager._thread_sessions[session_id]
+            try:
+                session.close()
+                del self.db_._conn_manager._thread_sessions[session_id]
+            except Exception:
+                del self.db_._conn_manager._thread_sessions[session_id]
 
     def connection(self) -> "base.Connection":
         """Return a cursor connection."""
@@ -460,7 +489,7 @@ class PNSqlSchema(object):
                 self.execute_query(str_qry)
             except Exception as error:
                 LOGGER.error("nextSerialVal: %s", str(error))
-                self.session().rollback()
+                self.session()[1].rollback()
 
         return res_
 
@@ -802,7 +831,7 @@ class PNSqlSchema(object):
         #    session_ = self._session
         # else:
 
-        session_ = self.db_.session() if self.db_._name != "main_conn" else self.session()
+        session_ = self.db_.session() if self.db_._name != "main_conn" else self.session()[1]
 
         result_ = None
         try:

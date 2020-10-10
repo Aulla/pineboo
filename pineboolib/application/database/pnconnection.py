@@ -54,7 +54,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _last_activity_time: float
     # _current_transaction: Optional["session.Session"]
     _last_error: str
-    _current_session: Optional["orm.Session"]
+    _conn_session: str
 
     def __init__(
         self,
@@ -101,7 +101,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._last_active_cursor = None
         self._last_error = ""
         self._is_open = False
-        self._current_session = None
+        self._conn_session = ""
 
     def connManager(self):
         """Return connection manager."""
@@ -156,6 +156,27 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self.update_activity_time()
         return self._driver
 
+    def _get_session_id(self) -> str:
+        """Return correct session."""
+
+        use_key = ""
+        id_thread = threading.current_thread().ident
+        session_key = "%s_%s" % (id_thread, self._name)
+
+        if session_key in self._conn_manager.current_atomic_sessions.keys():
+            atomic_key = self._conn_manager.current_atomic_sessions[session_key]
+            if atomic_key in self._conn_manager._thread_sessions.keys():
+                use_key = atomic_key
+
+        if not use_key:
+            if (
+                self._conn_session
+                and self._conn_session in self._conn_manager._thread_sessions.keys()
+            ):
+                use_key = self._conn_session
+
+        return use_key
+
     def session(self) -> "orm.Session":
         """
         Sqlalchemy session.
@@ -165,36 +186,19 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if self._name == "main_conn":
             raise Exception("main_conn no es valido para session")
 
-        id_thread = threading.current_thread().ident
-        key = "%s_%s" % (id_thread, self._name)
-        if (
-            key in self._conn_manager.thread_atomic_sessions.keys()
-        ):  # si estoy en atomic retorno sessión atomica.
-            LOGGER.debug("Returning atomic session %s!", key)
-            return self._conn_manager.thread_atomic_sessions[key]
+        session_id = self._get_session_id()
+        returned_session = None
 
-        force_new = True
+        if not self.driver().is_valid_session(session_id):
+            self.driver().delete_session(session_id)
+            self._conn_session, returned_session = self.driver().session()
+        else:
+            returned_session = self._conn_manager._thread_sessions[session_id]
 
-        if hasattr(self, "_current_session") and self._current_session is not None:
-            try:
-                if not self._current_session.connection().closed:
-                    force_new = False
-
-            except AttributeError as error:
-                LOGGER.warning(
-                    "AttributeError:: Quite possibly, you are trying to use a session in which"
-                    " a previous error has occurred and has not"
-                    " been recovered with a rollback. Current session is discarded."
-                )
-                raise error
-
-        if force_new:
-            self._current_session = self.driver().session()
-
-        if self._current_session is None:
+        if not returned_session:
             raise ValueError("Invalid session!")
 
-        return self._current_session
+        return returned_session
 
     def engine(self) -> Any:
         """Sqlalchemy connection."""
@@ -497,11 +501,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Create a transaction."""
 
         try:
-            if not self.session().transaction:
-                self.session().begin()
+            session = self.session()
+            if not session.transaction:
+                session.begin()
             else:
-                self.session().begin_nested()
-
+                session.begin_nested()
             return True
         except Exception as error:
             self._last_error = "No se pudo crear la transacción: %s" % str(error)
@@ -524,7 +528,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             # self.driver()._session = None
             return True
         except Exception as error:
-            LOGGER.warning("Commit: %s", str(error))
+            LOGGER.warning("Commit: %s", str(error), stack_info=True)
             self._last_error = "No se pudo aceptar la transacción: %s" % str(error)
 
         return False
@@ -567,13 +571,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             return False
 
         self.transaction()
-        # if not self._transaction_level:
-        #    do_transaction = True
-
-        # if do_transaction:
-        #    self.transaction()
-        #    self._transaction_level += 1
-
         for single_sql in sql.split(";"):
             self.execute_query(single_sql)
             if self.driver().last_error():
@@ -586,10 +583,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 return False
 
         self.commit()
-        # if do_transaction:
-        #    self.commit()
-        #    self._transaction_level -= 1
-
         return True
 
     def mismatchedTable(self, tablename: str, tmd: "pntablemetadata.PNTableMetaData") -> bool:
@@ -664,14 +657,16 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         self._is_open = False
         self.driver().close()
-        if hasattr(self, "_current_session"):
-            try:
-                self._current_session.close()  # type: ignore [union-attr] # noqa: F821
-            except AttributeError:
-                pass
+        if self._conn_session:
+            session_id = None
+            if self._conn_session in self.connManager().current_thread_session.keys():
+                session_id = self.connManager().current_thread_session[self._conn_session]
+                if session_id in self.connManager()._thread_sessions.keys():
+                    self.driver().delete_session(session_id)
 
-            self._current_session = None
-            del self._current_session
+                del self.connManager().current_thread_session[self._conn_session]
+
+            self._conn_session = ""
 
     def sqlLength(self, field_name: str, size: int) -> str:
         """Return length formated."""

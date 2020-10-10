@@ -14,7 +14,7 @@ from typing import Dict, Union, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
     from pineboolib.fllegacy import flmanagermodules
-    from sqlalchemy import orm  # noqa: F401
+    from sqlalchemy import orm as orm_session
 
 LOGGER = logging.get_logger(__name__)
 
@@ -28,16 +28,18 @@ class PNConnectionManager(QtCore.QObject):
     limit_connections: int = 50  # Limit of connections to use.
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
-    thread_atomic_sessions: Dict[str, "orm.session.Session"]
-    last_thread_session: Dict[str, "orm.session.Session"]
+    current_atomic_sessions: Dict[str, str]
+    current_thread_session: Dict[str, str]
+    _thread_sessions: Dict[str, "orm_session.Session"]
 
     def __init__(self):
         """Initialize."""
 
         super().__init__()
         self.connections_dict = {}
-        self.thread_atomic_sessions = {}
-        self.last_thread_session = {}
+        self.current_atomic_sessions = {}
+        self.current_thread_session = {}
+        self._thread_sessions = {}
 
         LOGGER.info("Initializing PNConnection Manager:")
         LOGGER.info("LIMIT CONNECTIONS = %s.", self.limit_connections)
@@ -293,18 +295,18 @@ class PNConnectionManager(QtCore.QObject):
 
         return application.PROJECT.session_id()
 
-    def get_current_thread_sessions(self) -> List["orm.session.Session"]:
+    def get_current_thread_sessions(self) -> List["orm_session.session.Session"]:
         """Return thread sessions openend."""
 
         id_thread = threading.current_thread().ident
-        result: List["orm.session.Session"] = []
-        for key in self.thread_atomic_sessions.keys():
-            if str(id_thread) in key:
-                result.append(self.thread_atomic_sessions[key])
+        result: List["orm_session.session.Session"] = []
+        conn_sessions = []
+        for name_conn_ in self.connections_dict.keys():
+            conn_sessions.append(getattr(self.connections_dict[name_conn_], "_conn_session", ""))
 
-        for key in self.last_thread_session.keys():
-            if str(id_thread) in key:
-                result.append(self.last_thread_session[key])
+        for key in self._thread_sessions.keys():
+            if str(id_thread) in key and key not in conn_sessions:  # todas menos las _conn_sessions
+                result.append(self._thread_sessions[key])
 
         return result
 

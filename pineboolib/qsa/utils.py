@@ -23,6 +23,7 @@ from typing import (
     Callable,
     Iterable,
     Dict,
+    Tuple,
     TYPE_CHECKING,
 )
 
@@ -559,12 +560,24 @@ def user_id() -> str:
     return application.PROJECT.session_id()
 
 
+def driver_session(conn_name: str = "default") -> Tuple[str, "orm_session.Session"]:
+    """Return driver session."""
+
+    return application.PROJECT.conn_manager.useConn(conn_name).driver().session()
+
+
+def _session_key(conn_name: str) -> str:
+    """Return session_key."""
+
+    return "%s_%s".lower() % (thread(), conn_name)
+
+
 def session(conn_name: str = "default", legacy: bool = False) -> "orm_session.Session":
     """Return session connection."""
     if legacy:
         session = application.PROJECT.conn_manager.useConn(conn_name).session()
     else:
-        session = application.PROJECT.conn_manager.useConn(conn_name).driver().session()
+        session = driver_session(conn_name)[1]
     return session
 
 
@@ -572,18 +585,16 @@ def thread_session_new(conn_name: str = "default") -> "orm_session.Session":
     """Return thread session new."""
 
     current = thread_session_current(conn_name)
-    if current:
+    if current is not None:
         if current.transaction is not None:
             raise Exception("The last session continues in transaction")
         else:
             thread_session_free(conn_name)
 
-    id_thread = threading.current_thread().ident
-    session = application.PROJECT.conn_manager.useConn(conn_name).driver().session()
-
-    session_key = "%s_%s".lower() % (id_thread, conn_name)
-    application.PROJECT.conn_manager.last_thread_session[session_key] = session
-
+    session_data = driver_session(conn_name)
+    application.PROJECT.conn_manager.current_thread_session[
+        _session_key(conn_name)
+    ], session = session_data
     return session
 
 
@@ -598,31 +609,31 @@ def available_thread_sessions() -> Dict[str, "orm_session.Session"]:
     return sessions_dict
 
 
-def thread_session_current(conn_name: Optional[str] = None) -> Optional["orm_session.Session"]:
+def thread_session_current(conn_name: str = "default") -> Optional["orm_session.Session"]:
     """Return session current."""
 
-    if conn_name is None:
-        conn_name = "default"
+    thread_key = _session_key(conn_name)
 
-    id_thread = threading.current_thread().ident
-    session_key = "%s_%s".lower() % (id_thread, conn_name)
-
-    if session_key in application.PROJECT.conn_manager.last_thread_session.keys():
-        return application.PROJECT.conn_manager.last_thread_session[session_key]
+    if thread_key in application.PROJECT.conn_manager.current_thread_session.keys():
+        session_key = application.PROJECT.conn_manager.current_thread_session[thread_key]
+        if session_key in application.PROJECT.conn_manager._thread_sessions.keys():
+            return application.PROJECT.conn_manager._thread_sessions[session_key]
 
     return None
 
 
-def thread_session_free(session_name: Optional[str] = None) -> None:
+def thread_session_free(conn_name: str = "default") -> None:
     """Close and delete current thread session."""
-    if session_name is None:
-        session_name = "default"
 
-    id_thread = threading.current_thread().ident
-    session_key = "%s_%s".lower() % (id_thread, session_name)
-    if session_key in application.PROJECT.conn_manager.last_thread_session.keys():
-        application.PROJECT.conn_manager.last_thread_session[session_key].close()
-        del application.PROJECT.conn_manager.last_thread_session[session_key]
+    thread_key = _session_key(conn_name)
+
+    if thread_key in application.PROJECT.conn_manager.current_thread_session.keys():
+        session_key = application.PROJECT.conn_manager.current_thread_session[thread_key]
+        if session_key in application.PROJECT.conn_manager._thread_sessions.keys():
+            application.PROJECT.conn_manager._thread_sessions[session_key].close()
+            del application.PROJECT.conn_manager._thread_sessions[session_key]
+
+        del application.PROJECT.conn_manager.current_thread_session[thread_key]
 
 
 def thread() -> int:
@@ -634,10 +645,11 @@ def thread() -> int:
 def session_atomic(conn_name: str = "default") -> Optional["orm_session.Session"]:
     """Return atomic_session."""
 
-    id_thread = threading.current_thread().ident
-    session_key = "%s_%s".lower() % (id_thread, conn_name)
-    if session_key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
-        return application.PROJECT.conn_manager.thread_atomic_sessions[session_key]
+    atomic_key = _session_key(conn_name)
+    if atomic_key in application.PROJECT.conn_manager.current_atomic_sessions.keys():
+        session_key = application.PROJECT.conn_manager.current_atomic_sessions[atomic_key]
+        if session_key in application.PROJECT.conn_manager._thread_sessions.keys():
+            return application.PROJECT.conn_manager._thread_sessions[session_key]
 
     return None
 

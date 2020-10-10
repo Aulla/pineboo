@@ -29,10 +29,12 @@ def atomic(conn_name: str = "default") -> TYPEFN:
 
                 while application.ATOMIC_LIST[0] != key:
                     time.sleep(0.01)
-
-            new_session = utils.session(conn_name)
+            application.PROJECT.conn_manager.current_atomic_sessions[
+                key
+            ], new_session = utils.driver_session(conn_name)
             result_ = None
             try:
+
                 with new_session.begin():
                     LOGGER.debug(
                         "New atomic session : %s, connection : %s, transaction: %s",
@@ -40,8 +42,6 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                         conn_name,
                         new_session.transaction,
                     )
-
-                    application.PROJECT.conn_manager.thread_atomic_sessions[key] = new_session
 
                     try:
                         result_ = fun_(*args, **kwargs)
@@ -52,33 +52,15 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                             "".join(traceback.format_stack(limit=None)),
                             stack_info=True,
                         )
-                        # new_session.rollback()
-                        # new_session.close()
-                        if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
-                            del application.PROJECT.conn_manager.thread_atomic_sessions[key]
-                        if application.USE_ATOMIC_LIST:
-                            if key in application.ATOMIC_LIST:
-                                application.ATOMIC_LIST.remove(key)
-
+                        delete_atomic_session(key)
                         raise error
 
-                # new_session.commit()
                 new_session.close()
+                delete_atomic_session(key)
+
             except Exception as error:
-                if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
-                    del application.PROJECT.conn_manager.thread_atomic_sessions[key]
-                if application.USE_ATOMIC_LIST:
-                    if key in application.ATOMIC_LIST:
-                        application.ATOMIC_LIST.remove(key)
-
+                delete_atomic_session(key)
                 raise error
-
-            else:
-                if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
-                    del application.PROJECT.conn_manager.thread_atomic_sessions[key]
-                if application.USE_ATOMIC_LIST:
-                    if key in application.ATOMIC_LIST:
-                        application.ATOMIC_LIST.remove(key)
 
             return result_
 
@@ -86,3 +68,18 @@ def atomic(conn_name: str = "default") -> TYPEFN:
         return mock_fn
 
     return decorator  # type: ignore [return-value] # noqa: F723
+
+
+def delete_atomic_session(key: str) -> None:
+    """Delete atomic_session."""
+    mng_ = application.PROJECT.conn_manager
+    if key in mng_.current_atomic_sessions.keys():
+        session_key = mng_.current_atomic_sessions[key]
+        if session_key in mng_._thread_sessions.keys():
+            del mng_._thread_sessions[session_key]
+
+        del mng_.current_atomic_sessions[key]
+
+    if application.USE_ATOMIC_LIST:
+        if key in application.ATOMIC_LIST:
+            application.ATOMIC_LIST.remove(key)

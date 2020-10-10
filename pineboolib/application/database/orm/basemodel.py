@@ -79,14 +79,18 @@ class BaseModel(object):
             if "conn_name" in kwargs.keys():
                 conn_name = kwargs["conn_name"]
             key = "%s_%s" % (id_thread, conn_name)
-
-            if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
-                target._session = application.PROJECT.conn_manager.thread_atomic_sessions[key]
-            elif key in application.PROJECT.conn_manager.last_thread_session.keys():
-                target._session = application.PROJECT.conn_manager.last_thread_session[key]
+            session_key = None
+            if key in application.PROJECT.conn_manager.current_atomic_sessions.keys():
+                session_key = application.PROJECT.conn_manager.current_atomic_sessions[key]
+            elif key in application.PROJECT.conn_manager.current_thread_session.keys():
+                session_key = application.PROJECT.conn_manager.current_thread_session[key]
+            if (
+                session_key is not None
+                and session_key in application.PROJECT.conn_manager._thread_sessions.keys()
+            ):
+                target._session = application.PROJECT.conn_manager._thread_sessions[session_key]
 
         if target.session is None:
-
             sessions = application.PROJECT.conn_manager.get_current_thread_sessions()
             session_list = []
             for item in sessions:
@@ -96,7 +100,7 @@ class BaseModel(object):
 
             target._error_manager(
                 "_qsa_init",
-                "An active session was not found on the '%s' connection (Available sessions: %s)"
+                "An active thread session or atomic session was not found on the '%s' connection (Available sessions: %s)"
                 % (conn_name, ", ".join(session_list)),
             )
 
@@ -108,7 +112,7 @@ class BaseModel(object):
     def get_session_from_connection(cls, conn_name: str = "default") -> "orm.session.Session":
         """Return new session from a connection."""
         new_session = application.PROJECT.conn_manager.useConn(conn_name).session()
-        setattr(new_session, "_conn_name", conn_name)
+        # setattr(new_session, "_conn_name", conn_name)
         return new_session
 
     def _common_init(self) -> None:
@@ -471,17 +475,23 @@ class BaseModel(object):
 
         ret_ = None
         session_: Optional["orm.session.Session"] = None
+        mng_ = application.PROJECT.conn_manager
         if session_or_name is not None:
             if isinstance(session_or_name, str):
                 id_thread = threading.current_thread().ident
                 key = "%s_%s" % (id_thread, session_or_name)
-                if key in application.PROJECT.conn_manager.thread_atomic_sessions.keys():
-                    session_ = application.PROJECT.conn_manager.thread_atomic_sessions[key]
-                elif key in application.PROJECT.conn_manager.last_thread_session.keys():
-                    session_ = application.PROJECT.conn_manager.last_thread_session[key]
+                session_key = None
+                if key in mng_.current_atomic_sessions.keys():
+                    session_key = mng_.current_atomic_sessions[key]
+                elif key in mng_.current_thread_session.keys():
+                    session_key = mng_.current_thread_session[key]
 
-                elif session_or_name in application.PROJECT.conn_manager.dictDatabases().keys():
+                if session_key and session_key in mng_._thread_sessions.keys():
+                    session_ = mng_._thread_sessions[session_key]
+
+                elif session_or_name in mng_.dictDatabases().keys():
                     session_ = cls.get_session_from_connection(session_or_name)
+
             else:
                 session_ = session_or_name
 

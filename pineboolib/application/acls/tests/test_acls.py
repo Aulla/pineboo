@@ -429,7 +429,7 @@ class TestACLS(unittest.TestCase):
 
         mtd_flgroups = application.PROJECT.conn_manager.manager().metadata("flgroups")
 
-        self.assertTrue(mtd_flgroups)
+        self.assertTrue(mtd_flgroups is not None)
         # descripcion = '--'
         field_descripcion = mtd_flgroups.field(  # type: ignore [union-attr] # noqa: F821
             "descripcion"
@@ -465,7 +465,7 @@ class TestACLS(unittest.TestCase):
         application.PROJECT.conn_manager.manager().cacheMetaData_ = {}
 
         mtd_flareas = application.PROJECT.conn_manager.manager().metadata("flareas")
-        self.assertTrue(mtd_flareas)
+        self.assertTrue(mtd_flareas is not None)
         # '--'
         field_descripcion = mtd_flareas.field(  # type: ignore [union-attr] # noqa: F821
             "descripcion"
