@@ -47,7 +47,7 @@ test_mypy_pyroma_black_pytest:
         - pyroma .
         - black --check --fast -l 100 --exclude='(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|lextab.py)' pineboolib/
         - pytest --cov=pineboolib pineboolib/
-        - coverage report --fail-under=65
+        - coverage report --fail-under=75
         - ./test_import_safety.sh
 
 
@@ -58,7 +58,7 @@ deploy_build:
         - python3 setup.py bdist_wheel
         # an alternative approach is to install and run:
         #- pip3 install dist/*
-        - python3 -m twine upload --repository-url $TWINE_URL dist/* -u $TWINE_USER -p $TWINE_PASSWORD --skip-existing
+        ##- python3 -m twine upload --repository-url $TWINE_URL dist/* -u $TWINE_USER -p $TWINE_PASSWORD --skip-existing
         # run the command here
         # pineboo --help
     artifacts:
