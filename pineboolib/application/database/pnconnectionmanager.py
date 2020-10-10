@@ -30,6 +30,7 @@ class PNConnectionManager(QtCore.QObject):
 
     current_atomic_sessions: Dict[str, str]
     current_thread_session: Dict[str, str]
+    current_conn_session: Dict[str, str]
     _thread_sessions: Dict[str, "orm_session.Session"]
 
     def __init__(self):
@@ -39,6 +40,7 @@ class PNConnectionManager(QtCore.QObject):
         self.connections_dict = {}
         self.current_atomic_sessions = {}
         self.current_thread_session = {}
+        self.current_conn_session = {}
         self._thread_sessions = {}
 
         LOGGER.info("Initializing PNConnection Manager:")
@@ -301,8 +303,8 @@ class PNConnectionManager(QtCore.QObject):
         id_thread = threading.current_thread().ident
         result: List["orm_session.session.Session"] = []
         conn_sessions = []
-        for name_conn_ in self.connections_dict.keys():
-            conn_sessions.append(getattr(self.connections_dict[name_conn_], "_conn_session", ""))
+        for id_session in self.current_conn_session.keys():
+            conn_sessions.append(id_session)
 
         for key in self._thread_sessions.keys():
             if str(id_thread) in key and key not in conn_sessions:  # todas menos las _conn_sessions

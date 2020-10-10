@@ -54,7 +54,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     _last_activity_time: float
     # _current_transaction: Optional["session.Session"]
     _last_error: str
-    _conn_session: str
 
     def __init__(
         self,
@@ -101,7 +100,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self._last_active_cursor = None
         self._last_error = ""
         self._is_open = False
-        self._conn_session = ""
 
     def connManager(self):
         """Return connection manager."""
@@ -159,23 +157,26 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def _get_session_id(self) -> str:
         """Return correct session."""
 
-        use_key = ""
-        id_thread = threading.current_thread().ident
-        session_key = "%s_%s" % (id_thread, self._name)
-
+        session_key = self.session_key()
+        use_key = None
         if session_key in self._conn_manager.current_atomic_sessions.keys():
             atomic_key = self._conn_manager.current_atomic_sessions[session_key]
             if atomic_key in self._conn_manager._thread_sessions.keys():
                 use_key = atomic_key
 
         if not use_key:
-            if (
-                self._conn_session
-                and self._conn_session in self._conn_manager._thread_sessions.keys()
-            ):
-                use_key = self._conn_session
+            if session_key in self._conn_manager.current_conn_session.keys():
+                conn_session = self._conn_manager.current_conn_session[session_key]
+                if conn_session in self._conn_manager._thread_sessions.keys():
+                    use_key = conn_session
 
         return use_key
+
+    def session_key(self) -> str:
+        """Retrun session key."""
+
+        id_thread = threading.current_thread().ident
+        return "%s_%s" % (id_thread, self._name)
 
     def session(self) -> "orm.Session":
         """
@@ -191,7 +192,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if not self.driver().is_valid_session(session_id):
             self.driver().delete_session(session_id)
-            self._conn_session, returned_session = self.driver().session()
+            self._conn_manager.current_conn_session[
+                self.session_key()
+            ], returned_session = self.driver().session()
         else:
             returned_session = self._conn_manager._thread_sessions[session_id]
 
@@ -655,18 +658,24 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def close(self):
         """Close connection."""
 
+        for key, value in list(self.connManager()._thread_sessions.items()):
+            if self._name == key.split("_")[1]:
+                if key in self.connManager().current_conn_session.values():
+                    for key_conn in self.connManager().current_conn_session.keys():
+                        if self.connManager().current_conn_session[key_conn] == key:
+                            del self.connManager().current_conn_session[key_conn]
+                            break
+
+                if key in self.connManager().current_thread_session.values():
+                    for key_conn in self.connManager().current_thread_session.keys():
+                        if self.connManager().current_thread_session[key_conn] == key:
+                            del self.connManager().current_thread_session[key_conn]
+                            break
+
+                self.driver().delete_session(key)
+
         self._is_open = False
         self.driver().close()
-        if self._conn_session:
-            session_id = None
-            if self._conn_session in self.connManager().current_thread_session.keys():
-                session_id = self.connManager().current_thread_session[self._conn_session]
-                if session_id in self.connManager()._thread_sessions.keys():
-                    self.driver().delete_session(session_id)
-
-                del self.connManager().current_thread_session[self._conn_session]
-
-            self._conn_session = ""
 
     def sqlLength(self, field_name: str, size: int) -> str:
         """Return length formated."""
