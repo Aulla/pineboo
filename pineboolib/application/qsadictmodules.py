@@ -46,7 +46,7 @@ class QSADictModules:
 
         while (
             PROJECT.aq_app._inicializing
-        ):  # Si estamos reiniciando , detiene las consultas hata que esten disponibles los datos
+        ):  # Si estamos reiniciando , detiene las consultas hasta que esten disponibles los datos
             QtWidgets.QApplication.processEvents()
 
         ret_ = getattr(cls.qsa_dict_modules(), module_name, None)
