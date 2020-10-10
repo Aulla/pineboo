@@ -559,10 +559,12 @@ def user_id() -> str:
     return application.PROJECT.session_id()
 
 
-def session(conn_name: str = "default") -> "orm_session.Session":
+def session(conn_name: str = "default", legacy: bool = False) -> "orm_session.Session":
     """Return session connection."""
-
-    session = application.PROJECT.conn_manager.useConn(conn_name).driver().session()
+    if legacy:
+        session = application.PROJECT.conn_manager.useConn(conn_name).session()
+    else:
+        session = application.PROJECT.conn_manager.useConn(conn_name).driver().session()
     return session
 
 
