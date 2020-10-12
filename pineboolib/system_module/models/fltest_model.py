@@ -38,13 +38,20 @@ class Fltest(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
                 "partD": 2,
             },
             {"name": "bool_field", "alias": "Bool field", "type": "bool"},
-            {"name": "uint_field", "alias": "Unsigned int field", "type": "uint", "default": 0},
+            {"name": "uint_field", "alias": "Unsigned int field", "type": "uint"},
             {
                 "name": "bloqueo",
                 "alias": "Bloqueo",
                 "type": "unlock",
                 "null": False,
                 "default": True,
+            },
+            {
+                "name": "empty_relation",
+                "alias": "Area vacía",
+                "type": "string",
+                "length": 15,
+                "relations": [{"card": "1M", "table": "fltest5", "field": "idarea"}],
             },
         ],
     }
@@ -61,6 +68,7 @@ class Fltest(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
     bool_field = sqlalchemy.Column("bool_field", sqlalchemy.Boolean)
     uint_field = sqlalchemy.Column("uint_field", sqlalchemy.BigInteger)
     bloqueo = sqlalchemy.Column("bloqueo", sqlalchemy.Boolean)
+    empty_relation = sqlalchemy.Column("empty_relation", sqlalchemy.String)
 
 
 # <--- Fields ---

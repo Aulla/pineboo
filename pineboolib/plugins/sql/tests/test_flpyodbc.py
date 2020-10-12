@@ -39,7 +39,7 @@ class TestFLMSSql(unittest.TestCase):
         cursor = pnsqlcursor.PNSqlCursor("fltest")
         sql = (
             "CREATE TABLE fltest (id PRIMARY KEY,string_field VARCHAR NULL,date_field DATE NULL,time_field TIME NULL,double_field"
-            + " DECIMAL(8,2) NULL,bool_field BIT NULL,uint_field BIGINT NULL,bloqueo BIT NOT NULL)"
+            + " DECIMAL(8,2) NULL,bool_field BIT NULL,uint_field BIGINT NULL,bloqueo BIT NOT NULL,empty_relation VARCHAR(15) NULL)"
         )
 
         driver = flpyodbc.FLPYODBC()

@@ -123,13 +123,13 @@ class TestPNBuffer(unittest.TestCase):
         cursor_1.setModeAccess(cursor_1.Insert)
         cursor_1.refreshBuffer()
         self.assertFalse(cursor_1.isNull("id"))
-        self.assertEqual(cursor_1.buffer().value("uint_field"), 0)
-        self.assertTrue(cursor_1.isNull("string_field"))
-        self.assertFalse(cursor_1.isNull("uint_field"))  # default 0
-
-        cursor_1.setNull("uint_field")
         self.assertEqual(cursor_1.buffer().value("uint_field"), None)
-        self.assertTrue(cursor_1.isNull("uint_field"))
+        self.assertTrue(cursor_1.isNull("string_field"))
+        self.assertFalse(cursor_1.isNull("double_field"))  # default 0
+
+        cursor_1.setNull("double_field")
+        self.assertEqual(cursor_1.buffer().value("double_field"), None)
+        self.assertTrue(cursor_1.isNull("double_field"))
 
         self.assertEqual(cursor_1.valueBuffer("uint_field"), 0)
         self.assertEqual(cursor_1.buffer().value("uint_field"), None)

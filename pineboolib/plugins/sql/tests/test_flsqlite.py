@@ -49,12 +49,12 @@ class TestFLSqlite(unittest.TestCase):
         sql = (
             "CREATE TABLE fltest (id INTEGER PRIMARY KEY,string_field VARCHAR NULL,date_field VARCHAR(20)"
             + " NULL,time_field VARCHAR(20) NULL,double_field FLOAT NULL,bool_field BOOLEAN NULL"
-            + ",uint_field INTEGER NULL,bloqueo BOOLEAN NOT NULL);CREATE INDEX fltest_pkey ON fltest (id)"
+            + ",uint_field INTEGER NULL,bloqueo BOOLEAN NOT NULL,empty_relation VARCHAR(15) NULL);CREATE INDEX fltest_pkey ON fltest (id)"
         )
         sql2 = (
             "CREATE TABLE fltest (id INTEGER PRIMARY KEY,string_field VARCHAR NULL,date_field VARCHAR(20)"
             + " NULL,time_field VARCHAR(20) NULL,double_field FLOAT NULL,bool_field BOOLEAN NULL"
-            + ",uint_field INTEGER NULL,bloqueo BOOLEAN NOT NULL);"
+            + ",uint_field INTEGER NULL,bloqueo BOOLEAN NOT NULL,empty_relation VARCHAR(15) NULL);"
         )
         driver = flsqlite.FLSQLITE()
 
