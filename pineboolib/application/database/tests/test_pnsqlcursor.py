@@ -42,6 +42,27 @@ class TestInsertData(unittest.TestCase):
         cursor.setAtomicValueBuffer("descripcion", "sys.iface.get_description")
         self.assertEqual(cursor.valueBuffer("descripcion"), "Área de prueba T.")
 
+    def test_basic_3(self) -> None:
+        """Test None values."""
+        from pineboolib.qsa import qsa
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        self.assertTrue(cursor.valueBuffer("empty_relation") == "")
+        self.assertTrue(cursor.buffer().value("empty_relation") == None)
+        self.assertTrue(cursor.commitBuffer())
+        obj = qsa.orm.fltest.get(cursor.valueBuffer("id"))
+        self.assertTrue(obj)
+        self.assertEqual(obj.empty_relation, None)
+        self.assertEqual(obj.uint_field, None)
+        self.assertEqual(obj.bool_field, None)
+        self.assertEqual(obj.double_field, 0)
+        result = qsa.FLUtil.sqlSelect(
+            "fltest", "empty_relation", "id = %s" % cursor.valueBuffer("id")
+        )
+        self.assertEqual(result, "")
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
