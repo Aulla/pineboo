@@ -36,7 +36,7 @@ class TestConsistency(unittest.TestCase):
             thread_session in application.PROJECT.conn_manager._thread_sessions.values()
         )
 
-    @qsa.atomic()
+    @qsa.atomic()  # type: ignore [misc] # noqa: F821
     def test_transaction(self) -> None:
         """Create a new record and query it from a query in the same transaction."""
         self.assertTrue(atomica())
@@ -55,6 +55,9 @@ class TestConsistency(unittest.TestCase):
         cursor_fltest = qsa.FLSqlCursor("fltest")
         cursor_fltest.select("id = %s" % obj_1.id)
         self.assertTrue(cursor_fltest.first())
+
+        self.assertTrue(session is obj_1.session)
+        self.assertTrue(session is cursor_fltest.db().session())
 
         # Check string_field
         result = qsa.FLUtil.sqlSelect("fltest", "string_field", "id = %s" % obj_1.id)
@@ -88,6 +91,5 @@ def atomica():
     obj_area.idarea = "A"
     obj_area.descripcion = "Area A"
     obj_area.save()
-    qry = qsa.FLUtil.sqlSelect("flareas", "descripcion", "idarea" == "A")
+    qry = qsa.FLUtil.sqlSelect("flareas", "descripcion", "idarea = 'A'")
     return qry == "Area A" and qsa.session_atomic() is not None
-

@@ -39,7 +39,8 @@ class TestFLSqlite(unittest.TestCase):
         cursor = pnsqlcursor.PNSqlCursor("fltest")
         sql = (
             "CREATE TABLE fltest (id INT UNSIGNED PRIMARY KEY,string_field CHAR(255) NULL,date_field DATE NULL,time_field TIME NULL,"
-            + "double_field DECIMAL(13,7) NULL,bool_field BOOL NULL,uint_field INT UNSIGNED NULL,bloqueo BOOL NOT NULL,empty_relation CHAR(15) NULL)"
+            + "double_field DECIMAL(13,7) NULL,bool_field BOOL NULL,uint_field INT UNSIGNED NULL,bloqueo BOOL NOT NULL"
+            + ",empty_relation CHAR(15) NULL)"
             + " ENGINE=MyISAM DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
         )
 
