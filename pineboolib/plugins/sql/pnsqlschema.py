@@ -316,7 +316,9 @@ class PNSqlSchema(object):
         self.db_._conn_manager._thread_sessions[session_key] = new_session
         return (session_key, new_session)
 
-    def is_valid_session(self, session_or_id: Union[str, "orm_session.Session"]) -> bool:
+    def is_valid_session(
+        self, session_or_id: Union[str, "orm_session.Session"], raise_error: bool = True
+    ) -> bool:
         """Return if a session id is valid."""
         is_valid = False
 
@@ -332,12 +334,13 @@ class PNSqlSchema(object):
                     is_valid = True
 
             except AttributeError as error:
-                LOGGER.warning(
-                    "AttributeError:: Quite possibly, you are trying to use a session in which"
-                    " a previous error has occurred and has not"
-                    " been recovered with a rollback. Current session is discarded."
-                )
-                raise error
+                if raise_error:
+                    LOGGER.warning(
+                        "AttributeError:: Quite possibly, you are trying to use a session in which"
+                        " a previous error has occurred and has not"
+                        " been recovered with a rollback. Current session is discarded."
+                    )
+                    raise error
 
         return is_valid
 

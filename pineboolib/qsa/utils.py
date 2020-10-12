@@ -622,10 +622,12 @@ def thread_session_current(conn_name: str = "default") -> Optional["orm_session.
     return None
 
 
-def is_valid_session(session: "orm_session.Session") -> bool:
+def is_valid_session(session: "orm_session.Session", raise_error: bool = False) -> bool:
     """Return if a session is valid."""
 
-    return application.PROJECT.conn_manager.mainConn().driver().is_valid_session(session)
+    return (
+        application.PROJECT.conn_manager.mainConn().driver().is_valid_session(session, raise_error)
+    )
 
 
 def thread_session_free(conn_name: str = "default") -> None:
