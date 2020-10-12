@@ -13,7 +13,7 @@ import datetime
 import decimal
 import sqlalchemy
 
-from typing import List, Union, Optional, Callable, Dict, TYPE_CHECKING
+from typing import List, Union, Optional, Callable, Dict, Any, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -167,16 +167,17 @@ class PNBuffer(object):
         ret_ = True
 
         for field_name in self._cache_buffer.keys():
-            value = self._cache_buffer[field_name]
+            value: Any = self._cache_buffer[field_name]
             type_ = self._cursor.metadata().field(field_name).type()
-            if type_ == "double":
-                value = float(value or 0)  # type: ignore [arg-type] # noqa: F821
-            elif type_ in ("int", "uint", "serial"):
-                value = int(value or 0)  # type: ignore [arg-type] # noqa: F821
-            elif type_ in ("string", "pixmap", "stringlist", "counter"):
-                value = str(value)
-            elif type_ in ("boolean", "unlock"):
-                value = utils_base.text2bool(str(value or 0))
+            if value is not None:
+                if type_ == "double":
+                    value = float(value)
+                elif type_ in ("int", "uint", "serial"):
+                    value = int(value)
+                elif type_ in ("string", "pixmap", "stringlist", "counter"):
+                    value = str(value)
+                elif type_ in ("boolean", "unlock"):
+                    value = utils_base.text2bool(str(value))
 
             ret_ = self.set_value_to_objet(field_name, value)
             if not ret_:
