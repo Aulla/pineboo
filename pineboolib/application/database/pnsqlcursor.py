@@ -402,8 +402,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param field_name field name
         @param value Value to be set to the buffer field.
         """
-        if "None" == str(value) and field_name == "codimpuestoportes":
-            LOGGER.warning("AQUI!!!! %s", type(value), stack_info=True)
 
         mtd = self.private_cursor.metadata_
 
