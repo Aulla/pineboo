@@ -117,6 +117,7 @@ def load_models() -> None:
         raise Exception("Project is not connected yet")
 
     models_: Dict[str, Any] = {}
+    views_: Dict[str, Any] = {}
     for action_name, action in application.PROJECT.actions.items():
         class_orm = action._class_orm
 
@@ -150,5 +151,15 @@ def load_models() -> None:
                 models_[name] = file_.path()
 
     for key, data in models_.items():
-        save_model(data, key[:-6])
-        application.PROJECT.conn_manager.manager().createTable(key[:-6])
+        name = key[0:-6]
+        save_model(data, name)
+        metadata = application.PROJECT.conn_manager.manager().metadata(name, False)
+        if metadata.isQuery():
+            views_[name] = data
+        else:
+            application.PROJECT.conn_manager.manager().createTable(metadata)
+    # views las últimas...
+    for key, data in views_.items():
+        save_model(data, key)
+        application.PROJECT.conn_manager.manager().createTable(key)
+
