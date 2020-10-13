@@ -139,10 +139,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not mtd:
             return
 
-        self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
-        if not self._cursor_model and mtd:
-            pnormmodelsfactory.register_metadata_as_model(mtd)
-            self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
+        self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % name)
+        if not self._cursor_model:
+            if pnormmodelsfactory.register_metadata_as_model(mtd, name):
+                self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % name)
 
         if not self._cursor_model:
             raise Exception("_cursor_model not found !")
@@ -275,7 +275,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if self._action:
             self.private_cursor.metadata_ = (
-                self.db().connManager().manager().metadata(self._action.table())
+                self.db().connManager().manager().metadata(self._action.name())
             )
             self.private_cursor.doAcl()
             self.private_cursor._model = pncursortablemodel.PNCursorTableModel(self.conn(), self)
