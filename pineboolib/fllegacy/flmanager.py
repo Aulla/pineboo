@@ -589,9 +589,21 @@ class FLManager(QtCore.QObject, IManager):
         if n_or_tmd is not None:
 
             if isinstance(n_or_tmd, str):
+                action_name = n_or_tmd
                 n_or_tmd = self.metadata(n_or_tmd, False)
                 if n_or_tmd is None:
                     return None
+
+                if n_or_tmd.isQuery():
+                    if not self.existsTable(action_name):
+                        print("CREAR VISTA", action_name)
+                        if (
+                            not self.db_.connManager()
+                            .default()
+                            .driver()
+                            .create_view(action_name, n_or_tmd)
+                        ):
+                            return None
 
             elif not self.existsTable(n_or_tmd.name()):
                 if not self.db_.connManager().default().createTable(n_or_tmd):
