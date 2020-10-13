@@ -63,6 +63,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if identifier not in CONNECTION_CURSORS.keys():
             CONNECTION_CURSORS[identifier] = []
 
+        name = name.lower()
+
         super().__init__(
             name, conn_or_autopopulate, connection_name_or_db, cursor_relation, relation_mtd, parent
         )
@@ -140,12 +142,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             return
 
         self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % name)
+        # Por si se crea un metadata al vuelo y no se ha registrado al inicio...
         if not self._cursor_model:
             if pnormmodelsfactory.register_metadata_as_model(mtd):
                 self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % name)
 
         if not self._cursor_model:
-            raise Exception("_cursor_model not found !")
+            raise Exception("_cursor_model for action %s not found !" % name)
 
         private_cursor._is_query = mtd.isQuery()
         private_cursor._is_system_table = (
