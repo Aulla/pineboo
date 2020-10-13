@@ -208,6 +208,9 @@ class FLManager(QtCore.QObject, IManager):
                 if ret is None:
                     return None
 
+                if ret.isQuery():
+                    ret.setName(model_name)
+
                 if not quick:
                     self.cache_metadata_[table_name] = copy.copy(ret)
 
