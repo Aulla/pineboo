@@ -53,6 +53,7 @@ class Fltest(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
                 "length": 15,
                 "relations": [{"card": "1M", "table": "fltest5", "field": "idarea"}],
             },
+            {"name": "int_field", "alias": "Int field", "type": "int", "default": "0"},
         ],
     }
 
@@ -69,6 +70,7 @@ class Fltest(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
     uint_field = sqlalchemy.Column("uint_field", sqlalchemy.BigInteger)
     bloqueo = sqlalchemy.Column("bloqueo", sqlalchemy.Boolean)
     empty_relation = sqlalchemy.Column("empty_relation", sqlalchemy.String)
+    int_field = sqlalchemy.Column("int_field", sqlalchemy.Integer)
 
 
 # <--- Fields ---
