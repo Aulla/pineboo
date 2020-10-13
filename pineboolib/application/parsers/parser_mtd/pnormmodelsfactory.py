@@ -154,10 +154,11 @@ def load_models() -> None:
         name = key[0:-6]
         save_model(data, name)
         metadata = application.PROJECT.conn_manager.manager().metadata(name, False)
-        if metadata.isQuery():
-            views_[name] = data
-        else:
-            application.PROJECT.conn_manager.manager().createTable(metadata)
+        if metadata is not None:
+            if metadata.isQuery():
+                views_[name] = data
+            else:
+                application.PROJECT.conn_manager.manager().createTable(metadata)
     # views las últimas...
     for key, data in views_.items():
         save_model(data, key)
