@@ -529,6 +529,19 @@ class PNSqlSchema(object):
         else:
             raise Exception("No engine or connection exists!")
 
+    def sqlCreateView(self, meta: "pntablemetadata.PNTableMetaData") -> str:
+        """Return a sql create view."""
+        qry = pnsqlquery.PNSqlQuery(meta.name())
+        sql = "CREATE %s %s AS SELECT %s FROM %s" % ("VIEW", meta.name(), qry.select(), qry.from_())
+
+        return sql
+
+    def create_view(self, view_name, metadata) -> bool:
+        metadata.setName(view_name)
+        print(self.sqlCreateView(metadata))
+
+        return False
+
     @decorators.not_implemented_warn
     def sqlCreateTable(
         self,
@@ -664,7 +677,7 @@ class PNSqlSchema(object):
         return ret
 
     @decorators.not_implemented_warn
-    def tables(self, type_name: Optional[str] = None) -> List[str]:
+    def tables(self, type_name: str = "") -> List[str]:
         """Return a tables list specified by type."""
         return []
 
