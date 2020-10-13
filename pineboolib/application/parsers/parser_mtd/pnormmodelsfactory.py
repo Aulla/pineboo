@@ -64,7 +64,7 @@ def empty_base():
     application.PROJECT.conn_manager.mainConn().driver()._declarative_base = None
 
 
-def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> None:
+def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> bool:
     """Register a mtd as model."""
 
     name_ = metadata.name()
@@ -73,10 +73,10 @@ def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> N
         LOGGER.warning("Overwriting %s model" % name_)
 
     path_ = pnmtdparser.mtd_parse(metadata)
-    save_model(path_, name_)
+    return save_model(path_, name_)
 
 
-def save_model(path_, name: str) -> None:
+def save_model(path_, name: str) -> bool:
     """Save model."""
 
     model_class = load_script.load_model(name, path_)
@@ -103,6 +103,10 @@ def save_model(path_, name: str) -> None:
 
         if name not in PROCESSED:
             PROCESSED.append(name)
+
+        return True
+
+    return False
 
 
 def load_models() -> None:
