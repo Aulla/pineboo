@@ -11,6 +11,7 @@ from pineboolib import application
 import xml.etree.ElementTree as ET
 from importlib import machinery
 from sqlalchemy.ext import declarative
+from sqlalchemy import exc
 
 import shutil
 import time
@@ -244,7 +245,13 @@ def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
         module_class = getattr(script_loaded, class_name, None)
         if module_class:
             module_class.__metaclass__ = "Base"
-            model_class = type(class_name, (module_class, declarative.declarative_base()), {})
+            try:
+                model_class = type(class_name, (module_class, declarative.declarative_base()), {})
+            except exc.ArgumentError:
+                LOGGER.warning(
+                    "Error in %s model. Please check columns and make sure exists a primaryKey column"
+                    % script_name
+                )
 
     return model_class
 
