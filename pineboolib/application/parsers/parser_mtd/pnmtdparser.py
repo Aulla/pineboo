@@ -138,7 +138,7 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
     data.append("# @class_declaration Oficial")
     data.append("class Oficial(basemodel.BaseModel): # type: ignore [misc] # noqa: F821")
     data.append('    """ Oficial class."""')
-    data.append("    __tablename__ = '%s'" % mtd_table.name())
+    data.append("    __tablename__ = '%s'" % mtd_table.name())  # si query nombre query
     data.append("")
     data.append("    # --- Metadata ---> ")
     data.append("    legacy_metadata = {%s}" % ", ".join(metadata_table))
@@ -159,7 +159,9 @@ def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
 
     data.append("")
     data.append("# @class_declaration %s" % class_name)
-    data.append("class %s(Oficial): # type: ignore [misc] # noqa: F821" % class_name)
+    data.append(
+        "class %s(Oficial): # type: ignore [misc] # noqa: F821" % class_name
+    )  # si query nombre query
     data.append('    """ %s class."""' % class_name)
     data.append("    pass")
 

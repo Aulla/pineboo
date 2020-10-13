@@ -141,7 +141,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % name)
         if not self._cursor_model:
-            if pnormmodelsfactory.register_metadata_as_model(mtd, name):
+            if pnormmodelsfactory.register_metadata_as_model(mtd):
                 self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % name)
 
         if not self._cursor_model:

@@ -199,9 +199,7 @@ class Project(object):
                         self.files["%s_model.py" % file_.filename[:-4]].path(),
                     )
                     continue
-                dest_file = pnmtdparser.mtd_parse(
-                    file_.filename, file_.path(), file_.filename[0:-4]
-                )
+                dest_file = pnmtdparser.mtd_parse(file_.filename, file_.path())
 
                 if dest_file:
                     self.files["%s_model.py" % file_.filename[:-4]] = file.File(
