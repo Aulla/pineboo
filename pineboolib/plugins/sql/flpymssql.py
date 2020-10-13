@@ -108,16 +108,17 @@ class FLPYMSSQL(pnsqlschema.PNSqlSchema):
         return "%s(%s)" % (res_, leng) if leng else res_
 
     def sqlCreateTable(
-        self,
-        tmd: "pntablemetadata.PNTableMetaData",
-        create_index: bool = True,
-        is_view: bool = False,
+        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
     ) -> Optional[str]:
         """Return a create table query."""
+
+        if tmd.isQuery():
+            return self.sqlCreateView(tmd)
+
         util = flutil.FLUtil()
 
         primary_key = ""
-        sql = "CREATE %s %s (" % ("VIEW" if is_view else "TABLE", tmd.name())
+        sql = "CREATE TABLE %s (" % tmd.name()
         seq = None
 
         field_list = tmd.fieldList()

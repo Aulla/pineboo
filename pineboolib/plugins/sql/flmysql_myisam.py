@@ -113,11 +113,15 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         is_view: bool = False,
     ) -> Optional[str]:
         """Create a table from given MTD."""
+
+        if tmd.isQuery():
+            return self.sqlCreateView(tmd)
+
         from pineboolib.fllegacy import flutil
 
         util = flutil.FLUtil()
         primary_key = ""
-        sql = "CREATE %s %s (" % ("VIEW" if is_view else "TABLE", tmd.name())
+        sql = "CREATE TABLE %s (" % tmd.name()
         # seq = None
 
         field_list = tmd.fieldList()

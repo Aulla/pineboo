@@ -536,18 +536,9 @@ class PNSqlSchema(object):
 
         return sql
 
-    def create_view(self, view_name, metadata) -> bool:
-        metadata.setName(view_name)
-        print(self.sqlCreateView(metadata))
-
-        return False
-
     @decorators.not_implemented_warn
     def sqlCreateTable(
-        self,
-        tmd: "pntablemetadata.PNTableMetaData",
-        create_index: bool = True,
-        is_view: bool = False,
+        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
     ) -> Optional[str]:
         """Return a create table query."""
         return ""

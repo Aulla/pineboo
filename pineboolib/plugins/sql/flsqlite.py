@@ -175,13 +175,16 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         return where.replace("'false'", "0")
 
     def sqlCreateTable(
-        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True, is_view=False
+        self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
     ) -> Optional[str]:
         """Return a create table query."""
 
+        if tmd.isQuery():
+            return self.sqlCreateView(tmd)
+
         util = flutil.FLUtil()
         primary_key = ""
-        sql = "CREATE %s %s (" % ("VIEW" if is_view else "TABLE", tmd.name())
+        sql = "CREATE TABLE %s (" % tmd.name()
 
         field_list = tmd.fieldList()
 
