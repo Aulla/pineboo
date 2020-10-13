@@ -577,7 +577,7 @@ class FLManager(QtCore.QObject, IManager):
         return self.db_.alterTable(new_metadata)
 
     def createTable(
-        self, n_or_tmd: Union[str, "pntablemetadata.PNTableMetaData", None]
+        self, metadata_or_name: Optional[Union[str, "pntablemetadata.PNTableMetaData"]] = None
     ) -> Optional["pntablemetadata.PNTableMetaData"]:
         """
         Create a table in the database.
@@ -589,49 +589,25 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("createTable. self.db_ is empty!")
 
-        if n_or_tmd is not None:
+        if isinstance(metadata_or_name, str):
+            metadata_or_name = self.metadata(metadata_or_name, False)
 
-            if isinstance(n_or_tmd, str):
-                action_name = n_or_tmd
-                n_or_tmd = self.metadata(n_or_tmd, False)
-                if n_or_tmd is None:
-                    return None
+        if metadata_or_name is None:
+            return None
 
-                if n_or_tmd.isQuery():
-                    if not self.existsTable(action_name):
-                        print("CREAR VISTA", action_name)
-                        if (
-                            not self.db_.connManager()
-                            .default()
-                            .driver()
-                            .create_view(action_name, n_or_tmd)
-                        ):
-                            return None
-
-            elif not self.existsTable(n_or_tmd.name()):
-                if not self.db_.connManager().default().createTable(n_or_tmd):
+        if metadata_or_name.name() not in self.list_tables_:
+            if not self.existsTable(metadata_or_name.name()):
+                if not self.db_.connManager().default().createTable(metadata_or_name):
                     LOGGER.warning(
                         "createTable: %s",
-                        self.tr("No se ha podido crear la tabla ") + n_or_tmd.name(),
+                        self.tr("No se ha podido crear la tabla o query ")
+                        + metadata_or_name.name(),
                     )
                     return None
-                elif not n_or_tmd.isQuery():
-                    self.list_tables_.append(n_or_tmd.name())
 
-            if n_or_tmd.isQuery():
-                return n_or_tmd
+            self.list_tables_.append(metadata_or_name.name())
 
-            elif n_or_tmd.name() in self.list_tables_:
-                return n_or_tmd
-
-            elif not self.db_.connManager().default().createTable(n_or_tmd):
-                LOGGER.warning(
-                    "createTable: %s", self.tr("No se ha podido crear la tabla ") + n_or_tmd.name()
-                )
-            else:
-                return n_or_tmd
-
-        return None
+        return metadata_or_name
 
     def formatValueLike(
         self,
