@@ -531,15 +531,23 @@ class PNSqlSchema(object):
 
     def sqlCreateView(self, meta: "pntablemetadata.PNTableMetaData") -> str:
         """Return a sql create view."""
-        qry = pnsqlquery.PNSqlQuery(meta.name())
-        sql = "CREATE %s %s AS SELECT %s FROM %s" % (
-            "VIEW",
-            meta.name(),
-            qry.select() or "*",
-            qry.from_(),
-        )
 
-        return ""
+        sql = ""
+        qry = pnsqlquery.PNSqlQuery(meta.name())
+        if qry.select().find(".*") > -1 and qry.from_().lower().find("inner") > -1:
+            LOGGER.warning(
+                "No se va a crear la vista %s.En las vistas evite el uso de tabla.* cuando existan inners",
+                meta.name(),
+            )
+        else:
+            sql = "CREATE %s %s AS SELECT %s FROM %s" % (
+                "VIEW",
+                meta.name(),
+                qry.select() or "*",
+                qry.from_(),
+            )
+
+        return sql
 
     @decorators.not_implemented_warn
     def sqlCreateTable(
@@ -561,16 +569,15 @@ class PNSqlSchema(object):
         )
 
         if metadata.isQuery():
-            return False
-            # qry = pnsqlquery.PNSqlQuery(table_name)
-            # names = qry.select().split(",")
-            # if not len(metadata.fieldNames()):
-            #    return False
+            qry = pnsqlquery.PNSqlQuery(table_name)
+            names = qry.select().split(",")
+            if not len(metadata.fieldNames()):
+                return False
 
-            # for name in names:
-            #    field_name = name.split(".")[1] if name.find(".") > -1 else name
-            #    if field_name not in dict_database.keys():
-            #        return True
+            for name in names:
+                field_name = name.split(".")[1] if name.find(".") > -1 else name
+                if field_name not in dict_database.keys():
+                    return True
         else:
             dict_metadata: Dict[str, List[Any]] = dict(
                 [
@@ -745,7 +752,6 @@ class PNSqlSchema(object):
 
         if new_metadata.isQuery():
             if table_name in self.tables("Views"):
-                print("*", table_name, len(new_metadata.fieldNames()))
                 query.exec_("DROP VIEW %s %s" % (table_name, self._text_cascade))
             elif table_name in self.tables("Tables"):
                 query.exec_("DROP TABLE %s %s" % (table_name, self._text_cascade))
@@ -767,7 +773,7 @@ class PNSqlSchema(object):
             session_.commit()
             return True
 
-        cur = self.execute_query(
+        cur = query.db().execute_query(
             "SELECT %s FROM %s WHERE 1=1" % (", ".join(old_field_names), renamed_table)
         )
         old_data_list = cur.fetchall() if cur else []

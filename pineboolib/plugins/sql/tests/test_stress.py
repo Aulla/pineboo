@@ -80,30 +80,6 @@ class TestStress(unittest.TestCase):
         cursor.setValueBuffer("uint_field", randint(0, 100000))
         self.assertTrue(cursor.commitBuffer())
 
-        cursor2 = qsa.FLSqlCursor("fltest")
-        cursor2.select()
-        cursor2.setModeAccess(cursor2.Insert)
-        cursor2.refreshBuffer()
-        cursor2.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
-        cursor2.setValueBuffer("double_field", random())
-        cursor2.setValueBuffer("bool_field", False)
-        cursor2.setValueBuffer("uint_field", randint(0, 100000))
-        self.assertTrue(cursor2.commitBuffer())
-        cursor2.setModeAccess(cursor2.Insert)
-        cursor2.refreshBuffer()
-        cursor2.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
-        cursor2.setValueBuffer("double_field", random())
-        cursor2.setValueBuffer("bool_field", False)
-        cursor2.setValueBuffer("uint_field", randint(0, 100000))
-        self.assertTrue(cursor2.commitBuffer())
-        cursor2.setModeAccess(cursor2.Insert)
-        cursor2.refreshBuffer()
-        cursor2.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
-        cursor2.setValueBuffer("double_field", random())
-        cursor2.setValueBuffer("bool_field", False)
-        cursor2.setValueBuffer("uint_field", randint(0, 100000))
-        self.assertTrue(cursor2.commitBuffer())
-
     def test_basic_3(self) -> None:
         """Test basic 3."""
 
