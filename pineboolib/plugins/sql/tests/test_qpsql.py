@@ -42,7 +42,7 @@ class TestFLPGSql(unittest.TestCase):
         sql = (
             "CREATE TABLE fltest (id INT4 DEFAULT NEXTVAL('fltest_id_seq') PRIMARY KEY,string_field VARCHAR NULL,"
             + "date_field DATE NULL,time_field TIME NULL,double_field FLOAT8 NULL,bool_field BOOLEAN NULL,"
-            + "uint_field INT4 NULL,bloqueo BOOLEAN NOT NULL,empty_relation VARCHAR(15) NULL)"
+            + "uint_field INT4 NULL,bloqueo BOOLEAN NOT NULL,empty_relation VARCHAR(15) NULL,int_field INT2 NULL)"
         )
 
         driver = flqpsql.FLQPSQL()

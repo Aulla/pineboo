@@ -739,7 +739,7 @@ class PNSqlSchema(object):
             session_.rollback()
             return False
 
-        if not self.db_.createTable(new_metadata, is_view):
+        if not self.db_.createTable(new_metadata):
 
             session_.rollback()
             return False
