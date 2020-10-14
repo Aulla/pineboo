@@ -93,7 +93,13 @@ def delete_atomic_session(key: str) -> None:
         if sesiones:
             LOGGER.warning(
                 "Al terminar la función atomica, las siguentes sessiones continuan en transaccion:\n%s",
-                "".join(["%s --> %s.\n" % (item._conn_name, item) for item in sesiones]),
+                "".join(
+                    [
+                        "%s --> %s.\n"
+                        % (item._conn_name, item)  # type: ignore [attr-defined] # noqa: F821
+                        for item in sesiones
+                    ]
+                ),
             )
             for conn in mng_.dictDatabases().values():
                 key_gen = conn.session_key()
