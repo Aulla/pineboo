@@ -23,4 +23,4 @@ VIRTUAL_DB: bool = True  # Enable :memory: database on pytest.
 LOG_SQL = False  # Enable sqlalchemy logs.
 USE_WEBSOCKET_CHANNEL = False  # Enable websockets features.
 USE_MISMATCHED_VIEWS = True
-SHOW_TRANSACTIONS_AFTER_ATOMIC = True
+SHOW_TRANSACTIONS_AFTER_ATOMIC = False
