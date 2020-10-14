@@ -66,8 +66,6 @@ class FLManager(QtCore.QObject, IManager):
     db_: "iconnection.IConnection"  # Base de datos a utilizar por el manejador
     init_count_: int = 0  # Indica el número de veces que se ha llamado a FLManager::init()
 
-    metadata_cache_fails_: List[str]
-
     def __init__(self, db: "iconnection.IConnection") -> None:
         """
         Inicialize.
@@ -80,7 +78,6 @@ class FLManager(QtCore.QObject, IManager):
         self.cache_metadata_ = {}
         self._cache_action = {}
         QtCore.QTimer.singleShot(100, self.init)
-        self.metadata_cache_fails_ = []
         self.init_count_ += 1
 
     def init(self) -> None:
@@ -109,7 +106,6 @@ class FLManager(QtCore.QObject, IManager):
         self.dict_key_metadata_ = {}
         self.list_tables_ = []
         self.cache_metadata_ = {}
-        self.metadata_cache_fails_ = []
         self._cache_action = {}
 
     def metadata(
@@ -156,9 +152,6 @@ class FLManager(QtCore.QObject, IManager):
             key = metadata_name_or_xml.strip()
             stream = None
 
-            if metadata_name_or_xml in self.metadata_cache_fails_:
-                return None
-
             table_name = key if key.endswith(".mtd") else "%s.mtd" % key
 
             if table_name in self.cache_metadata_.keys():
@@ -189,7 +182,6 @@ class FLManager(QtCore.QObject, IManager):
                                     % metadata_name_or_xml,
                                 )
                             )
-                        self.metadata_cache_fails_.append(metadata_name_or_xml)
                         return None
 
                     # docElem = doc.documentElement()
@@ -1320,11 +1312,6 @@ class FLManager(QtCore.QObject, IManager):
             self.dict_key_metadata_.clear()
         else:
             self.dict_key_metadata_ = {}
-
-        if self.metadata_cache_fails_:
-            self.metadata_cache_fails_.clear()
-
-        self.metadata_cache_fails_ = []
 
         self.loadTables()
         self.db_.connManager().managerModules().loadKeyFiles()
