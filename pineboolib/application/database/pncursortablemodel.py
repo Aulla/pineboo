@@ -1168,9 +1168,8 @@ class ProxyIndex:
                 return True
             except exc.InterfaceError:
                 LOGGER.warning(
-                    "Se ha producido un problema al recoger %s primary keys del caché de %s. cacheadas: %s, totales: %s",
+                    "Se ha producido un problema al recoger %s primary keys del caché. cacheadas: %s, totales: %s",
                     fetch_size,
-                    self.metadata().name(),
                     self._rows_loaded,
                     self._total_rows,
                 )

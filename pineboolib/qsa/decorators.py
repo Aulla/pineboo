@@ -92,13 +92,16 @@ def delete_atomic_session(key: str) -> None:
     if sesiones:
         LOGGER.warning(
             "Al terminar la función atomica, las siguentes sessiones continuan en transaccion: %s",
-            sessiones,
+            sesiones,
         )
-        for conn in mng_.dictDatabases():
+        for conn in mng_.dictDatabases().values():
             key_gen = conn.session_key()
             if key_gen in mng_._thread_sessions.keys():
                 LOGGER.warning("La sesión de CONN %s continua en transacción", conn._name)
 
         for ses_th in mng_.get_current_thread_sessions():
             if mng_.mainConn().driver().is_valid_session(ses_th) and ses_th.transaction is not None:
-                LOGGER.warning("La sesión de HILO %s continua en transacción", ses_th._conn_name)
+                LOGGER.warning(
+                    "La sesión de HILO %s continua en transacción",
+                    ses_th._conn_name,  # type: ignore [attr-defined] # noqa: F821
+                )
