@@ -43,7 +43,7 @@ class TestConsistency(unittest.TestCase):
         session = qsa.session_atomic()
         self.assertTrue(session)
 
-        class_ = qsa.orm_("fltest")
+        class_ = qsa.orm.fltest
         obj_1 = class_()
         self.assertFalse(obj_1.string_field)
         self.assertFalse(obj_1.empty_relation)

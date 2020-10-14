@@ -569,7 +569,7 @@ class PNSqlSchema(object):
         )
 
         if metadata.isQuery():
-            if application.PROJECT.USE_MISMATCHED_VIEWS:
+            if application.USE_MISMATCHED_VIEWS:
                 qry = pnsqlquery.PNSqlQuery(table_name)
                 names = qry.select().split(",")
                 if not len(metadata.fieldNames()):
