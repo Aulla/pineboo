@@ -214,28 +214,26 @@ class FLManager(QtCore.QObject, IManager):
                 if not quick:
                     self.cache_metadata_[table_name] = copy.copy(ret)
 
-                    if not ret.isQuery():
+                    if not self.existsTable(metadata_name_or_xml):
+                        self.createTable(ret)
+                    else:
+                        if self.db_.mismatchedTable(metadata_name_or_xml, ret):
+                            msg = util.translate(
+                                "application",
+                                "La estructura de los metadatos de la tabla '%s'"
+                                " y su estructura interna en la base de datos no coinciden.\n"
+                                "Regenerando la base de datos." % metadata_name_or_xml,
+                            )
+                            LOGGER.warning(msg)
 
-                        if not self.existsTable(metadata_name_or_xml):
-                            self.createTable(ret)
-                        else:
-                            if self.db_.mismatchedTable(metadata_name_or_xml, ret):
-                                msg = util.translate(
-                                    "application",
-                                    "La estructura de los metadatos de la tabla '%s'"
-                                    " y su estructura interna en la base de datos no coinciden.\n"
-                                    "Regenerando la base de datos." % metadata_name_or_xml,
+                            # must_alter = self.db_.mismatchedTable(metadata_name_or_xml, ret)
+                            # if must_alter:
+                            # if not self.alterTable(stream, stream, "", True):
+                            if not self.alterTable(ret):
+                                LOGGER.warning(
+                                    "La regeneración de la tabla %s ha fallado",
+                                    metadata_name_or_xml,
                                 )
-                                LOGGER.warning(msg)
-
-                                # must_alter = self.db_.mismatchedTable(metadata_name_or_xml, ret)
-                                # if must_alter:
-                                # if not self.alterTable(stream, stream, "", True):
-                                if not self.alterTable(ret):
-                                    LOGGER.warning(
-                                        "La regeneración de la tabla %s ha fallado",
-                                        metadata_name_or_xml,
-                                    )
 
                 # throwMsgWarning(self.db_, msg)
 

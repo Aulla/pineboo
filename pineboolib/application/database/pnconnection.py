@@ -572,7 +572,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         sql = self.driver().sqlCreateTable(tmd, True)
         if not sql:
             return False
-
+        print("**", sql)
         self.transaction()
         for single_sql in sql.split(";"):
             self.execute_query(single_sql)

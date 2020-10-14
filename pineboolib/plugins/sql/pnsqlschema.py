@@ -548,7 +548,24 @@ class PNSqlSchema(object):
 
         ret = False
 
-        if table_name not in self.tables("Views"):
+        dict_database: Dict[str, List[Any]] = dict(
+            [
+                [rec_d[0], rec_d]  # type: ignore [misc] # noqa: F821
+                for rec_d in self.recordInfo2(table_name)
+            ]
+        )
+
+        if metadata.isQuery():
+            qry = pnsqlquery.PNSqlQuery(table_name)
+            names = qry.select().split(",")
+            if not len(metadata.fieldNames()):
+                return False
+
+            for name in names:
+                field_name = name.split(".")[1] if name.find(".") > -1 else name
+                if field_name not in dict_database.keys():
+                    return True
+        else:
             dict_metadata: Dict[str, List[Any]] = dict(
                 [
                     [rec_m[0], rec_m]  # type: ignore [misc] # noqa: F821
@@ -556,12 +573,6 @@ class PNSqlSchema(object):
                 ]
             )
 
-            dict_database: Dict[str, List[Any]] = dict(
-                [
-                    [rec_d[0], rec_d]  # type: ignore [misc] # noqa: F821
-                    for rec_d in self.recordInfo2(table_name)
-                ]
-            )
             if len(dict_metadata.keys()) != len(dict_database.keys()):
                 ret = True
             else:
@@ -726,23 +737,29 @@ class PNSqlSchema(object):
         session_ = query.db().session()
         query.db().transaction()
 
-        # if session_.transaction:
-        #    session_.begin_nested()
-        # else:
-        #    session_.begin()
+        if new_metadata.isQuery():
+            if table_name in self.tables("Views"):
+                print("*", table_name, len(new_metadata.fieldNames()))
+                query.exec_("DROP VIEW %s %s" % (table_name, self._text_cascade))
+            elif table_name in self.tables("Tables"):
+                query.exec_("DROP TABLE %s %s" % (table_name, self._text_cascade))
 
-        if not self.remove_index(new_metadata, query):
-            session_.rollback()
-            return False
-        is_view = table_name in self.tables("Views")
-        if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
-            session_.rollback()
-            return False
+        else:
+            if not self.remove_index(new_metadata, query):
+                session_.rollback()
+                return False
+
+            if not query.exec_("ALTER TABLE %s RENAME TO %s" % (table_name, renamed_table)):
+                session_.rollback()
+                return False
 
         if not self.db_.createTable(new_metadata):
-
             session_.rollback()
             return False
+
+        if new_metadata.isQuery():
+            session_.commit()
+            return True
 
         cur = self.execute_query(
             "SELECT %s FROM %s WHERE 1=1" % (", ".join(old_field_names), renamed_table)
@@ -802,12 +819,7 @@ class PNSqlSchema(object):
 
             session_.commit()
 
-        if new_metadata.name() in self.tables("Views"):
-            try:
-                query.exec_("DROP VIEW %s %s" % (renamed_table, self._text_cascade))
-            except Exception:
-                query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
-        else:
+        if new_metadata.name() not in self.tables("Views"):
             query.exec_("DROP TABLE %s %s" % (renamed_table, self._text_cascade))
 
         return True
