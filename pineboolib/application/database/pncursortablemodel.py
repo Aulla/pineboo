@@ -1124,18 +1124,16 @@ class ProxyIndex:
 
     def __getitem__(self, index: int) -> Any:
         """Return item value."""
-
         result = None
-        if index < self._total_rows:
-            found = False
-            while not found:
-                try:
-                    result = self._cached_data[index]
-                    if isinstance(result, sqlalchemy.engine.result.RowProxy):
-                        result = result[0]
-                    found = True
-                except IndexError:
-                    found = not self.fetch_more()
+
+        while True:
+            try:
+                data = self._cached_data[index]
+                result = data[0] if isinstance(data, sqlalchemy.engine.result.RowProxy) else data
+                break
+            except Exception:
+                if not self.fetch_more(self._total_rows - self._rows_loaded):
+                    break
 
         return result
 
