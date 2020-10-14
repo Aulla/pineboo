@@ -267,6 +267,22 @@ class TestStress(unittest.TestCase):
         total = qsa.FLUtil().quickSqlSelect("fltest", "new_date", "id = 731")
         self.assertEqual(total, "")
 
+    def test_basic_9(self) -> None:
+        """Test basic 9."""
+
+        from random import randint, random
+
+        util = qsa.FLUtil()
+        cursor = qsa.FLSqlCursor("fltest")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("string_field", util.enLetra(randint(0, 10000000)))
+        cursor.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
+        cursor.setValueBuffer("double_field", random())
+        cursor.setValueBuffer("bool_field", False)
+        cursor.setValueBuffer("uint_field", randint(0, 100000))
+        self.assertTrue(cursor.commitBuffer())
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""

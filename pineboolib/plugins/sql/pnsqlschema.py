@@ -531,10 +531,10 @@ class PNSqlSchema(object):
 
     def sqlCreateView(self, meta: "pntablemetadata.PNTableMetaData") -> str:
         """Return a sql create view."""
-        qry = pnsqlquery.PNSqlQuery(meta.name())
-        sql = "CREATE %s %s AS SELECT %s FROM %s" % ("VIEW", meta.name(), qry.select(), qry.from_())
+        # qry = pnsqlquery.PNSqlQuery(meta.name())
+        # sql = "CREATE %s %s AS SELECT %s FROM %s" % ("VIEW", meta.name(), qry.select(), qry.from_())
 
-        return sql
+        return ""
 
     @decorators.not_implemented_warn
     def sqlCreateTable(
