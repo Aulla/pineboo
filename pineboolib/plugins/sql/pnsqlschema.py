@@ -531,8 +531,13 @@ class PNSqlSchema(object):
 
     def sqlCreateView(self, meta: "pntablemetadata.PNTableMetaData") -> str:
         """Return a sql create view."""
-        # qry = pnsqlquery.PNSqlQuery(meta.name())
-        # sql = "CREATE %s %s AS SELECT %s FROM %s" % ("VIEW", meta.name(), qry.select(), qry.from_())
+        qry = pnsqlquery.PNSqlQuery(meta.name())
+        sql = "CREATE %s %s AS SELECT %s FROM %s" % (
+            "VIEW",
+            meta.name(),
+            qry.select() or "*",
+            qry.from_(),
+        )
 
         return ""
 
