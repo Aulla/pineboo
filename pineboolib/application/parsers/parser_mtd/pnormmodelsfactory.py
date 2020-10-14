@@ -163,4 +163,3 @@ def load_models() -> None:
     for key, data in views_.items():
         save_model(data, key)
         application.PROJECT.conn_manager.manager().createTable(key)
-
