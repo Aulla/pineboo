@@ -51,6 +51,59 @@ class TestStress(unittest.TestCase):
 
         self.assertEqual(steps, cursor.at())
 
+    def test_basic_21(self) -> None:
+        """Test basic 21."""
+
+        from random import randint, random
+
+        util = qsa.FLUtil()
+        cursor = qsa.FLSqlCursor("fltest")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
+        cursor.setValueBuffer("double_field", random())
+        cursor.setValueBuffer("bool_field", False)
+        cursor.setValueBuffer("uint_field", randint(0, 100000))
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
+        cursor.setValueBuffer("double_field", random())
+        cursor.setValueBuffer("bool_field", False)
+        cursor.setValueBuffer("uint_field", randint(0, 100000))
+        self.assertTrue(cursor.commitBuffer())
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
+        cursor.setValueBuffer("double_field", random())
+        cursor.setValueBuffer("bool_field", False)
+        cursor.setValueBuffer("uint_field", randint(0, 100000))
+        self.assertTrue(cursor.commitBuffer())
+
+        cursor2 = qsa.FLSqlCursor("fltest")
+        cursor2.select()
+        cursor2.setModeAccess(cursor2.Insert)
+        cursor2.refreshBuffer()
+        cursor2.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
+        cursor2.setValueBuffer("double_field", random())
+        cursor2.setValueBuffer("bool_field", False)
+        cursor2.setValueBuffer("uint_field", randint(0, 100000))
+        self.assertTrue(cursor2.commitBuffer())
+        cursor2.setModeAccess(cursor2.Insert)
+        cursor2.refreshBuffer()
+        cursor2.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
+        cursor2.setValueBuffer("double_field", random())
+        cursor2.setValueBuffer("bool_field", False)
+        cursor2.setValueBuffer("uint_field", randint(0, 100000))
+        self.assertTrue(cursor2.commitBuffer())
+        cursor2.setModeAccess(cursor2.Insert)
+        cursor2.refreshBuffer()
+        cursor2.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
+        cursor2.setValueBuffer("double_field", random())
+        cursor2.setValueBuffer("bool_field", False)
+        cursor2.setValueBuffer("uint_field", randint(0, 100000))
+        self.assertTrue(cursor2.commitBuffer())
+
     def test_basic_3(self) -> None:
         """Test basic 3."""
 
@@ -266,22 +319,6 @@ class TestStress(unittest.TestCase):
 
         total = qsa.FLUtil().quickSqlSelect("fltest", "new_date", "id = 731")
         self.assertEqual(total, "")
-
-    def test_basic_9(self) -> None:
-        """Test basic 9."""
-
-        from random import randint, random
-
-        util = qsa.FLUtil()
-        cursor = qsa.FLSqlCursor("fltest")
-        cursor.setModeAccess(cursor.Insert)
-        cursor.refreshBuffer()
-        cursor.setValueBuffer("string_field", util.enLetra(randint(0, 10000000)))
-        cursor.setValueBuffer("new_string", util.enLetra(randint(0, 10000000)))
-        cursor.setValueBuffer("double_field", random())
-        cursor.setValueBuffer("bool_field", False)
-        cursor.setValueBuffer("uint_field", randint(0, 100000))
-        self.assertTrue(cursor.commitBuffer())
 
     @classmethod
     def tearDownClass(cls) -> None:
