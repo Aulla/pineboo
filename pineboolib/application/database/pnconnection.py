@@ -192,9 +192,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         if not self.driver().is_valid_session(session_id):
             self.driver().delete_session(session_id)
-            self._conn_manager.current_conn_session[
-                self.session_key()
-            ], returned_session = self.driver().session()
+            new_session = self.driver().session()
+            returned_session = new_session[1]
+            self._conn_manager.current_conn_session[self.session_key()] = new_session[0]
         else:
             returned_session = self._conn_manager._thread_sessions[session_id]
 
@@ -572,7 +572,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         sql = self.driver().sqlCreateTable(tmd, True)
         if not sql:
             return False
-        print("**", sql)
+
         self.transaction()
         for single_sql in sql.split(";"):
             self.execute_query(single_sql)

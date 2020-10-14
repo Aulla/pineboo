@@ -8,6 +8,7 @@ from PyQt5 import QtCore, QtGui, Qt, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 import sqlalchemy
+from sqlalchemy import exc
 from pineboolib.application.utils import date_conversion, xpm
 from .orm import utils as orm_utils
 from . import pnsqlquery
@@ -1121,20 +1122,20 @@ class ProxyIndex:
         # self._index = 0
         self._total_rows = int(rows)
 
-    def __getitem__(self, item: int) -> Any:
+    def __getitem__(self, index: int) -> Any:
         """Return item value."""
 
         result = None
-        if item < self._total_rows:
+        if index < self._total_rows:
             found = False
             while not found:
-                if item < self._rows_loaded:
-                    result = self._cached_data[item]
+                try:
+                    result = self._cached_data[index]
                     if isinstance(result, sqlalchemy.engine.result.RowProxy):
                         result = result[0]
                     found = True
-                else:
-                    found = not self.fetch_more(item)
+                except IndexError:
+                    found = not self.fetch_more()
 
         return result
 
@@ -1157,13 +1158,21 @@ class ProxyIndex:
         """Fetch more data to cached data."""
 
         if self._rows_loaded < self._total_rows and self._query:
-
-            if self._rows_loaded + fetch_size > self._total_rows:
+            to_fetch = self._rows_loaded + fetch_size
+            if to_fetch > 0 and to_fetch >= self._total_rows:
                 fetch_size = self._total_rows - self._rows_loaded
 
-            self._cached_data += [data[0] for data in self._query.fetchmany(fetch_size)]
-            self._rows_loaded += fetch_size
+            try:
+                self._cached_data += [data[0] for data in self._query.fetchmany(fetch_size)]
+                self._rows_loaded += fetch_size
+                return True
+            except exc.InterfaceError:
+                LOGGER.warning(
+                    "Se ha producido un problema al recoger %s primary keys del caché de %s. cacheadas: %s, totales: %s",
+                    fetch_size,
+                    self.metadata().name(),
+                    self._rows_loaded,
+                    self._total_rows,
+                )
 
-            return True
-        else:
-            return False
+        return False

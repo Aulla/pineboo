@@ -79,6 +79,15 @@ class TestConsistency(unittest.TestCase):
             'El valor devuelto (%s) no es ""' % result,
         )
 
+        for ses in cursor_fltest.db().connManager()._thread_sessions.keys():
+            sesion = cursor_fltest.db().connManager()._thread_sessions[ses]
+            if sesion is session:
+                continue
+            self.assertTrue(
+                sesion.transaction is None,
+                "la session %s continua en transacción (conn %s)" % (sesion, sesion._conn_name),
+            )
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
