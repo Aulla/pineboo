@@ -556,15 +556,16 @@ class PNSqlSchema(object):
         )
 
         if metadata.isQuery():
-            qry = pnsqlquery.PNSqlQuery(table_name)
-            names = qry.select().split(",")
-            if not len(metadata.fieldNames()):
-                return False
+            return False
+            # qry = pnsqlquery.PNSqlQuery(table_name)
+            # names = qry.select().split(",")
+            # if not len(metadata.fieldNames()):
+            #    return False
 
-            for name in names:
-                field_name = name.split(".")[1] if name.find(".") > -1 else name
-                if field_name not in dict_database.keys():
-                    return True
+            # for name in names:
+            #    field_name = name.split(".")[1] if name.find(".") > -1 else name
+            #    if field_name not in dict_database.keys():
+            #        return True
         else:
             dict_metadata: Dict[str, List[Any]] = dict(
                 [
