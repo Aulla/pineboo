@@ -1124,14 +1124,10 @@ class ProxyIndex:
 
     def index(self, value: Any) -> int:
         """Return data position."""
-        pos_min = 0
-        pos_max = self._last_current_size - 1
-        while value not in self._cached_data[pos_min:pos_max]:
+
+        while value not in self._cached_data:
             if not self.fetch_more():
                 return -1
-            else:
-                pos_min = pos_max + 1
-                pos_max += 2000
 
         return self._cached_data.index(value)
 
