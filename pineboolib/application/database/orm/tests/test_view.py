@@ -30,6 +30,8 @@ class TestView(unittest.TestCase):
 
         cursor_view.select()
         self.assertEqual(cursor_view.size(), 1)
+        self.assertTrue(cursor_view.first())
+        self.assertEqual(cursor_view.valueBuffer("string_field"), "prueba1")
 
     @classmethod
     def tearDownClass(cls) -> None:

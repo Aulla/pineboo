@@ -37,7 +37,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         self.assertEqual(qry.valueParam("to"), 2)
         self.assertEqual(
             qry.sql(),
-            "SELECT id,string_field,date_field,time_field,double_field,bool_field,uint_field,bloqueo FROM fltest"
+            "SELECT id,string_field,date_field,time_field,double_field,bool_field,uint_field,bloqueo,empty_relation,int_field FROM fltest"
             + " WHERE id>='0' AND id<='2' ORDER BY fltest.id",
         )
 

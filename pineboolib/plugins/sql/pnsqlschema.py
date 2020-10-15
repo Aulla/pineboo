@@ -529,17 +529,34 @@ class PNSqlSchema(object):
         else:
             raise Exception("No engine or connection exists!")
 
+    def is_valid_view(
+        self, metadata: "pntablemetadata.PNTableMetaData", qry: "pnsqlquery.PNSqlQuery"
+    ) -> bool:
+        """Return if a view is valid."""
+
+        valid = True
+        if qry.select().find(".*") > -1:
+            LOGGER.warning("the use of * is not allowed")
+            valid = False
+        else:
+            meta_field_names = metadata.fieldNames()
+            select_text = qry.select()
+            for field_name in meta_field_names:
+                if field_name not in select_text:
+                    valid = False
+                    LOGGER.warning(
+                        "Field name %s not found on query select (%s)", field_name, select_text
+                    )
+                    break
+
+        return valid
+
     def sqlCreateView(self, meta: "pntablemetadata.PNTableMetaData") -> str:
         """Return a sql create view."""
 
         sql = ""
         qry = pnsqlquery.PNSqlQuery(meta.name())
-        if qry.select().find(".*") > -1 and qry.from_().lower().find("inner") > -1:
-            LOGGER.warning(
-                "No se va a crear la vista %s.En las vistas evite el uso de tabla.* cuando existan inners",
-                meta.name(),
-            )
-        else:
+        if self.is_valid_view(meta, qry):
             sql = "CREATE %s %s AS SELECT %s FROM %s" % (
                 "VIEW",
                 meta.name(),
