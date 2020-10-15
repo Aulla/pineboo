@@ -732,7 +732,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if rows_loaded:
             result_query = self.db().session().execute(sql_query)
             self._data_proxy = ProxyIndex(result_query, rows_loaded)
-            # self._rows_loaded = len(self._data_proxy)
+            # self._qry_rows_loaded = len(self._data_proxy)
             # self._data_proxy = [data[0] for data in data_fetched]
             self.need_update = False
             self._column_hints = [120] * len(self.sql_fields)
@@ -829,43 +829,35 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                             if current_pos is None:
                                 current_pos = max_val // 2
 
-                            while current_pos > self._data_proxy._rows_loaded:
+                            while current_pos > self._data_proxy._last_current_size:
                                 if not self._data_proxy.fetch_more():
-                                    # LOGGER.warning("can't fetch more!")
                                     break
-                                # else:
-                                #    LOGGER.warning("FECTHING MORE! %s", self._data_proxy._rows_loaded)
 
-                            try:
+                            if current_pos < self._data_proxy._last_current_size:
                                 data = self._data_proxy[current_pos]
-                            except IndexError:
+                            else:
                                 LOGGER.warning(
                                     "Error seek possition %s over %s (len %s). Total: %s"
                                     % (
                                         current_pos,
-                                        self._data_proxy._rows_loaded,
-                                        len(self._data_proxy._cached_data),
+                                        self._data_proxy._qry_rows_loaded,
+                                        self._data_proxy._last_current_size,
                                         self._data_proxy._total_rows,
                                     )
                                 )
 
-                            # print("Compara", pk_value, "con", data, "current_pos", current_pos)
                             if pk_value > data:
                                 if current_pos == max_val or current_pos == 0:
                                     upper = True
                                 else:
-                                    # LOGGER.warning(
-                                    #    "MI valor %s es mayor que (%s) %s", pk_value, current_pos, data
-                                    # )
+
                                     min_val = current_pos
                                     current_pos += (max_val - min_val) // 2
                             else:
                                 if current_pos == min_val or current_pos == 0:
                                     upper = False
                                 else:
-                                    # LOGGER.warning(
-                                    #    "MI valor %s es menor que (%s) %s", pk_value, current_pos, data
-                                    # )
+
                                     max_val = current_pos
                                     current_pos -= (max_val - min_val) // 2
 
@@ -876,33 +868,21 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                             current_pos = 0
 
                         if upper is not None:
-                            # print("***", current_pos, new_current_pos, max_val, min_val)
                             new_data = result.fetchone()
                             if upper:
                                 current_pos += 1
-
-                            try:
+                            if current_pos < self._data_proxy._last_current_size:
                                 self._data_proxy._cached_data.insert(current_pos, new_data[0])
-                            except TypeError:
-                                print(
-                                    "**", self._data_proxy._cached_data, self.rowCount(), new_data
+                                self._data_proxy._last_current_size += 1
+                                self._data_proxy._total_rows += 1
+                            else:
+                                LOGGER.warning(
+                                    "Problema al insertar datos en la posición %s de %s",
+                                    current_pos,
+                                    self._data_proxy._last_current_size,
                                 )
-                            # print(
-                            #    "Insertando",
-                            #    new_data[0],
-                            #    "en pos",
-                            #    current_pos,
-                            #    "Despues" if upper else "Antes",
-                            #    "de",
-                            #    data,
-                            #    "==",
-                            #    self._data_proxy._cached_data,
-                            # )
-                            self._data_proxy._total_rows += 1
+
                             break
-
-                        # LOGGER.warning("CURRENT ahora es %s", current_pos)
-
             return True
 
         elif mode == 2:
@@ -913,10 +893,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             return True
 
         elif mode == 3:
-            # print("modo3")
             index = self._data_proxy.index(pk_value)
             del self._data_proxy._cached_data[index]
             self._data_proxy._total_rows -= 1
+            self._data_proxy._last_current_size -= 1
 
             return True
 
@@ -1110,66 +1090,77 @@ class ProxyIndex:
     _cached_data: List[Any] = []
     _index: int
     _total_rows: int
-    _rows_loaded: int
+    _qry_rows_total: int
+    _qry_rows_loaded: int
+    _last_current_size: int
 
     def __init__(self, result_query: Any, rows: int) -> None:
         """Initialize."""
 
         self._query = result_query
-        # print("****", self._query)
-        self._rows_loaded = 2000 if rows > 2000 else rows
-        self._cached_data = [data[0] for data in result_query.fetchmany(self._rows_loaded)]
-        # self._index = 0
-        self._total_rows = int(rows)
+        self._qry_rows_loaded = 2000 if rows > 2000 else rows
+        self._cached_data = [data[0] for data in result_query.fetchmany(self._qry_rows_loaded)]
+        self._last_current_size = self._qry_rows_loaded
+        self._qry_rows_total = self._total_rows = int(rows)
 
     def __getitem__(self, index: int) -> Any:
         """Return item value."""
-        result = None
 
-        while True:
-            try:
-                data = self._cached_data[index]
-                result = data[0] if isinstance(data, sqlalchemy.engine.result.RowProxy) else data
-                break
-            except Exception:
-                if not self.fetch_more(self._total_rows - self._rows_loaded):
-                    break
+        data = None
 
-        return result
+        if self._last_current_size <= index:
+            self.fetch_more(index - self._last_current_size + 1)
+
+        if self._last_current_size > index:
+            data = self._cached_data[index]
+
+            if isinstance(data, sqlalchemy.engine.result.RowProxy):
+                LOGGER.warning(
+                    "este result.rowProxy no debería estar aqui!: %s", data[0], stack_info=True
+                )
+                data = data[0]
+
+        return data
 
     def index(self, value: Any) -> int:
         """Return data position."""
+        pos_min = 0
+        pos_max = self._last_current_size - 1
+        while value not in self._cache_data[pos_min:pos_max]:
+            if not self.fetch_more():
+                return -1
+            else:
+                pos_min = pos_max + 1
+                pos_max += 2000
 
-        index = -1
+        return self._cached_data.index(value)
 
-        while True:
-            try:
-                index = self._cached_data.index(value)
-                break
-            except ValueError:
-                if not self.fetch_more():
-                    break
-
-        return index
+        # while True:
+        #    try:
+        #        return self._cached_data.index(value)
+        #    except ValueError:
+        #        if not self.fetch_more():
+        #            return -1
 
     def fetch_more(self, fetch_size: int = 2000) -> bool:
         """Fetch more data to cached data."""
 
-        if self._rows_loaded < self._total_rows and self._query:
-            to_fetch = self._rows_loaded + fetch_size
-            if to_fetch > 0 and to_fetch >= self._total_rows:
-                fetch_size = self._total_rows - self._rows_loaded
+        if self._qry_rows_loaded < self._qry_rows_total and self._query:
+            to_fetch = self._qry_rows_loaded + fetch_size
+            if to_fetch > 0 and to_fetch >= self._qry_rows_total:
+                fetch_size = self._qry_rows_total - self._qry_rows_loaded
 
             try:
                 self._cached_data += [data[0] for data in self._query.fetchmany(fetch_size)]
-                self._rows_loaded += fetch_size
+                self._qry_rows_loaded += fetch_size
+                self._last_current_size += fetch_size
                 return True
             except exc.InterfaceError:
                 LOGGER.warning(
                     "Se ha producido un problema al recoger %s primary keys del caché. cacheadas: %s, totales: %s",
                     fetch_size,
-                    self._rows_loaded,
-                    self._total_rows,
+                    self._qry_rows_loaded,
+                    self._qry_rows_total,
                 )
 
         return False
