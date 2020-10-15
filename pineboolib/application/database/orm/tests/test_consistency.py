@@ -1,4 +1,4 @@
-"""Test query_orm module."""
+"""Test consistency module."""
 
 import unittest
 
@@ -8,7 +8,7 @@ from pineboolib.qsa import qsa
 
 
 class TestConsistency(unittest.TestCase):
-    """TestQueryOrm Class."""
+    """TestConsistency Class."""
 
     @classmethod
     def setUpClass(cls) -> None:
