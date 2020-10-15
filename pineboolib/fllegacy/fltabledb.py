@@ -455,7 +455,7 @@ class FLTableDB(QtWidgets.QWidget):
         if not self._top_widget or not hasattr(self, "cursor_"):
             return
 
-        if not self.cursor().metadata():
+        if not self.cursor().private_cursor.metadata_:
             return
 
         table_metadata = self.cursor().metadata()
