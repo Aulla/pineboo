@@ -22,7 +22,7 @@
 	</group>
 
 	<select>
-		id, string_field, date_field, time_field, double_field, bool_field, uint_field, bloqueo
+		id, string_field, date_field, time_field, double_field, bool_field, uint_field, bloqueo, empty_relation, int_field
 	</select>
 
 	<from>
