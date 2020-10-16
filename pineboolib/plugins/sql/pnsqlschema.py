@@ -211,7 +211,7 @@ class PNSqlSchema(object):
             #    self._engine = self.getEngine(db_name, db_host, db_port, db_user_name, db_password)
             self._connection = conn_
             self.open_ = True
-            self.session()
+            # self.session()
         else:
             LOGGER.error("connect: %s", self.last_error())
 

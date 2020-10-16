@@ -488,8 +488,10 @@ class FLManager(QtCore.QObject, IManager):
         if cache and table_name in self.list_tables_:
             return True
         else:
-            ret = self.db_.existsTable(
-                table_name if not table_name.endswith(".mtd") else table_name[:-4]
+            ret = (
+                self.db_.connManager()
+                .dbAux()
+                .existsTable(table_name if not table_name.endswith(".mtd") else table_name[:-4])
             )
             if ret:
                 self.list_tables_.append(table_name)
