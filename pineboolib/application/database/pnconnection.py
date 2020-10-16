@@ -178,7 +178,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         id_thread = threading.current_thread().ident
         return "%s_%s" % (id_thread, self._name)
 
-    def session(self) -> "orm.Session":
+    def session(self, raise_error: bool = True) -> "orm.Session":
         """
         Sqlalchemy session.
 
@@ -190,7 +190,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         session_id = self._get_session_id()
         returned_session = None
 
-        if not self.driver().is_valid_session(session_id, False):
+        if not self.driver().is_valid_session(session_id, raise_error):
             self.driver().delete_session(session_id)
             new_session = self.driver().session()
             returned_session = new_session[1]
