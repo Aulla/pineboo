@@ -66,6 +66,14 @@
 	</action>
 
 	<action>
+		<name>fltest7</name>
+		<alias>QT_TRANSLATE_NOOP("MetaData","FLTest7")</alias>
+		<table>fltest</table>
+		<form>master</form>
+		<formrecord>fltest</formrecord>
+	</action>
+
+	<action>
 		<name>flacls</name>
 		<table>flacls</table>
 		<form>flmasteracls</form>
