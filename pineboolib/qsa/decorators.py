@@ -1,5 +1,5 @@
 """Decorators module."""
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import logging, utils_base
 from pineboolib.core import exceptions
 from pineboolib import application
 from . import utils
@@ -108,7 +108,7 @@ def delete_atomic_session(key: str) -> None:
                 ),
             )
             for conn in mng_.dictDatabases().values():
-                key_gen = conn.session_key()
+                key_gen = utils_base.session_id(conn._name)
                 if key_gen in mng_._thread_sessions.keys():
                     LOGGER.warning("La sesión de CONN %s continua en transacción", conn._name)
 

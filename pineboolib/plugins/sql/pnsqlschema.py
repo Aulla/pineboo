@@ -22,8 +22,7 @@ from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
 from sqlalchemy import event, pool
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
-import threading
-import time
+
 
 import re
 
@@ -312,7 +311,7 @@ class PNSqlSchema(object):
         session_class = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
         new_session = session_class()
         setattr(new_session, "_conn_name", self.db_._name)
-        session_key = "%s_%s_%s" % (threading.current_thread().ident, self.db_._name, time.time())
+        session_key = utils_base.session_id(self.db_._name, True)
         self.db_._conn_manager._thread_sessions[session_key] = new_session
         return (session_key, new_session)
 

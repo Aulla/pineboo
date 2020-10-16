@@ -11,7 +11,7 @@ from . import pnsqldrivers
 from pineboolib import application
 
 import time
-import threading
+
 
 from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
@@ -157,7 +157,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def _get_session_id(self) -> str:
         """Return correct session."""
 
-        session_key = self.session_key()
+        session_key = utils_base.session_id(self._name)
         use_key = ""
         if session_key in self._conn_manager.current_atomic_sessions.keys():
             atomic_key = self._conn_manager.current_atomic_sessions[session_key]
@@ -171,12 +171,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     use_key = conn_session
 
         return use_key
-
-    def session_key(self) -> str:
-        """Retrun session key."""
-
-        id_thread = threading.current_thread().ident
-        return "%s_%s" % (id_thread, self._name)
 
     def session(self, raise_error: bool = True) -> "orm.Session":
         """
@@ -194,7 +188,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             self.driver().delete_session(session_id)
             new_session = self.driver().session()
             returned_session = new_session[1]
-            self._conn_manager.current_conn_session[self.session_key()] = new_session[0]
+            self._conn_manager.current_conn_session[
+                utils_base.session_id(self._name)
+            ] = new_session[0]
         else:
             returned_session = self._conn_manager._thread_sessions[session_id]
 

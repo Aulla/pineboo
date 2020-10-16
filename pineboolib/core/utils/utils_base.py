@@ -18,6 +18,8 @@ import os.path
 import hashlib
 import traceback
 import types
+import threading
+import time
 
 from typing import Optional, Union, Any, List, cast, Callable, TypeVar, TYPE_CHECKING
 
@@ -542,3 +544,11 @@ def print_stack(maxsize: int = 1) -> None:
     """Print Python stack, like a traceback."""
     for item in traceback.format_list(traceback.extract_stack())[1:-2][-maxsize:]:
         print(item.rstrip())
+
+
+def session_id(conn_name: str = "default", with_time: bool = False) -> str:
+    """Return session id."""
+    if with_time:
+        return "%s_%s_%s" % (threading.current_thread().ident, conn_name, time.time())
+    else:
+        return "%s_%s" % (threading.current_thread().ident, conn_name)
