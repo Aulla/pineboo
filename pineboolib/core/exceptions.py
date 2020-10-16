@@ -24,3 +24,7 @@ class ForbiddenError(Exception):
 
 class QSAError(Exception):
     """QSA script error."""
+
+
+class TransactionOpenedException(Exception):
+    """Transactions opened error."""

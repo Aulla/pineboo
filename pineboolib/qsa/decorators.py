@@ -1,5 +1,6 @@
 """Decorators module."""
 from pineboolib.core.utils import logging
+from pineboolib.core import exceptions
 from pineboolib import application
 from . import utils
 
@@ -34,7 +35,6 @@ def atomic(conn_name: str = "default") -> TYPEFN:
             ], new_session = utils.driver_session(conn_name)
             result_ = None
             try:
-
                 with new_session.begin():
                     LOGGER.debug(
                         "New atomic session : %s, connection : %s, transaction: %s",
@@ -45,6 +45,7 @@ def atomic(conn_name: str = "default") -> TYPEFN:
 
                     try:
                         result_ = fun_(*args, **kwargs)
+
                     except Exception as error:
                         LOGGER.warning(
                             "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
@@ -54,6 +55,11 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                         )
                         delete_atomic_session(key)
                         raise error
+                if new_session.transaction is not None:
+                    raise exceptions.TransactionOpenedException(
+                        "the %s.%s function has been called in atomic mode and has left the transaction open."
+                        % (fun_.__module__, fun_.__name__)
+                    )
 
                 new_session.close()
                 delete_atomic_session(key)
@@ -115,3 +121,8 @@ def delete_atomic_session(key: str) -> None:
                         "La sesión de HILO %s continua en transacción",
                         ses_th._conn_name,  # type: ignore [attr-defined] # noqa: F821
                     )
+
+
+# for session in mng_._thread_sessions.values():
+#    if session.transaction is None:
+#        raise exception(session._conn_name)
