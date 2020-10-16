@@ -165,8 +165,8 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 use_key = atomic_key
 
         if not use_key:
-            if session_key in self._conn_manager.current_conn_session.keys():
-                conn_session = self._conn_manager.current_conn_session[session_key]
+            if session_key in self._conn_manager.current_conn_sessions.keys():
+                conn_session = self._conn_manager.current_conn_sessions[session_key]
                 if conn_session in self._conn_manager._thread_sessions.keys():
                     use_key = conn_session
 
@@ -188,7 +188,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
             self.driver().delete_session(session_id)
             new_session = self.driver().session()
             returned_session = new_session[1]
-            self._conn_manager.current_conn_session[
+            self._conn_manager.current_conn_sessions[
                 utils_base.session_id(self._name)
             ] = new_session[0]
         else:
@@ -656,16 +656,16 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         for key, value in list(self.connManager()._thread_sessions.items()):
             if self._name == key.split("_")[1]:
-                if key in self.connManager().current_conn_session.values():
-                    for key_conn in self.connManager().current_conn_session.keys():
-                        if self.connManager().current_conn_session[key_conn] == key:
-                            del self.connManager().current_conn_session[key_conn]
+                if key in self.connManager().current_conn_sessions.values():
+                    for key_conn in self.connManager().current_conn_sessions.keys():
+                        if self.connManager().current_conn_sessions[key_conn] == key:
+                            del self.connManager().current_conn_sessions[key_conn]
                             break
 
-                if key in self.connManager().current_thread_session.values():
-                    for key_conn in self.connManager().current_thread_session.keys():
-                        if self.connManager().current_thread_session[key_conn] == key:
-                            del self.connManager().current_thread_session[key_conn]
+                if key in self.connManager().current_thread_sessions.values():
+                    for key_conn in self.connManager().current_thread_sessions.keys():
+                        if self.connManager().current_thread_sessions[key_conn] == key:
+                            del self.connManager().current_thread_sessions[key_conn]
                             break
 
                 self.driver().delete_session(key)

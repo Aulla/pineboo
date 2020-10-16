@@ -82,8 +82,8 @@ class BaseModel(object):
             session_key = None
             if key in application.PROJECT.conn_manager.current_atomic_sessions.keys():
                 session_key = application.PROJECT.conn_manager.current_atomic_sessions[key]
-            elif key in application.PROJECT.conn_manager.current_thread_session.keys():
-                session_key = application.PROJECT.conn_manager.current_thread_session[key]
+            elif key in application.PROJECT.conn_manager.current_thread_sessions.keys():
+                session_key = application.PROJECT.conn_manager.current_thread_sessions[key]
             if (
                 session_key is not None
                 and session_key in application.PROJECT.conn_manager._thread_sessions.keys()
@@ -483,8 +483,8 @@ class BaseModel(object):
                 session_key = None
                 if key in mng_.current_atomic_sessions.keys():
                     session_key = mng_.current_atomic_sessions[key]
-                elif key in mng_.current_thread_session.keys():
-                    session_key = mng_.current_thread_session[key]
+                elif key in mng_.current_thread_sessions.keys():
+                    session_key = mng_.current_thread_sessions[key]
 
                 if session_key and session_key in mng_._thread_sessions.keys():
                     session_ = mng_._thread_sessions[session_key]

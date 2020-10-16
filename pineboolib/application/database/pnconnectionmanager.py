@@ -1,7 +1,7 @@
 """PNConnection_manager module."""
 from PyQt5 import QtCore, QtWidgets
 
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import logging, utils_base
 from pineboolib import application
 from pineboolib.interfaces import iconnection
 from . import pnconnection
@@ -29,8 +29,8 @@ class PNConnectionManager(QtCore.QObject):
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
     current_atomic_sessions: Dict[str, str]
-    current_thread_session: Dict[str, str]
-    current_conn_session: Dict[str, str]
+    current_thread_sessions: Dict[str, str]
+    current_conn_sessions: Dict[str, str]
     _thread_sessions: Dict[str, "orm_session.Session"]
 
     def __init__(self):
@@ -39,8 +39,8 @@ class PNConnectionManager(QtCore.QObject):
         super().__init__()
         self.connections_dict = {}
         self.current_atomic_sessions = {}
-        self.current_thread_session = {}
-        self.current_conn_session = {}
+        self.current_thread_sessions = {}
+        self.current_conn_sessions = {}
         self._thread_sessions = {}
 
         LOGGER.info("Initializing PNConnection Manager:")
@@ -297,13 +297,76 @@ class PNConnectionManager(QtCore.QObject):
 
         return application.PROJECT.session_id()
 
+    def status(self, all_users: bool = False) -> str:
+        """Return connections status."""
+
+        conns = []
+        user_id = self.session_id()
+        for conn_name in list(self.connections_dict.keys()):
+            # print("*", conn_name)
+            if conn_name.find("|") > -1:
+                if not all_users:
+                    if user_id == conn_name.split("|")[0]:
+                        conns.append(conn_name)
+                else:
+                    conns.append(conn_name)
+            else:
+                conns.append(conn_name)
+
+        result = "CONNECTIONS (%s):" % ("All users" if all_users else "User: %s" % user_id)
+        for conn_name in conns:
+            conn_ = ""
+            if conn_name.find("|") > -1:
+                conn_ = conn_name.split("|")[1]
+                result += "\n    - User: %s, Connection name: %s:" % (
+                    conn_name.split("|")[0],
+                    conn_,
+                )
+
+            else:
+                conn_ = conn_name
+                result += "\n    - Main connection: %s:" % conn_
+
+            for key, session in self._thread_sessions.items():
+                session_id = utils_base.session_id(conn_)
+                session_result = ""
+                if conn_ in key:
+                    valid_session = self.mainConn().driver().is_valid_session(key, False)
+                    session_result += "* id: %s,  thread_id: %s" % (key, key.split("_")[0])
+                    session_result += ", is_valid: %s" % ("True" if valid_session else "False")
+                    if valid_session:
+                        session_result += ", in_transaction: %s" % (
+                            "False" if session.transaction is None else "True"
+                        )
+
+                    if session_id in self.current_atomic_sessions.keys():
+                        # print("****", session_id)
+                        if key == self.current_atomic_sessions[session_id]:
+                            session_result += ", type: Atomic"
+                    if session_id in self.current_conn_sessions.keys():
+                        # print("***", session_id)
+                        if key == self.current_conn_sessions[session_id]:
+                            session_result += ", type: Legacy"
+                    if session_id in self.current_thread_sessions.keys():
+                        # print("*****", session_id)
+                        if key == self.current_thread_sessions[session_id]:
+                            session_result += ", type: Thread"
+
+                if session_result:
+                    result += "\n        " + session_result
+                else:
+                    # print("***", conn_, key)
+                    continue
+
+        return result
+
     def get_current_thread_sessions(self) -> List["orm_session.session.Session"]:
         """Return thread sessions openend."""
 
         id_thread = threading.current_thread().ident
         result: List["orm_session.session.Session"] = []
         conn_sessions = []
-        for id_session in self.current_conn_session.keys():
+        for id_session in self.current_conn_sessions.keys():
             conn_sessions.append(id_session)
 
         for key in self._thread_sessions.keys():

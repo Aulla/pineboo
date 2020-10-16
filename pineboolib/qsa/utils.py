@@ -592,7 +592,7 @@ def thread_session_new(conn_name: str = "default") -> "orm_session.Session":
             thread_session_free(conn_name)
 
     session_data = driver_session(conn_name)
-    application.PROJECT.conn_manager.current_thread_session[
+    application.PROJECT.conn_manager.current_thread_sessions[
         _session_key(conn_name)
     ], session = session_data
     return session
@@ -614,8 +614,8 @@ def thread_session_current(conn_name: str = "default") -> Optional["orm_session.
 
     thread_key = _session_key(conn_name)
 
-    if thread_key in application.PROJECT.conn_manager.current_thread_session.keys():
-        session_key = application.PROJECT.conn_manager.current_thread_session[thread_key]
+    if thread_key in application.PROJECT.conn_manager.current_thread_sessions.keys():
+        session_key = application.PROJECT.conn_manager.current_thread_sessions[thread_key]
         if session_key in application.PROJECT.conn_manager._thread_sessions.keys():
             return application.PROJECT.conn_manager._thread_sessions[session_key]
 
@@ -635,13 +635,13 @@ def thread_session_free(conn_name: str = "default") -> None:
 
     thread_key = _session_key(conn_name)
 
-    if thread_key in application.PROJECT.conn_manager.current_thread_session.keys():
-        session_key = application.PROJECT.conn_manager.current_thread_session[thread_key]
+    if thread_key in application.PROJECT.conn_manager.current_thread_sessions.keys():
+        session_key = application.PROJECT.conn_manager.current_thread_sessions[thread_key]
         if session_key in application.PROJECT.conn_manager._thread_sessions.keys():
             application.PROJECT.conn_manager._thread_sessions[session_key].close()
             del application.PROJECT.conn_manager._thread_sessions[session_key]
 
-        del application.PROJECT.conn_manager.current_thread_session[thread_key]
+        del application.PROJECT.conn_manager.current_thread_sessions[thread_key]
 
 
 def thread() -> int:
