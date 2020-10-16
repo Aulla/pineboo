@@ -190,7 +190,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         session_id = self._get_session_id()
         returned_session = None
 
-        if not self.driver().is_valid_session(session_id):
+        if not self.driver().is_valid_session(session_id, False):
             self.driver().delete_session(session_id)
             new_session = self.driver().session()
             returned_session = new_session[1]
