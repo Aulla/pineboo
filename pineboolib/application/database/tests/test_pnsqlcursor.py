@@ -63,6 +63,13 @@ class TestInsertData(unittest.TestCase):
         )
         self.assertEqual(result, "")
 
+    def test_basic_4(self) -> None:
+        """Test cursor with external table_name"""
+
+        cursor = pnsqlcursor.PNSqlCursor("fltest7")
+        self.assertTrue(cursor.metadata() is not None)
+        self.assertEqual(cursor.metadata().name(), "fltest")
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
