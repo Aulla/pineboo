@@ -612,11 +612,10 @@ class FLDataTable(QtWidgets.QTableView):
         col = index.column()
         field = self.cur.metadata().indexFieldObject(col)
         _type = field.type()
-
         if _type != "check":
             return
         model = self.cur.model()
-        primary_key = str(model.value(row, self.cur.metadata().primaryKey()))
+        primary_key = model.value(row, self.cur.metadata().primaryKey())
         model._check_column[primary_key].setChecked(
             not model._check_column[primary_key].isChecked()
         )
