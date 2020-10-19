@@ -1055,7 +1055,7 @@ class FLManager(QtCore.QObject, IManager):
         field_mtd = pnfieldmetadata.PNFieldMetaData(
             name,
             util.translate("Metadata", alias),
-            as_null,
+            False if type_ == "serial" else as_null,
             is_primary_key,
             type_,
             length,
