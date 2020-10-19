@@ -12,7 +12,7 @@ PROJECT = Project()
 ATOMIC_LIST: List[str] = []
 FILE_CLASSES: Dict[str, str] = {}
 
-PINEBOO_VER = "0.75.16.11"
+PINEBOO_VER = "0.75.17"
 
 SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
 SHOW_CLOSED_CONNECTION_WARNING: bool = False  # Enable show debug when connection is closed.
@@ -22,5 +22,5 @@ SQLALCHEMY_NULL_POOL: bool = False  # Disable conections pool. Use for minimize 
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest.
 LOG_SQL = False  # Enable sqlalchemy logs.
 USE_WEBSOCKET_CHANNEL = False  # Enable websockets features.
-USE_MISMATCHED_VIEWS = True
+USE_MISMATCHED_VIEWS = False
 SHOW_TRANSACTIONS_AFTER_ATOMIC = False
