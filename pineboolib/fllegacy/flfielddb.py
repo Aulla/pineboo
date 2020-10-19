@@ -1075,7 +1075,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 if relation_m1 is None:
                     return
 
-                tmd = pnsqlcursor.PNSqlCursor(relation_m1.foreignTable()).metadata()
+                tmd = pnsqlcursor.PNSqlCursor(relation_m1.foreignTable()).private_cursor.metadata_
                 if tmd is None:
                     return
 
