@@ -97,6 +97,15 @@ class TestPNConnectionManager(unittest.TestCase):
             time.sleep(1)
             pnsqlcursor.CONNECTION_CURSORS[application.PROJECT.conn_manager.session_id()].pop()
 
+    def test_connections_opened(self) -> None:
+        """Test connections openned."""
+
+        conn_manager = application.PROJECT.conn_manager
+        for conn in conn_manager._thread_sessions.keys():
+            self.assertTrue(conn in conn_manager.current_conn_sessions.values())
+
+        self.assertTrue(len(conn_manager._thread_sessions))
+
     def user_id(self) -> str:
         """Return user id."""
         global USER_ID
