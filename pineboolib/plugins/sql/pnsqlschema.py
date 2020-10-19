@@ -677,13 +677,16 @@ class PNSqlSchema(object):
         ret = False
         try:
             if field_db[2] != field_meta[2] and not is_query:  # nulos
-
-                if (
-                    not field_meta[2] and field_meta[6]
-                ):  # Si en meta , nulo false y pk , dejamos pasar
+                if field_meta[1] == "serial":
                     pass
+
                 else:
-                    ret = True
+                    if (
+                        not field_meta[2] and field_meta[6]
+                    ):  # Si en meta , nulo false y pk , dejamos pasar
+                        pass
+                    else:
+                        ret = True
 
             if not ret:
                 db_type = field_db[1]
