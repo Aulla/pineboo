@@ -88,6 +88,23 @@ class TestConsistency(unittest.TestCase):
                 "la session %s continua en transacción (conn %s)" % (sesion, sesion._conn_name),
             )
 
+    def test_save_point_launch(self) -> None:
+        """Test save points."""
+
+        conn_ = qsa.aqApp.db().useConn("default")
+        session = conn_.session()
+        self.assertTrue(session.transaction is None)
+        conn_.transaction()
+        self.assertTrue(session.transaction is not None)
+        id_ = session.transaction
+        conn_.transaction()
+        self.assertNotEqual(id_, session.transaction)
+        self.assertTrue(id_ is not None)
+        conn_.rollback()
+        self.assertEqual(id_, session.transaction)
+        conn_.rollback()
+        self.assertTrue(session.transaction is None)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
