@@ -595,6 +595,8 @@ class PNSqlSchema(object):
                     field_name = name.split(".")[1] if name.find(".") > -1 else name
                     if field_name not in dict_database.keys():
                         return True
+            else:
+                return False
 
         else:
             dict_metadata: Dict[str, List[Any]] = dict(
@@ -611,7 +613,7 @@ class PNSqlSchema(object):
                     if (
                         name in dict_database.keys()
                     ):  # si falla una key, los campos en el metadata y database no son los mismos.
-                        if self.notEqualsFields(dict_database[name], meta):
+                        if self.notEqualsFields(dict_database[name], meta, metadata.isQuery()):
                             LOGGER.warning(
                                 "Mismatched field %s.%s:\nMetadata : %s.\nDataBase : %s\n",
                                 table_name,
@@ -662,12 +664,20 @@ class PNSqlSchema(object):
         """Return the specific field type."""
         return ""
 
-    def notEqualsFields(self, field_db: List[Any], field_meta: List[Any]) -> bool:
+    def notEqualsFields(self, field_db: List[Any], field_meta: List[Any], is_query=False) -> bool:
         """Return if a field has changed."""
+        # 0 name,
+        # 1 type,
+        # 2 allow_null,
+        # 3 length,
+        # 4 part_decimal,
+        # 5 default_value,
+        # 6 is_primary_key
 
         ret = False
         try:
-            if field_db[2] != field_meta[2]:  # nulos
+            if field_db[2] != field_meta[2] and not is_query:  # nulos
+
                 if (
                     not field_meta[2] and field_meta[6]
                 ):  # Si en meta , nulo false y pk , dejamos pasar
