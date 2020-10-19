@@ -210,20 +210,26 @@ class FLManager(QtCore.QObject, IManager):
                         self.createTable(ret)
                     else:
                         if self.db_.mismatchedTable(metadata_name_or_xml, ret):
-                            msg = util.translate(
-                                "application",
-                                "La estructura de los metadatos de la tabla '%s'"
-                                " y su estructura interna en la base de datos no coinciden.\n"
-                                "Regenerando la base de datos." % metadata_name_or_xml,
-                            )
-                            LOGGER.warning(msg)
+                            if ret.name() in self.db_.tables("Tables"):
+                                msg = util.translate(
+                                    "application",
+                                    "La estructura de los metadatos de la tabla '%s'"
+                                    " y su estructura interna en la base de datos no coinciden.\n"
+                                    "Regenerando la base de datos." % metadata_name_or_xml,
+                                )
+                                LOGGER.warning(msg)
 
-                            # must_alter = self.db_.mismatchedTable(metadata_name_or_xml, ret)
-                            # if must_alter:
-                            # if not self.alterTable(stream, stream, "", True):
-                            if not self.alterTable(ret):
+                                # must_alter = self.db_.mismatchedTable(metadata_name_or_xml, ret)
+                                # if must_alter:
+                                # if not self.alterTable(stream, stream, "", True):
+                                if not self.alterTable(ret):
+                                    LOGGER.warning(
+                                        "La regeneración de la tabla %s ha fallado",
+                                        metadata_name_or_xml,
+                                    )
+                            else:
                                 LOGGER.warning(
-                                    "La regeneración de la tabla %s ha fallado",
+                                    "El metadata %s informa como una tabla algo que no es.",
                                     metadata_name_or_xml,
                                 )
 
@@ -1055,7 +1061,7 @@ class FLManager(QtCore.QObject, IManager):
         field_mtd = pnfieldmetadata.PNFieldMetaData(
             name,
             util.translate("Metadata", alias),
-            False if type_ == "serial" else as_null,
+            as_null,
             is_primary_key,
             type_,
             length,
