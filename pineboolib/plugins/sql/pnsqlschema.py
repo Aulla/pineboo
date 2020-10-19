@@ -892,7 +892,11 @@ class PNSqlSchema(object):
         try:
             try:
                 # query_ = sqlalchemy.text(query)
-                result_ = session_.connection().execute("""%s""" % query)
+                result_ = (
+                    session_.connection()
+                    .execution_options(autocommit=True)
+                    .execute("""%s""" % query)
+                )
 
                 # LOGGER.warning(
                 #    "execute_query: %s, session: %s, transaction: %s",
