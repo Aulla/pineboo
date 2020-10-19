@@ -171,9 +171,15 @@ class PNBuffer(object):
             type_ = self._cursor.metadata().field(field_name).type()
             if value is not None:
                 if type_ == "double":
-                    value = float(value)
+                    if isinstance(value, str) and value == "":
+                        value = None
+                    else:
+                        value = float(value)
                 elif type_ in ("int", "uint", "serial"):
-                    value = int(value)
+                    if isinstance(value, str) and value == "":
+                        value = None
+                    else:
+                        value = int(value)
                 elif type_ in ("string", "pixmap", "stringlist", "counter"):
                     value = str(value)
                 elif type_ in ("boolean", "unlock"):
@@ -194,7 +200,7 @@ class PNBuffer(object):
         @param mark_. If True verifies that it has changed from the value assigned in primeUpdate and mark it as modified (Default to True).
         """
 
-        if value not in [None, ""]:
+        if value not in [None, "", "NULL"]:
             metadata = self._cursor.metadata().field(field_name)
             type_ = metadata.type()
             if type_ == "date":
@@ -209,6 +215,8 @@ class PNBuffer(object):
                 value = datetime.datetime.strptime(str(value)[:8], "%H:%M:%S").time()
             elif type_ in ["bool", "unlock"]:
                 value = True if value in [True, 1, "1", "true"] else False
+        elif isinstance(value, str) and value == "NULL":
+            value = None
 
         try:
             setattr(self._orm_obj, field_name, value)
