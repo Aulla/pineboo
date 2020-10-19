@@ -1395,7 +1395,7 @@ class FLTableDB(QtWidgets.QWidget):
             try:
                 self._table_records.clicked.disconnect(self._table_records.setChecked)
             except Exception:
-                LOGGER.exception("setTableRecordsCursor: Error disconnecting setChecked signal")
+                LOGGER.warning("setTableRecordsCursor: Error disconnecting setChecked signal")
             self._table_records.clicked.connect(self._table_records.setChecked)
 
         t_cursor = self._table_records.cursor_
