@@ -210,12 +210,13 @@ class FLManager(QtCore.QObject, IManager):
                         self.createTable(ret)
                     else:
                         if self.db_.mismatchedTable(metadata_name_or_xml, ret):
-                            if ret.name() in self.db_.tables("Tables"):
+                            if ret.name():
                                 msg = util.translate(
                                     "application",
-                                    "La estructura de los metadatos de la tabla '%s'"
+                                    "La estructura de los metadatos de la %s '%s'"
                                     " y su estructura interna en la base de datos no coinciden.\n"
-                                    "Regenerando la base de datos." % metadata_name_or_xml,
+                                    "Regenerando la base de datos."
+                                    % ("vista" if ret.isQuery() else "tabla", metadata_name_or_xml),
                                 )
                                 LOGGER.warning(msg)
 
@@ -224,7 +225,8 @@ class FLManager(QtCore.QObject, IManager):
                                 # if not self.alterTable(stream, stream, "", True):
                                 if not self.alterTable(ret):
                                     LOGGER.warning(
-                                        "La regeneración de la tabla %s ha fallado",
+                                        "La regeneración de la %s %s ha fallado",
+                                        "vista" if ret.isQuery() else "tabla",
                                         metadata_name_or_xml,
                                     )
                             else:
@@ -598,7 +600,10 @@ class FLManager(QtCore.QObject, IManager):
                 if not self.db_.connManager().default().createTable(metadata_or_name):
                     LOGGER.warning(
                         "createTable: %s",
-                        self.tr("No se ha podido crear la tabla o query ")
+                        self.tr(
+                            "No se ha podido crear la %s "
+                            % ("vista" if metadata_or_name.isQuery() else "tabla")
+                        )
                         + metadata_or_name.name(),
                     )
                     return None
