@@ -12,7 +12,7 @@ PROJECT = Project()
 ATOMIC_LIST: List[str] = []
 FILE_CLASSES: Dict[str, str] = {}
 
-PINEBOO_VER = "0.75.17.2"
+PINEBOO_VER = "0.75.17.3"
 
 SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
 SHOW_CLOSED_CONNECTION_WARNING: bool = False  # Enable show debug when connection is closed.
@@ -20,7 +20,7 @@ SHOW_NESTED_WARNING: bool = False  # Enable show nested debug.
 USE_ATOMIC_LIST: bool = False  # Enable process queue.
 SQLALCHEMY_NULL_POOL: bool = False  # Disable conections pool. Use for minimize problems with concurrences threads and sessions.
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest.
-LOG_SQL = False  # Enable sqlalchemy logs.
-USE_WEBSOCKET_CHANNEL = False  # Enable websockets features.
-USE_MISMATCHED_VIEWS = False
-SHOW_TRANSACTIONS_AFTER_ATOMIC = False
+LOG_SQL: bool = False  # Enable sqlalchemy logs.
+USE_WEBSOCKET_CHANNEL: bool = False  # Enable websockets features.
+USE_MISMATCHED_VIEWS: bool = False  # Enable mismatched views.
+SHOW_TRANSACTIONS_AFTER_ATOMIC: bool = False  # Show info about transactions after atomic function.
