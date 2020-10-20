@@ -45,7 +45,7 @@ class TestPNConnection(unittest.TestCase):
         """Basic test 2."""
 
         conn_manager = application.PROJECT.conn_manager
-        conn_ = conn_manager.mainConn()
+        conn_ = conn_manager.default()
         self.assertTrue("flareas" in conn_.tables("Tables"))
         self.assertTrue("sqlite_master" in conn_.tables())
         self.assertEqual(conn_.tables("SystemTables"), ["sqlite_master"])
@@ -53,7 +53,9 @@ class TestPNConnection(unittest.TestCase):
 
         data_base = conn_.database()
         data_base_aux = conn_manager.database("dbAux")
-        self.assertNotEqual(conn_manager.db(), conn_)  # Compares default Vs main_conn
+        self.assertNotEqual(
+            conn_manager.db(), conn_manager.mainConn()
+        )  # Compares default Vs main_conn
         self.assertNotEqual(data_base, data_base_aux)
         self.assertEqual(conn_.DBName(), str(conn_))
 
@@ -79,7 +81,7 @@ class TestPNConnection(unittest.TestCase):
         """Basic test 4."""
 
         conn_manager = application.PROJECT.conn_manager
-        conn_ = conn_manager.mainConn()
+        conn_ = conn_manager.default()
         self.assertTrue(conn_.interactiveGUI())
         conn_.setInteractiveGUI(False)
         self.assertFalse(conn_.interactiveGUI())
