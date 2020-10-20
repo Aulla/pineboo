@@ -20,7 +20,7 @@ from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noq
 from sqlalchemy.inspection import inspect  # type: ignore [import] # noqa: F821, F401
 from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
-from sqlalchemy import event, pool
+from sqlalchemy import event, pool, text
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
 
@@ -902,29 +902,12 @@ class PNSqlSchema(object):
             raise Exception("execute_query: Database not open %s", self)
 
         self.set_last_error_null()
-
-        # if self._session:
-        #    session_ = self._session
-        # else:
-
-        session_ = self.db_.session() if self.db_._name != "main_conn" else self.session()[1]
+        session_ = self.db_.session()
 
         result_ = None
         try:
             try:
-                # query_ = sqlalchemy.text(query)
-                result_ = (
-                    session_.connection()
-                    .execution_options(autocommit=True)
-                    .execute("""%s""" % query)
-                )
-
-                # LOGGER.warning(
-                #    "execute_query: %s, session: %s, transaction: %s",
-                #    query[:50],
-                #    session_,
-                #    session_.transaction,
-                # )
+                result_ = session_.execute(text("""%s""" % query))
             except sqlalchemy.exc.DBAPIError as error:
                 LOGGER.warning(
                     "Se ha producido un error DBAPI con la consulta %s. Ejecutando rollback necesario",
