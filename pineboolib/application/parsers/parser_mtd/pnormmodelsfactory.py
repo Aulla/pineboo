@@ -153,7 +153,7 @@ def load_models() -> None:
     for key, data in models_.items():
         name = key[0:-6]
         save_model(data, name)
-        metadata = application.PROJECT.conn_manager.manager().metadata(name, False)
+        metadata = application.PROJECT.conn_manager.manager().metadata(name, True)
         if metadata is not None:
             if metadata.isQuery():
                 views_[name] = data
