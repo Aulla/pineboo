@@ -128,6 +128,44 @@ class TestPNSqlQuery1(unittest.TestCase):
         self.assertFalse(qry2.isValid())
         self.assertFalse(qry2.isActive())
 
+    def test_case(self) -> None:
+        """Test case."""
+
+        cursor = pnsqlcursor.PNSqlCursor("flareas")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("idarea", "G")
+        cursor.setValueBuffer("descripcion", "Area G")
+        cursor.commitBuffer()
+
+        qry = pnsqlquery.PNSqlQuery("flareas")
+        qry.setSelect("idarea, case when idarea ='G' THEN 'YO' ELSE 'TU' END")
+        qry.setFrom("flareas")
+        qry.setWhere("1=1")
+        self.assertTrue(qry.exec_())
+        self.assertTrue(qry.first())
+        self.assertEqual(
+            qry.fieldList(), ["idarea", "case when idarea ='g' then 'yo' else 'tu' end"]
+        )
+        self.assertEqual(qry.value("case when idarea ='G' THEN 'YO' ELSE 'TU' END"), "YO")
+
+        qry2 = pnsqlquery.PNSqlQuery("flareas")
+        qry2.setSelect("idarea, case when idarea ='G' THEN 'YO' ELSE ((((5 * 4) + 2))/2) END")
+        qry2.setFrom("flareas")
+        qry2.setWhere("1=1")
+        self.assertTrue(qry2.exec_())
+        self.assertTrue(qry2.first())
+        self.assertEqual(
+            qry2.fieldList(),
+            ["idarea", "case when idarea ='g' then 'yo' else ((((5 * 4) + 2))/2) end"],
+        )
+        self.assertEqual(
+            qry2.value("case when idarea ='G' THEN 'YO' ELSE ((((5 * 4) + 2))/2) END"), "YO"
+        )
+        self.assertFalse(
+            qry2.isNull("case when idarea ='g' then 'yo' else ((((5 * 4) + 2))/2) end")
+        )
+
     def test_move(self) -> None:
         """Test move functions."""
 
