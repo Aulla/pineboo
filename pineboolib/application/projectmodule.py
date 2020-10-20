@@ -252,7 +252,7 @@ class Project(object):
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
-        from . import PINEBOO_VER
+        from .parsers.parser_qsa import PARSER_QSA_VERSION
 
         LOGGER.info("RUN: Loading project data.")
 
@@ -274,7 +274,7 @@ class Project(object):
         conn = self.conn_manager.mainConn()
         db_name = conn.DBName()
         delete_cache = self.delete_cache
-        cache_ver = PINEBOO_VER
+        cache_ver = PARSER_QSA_VERSION
         if os.path.exists(path._dir("cache/%s" % db_name)):
             if not os.path.exists(path._dir("cache/%s/cache_version.txt" % db_name)):
                 delete_cache = True
@@ -283,7 +283,7 @@ class Project(object):
                 file_ver = open(path._dir("cache/%s/cache_version.txt" % db_name), "r")
                 cache_ver = file_ver.read()
                 file_ver.close()
-                if cache_ver != PINEBOO_VER:
+                if cache_ver != PARSER_QSA_VERSION:
                     delete_cache = True
 
             if delete_cache:
@@ -336,7 +336,7 @@ class Project(object):
         # self.acl_.init()
 
         file_ver = open(path._dir("cache/%s/cache_version.txt" % db_name), "w")
-        file_ver.write(PINEBOO_VER)
+        file_ver.write(PARSER_QSA_VERSION)
         file_ver.close()
 
         return ret_
