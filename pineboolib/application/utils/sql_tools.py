@@ -195,7 +195,10 @@ class SqlInspector(object):
                             if field_name in self._field_list.keys():
                                 return self._field_list[field_name]
 
-        raise Exception("No se encuentra el campo %s en la query:\n%s" % (name, self._sql))
+        raise Exception(
+            "No se encuentra el campo %s en la query:\n%s.\ncampos: %s"
+            % (name, self._sql, self.field_list())
+        )
 
     def posToFieldName(self, pos: int) -> str:
         """
@@ -235,47 +238,79 @@ class SqlInspector(object):
             new_fields_list = []
             inicio_parentesis: List[str] = []
             composed_field: Dict[str, List[str]] = {}
-            # case??
-            new2_fields_list = []
-            case_found = False
+            print("*", self._sql)
             for field in list(fields_list):
-                if field == "case":
-                    case_found = True
 
-                if case_found:
-                    if field == "end":
-                        case_found = False
-                    continue
-
-                new2_fields_list.append(field)
-
-            fields_list = new2_fields_list
-
-            for field in list(fields_list):
-                idx_ = len(inicio_parentesis)
+                print("PROCESANDO", field, len(inicio_parentesis))
                 # Comprueba si hay field_names compuestos
-                if field.find("(") > -1 and not field.find(")") > -1:  # si es multiple de verdad
-                    inicio_parentesis.append(str(idx_ + 1))
-                    composed_field[inicio_parentesis[-1]] = []
+                if (
+                    field.find("(") > -1 and not field.find(")") > -1
+                ) or field == "case":  # si es multiple de verdad
+                    # Contamos los parentesis
+                    if field == "case":
+                        print("+1")
+                        inicio_parentesis.append(str(len(inicio_parentesis) + 1))
+                        composed_field[inicio_parentesis[-1]] = []
+
+                    else:
+                        segmento = field[field.find("(") :]
+                        while segmento.find("(") > -1 and not segmento.find(")") > -1:
+                            inicio_parentesis.append(str(len(inicio_parentesis) + 1))
+                            composed_field[inicio_parentesis[-1]] = []
+                            print("+1")
+                            try:
+                                segmento = segmento[segmento.find("(") + 1 :]
+                            except Exception:
+                                break
+
                     composed_field[inicio_parentesis[-1]].append(field)
                     continue
                 elif field == "":
                     continue
                 elif (
-                    field.find(")") > -1 and not field.find("(") > -1 and inicio_parentesis
+                    (field.find(")") > -1 and not field.find("(") > -1)
+                    or field == "end"
+                    and inicio_parentesis
                 ):  # si es multiple de verdad
-                    composed_field[inicio_parentesis[-1]].append(field)
-                    if len(inicio_parentesis) == 1:
-                        new_fields_list.append(" ".join(composed_field[inicio_parentesis[-1]]))
-                    else:
-                        composed_field[inicio_parentesis[-2]] += composed_field[
-                            inicio_parentesis[-1]
-                        ]
 
-                    composed_field[inicio_parentesis[-1]] = []
-                    del composed_field[inicio_parentesis[-1]]
-                    del inicio_parentesis[-1]
+                    if field == "end":
+
+                        composed_field[inicio_parentesis[-1]].append(field)
+                        if len(inicio_parentesis) == 1:
+                            new_fields_list.append(" ".join(composed_field[inicio_parentesis[-1]]))
+                        else:
+                            composed_field[inicio_parentesis[-2]] += composed_field[
+                                inicio_parentesis[-1]
+                            ]
+
+                        composed_field[inicio_parentesis[-1]] = []
+                        del composed_field[inicio_parentesis[-1]]
+                        del inicio_parentesis[-1]
+                        print("-1")
+
+                    else:
+                        segmento = field[field.find(")") :]
+                        composed_field[inicio_parentesis[-1]].append(field)
+                        while segmento.find(")") > -1 and not field.find("(") > -1:
+                            if len(inicio_parentesis) == 1:
+                                new_fields_list.append(
+                                    " ".join(composed_field[inicio_parentesis[-1]])
+                                )
+                            else:
+                                composed_field[inicio_parentesis[-2]] += composed_field[
+                                    inicio_parentesis[-1]
+                                ]
+                            composed_field[inicio_parentesis[-1]] = []
+                            del composed_field[inicio_parentesis[-1]]
+                            del inicio_parentesis[-1]
+                            print("-1")
+                            try:
+                                segmento = segmento[segmento.find(")") + 1 :]
+                            except Exception:
+                                break
+
                 elif inicio_parentesis:  # si estoy en medio de un multiple
+
                     composed_field[inicio_parentesis[-1]].append(field)
                 else:
                     new_fields_list.append(field)
