@@ -788,6 +788,14 @@ class PNSqlSchema(object):
                 query.exec_("DROP TABLE %s %s" % (table_name, self._text_cascade))
 
         else:
+            if table_name not in self.tables("Tables"):
+                LOGGER.warning(
+                    "El metadata indica erroneamente, que %s es una tabla. Proceso cancelado.",
+                    table_name,
+                )
+                session_.rollback()
+                return False
+
             if not self.remove_index(new_metadata, query):
                 session_.rollback()
                 return False
