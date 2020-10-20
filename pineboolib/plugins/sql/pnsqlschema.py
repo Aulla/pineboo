@@ -308,7 +308,11 @@ class PNSqlSchema(object):
     def session(self) -> Tuple[str, "orm_session.Session"]:
         """Create a sqlAlchemy session."""
 
-        session_class = sessionmaker(bind=self.connection(), autoflush=False, autocommit=True)
+        session_class = sessionmaker(
+            bind=self.connection().execution_options(autocommit=True),
+            autoflush=False,
+            autocommit=True,
+        )
         new_session = session_class()
         setattr(new_session, "_conn_name", self.db_._name)
         session_key = utils_base.session_id(self.db_._name, True)
