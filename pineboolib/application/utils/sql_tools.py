@@ -235,6 +235,22 @@ class SqlInspector(object):
             new_fields_list = []
             inicio_parentesis: List[str] = []
             composed_field: Dict[str, List[str]] = {}
+            # case??
+            new2_fields_list = []
+            case_found = False
+            for field in list(fields_list):
+                if field == "case":
+                    case_found = True
+
+                if case_found:
+                    if field == "end":
+                        case_found = False
+                    continue
+
+                new2_fields_list.append(field)
+
+            fields_list = new2_fields_list
+
             for field in list(fields_list):
                 idx_ = len(inicio_parentesis)
                 # Comprueba si hay field_names compuestos
