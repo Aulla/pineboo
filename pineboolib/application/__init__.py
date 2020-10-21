@@ -24,3 +24,4 @@ LOG_SQL: bool = False  # Enable sqlalchemy logs.
 USE_WEBSOCKET_CHANNEL: bool = False  # Enable websockets features.
 USE_MISMATCHED_VIEWS: bool = False  # Enable mismatched views.
 SHOW_TRANSACTIONS_AFTER_ATOMIC: bool = False  # Show info about transactions after atomic function.
+RECOVERING_CONNECTIONS: bool = False  # Recovering state.
