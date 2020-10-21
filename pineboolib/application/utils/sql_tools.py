@@ -238,17 +238,14 @@ class SqlInspector(object):
             new_fields_list = []
             inicio_parentesis: List[str] = []
             composed_field: Dict[str, List[str]] = {}
-            print("*", self._sql)
             for field in list(fields_list):
 
-                print("PROCESANDO", field, len(inicio_parentesis))
                 # Comprueba si hay field_names compuestos
                 if (
                     field.find("(") > -1 and not field.find(")") > -1
                 ) or field == "case":  # si es multiple de verdad
                     # Contamos los parentesis
                     if field == "case":
-                        print("+1")
                         inicio_parentesis.append(str(len(inicio_parentesis) + 1))
                         composed_field[inicio_parentesis[-1]] = []
 
@@ -257,7 +254,6 @@ class SqlInspector(object):
                         while segmento.find("(") > -1 and not segmento.find(")") > -1:
                             inicio_parentesis.append(str(len(inicio_parentesis) + 1))
                             composed_field[inicio_parentesis[-1]] = []
-                            print("+1")
                             try:
                                 segmento = segmento[segmento.find("(") + 1 :]
                             except Exception:
@@ -286,7 +282,6 @@ class SqlInspector(object):
                         composed_field[inicio_parentesis[-1]] = []
                         del composed_field[inicio_parentesis[-1]]
                         del inicio_parentesis[-1]
-                        print("-1")
 
                     else:
                         segmento = field[field.find(")") :]
@@ -303,7 +298,6 @@ class SqlInspector(object):
                             composed_field[inicio_parentesis[-1]] = []
                             del composed_field[inicio_parentesis[-1]]
                             del inicio_parentesis[-1]
-                            print("-1")
                             try:
                                 segmento = segmento[segmento.find(")") + 1 :]
                             except Exception:
