@@ -165,6 +165,12 @@ class TestPNConnection(unittest.TestCase):
         self.assertTrue(conn_default.doTransaction(cursor))
         self.assertTrue(conn_default.doRollback(cursor))
 
+    def test_reinit_connections(self) -> None:
+        """Test removing users connections."""
+
+        application.PROJECT.conn_manager.reinit_user_connections()
+        self.assertTrue(application.PROJECT.conn_manager.default().isOpen())
+
     def test_isolation_sessions(self) -> None:
         """Test isolated sessions."""
 
