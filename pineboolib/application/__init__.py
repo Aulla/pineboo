@@ -25,4 +25,4 @@ USE_WEBSOCKET_CHANNEL: bool = False  # Enable websockets features.
 USE_MISMATCHED_VIEWS: bool = False  # Enable mismatched views.
 SHOW_TRANSACTIONS_AFTER_ATOMIC: bool = False  # Show info about transactions after atomic function.
 RECOVERING_CONNECTIONS: bool = False  # Recovering state.
-AUTO_RELOAD_BAD_CONNECTIONS: bool = True  # Auto reload bad conecctions.
+AUTO_RELOAD_BAD_CONNECTIONS: bool = False  # Auto reload bad conecctions.
