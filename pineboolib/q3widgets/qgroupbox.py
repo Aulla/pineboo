@@ -13,7 +13,7 @@ from typing import Any
 logger = logging.get_logger(__name__)
 
 
-class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):
+class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # noqa: F821
     """QGroupBox class."""
 
     # style_str: str

@@ -24,6 +24,8 @@ class QWidget(QtWidgets.QWidget):
         self.setWindowTitle(title)
 
     def getattr(self, name: str) -> Any:
+        """Return an attribute specified by name."""
+
         if name == "name":
             return self.objectName()
         else:

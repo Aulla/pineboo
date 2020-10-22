@@ -8,9 +8,10 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAbstractItemView
 from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import format_double
+from . import qwidget
 
 
-class Q3TableWidget(QtWidgets.QTableWidget):
+class Q3TableWidget(QtWidgets.QTableWidget, qwidget.QWidget):
     """
     Remove problematic properties from PyQt5-Stubs that we need to redefine.
     """
@@ -85,11 +86,8 @@ class QTable(Q3TableWidget):
             return self.MultiSelection
         elif name == "SpreadSheet":
             return 999
-        elif name == "name":
-            return self.objectName()
         else:
-            print("FIXME:QTable:", name)
-            return getattr(QtCore.Qt, name, None)
+            return getattr(super(), name, None)
 
     def valueChanged_(self, item=None) -> None:
         """Emit valueChanged signal."""
