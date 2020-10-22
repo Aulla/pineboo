@@ -10,6 +10,8 @@ import tempfile
 import re
 from typing import Any, Dict, List, Tuple, Optional, TextIO
 
+from pineboolib.core.utils import utils_base
+
 import ply.yacc as yacc  # type: ignore
 import ply.lex as lex  # type: ignore
 
@@ -836,7 +838,8 @@ def parse(data: str, clean: bool = True) -> Optional[Dict[str, Any]]:
 
     if clean:
         data = cleanNoPythonNever(data)
-        data = cleanNoPython(data)
+        if utils_base.is_library():
+            data = cleanNoPython(data)
     SEEN_TOKENS[:] = []
     parser.error = 0
     INPUT_DATA = data

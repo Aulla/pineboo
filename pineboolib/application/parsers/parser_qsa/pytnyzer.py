@@ -837,6 +837,7 @@ class If(ASTPython):
                 yield "debug", "Expression %d not understood" % number
                 yield "debug", ET.tostring(arg)  # type: ignore
             else:
+
                 if len(expr) == 3:
                     # FIXME: This works if the pattern is alone in the IF. But if it has AND/Or does not work
                     if expr[1] == "==":
@@ -857,10 +858,21 @@ class If(ASTPython):
                             expr = ["not", expr[0]]
                         elif expr[2] == "False":
                             expr = [expr[0]]
-                    elif expr[1] == "in":
-                        expr = [
-                            "%s in %s or hasattr(%s, %s)" % (expr[0], expr[2], expr[2], expr[0])
-                        ]
+
+                if "in" in expr:
+
+                    idx = expr.index("in")
+                    cadena = " ( hasattr(%s, %s) or %s in %s ) " % (
+                        expr[idx + 1],
+                        expr[idx - 1],
+                        expr[idx - 1],
+                        expr[idx + 1],
+                    )
+                    new_expr = expr[0 : idx - 1]
+                    new_expr += cadena.split(" ")
+                    if len(expr) > idx + 2:
+                        new_expr += expr[idx + 2 :]
+                    expr = new_expr
 
                 main_expr.append(" ".join(expr))
 
