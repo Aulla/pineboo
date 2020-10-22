@@ -9,7 +9,7 @@ from . import pnsqlcursor
 
 import threading
 
-from typing import Dict, Union, List, Any, TYPE_CHECKING
+from typing import Dict, Union, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
@@ -332,7 +332,7 @@ class PNConnectionManager(QtCore.QObject):
                 session_id = utils_base.session_id(conn_)
                 session_result = ""
                 if conn_ in key:
-                    valid_session = self.mainConn().driver().is_valid_session(key, False)
+                    valid_session = self.is_valid_session(key, False)
                     session_result += "* id: %s,  thread_id: %s" % (key, key.split("_")[0])
                     session_result += ", is_valid: %s" % ("True" if valid_session else "False")
                     if valid_session:
@@ -377,10 +377,7 @@ class PNConnectionManager(QtCore.QObject):
         return result
 
     def is_valid_session(
-        self,
-        driver: Any,
-        session_or_id: Union[str, "orm_session.Session"],
-        raise_error: bool = True,
+        self, session_or_id: Union[str, "orm_session.Session"], raise_error: bool = True
     ) -> bool:
         """Return if a session id is valid."""
         is_valid = False
@@ -407,16 +404,17 @@ class PNConnectionManager(QtCore.QObject):
                     )
                     raise error
 
-        if application.AUTO_RELOAD_BAD_CONNECTIONS and session is not None:
+            if application.AUTO_RELOAD_BAD_CONNECTIONS:
+                need_reload = False
+                if is_valid:
+                    try:
+                        fake_qry = session.execute("SELECT 1")
+                        fake_qry.fetchall()
+                    except Exception:
+                        need_reload = True
+                        is_valid = False
 
-            if is_valid:
-                try:
-                    fake_qry = session.execute("SELECT 1")
-                    result = fake_qry.fetchall()
-                except Exception:
-                    is_valid = False
-
-                if not is_valid:
+                if need_reload:
                     LOGGER.warning(
                         "AUTO RELOAD: bad connection detected. Reloading users connections"
                     )

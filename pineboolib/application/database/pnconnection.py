@@ -184,9 +184,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         session_id = self._get_session_id()
         returned_session = None
 
-        if not self.connManager().is_valid_session(self.driver(), session_id, raise_error):
+        if not self.connManager().is_valid_session(session_id, raise_error):
             self.driver().delete_session(session_id)
             new_session = self.driver().session()
+            if not self.connManager().is_valid_session(new_session[1]):
+                LOGGER.error("the new session is invalid!!")
+
             returned_session = new_session[1]
             self._conn_manager.current_conn_sessions[
                 utils_base.session_id(self._name)

@@ -113,10 +113,7 @@ def delete_atomic_session(key: str) -> None:
                     LOGGER.warning("La sesión de CONN %s continua en transacción", conn._name)
 
             for ses_th in mng_.get_current_thread_sessions():
-                if (
-                    mng_.mainConn().driver().is_valid_session(ses_th)
-                    and ses_th.transaction is not None
-                ):
+                if mng_.is_valid_session(ses_th) and ses_th.transaction is not None:
                     LOGGER.warning(
                         "La sesión de HILO %s continua en transacción",
                         ses_th._conn_name,  # type: ignore [attr-defined] # noqa: F821
