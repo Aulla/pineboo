@@ -143,7 +143,7 @@ class PNConnectionManager(QtCore.QObject):
             connection_ = pnconnection.PNConnection(main_conn._db_name if not db_name else db_name)
             connection_._name = name
 
-            if name in ["default", "dbAux", "Aux"]:  # Las abrimos automáticamene!
+            if name.lower() in ["default", "dbaux", "aux"]:  # Las abrimos automáticamene!
                 if connection_._driver_name and connection_._driver_sql.loadDriver(
                     connection_._driver_name
                 ):
