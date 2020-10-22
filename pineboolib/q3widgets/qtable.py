@@ -85,6 +85,8 @@ class QTable(Q3TableWidget):
             return self.MultiSelection
         elif name == "SpreadSheet":
             return 999
+        elif name == "name":
+            return self.objectName()
         else:
             print("FIXME:QTable:", name)
             return getattr(QtCore.Qt, name, None)

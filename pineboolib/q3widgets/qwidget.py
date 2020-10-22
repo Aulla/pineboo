@@ -1,20 +1,17 @@
 """Qwidget module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets
-from typing import cast
+from PyQt5 import QtWidgets, QtCore
+from typing import cast, Optional, Any
 
 
 class QWidget(QtWidgets.QWidget):
     """QWidget class."""
 
-    def child(self, child_name: str) -> QtWidgets.QWidget:
+    def child(self, child_name: str) -> Optional[QtWidgets.QWidget]:
         """Return an QWidget especified by name."""
 
         ret = cast(QtWidgets.QWidget, self.findChild(QtWidgets.QWidget, child_name))
-
-        if ret is None:
-            raise Exception("child %s not found!." % child_name)
 
         return ret
 
@@ -25,5 +22,12 @@ class QWidget(QtWidgets.QWidget):
     def set_title(self, title: str) -> None:
         """Set title."""
         self.setWindowTitle(title)
+
+    def getattr(self, name: str) -> Any:
+        if name == "name":
+            return self.objectName()
+        else:
+            print("FIXME:Q3Widget:", name)
+            return getattr(QtCore.Qt, name, None)
 
     title = property(get_title, set_title)
