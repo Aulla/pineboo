@@ -9,7 +9,7 @@ from . import pnsqlcursor
 
 import threading
 
-from typing import Dict, Union, List, TYPE_CHECKING
+from typing import Dict, Union, List, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
@@ -375,6 +375,60 @@ class PNConnectionManager(QtCore.QObject):
                 result.append(self._thread_sessions[key])
 
         return result
+
+    def is_valid_session(
+        self,
+        driver: Any,
+        session_or_id: Union[str, "orm_session.Session"],
+        raise_error: bool = True,
+    ) -> bool:
+        """Return if a session id is valid."""
+        is_valid = False
+        if application.AUTO_RELOAD_BAD_CONNECTIONS:
+            raise_error = False
+
+        session = None
+        if not isinstance(session_or_id, str):
+            session = session_or_id
+        elif session_or_id and session_or_id in self._thread_sessions:
+            session = self._thread_sessions[session_or_id]
+
+        if session is not None:
+            try:
+                if not session.connection().closed:
+                    is_valid = True
+
+            except AttributeError as error:
+                if raise_error:
+                    LOGGER.warning(
+                        "AttributeError:: Quite possibly, you are trying to use a session in which"
+                        " a previous error has occurred and has not"
+                        " been recovered with a rollback. Current session is discarded."
+                    )
+                    raise error
+
+        if application.AUTO_RELOAD_BAD_CONNECTIONS and session is not None:
+
+            if is_valid:
+                try:
+                    fake_qry = session.execute("SELECT 1")
+                    result = fake_qry.fetchall()
+                except Exception:
+                    is_valid = False
+
+                if not is_valid:
+                    LOGGER.warning(
+                        "AUTO RELOAD: bad connection detected. Reloading users connections"
+                    )
+                    if session.transaction is not None:
+                        LOGGER.warning(
+                            "AUTO RELOAD: bad session %s is currently in transacction. Aborted",
+                            session.transaction,
+                        )
+
+                    self.reinit_user_connections()
+
+        return is_valid
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""

@@ -319,34 +319,6 @@ class PNSqlSchema(object):
         self.db_._conn_manager._thread_sessions[session_key] = new_session
         return (session_key, new_session)
 
-    def is_valid_session(
-        self, session_or_id: Union[str, "orm_session.Session"], raise_error: bool = True
-    ) -> bool:
-        """Return if a session id is valid."""
-        is_valid = False
-
-        session = None
-        if not isinstance(session_or_id, str):
-            session = session_or_id
-        elif session_or_id and session_or_id in self.db_._conn_manager._thread_sessions:
-            session = self.db_._conn_manager._thread_sessions[session_or_id]
-
-        if session is not None:
-            try:
-                if not session.connection().closed:
-                    is_valid = True
-
-            except AttributeError as error:
-                if raise_error:
-                    LOGGER.warning(
-                        "AttributeError:: Quite possibly, you are trying to use a session in which"
-                        " a previous error has occurred and has not"
-                        " been recovered with a rollback. Current session is discarded."
-                    )
-                    raise error
-
-        return is_valid
-
     def delete_session(self, session_id: str) -> None:
         """Delete a session."""
 
