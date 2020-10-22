@@ -7,13 +7,13 @@ from pineboolib.core import decorators
 from pineboolib.core import settings
 
 from pineboolib import logging
-
+from . import qwidget
 from typing import Any
 
 logger = logging.get_logger(__name__)
 
 
-class QGroupBox(QtWidgets.QGroupBox):
+class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):
     """QGroupBox class."""
 
     # style_str: str
@@ -25,7 +25,7 @@ class QGroupBox(QtWidgets.QGroupBox):
     def __init__(self, *args, **kwargs) -> None:
         """Inicialize."""
 
-        super(QGroupBox, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if not settings.CONFIG.value("ebcomportamiento/spacerLegacy", False):
             self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
