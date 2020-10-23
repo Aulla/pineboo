@@ -792,111 +792,119 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             sql_query = sql_query[: sql_query.find("ORDER BY")]
             order_by = sql_query[sql_query.find("ORDER BY") :]
 
-        if sql_query.find("WHERE") > -1:
-            sql_query += " AND"
-        else:
-            sql_query += " WHERE"
-
-        sql_query += " %s" % (
+        extra_where = " %s" % (
             self.db()
             .connManager()
             .manager()
             .formatAssignValue(self.metadata().field(pk_name), pk_value)
         )
+        if extra_where not in sql_query:
+            if sql_query.find("WHERE") > -1:
+                sql_query += " AND"
+            else:
+                sql_query += " WHERE"
+            sql_query += extra_where
+
         result = self.db().session().execute(sql_query)
+        new_data = result.fetchone()
+
+        if new_data is None and mode in [1, 2]:  # mode 3 allways returns None
+            LOGGER.debug("no valid data to update cache!")
+            return True
 
         if self._data_proxy is None:
             LOGGER.debug("data_proxy is empty!")
             return True
 
-        if mode == 1:
+        if mode == 1:  # Insert.
 
-            if result.returns_rows:
-                if order_by:
-                    LOGGER.warning("FIXME! update chache whit alternative order_by")
-                    return False
-                else:
+            if order_by:
+                LOGGER.warning("FIXME! update chache whit alternative order_by")
+                return False
+            else:
 
-                    current_pos = None
-                    min_val = 0
-                    max_val = self._data_proxy._total_rows
+                current_pos = None
+                min_val = 0
+                max_val = self._data_proxy._total_rows
 
-                    while True:
-                        upper = None
+                while True:
+                    upper = None
 
-                        if self.rowCount():
+                    if self.rowCount():
 
-                            if current_pos is None:
-                                current_pos = max_val // 2
+                        if current_pos is None:
+                            current_pos = max_val // 2
 
-                            while current_pos > self._data_proxy._last_current_size:
-                                if not self._data_proxy.fetch_more():
-                                    break
+                        while current_pos > self._data_proxy._last_current_size:
+                            if not self._data_proxy.fetch_more():
+                                break
 
-                            if current_pos < self._data_proxy._last_current_size:
-                                data = self._data_proxy[current_pos]
-                            else:
-                                LOGGER.warning(
-                                    "Error seek possition %s over %s (len %s). Total: %s"
-                                    % (
-                                        current_pos,
-                                        self._data_proxy._qry_rows_loaded,
-                                        self._data_proxy._last_current_size,
-                                        self._data_proxy._total_rows,
-                                    )
-                                )
-
-                            if pk_value > data:
-                                if current_pos == max_val or current_pos == 0:
-                                    upper = True
-                                else:
-
-                                    min_val = current_pos
-                                    current_pos += (max_val - min_val) // 2
-                            else:
-                                if current_pos == min_val or current_pos == 0:
-                                    upper = False
-                                else:
-
-                                    max_val = current_pos
-                                    current_pos -= (max_val - min_val) // 2
-
-                            if (max_val - min_val) // 2 == 0:
-                                upper = True
-                        elif self._data_proxy is not None:
-                            upper = False
-                            current_pos = 0
-
-                        if upper is not None:
-                            new_data = result.fetchone()
-                            if upper:
-                                current_pos += 1
-                            if current_pos < self._data_proxy._last_current_size:
-                                self._data_proxy._cached_data.insert(current_pos, new_data[0])
-                                self._data_proxy._last_current_size += 1
-                                self._data_proxy._total_rows += 1
-                            else:
-                                LOGGER.warning(
-                                    "Problema al insertar datos en la posición %s de %s",
+                        if current_pos < self._data_proxy._last_current_size:
+                            data = self._data_proxy[current_pos]
+                        else:
+                            LOGGER.warning(
+                                "Error seek possition %s over %s (len %s). Total: %s"
+                                % (
                                     current_pos,
+                                    self._data_proxy._qry_rows_loaded,
                                     self._data_proxy._last_current_size,
+                                    self._data_proxy._total_rows,
                                 )
+                            )
 
-                            break
+                        if pk_value > data:
+                            if current_pos == max_val or current_pos == 0:
+                                upper = True
+                            else:
+
+                                min_val = current_pos
+                                current_pos += (max_val - min_val) // 2
+                        else:
+                            if current_pos == min_val or current_pos == 0:
+                                upper = False
+                            else:
+
+                                max_val = current_pos
+                                current_pos -= (max_val - min_val) // 2
+
+                        if (max_val - min_val) // 2 == 0:
+                            upper = True
+                    elif self._data_proxy is not None:
+                        upper = False
+                        current_pos = 0
+
+                    if upper is not None:
+
+                        if upper:
+                            current_pos += 1
+                        if current_pos < self._data_proxy._last_current_size:
+                            self._data_proxy._cached_data.insert(current_pos, new_data[0])
+                            self._data_proxy._last_current_size += 1
+                            self._data_proxy._total_rows += 1
+                        else:
+                            LOGGER.warning(
+                                "Problema al insertar datos en la posición %s de %s. query: %s, value: %s",
+                                current_pos,
+                                self._data_proxy._last_current_size,
+                                sql_query,
+                                new_data[0],
+                            )
+
+                        break
             return True
 
-        elif mode == 2:
-            if result.returns_rows:
-                index = self._data_proxy.index(pk_value)
-                self._data_proxy._cached_data[index] = result.fetchone()
-
-            return True
-
-        elif mode == 3:
+        elif mode == 2:  # Edit.
             index = self._data_proxy.index(pk_value)
-            del self._data_proxy._cached_data[index]
-            self._data_proxy._total_rows -= 1
-            self._data_proxy._last_current_size -= 1
+            self._data_proxy._cached_data[index] = new_data[0]
+
+            return True
+
+        elif mode == 3:  # Delete.
+            index = self._data_proxy.index(pk_value)
+            if index > -1:
+                del self._data_proxy._cached_data[index]
+                self._data_proxy._total_rows -= 1
+                self._data_proxy._last_current_size -= 1
 
             return True
 
@@ -1147,7 +1155,12 @@ class ProxyIndex:
                 fetch_size = self._qry_rows_total - self._qry_rows_loaded
 
             try:
-                self._cached_data += [data[0] for data in self._query.fetchmany(fetch_size)]
+                self._cached_data += [
+                    data[0][0]
+                    if isinstance(data[0], sqlalchemy.engine.result.RowProxy)
+                    else data[0]
+                    for data in self._query.fetchmany(fetch_size)
+                ]
                 self._qry_rows_loaded += fetch_size
                 self._last_current_size += fetch_size
                 return True
