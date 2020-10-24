@@ -166,13 +166,20 @@ class SysBaseType(object):
         return application.PROJECT.conn_manager.useConn(conn_name).host()
 
     @classmethod
-    def addDatabase(cls, *args: Any) -> bool:
+    def addDatabase(
+        cls,
+        driver_or_conn: str,
+        db_name: Optional[str] = None,
+        db_user: Optional[str] = None,
+        db_pw: Optional[str] = None,
+        db_host: Optional[str] = None,
+        db_port: Optional[int] = None,
+        conn_name: Optional[str] = None,
+    ) -> bool:
         """Add a new database."""
-        # def addDatabase(self, driver_name = None, db_name = None, db_user_name = None,
-        #                 db_password = None, db_host = None, db_port = None, connName="default"):
 
-        if len(args) == 1:
-            conn_db = application.PROJECT.conn_manager.useConn(args[0])
+        if db_name is None:
+            conn_db = application.PROJECT.conn_manager.useConn(driver_or_conn)
             if not conn_db.isOpen():
                 if (
                     conn_db._driver_name
@@ -194,26 +201,26 @@ class SysBaseType(object):
                     conn_db._is_open = True
 
         else:
-            if not args[6] or not args[1]:
+            if conn_name is None or db_name is None:
                 raise Exception(
                     "Invalid connection data. conn_name: %s, driver_name: %s, database_name: %s, user_name: %s, db_host: %s, port: %s"
-                    % (args[6], args[0], args[1], args[2], args[4], args[5])
+                    % (conn_name, driver_or_conn, db_name, db_user, db_host, db_port)
                 )
 
-            conn_db = application.PROJECT.conn_manager.useConn(args[6], args[1])
+            conn_db = application.PROJECT.conn_manager.useConn(conn_name, db_name)
             if not conn_db.isOpen():
                 if conn_db._driver_sql is None:
                     raise Exception("driverSql not loaded!")
-                conn_db._driver_name = args[0].lower()
+                conn_db._driver_name = driver_or_conn.lower()
                 if conn_db._driver_name and conn_db._driver_sql.loadDriver(conn_db._driver_name):
-                    conn_db.conn = conn_db.conectar(args[1], args[4], args[5], args[2], args[3])
+                    conn_db.conn = conn_db.conectar(db_name, db_host, db_port, db_user, db_pw)
 
                     if isinstance(conn_db.conn, bool):
                         return False
 
-                    # conn_db.driver().db_ = conn_db
                     conn_db._is_open = True
-                    # conn_db._dbAux = conn_db
+            else:
+                LOGGER.warning("addDatabase: '%s' connection is already open", conn_name)
 
         return True
 
