@@ -335,7 +335,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         if not getattr(self, "_connection", None) or self._connection.closed:
             if getattr(self, "_engine", None):
-                self._connection = self._engine.connect()
+                self._connection = self._engine.connect().execution_options(autocommit=True)
                 self._connection.execute("PRAGMA journal_mode=WAL")
                 self._connection.execute("PRAGMA synchronous=NORMAL")
 
