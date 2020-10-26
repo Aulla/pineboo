@@ -340,7 +340,7 @@ class PNSqlSchema(object):
             build = True
         else:
             try:
-                self._connection.execute("""SELECT 1""")
+                self._connection.execution_options(autocommit=True).execute("""SELECT 1""")
             except Exception:
                 build = True
                 self._connection.close()
