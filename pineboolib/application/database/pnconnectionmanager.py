@@ -248,9 +248,12 @@ class PNConnectionManager(QtCore.QObject):
 
         connections = self.dictDatabases()
         for conn_name in connections.keys():
-            LOGGER.warning("Reinit connection %s forced!", conn_name)
-            self.removeConn(conn_name)
-            self.useConn(conn_name)
+            try:
+                LOGGER.warning("Reinit connection %s forced!", conn_name)
+                self.removeConn(conn_name)
+                self.useConn(conn_name)
+            except Exception:
+                LOGGER.warning("Reinit connection %s failed when close", conn_name)
 
     def check_alive_connections(self):
         """Check alive connections."""
