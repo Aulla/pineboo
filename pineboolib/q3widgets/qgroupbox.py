@@ -24,8 +24,27 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
 
     def __init__(self, *args, **kwargs) -> None:
         """Inicialize."""
+        if len(args):
+            name = None
+            parent = None
+            if isinstance(args[0], str):
+                name = args[0]
+            else:
+                parent = args[0]
 
-        super().__init__(*args, **kwargs)
+            if len(args) > 1:
+                if isinstance(args[1], str):
+                    name = args[1]
+                else:
+                    parent = args[1]
+
+            if parent is not None:
+                super().__init__(parent, **kwargs)
+            if name is not None:
+                self.setObjectName(name)
+
+        else:
+            super().__init__()
 
         if not settings.CONFIG.value("ebcomportamiento/spacerLegacy", False):
             self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
