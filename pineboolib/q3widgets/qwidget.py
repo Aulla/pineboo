@@ -3,17 +3,18 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets, QtCore
 from typing import cast, Optional, Any
+from pineboolib.core import decorators
 
 
 class QWidget(QtWidgets.QWidget):
     """QWidget class."""
 
-    def child(self, child_name: str) -> Optional[QtWidgets.QWidget]:
+    def child(self, child_name: str) -> QtWidgets.QWidget:
         """Return an QWidget especified by name."""
 
         ret = cast(QtWidgets.QWidget, self.findChild(QtWidgets.QWidget, child_name))
 
-        return ret
+        return ret or QWidget()
 
     def get_title(self) -> str:
         """Return widget title."""
@@ -22,6 +23,16 @@ class QWidget(QtWidgets.QWidget):
     def set_title(self, title: str) -> None:
         """Set title."""
         self.setWindowTitle(title)
+
+    @decorators.not_implemented_warn
+    def setInsideMargin(self, value):
+        """Set inside margin."""
+        pass
+
+    @decorators.not_implemented_warn
+    def setInsideSpacing(self, value):
+        """Set inside margin."""
+        pass
 
     def getattr(self, name: str) -> Any:
         """Return an attribute specified by name."""
