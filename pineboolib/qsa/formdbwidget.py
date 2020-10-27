@@ -153,8 +153,8 @@ class FormDBWidget(QtWidgets.QWidget):
             if ret is None:
                 ret = getattr(form, child_name, None)
 
-        # if ret is None:
-        #    raise Exception("control %s not found!, form: %s" % (child_name, form))
+        if ret is None:
+            raise Exception("control %s not found!, form: %s" % (child_name, form))
 
         return ret
 
