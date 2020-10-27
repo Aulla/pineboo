@@ -340,8 +340,15 @@ class PNSqlSchema(object):
             build = True
         else:
             try:
-                self._connection.execution_options(autocommit=True).execute("""SELECT 1""")
-            except Exception:
+                if self._connection.closed:
+                    build = True
+            except Exception as error:
+                LOGGER.warning(
+                    "%s.%s sqlalchemy connection raise an error:%s",
+                    self.db_._name,
+                    self._connection,
+                    str(error),
+                )
                 build = True
                 self._connection.close()
                 del self._connection
