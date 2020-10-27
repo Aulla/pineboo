@@ -7,6 +7,7 @@ from pineboolib.interfaces import iconnection
 from . import pnconnection
 from . import pnsqlcursor
 
+from sqlalchemy import exc
 import threading
 
 from typing import Dict, Union, List, TYPE_CHECKING
@@ -395,8 +396,12 @@ class PNConnectionManager(QtCore.QObject):
 
         if session is not None:
             try:
-                if session.execute("SELECT 1").fetchone():
-                    is_valid = True
+                try:
+                    if not session.connection().closed:
+                        is_valid = True
+                except exc.InvalidRequestError:
+                    if session.transaction is None:
+                        is_valid = True
 
             except Exception as error:
                 if raise_error:
