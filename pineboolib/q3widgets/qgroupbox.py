@@ -40,6 +40,9 @@ class QGroupBox(QtWidgets.QGroupBox, qwidget.QWidget):  # type: ignore [misc] # 
 
             if parent is not None:
                 super().__init__(parent, **kwargs)
+            else:
+                super().__init__(**kwargs)
+
             if name is not None:
                 self.setObjectName(name)
 
