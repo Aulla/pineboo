@@ -395,10 +395,10 @@ class PNConnectionManager(QtCore.QObject):
 
         if session is not None:
             try:
-                if not session.connection().closed:
+                if session.execute("SELECT 1").fetchone():
                     is_valid = True
 
-            except AttributeError as error:
+            except Exception as error:
                 if raise_error:
                     LOGGER.warning(
                         "AttributeError:: Quite possibly, you are trying to use a session in which"
