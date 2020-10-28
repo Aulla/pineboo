@@ -4,10 +4,9 @@ from PyQt5 import QtCore
 
 from typing import Set, Tuple, Any
 from pineboolib.application import connections
-from pineboolib.q3widgets import qwidget
 
 
-class Object_class(qwidget.QWidget):
+class Object_class(object):
     """Object class."""
 
     _class_connections: Set[Tuple]
