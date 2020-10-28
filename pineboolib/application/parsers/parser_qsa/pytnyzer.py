@@ -581,7 +581,7 @@ class Class(ASTPython):
     def generate(self, **kwargs: Any) -> ASTGenerator:
         """Generate python code."""
         name = self.elem.get("name", "unnamed")
-        extends = self.elem.get("extends", "object")
+        extends = self.elem.get("extends", "qsa.ObjectClass")
         self.source.locals.add(name)
 
         yield "line", "# /** @class_declaration %s */" % name
@@ -633,7 +633,8 @@ class Function(ASTPython):
                     if name == grandparent.get("name"):
                         name = "__init__"
             else:
-                arguments.append("self")
+                if not anonymous:
+                    arguments.append("self")
         id_list: Set[str] = set()
         rtype: Optional[str] = self.elem.get("returns")
         if rtype is None:
