@@ -7,6 +7,8 @@ from pineboolib.core import decorators
 from .qframe import QFrame
 from .qgroupbox import QGroupBox
 from .qwidget import QWidget
+from .qiconset import QIconSet
+
 from typing import Union, Optional
 
 
@@ -67,10 +69,18 @@ class QToolButton(QtWidgets.QToolButton):
 
         return super().isEnabled()
 
+    def setIconSet(self, icon_set: "QIconSet") -> None:
+        """Set iconset."""
+
+        self.setIcon(icon_set)
+
     def setEnabled(self, value: bool) -> None:
         """Set if enabled."""
 
         super().setEnabled(value)
+
+    def animateClick(self, num: int) -> None:
+        super().animateClick(num)
 
     on = property(getOn, setOn)
     enabled = property(getEnabled, setEnabled)
