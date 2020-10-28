@@ -1,14 +1,17 @@
 """Object_class module."""
 
+from PyQt5 import QtCore
 
 from typing import Set, Tuple, Any
 from pineboolib.application import connections
+from pineboolib.q3widgets import qwidget
 
 
-class Object_class(object):
+class Object_class(qwidget.QWidget):
     """Object class."""
 
     _class_connections: Set[Tuple]
+    signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
 
     def module_connect(self, sender: Any, signal: str, receiver: Any, slot: str) -> None:
         """Connect two objects."""
@@ -40,4 +43,3 @@ class Object_class(object):
                 ):
                     self._class_connections.remove(conn_)
                     break
-

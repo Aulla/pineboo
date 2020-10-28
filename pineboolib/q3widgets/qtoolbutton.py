@@ -79,7 +79,9 @@ class QToolButton(QtWidgets.QToolButton):
 
         super().setEnabled(value)
 
-    def animateClick(self, num: int) -> None:
+    def animateClick(self, num: int) -> None:  # type: ignore [override] # noqa: F821
+        """Animateclick Bound method."""
+
         super().animateClick(num)
 
     on = property(getOn, setOn)

@@ -16,10 +16,11 @@ import re
 import types
 
 
-from typing import Callable, Any, Dict, Tuple, Optional, TYPE_CHECKING
+from typing import Callable, Any, Dict, Tuple, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.qsa import formdbwidget  # noqa F401
+    from pineboolib.qsa import object_class  # noqa F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -93,7 +94,7 @@ def slot_done(
     function: Callable,
     signal: "QtCore.pyqtSignal",
     sender: "QtWidgets.QWidget",
-    caller: Optional["formdbwidget.FormDBWidget"],
+    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.Object_class"]] = None,
 ) -> Callable:
     """Create a fake slot for QS connects."""
 
@@ -147,7 +148,7 @@ def connect(
     signal: str,
     receiver: QtCore.QObject,
     slot: str,
-    caller: Optional["formdbwidget.FormDBWidget"] = None,
+    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.Object_class"]] = None,
 ) -> Optional[Tuple["QtCore.pyqtSignal", Callable]]:
     """Connect signal to slot for QSA."""
 
@@ -195,7 +196,7 @@ def disconnect(
     signal: str,
     receiver: QtCore.QObject,
     slot: str,
-    caller: Optional["formdbwidget.FormDBWidget"] = None,
+    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.Object_class"]] = None,
 ) -> Optional[Tuple["QtCore.pyqtSignal", Callable]]:
     """Disconnect signal from slot for QSA."""
     signal_slot = solve_connection(sender, signal, receiver, slot)
