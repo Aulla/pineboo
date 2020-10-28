@@ -247,6 +247,23 @@ class PNConnectionManager(QtCore.QObject):
         """
         return self.useConn("default")
 
+    def check_connections(self) -> None:
+        """Check connections."""
+        for conn_name, conn_ in self.dictDatabases().items():  # Comprobamos conexiones una a una
+            LOGGER.warning("CHECKING CONN %s", conn_name.upper())
+            if not conn_.isOpen():
+                qsa.aqApp.db().removeConn(conn_name)
+            else:
+                try:
+                    session_ = conn_.session(False)
+                    session_.execute("select 1").fetchone()
+                    session_.close()
+                except Exception:
+                    if self.removeConn(conn_name):
+                        self.useConn(conn_name)
+                    else:
+                        LOGGER.warning("RECOVERING CONN %s FAILED!", conn_name.upper())
+
     def reinit_user_connections(self) -> None:
         """Reinit users connection."""
 
