@@ -6,7 +6,7 @@ from pineboolib.qsa import qsa
 
 
 # /** @class_declaration interna */
-class interna(object):
+class interna(qsa.ObjectClass):
     ctx: "FormInternalObj"
 
     def __init__(self, context):
