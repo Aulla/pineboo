@@ -94,7 +94,7 @@ if not __is_deployed():
 from .pncontrolsfactory import AQBoolFlagState, AQBoolFlagStateList  # noqa: F401
 
 
-from .pncontrolsfactory import FormDBWidget  # noqa: F401
+from .pncontrolsfactory import FormDBWidget, ObjectClass  # noqa: F401
 from pineboolib.application.process import Process, ProcessStatic  # noqa: F401
 from .pncontrolsfactory import SysType, System  # noqa: F401
 from .pncontrolsfactory import AQ_APP as aqApp  # noqa: F401
