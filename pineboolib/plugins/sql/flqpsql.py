@@ -49,15 +49,13 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         """Return next serial value."""
 
         if self.is_open():
-            session_ = self.session()[1]
             seq_ = "%s_%s_seq" % (table_name, field_name)
             result_ = 0
-            try:
-                result_ = session_.connection().execute(sqlalchemy.Sequence(seq_))
-            except Exception:
+            qry = self.execute_query("SELECT NEXTVAL('%s')" % seq_)
+            if qry is not None:
+                result_ = qry.fetchone()[0]
+            else:
                 self.execute_query("CREATE SEQUENCE %s" % seq_)
-
-                LOGGER.warning("not exec sequence")
 
         return result_
 
