@@ -8,11 +8,7 @@ from pineboolib.fllegacy import flutil
 from . import pnsqlschema
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
 
-from typing import Optional, Union, List, Any, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from sqlalchemy.engine import base, result  # type: ignore [import] # noqa: F821, F401
-
+from typing import Optional, Union, List, Any
 
 LOGGER = logging.get_logger(__name__)
 
@@ -52,7 +48,7 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             seq_ = "%s_%s_seq" % (table_name, field_name)
             result_ = 0
             qry = self.execute_query("SELECT NEXTVAL('%s')" % seq_)
-            if isinstance(qry, result.ResultProxy):
+            if qry is not None:
                 result_ = qry.fetchone()[0]  # type: ignore [index] # noqa: F821
             else:
                 self.execute_query("CREATE SEQUENCE %s" % seq_)
