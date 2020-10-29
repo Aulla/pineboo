@@ -815,6 +815,10 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if self._data_proxy is None:
             LOGGER.debug("data_proxy is empty!")
             return True
+        elif (
+            mode == 1 and new_data[0] in self._data_proxy._cached_data
+        ):  # if exists dont need Insert.
+            return True
 
         if mode == 1:  # Insert.
 
