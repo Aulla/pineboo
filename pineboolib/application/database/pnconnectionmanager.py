@@ -258,7 +258,7 @@ class PNConnectionManager(QtCore.QObject):
                 try:
                     session_ = conn_.session(False)
                     session_.execute("select 1").fetchone()
-                    session_.close()
+                    # session_.close()
                 except Exception:
                     LOGGER.warning("CONN %s BAD. REBUILD!", conn_name.upper())
                     if self.removeConn(conn_name):
