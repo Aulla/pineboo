@@ -52,8 +52,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             seq_ = "%s_%s_seq" % (table_name, field_name)
             result_ = 0
             qry = self.execute_query("SELECT NEXTVAL('%s')" % seq_)
-            if qry is not None:
-                result_ = qry.fetchone()[0]
+            if isinstance(qry, result.ResultProxy):
+                result_ = qry.fetchone()[0]  # type: ignore [index] # noqa: F821
             else:
                 self.execute_query("CREATE SEQUENCE %s" % seq_)
 
