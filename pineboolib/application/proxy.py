@@ -3,7 +3,9 @@ Proxy Module.
 """
 from typing import Callable
 from pineboolib import logging
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Optional, Dict, TYPE_CHECKING
+import threading
+import copy
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flformdb import FLFormDB  # noqa: F401
@@ -37,7 +39,7 @@ class DelayedObjectProxyLoader(object):
         self._obj = obj
         self._args = args
         self._kwargs = kwargs
-        self.loaded_obj: Optional["formdbwidget.FormDBWidget"] = None
+        self.loaded_obj: Dict[int, Optional["formdbwidget.FormDBWidget"]] = {}
 
     def __load(self) -> "formdbwidget.FormDBWidget":
         """
@@ -46,11 +48,12 @@ class DelayedObjectProxyLoader(object):
         @return objeto nuevo o si ya existe , cacheado
         """
         list_name = self._name.split(".")
+        id_thread = threading.current_thread().ident
 
         if not list_name[-1].startswith("formRecord"):
-            if self.loaded_obj:
-                if getattr(self.loaded_obj, "_loader", True):
-                    return self.loaded_obj
+            if id_thread in self.loaded_obj.keys():
+                if getattr(self.loaded_obj[id_thread], "_loader", True):
+                    return self.loaded_obj[id_thread]
 
         LOGGER.debug(
             "DelayedObjectProxyLoader: loading %s %s( *%s **%s)",
@@ -60,11 +63,12 @@ class DelayedObjectProxyLoader(object):
             self._kwargs,
         )
 
-        self.loaded_obj = self._obj(*self._args, **self._kwargs)
-        LOGGER.trace("loaded object: %r", self.loaded_obj)
-        if self.loaded_obj is None:
+        self.loaded_obj[id_thread] = self._obj(*self._args, **self._kwargs)
+        LOGGER.warning("loaded object: %r -> thread : %s", self.loaded_obj[id_thread], id_thread)
+        if self.loaded_obj[id_thread] is None:
+            del self.loaded_obj[id_thread]
             raise Exception("Failed to load object")
-        return self.loaded_obj
+        return self.loaded_obj[id_thread]
 
     def class_(self):
         """Return class."""

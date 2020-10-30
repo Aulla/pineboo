@@ -5,9 +5,11 @@ from PyQt5 import QtWidgets
 
 from pineboolib.core.utils import logging, struct, utils_base
 from xml.etree import ElementTree as ET  # noqa: F401
+import threading
 from . import load_script
 
-from typing import Optional, Union, TYPE_CHECKING
+
+from typing import Optional, Union, Dict, TYPE_CHECKING
 
 from pineboolib import application
 from pineboolib.application.database import pnsqlcursor
@@ -28,10 +30,10 @@ class XMLAction(struct.ActionStruct):
 
     _mod: Optional["moduleactions.ModuleActions"]
 
-    _master_widget: Optional["formdbwidget.FormDBWidget"]
-    _record_widget: Optional["formdbwidget.FormDBWidget"]
+    __master_widget: Dict[int, "formdbwidget.FormDBWidget"]
+    __record_widget: Dict[int, "formdbwidget.FormDBWidget"]
 
-    _cursor: Optional["isqlcursor.ISqlCursor"]
+    __cursor: Dict[int, "isqlcursor.ISqlCursor"]
 
     def __init__(
         self, module: "moduleactions.ModuleActions", action_xml_or_str: Union["ET.Element", str]
@@ -58,10 +60,10 @@ class XMLAction(struct.ActionStruct):
         self._class_script = self._v("class") or ""
         self._class_orm = self._v("model") or ""
 
-        self._master_widget = None
-        self._record_widget = None
+        self.__master_widget = {}
+        self.__record_widget = {}
 
-        self._cursor = None
+        self.__cursor = {}
 
     def setCursor(self, cursor: Optional["isqlcursor.ISqlCursor"] = None):
         """Set xmlAction cursor."""
@@ -292,3 +294,46 @@ class XMLAction(struct.ActionStruct):
         """Log error for actions with unknown slots or scripts."""
 
         LOGGER.error("Executing unknown script for Action %s", self._name)
+
+    def get_master_widget(self) -> "formdbwidget.FormDBWidget":
+
+        id_thread = threading.current_thread().ident
+        if id_thread not in self.__master_widget.keys():
+            self.__master_widget[id_thread] = None
+
+        return self.__master_widget[id_thread]
+
+    def set_master_widget(self, widget: "formdbwidget.FormDBWidget") -> None:
+
+        id_thread = threading.current_thread().ident
+        self.__master_widget[id_thread] = widget
+
+    def get_record_widget(self) -> "formdbwidget.FormDBWidget":
+
+        id_thread = threading.current_thread().ident
+        if id_thread not in self.__record_widget.keys():
+            self.__record_widget[id_thread] = None
+
+        return self.__record_widget[id_thread]
+
+    def set_record_widget(self, widget: "formdbwidget.FormDBWidget") -> None:
+
+        id_thread = threading.current_thread().ident
+        self.__record_widget[id_thread] = widget
+
+    def get_action_cursor(self) -> "isqlcursor.ISqlCursor":
+
+        id_thread = threading.current_thread().ident
+        if id_thread not in self.__cursor.keys():
+            self.__cursor[id_thread] = None
+
+        return self.__cursor[id_thread]
+
+    def set_action_cursor(self, cursor: "isqlcursor.ISqlCursor") -> None:
+
+        id_thread = threading.current_thread().ident
+        self.__cursor[id_thread] = cursor
+
+    _master_widget: "formdbwidget.FormDBWidget" = property(get_master_widget, set_master_widget)
+    _record_widget: "formdbwidget.FormDBWidget" = property(get_record_widget, set_record_widget)
+    _cursor: "isqlcursor.ISqlCursor" = property(get_action_cursor, set_action_cursor)
