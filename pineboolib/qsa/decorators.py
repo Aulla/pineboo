@@ -25,11 +25,14 @@ def atomic(conn_name: str = "default") -> TYPEFN:
             id_thread = threading.current_thread().ident
             key = "%s_%s" % (id_thread, conn_name)
 
-            if application.USE_ATOMIC_LIST:
-                application.ATOMIC_LIST.append(key)
+            if not id_thread in application.ATOMIC_LIST.keys():
+                application.ATOMIC_LIST[id_thread] = []
 
-                while application.ATOMIC_LIST[0] != key:
-                    time.sleep(0.01)
+            application.ATOMIC_LIST[id_thread].append(key)
+
+            while application.ATOMIC_LIST[id_thread][0] != key:
+                time.sleep(0.01)
+
             application.PROJECT.conn_manager.current_atomic_sessions[
                 key
             ], new_session = utils.driver_session(conn_name)
@@ -86,9 +89,10 @@ def delete_atomic_session(key: str) -> None:
 
         del mng_.current_atomic_sessions[key]
 
-    if application.USE_ATOMIC_LIST:
-        if key in application.ATOMIC_LIST:
-            application.ATOMIC_LIST.remove(key)
+    id_thread = threading.current_thread().ident
+
+    if key in application.ATOMIC_LIST[id_thread]:
+        application.ATOMIC_LIST[id_thread].remove(key)
 
     if application.SHOW_TRANSACTIONS_AFTER_ATOMIC:
         sesiones = []
