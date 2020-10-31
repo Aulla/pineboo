@@ -707,3 +707,13 @@ def typeof_(obj: Any) -> str:
         result = "object"
 
     return result
+
+
+def _super(class_name: str, obj):
+    """Super class."""
+
+    for classes in obj.__class__.__mro__:
+        if classes.__name__ == class_name:
+            return super(classes, obj)
+
+    raise Exception("Superclass %s not found." % class_name)
