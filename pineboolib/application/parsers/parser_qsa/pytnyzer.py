@@ -1706,9 +1706,7 @@ class Member(ASTPython):
                     class_name = full_fun_name.split("_")[0]  # happy parse...
 
                 arguments[2] = arguments[2][2:]
-                arguments[0:2] = [
-                    "super(self.module.%s, %s)" % (class_name, ".".join(arguments[0:2]))
-                ]
+                arguments[0:2] = ["qsa._super('%s', %s)" % (class_name, ".".join(arguments[0:2]))]
 
         # Lectura del self.iface.__init() al nuevo estilo yeboyebo
         if len(arguments) >= 2 and arguments[0:1] == ["_i"] and arguments[1].startswith("__"):
@@ -1737,9 +1735,7 @@ class Member(ASTPython):
                 else:
                     class_name = full_fun_name.split("_")[0]
                 arguments[1] = arguments[1][2:]
-                arguments[0:1] = [
-                    "super(self.module.%s, %s)" % (class_name, ".".join(arguments[0:1]))
-                ]
+                arguments[0:1] = ["qsa._super('%s', %s)" % (class_name, ".".join(arguments[0:1]))]
         if arguments[0] == "qsa.File":
             arguments[0] = "qsa.FileStatic"
         elif arguments[0] == "qsa.Dir":
