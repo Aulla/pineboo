@@ -61,16 +61,18 @@ class DelayedObjectProxyLoader(object):
                 if getattr(self.loaded_obj[id_thread], "_loader", True):
                     return self.loaded_obj[id_thread]
 
-        LOGGER.debug(
-            "DelayedObjectProxyLoader: loading %s %s( *%s **%s)",
+        self.loaded_obj[id_thread] = self._obj(*self._args, **self._kwargs)
+
+        LOGGER.info(
+            "DelayedObjectProxyLoader: loading thread :%s, name: %s, object: %s( *%s **%s) ---> %s",
+            id_thread,
             self._name,
             self._obj,
             self._args,
             self._kwargs,
+            self.loaded_obj[id_thread],
         )
 
-        self.loaded_obj[id_thread] = self._obj(*self._args, **self._kwargs)
-        LOGGER.warning("loaded object: %r -> thread : %s", self.loaded_obj[id_thread], id_thread)
         if self.loaded_obj[id_thread] is None:
             del self.loaded_obj[id_thread]
             raise Exception("Failed to load object")
