@@ -293,7 +293,7 @@ class PNApplication(QtCore.QObject):
         """Show help message."""
 
         if settings.CONFIG.value("application/isDebuggerMode", False):
-            LOGGER.warning("StatusHelpMsg: %s", text)
+            LOGGER.info("StatusHelpMsg: %s", text)
 
         main_widget = getattr(application.PROJECT.main_window, "main_widget", None)
 
