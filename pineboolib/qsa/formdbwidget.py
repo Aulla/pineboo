@@ -9,6 +9,7 @@ from pineboolib import logging, application
 
 
 from typing import Set, Tuple, Optional, Any, cast, Union, TYPE_CHECKING
+import traceback
 import weakref
 import sys
 import types
@@ -228,7 +229,10 @@ class FormDBWidget(QtWidgets.QWidget):
 
     def get_module(self) -> types.ModuleType:
         """Return module."""
-
+        LOGGER.warning(
+            "This method is deprecated. Plese replace with qsa._super('class_name', object):\n\t %s",
+            traceback.format_stack(limit=2),
+        )
         return sys.modules[self.__module__]
 
     form = property(_get_form, _set_form)
