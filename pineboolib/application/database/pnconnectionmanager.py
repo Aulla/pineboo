@@ -10,7 +10,7 @@ from . import pnsqlcursor
 from sqlalchemy import exc
 import threading
 
-from typing import Dict, Union, List, TYPE_CHECKING
+from typing import Dict, Union, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy import flmanager
@@ -23,15 +23,15 @@ LOGGER = logging.get_logger(__name__)
 class PNConnectionManager(QtCore.QObject):
     """PNConnectionManager Class."""
 
-    _manager: "flmanager.FLManager"
-    _manager_modules: "flmanagermodules.FLManagerModules"
+    _manager: Optional["flmanager.FLManager"]
+    _manager_modules: Optional["flmanagermodules.FLManagerModules"]
     connections_dict: Dict[str, "pnconnection.PNConnection"] = {}
     limit_connections: int = 50  # Limit of connections to use.
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
     current_atomic_sessions: Dict[str, str]
     current_thread_sessions: Dict[str, str]
-    current_conn_sessions: Dict[str, str]
+    # current_conn_sessions: Dict[str, str]
     _thread_sessions: Dict[str, "orm_session.Session"]
 
     def __init__(self):
@@ -41,8 +41,10 @@ class PNConnectionManager(QtCore.QObject):
         self.connections_dict = {}
         self.current_atomic_sessions = {}
         self.current_thread_sessions = {}
-        self.current_conn_sessions = {}
+        # self.current_conn_sessions = {}
         self._thread_sessions = {}
+        self._manager = None
+        self._manager_modules = None
 
         LOGGER.info("Initializing PNConnection Manager:")
         LOGGER.info("LIMIT CONNECTIONS = %s.", self.limit_connections)
@@ -121,7 +123,7 @@ class PNConnectionManager(QtCore.QObject):
         else:
             name = name_or_conn
 
-        name_conn_: str = "%s|%s" % (application.PROJECT.session_id(), name)
+        name_conn_: str = utils_base.session_id(name)
         # if name in ("default", None):
         #    return self
         self.check_alive_connections()
@@ -165,15 +167,15 @@ class PNConnectionManager(QtCore.QObject):
 
         return connection_
 
-    def dictDatabases(self) -> Dict[str, "pnconnection.PNConnection"]:
+    def enumerate(self) -> Dict[str, "pnconnection.PNConnection"]:
         """Return dict with own database connections."""
 
         dict_ = {}
-        session_name = application.PROJECT.session_id()
+        id_thread = threading.current_thread().ident
         for key in self.connections_dict.keys():
             if key.find("|") > -1:
                 connection_data = key.split("|")
-                if connection_data[0] == session_name:
+                if connection_data[0] == str(id_thread):
                     dict_[connection_data[1]] = self.connections_dict[key]
 
         return dict_
@@ -182,7 +184,9 @@ class PNConnectionManager(QtCore.QObject):
         """Delete a connection specified by name."""
         name_conn_: str = name
         if name.find("|") == -1:
-            name_conn_ = "%s|%s" % (application.PROJECT.session_id(), name)
+            name_conn_ = utils_base.session_id(name)
+
+        result = True
 
         if name_conn_ in self.connections_dict.keys():
 
@@ -191,12 +195,13 @@ class PNConnectionManager(QtCore.QObject):
                 try:
                     self.connections_dict[name_conn_].close()
                 except Exception:
-                    pass
+                    LOGGER.warning("Connection %s failed when close", name_conn_.split("|")[1])
+                    result = False
 
             self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
             del self.connections_dict[name_conn_]
 
-        return True
+        return result
 
     def manager(self) -> "flmanager.FLManager":
         """
@@ -205,8 +210,7 @@ class PNConnectionManager(QtCore.QObject):
         Flmanager manages metadata of fields, tables, queries, etc .. to then be managed this data by the controls of the application.
         """
 
-        if not getattr(self, "_manager", None):
-            # FIXME: Should not load from FL*
+        if self._manager is None:
             from pineboolib.fllegacy import flmanager
 
             self._manager = flmanager.FLManager(self.mainConn())
@@ -220,10 +224,9 @@ class PNConnectionManager(QtCore.QObject):
         Contains functions to control the state, health, etc ... of the database tables.
         """
 
-        if not getattr(self, "_manager_modules", None):
+        if self._manager_modules is None:
             from pineboolib.fllegacy.flmanagermodules import FLManagerModules
 
-            # FIXME: Should not load from FL*
             self._manager_modules = FLManagerModules(self.mainConn())
 
         return self._manager_modules
@@ -247,41 +250,54 @@ class PNConnectionManager(QtCore.QObject):
         """
         return self.useConn("default")
 
+    def test_session(self, conn_or_session) -> bool:
+        """Test a specific connection."""
+
+        result = True
+        if isinstance(conn_or_session, pnconnection.PNConnection):
+            session = conn_or_session.session(False)
+        else:
+            session = conn_or_session
+
+        session_name = session._name  # type: ignore [attr-defined] # noqa: F821
+
+        try:
+            session.execute("SELECT 1").fetchone()
+        except Exception as error:
+            LOGGER.info("Connection %s is bad. error: %s", session_name, str(error))
+            result = False
+
+        return result
+
     def check_connections(self) -> None:
         """Check connections."""
-        for conn_name, conn_ in self.dictDatabases().items():  # Comprobamos conexiones una a una
-            LOGGER.warning("CHECKING CONN %s", conn_name.upper())
+        for conn_name in list(self.enumerate().keys()):  # Comprobamos conexiones una a una
+            conn_ = self.connections_dict[conn_name]
+            LOGGER.info("Checking connection %s", conn_name)
+            valid = True
             if not conn_.isOpen():
-                LOGGER.warning("CONN %s CLOSED. REMOVING!", conn_name.upper())
-                self.removeConn(conn_name)
+                LOGGER.info("Connection %s is closed.", conn_name)
+                valid = False
             else:
-                try:
-                    session_ = conn_.session(False)
-                    session_.execute("select 1").fetchone()
-                    # session_.close()
-                except Exception:
-                    LOGGER.warning("CONN %s BAD. REBUILD!", conn_name.upper())
-                    if self.removeConn(conn_name):
-                        self.useConn(conn_name)
-                    else:
-                        LOGGER.warning("REBUILD CONN %s FAILED!", conn_name.upper())
+                if not self.test_connection(conn_):
+                    valid = False
+
+            if not valid:
+                if not self.removeConn(conn_name):
+                    LOGGER.info("Connection %s removing failed!", conn_name.upper())
 
     def reinit_user_connections(self) -> None:
         """Reinit users connection."""
 
-        connections = self.dictDatabases()
+        connections = self.enumerate()
         for conn_name in connections.keys():
-            try:
-                LOGGER.warning("Reinit connection %s forced!", conn_name)
-                self.removeConn(conn_name)
+            if self.removeConn(conn_name):
                 self.useConn(conn_name)
-            except Exception:
-                LOGGER.warning("Reinit connection %s failed when close", conn_name)
 
     def check_alive_connections(self):
         """Check alive connections."""
 
-        for conn_name in list(self.connections_dict.keys()):
+        for conn_name in list(self.enumerate().keys()):
             if conn_name.find("|") > -1:
                 if (
                     not self.connections_dict[conn_name]._is_open  # Closed connections
@@ -319,33 +335,49 @@ class PNConnectionManager(QtCore.QObject):
 
         return result
 
-    def session_id(self) -> str:
-        """Return session identifier."""
+    # def session_id(self) -> str:
+    #    """Return session identifier."""
 
-        return application.PROJECT.session_id()
+    #    return application.PROJECT.session_id()
 
-    def status(self, all_users: bool = False) -> str:
+    def _get_session_id(self, conn_name: str) -> str:
+        """Return correct session."""
+
+        session_key = utils_base.session_id(conn_name)
+        use_key = ""
+        if session_key in self.current_atomic_sessions.keys():
+            atomic_key = self.current_atomic_sessions[session_key]
+            if atomic_key in self._thread_sessions.keys():
+                use_key = atomic_key
+
+        if not use_key:
+            # if session_key in self.current_conn_sessions.keys():
+            #    conn_session = self.current_conn_sessions[session_key]
+            if session_key in self._thread_sessions.keys():
+                use_key = session_key
+
+        return use_key
+
+    def status(self, all_threads: bool = False) -> str:
         """Return connections status."""
 
         conns = []
-        user_id = self.session_id()
-        for conn_name in list(self.connections_dict.keys()):
-            # print("*", conn_name)
-            if conn_name.find("|") > -1:
-                if not all_users:
-                    if user_id == conn_name.split("|")[0]:
-                        conns.append(conn_name)
-                else:
-                    conns.append(conn_name)
-            else:
-                conns.append(conn_name)
+        id_thread = threading.current_thread().ident
 
-        result = "CONNECTIONS (%s):" % ("All users" if all_users else "User: %s" % user_id)
+        for conn_name in list(self.enumerate().keys()):
+            if conn_name.find("|") > -1:
+                if not all_threads:
+                    if str(id_thread) != conn_name.split("|")[0]:
+                        continue
+
+            conns.append(conn_name)
+
+        result = "CONNECTIONS (%s):" % ("All threads" if all_threads else "Thread: %s" % id_thread)
         for conn_name in conns:
             conn_ = ""
             if conn_name.find("|") > -1:
                 conn_ = conn_name.split("|")[1]
-                result += "\n    - User: %s, Connection name: %s:" % (
+                result += "\n    - Thread: %s, Connection name: %s:" % (
                     conn_name.split("|")[0],
                     conn_,
                 )
@@ -356,10 +388,11 @@ class PNConnectionManager(QtCore.QObject):
 
             for key, session in self._thread_sessions.items():
                 session_id = utils_base.session_id(conn_)
+
                 session_result = ""
                 if conn_ in key:
                     valid_session = self.is_valid_session(key, False)
-                    session_result += "* id: %s,  thread_id: %s" % (key, key.split("_")[0])
+                    session_result += "* id: %s,  thread_id: %s" % (key, key.split("|")[0])
                     session_result += ", is_valid: %s" % ("True" if valid_session else "False")
                     if valid_session:
                         session_result += ", in_transaction: %s" % (
@@ -370,10 +403,10 @@ class PNConnectionManager(QtCore.QObject):
                         # print("****", session_id)
                         if key == self.current_atomic_sessions[session_id]:
                             session_result += ", type: Atomic"
-                    if session_id in self.current_conn_sessions.keys():
-                        # print("***", session_id)
-                        if key == self.current_conn_sessions[session_id]:
-                            session_result += ", type: Legacy"
+                    # if session_id in self.current_conn_sessions.keys():
+                    #    # print("***", session_id)
+                    #    if key == self.current_conn_sessions[session_id]:
+                    #        session_result += ", type: Legacy"
                     if session_id in self.current_thread_sessions.keys():
                         # print("*****", session_id)
                         if key == self.current_thread_sessions[session_id]:
@@ -392,12 +425,12 @@ class PNConnectionManager(QtCore.QObject):
 
         id_thread = threading.current_thread().ident
         result: List["orm_session.session.Session"] = []
-        conn_sessions = []
-        for id_session in self.current_conn_sessions.keys():
-            conn_sessions.append(id_session)
+        # conn_sessions = []
+        # for id_session in self.current_conn_sessions.keys():
+        #    conn_sessions.append(id_session)
 
         for key in self._thread_sessions.keys():
-            if str(id_thread) in key and key not in conn_sessions:  # todas menos las _conn_sessions
+            if str(id_thread) in key and key:  # todas menos las _conn_sessions
                 result.append(self._thread_sessions[key])
 
         return result
@@ -411,10 +444,12 @@ class PNConnectionManager(QtCore.QObject):
             raise_error = False
 
         session = None
-        if not isinstance(session_or_id, str):
-            session = session_or_id
-        elif session_or_id and session_or_id in self._thread_sessions:
-            session = self._thread_sessions[session_or_id]
+
+        if session_or_id is not None:
+            if not isinstance(session_or_id, str):
+                session = session_or_id
+            elif session_or_id in self._thread_sessions:
+                session = self._thread_sessions[session_or_id]
 
         if session is not None:
             try:
@@ -437,10 +472,7 @@ class PNConnectionManager(QtCore.QObject):
             if application.AUTO_RELOAD_BAD_CONNECTIONS:
                 need_reload = False
                 if is_valid:
-                    try:
-                        fake_qry = session.execute("SELECT 1")
-                        fake_qry.fetchall()
-                    except Exception:
+                    if not self.test_session(session):
                         need_reload = True
                         is_valid = False
 

@@ -5,7 +5,6 @@ from typing import Callable
 from pineboolib import logging
 from typing import Any, Optional, Dict, TYPE_CHECKING
 import threading
-import copy
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flformdb import FLFormDB  # noqa: F401
@@ -58,10 +57,16 @@ class DelayedObjectProxyLoader(object):
 
         if not list_name[-1].startswith("formRecord"):
             if id_thread in self.loaded_obj.keys():
-                if getattr(self.loaded_obj[id_thread], "_loader", True):
-                    return self.loaded_obj[id_thread]
+                if getattr(
+                    self.loaded_obj[id_thread], "_loader", True  # type: ignore [index] # noqa: F821
+                ):
+                    return self.loaded_obj[
+                        id_thread  # type: ignore [index, return-value] # noqa: F821
+                    ]
 
-        self.loaded_obj[id_thread] = self._obj(*self._args, **self._kwargs)
+        self.loaded_obj[id_thread] = self._obj(  # type: ignore [index] # noqa: F821
+            *self._args, **self._kwargs
+        )
 
         LOGGER.info(
             "DelayedObjectProxyLoader: loading thread :%s, name: %s, object: %s( *%s **%s) ---> %s",
@@ -70,13 +75,16 @@ class DelayedObjectProxyLoader(object):
             self._obj,
             self._args,
             self._kwargs,
-            self.loaded_obj[id_thread],
+            self.loaded_obj[id_thread],  # type: ignore [index] # noqa: F821
         )
 
-        if self.loaded_obj[id_thread] is None:
-            del self.loaded_obj[id_thread]
+        return_object = self.loaded_obj[id_thread]  # type: ignore [index] # noqa: F821
+
+        if return_object is None:
+            del self.loaded_obj[id_thread]  # type: ignore [arg-type] # noqa: F821
             raise Exception("Failed to load object")
-        return self.loaded_obj[id_thread]
+        else:
+            return return_object
 
     def class_(self):
         """Return class."""

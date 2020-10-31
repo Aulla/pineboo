@@ -625,11 +625,9 @@ class Project(object):
 
     def load_database_modules(self) -> bool:
         """Load database modules."""
-        from .staticloader import pnmodulesstaticloader
 
         conn = self.conn_manager.dbAux()
         db_name = conn.DBName()
-        mng_modules = self.conn_manager.managerModules()
 
         result = conn.execute_query("""SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
         for idarea, descripcion in list(result):

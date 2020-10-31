@@ -548,7 +548,9 @@ def print_stack(maxsize: int = 1) -> None:
 
 def session_id(conn_name: str = "default", with_time: bool = False) -> str:
     """Return session id."""
+
+    result = "%s|%s" % (threading.current_thread().ident, conn_name)
     if with_time:
-        return "%s_%s_%s" % (threading.current_thread().ident, conn_name, time.time())
-    else:
-        return "%s_%s" % (threading.current_thread().ident, conn_name)
+        result += "|%s" % time.time()
+
+    return result

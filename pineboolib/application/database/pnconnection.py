@@ -154,24 +154,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         self.update_activity_time()
         return self._driver
 
-    def _get_session_id(self) -> str:
-        """Return correct session."""
-
-        session_key = utils_base.session_id(self._name)
-        use_key = ""
-        if session_key in self._conn_manager.current_atomic_sessions.keys():
-            atomic_key = self._conn_manager.current_atomic_sessions[session_key]
-            if atomic_key in self._conn_manager._thread_sessions.keys():
-                use_key = atomic_key
-
-        if not use_key:
-            if session_key in self._conn_manager.current_conn_sessions.keys():
-                conn_session = self._conn_manager.current_conn_sessions[session_key]
-                if conn_session in self._conn_manager._thread_sessions.keys():
-                    use_key = conn_session
-
-        return use_key
-
     def session(self, raise_error: bool = True) -> "orm.Session":
         """
         Sqlalchemy session.
@@ -181,19 +163,14 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if self._name == "main_conn":
             raise Exception("main_conn no es valido para session")
 
-        session_id = self._get_session_id()
+        session_id = self.connManager()._get_session_id(self._name)
         returned_session = None
 
         if not self.connManager().is_valid_session(session_id, raise_error):
             self.driver().delete_session(session_id)
-            new_session = self.driver().session()
-            if not self.connManager().is_valid_session(new_session[1]):
+            returned_session = self.driver().session()
+            if not self.connManager().is_valid_session(returned_session):
                 LOGGER.error("the new session is invalid!!")
-
-            returned_session = new_session[1]
-            self._conn_manager.current_conn_sessions[
-                utils_base.session_id(self._name)
-            ] = new_session[0]
         else:
             returned_session = self._conn_manager._thread_sessions[session_id]
 

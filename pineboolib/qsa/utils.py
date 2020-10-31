@@ -9,7 +9,7 @@ import threading
 
 from PyQt5 import QtCore
 from pineboolib.application import types
-from pineboolib.core.utils.utils_base import ustr
+from pineboolib.core.utils import utils_base
 from pineboolib.core.utils import logging
 from pineboolib import application
 
@@ -417,7 +417,7 @@ def debug(txt: Union[bool, str, int, float]) -> None:
     """
     from pineboolib import application
 
-    application.PROJECT.message_manager().send("debug", None, [ustr(txt)])
+    application.PROJECT.message_manager().send("debug", None, [utils_base.ustr(txt)])
 
 
 def format_exc(exc: Optional[int] = None) -> str:
@@ -569,16 +569,17 @@ def driver_session(conn_name: str = "default") -> Tuple[str, "orm_session.Sessio
 def _session_key(conn_name: str) -> str:
     """Return session_key."""
 
-    return "%s_%s".lower() % (thread(), conn_name)
+    return utils_base.session_id(conn_name)
 
 
 def session(conn_name: str = "default", legacy: bool = False) -> "orm_session.Session":
     """Return session connection."""
-    if legacy:
-        session = application.PROJECT.conn_manager.useConn(conn_name).session()
-    else:
-        session = driver_session(conn_name)[1]
-    return session
+
+    return (
+        application.PROJECT.conn_manager.useConn(conn_name).session()
+        if legacy
+        else driver_session(conn_name)
+    )
 
 
 def thread_session_new(conn_name: str = "default") -> "orm_session.Session":
@@ -613,13 +614,14 @@ def thread_session_current(conn_name: str = "default") -> Optional["orm_session.
     """Return session current."""
 
     thread_key = _session_key(conn_name)
+    conn_manager = application.PROJECT.conn_manager
+    result = None
+    if thread_key in conn_manager.current_thread_sessions.keys():
+        session_key = conn_manager.current_thread_sessions[thread_key]
+        if session_key in conn_manager._thread_sessions.keys():
+            result = conn_manager._thread_sessions[session_key]
 
-    if thread_key in application.PROJECT.conn_manager.current_thread_sessions.keys():
-        session_key = application.PROJECT.conn_manager.current_thread_sessions[thread_key]
-        if session_key in application.PROJECT.conn_manager._thread_sessions.keys():
-            return application.PROJECT.conn_manager._thread_sessions[session_key]
-
-    return None
+    return result
 
 
 def is_valid_session(session: "orm_session.Session", raise_error: bool = False) -> bool:
@@ -652,12 +654,13 @@ def session_atomic(conn_name: str = "default") -> Optional["orm_session.Session"
     """Return atomic_session."""
 
     atomic_key = _session_key(conn_name)
+    result = None
     if atomic_key in application.PROJECT.conn_manager.current_atomic_sessions.keys():
         session_key = application.PROJECT.conn_manager.current_atomic_sessions[atomic_key]
         if session_key in application.PROJECT.conn_manager._thread_sessions.keys():
-            return application.PROJECT.conn_manager._thread_sessions[session_key]
+            result = application.PROJECT.conn_manager._thread_sessions[session_key]
 
-    return None
+    return result
 
 
 def ws_channel_send(msg: Any = "", group_name: str = "") -> None:
@@ -709,7 +712,7 @@ def typeof_(obj: Any) -> str:
     return result
 
 
-def _super(class_name: str, obj):
+def _super(class_name: str, obj: Callable) -> "super":
     """Super class."""
 
     for classes in obj.__class__.__mro__:

@@ -72,8 +72,8 @@ class XMLAction(struct.ActionStruct):
         # )
         id_thread = threading.current_thread().ident
         if cursor is not self._cursor:
-            del self.__cursor[id_thread]
-            self.__cursor[id_thread] = cursor
+            del self.__cursor[id_thread]  # type: ignore [index, arg-type] # noqa: F821
+            self.__cursor[id_thread] = cursor  # type: ignore [assignment, index] # noqa: F821
 
     def cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
         """Return xmlAction cursor."""
@@ -297,70 +297,77 @@ class XMLAction(struct.ActionStruct):
         LOGGER.error("Executing unknown script for Action %s", self._name)
 
     def get_master_widget(self) -> "formdbwidget.FormDBWidget":
+        """Return master widget."""
 
         self.thread_cleaner()
 
         id_thread = threading.current_thread().ident
         if id_thread not in self.__master_widget.keys():
-            self.__master_widget[id_thread] = None
+            self.__master_widget[id_thread] = None  # type: ignore [assignment, index] # noqa: F821
 
-        return self.__master_widget[id_thread]
+        return self.__master_widget[id_thread]  # type: ignore [index] # noqa: F821
 
-    def set_master_widget(self, widget: "formdbwidget.FormDBWidget") -> None:
+    def set_master_widget(self, widget: Optional["formdbwidget.FormDBWidget"] = None) -> None:
+        """Set master widget."""
 
         id_thread = threading.current_thread().ident
-        self.__master_widget[id_thread] = widget
+        self.__master_widget[id_thread] = widget  # type: ignore [assignment, index] # noqa: F821
 
     def get_record_widget(self) -> "formdbwidget.FormDBWidget":
+        """Return record widget."""
 
         self.thread_cleaner()
 
         id_thread = threading.current_thread().ident
         if id_thread not in self.__record_widget.keys():
-            self.__record_widget[id_thread] = None
+            self.__record_widget[id_thread] = None  # type: ignore [assignment, index] # noqa: F821
 
-        return self.__record_widget[id_thread]
+        return self.__record_widget[id_thread]  # type: ignore [index] # noqa: F821
 
-    def set_record_widget(self, widget: "formdbwidget.FormDBWidget") -> None:
+    def set_record_widget(self, widget: Optional["formdbwidget.FormDBWidget"] = None) -> None:
+        """Set record widget."""
 
         id_thread = threading.current_thread().ident
-        self.__record_widget[id_thread] = widget
+        self.__record_widget[id_thread] = widget  # type: ignore [assignment, index] # noqa: F821
 
-    def get_action_cursor(self) -> "isqlcursor.ISqlCursor":
+    def get_action_cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
+        """Return action cursor."""
 
         self.thread_cleaner()
 
         id_thread = threading.current_thread().ident
         if id_thread not in self.__cursor.keys():
-            self.__cursor[id_thread] = None
+            return None
 
-        return self.__cursor[id_thread]
+        return self.__cursor[id_thread]  # type: ignore [index] # noqa: F821
 
     def set_action_cursor(self, cursor: "isqlcursor.ISqlCursor") -> None:
+        """Set action cursor."""
 
         id_thread = threading.current_thread().ident
-        self.__cursor[id_thread] = cursor
+        self.__cursor[id_thread] = cursor  # type: ignore [index] # noqa: F821
 
     def thread_cleaner(self) -> None:
+        """Clean unused threads."""
 
         # limpieza
-        threads_ids: List[int] = [thread.ident for thread in threading.enumerate()]
+        threads_ids: List[Optional[int]] = [thread.ident for thread in threading.enumerate()]
 
         for id_thread in list(self.__master_widget.keys()):
             if id_thread not in threads_ids:
-                self.__master_widget[id_thread] = None
+                # self.__master_widget[id_thread] = None
                 del self.__master_widget[id_thread]
 
         for id_thread in list(self.__record_widget.keys()):
             if id_thread not in threads_ids:
-                self.__record_widget[id_thread] = None
+                # self.__record_widget[id_thread] = None
                 del self.__record_widget[id_thread]
 
         for id_thread in list(self.__cursor.keys()):
             if id_thread not in threads_ids:
-                self.__cursor[id_thread] = None
+                # self.__cursor[id_thread] = None
                 del self.__cursor[id_thread]
 
-    _master_widget: "formdbwidget.FormDBWidget" = property(get_master_widget, set_master_widget)
-    _record_widget: "formdbwidget.FormDBWidget" = property(get_record_widget, set_record_widget)
-    _cursor: "isqlcursor.ISqlCursor" = property(get_action_cursor, set_action_cursor)
+    _master_widget = property(get_master_widget, set_master_widget)
+    _record_widget = property(get_record_widget, set_record_widget)
+    _cursor = property(get_action_cursor, set_action_cursor)

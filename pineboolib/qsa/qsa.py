@@ -115,4 +115,3 @@ print_ = print
 undefined = None
 LogText = 0
 RichText = 1
-

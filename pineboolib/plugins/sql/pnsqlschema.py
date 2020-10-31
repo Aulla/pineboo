@@ -11,7 +11,7 @@ from pineboolib.application.database import pnsqlquery
 from pineboolib.application import qsadictmodules
 
 
-from typing import Iterable, Optional, Union, List, Any, Dict, cast, Tuple, TYPE_CHECKING
+from typing import Iterable, Optional, Union, List, Any, Dict, cast, TYPE_CHECKING
 from pineboolib.core import decorators
 
 from pineboolib.fllegacy import flutil
@@ -305,7 +305,7 @@ class PNSqlSchema(object):
         """Return sqlAlchemy ORM engine."""
         return self._engine
 
-    def session(self) -> Tuple[str, "orm_session.Session"]:
+    def session(self) -> "orm_session.Session":
         """Create a sqlAlchemy session."""
 
         session_class = sessionmaker(
@@ -315,9 +315,13 @@ class PNSqlSchema(object):
         )
         new_session = session_class()
         setattr(new_session, "_conn_name", self.db_._name)
-        session_key = utils_base.session_id(self.db_._name, True)
-        self.db_._conn_manager._thread_sessions[session_key] = new_session
-        return (session_key, new_session)
+        session_key = utils_base.session_id(self.db_._name)
+        if session_key in self.db_._conn_manager._thread_sessions.keys():
+            raise Exception("Session key already exists!")
+
+        else:
+            self.db_._conn_manager._thread_sessions[session_key] = new_session
+        return new_session
 
     def delete_session(self, session_id: str) -> None:
         """Delete a session."""
@@ -326,9 +330,10 @@ class PNSqlSchema(object):
             session = self.db_._conn_manager._thread_sessions[session_id]
             try:
                 session.close()
-                del self.db_._conn_manager._thread_sessions[session_id]
             except Exception:
-                del self.db_._conn_manager._thread_sessions[session_id]
+                pass
+
+            del self.db_._conn_manager._thread_sessions[session_id]
 
     def connection(self) -> "base.Connection":
         """Return a cursor connection."""
@@ -480,7 +485,7 @@ class PNSqlSchema(object):
                 self.execute_query(str_qry)
             except Exception as error:
                 LOGGER.error("nextSerialVal: %s", str(error))
-                self.session()[1].rollback()
+                self.session().rollback()
 
         return res_
 

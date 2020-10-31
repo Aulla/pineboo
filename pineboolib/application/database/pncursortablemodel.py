@@ -8,7 +8,7 @@ from PyQt5 import QtCore, QtGui, Qt, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 import sqlalchemy
-from sqlalchemy import exc
+from sqlalchemy import exc, orm
 from pineboolib.application.utils import date_conversion, xpm
 from .orm import utils as orm_utils
 from . import pnsqlquery
@@ -1071,6 +1071,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         return self.db.session()
 
+    @property
     def conn_manager(self) -> "pnconnectionmanager.PNConnectionManager":
         """Return connection manager."""
 
