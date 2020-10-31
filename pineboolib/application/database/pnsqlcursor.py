@@ -804,7 +804,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
     def size(self) -> int:
         """Get number of records in the cursor."""
-        model = self.model()
+        model = self.model
         return model.rowCount() if model else 0
 
     def openFormInMode(self, mode_: int, wait: bool = True, cont: bool = True) -> None:
@@ -1345,7 +1345,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """Return parent widget."""
 
         ret = None
-        model = self.model()
+        model = self.model
         if model is not None:
             ret = model.parent_view
 
@@ -1525,7 +1525,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if field_name in self.metadata().fieldNames():
             while ini <= fin:
                 mid = int((ini + fin) / 2)
-                mid_value = str(self.model().value(mid, field_name))
+                mid_value = str(self.model.value(mid, field_name))
                 if value == mid_value:
                     ret = mid
                     break
@@ -1653,6 +1653,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         return True
 
+    @property
     def model(self) -> "pncursortablemodel.PNCursorTableModel":
         """
         Return the tablemodel used by the cursor.
@@ -1715,7 +1716,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             raise Exception("Buffer not set")
 
         # pk_value = self.buffer().value(self.primaryKey())
-        grid_row = self.model().find_pk_row(value)
+        grid_row = self.model.find_pk_row(value)
 
         if grid_row > -1:
             if self.at() != grid_row:
@@ -1805,7 +1806,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         else:
             emite = False
             pk_value = self.valueBuffer(self.primaryKey())
-            self.model().refresh()  # Hay que hacer refresh previo pq si no no recoge valores de un commitBuffer paralelo
+            self.model.refresh()  # Hay que hacer refresh previo pq si no no recoge valores de un commitBuffer paralelo
             # self.select()
             if pk_value:
                 if self.selection_pk(pk_value):
@@ -2510,7 +2511,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if self.private_cursor.needUpdate():
             pk_value = self.valueBuffer(self.primaryKey())
             self.refresh()
-            pos = self.model().find_pk_row(pk_value)
+            pos = self.model.find_pk_row(pk_value)
             if pos != self.at():
                 self.seek(pos, False, True)
 
@@ -2722,7 +2723,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 )
                 return False
 
-            if not self.model().insert_current_buffer():
+            if not self.model.insert_current_buffer():
                 LOGGER.warning(
                     "CommitBuffer cancelado. model().insert_current_buffer() devolvió False."
                 )
@@ -2832,7 +2833,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                                     LOGGER.warning("CommitBuffer cancelado. delC devolvió False.")
                                     return False
 
-            if not self.model().delete_current_buffer():
+            if not self.model.delete_current_buffer():
                 LOGGER.warning(
                     "CommitBuffer cancelado. model().insert_current_buffer() devolvió False."
                 )
@@ -2888,14 +2889,14 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                     return False
 
                 if self.metadata().isQuery():
-                    self.model().refresh()
-                elif not self.model().updateCacheData(updated):
+                    self.model.refresh()
+                elif not self.model.updateCacheData(updated):
                     if self.size():
                         LOGGER.warning("update_cache_failed. Using classic method")
 
-                    self.model().refresh()
+                    self.model.refresh()
 
-                pk_row = self.model().find_pk_row(pk_value)
+                pk_row = self.model.find_pk_row(pk_value)
 
                 if pk_row > -1:
                     self.move(pk_row)
@@ -3322,7 +3323,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             #    fieldName: self.private_cursor.buffer_.value(fieldName) for fieldName in lista
             # }
             # try:
-            #    update_successful = self.model().data_update(
+            #    update_successful = self.model.data_update(
             #        primary_key_value, dict_update
             #    )
             # except Exception:
@@ -3359,7 +3360,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             #        self.private_cursor._model.value(row, self.private_cursor._model.pK())
             #        == primary_key_value
             #    ):
-            #    obj_ = self.model()._data_proxy.get(primay_key_value)
+            #    obj_ = self.model._data_proxy.get(primay_key_value)
             #    for field_name in lista:
             #        setattr(obj_, field_name, self.private_cursor.buffer_.value(field_name))
 

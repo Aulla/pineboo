@@ -13,6 +13,7 @@ from pineboolib.application.utils import date_conversion, xpm
 from .orm import utils as orm_utils
 from . import pnsqlquery
 
+
 import itertools
 import locale
 import os
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401
     from pineboolib.interfaces import iconnection, isqlcursor
     from pineboolib.fllegacy import fldatatable
+    from . import pnconnectionmanager
     from pineboolib.plugins.sql import pnsqlschema
     from . import pnbuffer
 
@@ -100,7 +102,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         metadata = self._parent.private_cursor.metadata_
 
-        # self.rows = 0
         self.cols = 0
         self._metadata = None
 
@@ -109,20 +110,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self._metadata = metadata
 
-        self._driver_sql = self.db().driver()
-        # self._use_timer = self.driver_sql().useTimer()
-
-        # if not self._use_timer:
-        #    self._use_timer = True
-        #    LOGGER.warning("SQL Driver supports neither Timer, defaulting to Timer")
-        # self._use_timer = True
+        self._driver_sql = self._parent.db().driver()
 
         self.sql_fields = []
         self.sql_fields_omited = []
         self.sql_fields_without_check = []
-        # self.field_aliases = []
-        # self.field_type = []
-        # self.field_metaData = []
         self.col_aliases: List[str] = []
         self._current_row_data = None
         self._current_row_index = -1
@@ -176,7 +168,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # self.refresh()
 
         if self.metadata().isQuery():
-            query = self.db().connManager().manager().query(self.metadata().query())
+            query = self.conn_manager.manager().query(self.metadata().query())
             if query is None:
                 raise Exception("query is empty!")
             self._tablename = query.from_()
@@ -438,7 +430,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                         )
                 else:
                     if not self._parent.private_cursor._is_system_table:
-                        data = self.db().connManager().manager().fetchLargeValue(result)
+                        data = self.conn_manager.manager().fetchLargeValue(result)
                     else:
                         data = xpm.cache_xpm(result)
 
@@ -539,7 +531,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         qry = None
 
         if is_query:
-            qry = self.db().connManager().manager().query(qry_file)
+            qry = self.conn_manager.manager().query(qry_file)
             if qry is None:
                 LOGGER.error(
                     "Could not load the file %s.qry for an unknown reason. This table is a view",
@@ -555,7 +547,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             }
 
             for table in qry.tablesList():
-                mtd = self.db().connManager().manager().metadata(table, True)
+                mtd = self.conn_manager.manager().metadata(table, True)
                 if mtd:
                     qry_tables.append((table, mtd))
 
@@ -601,17 +593,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
     def insert_current_buffer(self) -> bool:
         """Insert data from current buffer."""
         try:
-            obj_ = self.buffer().current_object()
-            current_session = self.db().session()
-            # LOGGER.info(
-            #    "Insertado objeto: %s en session: %s, transaccion: %s",
-            #    obj_,
-            #    current_session,
-            #    current_session.transaction,
-            # )
-
-            current_session.add(obj_)
-            current_session.flush()
+            obj_ = self.buffer.current_object()
+            self.session.add(obj_)
+            self.session.flush()
             return True
         except Exception as error:
             LOGGER.warning("insert_current_buffer : %s" % error, stack_info=True)
@@ -625,10 +609,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """Delete data from current buffer."""
 
         try:
-            obj_ = self.buffer().current_object()
-            current_session = self.db().session()
-            current_session.delete(obj_)
-            current_session.flush()
+            obj_ = self.buffer.current_object()
+            self.session.delete(obj_)
+            self.session.flush()
             return True
         except Exception as error:
             LOGGER.warning("delete_current_buffer : %s" % error, stack_info=True)
@@ -639,8 +622,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         """
         Refresh information mananged by this class.
         """
-        # LOGGER.warning("REFRESCANDO!", stack_info=True)
-        # print("REFESCANDO", self._tablename, self, self.db().session())
+
         if utils_base.is_library():
             self._initialized = False
 
@@ -667,7 +649,6 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._last_grid_row = -1
         self._last_grid_obj = None
         self._parent.clear_buffer()
-        # session_ = self.db().session()
 
         where_filter = self.buildWhere()
 
@@ -725,12 +706,12 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         # print("COUNT", sql_count)
 
         # print("QUERY", sql_query)
-        result_count = self.db().session().execute(sql_count)
+        result_count = self.session.execute(sql_count)
 
         rows_loaded = result_count.fetchone()[0]
 
         if rows_loaded:
-            result_query = self.db().session().execute(sql_query)
+            result_query = self.session.execute(sql_query)
             self._data_proxy = ProxyIndex(result_query, rows_loaded)
             # self._qry_rows_loaded = len(self._data_proxy)
             # self._data_proxy = [data[0] for data in data_fetched]
@@ -793,10 +774,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             order_by = sql_query[sql_query.find("ORDER BY") :]
 
         extra_where = " %s" % (
-            self.db()
-            .connManager()
-            .manager()
-            .formatAssignValue(self.metadata().field(pk_name), pk_value)
+            self.conn_manager.manager().formatAssignValue(self.metadata().field(pk_name), pk_value)
         )
         if extra_where not in sql_query:
             if sql_query.find("WHERE") > -1:
@@ -805,7 +783,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                 sql_query += " WHERE"
             sql_query += extra_where
 
-        result = self.db().session().execute(sql_query)
+        result = self.session.execute(sql_query)
         new_data = result.fetchone()
 
         if new_data is None and mode in [1, 2]:  # mode 3 allways returns None
@@ -916,7 +894,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
             # print("get_obj_from_row", row, self._data_proxy[row])
             pk_value = self._data_proxy[row]
             # print("get_obj_from_row", row, pk_value)
-            session_ = self.db().session()
+            session_ = self.session
 
             query = orm_utils.DynamicFilter(
                 query=session_.query(self._parent._cursor_model),
@@ -1069,20 +1047,34 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         return self._metadata
 
+    @property
     def db(self) -> "iconnection.IConnection":
         """Get current connection."""
 
         return self._parent.db()
 
+    @property
     def buffer(self) -> "pnbuffer.PNBuffer":
         """Get buffer."""
 
         return self._parent.buffer()
 
+    @property
     def driver_sql(self) -> "pnsqlschema.PNSqlSchema":
         """Return driver sql."""
 
-        return self._parent.db().driver()
+        return self.db.driver()
+
+    @property
+    def session(self) -> "orm.Session":
+        """Return pnsqlcursor session."""
+
+        return self.db.session()
+
+    def conn_manager(self) -> "pnconnectionmanager.PNConnectionManager":
+        """Return connection manager."""
+
+        return self.db.connManager()
 
     def set_parent_view(self, parent_view: "fldatatable.FLDataTable") -> None:
         """Set the parent view."""
