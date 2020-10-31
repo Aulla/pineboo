@@ -716,14 +716,6 @@ class Project(object):
                     ):  # si es forzado o no existe el .py
                         list_files.append(file_name)
 
-            elif nombre == "%s.qs" % idmodulo:  # si no se parsea todo y es de modulo
-                if self.no_python_cache or not os.path.exists("%spy" % file_name[:-2]):
-                    if mng_modules.static_db_info_ and mng_modules.static_db_info_.enabled_:
-                        if not pnmodulesstaticloader.PNStaticLoader.content(
-                            nombre, mng_modules.static_db_info_, True
-                        ):
-                            list_files.append(file_name)
-
         log_file.close()
         LOGGER.info("RUN: End populating cache.")
 
