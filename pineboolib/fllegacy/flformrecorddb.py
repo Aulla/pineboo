@@ -813,7 +813,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         if cur:
             if not cur.isValid():
-                cur.model().refresh()
+                cur.model.refresh()
 
             if cur.modeAccess() in (cur.Insert, cur.Edit, cur.Browse):
                 cur.transaction()

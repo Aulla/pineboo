@@ -300,7 +300,7 @@ class TestFLTableDB(unittest.TestCase):
         cursor4 = fltable.cursor()
         self.assertEqual(cursor4.size(), 1)
 
-        # _label = fltable.cursor().model().headerData(0, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole)
+        # _label = fltable.cursor().model.headerData(0, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole)
         fltable.activeTabFilter()
         fltable.tdbFilterClear()
         widget_cb_5 = fltable._tdb_filter.cellWidget(0, 1)

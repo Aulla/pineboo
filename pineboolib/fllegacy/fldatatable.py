@@ -209,7 +209,7 @@ class FLDataTable(QtWidgets.QTableView):
 
                 cast(QtCore.pyqtSignal, self.cursor_.commited).connect(self.refresh)
 
-                self.setModel(self.cursor_.model())
+                self.setModel(self.cursor_.model)
                 self.setSelectionModel(self.cursor_.selection())
                 # self.model().sort(self.header().logicalIndex(0), 0)
                 self.installEventFilter(self)
@@ -332,7 +332,7 @@ class FLDataTable(QtWidgets.QTableView):
         Clear the list with the primary keys of the records selected by check.
         """
         self.pk_checked.clear()
-        model = self.cur.model()
+        model = self.cur.model
         for idx in model._check_column.keys():
             model._checkColumn[idx].setChecked(False)
 
@@ -341,7 +341,7 @@ class FLDataTable(QtWidgets.QTableView):
         Set the status selected by check for a record, indicating the value of its primary key.
         """
 
-        model = self.cur.model()
+        model = self.cur.model
         if on_:
             if pk_value not in self.pk_checked:
                 self.pk_checked.append(pk_value)
@@ -614,7 +614,7 @@ class FLDataTable(QtWidgets.QTableView):
         _type = field.type()
         if _type != "check":
             return
-        model = self.cur.model()
+        model = self.cur.model
         primary_key = model.value(row, self.cur.metadata().primaryKey())
         model._check_column[primary_key].setChecked(
             not model._check_column[primary_key].isChecked()
@@ -685,9 +685,9 @@ class FLDataTable(QtWidgets.QTableView):
         # if not self.refreshing_ and self.cursor_ and not self.cursor_.aqWasDeleted() and self.cursor_.metadata():
         if not self.refreshing_:
 
-            # if self.function_get_color and self.cursor_.model():
-            #    if self.cursor_.model().color_function_ != self.function_get_color:
-            #        self.cursor_.model().setColorFunction(self.function_get_color)
+            # if self.function_get_color and self.cursor_.model:
+            #    if self.cursor_.model.color_function_ != self.function_get_color:
+            #        self.cursor_.model.setColorFunction(self.function_get_color)
 
             self.refreshing_ = True
             self.hide()
@@ -734,7 +734,7 @@ class FLDataTable(QtWidgets.QTableView):
     #        else:
     #            return
 
-    # index = self.cursor_.model().index(position, 0)
+    # index = self.cursor_.model.index(position, 0)
     # if index is not None:
     #    self.scrollTo(index)
 
@@ -821,7 +821,7 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_:
             return -1
 
-        return self.cursor_.model().rowCount()
+        return self.cursor_.model.rowCount()
 
     def column_name_to_column_index(self, name: str) -> int:
         """
@@ -834,7 +834,7 @@ class FLDataTable(QtWidgets.QTableView):
         if not self.cursor_:
             return -1
 
-        return self.cursor_.model().metadata().fieldIsIndex(name)
+        return self.cursor_.model.metadata().fieldIsIndex(name)
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         """Double click event."""

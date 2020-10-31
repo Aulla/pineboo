@@ -66,7 +66,7 @@ class TestFLReloadLast(unittest.TestCase):
         self.assertTrue(cursor_relation)
         self.assertEqual(cursor, cursor_relation)
         utils_base.FORCE_DESKTOP = False
-        form_cursor.model().refresh()
+        form_cursor.model.refresh()
         utils_base.FORCE_DESKTOP = True
         self.assertTrue(form_cursor.size())
         self.assertTrue(form.exportarADisco)
