@@ -70,7 +70,7 @@ class TestSysBaseClassGeneral(unittest.TestCase):
         # self.assertTrue(form)
         # form.load()
         if form is None:
-            self.assertTrue(form)
+            self.assertTrue(form)  # type: ignore [unreachable] # noqa F821
             return
 
         fltable: Any = form.findChild(fltabledb.FLTableDB, "tableDBRecords")
