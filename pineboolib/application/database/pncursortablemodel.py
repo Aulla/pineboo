@@ -886,13 +886,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                             self._data_proxy._last_current_size += 1
                             self._data_proxy._total_rows += 1
                         else:
-                            LOGGER.warning(
-                                "Problema al insertar datos en la posición %s de %s. query: %s, value: %s",
-                                current_pos,
-                                self._data_proxy._last_current_size,
-                                sql_query,
-                                new_data[0],
-                            )
+                            self._data_proxy._cached_data.append(new_data[0])
 
                         break
             return True
