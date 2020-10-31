@@ -50,6 +50,12 @@ class DelayedObjectProxyLoader(object):
         list_name = self._name.split(".")
         id_thread = threading.current_thread().ident
 
+        # limpieza de objetos
+        for key in self.loaded_obj.keys():
+            if key not in list([thread.ident for thread in threading.enumerate()]):
+                self.loaded_obj[key] = None
+                del self.loaded_obj[key]
+
         if not list_name[-1].startswith("formRecord"):
             if id_thread in self.loaded_obj.keys():
                 if getattr(self.loaded_obj[id_thread], "_loader", True):

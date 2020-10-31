@@ -9,7 +9,7 @@ import threading
 from . import load_script
 
 
-from typing import Optional, Union, Dict, TYPE_CHECKING
+from typing import Optional, Union, Dict, List, TYPE_CHECKING
 
 from pineboolib import application
 from pineboolib.application.database import pnsqlcursor
@@ -70,9 +70,10 @@ class XMLAction(struct.ActionStruct):
         # LOGGER.warning(
         #    "Seteando cursor para %s %s", self._name, self._master_widget, stack_info=True
         # )
+        id_thread = threading.current_thread().ident
         if cursor is not self._cursor:
-            del self._cursor
-            self._cursor = cursor
+            del self.__cursor[id_thread]
+            self.__cursor[id_thread] = cursor
 
     def cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
         """Return xmlAction cursor."""
@@ -297,6 +298,8 @@ class XMLAction(struct.ActionStruct):
 
     def get_master_widget(self) -> "formdbwidget.FormDBWidget":
 
+        self.thread_cleaner()
+
         id_thread = threading.current_thread().ident
         if id_thread not in self.__master_widget.keys():
             self.__master_widget[id_thread] = None
@@ -309,6 +312,8 @@ class XMLAction(struct.ActionStruct):
         self.__master_widget[id_thread] = widget
 
     def get_record_widget(self) -> "formdbwidget.FormDBWidget":
+
+        self.thread_cleaner()
 
         id_thread = threading.current_thread().ident
         if id_thread not in self.__record_widget.keys():
@@ -323,6 +328,8 @@ class XMLAction(struct.ActionStruct):
 
     def get_action_cursor(self) -> "isqlcursor.ISqlCursor":
 
+        self.thread_cleaner()
+
         id_thread = threading.current_thread().ident
         if id_thread not in self.__cursor.keys():
             self.__cursor[id_thread] = None
@@ -333,6 +340,26 @@ class XMLAction(struct.ActionStruct):
 
         id_thread = threading.current_thread().ident
         self.__cursor[id_thread] = cursor
+
+    def thread_cleaner(self) -> None:
+
+        # limpieza
+        threads_ids: List[int] = [thread.ident for thread in threading.enumerate()]
+
+        for id_thread in list(self.__master_widget.keys()):
+            if id_thread not in threads_ids:
+                self.__master_widget[id_thread] = None
+                del self.__master_widget[id_thread]
+
+        for id_thread in list(self.__record_widget.keys()):
+            if id_thread not in threads_ids:
+                self.__record_widget[id_thread] = None
+                del self.__record_widget[id_thread]
+
+        for id_thread in list(self.__cursor.keys()):
+            if id_thread not in threads_ids:
+                self.__cursor[id_thread] = None
+                del self.__cursor[id_thread]
 
     _master_widget: "formdbwidget.FormDBWidget" = property(get_master_widget, set_master_widget)
     _record_widget: "formdbwidget.FormDBWidget" = property(get_record_widget, set_record_widget)
