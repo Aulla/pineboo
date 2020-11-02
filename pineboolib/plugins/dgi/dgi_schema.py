@@ -160,4 +160,4 @@ class DgiSchema(object):
 
     def debug(self, txt: str):
         """Show debug message."""
-        LOGGER.warning("---> %s" % txt)
+        LOGGER.info("---> %s" % txt)

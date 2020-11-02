@@ -1,6 +1,6 @@
 """Basemodel module."""
 
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import logging, utils_base
 from pineboolib.application.metadata import pnrelationmetadata
 from pineboolib.application import qsadictmodules
 from pineboolib import application
@@ -11,7 +11,6 @@ from typing import Optional, List, Dict, Union, Callable, Any, TYPE_CHECKING
 
 from sqlalchemy import orm, inspect
 import datetime
-import threading
 import sys
 import time
 import types
@@ -75,23 +74,21 @@ class BaseModel(object):
         if "session" in kwargs:
             target._session = kwargs["session"]
         else:
-            id_thread = threading.current_thread().ident
+            conn_manager = application.PROJECT.conn_manager
             if "conn_name" in kwargs.keys():
                 conn_name = kwargs["conn_name"]
-            key = "%s_%s" % (id_thread, conn_name)
+            # key = "%s_%s" % (id_thread, conn_name)
+            key = utils_base.session_id(conn_name)
             session_key = None
-            if key in application.PROJECT.conn_manager.current_atomic_sessions.keys():
-                session_key = application.PROJECT.conn_manager.current_atomic_sessions[key]
-            elif key in application.PROJECT.conn_manager.current_thread_sessions.keys():
-                session_key = application.PROJECT.conn_manager.current_thread_sessions[key]
-            if (
-                session_key is not None
-                and session_key in application.PROJECT.conn_manager._thread_sessions.keys()
-            ):
-                target._session = application.PROJECT.conn_manager._thread_sessions[session_key]
+            if key in conn_manager.current_atomic_sessions.keys():
+                session_key = conn_manager.current_atomic_sessions[key]
+            elif key in conn_manager.current_thread_sessions.keys():
+                session_key = conn_manager.current_thread_sessions[key]
+            if session_key and session_key in conn_manager._thread_sessions.keys():
+                target._session = conn_manager._thread_sessions[session_key]
 
-        if target.session is None:
-            sessions = application.PROJECT.conn_manager.get_current_thread_sessions()
+        if target._session is None:
+            sessions = conn_manager.get_current_thread_sessions()
             session_list = []
             for item in sessions:
                 session_list.append(
@@ -478,8 +475,7 @@ class BaseModel(object):
         mng_ = application.PROJECT.conn_manager
         if session_or_name is not None:
             if isinstance(session_or_name, str):
-                id_thread = threading.current_thread().ident
-                key = "%s_%s" % (id_thread, session_or_name)
+                key = utils_base.session_id(session_or_name)
                 session_key = None
                 if key in mng_.current_atomic_sessions.keys():
                     session_key = mng_.current_atomic_sessions[key]

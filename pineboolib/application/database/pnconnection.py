@@ -162,17 +162,18 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """
         if self._name == "main_conn":
             raise Exception("main_conn no es valido para session")
-
-        session_id = self.connManager()._get_session_id(self._name)
+        mng = self.connManager()
+        session_id = mng._get_session_id(self._name)
+        session_key = utils_base.session_id(self._name)
         returned_session = None
-
-        if not self.connManager().is_valid_session(session_id, raise_error):
-            self.driver().delete_session(session_id)
-            returned_session = self.driver().session()
-            if not self.connManager().is_valid_session(returned_session):
+        if not mng.is_valid_session(session_id, raise_error):
+            mng.delete_session(session_id)
+            session_id, returned_session = self.driver().session()
+            if not mng.is_valid_session(returned_session):
                 LOGGER.error("the new session is invalid!!")
+            mng.current_thread_sessions[session_key] = session_id
         else:
-            returned_session = self._conn_manager._thread_sessions[session_id]
+            returned_session = mng._thread_sessions[session_id]
 
         if not returned_session:
             raise ValueError("Invalid session!")
@@ -633,23 +634,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def close(self):
         """Close connection."""
-
-        for key, value in list(self.connManager()._thread_sessions.items()):
-            if self._name == key.split("_")[1]:
-                if key in self.connManager().current_conn_sessions.values():
-                    for key_conn in self.connManager().current_conn_sessions.keys():
-                        if self.connManager().current_conn_sessions[key_conn] == key:
-                            del self.connManager().current_conn_sessions[key_conn]
-                            break
-
-                if key in self.connManager().current_thread_sessions.values():
-                    for key_conn in self.connManager().current_thread_sessions.keys():
-                        if self.connManager().current_thread_sessions[key_conn] == key:
-                            del self.connManager().current_thread_sessions[key_conn]
-                            break
-
-                self.driver().delete_session(key)
-
+        conn_identifier = utils_base.session_id(self._name)
+        mng = self.connManager()
+        mng.delete_from_sessions_dict(conn_identifier)
         self._is_open = False
         self.driver().close()
 

@@ -799,7 +799,7 @@ class FLTableDB(QtWidgets.QWidget):
                 if field_metadata.visibleGrid():
                     fields_list.append(field_name)
 
-            if len(fields_list) > self.cursor().model.columnCount():
+            if len(fields_list) > self.cursor().model().columnCount():
                 return
 
             _index = self._table_records.logical_index_to_visual_index(
@@ -846,7 +846,7 @@ class FLTableDB(QtWidgets.QWidget):
         if not self._showed:
             self.showWidget()
 
-        model = self.cursor().model
+        model = self.cursor().model()
 
         if model:
             if not self._table_records:
@@ -1492,8 +1492,12 @@ class FLTableDB(QtWidgets.QWidget):
             _linea = 0
 
             while idx_i < hori_count:
-                _label = self.cursor().model.headerData(
-                    idx_i + self._sort_column_1, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole
+                _label = (
+                    self.cursor()
+                    .model()
+                    .headerData(
+                        idx_i + self._sort_column_1, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole
+                    )
                 )
                 _alias = table_metadata.fieldAliasToName(_label)
                 if _alias is None:
@@ -1995,7 +1999,7 @@ class FLTableDB(QtWidgets.QWidget):
                 if field_check is None:
                     raise Exception("field_check is empty!")
 
-                self.tableRecords().cur.model.updateColumnsCount()
+                self.tableRecords().cur.model().updateColumnsCount()
                 self.tableRecords().header().reset()
                 self.tableRecords().header().swapSections(
                     self.tableRecords().column_name_to_column_index(field_check.name()),
@@ -2025,7 +2029,7 @@ class FLTableDB(QtWidgets.QWidget):
             if not self.tableRecords().header().isHidden():
                 self.tableRecords().header().hide()
 
-            model = self.cursor().model
+            model = self.cursor().model()
             for column in range(model.columnCount()):
                 field = model.metadata().indexFieldObject(column)
                 if not field.visibleGrid() or (
@@ -2519,7 +2523,7 @@ class FLTableDB(QtWidgets.QWidget):
         """
         if self._table_records:
             self._table_records.selectRow(row)
-            self._table_records.scrollTo(self._table_records.cur.model.index(row, 0))
+            self._table_records.scrollTo(self._table_records.cur.model().index(row, 0))
 
     @decorators.not_implemented_warn
     def columnWidth(self, col: int) -> None:
@@ -2763,7 +2767,7 @@ class FLTableDB(QtWidgets.QWidget):
         colidx = self._table_records.visual_index_to_metadata_index(self._sort_column_1)
         if colidx is None:
             raise Exception("Unexpected: Column not found")
-        field = self.cursor().model.metadata().indexFieldObject(colidx)
+        field = self.cursor().model().metadata().indexFieldObject(colidx)
         base_filter = (
             self.cursor().db().connManager().manager().formatAssignValueLike(field, chr_, True)
         )

@@ -102,7 +102,7 @@ class TestPNConnectionManager(unittest.TestCase):
 
         conn_manager = application.PROJECT.conn_manager
         for conn in conn_manager._thread_sessions.keys():
-            self.assertTrue(conn in conn_manager.current_conn_sessions.values())
+            self.assertTrue(conn in conn_manager.current_thread_sessions.values())
 
         self.assertTrue(len(conn_manager._thread_sessions))
 

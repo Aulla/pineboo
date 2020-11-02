@@ -6,6 +6,7 @@ import time
 
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
+from pineboolib.core.utils import utils_base
 from pineboolib.qsa import qsa
 
 SESSION_LIST = []
@@ -23,23 +24,21 @@ class TestThreadSession(unittest.TestCase):
 
     def test_basic_1(self) -> None:
         """Test basic 1."""
-        id_thread = threading.current_thread().ident
-        key = "%s_%s" % (id_thread, "default")
+
+        key = utils_base.session_id()
         self.assertFalse(key in application.PROJECT.conn_manager.current_atomic_sessions.keys())
         self.assertTrue(prueba(1))
         self.assertFalse(key in application.PROJECT.conn_manager.current_atomic_sessions.keys())
 
     def test_basic_2(self) -> None:
         """Test basic 2."""
-        id_thread = threading.current_thread().ident
-        key = "%s_dbaux" % id_thread
+        key = utils_base.session_id("dbaux")
         self.assertTrue(prueba2())
         self.assertFalse(key in application.PROJECT.conn_manager.current_atomic_sessions.keys())
 
     def test_basic_3(self) -> None:
         """Test basic 3."""
-        with self.assertRaises(Exception):
-            prueba3()
+        self.assertFalse(prueba3())
 
     def test_basic_4(self) -> None:
         """Test basic 4."""
@@ -79,8 +78,8 @@ def massive(value: int):
 @qsa.atomic()  # type: ignore [misc] # noqa: F821
 def prueba(value: int):
     mng_ = application.PROJECT.conn_manager
-    id_thread = threading.current_thread().ident
-    key = "%s_%s" % (id_thread, "default")
+
+    key = utils_base.session_id("default")
     result = key in mng_.current_atomic_sessions.keys()
     if result and mng_.current_atomic_sessions[key] in mng_._thread_sessions.keys():
         if mng_._thread_sessions[mng_.current_atomic_sessions[key]] != qsa.session_atomic():
@@ -94,8 +93,8 @@ def prueba(value: int):
 @qsa.atomic("dbaux")  # type: ignore [misc] # noqa: F821
 def prueba2():
     mng_ = application.PROJECT.conn_manager
-    id_thread = threading.current_thread().ident
-    key = "%s_%s" % (id_thread, "dbaux")
+
+    key = utils_base.session_id("dbaux")
     result = key in mng_.current_atomic_sessions.keys()
     if result and mng_.current_atomic_sessions[key] in mng_._thread_sessions.keys():
         if mng_._thread_sessions[mng_.current_atomic_sessions[key]] != qsa.session_atomic("dbaux"):
@@ -106,6 +105,5 @@ def prueba2():
 
 @qsa.atomic("dbaux")  # type: ignore [misc] # noqa: F821
 def prueba3():
-
     obj_ = qsa.orm.fltest4()
-    return not obj_.session == qsa.session_atomic("dbaux")
+    return obj_.session == qsa.session_atomic("dbaux")

@@ -23,7 +23,7 @@ def atomic(conn_name: str = "default") -> TYPEFN:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
 
             id_thread = threading.current_thread().ident
-            key = "%s_%s" % (id_thread, conn_name)
+            key = utils_base.session_id(conn_name)
 
             if id_thread not in application.ATOMIC_LIST.keys():
                 application.ATOMIC_LIST[id_thread] = []  # type: ignore [index] #noqa: F821
@@ -32,6 +32,8 @@ def atomic(conn_name: str = "default") -> TYPEFN:
 
             while application.ATOMIC_LIST[id_thread][0] != key:  # type: ignore [index] #noqa: F821
                 time.sleep(0.01)
+
+            application.PROJECT.conn_manager.check_connections()
 
             application.PROJECT.conn_manager.current_atomic_sessions[
                 key
@@ -93,37 +95,3 @@ def delete_atomic_session(key: str) -> None:
 
     if key in application.ATOMIC_LIST[id_thread]:  # type: ignore [index] #noqa: F821
         application.ATOMIC_LIST[id_thread].remove(key)  # type: ignore [index] #noqa: F821
-
-    if application.SHOW_TRANSACTIONS_AFTER_ATOMIC:
-        sesiones = []
-        for ses in mng_._thread_sessions.keys():
-            if mng_._thread_sessions[ses].transaction is not None:
-                sesiones.append(mng_._thread_sessions[ses])
-
-        if sesiones:
-            LOGGER.warning(
-                "Al terminar la función atomica, las siguentes sessiones continuan en transaccion:\n%s",
-                "".join(
-                    [
-                        "%s --> %s.\n"
-                        % (item._conn_name, item)  # type: ignore [attr-defined] # noqa: F821
-                        for item in sesiones
-                    ]
-                ),
-            )
-            for conn in mng_.dictDatabases().values():
-                key_gen = utils_base.session_id(conn._name)
-                if key_gen in mng_._thread_sessions.keys():
-                    LOGGER.warning("La sesión de CONN %s continua en transacción", conn._name)
-
-            for ses_th in mng_.get_current_thread_sessions():
-                if mng_.is_valid_session(ses_th) and ses_th.transaction is not None:
-                    LOGGER.warning(
-                        "La sesión de HILO %s continua en transacción",
-                        ses_th._conn_name,  # type: ignore [attr-defined] # noqa: F821
-                    )
-
-
-# for session in mng_._thread_sessions.values():
-#    if session.transaction is None:
-#        raise exception(session._conn_name)

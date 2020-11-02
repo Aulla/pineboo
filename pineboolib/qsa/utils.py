@@ -578,25 +578,14 @@ def session(conn_name: str = "default", legacy: bool = False) -> "orm_session.Se
     return (
         application.PROJECT.conn_manager.useConn(conn_name).session()
         if legacy
-        else driver_session(conn_name)
+        else driver_session(conn_name)[1]
     )
 
 
 def thread_session_new(conn_name: str = "default") -> "orm_session.Session":
     """Return thread session new."""
 
-    current = thread_session_current(conn_name)
-    if current is not None:
-        if current.transaction is not None:
-            raise Exception("The last session continues in transaction")
-        else:
-            thread_session_free(conn_name)
-
-    session_data = driver_session(conn_name)
-    application.PROJECT.conn_manager.current_thread_sessions[
-        _session_key(conn_name)
-    ], session = session_data
-    return session
+    return session(conn_name, True)
 
 
 def available_thread_sessions() -> Dict[str, "orm_session.Session"]:

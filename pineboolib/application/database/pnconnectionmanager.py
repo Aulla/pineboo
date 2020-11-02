@@ -198,10 +198,38 @@ class PNConnectionManager(QtCore.QObject):
                     LOGGER.warning("Connection %s failed when close", name_conn_.split("|")[1])
                     result = False
 
+            if not result:
+                self.delete_from_sessions_dict(name_conn_)
+
             self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
             del self.connections_dict[name_conn_]
 
         return result
+
+    def delete_from_sessions_dict(self, conn_name: str) -> None:
+        """Search and delete sessions_identifiers from sessions dicts."""
+
+        if conn_name in self.current_atomic_sessions.keys():
+            del self.current_atomic_sessions[conn_name]
+
+        if conn_name in self.current_thread_sessions.keys():
+            del self.current_atomic_sessions[conn_name]
+
+        for thread_session_identifier in list(self._thread_sessions.keys()):
+            if thread_session_identifier.startswith(conn_name):
+                self.delete_session(thread_session_identifier)
+
+    def delete_session(self, session_id: str) -> None:
+        """Delete a session."""
+
+        if session_id and session_id in self._thread_sessions:
+            session = self._thread_sessions[session_id]
+            try:
+                session.close()
+            except Exception:
+                pass
+
+            del self._thread_sessions[session_id]
 
     def manager(self) -> "flmanager.FLManager":
         """
@@ -259,11 +287,10 @@ class PNConnectionManager(QtCore.QObject):
         else:
             session = conn_or_session
 
-        session_name = session._name  # type: ignore [attr-defined] # noqa: F821
-
         try:
             session.execute("SELECT 1").fetchone()
         except Exception as error:
+            session_name = session._conn_name  # type: ignore [attr-defined] # noqa: F821
             LOGGER.info("Connection %s is bad. error: %s", session_name, str(error))
             result = False
 
@@ -272,14 +299,14 @@ class PNConnectionManager(QtCore.QObject):
     def check_connections(self) -> None:
         """Check connections."""
         for conn_name in list(self.enumerate().keys()):  # Comprobamos conexiones una a una
-            conn_ = self.connections_dict[conn_name]
+            conn_ = self.connections_dict[utils_base.session_id(conn_name)]
             LOGGER.info("Checking connection %s", conn_name)
             valid = True
             if not conn_.isOpen():
                 LOGGER.info("Connection %s is closed.", conn_name)
                 valid = False
             else:
-                if not self.test_connection(conn_):
+                if not self.test_session(conn_):
                     valid = False
 
             if not valid:
@@ -335,26 +362,24 @@ class PNConnectionManager(QtCore.QObject):
 
         return result
 
-    # def session_id(self) -> str:
-    #    """Return session identifier."""
+    def session_id(self) -> str:
+        """Return session identifier."""
 
-    #    return application.PROJECT.session_id()
+        return application.PROJECT.session_id()
 
-    def _get_session_id(self, conn_name: str) -> str:
+    def _get_session_id(self, conn_name: str) -> Optional[str]:
         """Return correct session."""
 
         session_key = utils_base.session_id(conn_name)
-        use_key = ""
+        use_key = None
         if session_key in self.current_atomic_sessions.keys():
             atomic_key = self.current_atomic_sessions[session_key]
             if atomic_key in self._thread_sessions.keys():
                 use_key = atomic_key
 
         if not use_key:
-            # if session_key in self.current_conn_sessions.keys():
-            #    conn_session = self.current_conn_sessions[session_key]
-            if session_key in self._thread_sessions.keys():
-                use_key = session_key
+            if session_key in self.current_thread_sessions.keys():
+                use_key = self.current_thread_sessions[session_key]
 
         return use_key
 
@@ -400,22 +425,15 @@ class PNConnectionManager(QtCore.QObject):
                         )
 
                     if session_id in self.current_atomic_sessions.keys():
-                        # print("****", session_id)
                         if key == self.current_atomic_sessions[session_id]:
                             session_result += ", type: Atomic"
-                    # if session_id in self.current_conn_sessions.keys():
-                    #    # print("***", session_id)
-                    #    if key == self.current_conn_sessions[session_id]:
-                    #        session_result += ", type: Legacy"
                     if session_id in self.current_thread_sessions.keys():
-                        # print("*****", session_id)
                         if key == self.current_thread_sessions[session_id]:
                             session_result += ", type: Thread"
 
                 if session_result:
                     result += "\n        " + session_result
                 else:
-                    # print("***", conn_, key)
                     continue
 
         return result

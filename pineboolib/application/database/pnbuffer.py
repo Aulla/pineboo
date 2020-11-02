@@ -95,7 +95,7 @@ class PNBuffer(object):
         """Set the initial copy of the cursor values into the buffer."""
 
         self.clear()
-        self._orm_obj = self.model.get_obj_from_row(self._cursor.currentRegister())
+        self._orm_obj = self.model().get_obj_from_row(self._cursor.currentRegister())
 
     # def prime_delete(self) -> None:
     #    """Load registr for delete."""
@@ -126,7 +126,7 @@ class PNBuffer(object):
 
         else:
             if self._orm_obj and sqlalchemy.inspect(self._orm_obj).expired:
-                self._orm_obj = self.model.get_obj_from_row(self._cursor.currentRegister())
+                self._orm_obj = self.model().get_obj_from_row(self._cursor.currentRegister())
 
             value = getattr(self._orm_obj, field_name, None)
 
@@ -233,11 +233,10 @@ class PNBuffer(object):
 
         return self._orm_obj
 
-    @property
     def model(self) -> "pncursortablemodel.PNCursorTableModel":
         """Return cursor table model."""
 
-        return self._cursor.model
+        return self._cursor.model()
 
     def clear(self):
         """Clear buffer object."""

@@ -12,7 +12,7 @@ ATOMIC_IDENTIFIER: int = 0
 ATOMIC_LIST: Dict[int, List[str]] = {}
 FILE_CLASSES: Dict[str, str] = {}
 
-PINEBOO_VER = "0.75.27.27"
+PINEBOO_VER = "0.75.27.37"
 
 SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
 SHOW_CLOSED_CONNECTION_WARNING: bool = False  # Enable show debug when connection is closed.
@@ -22,6 +22,5 @@ VIRTUAL_DB: bool = True  # Enable :memory: database on pytest.
 LOG_SQL: bool = False  # Enable sqlalchemy logs.
 USE_WEBSOCKET_CHANNEL: bool = False  # Enable websockets features.
 USE_MISMATCHED_VIEWS: bool = False  # Enable mismatched views.
-SHOW_TRANSACTIONS_AFTER_ATOMIC: bool = False  # Show info about transactions after atomic function.
 RECOVERING_CONNECTIONS: bool = False  # Recovering state.
 AUTO_RELOAD_BAD_CONNECTIONS: bool = False  # Auto reload bad conecctions.

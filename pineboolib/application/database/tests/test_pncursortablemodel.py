@@ -55,7 +55,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         cursor.refreshBuffer()
         self.assertEqual(cursor.valueBuffer("string_field"), "yyy")
 
-        model = cursor.model
+        model = cursor.model()
 
         self.assertEqual(model.find_pk_row(cursor.valueBuffer("id")), cursor.size() - 1)
         self.assertEqual(model.metadata().primaryKey(), "id")
@@ -75,7 +75,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         cursor.setSort("string_field DESC")
 
         cursor.select()
-        model = cursor.model
+        model = cursor.model()
 
         self.assertEqual(model.data(model.index(0, 1)), "zzz")
         self.assertEqual(model.data(model.index(0, 0)), 4)
@@ -118,7 +118,7 @@ class TestPNCursorTableModel(unittest.TestCase):
         cursor.setSort("string_field DESC")
         cursor.select()
 
-        model = cursor.model
+        model = cursor.model()
         self.assertTrue(
             isinstance(model.data(model.index(0, 5), QtCore.Qt.BackgroundRole), QtGui.QBrush)
         )
@@ -138,7 +138,7 @@ class TestPNCursorTableModel(unittest.TestCase):
 
         cursor = pnsqlcursor.PNSqlCursor("fltest2")
 
-        model = cursor.model
+        model = cursor.model()
         model.disable_refresh(True)
         model.sort(1, QtCore.Qt.DescendingOrder)
         self.assertTrue(model._disable_refresh)
