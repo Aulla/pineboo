@@ -60,7 +60,7 @@ class DelayedObjectProxyLoader(object):
                 if getattr(
                     self.loaded_obj[id_thread], "_loader", True  # type: ignore [index] # noqa: F821
                 ):
-                    return self.loaded_obj[
+                    return self.loaded_obj[  # type: ignore [index, return-value] # noqa: F821
                         id_thread  # type: ignore [index, return-value] # noqa: F821
                     ]
 
