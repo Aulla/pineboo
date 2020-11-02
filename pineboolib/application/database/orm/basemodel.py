@@ -855,7 +855,7 @@ class BaseModel(object):
                     module_script = module_action._master_widget
                     if module_script is None:
                         module_script = (
-                            module_action.load_master_widget()  # type: ignore [unreachable] #noqa: F821
+                            module_action.load_master_widget()  # type: ignore [unreachable] # noqa: F821
                         )
                     return getattr(module_script, "iface", module_script)
 

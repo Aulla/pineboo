@@ -26,11 +26,11 @@ def atomic(conn_name: str = "default") -> TYPEFN:
             key = utils_base.session_id(conn_name)
 
             if id_thread not in application.ATOMIC_LIST.keys():
-                application.ATOMIC_LIST[id_thread] = []  # type: ignore [index] #noqa: F821
+                application.ATOMIC_LIST[id_thread] = []  # type: ignore [index] # noqa: F821
 
-            application.ATOMIC_LIST[id_thread].append(key)  # type: ignore [index] #noqa: F821
+            application.ATOMIC_LIST[id_thread].append(key)  # type: ignore [index] # noqa: F821
 
-            while application.ATOMIC_LIST[id_thread][0] != key:  # type: ignore [index] #noqa: F821
+            while application.ATOMIC_LIST[id_thread][0] != key:  # type: ignore [index] # noqa: F821
                 time.sleep(0.01)
 
             application.PROJECT.conn_manager.check_connections()
@@ -93,5 +93,5 @@ def delete_atomic_session(key: str) -> None:
 
     id_thread = threading.current_thread().ident
 
-    if key in application.ATOMIC_LIST[id_thread]:  # type: ignore [index] #noqa: F821
-        application.ATOMIC_LIST[id_thread].remove(key)  # type: ignore [index] #noqa: F821
+    if key in application.ATOMIC_LIST[id_thread]:  # type: ignore [index] # noqa: F821
+        application.ATOMIC_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
