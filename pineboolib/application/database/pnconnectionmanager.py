@@ -213,7 +213,7 @@ class PNConnectionManager(QtCore.QObject):
             del self.current_atomic_sessions[conn_name]
 
         if conn_name in self.current_thread_sessions.keys():
-            del self.current_atomic_sessions[conn_name]
+            del self.current_thread_sessions[conn_name]
 
         for thread_session_identifier in list(self._thread_sessions.keys()):
             if thread_session_identifier.startswith(conn_name):
