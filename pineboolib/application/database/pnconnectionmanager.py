@@ -299,19 +299,21 @@ class PNConnectionManager(QtCore.QObject):
     def check_connections(self) -> None:
         """Check connections."""
         for conn_name in list(self.enumerate().keys()):  # Comprobamos conexiones una a una
-            conn_ = self.connections_dict[utils_base.session_id(conn_name)]
-            LOGGER.info("Checking connection %s", conn_name)
-            valid = True
-            if not conn_.isOpen():
-                LOGGER.info("Connection %s is closed.", conn_name)
-                valid = False
-            else:
-                if not self.test_session(conn_):
+            conn_identifier = utils_base.session_id(conn_name)
+            if conn_identifier in self.connections_dict.keys():
+                conn_ = self.connections_dict[conn_identifier]
+                LOGGER.info("Checking connection %s", conn_identifier)
+                valid = True
+                if not conn_.isOpen():
+                    LOGGER.info("Connection %s is closed.", conn_identifier)
                     valid = False
+                else:
+                    if not self.test_session(conn_):
+                        valid = False
 
-            if not valid:
-                if not self.removeConn(conn_name):
-                    LOGGER.info("Connection %s removing failed!", conn_name.upper())
+                if not valid:
+                    if not self.removeConn(conn_identifier):
+                        LOGGER.info("Connection %s removing failed!", conn_identifier)
 
     def reinit_user_connections(self) -> None:
         """Reinit users connection."""
