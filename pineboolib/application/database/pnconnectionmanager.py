@@ -324,17 +324,28 @@ class PNConnectionManager(QtCore.QObject):
     def check_alive_connections(self):
         """Check alive connections."""
 
-        for conn_name in list(self.enumerate().keys()):
-            if conn_name.find("|") > -1:
+        alived_threads: List[str] = []
+
+        for thread in threading.enumerate():
+            alived_threads.append(str(thread.ident))
+
+        for conn_ident in list(self.connections_dict.keys()):
+            if conn_ident.find("|") > -1:
+                thread_id = conn_ident.split("|")[0]
+                if thread_id not in alived_threads:
+                    self.removeConn(conn_ident)
+
+        for conn_ident in list(self.enumerate().keys()):
+            if conn_ident.find("|") > -1:
                 if (
-                    not self.connections_dict[conn_name]._is_open  # Closed connections
-                    and self.connections_dict[conn_name].conn
+                    not self.connections_dict[conn_ident]._is_open  # Closed connections
+                    and self.connections_dict[conn_ident].conn
                     is not None  # Only initialized connections.
                 ) or (
                     self.connections_time_out
-                    and self.connections_dict[conn_name].idle_time() > self.connections_time_out
+                    and self.connections_dict[conn_ident].idle_time() > self.connections_time_out
                 ):
-                    self.removeConn(conn_name)
+                    self.removeConn(conn_ident)
 
     def set_max_connections_limit(self, limit: int) -> None:
         """Set maximum connections limit."""
