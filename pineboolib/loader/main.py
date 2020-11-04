@@ -36,7 +36,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     if conn is None:
         raise Exception("conn is empty!")
 
-    import pyfiglet  # type: ignore [import] # noqa: F821
+    import pyfiglet  # type: ignore
 
     qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
     init_logging(True)
