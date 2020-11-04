@@ -213,7 +213,7 @@ class TestUtils(unittest.TestCase):
 
         obj_ = Prueba2()
         self.assertNotEqual(obj_.__class__, "Prueba")
-        self.assertTrue(qsa._super("Prueba", obj_))
+        self.assertTrue(qsa._super("Prueba", obj_))  # type: ignore [arg-type] # noqa: F821
 
     def my_fun(self) -> None:
         """"Callable test function."""
