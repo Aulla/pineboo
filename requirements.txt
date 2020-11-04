@@ -47,3 +47,4 @@ clipboard
 coloredlogs
 psycopg2
 watchdog>=0.10.2
+pyfiglet

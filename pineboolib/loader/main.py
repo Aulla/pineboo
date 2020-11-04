@@ -36,12 +36,14 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     if conn is None:
         raise Exception("conn is empty!")
 
+    import pyfiglet  # type: ignore [import] # noqa: F821
+
     qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
     init_logging(True)
     init_cli(catch_ctrl_c=False)
     pytnyzer.STRICT_MODE = False
 
-    LOGGER.info("PINEBOOAPI %s.", application.PINEBOO_VER)
+    LOGGER.info(pyfiglet.figlet_format("\nPINEBOO %s " % application.PINEBOO_VER, font="starwars"))
     # application.PROJECT.load_version()
     application.PROJECT.setDebugLevel(1000)
     application.PROJECT.set_app(qapp)
