@@ -67,21 +67,9 @@ class FormInternalObj(qsa.FormDBWidget):
             if nodeModule.namedItem(u"dependencies") is not None:
                 nodeDepend = xmlModule.elementsByTagName(u"dependency")
                 i = 0
-                while_pass = True
                 while i < len(nodeDepend):
-                    if not while_pass:
-                        i += 1
-                        while_pass = True
-                        continue
-                    while_pass = False
                     dependencias[i] = nodeDepend.item(i).toElement().text()
                     i += 1
-                    while_pass = True
-                    try:
-                        i < len(nodeDepend)
-                    except Exception:
-                        break
-
         else:
             if not isinstance(f, str):
                 raise Exception("data must be str, not bytes!!")

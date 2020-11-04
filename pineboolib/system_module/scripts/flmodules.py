@@ -26,12 +26,6 @@ class FormInternalObj(qsa.FormDBWidget):
         """Init function."""
         botonCargar = self.child(u"botonCargar")
         botonExportar = self.child(u"botonExportar")
-        if botonCargar is None:
-            raise Exception("botonCargar is None!.")
-
-        if botonExportar is None:
-            raise Exception("botonExportar is None!.")
-
         self.module_connect(botonCargar, u"clicked()", self, u"botonCargar_clicked")
         self.module_connect(botonExportar, u"clicked()", self, u"botonExportar_clicked")
         cursor = self.cursor()

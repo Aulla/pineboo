@@ -1,12 +1,19 @@
 """Test utils module."""
 
 import unittest
+import threading
 
+from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.qsa import qsa, utils
 
 
 class TestUtils(unittest.TestCase):
     """Test Utils module."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Ensure pineboo is initialized for testing."""
+        init_testing()
 
     def test_switch(self) -> None:
         """Test switch function."""
@@ -172,6 +179,55 @@ class TestUtils(unittest.TestCase):
         qsa.killTimers()
         self.assertEqual(len(utils.TIMERS), 0)
 
+    def test_session(self) -> None:
+        """Test session utils."""
+
+        session_ = qsa.thread_session_new()
+        self.assertTrue(
+            session_ in qsa.available_thread_sessions().values(),
+            "LA session es %s y las avalibles son %s"
+            % (session_, qsa.available_thread_sessions().values()),
+        )
+        self.assertTrue(qsa.is_valid_session(session_))
+
+    def test_type(self) -> None:
+        """Test typeof function."""
+
+        self.assertEqual(qsa.typeof_("hola"), "string")
+        self.assertEqual(qsa.typeof_(True), "boolean")
+        self.assertEqual(qsa.typeof_(False), "boolean")
+        self.assertEqual(qsa.typeof_(8), "number")
+        self.assertEqual(qsa.typeof_(1.01), "number")
+        self.assertEqual(qsa.typeof_(0), "number")
+        self.assertEqual(qsa.typeof_(qsa.Array()), "object")
+        self.assertEqual(qsa.typeof_([]), "object")
+        self.assertEqual(qsa.typeof_(qsa), "unknown")
+
+    def test_thread(self) -> None:
+        """Test Thread."""
+
+        self.assertEqual(qsa.thread(), threading.current_thread().ident)
+
+    def test_super(self) -> None:
+        """Test super function."""
+
+        obj_ = Prueba2()
+        self.assertNotEqual(obj_.__class__, "Prueba")
+        self.assertTrue(qsa._super("Prueba", obj_))
+
     def my_fun(self) -> None:
         """"Callable test function."""
         print("EY")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        """Ensure test clear all data."""
+        finish_testing()
+
+
+class Prueba(object):
+    pass
+
+
+class Prueba2(Prueba):
+    pass
