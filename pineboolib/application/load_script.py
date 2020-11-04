@@ -195,9 +195,8 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
 def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
     """Return class from path."""
 
-    # script_path_py = _path("%s.py" % script_name, False)
     model_class = None
-    script_path_py = _resolve_script("%s_model.py" % script_name)
+    script_path_py = _resolve_script(script_name, script_path_py)
 
     if script_path_py:
         class_name = "%s%s" % (script_name[0].upper(), script_name[1:])
@@ -243,11 +242,11 @@ def load_module(script_name: str) -> Optional["ModuleType"]:
     return None
 
 
-def _resolve_script(file_name) -> str:
+def _resolve_script(file_name, alternative: str = "") -> str:
     """Resolve script."""
 
     static = _static_file(file_name)
-    result = static if static else _path(file_name, False)
+    result = static if static else alternative if alternative else _path(file_name, False)
     return result or ""
 
 
