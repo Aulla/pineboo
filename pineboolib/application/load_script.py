@@ -5,7 +5,6 @@ from .utils.path import _path
 
 from typing import Optional, TYPE_CHECKING
 
-
 from pineboolib.application.staticloader import pnmodulesstaticloader
 from pineboolib import application
 
@@ -75,18 +74,13 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
             script_path_qs = cached_script_path_qs
 
     if script_path_py:
-        generate_static_flag_file = True
         _remove(static_flag)
 
-        if cached_script_path_py:  # si es carga estática lo marco:
-            if cached_script_path_py.find("system_module") > -1:
-                generate_static_flag_file = False
+        if cached_script_path_py and cached_script_path_py.find("system_module") == -1:
+            # si es carga estática y no es módulo sistema lo marco
+            static_flag = "%s/static.xml" % os.path.dirname(cached_script_path_py)
+            _build_static_flag(static_flag, cached_script_path_py, script_path_py)
 
-            if generate_static_flag_file:
-                static_flag = "%s/static.xml" % os.path.dirname(cached_script_path_py)
-                _build_static_flag(static_flag, cached_script_path_py, script_path_py)
-
-        # LOGGER.info("Loading script PY %s -> %s", script_name, script_path_py)
         if not os.path.isfile(script_path_py):
             raise IOError
         try:
@@ -142,6 +136,14 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
             raise Exception(
                 "ERROR al cargar script QS para la accion %s: %s" % (action_._name, str(error))
             )
+
+    return _init_internal_obj(action_, script_loaded)
+
+
+def _init_internal_obj(
+    action_: "xmlaction.XMLAction", script_loaded: Optional["ModuleType"] = None
+) -> "formdbwidget.FormDBWidget":
+    """Return formDBWidget."""
 
     if script_loaded is None:
         from pineboolib.qsa import emptyscript
