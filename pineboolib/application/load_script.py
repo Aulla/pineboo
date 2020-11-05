@@ -37,152 +37,112 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     #    script_name.upper(),
     #    application.PROJECT.no_python_cache,
     # )
-    if script_name:
-        script_name = script_name.replace(".qs", "")
-        LOGGER.debug("Loading script %s for action %s", script_name, action_._name)
-    else:
-        LOGGER.info("No script to load for action %s", action_._name)
 
+    script_name = script_name.replace(".qs", "")
+    LOGGER.debug("Loading script %s for action %s", script_name, action_._name)
+
+    script_path_py: str = ""
+    script_path_qs: str = ""
     script_loaded = None
-    generate_static_flag_file = True
 
-    if script_name:
+    cached_script_path_qs: str = _path("%s.qs" % script_name, False) or ""
+    cached_script_path_py: str = _path(
+        "%s.py" % script_name, False
+    ) or ""  # Busqueda en carpetas .py
+    if cached_script_path_qs and not cached_script_path_py:  # busqueda en carpetas .qs.py
+        file_py = "%spy" % cached_script_path_qs[:-2]
+        cached_script_path_py = file_py if os.path.exists(file_py) else ""
 
-        script_path_qs: str = _path("%s.qs" % script_name, False) or ""
-        script_path_py = _path("%s.py" % script_name, False) or ""  # Busqueda en carpetas .py
+    if application.PROJECT.no_python_cache and cached_script_path_qs:  # Si no_python_cache
+        cached_script_path_py = ""
 
-        if script_path_qs and not script_path_py:  # busqueda en carpetas .qs.py
-            script_path_py = (
-                "%spy" % script_path_qs[:-2] if os.path.exists("%spy" % script_path_qs[:-2]) else ""
+    # carga estática
+    static_flag = (
+        "%s/static.xml" % os.path.dirname(cached_script_path_qs) if cached_script_path_qs else ""
+    )
+    script_path_qs_static = _static_file("%s.qs" % script_name)
+    script_path_py_static = _static_file("%s.py" % script_name)
+
+    # Primera opción carga estática.
+    if script_path_py_static:
+        script_path_py = script_path_py_static
+    elif script_path_qs_static:
+        script_path_qs = script_path_qs_static
+    else:  # Segunda Caché
+        if cached_script_path_py:
+            script_path_py = cached_script_path_py
+        elif cached_script_path_qs:
+            script_path_qs = cached_script_path_qs
+
+    if script_path_py:
+        generate_static_flag_file = True
+        if os.path.exists(static_flag):
+            os.remove(static_flag)
+
+        if cached_script_path_py:  # si es carga estática lo marco:
+            if cached_script_path_py.find("system_module") > -1:
+                generate_static_flag_file = False
+
+            static_flag = "%s/static.xml" % os.path.dirname(cached_script_path_py)
+            if generate_static_flag_file:
+                _build_static_flag(static_flag, cached_script_path_py, script_path_py)
+
+        # LOGGER.info("Loading script PY %s -> %s", script_name, script_path_py)
+        if not os.path.isfile(script_path_py):
+            raise IOError
+        try:
+            script_loaded = _load(script_name, script_path_py, False)
+        except Exception:
+            LOGGER.exception("ERROR al cargar script PY para la accion %s:", action_._name)
+
+    elif script_path_qs:
+        if not os.path.isfile(script_path_qs):
+            raise IOError
+
+        need_parse = True
+        script_path_py = "%spy" % cached_script_path_qs[:-2]  # Buscamos
+
+        if script_path_qs_static:
+            replace_static = True
+            if os.path.exists(static_flag):
+                replace_static = _resolve_flag(
+                    static_flag, cached_script_path_qs, script_path_qs_static
+                )
+            if replace_static:
+                shutil.copy(script_path_qs_static, cached_script_path_qs)  # Lo copiamos en tempdata
+                _remove(script_path_py)
+                _build_static_flag(static_flag, cached_script_path_qs, script_path_qs_static)
+            else:
+                need_parse = not os.path.exists(script_path_py)
+        else:
+            if os.path.exists(script_path_py) and not application.PROJECT.no_python_cache:
+                need_parse = False
+
+        if need_parse:
+            _remove(script_path_py)
+            application.PROJECT.message_manager().send(
+                "status_help_msg", "send", ["Convirtiendo script... %s" % script_name]
             )
 
-        if application.PROJECT.no_python_cache:
-            if script_path_qs:
-                script_path_py = ""
+            LOGGER.info(
+                "PARSE_SCRIPT (name : %s, use cache : %s, file: %s",
+                script_name,
+                not application.PROJECT.no_python_cache,
+                cached_script_path_qs,
+            )
+            if not application.PROJECT.parse_script_list([cached_script_path_qs]):
+                if not os.path.exists(script_path_py):
+                    raise Exception("The file %s doesn't created\n" % script_path_py)
 
-        script_path_py_static: str = ""
-        script_path_qs_static: str = ""
-        static_flag = ""
-        old_script_path_py = ""
+        try:
+            script_loaded = _load(script_name, script_path_py, False)
+        except Exception as error:
+            _remove(script_path_py)
+            _remove(static_flag)
 
-        if script_path_qs:
-            static_flag = "%s/static.xml" % os.path.dirname(script_path_qs)
-
-        script_path_py_static = _static_file("%s.py" % script_name)
-        script_path_qs_static = _static_file("%s.qs" % script_name)
-
-        if script_path_qs_static and not script_path_py_static:
-
-            script_path_py = ""
-
-        elif script_path_py_static:
-            old_script_path_py = script_path_py
-            script_path_py = script_path_py_static
-
-        if script_path_py:
-            if os.path.exists(static_flag):
-                os.remove(static_flag)
-
-            if old_script_path_py:  # si es carga estática lo marco:
-                if old_script_path_py.find("system_module") > -1:
-                    generate_static_flag_file = False
-
-                static_flag = "%s/static.xml" % os.path.dirname(old_script_path_py)
-                if os.path.exists(static_flag):
-                    os.remove(static_flag)
-
-                if generate_static_flag_file:
-                    xml_data = get_static_flag(old_script_path_py, script_path_py)
-                    my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
-                    file_ = open(static_flag, "wb")
-                    file_.write(my_data)
-
-            # LOGGER.info("Loading script PY %s -> %s", script_name, script_path_py)
-            if not os.path.isfile(script_path_py):
-                raise IOError
-            try:
-                script_loaded = _load(script_name, script_path_py, False)
-            except Exception:
-                LOGGER.exception("ERROR al cargar script PY para la accion %s:", action_._name)
-
-        elif script_path_qs:
-            if not os.path.isfile(script_path_qs):
-                raise IOError
-
-            need_parse = True
-            script_path_py = "%spy" % script_path_qs[:-2]
-
-            if script_path_qs_static:
-                replace_static = True
-                if os.path.exists(static_flag):
-                    try:
-                        tree = ET.parse(static_flag)
-                        root = tree.getroot()
-                        if root.get("path_legacy") != script_path_qs:
-                            replace_static = True
-                        elif root.get("last_modified_remote") != str(
-                            time.ctime(os.path.getmtime(script_path_qs_static))
-                        ):
-                            replace_static = True
-                        else:
-                            replace_static = False
-                    except Exception:
-                        flag_file = open(static_flag, "r", encoding="UTF8")
-                        flag_data = flag_file.read()
-                        flag_file.close()
-
-                        LOGGER.warning(
-                            "A problem found reading %s data: %s. Forcing realoading",
-                            static_flag,
-                            flag_data,
-                        )
-
-                        replace_static = True
-
-                if replace_static:
-                    shutil.copy(script_path_qs_static, script_path_qs)  # Lo copiamos en tempdata
-                    if os.path.exists(script_path_py):  # Borramos el py existente
-                        os.remove(script_path_py)
-
-                    xml_data = get_static_flag(script_path_qs, script_path_qs_static)
-                    my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
-                    file_ = open(static_flag, "wb")
-                    file_.write(my_data)
-                else:
-                    need_parse = not os.path.exists(script_path_py)
-            else:
-                if os.path.exists(script_path_py) and not application.PROJECT.no_python_cache:
-                    need_parse = False
-
-            if need_parse:
-                if os.path.exists(script_path_py):
-                    os.remove(script_path_py)
-
-                application.PROJECT.message_manager().send(
-                    "status_help_msg", "send", ["Convirtiendo script... %s" % script_name]
-                )
-
-                LOGGER.info(
-                    "PARSE_SCRIPT (name : %s, use cache : %s, file: %s",
-                    script_name,
-                    not application.PROJECT.no_python_cache,
-                    script_path_qs,
-                )
-                if not application.PROJECT.parse_script_list([script_path_qs]):
-                    if not os.path.exists(script_path_py):
-                        raise Exception("The file %s doesn't created\n" % script_path_py)
-
-            try:
-                script_loaded = _load(script_name, script_path_py, False)
-            except Exception as error:
-                if os.path.exists(script_path_py):
-                    os.remove(script_path_py)
-                if os.path.exists(static_flag):
-                    os.remove(static_flag)
-
-                raise Exception(
-                    "ERROR al cargar script QS para la accion %s: %s" % (action_._name, str(error))
-                )
+            raise Exception(
+                "ERROR al cargar script QS para la accion %s: %s" % (action_._name, str(error))
+            )
 
     if script_loaded is None:
         from pineboolib.qsa import emptyscript
@@ -190,6 +150,48 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
         script_loaded = emptyscript
 
     return script_loaded.FormInternalObj(action_)  # type: ignore[attr-defined] # noqa: F821
+
+
+def _resolve_flag(static_flag: str, script: str, script_static: str) -> bool:
+    """Return if replace."""
+
+    result = True
+    try:
+        tree = ET.parse(static_flag)
+        root = tree.getroot()
+        if root.get("path_legacy") != script:
+            pass
+        elif root.get("last_modified_remote") != str(time.ctime(os.path.getmtime(script_static))):
+            pass
+        else:
+            result = False
+    except Exception:
+        flag_file = open(static_flag, "r", encoding="UTF8")
+        flag_data = flag_file.read()
+        flag_file.close()
+        LOGGER.warning(
+            "A problem found reading %s data: %s. Forcing realoading", static_flag, flag_data
+        )
+
+    return result
+
+
+def _build_static_flag(flag, script, static) -> None:
+    """Build flag file."""
+
+    _remove(flag)
+
+    xml_data = get_static_flag(script, static)
+    my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
+    file_ = open(flag, "wb")
+    file_.write(my_data)
+
+
+def _remove(file_name) -> None:
+    """Remove file."""
+
+    if os.path.exists(file_name):
+        os.remove(file_name)
 
 
 def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
@@ -250,7 +252,7 @@ def _resolve_script(file_name, alternative: str = "") -> str:
     return result or ""
 
 
-def _load(  # type: ignore [return] # noqa: F821
+def _load(  # type: ignore [return] # noqa: F821, F723
     module_name: str, script_name: str, capture_error: bool = True
 ) -> "ModuleType":
     """Load modules."""
