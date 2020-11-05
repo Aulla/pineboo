@@ -76,15 +76,14 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
 
     if script_path_py:
         generate_static_flag_file = True
-        if os.path.exists(static_flag):
-            os.remove(static_flag)
+        _remove(static_flag)
 
         if cached_script_path_py:  # si es carga estática lo marco:
             if cached_script_path_py.find("system_module") > -1:
                 generate_static_flag_file = False
 
-            static_flag = "%s/static.xml" % os.path.dirname(cached_script_path_py)
             if generate_static_flag_file:
+                static_flag = "%s/static.xml" % os.path.dirname(cached_script_path_py)
                 _build_static_flag(static_flag, cached_script_path_py, script_path_py)
 
         # LOGGER.info("Loading script PY %s -> %s", script_name, script_path_py)
