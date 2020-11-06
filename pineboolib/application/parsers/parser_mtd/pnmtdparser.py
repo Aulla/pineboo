@@ -8,6 +8,7 @@ functions. See pineboolib/pnobjectsfactory.py
 """
 
 from pineboolib import application, logging
+from pineboolib.application import file
 import os
 
 from typing import List, Union, TYPE_CHECKING
@@ -45,134 +46,41 @@ def mtd_parse(table_name: Union[str, "pntablemetadata.PNTableMetaData"], path_mt
 
         mtd_ = table_name
 
-    lines = generate_model(mtd_)
+    lines = _generate_model(mtd_)
     if not lines:
         dest_file = ""
     else:
-        file_ = open(dest_file, "w", encoding="UTF-8")
-        for line in lines:
-            file_.write("%s\n" % line)
-        file_.close()
+        _write_file(dest_file, lines)
 
     return dest_file
 
 
-def generate_model(mtd_table: "pntablemetadata.PNTableMetaData") -> List[str]:
+def _write_file(file_name: str, lines: List[str]) -> None:
+    """Write lines to a file."""
+
+    file_ = open(file_name, "w", encoding="UTF-8")
+    file_.writelines([line if line.endswith("\n") else "%s\n" % line for line in lines])
+    file_.close()
+
+
+def _get_meta(file_mtd: "file.File") -> List[str]:
+    """Return list with meta."""
+
+    mtd_data_list = []
+    if os.path.exists(file_mtd.path()):
+        mtd_data = application.PROJECT.conn_manager.manager().metadata(file_mtd.filename, True)
+        if mtd_data is not None:
+            mtd_data_list = _generate_model(mtd_data, False)
+
+    return mtd_data_list
+
+
+def _generate_model(mtd_table: "pntablemetadata.PNTableMetaData", header: bool = True) -> List[str]:
     """
     Create a list of lines from a mtd_table (pntablemetadata.PNTableMetaData).
     """
 
-    data = []
-    list_data_field: List[str] = []
-    validator_list: List[str] = []
-    metadata_table: List = []
-    metadata_table.append("'name' : '%s'" % mtd_table.name())
-    metadata_table.append("'alias' : '%s'" % mtd_table.alias())
-    if mtd_table.isQuery():
-        metadata_table.append("'query':'%s'" % mtd_table.query())
-    if mtd_table.concurWarn():
-        metadata_table.append("'concurwarn': True")
-    if mtd_table.detectLocks():
-        metadata_table.append("'detectlocks':True")
-    if mtd_table.FTSFunction():
-        metadata_table.append("'ftsfunction' :'%s'" % mtd_table.FTSFunction())
-
-    try:
-        mtd_table.primaryKey()
-    except Exception as error:  # noqa: F841
-        pass
-
-    field_list: List[List[str]] = []
-    pk_found = False
-
-    for field in mtd_table.fieldList():  # Crea los campos
-
-        if field.isPrimaryKey():
-            pk_found = True
-
-        if field.name() in validator_list:
-            LOGGER.warning(
-                "Hay un campo %s duplicado en %s.mtd. Omitido", field.name(), mtd_table.name()
-            )
-        else:
-
-            field_data = []
-            field_data.append("    ")
-            if field.name() in RESERVER_WORDS:
-                field_data.append("%s_" % field.name())
-            else:
-                field_data.append(field.name())
-
-            field_data.append(" = sqlalchemy.Column('%s', " % field.name())
-            field_list.append(generate_field_metadata(field))
-            field_data.append(generate_field(field))
-            field_data.append(")")
-            validator_list.append(field.name())
-            if field.isPrimaryKey():
-                pk_found = True
-
-        list_data_field.append("".join(field_data))
-
-    meta_fields: List = []
-    for meta_field in field_list:
-        meta_fields.append("{%s}" % ", ".join(meta_field))
-
-    metadata_table.append(
-        "\n        'fields' : [\n        %s\n        ]" % ",\n        ".join(meta_fields)
-    )
-
-    data.append("# -*- coding: utf-8 -*-")
-    data.append("# Translated with pineboolib %s" % application.PINEBOO_VER)
-    data.append('"""%s%s_model module."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:]))
-    data.append("")
-
-    data.append("from pineboolib.application.database.orm import basemodel")
-    data.append("from pineboolib.qsa import qsa")
-    data.append("")
-    data.append("import sqlalchemy")
-    data.append("")
-    data.append("")
-
-    class_name = "%s%s" % (mtd_table.name()[0].upper(), mtd_table.name()[1:])
-
-    data.append("# @class_declaration Oficial")
-    data.append("class Oficial(basemodel.BaseModel): # type: ignore [misc] # noqa: F821")
-    data.append('    """ Oficial class."""')
-    data.append("    __tablename__ = '%s'" % mtd_table.name())  # si query nombre query
-    data.append("")
-    data.append("    # --- Metadata ---> ")
-    data.append("    legacy_metadata = {%s}" % ", ".join(metadata_table))
-    data.append("")
-    data.append("    # <--- Metadata --- ")
-
-    data.append("")
-
-    data.append("")
-    data.append("    # --- Fields ---> ")
-    data.append("")
-
-    for data_field in list_data_field:
-        data.append(data_field)
-
-    data.append("")
-    data.append("    # <--- Fields --- ")
-
-    data.append("")
-    data.append("# @class_declaration %s" % class_name)
-    data.append(
-        "class %s(Oficial): # type: ignore [misc] # noqa: F821" % class_name
-    )  # si query nombre query
-    data.append('    """ %s class."""' % class_name)
-    data.append("    pass")
-
-    if not pk_found and not mtd_table.isQuery():
-        LOGGER.warning(
-            "La tabla %s no tiene definida una clave primaria. No se generará el model."
-            % (mtd_table.name())
-        )
-        data = []
-
-    return data
+    return _create_declaration(mtd_table, header)
 
 
 def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
@@ -383,3 +291,181 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
         field_data.append("'searchoptions' : [%s]" % texto)
 
     return field_data
+
+
+def use_mtd_fields(path_model: str) -> bool:
+    """Return if models use mtd fields."""
+
+    file_ = open(path_model, "r")
+    lines = file_.readlines()
+    file_.close()
+    for line in lines:
+        if line.find("legacy_metadata") > -1:
+            return False
+
+    return True
+
+
+def populate_fields(dest_file_name: str, mtd_name: str) -> str:
+    """Populate models fields with mtd field."""
+
+    new_file_path: str = ""
+    if mtd_name in application.PROJECT.files.keys():
+        file_mtd = application.PROJECT.files[mtd_name]
+
+        file_ = open(dest_file_name, "r")
+        lines = file_.readlines()
+        file_.close()
+        new_lines = []
+        for number, line in enumerate(list(lines)):
+            if line.find("__tablename__") > -1:
+                new_lines = lines[0 : number + 1] + _get_meta(file_mtd) + lines[number + 1 :]
+                break
+
+        if new_lines:
+            new_key = "%s_model.py" % file_mtd.filename[:-4]
+            conn = application.PROJECT.conn_manager.mainConn()
+            db_name = conn.DBName()
+            application.PROJECT.files[new_key] = file.File(
+                file_mtd.module,
+                "%s_model.py" % file_mtd.path(),
+                basedir=file_mtd.basedir,
+                sha=file_mtd.sha,
+                db_name=db_name,
+            )
+            application.PROJECT.files[new_key].filekey = "%s_model.py" % file_mtd.filekey
+            new_file_path = application.PROJECT.files[new_key].path()
+            if os.path.exists(new_file_path):
+                os.remove(new_file_path)
+
+            _write_file(new_file_path, new_lines)
+
+    return new_file_path
+
+
+def _create_declaration(
+    mtd_table: "pntablemetadata.PNTableMetaData", header: bool = True
+) -> List[str]:
+    """Create metadata section."""
+
+    data: List[str] = []
+    list_data_field: List[str] = []
+    validator_list: List[str] = []
+    metadata_table: List = []
+    metadata_table.append("'name' : '%s'" % mtd_table.name())
+    metadata_table.append("'alias' : '%s'" % mtd_table.alias())
+    if mtd_table.isQuery():
+        metadata_table.append("'query':'%s'" % mtd_table.query())
+    if mtd_table.concurWarn():
+        metadata_table.append("'concurwarn': True")
+    if mtd_table.detectLocks():
+        metadata_table.append("'detectlocks':True")
+    if mtd_table.FTSFunction():
+        metadata_table.append("'ftsfunction' :'%s'" % mtd_table.FTSFunction())
+
+    try:
+        mtd_table.primaryKey()
+    except Exception as error:  # noqa: F841
+        pass
+
+    field_list: List[List[str]] = []
+    pk_found = False
+
+    for field in mtd_table.fieldList():  # Crea los campos
+
+        if field.isPrimaryKey():
+            pk_found = True
+
+        if field.name() in validator_list:
+            LOGGER.warning(
+                "Hay un campo %s duplicado en %s.mtd. Omitido", field.name(), mtd_table.name()
+            )
+        else:
+
+            field_data = []
+            field_data.append("    ")
+            if field.name() in RESERVER_WORDS:
+                field_data.append("%s_" % field.name())
+            else:
+                field_data.append(field.name())
+
+            field_data.append(" = sqlalchemy.Column('%s', " % field.name())
+            field_list.append(generate_field_metadata(field))
+            field_data.append(generate_field(field))
+            field_data.append(")")
+            validator_list.append(field.name())
+            if field.isPrimaryKey():
+                pk_found = True
+
+        list_data_field.append("".join(field_data))
+
+    meta_fields: List = []
+    for meta_field in field_list:
+        meta_fields.append("{%s}" % ", ".join(meta_field))
+
+    metadata_table.append(
+        "\n        'fields' : [\n        %s\n        ]" % ",\n        ".join(meta_fields)
+    )
+
+    class_name = "%s%s" % (mtd_table.name()[0].upper(), mtd_table.name()[1:])
+
+    if header:
+        data.append("# -*- coding: utf-8 -*-")
+        data.append("# Translated with pineboolib %s" % application.PINEBOO_VER)
+        data.append(
+            '"""%s%s_model module."""' % (mtd_table.name()[0].upper(), mtd_table.name()[1:])
+        )
+        data.append("")
+
+        data.append("from pineboolib.application.database.orm import basemodel")
+        data.append("from pineboolib.qsa import qsa")
+        data.append("")
+        data.append("import sqlalchemy")
+        data.append("")
+        data.append("")
+
+        data.append("# @class_declaration Oficial")
+        data.append("class Oficial(basemodel.BaseModel): # type: ignore [misc] # noqa: F821")
+        data.append('    """ Oficial class."""')
+        data.append("    __tablename__ = '%s'" % mtd_table.name())  # si query nombre query
+        data.append("")
+    else:
+        data.append("")
+        data.append("")
+        data.append("    # --- POPULATED WITH METADATA FIELDS ---")
+        data.append("")
+        data.append("")
+    data.append("    # --- Metadata --->")
+    data.append("    legacy_metadata = {%s}" % ", ".join(metadata_table))
+    data.append("\n")
+    data.append("    # <--- Metadata ---")
+
+    data.append("")
+
+    data.append("")
+    data.append("    # --- Fields --->")
+    data.append("")
+
+    for data_field in list_data_field:
+        data.append(data_field)
+
+    data.append("")
+    data.append("    # <--- Fields ---")
+
+    data.append("")
+    if header:
+        data.append("# @class_declaration %s" % class_name)
+        data.append(
+            "class %s(Oficial): # type: ignore [misc] # noqa: F821" % class_name
+        )  # si query nombre query
+        data.append('    """ %s class."""' % class_name)
+        data.append("    pass")
+
+    if not pk_found and not mtd_table.isQuery():
+        LOGGER.warning(
+            "La tabla %s no tiene definida una clave primaria. No se generará el model."
+            % (mtd_table.name())
+        )
+        data = []
+
+    return data

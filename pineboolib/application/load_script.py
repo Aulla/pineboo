@@ -6,6 +6,7 @@ from .utils.path import _path
 from typing import Optional, TYPE_CHECKING
 
 from pineboolib.application.staticloader import pnmodulesstaticloader
+from pineboolib.application.parsers.parser_mtd import pnmtdparser
 from pineboolib import application
 
 import xml.etree.ElementTree as ET
@@ -196,10 +197,17 @@ def _remove(file_name) -> None:
 
 
 def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
-    """Return class from path."""
+    """Return model_class from path."""
 
     model_class = None
-    script_path_py = _resolve_script(script_name, script_path_py)
+    script_path_py = _resolve_script("%s_model.py" % script_name, script_path_py)
+    if pnmtdparser.use_mtd_fields(script_path_py):
+        script_path_py = pnmtdparser.populate_fields(script_path_py, "%s.mtd" % script_name)
+        LOGGER.warning(
+            "El model %s no contenía legacy_metadata. Se rellena con datos de %s.mtd",
+            script_name,
+            script_name,
+        )
 
     if script_path_py:
         class_name = "%s%s" % (script_name[0].upper(), script_name[1:])
