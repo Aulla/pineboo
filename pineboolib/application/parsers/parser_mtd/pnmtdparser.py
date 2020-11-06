@@ -66,7 +66,7 @@ def _write_file(file_name: str, lines: List[str]) -> None:
 def _get_meta(file_mtd: "file.File") -> List[str]:
     """Return list with meta."""
 
-    mtd_data_list = []
+    mtd_data_list: List[str] = []
     if os.path.exists(file_mtd.path()):
         mtd_data = application.PROJECT.conn_manager.manager().metadata(file_mtd.filename, True)
         if mtd_data is not None:
@@ -316,7 +316,7 @@ def populate_fields(dest_file_name: str, mtd_name: str) -> str:
         file_ = open(dest_file_name, "r")
         lines = file_.readlines()
         file_.close()
-        new_lines = []
+        new_lines: List[str] = []
         for number, line in enumerate(list(lines)):
             if line.find("__tablename__") > -1:
                 new_lines = lines[0 : number + 1] + _get_meta(file_mtd) + lines[number + 1 :]
