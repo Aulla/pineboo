@@ -34,10 +34,7 @@ def convert_to_flaction(action: Union[str, "XMLAction"]) -> "pnaction.PNAction":
     @return PNAction object.
     """
 
-    if isinstance(action, str):
-        action_name = action
-    else:
-        action_name = action._name
+    action_name = action if isinstance(action, str) else action._name
 
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
