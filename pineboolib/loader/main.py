@@ -53,11 +53,11 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     application.PROJECT.aq_app._inicializing = False
     start_time = time.time()
     LOGGER.info(
-        "STARTUP_FRAMEWORK:(1/7) Setting profile data. time: %.4fs.", time.time() - start_time
+        "STARTUP_FRAMEWORK:(1/8) Setting profile data. time: %.4fs.", time.time() - start_time
     )
     conn_ = connect_to_db(conn)
     LOGGER.info(
-        "STARTUP_FRAMEWORK:(2/7) Establishing connection. time: %.4fs.", time.time() - start_time
+        "STARTUP_FRAMEWORK:(2/8) Establishing connection. time: %.4fs.", time.time() - start_time
     )
     main_conn_established = application.PROJECT.init_conn(connection=conn_)
 
@@ -65,26 +65,30 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
     # application.PROJECT.no_python_cache = False
-    LOGGER.info("STARTUP_FRAMEWORK:(3/7) Loading database. time: %.4fs.", time.time() - start_time)
+    LOGGER.info("STARTUP_FRAMEWORK:(3/8) Loading database. time: %.4fs.", time.time() - start_time)
     application.PROJECT.run()
     LOGGER.info(
-        "STARTUP_FRAMEWORK:(4/7) Loading area definitions. time: %.4fs.", time.time() - start_time
+        "STARTUP_FRAMEWORK:(4/8) Loading area definitions. time: %.4fs.", time.time() - start_time
     )
     application.PROJECT.conn_manager.managerModules().loadIdAreas()
     LOGGER.info(
-        "STARTUP_FRAMEWORK:(5/7) Loading module definitions. time: %.4fs.", time.time() - start_time
+        "STARTUP_FRAMEWORK:(5/8) Loading module definitions. time: %.4fs.", time.time() - start_time
     )
     application.PROJECT.conn_manager.managerModules().loadAllIdModules()
     LOGGER.info(
-        "STARTUP_FRAMEWORK:(6/7) Loading modules. Making QSA Tree. time: %.4fs.",
+        "STARTUP_FRAMEWORK:(6/8) Loading modules. Making QSA Tree. time: %.4fs.",
         time.time() - start_time,
     )
     application.PROJECT.load_modules()
     LOGGER.info(
-        "STARTUP_FRAMEWORK:(7/7) Loading orm models. Making QSA Tree. time: %.4fs.",
+        "STARTUP_FRAMEWORK:(7/8) Loading classes. Making QSA Tree. time: %.4fs.",
         time.time() - start_time,
     )
     application.PROJECT.load_classes()
+    LOGGER.info(
+        "STARTUP_FRAMEWORK:(8/8) Loading orm models. Making QSA Tree. time: %.4fs.",
+        time.time() - start_time,
+    )
     application.PROJECT.load_orm()
     LOGGER.info(
         "STARTUP_FRAMEWORK: All processes completed. Continue ... %.4f", time.time() - start_time
