@@ -141,9 +141,9 @@ class FLManager(QtCore.QObject, IManager):
 
         util = flutil.FLUtil()
 
-        if quick is None:
-            dbadmin = settings.CONFIG.value("application/dbadmin_enabled", False)
-            quick = not bool(dbadmin)
+        # if quick is None:
+        #    dbadmin = settings.CONFIG.value("application/dbadmin_enabled", False)
+        #    quick = not bool(dbadmin)
 
         if isinstance(metadata_name_or_xml, str):
 
@@ -291,10 +291,10 @@ class FLManager(QtCore.QObject, IManager):
             editable = True
             concur_warn = False
             detect_locks = False
-
+            child_list = []
             for child in metadata_name_or_xml:
                 if child.tag == "field":
-                    continue
+                    child_list.append(child)
                 elif child.tag == "name":
                     name = child.text or ""
                 elif child.tag == "query":
@@ -323,7 +323,7 @@ class FLManager(QtCore.QObject, IManager):
             compound_key = pncompoundkeymetadata.PNCompoundKeyMetaData()
             assocs = []
 
-            for child in metadata_name_or_xml:
+            for child in child_list:
                 if child.tag == "field":
                     field_mtd = self.metadataField(child, visible, editable)
                     table_metadata.addFieldMD(field_mtd)
@@ -637,10 +637,9 @@ class FLManager(QtCore.QObject, IManager):
         if not self.db_:
             raise Exception("formatValueLike. self.db_ is empty!")
 
-        if not isinstance(fmd_or_type, str):
-            fmd_or_type = fmd_or_type.type()
-
-        return self.db_.formatValueLike(fmd_or_type, value, upper)
+        return self.db_.formatValueLike(
+            fmd_or_type if isinstance(fmd_or_type, str) else fmd_or_type.type(), value, upper
+        )
 
     def formatAssignValueLike(self, *args, **kwargs) -> str:
         """
@@ -674,7 +673,6 @@ class FLManager(QtCore.QObject, IManager):
             if args[0].isPrimaryKey():
                 field_name_ = mtd_.primaryKey(True)
 
-            item_field_name = args[0].name()
             if mtd_.isQuery() and field_name_.find(".") == -1:
                 qry = pnsqlquery.PNSqlQuery(mtd_.query())
 
@@ -682,38 +680,29 @@ class FLManager(QtCore.QObject, IManager):
                     field_list = qry.fieldList()
 
                 for item in field_list:
-                    if item.find(".") > -1:
-                        item_field_name = item[item.find(".") + 1 :]
-                    else:
-                        item_field_name = item
-
+                    item_field_name = item[item.find(".") + 1 :] if item.find(".") > -1 else item
                     if item_field_name == field_name_:
                         break
+            else:
+                item_field_name = args[0].name()
 
             field_name_ = "%s.%s" % (mtd_.name(), item_field_name)
 
-        elif isinstance(args[1], pnfieldmetadata.PNFieldMetaData):
-
-            field_name_ = args[0]
-            type_ = args[1].type()
         else:
-
             field_name_ = args[0]
-            type_ = args[1]
+            type_ = args[1] if isinstance(args[1], str) else args[1].type()
 
             if len(args) == 4:
                 value_ = args[2]
                 upper_ = args[3]
 
-        is_text = type_ in ["string", "stringlist", "timestamp"]
         format_value_ = self.formatValueLike(type_, value_, upper_)
 
         if not format_value_:
             return "1 = 1"
 
-        if is_text:
-            if upper_:
-                field_name_ = "upper(%s)" % field_name_
+        if upper_ and type_ in ["string", "stringlist", "timestamp"]:
+            field_name_ = "upper(%s)" % field_name_
 
         return "%s %s" % (field_name_, format_value_)
 
@@ -747,69 +736,65 @@ class FLManager(QtCore.QObject, IManager):
         # print("tipo 1", type(args[1]))
         # print("tipo 2", type(args[2]))]
 
-        if isinstance(args[0], pnfieldmetadata.PNFieldMetaData) and len(args) == 3:
-            field_metadata = args[0]
-            mtd = field_metadata.metadata()
-            if mtd is None:
-                field_name_ = field_metadata.name()
-                field_type_ = field_metadata.type()
-                value_ = args[1]
-                upper_ = args[2]
+        if isinstance(args[0], pnfieldmetadata.PNFieldMetaData):
+            if len(args) == 3:
+                field_metadata = args[0]
+                mtd = field_metadata.metadata()
+                if mtd is None:
+                    field_name_ = field_metadata.name()
+                    field_type_ = field_metadata.type()
+                    value_ = args[1]
+                    upper_ = args[2]
 
-            elif field_metadata.isPrimaryKey():
-                field_name_ = mtd.primaryKey(True)
-                field_type_ = field_metadata.type()
-                value_ = args[1]
-                upper_ = args[2]
-            else:
+                elif field_metadata.isPrimaryKey():
+                    field_name_ = mtd.primaryKey(True)
+                    field_type_ = field_metadata.type()
+                    value_ = args[1]
+                    upper_ = args[2]
+                else:
 
-                field_name_ = field_metadata.name()
-                if mtd.isQuery() and "." not in field_name_:
-                    prefix_table_ = mtd.name()
-                    qry = self.query(mtd.query())
+                    field_name_ = field_metadata.name()
+                    if mtd.isQuery() and "." not in field_name_:
+                        prefix_table_ = mtd.name()
+                        qry = self.query(mtd.query())
 
-                    if qry:
+                        if qry:
 
-                        for field in qry.fieldList():
-                            # print("fieldName = " + f)
+                            for field in qry.fieldList():
+                                # print("fieldName = " + f)
 
-                            field_section_ = field
-                            pos = field.find(".")
-                            if pos > -1:
-                                prefix_table_ = field[:pos]
-                                field_section_ = field[pos + 1 :]
-                            else:
                                 field_section_ = field
+                                pos = field.find(".")
+                                if pos > -1:
+                                    prefix_table_ = field[:pos]
+                                    field_section_ = field[pos + 1 :]
+                                else:
+                                    field_section_ = field
 
-                            # prefixTable = f.section('.', 0, 0)
-                            # if f.section('.', 1, 1) == fieldName:
-                            if field_section_ == field_name_:
-                                break
+                                # prefixTable = f.section('.', 0, 0)
+                                # if f.section('.', 1, 1) == fieldName:
+                                if field_section_ == field_name_:
+                                    break
 
-                    # fieldName.prepend(prefixTable + ".")
-                    field_name_ = "%s.%s" % (prefix_table_, field_name_)
+                        # fieldName.prepend(prefixTable + ".")
+                        field_name_ = "%s.%s" % (prefix_table_, field_name_)
 
+                    field_type_ = args[0].type()
+                    value_ = args[1]
+                    upper_ = args[2]
+
+            elif len(args) == 2:
+
+                field_name_ = args[0].name()
                 field_type_ = args[0].type()
                 value_ = args[1]
-                upper_ = args[2]
-
-        elif isinstance(args[1], pnfieldmetadata.PNFieldMetaData) and isinstance(args[0], str):
-
-            field_name_ = args[0]
-            field_type_ = args[1].type()
-            value_ = args[2]
-            upper_ = args[3]
-
-        elif isinstance(args[0], pnfieldmetadata.PNFieldMetaData) and len(args) == 2:
-
-            field_name_ = args[0].name()
-            field_type_ = args[0].type()
-            value_ = args[1]
-            upper_ = False
+                upper_ = False
 
         elif isinstance(args[0], str):
             field_name_ = args[0]
-            field_type_ = args[1]
+            field_type_ = (
+                args[1].type() if isinstance(args[1], pnfieldmetadata.PNFieldMetaData) else args[1]
+            )
             value_ = args[2]
             upper_ = args[3]
 
@@ -826,15 +811,11 @@ class FLManager(QtCore.QObject, IManager):
         if upper_ and field_type_ in ["string", "stringlist", "timestamp"]:
             field_name_ = "upper(%s)" % field_name_
 
-        if field_type_ == "string":
-            if format_value_.find("%") > -1:
-                retorno = "%s LIKE %s" % (field_name_, format_value_)
-            else:
-                retorno = "%s = %s" % (field_name_, format_value_)
-        else:
-            retorno = "%s = %s" % (field_name_, format_value_)
-
-        return retorno
+        return "%s %s %s" % (
+            field_name_,
+            "LIKE" if field_type_ == "string" and format_value_.find("%") > -1 else "=",
+            format_value_,
+        )
 
     def metadataField(
         self, field: Union["ElementTree.Element", Dict], v: bool = True, ed: bool = True
@@ -1287,11 +1268,8 @@ class FLManager(QtCore.QObject, IManager):
         @return A PNTableMetaData object with the metadata of the table that was created, or
           False if the table could not be created or already existed.
         """
-        # if not self.existsTable(table_name):
-        if self.createTable(self.metadata("%s.mtd" % table_name, True)):
-            return True
 
-        return False
+        return self.createTable(self.metadata("%s.mtd" % table_name, True))
 
     def loadTables(self) -> None:
         """
