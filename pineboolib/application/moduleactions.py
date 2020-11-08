@@ -25,11 +25,8 @@ class ModuleActions(object):
         @param path. Ruta del módulo
         @param modulename. Nombre del módulo
         """
-        if TYPE_CHECKING:
-            # To avoid circular dependency on pytype
-            self.project = module
-        else:
-            self.project = application.PROJECT
+
+        self.project = module if TYPE_CHECKING else application.PROJECT
 
         self.mod = module  # application.Module
         self.path = path
@@ -40,7 +37,7 @@ class ModuleActions(object):
     def load(self) -> None:
         """Load module actions into project."""
         # Ojo: Almacena un arbol con los módulos cargados
-        from pineboolib.application.qsadictmodules import QSADictModules
+        from .qsadictmodules import QSADictModules
 
         tree = utils_base.load2xml(self.path)
         self.root = tree.getroot()
