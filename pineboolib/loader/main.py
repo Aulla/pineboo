@@ -5,6 +5,7 @@ from optparse import Values
 from typing import List, Type, Optional, TYPE_CHECKING
 from types import TracebackType
 import coloredlogs  # type: ignore [import]
+import time
 
 from PyQt5 import QtCore, QtWidgets
 
@@ -50,27 +51,37 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     dgi = load_dgi("qt", None)
     application.PROJECT.init_dgi(dgi)
     application.PROJECT.aq_app._inicializing = False
-    LOGGER.info("STARTUP_FRAMEWORK:(1/7) Setting profile data.")
+    start_time = time.time()
+    LOGGER.info("STARTUP_FRAMEWORK:(1/7) Setting profile data. %.4f", time.time() - start_time)
     conn_ = connect_to_db(conn)
-    LOGGER.info("STARTUP_FRAMEWORK:(2/7) Establishing connection.")
+    LOGGER.info("STARTUP_FRAMEWORK:(2/7) Establishing connection. %.4f", time.time() - start_time)
     main_conn_established = application.PROJECT.init_conn(connection=conn_)
 
     if not main_conn_established:
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
     # application.PROJECT.no_python_cache = False
-    LOGGER.info("STARTUP_FRAMEWORK:(3/7) Loading database.")
+    LOGGER.info("STARTUP_FRAMEWORK:(3/7) Loading database. %.4f", time.time() - start_time)
     application.PROJECT.run()
-    LOGGER.info("STARTUP_FRAMEWORK:(4/7) Loading area definitions.")
+    LOGGER.info("STARTUP_FRAMEWORK:(4/7) Loading area definitions. %.4f", time.time() - start_time)
     application.PROJECT.conn_manager.managerModules().loadIdAreas()
-    LOGGER.info("STARTUP_FRAMEWORK:(5/7) Loading module definitions.")
+    LOGGER.info(
+        "STARTUP_FRAMEWORK:(5/7) Loading module definitions. %.4f", time.time() - start_time
+    )
     application.PROJECT.conn_manager.managerModules().loadAllIdModules()
-    LOGGER.info("STARTUP_FRAMEWORK:(6/7) Loading modules. Making QSA Tree.")
+    LOGGER.info(
+        "STARTUP_FRAMEWORK:(6/7) Loading modules. Making QSA Tree. %.4f", time.time() - start_time
+    )
     application.PROJECT.load_modules()
-    LOGGER.info("STARTUP_FRAMEWORK:(7/7) Loading orm models. Making QSA Tree.")
+    LOGGER.info(
+        "STARTUP_FRAMEWORK:(7/7) Loading orm models. Making QSA Tree. %.4f",
+        time.time() - start_time,
+    )
     application.PROJECT.load_classes()
     application.PROJECT.load_orm()
-    LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
+    LOGGER.info(
+        "STARTUP_FRAMEWORK: All processes completed. Continue ... %.4f", time.time() - start_time
+    )
 
 
 def startup(enable_gui: bool = None) -> None:
