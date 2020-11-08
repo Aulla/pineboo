@@ -219,27 +219,15 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         """
 
         if not self.private._primary_key:
-            if len(self.fieldList()) == 1:
-                field = self.fieldList()[0]
-                LOGGER.debug(
-                    "Forzando %s(%s) como primaryKey de %s.Solo hay un campo definido.",
-                    field.name(),
-                    field.type(),
-                    self.name(),
-                )
 
-                self.private._primary_key = field.name()
-                field.setIsPrimaryKey(True)
-            else:
-
-                for field in self.fieldList():
-                    if field.type() == "serial":
-                        LOGGER.debug(
-                            "Forzando %s(serial) como primaryKey de %s", field.name(), self.name()
-                        )
-                        self.private._primary_key = field.name()
-                        field.setIsPrimaryKey(True)
-                        break
+            for field in self.fieldList():
+                if field.type() == "serial" or len(self.fieldList()) == 1:
+                    LOGGER.debug(
+                        "Forzando %s(serial) como primaryKey de %s", field.name(), self.name()
+                    )
+                    self.private._primary_key = field.name()
+                    field.setIsPrimaryKey(True)
+                    break
 
             if not self.private._primary_key:
                 raise Exception("No primaryKey in %s" % self.private._name)
@@ -323,10 +311,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
         @param fN Field name.
         """
 
-        if field_name == self.private._primary_key:
-            return True
-
-        return False
+        return field_name == self.private._primary_key
 
     def fieldIsIndex(self, field_name: str = "") -> int:
         """
@@ -334,9 +319,9 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
         @param fN Field name.
         """
-        if field_name:
-            if field_name in self.fieldNames():
-                return self.fieldNames().index(field_name)
+
+        if field_name in self.fieldNames():
+            return self.fieldNames().index(field_name)
 
         LOGGER.warning("FLTableMetaData.fieldIsIndex(%s) No encontrado", field_name)
         return -1

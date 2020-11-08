@@ -342,18 +342,19 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         @param r FlRelationMetaData object with the definition of the relationship to add.
         """
 
-        is_relation_m1 = False
-        # print("FLFieldMetadata(%s).addRelationMD(card %s)" % (self.name(), r.cardinality()))
-
-        if relation.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_M1:
-            is_relation_m1 = True
-            if self.private._relation_m1:
-                LOGGER.debug(
-                    "addRelationMD: Se ha intentado crear más de una relación muchos a uno para el mismo campo"
-                )
-                return
+        is_relation_m1 = (
+            True
+            if relation.cardinality() == pnrelationmetadata.PNRelationMetaData.RELATION_M1
+            else False
+        )
         if not self.private._field_name:
             LOGGER.warning("addRelationMD: no fieldName")
+            return
+
+        if self.private._relation_m1:
+            LOGGER.debug(
+                "addRelationMD: Se ha intentado crear más de una relación muchos a uno para el mismo campo"
+            )
             return
 
         relation.setField(self.private._field_name)
@@ -395,7 +396,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         @param f Name of the field to apply the filter
 
         """
-        name = r_or_name.name() if not isinstance(r_or_name, str) else r_or_name
+        name = r_or_name if isinstance(r_or_name, str) else r_or_name.name()
 
         self.private.associated_field_name = name
         self.private.associated_field_filter_to = f
@@ -436,13 +437,13 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         @return Value that is assigned to the field by default
         """
 
-        if self.private._default_value in (None, "null"):
+        if self.private._default_value == "null":
             self.private._default_value = None
 
-        if self.private.type_ in ("bool", "unlock") and isinstance(
+        elif self.private.type_ in ("bool", "unlock") and isinstance(
             self.private._default_value, str
         ):
-            return self.private._default_value in ["true", "True"]
+            self.private._default_value = self.private._default_value in ["true", "True"]
 
         return self.private._default_value
 
