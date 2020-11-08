@@ -1269,7 +1269,7 @@ class FLManager(QtCore.QObject, IManager):
           False if the table could not be created or already existed.
         """
 
-        return self.createTable(self.metadata("%s.mtd" % table_name, True))
+        return self.createTable(self.metadata("%s.mtd" % table_name, True)) is not None
 
     def loadTables(self) -> None:
         """
