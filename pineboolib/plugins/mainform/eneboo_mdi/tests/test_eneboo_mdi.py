@@ -66,6 +66,8 @@ class TestEnebooGUI(unittest.TestCase):
             application.PROJECT.main_window.toggleStatusBar(True)
             application.PROJECT.main_window.windowClose()
 
+            application.PROJECT.main_window.generalExit(False)
+
     @classmethod
     def tearDownClass(cls) -> None:
         """Ensure this class is finished correctly."""

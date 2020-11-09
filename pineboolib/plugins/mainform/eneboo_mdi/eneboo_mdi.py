@@ -256,14 +256,11 @@ class MainForm(imainwindow.IMainWindow):
         self.window_menu.addAction(self.window_tile_action)
         self.window_menu.addAction(self.window_close_action)
 
-        if not self._p_work_space.subWindowList():
-            self.window_cascade_action.setEnabled(False)
-            self.window_tile_action.setEnabled(False)
-            self.window_close_action.setEnabled(False)
-        else:
-            self.window_cascade_action.setEnabled(True)
-            self.window_tile_action.setEnabled(True)
-            self.window_close_action.setEnabled(True)
+        state = True if self._p_work_space.subWindowList() else False
+        self.window_cascade_action.setEnabled(state)
+        self.window_tile_action.setEnabled(state)
+        self.window_close_action.setEnabled(state)
+        if state:
             self.window_menu.addSeparator()
 
         for window in self._p_work_space.subWindowList():
