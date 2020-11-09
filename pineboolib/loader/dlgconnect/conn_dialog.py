@@ -1,7 +1,6 @@
 """conn_dialog module."""
 
 from pineboolib import logging
-
 from PyQt5 import QtWidgets
 from pineboolib.loader.projectconfig import ProjectConfig
 from typing import Optional
