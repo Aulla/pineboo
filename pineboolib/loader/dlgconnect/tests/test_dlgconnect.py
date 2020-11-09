@@ -54,6 +54,11 @@ class TestDlgConnect(unittest.TestCase):
         if os.path.exists("%s/pytest.xml" % profile_dir):
             os.remove("%s/pytest.xml" % profile_dir)
         dialog.saveProfile()
+        dialog.showOptions(True)
+        dialog.showOptions(False)
+        self.assertTrue(dialog.getProjectConfig("pytest"))
+        dialog.editProfileName("pytest")
+        dialog.close()
 
     @classmethod
     def tearDownClass(cls) -> None:
