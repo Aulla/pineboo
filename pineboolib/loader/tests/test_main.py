@@ -24,7 +24,3 @@ class TestMain(unittest.TestCase):
         mock_exec_main.assert_called_once()
         mock_sys_exit.assert_called_once()
 
-    def test_basic2(self) -> None:
-        """Test basic functions."""
-
-        self.assertTrue(main.exec_main_with_profiler([]))
