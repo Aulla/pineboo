@@ -23,4 +23,3 @@ class TestMain(unittest.TestCase):
         mock_parse_options.assert_called_once()
         mock_exec_main.assert_called_once()
         mock_sys_exit.assert_called_once()
-
