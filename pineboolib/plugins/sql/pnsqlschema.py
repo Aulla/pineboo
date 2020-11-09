@@ -855,13 +855,13 @@ class PNSqlSchema(object):
         """Return if can detect locks."""
         return True
 
-    def fix_query(self, val: str) -> str:
-        """Fix values on SQL."""
-        ret_ = val.replace("'true'", "1")
-        ret_ = ret_.replace("'false'", "0")
-        ret_ = ret_.replace("'0'", "0")
-        ret_ = ret_.replace("'1'", "1")
-        return ret_
+    # def fix_query(self, val: str) -> str:
+    #    """Fix values on SQL."""
+    #    ret_ = val.replace("'true'", "1")
+    #    ret_ = ret_.replace("'false'", "0")
+    #    ret_ = ret_.replace("'0'", "0")
+    #    ret_ = ret_.replace("'1'", "1")
+    #    return ret_
 
     # def desktopFile(self) -> bool:
     #    """Return if use a file like database."""

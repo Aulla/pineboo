@@ -279,10 +279,10 @@ class FLPYMSSQL(pnsqlschema.PNSqlSchema):
             LOGGER.error("finRow: %s", exception)
             LOGGER.warning("Detalle:", stack_info=True)
 
-    def fix_query(self, query: str) -> str:
-        """Fix string."""
-        # ret_ = query.replace(";", "")
-        return query
+    # def fix_query(self, query: str) -> str:
+    #    """Fix string."""
+    #    # ret_ = query.replace(";", "")
+    #    return query
 
     @decorators.not_implemented_warn
     def alterTable(self, new_metadata: "pntablemetadata.PNTableMetaData") -> bool:

@@ -287,10 +287,10 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
                 self.execute_query("VACUUM ANALYZE %s" % table_name)
         self._connection.connection.set_isolation_level(1)
 
-    def fix_query(self, query: str) -> str:
-        """Fix string."""
-        # ret_ = query.replace(";", "")
-        return query
+    # def fix_query(self, query: str) -> str:
+    #    """Fix string."""
+    #    # ret_ = query.replace(";", "")
+    #    return query
 
     def checkSequences(self) -> None:
         """Check sequences."""
