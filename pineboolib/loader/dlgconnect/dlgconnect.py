@@ -207,6 +207,7 @@ class DlgConnect(QtWidgets.QWidget):
             self._user_interface.leProfilePassword.text()
             != self._user_interface.leProfilePassword2.text()
         ):
+
             QtWidgets.QMessageBox.information(
                 self._user_interface, "Pineboo", "La contraseña del perfil no coincide"
             )
@@ -239,7 +240,6 @@ class DlgConnect(QtWidgets.QWidget):
         pconf.host = self._user_interface.leURL.text()
         pconf.port = int(self._user_interface.lePort.text())
         pconf.username = self._user_interface.leDBUser.text()
-
         pconf.password = self._user_interface.leDBPassword.text()
         pconf.database = self._user_interface.leDBName.text()
 
@@ -248,7 +248,6 @@ class DlgConnect(QtWidgets.QWidget):
             pass_profile_text = self._user_interface.leProfilePassword.text()
         pconf.project_password = pass_profile_text
         pconf.save_projectxml(overwrite_existing=self.edit_mode)
-
         # self.cleanProfileForm()
         self.loadProfiles()
         self._user_interface.cbProfiles.setCurrentText(pconf.description)
