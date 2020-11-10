@@ -499,8 +499,12 @@ class PNSqlSchema(object):
         """Return if exists a table specified by name."""
 
         if self._engine:
+            self.set_last_error_null()
+            table_list = self.tables()
+            if self.last_error():
+                raise Exception("Error loading tables.")
 
-            return table_name in self.tables()
+            return table_name in table_list
         else:
             raise Exception("No engine or connection exists!")
 
