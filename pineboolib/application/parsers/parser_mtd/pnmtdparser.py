@@ -426,7 +426,7 @@ def _create_declaration(
 
         data.append("# @class_declaration Oficial")
         data.append("class Oficial(basemodel.BaseModel): # type: ignore [misc] # noqa: F821")
-        data.append('    """ Oficial class."""')
+        data.append('    """Oficial class."""')
         data.append("    __tablename__ = '%s'" % mtd_table.name())  # si query nombre query
         data.append("")
     else:
@@ -458,7 +458,7 @@ def _create_declaration(
         data.append(
             "class %s(Oficial): # type: ignore [misc] # noqa: F821" % class_name
         )  # si query nombre query
-        data.append('    """ %s class."""' % class_name)
+        data.append('    """%s class."""' % class_name)
         data.append("    pass")
 
     if not pk_found and not mtd_table.isQuery():
