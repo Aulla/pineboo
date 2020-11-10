@@ -5,7 +5,7 @@ from PyQt5 import QtWidgets
 from typing import List, TYPE_CHECKING, Optional, Dict
 
 if TYPE_CHECKING:
-    from pineboolib.fllegacy import flworkspace  # noqa: F401
+    from pineboolib.fllegacy import flworkspace  # noqa: F401 # pragma: no cover
 
 
 class IMainWindow(QtWidgets.QMainWindow):
@@ -25,99 +25,99 @@ class IMainWindow(QtWidgets.QMainWindow):
 
     def writeState(self) -> None:
         """Write settings back to disk."""
-        pass
+        pass  # pragma: no cover
 
     def readState(self) -> None:
         """Read settings."""
 
-        pass
+        pass  # pragma: no cover
 
     def createUi(self, ui_file: str) -> None:
         """Create UI from a file."""
 
-        pass
+        pass  # pragma: no cover
 
     def writeStateModule(self) -> None:
         """Write settings for modules."""
 
-        pass
+        pass  # pragma: no cover
 
     def readStateModule(self) -> None:
         """Read settings for module."""
 
-        pass
+        pass  # pragma: no cover
 
     def initScript(self) -> None:
         """Startup process."""
 
-        pass
+        pass  # pragma: no cover
 
     def reinitScript(self):
         """Reinit script."""
 
-        pass
+        pass  # pragma: no cover
 
     def loadTabs(self) -> None:
         """Load tabs."""
 
-        pass
+        pass  # pragma: no cover
 
     def initToolBar(self) -> None:
         """Initialize toolbar."""
 
-        pass
+        pass  # pragma: no cover
 
     def initMenuBar(self) -> None:
         """Initialize menus."""
 
-        pass
+        pass  # pragma: no cover
 
     def windowMenuAboutToShow(self) -> None:
         """Signal called before window menu is shown."""
 
-        pass
+        pass  # pragma: no cover
 
     def activateModule(self, idm=None) -> None:
         """Initialize module."""
 
-        pass
+        pass  # pragma: no cover
 
     def existFormInMDI(self, form_name: str) -> bool:
         """Return if named FLFormDB is open."""
 
-        return True
+        return True  # pragma: no cover
 
     def windowMenuActivated(self, id_window: int) -> None:
         """Signal called when user clicks on menu."""
 
-        pass
+        pass  # pragma: no cover
 
     def windowClose(self) -> None:
         """Signal called on close."""
 
-        pass
+        pass  # pragma: no cover
 
     def toggleToolBar(self, toggle: bool) -> None:
         """Show or hide toolbar."""
 
-        pass
+        pass  # pragma: no cover
 
     def toggleStatusBar(self, toggle: bool) -> None:
         """Toggle status bar."""
 
-        pass
+        pass  # pragma: no cover
 
     def initToolBox(self) -> None:
         """Initialize toolbox."""
 
-        pass
+        pass  # pragma: no cover
 
     def setCaptionMainWidget(self, value: str) -> None:
         """Set application title."""
 
-        pass
+        pass  # pragma: no cover
 
     def setMainWidget(self, widget: QtWidgets.QWidget) -> None:
         """Set mainWidget."""
 
-        pass
+        pass  # pragma: no cover

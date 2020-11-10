@@ -4,8 +4,10 @@ IFieldMetaData module.
 from typing import List, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .itablemetadata import ITableMetaData  # noqa: F401
-    from pineboolib.application.metadata.pnrelationmetadata import PNRelationMetaData  # noqa: F401
+    from .itablemetadata import ITableMetaData  # noqa: F401 # pragma: no cover
+    from pineboolib.application.metadata.pnrelationmetadata import (
+        PNRelationMetaData,
+    )  # noqa: F401 # pragma: no cover
 
 
 class IFieldMetaData:
@@ -15,63 +17,63 @@ class IFieldMetaData:
 
     def __init__(self, *args, **kwargs) -> None:
         """Create new FieldMetaData."""
-        return
+        return  # pragma: no cover
 
     def __len__(self) -> int:
         """Get size of field."""
-        return 0
+        return 0  # pragma: no cover
 
     def addRelationMD(self, relation) -> None:
         """Add relation M1 or 1M."""
-        return
+        return  # pragma: no cover
 
     def alias(self) -> str:
         """Get alias for this field."""
-        return ""
+        return ""  # pragma: no cover
 
     def allowNull(self) -> bool:
         """Determine if this field allos NULLs."""
-        return False
+        return False  # pragma: no cover
 
     def associatedField(self) -> Optional["IFieldMetaData"]:
         """Return associated field."""
-        return None
+        return None  # pragma: no cover
 
     def associatedFieldFilterTo(self) -> str:
         """Return associated field filter in sql string format."""
-        return ""
+        return ""  # pragma: no cover
 
     def associatedFieldName(self) -> Optional[str]:
         """Return associated field name."""
-        return None
+        return None  # pragma: no cover
 
     def defaultValue(self) -> Optional[Union[str, bool]]:
         """Return field default value."""
-        return None
+        return None  # pragma: no cover
 
     def editable(self) -> bool:
         """Get if field is editable."""
-        return False
+        return False  # pragma: no cover
 
     def formatAssignValue(self, field_name: str, value: int, upper: bool) -> str:
         """Format a value for this field."""
-        return ""
+        return ""  # pragma: no cover
 
     def generated(self) -> bool:
         """Get if field is computed."""
-        return False
+        return False  # pragma: no cover
 
     def getIndexOptionsList(self, name: str) -> Optional[int]:
         """Get list of options."""
-        return None
+        return None  # pragma: no cover
 
     def hasOptionsList(self) -> bool:
         """Return if this field has list of options."""
-        return False
+        return False  # pragma: no cover
 
     def inicializeFLFieldMetaData(self, other) -> None:
         """Initialize."""
-        return
+        return  # pragma: no cover
 
     def inicializeNewFLFieldMetaData(
         self,
@@ -97,88 +99,88 @@ class IFieldMetaData:
         is_compound_key: bool = False,
     ) -> None:
         """Initialize."""
-        return
+        return  # pragma: no cover
 
     def isCompoundKey(self) -> bool:
         """Return if this field is part of CK."""
-        return False
+        return False  # pragma: no cover
 
     def isPrimaryKey(self) -> bool:
         """Return if this field is PK."""
-        return False
+        return False  # pragma: no cover
 
     def length(self) -> int:
         """Return field size."""
-        return 0
+        return 0  # pragma: no cover
 
     def metadata(self) -> Optional["ITableMetaData"]:
         """Return table metadata for this field."""
-        return None
+        return None  # pragma: no cover
 
     def name(self) -> str:
         """Get name of this field."""
-        return ""
+        return ""  # pragma: no cover
 
     def optionsList(self) -> List[str]:
         """Get list of options for this field."""
-        return []
+        return []  # pragma: no cover
 
     def outTransaction(self) -> bool:
         """Return if this field should be updated outside of transaction."""
-        return False
+        return False  # pragma: no cover
 
     def partDecimal(self) -> int:
         """Return the amount of digits after dot when formatting numbers."""
-        return 0
+        return 0  # pragma: no cover
 
     def partInteger(self) -> int:
         """Return amount of digits before decimal dot."""
-        return 0
+        return 0  # pragma: no cover
 
     def regExpValidator(self) -> Optional[str]:
         """Validate regexp."""
-        return None
+        return None  # pragma: no cover
 
     def relationM1(self) -> Optional["PNRelationMetaData"]:
         """Return M1 relationship in this field."""
-        return None
+        return None  # pragma: no cover
 
     def setAssociatedField(self, relation_or_name, field: str) -> None:
         """Set new associated field."""
-        return
+        return  # pragma: no cover
 
     def setEditable(self, editable: bool) -> None:
         """Set if this field should be editable."""
-        return
+        return  # pragma: no cover
 
     def setFullyCalculated(self, calculated: bool) -> None:
         """Set if this field should be fully calculated."""
-        return
+        return  # pragma: no cover
 
     def setMetadata(self, metadata) -> None:
         """Set TableMetadata for this field."""
-        return
+        return  # pragma: no cover
 
     def setOptionsList(self, options_list: str) -> None:
         """Set option list for this field."""
-        return
+        return  # pragma: no cover
 
     def setTrimed(self, trimed: bool) -> None:
         """Set if this field should be trimed."""
-        return
+        return  # pragma: no cover
 
     def setVisible(self, visible: bool) -> None:
         """Set if this field should be visible."""
-        return
+        return  # pragma: no cover
 
     def type(self) -> str:
         """Return field type."""
-        return ""
+        return ""  # pragma: no cover
 
     def visible(self) -> bool:
         """Get if this field should be visible in UI."""
-        return False
+        return False  # pragma: no cover
 
     def visibleGrid(self) -> bool:
         """Get if this field should be visible in grids."""
-        return False
+        return False  # pragma: no cover

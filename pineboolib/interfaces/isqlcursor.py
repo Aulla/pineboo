@@ -11,15 +11,18 @@ from pineboolib.interfaces.cursoraccessmode import CursorAccessMode
 from typing import Any, Optional, Dict, List, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.acls import pnboolflagstate
-    from pineboolib.application.database import pnbuffer, pncursortablemodel  # noqa : F401
-    from pineboolib.application.metadata import (  # noqa : F401
+    from pineboolib.application.acls import pnboolflagstate  # pragma: no cover
+    from pineboolib.application.database import (
+        pnbuffer,
+        pncursortablemodel,
+    )  # noqa : F401 # pragma: no cover
+    from pineboolib.application.metadata import (  # noqa : F401 # pragma: no cover
         pntablemetadata,
         pnrelationmetadata,
         pnaction,
     )
-    from pineboolib.interfaces import iconnection
-    import sqlalchemy  # type: ignore [import] # noqa: F821
+    from pineboolib.interfaces import iconnection  # pragma: no cover
+    import sqlalchemy  # type: ignore [import] # noqa: F821 # pragma: no cover
 
 
 class ICursorPrivate(QtCore.QObject):
@@ -223,27 +226,27 @@ class ICursorPrivate(QtCore.QObject):
         Delete instance values.
         """
 
-        pass
+        pass  # pragma: no cover
 
     def msgBoxWarning(self, msg: str, throw_exception: bool = False) -> None:
         """Return msgbox if an error exists."""
 
-        pass
+        pass  # pragma: no cover
 
     def needUpdate(self) -> bool:
         """Indicate if the cursor needs to be updated."""
 
-        pass
+        pass  # pragma: no cover
 
     def undoAcl(self) -> None:
         """Delete restrictions according to access control list."""
 
-        pass
+        pass  # pragma: no cover
 
     def doAcl(self) -> None:
         """Create restrictions according to access control list."""
 
-        pass
+        pass  # pragma: no cover
 
 
 class ISqlCursor(QtCore.QObject):
@@ -339,31 +342,31 @@ class ISqlCursor(QtCore.QObject):
 
     def init(self, name: str, autopopulate, cusor_relation, relation) -> None:
         """Initialize cursor."""
-        pass
+        pass  # pragma: no cover
 
     def conn(self) -> Any:
         """Retrieve connection object."""
-        pass
+        pass  # pragma: no cover
 
     def table(self) -> Any:
         """Retrieve table name."""
-        pass
+        pass  # pragma: no cover
 
     def setName(self, name, autop) -> Any:
         """Set cursor name."""
-        pass
+        pass  # pragma: no cover
 
     def metadata(self) -> Any:
         """Get table metadata for this cursor table."""
-        pass
+        pass  # pragma: no cover
 
     def currentRegister(self) -> Any:
         """Get current row number."""
-        pass
+        pass  # pragma: no cover
 
     def modeAccess(self) -> Any:
         """Get current access mode."""
-        pass
+        pass  # pragma: no cover
 
     def filter(self) -> str:
         """Get SQL filter as a string."""
@@ -371,346 +374,346 @@ class ISqlCursor(QtCore.QObject):
 
     def mainFilter(self) -> Any:
         """Get SQL Main filter as a string."""
-        pass
+        pass  # pragma: no cover
 
     def action(self) -> Any:
         """Get action object."""
-        pass
+        pass  # pragma: no cover
 
     def actionName(self) -> Any:
         """Get action name."""
-        pass
+        pass  # pragma: no cover
 
     def setAction(self, action) -> Any:
         """Set Action object."""
-        pass
+        pass  # pragma: no cover
 
     def setMainFilter(self, filter: str, do_refresh: bool = True) -> Any:
         """Set Main filter for this cursor."""
-        pass
+        pass  # pragma: no cover
 
     def setModeAccess(self, mode_access) -> Any:
         """Set Access mode for the cursor."""
-        pass
+        pass  # pragma: no cover
 
     def connectionName(self) -> Any:
         """Get current connection name."""
-        pass
+        pass  # pragma: no cover
 
     def setValueBuffer(self, field_name: str, value: Any) -> Any:
         """Set Value on the cursor buffer."""
-        pass
+        pass  # pragma: no cover
 
     def valueBuffer(self, field_name: str) -> Any:
         """Get value from cursor buffer."""
-        pass
+        pass  # pragma: no cover
 
     def fetchLargeValue(self, value) -> Any:
         """Fetch from fllarge."""
-        pass
+        pass  # pragma: no cover
 
     def valueBufferCopy(self, field_name) -> Any:
         """Get original value on buffer."""
-        pass
+        pass  # pragma: no cover
 
     def setEdition(self, value, flag=None) -> Any:
         """Set edit mode."""
-        pass
+        pass  # pragma: no cover
 
     def restoreEditionFlag(self, flag) -> Any:
         """Restore edit flag."""
-        pass
+        pass  # pragma: no cover
 
     def setBrowse(self, value, flag=None) -> Any:
         """Set browse mode."""
-        pass
+        pass  # pragma: no cover
 
     def restoreBrowseFlag(self, flag) -> Any:
         """Restore browse flag."""
-        pass
+        pass  # pragma: no cover
 
     def meta_model(self) -> Any:
         """Get sqlAlchemy model."""
-        pass
+        pass  # pragma: no cover
 
     def setContext(self, context=None) -> Any:
         """Set script execution context."""
-        pass
+        pass  # pragma: no cover
 
     def context(self) -> Any:
         """Get script execution context."""
-        pass
+        pass  # pragma: no cover
 
     def fieldDisabled(self, field_name) -> Any:
         """Get if field is disabled."""
-        pass
+        pass  # pragma: no cover
 
     def inTransaction(self) -> Any:
         """Return if transaction is in progress."""
-        pass
+        pass  # pragma: no cover
 
     def transaction(self, lock=False) -> Any:
         """Open transaction."""
-        pass
+        pass  # pragma: no cover
 
     def rollback(self) -> Any:
         """Rollback transaction."""
-        pass
+        pass  # pragma: no cover
 
     def commit(self, notify=True) -> bool:
         """Commit transaction."""
-        pass
+        pass  # pragma: no cover
 
     def size(self) -> int:
         """Get current cursor size in rows."""
-        pass
+        pass  # pragma: no cover
 
     def openFormInMode(self, mode: int, wait: bool = True, cont: bool = True) -> None:
         """Open record form in specified mode."""
-        pass
+        pass  # pragma: no cover
 
     def isNull(self, field_name) -> bool:
         """Get if field is null."""
-        pass
+        pass  # pragma: no cover
 
     def updateBufferCopy(self) -> Any:
         """Refresh buffer copy."""
-        pass
+        pass  # pragma: no cover
 
     def isModifiedBuffer(self) -> bool:
         """Get if buffer is modified."""
-        pass
+        pass  # pragma: no cover
 
     def setAskForCancelChanges(self, value) -> Any:
         """Activate dialog for asking before closing."""
-        pass
+        pass  # pragma: no cover
 
     def setActivatedCheckIntegrity(self, value) -> Any:
         """Activate integrity checks."""
-        pass
+        pass  # pragma: no cover
 
     def activatedCheckIntegrity(self) -> Any:
         """Get integrity check state."""
-        pass
+        pass  # pragma: no cover
 
     def setActivatedCommitActions(self, value) -> Any:
         """Activate before/after commit."""
-        pass
+        pass  # pragma: no cover
 
     def activatedCommitActions(self) -> Any:
         """Get before/after commit status."""
-        pass
+        pass  # pragma: no cover
 
     def setActivatedBufferChanged(self, activated_bufferchanged) -> Any:
         """Activate Buffer changed."""
-        pass
+        pass  # pragma: no cover
 
     def activatedBufferChanged(self) -> bool:
         """Get buffer changed status."""
-        pass
+        pass  # pragma: no cover
 
     def setActivatedBufferCommited(self, activated_buffercommited) -> Any:
         """Activate buffer committed."""
-        pass
+        pass  # pragma: no cover
 
     def activatedBufferCommited(self) -> bool:
         """Get buffer committed status."""
-        pass
+        pass  # pragma: no cover
 
     def cursorRelation(self) -> Any:
         """Get cursor relation."""
-        pass
+        pass  # pragma: no cover
 
     def relation(self) -> Any:
         """Get relation."""
-        pass
+        pass  # pragma: no cover
 
     def setUnLock(self, field_name, value) -> Any:
         """Set unlock field."""
-        pass
+        pass  # pragma: no cover
 
     def isLocked(self) -> bool:
         """Get if record is locked."""
-        pass
+        pass  # pragma: no cover
 
     def buffer(self) -> Any:
         """Get buffer object."""
-        pass
+        pass  # pragma: no cover
 
     def bufferCopy(self) -> Any:
         """Get buffer copy."""
-        pass
+        pass  # pragma: no cover
 
     def bufferIsNull(self, pos_or_name) -> Any:
         """Get if value is null in buffer."""
-        pass
+        pass  # pragma: no cover
 
     def bufferSetNull(self, pos_or_name) -> Any:
         """Set null to value in buffer."""
-        pass
+        pass  # pragma: no cover
 
     def bufferCopyIsNull(self, pos_or_name) -> Any:
         """Get if value is null in original buffer."""
-        pass
+        pass  # pragma: no cover
 
     def bufferCopySetNull(self, pos_or_name) -> Any:
         """Set to null field in bufferCopy."""
-        pass
+        pass  # pragma: no cover
 
     def setNull(self, name) -> Any:
         """Set field to null."""
-        pass
+        pass  # pragma: no cover
 
     def db(self) -> Any:
         """Return database object."""
-        pass
+        pass  # pragma: no cover
 
     def curName(self) -> str:
         """Get cursor name."""
-        pass
+        pass  # pragma: no cover
 
     def filterAssoc(self, field_name, table_metadata=None) -> Any:
         """Retrieve filter for associated field."""
-        pass
+        pass  # pragma: no cover
 
     def calculateField(self, field_name) -> Any:
         """Return the result of a field calculation."""
-        pass
+        pass  # pragma: no cover
 
     def model(self) -> Any:
         """Get sqlAlchemy model."""
-        pass
+        pass  # pragma: no cover
 
     def selection(self) -> Any:
         """Get selection."""
-        pass
+        pass  # pragma: no cover
 
     def at(self) -> int:
         """Get row number."""
-        pass
+        pass  # pragma: no cover
 
     def isValid(self) -> bool:
         """Return if cursor is valid."""
-        pass
+        pass  # pragma: no cover
 
     def refresh(self, field_name=None) -> None:
         """Refresh cursor."""
-        pass
+        pass  # pragma: no cover
 
     def refreshBuffer(self) -> bool:
         """Refresh buffer."""
-        pass
+        pass  # pragma: no cover
 
     def setEditMode(self) -> Any:
         """Set cursor in edit mode."""
-        pass
+        pass  # pragma: no cover
 
     def seek(self, i, relative=None, emite=None) -> bool:
         """Move cursor without fetching."""
-        pass
+        pass  # pragma: no cover
 
     def next(self, emite=True) -> bool:
         """Get next row."""
-        pass
+        pass  # pragma: no cover
 
     def moveby(self, pos) -> bool:
         """Move cursor down "pos" rows."""
-        pass
+        pass  # pragma: no cover
 
     def prev(self, emite=True) -> bool:
         """Get previous row."""
-        pass
+        pass  # pragma: no cover
 
     def move(self, row) -> bool:
         """Move cursor to row number."""
-        pass
+        pass  # pragma: no cover
 
     def first(self, emite=True) -> bool:
         """Move cursor to first row."""
-        pass
+        pass  # pragma: no cover
 
     def last(self, emite=True) -> bool:
         """Move cursor to last row."""
-        pass
+        pass  # pragma: no cover
 
     def select(self, _filter=None, sort=None) -> Any:
         """Perform SQL Select."""
-        pass
+        pass  # pragma: no cover
 
     def setSort(self, filter) -> Any:
         """Set sorting order."""
-        pass
+        pass  # pragma: no cover
 
     def insertRecord(self, wait: bool = True) -> None:
         """Open form in insert mode."""
-        pass
+        pass  # pragma: no cover
 
     def editRecord(self, wait: bool = True) -> None:
         """Open form in edit mode."""
-        pass
+        pass  # pragma: no cover
 
     def browseRecord(self, wait: bool = True) -> None:
         """Open form in browse mode."""
-        pass
+        pass  # pragma: no cover
 
     def deleteRecord(self, wait: bool = True) -> None:
         """Delete record."""
-        pass
+        pass  # pragma: no cover
 
     def copyRecord(self) -> Any:
         """Copy record."""
-        pass
+        pass  # pragma: no cover
 
     def chooseRecord(self) -> Any:
         """Emit chooseRecord."""
-        pass
+        pass  # pragma: no cover
 
     def setForwardOnly(self, value) -> None:
         """Set forward only."""
-        pass
+        pass  # pragma: no cover
 
     def commitBuffer(self, emite=True, check_locks=False) -> bool:
         """Commit current buffer to db."""
-        pass
+        pass  # pragma: no cover
 
     def commitBufferCursorRelation(self) -> bool:
         """Commit buffer from cursor relation."""
-        pass
+        pass  # pragma: no cover
 
     def transactionLevel(self) -> int:
         """Get number of nested transactions."""
-        pass
+        pass  # pragma: no cover
 
     def transactionsOpened(self) -> List[str]:
         """Return if any transaction is open."""
-        pass
+        pass  # pragma: no cover
 
     def rollbackOpened(self, count=-1, msg=None) -> Any:
         """Return if in rollback."""
-        pass
+        pass  # pragma: no cover
 
     def commitOpened(self, count=-1, msg=None) -> Any:
         """Return if in commit."""
-        pass
+        pass  # pragma: no cover
 
     def checkIntegrity(self, show_error: bool = True) -> bool:
         """Return check integrity result."""
-        pass
+        pass  # pragma: no cover
 
     def checkRisksLocks(self, terminate: bool = False) -> bool:
         """Return risks locks result."""
 
-        pass
+        pass  # pragma: no cover
 
     def msgCheckIntegrity(self) -> str:
         """Return msg check integrity."""
 
-        pass
+        pass  # pragma: no cover
 
     def aqWasDeleted(self) -> bool:
         """Indicate if the cursor has been deleted."""
 
-        pass
+        pass  # pragma: no cover
 
     def concurrencyFields(self) -> List[str]:
         """
@@ -719,7 +722,7 @@ class ISqlCursor(QtCore.QObject):
         @return List with the names of the colliding fields
         """
 
-        pass
+        pass  # pragma: no cover
 
     def setFilter(self, _filter: str = "") -> None:
         """
@@ -728,14 +731,14 @@ class ISqlCursor(QtCore.QObject):
         @param _filter. Text string with the filter to apply.
         """
 
-        pass
+        pass  # pragma: no cover
 
     # def field(self, name: str) -> Optional["pnbuffer.FieldStruct"]:
     #    """
     #    Return a specified FieldStruct of the buffer.
     #    """
 
-    #    pass
+    #    pass # pragma: no cover
 
     def curFilter(self) -> str:
         """
@@ -774,4 +777,4 @@ class ISqlCursor(QtCore.QObject):
     def clear_buffer(self) -> None:
         """Clear buffer."""
 
-        pass
+        pass  # pragma: no cover

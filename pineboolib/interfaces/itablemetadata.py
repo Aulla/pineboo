@@ -4,7 +4,9 @@ ITableMetadata module.
 from typing import List, Optional, Any, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata.pnfieldmetadata import PNFieldMetaData  # noqa
+    from pineboolib.application.metadata.pnfieldmetadata import (
+        PNFieldMetaData,
+    )  # noqa # pragma: no cover
 
 
 class ITableMetaData:
@@ -17,88 +19,88 @@ class ITableMetaData:
         qry_name: Optional[str] = None,
     ) -> None:
         """Create new tablemetadata."""
-        return
+        return  # pragma: no cover
 
     def addFieldMD(self, fielf_metadata) -> None:
         """Add new field to this object."""
-        return
+        return  # pragma: no cover
 
     def field(self, field_name: str) -> Any:
         """Retrieve field by name."""
-        return
+        return  # pragma: no cover
 
     def fieldIsIndex(self, field_name: str) -> int:
         """Get if a field is an index."""
-        return -1
+        return -1  # pragma: no cover
 
     def fieldList(self):
         """Return list of fields."""
-        return
+        return  # pragma: no cover
 
     def fieldListOfCompoundKey(self, field_name: str) -> Optional[List["PNFieldMetaData"]]:
         """Return list of fields for CK."""
-        return []
+        return []  # pragma: no cover
 
     def fieldNameToAlias(self, field_name: str) -> str:
         """Get alias of field."""
-        return ""
+        return ""  # pragma: no cover
 
     def fieldNames(self) -> List[str]:
         """Get list of field names."""
-        return []
+        return []  # pragma: no cover
 
     def fieldNamesUnlock(self) -> List[str]:
         """Get field names for unlock fields."""
-        return []
+        return []  # pragma: no cover
 
     def inCache(self) -> bool:
         """Get if in cache."""
-        return False
+        return False  # pragma: no cover
 
     def indexFieldObject(self, position: int):
         """Get field by position."""
-        return
+        return  # pragma: no cover
 
     def indexPos(self, field_name: str) -> int:
         """Get field position by name."""
-        return 0
+        return 0  # pragma: no cover
 
     def inicializeNewFLTableMetaData(self, name: str, alias: str, qry_name: Optional[str]) -> None:
         """Initialize object."""
-        return
+        return  # pragma: no cover
 
     def isQuery(self) -> bool:
         """Return true if is a query."""
-        return False
+        return False  # pragma: no cover
 
     def name(self) -> str:
         """Get table name."""
-        return ""
+        return ""  # pragma: no cover
 
     def primaryKey(self, prefix_table: bool) -> str:
         """Get primary key field."""
-        return ""
+        return ""  # pragma: no cover
 
     def query(self) -> str:
         """Get query string."""
-        return ""
+        return ""  # pragma: no cover
 
     def relation(self, field_name: str, foreign_field_name: str, foreign_table_name: str):
         """Get relation object."""
-        return
+        return  # pragma: no cover
 
     def setCompoundKey(self, compound_key) -> None:
         """Set CK."""
-        return
+        return  # pragma: no cover
 
     def setConcurWarn(self, state: bool) -> None:
         """Enable concurrency warning."""
-        return
+        return  # pragma: no cover
 
     def setDetectLocks(self, state: bool) -> None:
         """Enable Lock detection."""
-        return
+        return  # pragma: no cover
 
     def setFTSFunction(self, full_text_search_function: str) -> None:
         """Set Full-Text-Search function."""
-        return
+        return  # pragma: no cover
