@@ -1,14 +1,15 @@
 """Decorators module."""
 from pineboolib.core.utils import logging, utils_base
-from pineboolib.core import exceptions
 from pineboolib import application
 from . import utils
+
 
 from typing import Callable, Any, TypeVar, cast
 import threading
 import functools
 import traceback
 import time
+from sqlalchemy import exc
 
 TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 
@@ -40,33 +41,37 @@ def atomic(conn_name: str = "default") -> TYPEFN:
             ], new_session = utils.driver_session(conn_name)
             result_ = None
             try:
-                with new_session.begin():
-                    LOGGER.debug(
-                        "New atomic session : %s, connection : %s, transaction: %s",
-                        new_session,
-                        conn_name,
-                        new_session.transaction,
-                    )
-
-                    try:
-                        result_ = fun_(*args, **kwargs)
-
-                    except Exception as error:
-                        LOGGER.warning(
-                            "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
-                            "".join(traceback.format_exc(limit=None)),
-                            "".join(traceback.format_stack(limit=None)),
-                            stack_info=True,
+                try:
+                    with new_session.begin():
+                        LOGGER.debug(
+                            "New atomic session : %s, connection : %s, transaction: %s",
+                            new_session,
+                            conn_name,
+                            new_session.transaction,
                         )
-                        delete_atomic_session(key)
-                        raise error
-                if new_session.transaction is not None:
-                    raise exceptions.TransactionOpenedException(
-                        "the %s.%s function has been called in atomic mode and has left the transaction open."
-                        % (fun_.__module__, fun_.__name__)
-                    )
 
-                new_session.close()
+                        try:
+                            result_ = fun_(*args, **kwargs)
+                            if new_session.transaction is None:
+                                LOGGER.warning(
+                                    "FIXME:: LA TRANSACCION ATOMICA FINALIZÓ ANTES DE TIEMPO:\nthread:%s\nmodule:%s\nfunction:%s\n",
+                                    id_thread,
+                                    fun_.__module__,
+                                    fun_,
+                                )
+                        except Exception as error:
+                            LOGGER.warning(
+                                "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
+                                "".join(traceback.format_exc(limit=None)),
+                                "".join(traceback.format_stack(limit=None)),
+                                stack_info=True,
+                            )
+
+                            raise error
+                except exc.ResourceClosedError as error:
+                    LOGGER.warning("Error al cerrar la transacción : %s, pero continua ....", error)
+                else:
+                    new_session.close()
                 delete_atomic_session(key)
 
             except Exception as error:
