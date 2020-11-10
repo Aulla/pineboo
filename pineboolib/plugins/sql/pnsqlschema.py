@@ -887,7 +887,14 @@ class PNSqlSchema(object):
         result_ = None
         try:
             try:
-                result_ = session_.execute(text("""%s""" % query))
+                if query.find("::bytea") > -1:
+                    result_ = (  # Esto es necesario para no obtener error en la consulta con los bytearray
+                        session_.connection()
+                        .execution_options(autocommit=True)
+                        .execute("""%s""" % query)
+                    )
+                else:
+                    result_ = session_.execute(text("""%s""" % query))
             except sqlalchemy.exc.DBAPIError as error:
                 LOGGER.warning(
                     "Se ha producido un error DBAPI con la consulta %s. Ejecutando rollback necesario",
