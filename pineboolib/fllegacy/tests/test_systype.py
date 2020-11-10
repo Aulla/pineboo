@@ -178,6 +178,7 @@ class TestSysType(unittest.TestCase):
         changes = sys.localChanges()
         self.assertEqual(changes["size"], 0)
         res_ = sys.xmlFilesDefBd()
+        self.assertEqual(sys.diffXmlFilesDef(res_, res_)["size"], 0)
         self.assertTrue(res_)
 
     def test_project_info_2(self) -> None:
