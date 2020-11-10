@@ -30,9 +30,9 @@ import re
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
     from pineboolib.interfaces import iconnection  # noqa: F401 # pragma: no cover
-    from sqlalchemy.engine import (
+    from sqlalchemy.engine import (  # type: ignore [import] # noqa: F821, F401
         result,
-    )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
+    )  # pragma: no cover
     from sqlalchemy.orm import (
         session as orm_session,
     )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover

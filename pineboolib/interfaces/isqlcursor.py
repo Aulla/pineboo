@@ -12,10 +12,10 @@ from typing import Any, Optional, Dict, List, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.acls import pnboolflagstate  # pragma: no cover
-    from pineboolib.application.database import (
+    from pineboolib.application.database import (  # noqa : F401
         pnbuffer,
         pncursortablemodel,
-    )  # noqa : F401 # pragma: no cover
+    )  # pragma: no cover
     from pineboolib.application.metadata import (  # noqa : F401 # pragma: no cover
         pntablemetadata,
         pnrelationmetadata,

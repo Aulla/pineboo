@@ -4,9 +4,9 @@ ITableMetadata module.
 from typing import List, Optional, Any, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata.pnfieldmetadata import (
+    from pineboolib.application.metadata.pnfieldmetadata import (  # noqa F401
         PNFieldMetaData,
-    )  # noqa # pragma: no cover
+    )  # pragma: no cover
 
 
 class ITableMetaData:
