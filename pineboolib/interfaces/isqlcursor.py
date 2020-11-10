@@ -11,11 +11,11 @@ from pineboolib.interfaces.cursoraccessmode import CursorAccessMode
 from typing import Any, Optional, Dict, List, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.acls import pnboolflagstate  # pragma: no cover
+    from pineboolib.application.acls import pnboolflagstate  # noqa: F401 # pragma: no cover
     from pineboolib.application.database import (  # noqa : F401
-        pnbuffer,
-        pncursortablemodel,
-    )  # pragma: no cover
+        pnbuffer,  # noqa: F401
+        pncursortablemodel,  # noqa: F401
+    )  # noqa: F401 # pragma: no cover
     from pineboolib.application.metadata import (  # noqa : F401 # pragma: no cover
         pntablemetadata,
         pnrelationmetadata,

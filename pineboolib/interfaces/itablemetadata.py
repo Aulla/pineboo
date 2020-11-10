@@ -5,8 +5,8 @@ from typing import List, Optional, Any, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata.pnfieldmetadata import (  # noqa F401
-        PNFieldMetaData,
-    )  # pragma: no cover
+        PNFieldMetaData,  # noqa: F401
+    )  # noqa: F401 # pragma: no cover
 
 
 class ITableMetaData:

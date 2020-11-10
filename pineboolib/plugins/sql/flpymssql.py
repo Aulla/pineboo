@@ -13,9 +13,9 @@ from typing import Optional, Union, List, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import (  # type: ignore [import] # noqa: F401, F821
-        base,
-        result,
-    )  # pragma: no cover
+        base,  # noqa: F401
+        result,  # noqa: F401
+    )  # noqa: F401 # pragma: no cover
     from sqlalchemy.orm import session as orm_session  # noqa: F401 # pragma: no cover
 
 
