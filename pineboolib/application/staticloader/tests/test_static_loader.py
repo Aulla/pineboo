@@ -46,8 +46,15 @@ class TestStaticLoader(unittest.TestCase):
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(os.path.exists(path))
         self.assertTrue(qsa.sys.loadModules(path, False))
-        func_ = qsa.from_project("flfactppal").iface.ejercicioActual2
-        self.assertTrue(func_)
+        cursor = qsa.FLSqlCursor("flfiles")
+        cursor.setModeAccess(cursor.Insert)
+        cursor.refreshBuffer()
+        cursor.setValueBuffer("nombre", "clientes_model.py")
+        cursor.setValueBuffer("idmodulo", "flfactppal")
+        cursor.setValueBuffer("contenido", " ")
+        cursor.setValueBuffer("sha", qsa.util.sha1(" "))
+        self.assertTrue(cursor.commitBuffer())
+        qsa.sys.reinit()
 
     @classmethod
     def tearDownClass(cls) -> None:

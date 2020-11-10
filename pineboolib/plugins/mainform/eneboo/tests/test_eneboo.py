@@ -94,6 +94,13 @@ class TestEnebooGUI(unittest.TestCase):
         application.PROJECT.main_window.initFromWidget(application.PROJECT.main_window)
         application.PROJECT.main_window.triggerAction("triggered():shConsole():clientes")
 
+        self.assertTrue(
+            application.PROJECT.aq_app.getTabWidgetPages(application.PROJECT.main_window)
+        )
+
+        application.PROJECT.aq_app.checkAndFixTransactionLevel("prueba")
+        application.PROJECT.aq_app.popupWarn("prueba")
+
     def test_load_tabs(self) -> None:
         """Ensure load only one tab."""
 
