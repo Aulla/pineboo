@@ -266,11 +266,6 @@ class Project(object):
         if self.dgi is None:
             raise Exception("DGI not loaded")
 
-        if not self.conn_manager or "main_conn" not in self.conn_manager.connections_dict.keys():
-            raise exceptions.NotConnectedError(
-                "Cannot execute Pineboo Project without a connection in place"
-            )
-
         conn = self.conn_manager.mainConn()
         db_name = conn.DBName()
         delete_cache = self.delete_cache
