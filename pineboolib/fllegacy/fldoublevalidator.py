@@ -10,7 +10,7 @@ from pineboolib import application
 from typing import Tuple, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets
+    from PyQt5 import QtWidgets  # pragma: no cover
 
 
 class FLDoubleValidator(QtGui.QDoubleValidator):

@@ -17,8 +17,8 @@ from typing import List, Union, Optional, Callable, Dict, Any, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqlcursor
-    from . import pncursortablemodel
+    from pineboolib.interfaces import isqlcursor  # pragma: no cover
+    from . import pncursortablemodel  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

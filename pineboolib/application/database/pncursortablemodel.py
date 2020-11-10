@@ -24,13 +24,13 @@ from typing import Any, Optional, List, Dict, Tuple, cast, Callable, TYPE_CHECKI
 
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata import pnfieldmetadata  # noqa: F401
-    from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from pineboolib.interfaces import iconnection, isqlcursor
-    from pineboolib.fllegacy import fldatatable
-    from . import pnconnectionmanager
-    from pineboolib.plugins.sql import pnsqlschema
-    from . import pnbuffer
+    from pineboolib.application.metadata import pnfieldmetadata  # noqa: F401 # pragma: no cover
+    from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces import iconnection, isqlcursor  # pragma: no cover
+    from pineboolib.fllegacy import fldatatable  # pragma: no cover
+    from . import pnconnectionmanager  # pragma: no cover
+    from pineboolib.plugins.sql import pnsqlschema  # pragma: no cover
+    from . import pnbuffer  # pragma: no cover
 
 DEBUG = False
 CURSOR_COUNT = itertools.count()

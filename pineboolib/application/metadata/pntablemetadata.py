@@ -21,7 +21,7 @@ from . import pnfieldmetadata
 from . import pncompoundkeymetadata
 
 if TYPE_CHECKING:
-    from . import pnrelationmetadata  # noqa
+    from . import pnrelationmetadata  # noqa # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

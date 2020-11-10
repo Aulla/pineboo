@@ -12,8 +12,11 @@ from . import pnsqlschema
 from typing import Optional, Union, List, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from sqlalchemy.engine import base, result  # type: ignore [import] # noqa: F401, F821
-    from sqlalchemy.orm import session as orm_session  # noqa: F401
+    from sqlalchemy.engine import (
+        base,
+        result,
+    )  # type: ignore [import] # noqa: F401, F821 # pragma: no cover
+    from sqlalchemy.orm import session as orm_session  # noqa: F401 # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

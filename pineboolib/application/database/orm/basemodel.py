@@ -16,8 +16,8 @@ import time
 import types
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from pineboolib.application import xmlaction  # noqa: F401
+    from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
+    from pineboolib.application import xmlaction  # noqa: F401 # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

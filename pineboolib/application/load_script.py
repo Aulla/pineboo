@@ -19,10 +19,10 @@ import time
 import os
 
 if TYPE_CHECKING:
-    from pineboolib.qsa import formdbwidget
-    from pineboolib.application import xmlaction
-    from sqlalchemy.ext.declarative import api  # noqa: F401
-    from types import ModuleType
+    from pineboolib.qsa import formdbwidget  # pragma: no cover
+    from pineboolib.application import xmlaction  # pragma: no cover
+    from sqlalchemy.ext.declarative import api  # noqa: F401 # pragma: no cover
+    from types import ModuleType  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

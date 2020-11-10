@@ -14,8 +14,8 @@ from typing import Any, Union, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
 
-    from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401
-    from pineboolib.application import file as file_app  # noqa : F401
+    from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401 # pragma: no cover
+    from pineboolib.application import file as file_app  # noqa : F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

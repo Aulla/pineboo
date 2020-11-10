@@ -166,7 +166,7 @@ class TestFLFieldDBString(unittest.TestCase):
             if table_mtd is not None:
                 table_mtd.removeFieldMD(field_mtd.name())
 
-                self.assertTrue(
+                self.assertFalse(
                     application.PROJECT.conn_manager.useConn("default").regenTable(
                         "flmodules", table_mtd
                     )

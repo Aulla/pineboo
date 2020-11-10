@@ -29,8 +29,8 @@ from xml.etree import ElementTree
 from typing import Optional, Union, Any, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import iconnection
-    from pineboolib.application.metadata import pnaction
+    from pineboolib.interfaces import iconnection  # pragma: no cover
+    from pineboolib.application.metadata import pnaction  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

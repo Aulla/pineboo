@@ -14,7 +14,7 @@ from pineboolib import logging
 from pineboolib.core import decorators
 
 if TYPE_CHECKING:
-    from odf.opendocument import OpenDocumentSpreadsheet  # type: ignore
+    from odf.opendocument import OpenDocumentSpreadsheet  # type: ignore # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

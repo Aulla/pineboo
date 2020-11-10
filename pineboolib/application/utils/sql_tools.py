@@ -10,7 +10,7 @@ import datetime
 from typing import Dict, Any, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import ifieldmetadata  # noqa: F401
+    from pineboolib.interfaces import ifieldmetadata  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

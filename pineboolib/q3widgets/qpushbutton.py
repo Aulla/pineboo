@@ -6,7 +6,7 @@ from pineboolib.core import decorators
 from typing import Union, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtGui
+    from PyQt5 import QtGui  # pragma: no cover
 
 
 class QPushButton(QtWidgets.QPushButton):

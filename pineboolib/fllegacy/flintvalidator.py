@@ -5,7 +5,7 @@ from PyQt5 import QtGui  # type: ignore
 from typing import Any, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets
+    from PyQt5 import QtWidgets  # pragma: no cover
 
 
 class FLIntValidator(QtGui.QIntValidator):

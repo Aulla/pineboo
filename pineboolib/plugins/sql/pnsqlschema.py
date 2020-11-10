@@ -28,10 +28,14 @@ import re
 
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from pineboolib.interfaces import iconnection  # noqa: F401
-    from sqlalchemy.engine import result  # type: ignore [import] # noqa: F821, F401
-    from sqlalchemy.orm import session as orm_session  # type: ignore [import] # noqa: F821, F401
+    from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces import iconnection  # noqa: F401 # pragma: no cover
+    from sqlalchemy.engine import (
+        result,
+    )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
+    from sqlalchemy.orm import (
+        session as orm_session,
+    )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

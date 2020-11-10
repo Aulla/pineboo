@@ -17,12 +17,12 @@ from typing import Dict, List, Optional, Any, Union, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqlcursor
-    from pineboolib.application.metadata import pntablemetadata
-    from . import pnconnectionmanager
+    from pineboolib.interfaces import isqlcursor  # pragma: no cover
+    from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
+    from . import pnconnectionmanager  # pragma: no cover
 
-    from sqlalchemy.engine import base
-    from sqlalchemy import orm  # type: ignore [name-defined] # noqa: F821
+    from sqlalchemy.engine import base  # pragma: no cover
+    from sqlalchemy import orm  # type: ignore [name-defined] # noqa: F821 # pragma: no cover
 
 LOGGER = utils.logging.get_logger(__name__)
 

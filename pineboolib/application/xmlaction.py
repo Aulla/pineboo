@@ -15,10 +15,10 @@ from pineboolib import application
 from pineboolib.application.database import pnsqlcursor
 
 if TYPE_CHECKING:
-    from . import moduleactions  # noqa : F401
-    from pineboolib.interfaces import isqlcursor  # noqa: F401
+    from . import moduleactions  # noqa : F401 # pragma: no cover
+    from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
 
-    from pineboolib.qsa import formdbwidget  # noqa: F401
+    from pineboolib.qsa import formdbwidget  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

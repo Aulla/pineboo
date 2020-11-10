@@ -26,9 +26,9 @@ from pineboolib.application.parsers import parser_qsa
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401
-    from pineboolib.application.database import pnconnection
-    from pineboolib.application import xmlaction, pnapplication  # noqa: F401
+    from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401 # pragma: no cover
+    from pineboolib.application.database import pnconnection  # pragma: no cover
+    from pineboolib.application import xmlaction, pnapplication  # noqa: F401 # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

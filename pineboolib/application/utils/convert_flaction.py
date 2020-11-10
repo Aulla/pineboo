@@ -7,7 +7,7 @@ from pineboolib import application
 from pineboolib.application.metadata import pnaction
 
 if TYPE_CHECKING:
-    from pineboolib.application.xmlaction import XMLAction
+    from pineboolib.application.xmlaction import XMLAction  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

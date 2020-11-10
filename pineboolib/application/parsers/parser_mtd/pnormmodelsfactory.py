@@ -46,7 +46,7 @@ import sqlalchemy
 from typing import Any, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata import pntablemetadata
+    from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 PROCESSED: List[str] = []

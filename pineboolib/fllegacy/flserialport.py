@@ -5,7 +5,7 @@ from pineboolib.core import decorators
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtSerialPort  # type: ignore [attr-defined]
+    from PyQt5 import QtSerialPort  # type: ignore [attr-defined] # pragma: no cover
 
 
 class BaudRateType(object):

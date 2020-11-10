@@ -13,9 +13,9 @@ import threading
 from typing import Dict, Union, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.fllegacy import flmanager
-    from pineboolib.fllegacy import flmanagermodules
-    from sqlalchemy import orm as orm_session  # noqa: F401
+    from pineboolib.fllegacy import flmanager  # pragma: no cover
+    from pineboolib.fllegacy import flmanagermodules  # pragma: no cover
+    from sqlalchemy import orm as orm_session  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

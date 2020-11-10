@@ -22,7 +22,7 @@ from pineboolib.application.parsers.parser_qsa import pytnyzer
 from .init_project import init_project
 
 if TYPE_CHECKING:
-    from pineboolib.loader import projectconfig  # noqa: F401
+    from pineboolib.loader import projectconfig  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

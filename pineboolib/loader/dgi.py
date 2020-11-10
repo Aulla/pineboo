@@ -5,9 +5,9 @@ from pineboolib import logging
 from typing import Callable, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces.dgi_schema import dgi_schema
-    from pineboolib.plugins.dgi.dgi_qt import dgi_qt
-    from pineboolib.plugins.dgi.dgi_fcgi import dgi_fcgi
+    from pineboolib.interfaces.dgi_schema import dgi_schema  # pragma: no cover
+    from pineboolib.plugins.dgi.dgi_qt import dgi_qt  # pragma: no cover
+    from pineboolib.plugins.dgi.dgi_fcgi import dgi_fcgi  # pragma: no cover
 
     # from pineboolib.plugins.dgi.dgi_jsonrpc.dgi_jsonrpc import dgi_jsonrpc
     # from pineboolib.plugins.dgi.dgi_server.dgi_server import dgi_server

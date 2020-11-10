@@ -26,7 +26,7 @@ from typing import Optional, Union, Any, List, cast, Callable, TypeVar, TYPE_CHE
 from xml.etree import ElementTree
 
 if TYPE_CHECKING:
-    from pineboolib.application.qsatypes.date import Date  # noqa: F401
+    from pineboolib.application.qsatypes.date import Date  # noqa: F401 # pragma: no cover
 
 LOGGER = utils.logging.get_logger(__name__)
 T1 = TypeVar("T1")

@@ -18,7 +18,7 @@ from pineboolib.interfaces import imainwindow
 from typing import Any, cast, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.database import pnconnectionmanager
+    from pineboolib.application.database import pnconnectionmanager  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

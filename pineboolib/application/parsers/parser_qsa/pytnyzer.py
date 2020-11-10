@@ -2618,8 +2618,8 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
 
     yield "line", ""
     yield "line", "if TYPE_CHECKING:"
-    yield "line", '    form: "FormInternalObj" = FormInternalObj()'
-    yield "line", "    iface = form.iface"
+    yield "line", '    form: "FormInternalObj" = FormInternalObj() # pragma: no cover'
+    yield "line", "    iface = form.iface # pragma: no cover"
     yield "line", "else:"
     yield "line", "    form = None"
 

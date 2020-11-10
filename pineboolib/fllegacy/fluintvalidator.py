@@ -4,7 +4,7 @@ from PyQt5 import QtGui
 from typing import Tuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets  # noqa: F401
+    from PyQt5 import QtWidgets  # noqa: F401 # pragma: no cover
 
 
 class FLUIntValidator(QtGui.QIntValidator):

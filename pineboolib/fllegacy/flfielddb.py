@@ -38,7 +38,7 @@ import datetime
 from typing import Any, Optional, cast, Union, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqlcursor
+    from pineboolib.interfaces import isqlcursor  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

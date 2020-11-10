@@ -8,7 +8,7 @@ from pineboolib.q3widgets import qlistview
 from typing import Any, Optional, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets  # noqa: F401
+    from PyQt5 import QtWidgets  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger("FLListViewItem")
 

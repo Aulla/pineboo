@@ -26,7 +26,7 @@ class QSADictModules:
         if cls._qsa_dict_modules is None:
             # FIXME: This loads from QSA module. Avoid if possible. (how?)
             if TYPE_CHECKING:
-                qsa_dict_modules: Any = None
+                qsa_dict_modules: Any = None  # pragma: no cover
             else:
                 from pineboolib.qsa import qsa as qsa_dict_modules
 

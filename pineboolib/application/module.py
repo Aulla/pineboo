@@ -17,8 +17,8 @@ from .utils.path import _path
 from typing import Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .file import File
-    from pineboolib.core.utils.struct import TableStruct
+    from .file import File  # pragma: no cover
+    from pineboolib.core.utils.struct import TableStruct  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

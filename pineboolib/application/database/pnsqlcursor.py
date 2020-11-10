@@ -31,10 +31,10 @@ from pineboolib.application.acls import pnboolflagstate
 
 if TYPE_CHECKING:
 
-    from pineboolib.application.metadata import pntablemetadata  # noqa: F401
-    from pineboolib.application.metadata import pnrelationmetadata  # noqa: F401
-    from pineboolib.application.metadata import pnaction  # noqa: F401
-    from pineboolib.interfaces import iconnection  # noqa: F401
+    from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
+    from pineboolib.application.metadata import pnrelationmetadata  # noqa: F401 # pragma: no cover
+    from pineboolib.application.metadata import pnaction  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces import iconnection  # noqa: F401 # pragma: no cover
 
 CONNECTION_CURSORS: Dict[str, List[str]] = {}
 

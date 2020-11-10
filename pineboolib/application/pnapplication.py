@@ -21,10 +21,11 @@ from typing import Any, Optional, List, cast, Union, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from .database import pnsqlcursor  # noqa: F401
-    from .database import pnsqlquery  # noqa: F401
-    from pineboolib.interfaces import isqlcursor  # noqa: F401
-    from PyQt5 import QtXml  # noqa: F401
+from typing import Any, TYPE_CHECKING, NoReturn 
+    from .database import pnsqlcursor  # noqa: F401 # pragma: no cover
+    from .database import pnsqlquery  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
+    from PyQt5 import QtXml  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

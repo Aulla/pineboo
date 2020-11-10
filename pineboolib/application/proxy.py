@@ -7,8 +7,8 @@ from typing import Any, Optional, Dict, TYPE_CHECKING
 import threading
 
 if TYPE_CHECKING:
-    from pineboolib.fllegacy.flformdb import FLFormDB  # noqa: F401
-    from pineboolib.qsa import formdbwidget
+    from pineboolib.fllegacy.flformdb import FLFormDB  # noqa: F401 # pragma: no cover
+    from pineboolib.qsa import formdbwidget  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

@@ -11,7 +11,7 @@ import sys
 from typing import Any, List, Optional, Iterable, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application import types  # noqa: F401
+    from pineboolib.application import types  # noqa: F401 # pragma: no cover
 
 
 class ProcessBaseClass(QtCore.QProcess):

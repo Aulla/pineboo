@@ -7,8 +7,8 @@ from pineboolib.application import qsadictmodules
 import sqlalchemy
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext import declarative
-    from sqlalchemy.orm import query
+    from sqlalchemy.ext import declarative  # pragma: no cover
+    from sqlalchemy.orm import query  # pragma: no cover
 
 
 class OrmManager(object):

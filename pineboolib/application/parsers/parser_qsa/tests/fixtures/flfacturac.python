@@ -4014,7 +4014,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
 
 if TYPE_CHECKING:
-    form: "FormInternalObj" = FormInternalObj()
-    iface = form.iface
+    form: "FormInternalObj" = FormInternalObj() # pragma: no cover
+    iface = form.iface # pragma: no cover
 else:
     form = None

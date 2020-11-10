@@ -28,8 +28,10 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F401, F821
-    from sqlalchemy.orm import session as orm_session
+    from sqlalchemy.engine import (
+        base,
+    )  # type: ignore [import] # noqa: F401, F821 # pragma: no cover
+    from sqlalchemy.orm import session as orm_session  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

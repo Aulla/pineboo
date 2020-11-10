@@ -21,8 +21,8 @@ from typing import Any, Union, Dict, Optional, Tuple, Type, cast, Callable, TYPE
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqlcursor
-    from pineboolib.qsa import formdbwidget
+    from pineboolib.interfaces import isqlcursor  # pragma: no cover
+    from pineboolib.qsa import formdbwidget  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

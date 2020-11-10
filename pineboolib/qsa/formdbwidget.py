@@ -16,8 +16,8 @@ import types
 
 
 if TYPE_CHECKING:
-    from pineboolib.application import xmlaction  # noqa: F401
-    from pineboolib.fllegacy import flformdb  # noqa: F401
+    from pineboolib.application import xmlaction  # noqa: F401 # pragma: no cover
+    from pineboolib.fllegacy import flformdb  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

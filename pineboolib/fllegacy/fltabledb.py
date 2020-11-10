@@ -36,7 +36,7 @@ from pineboolib.fllegacy.aqsobjects import aqods
 from typing import Any, Optional, List, Union, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqlcursor
+    from pineboolib.interfaces import isqlcursor  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

@@ -8,7 +8,7 @@ from typing import List, Optional, Union, Any, TYPE_CHECKING
 from . import pnrelationmetadata
 
 if TYPE_CHECKING:
-    from . import pntablemetadata
+    from . import pntablemetadata  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

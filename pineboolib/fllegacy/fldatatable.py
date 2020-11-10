@@ -14,9 +14,9 @@ from pineboolib.application.database import pnsqlcursor, pncursortablemodel
 
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata import pnfieldmetadata
-    from pineboolib.application.metadata import pntablemetadata
-    from pineboolib.interfaces import isqlcursor
+    from pineboolib.application.metadata import pnfieldmetadata  # pragma: no cover
+    from pineboolib.application.metadata import pntablemetadata  # pragma: no cover
+    from pineboolib.interfaces import isqlcursor  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

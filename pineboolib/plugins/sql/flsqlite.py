@@ -19,8 +19,12 @@ from sqlalchemy import create_engine, event, pool  # type: ignore [import] # noq
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata
-    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F401, F821
-    from sqlalchemy.orm import session  # type: ignore [import] # noqa: F821, F401
+    from sqlalchemy.engine import (
+        base,
+    )  # type: ignore [import] # noqa: F401, F821 # pragma: no cover
+    from sqlalchemy.orm import (
+        session,
+    )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

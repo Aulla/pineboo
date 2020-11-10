@@ -9,7 +9,7 @@ from pineboolib.core import settings
 from .preload import preload_actions
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import imainwindow  # noqa: F401
+    from pineboolib.interfaces import imainwindow  # noqa: F401 # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

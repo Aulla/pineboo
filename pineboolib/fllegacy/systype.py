@@ -46,8 +46,8 @@ from typing import cast, Optional, List, Any, Dict, Callable, Union, TYPE_CHECKI
 from pineboolib.fllegacy import flfielddb, fltabledb
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import iconnection, isqlcursor
-    from pineboolib.fllegacy import flformrecorddb, flformdb  # noqa: F401
+    from pineboolib.interfaces import iconnection, isqlcursor  # pragma: no cover
+    from pineboolib.fllegacy import flformrecorddb, flformdb  # noqa: F401 # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

@@ -7,9 +7,9 @@ from pineboolib import application
 from typing import Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from . import basemodel
-    from pineboolib.interfaces import iconnection
-    from pineboolib.application.database import pnsqlcursor  # noqa: F401
+    from . import basemodel  # pragma: no cover
+    from pineboolib.interfaces import iconnection  # pragma: no cover
+    from pineboolib.application.database import pnsqlcursor  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

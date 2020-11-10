@@ -19,8 +19,8 @@ import types
 from typing import Callable, Any, Dict, Tuple, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.qsa import formdbwidget  # noqa F401
-    from pineboolib.qsa import object_class  # noqa F401
+    from pineboolib.qsa import formdbwidget  # noqa F401 # pragma: no cover
+    from pineboolib.qsa import object_class  # noqa F401 # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

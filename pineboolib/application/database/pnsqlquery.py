@@ -15,13 +15,14 @@ from PyQt5 import QtWidgets
 from typing import Any, Union, List, Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401
-    from pineboolib.interfaces.iconnection import IConnection  # noqa: F401
-    from pineboolib.interfaces.iapicursor import IApiCursor  # noqa: F401
-    from pineboolib.application.types import Array  # noqa: F401
-    from .pnparameterquery import PNParameterQuery  # noqa: F401
-    from .pngroupbyquery import PNGroupByQuery  # noqa: F401
-    from sqlalchemy.engine import base  # type: ignore [import] # noqa: F821, F401
+    from pineboolib.interfaces.ifieldmetadata import IFieldMetaData  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces.iconnection import IConnection  # noqa: F401 # pragma: no cover
+    from pineboolib.application.types import Array  # noqa: F401 # pragma: no cover
+    from .pnparameterquery import PNParameterQuery  # noqa: F401 # pragma: no cover
+    from .pngroupbyquery import PNGroupByQuery  # noqa: F401 # pragma: no cover
+    from sqlalchemy.engine import (
+        base,
+    )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -115,7 +116,6 @@ class PNSqlQuery(object):
     _datos: List[Any]
     _posicion: int
     _last_query: str
-    _cursor: Optional["IApiCursor"]
     private_query: PNSqlQueryPrivate
 
     def __init__(self, cx=None, connection_name: Union[str, "IConnection"] = "default") -> None:

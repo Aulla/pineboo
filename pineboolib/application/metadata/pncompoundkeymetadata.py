@@ -12,7 +12,7 @@ that is FLFieldMetaData objects.
 from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .pnfieldmetadata import PNFieldMetaData
+    from .pnfieldmetadata import PNFieldMetaData  # pragma: no cover
 
 
 class PNCompoundKeyMetaData(object):

@@ -20,7 +20,7 @@ from pineboolib.application import qsadictmodules, connections
 from typing import Any, Optional, Union, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from fpdf import FPDF  # type: ignore
+    from fpdf import FPDF  # type: ignore # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

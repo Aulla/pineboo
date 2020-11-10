@@ -14,7 +14,7 @@ from typing import Union, Any, List, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import iconnection, isqlcursor
+    from pineboolib.interfaces import iconnection, isqlcursor  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

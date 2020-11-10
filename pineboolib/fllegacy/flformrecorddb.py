@@ -16,8 +16,8 @@ from . import flformdb, flfielddb
 from typing import cast, Union, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata import pnaction
-    from pineboolib.interfaces import isqlcursor  # noqa : F401
+    from pineboolib.application.metadata import pnaction  # pragma: no cover
+    from pineboolib.interfaces import isqlcursor  # noqa : F401 # pragma: no cover
 
 DEBUG = False
 

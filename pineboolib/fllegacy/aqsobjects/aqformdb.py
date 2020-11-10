@@ -5,7 +5,7 @@ from pineboolib import application
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.fllegacy.flformdb import FLFormDB
+    from pineboolib.fllegacy.flformdb import FLFormDB  # pragma: no cover
 
 
 def aq_form_db(*args) -> "FLFormDB":

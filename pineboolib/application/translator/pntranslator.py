@@ -16,7 +16,7 @@ from . import pntranslations
 from typing import Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets  # noqa: F401
+    from PyQt5 import QtWidgets  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

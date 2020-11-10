@@ -5,7 +5,7 @@ Module for Manager class.
 from typing import Any, Iterable, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import dgi_schema
+    from pineboolib.interfaces import dgi_schema  # pragma: no cover
 
 
 class Manager(object):

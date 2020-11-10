@@ -33,8 +33,8 @@ import codecs
 from xml.etree import ElementTree as ET
 
 if TYPE_CHECKING:
-    from pineboolib.application import xmlaction  # noqa: F401
-    from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401
+    from pineboolib.application import xmlaction  # noqa: F401 # pragma: no cover
+    from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401 # pragma: no cover
 
 
 """

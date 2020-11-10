@@ -20,8 +20,8 @@ from typing import List, Optional, Union, Any, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from PyQt5 import QtXml
-    from pineboolib.interfaces import isqlcursor, iconnection  # noqa : F401
+    from PyQt5 import QtXml  # pragma: no cover
+    from pineboolib.interfaces import isqlcursor, iconnection  # noqa : F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

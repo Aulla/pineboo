@@ -14,7 +14,7 @@ import os
 from typing import List, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata import pnfieldmetadata, pntablemetadata
+    from pineboolib.application.metadata import pnfieldmetadata, pntablemetadata  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

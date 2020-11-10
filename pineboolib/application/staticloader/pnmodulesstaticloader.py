@@ -19,7 +19,7 @@ import os
 from typing import Any, List, Optional, cast, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import iconnection
+    from pineboolib.interfaces import iconnection  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

@@ -5,7 +5,7 @@ from PyQt5 import QtWidgets
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import Qt
+    from PyQt5 import Qt  # pragma: no cover
 
 
 class FLWidget(QtWidgets.QWidget):

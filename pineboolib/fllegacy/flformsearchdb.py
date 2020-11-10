@@ -16,7 +16,7 @@ from . import flformdb
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.application.metadata import pnaction
+    from pineboolib.application.metadata import pnaction  # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)

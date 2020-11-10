@@ -8,10 +8,10 @@ from pineboolib.core import decorators
 from typing import Optional, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from . import qframe  # noqa: F401
-    from . import qgroupbox  # noqa: F401
-    from . import qwidget  # noqa: F401
-    from . import qlineedit  # noqa: F401
+    from . import qframe  # noqa: F401 # pragma: no cover
+    from . import qgroupbox  # noqa: F401 # pragma: no cover
+    from . import qwidget  # noqa: F401 # pragma: no cover
+    from . import qlineedit  # noqa: F401 # pragma: no cover
 
 
 class QLineEdit(QtWidgets.QLineEdit):

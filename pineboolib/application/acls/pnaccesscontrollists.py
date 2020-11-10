@@ -16,9 +16,9 @@ from pineboolib import logging
 from typing import Dict, Optional, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from . import pnaccesscontrol  # noqa : F401
-    from PyQt5 import QtWidgets  # noqa : F401
-    from pineboolib.application.metadata import pntablemetadata  # noqa : F401
+    from . import pnaccesscontrol  # noqa : F401 # pragma: no cover
+    from PyQt5 import QtWidgets  # noqa : F401 # pragma: no cover
+    from pineboolib.application.metadata import pntablemetadata  # noqa : F401 # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)
