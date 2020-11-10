@@ -28,9 +28,9 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from sqlalchemy.engine import (
+    from sqlalchemy.engine import (  # type: ignore [import] # noqa: F401, F821
         base,
-    )  # type: ignore [import] # noqa: F401, F821 # pragma: no cover
+    )  # pragma: no cover
     from sqlalchemy.orm import session as orm_session  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)

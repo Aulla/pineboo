@@ -7,7 +7,7 @@ from pineboolib import logging
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pineboolib.interfaces import isqlcursor
+    from pineboolib.interfaces import isqlcursor  # pragma: no cover
 
 logger = logging.get_logger(__name__)
 

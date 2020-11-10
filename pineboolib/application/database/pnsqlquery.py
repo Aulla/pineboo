@@ -20,9 +20,9 @@ if TYPE_CHECKING:
     from pineboolib.application.types import Array  # noqa: F401 # pragma: no cover
     from .pnparameterquery import PNParameterQuery  # noqa: F401 # pragma: no cover
     from .pngroupbyquery import PNGroupByQuery  # noqa: F401 # pragma: no cover
-    from sqlalchemy.engine import (
+    from sqlalchemy.engine import (  # type: ignore [import] # noqa: F821, F401
         base,
-    )  # type: ignore [import] # noqa: F821, F401 # pragma: no cover
+    )  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

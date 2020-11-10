@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets
+    from PyQt5 import QtWidgets  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 

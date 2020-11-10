@@ -21,7 +21,6 @@ from typing import Any, Optional, List, cast, Union, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-from typing import Any, TYPE_CHECKING, NoReturn 
     from .database import pnsqlcursor  # noqa: F401 # pragma: no cover
     from .database import pnsqlquery  # noqa: F401 # pragma: no cover
     from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
