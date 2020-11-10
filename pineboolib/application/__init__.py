@@ -12,7 +12,7 @@ ATOMIC_IDENTIFIER: int = 0
 ATOMIC_LIST: Dict[int, List[str]] = {}
 FILE_CLASSES: Dict[str, str] = {}
 
-PINEBOO_VER = "0.76.3"
+PINEBOO_VER = "0.76.3.2"
 
 SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
 SHOW_CLOSED_CONNECTION_WARNING: bool = False  # Enable show debug when connection is closed.
