@@ -57,6 +57,12 @@ class TestSysBaseClassGeneral(unittest.TestCase):
         base_type.Mr_Proper()
         base_type.cleanupMetaData()
 
+    def test_basic_3(self) -> None:
+        """Test basic functions."""
+        base_type = sysbasetype.SysBaseType()
+        report_changes = "Nombre: 1 \nEstado: 2 \nShaOldTxt: 3 \nShaNewTxt: 4 \n###########################################\n"
+        self.assertEqual(base_type.reportChanges({"prueba": "1@2@3@4"}), report_changes)
+
     def test_objects(self) -> None:
         """Test objects functions."""
         from pineboolib.fllegacy import fltabledb

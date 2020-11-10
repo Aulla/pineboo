@@ -240,14 +240,14 @@ class SysBaseType(object):
         """Create a report for project changes."""
         ret = u""
         # DEBUG:: FOR-IN: ['key', 'changes']
-        for key in changes:
+        for key in changes.keys():
             if key == u"size":
                 continue
             chg = changes[key].split("@")
             ret += "Nombre: %s \n" % chg[0]
             ret += "Estado: %s \n" % chg[1]
             ret += "ShaOldTxt: %s \n" % chg[2]
-            ret += "ShaNewTxt: %s \n" % chg[4]
+            ret += "ShaNewTxt: %s \n" % chg[3]
             ret += u"###########################################\n"
 
         return ret
