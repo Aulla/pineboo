@@ -56,7 +56,26 @@ class TestFlModules(unittest.TestCase):
         # cursor_form.commitBuffer()
         qsa.from_project("formRecordflmodules").cargarFicheros(fixture_path("scripts"), "*.py")
         qsa.from_project("formRecordflmodules").cargarFicheros(fixture_path("scripts"), "*.qs")
+        self.assertTrue(
+            qsa.sys.disableObj(qsa.from_project("formRecordflmodules").form, "toolButtonEdit")
+        )
+
         cursor_form.commit()
+
+        self.assertTrue(
+            qsa.sys.setObjText(
+                qsa.from_project("formRecordflmodules").form, "flfielddb_5", "prueba"
+            )
+        )
+        self.assertTrue(
+            qsa.from_project("formRecordflmodules").child("flfielddb_5").value(), "prueba"
+        )
+        self.assertTrue(
+            qsa.sys.filterObj(qsa.from_project("formRecordflmodules").form, "flfielddb_5", "prueba")
+        )
+        self.assertTrue(
+            qsa.sys.testAndRun(qsa.from_project("formRecordflmodules").form, "flfielddb_5")
+        )
 
         qry = qsa.FLSqlQuery()
         qry.setSelect("contenido")
