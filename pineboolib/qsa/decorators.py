@@ -71,7 +71,7 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                 except exc.ResourceClosedError as error:
                     LOGGER.warning("Error al cerrar la transacción : %s, pero continua ....", error)
                 else:
-                    new_session.close()
+                    new_session.remove()
                 delete_atomic_session(key)
 
             except Exception as error:

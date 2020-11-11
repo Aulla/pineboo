@@ -225,7 +225,7 @@ class PNConnectionManager(QtCore.QObject):
         if session_id and session_id in self._thread_sessions:
             session = self._thread_sessions[session_id]
             try:
-                session.close()
+                session.remove()
             except Exception:
                 pass
 
