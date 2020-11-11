@@ -34,7 +34,7 @@ def atomic(conn_name: str = "default") -> TYPEFN:
             while application.ATOMIC_LIST[id_thread][0] != key:  # type: ignore [index] # noqa: F821
                 time.sleep(0.01)
 
-            application.PROJECT.conn_manager.check_connections()
+            application.PROJECT.conn_manager.check_connections(False)
 
             application.PROJECT.conn_manager.current_atomic_sessions[
                 key
