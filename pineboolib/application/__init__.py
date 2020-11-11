@@ -25,4 +25,3 @@ USE_WEBSOCKET_CHANNEL: bool = False  # Enable websockets features.
 USE_MISMATCHED_VIEWS: bool = False  # Enable mismatched views.
 RECOVERING_CONNECTIONS: bool = False  # Recovering state.
 AUTO_RELOAD_BAD_CONNECTIONS: bool = False  # Auto reload bad conecctions.
-

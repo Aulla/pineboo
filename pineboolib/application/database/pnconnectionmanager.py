@@ -98,7 +98,6 @@ class PNConnectionManager(QtCore.QObject):
             del session
         except Exception as error:
             LOGGER.warning("Error removing session:%s", error)
-            raise error
             return False
 
         return True

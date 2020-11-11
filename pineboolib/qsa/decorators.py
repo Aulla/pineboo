@@ -102,7 +102,7 @@ def serialize(conn_name: str = "default") -> TYPEFN:
             application.SERIALIZE_LIST[id_thread].append(key)  # type: ignore [index] # noqa: F821
 
             while (
-                application.SERIALIZE_LIST[id_thread][0] != key
+                application.SERIALIZE_LIST[id_thread][0] != key  # type: ignore [index] # noqa: F821
             ):  # type: ignore [index] # noqa: F821
                 time.sleep(0.01)
 
