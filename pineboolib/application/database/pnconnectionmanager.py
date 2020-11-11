@@ -135,8 +135,8 @@ class PNConnectionManager(QtCore.QObject):
                 if not self.removeConn(name):
                     raise Exception("a problem existes deleting older connection")
 
-            if len(self.connections_dict.keys()) > self.limit_connections:
-                raise Exception("Connections limit reached!")
+            # if len(self.connections_dict.keys()) > self.limit_connections:
+            #    raise Exception("Connections limit reached!")
             # if self._driver_sql is None:
             #    raise Exception("No driver selected")
 
@@ -225,7 +225,7 @@ class PNConnectionManager(QtCore.QObject):
         if session_id and session_id in self._thread_sessions:
             session = self._thread_sessions[session_id]
             try:
-                session.scoped_session.remove()
+                session.close()
             except Exception:
                 pass
 
@@ -298,8 +298,19 @@ class PNConnectionManager(QtCore.QObject):
 
     def check_connections(self) -> None:
         """Check connections."""
+
         for conn_name in list(self.enumerate().keys()):  # Comprobamos conexiones una a una
             conn_identifier = utils_base.session_id(conn_name)
+
+            if conn_identifier not in application.GET_LIST:
+                application.GET_LIST.append(conn_identifier)
+            else:
+                while conn_identifier in application.GET_LIST:
+                    QtWidgets.QApplication.processEvents()
+
+            if conn_identifier not in application.GET_LIST:
+                application.GET_LIST.append(conn_identifier)
+
             if conn_identifier in self.connections_dict.keys():
                 conn_ = self.connections_dict[conn_identifier]
                 LOGGER.info("Checking connection %s", conn_identifier)
@@ -314,6 +325,8 @@ class PNConnectionManager(QtCore.QObject):
                 if not valid:
                     if not self.removeConn(conn_identifier):
                         LOGGER.info("Connection %s removing failed!", conn_identifier)
+
+            application.GET_LIST.remove(conn_identifier)
 
     def reinit_user_connections(self) -> None:
         """Reinit users connection."""
