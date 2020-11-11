@@ -254,7 +254,7 @@ class PNSqlSchema(object):
         if limit_conn > 0:
             LOGGER.warning("SQLALCHEMY POOL SIZE %s", limit_conn)
             self._queqe_params["pool_size"] = limit_conn
-            self._queqe_params["max_overflow"] = int(limit_conn * 2)
+            self._queqe_params["max_overflow"] = int(limit_conn + 10)
         else:
             LOGGER.warning("SQLALCHEMY POOL DISABLED!")
             self._queqe_params["poolclass"] = pool.NullPool
