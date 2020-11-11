@@ -40,6 +40,8 @@ if TYPE_CHECKING:
 
 LOGGER = logging.get_logger(__name__)
 
+ENGINES: Dict[str:Any] = {}
+
 
 class PNSqlSchema(object):
     """PNSqlSchema class."""
@@ -262,10 +264,15 @@ class PNSqlSchema(object):
 
         try:
             str_conn = self.loadConnectionString(name, host, port, usern, passw_)
-            if alternative:
-                str_conn += self._extra_alternative
+            if str_conn in ENGINES.keys():
+                LOGGER.warning("REUSANDO ENGINE!")
+                self._engine = ENGINES[str_conn]
+            else:
+                if alternative:
+                    str_conn += self._extra_alternative
 
-            self._engine = create_engine(str_conn, **self._queqe_params)
+                self._engine = create_engine(str_conn, **self._queqe_params)
+                ENGINES[str_conn] = self._engine
 
             event.listen(self._engine, "close_detached", self.close_connection_warning)
             event.listen(self._engine, "close", self.close_connection_warning)
