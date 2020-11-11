@@ -66,15 +66,20 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                                 "".join(traceback.format_stack(limit=None)),
                                 stack_info=True,
                             )
-
                             raise error
                 except exc.ResourceClosedError as error:
                     LOGGER.warning("Error al cerrar la transacción : %s, pero continua ....", error)
-                else:
-                    new_session.remove()
+
+                new_session.close()
                 delete_atomic_session(key)
 
             except Exception as error:
+                try:
+                    new_session.close()
+                except Exception as error_remove:
+                    LOGGER.warning(
+                        "Error al cerrar la conexión : %s, pero continua ....", error_remove
+                    )
                 delete_atomic_session(key)
                 raise error
 
