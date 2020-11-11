@@ -296,22 +296,10 @@ class PNConnectionManager(QtCore.QObject):
 
         return result
 
-    def check_connections(self, serialize: bool = True) -> None:
+    def check_connections(self) -> None:
         """Check connections."""
-
         for conn_name in list(self.enumerate().keys()):  # Comprobamos conexiones una a una
             conn_identifier = utils_base.session_id(conn_name)
-
-            if serialize:
-                if conn_identifier not in application.GET_LIST:
-                    application.GET_LIST.append(conn_identifier)
-                else:
-                    while conn_identifier in application.GET_LIST:
-                        QtWidgets.QApplication.processEvents()
-
-            if conn_identifier not in application.GET_LIST:
-                application.GET_LIST.append(conn_identifier)
-
             if conn_identifier in self.connections_dict.keys():
                 conn_ = self.connections_dict[conn_identifier]
                 LOGGER.info("Checking connection %s", conn_identifier)
@@ -326,8 +314,6 @@ class PNConnectionManager(QtCore.QObject):
                 if not valid:
                     if not self.removeConn(conn_identifier):
                         LOGGER.info("Connection %s removing failed!", conn_identifier)
-            if serialize:
-                application.GET_LIST.remove(conn_identifier)
 
     def reinit_user_connections(self) -> None:
         """Reinit users connection."""
