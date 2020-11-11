@@ -34,7 +34,7 @@ def atomic(conn_name: str = "default") -> TYPEFN:
             while application.ATOMIC_LIST[id_thread][0] != key:  # type: ignore [index] # noqa: F821
                 time.sleep(0.01)
 
-            application.PROJECT.conn_manager.check_connections(False)
+            application.PROJECT.conn_manager.check_connections()
 
             application.PROJECT.conn_manager.current_atomic_sessions[
                 key
@@ -85,6 +85,7 @@ def atomic(conn_name: str = "default") -> TYPEFN:
 
     return decorator  # type: ignore [return-value] # noqa: F723
 
+
 def serialize(conn_name: str = "default") -> TYPEFN:
     """Return pineboo atomic decorator."""
 
@@ -100,7 +101,9 @@ def serialize(conn_name: str = "default") -> TYPEFN:
 
             application.SERIALIZE_LIST[id_thread].append(key)  # type: ignore [index] # noqa: F821
 
-            while application.SERIALIZE_LIST[id_thread][0] != key:  # type: ignore [index] # noqa: F821
+            while (
+                application.SERIALIZE_LIST[id_thread][0] != key
+            ):  # type: ignore [index] # noqa: F821
                 time.sleep(0.01)
 
             application.PROJECT.conn_manager.check_connections()
@@ -110,11 +113,7 @@ def serialize(conn_name: str = "default") -> TYPEFN:
             ], new_session = utils.driver_session(conn_name)
             result_ = None
             try:
-                LOGGER.debug(
-                    "New serialize session : %s, connection : %s",
-                    new_session,
-                    conn_name
-                )
+                LOGGER.debug("New serialize session : %s, connection : %s", new_session, conn_name)
 
                 try:
                     result_ = fun_(*args, **kwargs)
@@ -125,8 +124,8 @@ def serialize(conn_name: str = "default") -> TYPEFN:
                         "".join(traceback.format_stack(limit=None)),
                         stack_info=True,
                     )
-                        raise error
-                
+                    raise error
+
                 application.PROJECT.conn_manager.remove_session(new_session)
                 delete_atomic_session(key)
 
@@ -156,8 +155,10 @@ def delete_atomic_session(key: str) -> None:
 
     id_thread = threading.current_thread().ident
 
-    if key in application.ATOMIC_LIST[id_thread]:  # type: ignore [index] # noqa: F821
-        application.ATOMIC_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
+    if id_thread in application.ATOMIC_LIST.keys():
+        if key in application.ATOMIC_LIST[id_thread]:  # type: ignore [index] # noqa: F821
+            application.ATOMIC_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
 
-    if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
-        application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
+    if id_thread in application.SERIALIZE_LIST.keys():
+        if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
+            application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821

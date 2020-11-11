@@ -249,14 +249,14 @@ class PNSqlSchema(object):
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
 
         self._queqe_params["encoding"] = "UTF-8"
-        if application.SQLALCHEMY_NULL_POOL:
+        if limit_conn > 0:
+            LOGGER.warning("SQLALCHEMY POOL SIZE %s", limit_conn)
+            self._queqe_params["pool_size"] = limit_conn
+            self._queqe_params["max_overflow"] = int(limit_conn * 2)
+        else:
             LOGGER.warning("SQLALCHEMY POOL DISABLED!")
             self._queqe_params["poolclass"] = pool.NullPool
-        else:
-            if limit_conn > 0:
-                LOGGER.warning("SQLALCHEMY POOL SIZE %s", limit_conn)
-                self._queqe_params["pool_size"] = limit_conn
-                self._queqe_params["max_overflow"] = int(limit_conn * 2)
+
         if application.LOG_SQL:
             self._queqe_params["echo"] = True
 

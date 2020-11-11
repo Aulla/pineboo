@@ -26,7 +26,7 @@ class PNConnectionManager(QtCore.QObject):
     _manager: Optional["flmanager.FLManager"]
     _manager_modules: Optional["flmanagermodules.FLManagerModules"]
     connections_dict: Dict[str, "pnconnection.PNConnection"] = {}
-    limit_connections: int = 50  # Limit of connections to use.
+    limit_connections: int = 0  # Limit of connections to use.
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
     current_atomic_sessions: Dict[str, str]
@@ -89,6 +89,19 @@ class PNConnectionManager(QtCore.QObject):
             raise Exception("main_conn is empty!")
 
         return ret_
+
+    def remove_session(self, session: "orm_session.Session") -> bool:
+        """Remove session."""
+
+        try:
+            session.close()
+            del session
+        except Exception as error:
+            LOGGER.warning("Error removing session:%s", error)
+            raise error
+            return False
+
+        return True
 
     def finish(self) -> None:
         """Set the connection as terminated."""
@@ -225,7 +238,7 @@ class PNConnectionManager(QtCore.QObject):
         if session_id and session_id in self._thread_sessions:
             session = self._thread_sessions[session_id]
             try:
-                session.close()
+                self.remove_session(session)
             except Exception:
                 pass
 
