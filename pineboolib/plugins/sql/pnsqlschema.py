@@ -18,7 +18,7 @@ from pineboolib.fllegacy import flutil
 
 from sqlalchemy.engine import base, create_engine  # type: ignore [import] # noqa: F821
 from sqlalchemy.inspection import inspect  # type: ignore [import] # noqa: F821, F401
-from sqlalchemy.orm import sessionmaker, scoped_session  # type: ignore [import] # noqa: F821
+from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
 from sqlalchemy import event, pool, text
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
 
 LOGGER = logging.get_logger(__name__)
 
-ENGINES: Dict[str:Any] = {}
+ENGINES: Dict[str, "base.Engine"] = {}
 
 
 class PNSqlSchema(object):
