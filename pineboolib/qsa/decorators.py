@@ -70,16 +70,69 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                 except exc.ResourceClosedError as error:
                     LOGGER.warning("Error al cerrar la transacción : %s, pero continua ....", error)
 
-                new_session.close()
+                application.PROJECT.conn_manager.remove_session(new_session)
                 delete_atomic_session(key)
 
             except Exception as error:
+                application.PROJECT.conn_manager.remove_session(new_session)
+                delete_atomic_session(key)
+                raise error
+
+            return result_
+
+        mock_fn: TYPEFN = cast(TYPEFN, wrapper)
+        return mock_fn
+
+    return decorator  # type: ignore [return-value] # noqa: F723
+
+def serialize(conn_name: str = "default") -> TYPEFN:
+    """Return pineboo atomic decorator."""
+
+    def decorator(fun_: TYPEFN) -> TYPEFN:
+        @functools.wraps(fun_)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+
+            id_thread = threading.current_thread().ident
+            key = utils_base.session_id(conn_name)
+
+            if id_thread not in application.SERIALIZE_LIST.keys():
+                application.SERIALIZE_LIST[id_thread] = []  # type: ignore [index] # noqa: F821
+
+            application.SERIALIZE_LIST[id_thread].append(key)  # type: ignore [index] # noqa: F821
+
+            while application.SERIALIZE_LIST[id_thread][0] != key:  # type: ignore [index] # noqa: F821
+                time.sleep(0.01)
+
+            application.PROJECT.conn_manager.check_connections()
+
+            application.PROJECT.conn_manager.current_atomic_sessions[
+                key
+            ], new_session = utils.driver_session(conn_name)
+            result_ = None
+            try:
+                LOGGER.debug(
+                    "New serialize session : %s, connection : %s",
+                    new_session,
+                    conn_name
+                )
+
                 try:
-                    new_session.close()
-                except Exception as error_remove:
+                    result_ = fun_(*args, **kwargs)
+                except Exception as error:
                     LOGGER.warning(
-                        "Error al cerrar la conexión : %s, pero continua ....", error_remove
+                        "SERIALIZE STACKS\nAPP: %s.\nERROR: %s.",
+                        "".join(traceback.format_exc(limit=None)),
+                        "".join(traceback.format_stack(limit=None)),
+                        stack_info=True,
                     )
+                        raise error
+                
+                application.PROJECT.conn_manager.remove_session(new_session)
+                delete_atomic_session(key)
+
+            except Exception as error:
+
+                application.PROJECT.conn_manager.remove_session(new_session)
                 delete_atomic_session(key)
                 raise error
 
@@ -105,3 +158,6 @@ def delete_atomic_session(key: str) -> None:
 
     if key in application.ATOMIC_LIST[id_thread]:  # type: ignore [index] # noqa: F821
         application.ATOMIC_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
+
+    if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
+        application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
