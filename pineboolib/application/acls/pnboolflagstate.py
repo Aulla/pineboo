@@ -72,6 +72,4 @@ class PNBoolFlagStateList(object):
         @return Flag state.
         """
 
-        if not self.data_list_:
-            return None
-        return self.data_list_[0]
+        return None if not self.data_list_ else self.data_list_[0]
