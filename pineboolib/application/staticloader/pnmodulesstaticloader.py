@@ -358,6 +358,13 @@ class PNStaticLoader(QtCore.QObject):
         info.readSettings()
         candidates: List[List[str]] = []
 
+        if not info.dirs_:
+            LOGGER.info(
+                "STATIC LOAD: No folders found searching %s. Please disable static load or add folders",
+                name,
+            )
+            return ""
+
         separator = "\\" if sysbasetype.SysBaseType.osName().find("WIN") > -1 else "/"
         for info_item in info.dirs_:
             content_path_candidate = "%s%s%s" % (info_item.path_, separator, name)
