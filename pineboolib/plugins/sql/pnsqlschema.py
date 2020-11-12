@@ -252,11 +252,11 @@ class PNSqlSchema(object):
 
         self._queqe_params["encoding"] = "UTF-8"
         if limit_conn > 0:
-            LOGGER.warning("SQLALCHEMY POOL SIZE %s", limit_conn)
+            LOGGER.info("SqlAlchemy pool size %s", limit_conn)
             self._queqe_params["pool_size"] = limit_conn
             self._queqe_params["max_overflow"] = int(limit_conn + 10)
         else:
-            LOGGER.warning("SQLALCHEMY POOL DISABLED!")
+            LOGGER.info("SqlAlchemy pool disabled")
             self._queqe_params["poolclass"] = pool.NullPool
 
         if application.LOG_SQL:
@@ -265,7 +265,9 @@ class PNSqlSchema(object):
         try:
             str_conn = self.loadConnectionString(name, host, port, usern, passw_)
             if str_conn in ENGINES.keys():
-                LOGGER.warning("REUSANDO ENGINE!")
+                LOGGER.info(
+                    "Reusing engine %s:%s/%s to %s connection", host, port, name, self.db_._name
+                )
                 self._engine = ENGINES[str_conn]
             else:
                 if alternative:

@@ -259,7 +259,7 @@ def _resolve_script(file_name, alternative: str = "") -> str:
     if not result:
         result = alternative
         if not result:
-            result = _path(file_name, False)
+            result = _path(file_name, False) or ""
 
     return result or ""
 
