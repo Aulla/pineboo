@@ -46,9 +46,8 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     script_loaded = None
 
     cached_script_path_qs: str = _path("%s.qs" % script_name, False) or ""
-    cached_script_path_py: str = _path(
-        "%s.py" % script_name, False
-    ) or ""  # Busqueda en carpetas .py
+    # Busqueda en carpetas .py
+    cached_script_path_py: str = _path("%s.py" % script_name, False) or ""
     if cached_script_path_qs and not cached_script_path_py:  # busqueda en carpetas .qs.py
         file_py = "%spy" % cached_script_path_qs[:-2]
         cached_script_path_py = file_py if os.path.exists(file_py) else ""
@@ -256,8 +255,12 @@ def load_module(script_name: str) -> Optional["ModuleType"]:
 def _resolve_script(file_name, alternative: str = "") -> str:
     """Resolve script."""
 
-    static = _static_file(file_name)
-    result = static if static else alternative if alternative else _path(file_name, False)
+    result = _static_file(file_name)
+    if not result:
+        result = alternative
+        if not result:
+            result = _path(file_name, False)
+
     return result or ""
 
 
@@ -265,6 +268,12 @@ def _load(  # type: ignore [return] # noqa: F821, F723
     module_name: str, script_name: str, capture_error: bool = True
 ) -> "ModuleType":
     """Load modules."""
+
+    if os.path.exists(script_name) and not os.access(script_name, os.R_OK):
+        if capture_error:
+            LOGGER.error("Permision denied for read %s file", script_name)
+        else:
+            raise PermissionError
 
     try:
         loader = machinery.SourceFileLoader(module_name, script_name)
