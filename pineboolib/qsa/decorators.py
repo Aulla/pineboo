@@ -9,7 +9,7 @@ import threading
 import functools
 import traceback
 import time
-from sqlalchemy import exc
+from sqlalchemy import exc, orm
 
 TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 
@@ -70,12 +70,10 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                 except exc.ResourceClosedError as error:
                     LOGGER.warning("Error al cerrar la transacción : %s, pero continua ....", error)
 
-                application.PROJECT.conn_manager.remove_session(new_session)
-                delete_atomic_session(key)
+                _delete_data(new_session, key)
 
             except Exception as error:
-                application.PROJECT.conn_manager.remove_session(new_session)
-                delete_atomic_session(key)
+                _delete_data(new_session, key)
                 raise error
 
             return result_
@@ -107,10 +105,8 @@ def serialize(conn_name: str = "default") -> TYPEFN:
                 time.sleep(0.01)
 
             application.PROJECT.conn_manager.check_connections()
+            new_session = utils.driver_session(conn_name)[1]
 
-            application.PROJECT.conn_manager.current_atomic_sessions[
-                key
-            ], new_session = utils.driver_session(conn_name)
             result_ = None
             try:
                 LOGGER.debug("New serialize session : %s, connection : %s", new_session, conn_name)
@@ -126,13 +122,11 @@ def serialize(conn_name: str = "default") -> TYPEFN:
                     )
                     raise error
 
-                application.PROJECT.conn_manager.remove_session(new_session)
-                delete_atomic_session(key)
+                _delete_data(new_session, key)
 
             except Exception as error:
 
-                application.PROJECT.conn_manager.remove_session(new_session)
-                delete_atomic_session(key)
+                _delete_data(new_session, key)
                 raise error
 
             return result_
@@ -143,7 +137,14 @@ def serialize(conn_name: str = "default") -> TYPEFN:
     return decorator  # type: ignore [return-value] # noqa: F723
 
 
-def delete_atomic_session(key: str) -> None:
+def _delete_data(session: "orm.Session", key: str) -> None:
+    """Delete data."""
+
+    application.PROJECT.conn_manager.remove_session(session)
+    _delete_session(key)
+
+
+def _delete_session(key: str) -> None:
     """Delete atomic_session."""
     mng_ = application.PROJECT.conn_manager
     if key in mng_.current_atomic_sessions.keys():
