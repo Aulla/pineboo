@@ -5,7 +5,6 @@ from optparse import Values
 from typing import List, Type, Optional, TYPE_CHECKING
 from types import TracebackType
 import coloredlogs  # type: ignore [import]
-import time
 
 from PyQt5 import QtCore, QtWidgets
 
@@ -512,4 +511,3 @@ def _initialize_data() -> None:
 
     else:
         raise Exception("Project initialization failed!")
-
