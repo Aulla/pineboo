@@ -1,9 +1,11 @@
 """Test consistency module."""
 
 import unittest
+import threading
 
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib import application
+from pineboolib.core.utils import utils_base
 from pineboolib.qsa import qsa
 
 
@@ -35,6 +37,13 @@ class TestConsistency(unittest.TestCase):
         self.assertTrue(
             thread_session in application.PROJECT.conn_manager._thread_sessions.values()
         )
+
+    @qsa.serialize()  # type: ignore [misc] # noqa: F821
+    def test_serialize(self) -> None:
+        """Test serialize decorator."""
+        conn_ident = utils_base.session_id()
+        id_thread = threading.current_thread().ident
+        self.assertTrue(conn_ident in application.SERIALIZE_LIST[id_thread])
 
     @qsa.atomic()  # type: ignore [misc] # noqa: F821
     def test_transaction(self) -> None:

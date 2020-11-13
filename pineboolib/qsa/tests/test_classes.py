@@ -1,5 +1,7 @@
 """Test classes module."""
 
+from pineboolib.qsa import qsa
+
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 import os
@@ -18,7 +20,6 @@ class TestClasses(unittest.TestCase):
     def test_qdir(self) -> None:
         """Test qdir class."""
         # from pineboolib.core.settings import config
-        from pineboolib.qsa import qsa
 
         # tmp_dir = config.value("ebcomportamiento/temp_dir")
         dir_ = qsa.QDir(".", "*.py *.pyo")
@@ -34,7 +35,6 @@ class TestClasses(unittest.TestCase):
         """Test qtextstream class."""
 
         from pineboolib import application
-        from pineboolib.qsa import qsa
 
         txt_ = "Hola!"
         txt_2 = "Hola de nuevo!"
@@ -65,8 +65,6 @@ class TestClasses(unittest.TestCase):
     def test_qsproject(self) -> None:
         """Test qsproject."""
 
-        from pineboolib.qsa import qsa
-
         value_1 = "flfactppal.iface.prueba"
         qsa.aqApp.setScriptEntryFunction("flfactppal.iface.prueba")
 
@@ -76,7 +74,7 @@ class TestClasses(unittest.TestCase):
 
     def test_aq_global_functions(self) -> None:
         """Test AQGlobal function."""
-        from pineboolib.qsa import qsa
+
         from PyQt5 import QtWidgets
 
         qsa.sys.AQGlobalFunctions.set("saludo", self.saludo)
@@ -88,7 +86,6 @@ class TestClasses(unittest.TestCase):
 
     def test_sort(self) -> None:
         """Test array.sort function."""
-        from pineboolib.qsa import qsa
 
         array_ = [1, 6, 3, 4, 2, 0, 0, 9]
         self.assertEqual(sorted(array_), [0, 0, 1, 2, 3, 4, 6, 9])
@@ -96,7 +93,6 @@ class TestClasses(unittest.TestCase):
 
     def test_splice(self) -> None:
         """Test splice."""
-        from pineboolib.qsa import qsa
 
         array_ = [1, 2, 3, 4, 5, 6]
         qsa.splice(array_, 3, 0, 8, 9)
@@ -104,6 +100,14 @@ class TestClasses(unittest.TestCase):
         qsa.splice(array_, 3, 2)
         self.assertEqual(array_, [1, 2, 3, 4, 5, 6])
         qsa.splice(array_, 3, 2, 9, 8)
+
+    def test_object_class(self) -> None:
+        """Test object class."""
+
+        obj_ = qsa.ObjectClass()
+        obj_.module_connect(obj_, "signal_test", self, "saluda")
+        self.assertTrue(len(obj_._class_connections) == 1)
+        obj_.module_disconnect(obj_, "signal_test", self, "saluda")
 
     def saludo(self) -> None:
         """AQGlobalFunction test."""
