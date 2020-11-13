@@ -43,7 +43,9 @@ class TestConsistency(unittest.TestCase):
         """Test serialize decorator."""
         conn_ident = utils_base.session_id()
         id_thread = threading.current_thread().ident
-        self.assertTrue(conn_ident in application.SERIALIZE_LIST[id_thread])
+        self.assertTrue(
+            conn_ident in application.SERIALIZE_LIST[id_thread]  # type: ignore [index] # noqa: F821
+        )
 
     @qsa.atomic()  # type: ignore [misc] # noqa: F821
     def test_transaction(self) -> None:
