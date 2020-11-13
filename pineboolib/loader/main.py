@@ -51,48 +51,16 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     dgi = load_dgi("qt", None)
     application.PROJECT.init_dgi(dgi)
     application.PROJECT.aq_app._inicializing = False
-    start_time = time.time()
-    LOGGER.info(
-        "STARTUP_FRAMEWORK:(1/8) Setting profile data. time: %.4fs.", time.time() - start_time
-    )
+
+    LOGGER.info("STARTUP_FRAMEWORK:(1/9) Setting profile data.")
     conn_ = connect_to_db(conn)
-    LOGGER.info(
-        "STARTUP_FRAMEWORK:(2/8) Establishing connection. time: %.4fs.", time.time() - start_time
-    )
+    LOGGER.info("STARTUP_FRAMEWORK:(2/9) Establishing connection.")
     main_conn_established = application.PROJECT.init_conn(connection=conn_)
 
     if not main_conn_established:
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
-    # application.PROJECT.no_python_cache = False
-    LOGGER.info("STARTUP_FRAMEWORK:(3/8) Loading database. time: %.4fs.", time.time() - start_time)
-    application.PROJECT.run()
-    LOGGER.info(
-        "STARTUP_FRAMEWORK:(4/8) Loading area definitions. time: %.4fs.", time.time() - start_time
-    )
-    application.PROJECT.conn_manager.managerModules().loadIdAreas()
-    LOGGER.info(
-        "STARTUP_FRAMEWORK:(5/8) Loading module definitions. time: %.4fs.", time.time() - start_time
-    )
-    application.PROJECT.conn_manager.managerModules().loadAllIdModules()
-    LOGGER.info(
-        "STARTUP_FRAMEWORK:(6/8) Loading modules. Making QSA Tree. time: %.4fs.",
-        time.time() - start_time,
-    )
-    application.PROJECT.load_modules()
-    LOGGER.info(
-        "STARTUP_FRAMEWORK:(7/8) Loading classes. Making QSA Tree. time: %.4fs.",
-        time.time() - start_time,
-    )
-    application.PROJECT.load_classes()
-    LOGGER.info(
-        "STARTUP_FRAMEWORK:(8/8) Loading orm models. Making QSA Tree. time: %.4fs.",
-        time.time() - start_time,
-    )
-    application.PROJECT.load_orm()
-    LOGGER.info(
-        "STARTUP_FRAMEWORK: All processes completed. Continue ... %.4f", time.time() - start_time
-    )
+    _initialize_data()
 
 
 def startup(enable_gui: bool = None) -> None:
@@ -312,16 +280,7 @@ def init_testing() -> None:
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
     # application.PROJECT.no_python_cache = False
-    if application.PROJECT.run():
-
-        # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
-        application.PROJECT.conn_manager.managerModules().loadIdAreas()
-        application.PROJECT.conn_manager.managerModules().loadAllIdModules()
-
-        application.PROJECT.load_modules()
-        application.PROJECT.load_classes()
-    else:
-        raise Exception("Project initialization failed!")
+    _initialize_data()
 
 
 def finish_testing() -> None:
@@ -506,30 +465,7 @@ def exec_main(options: Values) -> int:
     # main_form_ = getattr(application.PROJECT.main_form, "MainForm", None)
 
     application.PROJECT.message_manager().send("splash", "show")
-
-    application.PROJECT.run()
-
-    from pineboolib.application.acls import pnaccesscontrollists
-
-    acl = pnaccesscontrollists.PNAccessControlLists()
-    acl.init()
-
-    if acl._access_control_list:
-        application.PROJECT.aq_app.set_acl(acl)
-
-    # conn = application.PROJECT.conn_manager.mainConn()
-
-    # if not conn:
-    #    LOGGER.warning("No connection was provided. Aborting Pineboo load.")
-    #    return -99
-
-    # Necesario para que funcione isLoadedModule ¿es este el mejor sitio?
-    application.PROJECT.conn_manager.managerModules().loadIdAreas()
-    application.PROJECT.conn_manager.managerModules().loadAllIdModules()
-
-    application.PROJECT.load_modules()
-    application.PROJECT.load_classes()
-    application.PROJECT.load_orm()
+    _initialize_data()
 
     # FIXME: move this code to pineboo.application
     application.PROJECT.message_manager().send(
@@ -545,3 +481,35 @@ def exec_main(options: Values) -> int:
         application.PROJECT.app,
     )
     return ret
+
+
+def _initialize_data() -> None:
+    """Initialize data."""
+
+    LOGGER.info("STARTUP_FRAMEWORK:(3/9) Loading database.")
+    if application.PROJECT.run():
+
+        from pineboolib.application.acls import pnaccesscontrollists
+
+        acl = pnaccesscontrollists.PNAccessControlLists()
+        acl.init()
+
+        if acl._access_control_list:
+            LOGGER.info("STARTUP_FRAMEWORK:(4/9) Loading ACLS.")
+            application.PROJECT.aq_app.set_acl(acl)
+
+        LOGGER.info("STARTUP_FRAMEWORK:(5/9) Loading area definitions.")
+        application.PROJECT.conn_manager.managerModules().loadIdAreas()
+        LOGGER.info("STARTUP_FRAMEWORK:(6/9) Loading module definitions.")
+        application.PROJECT.conn_manager.managerModules().loadAllIdModules()
+        LOGGER.info("STARTUP_FRAMEWORK:(7/9) Loading modules. Making QSA Tree.")
+        application.PROJECT.load_modules()
+        LOGGER.info("STARTUP_FRAMEWORK:(8/9) Loading classes. Making QSA Tree.")
+        application.PROJECT.load_classes()
+        LOGGER.info("STARTUP_FRAMEWORK:(9/9) Loading orm models. Making QSA Tree. ")
+        application.PROJECT.load_orm()
+        LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
+
+    else:
+        raise Exception("Project initialization failed!")
+
