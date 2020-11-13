@@ -233,7 +233,7 @@ class PNSqlSchema(object):
     ) -> Optional["base.Connection"]:
         """Return alternative connection."""
 
-        return None
+        return None  # pragma: no cover
 
     def getConn(
         self,
@@ -288,7 +288,7 @@ class PNSqlSchema(object):
     def loadSpecialConfig(self) -> None:
         """Set special config."""
 
-        pass
+        pass  # pragma: no cover
 
     def version(self) -> str:
         """Return version number."""
@@ -506,7 +506,7 @@ class PNSqlSchema(object):
     @decorators.not_implemented_warn
     def setType(self, type_: str, leng: int = 0) -> str:
         """Return type definition."""
-        return ""
+        return ""  # pragma: no cover
 
     def existsTable(self, table_name: str) -> bool:
         """Return if exists a table specified by name."""
@@ -563,7 +563,7 @@ class PNSqlSchema(object):
         self, tmd: "pntablemetadata.PNTableMetaData", create_index: bool = True
     ) -> Optional[str]:
         """Return a create table query."""
-        return ""
+        return ""  # pragma: no cover
 
     def mismatchedTable(self, table_name: str, metadata: "pntablemetadata.PNTableMetaData") -> bool:
         """Return if a table is mismatched."""
@@ -634,7 +634,7 @@ class PNSqlSchema(object):
     @decorators.not_implemented_warn
     def recordInfo2(self, tablename: str) -> List[List[Any]]:
         """Return info from a database table."""
-        return []
+        return []  # pragma: no cover
 
     def recordInfo(self, table_metadata: "pntablemetadata.PNTableMetaData") -> List[list]:
         """Obtain current cursor information on columns."""
@@ -655,7 +655,7 @@ class PNSqlSchema(object):
     @decorators.not_implemented_warn
     def decodeSqlType(self, type_: str) -> str:
         """Return the specific field type."""
-        return ""
+        return ""  # pragma: no cover
 
     def notEqualsFields(self, field_db: List[Any], field_meta: List[Any], is_query=False) -> bool:
         """Return if a field has changed."""
@@ -718,7 +718,7 @@ class PNSqlSchema(object):
     @decorators.not_implemented_warn
     def tables(self, type_name: str = "") -> List[str]:
         """Return a tables list specified by type."""
-        return []
+        return []  # pragma: no cover
 
     def normalizeValue(self, text: str) -> str:
         """Return a database friendly text."""
@@ -741,7 +741,7 @@ class PNSqlSchema(object):
     @decorators.not_implemented_warn
     def constraintExists(self, name: str) -> bool:
         """Return if constraint exists specified by name."""
-        return False
+        return False  # pragma: no cover
 
     def remove_index(self, metadata: "pntablemetadata.PNTableMetaData", cursor: Any) -> bool:
         """Remove olds index."""
