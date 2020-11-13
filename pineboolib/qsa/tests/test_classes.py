@@ -1,6 +1,7 @@
 """Test classes module."""
 
 from pineboolib.qsa import qsa
+from PyQt5 import QtWidgets
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
@@ -105,9 +106,9 @@ class TestClasses(unittest.TestCase):
         """Test object class."""
 
         obj_ = qsa.ObjectClass()
-        obj_.module_connect(obj_, "signal_test", self, "saluda")
-        self.assertTrue(len(obj_._class_connections) == 1)
-        obj_.module_disconnect(obj_, "signal_test", self, "saluda")
+        button = QtWidgets.QPushButton()
+        obj_.module_connect(button, "clicked", self, "saluda")
+        obj_.module_disconnect(button, "clicked", self, "saluda")
 
     def saludo(self) -> None:
         """AQGlobalFunction test."""
