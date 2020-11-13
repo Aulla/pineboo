@@ -296,7 +296,7 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
 def use_mtd_fields(path_model: str) -> bool:
     """Return if models use mtd fields."""
 
-    file_ = open(path_model, "r")
+    file_ = open(path_model, "r", encoding="UTF-8")
     lines = file_.readlines()
     file_.close()
     for line in lines:
