@@ -13,7 +13,7 @@ ATOMIC_LIST: Dict[int, List[str]] = {}
 SERIALIZE_LIST: Dict[int, List[str]] = {}
 FILE_CLASSES: Dict[str, str] = {}
 
-PINEBOO_VER = "0.76.9.5"
+PINEBOO_VER = "0.76.10"
 
 SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
 SHOW_CLOSED_CONNECTION_WARNING: bool = False  # Enable show debug when connection is closed.
@@ -24,4 +24,4 @@ USE_WEBSOCKET_CHANNEL: bool = False  # Enable websockets features.
 USE_MISMATCHED_VIEWS: bool = False  # Enable mismatched views.
 RECOVERING_CONNECTIONS: bool = False  # Recovering state.
 AUTO_RELOAD_BAD_CONNECTIONS: bool = False  # Auto reload bad conecctions.
-DEVELOPER_MODE: bool = True
+DEVELOPER_MODE: bool = True  # Skip some bugs, critical in production.
