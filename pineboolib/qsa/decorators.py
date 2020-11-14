@@ -61,8 +61,7 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                                 )
                         except Exception as error:
                             LOGGER.warning(
-                                "ATOMIC STACKS\nTHREAD: %s.\nAPP: %s.\nERROR: %s.",
-                                id_thread,
+                                "ATOMIC STACKS\nAPP: %s.\nERROR: %s.",
                                 "".join(traceback.format_exc(limit=None)),
                                 "".join(traceback.format_stack(limit=None)),
                                 stack_info=True,
@@ -116,8 +115,7 @@ def serialize(conn_name: str = "default") -> TYPEFN:
                     result_ = fun_(*args, **kwargs)
                 except Exception as error:
                     LOGGER.warning(
-                        "SERIALIZE STACKS\nTHREAD: %s.\nAPP: %s.\nERROR: %s.",
-                        id_thread,
+                        "SERIALIZE STACKS\nAPP: %s.\nERROR: %s.",
                         "".join(traceback.format_exc(limit=None)),
                         "".join(traceback.format_stack(limit=None)),
                         stack_info=True,

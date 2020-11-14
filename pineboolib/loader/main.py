@@ -116,10 +116,10 @@ def init_logging(
     """Initialize pineboo logging."""
 
     # ---- LOGGING -----
-    log_format = "%(levelname)-8s: %(name)s:%(lineno)d: %(message)s"
+    log_format = "%(levelname)-8s: %(thread)s: %(name)s:%(lineno)d: %(message)s"
 
     if logtime:
-        log_format = "%(asctime)s - %(levelname)-8s: %(name)s:%(lineno)d: %(message)s"
+        log_format = "%(asctime)s - %(levelname)-8s: %(thread)s: %(name)s:%(lineno)d: %(message)s"
 
     app_loglevel = logging.TRACE if trace_loggers else loglevel
 
@@ -133,6 +133,7 @@ def init_logging(
         "name": {"color": "white"},
         "programname": {"color": "cyan"},
         "username": {"color": "yellow"},
+        "thread": {"color": "green"},
     }
     coloredlogs.DEFAULT_LEVEL_STYLES = {
         "critical": {"bold": True, "color": "red"},

@@ -69,8 +69,7 @@ class DelayedObjectProxyLoader(object):
         )
 
         LOGGER.info(
-            "DelayedObjectProxyLoader: loading thread :%s, name: %s, object: %s( *%s **%s) ---> %s",
-            id_thread,
+            "DelayedObjectProxyLoader: name: %s, object: %s( *%s **%s) ---> %s",
             self._name,
             self._obj,
             self._args,
