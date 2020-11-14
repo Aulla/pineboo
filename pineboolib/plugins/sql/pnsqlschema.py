@@ -548,13 +548,15 @@ class PNSqlSchema(object):
 
         sql = ""
         qry = pnsqlquery.PNSqlQuery(meta.name())
-        if self.is_valid_view(meta, qry):
-            sql = "CREATE %s %s AS SELECT %s FROM %s" % (
-                "VIEW",
-                meta.name(),
-                qry.select() or "*",
-                qry.from_(),
-            )
+        if qry.select() and qry.from_():
+            if self.is_valid_view(meta, qry):
+                sql = "CREATE VIEW %s AS SELECT %s FROM %s" % (
+                    meta.name(),
+                    qry.select() or "*",
+                    qry.from_(),
+                )
+        else:
+            LOGGER.warning("sqlCreateView: %s.qry is empty or does not exists", meta.name())
 
         return sql
 

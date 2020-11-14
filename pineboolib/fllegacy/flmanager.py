@@ -601,10 +601,12 @@ class FLManager(QtCore.QObject, IManager):
                     LOGGER.warning(
                         "createTable: %s",
                         self.tr(
-                            "No se ha podido crear la %s "
-                            % ("vista" if metadata_or_name.isQuery() else "tabla")
-                        )
-                        + metadata_or_name.name(),
+                            "%s %s could not be created"
+                            % (
+                                "view" if metadata_or_name.isQuery() else "table",
+                                metadata_or_name.name(),
+                            )
+                        ),
                     )
                     return None
 
