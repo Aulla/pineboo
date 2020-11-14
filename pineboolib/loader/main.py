@@ -53,9 +53,9 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     application.PROJECT.init_dgi(dgi)
     application.PROJECT.aq_app._inicializing = False
 
-    LOGGER.info("STARTUP_FRAMEWORK:(1/9) Setting profile data.")
+    LOGGER.info("STARTUP_FRAMEWORK:(1/7) Setting profile data.")
     conn_ = connect_to_db(conn)
-    LOGGER.info("STARTUP_FRAMEWORK:(2/9) Establishing connection.")
+    LOGGER.info("STARTUP_FRAMEWORK:(2/7) Establishing connection.")
     main_conn_established = application.PROJECT.init_conn(connection=conn_)
 
     if not main_conn_established:
@@ -490,7 +490,7 @@ def exec_main(options: Values) -> int:
 def _initialize_data() -> None:
     """Initialize data."""
 
-    LOGGER.info("STARTUP_FRAMEWORK:(3/9) Loading database.")
+    LOGGER.info("STARTUP_FRAMEWORK:(3/7) Loading database.")
     if not application.PROJECT.run():
         if not application.DEVELOPER_MODE:
             raise Exception("Project initialization failed!")
@@ -501,18 +501,17 @@ def _initialize_data() -> None:
     acl.init()
 
     if acl._access_control_list:
-        LOGGER.info("STARTUP_FRAMEWORK:(4/9) Loading ACLS.")
+        LOGGER.info("STARTUP_FRAMEWORK:(4/7) Loading ACLS.")
         application.PROJECT.aq_app.set_acl(acl)
 
-    LOGGER.info("STARTUP_FRAMEWORK:(5/9) Loading area definitions.")
-    application.PROJECT.conn_manager.managerModules().loadIdAreas()
-    LOGGER.info("STARTUP_FRAMEWORK:(6/9) Loading module definitions.")
-    application.PROJECT.conn_manager.managerModules().loadAllIdModules()
-    LOGGER.info("STARTUP_FRAMEWORK:(7/9) Loading modules. Making QSA Tree.")
+    # LOGGER.info("STARTUP_FRAMEWORK:(5/9) Loading area definitions.")
+    # application.PROJECT.conn_manager.managerModules().loadIdAreas()
+    # LOGGER.info("STARTUP_FRAMEWORK:(6/9) Loading module definitions.")
+    # application.PROJECT.conn_manager.managerModules().loadAllIdModules()
+    LOGGER.info("STARTUP_FRAMEWORK:(5/7) Loading modules. Making QSA Tree.")
     application.PROJECT.load_modules()
-    LOGGER.info("STARTUP_FRAMEWORK:(8/9) Loading classes. Making QSA Tree.")
+    LOGGER.info("STARTUP_FRAMEWORK:(6/7) Loading classes. Making QSA Tree.")
     application.PROJECT.load_classes()
-    LOGGER.info("STARTUP_FRAMEWORK:(9/9) Loading orm models. Making QSA Tree. ")
+    LOGGER.info("STARTUP_FRAMEWORK:(7/7) Loading orm models. Making QSA Tree. ")
     application.PROJECT.load_orm()
     LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
-
