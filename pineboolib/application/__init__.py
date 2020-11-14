@@ -8,11 +8,10 @@ from .projectmodule import Project
 from typing import Dict, List
 
 PROJECT = Project()
-ATOMIC_IDENTIFIER: int = 0
+
 ATOMIC_LIST: Dict[int, List[str]] = {}
 SERIALIZE_LIST: Dict[int, List[str]] = {}
 FILE_CLASSES: Dict[str, str] = {}
-GET_LIST: List[str] = []
 
 PINEBOO_VER = "0.76.9.5"
 
@@ -25,3 +24,4 @@ USE_WEBSOCKET_CHANNEL: bool = False  # Enable websockets features.
 USE_MISMATCHED_VIEWS: bool = False  # Enable mismatched views.
 RECOVERING_CONNECTIONS: bool = False  # Recovering state.
 AUTO_RELOAD_BAD_CONNECTIONS: bool = False  # Auto reload bad conecctions.
+DEVELOPER_MODE: bool = False

@@ -44,6 +44,8 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     pytnyzer.STRICT_MODE = False
 
     LOGGER.info(pyfiglet.figlet_format("\nPINEBOO %s " % application.PINEBOO_VER, font="starwars"))
+    if application.DEVELOPER_MODE:
+        LOGGER.warning("Developer mode activated")
     # application.PROJECT.load_version()
     application.PROJECT.setDebugLevel(1000)
     application.PROJECT.set_app(qapp)
@@ -91,6 +93,8 @@ def startup(enable_gui: bool = None) -> None:
         trace_loggers = options.trace_loggers.split(",")
 
     init_logging(logtime=options.log_time, loglevel=options.loglevel, trace_loggers=trace_loggers)
+    if application.DEVELOPER_MODE:
+        LOGGER.warning("Developer mode activated")
 
     if options.enable_profiler:
         ret = exec_main_with_profiler(options)
@@ -487,28 +491,28 @@ def _initialize_data() -> None:
     """Initialize data."""
 
     LOGGER.info("STARTUP_FRAMEWORK:(3/9) Loading database.")
-    if application.PROJECT.run():
+    if not application.PROJECT.run():
+        if not application.DEVELOPER_MODE:
+            raise Exception("Project initialization failed!")
 
-        from pineboolib.application.acls import pnaccesscontrollists
+    from pineboolib.application.acls import pnaccesscontrollists
 
-        acl = pnaccesscontrollists.PNAccessControlLists()
-        acl.init()
+    acl = pnaccesscontrollists.PNAccessControlLists()
+    acl.init()
 
-        if acl._access_control_list:
-            LOGGER.info("STARTUP_FRAMEWORK:(4/9) Loading ACLS.")
-            application.PROJECT.aq_app.set_acl(acl)
+    if acl._access_control_list:
+        LOGGER.info("STARTUP_FRAMEWORK:(4/9) Loading ACLS.")
+        application.PROJECT.aq_app.set_acl(acl)
 
-        LOGGER.info("STARTUP_FRAMEWORK:(5/9) Loading area definitions.")
-        application.PROJECT.conn_manager.managerModules().loadIdAreas()
-        LOGGER.info("STARTUP_FRAMEWORK:(6/9) Loading module definitions.")
-        application.PROJECT.conn_manager.managerModules().loadAllIdModules()
-        LOGGER.info("STARTUP_FRAMEWORK:(7/9) Loading modules. Making QSA Tree.")
-        application.PROJECT.load_modules()
-        LOGGER.info("STARTUP_FRAMEWORK:(8/9) Loading classes. Making QSA Tree.")
-        application.PROJECT.load_classes()
-        LOGGER.info("STARTUP_FRAMEWORK:(9/9) Loading orm models. Making QSA Tree. ")
-        application.PROJECT.load_orm()
-        LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
+    LOGGER.info("STARTUP_FRAMEWORK:(5/9) Loading area definitions.")
+    application.PROJECT.conn_manager.managerModules().loadIdAreas()
+    LOGGER.info("STARTUP_FRAMEWORK:(6/9) Loading module definitions.")
+    application.PROJECT.conn_manager.managerModules().loadAllIdModules()
+    LOGGER.info("STARTUP_FRAMEWORK:(7/9) Loading modules. Making QSA Tree.")
+    application.PROJECT.load_modules()
+    LOGGER.info("STARTUP_FRAMEWORK:(8/9) Loading classes. Making QSA Tree.")
+    application.PROJECT.load_classes()
+    LOGGER.info("STARTUP_FRAMEWORK:(9/9) Loading orm models. Making QSA Tree. ")
+    application.PROJECT.load_orm()
+    LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
 
-    else:
-        raise Exception("Project initialization failed!")
