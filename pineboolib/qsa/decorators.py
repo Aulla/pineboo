@@ -23,18 +23,8 @@ def atomic(conn_name: str = "default") -> TYPEFN:
         @functools.wraps(fun_)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
 
-            id_thread = threading.current_thread().ident
             key = utils_base.session_id(conn_name)
-
-            if id_thread not in application.ATOMIC_LIST.keys():
-                application.ATOMIC_LIST[id_thread] = []  # type: ignore [index] # noqa: F821
-
-            application.ATOMIC_LIST[id_thread].append(key)  # type: ignore [index] # noqa: F821
-
-            while application.ATOMIC_LIST[id_thread][0] != key:  # type: ignore [index] # noqa: F821
-                time.sleep(0.01)
-
-            application.PROJECT.conn_manager.check_connections()
+            _wait(key)
 
             application.PROJECT.conn_manager.current_atomic_sessions[
                 key
@@ -54,8 +44,7 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                             result_ = fun_(*args, **kwargs)
                             if new_session.transaction is None:
                                 LOGGER.warning(
-                                    "FIXME:: LA TRANSACCION ATOMICA FINALIZÓ ANTES DE TIEMPO:\nthread:%s\nmodule:%s\nfunction:%s\n",
-                                    id_thread,
+                                    "FIXME:: LA TRANSACCION ATOMICA FINALIZÓ ANTES DE TIEMPO:\nmodule:%s\nfunction:%s\n",
                                     fun_.__module__,
                                     fun_,
                                 )
@@ -90,21 +79,9 @@ def serialize(conn_name: str = "default") -> TYPEFN:
     def decorator(fun_: TYPEFN) -> TYPEFN:
         @functools.wraps(fun_)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-
-            id_thread = threading.current_thread().ident
             key = utils_base.session_id(conn_name)
+            _wait(key)
 
-            if id_thread not in application.SERIALIZE_LIST.keys():
-                application.SERIALIZE_LIST[id_thread] = []  # type: ignore [index] # noqa: F821
-
-            application.SERIALIZE_LIST[id_thread].append(key)  # type: ignore [index] # noqa: F821
-
-            while (
-                application.SERIALIZE_LIST[id_thread][0] != key  # type: ignore [index] # noqa: F821
-            ):  # type: ignore [index] # noqa: F821
-                time.sleep(0.01)
-
-            application.PROJECT.conn_manager.check_connections()
             new_session = utils.driver_session(conn_name)[1]
 
             result_ = None
@@ -144,6 +121,21 @@ def _delete_data(session: "orm.Session", key: str) -> None:
     _delete_session(key)
 
 
+def _wait(key: str) -> None:
+    id_thread = threading.current_thread().ident
+    if id_thread not in application.SERIALIZE_LIST.keys():
+        application.SERIALIZE_LIST[id_thread] = []  # type: ignore [index] # noqa: F821
+
+    application.SERIALIZE_LIST[id_thread].append(key)  # type: ignore [index] # noqa: F821
+
+    while (
+        application.SERIALIZE_LIST[id_thread][0] != key  # type: ignore [index] # noqa: F821
+    ):  # type: ignore [index] # noqa: F821
+        time.sleep(0.01)
+
+    application.PROJECT.conn_manager.check_connections()
+
+
 def _delete_session(key: str) -> None:
     """Delete atomic_session."""
     mng_ = application.PROJECT.conn_manager
@@ -155,10 +147,6 @@ def _delete_session(key: str) -> None:
         del mng_.current_atomic_sessions[key]
 
     id_thread = threading.current_thread().ident
-
-    if id_thread in application.ATOMIC_LIST.keys():
-        if key in application.ATOMIC_LIST[id_thread]:  # type: ignore [index] # noqa: F821
-            application.ATOMIC_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
 
     if id_thread in application.SERIALIZE_LIST.keys():
         if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821

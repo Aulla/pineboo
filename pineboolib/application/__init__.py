@@ -9,7 +9,6 @@ from typing import Dict, List
 
 PROJECT = Project()
 
-ATOMIC_LIST: Dict[int, List[str]] = {}
 SERIALIZE_LIST: Dict[int, List[str]] = {}
 FILE_CLASSES: Dict[str, str] = {}
 
