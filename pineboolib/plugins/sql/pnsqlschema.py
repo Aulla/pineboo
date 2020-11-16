@@ -237,8 +237,6 @@ class PNSqlSchema(object):
         conn_ = None
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
 
-        self.get_common_params()
-
         try:
             str_conn = self.loadConnectionString(name, host, port, usern, passw_)
             if str_conn in ENGINES.keys():
@@ -250,6 +248,7 @@ class PNSqlSchema(object):
                 if alternative:
                     str_conn += self._extra_alternative
 
+                self.get_common_params()
                 self._engine = create_engine(str_conn, **self._queqe_params)
                 ENGINES[str_conn] = self._engine
 
@@ -1234,13 +1233,13 @@ class PNSqlSchema(object):
         mng_ = self.db_.connManager()
         limit_conn = mng_.limit_connections
         if limit_conn > 0:
-            LOGGER.warning("SqlAlchemy pool size %s", limit_conn)
+            LOGGER.info("SqlAlchemy pool enabled")
             self._queqe_params["poolclass"] = pool.QueuePool
             self._queqe_params["pool_size"] = limit_conn
             self._queqe_params["max_overflow"] = int(limit_conn + 10)
             self._queqe_params["pool_pre_ping"] = True
             if mng_.connections_time_out:
-                self._queqe_params["pool_timeout"] = mng_.connections_time_out
+                self._queqe_params["pool_timeout"] = int(mng_.connections_time_out)
 
         else:
             LOGGER.info("SqlAlchemy pool disabled")
@@ -1248,6 +1247,9 @@ class PNSqlSchema(object):
 
         if application.LOG_SQL:
             self._queqe_params["echo"] = True
+
+        for key, value in self._queqe_params.items():
+            logger.info("    * %s = %s", key, value)
 
     def listen_engine(self) -> None:
         """Listen engine events."""

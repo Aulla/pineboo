@@ -67,18 +67,16 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self._connection = main_conn.driver()._connection
                 return self._connection
 
-        self.get_common_params()
-
         if conn_ is None:
             if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):
                 os.mkdir("%s/sqlite_databases/" % application.PROJECT.tmpdir)
 
+            self.get_common_params()
             self._engine = create_engine(
                 self.loadConnectionString(name, host, port, usern, passw_), **self._queqe_params
             )
 
             self.listen_engine()
-
             conn_ = self._engine.connect()
 
             if not os.path.exists("%s" % self.db_filename) and self.db_filename not in [
