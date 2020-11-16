@@ -192,7 +192,6 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         db_port: Optional[int],
         db_user_name: Optional[str],
         db_password: str = "",
-        limit_conn: int = 0,
     ) -> Any:
         """Request a connection to the database."""
 
@@ -216,9 +215,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         )
         LOGGER.info("")
 
-        result = self.driver().connect(
-            db_name, db_host, db_port, db_user_name, db_password, limit_conn
-        )
+        result = self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
         LOGGER.info("FAILURE" if not result else "ESTABLISHED")
         LOGGER.info("**********************************")
         return result

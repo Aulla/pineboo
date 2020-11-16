@@ -14,7 +14,7 @@ import os
 
 
 from typing import Optional, Any, List, TYPE_CHECKING
-from sqlalchemy import create_engine, event, pool  # type: ignore [import] # noqa: F821, F401
+from sqlalchemy import create_engine, event  # type: ignore [import] # noqa: F821, F401
 
 
 if TYPE_CHECKING:
@@ -53,14 +53,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self._sqlalchemy_name = "sqlite"
 
     def getConn(
-        self,
-        name: str,
-        host: str,
-        port: int,
-        usern: str,
-        passw_: str,
-        limit_conn=0,
-        alternative: bool = False,
+        self, name: str, host: str, port: int, usern: str, passw_: str, alternative: bool = False
     ) -> "base.Connection":
         """Return connection."""
 
@@ -74,7 +67,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self._connection = main_conn.driver()._connection
                 return self._connection
 
-        self.get_common_params(limit_conn)
+        self.get_common_params()
 
         if conn_ is None:
             if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):
@@ -327,9 +320,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 raise Exception("Engine is not loaded!")
         return self._connection
 
-    def get_common_params(self, limit_conn: int) -> None:
+    def get_common_params(self) -> None:
         """Load common params."""
 
-        super().get_common_params(limit_conn)
+        super().get_common_params()
 
         self._queqe_params["isolation_level"] = "AUTOCOMMIT"

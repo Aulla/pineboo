@@ -168,7 +168,6 @@ class PNConnectionManager(QtCore.QObject):
                         connection_._db_port,
                         connection_._db_user_name,
                         connection_._db_password,
-                        self.limit_connections,
                     )
                     connection_._is_open = True
 

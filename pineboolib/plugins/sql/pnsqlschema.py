@@ -132,13 +132,7 @@ class PNSqlSchema(object):
         return "%s://%s:%s@%s:%s/%s" % (self._sqlalchemy_name, usern, passw_, host, port, name)
 
     def connect(
-        self,
-        db_name: str,
-        db_host: str,
-        db_port: int,
-        db_user_name: str,
-        db_password: str,
-        limit_conn=0,
+        self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str
     ) -> Optional["base.Connection"]:
         """Connect to database."""
 
@@ -146,7 +140,7 @@ class PNSqlSchema(object):
         self.safe_load(True)
 
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
-        conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password, limit_conn)
+        conn_ = self.getConn(db_name, db_host, db_port, db_user_name, db_password)
 
         if (
             conn_ is None and self.db_._name == "main_conn"
@@ -197,7 +191,7 @@ class PNSqlSchema(object):
 
                             tmp_conn.close()
                             conn_ = self.getConn(
-                                db_name, db_host, db_port, db_user_name, db_password, limit_conn
+                                db_name, db_host, db_port, db_user_name, db_password
                             )
 
                     except Exception as error:
@@ -236,21 +230,14 @@ class PNSqlSchema(object):
         return None  # pragma: no cover
 
     def getConn(
-        self,
-        name: str,
-        host: str,
-        port: int,
-        usern: str,
-        passw_: str,
-        limit_conn=0,
-        alternative=False,
+        self, name: str, host: str, port: int, usern: str, passw_: str, alternative=False
     ) -> Optional["base.Connection"]:
         """Return connection."""
 
         conn_ = None
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
 
-        self.get_common_params(limit_conn)
+        self.get_common_params()
 
         try:
             str_conn = self.loadConnectionString(name, host, port, usern, passw_)
@@ -1240,14 +1227,21 @@ class PNSqlSchema(object):
                 connection_record,
             )
 
-    def get_common_params(self, limit_conn: int) -> None:
+    def get_common_params(self) -> None:
         """Load common params."""
 
         self._queqe_params["encoding"] = "UTF-8"
+        mng_ = self.db_.connManager()
+        limit_conn = mng_.limit_connections
         if limit_conn > 0:
-            LOGGER.info("SqlAlchemy pool size %s", limit_conn)
+            LOGGER.warning("SqlAlchemy pool size %s", limit_conn)
+            self._queqe_params["poolclass"] = pool.QueuePool
             self._queqe_params["pool_size"] = limit_conn
             self._queqe_params["max_overflow"] = int(limit_conn + 10)
+            self._queqe_params["pool_pre_ping"] = True
+            if mng_.connections_time_out:
+                self._queqe_params["pool_timeout"] = mng_.connections_time_out
+
         else:
             LOGGER.info("SqlAlchemy pool disabled")
             self._queqe_params["poolclass"] = pool.NullPool
