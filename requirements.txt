@@ -19,7 +19,7 @@ pytz
 PyYAML
 reportlab
 setuptools
-sqlalchemy==1.3.16
+sqlalchemy==1.3.20
 sqlalchemy-stubs
 sqlparse
 sphinx==3.0.1
