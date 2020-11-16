@@ -16,7 +16,7 @@ TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 LOGGER = logging.get_logger(__name__)
 
 
-def atomic(conn_name: str = "default") -> TYPEFN:
+def atomic(conn_name: str = "default", wait: bool = True) -> TYPEFN:
     """Return pineboo atomic decorator."""
 
     def decorator(fun_: TYPEFN) -> TYPEFN:
@@ -24,7 +24,8 @@ def atomic(conn_name: str = "default") -> TYPEFN:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
 
             key = utils_base.session_id(conn_name)
-            _wait(key)
+            if wait:
+                _wait(key)
 
             application.PROJECT.conn_manager.current_atomic_sessions[
                 key
@@ -59,10 +60,10 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                 except exc.ResourceClosedError as error:
                     LOGGER.warning("Error al cerrar la transacción : %s, pero continua ....", error)
 
-                _delete_data(new_session, key)
+                _delete_data(new_session, key, wait)
 
             except Exception as error:
-                _delete_data(new_session, key)
+                _delete_data(new_session, key, wait)
                 raise error
 
             return result_
@@ -114,11 +115,11 @@ def serialize(conn_name: str = "default") -> TYPEFN:
     return decorator  # type: ignore [return-value] # noqa: F723
 
 
-def _delete_data(session: "orm.Session", key: str) -> None:
+def _delete_data(session: "orm.Session", key: str, wait: bool = True) -> None:
     """Delete data."""
 
     application.PROJECT.conn_manager.remove_session(session)
-    _delete_session(key)
+    _delete_session(key, wait)
 
 
 def _wait(key: str) -> None:
@@ -136,7 +137,7 @@ def _wait(key: str) -> None:
     application.PROJECT.conn_manager.check_connections()
 
 
-def _delete_session(key: str) -> None:
+def _delete_session(key: str, wait: bool = True) -> None:
     """Delete atomic_session."""
     mng_ = application.PROJECT.conn_manager
     if key in mng_.current_atomic_sessions.keys():
@@ -148,6 +149,6 @@ def _delete_session(key: str) -> None:
 
     id_thread = threading.current_thread().ident
 
-    if id_thread in application.SERIALIZE_LIST.keys():
+    if wait and id_thread in application.SERIALIZE_LIST.keys():
         if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
             application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
