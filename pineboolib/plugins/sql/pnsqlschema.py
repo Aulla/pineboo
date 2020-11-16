@@ -250,17 +250,7 @@ class PNSqlSchema(object):
         conn_ = None
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
 
-        self._queqe_params["encoding"] = "UTF-8"
-        if limit_conn > 0:
-            LOGGER.info("SqlAlchemy pool size %s", limit_conn)
-            self._queqe_params["pool_size"] = limit_conn
-            self._queqe_params["max_overflow"] = int(limit_conn + 10)
-        else:
-            LOGGER.info("SqlAlchemy pool disabled")
-            self._queqe_params["poolclass"] = pool.NullPool
-
-        if application.LOG_SQL:
-            self._queqe_params["echo"] = True
+        self.get_common_params(limit_conn)
 
         try:
             str_conn = self.loadConnectionString(name, host, port, usern, passw_)
@@ -276,8 +266,7 @@ class PNSqlSchema(object):
                 self._engine = create_engine(str_conn, **self._queqe_params)
                 ENGINES[str_conn] = self._engine
 
-            event.listen(self._engine, "close_detached", self.close_connection_warning)
-            event.listen(self._engine, "close", self.close_connection_warning)
+            self.listen_engine()
 
             conn_ = self._engine.connect()
 
@@ -1250,3 +1239,24 @@ class PNSqlSchema(object):
                 dbapi_connection,
                 connection_record,
             )
+
+    def get_common_params(self, limit_conn: int) -> None:
+        """Load common params."""
+
+        self._queqe_params["encoding"] = "UTF-8"
+        if limit_conn > 0:
+            LOGGER.info("SqlAlchemy pool size %s", limit_conn)
+            self._queqe_params["pool_size"] = limit_conn
+            self._queqe_params["max_overflow"] = int(limit_conn + 10)
+        else:
+            LOGGER.info("SqlAlchemy pool disabled")
+            self._queqe_params["poolclass"] = pool.NullPool
+
+        if application.LOG_SQL:
+            self._queqe_params["echo"] = True
+
+    def listen_engine(self) -> None:
+        """Listen engine events."""
+
+        event.listen(self._engine, "close_detached", self.close_connection_warning)
+        event.listen(self._engine, "close", self.close_connection_warning)

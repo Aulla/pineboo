@@ -73,28 +73,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self._engine = main_conn.driver()._engine
                 self._connection = main_conn.driver()._connection
                 return self._connection
-                # self._session = main_conn.driver()._session
-                # return self._connection
 
-        # if self.db_._name == "main_conn":
-
-        #    if hasattr(self, "_connection") and self._connection:
-        #        self._connection.close()
-        #        del self._connection
-
-        # self._queqe_params["connect_args"] = {"timeout": 5}
-        self._queqe_params["encoding"] = "UTF-8"
-        self._queqe_params["isolation_level"] = "AUTOCOMMIT"
-        if limit_conn < 1:
-            self._queqe_params[
-                "poolclass"
-            ] = pool.NullPool  # type: ignore [assignment] # noqa: F821
-        if application.LOG_SQL:
-            self._queqe_params["echo"] = True
-
-        # if limit_conn > 0:
-        #    self._queqe_params["pool_size"] = limit_conn
-        # self._queqe_params["max_overflow"] = int(limit_conn * 2)
+        self.get_common_params(limit_conn)
 
         if conn_ is None:
             if not os.path.exists("%s/sqlite_databases/" % application.PROJECT.tmpdir):
@@ -104,8 +84,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self.loadConnectionString(name, host, port, usern, passw_), **self._queqe_params
             )
 
-            event.listen(self._engine, "close_detached", self.close_connection_warning)
-            event.listen(self._engine, "close", self.close_connection_warning)
+            self.listen_engine()
 
             conn_ = self._engine.connect()
 
@@ -347,3 +326,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             else:
                 raise Exception("Engine is not loaded!")
         return self._connection
+
+    def get_common_params(self, limit_conn: int) -> None:
+        """Load common params."""
+
+        super().get_common_params(limit_conn)
+
+        self._queqe_params["isolation_level"] = "AUTOCOMMIT"
