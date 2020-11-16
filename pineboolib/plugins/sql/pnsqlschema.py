@@ -1247,6 +1247,8 @@ class PNSqlSchema(object):
 
         if application.LOG_SQL:
             self._queqe_params["echo"] = True
+            if limit_conn > 0:
+                self._queqe_params["echo_pool"] = True
 
         for key, value in self._queqe_params.items():
             LOGGER.info("    * %s = %s", key, value)
