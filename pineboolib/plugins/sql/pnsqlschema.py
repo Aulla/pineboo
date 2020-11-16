@@ -1249,7 +1249,7 @@ class PNSqlSchema(object):
             self._queqe_params["echo"] = True
 
         for key, value in self._queqe_params.items():
-            logger.info("    * %s = %s", key, value)
+            LOGGER.info("    * %s = %s", key, value)
 
     def listen_engine(self) -> None:
         """Listen engine events."""
