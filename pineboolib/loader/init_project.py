@@ -55,7 +55,11 @@ def init_project(
         try:
             project.call(call_function, args[1:] if args else [])
         except Exception as error:
+            from pineboolib import application
+
             LOGGER.warning("could not be executed %s : %s", call_function, str(error))
+            if not application.DEVELOPER_MODE:
+                raise error
 
         if options.quit_after_call:
             return 0
