@@ -52,7 +52,10 @@ def init_project(
     if call_function:
         LOGGER.debug("callFunction (%s)", call_function)
         args = call_function.split(":")
-        project.call(call_function, args[1:] if args else [])
+        try:
+            project.call(call_function, args[1:] if args else [])
+        except Exception as error:
+            LOGGER.warning("could not be executed %s : %s", call_function, str(error))
 
         if options.quit_after_call:
             return 0
