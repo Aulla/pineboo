@@ -26,7 +26,7 @@ class PNConnectionManager(QtCore.QObject):
     _manager: Optional["flmanager.FLManager"]
     _manager_modules: Optional["flmanagermodules.FLManagerModules"]
     connections_dict: Dict[str, "pnconnection.PNConnection"] = {}
-    limit_connections: int = 10  # Limit of connections to use.
+    limit_connections: int = 0  # Limit of connections to use.
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
     current_atomic_sessions: Dict[str, str]
