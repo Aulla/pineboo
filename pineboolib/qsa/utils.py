@@ -713,7 +713,7 @@ def _super(class_name: str, obj: Callable) -> "super":
     raise Exception("Superclass %s not found." % class_name)
 
 
-def pool_status(conn_name: str = "default") -> str:
+def pool_status(conn_name: str = "main_conn") -> str:
     """Return pool status used for the conn_name."""
 
     return application.PROJECT.conn_manager.pool_status(conn_name)
