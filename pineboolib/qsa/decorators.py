@@ -149,6 +149,11 @@ def _delete_session(key: str, wait: bool = True) -> None:
 
     id_thread = threading.current_thread().ident
 
+    # Delete all thread connections.
+
+    for connection in mng_.enumerate():
+        mng_.removeConn(connection._name)
+
     if wait and id_thread in application.SERIALIZE_LIST.keys():
         if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
             application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
