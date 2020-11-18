@@ -33,6 +33,7 @@ class PNConnectionManager(QtCore.QObject):
     current_thread_sessions: Dict[str, str]
     # current_conn_sessions: Dict[str, str]
     _thread_sessions: Dict[str, "orm_session.Session"]
+    REMOVE_CONNECTIONS_AFTER_ATOMIC: bool
 
     def __init__(self):
         """Initialize."""
@@ -45,6 +46,7 @@ class PNConnectionManager(QtCore.QObject):
         self._thread_sessions = {}
         self._manager = None
         self._manager_modules = None
+        self.REMOVE_CONNECTIONS_AFTER_ATOMIC = False
 
         LOGGER.info("Initializing PNConnection Manager:")
         LOGGER.info("LIMIT CONNECTIONS = %s.", self.limit_connections)
@@ -532,7 +534,7 @@ class PNConnectionManager(QtCore.QObject):
 
         return is_valid
 
-    def pool_status(self, conn_name: str = "default") -> str:
+    def pool_status(self, conn_name: str = "main_conn") -> str:
         """Return pool status used for the conn_name."""
 
         return self.useConn(conn_name).driver()._engine.pool.status()
