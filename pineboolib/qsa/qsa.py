@@ -32,6 +32,7 @@ from .utils import Switch as switch  # noqa: F401
 from .utils import QsaRegExp as qsaRegExp  # noqa: F401
 from .utils import ws_channel_send, thread, user_id, session_atomic, session, _super  # noqa: F401
 from .utils import thread_session_new, thread_session_current, thread_session_free  # noqa: F401
+from .utils import pool_status  # noqa: F401
 from .utils import available_thread_sessions, ws_channel_send_type, is_valid_session  # noqa: F401
 from .decorators import atomic, serialize  # noqa: F401
 from .dictmodules import Application, from_project, orm_  # noqa: F401

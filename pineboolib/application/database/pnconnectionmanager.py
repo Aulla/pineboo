@@ -26,7 +26,7 @@ class PNConnectionManager(QtCore.QObject):
     _manager: Optional["flmanager.FLManager"]
     _manager_modules: Optional["flmanagermodules.FLManagerModules"]
     connections_dict: Dict[str, "pnconnection.PNConnection"] = {}
-    limit_connections: int = 0  # Limit of connections to use.
+    limit_connections: int = 10  # Limit of connections to use.
     connections_time_out: int = 0  # Seconds to wait to eliminate the inactive connections.
 
     current_atomic_sessions: Dict[str, str]
@@ -531,6 +531,11 @@ class PNConnectionManager(QtCore.QObject):
                     self.reinit_user_connections()
 
         return is_valid
+
+    def pool_status(self, conn_name: str = "default") -> str:
+        """Return pool status used for the conn_name."""
+
+        return self.useConn(conn_name).driver()._engine.pool.status()
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""
