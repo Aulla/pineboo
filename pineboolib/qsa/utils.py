@@ -717,4 +717,3 @@ def pool_status(conn_name: str = "default") -> str:
     """Return pool status used for the conn_name."""
 
     return application.PROJECT.conn_manager.pool_status(conn_name)
-
