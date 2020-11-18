@@ -516,4 +516,3 @@ def _initialize_data() -> None:
     application.PROJECT.load_orm()
     LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
     application.PROJECT.conn_manager.removeConn("dbAux")
-
