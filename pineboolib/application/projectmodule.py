@@ -282,11 +282,14 @@ class Project(object):
                     delete_cache = True
 
             if delete_cache:
-                LOGGER.warning(
-                    "QSA parser version has changed from %s to %s!. Deleting cache.",
-                    cache_ver,
-                    PARSER_QSA_VERSION,
-                )
+                if cache_ver != PARSER_QSA_VERSION:
+                    LOGGER.warning(
+                        "QSA parser version has changed from %s to %s!. Deleting cache.",
+                        cache_ver,
+                        PARSER_QSA_VERSION,
+                    )
+                else:
+                    LOGGER.warning("Deleting cache.")
 
         if delete_cache and os.path.exists(path._dir("cache/%s" % db_name)):
 
