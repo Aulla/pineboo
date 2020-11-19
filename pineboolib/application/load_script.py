@@ -194,7 +194,7 @@ def _remove(file_name) -> None:
     if os.path.exists(file_name):
         try:
             os.remove(file_name)
-        except FileNotFoundError as error:
+        except FileNotFoundError as error:  # noqa: F841
             LOGGER.warning("File %s exists but not found!!", file_name)
 
 
