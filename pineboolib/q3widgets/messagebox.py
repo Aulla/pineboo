@@ -28,8 +28,11 @@ class MessageBox:
 
         if QtWidgets.QApplication.platformName() == "offscreen":
             LOGGER.warning(
-                "q3widget.MessageBox launch when library mode ON! (%s : %s)", typename, args
-            stack_info = True)
+                "q3widget.MessageBox launch when library mode ON! (%s : %s)",
+                typename,
+                args,
+                stack_info=True,
+            )
             return None
 
         msg_box = getattr(QtWidgets.QMessageBox, typename, None)
@@ -83,7 +86,7 @@ class MessageBox:
 
         text_ = args[0] if isinstance(args[0], str) else args[2]
 
-        result =  cls.msgbox("warning", *args)
+        result = cls.msgbox("warning", *args)
         clipboard.copy(str(text_))
         return result
 
