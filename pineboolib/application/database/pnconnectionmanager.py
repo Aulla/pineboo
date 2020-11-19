@@ -312,7 +312,7 @@ class PNConnectionManager(QtCore.QObject):
 
         return result
 
-    def check_connections(self) -> None:
+    def check_connections(self) -> bool:
         """Check connections."""
         self.default()
         self.dbAux()
@@ -332,6 +332,9 @@ class PNConnectionManager(QtCore.QObject):
                 if not valid:
                     if not self.removeConn(conn_identifier):
                         LOGGER.info("Connection %s removing failed!", conn_identifier)
+                        return False
+
+        return True
 
     def reinit_user_connections(self) -> None:
         """Reinit users connection."""
