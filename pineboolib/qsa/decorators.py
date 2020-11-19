@@ -27,9 +27,12 @@ def atomic(conn_name: str = "default", wait: bool = True) -> TYPEFN:
             if wait:
                 _wait(key)
 
-            application.PROJECT.conn_manager.current_atomic_sessions[
-                key
-            ], new_session = utils.driver_session(conn_name)
+            mng_ = application.PROJECT.conn_manager
+            while True:
+                mng_.current_atomic_sessions[key], new_session = utils.driver_session(conn_name)
+                if mng_.check_connections():
+                    break
+
             result_ = None
             try:
                 try:
@@ -83,6 +86,8 @@ def serialize(conn_name: str = "default") -> TYPEFN:
             key = utils_base.session_id(conn_name)
             _wait(key)
 
+            application.PROJECT.conn_manager.check_connections()
+
             new_session = utils.driver_session(conn_name)[1]
 
             result_ = None
@@ -133,8 +138,6 @@ def _wait(key: str) -> None:
         application.SERIALIZE_LIST[id_thread][0] != key  # type: ignore [index] # noqa: F821
     ):  # type: ignore [index] # noqa: F821
         time.sleep(0.01)
-
-    application.PROJECT.conn_manager.check_connections()
 
 
 def _delete_session(key: str, wait: bool = True) -> None:
