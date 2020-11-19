@@ -87,8 +87,8 @@ def serialize(conn_name: str = "default") -> TYPEFN:
             _wait(key)
 
             while True:
-            if application.PROJECT.conn_manager.check_connections():
-                break
+                if application.PROJECT.conn_manager.check_connections():
+                    break
 
             new_session = utils.driver_session(conn_name)[1]
 
