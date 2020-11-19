@@ -314,6 +314,8 @@ class PNConnectionManager(QtCore.QObject):
 
     def check_connections(self) -> None:
         """Check connections."""
+        self.default()
+        self.dbAux()
         for conn_name in list(self.enumerate().keys()):  # Comprobamos conexiones una a una
             conn_identifier = utils_base.session_id(conn_name)
             if conn_identifier in self.connections_dict.keys():
