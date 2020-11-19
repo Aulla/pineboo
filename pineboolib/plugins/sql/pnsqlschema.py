@@ -106,7 +106,7 @@ class PNSqlSchema(object):
         self._queqe_params = {}
         self._create_isolation = True
         self._extra_alternative = ""
-
+        self._connection = None  # type: ignore [assignment] # noqa: F821
         self._sqlalchemy_name = ""
 
     def safe_load(self, exit: bool = False) -> bool:
@@ -314,27 +314,7 @@ class PNSqlSchema(object):
     def connection(self) -> "base.Connection":
         """Return a cursor connection."""
 
-        build = False
-
-        if not getattr(self, "_connection", None) or self._connection.closed:
-
-            build = True
-        else:
-            try:
-                if self._connection.closed:
-                    build = True
-            except Exception as error:
-                LOGGER.warning(
-                    "%s.%s sqlalchemy connection raise an error:%s",
-                    self.db_._name,
-                    self._connection,
-                    str(error),
-                )
-                build = True
-                self._connection.close()
-                del self._connection
-
-        if build:
+        if self._connection is None or self._connection.closed:
             if getattr(self, "_engine", None):
                 self._connection = self._engine.connect()
                 event.listen(self._engine, "close", self.close_emited)
@@ -873,7 +853,6 @@ class PNSqlSchema(object):
 
         self.set_last_error_null()
         session_ = self.db_.session()
-
         result_ = None
         try:
             try:
