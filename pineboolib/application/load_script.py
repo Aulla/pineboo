@@ -76,7 +76,7 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
     if script_path_py:
         _remove(static_flag)
 
-        if cached_script_path_py and cached_script_path_py.find("system_module") == -1:
+        if script_path_py_static and cached_script_path_py.find("system_module") == -1:
             # si es carga estática y no es módulo sistema lo marco
             static_flag = "%s/static.xml" % os.path.dirname(cached_script_path_py)
             _build_static_flag(static_flag, cached_script_path_py, script_path_py)
@@ -192,7 +192,10 @@ def _remove(file_name) -> None:
     """Remove file."""
 
     if os.path.exists(file_name):
-        os.remove(file_name)
+        try:
+            os.remove(file_name)
+        except FileNotFoundError as error:
+            LOGGER.warning("File %s exists but not found!!", file_name)
 
 
 def load_model(script_name: str, script_path_py: str) -> Optional["type"]:
