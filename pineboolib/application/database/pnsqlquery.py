@@ -132,6 +132,8 @@ class PNSqlQuery(object):
         else:
             self.private_query._db = connection_name
 
+        self.db().session()  # precarga.
+
         self._last_query = ""
         self._count_ref_query = self._count_ref_query + 1
         self._row = []
