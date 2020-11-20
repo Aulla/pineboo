@@ -299,14 +299,19 @@ class PNSqlSchema(object):
 
     def session(self) -> Tuple[str, "orm_session.Session"]:
         """Create a sqlAlchemy session."""
+        while True:
+            session_class = sessionmaker(
+                bind=self.connection().execution_options(autocommit=True),
+                autoflush=False,
+                autocommit=True,
+            )
 
-        session_class = sessionmaker(
-            bind=self.connection().execution_options(autocommit=True),
-            autoflush=False,
-            autocommit=True,
-        )
+            new_session = session_class()
+            if new_session.connection.connection is not None:
+                break
+            else:
+                LOGGER.warning("Conexión invalida capturada.Solicitando nueva")
 
-        new_session = session_class()
         setattr(new_session, "_conn_name", self.db_._name)
         session_key = utils_base.session_id(self.db_._name, True)
         self.db_._conn_manager._thread_sessions[session_key] = new_session
