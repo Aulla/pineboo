@@ -253,7 +253,7 @@ class PNSqlSchema(object):
                 self._engine = create_engine(str_conn, **self._queqe_params)
                 ENGINES[str_conn] = self._engine
 
-            self.listen_engine()
+            # self.listen_engine()
 
             conn_ = self._engine.connect()
 
@@ -323,7 +323,7 @@ class PNSqlSchema(object):
         if self._connection is None or self._connection.closed:
             if getattr(self, "_engine", None):
                 self._connection = self._engine.connect()
-                event.listen(self._engine, "close", self.close_emited)
+                # event.listen(self._engine, "close", self.close_emited)
             else:
                 raise Exception("Engine is not loaded!")
 

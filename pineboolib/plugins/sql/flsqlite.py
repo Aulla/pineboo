@@ -76,7 +76,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self.loadConnectionString(name, host, port, usern, passw_), **self._queqe_params
             )
 
-            self.listen_engine()
+            # self.listen_engine()
             conn_ = self._engine.connect()
 
             if not os.path.exists("%s" % self.db_filename) and self.db_filename not in [
