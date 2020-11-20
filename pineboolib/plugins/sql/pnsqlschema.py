@@ -307,7 +307,7 @@ class PNSqlSchema(object):
             )
 
             new_session = session_class()
-            if new_session.connection.connection is not None:
+            if new_session.connection().connection is not None:
                 break
             else:
                 LOGGER.warning("Conexión invalida capturada.Solicitando nueva")
