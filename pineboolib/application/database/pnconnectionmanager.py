@@ -305,6 +305,7 @@ class PNConnectionManager(QtCore.QObject):
 
         try:
             session.execute("SELECT 1").fetchone()
+            result = hasattr(session, "commit")
         except Exception as error:
             session_name = session._conn_name  # type: ignore [attr-defined] # noqa: F821
             LOGGER.info("Connection %s is bad. error: %s", session_name, str(error))
