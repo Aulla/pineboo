@@ -22,6 +22,7 @@ from sqlalchemy.orm import sessionmaker  # type: ignore [import] # noqa: F821
 
 from sqlalchemy import event, pool, text
 import sqlalchemy  # type: ignore [import] # noqa: F821, F401
+import traceback
 
 
 import re
