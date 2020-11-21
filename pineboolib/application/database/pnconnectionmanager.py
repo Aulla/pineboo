@@ -219,6 +219,7 @@ class PNConnectionManager(QtCore.QObject):
                     if self.safe_mode_level > 0:
                         LOGGER.info("Closing connection %s", name_conn_)
                     self.connections_dict[name_conn_].close()
+                    del self.connections_dict[name_conn_]._driver
                 except Exception:
                     LOGGER.warning("Connection %s failed when close", name_conn_.split("|")[1])
                     result = False
