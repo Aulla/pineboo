@@ -558,6 +558,7 @@ class PNConnectionManager(QtCore.QObject):
     def set_safe_mode(self, level: int) -> None:
         """
         Set safe mode level.
+        
         > 0 ) Engine events activated.
         1) Increase time between SERIALIZED calls.
         2) Pool pre pings activated.
