@@ -37,7 +37,7 @@ def atomic(conn_name: str = "default", wait: bool = True) -> TYPEFN:
             try:
                 try:
                     with new_session.begin():
-                        LOGGER.debug(
+                        LOGGER.info(
                             "New atomic session : %s, connection : %s, transaction: %s",
                             new_session,
                             conn_name,
@@ -94,7 +94,7 @@ def serialize(conn_name: str = "default") -> TYPEFN:
 
             result_ = None
             try:
-                LOGGER.debug("New serialize session : %s, connection : %s", new_session, conn_name)
+                LOGGER.info("New serialize session : %s, connection : %s", new_session, conn_name)
 
                 try:
                     result_ = fun_(*args, **kwargs)
@@ -125,6 +125,8 @@ def serialize(conn_name: str = "default") -> TYPEFN:
 def _delete_data(session: "orm.Session", key: str, wait: bool = True) -> None:
     """Delete data."""
 
+    if application.PROJECT.conn_manager.safe_mode_level > 0:
+        LOGGER.info("Removing session %s", session)
     application.PROJECT.conn_manager.remove_session(session)
     _delete_session(key, wait)
 
@@ -159,7 +161,9 @@ def _delete_session(key: str, wait: bool = True) -> None:
 
     # Delete all thread connections.
     if mng_.REMOVE_CONNECTIONS_AFTER_ATOMIC:
-        for conn_name in mng_.enumerate():
+        for conn_name in mng_.enumerate().keys():
+            if mng_.safe_mode_level > 0:
+                LOGGER.info("Removing connection %s after decorator", conn_name)
             mng_.removeConn(conn_name)
 
     if wait and id_thread in application.SERIALIZE_LIST.keys():

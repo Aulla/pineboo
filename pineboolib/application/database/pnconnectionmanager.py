@@ -216,6 +216,8 @@ class PNConnectionManager(QtCore.QObject):
             self.connections_dict[name_conn_]._is_open = False
             if self.connections_dict[name_conn_].conn not in [None, self.mainConn().conn]:
                 try:
+                    if self.safe_mode_level > 0:
+                        LOGGER.info("Closing connection %s", name_conn_)
                     self.connections_dict[name_conn_].close()
                 except Exception:
                     LOGGER.warning("Connection %s failed when close", name_conn_.split("|")[1])
@@ -558,7 +560,7 @@ class PNConnectionManager(QtCore.QObject):
     def set_safe_mode(self, level: int) -> None:
         """
         Set safe mode level.
-        
+
         > 0 ) Engine events activated.
         1) Increase time between SERIALIZED calls.
         2) Pool pre pings activated.
@@ -566,20 +568,23 @@ class PNConnectionManager(QtCore.QObject):
         """
 
         self.safe_mode_level = level
-        LOGGER.warning("CONNECTION MANAGER: Safe mode level set to %s", level)
+        LOGGER.info("CONNECTION MANAGER: Safe mode level set to %s", level)
 
         if level > 0:
             application.SHOW_CLOSED_CONNECTION_WARNING = True
-            LOGGER.warning("CONNECTION MANAGER (%s): Engine events activated.", level)
+            LOGGER.info("CONNECTION MANAGER (%s): Engine events activated.", level)
+            LOGGER.info(
+                "CONNECTION MANAGER (%s): Pool status when new connection activated.", level
+            )
 
         if level in [1, 3]:
-            LOGGER.warning(
-                "CONNECTION MANAGER (%s): Time between SERIALED increase %s sec.",
+            LOGGER.info(
+                "CONNECTION MANAGER (%s): Time between SERIALIZED calls increase %s sec.",
                 level,
                 self.SAFE_TIME_SLEEP,
             )
         if level in [2, 3]:
-            LOGGER.warning("CONNECTION MANAGER (%s): Pre ping activated.", level)
+            LOGGER.info("CONNECTION MANAGER (%s): Pre ping activated.", level)
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""

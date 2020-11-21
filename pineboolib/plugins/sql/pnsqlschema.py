@@ -120,6 +120,7 @@ class PNSqlSchema(object):
         self.open_ = False
         try:
             self._connection.close()
+            self._connection = None  # type: ignore [assignment] # noqa: F821
         except AttributeError:
             pass  # fix bug sqlalchemy
 
@@ -325,6 +326,7 @@ class PNSqlSchema(object):
                 self._connection = self._engine.connect()
                 if self.db_.connManager().safe_mode_level > 0:
                     event.listen(self._engine, "close", self.close_emited)
+                    LOGGER.info("New connection created.\n%s", self._engine.pool.status())
             else:
                 raise Exception("Engine is not loaded!")
 
