@@ -4,7 +4,7 @@ from pineboolib import application
 from . import utils
 
 
-from typing import Callable, Any, TypeVar, cast
+from typing import Callable, Any, TypeVar, cast, Optional
 import threading
 import functools
 import traceback
@@ -90,11 +90,11 @@ def serialize(conn_name: str = "default") -> TYPEFN:
                 if application.PROJECT.conn_manager.check_connections():
                     break
 
-            new_session = utils.driver_session(conn_name)[1]
+            # new_session = utils.driver_session(conn_name)[1]
 
             result_ = None
             try:
-                LOGGER.info("New serialize session : %s, connection : %s", new_session, conn_name)
+                LOGGER.info("New serialize function connection : %s", conn_name)
 
                 try:
                     result_ = fun_(*args, **kwargs)
@@ -107,11 +107,11 @@ def serialize(conn_name: str = "default") -> TYPEFN:
                     )
                     raise error
 
-                _delete_data(new_session, key)
+                _delete_data(None, key)
 
             except Exception as error:
 
-                _delete_data(new_session, key)
+                _delete_data(None, key)
                 raise error
 
             return result_
@@ -122,12 +122,14 @@ def serialize(conn_name: str = "default") -> TYPEFN:
     return decorator  # type: ignore [return-value] # noqa: F723
 
 
-def _delete_data(session: "orm.Session", key: str, wait: bool = True) -> None:
+def _delete_data(session: Optional["orm.Session"], key: str, wait: bool = True) -> None:
     """Delete data."""
 
-    if application.PROJECT.conn_manager.safe_mode_level > 0:
-        LOGGER.info("Removing session %s", session)
-    application.PROJECT.conn_manager.remove_session(session)
+    if session is not None:
+        if application.PROJECT.conn_manager.safe_mode_level > 0:
+            LOGGER.info("Removing session %s", session)
+
+        application.PROJECT.conn_manager.remove_session(session)
     _delete_session(key, wait)
 
 
@@ -159,13 +161,14 @@ def _delete_session(key: str, wait: bool = True) -> None:
 
     id_thread = threading.current_thread().ident
 
-    # Delete all thread connections.
-    if mng_.REMOVE_CONNECTIONS_AFTER_ATOMIC:
-        for conn_name in mng_.enumerate().keys():
-            if mng_.safe_mode_level > 0:
-                LOGGER.info("Removing connection %s after decorator", conn_name)
-            mng_.removeConn(conn_name)
-
     if wait and id_thread in application.SERIALIZE_LIST.keys():
         if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
             application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
+
+    # Delete all thread connections.
+    if mng_.REMOVE_CONNECTIONS_AFTER_ATOMIC:
+        time.sleep(0.05)
+        for conn_name in mng_.enumerate():
+            if mng_.safe_mode_level > 0:
+                LOGGER.info("Removing connection %s after decorator", conn_name)
+            mng_.removeConn(conn_name)
