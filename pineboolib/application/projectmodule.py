@@ -215,6 +215,7 @@ class Project(object):
                     )
 
         self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
+        LOGGER.warning("Loading ORMS ...")
         pnormmodelsfactory.load_models()
 
     def load_classes(self) -> None:
