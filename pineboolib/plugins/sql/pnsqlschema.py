@@ -120,7 +120,7 @@ class PNSqlSchema(object):
         self.open_ = False
         if self._connection is not None:
             self._connection.close()
-            self._connection = None
+            self._connection = None  # type: ignore [assignment] # noqa: F821
 
     # def singleConnection(self) -> bool:
     #    """Return if driver uses a single connection."""
