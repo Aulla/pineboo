@@ -58,7 +58,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         """Return connection."""
 
         conn_ = None
-
         main_conn = None
         if "main_conn" in application.PROJECT.conn_manager.connections_dict.keys():
             main_conn = application.PROJECT.conn_manager.mainConn()
@@ -76,8 +75,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self.loadConnectionString(name, host, port, usern, passw_), **self._queqe_params
             )
 
-            # self.listen_engine()
-            conn_ = self._engine.connect()
+            if self.db_.connManager().safe_mode_level > 0:
+                self.listen_engine()
+
+            conn_ = self.connection()
 
             if not os.path.exists("%s" % self.db_filename) and self.db_filename not in [
                 ":memory:",

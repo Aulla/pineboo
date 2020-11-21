@@ -33,7 +33,9 @@ class PNConnectionManager(QtCore.QObject):
     current_thread_sessions: Dict[str, str]
     # current_conn_sessions: Dict[str, str]
     _thread_sessions: Dict[str, "orm_session.Session"]
-    REMOVE_CONNECTIONS_AFTER_ATOMIC: bool
+    REMOVE_CONNECTIONS_AFTER_ATOMIC: bool = False
+    SAFE_TIME_SLEEP: float
+    safe_mode_level: int
 
     def __init__(self):
         """Initialize."""
@@ -47,10 +49,15 @@ class PNConnectionManager(QtCore.QObject):
         self._manager = None
         self._manager_modules = None
         self.REMOVE_CONNECTIONS_AFTER_ATOMIC = False
+        self.SAFE_TIME_SLEEP = 0.05
+        self.safe_mode_level = 0
 
         LOGGER.info("Initializing PNConnection Manager:")
-        LOGGER.info("LIMIT CONNECTIONS = %s.", self.limit_connections)
-        LOGGER.info("CONNECTIONS TIME OUT = %s. (0 disabled)", self.connections_time_out)
+        LOGGER.info(
+            "Limit : %s, Time out: %s. (0 disabled)",
+            self.limit_connections,
+            self.connections_time_out,
+        )
 
     def setMainConn(self, main_conn: "pnconnection.PNConnection") -> bool:
         """Set main connection."""
@@ -547,6 +554,31 @@ class PNConnectionManager(QtCore.QObject):
         """Return pool status used for the conn_name."""
 
         return self.useConn(conn_name).driver()._engine.pool.status()
+
+    def set_safe_mode(self, level: int) -> None:
+        """
+        Set safe mode level.
+        > 0 ) Engine events activated.
+        1) Increase time between SERIALIZED calls.
+        2) Pool pre pings activated.
+        3) 1 + 2.
+        """
+
+        self.safe_mode_level = level
+        LOGGER.warning("CONNECTION MANAGER: Safe mode level set to %s", level)
+
+        if level > 0:
+            application.SHOW_CLOSED_CONNECTION_WARNING = True
+            LOGGER.warning("CONNECTION MANAGER (%s): Engine events activated.", level)
+
+        if level in [1, 3]:
+            LOGGER.warning(
+                "CONNECTION MANAGER (%s): Time between SERIALED increase %s sec.",
+                level,
+                self.SAFE_TIME_SLEEP,
+            )
+        if level in [2, 3]:
+            LOGGER.warning("CONNECTION MANAGER (%s): Pre ping activated.", level)
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""

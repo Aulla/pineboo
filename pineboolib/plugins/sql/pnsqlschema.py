@@ -237,7 +237,6 @@ class PNSqlSchema(object):
 
         conn_ = None
         LOGGER.debug = LOGGER.trace  # type: ignore  # Send Debug output to Trace
-
         try:
             str_conn = self.loadConnectionString(name, host, port, usern, passw_)
             if str_conn in ENGINES.keys():
@@ -253,9 +252,10 @@ class PNSqlSchema(object):
                 self._engine = create_engine(str_conn, **self._queqe_params)
                 ENGINES[str_conn] = self._engine
 
-            # self.listen_engine()
+            if self.db_.connManager().safe_mode_level > 0:
+                self.listen_engine()
 
-            conn_ = self._engine.connect()
+            conn_ = self.connection()
 
         except Exception as error:
             self.set_last_error(str(error), "CONNECT")
@@ -323,7 +323,8 @@ class PNSqlSchema(object):
         if self._connection is None or self._connection.closed:
             if getattr(self, "_engine", None):
                 self._connection = self._engine.connect()
-                # event.listen(self._engine, "close", self.close_emited)
+                if self.db_.connManager().safe_mode_level > 0:
+                    event.listen(self._engine, "close", self.close_emited)
             else:
                 raise Exception("Engine is not loaded!")
 
@@ -1225,7 +1226,8 @@ class PNSqlSchema(object):
             self._queqe_params["poolclass"] = pool.QueuePool
             self._queqe_params["pool_size"] = limit_conn
             self._queqe_params["max_overflow"] = int(limit_conn + 10)
-            # self._queqe_params["pool_pre_ping"] = True
+            if mng_.safe_mode_level in [2, 3]:
+                self._queqe_params["pool_pre_ping"] = True
             if mng_.connections_time_out:
                 self._queqe_params["pool_timeout"] = int(mng_.connections_time_out)
 

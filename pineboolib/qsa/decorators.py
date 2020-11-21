@@ -141,6 +141,9 @@ def _wait(key: str) -> None:
     ):  # type: ignore [index] # noqa: F821
         time.sleep(0.01)
 
+    if application.PROJECT.conn_manager.safe_mode_level in [1, 3]:
+        time.sleep(application.PROJECT.conn_manager.SAFE_TIME_SLEEP)
+
 
 def _delete_session(key: str, wait: bool = True) -> None:
     """Delete atomic_session."""
