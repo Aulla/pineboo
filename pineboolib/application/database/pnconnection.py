@@ -203,21 +203,18 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         # if self._db_name:
         #    self.driver().alias_ = self.driverName() + ":" + self._name
         self.driver().db_ = self
-
-        LOGGER.info("**********************************")
+        LOGGER.info("")
+        result = self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
         LOGGER.info(
-            " NEW CONNECTION NAME: %s, HOST: %s, PORT: %s, DB NAME: %s, USER NAME: %s",
+            " NEW CONNECTION NAME: %s, HOST: %s, PORT: %s, DB NAME: %s, USER NAME: %s, STATUS: %s",
             self._name,
             db_host,
             db_port,
             db_name,
             db_user_name,
+            "FAILURE" if not result else "ESTABLISHED",
         )
-        LOGGER.info("")
 
-        result = self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
-        LOGGER.info("FAILURE" if not result else "ESTABLISHED")
-        LOGGER.info("**********************************")
         return result
 
     def driverName(self) -> str:
