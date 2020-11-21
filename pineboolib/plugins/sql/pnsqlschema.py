@@ -118,11 +118,9 @@ class PNSqlSchema(object):
         """Close driver connection."""
 
         self.open_ = False
-        try:
+        if self._connection is not None:
             self._connection.close()
-            self._connection = None  # type: ignore [assignment] # noqa: F821
-        except AttributeError:
-            pass  # fix bug sqlalchemy
+            self._connection = None
 
     # def singleConnection(self) -> bool:
     #    """Return if driver uses a single connection."""
