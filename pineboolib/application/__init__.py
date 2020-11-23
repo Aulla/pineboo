@@ -12,10 +12,10 @@ PROJECT = Project()
 SERIALIZE_LIST: Dict[int, List[str]] = {}
 FILE_CLASSES: Dict[str, str] = {}
 
-PINEBOO_VER = "0.76.21.1"
+PINEBOO_VER = "0.76.21.5"
 
 SHOW_CURSOR_EVENTS: bool = False  # Enable show pnsqlcursor actions debug.
-SHOW_CLOSED_CONNECTION_WARNING: bool = False  # Enable show debug when connection is closed.
+SHOW_CONNECTION_EVENTS: bool = False  # Enable show debug when connection is closed.
 SHOW_NESTED_WARNING: bool = False  # Enable show nested debug.
 VIRTUAL_DB: bool = True  # Enable :memory: database on pytest.
 LOG_SQL: bool = False  # Enable sqlalchemy logs.
