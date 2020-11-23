@@ -75,7 +75,7 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self.loadConnectionString(name, host, port, usern, passw_), **self._queqe_params
             )
 
-            if self.db_.connManager().safe_mode_level > 0:
+            if application.SHOW_CONNECTION_EVENTS:
                 self.listen_engine()
 
             conn_ = self.connection()

@@ -4,12 +4,15 @@ from pineboolib import application
 from . import utils
 
 
-from typing import Callable, Any, TypeVar, cast, Optional
+from typing import Callable, Any, TypeVar, cast, Optional, TYPE_CHECKING
 import threading
 import functools
 import traceback
 import time
-from sqlalchemy import exc, orm
+from sqlalchemy import exc
+
+if TYPE_CHECKING:
+    from sqlalchemy import orm  # noqa: F821
 
 TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 
@@ -126,7 +129,7 @@ def _delete_data(session: Optional["orm.Session"], key: str, wait: bool = True) 
     """Delete data."""
 
     if session is not None:
-        if application.PROJECT.conn_manager.safe_mode_level > 0:
+        if application.SHOW_CONNECTION_EVENTS:
             LOGGER.info("Removing session %s", session)
 
         application.PROJECT.conn_manager.remove_session(session)
@@ -145,7 +148,7 @@ def _wait(key: str) -> None:
     ):  # type: ignore [index] # noqa: F821
         time.sleep(0.01)
 
-    if application.PROJECT.conn_manager.safe_mode_level in [1, 3]:
+    if application.PROJECT.conn_manager.safe_mode_level in [1, 3, 5]:
         time.sleep(application.PROJECT.conn_manager.SAFE_TIME_SLEEP)
 
 
@@ -165,10 +168,12 @@ def _delete_session(key: str, wait: bool = True) -> None:
         if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
             application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
 
+    if application.PROJECT.conn_manager.safe_mode_level in [2, 3, 5]:
+        time.sleep(application.PROJECT.conn_manager.SAFE_TIME_SLEEP)
     # Delete all thread connections.
     if mng_.REMOVE_CONNECTIONS_AFTER_ATOMIC:
-        time.sleep(0.05)
+        time.sleep(0.01)
         for conn_name in mng_.enumerate():
-            if mng_.safe_mode_level > 0:
+            if application.SHOW_CONNECTION_EVENTS:
                 LOGGER.info("Removing connection %s after decorator", conn_name)
             mng_.removeConn(conn_name)

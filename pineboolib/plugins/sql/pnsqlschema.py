@@ -251,7 +251,7 @@ class PNSqlSchema(object):
                 self._engine = create_engine(str_conn, **self._queqe_params)
                 ENGINES[str_conn] = self._engine
 
-            if self.db_.connManager().safe_mode_level > 0:
+            if application.SHOW_CONNECTION_EVENTS:
                 self.listen_engine()
 
             conn_ = self.connection()
@@ -322,7 +322,7 @@ class PNSqlSchema(object):
         if self._connection is None or self._connection.closed:
             if getattr(self, "_engine", None):
                 self._connection = self._engine.connect()
-                if self.db_.connManager().safe_mode_level > 0:
+                if application.SHOW_CONNECTION_EVENTS:
                     event.listen(self._engine, "close", self.close_emited)
                     LOGGER.info("New connection created.\n%s", self._engine.pool.status())
             else:
@@ -1208,7 +1208,7 @@ class PNSqlSchema(object):
     @classmethod
     def close_connection_warning(cls, dbapi_connection, connection_record=None) -> None:
         """Show connection closed message."""
-        if application.SHOW_CLOSED_CONNECTION_WARNING:
+        if application.SHOW_CONNECTION_EVENTS:
             LOGGER.warning(
                 "The connection was closed: connection: %s, record : %s !!",
                 dbapi_connection,
@@ -1226,7 +1226,7 @@ class PNSqlSchema(object):
             self._queqe_params["poolclass"] = pool.QueuePool
             self._queqe_params["pool_size"] = limit_conn
             self._queqe_params["max_overflow"] = int(limit_conn + 10)
-            if mng_.safe_mode_level in [2, 3]:
+            if mng_.safe_mode_level in [4, 5]:
                 self._queqe_params["pool_pre_ping"] = True
             if mng_.connections_time_out:
                 self._queqe_params["pool_timeout"] = int(mng_.connections_time_out)
