@@ -49,7 +49,7 @@ class PNConnectionManager(QtCore.QObject):
         self._manager = None
         self._manager_modules = None
         self.REMOVE_CONNECTIONS_AFTER_ATOMIC = False
-        self.SAFE_TIME_SLEEP = 0.05
+        self.SAFE_TIME_SLEEP = 0.01
         self.safe_mode_level = 0
 
         LOGGER.info("Initializing PNConnection Manager:")
@@ -216,7 +216,7 @@ class PNConnectionManager(QtCore.QObject):
             self.connections_dict[name_conn_]._is_open = False
             if self.connections_dict[name_conn_].conn not in [None, self.mainConn().conn]:
                 try:
-                    if self.safe_mode_level > 0:
+                    if application.SHOW_CONNECTION_EVENTS:
                         LOGGER.info("Closing connection %s", name_conn_)
                     self.connections_dict[name_conn_].close()
                     del self.connections_dict[name_conn_]._driver
@@ -563,28 +563,36 @@ class PNConnectionManager(QtCore.QObject):
         Set safe mode level.
 
         > 0 ) Engine events activated.
-        1) Increase time between SERIALIZED calls.
-        2) Pool pre pings activated.
+        1) Increase time before SERIALIZED calls.
+        2) Increase time after SERIALIZED calls.
         3) 1 + 2.
+        4) Pool pre pings activated.
+        5) 1 + 2 + 4.
         """
 
         self.safe_mode_level = level
         LOGGER.info("CONNECTION MANAGER: Safe mode level set to %s", level)
 
         if level > 0:
-            application.SHOW_CLOSED_CONNECTION_WARNING = True
+            application.SHOW_CONNECTION_EVENTS = True
             LOGGER.info("CONNECTION MANAGER (%s): Engine events activated.", level)
             LOGGER.info(
                 "CONNECTION MANAGER (%s): Pool status when new connection activated.", level
             )
 
-        if level in [1, 3]:
+        if level in [1, 3, 5]:
             LOGGER.info(
-                "CONNECTION MANAGER (%s): Time between SERIALIZED calls increase %s sec.",
+                "CONNECTION MANAGER (%s): Time before SERIALIZED calls increase %s sec.",
                 level,
                 self.SAFE_TIME_SLEEP,
             )
-        if level in [2, 3]:
+        if level in [2, 3, 5]:
+            LOGGER.info(
+                "CONNECTION MANAGER (%s): Time after SERIALIZED calls increase %s sec.",
+                level,
+                self.SAFE_TIME_SLEEP,
+            )
+        if level in [4, 5]:
             LOGGER.info("CONNECTION MANAGER (%s): Pre ping activated.", level)
 
     def __getattr__(self, name):
