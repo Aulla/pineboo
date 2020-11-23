@@ -515,4 +515,5 @@ def _initialize_data() -> None:
     LOGGER.info("STARTUP_FRAMEWORK:(7/7) Loading orm models. Making QSA Tree. ")
     application.PROJECT.load_orm()
     LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
+    application.PROJECT.conn_manager.removeConn("default")
     application.PROJECT.conn_manager.removeConn("dbAux")
