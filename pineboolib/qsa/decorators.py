@@ -172,26 +172,8 @@ def _delete_session(key: str, wait: bool = True) -> None:
         time.sleep(mng_.SAFE_TIME_SLEEP)
     # Delete all thread connections.
     if mng_.REMOVE_CONNECTIONS_AFTER_ATOMIC:
-        if mng_.safe_mode_level != 6:
-            time.sleep(0.01)
-
+        time.sleep(0.01)
         for conn_name in mng_.enumerate():
-            if mng_.safe_mode_level == 6:
-                intento = 0
-                conn = mng_.useConn(conn_name)
-                while (
-                    conn.driver()._connection is not None
-                    and conn.driver()._connection.in_transaction()
-                    and intento < 10
-                ):
-                    LOGGER.info("Waiting end connection from %s", conn_name)
-                    intento += 1
-                    time.sleep(0.01)
-
             if application.SHOW_CONNECTION_EVENTS:
-                LOGGER.info(
-                    "Removing connection %s (%s) after decorator",
-                    conn_name,
-                    conn.driver()._connection,
-                )
+                LOGGER.info("Removing connection %s after decorator", conn_name)
             mng_.removeConn(conn_name)

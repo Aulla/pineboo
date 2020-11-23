@@ -568,7 +568,6 @@ class PNConnectionManager(QtCore.QObject):
         3) 1 + 2.
         4) Pool pre pings activated.
         5) 1 + 2 + 4.
-        6) Check if connection is in_transaction() before delete connection.
         """
 
         self.safe_mode_level = level
@@ -595,12 +594,6 @@ class PNConnectionManager(QtCore.QObject):
             )
         if level in [4, 5]:
             LOGGER.info("CONNECTION MANAGER (%s): Pre ping activated.", level)
-
-        if level == 6:
-            LOGGER.info(
-                "CONNECTION MANAGER (%s): Check if connection is in transaction before close.",
-                level,
-            )
 
     def __getattr__(self, name):
         """Return attributer from main_conn pnconnection."""
