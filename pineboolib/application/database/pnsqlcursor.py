@@ -436,7 +436,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if (
             field.outTransaction()
-            and database is not database.connManager().dbAux()
+            and self.db()._name not in ["dbAux"]
             and self.modeAccess() != self.Insert
         ):
             primary_key = mtd.primaryKey()
@@ -497,7 +497,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
 
         if (
             field_metadata.outTransaction()
-            and self.db() is not self.db().connManager().dbAux()
+            and self.db()._name not in ["dbAux"]
             and self.modeAccess() != self.Insert
         ):
             pk_name = table_metadata.primaryKey()

@@ -18,8 +18,9 @@ from pineboolib.core.utils.struct import AreaStruct
 from pineboolib.core import exceptions, settings, message_manager, decorators
 from pineboolib.application.database import pnconnectionmanager
 from pineboolib.application.database import utils as db_utils
-from pineboolib.application.utils import path, xpm
+from pineboolib.application.utils import path, xpm, flfiles_dir
 from pineboolib.application import module, file
+
 
 from pineboolib.application.parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
 from pineboolib.application.parsers import parser_qsa
@@ -70,6 +71,7 @@ class Project(object):
     translator_: List[Any]
     modules: Dict[str, "module.Module"]
     pending_conversion_list: List[str]
+    USE_FLFILES_FOLDER: str = ""
 
     def __init__(self) -> None:
         """Initialize."""
@@ -628,7 +630,16 @@ class Project(object):
         conn = self.conn_manager.dbAux()
         db_name = conn.DBName()
 
-        result = conn.execute_query("""SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
+        result = None
+        static_flfiles = None
+
+        if self.USE_FLFILES_FOLDER:
+            LOGGER.warning("FLFILES_FOLDER: Using %s like flfiles", self.USE_FLFILES_FOLDER)
+            static_flfiles = flfiles_dir.FlFiles(self.USE_FLFILES_FOLDER)
+            result = static_flfiles.areas()
+        else:
+            result = conn.execute_query("""SELECT idarea, descripcion FROM flareas WHERE 1 = 1""")
+
         for idarea, descripcion in list(result):
             if idarea == "sys":
                 continue
@@ -636,11 +647,15 @@ class Project(object):
 
         self.areas["sys"] = AreaStruct(idarea="sys", descripcion="Area de Sistema")
 
+        result = None
         # Obtener módulos activos
-        result = conn.execute_query(
-            """SELECT idarea, idmodulo, descripcion, icono, version FROM flmodules WHERE bloqueo = %s """
-            % conn.driver().formatValue("bool", "True", False)
-        )
+        if self.USE_FLFILES_FOLDER:
+            result = static_flfiles.modules()
+        else:
+            result = conn.execute_query(
+                """SELECT idarea, idmodulo, descripcion, icono, version FROM flmodules WHERE bloqueo = %s """
+                % conn.driver().formatValue("bool", "True", False)
+            )
 
         for idarea, idmodulo, descripcion, icono, version in list(result):
             icono = xpm.cache_xpm(icono)
@@ -650,16 +665,20 @@ class Project(object):
                     idarea, idmodulo, descripcion, icono, version
                 )
 
-        result = conn.execute_query(
-            """SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
-        )
+        result = None
+        if self.USE_FLFILES_FOLDER:
+            result = static_flfiles.files()
+        else:
+            result = conn.execute_query(
+                """SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
+            )
 
         log_file = open(path._dir("project.txt"), "w")
 
         list_files: List[str] = []
         LOGGER.info("RUN: Populating cache.")
         for idmodulo, nombre, sha, contenido in list(result):
-
+            # print("*", idmodulo, nombre, sha, contenido[0:10] if contenido else ".")
             if idmodulo not in self.modules:  # Si el módulo no existe.
                 continue
 
@@ -721,7 +740,6 @@ class Project(object):
             "showMessage",
             ["Convirtiendo a Python %s ..." % ("(forzado)" if self.no_python_cache else "")],
         )
-
         if list_files:
             LOGGER.info("RUN: Parsing QSA files. (%s): %s", len(list_files), list_files)
             if not self.parse_script_list(list_files):
