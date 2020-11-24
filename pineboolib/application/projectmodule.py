@@ -630,7 +630,7 @@ class Project(object):
         conn = self.conn_manager.dbAux()
         db_name = conn.DBName()
 
-        result = None
+        result = []
         static_flfiles = None
 
         if self.USE_FLFILES_FOLDER:
@@ -647,9 +647,9 @@ class Project(object):
 
         self.areas["sys"] = AreaStruct(idarea="sys", descripcion="Area de Sistema")
 
-        result = None
+        result = []
         # Obtener módulos activos
-        if self.USE_FLFILES_FOLDER:
+        if static_flfiles:
             result = static_flfiles.modules()
         else:
             result = conn.execute_query(
@@ -665,8 +665,8 @@ class Project(object):
                     idarea, idmodulo, descripcion, icono, version
                 )
 
-        result = None
-        if self.USE_FLFILES_FOLDER:
+        result = []
+        if static_flfiles:
             result = static_flfiles.files()
         else:
             result = conn.execute_query(
