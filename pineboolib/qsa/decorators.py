@@ -12,7 +12,7 @@ import time
 from sqlalchemy import exc
 
 if TYPE_CHECKING:
-    from sqlalchemy import orm  # noqa: F821
+    from sqlalchemy import orm  # noqa: F401
 
 TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 

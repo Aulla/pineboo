@@ -16,20 +16,20 @@ from PyQt5 import QtWidgets
 from pineboolib.core.utils import logging, utils_base
 from pineboolib.core.utils.struct import AreaStruct
 from pineboolib.core import exceptions, settings, message_manager, decorators
-from pineboolib.application.database import pnconnectionmanager
-from pineboolib.application.database import utils as db_utils
-from pineboolib.application.utils import path, xpm, flfiles_dir
-from pineboolib.application import module, file
+from .database import pnconnectionmanager
+from .database import utils as db_utils
+from .utils import path, xpm, flfiles_dir
+from . import module, file
 
 
-from pineboolib.application.parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
-from pineboolib.application.parsers import parser_qsa
+from .parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
+from .parsers import parser_qsa
 
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401 # pragma: no cover
-    from pineboolib.application.database import pnconnection  # pragma: no cover
-    from pineboolib.application import xmlaction, pnapplication  # noqa: F401 # pragma: no cover
+    from .database import pnconnection  # pragma: no cover
+    from . import xmlaction, pnapplication  # noqa: F401 # pragma: no cover
 
 
 LOGGER = logging.get_logger(__name__)
@@ -630,7 +630,7 @@ class Project(object):
         conn = self.conn_manager.dbAux()
         db_name = conn.DBName()
 
-        result = []
+        result: Any = []
         static_flfiles = None
 
         if self.USE_FLFILES_FOLDER:

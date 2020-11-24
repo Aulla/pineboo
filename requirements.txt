@@ -2,7 +2,7 @@ black==19.3b0
 fernet
 flake8
 mccabe
-mypy
+mypy==0.770
 mypy-extensions
 ninja
 pg8000
