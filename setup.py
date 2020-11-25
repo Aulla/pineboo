@@ -4,7 +4,6 @@ import setuptools  # type: ignore
 import pathlib
 import subprocess
 from pineboolib import application
-import os
 
 
 with open("requirements_api.txt") as f:
@@ -68,6 +67,7 @@ setuptools.setup(
             "pineboo-pyconvert=pineboolib.application.parsers.parser_qsa.pyconvert:main",
             "pineboo-core=pineboolib.loader.main:startup_no_x",
             "pineboo-packager=pineboolib.application.packager.pnpackager:main",
+            "pineboo-daemon=pineboolib.application.utils.service:main",
             "pineboo=pineboolib.loader.main:startup",
         ]
     },
