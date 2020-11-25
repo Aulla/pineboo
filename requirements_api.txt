@@ -21,6 +21,7 @@ keyrings.alt>=3.4.0
 watchdog>=0.10.2
 python-barcode
 pyfiglet
+python-daemon
 
 
 
