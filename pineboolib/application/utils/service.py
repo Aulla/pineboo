@@ -38,7 +38,7 @@ def _install_service(path_initd: str) -> bool:
     pineboo_service_file_name = os.path.join(path_initd, "pineboo_service")
     try:
         file_ = open(pineboo_service_file_name, "w", encoding="UTF-8")
-        file_.writelines(_script_lines())
+        file_.writelines(["%s\n" % linea for linea in _script_lines()])
         file_.close()
     except Exception as error:
         print("Error writing file %s : %s" % (pineboo_service_file_name, error))
@@ -51,17 +51,16 @@ def _remove_service(path_initd: str) -> bool:
     """Remove old service file."""
 
     pineboo_service_file_name = os.path.join(path_initd, "pineboo_service")
-    print("Checking for %s", pineboo_service_file_name)
+    print("Checking for %s" % pineboo_service_file_name)
     if os.path.exists(pineboo_service_file_name):
-        print("Removing older file %s", pineboo_service_file_name)
+        print("Removing older file %s" % pineboo_service_file_name)
         try:
             os.remove(pineboo_service_file_name)
         except Exception as error:
             print("Error deleting file %s : %s" % (pineboo_service_file_name, error))
             return False
-        return True
-    else:
-        return False
+
+    return True
 
 
 def _resolve_path() -> Optional[str]:
@@ -75,19 +74,19 @@ def _resolve_path() -> Optional[str]:
                 break
 
     if not os.path.exists(path_initd):
-        exit("Invalid initd path (%s)", path_initd)
+        exit("Invalid initd path (%s)" % path_initd)
 
     return path_initd
 
 
-def _script_lines() -> list[str]:
+def _script_lines() -> List[str]:
     """Return script lines."""
     from pineboolib.application import PINEBOO_VER
 
     data: List[str] = []
     data.append("#!/usr/bin/python")
     data.append("")
-    data.append("Build by Pineboo %s", PINEBOO_VER)
+    data.append("Build by Pineboo %s" % PINEBOO_VER)
     data.append("")
     data.append("from daemon import runner")
     data.append("from pineboolib import application as pineboolib_app")
@@ -96,7 +95,7 @@ def _script_lines() -> list[str]:
     data.append("from pineboolib.loader.projectconfig import ProjectConfig")
     data.append("")
     data.append("temp_dir=/opt/pineboo_cache")
-    data.append("prj_name=None #path to file project (.xml)")
+    data.append("prj_name=None # Path to file project (.xml)")
     data.append(
         "SQL_CONN=None # ProjectConfig(database=_database_, host=_host_, port=_port_, type='PostgreSQL (PSYCOPG2)', username=_user_name_, password=_pass_)"
     )
