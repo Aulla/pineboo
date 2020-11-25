@@ -273,6 +273,18 @@ class Project(object):
         db_name = conn.DBName()
         delete_cache = self.delete_cache
         cache_ver = PARSER_QSA_VERSION
+        if not os.path.exists(path._dir("cache")):
+            cache_path = path._dir("cache")
+            path_build: list[str] = []
+            try:
+                LOGGER.info("RUN: Checking if cache folder exists (%s)", cache_path)
+                for folder in os.path.split(cache_path):
+                    path_build.append(folder)
+                    if not os.path.exists(os.path.join(*path_build)):
+                        os.mkdir(os.path.join(*path_build))
+            except Exception as error:
+                raise Exception("Error building cache folder (%s) : %s" % (path_build, error))
+
         if os.path.exists(path._dir("cache/%s" % db_name)):
             if not os.path.exists(path._dir("cache/%s/cache_version.txt" % db_name)):
                 delete_cache = True
