@@ -3,7 +3,7 @@
 import os
 import sys
 
-from typing import Optional, List
+from typing import List
 
 
 def main() -> None:
@@ -100,7 +100,8 @@ def _script_lines() -> List[str]:
     data.append("temp_dir=/opt/pineboo_cache")
     data.append("prj_name=None # Path to file project (.xml)")
     data.append(
-        "SQL_CONN=None # ProjectConfig(database=_database_, host=_host_, port=_port_, type='PostgreSQL (PSYCOPG2)', username=_user_name_, password=_pass_)"
+        "SQL_CONN=None # ProjectConfig(database=_database_, host=_host_,"
+        + " port=_port_, type='PostgreSQL (PSYCOPG2)', username=_user_name_, password=_pass_)"
     )
     data.append("")
     data.append("")
