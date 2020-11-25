@@ -63,7 +63,7 @@ def _remove_service(path_initd: str) -> bool:
     return True
 
 
-def _resolve_path() -> Optional[str]:
+def _resolve_path() -> str:
     """Resolve initd path."""
 
     path_initd = sys.argv[2] if len(sys.argv) == 3 else None
@@ -73,8 +73,11 @@ def _resolve_path() -> Optional[str]:
                 path_initd = test_path
                 break
 
-    if not os.path.exists(path_initd):
-        exit("Invalid initd path (%s)" % path_initd)
+    if path_initd:
+        if not os.path.exists(path_initd):
+            exit("Invalid initd path (%s)" % path_initd)
+    else:
+        exit("Initd path not found")
 
     return path_initd
 

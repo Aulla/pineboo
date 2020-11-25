@@ -275,7 +275,7 @@ class Project(object):
         cache_ver = PARSER_QSA_VERSION
         if not os.path.exists(path._dir("cache")):
             cache_path = path._dir("cache")
-            path_build: list[str] = []
+            path_build: List[str] = []
             try:
                 LOGGER.info("RUN: Checking if cache folder exists (%s)", cache_path)
                 for folder in os.path.split(cache_path):
