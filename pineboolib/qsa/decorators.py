@@ -27,8 +27,6 @@ def atomic(conn_name: str = "default", wait: bool = True) -> TYPEFN:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
 
             key = utils_base.session_id(conn_name)
-            if wait:
-                _wait(key)
 
             mng_ = application.PROJECT.conn_manager
             while True:
@@ -87,7 +85,6 @@ def serialize(conn_name: str = "default") -> TYPEFN:
         @functools.wraps(fun_)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             key = utils_base.session_id(conn_name)
-            _wait(key)
 
             while True:
                 if application.PROJECT.conn_manager.check_connections():
@@ -136,22 +133,6 @@ def _delete_data(session: Optional["orm.Session"], key: str, wait: bool = True) 
     _delete_session(key, wait)
 
 
-def _wait(key: str) -> None:
-    id_thread = threading.current_thread().ident
-    if id_thread not in application.SERIALIZE_LIST.keys():
-        application.SERIALIZE_LIST[id_thread] = []  # type: ignore [index] # noqa: F821
-
-    application.SERIALIZE_LIST[id_thread].append(key)  # type: ignore [index] # noqa: F821
-
-    while (
-        application.SERIALIZE_LIST[id_thread][0] != key  # type: ignore [index] # noqa: F821
-    ):  # type: ignore [index] # noqa: F821
-        time.sleep(0.01)
-
-    if application.PROJECT.conn_manager.safe_mode_level in [1, 3, 5]:
-        time.sleep(application.PROJECT.conn_manager.SAFE_TIME_SLEEP)
-
-
 def _delete_session(key: str, wait: bool = True) -> None:
     """Delete atomic_session."""
     mng_ = application.PROJECT.conn_manager
@@ -163,10 +144,6 @@ def _delete_session(key: str, wait: bool = True) -> None:
         del mng_.current_atomic_sessions[key]
 
     id_thread = threading.current_thread().ident
-
-    if wait and id_thread in application.SERIALIZE_LIST.keys():
-        if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
-            application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
 
     if mng_.safe_mode_level in [2, 3, 5]:
         time.sleep(mng_.SAFE_TIME_SLEEP)
