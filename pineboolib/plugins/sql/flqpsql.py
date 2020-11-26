@@ -243,24 +243,24 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
         """Return a tables list specified by type."""
         table_list: List[str] = []
         result_list: List[Any] = []
+        where: List[str] = []
         if self.is_open():
+            if type_name in ["Tables", ""]:
+                where.append(
+                    "(( relkind = 'r' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ))"
+                )
+            if type_name in ["Views", ""]:
+                where.append(
+                    "(( relkind = 'v' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ))"
+                )
+            if type_name in ["SystemTables", ""]:
+                where.append("(( relkind = 'r' ) AND ( relname like 'pg_%%' ))")
 
-            if type_name in ("Tables", ""):
-                cursor = self.execute_query(
-                    "select relname from pg_class where ( relkind = 'r' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ) "
-                )
-                result_list += cursor.fetchall() if cursor else []
-
-            if type_name in ("Views", ""):
-                cursor = self.execute_query(
-                    "select relname from pg_class where ( relkind = 'v' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ) "
-                )
-                result_list += cursor.fetchall() if cursor else []
-            if type_name in ("SystemTables", ""):
-                cursor = self.execute_query(
-                    "select relname from pg_class where ( relkind = 'r' ) AND ( relname like 'pg_%%' ) "
-                )
-                result_list += cursor.fetchall() if cursor else []
+        if where:
+            cursor = self.execute_query(
+                "select relname from pg_class where %s" % " OR ".join(where)
+            )
+            result_list += cursor.fetchall() if cursor else []
 
         for item in result_list:
             table_list.append(item[0])
