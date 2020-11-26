@@ -6,6 +6,7 @@ from . import utils
 
 from typing import Callable, Any, TypeVar, cast, Optional, TYPE_CHECKING
 
+import threading
 import functools
 import traceback
 import time
@@ -19,7 +20,7 @@ TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 LOGGER = logging.get_logger(__name__)
 
 
-def atomic(conn_name: str = "default") -> TYPEFN:
+def atomic(conn_name: str = "default", wait: bool = True) -> TYPEFN:
     """Return pineboo atomic decorator."""
 
     def decorator(fun_: TYPEFN) -> TYPEFN:
@@ -27,6 +28,8 @@ def atomic(conn_name: str = "default") -> TYPEFN:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
 
             key = utils_base.session_id(conn_name)
+            if wait:
+                _wait(key)
 
             mng_ = application.PROJECT.conn_manager
             while True:
@@ -64,10 +67,10 @@ def atomic(conn_name: str = "default") -> TYPEFN:
                 except exc.ResourceClosedError as error:
                     LOGGER.warning("Error al cerrar la transacción : %s, pero continua ....", error)
 
-                _delete_data(new_session, key)
+                _delete_data(new_session, key, wait)
 
             except Exception as error:
-                _delete_data(new_session, key)
+                _delete_data(new_session, key, wait)
                 raise error
 
             return result_
@@ -85,6 +88,7 @@ def serialize(conn_name: str = "default") -> TYPEFN:
         @functools.wraps(fun_)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             key = utils_base.session_id(conn_name)
+            _wait(key)
 
             while True:
                 if application.PROJECT.conn_manager.check_connections():
@@ -122,6 +126,22 @@ def serialize(conn_name: str = "default") -> TYPEFN:
     return decorator  # type: ignore [return-value] # noqa: F723
 
 
+def _wait(key: str) -> None:
+    id_thread = threading.current_thread().ident
+    if id_thread not in application.SERIALIZE_LIST.keys():
+        application.SERIALIZE_LIST[id_thread] = []  # type: ignore [index] # noqa: F821
+
+    application.SERIALIZE_LIST[id_thread].append(key)  # type: ignore [index] # noqa: F821
+
+    while (
+        application.SERIALIZE_LIST[id_thread][0] != key  # type: ignore [index] # noqa: F821
+    ):  # type: ignore [index] # noqa: F821
+        time.sleep(0.01)
+
+    if application.PROJECT.conn_manager.safe_mode_level in [1, 3, 5]:
+        time.sleep(application.PROJECT.conn_manager.SAFE_TIME_SLEEP)
+
+
 def _delete_data(session: Optional["orm.Session"], key: str, wait: bool = True) -> None:
     """Delete data."""
 
@@ -142,6 +162,12 @@ def _delete_session(key: str, wait: bool = True) -> None:
             del mng_._thread_sessions[session_key]
 
         del mng_.current_atomic_sessions[key]
+
+    id_thread = threading.current_thread().ident
+
+    if wait and id_thread in application.SERIALIZE_LIST.keys():
+        if key in application.SERIALIZE_LIST[id_thread]:  # type: ignore [index] # noqa: F821
+            application.SERIALIZE_LIST[id_thread].remove(key)  # type: ignore [index] # noqa: F821
 
     if mng_.safe_mode_level in [2, 3, 5]:
         time.sleep(mng_.SAFE_TIME_SLEEP)

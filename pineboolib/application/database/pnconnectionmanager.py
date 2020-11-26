@@ -582,7 +582,7 @@ class PNConnectionManager(QtCore.QObject):
 
         if level in [1, 3, 5]:
             LOGGER.info(
-                "CONNECTION MANAGER (%s): Time before SERIALIZED calls increase %s sec. ** DEPRECATED **",
+                "CONNECTION MANAGER (%s): Time before SERIALIZED calls increase %s sec.",
                 level,
                 self.SAFE_TIME_SLEEP,
             )
