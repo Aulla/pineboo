@@ -5,7 +5,7 @@ from . import utils
 
 
 from typing import Callable, Any, TypeVar, cast, Optional, TYPE_CHECKING
-import threading
+
 import functools
 import traceback
 import time
@@ -143,7 +143,12 @@ def _delete_session(key: str, wait: bool = True) -> None:
 
         del mng_.current_atomic_sessions[key]
 
-    for conn_name in mng_.enumerate():
-        if application.SHOW_CONNECTION_EVENTS:
-            LOGGER.info("Removing connection %s after decorator", conn_name)
-        mng_.useConn(conn_name).close()
+    if mng_.safe_mode_level in [2, 3, 5]:
+        time.sleep(mng_.SAFE_TIME_SLEEP)
+    # Delete all thread connections.
+    if mng_.REMOVE_CONNECTIONS_AFTER_ATOMIC:
+        time.sleep(0.05)
+        for conn_name in mng_.enumerate():
+            if application.SHOW_CONNECTION_EVENTS:
+                LOGGER.info("Removing connection %s after decorator", conn_name)
+            mng_.removeConn(conn_name)
