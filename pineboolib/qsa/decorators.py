@@ -19,7 +19,7 @@ TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 LOGGER = logging.get_logger(__name__)
 
 
-def atomic(conn_name: str = "default", wait: bool = True) -> TYPEFN:
+def atomic(conn_name: str = "default") -> TYPEFN:
     """Return pineboo atomic decorator."""
 
     def decorator(fun_: TYPEFN) -> TYPEFN:
@@ -64,10 +64,10 @@ def atomic(conn_name: str = "default", wait: bool = True) -> TYPEFN:
                 except exc.ResourceClosedError as error:
                     LOGGER.warning("Error al cerrar la transacción : %s, pero continua ....", error)
 
-                _delete_data(new_session, key, wait)
+                _delete_data(new_session, key)
 
             except Exception as error:
-                _delete_data(new_session, key, wait)
+                _delete_data(new_session, key)
                 raise error
 
             return result_
