@@ -153,4 +153,4 @@ def _delete_session(key: str, wait: bool = True) -> None:
         for conn_name in mng_.enumerate():
             if application.SHOW_CONNECTION_EVENTS:
                 LOGGER.info("Removing connection %s after decorator", conn_name)
-            mng_.removeConn(conn_name)
+            mng_.useConn(conn_name).close()
