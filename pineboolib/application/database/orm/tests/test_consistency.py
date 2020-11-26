@@ -38,14 +38,14 @@ class TestConsistency(unittest.TestCase):
             thread_session in application.PROJECT.conn_manager._thread_sessions.values()
         )
 
-    @qsa.serialize()  # type: ignore [misc] # noqa: F821
+    """@qsa.serialize()  # type: ignore [misc] # noqa: F821
     def test_serialize(self) -> None:
-        """Test serialize decorator."""
+        "Test serialize decorator."
         conn_ident = utils_base.session_id()
         id_thread = threading.current_thread().ident
         self.assertTrue(
             conn_ident in application.SERIALIZE_LIST[id_thread]  # type: ignore [index] # noqa: F821
-        )
+        ) """
 
     @qsa.atomic()  # type: ignore [misc] # noqa: F821
     def test_transaction(self) -> None:
