@@ -340,3 +340,9 @@ class IConnection:
         """Delete row from table."""
 
         return True  # pragma: no cover
+
+    def close(self) -> None:
+        """Close connection."""
+
+        return  # pragma: no cover
+
