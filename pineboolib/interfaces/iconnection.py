@@ -345,4 +345,3 @@ class IConnection:
         """Close connection."""
 
         return  # pragma: no cover
-

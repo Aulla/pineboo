@@ -143,8 +143,6 @@ def _delete_session(key: str, wait: bool = True) -> None:
 
         del mng_.current_atomic_sessions[key]
 
-    id_thread = threading.current_thread().ident
-
     if mng_.safe_mode_level in [2, 3, 5]:
         time.sleep(mng_.SAFE_TIME_SLEEP)
     # Delete all thread connections.
