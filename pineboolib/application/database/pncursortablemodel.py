@@ -7,8 +7,8 @@ Defines PNCursorTableModel class.
 from PyQt5 import QtCore, QtGui, Qt, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
-import sqlalchemy
-from sqlalchemy import exc, orm
+
+from sqlalchemy import exc, orm, inspect, engine
 from pineboolib.application.utils import date_conversion, xpm
 from .orm import utils as orm_utils
 from . import pnsqlquery
@@ -265,7 +265,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         # print("***", self._last_grid_row, row)
         if self._last_grid_row != row or (
-            self._last_grid_obj is not None and sqlalchemy.inspect(self._last_grid_obj).expired
+            self._last_grid_obj is not None and inspect(self._last_grid_obj).expired
         ):
             self._last_grid_row = row
             self._last_grid_obj = self.get_obj_from_row(row)
@@ -1113,7 +1113,9 @@ class ProxyIndex:
         if self._last_current_size > index:
             data = self._cached_data[index]
 
-            if isinstance(data, sqlalchemy.engine.result.RowProxy):
+            if isinstance(
+                data, (engine.cursor.CursorResult)  # type: ignore [attr-defined] # noqa: F821
+            ):
                 LOGGER.warning(
                     "este result.rowProxy no debería estar aqui!: %s", data[0], stack_info=True
                 )
@@ -1148,7 +1150,10 @@ class ProxyIndex:
             try:
                 self._cached_data += [
                     data[0][0]
-                    if isinstance(data[0], sqlalchemy.engine.result.RowProxy)
+                    if isinstance(
+                        data[0],
+                        engine.cursor.CursorResult,  # type: ignore [attr-defined] # noqa: F821
+                    )
                     else data[0]
                     for data in self._query.fetchmany(fetch_size)
                 ]
