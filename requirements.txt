@@ -3,7 +3,7 @@ fernet
 flake8
 mccabe
 mypy==0.770
-mypy-extensions
+mypy-extensions==0.4.3
 ninja
 pg8000
 ply
