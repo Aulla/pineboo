@@ -1,4 +1,4 @@
-"""Fltranslations mdoule."""
+"""PNTranslations module."""
 
 # -*- coding: utf-8 -*-
 import os
@@ -20,7 +20,9 @@ class PNTranslations(object):
     FLTranslations class manages the different module and application traductions.
     """
 
-    def loadTsFile(self, tor: Any, ts_file_name: Union[bytes, int, str], verbose) -> bool:
+    def loadTsFile(
+        self, tor: Any, ts_file_name: Union[bytes, int, str], verbose: bool = False
+    ) -> bool:
         """
         If the .qm does not exist, convert the .ts we give to .qm.
 
