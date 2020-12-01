@@ -43,4 +43,3 @@ class TestAQOds(unittest.TestCase):
 
         self.assertTrue(style_obj)
         row_2.opIn(style_obj)
-
