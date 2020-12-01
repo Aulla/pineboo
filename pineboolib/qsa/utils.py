@@ -13,6 +13,8 @@ from pineboolib.core.utils import utils_base
 from pineboolib.core.utils import logging
 from pineboolib import application
 
+from .dictmodules import from_project
+
 from typing import (
     Any,
     Optional,
@@ -559,7 +561,16 @@ class NumberAttr:
 def user_id() -> str:
     """Return user_id."""
 
-    return application.PROJECT.session_id()
+    result = getattr(from_project("sys").iface, "current_user")
+    if not result:
+        result = application.PROJECT.session_id()
+    return result
+
+
+def set_user_id(user_id: str) -> None:
+    """Set user id."""
+
+    from_project("sys").iface.current_user = user_id
 
 
 def driver_session(conn_name: str = "default") -> Tuple[str, "orm_session.Session"]:

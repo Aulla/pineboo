@@ -215,6 +215,13 @@ class TestUtils(unittest.TestCase):
         self.assertNotEqual(obj_.__class__, "Prueba")
         self.assertTrue(qsa._super("Prueba", obj_))  # type: ignore [arg-type] # noqa: F821
 
+    def test_user_id(self) -> None:
+        """Test user ids."""
+
+        self.assertEqual(qsa.user_id(), "test3")
+        qsa.set_user_id("pululo")
+        self.assertEqual(qsa.user_id(), "pululo")
+
     def my_fun(self) -> None:
         """"Callable test function."""
         print("EY")

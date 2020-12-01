@@ -18,6 +18,7 @@ class FormInternalObj(qsa.FormDBWidget):
     def _class_init(self) -> None:
         """Inicialize."""
         # self.form = self
+        self.current_user = None
         self.iface = self
 
     def init(self) -> None:
