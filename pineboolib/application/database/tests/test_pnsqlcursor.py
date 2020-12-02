@@ -983,6 +983,7 @@ class TestAfterCommit(unittest.TestCase):
         qsa_sys = qsa.sys
         path = fixture_path("principal.eneboopkg")
         self.assertTrue(qsa_sys.loadModules(path, False))
+        qsa.from_project("sys").iface.init()
 
     def test_basic_2(self) -> None:
         """Test size and sha."""
