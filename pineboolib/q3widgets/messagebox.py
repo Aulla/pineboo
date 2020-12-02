@@ -86,7 +86,8 @@ class MessageBox:
         text_ = args[0] if isinstance(args[0], str) else args[2]
 
         result = cls.msgbox("warning", *args)
-        clipboard.copy(str(text_))
+        if not getattr(application, "TESTING_MODE", None):
+            clipboard.copy(str(text_))
         return result
 
     @classmethod
@@ -95,5 +96,6 @@ class MessageBox:
 
         text_ = args[0] if isinstance(args[0], str) else args[2]
         result = cls.msgbox("critical", *args)
-        clipboard.copy(str(text_))
+        if not getattr(application, "TESTING_MODE", None):
+            clipboard.copy(str(text_))
         return result
