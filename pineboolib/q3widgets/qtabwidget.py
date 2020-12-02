@@ -37,7 +37,6 @@ class QTabWidget(QtWidgets.QTabWidget):
 
     def indexByName(self, tab: Union[str, int]) -> Optional[int]:
         """Return a index tab from a name or number."""
-        idx = None
         if isinstance(tab, int):
             return tab
         elif not isinstance(tab, str):
@@ -45,9 +44,9 @@ class QTabWidget(QtWidgets.QTabWidget):
             return None
 
         try:
-            for idx in range(self.count()):
-                if self.widget(idx).objectName() == tab.lower():
-                    return idx
+            for num in range(self.count()):
+                if self.widget(num).objectName() == tab.lower():
+                    return num
         except ValueError:
             logger.error("ERROR: Tab not found:: QTabWidget, tab name = %r", tab)
         return None

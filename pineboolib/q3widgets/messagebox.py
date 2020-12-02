@@ -7,7 +7,7 @@ from pineboolib import application
 from pineboolib.core.utils import logging
 import clipboard  # type: ignore [import] # noqa: F821
 
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 
 LOGGER = logging.get_logger(__name__)
 
@@ -26,48 +26,47 @@ class MessageBox:
     def msgbox(cls, typename, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
         """Return a messageBox."""
 
-        if QtWidgets.QApplication.platformName() == "offscreen":
-            LOGGER.warning(
-                "q3widget.MessageBox launch when library mode ON! (%s : %s)",
-                typename,
-                args,
-                stack_info=True,
-            )
-            return None
+        if not getattr(application, "TESTING_MODE", None):
+            if QtWidgets.QApplication.platformName() == "offscreen":
+                LOGGER.warning(
+                    "q3widget.MessageBox launch when library mode ON! (%s : %s)",
+                    typename,
+                    args,
+                    stack_info=True,
+                )
+                return None
 
         msg_box = getattr(QtWidgets.QMessageBox, typename, None)
-        if msg_box is None:
-            LOGGER.warning("Unknown type name %s", typename)
-            return None
-        else:
+        title = "Pineboo"
+        parent = QtWidgets.qApp.activeWindow()
+        buttons: List["QtWidgets.QMessageBox.StandardButton"] = []
+        default_button = None
+        text = ""
 
-            title = "Pineboo"
-            parent = QtWidgets.qApp.activeWindow()
-            buttons: List["QtWidgets.QMessageBox.StandardButton"] = []
-            default_button = None
-            text = ""
+        for number, argument in enumerate(args):
+            if number == 0:
+                text = argument
+            else:
+                if isinstance(argument, str):
+                    title = argument
+                elif isinstance(argument, QtWidgets.QMessageBox.StandardButton):
+                    if len(buttons) < 2:
+                        buttons.append(argument)
+                    else:
+                        default_button = argument
+                elif argument:
+                    parent = argument
 
-            for number, argument in enumerate(args):
-                if number == 0:
-                    text = argument
-                else:
-                    if isinstance(argument, str):
-                        title = argument
-                    elif isinstance(argument, QtWidgets.QMessageBox.StandardButton):
-                        if len(buttons) < 2:
-                            buttons.append(argument)
-                        else:
-                            default_button = argument
-                    elif argument:
-                        parent = argument
+        if application.PROJECT._splash:
+            application.PROJECT._splash.hide()
 
-            if application.PROJECT._splash:
-                application.PROJECT._splash.hide()
-
+        if not getattr(application, "TESTING_MODE", None):
             if not default_button:
                 return msg_box(parent, title, text, *buttons)
             else:
                 return msg_box(parent, title, text, *buttons, default_button)
+        else:
+            return QtWidgets.QMessageBox.Ok
 
     @classmethod
     def question(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
