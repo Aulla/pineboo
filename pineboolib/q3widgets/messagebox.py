@@ -7,7 +7,7 @@ from pineboolib import application
 from pineboolib.core.utils import logging
 import clipboard  # type: ignore [import] # noqa: F821
 
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, List
 
 LOGGER = logging.get_logger(__name__)
 

@@ -41,4 +41,3 @@ class TestQRadioButtons(unittest.TestCase):
     def tearDownClass(cls) -> None:
         """Ensure test clear all data."""
         finish_testing()
-
