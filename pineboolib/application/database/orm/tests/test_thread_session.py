@@ -33,6 +33,7 @@ class TestThreadSession(unittest.TestCase):
     def test_basic_2(self) -> None:
         """Test basic 2."""
         key = utils_base.session_id("dbaux")
+        application.PROJECT.conn_manager.set_safe_mode(5)
         self.assertTrue(prueba2())
         self.assertFalse(key in application.PROJECT.conn_manager.current_atomic_sessions.keys())
 

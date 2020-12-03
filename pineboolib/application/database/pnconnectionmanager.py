@@ -428,61 +428,6 @@ class PNConnectionManager(QtCore.QObject):
 
         return use_key
 
-    def status(self, all_threads: bool = False) -> str:
-        """Return connections status."""
-
-        conns = []
-        id_thread = threading.current_thread().ident
-
-        for conn_name in list(self.enumerate().keys()):
-            if conn_name.find("|") > -1:
-                if not all_threads:
-                    if str(id_thread) != conn_name.split("|")[0]:
-                        continue
-
-            conns.append(conn_name)
-
-        result = "CONNECTIONS (%s):" % ("All threads" if all_threads else "Thread: %s" % id_thread)
-        for conn_name in conns:
-            conn_ = ""
-            if conn_name.find("|") > -1:
-                conn_ = conn_name.split("|")[1]
-                result += "\n    - Thread: %s, Connection name: %s:" % (
-                    conn_name.split("|")[0],
-                    conn_,
-                )
-
-            else:
-                conn_ = conn_name
-                result += "\n    - Main connection: %s:" % conn_
-
-            for key, session in self._thread_sessions.items():
-                session_id = utils_base.session_id(conn_)
-
-                session_result = ""
-                if conn_ in key:
-                    valid_session = self.is_valid_session(key, False)
-                    session_result += "* id: %s,  thread_id: %s" % (key, key.split("|")[0])
-                    session_result += ", is_valid: %s" % ("True" if valid_session else "False")
-                    if valid_session:
-                        session_result += ", in_transaction: %s" % (
-                            "False" if session.transaction is None else "True"
-                        )
-
-                    if session_id in self.current_atomic_sessions.keys():
-                        if key == self.current_atomic_sessions[session_id]:
-                            session_result += ", type: Atomic"
-                    if session_id in self.current_thread_sessions.keys():
-                        if key == self.current_thread_sessions[session_id]:
-                            session_result += ", type: Thread"
-
-                if session_result:
-                    result += "\n        " + session_result
-                else:
-                    continue
-
-        return result
-
     def get_current_thread_sessions(self) -> List["orm_session.session.Session"]:
         """Return thread sessions openend."""
 

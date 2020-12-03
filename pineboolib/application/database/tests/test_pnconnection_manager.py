@@ -83,6 +83,10 @@ class TestPNConnectionManager(unittest.TestCase):
         cur.select()
         time.sleep(1)
         pnsqlcursor.CONNECTION_CURSORS[application.PROJECT.conn_manager.session_id()].pop()
+        conn_manager.set_max_connections_limit(100)
+        conn_manager.set_max_idle_connections(50)
+        self.assertEqual(conn_manager.limit_connections, 100)
+        self.assertEqual(conn_manager.connections_time_out, 50)
 
         while "flfiles" in conn_manager.active_pncursors(True):
             QtWidgets.QApplication.processEvents()
