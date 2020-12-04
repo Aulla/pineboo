@@ -633,7 +633,7 @@ class MainForm(imainwindow.IMainWindow):
                 if widget is None:
 
                     return
-                if isinstance(widget, qmainwindow.QMainWindow):
+                if isinstance(widget, qmainwindow.QMainWindow) or widget.findChild(pncore.PNCore):
                     doc = QtXml.QDomDocument()
                     ui_file = "%s.ui" % idm
                     content_cached = self.db().managerModules().contentCached(ui_file)
@@ -653,7 +653,7 @@ class MainForm(imainwindow.IMainWindow):
                             signal = "triggered()"
                         receiver = itn.namedItem("receiver").toElement().text()
                         slot = itn.namedItem("slot").toElement().text()
-                        if receiver == idm and signal == "triggered()":
+                        if receiver in ["idm", "pncore"] and signal == "triggered()":
                             action_list = []
                             action = cast(
                                 QtWidgets.QAction, widget.findChild(QtWidgets.QAction, sender)
@@ -662,7 +662,9 @@ class MainForm(imainwindow.IMainWindow):
                                 action_list.append(action)
 
                             for menu in widget.findChildren(QtWidgets.QToolBar):
-                                action = menu.findChild(QtWidgets.QAction, sender)
+                                action = cast(
+                                    QtWidgets.QAction, menu.findChild(QtWidgets.QAction, sender)
+                                )
                                 if action is not None and action not in action_list:
                                     action_list.append(action)
 
