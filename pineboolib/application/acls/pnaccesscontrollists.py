@@ -144,11 +144,16 @@ class PNAccessControlLists(object):
         if "" in (type_, name_, user_):
             return None
 
-        key = "%s::%s::%s" % (type_, name_, user_)
-        if key in self._access_control_list.keys():
-            self._access_control_list[  # type: ignore [attr-defined] # noqa: F821
-                key
-            ].processObject(obj)
+        keys_ = []
+        keys_.append("%s::%s::%s" % (type_, name_, user_))
+        if type_ == "mainwindow":
+            keys_.append("%s::%s::%s" % (type_, "container", user_))
+
+        for key in keys_:
+            if key in self._access_control_list.keys():
+                self._access_control_list[  # type: ignore [attr-defined] # noqa: F821
+                    key
+                ].processObject(obj)
 
     def install_acl(self, idacl: str) -> None:
         """
