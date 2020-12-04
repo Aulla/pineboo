@@ -14,6 +14,8 @@ from pineboolib.application import pncore
 from pineboolib import application
 from pineboolib import logging
 from pineboolib.interfaces import imainwindow
+from pineboolib.q3widgets import qmainwindow
+
 
 from typing import Any, cast, List, TYPE_CHECKING
 
@@ -629,9 +631,9 @@ class MainForm(imainwindow.IMainWindow):
             if widget is None:
                 widget = self.db().managerModules().createUI(file_name="%s.ui" % idm)
                 if widget is None:
-                    return
 
-                if widget.findChild(pncore.PNCore):
+                    return
+                if isinstance(widget, qmainwindow.QMainWindow):
                     doc = QtXml.QDomDocument()
                     ui_file = "%s.ui" % idm
                     content_cached = self.db().managerModules().contentCached(ui_file)
@@ -651,19 +653,32 @@ class MainForm(imainwindow.IMainWindow):
                             signal = "triggered()"
                         receiver = itn.namedItem("receiver").toElement().text()
                         slot = itn.namedItem("slot").toElement().text()
-                        if receiver == "pncore" and signal == "triggered()":
+                        if receiver == idm and signal == "triggered()":
+                            action_list = []
                             action = cast(
                                 QtWidgets.QAction, widget.findChild(QtWidgets.QAction, sender)
                             )
-                            if action is not None and sender in application.PROJECT.actions.keys():
-                                slot_obj = getattr(
-                                    application.PROJECT.actions[sender],
-                                    slot[0 : slot.find("(")],
-                                    None,
-                                )
-                                action.triggered.connect(slot_obj)
-                            else:
-                                LOGGER.warning("Action %s not found", sender)
+                            if action is not None:
+                                action_list.append(action)
+
+                            for menu in widget.findChildren(QtWidgets.QToolBar):
+                                action = menu.findChild(QtWidgets.QAction, sender)
+                                if action is not None and action not in action_list:
+                                    action_list.append(action)
+
+                            for action in action_list:
+                                if (
+                                    action is not None
+                                    and sender in application.PROJECT.actions.keys()
+                                ):
+                                    slot_obj = getattr(
+                                        application.PROJECT.actions[sender],
+                                        slot[0 : slot.find("(")],
+                                        None,
+                                    )
+                                    action.triggered.connect(slot_obj)
+                                else:
+                                    LOGGER.warning("Action %s not found", sender)
 
                 widget.setWindowModality(QtCore.Qt.WindowModal)
                 self._dict_main_widgets[idm] = widget
