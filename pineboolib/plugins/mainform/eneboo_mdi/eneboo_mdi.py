@@ -653,7 +653,7 @@ class MainForm(imainwindow.IMainWindow):
                             signal = "triggered()"
                         receiver = itn.namedItem("receiver").toElement().text()
                         slot = itn.namedItem("slot").toElement().text()
-                        if receiver in ["idm", "pncore"] and signal == "triggered()":
+                        if receiver in [idm, "pncore"] and signal == "triggered()":
                             action_list = []
                             action = cast(
                                 QtWidgets.QAction, widget.findChild(QtWidgets.QAction, sender)
