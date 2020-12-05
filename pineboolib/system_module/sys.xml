@@ -72,29 +72,6 @@
 		<form>master</form>
 		<formrecord>fltest</formrecord>
 	</action>
-
-	<action>
-		<name>flacls</name>
-		<table>flacls</table>
-		<form>flmasteracls</form>
-		<formrecord>flacls</formrecord>
-		<scriptform>flmasteracls</scriptform>
-	</action>
-	
-	<action>
-		<name>flacs</name>
-		<table>flacs</table>
-		<form>master</form>
-		<formrecord>flacs</formrecord>
-		<scriptformrecord>flacs</scriptformrecord>
-	</action>
-	
-	<action>
-		<name>flacos</name>
-		<table>flacos</table>
-		<form>FLWidgetMasterTable</form>
-		<formrecord>flacos</formrecord>
-	</action>
 	
 	<action>
 		<name>flreloadlast</name>
