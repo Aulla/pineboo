@@ -667,6 +667,11 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
 
         return int(self.private.length_ or 0)
 
+    def __bool__(self) -> bool:
+        """Return if exists."""
+
+        return True
+
 
 class PNFieldMetaDataPrivate(object):
     """PNFieldMetaDataPrivate Class."""

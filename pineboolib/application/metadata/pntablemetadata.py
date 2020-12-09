@@ -672,6 +672,11 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
         return self.private._fields_dict[self.private._field_names[position]]
 
+    def __bool__(self) -> bool:
+        """Return if exists."""
+
+        return True
+
 
 class PNTableMetaDataPrivate:
     """PNTableMetaData Class."""
