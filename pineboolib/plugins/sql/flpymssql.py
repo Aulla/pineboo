@@ -217,22 +217,29 @@ class FLPYMSSQL(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    def tables(self, type_name: Optional[str] = "") -> List[str]:
+    def tables(self, type_name: str = "", table_name: str = "") -> List[str]:
         """Return a tables list specified by type."""
         table_list: List[str] = []
         result_list: List[Any] = []
         if self.is_open():
 
+            where: List[str] = []
             if type_name in ("Tables", ""):
-                cursor = self.execute_query("SELECT * FROM SYSOBJECTS WHERE xtype ='U'")
-                result_list += cursor.fetchall() if cursor else []
-
+                where.append("xtype ='U'")
             if type_name in ("Views", ""):
-                cursor = self.execute_query("SELECT * FROM SYSOBJECTS WHERE xtype ='V'")
-                result_list += cursor.fetchall() if cursor else []
-
+                where.append("xtype ='V'")
             if type_name in ("SystemTables", ""):
-                cursor = self.execute_query("SELECT * FROM SYSOBJECTS WHERE xtype ='S'")
+                where.append("xtype ='S'")
+
+            if where:
+                and_name = ""
+                if table_name:
+                    and_name = " AND name='%s'" % table_name
+
+                cursor = self.execute_query(
+                    "SELECT name FROM SYSOBJECTS where %s%s ORDER BY name ASC"
+                    % (" OR ".join(where), and_name)
+                )
                 result_list += cursor.fetchall() if cursor else []
 
         for item in result_list:

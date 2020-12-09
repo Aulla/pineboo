@@ -239,12 +239,14 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    def tables(self, type_name: Optional[str] = "") -> List[str]:
+    def tables(self, type_name: str = "", table_name: str = "") -> List[str]:
         """Return a tables list specified by type."""
         table_list: List[str] = []
         result_list: List[Any] = []
-        where: List[str] = []
+
         if self.is_open():
+            where: List[str] = []
+
             if type_name in ["Tables", ""]:
                 where.append(
                     "(( relkind = 'r' ) AND ( relname !~ '^Inv' ) AND ( relname !~ '^pg_' ))"
@@ -256,14 +258,19 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             if type_name in ["SystemTables", ""]:
                 where.append("(( relkind = 'r' ) AND ( relname like 'pg_%%' ))")
 
-        if where:
-            cursor = self.execute_query(
-                "select relname from pg_class where %s" % " OR ".join(where)
-            )
-            result_list += cursor.fetchall() if cursor else []
+            if where:
+                and_name = ""
+                if table_name:
+                    and_name = " AND relname ='%s'" % table_name
 
-        for item in result_list:
-            table_list.append(item[0])
+                cursor = self.execute_query(
+                    "select relname from pg_class where %s%s ORDER BY relname ASC"
+                    % (" OR ".join(where), and_name)
+                )
+                result_list += cursor.fetchall() if cursor else []
+
+            for item in result_list:
+                table_list.append(item[0])
 
         return table_list
 

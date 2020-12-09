@@ -42,34 +42,34 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self._default_charset = "DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
         self._sqlalchemy_name = "mysql"
 
-    def tables(self, type_name: Optional[str] = "") -> List[str]:
+    def tables(self, type_name: str = "", table_name: str = "") -> List[str]:
         """Return a tables list specified by type."""
         table_list: List[str] = []
         result_list: List[Any] = []
         if self.is_open():
-
+            where: List[str] = []
             if type_name in ("Tables", ""):
-                cursor = self.execute_query(
-                    "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE LIKE 'BASE TABLE' AND TABLE_SCHEMA LIKE '%s'"
-                    % self.DBName()
+                where.append(
+                    "TABLE_TYPE LIKE 'BASE TABLE' AND TABLE_SCHEMA LIKE '%s'" % self.DBName()
                 )
-                result_list += cursor.fetchall() if cursor else []
-
             if type_name in ("Views", ""):
-                cursor = self.execute_query(
-                    "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE LIKE 'VIEW' AND TABLE_SCHEMA LIKE '%s'"
-                    % self.DBName()
-                )
-                result_list += cursor.fetchall() if cursor else []
-
+                where.append("TABLE_TYPE LIKE 'VIEW' AND TABLE_SCHEMA LIKE '%s'" % self.DBName())
             if type_name in ("SystemTables", ""):
+                where.append("TABLE_TYPE LIKE 'SYSTEM VIEW'")
+
+            if where:
+                and_name = ""
+                if table_name:
+                    and_name = " AND TABLE_NAME ='%s'" % table_name
+
                 cursor = self.execute_query(
-                    "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_TYPE LIKE 'SYSTEM VIEW'"
+                    "SELECT TABLE_NAME FROM information_schema.tables where %s%s ORDER BY TABLE_NAME ASC"
+                    % (" OR ".join(where), and_name)
                 )
                 result_list += cursor.fetchall() if cursor else []
 
-        for item in result_list:
-            table_list.append(item[0])
+            for item in result_list:
+                table_list.append(item[0])
 
         return table_list
 

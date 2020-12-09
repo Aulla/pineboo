@@ -475,7 +475,7 @@ class PNSqlSchema(object):
 
         if self._engine:
             self.set_last_error_null()
-            table_list = self.tables()
+            table_list = self.tables("", table_name)
             if self.last_error():
                 raise Exception("Error loading tables.")
 
@@ -680,7 +680,7 @@ class PNSqlSchema(object):
         return ret
 
     @decorators.not_implemented_warn
-    def tables(self, type_name: str = "") -> List[str]:
+    def tables(self, type_name: str = "", table_name: str = "") -> List[str]:
         """Return a tables list specified by type."""
         return []  # pragma: no cover
 

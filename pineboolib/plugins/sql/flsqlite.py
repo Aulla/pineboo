@@ -270,30 +270,33 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         return ret
 
-    def tables(self, type_name: Optional[str] = "") -> List[str]:
+    def tables(self, type_name: str = "", table_name: str = "") -> List[str]:
         """Return a tables list specified by type."""
 
         table_list: List[str] = []
         result_list: List[Any] = []
         if self.is_open():
-
+            where: List[str] = []
             if type_name in ("Tables", ""):
-                cursor = self.execute_query(
-                    "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC"
-                )
-                result_list += cursor.fetchall() if cursor else []
-
+                where.append("type='table'")
             if type_name in ("Views", ""):
-                cursor = self.execute_query(
-                    "SELECT name FROM sqlite_master WHERE type='view' ORDER BY name ASC"
-                )
-                result_list += cursor.fetchall() if cursor else []
-
+                where.append("type='view'")
             if type_name in ("SystemTables", ""):
                 table_list.append("sqlite_master")
 
-        for item in result_list:
-            table_list.append(item[0])
+            if where:
+                and_name = ""
+                if table_name:
+                    and_name = " AND name ='%s'" % table_name
+
+                cursor = self.execute_query(
+                    "SELECT name FROM sqlite_master WHERE %s%s ORDER BY name ASC"
+                    % (" OR ".join(where), and_name)
+                )
+                result_list += cursor.fetchall() if cursor else []
+
+            for item in result_list:
+                table_list.append(item[0])
 
         return table_list
 
