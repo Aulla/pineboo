@@ -73,10 +73,9 @@ class FLReportEngine(QtCore.QObject):
                             continue
 
                     key = self.qry_.value(num, False)
-                    row.setAttribute(item, key)
+                    str_val = str(key)
 
-                else:
-                    row.setAttribute(item, str_val)
+                row.setAttribute(item, str_val)
 
             self.rows_.appendChild(row)
 
