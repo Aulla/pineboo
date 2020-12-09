@@ -860,21 +860,6 @@ class If(ASTPython):
                         elif expr[2] == "False":
                             expr = [expr[0]]
 
-                if "in" in expr:
-
-                    idx = expr.index("in")
-                    cadena = " ( hasattr(%s, %s) or %s in %s ) " % (
-                        expr[idx + 1],
-                        expr[idx - 1],
-                        expr[idx - 1],
-                        expr[idx + 1],
-                    )
-                    new_expr = expr[0 : idx - 1]
-                    new_expr += cadena.split(" ")
-                    if len(expr) > idx + 2:
-                        new_expr += expr[idx + 2 :]
-                    expr = new_expr
-
                 main_expr.append(" ".join(expr))
 
         yield "line", "if %s:" % (" ".join(main_expr))
@@ -1464,6 +1449,7 @@ class InstructionUpdate(ASTPython):
             for dtype, data in parse_ast(arg, parent=self).generate(
                 isolate=False, is_member=(number == 0)
             ):
+
                 if dtype == "expr":
                     if not data:
                         raise ValueError(ET.tostring(arg))
@@ -2020,15 +2006,40 @@ class Expression(ASTPython):
                 coerce_string_mode = True
         if coerce_string_mode:
             yield "expr", "qsa.ustr("
+
+        found_in = False
+        expr = []
         for child in self.elem:
             child.set("parent_", self.elem)  # type: ignore
             if coerce_string_mode and child.tag == "OpMath":
                 if child.get("type") == "PLUS":
-                    yield "expr", ","
+                    expr.append(["expr", ","])
                     continue
 
             for dtype, data in parse_ast(child, parent=self).generate():
-                yield dtype, data
+                expr.append([dtype, data])
+
+                if found_in:
+                    idx = len(expr) - 2  # penúltimo
+                    cadena = "( hasattr(%s, %s) or %s in %s )" % (
+                        expr[idx + 1][1],
+                        expr[idx - 1][1],
+                        expr[idx - 1][1],
+                        expr[idx + 1][1],
+                    )
+                    new_expr = expr[0 : idx - 1]  # hasta anterior a in.
+                    new_expr += [["expr", valor] for valor in cadena.split(" ")]
+                    expr = new_expr
+
+                    found_in = False
+
+                if data == "in":
+                    found_in = True
+                else:
+                    found_in = False
+
+        for dtype, data in expr:
+            yield dtype, data
 
         if coerce_string_mode:
             yield "expr", ")"
