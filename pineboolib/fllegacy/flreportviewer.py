@@ -2,13 +2,11 @@
 from PyQt5 import QtWidgets, QtCore, QtXml
 
 from pineboolib.core import decorators
+from pineboolib.core.utils import utils_base
 from pineboolib.application.qsatypes.sysbasetype import SysBaseType
-from pineboolib.fllegacy import flutil
-
-
-# from pineboolib.fllegacy.flpicture import FLPicture
-from .flsqlquery import FLSqlQuery
-from .flsqlcursor import FLSqlCursor
+from . import flutil
+from . import flsqlquery
+from . import flsqlcursor
 
 from .flreportengine import FLReportEngine
 from pineboolib import logging
@@ -149,7 +147,7 @@ class FLReportViewer(QtWidgets.QWidget):
             if no_destroy:
                 self.report_viewer.setReportEngine(self.report_engine_)
 
-    def exec_(self) -> None:
+    def exec_(self) -> str:
         """Show report."""
         # if self.loop_:
         #    print("FLReportViewer::exec(): Se ha detectado una llamada recursiva")
@@ -159,14 +157,10 @@ class FLReportViewer(QtWidgets.QWidget):
         ):
             pdf_file = self.report_viewer.report_engine_.parser_.get_file_name()
 
+        if not utils_base.is_library():
             SysBaseType.openUrl(pdf_file)
-        # self.eventloop.exec_()
 
-        # if self.embed_in_parent:
-        #    return
-
-        # self.loop_ = True
-        # self.clearWFlags(Qt.WShowModal) # FIXME
+        return pdf_file
 
     @decorators.beta_implementation
     def csvData(self) -> str:
@@ -234,15 +228,17 @@ class FLReportViewer(QtWidgets.QWidget):
         self.report_ = self.report_viewer.reportPages()
         return ret
 
-    def setReportData(self, data: Union[FLSqlCursor, FLSqlQuery, QtXml.QDomNode]) -> bool:
+    def setReportData(
+        self, data: Union["flsqlcursor.FLSqlCursor", "flsqlquery.FLSqlQuery", "QtXml.QDomNode"]
+    ) -> bool:
         """Set data to report."""
-        if isinstance(data, FLSqlQuery):
+        if isinstance(data, flsqlquery.FLSqlQuery):
             self.qry_ = data
             if self.report_engine_ and self.report_engine_.setReportData(data):
                 self.xml_data_ = self.report_engine_.rptXmlData()
                 return True
             return False
-        elif isinstance(data, FLSqlCursor):
+        elif isinstance(data, flsqlcursor.FLSqlCursor):
             if not self.report_engine_:
                 return False
             return self.report_engine_.setReportData(data)
@@ -255,7 +251,7 @@ class FLReportViewer(QtWidgets.QWidget):
         return False
 
     def setReportTemplate(
-        self, template: Union[QtXml.QDomNode, str], style: Optional[str] = None
+        self, template: Union["QtXml.QDomNode", str], style: Optional[str] = None
     ) -> bool:
         """Set template to report."""
         if isinstance(template, QtXml.QDomNode):
