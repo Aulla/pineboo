@@ -395,13 +395,31 @@ class KParserTools(object):
         Calculate sum for specified element line. level equal or upper.
         """
         val = 0.0
+        min_level = -1
         for item in xml_list:
             lev_ = int(item.get("level"))
-            if lev_ == 0 and level > 0:
-                val = 0.0
-            elif lev_ > level:
-                val += float(item.get(field_name))
+            val_ = float(item.get(field_name))
 
+            if min_level < lev_:
+                # print("nuevo min_level", lev_, "previo", min_level)
+                min_level = lev_
+                val = 0.0
+
+            if min_level >= level:
+                val += val_
+
+            # print(
+            #    "line_level:",
+            #    lev_,
+            #    "line_val:",
+            #    val_,
+            #    "obj_level:",
+            #    level,
+            #    "current_val:",
+            #    val,
+            #    "min_level:",
+            #    min_level,
+            # )
             if item is line:
                 break
 
