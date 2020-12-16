@@ -150,9 +150,9 @@ class Kut2FPDF(object):
             self.reset_page_count = False
 
         if self.design_mode:
-            print("Append", page_append)
-            print("Display", page_display)
-            print("Page break", next_page_break)
+            LOGGER.debug("Append %s", page_append)
+            LOGGER.debug("Display %s", page_display)
+            LOGGER.debug("Page break %s", next_page_break)
 
         if next_page_break:
             self.reset_page_count = True
@@ -170,7 +170,6 @@ class Kut2FPDF(object):
 
             self._document.pages[pages]["content"] = page_content
 
-        # print(self.draws_at_header.keys())
         self._document.set_title(self.name_)
         self._document.set_author("Pineboo - kut2fpdf plugin")
 
@@ -224,18 +223,8 @@ class Kut2FPDF(object):
         self._actual_section_size = 0
         self._actual_append_page_no += 1
         if self.design_mode:
-            print("Nueva página", self.number_pages())
+            LOGGER.debug("Nueva página %s", self.number_pages())
 
-        # l_ini = data_level
-        # l_end = self.prev_level
-
-        # if l_ini == l_end:
-        #    l_end = l_end + 1
-
-        # if l_ini <= l_end:
-        #    for l in range(l_ini , l_end):
-        #        print(l)
-        #        self.processSection("AddOnHeader", str(l))
         pg_headers = self._xml.findall("PageHeader")
 
         for page_header in pg_headers:
@@ -420,7 +409,7 @@ class Kut2FPDF(object):
             data = self._actual_data_line
 
         if self.design_mode and data is not None:
-            print("Procesando", xml.tag, data.get("level"))
+            LOGGER.debug("Procesando: %s level: %s", xml.tag, data.get("level"))
 
         size_updated = False
         if xml.tag == "DetailFooter":
@@ -690,11 +679,8 @@ class Kut2FPDF(object):
                     val = ""
                     self.drawText(pos_x, pos_y, width, height, xml, val)
 
-                    # print(level, section_name, val, text)
-
             if section_name == "DetailFooter" and xml.get("DrawAtHeader") == "true":
                 self.draws_at_header[val] = text
-                # print("Añadiendo a", val, text, level)
 
             else:
                 self.drawText(pos_x, pos_y, width, height, xml, text)
