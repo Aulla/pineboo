@@ -2251,9 +2251,9 @@ class FLTableDB(QtWidgets.QWidget):
             and (
                 not self.cursor()
                 or self._req_read_only
-                or self._req_edit_only
+                or self._req_insert_only
                 or self._req_only_table
-                or (cur_relation and cur_relation.isLocked())
+                or (cur_relation is not None and cur_relation.isLocked())
             )
         ):
             widget.setDisabled(True)
