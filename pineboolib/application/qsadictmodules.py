@@ -120,6 +120,7 @@ class QSADictModules:
     @classmethod
     def save_action_for_mainform(cls, action: XMLAction):
         """Save a new mainform."""
+
         name = action._name
         module = action._mod
         if module is None:
@@ -127,7 +128,7 @@ class QSADictModules:
 
         actionname = "form%s" % name
         if cls.action_exists(actionname):
-            LOGGER.debug(
+            LOGGER.warning(
                 "No se sobreescribe variable de entorno %s. Hay una definición previa.",
                 "%s.form%s" % (module.module_name, name),
             )
@@ -149,7 +150,7 @@ class QSADictModules:
             raise ValueError("Action.module must be set before calling")
         actionname = "formRecord" + name
         if cls.action_exists(actionname):
-            LOGGER.debug(
+            LOGGER.warning(
                 "No se sobreescribe variable de entorno %s. Hay una definición previa.",
                 "%s.formRecord%s" % (module.module_name, name),
             )
@@ -175,7 +176,7 @@ class QSADictModules:
 
         if class_name:
             if cls.action_exists(class_name):
-                LOGGER.debug(
+                LOGGER.warning(
                     "No se sobreescribe variable de entorno %s. Hay una definición previa.",
                     "%s.%s" % (module.module_name, class_name),
                 )
