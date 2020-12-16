@@ -59,6 +59,7 @@ class Kut2FPDF(object):
     name_: str
     _actual_append_page_no: int
     reset_page_count: bool
+    last_register: bool
 
     def __init__(self) -> None:
         """Initialize."""
@@ -82,6 +83,7 @@ class Kut2FPDF(object):
         self.reset_page_count = False
         self.new_page = False
         self._document = None
+        self.last_register = False
 
     def parse(
         self, name: str, kut: str, data: str, report: "FPDF" = None, flags: List[int] = []
@@ -257,20 +259,27 @@ class Kut2FPDF(object):
         i = 0
 
         for data in rows_array:
+            self.last_detail = False
             self._actual_data_line = data
-            level_str: Optional[str] = data.get("level")
-            if level_str is None:
-                level_str = "0"
+            level_str: Optional[str] = data.get("level") or "0"
+
             level = int(level_str)
             if level > top_level:
                 top_level = level
 
+            if data is not rows_array[len(rows_array) - 1]:
+                next_data = rows_array[rows_array.index(data) + 1]
+                next_level = int(next_data.get("level") or 0)
+                if int(top_level) > next_level:
+                    self.last_detail = True
+
             if not first_page_created:
                 self.newPage(level)
+
                 first_page_created = True
 
             if rows_array[len(rows_array) - 1] is data:
-                self.last_detail = True
+                self.last_register = True
 
             if level < self.prev_level:
                 for lev in range(level + 1, self.prev_level + 1):
@@ -361,13 +370,14 @@ class Kut2FPDF(object):
                         if (
                             actual_size >= limit_bottom - 2
                         ) or self.last_detail:  # +2 se usa de margen extra
+                            self.last_detail = False
                             self.processSection("AddOnFooter", int(data_level))
 
                             self.newPage(data_level)
 
                 self.processXML(section, data)
 
-                if section.get("NewPage") == "true" and not self.last_detail:
+                if section.get("NewPage") == "true" and not self.last_register:
                     self.newPage(data_level, False)
 
                 break  # Se ejecuta una sola instancia
