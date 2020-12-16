@@ -371,7 +371,7 @@ class Kut2FPDF(object):
                     if list_sections.index(section) > 0:
                         self.newPage(data_level, False)
                     else:
-                        LOGGER.warn("Se solicita new page con la primera sección . OMITIDO!")
+                        LOGGER.warning("Se solicita new page con la primera sección . OMITIDO!")
 
                 break  # Se ejecuta una sola instancia
 
