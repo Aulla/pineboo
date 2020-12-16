@@ -805,12 +805,11 @@ class PNSqlQuery(object):
             if self.sql_inspector._invalid_tables:
                 real_tables = self.db().tables()
                 for table_name in self.sql_inspector._invalid_tables:
-                    if table_name not in real_tables:
+                    if table_name and table_name not in real_tables:
                         value_inspector = False
                         break
 
         value_invalid_tables_list = not self._invalid_tables_list
-
         return value_invalid_tables_list and value_inspector
 
     def isActive(self) -> bool:
