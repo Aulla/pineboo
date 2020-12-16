@@ -379,7 +379,10 @@ class Kut2FPDF(object):
                 self.processXML(section, data)
 
                 if section.get("NewPage") == "true" and not self.last_detail:
-                    self.newPage(data_level, False)
+                    if list_sections.index(section) > 0:
+                        self.newPage(data_level, False)
+                    else:
+                        LOGGER.warn("Se solicita new page con la primera sección . OMITIDO!")
 
                 break  # Se ejecuta una sola instancia
 
