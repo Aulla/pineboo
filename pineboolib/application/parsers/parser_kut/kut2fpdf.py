@@ -392,7 +392,7 @@ class Kut2FPDF(object):
                             page_footer_size += self._parser_tools.getHeight(page_footer)
 
                     for detail_footer in self._xml.findall("DetailFooter"):
-                        if detail_footer.get("Level") <= str(data_level):
+                        if detail_footer.get("Level") or "0" <= str(data_level):
                             detail_footer_size = self._parser_tools.getHeight(detail_footer)
                             break
 
