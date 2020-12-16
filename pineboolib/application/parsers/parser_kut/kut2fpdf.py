@@ -1131,23 +1131,32 @@ class Kut2FPDF(object):
 
     def draw_margins(self) -> None:
         """Draw margins on the report."""
+
+        top_margin = self._top_margin or 0
+        bottom_margin = self._bottom_margin or 0
+        left_margin = self._left_margin or 0
+        right_margin = self._right_margin or 0
+        width = self._page_size[0]
+        height = self._page_size[1]
+
+        tools = kparsertools.KParserTools()
+
+        if top_margin:
+            top_margin = tools.ratio_correction_h(top_margin)
+        if bottom_margin:
+            bottom_margin = tools.ratio_correction_h(bottom_margin)
+        # if left_margin:
+        #    left_margin = tools.ratio_correction_w(left_margin)
+        if right_margin:
+            right_margin = tools.ratio_correction_w(right_margin)
+
+        self.draw_debug_line(left_margin, 0, left_margin, height)  # Vertical izquierda
         self.draw_debug_line(
-            0 + self._left_margin, 0, 0 + self._left_margin, self._page_size[1]
+            width - right_margin, 0, width - right_margin, height
         )  # Vertical derecha
+        self.draw_debug_line(0, top_margin, width, top_margin)  # Horizontal superior
         self.draw_debug_line(
-            self._page_size[0] - self._right_margin,
-            0,
-            self._page_size[0] - self._right_margin,
-            self._page_size[1],
-        )  # Vertical izquierda
-        self.draw_debug_line(
-            0, 0 + self._top_margin, self._page_size[0], 0 + self._top_margin
-        )  # Horizontal superior
-        self.draw_debug_line(
-            0,
-            self._page_size[1] - self._bottom_margin,
-            self._page_size[0],
-            self._page_size[1] - self._bottom_margin,
+            0, height - bottom_margin, width, height - bottom_margin
         )  # Horizontal inferior
 
     def draw_debug_line(
@@ -1172,7 +1181,7 @@ class Kut2FPDF(object):
             blue = 220
         self._document.set_line_width(1)
         self._document.set_draw_color(red, green, blue)
-        self._document.dashed_line(pos_x1, pos_y1, pos_x2, pos_y1, dash_length, space_length)
+        self._document.dashed_line(pos_x1, pos_y1, pos_x2, pos_y2, dash_length, space_length)
 
     def number_pages(self) -> int:
         """Get number of pages on the report."""
