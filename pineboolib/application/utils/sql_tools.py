@@ -395,15 +395,18 @@ class SqlInspector(object):
                         last_was_table = False
                     else:
                         if table != "":
+                            last_was_table = True
+                            if table.endswith(","):
+                                table = table[:-1]
+                                last_was_table = False
                             if table not in tablas:
                                 tablas.append(table)
-                            last_was_table = True
+
                     prev_ = table
 
             temp_tl: List[str] = []
             for item in tablas:
                 temp_tl = temp_tl + item.split(",")
-
             tablas = temp_tl
 
             fl_finish = []
