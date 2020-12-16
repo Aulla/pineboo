@@ -178,9 +178,9 @@ class TestParser(unittest.TestCase):
         ret_2 = float(
             parser_tools.calculate_sum("valor", et.Element("Empty"), xml.findall("Item"), 2)
         )
-        self.assertEqual(float(Decimal(format(ret_0, ".2f"))), 53.13)  # level >= 0
-        self.assertEqual(float(Decimal(format(ret_1, ".2f"))), 53.13)  # level >= 1
-        self.assertEqual(float(Decimal(format(ret_2, ".2f"))), 26.29)  # level >= 2
+        self.assertEqual(float(Decimal(format(ret_0, ".2f"))), 53.13)  # level > 0
+        self.assertEqual(float(Decimal(format(ret_1, ".2f"))), 26.29)  # level > 1
+        self.assertEqual(float(Decimal(format(ret_2, ".2f"))), 0.0)  # level > 2
 
     @classmethod
     def tearDownClass(cls) -> None:
