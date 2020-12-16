@@ -158,29 +158,73 @@ class TestParser(unittest.TestCase):
         self.assertEqual(parser_tools.convertPageSize(29, 0), [791, 1255])
         self.assertEqual(parser_tools.convertPageSize(30, 0, [100, 200]), [100, 200])
         self.assertEqual(parser_tools.convertPageSize(100, 0), [595, 842])
+
         xml = et.Element("AllItems")
         item_1 = et.SubElement(xml, "Item")
-        item_1.set("valor", "21.00")
-        item_1.set("level", "1")
+        item_1.set("valor", "16.01")
+        item_1.set("level", "0")
+        ret_0 = float(parser_tools.calculate_sum("valor", item_1, xml.findall("Item"), 0))  # 16.01
         item_2 = et.SubElement(xml, "Item")
-        item_2.set("valor", "26.29")
-        item_2.set("level", "2")
+        item_2.set("valor", "5.84")
+        item_2.set("level", "1")
+        ret_1 = float(parser_tools.calculate_sum("valor", item_2, xml.findall("Item"), 1))  # 5.84
+        item_4 = et.SubElement(xml, "Item")
+        item_4.set("valor", "11.00")
+        item_4.set("level", "0")
+        ret_4 = float(parser_tools.calculate_sum("valor", item_4, xml.findall("Item"), 0))  # 11
         item_3 = et.SubElement(xml, "Item")
-        item_3.set("valor", "5.84")
+        item_3.set("valor", "26.29")
         item_3.set("level", "1")
+        ret_3 = float(parser_tools.calculate_sum("valor", item_3, xml.findall("Item"), 1))  # 26.29
+        item_6 = et.SubElement(xml, "Item")
+        item_6.set("valor", "26.29")
+        item_6.set("level", "1")
 
-        ret_0 = float(
-            parser_tools.calculate_sum("valor", et.Element("Empty"), xml.findall("Item"), 0)
-        )
-        ret_1 = float(
-            parser_tools.calculate_sum("valor", et.Element("Empty"), xml.findall("Item"), 1)
-        )
-        ret_2 = float(
-            parser_tools.calculate_sum("valor", et.Element("Empty"), xml.findall("Item"), 2)
-        )
-        self.assertEqual(float(Decimal(format(ret_0, ".2f"))), 53.13)  # level > 0
-        self.assertEqual(float(Decimal(format(ret_1, ".2f"))), 26.29)  # level > 1
-        self.assertEqual(float(Decimal(format(ret_2, ".2f"))), 0.0)  # level > 2
+        ret_5 = float(
+            parser_tools.calculate_sum("valor", item_6, xml.findall("Item"), 1)
+        )  # 26.29 + 26.29
+
+        item_5 = et.SubElement(xml, "Item")
+        item_5.set("valor", "6.29")
+        item_5.set("level", "2")
+
+        ret_2 = float(parser_tools.calculate_sum("valor", item_5, xml.findall("Item"), 2))  # 6.29
+
+        item_7 = et.SubElement(xml, "Item")
+        item_7.set("valor", "1.01")
+        item_7.set("level", "0")
+
+        item_9 = et.SubElement(xml, "Item")
+        item_9.set("valor", "0")
+        item_9.set("level", "1")
+
+        item_8 = et.SubElement(xml, "Item")
+        item_8.set("valor", "2")
+        item_8.set("level", "2")
+
+        item_10 = et.SubElement(xml, "Item")
+        item_10.set("valor", "1")
+        item_10.set("level", "2")
+
+        ret_6 = float(parser_tools.calculate_sum("valor", item_8, xml.findall("Item"), 0))  # 2
+
+        ret_7 = float(parser_tools.calculate_sum("valor", item_7, xml.findall("Item"), 1))  # 0
+
+        ret_8 = float(parser_tools.calculate_sum("valor", item_8, xml.findall("Item"), 2))  # 2
+        ret_9 = float(parser_tools.calculate_sum("valor", item_10, xml.findall("Item"), 2))  # 3
+        ret_10 = float(parser_tools.calculate_sum("valor", item_10, xml.findall("Item"), 0))  # 3
+
+        self.assertEqual(float(Decimal(format(ret_0, ".2f"))), 16.01)  # 16.01
+        self.assertEqual(float(Decimal(format(ret_1, ".2f"))), 5.84)  # 5.84
+        self.assertEqual(float(Decimal(format(ret_3, ".2f"))), 26.29)  # 26.29
+        self.assertEqual(float(Decimal(format(ret_5, ".2f"))), 52.58)  # 26.29 + 26.29
+        self.assertEqual(float(Decimal(format(ret_4, ".2f"))), 11)  # 11
+        self.assertEqual(float(Decimal(format(ret_2, ".2f"))), 6.29)  # 6.29
+        self.assertEqual(float(Decimal(format(ret_6, ".2f"))), 2)  # 2
+        self.assertEqual(float(Decimal(format(ret_7, ".2f"))), 0)  # 0
+        self.assertEqual(float(Decimal(format(ret_8, ".2f"))), 2)  # 2
+        self.assertEqual(float(Decimal(format(ret_9, ".2f"))), 3)  # 3
+        self.assertEqual(float(Decimal(format(ret_10, ".2f"))), 3)  # 3
 
     @classmethod
     def tearDownClass(cls) -> None:

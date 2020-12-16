@@ -396,16 +396,17 @@ class KParserTools(object):
         """
         val = 0.0
         min_level = -1
+        last_level = -1
         for item in xml_list:
             lev_ = int(item.get("level"))
             val_ = float(item.get(field_name))
 
-            if min_level < lev_:
+            if min_level < lev_ or lev_ < last_level:
                 # print("nuevo min_level", lev_, "previo", min_level)
                 min_level = lev_
                 val = 0.0
 
-            if min_level >= level:
+            if min_level >= level and lev_ >= level:
                 val += val_
 
             # print(
@@ -422,6 +423,8 @@ class KParserTools(object):
             # )
             if item is line:
                 break
+
+            last_level = lev_
 
         return str(val)
 
