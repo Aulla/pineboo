@@ -280,6 +280,7 @@ class Kut2FPDF(object):
 
             if rows_array[len(rows_array) - 1] is data:
                 self.last_register = True
+                self.last_detail = True
 
             if level < self.prev_level:
                 for lev in range(level + 1, self.prev_level + 1):
@@ -326,31 +327,61 @@ class Kut2FPDF(object):
             draw_if = section.get("DrawIf")
             show = True
             if draw_if:
+
                 show = data.get(draw_if) not in ("", "False", "None", False)
-
             if section.get("Level") == str(data_level) and show:
+                current_size = self._parser_tools.getHeight(section)
 
+                """ top_size = self.topSection()
+                current_size = self._parser_tools.getHeight(section)
+                bottom_size = 0
+                bottom_size_deep = 0
+                if self.design_mode:
+                    LOGGER.warning("%s es Visible", section_name)
+
+                if section_name == "DetailHeader":
+                    for detail in self._xml.findall("Detail"):
+                        if detail.get("Level") == str(data_level):
+                            current_size += self._parser_tools.getHeight(detail)
+                            break
+
+                for detail_footer in self._xml.findall("DetailFooter"):
+                    if detail_footer.get("Level") == str(data_level):
+                        bottom_size_deep += self._parser_tools.getHeight(detail_footer)
+                        break
+
+                for add_footer in self._xml.findall("AddOnFooter"):
+                    if add_footer.get("Level") == str(data_level):
+                        bottom_size += self._parser_tools.getHeight(add_footer)
+                        break
+
+                page_footer: Any = self._xml.get("PageFooter")
+                if isinstance(page_footer, Element):
+                    if self._document.page_no() == 1 or page_footer.get("PrintFrecuency") == "1":
+                        bottom_size += self._parser_tools.getHeight(page_footer)
+
+                bottom_size += self._bottom_margin
+                limit_one = self._document.h - bottom_size - bottom_size_deep
+                limit_two = self._document.h - bottom_size_deep
+                virtual_size = top_size + current_size
+
+                if self.design_mode:
+                    LOGGER.warning(
+                        "Comparando size: %s, limit1: %s, limit2: %s, last_detail: %s",
+                        virtual_size,
+                        limit_one,
+                        limit_two,
+                        self.last_detail,
+                    ) """
+                page_footer_size = 0
+                detail_footer_size = 0
+                add_on_footer_size = 0
                 if section_name in ("DetailHeader", "Detail"):
-                    height_calculated = (
-                        self._parser_tools.getHeight(section)
-                        + self.topSection()
-                        + self.increase_section_size
-                    )
-
                     if section_name == "DetailHeader":
                         for detail in self._xml.findall("Detail"):
                             if detail.get("Level") == str(data_level):
-                                height_calculated += self._parser_tools.getHeight(detail)
-
-                    for detail_footer in self._xml.findall("DetailFooter"):
-                        if detail_footer.get("Level") == str(data_level):
-                            height_calculated += self._parser_tools.getHeight(detail_footer)
-
-                    aof_size = 0
-                    for add_footer in self._xml.findall("AddOnFooter"):
-                        # if add_footer.get("Level") == str(data_level):
-                        aof_size += self._parser_tools.getHeight(add_footer)
-                        height_calculated += self._parser_tools.getHeight(add_footer)
+                                current_size += self._parser_tools.getHeight(detail)
+                                break
 
                     page_footer: Any = self._xml.get("PageFooter")
                     if isinstance(page_footer, Element):
@@ -358,22 +389,52 @@ class Kut2FPDF(object):
                             self._document.page_no() == 1
                             or page_footer.get("PrintFrecuency") == "1"
                         ):
-                            height_calculated += self._parser_tools.getHeight(page_footer)
+                            page_footer_size += self._parser_tools.getHeight(page_footer)
 
-                    height_calculated += self._bottom_margin
-                    if (height_calculated + aof_size) > self._document.h:  # Si nos pasamos
-                        self._no_print_footer = True
-                        # Vemos el tope por abajo
-                        limit_bottom = self._document.h - aof_size
-                        actual_size = self._parser_tools.getHeight(section) + self.topSection()
+                    for detail_footer in self._xml.findall("DetailFooter"):
+                        if detail_footer.get("Level") <= str(data_level):
+                            detail_footer_size = self._parser_tools.getHeight(detail_footer)
+                            break
 
-                        if (
-                            actual_size >= limit_bottom - 2
-                        ) or self.last_detail:  # +2 se usa de margen extra
-                            self.last_detail = False
-                            self.processSection("AddOnFooter", int(data_level))
+                for add_footer in self._xml.findall("AddOnFooter"):
+                    if add_footer.get("Level") == str(data_level):
+                        add_on_footer_size += self._parser_tools.getHeight(add_footer)
+                        break
 
-                            self.newPage(data_level)
+                limit_one = self._document.h + 5  # falta altura siguente suma_importes
+
+                if section_name == "Detail":
+                    limit_one -= detail_footer_size
+                else:
+                    limit_one -= self._bottom_margin
+
+                limit_two = (
+                    self._document.h - self._bottom_margin - page_footer_size - add_on_footer_size
+                )
+
+                virtual_size = self.topSection() + current_size  # top_size + current_size
+
+                if self.design_mode:
+                    LOGGER.warning(
+                        "virtual name: %s, size: %s (%s + %s), l1: %s, l2: %s",
+                        section_name,
+                        virtual_size,
+                        self.topSection(),
+                        current_size,
+                        limit_one,
+                        limit_two,
+                    )
+
+                if virtual_size > limit_one and section_name != "DetailFooter":  # Si nos pasamos
+                    if self.design_mode:
+                        LOGGER.warning("ME PASO con %s!", section_name)
+                    self._no_print_footer = True
+
+                    if virtual_size >= limit_two or self.last_detail:
+                        self.last_detail = False
+                        self.processSection("AddOnFooter", int(data_level))
+
+                        self.newPage(data_level)
 
                 self.processXML(section, data)
 
@@ -416,7 +477,9 @@ class Kut2FPDF(object):
             data = self._actual_data_line
 
         if self.design_mode and data is not None:
-            LOGGER.warning("Procesando: %s level: %s", xml.tag, data.get("level"))
+            LOGGER.warning(
+                "Procesando: %s level: %s size: %s", xml.tag, data.get("level"), xml.get("Height")
+            )
 
         size_updated = False
         if xml.tag == "DetailFooter":
@@ -466,9 +529,13 @@ class Kut2FPDF(object):
         if not size_updated:
             self.setTopSection(self.topSection() + self._parser_tools.getHeight(xml))
 
+        self.increase_section_size = 0
+
     def fix_extra_size(self) -> None:
         """Increase size of the section if needed."""
         if self.increase_section_size > 0:
+            if self.design_mode:
+                LOGGER.warning("Increasing extra_size %s", self.increase_section_size)
             self.setTopSection(self.topSection() + self.increase_section_size)
             self.increase_section_size = 0
 
@@ -849,6 +916,8 @@ class Kut2FPDF(object):
             processed_lines += 1
 
             if processed_lines > 1:
+                if self.design_mode:
+                    LOGGER.warning("EXTRA SIZE ! %s", array_text)
                 extra_size += font_size + 2
 
             if horizontal_alignment == "1":  # sobre X
@@ -903,6 +972,15 @@ class Kut2FPDF(object):
                         "blue",
                     )
 
+            if self.design_mode:
+                """ LOGGER.warning(
+                    "draw ! %s, x: %s, y: %s, ox:%s, oy:%s",
+                    actual_text,
+                    pos_x,
+                    pos_y,
+                    orig_x,
+                    orig_y,
+                ) """
             self._document.text(pos_x, pos_y, actual_text)
             result_section_size += start_section_size
 
