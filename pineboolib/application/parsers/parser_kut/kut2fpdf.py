@@ -261,7 +261,7 @@ class Kut2FPDF(object):
         for data in rows_array:
             self.last_detail = False
             self._actual_data_line = data
-            level_str: Optional[str] = data.get("level") or "0"
+            level_str: str = data.get("level") or "0"
 
             level = int(level_str)
             if level > top_level:
