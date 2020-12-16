@@ -150,9 +150,9 @@ class Kut2FPDF(object):
             self.reset_page_count = False
 
         if self.design_mode:
-            LOGGER.debug("Append %s", page_append)
-            LOGGER.debug("Display %s", page_display)
-            LOGGER.debug("Page break %s", next_page_break)
+            LOGGER.warning("Append %s", page_append)
+            LOGGER.warning("Display %s", page_display)
+            LOGGER.warning("Page break %s", next_page_break)
 
         if next_page_break:
             self.reset_page_count = True
@@ -223,7 +223,7 @@ class Kut2FPDF(object):
         self._actual_section_size = 0
         self._actual_append_page_no += 1
         if self.design_mode:
-            LOGGER.debug("Nueva página %s", self.number_pages())
+            LOGGER.warning("Nueva página %s", self.number_pages())
 
         pg_headers = self._xml.findall("PageHeader")
 
@@ -406,7 +406,7 @@ class Kut2FPDF(object):
             data = self._actual_data_line
 
         if self.design_mode and data is not None:
-            LOGGER.debug("Procesando: %s level: %s", xml.tag, data.get("level"))
+            LOGGER.warning("Procesando: %s level: %s", xml.tag, data.get("level"))
 
         size_updated = False
         if xml.tag == "DetailFooter":
