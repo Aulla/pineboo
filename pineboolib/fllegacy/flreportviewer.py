@@ -302,7 +302,7 @@ class FLReportViewer(QtWidgets.QWidget):
         """Return if report was printed."""
         return self.report_printed
 
-    def disableSlotsPrintExports(disable_print: bool = False, disable_export: bool = False):
+    def disableSlotsPrintExports(self, disable_print: bool = False, disable_export: bool = False):
         """Disable export and print slots."""
 
         self.slot_print_disabled = disable_print
@@ -323,7 +323,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     @decorators.beta_implementation
     def printReportToPDF(self, file_name: str = "") -> None:
-        """print report to pdf."""
+        """Print report to pdf."""
 
         if self.slot_print_disabled:
             return

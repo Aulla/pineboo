@@ -1,3 +1,5 @@
+"""Report viewer module."""
+
 from PyQt5 import QtWidgets, QtCore, QtGui
 from pineboolib.core.utils import utils_base
 
@@ -7,7 +9,7 @@ from typing import Optional
 class ReportViewer(QtWidgets.QWidget):
     """ReportViewer class."""
 
-    _interface: "QtWidgets.QWidget"
+    _interface: Optional["QtWidgets.QWidget"]
 
     def __init__(self, parent: Optional["QtWidgets.QWidget"] = None) -> None:
         """Initialize."""
@@ -17,9 +19,7 @@ class ReportViewer(QtWidgets.QWidget):
         from pineboolib.fllegacy import flmanagermodules
 
         dlg_ = utils_base.filedir("application/report_viewer/report_viewer.ui")
-        self._interface: QtWidgets.QWidget = flmanagermodules.FLManagerModules.createUI(
-            dlg_, None, self
-        )
+        self._interface = flmanagermodules.FLManagerModules.createUI(dlg_, None, self)
 
         if not self._interface:
             raise Exception("Error creating dlgConnect")
@@ -38,13 +38,9 @@ class ReportViewer(QtWidgets.QWidget):
         """Event Filter."""
 
         if isinstance(event, QtGui.QKeyEvent):
-            if event.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
-                self.open()
-                return True
 
-            elif event.key() == QtCore.Qt.Key_Escape:
+            if event.key() == QtCore.Qt.Key_Escape:
                 self.close()
                 return True
 
         return super().eventFilter(object, event)
-
