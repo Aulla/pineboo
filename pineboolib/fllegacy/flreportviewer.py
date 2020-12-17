@@ -14,6 +14,8 @@ from pineboolib import logging
 from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable
 from PyQt5.QtGui import QColor
 
+import shutil
+
 LOGGER = logging.get_logger(__name__)
 
 AQ_USRHOME = "."  # FIXME
@@ -80,6 +82,8 @@ class FLReportViewer(QtWidgets.QWidget):
     xml_data_: Any
     template_: Any
     autoClose_: bool
+    slot_print_disabled: bool
+    slot_exported_disabled: bool
     _style_name: str
 
     PrintGrayScale = 0
@@ -158,6 +162,7 @@ class FLReportViewer(QtWidgets.QWidget):
             pdf_file = self.report_viewer.report_engine_.parser_.get_file_name()
 
         if not utils_base.is_library():
+
             SysBaseType.openUrl(pdf_file)
 
         return pdf_file
@@ -296,6 +301,41 @@ class FLReportViewer(QtWidgets.QWidget):
     def reportPrinted(self) -> bool:
         """Return if report was printed."""
         return self.report_printed
+
+    def disableSlotsPrintExports(disable_print: bool = False, disable_export: bool = False):
+        """Disable export and print slots."""
+
+        self.slot_print_disabled = disable_print
+        self.slot_exported_disabled = disable_export
+
+    @decorators.not_implemented_warn
+    def printReport(self) -> None:
+        """Print a report."""
+
+        if self.slot_print_disabled:
+            return
+
+        # color
+        # resolucion
+        # copias
+
+        self.report_printed = True
+
+    @decorators.beta_implementation
+    def printReportToPDF(self, file_name: str = "") -> None:
+        """print report to pdf."""
+
+        if self.slot_print_disabled:
+            return
+
+        if not file_name:
+            raise Exception("invalid filename '%s'" % file_name)
+
+        try:
+            pdf_file = self.report_viewer.report_engine_.parser_.get_file_name()
+            shutil.copyfile(pdf_file, file_name)
+        except Exception as error:
+            LOGGER.warning("Error printReportToPDF : %s", str(error))
 
     @decorators.pyqt_slot(int)
     @decorators.beta_implementation
