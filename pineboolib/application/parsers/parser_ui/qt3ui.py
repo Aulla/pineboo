@@ -129,7 +129,7 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
             raise ValueError("no se encuentra slot_name")
 
         receiver: Any = None
-        if isinstance(widget, qmainwindow.QMainWindow):
+        if isinstance(widget, (qmainwindow.QMainWindow, QtWidgets.QMainWindow)):
             if signal_name == "activated()":
                 signal_name = "triggered()"
 
@@ -157,7 +157,8 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
                     LOGGER.debug("Connection sender not found:%s", sender_name)
 
                 if receiv_name == formname:
-                    fn_name = slot_name.rstrip("()")
+                    # fn_name = slot_name.rstrip("()")
+                    fn_name = slot_name[: slot_name.find("(")]
                     LOGGER.debug(
                         "Conectando de UI a QS: (%r.%r -> %r.%r)",
                         sender_name,
@@ -174,6 +175,13 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
                     else:
                         if sender_name in application.PROJECT.actions.keys():
                             receiver = application.PROJECT.actions[sender_name]._master_widget
+                        else:
+                            if receiver is None:
+                                if (
+                                    receiv_name == widget.__class__.__name__
+                                    or receiv_name == widget.objectName()
+                                ):
+                                    receiver = widget
 
                     ifx = widget
                     # if hasattr(widget, "iface"):
@@ -278,10 +286,11 @@ def load_tool_bar(xml: ET.Element, widget: QtWidgets.QMainWindow) -> None:
     if name_elem is None or label_elem is None:
         raise Exception("Unable to find required name and label properties")
 
-    name = name_elem.text
+    name = name_elem.text or ""
     label = label_elem.text
 
     tool_bar = qtoolbar.QToolBar(name)
+    tool_bar.setObjectName(name)
     tool_bar.label = label
     for action in xml:
         if action.tag == "action":
@@ -297,6 +306,8 @@ def load_tool_bar(xml: ET.Element, widget: QtWidgets.QMainWindow) -> None:
         elif action.tag == "separator":
             separator = tool_bar.addSeparator()
             separator.setObjectName("separator")
+        elif action.tag == "widget":
+            LOGGER.warning("FIXME tool_bar !! %s -> %s ", action.tag, action)
 
     widget.addToolBar(tool_bar)
 
