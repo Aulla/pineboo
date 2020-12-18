@@ -2,19 +2,23 @@
 from PyQt5 import QtWidgets, QtCore, QtXml
 
 from pineboolib.core import decorators
+from pineboolib import application
 from pineboolib.core.utils import utils_base
 from pineboolib.application.qsatypes.sysbasetype import SysBaseType
 from . import flutil
 from . import flsqlquery
 from . import flsqlcursor
+from . import flmanagermodules
 
 from .flreportengine import FLReportEngine
 from pineboolib import logging
 
-from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable
+from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable, TYPE_CHECKING
 from PyQt5.QtGui import QColor
 
-import shutil
+if TYPE_CHECKING:
+    from pineboolib.q3widgets import qmainwindow  # noqa: F401
+
 
 LOGGER = logging.get_logger(__name__)
 
@@ -64,6 +68,62 @@ class InternalReportViewer(QtWidgets.QWidget):
         """Set number of copies."""
         self.num_copies = num_copies
 
+    @decorators.not_implemented_warn
+    def slotFirstPage(self):
+        """positioning first page."""
+
+    @decorators.not_implemented_warn
+    def slotLastPage(self):
+        """positioning last page."""
+
+    @decorators.not_implemented_warn
+    def slotNextPage(self):
+        """positioning next page."""
+
+    @decorators.not_implemented_warn
+    def slotPrevPage(self):
+        """positioning prev page."""
+
+    @decorators.not_implemented_warn
+    def slotPrintReport(self):
+        """Print report."""
+
+    @decorators.not_implemented_warn
+    def slotZoomUp(self):
+        """ZoomUp."""
+
+    @decorators.not_implemented_warn
+    def slotZoomDown(self):
+        """ZoomDown."""
+
+    @decorators.not_implemented_warn
+    def exportFileCSVData(self):
+        """exportFileCSVData."""
+
+    @decorators.not_implemented_warn
+    def exportToPDF(self):
+        """exportToPDF."""
+
+    @decorators.not_implemented_warn
+    def sendEMailPDF(self):
+        """sendEMailPDF."""
+
+    @decorators.not_implemented_warn
+    def showInitCentralWidget(self, value: bool):
+        """showInitCentralWidget."""
+
+    @decorators.not_implemented_warn
+    def saveSVGStyle(self):
+        """saveSVGStyle."""
+
+    @decorators.not_implemented_warn
+    def saveSimpleSVGStyle(self):
+        """saveSimpleSVGStyle."""
+
+    @decorators.not_implemented_warn
+    def loadSVGStyle(self):
+        """loadSVGStyle."""
+
     def __getattr__(self, name: str) -> Callable:
         """Return attributes from report engine."""
         return getattr(self.report_engine_, name, None)
@@ -88,6 +148,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
     PrintGrayScale = 0
     PrintColor = 1
+    _w: QtWidgets.QWidget
 
     def __init__(
         self,
@@ -117,6 +178,9 @@ class FLReportViewer(QtWidgets.QWidget):
 
         self.report_viewer = InternalReportViewer(self)
         self.setReportEngine(FLReportEngine(self) if report_engine is None else report_engine)
+        self._w = None
+        if application.USE_REPORT_VIEWER:
+            self._w = FLWidgetReportViewer(self)
 
         if self.report_viewer is None:
             raise Exception("self.report_viewer is empty!")
@@ -162,6 +226,8 @@ class FLReportViewer(QtWidgets.QWidget):
             pdf_file = self.report_viewer.report_engine_.parser_.get_file_name()
 
         if not utils_base.is_library():
+            if self._w is not None:
+                self._w.show()
 
             SysBaseType.openUrl(pdf_file)
 
@@ -321,21 +387,12 @@ class FLReportViewer(QtWidgets.QWidget):
 
         self.report_printed = True
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def printReportToPDF(self, file_name: str = "") -> None:
         """Print report to pdf."""
 
         if self.slot_print_disabled:
             return
-
-        if not file_name:
-            raise Exception("invalid filename '%s'" % file_name)
-
-        try:
-            pdf_file = self.report_viewer.report_engine_.parser_.get_file_name()
-            shutil.copyfile(pdf_file, file_name)
-        except Exception as error:
-            LOGGER.warning("Error printReportToPDF : %s", str(error))
 
     @decorators.pyqt_slot(int)
     @decorators.beta_implementation
@@ -574,3 +631,24 @@ class FLReportViewer(QtWidgets.QWidget):
     def __getattr__(self, name: str) -> Any:
         """Return attribute from inernal object."""
         return getattr(self.report_viewer, name, None)
+
+
+class FLWidgetReportViewer(QtWidgets.QMainWindow):
+
+    _report_viewer: "FLReportViewer"
+
+    def __init__(self, report_viewer: "FLReportViewer") -> None:
+
+        super().__init__()
+        self.setObjectName("FLWidgetReportViewer")
+        self._report_viewer = report_viewer
+        form_path = utils_base.filedir("fllegacy/forms/FLWidgetReportViewer.ui")
+        self = flmanagermodules.FLManagerModules.createUI(form_path, None, self)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._report_viewer, name, None)
+
+    def close(self) -> None:
+        """Close form."""
+
+        super().close()
