@@ -16,6 +16,8 @@ from pineboolib import logging
 from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable, TYPE_CHECKING
 from PyQt5.QtGui import QColor
 
+import shutil
+
 if TYPE_CHECKING:
     from pineboolib.q3widgets import qmainwindow  # noqa: F401
 
@@ -28,23 +30,27 @@ AQ_USRHOME = "."  # FIXME
 class InternalReportViewer(QtWidgets.QWidget):
     """InternalReportViewer class."""
 
-    report_engine_: Optional[FLReportEngine]
+    _report_engine: Optional[FLReportEngine]
     dpi_: int
     report_: List[Any]
-    num_copies: int
+    _num_copies: int
+    _printer_name: str
+    _color_mode: int  # 1 color, 0 gray_scale
 
     def __init__(self, parent: QtWidgets.QWidget) -> None:
         """Inicialize."""
         super().__init__(parent)
-        self.report_engine_ = None
+        self._report_engine = None
         self.dpi_ = 300
         self.report_ = []
-        self.num_copies = 1
+        self._num_copies = 1
+        self._printer_name = ""
+        self._color_mode = 1
 
     def setReportEngine(self, report_engine: FLReportEngine) -> None:
         """Set report engine."""
 
-        self.report_engine_ = report_engine
+        self._report_engine = report_engine
 
     def resolution(self) -> int:
         """Return resolution."""
@@ -59,14 +65,23 @@ class InternalReportViewer(QtWidgets.QWidget):
     def renderReport(self, init_row: int, init_col: int, flags: List[int]) -> Any:
         """Render report."""
 
-        if self.report_engine_ is None:
-            raise Exception("renderReport. self.report_engine_ is empty!")
+        if self._report_engine is None:
+            raise Exception("renderReport. self._report_engine is empty!")
 
-        return self.report_engine_.renderReport(init_row, init_col, flags)
+        return self._report_engine.renderReport(init_row, init_col, flags)
 
     def setNumCopies(self, num_copies: int) -> None:
         """Set number of copies."""
-        self.num_copies = num_copies
+        self._num_copies = num_copies
+
+    def setPrinterName(self, name: str) -> None:
+        """Set printer name."""
+        self._printer_name = name
+
+    def setColorMode(self, color_mode: int) -> None:
+        """Set color mode."""
+
+        self._color_mode = color_mode
 
     @decorators.not_implemented_warn
     def slotFirstPage(self):
@@ -126,7 +141,7 @@ class InternalReportViewer(QtWidgets.QWidget):
 
     def __getattr__(self, name: str) -> Callable:
         """Return attributes from report engine."""
-        return getattr(self.report_engine_, name, None)
+        return getattr(self._report_engine, name, None)
 
 
 class FLReportViewer(QtWidgets.QWidget):
@@ -145,6 +160,7 @@ class FLReportViewer(QtWidgets.QWidget):
     slot_print_disabled: bool
     slot_exported_disabled: bool
     _style_name: str
+    _report_engine: "FLReportEngine"
 
     PrintGrayScale = 0
     PrintColor = 1
@@ -155,7 +171,7 @@ class FLReportViewer(QtWidgets.QWidget):
         parent: Optional[QtWidgets.QWidget] = None,
         name: Optional[str] = None,
         embed_in_parent: bool = False,
-        report_engine: Optional[FLReportEngine] = None,
+        report_engine: Optional["FLReportEngine"] = None,
     ) -> None:
         """Inicialize."""
 
@@ -164,7 +180,7 @@ class FLReportViewer(QtWidgets.QWidget):
         self.loop_ = False
         self.eventloop = QtCore.QEventLoop()
         self.report_printed = False
-        self.report_engine_: Optional[Any] = None
+        self._report_engine: Optional[Any] = None
         self.report_ = []
         self.slot_print_disabled = False
         self.slot_exported_disabled = False
@@ -179,8 +195,6 @@ class FLReportViewer(QtWidgets.QWidget):
         self.report_viewer = InternalReportViewer(self)
         self.setReportEngine(FLReportEngine(self) if report_engine is None else report_engine)
         self._w = None
-        if application.USE_REPORT_VIEWER:
-            self._w = FLWidgetReportViewer(self)
 
         if self.report_viewer is None:
             raise Exception("self.report_viewer is empty!")
@@ -191,42 +205,44 @@ class FLReportViewer(QtWidgets.QWidget):
         """Return report viewer."""
         return self.report_viewer
 
-    def report_engine(self) -> FLReportEngine:
+    def report_engine(self) -> "FLReportEngine":
         """Return report engine."""
 
-        if self.report_engine_ is None:
-            raise Exception("report_engine_ is not defined!")
-        return self.report_engine_
+        if self._report_engine is None:
+            raise Exception("_report_engine is not defined!")
+        return self._report_engine
 
     def setReportEngine(self, report_engine: Optional[FLReportEngine] = None) -> None:
         """Set report engine."""
 
-        if self.report_engine_ == report_engine:
+        if self._report_engine == report_engine:
             return
 
         sender = self.sender()
-        no_destroy = not (sender and sender == self.report_engine_)
+        no_destroy = not (sender and sender == self._report_engine)
 
-        self.report_engine_ = report_engine
-        if self.report_engine_ is not None:
-            self.template_ = self.report_engine_.rptNameTemplate()
-            self.qry_ = self.report_engine_.rptQueryData()
+        self._report_engine = report_engine
+        if self._report_engine is not None:
+            self.template_ = self._report_engine.rptNameTemplate()
+            self.qry_ = self._report_engine.rptQueryData()
 
             if no_destroy:
-                self.report_viewer.setReportEngine(self.report_engine_)
+                self.report_viewer.setReportEngine(self._report_engine)
 
     def exec_(self) -> str:
         """Show report."""
         # if self.loop_:
         #    print("FLReportViewer::exec(): Se ha detectado una llamada recursiva")
         #    return
-        if self.report_viewer.report_engine_ and hasattr(
-            self.report_viewer.report_engine_, "parser_"
+
+        if self.report_viewer._report_engine and hasattr(
+            self.report_viewer._report_engine, "_parser"
         ):
-            pdf_file = self.report_viewer.report_engine_.parser_.get_file_name()
+            pdf_file = self.report_viewer._report_engine._parser.get_file_name()
 
         if not utils_base.is_library():
-            if self._w is not None:
+            if application.USE_REPORT_VIEWER:
+                self._w = FLWidgetReportViewer(self)
                 self._w.show()
 
             SysBaseType.openUrl(pdf_file)
@@ -237,7 +253,7 @@ class FLReportViewer(QtWidgets.QWidget):
     def csvData(self) -> str:
         """Return csv data."""
 
-        return self.report_engine_.csvData() if self.report_engine_ else ""
+        return self._report_engine.csvData() if self._report_engine else ""
 
     def renderReport(
         self,
@@ -247,7 +263,7 @@ class FLReportViewer(QtWidgets.QWidget):
         display_report: bool = False,
     ) -> bool:
         """Render report."""
-        if not self.report_engine_:
+        if not self._report_engine:
             return False
 
         flags = [self.Append, self.Display]
@@ -277,27 +293,8 @@ class FLReportViewer(QtWidgets.QWidget):
         display_report: bool = False,
     ) -> bool:
         """Render report."""
-        if not self.report_engine_:
-            return False
 
-        flags = [self.Append, self.Display]
-
-        if isinstance(append_or_flags, bool):
-            flags[0] = append_or_flags
-
-            if display_report is not None:
-                flags[0] = display_report
-        elif isinstance(append_or_flags, list):
-            if len(append_or_flags) > 0:
-                flags[0] = append_or_flags[0]  # display
-            if len(append_or_flags) > 1:
-                flags[1] = append_or_flags[1]  # append
-            if len(append_or_flags) > 2:
-                flags.append(append_or_flags[2])  # page_break
-
-        ret = self.report_viewer.renderReport(init_row, init_col, flags)
-        self.report_ = self.report_viewer.reportPages()
-        return ret
+        return self.renderReport(init_row, init_col, append_or_flags, display_report)
 
     def setReportData(
         self, data: Union["flsqlcursor.FLSqlCursor", "flsqlquery.FLSqlQuery", "QtXml.QDomNode"]
@@ -305,20 +302,20 @@ class FLReportViewer(QtWidgets.QWidget):
         """Set data to report."""
         if isinstance(data, flsqlquery.FLSqlQuery):
             self.qry_ = data
-            if self.report_engine_ and self.report_engine_.setReportData(data):
-                self.xml_data_ = self.report_engine_.rptXmlData()
+            if self._report_engine and self._report_engine.setReportData(data):
+                self.xml_data_ = self._report_engine.rptXmlData()
                 return True
             return False
         elif isinstance(data, flsqlcursor.FLSqlCursor):
-            if not self.report_engine_:
+            if not self._report_engine:
                 return False
-            return self.report_engine_.setReportData(data)
+            return self._report_engine.setReportData(data)
         elif isinstance(data, QtXml.QDomNode):
             self.xml_data_ = data
             self.qry_ = None
-            if not self.report_engine_:
+            if not self._report_engine:
                 return False
-            return self.report_engine_.setReportData(data)
+            return self._report_engine.setReportData(data)
         return False
 
     def setReportTemplate(
@@ -329,21 +326,21 @@ class FLReportViewer(QtWidgets.QWidget):
             self._xml_template = template
             self.template_ = ""
 
-            if not self.report_engine_:
+            if not self._report_engine:
                 return False
 
             if style is not None:
                 self.setStyleName(style)
 
-            self.report_engine_.setFLReportTemplate(template)
+            self._report_engine.setFLReportTemplate(template)
 
             return True
         else:
             self.template_ = template
             self._style_name = style
-            if self.report_engine_ and self.report_engine_.setFLReportTemplate(template):
+            if self._report_engine and self._report_engine.setFLReportTemplate(template):
                 # self.setStyleName(style)
-                self._xml_template = self.report_engine_.rptXmlTemplate()
+                self._xml_template = self._report_engine.rptXmlTemplate()
                 return True
 
         return False
@@ -374,25 +371,28 @@ class FLReportViewer(QtWidgets.QWidget):
         self.slot_print_disabled = disable_print
         self.slot_exported_disabled = disable_export
 
-    @decorators.not_implemented_warn
     def printReport(self) -> None:
         """Print a report."""
 
         if self.slot_print_disabled:
             return
 
-        # color
-        # resolucion
-        # copias
+        printer_name = self.report_viewer._printer_name
+        num_copies = self.report_viewer._num_copies
+        color_mode = self.report_viewer._color_mode
 
-        self.report_printed = True
+        self.report_printed = self._report_engine.printReport(printer_name, num_copies, color_mode)
 
-    @decorators.not_implemented_warn
     def printReportToPDF(self, file_name: str = "") -> None:
         """Print report to pdf."""
 
         if self.slot_print_disabled:
             return
+
+        pdf_file = self.report_viewer._report_engine._parser.get_file_name()
+        if pdf_file and file_name:
+            shutil.copyfile(pdf_file, file_name)
+            self.report_printed = True
 
     @decorators.pyqt_slot(int)
     @decorators.beta_implementation
@@ -406,8 +406,8 @@ class FLReportViewer(QtWidgets.QWidget):
     def setPixel(self, rel_dpi: int) -> None:
         """Set pixel size."""
         flutil.FLUtil.writeSettingEntry("rptViewer/pixel", str(float(rel_dpi / 10.0)))
-        if self.report_engine_:
-            self.report_engine_.setRelDpi(rel_dpi / 10.0)
+        if self._report_engine:
+            self._report_engine.setRelDpi(rel_dpi / 10.0)
 
     @decorators.beta_implementation
     def setDefaults(self) -> None:
@@ -431,7 +431,7 @@ class FLReportViewer(QtWidgets.QWidget):
         self.requestUpdateReport.emit()
 
         if self.qry_ or (self.xml_data_ and self.xml_data_ != ""):
-            if not self.report_engine_:
+            if not self._report_engine:
                 self.setReportEngine(FLReportEngine(self))
 
             self.setResolution(self._spn_resolution)
@@ -581,16 +581,16 @@ class FLReportViewer(QtWidgets.QWidget):
 
     def pageDimensions(self) -> QtCore.QSize:
         """Return page dimensions."""
-        if self.report_viewer.report_engine_ and hasattr(
-            self.report_viewer.report_engine_, "parser_"
+        if self.report_viewer._report_engine and hasattr(
+            self.report_viewer._report_engine, "_parser"
         ):
-            return self.report_viewer.report_engine_.parser_._page_size
+            return self.report_viewer._report_engine._parser._page_size
         return -1
 
     def pageCount(self) -> int:
         """Return number of pages."""
-        if self.report_viewer.report_engine_:
-            return self.report_viewer.report_engine_.number_pages()
+        if self.report_viewer._report_engine:
+            return self.report_viewer._report_engine.number_pages()
         return -1
 
     @decorators.beta_implementation
@@ -634,18 +634,22 @@ class FLReportViewer(QtWidgets.QWidget):
 
 
 class FLWidgetReportViewer(QtWidgets.QMainWindow):
+    """FLWidgetReportViewer."""
 
     _report_viewer: "FLReportViewer"
 
     def __init__(self, report_viewer: "FLReportViewer") -> None:
+        """Initialize."""
 
         super().__init__()
         self.setObjectName("FLWidgetReportViewer")
         self._report_viewer = report_viewer
         form_path = utils_base.filedir("fllegacy/forms/FLWidgetReportViewer.ui")
         self = flmanagermodules.FLManagerModules.createUI(form_path, None, self)
+        self.hide()
 
     def __getattr__(self, name: str) -> Any:
+        """Return FLReportViewer attributes."""
         return getattr(self._report_viewer, name, None)
 
     def close(self) -> None:

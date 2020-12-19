@@ -10,6 +10,7 @@ ply
 pylint
 six
 PyQt5==5.14.2
+PyQt5-tools==5.14.2.2
 PyQt5-sip==12.7.2
 PyQt5-stubs==5.14.2
 pytest
@@ -48,3 +49,4 @@ coloredlogs
 psycopg2
 watchdog>=0.10.2
 pyfiglet
+pdf2image
