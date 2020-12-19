@@ -331,48 +331,6 @@ class Kut2FPDF(object):
                 show = data.get(draw_if) not in ("", "False", "None", False)
             if section.get("Level") == str(data_level) and show:
                 current_size = self._parser_tools.getHeight(section)
-
-                """ top_size = self.topSection()
-                current_size = self._parser_tools.getHeight(section)
-                bottom_size = 0
-                bottom_size_deep = 0
-                if self.design_mode:
-                    LOGGER.warning("%s es Visible", section_name)
-
-                if section_name == "DetailHeader":
-                    for detail in self._xml.findall("Detail"):
-                        if detail.get("Level") == str(data_level):
-                            current_size += self._parser_tools.getHeight(detail)
-                            break
-
-                for detail_footer in self._xml.findall("DetailFooter"):
-                    if detail_footer.get("Level") == str(data_level):
-                        bottom_size_deep += self._parser_tools.getHeight(detail_footer)
-                        break
-
-                for add_footer in self._xml.findall("AddOnFooter"):
-                    if add_footer.get("Level") == str(data_level):
-                        bottom_size += self._parser_tools.getHeight(add_footer)
-                        break
-
-                page_footer: Any = self._xml.get("PageFooter")
-                if isinstance(page_footer, Element):
-                    if self._document.page_no() == 1 or page_footer.get("PrintFrecuency") == "1":
-                        bottom_size += self._parser_tools.getHeight(page_footer)
-
-                bottom_size += self._bottom_margin
-                limit_one = self._document.h - bottom_size - bottom_size_deep
-                limit_two = self._document.h - bottom_size_deep
-                virtual_size = top_size + current_size
-
-                if self.design_mode:
-                    LOGGER.warning(
-                        "Comparando size: %s, limit1: %s, limit2: %s, last_detail: %s",
-                        virtual_size,
-                        limit_one,
-                        limit_two,
-                        self.last_detail,
-                    ) """
                 page_footer_size = 0
                 detail_footer_size = 0
                 add_on_footer_size = 0
@@ -438,7 +396,11 @@ class Kut2FPDF(object):
 
                 self.processXML(section, data)
 
-                if section.get("NewPage") == "true" and not self.last_register:
+                if (
+                    section.get("NewPage") == "true"
+                    and not self.last_register
+                    and self.topSection() > self._top_margin
+                ):
                     self.newPage(data_level, False)
 
                 break  # Se ejecuta una sola instancia
