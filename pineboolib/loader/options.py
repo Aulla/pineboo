@@ -33,6 +33,14 @@ def parse_options(custom_argv: Optional[List] = None) -> Values:
     )
 
     parser.add_option(
+        "-f",
+        "--folder",
+        dest="flfiles_folder",
+        help="use flfiles folder instead flfiles table",
+        metavar="FLFILES_PATH",
+    )
+
+    parser.add_option(
         "-x",
         "--exit",
         action="store_true",

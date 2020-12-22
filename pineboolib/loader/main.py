@@ -369,6 +369,9 @@ def exec_main(options: Values) -> int:
     if options.log_sql:
         application.LOG_SQL = True
 
+    if options.flfiles_folder:
+        application.PROJECT.USE_FLFILES_FOLDER = options.flfiles_folder
+
     if options.trace_debug:
         from pineboolib.core.utils.utils_base import traceit
 
