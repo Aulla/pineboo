@@ -65,8 +65,8 @@ class TestParser(unittest.TestCase):
 
         rpt_viewer_.renderReport()
         pdf_file = None
-        if rpt_viewer_.report_engine_ and hasattr(rpt_viewer_.report_engine_, "parser_"):
-            pdf_file = rpt_viewer_.report_engine_.parser_.get_file_name()
+        if rpt_viewer_._report_engine and hasattr(rpt_viewer_._report_engine, "_parser"):
+            pdf_file = rpt_viewer_._report_engine._parser.get_file_name()
 
         self.assertTrue(pdf_file)
 
