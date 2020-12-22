@@ -307,7 +307,9 @@ def load_tool_bar(xml: ET.Element, widget: QtWidgets.QMainWindow) -> None:
             separator = tool_bar.addSeparator()
             separator.setObjectName("separator")
         elif action.tag == "widget":
-            LOGGER.warning("FIXME tool_bar !! %s -> %s ", action.tag, action)
+            new_widget = WidgetResolver.get_widget_class(action.get("class"))(action.get("name"))
+            LoadWidget(action, new_widget, None, tool_bar)
+            tool_bar.addWidget(new_widget)
 
     widget.addToolBar(tool_bar)
 
@@ -827,6 +829,7 @@ class LoadWidget:
             # Ignore "cursor" styles, this is for blinking cursor styles
             # not needed.
             return
+
         else:
             set_fn = getattr(widget, setpname, None)
 
@@ -870,16 +873,23 @@ class LoadWidget:
             value1 = load_variant(xmlprop, widget)
             # FIXME: Not sure if it should return anyway
             if isinstance(value1, str):
-                LOGGER.warning("Icono %s.%s no encontrado." % (widget.objectName(), value1))
+                LOGGER.warning("Icono %s.%s no encontrado.", widget.objectName(), value1)
                 return
             else:
                 if value1 is None:
                     return
                 value = value1
-
+        elif pname == "buddy":
+            control_name = load_variant(xmlprop, widget)
+            value = None
+            for child in self.orig_widget.children():
+                if child.objectName() == control_name:
+                    value = child
+                    break
+            if value is None:
+                LOGGER.warning("No se encuentra %s en %s", control_name, self.orig_widget)
         else:
             value = load_variant(xmlprop, widget)
-
         try:
             set_fn(value)
         except Exception:
