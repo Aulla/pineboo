@@ -1,7 +1,7 @@
 """Flreportviewer module."""
 from PyQt5 import QtWidgets, QtCore, QtXml
 
-from pineboolib.core import decorators
+from pineboolib.core import decorators, settings
 from pineboolib import application
 from pineboolib.core.utils import utils_base
 from pineboolib.application.qsatypes.sysbasetype import SysBaseType
@@ -10,11 +10,15 @@ from . import flsqlquery
 from . import flsqlcursor
 from . import flmanagermodules
 
+from pdf2image import convert_from_path
+
 from .flreportengine import FLReportEngine
 from pineboolib import logging
 
 from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable, TYPE_CHECKING
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QImage, QPalette, QPixmap, QPainter
+
+from PIL.ImageQt import ImageQt
 
 import shutil
 
@@ -36,16 +40,19 @@ class InternalReportViewer(QtWidgets.QWidget):
     _num_copies: int
     _printer_name: str
     _color_mode: int  # 1 color, 0 gray_scale
+    _parent: "QtWidgets.QWidget"
 
-    def __init__(self, parent: QtWidgets.QWidget) -> None:
+    def __init__(self, parent: "QtWidgets.QWidget") -> None:
         """Inicialize."""
         super().__init__(parent)
         self._report_engine = None
-        self.dpi_ = 300
+        self.dpi_ = int(settings.SETTINGS.value("rptViewer/dpi", 300))
         self.report_ = []
         self._num_copies = 1
         self._printer_name = ""
         self._color_mode = 1
+        self._parent = parent
+        self._page_count = -1
 
     def setReportEngine(self, report_engine: FLReportEngine) -> None:
         """Set report engine."""
@@ -59,7 +66,6 @@ class InternalReportViewer(QtWidgets.QWidget):
 
     def reportPages(self) -> List[Any]:
         """Return report pages."""
-
         return self.report_
 
     def renderReport(self, init_row: int, init_col: int, flags: List[int]) -> Any:
@@ -68,7 +74,9 @@ class InternalReportViewer(QtWidgets.QWidget):
         if self._report_engine is None:
             raise Exception("renderReport. self._report_engine is empty!")
 
-        return self._report_engine.renderReport(init_row, init_col, flags)
+        result = self._report_engine.renderReport(init_row, init_col, flags)
+        self.report_ = self._report_engine._parser._document.pages
+        return result
 
     def setNumCopies(self, num_copies: int) -> None:
         """Set number of copies."""
@@ -83,33 +91,57 @@ class InternalReportViewer(QtWidgets.QWidget):
 
         self._color_mode = color_mode
 
-    @decorators.not_implemented_warn
     def slotFirstPage(self):
         """positioning first page."""
+        self._parent._w.set_page(0)
 
-    @decorators.not_implemented_warn
     def slotLastPage(self):
         """positioning last page."""
+        cnt = len(self.report_)
+        self._parent._w.set_page(cnt - 1)
 
-    @decorators.not_implemented_warn
     def slotNextPage(self):
         """positioning next page."""
 
-    @decorators.not_implemented_warn
+        cnt = len(self.report_)
+        current_page = self._parent._w._current_page
+        next_page = (current_page + 1) if current_page < cnt - 1 else current_page
+        self._parent._w.set_page(next_page)
+
     def slotPrevPage(self):
         """positioning prev page."""
 
-    @decorators.not_implemented_warn
+        cnt = len(self.report_)
+        current_page = self._parent._w._current_page
+        prev_page = (current_page - 1) if current_page > 0 else current_page
+        self._parent._w.set_page(prev_page)
+
     def slotPrintReport(self):
         """Print report."""
+        if self.slot_print_disabled:
+            return
 
-    @decorators.not_implemented_warn
+        from PyQt5 import QtPrintSupport
+
+        dialog = QtPrintSupport.QPrintDialog()
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            self.report_printed = self._report_engine.printReport(dialog)
+
     def slotZoomUp(self):
         """ZoomUp."""
 
-    @decorators.not_implemented_warn
+        self._parent._w._scale_factor += 0.5
+        current_page = self._parent._w._current_page
+        self._parent._w._current_page = -1
+        self._parent._w.set_page(current_page)
+
     def slotZoomDown(self):
         """ZoomDown."""
+
+        self._parent._w._scale_factor -= 0.5
+        current_page = self._parent._w._current_page
+        self._parent._w._current_page = -1
+        self._parent._w.set_page(current_page)
 
     @decorators.not_implemented_warn
     def exportFileCSVData(self):
@@ -152,7 +184,7 @@ class FLReportViewer(QtWidgets.QWidget):
     Display: int
     PageBreak: int
     _spn_resolution: int
-    report_: List[Any]
+
     qry_: Any
     xml_data_: Any
     template_: Any
@@ -181,7 +213,7 @@ class FLReportViewer(QtWidgets.QWidget):
         self.eventloop = QtCore.QEventLoop()
         self.report_printed = False
         self._report_engine: Optional[Any] = None
-        self.report_ = []
+
         self.slot_print_disabled = False
         self.slot_exported_disabled = False
         self.printing_ = False
@@ -198,8 +230,6 @@ class FLReportViewer(QtWidgets.QWidget):
 
         if self.report_viewer is None:
             raise Exception("self.report_viewer is empty!")
-
-        self.report_ = self.report_viewer.reportPages()
 
     def rptViewer(self) -> "InternalReportViewer":
         """Return report viewer."""
@@ -244,8 +274,11 @@ class FLReportViewer(QtWidgets.QWidget):
             if application.USE_REPORT_VIEWER:
                 self._w = FLWidgetReportViewer(self)
                 self._w.show()
+                self._w._file_name = pdf_file
+                self._w.refresh()
+                self.slotFirstPage()
 
-            SysBaseType.openUrl(pdf_file)
+            # SysBaseType.openUrl(pdf_file)
 
         return pdf_file
 
@@ -282,7 +315,6 @@ class FLReportViewer(QtWidgets.QWidget):
                 flags.append(append_or_flags[2])  # page_break
 
         ret = self.report_viewer.renderReport(init_row, init_col, flags)
-        self.report_ = self.report_viewer.reportPages()
         return ret
 
     def renderReport2(
@@ -395,35 +427,26 @@ class FLReportViewer(QtWidgets.QWidget):
             self.report_printed = True
 
     @decorators.pyqt_slot(int)
-    @decorators.beta_implementation
     def setResolution(self, dpi: int) -> None:
         """Set resolution."""
-        flutil.FLUtil.writeSettingEntry("rptViewer/dpi", str(dpi))
-        self.report_viewer.setResolution(dpi)
+        settings.SETTINGS.set_value("rptViewer/dpi", dpi)
+        self.report_viewer.dpi_ = dpi
+        current = self._w._current_page if self._w._current_page > -1 else 0
+        self._w.refresh()
+        self._w.set_page(current)
 
     @decorators.pyqt_slot(int)
-    @decorators.beta_implementation
     def setPixel(self, rel_dpi: int) -> None:
         """Set pixel size."""
-        flutil.FLUtil.writeSettingEntry("rptViewer/pixel", str(float(rel_dpi / 10.0)))
-        if self._report_engine:
-            self._report_engine.setRelDpi(rel_dpi / 10.0)
+        settings.SETTINGS.set_value("rptViewer/pixel", rel_dpi)
+        self._report_engine._rel_dpi = rel_dpi
 
-    @decorators.beta_implementation
     def setDefaults(self) -> None:
         """Set default values."""
-        import platform
 
-        self._spn_resolution = 300
-        system = platform.system()
-        if system == "Linux":
-            self._spn_pixel = 780
-        elif system == "Windows":
-            # FIXME
-            pass
-        elif system == "Darwin":
-            # FIXME
-            pass
+        if self._w is not None:
+            self._w._pixel_control.setValue(780)
+            self._w._resolution_control.setValue(300)
 
     @decorators.beta_implementation
     def updateReport(self) -> None:
@@ -451,7 +474,7 @@ class FLReportViewer(QtWidgets.QWidget):
 
         self.updateDisplay()
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def getCurrentPage(self) -> Any:
         """Return curent page."""
         # FIXME: self.report_ is just a List[]
@@ -459,7 +482,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getCurrentPage(), self)
         return 0
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def getFirstPage(self) -> Any:
         """Return first page."""
         # FIXME: self.report_ is just a List[]
@@ -467,7 +490,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getFirstPage(), self)
         return 0
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def getPreviousPage(self) -> Any:
         """Return previous page."""
         # FIXME: self.report_ is just a List[]
@@ -475,7 +498,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getPreviousPage(), self)
         return 0
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def getNextPage(self) -> Any:
         """Return next page."""
         # FIXME: self.report_ is just a List[]
@@ -483,7 +506,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getNextPage(), self)
         return 0
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def getLastPage(self) -> Any:
         """Return last page."""
         # FIXME: self.report_ is just a List[]
@@ -491,7 +514,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getLastPage(), self)
         return 0
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def getPageAt(self, num: int) -> Any:
         """Return actual page."""
         # FIXME: self.report_ is just a List[]
@@ -499,12 +522,12 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return FLPicture(self.report_.getPageAt(i), self)
         return 0
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def updateDisplay(self) -> None:
         """Update display."""
         self.report_viewer.slotUpdateDisplay()
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def clearPages(self) -> None:
         """Clear report pages."""
         # FIXME: self.report_ is just a List[]
@@ -512,7 +535,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.clear()
         pass
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def appendPage(self) -> None:
         """Add a new page."""
         # FIXME: self.report_ is just a List[]
@@ -520,7 +543,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.appendPage()
         pass
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def getCurrentIndex(self) -> int:
         """Return current index position."""
 
@@ -529,7 +552,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return self.report_.getCurrentIndex()
         return -1
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def setCurrentPage(self, idx: int) -> None:
         """Set current page index."""
         # FIXME: self.report_ is just a List[]
@@ -537,7 +560,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.setCurrentPage(idx)
         pass
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def setPageSize(
         self, size: Union[QtCore.QSize, int], orientation: Optional[int] = None
     ) -> None:
@@ -547,7 +570,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.setPageSize(s)
         pass
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def setPageOrientation(self, orientation: int) -> None:
         """Set page orientation."""
         # FIXME: self.report_ is just a List[]
@@ -555,7 +578,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.setPageOrientation(o)
         pass
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def setPageDimensions(self, dim: QtCore.QSize) -> None:
         """Set page dimensions."""
         # FIXME: self.report_ is just a List[]
@@ -563,7 +586,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     self.report_.setPageDimensions(dim)
         pass
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def pageSize(self) -> QtCore.QSize:
         """Return page size."""
         # FIXME: self.report_ is just a List[]
@@ -571,7 +594,7 @@ class FLReportViewer(QtWidgets.QWidget):
         #     return self.report_.pageSize()
         return -1
 
-    @decorators.beta_implementation
+    @decorators.not_implemented_warn
     def pageOrientation(self) -> int:
         """Return page orientation."""
         # FIXME: self.report_ is just a List[]
@@ -637,22 +660,103 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
     """FLWidgetReportViewer."""
 
     _report_viewer: "FLReportViewer"
+    _fr_mail: "QtWidgets.QFrame"
+    _auto_close: bool
+    _auto_widget: "QtWidget.QcheckBox"
+    _pages: List["QImage"]
+    _file_name: str
+    _image_label: "QtWidgets.QLabel"
+    _scroll_area: "QtWidgets.QScrollArea"
+    _scale_factor: int
+    _current_page: int
 
     def __init__(self, report_viewer: "FLReportViewer") -> None:
         """Initialize."""
 
         super().__init__()
         self.setObjectName("FLWidgetReportViewer")
+
+        from pineboolib.q3widgets import qframe, qcheckbox, qspinbox
+
+        self._auto_close = settings.SETTINGS.value("rptViewer/autoClose", False)
         self._report_viewer = report_viewer
         form_path = utils_base.filedir("fllegacy/forms/FLWidgetReportViewer.ui")
         self = flmanagermodules.FLManagerModules.createUI(form_path, None, self)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self._fr_mail = self.findChild(qframe.QFrame, "frEMail")
+        self._auto_widget = self.findChild(qcheckbox.QCheckBox, "chkAutoClose")
+        self._pixel_control = self.findChild(qspinbox.QSpinBox, "spnPixel")
+        self._resolution_control = self.findChild(qspinbox.QSpinBox, "spnResolution")
+
+        self._pixel_control.setValue(self._report_engine._rel_dpi)
+        self._resolution_control.setValue(self._report_viewer.dpi_)
+
+        self._auto_widget.setChecked(self._auto_close)
+        self._fr_mail.hide()
+        self._image_label = QtWidgets.QLabel()
+        self._image_label.setBackgroundRole(QPalette.Base)
+        self._image_label.setSizePolicy(
+            QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored
+        )
+        self._image_label.setScaledContents(True)
+        self._scroll_area = QtWidgets.QScrollArea()
+        self._scroll_area.setBackgroundRole(QPalette.Dark)
+        self._scroll_area.setWidget(self._image_label)
+        self._scroll_area.setVisible(False)
+
+        self.setCentralWidget(self._scroll_area)
+        self._scale_factor = 1
+        self._current_page = -1
+
         self.hide()
+        self._pages = []
+        self._file_name = ""
+        self.clear()
 
     def __getattr__(self, name: str) -> Any:
         """Return FLReportViewer attributes."""
         return getattr(self._report_viewer, name, None)
 
+    def setAutoClose(self) -> None:
+        """Set autoclose."""
+
+        self._auto_close = self._auto_widget.isChecked()
+        settings.SETTINGS.set_value("rptViewer/autoClose", self._auto_close)
+
     def close(self) -> None:
         """Close form."""
 
         super().close()
+
+    def refresh(self) -> None:
+        """Set page to centralWidget."""
+        self._pages = convert_from_path(
+            self._file_name,
+            dpi=self._report_viewer.report_viewer.dpi_,
+            output_folder=application.PROJECT.tmpdir,
+        )
+        self._current_page = -1
+        self.clear()
+
+    def set_page(self, num) -> None:
+        if self._current_page == num:
+            return
+        image = self._pages[num] if self._pages else None
+        if image is not None:
+            self._image_label.clear()
+            self._current_page = num
+            image_qt = ImageQt(image)
+            scaled_size = QtCore.QSize(780 * self._scale_factor, 591 * self._scale_factor)
+            scaled = image_qt.scaled(
+                scaled_size, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+            )
+            pix = QPixmap.fromImage(scaled)
+            self._image_label.setPixmap(pix)
+            self._image_label.adjustSize()
+            self._scroll_area.setVisible(True)
+
+    def clear(self) -> None:
+        self._scroll_area.setVisible(False)
+        self._current_page = None
+        # print("Borra centralwidget")
+

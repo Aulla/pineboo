@@ -1,13 +1,13 @@
 """Flreportengine module."""
 from typing import List
-from PyQt5 import QtXml, QtWidgets, QtCore  # type: ignore
+from PyQt5 import QtXml, QtWidgets, QtCore, QtPrintSupport  # type: ignore
 from PyQt5.QtGui import QPainter
 
 from PyQt5.QtXml import QDomNode as FLDomNodeInterface  # type: ignore # FIXME
 
 from pdf2image import convert_from_path
 
-from pineboolib.core import decorators
+from pineboolib.core import decorators, settings
 from pineboolib import logging, application
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
 from typing import Any, Optional, Dict, Union
@@ -126,7 +126,7 @@ class FLReportEngine(QtCore.QObject):
 
         super().__init__(parent)
         self._private = FLReportEnginePrivate(self)
-        self._rel_dpi = 300
+        self._rel_dpi = int(settings.SETTINGS.value("rptViewer/pixel", 780))
         self.report_ = None
         self.report_template_ = ""
         self.report_data_: Optional[QtXml.QDomDocument] = None
@@ -135,21 +135,30 @@ class FLReportEngine(QtCore.QObject):
 
         self._parser: "kut2fpdf.Kut2FPDF" = kut2fpdf.Kut2FPDF()
 
-    def printReport(self, printer_name: str, num_copies: int = 1, color_mode: int = 1) -> bool:
+    def printReport(
+        self,
+        name_or_dialog: Union[str, "QtPrintSupport.QPrintDialog"],
+        num_copies: int = 1,
+        color_mode: int = 1,
+    ) -> bool:
         """Print report to a printer."""
 
         from PyQt5.QtPrintSupport import QPrinter
         from PIL.ImageQt import ImageQt
 
-        pdf_file = self._parser.get_file_name()
-        printer = QPrinter()
-        printer.setPrinterName(printer_name)
-        printer.setColorMode(color_mode)
-        if printer.supportsMultipleCopies():
-            printer.setCopyCount(num_copies)
+        if not isinstance(name_or_dialog, str):
+            printer = name_or_dialog.printer()
         else:
-            LOGGER.warning("CopyCount not supported by %s", printer_name)
+            printer = QPrinter()
+            printer.setPrinterName(name_or_dialog)
+            printer.setColorMode(color_mode)
+            if printer.supportsMultipleCopies():
+                printer.setCopyCount(num_copies)
+            else:
+                LOGGER.warning("CopyCount not supported by %s", name_or_dialog)
+
         printer.setResolution(self._rel_dpi)
+        pdf_file = self._parser.get_file_name()
 
         # print("Procesando", pdf_file, "tmpdir", application.PROJECT.tmpdir)
 
