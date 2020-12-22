@@ -4,8 +4,6 @@ from PyQt5 import QtWidgets, QtCore, QtXml
 from pineboolib.core import decorators, settings
 from pineboolib import application
 from pineboolib.core.utils import utils_base
-from pineboolib.application.qsatypes.sysbasetype import SysBaseType
-from . import flutil
 from . import flsqlquery
 from . import flsqlcursor
 from . import flmanagermodules
@@ -16,7 +14,7 @@ from .flreportengine import FLReportEngine
 from pineboolib import logging
 
 from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable, TYPE_CHECKING
-from PyQt5.QtGui import QColor, QImage, QPalette, QPixmap, QPainter
+from PyQt5.QtGui import QColor, QImage, QPalette, QPixmap
 
 from PIL.ImageQt import ImageQt
 
@@ -92,16 +90,16 @@ class InternalReportViewer(QtWidgets.QWidget):
         self._color_mode = color_mode
 
     def slotFirstPage(self):
-        """positioning first page."""
+        """Positioning first page."""
         self._parent._w.set_page(0)
 
     def slotLastPage(self):
-        """positioning last page."""
+        """Positioning last page."""
         cnt = len(self.report_)
         self._parent._w.set_page(cnt - 1)
 
     def slotNextPage(self):
-        """positioning next page."""
+        """Positioning next page."""
 
         cnt = len(self.report_)
         current_page = self._parent._w._current_page
@@ -109,9 +107,8 @@ class InternalReportViewer(QtWidgets.QWidget):
         self._parent._w.set_page(next_page)
 
     def slotPrevPage(self):
-        """positioning prev page."""
+        """Positioning prev page."""
 
-        cnt = len(self.report_)
         current_page = self._parent._w._current_page
         prev_page = (current_page - 1) if current_page > 0 else current_page
         self._parent._w.set_page(prev_page)
@@ -662,7 +659,7 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
     _report_viewer: "FLReportViewer"
     _fr_mail: "QtWidgets.QFrame"
     _auto_close: bool
-    _auto_widget: "QtWidget.QcheckBox"
+    _auto_widget: "QtWidgets.QcheckBox"
     _pages: List["QImage"]
     _file_name: str
     _image_label: "QtWidgets.QLabel"
@@ -739,6 +736,7 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
         self.clear()
 
     def set_page(self, num) -> None:
+        """Set page."""
         if self._current_page == num:
             return
         image = self._pages[num] if self._pages else None
@@ -756,7 +754,7 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
             self._scroll_area.setVisible(True)
 
     def clear(self) -> None:
+        """Clear current page."""
         self._scroll_area.setVisible(False)
         self._current_page = None
         # print("Borra centralwidget")
-

@@ -307,7 +307,9 @@ def load_tool_bar(xml: ET.Element, widget: QtWidgets.QMainWindow) -> None:
             separator = tool_bar.addSeparator()
             separator.setObjectName("separator")
         elif action.tag == "widget":
-            new_widget = WidgetResolver.get_widget_class(action.get("class"))(action.get("name"))
+            new_widget = WidgetResolver.get_widget_class(action.get("class") or "")(
+                action.get("name") or ""  # type: ignore
+            )
             LoadWidget(action, new_widget, None, tool_bar)
             tool_bar.addWidget(new_widget)
 

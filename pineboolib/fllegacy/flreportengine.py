@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPainter
 
 from PyQt5.QtXml import QDomNode as FLDomNodeInterface  # type: ignore # FIXME
 
-from pdf2image import convert_from_path
+from pdf2image import convert_from_path  # type: ignore
 
 from pineboolib.core import decorators, settings
 from pineboolib import logging, application
@@ -144,14 +144,14 @@ class FLReportEngine(QtCore.QObject):
         """Print report to a printer."""
 
         from PyQt5.QtPrintSupport import QPrinter
-        from PIL.ImageQt import ImageQt
+        from PIL.ImageQt import ImageQt  # type: ignore
 
         if not isinstance(name_or_dialog, str):
             printer = name_or_dialog.printer()
         else:
             printer = QPrinter()
             printer.setPrinterName(name_or_dialog)
-            printer.setColorMode(color_mode)
+            printer.setColorMode(color_mode)  # type: ignore
             if printer.supportsMultipleCopies():
                 printer.setCopyCount(num_copies)
             else:
@@ -177,6 +177,8 @@ class FLReportEngine(QtCore.QObject):
             # )
             painter.drawImage(rect, image_qt)
         painter.end()
+
+        return True
 
     def rptXmlData(self) -> Any:
         """Return report Xml Data."""
