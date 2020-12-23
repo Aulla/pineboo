@@ -18,7 +18,7 @@ from PyQt5.QtGui import QColor, QImage, QPalette, QPixmap
 
 from PIL.ImageQt import ImageQt
 
-import shutil
+import shutil, pathlib
 
 if TYPE_CHECKING:
     from pineboolib.q3widgets import qmainwindow  # noqa: F401
@@ -123,6 +123,8 @@ class InternalReportViewer(QtWidgets.QWidget):
         dialog = QtPrintSupport.QPrintDialog()
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
             self.report_printed = self._report_engine.printReport(dialog)
+            if self._parent._auto_close:
+                self._parent._w.close()
 
     def slotZoomUp(self):
         """ZoomUp."""
@@ -144,9 +146,23 @@ class InternalReportViewer(QtWidgets.QWidget):
     def exportFileCSVData(self):
         """exportFileCSVData."""
 
-    @decorators.not_implemented_warn
+        if self.slot_exported_disabled:
+            return
+
     def exportToPDF(self):
         """exportToPDF."""
+
+        if self.slot_exported_disabled:
+            return
+
+        data = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Seleccione fichero", str(pathlib.Path.home()), "*.pdf"
+        )
+        file_name = data[0]
+        if file_name:
+            if not file_name.endswith(".pdf"):
+                file_name += ".pdf"
+            shutil.copy(self._report_engine._parser.get_file_name(), file_name)
 
     @decorators.not_implemented_warn
     def sendEMailPDF(self):
@@ -402,9 +418,6 @@ class FLReportViewer(QtWidgets.QWidget):
 
     def printReport(self) -> None:
         """Print a report."""
-
-        if self.slot_print_disabled:
-            return
 
         printer_name = self.report_viewer._printer_name
         num_copies = self.report_viewer._num_copies
@@ -675,8 +688,8 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
 
         from pineboolib.q3widgets import qframe, qcheckbox, qspinbox
 
-        self._auto_close = settings.SETTINGS.value("rptViewer/autoClose", False)
         self._report_viewer = report_viewer
+        self._report_viewer._auto_close = settings.SETTINGS.value("rptViewer/autoClose", False)
         form_path = utils_base.filedir("fllegacy/forms/FLWidgetReportViewer.ui")
         self = flmanagermodules.FLManagerModules.createUI(form_path, None, self)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -717,8 +730,8 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
     def setAutoClose(self) -> None:
         """Set autoclose."""
 
-        self._auto_close = self._auto_widget.isChecked()
-        settings.SETTINGS.set_value("rptViewer/autoClose", self._auto_close)
+        self._report_viewer._auto_close = self._auto_widget.isChecked()
+        settings.SETTINGS.set_value("rptViewer/autoClose", self._report_viewer._auto_close)
 
     def close(self) -> None:
         """Close form."""

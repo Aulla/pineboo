@@ -146,8 +146,16 @@ class FLReportEngine(QtCore.QObject):
         from PyQt5.QtPrintSupport import QPrinter
         from PIL.ImageQt import ImageQt  # type: ignore
 
+        page_filter = []
         if not isinstance(name_or_dialog, str):
             printer = name_or_dialog.printer()
+            range_ = name_or_dialog.printRange()
+            first = name_or_dialog.fromPage()
+            last = name_or_dialog.toPage()
+            if range_ == 2:
+                for num in range(first, last + 1):
+                    page_filter.append(num)
+
         else:
             printer = QPrinter()
             printer.setPrinterName(name_or_dialog)
@@ -165,17 +173,19 @@ class FLReportEngine(QtCore.QObject):
         images = convert_from_path(
             pdf_file, dpi=self._rel_dpi, output_folder=application.PROJECT.tmpdir
         )
+
         painter = QPainter()
         painter.begin(printer)
+        first_ = True
         for num, image in enumerate(images):
-            if num:
-                printer.newPage()
-            rect = painter.viewport()
-            image_qt = ImageQt(image)
-            # scaled = image_qt.scaled(
-            #    rect.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
-            # )
-            painter.drawImage(rect, image_qt)
+            page_index = num + 1
+            if not page_filter or page_index in page_filter:
+                if not first_:
+                    printer.newPage()
+                first_ = False
+                rect = painter.viewport()
+                image_qt = ImageQt(image)
+                painter.drawImage(rect, image_qt)
         painter.end()
 
         return True
@@ -300,12 +310,10 @@ class FLReportEngine(QtCore.QObject):
         return ""
 
     @decorators.not_implemented_warn
-    def exportToOds(self, pages: Any):
+    def exportToOds(self):
         """Return report exported to odf."""
         if not pages or not pages.pageCollection():
             return
-        # FIXME: exportToOds not defined in superclass
-        # super(FLReportEngine, self).exportToOds(pages.pageCollection())
 
     def renderReport(
         self, init_row: int = 0, init_col: int = 0, flags: List[int] = [], pages: Any = None
