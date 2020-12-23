@@ -18,7 +18,8 @@ from PyQt5.QtGui import QColor, QImage, QPalette, QPixmap
 
 from PIL.ImageQt import ImageQt
 
-import shutil, pathlib
+import shutil
+import pathlib
 
 if TYPE_CHECKING:
     from pineboolib.q3widgets import qmainwindow  # noqa: F401

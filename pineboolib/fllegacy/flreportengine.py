@@ -312,8 +312,8 @@ class FLReportEngine(QtCore.QObject):
     @decorators.not_implemented_warn
     def exportToOds(self):
         """Return report exported to odf."""
-        if not pages or not pages.pageCollection():
-            return
+
+        return
 
     def renderReport(
         self, init_row: int = 0, init_col: int = 0, flags: List[int] = [], pages: Any = None
