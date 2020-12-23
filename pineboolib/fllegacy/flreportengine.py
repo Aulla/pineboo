@@ -1,6 +1,6 @@
 """Flreportengine module."""
 from typing import List
-from PyQt5 import QtXml, QtWidgets, QtCore, QtPrintSupport  # type: ignore
+from PyQt5 import QtXml, QtCore  # type: ignore
 from PyQt5.QtGui import QPainter
 
 from PyQt5.QtXml import QDomNode as FLDomNodeInterface  # type: ignore # FIXME
@@ -10,7 +10,12 @@ from pdf2image import convert_from_path  # type: ignore
 from pineboolib.core import decorators, settings
 from pineboolib import logging, application
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
-from typing import Any, Optional, Dict, Union
+from typing import Any, Optional, Dict, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PyQt5 import QtWidgets  # noqa: F401
+    from PyQt5 import QtPrintSupport  # noqa: F401
+
 
 LOGGER = logging.get_logger(__name__)
 

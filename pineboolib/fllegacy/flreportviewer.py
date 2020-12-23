@@ -14,7 +14,7 @@ from .flreportengine import FLReportEngine
 from pineboolib import logging
 
 from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable, TYPE_CHECKING
-from PyQt5.QtGui import QColor, QImage, QPalette, QPixmap
+from PyQt5.QtGui import QColor, QPalette, QPixmap
 
 from PIL.ImageQt import ImageQt
 
@@ -23,6 +23,7 @@ import pathlib
 
 if TYPE_CHECKING:
     from pineboolib.q3widgets import qmainwindow  # noqa: F401
+    from PyQt5.QtGui import QImage  # noqa: F401
 
 
 LOGGER = logging.get_logger(__name__)
