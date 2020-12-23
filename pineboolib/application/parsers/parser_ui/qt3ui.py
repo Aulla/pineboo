@@ -307,13 +307,12 @@ def load_tool_bar(xml: ET.Element, widget: QtWidgets.QMainWindow) -> None:
             separator = tool_bar.addSeparator()
             separator.setObjectName("separator")
         elif action.tag == "widget":
-            new_widget = WidgetResolver.get_widget_class(action.get("class") or "")(
-                action.get("name") or ""  # type: ignore
-            )
+            new_widget = WidgetResolver.get_widget_class(action.get("class") or "")(tool_bar)
             LoadWidget(action, new_widget, None, tool_bar)
             tool_bar.addWidget(new_widget)
 
     widget.addToolBar(tool_bar)
+    widget.addToolBarBreak()
 
 
 def load_menu_bar(xml: ET.Element, widget: QWidget) -> None:
@@ -1014,7 +1013,8 @@ class LoadWidget:
             else:
                 LOGGER.warning("qt3ui: Unknown layout xml tag", repr(item.tag))
 
-        widget.setLayout(widget._layout)
+        if widget.layout() is None:
+            widget.setLayout(widget._layout)
         # widget._layout.setContentsMargins(1, 1, 1, 1)
         # widget._layout.setSpacing(1)
         # widget._layout.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
