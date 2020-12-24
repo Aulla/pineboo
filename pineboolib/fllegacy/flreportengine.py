@@ -148,52 +148,59 @@ class FLReportEngine(QtCore.QObject):
     ) -> bool:
         """Print report to a printer."""
 
-        from PyQt5.QtPrintSupport import QPrinter
-        from PIL.ImageQt import ImageQt  # type: ignore
+        try:
+            from PyQt5.QtPrintSupport import QPrinter
+            from PIL.ImageQt import ImageQt  # type: ignore
 
-        page_filter = []
-        if not isinstance(name_or_dialog, str):
-            printer = name_or_dialog.printer()
-            range_ = name_or_dialog.printRange()
-            first = name_or_dialog.fromPage()
-            last = name_or_dialog.toPage()
-            if range_ == 2:
-                for num in range(first, last + 1):
-                    page_filter.append(num)
+            page_filter = []
+            if not isinstance(name_or_dialog, str):
+                printer = name_or_dialog.printer()
+                range_ = name_or_dialog.printRange()
+                first = name_or_dialog.fromPage()
+                last = name_or_dialog.toPage()
+                if range_ == 2:
+                    for num in range(first, last + 1):
+                        page_filter.append(num)
 
-        else:
-            printer = QPrinter()
-            printer.setPrinterName(name_or_dialog)
-            printer.setColorMode(color_mode)  # type: ignore
-            if printer.supportsMultipleCopies():
-                printer.setCopyCount(num_copies)
             else:
-                LOGGER.warning("CopyCount not supported by %s", name_or_dialog)
+                printer = QPrinter()
+                printer.setPrinterName(name_or_dialog)
+                printer.setColorMode(color_mode)  # type: ignore
+                if printer.supportsMultipleCopies():
+                    printer.setCopyCount(num_copies)
+                else:
+                    LOGGER.warning("CopyCount not supported by %s", name_or_dialog)
 
-        printer.setResolution(self._rel_dpi)
-        pdf_file = self._parser.get_file_name()
+            printer.setResolution(self._rel_dpi)
+            printer.setDocName("Document from Viewer")
+            printer.setCreator("Pineboo")
+            pdf_file = self._parser.get_file_name()
 
-        # print("Procesando", pdf_file, "tmpdir", application.PROJECT.tmpdir)
+            # print("Procesando", pdf_file, "tmpdir", application.PROJECT.tmpdir)
 
-        images = convert_from_path(
-            pdf_file, dpi=self._rel_dpi, output_folder=application.PROJECT.tmpdir
-        )
+            images = convert_from_path(
+                pdf_file, dpi=self._rel_dpi, output_folder=application.PROJECT.tmpdir
+            )
 
-        painter = QPainter()
-        painter.begin(printer)
-        first_ = True
-        for num, image in enumerate(images):
-            page_index = num + 1
-            if not page_filter or page_index in page_filter:
-                if not first_:
-                    printer.newPage()
-                first_ = False
-                rect = painter.viewport()
-                image_qt = ImageQt(image)
-                painter.drawImage(rect, image_qt)
-        painter.end()
+            painter = QPainter()
+            painter.begin(printer)
+            first_ = True
+            for num, image in enumerate(images):
+                page_index = num + 1
+                if not page_filter or page_index in page_filter:
+                    if not first_:
+                        printer.newPage()
+                    first_ = False
+                    rect = painter.viewport()
+                    image_qt = ImageQt(image)
+                    painter.drawImage(rect, image_qt)
+            painter.end()
 
-        return True
+            return True
+        except Exception as error:
+            LOGGER.warning("Error printing: %s", str(error))
+
+        return False
 
     def rptXmlData(self) -> Any:
         """Return report Xml Data."""
