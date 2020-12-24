@@ -8,14 +8,12 @@ Performs load of scripts from disk instead of database.
 
 from PyQt5 import QtWidgets, QtCore
 
+from pineboolib.core import settings, decorators
+from pineboolib.core.utils import logging, utils_base
+
 from pineboolib import application
 
-from pineboolib.core.utils import logging, utils_base
-from pineboolib.core import settings, decorators
-from pineboolib.application.qsatypes import sysbasetype
-
 import os
-
 from typing import Any, List, Optional, cast, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -365,12 +363,15 @@ class PNStaticLoader(QtCore.QObject):
             )
             return ""
 
-        separator = "\\" if sysbasetype.SysBaseType.osName().find("WIN") > -1 else "/"
         for info_item in info.dirs_:
-            content_path_candidate = "%s%s%s" % (info_item.path_, separator, name)
+            content_path_candidate = os.path.join(info_item.path_, name)
             if info_item.active_ and os.path.exists(
                 content_path_candidate
             ):  # Buscamos todos los candidatos
+                if content_path_candidate in [
+                    path_candidate for name, path_candidate in candidates
+                ]:
+                    continue
                 candidates.append([info_item.path_, content_path_candidate])
 
         if candidates:
@@ -378,7 +379,6 @@ class PNStaticLoader(QtCore.QObject):
                 WARN_ = FLStaticLoaderWarning()
 
             file_path, content_path = candidates[0]
-
             msg = "%s -> ...%s" % (name, file_path[0:40])
 
             if msg not in WARN_.warns_:
@@ -400,11 +400,8 @@ class PNStaticLoader(QtCore.QObject):
                 return content_path
             else:
 
-                if application.PROJECT.conn_manager is None:
-                    raise Exception("Project is not connected yet")
-
                 return application.PROJECT.conn_manager.managerModules().contentFS(
-                    file_path + separator + name
+                    os.path.join(file_path, name)
                 )
 
         return ""
