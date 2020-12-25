@@ -101,6 +101,7 @@ from .pncontrolsfactory import SysType, System  # noqa: F401
 from .pncontrolsfactory import AQ_APP as aqApp  # noqa: F401
 from .pncontrolsfactory import ORM_MANAGER as orm  # noqa: F401
 from .pncontrolsfactory import CLASS_MANAGER as class_  # noqa: F401
+from .pncontrolsfactory import xmlDigest  # noqa: F401
 
 QSProject = QS_PROJECT
 sys = QSA_SYS

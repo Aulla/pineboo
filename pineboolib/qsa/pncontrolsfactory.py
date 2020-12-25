@@ -199,6 +199,8 @@ from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagState  # no
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagStateList  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqsbuttongroup import AQSButtonGroup  # noqa: F401
 
+from pineboolib.application.signatures.xml_digest import xmlDigest  # noqa: F401
+
 
 ORM_MANAGER = OrmManager()
 CLASS_MANAGER = ClassManager()
