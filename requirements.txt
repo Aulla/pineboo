@@ -50,3 +50,7 @@ psycopg2
 watchdog>=0.10.2
 pyfiglet
 pdf2image
+xmlsig
+lxml
+pyOpenSSL
+xades

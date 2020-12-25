@@ -24,8 +24,7 @@ python-barcode
 pyfiglet
 python-daemon
 pdf2image
-
-
-
-
-
+xmlsig
+lxml
+pyOpenSSL
+xades
