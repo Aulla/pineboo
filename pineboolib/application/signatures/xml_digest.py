@@ -6,7 +6,8 @@ import os
 import xmlsig  # type: ignore[import] # noqa: F821
 from lxml import etree  # type: ignore[import] # noqa: F821
 from OpenSSL import crypto  # type: ignore[import] # noqa: F821
-from xades import policy  # type: ignore[import] # noqa: F821
+from xades import policy, utils, template, XAdESContext  # type: ignore[import] # noqa: F821
+
 
 from typing import List, Optional, Any
 
@@ -94,8 +95,6 @@ class xmlDigest:
     def _load_signature(self) -> bool:
         """Load signature."""
 
-        from xades import utils, template
-
         try:
             self._signature = xmlsig.template.create(
                 xmlsig.constants.TransformInclC14N, self._rsa, "Signature"
@@ -169,11 +168,8 @@ class xmlDigest:
 
         self._root.append(self._signature)
 
-        context = None
         try:
-            import xades
-
-            context = xades.XAdESContext(self._policy)
+            context = XAdESContext(self._policy)
             context.load_pkcs12(self._certificate)
             context.sign(self._signature)
         except Exception as error:
@@ -182,6 +178,22 @@ class xmlDigest:
 
         self._is_signed = True
         return True
+
+    def signature_value(self) -> str:
+        """Return SisgnatureValue field value."""
+
+        if not self._is_signed:
+            LOGGER.warning("xml is not signed yet")
+            return ""
+
+        for child in self._root:
+            if child.get("Id") == "Signature":
+                for child_elem in child:
+                    if "SignatureValue" in child_elem.tag:
+                        return child_elem.text
+
+        LOGGER.warning("SignatureValue not found!")
+        return ""
 
     def save_file(self, file_path: str):
         """Save signed xml into a file."""
@@ -194,8 +206,6 @@ class xmlDigest:
             try:
                 if os.path.exists(file_path):
                     os.remove(file_path)
-
-                from lxml import etree
 
                 element_tree = etree.ElementTree(self._root)
                 element_tree.write(file_path, pretty_print=False)
