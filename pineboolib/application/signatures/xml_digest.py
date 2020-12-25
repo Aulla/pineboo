@@ -8,7 +8,7 @@ from lxml import etree  # type: ignore[import] # noqa: F821
 from OpenSSL import crypto  # type: ignore[import] # noqa: F821
 from xades import policy  # type: ignore[import] # noqa: F821
 
-from typing import List
+from typing import List, Optional, Any
 
 LOGGER = logging.get_logger(__name__)
 
@@ -24,6 +24,9 @@ class xmlDigest:
     _policy: str
     _signature: str
     _is_signed: bool
+    _sha: Optional[int]
+    _rsa: Optional[int]
+    _use_algorithm: str
 
     def __init__(self, file_path: str, cert_path: str, pwsd_: str = "") -> None:
         """Initialize."""
@@ -36,14 +39,16 @@ class xmlDigest:
         self._cert_path = cert_path
         self._pass = pwsd_
         self._policy_list = [
-            "http://www.facturae.es/politica_de_firma_formato_facturae/",
-            "politica_de_firma_formato_facturae_v3_1.pdf",
+            "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
             "Politica de Firma FacturaE v3.1",
         ]
         self._certificate = ""
         self._policy = ""
         self._signature = ""
         self._is_signed = False
+        self._use_algorithm = "sha1"
+        self._sha = None
+        self._rsa = None
 
     def set_password(self, pwds_: str = "") -> None:
         """Set password."""
@@ -73,11 +78,13 @@ class xmlDigest:
             LOGGER.warning("Policy is empty!")
             return False
 
-        try:
+        custom_policy: List[Any] = list(self._policy_list)
+        if len(custom_policy) == 1:
+            custom_policy += custom_policy
+        custom_policy.append(self._sha)
 
-            self._policy = policy.GenericPolicyId(
-                *self._policy_list, xmlsig.constants.TransformSha1
-            )
+        try:
+            self._policy = policy.GenericPolicyId(*custom_policy)
         except Exception as error:
             LOGGER.warning("Error loading policies: %s", str(error))
             return False
@@ -91,19 +98,15 @@ class xmlDigest:
 
         try:
             self._signature = xmlsig.template.create(
-                xmlsig.constants.TransformInclC14N, xmlsig.constants.Transformsha1, "Signature"
+                xmlsig.constants.TransformInclC14N, self._rsa, "Signature"
             )
             signature_id = utils.get_unique_id()
             reference = xmlsig.template.add_reference(
-                self._signature, xmlsig.constants.TransformSha1, uri="", name="REF"
+                self._signature, self._sha, uri="", name="REF"
             )
             xmlsig.template.add_transform(reference, xmlsig.constants.TransformEnveloped)
-            xmlsig.template.add_reference(
-                self._signature, xmlsig.constants.TransformSha1, uri="#KI"
-            )
-            xmlsig.template.add_reference(
-                self._signature, xmlsig.constants.TransformSha1, uri="#" + signature_id
-            )
+            xmlsig.template.add_reference(self._signature, self._sha, uri="#KI")
+            xmlsig.template.add_reference(self._signature, self._sha, uri="#" + signature_id)
             key_info = xmlsig.template.ensure_key_info(self._signature, name="KI")
 
             data = xmlsig.template.add_x509_data(key_info)
@@ -114,21 +117,11 @@ class xmlDigest:
             xmlsig.template.x509_issuer_serial_add_serial_number(serial)
             xmlsig.template.add_key_value(key_info)
 
-            print("* prueba", signature_id, utils.get_unique_id())
-
             qualifying = template.create_qualifying_properties(
                 self._signature, name=utils.get_unique_id()
             )
-            properties = template.create_signed_properties(qualifying, name=signature_id)
 
-            template.add_claimed_role(properties, "Supp2")
-
-            template.add_production_place(properties, city="Madrid")
-            template.add_production_place(
-                properties, state="BCN", postal_code="08000", country="ES"
-            )
-
-            template.add_claimed_role(properties, "Supp")
+            template.create_signed_properties(qualifying, name=signature_id)
 
         except Exception as error:
             LOGGER.warning("Error loading signature: %s", str(error))
@@ -141,8 +134,26 @@ class xmlDigest:
 
         self._policy_list = policy_list
 
+    def set_algorithm(self, name: str = "sha1") -> None:
+        """Set algorithm type."""
+
+        self._use_algorithm = name.lower()
+
     def sign(self) -> bool:
         """Sign data."""
+
+        self._sha = None
+        self._rsa = None
+
+        if self._use_algorithm == "sha1":
+            self._sha = xmlsig.constants.TransformSha1
+            self._rsa = xmlsig.constants.TransformRsaSha1
+        elif self._use_algorithm == "sha256":
+            self._sha = xmlsig.constants.TransformSha256
+            self._rsa = xmlsig.constants.TransformRsaSha256
+        else:
+            LOGGER.warning("UNKNOWN algorithm %s", self._use_algorithm)
+            return False
 
         if not self._load_certificate():
             LOGGER.warning("certificate not loaded!")
@@ -180,10 +191,16 @@ class xmlDigest:
         elif not self._is_signed:
             LOGGER.warning("the xml is not signed")
         else:
-            from lxml import etree
+            try:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
 
-            element_tree = etree.ElementTree(self._root)
-            element_tree.write(file_path, pretty_print=False)
-            return True
+                from lxml import etree
+
+                element_tree = etree.ElementTree(self._root)
+                element_tree.write(file_path, pretty_print=False)
+                return True
+            except Exception as error:
+                LOGGER.warning("Error saving file %s: %s", file_path, str(error))
 
         return False
