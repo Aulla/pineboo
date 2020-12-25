@@ -1,0 +1,1 @@
+"""Pdf_qr module."""
