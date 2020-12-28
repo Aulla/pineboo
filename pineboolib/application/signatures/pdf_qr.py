@@ -183,7 +183,13 @@ class pdfQr:
             buffer.open(QtCore.QBuffer.ReadWrite)
             img_data.save(buffer, "PNG")
             page = Image.open(io.BytesIO(buffer.data()))  # type: ignore[arg-type]
-            page.save(file_path, save_all=True, resolution=self._dpi, append=not first)
+            page.save(
+                file_path,
+                resolution=self._dpi,
+                append=not first,
+                author="Pineboo ERP",
+                title="pdf signed",
+            )
             first = False
 
         return True
