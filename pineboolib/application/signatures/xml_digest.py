@@ -195,7 +195,7 @@ class xmlDigest:
         LOGGER.warning("SignatureValue not found!")
         return ""
 
-    def save_file(self, file_path: str):
+    def save_file(self, file_path: str) -> bool:
         """Save signed xml into a file."""
 
         if not file_path:
