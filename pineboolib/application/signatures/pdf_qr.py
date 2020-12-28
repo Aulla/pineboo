@@ -1,6 +1,6 @@
 """Pdf_qr module."""
 
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5 import QtGui, QtCore
 
 from pineboolib import application
 from pineboolib.core.utils import logging
@@ -79,6 +79,7 @@ class pdfQr:
         self._font_size = size
 
     def set_position(self, pos_x: int, pos_y: int) -> None:
+        """Set Possition. 0,0 = Bottom Right."""
         self._pos_x = int(pos_x)
         self._pos_y = int(pos_y)
 
@@ -111,20 +112,22 @@ class pdfQr:
                 (qr_image.height + text_width) * factor,
                 (qr_image.height + (self._font_size + 2)) * factor,
             )
-            image_qr = image_qr.scaled(image_qr.width() * factor, image_qr.height() * factor)
+            image_qr = image_qr.scaled(
+                int(image_qr.width() * factor), int(image_qr.height() * factor)
+            )
             image_label_resized.fill(0)
             label_painter = QtGui.QPainter()
             label_painter.begin(image_label_resized)
             label_painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
             label_painter.setPen(QtGui.QPen(QtCore.Qt.black))
             label_painter.setFont(
-                QtGui.QFont(self._font_name, int(self._font_size) * factor, QtGui.QFont.Bold)
+                QtGui.QFont(self._font_name, int(self._font_size * factor), QtGui.QFont.Bold)
             )
             label_painter.drawText(image_label_resized.rect(), QtCore.Qt.AlignTop, " " + self._text)
             label_painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
             label_painter.drawImage(
                 image_label_resized.width() - image_qr.width(),
-                ((self._font_size + 2) * factor),
+                int((self._font_size + 2) * factor),
                 image_qr,
             )
             label_painter.end()
@@ -132,7 +135,7 @@ class pdfQr:
         else:
             signed_image = QtGui.QImage(tmp_qr_file_name)
             signed_image = signed_image.scaled(
-                signed_image.width() * factor, signed_image.height() * factor
+                int(signed_image.width() * factor), int(signed_image.height() * factor)
             )
 
         mark = True
@@ -163,7 +166,7 @@ class pdfQr:
         return True
 
     def save_file(self, file_path: str) -> bool:
-        """save file."""
+        """Save file."""
 
         if not file_path:
             LOGGER.warning("File path %s is empty!", file_path)
@@ -179,7 +182,7 @@ class pdfQr:
             buffer = QtCore.QBuffer()
             buffer.open(QtCore.QBuffer.ReadWrite)
             img_data.save(buffer, "PNG")
-            page = Image.open(io.BytesIO(buffer.data()))
+            page = Image.open(io.BytesIO(buffer.data()))  # type: ignore[arg-type]
             page.save(file_path, save_all=True, resolution=self._dpi, append=not first)
             first = False
 
