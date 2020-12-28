@@ -28,3 +28,4 @@ xmlsig
 lxml
 pyOpenSSL
 xades
+qrcode[pil]

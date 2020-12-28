@@ -107,7 +107,7 @@ class pdfQr:
             buffer = QtCore.QBuffer()
             buffer.open(QtCore.QBuffer.ReadWrite)
             img_data.save(buffer, "PNG")
-            image_list.append(Image.open(io.BytesIO(buffer.data())))  # type: ignore[arg-type]
+            image_list.append(Image.open(io.BytesIO(buffer.data())))  # type: ignore[arg-type] # noqa: F821
 
         if len(image_list) > 1:
             image_list[0].save(file_path, save_all=True, append_images=image_list[1:])
