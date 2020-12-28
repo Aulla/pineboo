@@ -182,7 +182,7 @@ class pdfQr:
             buffer = QtCore.QBuffer()
             buffer.open(QtCore.QBuffer.ReadWrite)
             img_data.save(buffer, "PNG")
-            page = Image.open(io.BytesIO(buffer.data()))  # type: ignore[arg-type]
+            page = Image.open(io.BytesIO(buffer.data()))  # type: ignore[arg-type] # noqa: F821
             page.save(
                 file_path,
                 resolution=self._dpi,
