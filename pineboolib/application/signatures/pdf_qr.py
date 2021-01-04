@@ -33,7 +33,7 @@ class pdfQr:
     _show_text: bool
     _dpi: int
     _tmp_qr_img: str
-    _factor: int
+    _factor: float
     _qr_image: Optional["QtGui.QImage"]
 
     def __init__(self, orig: str = "") -> None:
@@ -102,6 +102,10 @@ class pdfQr:
             return False
 
         signed_image = self._qr_image
+        if not signed_image:
+            LOGGER.warning("QR Image not found")
+            return False
+
         mark = True
         pos_x = self._pos_x
         pos_y = self._pos_y
@@ -168,9 +172,6 @@ class pdfQr:
             )
             qr_image.save(self._tmp_qr_img, "PNG")
 
-            # qr_image.height
-            signed_image = None
-
             if self._show_text:
                 image_qr = QtGui.QImage(self._tmp_qr_img)
                 image_label = QtGui.QImage(self._tmp_qr_img)
@@ -205,7 +206,8 @@ class pdfQr:
                 image_label_resized.save(self._tmp_qr_img, "PNG")
                 self._qr_image = image_label_resized
             else:
-                self._qr_image = QtGui.QImage(self._tmp_qr_img).scaled(
+                signed_image = QtGui.QImage(self._tmp_qr_img)
+                self._qr_image = signed_image.scaled(
                     int(signed_image.width() * self._factor),
                     int(signed_image.height() * self._factor),
                 )
