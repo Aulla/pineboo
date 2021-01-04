@@ -54,6 +54,7 @@ class pdfQr:
         self._tmp_qr_img = ""
         self._factor = self._dpi / 100
         self._qr_image = None
+        self._ext = "PNG"
 
     def set_size(self, size: int) -> None:
         """Set size."""
@@ -61,6 +62,11 @@ class pdfQr:
         # (size * 4 ) + 17
 
         self._size = size
+
+    def set_extension(self, ext_name: str = "PNG") -> None:
+        """Set extension."""
+
+        self._ext = ext_name
 
     def set_dpi(self, dpi: int = 300) -> None:
         """Set dpi."""
@@ -168,9 +174,10 @@ class pdfQr:
 
             self._tmp_qr_img = os.path.join(
                 qr_folder,
-                "%s.PNG" % QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz"),
+                "%s.%s"
+                % (QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz"), self._ext),
             )
-            qr_image.save(self._tmp_qr_img, "PNG")
+            qr_image.save(self._tmp_qr_img, self._ext)
 
             if self._show_text:
                 image_qr = QtGui.QImage(self._tmp_qr_img)
