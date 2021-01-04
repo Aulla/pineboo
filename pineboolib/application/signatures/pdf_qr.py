@@ -12,7 +12,7 @@ import io
 import qrcode  # type: ignore[import]
 
 
-from typing import List
+from typing import List, Optional
 
 LOGGER = logging.get_logger(__name__)
 
@@ -32,8 +32,11 @@ class pdfQr:
     _font_size: int
     _show_text: bool
     _dpi: int
+    _tmp_qr_img: str
+    _factor: int
+    _qr_image: Optional["QtGui.QImage"]
 
-    def __init__(self, orig) -> None:
+    def __init__(self, orig: str = "") -> None:
         """Initialize."""
 
         self._orig = orig
@@ -48,6 +51,9 @@ class pdfQr:
         self._font_size = 8
         self._show_text = False
         self._dpi = 300
+        self._tmp_qr_img = ""
+        self._factor = self._dpi / 100
+        self._qr_image = None
 
     def set_size(self, size: int) -> None:
         """Set size."""
@@ -60,6 +66,7 @@ class pdfQr:
         """Set dpi."""
 
         self._dpi = int(dpi)
+        self._factor = self._dpi / 100
 
     def set_text(self, qr_text: str, text: str = "") -> None:
         """Set text."""
@@ -86,58 +93,15 @@ class pdfQr:
     def sign(self, all_pages: bool = False) -> bool:
         """Sing file."""
 
+        if not self._orig:
+            LOGGER.warning("A file has not been specified to sign")
+            return False
+
         self._all_pages = all_pages
+        if not self.build_qr():
+            return False
 
-        qr_ = qrcode.QRCode(
-            version=self._size,
-            error_correction=qrcode.constants.ERROR_CORRECT_M,
-            box_size=3,
-            border=4,
-        )  # 135 px x 135 px = (35.89 mm x 35.89 mm)
-        qr_.add_data(self._qr_text)
-        qr_.make(fit=False)
-        qr_image = qr_.make_image(fill_color="black", back_color="white")
-
-        tmp_qr_file_name = os.path.join(application.PROJECT.tmpdir, "my_qr.PNG")
-        qr_image.save(tmp_qr_file_name, "PNG")
-
-        # qr_image.height
-        signed_image = None
-        factor = self._dpi / 100
-        if self._show_text:
-            image_qr = QtGui.QImage(tmp_qr_file_name)
-            image_label = QtGui.QImage(tmp_qr_file_name)
-            text_width = len(self._text) * 2.7
-            image_label_resized = image_label.scaled(
-                (qr_image.height + text_width) * factor,
-                (qr_image.height + (self._font_size + 2)) * factor,
-            )
-            image_qr = image_qr.scaled(
-                int(image_qr.width() * factor), int(image_qr.height() * factor)
-            )
-            image_label_resized.fill(0)
-            label_painter = QtGui.QPainter()
-            label_painter.begin(image_label_resized)
-            label_painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
-            label_painter.setPen(QtGui.QPen(QtCore.Qt.black))
-            label_painter.setFont(
-                QtGui.QFont(self._font_name, int(self._font_size * factor), QtGui.QFont.Bold)
-            )
-            label_painter.drawText(image_label_resized.rect(), QtCore.Qt.AlignTop, " " + self._text)
-            label_painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
-            label_painter.drawImage(
-                image_label_resized.width() - image_qr.width(),
-                int((self._font_size + 2) * factor),
-                image_qr,
-            )
-            label_painter.end()
-            signed_image = image_label_resized
-        else:
-            signed_image = QtGui.QImage(tmp_qr_file_name)
-            signed_image = signed_image.scaled(
-                int(signed_image.width() * factor), int(signed_image.height() * factor)
-            )
-
+        signed_image = self._qr_image
         mark = True
         pos_x = self._pos_x
         pos_y = self._pos_y
@@ -152,8 +116,8 @@ class pdfQr:
                 painter.begin(page_image)
                 painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
                 painter.drawImage(
-                    page_image.width() - (pos_x * factor) - signed_image.width(),
-                    page_image.height() - (pos_y * factor) - signed_image.height(),
+                    page_image.width() - (pos_x * self._factor) - signed_image.width(),
+                    page_image.height() - (pos_y * self._factor) - signed_image.height(),
                     signed_image,
                 )
                 painter.end()
@@ -162,6 +126,93 @@ class pdfQr:
 
             if not self._all_pages:
                 mark = False
+
+        return True
+
+    def get_qr(self) -> str:
+        """Return QR temp file."""
+
+        if not self._tmp_qr_img:
+            if not self.build_qr():
+                return ""
+
+        return self._tmp_qr_img
+
+    def build_qr(self) -> bool:
+        """Build QR image."""
+
+        try:
+            qr_ = qrcode.QRCode(
+                version=self._size,
+                error_correction=qrcode.constants.ERROR_CORRECT_M,
+                box_size=3,
+                border=4,
+            )  # 135 px x 135 px = (35.89 mm x 35.89 mm)
+            qr_.add_data(self._qr_text)
+            qr_.make(fit=False)
+            qr_image = qr_.make_image(fill_color="black", back_color="white")
+
+            qr_folder = os.path.join(
+                application.PROJECT.tmpdir,
+                "cache",
+                application.PROJECT.conn_manager.mainConn()._db_name,
+                "QR",
+            )
+
+            if not os.path.exists(qr_folder):
+                os.mkdir(qr_folder)
+
+            self._tmp_qr_img = os.path.join(
+                qr_folder,
+                "%s.PNG" % QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz"),
+            )
+            qr_image.save(self._tmp_qr_img, "PNG")
+
+            # qr_image.height
+            signed_image = None
+
+            if self._show_text:
+                image_qr = QtGui.QImage(self._tmp_qr_img)
+                image_label = QtGui.QImage(self._tmp_qr_img)
+                text_width = len(self._text) * 2.7
+                image_label_resized = image_label.scaled(
+                    (qr_image.height + text_width) * self._factor,
+                    (qr_image.height + (self._font_size + 2)) * self._factor,
+                )
+                image_qr = image_qr.scaled(
+                    int(image_qr.width() * self._factor), int(image_qr.height() * self._factor)
+                )
+                image_label_resized.fill(0)
+                label_painter = QtGui.QPainter()
+                label_painter.begin(image_label_resized)
+                label_painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+                label_painter.setPen(QtGui.QPen(QtCore.Qt.black))
+                label_painter.setFont(
+                    QtGui.QFont(
+                        self._font_name, int(self._font_size * self._factor), QtGui.QFont.Bold
+                    )
+                )
+                label_painter.drawText(
+                    image_label_resized.rect(), QtCore.Qt.AlignTop, " " + self._text
+                )
+                label_painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+                label_painter.drawImage(
+                    image_label_resized.width() - image_qr.width(),
+                    int((self._font_size + 2) * self._factor),
+                    image_qr,
+                )
+                label_painter.end()
+                image_label_resized.save(self._tmp_qr_img, "PNG")
+                self._qr_image = image_label_resized
+            else:
+                self._qr_image = QtGui.QImage(self._tmp_qr_img).scaled(
+                    int(signed_image.width() * self._factor),
+                    int(signed_image.height() * self._factor),
+                )
+
+        except Exception as error:
+            LOGGER.warning("Build QR failed:%s", str(error))
+            return False
 
         return True
 
