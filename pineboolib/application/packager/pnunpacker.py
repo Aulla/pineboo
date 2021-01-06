@@ -6,7 +6,7 @@ Extract the files from the .abanq and .eneboopkg packages and save them in the f
 """
 
 from PyQt6 import QtCore  # type: ignore
-from typing import Any, List
+from typing import Any, List, cast
 
 err_msgs_: List[str] = []
 
@@ -30,7 +30,7 @@ class PNUnpacker(QtCore.QObject):
         """
 
         self.file_ = QtCore.QFile(QtCore.QDir.cleanPath(in_))
-        if not self.file_.open(QtCore.QIODevice.ReadOnly):
+        if not self.file_.open(QtCore.QIODevice.OpenMode.ReadOnly):
             raise Exception("Error opening file %r" % in_)
         self.stream_ = QtCore.QDataStream(self.file_)
         self.package_version_ = self.stream_.readBytes().decode("utf-8")
@@ -51,7 +51,9 @@ class PNUnpacker(QtCore.QObject):
         @return record string.
         """
 
-        data_bytes = QtCore.qUncompress(QtCore.QByteArray(self.stream_.readBytes())).data()
+        data_bytes = QtCore.qUncompress(
+            QtCore.QByteArray(cast(QtCore.QByteArray, self.stream_.readBytes()))
+        ).data()
         try:
             data_ = data_bytes.decode("utf-8")
         except UnicodeDecodeError:
@@ -66,7 +68,9 @@ class PNUnpacker(QtCore.QObject):
         @return record bytes.
         """
 
-        return QtCore.qUncompress(QtCore.QByteArray(self.stream_.readBytes()))
+        return QtCore.qUncompress(
+            QtCore.QByteArray(cast(QtCore.QByteArray, self.stream_.readBytes()))
+        )
 
     def getVersion(self) -> str:
         """

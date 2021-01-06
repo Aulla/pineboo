@@ -90,7 +90,7 @@ class AQGlobalFunctionsClass(QtCore.QObject):
     def mapConnect(self, obj: QtWidgets.QWidget, signal: str, function_name: str) -> None:
         """Add conection to map."""
 
-        self.mappers_.mapped[str].connect(self.exec_)  # type: ignore
+        self.mappers_.mappedString.connect(self.exec_)  # type: ignore
         sg_name = re.sub(r" *\(.*\)", "", signal)
 
         signal_ = getattr(obj, sg_name, None)
