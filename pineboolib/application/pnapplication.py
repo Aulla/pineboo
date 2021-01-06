@@ -503,9 +503,9 @@ class PNApplication(QtCore.QObject):
         if pix_.isNull():
             return ret_
 
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         buffer_ = QtCore.QBuffer()
-        buffer_.open(QtCore.QIODevice.WriteOnly)
+        buffer_.open(QtCore.QIODevice.OpenMode.WriteOnly)
         pix_.save(buffer_, "xpm")
 
         QtWidgets.QApplication.restoreOverrideCursor()
@@ -638,7 +638,7 @@ class PNApplication(QtCore.QObject):
                 dock_widget.setWidget(self._ted_output)
                 dock_widget.setWindowTitle(self.tr("Mensajes de Eneboo"))
                 application.PROJECT.main_window.addDockWidget(
-                    QtCore.Qt.BottomDockWidgetArea, dock_widget
+                    QtCore.Qt.DockWidgetAreas.BottomDockWidgetArea, dock_widget
                 )
 
     def consoleShown(self) -> bool:
@@ -773,15 +773,15 @@ class PNApplication(QtCore.QObject):
                 main_widget,
                 self.tr("Salir ..."),
                 self.tr("¿ Quiere salir de la aplicación ?"),
-                QtWidgets.QMessageBox.Yes,
-                QtWidgets.QMessageBox.No,
+                QtWidgets.QMessageBox.StandardButtons.Yes,
+                QtWidgets.QMessageBox.StandardButtons.No,
             )
-            return ret == QtWidgets.QMessageBox.Yes
+            return ret == QtWidgets.QMessageBox.StandardButtons.Yes
 
     def loadScripts(self) -> None:
         """Load scripts for all modules."""
 
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         list_modules = self.db().managerModules().listAllIdModules()
         for item in list_modules:
             self.loadScriptsFromModule(item)
@@ -957,7 +957,10 @@ class PNApplication(QtCore.QObject):
         # from . import flpixmapviewer
 
         file_dialog = QtWidgets.QFileDialog(
-            QtWidgets.qApp.focusWidget(), self.tr("Elegir archivo"), application.PROJECT.tmpdir, "*"
+            QtWidgets.QApplication.focusWidget(),
+            self.tr("Elegir archivo"),
+            application.PROJECT.tmpdir,
+            "*",
         )
         # pixmap_viewer = flpixmapview.FLPixmapView(file_dialog)
 
@@ -967,7 +970,7 @@ class PNApplication(QtCore.QObject):
         # file_dialog.setPreviewMode(QtWidgets.QFileDialog.Contents)
 
         file_name = None
-        if file_dialog.exec_() == QtWidgets.QDialog.Accepted:
+        if file_dialog.exec_() == QtWidgets.QDialog.DialogCode.Accepted:
             list_ = file_dialog.selectedFiles()
             if list_:
                 file_name = list_[0]

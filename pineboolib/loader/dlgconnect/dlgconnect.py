@@ -400,11 +400,14 @@ class DlgConnect(QtWidgets.QWidget):
         """Event Filter."""
 
         if isinstance(event, QtGui.QKeyEvent):
-            if event.key() in (QtCore.Qt.Key.Key_Return, QtCore.Qt.Key.Key_Enter):
+            if event.key() in (
+                cast(int, QtCore.Qt.Key.Key_Return),
+                cast(int, QtCore.Qt.Key.Key_Enter),
+            ):
                 self.open()
                 return True
 
-            elif event.key() == QtCore.Qt.Key.Key_Escape:
+            elif event.key() == cast(int, QtCore.Qt.Key.Key_Escape):
                 self.close()
                 return True
 

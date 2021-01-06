@@ -9,9 +9,8 @@ pg8000
 ply
 pylint
 six
-PyQt5==5.14.2
+PyQt6==6.0.0
 PyQt5-tools==5.14.2.2
-PyQt5-sip==12.7.2
 PyQt5-stubs==5.14.2
 pytest
 python-barcode

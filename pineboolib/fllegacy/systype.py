@@ -394,16 +394,21 @@ class SysType(sysbasetype.SysBaseType):
         # lay.setSpacing(6)
         lbl = QLabel(diag)
         lbl.setText(txt)
-        lbl.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.AlignTop))
+        lbl.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.Alignment.AlignTop))
         lay.addWidget(lbl)
         ted = QTextEdit(diag)
         ted.setTextFormat(QTextEdit.LogText)
-        ted.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter))
+        ted.setAlignment(
+            cast(
+                QtCore.Qt.Alignment,
+                QtCore.Qt.Alignment.AlignHCenter | QtCore.Qt.Alignment.AlignVCenter,
+            )
+        )
         ted.append(self.reportChanges(changes))
         lay.addWidget(ted)
         lbl2 = QLabel(diag)
         lbl2.setText(self.translate("¿Que desea hacer?"))
-        lbl2.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.AlignTop))
+        lbl2.setAlignment(cast(QtCore.Qt.Alignment, QtCore.Qt.Alignment.AlignTop))
         lay.addWidget(lbl2)
         lay2 = QHBoxLayout()
         # lay2.setMargin(6)
@@ -1279,7 +1284,7 @@ class SysType(sysbasetype.SysBaseType):
         db_._transaction_level += 1
 
         if self.interactiveGUI():
-            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
 
         try:
             valor_ = function(optional_params)
@@ -1528,9 +1533,9 @@ class AbanQDbDumper(QtCore.QObject):
         # lay = QVBoxLayout(self.widget_, 6, 6)
         lay = QVBoxLayout(self.widget_)
         frm = QtWidgets.QFrame(self.widget_)
-        frm.setFrameShape(QtWidgets.QFrame.Box)
+        frm.setFrameShape(QtWidgets.QFrame.Shape.Box)
         frm.setLineWidth(1)
-        frm.setFrameShadow(QtWidgets.QFrame.Plain)
+        frm.setFrameShadow(QtWidgets.QFrame.Shadow.Plain)
 
         # lay_frame = QVBoxLayout(frm, 6, 6)
         lay_frame = QVBoxLayout(frm)
@@ -1539,23 +1544,23 @@ class AbanQDbDumper(QtCore.QObject):
             SysType.translate(u"Driver: %s")
             % (str(self.db_.driverNameToDriverAlias(self.db_.driverName())))
         )
-        lbl.setAlignment(QtCore.Qt.AlignTop)
+        lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
         lay_frame.addWidget(lbl)
         lbl = QLabel(frm)
         lbl.setText(SysType.translate(u"Base de datos: %s") % (str(self.db_.database())))
-        lbl.setAlignment(QtCore.Qt.AlignTop)
+        lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
         lay_frame.addWidget(lbl)
         lbl = QLabel(frm)
         lbl.setText(SysType.translate(u"Host: %s") % (str(self.db_.host())))
-        lbl.setAlignment(QtCore.Qt.AlignTop)
+        lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
         lay_frame.addWidget(lbl)
         lbl = QLabel(frm)
         lbl.setText(SysType.translate(u"Puerto: %s") % (str(self.db_.port())))
-        lbl.setAlignment(QtCore.Qt.AlignTop)
+        lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
         lay_frame.addWidget(lbl)
         lbl = QLabel(frm)
         lbl.setText(SysType.translate(u"Usuario: %s") % (str(self.db_.user())))
-        lbl.setAlignment(QtCore.Qt.AlignTop)
+        lbl.setAlignment(QtCore.Qt.Alignment.AlignTop)
         lay_frame.addWidget(lbl)
         lay_aux = QHBoxLayout()
         lay_frame.addLayout(lay_aux)
@@ -1563,11 +1568,11 @@ class AbanQDbDumper(QtCore.QObject):
         self._label_dir_base.setText(
             SysType.translate(u"Directorio Destino: %s") % (str(self._dir_base))
         )
-        self._label_dir_base.setAlignment(QtCore.Qt.AlignVCenter)
+        self._label_dir_base.setAlignment(QtCore.Qt.Alignment.AlignVCenter)
         lay_aux.addWidget(self._label_dir_base)
         self.pushbutton_change_dir = QPushButton(SysType.translate(u"Cambiar"), frm)
         self.pushbutton_change_dir.setSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred
+            QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Preferred
         )
         application.connections.connect(
             self.pushbutton_change_dir, u"clicked()", self, u"changeDirBase()"
@@ -1583,7 +1588,10 @@ class AbanQDbDumper(QtCore.QObject):
         self._ted_log = QTextEdit(self.widget_)
         self._ted_log.setTextFormat(QTextEdit.LogText)
         self._ted_log.setAlignment(
-            cast(QtCore.Qt.Alignment, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+            cast(
+                QtCore.Qt.Alignment,
+                QtCore.Qt.Alignment.AlignHCenter | QtCore.Qt.Alignment.AlignVCenter,
+            )
         )
         lay.addWidget(self._ted_log)
 
@@ -1841,7 +1849,7 @@ class AbanQDbDumper(QtCore.QObject):
         if not file_.open(types.File.WriteOnly):
             return False
         ts_ = QtCore.QTextStream(file_.ioDevice())
-        ts_.setCodec(AQS.TextCodec_codecForName(u"utf8"))
+        # ts_.setCodec(AQS.TextCodec_codecForName(u"utf8"))
         qry = pnsqlquery.PNSqlQuery()
         qry.setSelect(utils_base.ustr(table, u".*"))
         qry.setFrom(table)

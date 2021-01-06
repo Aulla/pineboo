@@ -164,10 +164,11 @@ class PNSqlSchema(object):
                     "La base de datos %s no existe.\n¿Desea crearla?" % db_name,
                     cast(
                         QtWidgets.QMessageBox.StandardButtons,
-                        QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
+                        QtWidgets.QMessageBox.StandardButtons.Ok
+                        | QtWidgets.QMessageBox.StandardButtons.No,
                     ),
                 )
-                if ret == QtWidgets.QMessageBox.No:
+                if ret == QtWidgets.QMessageBox.StandardButtons.No:
                     return None
                 else:
                     try:
@@ -200,7 +201,7 @@ class PNSqlSchema(object):
                             QtWidgets.QWidget(),
                             "Pineboo",
                             "ERROR: No se ha podido crear la Base de Datos %s" % db_name,
-                            QtWidgets.QMessageBox.Ok,
+                            QtWidgets.QMessageBox.StandardButtons.Ok,
                         )
                         LOGGER.error("ERROR: No se ha podido crear la Base de Datos %s", db_name)
                         return None
@@ -351,7 +352,7 @@ class PNSqlSchema(object):
 
         elif type_ == "time":
             time_ = value.toTime()
-            res = self._text_like + "LIKE '" + time_.toString(QtCore.Qt.ISODate) + "%%'"
+            res = self._text_like + "LIKE '" + time_.toString(QtCore.Qt.DateFormat.ISODate) + "%%'"
 
         else:
             res = str(value)

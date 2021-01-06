@@ -150,7 +150,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self._pbaux3 = None
         self._pbaux4 = None
         self._accel = {}
-        self._text_format = QtCore.Qt.AutoText
+        self._text_format = QtCore.Qt.TextFormat.AutoText
         self._text_label_db = None
         self._widgets_layout = None
         self._first_refresh = False
@@ -173,7 +173,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self._buttons_layout = QtWidgets.QHBoxLayout()
         self._buttons_layout.setContentsMargins(0, 0, 0, 0)
         self._buttons_layout.setSpacing(1)
-        self._buttons_layout.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self._buttons_layout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
 
         # self._buttons_layout.SetMinimumSize(22,22)
         # self._buttons_layout.SetMaximumSize(22,22)
@@ -181,7 +181,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self._widgets_layout = QtWidgets.QHBoxLayout()
         self._widgets_layout.setSpacing(1)
         self._widgets_layout.setContentsMargins(0, 0, 0, 0)
-        self._widgets_layout.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self._widgets_layout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
         self._horizontal_layout.addLayout(self._buttons_layout)
         self._horizontal_layout.addLayout(self._widgets_layout)
         self._table_name = ""
@@ -193,14 +193,17 @@ class FLFieldDB(QtWidgets.QWidget):
         if self._text_label_db is not None:
             self._text_label_db.setMinimumHeight(16)  # No inicia originalmente aqui
             self._text_label_db.setAlignment(
-                cast(QtCore.Qt.AlignmentFlag, QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
+                cast(
+                    QtCore.Qt.Alignment,
+                    QtCore.Qt.Alignment.AlignVCenter | QtCore.Qt.Alignment.AlignLeft,
+                )
             )
             # self._text_label_db.setFrameShape(QtGui.QFrame.WinPanel)
-            self._text_label_db.setFrameShadow(QtWidgets.QFrame.Plain)
+            self._text_label_db.setFrameShadow(QtWidgets.QFrame.Shadow.Plain)
             self._text_label_db.setLineWidth(0)
-            self._text_label_db.setTextFormat(QtCore.Qt.PlainText)
+            self._text_label_db.setTextFormat(QtCore.Qt.TextFormat.PlainText)
             self._text_label_db.setSizePolicy(
-                QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+                QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
             )
 
         self._field_alias = ""
@@ -214,13 +217,13 @@ class FLFieldDB(QtWidgets.QWidget):
         self.setFocusProxy(self._push_button_db)
         # self._push_button_db.setFlat(True)
         pb_size_polizy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+            QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
         )
         pb_size_polizy.setHeightForWidth(True)
         self._push_button_db.setSizePolicy(pb_size_polizy)
         self._push_button_db.setMinimumSize(self._icon_size)
         self._push_button_db.setMaximumSize(self._icon_size)
-        self._push_button_db.setFocusPolicy(QtCore.Qt.NoFocus)
+        self._push_button_db.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._push_button_db.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "flfielddb.png"))
         )
@@ -403,7 +406,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if self._show_alias and self._text_label_db:
                 self._text_label_db.setText(self._field_alias)
 
-    def setTextFormat(self, text_format: QtCore.Qt.TextFormat) -> None:
+    def setTextFormat(self, text_format: "QtCore.Qt.TextFormat") -> None:
         """
         Set the text format.
 
@@ -415,7 +418,7 @@ class FLFieldDB(QtWidgets.QWidget):
         # if isinstance(ted, qtextedit.QTextEdit):
         #    ted.setTextFormat(self._text_format)
 
-    def textFormat(self) -> int:
+    def textFormat(self) -> "QtCore.Qt.TextFormat":
         """
         Return text field format.
 
@@ -427,7 +430,7 @@ class FLFieldDB(QtWidgets.QWidget):
         #    return ted.textFormat()
         return self._text_format
 
-    def setEchoMode(self, mode: qlineedit.QLineEdit.EchoMode) -> None:
+    def setEchoMode(self, mode: "qlineedit.QLineEdit.EchoMode") -> None:
         """
         Set the "echo" mode.
 
@@ -436,7 +439,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if isinstance(self.editor_, (fllineedit.FLLineEdit, QtWidgets.QLineEdit)):
             self.editor_.setEchoMode(mode)
 
-    def echoMode(self) -> int:
+    def echoMode(self) -> "qlineedit.QLineEdit.EchoMode":
         """
         Return the echo mode.
 
@@ -445,7 +448,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if isinstance(self.editor_, (fllineedit.FLLineEdit, QtWidgets.QLineEdit)):
             return self.editor_.echoMode()
         else:
-            return QtWidgets.QLineEdit.Normal
+            return QtWidgets.QLineEdit.EchoMode.Normal
 
     def _process_autocomplete_events(self, event: QtCore.QEvent) -> bool:
         """Process autocomplete events."""
@@ -454,7 +457,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if self._auto_com_frame and self._auto_com_frame.isVisible():
             if event.type() == QtCore.QEvent.KeyPress:
                 key = cast(QtGui.QKeyEvent, event)
-            if key.key() == QtCore.Qt.Key_Down and self._auto_com_popup:
+            if key.key() == cast(int, QtCore.Qt.Key.Key_Down) and self._auto_com_popup:
                 self._auto_com_popup.setQuickFocus()
                 return True
 
@@ -466,7 +469,7 @@ class FLFieldDB(QtWidgets.QWidget):
             # <-- WIN
 
             self._auto_com_frame.hide()
-            if self.editor_ and key.key() == QtCore.Qt.Key_Backspace:
+            if self.editor_ and key.key() == cast(int, QtCore.Qt.Key.Key_Backspace):
                 cast(fllineedit.FLLineEdit, self.editor_).backspace()
 
             if not self._timer_auto_comp:
@@ -475,7 +478,10 @@ class FLFieldDB(QtWidgets.QWidget):
             else:
                 self._timer_auto_comp.stop()
 
-            if not key.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
+            if not key.key() in (
+                cast(int, QtCore.Qt.Key.Key_Enter),
+                cast(int, QtCore.Qt.Key.Key_Return),
+            ):
                 timer_active = True
                 self._timer_auto_comp.start(500)
             else:
@@ -487,10 +493,10 @@ class FLFieldDB(QtWidgets.QWidget):
             and (not self._auto_com_frame or not self._auto_com_frame.isVisible())
         ):
             if key.key() in (
-                QtCore.Qt.Key_Backspace,
-                QtCore.Qt.Key_Delete,
-                QtCore.Qt.Key_Space,
-                QtCore.Qt.Key_ydiaeresis,
+                cast(int, QtCore.Qt.Key.Key_Backspace),
+                cast(int, QtCore.Qt.Key.Key_Delete),
+                cast(int, QtCore.Qt.Key.Key_Space),
+                cast(int, QtCore.Qt.Key.Key_ydiaeresis),
             ):
                 if not self._timer_auto_comp:
                     self._timer_auto_comp = QtCore.QTimer(self)
@@ -498,7 +504,10 @@ class FLFieldDB(QtWidgets.QWidget):
                 else:
                     self._timer_auto_comp.stop()
 
-                if not key.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
+                if not key.key() in (
+                    cast(int, QtCore.Qt.Key.Key_Enter),
+                    cast(int, QtCore.Qt.Key.Key_Return),
+                ):
                     timer_active = True
                     self._timer_auto_comp.start(500)
                 else:
@@ -508,7 +517,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
     @decorators.pyqt_slot()
     @decorators.pyqt_slot(int)
-    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
+    def eventFilter(self, obj: "QtCore.QObject", event: "QtCore.QEvent") -> bool:
         """
         Process Qt events for keypresses.
         """
@@ -523,29 +532,32 @@ class FLFieldDB(QtWidgets.QWidget):
                 return True
 
             if isinstance(obj, fllineedit.FLLineEdit):
-                if key_.key() == QtCore.Qt.Key_F4:
+                if key_.key() == cast(int, QtCore.Qt.Key.Key_F4):
                     self.keyF4Pressed.emit()
                     return True
             elif isinstance(obj, qtextedit.QTextEdit):
-                if key_.key() == QtCore.Qt.Key_F4:
+                if key_.key() == cast(int, QtCore.Qt.Key.Key_F4):
                     self.keyF4Pressed.emit()
                     return True
                 return False
 
-            if key_.key() in [QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return]:
+            if key_.key() in [
+                cast(int, QtCore.Qt.Key.Key_Enter),
+                cast(int, QtCore.Qt.Key.Key_Return),
+            ]:
                 self.focusNextPrevChild(True)
                 self.keyReturnPressed.emit()
                 return True
 
-            elif key_.key() == QtCore.Qt.Key_Up:
+            elif key_.key() == cast(int, QtCore.Qt.Key.Key_Up):
                 self.focusNextPrevChild(False)
                 return True
 
-            elif key_.key() == QtCore.Qt.Key_Down:
+            elif key_.key() == cast(int, QtCore.Qt.Key.Key_Down):
                 self.focusNextPrevChild(True)
                 return True
 
-            elif key_.key() == QtCore.Qt.Key_F2:
+            elif key_.key() == cast(int, QtCore.Qt.Key.Key_F2):
                 self.keyF2Pressed.emit()
                 return True
 
@@ -1292,7 +1304,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if not hasattr(self, "_editor_img"):
 
                 self._editor_img = flpixmapview.FLPixmapView(self)
-                self._editor_img.setFocusPolicy(QtCore.Qt.NoFocus)
+                self._editor_img.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self._editor_img.setSizePolicy(self.sizePolicy())
                 self._editor_img.setMaximumSize(147, 24)
                 # self._editor_img.setMinimumSize(self.minimumSize())
@@ -1526,7 +1538,7 @@ class FLFieldDB(QtWidgets.QWidget):
         elif type_ == "pixmap":
             if not self._editor_img:
                 self._editor_img = flpixmapview.FLPixmapView(self)
-                self._editor_img.setFocusPolicy(QtCore.Qt.NoFocus)
+                self._editor_img.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self._editor_img.setSizePolicy(self.sizePolicy())
                 self._editor_img.setMaximumSize(147, 24)
                 # self._editor_img.setMinimumSize(self.minimumSize())
@@ -1899,7 +1911,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.setFont(self.font())
             self.editor_.setMaxValue(pow(10, field.partInteger()) - 1)
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Fixed
+                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy.Fixed
             )
             size_policy.setHeightForWidth(True)
             self.editor_.setSizePolicy(size_policy)
@@ -1924,7 +1936,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 if not hasattr(self, "_editor_img") and self._widgets_layout:
                     self._widgets_layout.setDirection(QtWidgets.QBoxLayout.Down)
                     self._editor_img = flpixmapview.FLPixmapView(self)
-                    self._editor_img.setFocusPolicy(QtCore.Qt.NoFocus)
+                    self._editor_img.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                     self._editor_img.setSizePolicy(self.sizePolicy())
                     self._editor_img.setMaximumSize(self.maximumSize())
                     self._editor_img.setMinimumSize(self.minimumSize())
@@ -1939,7 +1951,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     self._text_label_db.hide()
 
                 size_policy = QtWidgets.QSizePolicy(
-                    QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+                    QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
                 )
                 # size_policy.setHeightForWidth(True)
 
@@ -1952,7 +1964,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     if self._pbaux3:
                         self._pbaux3.setSizePolicy(size_policy)
                         self._pbaux3.setMinimumSize(self._icon_size)
-                        self._pbaux3.setFocusPolicy(QtCore.Qt.NoFocus)
+                        self._pbaux3.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                         self._pbaux3.setIcon(
                             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-open.png"))
                         )
@@ -1977,7 +1989,7 @@ class FLFieldDB(QtWidgets.QWidget):
                             except Exception:
                                 LOGGER.exception("Error al desconectar señal")
 
-                        self._pbaux3.setFocusPolicy(QtCore.Qt.StrongFocus)
+                        self._pbaux3.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
                         self._pbaux3.installEventFilter(self)
 
                 if not self._pbaux4:
@@ -1985,7 +1997,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     if self._pbaux4:
                         self._pbaux4.setSizePolicy(size_policy)
                         self._pbaux4.setMinimumSize(self._icon_size)
-                        self._pbaux4.setFocusPolicy(QtCore.Qt.NoFocus)
+                        self._pbaux4.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                         self._pbaux4.setIcon(
                             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-paste.png"))
                         )
@@ -2005,7 +2017,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     if self._pbaux:
                         self._pbaux.setSizePolicy(size_policy)
                         self._pbaux.setMinimumSize(self._icon_size)
-                        self._pbaux.setFocusPolicy(QtCore.Qt.NoFocus)
+                        self._pbaux.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                         self._pbaux.setIcon(
                             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-clear.png"))
                         )
@@ -2032,7 +2044,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self._pbaux2.setMenu(savepixmap_)
                         self._pbaux2.setSizePolicy(size_policy)
                         self._pbaux2.setMinimumSize(self._icon_size)
-                        self._pbaux2.setFocusPolicy(QtCore.Qt.NoFocus)
+                        self._pbaux2.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                         self._pbaux2.setIcon(
                             QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-save.png"))
                         )
@@ -2058,7 +2070,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_ = fldateedit.FLDateEdit(self, "editor")
             self.editor_.setFont(self.font())
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Fixed
+                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy.Fixed
             )
             size_policy.setHeightForWidth(True)
             self.editor_.setSizePolicy(size_policy)
@@ -2081,7 +2093,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 #    # self._pbaux.setSizePolicy(sizePolicy)
                 #    #self._pbaux.setMinimumSize(25, 25)
                 #    #self._pbaux.setMaximumSize(25, 25)
-                #    # self._pbaux.setFocusPolicy(QtCore.Qt.NoFocus)
+                #    # self._pbaux.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 #    # self._pbaux.setIcon(QtGui.QIcon(utils_base.filedir("./core/images/icons","date.png")))
                 #    # self._pbaux.setText("")
                 #    #self._pbaux.setToolTip("Seleccionar fecha (F2)")
@@ -2117,7 +2129,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.setFont(self.font())
             # self.editor_.setAutoAdvance(True)
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Fixed
+                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy.Fixed
             )
             size_policy.setHeightForWidth(True)
             self.editor_.setSizePolicy(size_policy)
@@ -2208,7 +2220,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self.fontMetrics().width(alias) + self.fontMetrics().maxWidth() * 2
             )
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Fixed
+                QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy.Fixed
             )
             size_policy.setHeightForWidth(True)
             self.editor_.setSizePolicy(size_policy)
@@ -2223,21 +2235,21 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.toggled.connect(self.updateValue)
 
         if hasattr(self, "editor_"):
-            self.editor_.setFocusPolicy(QtCore.Qt.StrongFocus)
+            self.editor_.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
             self.setFocusProxy(self.editor_)
 
             if has_push_button_db:
                 if self._push_button_db:
                     self.setTabOrder(self._push_button_db, self.editor_)
-                    self._push_button_db.setFocusPolicy(QtCore.Qt.NoFocus)
+                    self._push_button_db.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.editor_.setToolTip("Para buscar un valor en la tabla relacionada pulsar F2")
                 self.editor_.setWhatsThis("Para buscar un valor en la tabla relacionada pulsar F2")
 
         elif hasattr(self, "_editor_img"):
-            self._editor_img.setFocusPolicy(QtCore.Qt.NoFocus)
+            self._editor_img.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             if has_push_button_db:
                 if self._push_button_db:
-                    self._push_button_db.setFocusPolicy(QtCore.Qt.StrongFocus)
+                    self._push_button_db.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
         if not has_push_button_db:
             if self._push_button_db:
@@ -2276,7 +2288,9 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.setObjectName("editor")
             # self.editor_.setEditable(False)
             # self.editor_.setAutoCompletion(True)
-            self.editor_.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+            self.editor_.setSizePolicy(
+                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed
+            )
             self.editor_.setMinimumSize(self._icon_size)
             self.editor_.setFont(self.font())
             # if not self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Browse:
@@ -2408,7 +2422,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._text_label_db.setCursor(QtCore.Qt.PointingHandCursor)
 
         size_policy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Fixed
+            QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy.Fixed
         )
         size_policy.setHeightForWidth(True)
         self.editor_.setSizePolicy(size_policy)
@@ -2444,7 +2458,7 @@ class FLFieldDB(QtWidgets.QWidget):
             )
             if savefilename:
                 pix = QtGui.QPixmap(self._editor_img.pixmap())
-                QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+                QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
                 if pix:
                     if not pix.save(savefilename[0]):
                         QtWidgets.QMessageBox.warning(
@@ -2922,7 +2936,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if not img:
             return
 
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         pix = QtGui.QPixmap()
         buffer = QtCore.QBuffer()
 
@@ -2948,7 +2962,7 @@ class FLFieldDB(QtWidgets.QWidget):
             raise Exception("_editor_img is empty!")
 
         self._editor_img.setPixmap(pix)
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         buffer.open(QtCore.QBuffer.ReadWrite)
         pix.save(buffer, "XPM")
 
@@ -2984,7 +2998,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if pixmap.isNull():
             return
 
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         pix = QtGui.QPixmap()
         buffer = QtCore.QBuffer()
 
@@ -3003,7 +3017,7 @@ class FLFieldDB(QtWidgets.QWidget):
             raise Exception("_editor_img is empty!")
 
         self._editor_img.setPixmap(pix)
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         buffer.open(QtCore.QBuffer.ReadWrite)
         pix.save(buffer, "XPM")
 
@@ -3031,7 +3045,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if not isinstance(img, QtGui.QImage):
             return
 
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         pix = QtGui.QPixmap()
         buffer = QtCore.QBuffer()
 
@@ -3058,7 +3072,7 @@ class FLFieldDB(QtWidgets.QWidget):
             raise Exception("_editor_img is empty!")
 
         self._editor_img.setPixmap(pix)
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         buffer.open(QtCore.QBuffer.ReadWrite)
         pix.save(buffer, "XPM")
 
@@ -3299,7 +3313,7 @@ class FLFieldDB(QtWidgets.QWidget):
                                 child.setReadOnly(False)
                                 child.palette().setColor(QtGui.QPalette.Base, color_bg)
                                 child.setCursor(QtCore.Qt.IBeamCursor)
-                                child.setFocusPolicy(QtCore.Qt.StrongFocus)
+                                child.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
                                 continue
                             child.setEnabled(True)
 
@@ -3320,14 +3334,14 @@ class FLFieldDB(QtWidgets.QWidget):
                                 child.setDisabled(False)
                                 child.setReadOnly(True)
                                 child.setCursor(QtCore.Qt.IBeamCursor)
-                                child.setFocusPolicy(QtCore.Qt.NoFocus)
+                                child.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                                 continue
 
                             elif isinstance(child, qtextedit.QTextEdit):
                                 child.setDisabled(False)
                                 child.setReadOnly(True)
                                 child.viewPort().setCursor(QtCore.Qt.IBeamCursor)
-                                child.setFocusPolicy(QtCore.Qt.NoFocus)
+                                child.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                                 continue
 
                             if child is self._text_label_db and self._push_button_db:
@@ -3459,19 +3473,21 @@ class FLFieldDB(QtWidgets.QWidget):
             self._field_alias = self._field_name
 
         self.editor_ = qlineedit.QLineEdit(self)
-        self.editor_.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        self.editor_.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         if self._text_label_db:
             self._text_label_db.setSizePolicy(
-                QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Fixed
+                QtWidgets.QSizePolicy.Policy.Ignored, QtWidgets.QSizePolicy.Policy.Fixed
             )
-        # self.editor_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        # self.editor_.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
         self.editor_.setMinimumWidth(100)
         # if application.PROJECT.DGI.mobilePlatform():
         #    self.editor_.setMinimumHeight(60)
 
         if self._widgets_layout:
             self._widgets_layout.addWidget(self.editor_)
-        self.editor_.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.editor_.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.setFocusProxy(self.editor_)
 
         if not self.tableName():
@@ -3488,7 +3504,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if has_push_button_db:
             if self._push_button_db:
                 self.setTabOrder(self._push_button_db, self.editor_)
-                self._push_button_db.setFocusPolicy(QtCore.Qt.NoFocus)
+                self._push_button_db.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self._push_button_db.show()
         else:
             if self._push_button_db:
