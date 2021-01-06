@@ -205,7 +205,9 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
 
                 if receiver is None:
                     receiver = widget.findChild(
-                        QtCore.QObject, receiv_name, QtCore.Qt.FindChildOptions.FindChildrenRecursively
+                        QtCore.QObject,
+                        receiv_name,
+                        QtCore.Qt.FindChildOptions.FindChildrenRecursively,
                     )
 
                 if receiver is None:
@@ -650,7 +652,7 @@ class LoadWidget:
                         )
 
                 self.widget._layout.setSizeConstraint(  # type: ignore [attr-defined] # noqa F821
-                    QtWidgets.QLayout.SetMinAndMaxSize
+                    QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize
                 )
                 self.widget._layout.setObjectName(  # type: ignore [attr-defined] # noqa F821
                     lay_name or "layout"
@@ -855,12 +857,12 @@ class LoadWidget:
             value = QtCore.QMargins(value, value, value, value)
 
         elif pname == "paletteBackgroundColor":
-            fg_color = widget.palette().color(QtGui.QPalette.Window).name()
+            fg_color = widget.palette().color(QtGui.QPalette.ColorRole.Window).name()
             bg_color = load_variant(xmlprop).name()
             value = "color: %s; background-color: %s" % (fg_color, bg_color)
 
         elif pname == "paletteForegroundColor":
-            bg_color = widget.palette().color(QtGui.QPalette.WindowText).name()
+            bg_color = widget.palette().color(QtGui.QPalette.ColorRole.WindowText).name()
             fg_color = load_variant(xmlprop).name()
 
             if bg_color != fg_color:  # Evitamos todo negro
@@ -966,10 +968,10 @@ class LoadWidget:
             elif item.tag == "spacer":
                 # sH = None
                 # sV = None
-                hor_policy = QtWidgets.QSizePolicy.Fixed
-                ver_policy = QtWidgets.QSizePolicy.Fixed
+                hor_policy = QtWidgets.QSizePolicy.Policy.Fixed
+                ver_policy = QtWidgets.QSizePolicy.Policy.Fixed
                 orient_ = None
-                policy_ = QtWidgets.QSizePolicy.Expanding
+                policy_ = QtWidgets.QSizePolicy.Policy.Expanding
                 row_span = item.get("rowspan") or 1
                 col_span = item.get("colspan") or 1
                 # policy_name = None
@@ -990,7 +992,7 @@ class LoadWidget:
                         ):
                             policy_ = QtWidgets.QSizePolicy.Policy(value)
                         else:
-                            policy_ = QtWidgets.QSizePolicy.Expanding  # Siempre Expanding
+                            policy_ = QtWidgets.QSizePolicy.Policy.Expanding  # Siempre Expanding
 
                     elif pname == "name":
                         spacer_name = value  # noqa: F841
@@ -1109,16 +1111,19 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
 
         policy = QtWidgets.QSizePolicy()
         for item in variant:
-            ivalue_policy = cast(QtWidgets.QSizePolicy.Policy, int((item.text or "0").strip()))
+            ivalue_policy = int((item.text or "0").strip())
+            policy_ = policy.Policy(ivalue_policy)
             if item.tag == "hsizetype":
-                policy.setHorizontalPolicy(ivalue_policy)
+                policy.setHorizontalPolicy(policy_)
             elif item.tag == "vsizetype":
-                policy.setVerticalPolicy(ivalue_policy)
+                policy.setVerticalPolicy(policy_)
             elif item.tag == "horstretch":
                 policy.setHorizontalStretch(ivalue_policy)
             elif item.tag == "verstretch":
                 policy.setVerticalStretch(ivalue_policy)
+
         return policy
+
     elif variant.tag == "size":
         p_sz = QtCore.QSize()
         for item in variant:
@@ -1164,27 +1169,33 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
             if value is not None:
                 final = final + int(value)
 
-        return QtCore.Qt.AlignmentFlag(final)
+        return QtCore.Qt.Alignment(final)
 
     elif variant.tag == "enum":
         libs_2: List[Any] = [
             QtCore.Qt,
+            QtCore.Qt.Orientations,
+            QtCore.Qt.Alignment,
+            QtWidgets.QSizePolicy.Policy,
             QtWidgets.QFrame,
             QtWidgets.QSizePolicy,
             QtWidgets.QTabWidget,
+            QtCore.Qt.FocusPolicy,
+            QtWidgets.QFrame.Shadow,
+            QtWidgets.QFrame.Shape,
         ]
         for lib in libs_2:
             value = getattr(lib, text, None)
             if value is not None:
                 return value
         if text in ["GroupBoxPanel", "LineEditPanel"]:
-            return QtWidgets.QFrame.StyledPanel
+            return QtWidgets.QFrame.Shape.StyledPanel
         if text in ("Single", "SingleRow"):
-            return QtWidgets.QAbstractItemView.SingleSelection
+            return QtWidgets.QAbstractItemView.SelectionMode.SingleSelection
         if text == "FollowStyle":
             return "QtWidgets.QTableView {selection-background-color: red;}"
         if text == "MultiRow":
-            return QtWidgets.QAbstractItemView.MultiSelection
+            return QtWidgets.QAbstractItemView.SelectionMode.MultiSelection
 
         att_found = getattr(widget, text, None)
         if att_found is not None:

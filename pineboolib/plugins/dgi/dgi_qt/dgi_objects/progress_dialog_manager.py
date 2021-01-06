@@ -21,7 +21,7 @@ class ProgressDialogManager(object):
         if pd_widget is not None:
             self.progress_dialog_stack.append(pd_widget)
             pd_widget.setObjectName(id_)
-            pd_widget.setWindowModality(QtCore.Qt.WindowModal)
+            pd_widget.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
             pd_widget.setWindowTitle(str(title))
 
             pd_widget.show()

@@ -455,7 +455,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         timer_active = False
         if self._auto_com_frame and self._auto_com_frame.isVisible():
-            if event.type() == QtCore.QEvent.KeyPress:
+            if event.type() == QtCore.QEvent.Type.KeyPress:
                 key = cast(QtGui.QKeyEvent, event)
             if key.key() == cast(int, QtCore.Qt.Key.Key_Down) and self._auto_com_popup:
                 self._auto_com_popup.setQuickFocus()
@@ -526,7 +526,7 @@ class FLFieldDB(QtWidgets.QWidget):
             return True
 
         QtWidgets.QWidget.eventFilter(self, obj, event)
-        if event.type() == QtCore.QEvent.KeyPress:
+        if event.type() == QtCore.QEvent.Type.KeyPress:
             key_ = cast(QtGui.QKeyEvent, event)
             if self._process_autocomplete_events(event):
                 return True
@@ -566,9 +566,9 @@ class FLFieldDB(QtWidgets.QWidget):
         # elif isinstance(event, QtCore.QEvent.MouseButtonRelease) and
         # isinstance(obj,self._text_label_db) and event.button() == QtCore.Qt.LeftButton:
         elif (
-            event.type() == QtCore.QEvent.MouseButtonRelease
+            event.type() == QtCore.QEvent.Type.MouseButtonRelease
             and isinstance(obj, type(self._text_label_db))
-            and cast(QtGui.QMouseEvent, event).button() == QtCore.Qt.LeftButton
+            and cast(QtGui.QMouseEvent, event).button() == QtCore.Qt.MouseButtons.LeftButton
         ):
             self.emitLabelClicked()
             return True
@@ -964,7 +964,7 @@ class FLFieldDB(QtWidgets.QWidget):
         """
 
         if str(key) not in self._accel.keys():
-            accel = QtWidgets.QShortcut(QtGui.QKeySequence(key), self)
+            accel = QtGui.QShortcut(QtGui.QKeySequence(key), self)
             # accel.activated.connect(self.ActivatedAccel)
             self._accel[str(accel.id())] = accel
 
@@ -1919,7 +1919,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 self._widgets_layout.addWidget(self.editor_)
             self.editor_.installEventFilter(self)
             self.editor_.setDisabled(True)
-            self.editor_.setAlignment(QtCore.Qt.AlignRight)
+            self.editor_.setAlignment(QtCore.Qt.Alignment.AlignRight)
             if self._push_button_db:
                 self._push_button_db.hide()
 
@@ -1934,7 +1934,7 @@ class FLFieldDB(QtWidgets.QWidget):
             # if not self.cursor_.modeAccess() == pnsqlcursor.PNSqlCursor.Browse:
             if not self.tableName():
                 if not hasattr(self, "_editor_img") and self._widgets_layout:
-                    self._widgets_layout.setDirection(QtWidgets.QBoxLayout.Down)
+                    self._widgets_layout.setDirection(QtWidgets.QBoxLayout.Direction.TopToBottom)
                     self._editor_img = flpixmapview.FLPixmapView(self)
                     self._editor_img.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                     self._editor_img.setSizePolicy(self.sizePolicy())
@@ -1957,7 +1957,10 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 if not self._pbaux3:
                     space_item = QtWidgets.QSpacerItem(
-                        20, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+                        20,
+                        20,
+                        QtWidgets.QSizePolicy.Policy.Expanding,
+                        QtWidgets.QSizePolicy.Policy.Minimum,
                     )
                     self._buttons_layout.addItem(space_item)
                     self._pbaux3 = qpushbutton.QPushButton(self)
@@ -1978,16 +1981,6 @@ class FLFieldDB(QtWidgets.QWidget):
                         #    except Exception:
                         #        LOGGER.exception("Error al desconectar señal")
                         self._pbaux3.clicked.connect(self.searchPixmap)
-                        if not has_push_button_db:
-                            if self._showed:
-                                try:
-                                    self.keyF2Pressed.disconnect(self._pbaux3.animateClick)
-                                except Exception:
-                                    LOGGER.exception("Error al desconectar señal")
-                            try:
-                                self.keyF2Pressed.connect(self._pbaux3.animateClick)
-                            except Exception:
-                                LOGGER.exception("Error al desconectar señal")
 
                         self._pbaux3.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
                         self._pbaux3.installEventFilter(self)
@@ -2165,7 +2158,8 @@ class FLFieldDB(QtWidgets.QWidget):
             # self.editor_.setMinimumHeight(100)
             # self.editor_.setMaximumHeight(120)
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding
+                QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+                QtWidgets.QSizePolicy.Policy.MinimumExpanding,
             )
             size_policy.setHeightForWidth(True)
             self.editor_.setSizePolicy(size_policy)
@@ -2216,9 +2210,7 @@ class FLFieldDB(QtWidgets.QWidget):
             self.editor_.setFont(self.font())
             self.editor_.installEventFilter(self)
 
-            self.editor_.setMinimumWidth(
-                self.fontMetrics().width(alias) + self.fontMetrics().maxWidth() * 2
-            )
+            self.editor_.setMinimumWidth((len(alias) * self.fontMetrics().maxWidth()) + 2)
             size_policy = QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy.Fixed
             )
@@ -2289,7 +2281,7 @@ class FLFieldDB(QtWidgets.QWidget):
             # self.editor_.setEditable(False)
             # self.editor_.setAutoCompletion(True)
             self.editor_.setSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed
+                QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed
             )
             self.editor_.setMinimumSize(self._icon_size)
             self.editor_.setFont(self.font())
@@ -2333,7 +2325,7 @@ class FLFieldDB(QtWidgets.QWidget):
                     # self.editor_.palette().setColor(self.editor_.backgroundRole(), self.notNullColor())
                     self.editor_.setStyleSheet(
                         "background-color:%s; color:%s"
-                        % (self.notNullColor(), QtGui.QColor(QtCore.Qt.black).name())
+                        % (self.notNullColor(), QtGui.QColor(QtCore.Qt.GlobalColor.black).name())
                     )
                 self.editor_.installEventFilter(self)
 
@@ -2347,7 +2339,7 @@ class FLFieldDB(QtWidgets.QWidget):
                         self.editor_,
                     )
                 )
-                self.editor_.setAlignment(QtCore.Qt.AlignRight)
+                self.editor_.setAlignment(QtCore.Qt.Alignment.AlignRight)
             else:
                 if type_ == "uint":
 
@@ -2364,15 +2356,17 @@ class FLFieldDB(QtWidgets.QWidget):
                             self.editor_,
                         )
                     )
-                    self.editor_.setAlignment(QtCore.Qt.AlignRight)
+                    self.editor_.setAlignment(QtCore.Qt.Alignment.AlignRight)
                 else:
                     self.editor_.setMaxValue(len_)
                     if regexp_:
                         self.editor_.setValidator(
-                            QtGui.QRegExpValidator(QtCore.QRegExp(regexp_), self.editor_)
+                            QtGui.QRegularExpressionValidator(
+                                QtCore.QRegularExpression(regexp_), self.editor_
+                            )
                         )
 
-                    self.editor_.setAlignment(QtCore.Qt.AlignLeft)
+                    self.editor_.setAlignment(QtCore.Qt.Alignment.AlignLeft)
 
                     self.keyF4Pressed.connect(self.toggleAutoCompletion)
                     if self._auto_com_mode == "OnDemandF4":
@@ -2416,10 +2410,10 @@ class FLFieldDB(QtWidgets.QWidget):
                 tlf = self._text_label_db.font()
                 tlf.setUnderline(True)
                 self._text_label_db.setFont(tlf)
-                color_ = QtGui.QColor(QtCore.Qt.darkBlue)
+                color_ = QtGui.QColor(QtCore.Qt.GlobalColor.darkBlue)
                 # self._text_label_db.palette().setColor(self._text_label_db.foregroundRole(), cB)
                 self._text_label_db.setStyleSheet("color:" + color_.name())
-                self._text_label_db.setCursor(QtCore.Qt.PointingHandCursor)
+                self._text_label_db.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
 
         size_policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy(7), QtWidgets.QSizePolicy.Policy.Fixed
@@ -2478,7 +2472,7 @@ class FLFieldDB(QtWidgets.QWidget):
             return
 
         if not self._auto_com_frame and self.cursor_ is not None:
-            self._auto_com_frame = QtWidgets.QWidget(self, QtCore.Qt.Popup)
+            self._auto_com_frame = QtWidgets.QWidget(self, QtCore.Qt.WindowFlags.Popup)
             lay = QtWidgets.QVBoxLayout()
             self._auto_com_frame.setLayout(lay)
             self._auto_com_frame.setWindowTitle("autoComFrame")
@@ -2724,7 +2718,7 @@ class FLFieldDB(QtWidgets.QWidget):
                 QtWidgets.QApplication.focusWidget(),
                 "Aviso",
                 "Debe indicar un valor para %s" % field.alias(),
-                QtWidgets.QMessageBox.Ok,
+                QtWidgets.QMessageBox.StandardButtons.Ok,
             )
             return
 
@@ -2916,9 +2910,9 @@ class FLFieldDB(QtWidgets.QWidget):
             file_dialog = QtWidgets.QFileDialog(
                 self.parentWidget(), self.tr("Elegir archivo"), "", "*"
             )
-            file_dialog.setViewMode(QtWidgets.QFileDialog.Detail)
+            file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
             filename = None
-            if file_dialog.exec_() == QtWidgets.QDialog.Accepted:
+            if file_dialog.exec() == cast(int, QtWidgets.QDialog.DialogCode.Accepted):
                 filename = file_dialog.selectedFiles()
 
             if not filename:
@@ -2963,7 +2957,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         self._editor_img.setPixmap(pix)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
-        buffer.open(QtCore.QBuffer.ReadWrite)
+        buffer.open(QtCore.QBuffer.OpenMode.ReadWrite)
         pix.save(buffer, "XPM")
 
         QtWidgets.QApplication.restoreOverrideCursor()
@@ -3018,7 +3012,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         self._editor_img.setPixmap(pix)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
-        buffer.open(QtCore.QBuffer.ReadWrite)
+        buffer.open(QtCore.QBuffer.OpenMode.ReadWrite)
         pix.save(buffer, "XPM")
 
         QtWidgets.QApplication.restoreOverrideCursor()
@@ -3073,7 +3067,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
         self._editor_img.setPixmap(pix)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
-        buffer.open(QtCore.QBuffer.ReadWrite)
+        buffer.open(QtCore.QBuffer.OpenMode.ReadWrite)
         pix.save(buffer, "XPM")
 
         QtWidgets.QApplication.restoreOverrideCursor()
@@ -3260,7 +3254,10 @@ class FLFieldDB(QtWidgets.QWidget):
                             if not isinstance(self.editor_, qcombobox.QComboBox):
                                 self.editor_.setStyleSheet(
                                     "background-color:%s; color:%s"
-                                    % (self.notNullColor(), QtGui.QColor(QtCore.Qt.black).name())
+                                    % (
+                                        self.notNullColor(),
+                                        QtGui.QColor(QtCore.Qt.GlobalColor.black).name(),
+                                    )
                                 )
                             else:
                                 self.editor_.setEditable(False)

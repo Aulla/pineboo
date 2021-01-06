@@ -2153,7 +2153,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         new_selection = QtCore.QItemSelection(top_left, botton_right)
         if self._selection is None:
             raise Exception("Call setAction first.")
-        self._selection.select(new_selection, QtCore.QItemSelectionModel.ClearAndSelect)
+        self._selection.select(
+            new_selection, QtCore.QItemSelectionModel.SelectionFlags.ClearAndSelect
+        )
         # self.private_cursor._current_changed.emit(self.at())
         if row < self.size() and row >= 0:
             self.private_cursor._currentregister = row

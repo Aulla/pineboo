@@ -38,7 +38,7 @@ class MessageBox:
 
         msg_box = getattr(QtWidgets.QMessageBox, typename, None)
         title = "Pineboo"
-        parent = QtWidgets.qApp.activeWindow()
+        parent = QtWidgets.QApplication.activeWindow()
         buttons: List["QtWidgets.QMessageBox.StandardButton"] = []
         default_button = None
         text = ""
@@ -49,7 +49,7 @@ class MessageBox:
             else:
                 if isinstance(argument, str):
                     title = argument
-                elif isinstance(argument, QtWidgets.QMessageBox.StandardButton):
+                elif isinstance(argument, QtWidgets.QMessageBox.StandardButtons):
                     if len(buttons) < 2:
                         buttons.append(argument)
                     else:
@@ -69,18 +69,18 @@ class MessageBox:
             return QtWidgets.QMessageBox.Ok
 
     @classmethod
-    def question(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def question(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Return an question messageBox."""
 
         return cls.msgbox("question", *args)
 
     @classmethod
-    def information(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def information(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Return an information messageBox."""
         return cls.msgbox("information", *args)
 
     @classmethod
-    def warning(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def warning(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Return an warning messageBox."""
 
         text_ = args[0] if isinstance(args[0], str) else args[2]
@@ -91,7 +91,7 @@ class MessageBox:
         return result
 
     @classmethod
-    def critical(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def critical(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Return an critical messageBox."""
 
         text_ = args[0] if isinstance(args[0], str) else args[2]

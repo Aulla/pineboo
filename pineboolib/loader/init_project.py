@@ -79,7 +79,7 @@ def init_project(
     #     project.openDefaultForm(objaction.form())
 
     if dgi.localDesktop():
-        ret = app.exec_()
+        ret = app.exec()
     else:
         ret = dgi.exec_()
 

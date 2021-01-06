@@ -414,7 +414,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         if path_file:
             file_ = QtCore.QFile(path_file)
-            if not file_.OpenMode(QtCore.QIODevice.WriteOnly):
+            if not file_.OpenMode(QtCore.QIODevice.OpenMode.WriteOnly):
                 self.tr("Error I/O al intentar escribir el fichero %s" % path_file)
                 return
 
@@ -651,7 +651,7 @@ class FLFormDB(QtWidgets.QDialog):
             pushButtonExport.setToolTip(
                 QtWidgets.QApplication.translate("FLFormDB", "Exportar a XML(F3)")
             )
-            pushButtonExport.setFocusPolicy(QtCore.Qt.NoFocus)
+            pushButtonExport.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             self.bottomToolbar.layout().addWidget(pushButtonExport)
             pushButtonExport.clicked.connect(self.exportToXml)
 
@@ -667,12 +667,12 @@ class FLFormDB(QtWidgets.QDialog):
                 push_button_snapshot.setShortcut(QtGui.QKeySequence(self.tr("F8")))
                 push_button_snapshot.setWhatsThis("Capturar pantalla(F8)")
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
-                push_button_snapshot.setFocusPolicy(QtCore.Qt.NoFocus)
+                push_button_snapshot.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.bottomToolbar.layout().addWidget(push_button_snapshot)
                 push_button_snapshot.clicked.connect(self.saveSnapShot)
 
             spacer = QtWidgets.QSpacerItem(
-                20, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+                20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
             )
             self.bottomToolbar.layout().addItem(spacer)
 
@@ -695,7 +695,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.pushButtonCancel.setWhatsThis("Cerrar formulario (Esc)")
         self.pushButtonCancel.setToolTip("Cerrar formulario (Esc)")
         self.bottomToolbar.layout().addWidget(self.pushButtonCancel)
-        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
     def formName(self) -> str:
         """
@@ -1020,7 +1020,7 @@ class FLFormDB(QtWidgets.QDialog):
         hblay.setSpacing(0)
         hblay.addStretch()
         self.bottomToolbar.setLayout(hblay)
-        self.bottomToolbar.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.bottomToolbar.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.layout_.addWidget(self.bottomToolbar)
 
     action_widget = property(get_action_widget, set_action_widget)

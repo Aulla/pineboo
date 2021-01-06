@@ -20,4 +20,4 @@ class QHBoxLayout(QtWidgets.QHBoxLayout):
 
         self.setContentsMargins(2, 0, 2, 0)
         self.setSpacing(1)
-        self.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)

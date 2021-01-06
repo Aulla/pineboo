@@ -855,8 +855,8 @@ class FLTableDB(QtWidgets.QWidget):
             for column in range(model.columnCount()):
                 alias_ = self._table_records.model().headerData(
                     self._table_records.visual_index_to_metadata_index(column),
-                    QtCore.Qt.Horizontal,
-                    QtCore.Qt.DisplayRole,
+                    QtCore.Qt.Orientations.Horizontal,
+                    QtCore.Qt.ItemDataRole.DisplayRole,
                 )
                 list_.append(table_metadata.fieldAliasToName(alias_) or "")
 
@@ -911,8 +911,8 @@ class FLTableDB(QtWidgets.QWidget):
         return self._table_records.model().headerData(
             # self._table_records.selectionModel().selectedColumns(),
             self._table_records.currentColumn(),
-            QtCore.Qt.Horizontal,
-            QtCore.Qt.DisplayRole,
+            QtCore.Qt.Orientations.Horizontal,
+            QtCore.Qt.ItemDataRole.DisplayRole,
         )
 
     def setAliasCheckColumn(self, alias: str) -> None:
@@ -1039,12 +1039,12 @@ class FLTableDB(QtWidgets.QWidget):
         ):
             return super().eventFilter(obj_, event)
 
-        if event.type() == QtCore.QEvent.KeyPress:
+        if event.type() == QtCore.QEvent.Type.KeyPress:
             key = cast(QtGui.QKeyEvent, event)
 
             if isinstance(obj_, fldatatable.FLDataTable):
 
-                if key.key() == QtCore.Qt.Key_F2:
+                if key.key() == cast(int, QtCore.Qt.Key.Key_F2):
                     self._combo_box_field_to_search_1.showPopup()
                     return True
 
@@ -1054,19 +1054,22 @@ class FLTableDB(QtWidgets.QWidget):
 
             elif isinstance(obj_, QtWidgets.QLineEdit):
 
-                if key.key() == QtCore.Qt.Key_Enter or key.key() == QtCore.Qt.Key_Return:
+                if key.key() in (
+                    cast(int, QtCore.Qt.Key.Key_Enter),
+                    cast(int, QtCore.Qt.Key.Key_Return),
+                ):
                     self._table_records.setFocus()
                     return True
 
-                elif key.key() == QtCore.Qt.Key_Up:
+                elif key.key() == cast(int, QtCore.Qt.Key.Key_Up):
                     self._combo_box_field_to_search_1.setFocus()
                     return True
 
-                elif key.key() == QtCore.Qt.Key_Down:
+                elif key.key() == cast(int, QtCore.Qt.Key.Key_Down):
                     self._table_records.setFocus()
                     return True
 
-                elif key.key() == QtCore.Qt.Key_F2:
+                elif key.key() == cast(int, QtCore.Qt.Key.Key_F2):
                     self._combo_box_field_to_search_1.showPopup()
                     return True
 
@@ -1294,7 +1297,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self._tab_control_layout is not None:
             control_frame = QtWidgets.QFrame()
             lay = QtWidgets.QHBoxLayout()
-            control_frame.setFrameStyle(QtWidgets.QFrame.Shadow.Raised)
+            control_frame.setFrameStyle(QtWidgets.QFrame.Shadow.Raised.value)
             control_frame.setStyleSheet("QFrame { border: 1px solid black; }")
             lay.setContentsMargins(2, 2, 2, 2)
             lay.setSpacing(2)
@@ -1335,7 +1338,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self._table_records is None:
             self._table_records = fldatatable.FLDataTable(self._tab_data, "tableRecords")
             if self._table_records is not None:
-                self._table_records.setFocusPolicy(QtCore.Qt.StrongFocus)
+                self._table_records.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
                 self.setFocusProxy(self._table_records)
                 if self._tab_data_layout is not None:
                     self._tab_data_layout.addWidget(self._table_records)
@@ -1377,7 +1380,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self._table_records is None:
             self._table_records = fldatatable.FLDataTable(self._tab_data, "tableRecords")
             if self._table_records is not None:
-                self._table_records.setFocusPolicy(QtCore.Qt.StrongFocus)
+                self._table_records.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
                 self.setFocusProxy(self._table_records)
                 if self._tab_data_layout is not None:
                     self._tab_data_layout.addWidget(self._table_records)
@@ -1463,7 +1466,7 @@ class FLTableDB(QtWidgets.QWidget):
             part_decimal = None
             rx_ = None
 
-            self._tdb_filter.setSelectionMode(QtWidgets.QTableWidget.NoSelection)
+            self._tdb_filter.setSelectionMode(QtWidgets.QTableWidget.SelectionMode.NoSelection)
             self._tdb_filter.setNumCols(5)
 
             not_visibles = 0
@@ -1496,7 +1499,9 @@ class FLTableDB(QtWidgets.QWidget):
                     self.cursor()
                     .model()
                     .headerData(
-                        idx_i + self._sort_column_1, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole
+                        idx_i + self._sort_column_1,
+                        QtCore.Qt.Orientations.Horizontal,
+                        QtCore.Qt.ItemDataRole.DisplayRole,
                     )
                 )
                 _alias = table_metadata.fieldAliasToName(_label)
@@ -1574,7 +1579,7 @@ class FLTableDB(QtWidgets.QWidget):
                                         0, pow(10, part_integer) - 1, part_decimal, editor_le
                                     )
                                 )
-                                editor_le.setAlignment(QtCore.Qt.AlignRight)
+                                editor_le.setAlignment(QtCore.Qt.Alignment.AlignRight)
                             elif type_ in ("uint", "int"):
                                 if type_ == "uint":
 
@@ -1593,16 +1598,18 @@ class FLTableDB(QtWidgets.QWidget):
                                         )
                                     )
 
-                                editor_le.setAlignment(QtCore.Qt.AlignRight)
+                                editor_le.setAlignment(QtCore.Qt.Alignment.AlignRight)
                             else:  # string, stringlist, timestamp
                                 if len_ > 0:
                                     editor_le.setMaxLength(len_)
                                     if rx_:
                                         editor_le.setValidator(
-                                            QtGui.QRegExpValidator(QtCore.QRegExp(rx_), editor_le)
+                                            QtGui.QRegularExpressionValidator(
+                                                QtCore.QRegularExpression(rx_), editor_le
+                                            )
                                         )
 
-                                editor_le.setAlignment(QtCore.Qt.AlignLeft)
+                                editor_le.setAlignment(QtCore.Qt.Alignment.AlignLeft)
 
                             self._tdb_filter.setCellWidget(_linea, idx_j, editor_le)
 
@@ -1837,14 +1844,18 @@ class FLTableDB(QtWidgets.QWidget):
                         .db()
                         .connManager()
                         .manager()
-                        .formatValue(type_, editor_op_1.time().toString(QtCore.Qt.ISODate))
+                        .formatValue(
+                            type_, editor_op_1.time().toString(QtCore.Qt.DateFormat.ISODate)
+                        )
                     )
                     arg4 = (
                         self.cursor()
                         .db()
                         .connManager()
                         .manager()
-                        .formatValue(type_, editor_op_2.time().toString(QtCore.Qt.ISODate))
+                        .formatValue(
+                            type_, editor_op_2.time().toString(QtCore.Qt.DateFormat.ISODate)
+                        )
                     )
                 else:
                     editor_op_1 = self._tdb_filter.cellWidget(idx, 2)
@@ -1853,7 +1864,9 @@ class FLTableDB(QtWidgets.QWidget):
                         .db()
                         .connManager()
                         .manager()
-                        .formatValue(type_, editor_op_1.time().toString(QtCore.Qt.ISODate))
+                        .formatValue(
+                            type_, editor_op_1.time().toString(QtCore.Qt.DateFormat.ISODate)
+                        )
                     )
 
             if type_ in ("unlock", "bool"):
@@ -1914,7 +1927,7 @@ class FLTableDB(QtWidgets.QWidget):
 
             self._fake_editor.setSizePolicy(size_policy)
             self._fake_editor.setTabChangesFocus(True)
-            self._fake_editor.setFocusPolicy(QtCore.Qt.StrongFocus)
+            self._fake_editor.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
             self.setFocusProxy(self._fake_editor)
             if not self._tab_data_layout:
                 raise Exception("self._tab_data_layout is not defined!")
@@ -2122,12 +2135,16 @@ class FLTableDB(QtWidgets.QWidget):
                         # else:
                         self._combo_box_field_to_search_1.addItem(
                             model.headerData(
-                                visual_column, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole
+                                visual_column,
+                                QtCore.Qt.Orientations.Horizontal,
+                                QtCore.Qt.ItemDataRole.DisplayRole,
                             )
                         )
                         self._combo_box_field_to_search_2.addItem(
                             model.headerData(
-                                visual_column, QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole
+                                visual_column,
+                                QtCore.Qt.Orientations.Horizontal,
+                                QtCore.Qt.ItemDataRole.DisplayRole,
                             )
                         )
 
@@ -2369,7 +2386,9 @@ class FLTableDB(QtWidgets.QWidget):
         self.moveCol(_index, self._sort_column_1)
         self._table_records.sortByColumn(
             self._sort_column_1,
-            QtCore.Qt.AscendingOrder if self._order_asc_1 else QtCore.Qt.DescendingOrder,
+            QtCore.Qt.SortOrder.AscendingOrder
+            if self._order_asc_1
+            else QtCore.Qt.SortOrder.DescendingOrder,
         )
 
     @decorators.pyqt_slot(int)
@@ -2588,7 +2607,7 @@ class FLTableDB(QtWidgets.QWidget):
                 QtWidgets.QApplication.activeModalWidget(),
                 self.tr("Opción deshabilitada"),
                 self.tr("Esta opción ha sido deshabilitada."),
-                QtWidgets.QMessageBox.Ok,
+                QtWidgets.QMessageBox.StandardButtons.Ok,
             )
             return
 
@@ -2713,7 +2732,7 @@ class FLTableDB(QtWidgets.QWidget):
         spread_sheet.close()
 
         util.setProgress(tdb_num_rows)
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         file_name = "%s/%s%s.ods" % (
             application.PROJECT.tmpdir,
             metadata.name(),
@@ -2813,7 +2832,9 @@ class FLTableDB(QtWidgets.QWidget):
         if isinstance(ascending, int):
             ascending = ascending == 1
 
-        order = QtCore.Qt.AscendingOrder if ascending else QtCore.Qt.DescendingOrder
+        order = (
+            QtCore.Qt.SortOrder.AscendingOrder if ascending else QtCore.Qt.SortOrder.DescendingOrder
+        )
 
         col = col_order if col_order is not None else self._sort_column_1
 

@@ -168,7 +168,12 @@ def connect(
     if not signal_slot:
         return None
     # http://pyqt.sourceforge.net/Docs/PyQt4/qt.html#ConnectionType-enum
-    conntype = QtCore.Qt.QueuedConnection | QtCore.Qt.UniqueConnection
+    # conntype =
+    #    QtCore.Qt.ConnectionType.QueuedConnection,
+    #    QtCore.Qt.ConnectionType.UniqueConnection,
+    # )
+    # FIXMEPYQT6
+    conntype = QtCore.Qt.ConnectionType.QueuedConnection
     new_signal, new_slot = signal_slot
 
     # if caller:
@@ -183,7 +188,13 @@ def connect(
         new_signal.connect(slot_done_fn, type=conntype)  # type: ignore
     except Exception as error:
         LOGGER.warning(
-            "ERROR Connecting: %s %s %s %s error:%s", sender, signal, receiver, slot, error
+            "ERROR Connecting: %s %s %s %s - %s error:%s",
+            sender,
+            signal,
+            receiver,
+            slot,
+            error,
+            conntype,
         )
         return None
 

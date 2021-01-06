@@ -1,7 +1,7 @@
 """Flcodbar module."""
 
 # # -*- coding: utf-8 -*-
-from PyQt6 import QtCore, Qt, QtGui, QtSvg  # type: ignore
+from PyQt6 import QtCore, QtGui, QtSvg, QtWidgets  # type: ignore
 
 from pineboolib.core.utils.utils_base import load2xml
 
@@ -376,9 +376,9 @@ class FLCodBar(object):
             svg_h = 0.0
         self._pixmap = QtGui.QPixmap(int(svg_w), int(svg_h))
         render = QtSvg.QSvgRenderer(svg)
-        self._pixmap.fill(QtCore.Qt.transparent)
-        painter = Qt.QPainter(self._pixmap)
-        render.render(painter, Qt.QRectF(0, 0, svg_w * 3.4, svg_h * 3.4))
+        self._pixmap.fill(QtCore.Qt.GlobalColor.transparent)
+        painter = QtGui.QPainter(self._pixmap)
+        render.render(painter, QtCore.QRectF(0, 0, svg_w * 3.4, svg_h * 3.4))
 
         if self._pixmap.isNull():
             self.barcode["valid"] = False
