@@ -70,11 +70,11 @@ class QTable(Q3TableWidget):
 
     def doubleClicked_(self, f, c) -> None:
         """Emit double clicked signal."""
-        cast(pyqtSignal, self.doubleClicked).emit(f, c)
+        cast(pyqtSignal, self.cellDoubleClicked).emit(f, c)
 
     def simpleClicked_(self, f, c) -> None:
         """Emit simple clicked signal."""
-        cast(pyqtSignal, self.clicked).emit(f, c)
+        cast(pyqtSignal, self.cellClicked).emit(f, c)
 
     @decorators.not_implemented_warn
     def setResizePolicy(self, pol: QtWidgets.QSizePolicy) -> None:
@@ -121,9 +121,9 @@ class QTable(Q3TableWidget):
     def setReadOnly(self, b: bool) -> None:
         """Set read only."""
         if b:
-            self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+            self.setEditTriggers(QtWidgets.QAbstractItemView.EditTriggers.NoEditTriggers)
         else:
-            self.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
+            self.setEditTriggers(QtWidgets.QAbstractItemView.EditTriggers.AllEditTriggers)
 
     def selectionMode(self) -> "QAbstractItemView.SelectionMode":
         """Return selection mode."""
@@ -160,7 +160,7 @@ class QTable(Q3TableWidget):
 
     def setSelectionMode(self, mode: "QAbstractItemView.SelectionMode") -> None:
         """Set selection mode."""
-        if mode == 999:
+        if mode.value == 999:
             self.setAlternatingRowColors(True)
         else:
             super().setSelectionMode(mode)
@@ -169,11 +169,11 @@ class QTable(Q3TableWidget):
         """Set column strechable."""
         if b:
             self.horizontalHeader().setSectionResizeMode(
-                col, QtWidgets.QHeaderView.ResizeMode(QtWidgets.QHeaderView.Stretch)
+                col, QtWidgets.QHeaderView.ResizeMode.Stretch
             )
         else:
             self.horizontalHeader().setSectionResizeMode(
-                col, QtWidgets.QHeaderView.ResizeMode(QtWidgets.QHeaderView.AdjustToContents)
+                col, QtWidgets.QHeaderView.ResizeMode.ResizeToContents
             )
 
     def setHeaderLabel(self, label: str) -> None:
@@ -208,7 +208,7 @@ class QTable(Q3TableWidget):
         item = QtWidgets.QTableWidgetItem(str(value))
 
         if right:
-            item.setTextAlignment(QtCore.Qt.AlignVCenter + QtCore.Qt.AlignRight)
+            item.setTextAlignment(QtCore.Qt.Alignment.AlignVCenter + QtCore.Qt.Alignment.AlignRight)
 
         self.setItem(row, col, item)
 
@@ -220,15 +220,18 @@ class QTable(Q3TableWidget):
         if new_item is not None:
             if row in self.read_only_rows or col in self.read_only_cols:
                 new_item.setFlags(
-                    cast(QtCore.Qt.ItemFlag, QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                    cast(
+                        QtCore.Qt.ItemFlags,
+                        QtCore.Qt.ItemFlags.ItemIsSelectable | QtCore.Qt.ItemFlags.ItemIsEnabled,
+                    )
                 )
             else:
                 new_item.setFlags(
                     cast(
-                        QtCore.Qt.ItemFlag,
-                        QtCore.Qt.ItemIsSelectable
-                        | QtCore.Qt.ItemIsEnabled
-                        | QtCore.Qt.ItemIsEditable,
+                        QtCore.Qt.ItemFlags,
+                        QtCore.Qt.ItemFlags.ItemIsSelectable
+                        | QtCore.Qt.ItemFlags.ItemIsEnabled
+                        | QtCore.Qt.ItemFlags.ItemIsEditable,
                     )
                 )
 
@@ -245,7 +248,9 @@ class QTable(Q3TableWidget):
     def adjustColumn(self, k: int) -> None:
         """Adjust a column specified by name."""
 
-        self.horizontalHeader().setSectionResizeMode(k, QtWidgets.QHeaderView.ResizeToContents)
+        self.horizontalHeader().setSectionResizeMode(
+            k, QtWidgets.QHeaderView.ResizeMode.ResizeToContents
+        )
 
     def setRowReadOnly(self, row: int, b: bool) -> None:
         """Set row read only specified by a number."""
@@ -266,15 +271,19 @@ class QTable(Q3TableWidget):
             if item:
                 if b:
                     item.setFlags(
-                        cast(Qt.ItemFlag, QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                        cast(
+                            Qt.ItemFlags,
+                            QtCore.Qt.ItemFlags.ItemIsSelectable
+                            | QtCore.Qt.ItemFlags.ItemIsEnabled,
+                        )
                     )
                 else:
                     item.setFlags(
                         cast(
-                            Qt.ItemFlag,
-                            QtCore.Qt.ItemIsSelectable
-                            | QtCore.Qt.ItemIsEnabled
-                            | QtCore.Qt.ItemIsEditable,
+                            Qt.ItemFlags,
+                            QtCore.Qt.ItemFlags.ItemIsSelectable
+                            | QtCore.Qt.ItemFlags.ItemIsEnabled
+                            | QtCore.Qt.ItemFlags.ItemIsEditable,
                         )
                     )
 
@@ -297,15 +306,19 @@ class QTable(Q3TableWidget):
             if item:
                 if b:
                     item.setFlags(
-                        cast(Qt.ItemFlag, QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                        cast(
+                            Qt.ItemFlags,
+                            QtCore.Qt.ItemFlags.ItemIsSelectable
+                            | QtCore.Qt.ItemFlags.ItemIsEnabled,
+                        )
                     )
                 else:
                     item.setFlags(
                         cast(
-                            Qt.ItemFlag,
-                            QtCore.Qt.ItemIsSelectable
-                            | QtCore.Qt.ItemIsEnabled
-                            | QtCore.Qt.ItemIsEditable,
+                            Qt.ItemFlags,
+                            QtCore.Qt.ItemFlags.ItemIsSelectable
+                            | QtCore.Qt.ItemFlags.ItemIsEnabled
+                            | QtCore.Qt.ItemFlags.ItemIsEditable,
                         )
                     )
 
@@ -331,7 +344,7 @@ class QTable(Q3TableWidget):
 
         if not super().isSortingEnabled():
             super().setSortingEnabled(True)
-        super().sortByColumn(col, QtCore.Qt.AscendingOrder)
+        super().sortByColumn(col, QtCore.Qt.SortOrder.AscendingOrder)
         self.sort_column_ = col
 
     sorting = property(getSorting, setSorting)

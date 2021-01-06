@@ -9,7 +9,7 @@ from PyQt6 import QtCore, QtWidgets, QtGui, QtXml
 
 from pineboolib.core.utils import logging
 
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 from . import aqshttp, aqods
 
@@ -221,8 +221,8 @@ class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, E
         @return sha1 string
         """
 
-        qbyte = QtCore.QByteArray(byte_array)
-        hash = QtCore.QCryptographicHash(QtCore.QCryptographicHash.Sha1)
+        qbyte = QtCore.QByteArray(cast(QtCore.QByteArray, byte_array))
+        hash = QtCore.QCryptographicHash(QtCore.QCryptographicHash.Algorithm.Sha1)
         hash.addData(qbyte.data())
         return hash.result().toHex().data().decode("utf-8").upper()
 

@@ -20,8 +20,7 @@
    <string>Acerca de pineboo</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>../../../../../core/images/icono_pi/Symbol_pi_256.png</normaloff>../../../../../core/images/icono_pi/Symbol_pi_256.png</iconset>
+   <iconset>../../../../../core/images/icono_pi/Symbol_pi_256.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

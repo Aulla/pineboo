@@ -233,7 +233,7 @@ class SysBaseType(object):
     def idSession(cls) -> str:
         """Get Session ID."""
         # FIXME: Code copied from flapplication.aqApp
-        return cls.time_user_.toString(QtCore.Qt.ISODate)
+        return cls.time_user_.toString(QtCore.Qt.DateFormat.ISODate)
 
     @classmethod
     def reportChanges(cls, changes: Dict[str, str] = {}):
@@ -442,7 +442,7 @@ class SysBaseType(object):
             QtWidgets.QApplication.focusWidget(),
             "Pineboo",
             cls.translate(u"Funcionalidad no soportada aún en Pineboo."),
-            QtWidgets.QMessageBox.Ok,
+            QtWidgets.QMessageBox.StandardButtons.Ok,
         )
         return
 

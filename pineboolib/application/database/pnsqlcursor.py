@@ -837,10 +837,10 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 QtWidgets.QApplication.focusWidget(),
                 self.tr("Aviso"),
                 self.tr("El registro activo será borrado. ¿ Está seguro ?"),
-                QtWidgets.QMessageBox.Ok,
-                QtWidgets.QMessageBox.No,
+                QtWidgets.QMessageBox.StandardButtons.Ok,
+                QtWidgets.QMessageBox.StandardButtons.No,
             )
-            if res != QtWidgets.QMessageBox.No:
+            if res != QtWidgets.QMessageBox.StandardButtons.No:
 
                 if self.transaction():
                     if not self.refreshBuffer():
@@ -3575,9 +3575,13 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
                 condition_true = (
                     self.cursor_.valueBuffer(self._acos_cond_name) == self._acos_cond_value
                 )
+
             elif self._acos_cond == self.cursor_.RegExp:
-                condition_true = QtCore.QRegExp(str(self._acos_cond_value)).exactMatch(
-                    self.cursor_.valueBuffer(self._acos_cond_name)
+                # condition_true = QtCore.QRegularExpression(str(self._acos_cond_value)).exactMatch(
+                #    self.cursor_.valueBuffer(self._acos_cond_name)
+                # )
+                condition_true = str(self._acos_cond_value) == self.cursor_.valueBuffer(
+                    self._acos_cond_name
                 )
             elif self._acos_cond == self.cursor_.Function:
                 condition_true = (

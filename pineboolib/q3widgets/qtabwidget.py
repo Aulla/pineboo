@@ -10,14 +10,10 @@ logger = logging.get_logger(__name__)
 class QTabWidget(QtWidgets.QTabWidget):
     """QTabWidget class."""
 
-    def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
-        """Inicialize."""
-        super().__init__(parent)
-
-        self.Top = self.North
-        self.Bottom = self.South
-        self.Left = self.West
-        self.Right = self.East
+    Top = QtWidgets.QTabWidget.TabPosition.North
+    Bottom = QtWidgets.QTabWidget.TabPosition.South
+    Left = QtWidgets.QTabWidget.TabPosition.West
+    Right = QtWidgets.QTabWidget.TabPosition.East
 
     def setTabEnabled(self, tab: str, enabled: bool) -> None:  # type: ignore
         """Set a tab enabled."""

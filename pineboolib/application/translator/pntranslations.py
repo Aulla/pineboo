@@ -74,7 +74,7 @@ class PNTranslations(object):
         meta_trans = False
 
         file_ = QtCore.QFile(ts_input_file)
-        if not file_.open(QtCore.QIODevice.ReadOnly):
+        if not file_.open(QtCore.QIODevice.OpenMode.ReadOnly):
             LOGGER.warning("Cannot open file '%s'", ts_input_file)
             return
 

@@ -242,7 +242,7 @@ class XMLAction(struct.ActionStruct):
                         "Aviso",
                         "Ya hay abierto un formulario de edición de resgistro para esta tabla.\n"
                         "No se abrirán mas para evitar ciclos repetitivos de edición de registros.",
-                        QtWidgets.QMessageBox.Yes,
+                        QtWidgets.QMessageBox.StandardButtons.Yes,
                     )
 
             LOGGER.warning("formRecord%s is already loaded!", self._record_form)

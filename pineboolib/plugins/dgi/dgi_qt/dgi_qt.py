@@ -83,7 +83,7 @@ class DgiQt(dgi_schema.DgiSchema):
                 title,
                 text,
                 cast(
-                    QtWidgets.QMessageBox.StandardButton,
+                    QtWidgets.QMessageBox.StandardButtons,
                     QtWidgets.QMessageBox.StandardButtons.Yes
                     | QtWidgets.QMessageBox.StandardButtons.No,
                 ),

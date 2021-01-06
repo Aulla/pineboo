@@ -23,7 +23,7 @@ class MessageBox:
     Ignore = QtWidgets.QMessageBox.StandardButtons.Ignore
 
     @classmethod
-    def msgbox(cls, typename, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    def msgbox(cls, typename, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Return a messageBox."""
 
         if not getattr(application, "TESTING_MODE", None):
@@ -39,7 +39,7 @@ class MessageBox:
         msg_box = getattr(QtWidgets.QMessageBox, typename, None)
         title = "Pineboo"
         parent = QtWidgets.QApplication.activeWindow()
-        buttons: List["QtWidgets.QMessageBox.StandardButton"] = []
+        buttons: List["QtWidgets.QMessageBox.StandardButtons"] = []
         default_button = None
         text = ""
 
@@ -66,7 +66,7 @@ class MessageBox:
             else:
                 return msg_box(parent, title, text, *buttons, default_button)
         else:
-            return QtWidgets.QMessageBox.Ok
+            return QtWidgets.QMessageBox.StandardButtons.Ok
 
     @classmethod
     def question(cls, *args) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:

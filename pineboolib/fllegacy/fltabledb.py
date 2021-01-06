@@ -1297,7 +1297,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self._tab_control_layout is not None:
             control_frame = QtWidgets.QFrame()
             lay = QtWidgets.QHBoxLayout()
-            control_frame.setFrameStyle(QtWidgets.QFrame.Shadow.Raised.value)
+            control_frame.setFrameStyle(cast(int, QtWidgets.QFrame.Shadow.Raised.value))
             control_frame.setStyleSheet("QFrame { border: 1px solid black; }")
             lay.setContentsMargins(2, 2, 2, 2)
             lay.setSpacing(2)

@@ -358,7 +358,12 @@ class Dir(object):
         """Create a new Dir."""
         self.path = path
 
-    def entryList(self, patron: str, type_: int = NoFilter, sort: int = NoSort) -> list:
+    def entryList(
+        self,
+        patron: str,
+        type_: "QtCore.QDir.Filters" = NoFilter,
+        sort: "QtCore.QDir.SortFlags" = NoSort,
+    ) -> list:
         """
         Create listing for files inside given folder.
 
@@ -527,7 +532,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
     """
 
     _file_name: str
-    _mode: QIODevice
+    _mode: "QIODevice.OpenMode"
 
     _encode: str
     _last_seek: int

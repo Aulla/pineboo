@@ -344,7 +344,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                 )
 
                 if res is not None:
-                    if res == QtWidgets.QMessageBox.No:
+                    if res == QtWidgets.QMessageBox.StandardButtons.No:
                         return False
 
             cancel = True

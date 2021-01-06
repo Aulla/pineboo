@@ -4,7 +4,7 @@ Defines PNCursorTableModel class.
 """
 
 
-from PyQt6 import QtCore, QtGui, Qt, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 
@@ -200,7 +200,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         col = column
         # order 0 ascendente , 1 descendente
         ord = "ASC"
-        if order == 1:
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
             ord = "DESC"
 
         field_mtd = self.metadata().indexFieldObject(col)
@@ -332,9 +332,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         if role == QtCore.Qt.ItemDataRole.CheckStateRole and _type == "check":
             if primary_key in self._check_column.keys():
                 if self._check_column[primary_key].isChecked():
-                    return QtCore.Qt.Checked
+                    return QtCore.Qt.CheckState.Checked
 
-            return QtCore.Qt.Unchecked
+            return QtCore.Qt.CheckState.Unchecked
 
         elif role == QtCore.Qt.ItemDataRole.TextAlignmentRole:
             result = QtCore.Qt.Alignment.AlignVCenter
@@ -454,8 +454,8 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
                         new_pixmap = QtGui.QPixmap(row_width, row_height)  # w , h
                         center_width = (row_width - pixmap.width()) / 2
                         center_height = (row_height - pixmap.height()) / 2
-                        new_pixmap.fill(QtCore.Qt.transparent)
-                        painter = Qt.QPainter(new_pixmap)
+                        new_pixmap.fill(QtCore.Qt.GlobalColor.transparent)
+                        painter = QtGui.QPainter(new_pixmap)
                         painter.drawPixmap(
                             int(center_width),
                             int(center_height),
@@ -471,16 +471,16 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         elif role == QtCore.Qt.ItemDataRole.BackgroundRole:
             if _type == "bool":
                 if result in (True, "1"):
-                    result = QtGui.QBrush(QtCore.Qt.green)
+                    result = QtGui.QBrush(QtCore.Qt.GlobalColor.green)
                 else:
-                    result = QtGui.QBrush(QtCore.Qt.red)
+                    result = QtGui.QBrush(QtCore.Qt.GlobalColor.red)
 
             elif _type == "check":
                 obj_ = self._check_column[primary_key]
                 result = (
-                    QtGui.QBrush(QtCore.Qt.green)
+                    QtGui.QBrush(QtCore.Qt.GlobalColor.green)
                     if obj_.isChecked()
-                    else QtGui.QBrush(QtCore.Qt.white)
+                    else QtGui.QBrush(QtCore.Qt.GlobalColor.white)
                 )
 
             else:
@@ -497,9 +497,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         elif role == QtCore.Qt.ItemDataRole.ForegroundRole:
             if _type == "bool":
                 if result in (True, "1"):
-                    result = QtGui.QBrush(QtCore.Qt.black)
+                    result = QtGui.QBrush(QtCore.Qt.GlobalColor.black)
                 else:
-                    result = QtGui.QBrush(QtCore.Qt.white)
+                    result = QtGui.QBrush(QtCore.Qt.GlobalColor.white)
             else:
                 if res_color_function and len(res_color_function) and res_color_function[1] != "":
                     color_ = QtGui.QColor(res_color_function[1])

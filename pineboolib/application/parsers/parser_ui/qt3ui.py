@@ -982,7 +982,7 @@ class LoadWidget:
                         width = value.width()
                         height = value.height()
                     elif pname == "orientation":
-                        orient_ = 1 if value == 1 else 2  # 1 Horizontal, 2 Vertical
+                        orient_ = 2 if value == 1 else 1  # 1 Horizontal, 2 Vertical
 
                     elif pname == "sizeType":
                         # print("Convirtiendo %s a %s" % (p.find("enum").text, value))
@@ -1002,8 +1002,18 @@ class LoadWidget:
                 else:
                     ver_policy = policy_
 
-                # print("Nuevo spacer %s (%s,%s,(%s,%s), %s, %s" % (spacer_name, "Horizontal" if orient_ ==
-                #                                                  1 else "Vertical", policy_name, width, height, hor_policy, ver_policy))
+                # print(
+                #    "Nuevo spacer %s (%s,%s,(%s,%s), %s, %s"
+                #    % (
+                #        spacer_name,
+                #        "Horizontal" if orient_ == 1 else "Vertical",
+                #        policy_,
+                #        width,
+                #        height,
+                #        hor_policy,
+                #        ver_policy,
+                #    )
+                # )
                 new_spacer = QtWidgets.QSpacerItem(width, height, hor_policy, ver_policy)
                 if mode == "grid":
                     widget._layout.addItem(new_spacer, row, col, int(row_span), int(col_span))

@@ -913,7 +913,7 @@ class FLFormDB(QtWidgets.QDialog):
         if parent_ and parent_.parent() is None:
 
             qt_rectangle = self.frameGeometry()
-            center_point = QtWidgets.QDesktopWidget().availableGeometry().center()
+            center_point = self.screen().availableGeometry().center()
             qt_rectangle.moveCenter(center_point)
             self.move(qt_rectangle.topLeft())
 
