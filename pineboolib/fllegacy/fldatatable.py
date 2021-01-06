@@ -1,7 +1,7 @@
 """Fldatatable module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtCore, QtWidgets, Qt, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui
 
 from pineboolib.core import decorators, settings
 from pineboolib.core.utils import utils_base
@@ -71,8 +71,8 @@ class FLDataTable(QtWidgets.QTableView):
     """
     Pixmap precargados
     """
-    pix_ok_: Qt.QPixmap
-    pix_no_: Qt.QPixmap
+    pix_ok_: QtGui.QPixmap
+    pix_no_: QtGui.QPixmap
 
     """
     Lista con las claves primarias de los registros seleccionados por chequeo
@@ -773,7 +773,7 @@ class FLDataTable(QtWidgets.QTableView):
         else:
             wc_ = self.header().sectionSize(col)
 
-            font_metrics = Qt.QFontMetrics(self.header().font())
+            font_metrics = QtGui.QFontMetrics(self.header().font())
             wh_ = font_metrics.horizontalAdvance(field.alias() + "W")
             if wh_ < wc_:
                 wh_ = wc_

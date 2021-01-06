@@ -97,8 +97,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_ebcomportamiento.png</normaloff>../../core/images/icons/sys_ebcomportamiento.png</iconset>
+    <iconset>../../core/images/icons/sys_ebcomportamiento.png</iconset>
    </property>
    <property name="text">
     <string>Opciones de comportamiento</string>
@@ -115,8 +114,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_flloadmodpkg.png</normaloff>../../core/images/icons/sys_flloadmodpkg.png</iconset>
+    <iconset>../../core/images/icons/sys_flloadmodpkg.png</iconset>
    </property>
    <property name="text">
     <string>Cargar pa&amp;quete de módulos</string>
@@ -133,8 +131,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_flloadmod.png</normaloff>../../core/images/icons/sys_flloadmod.png</iconset>
+    <iconset>../../core/images/icons/sys_flloadmod.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Cargar Módulo</string>
@@ -151,8 +148,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_flreloadbatch.png</normaloff>../../core/images/icons/sys_flreloadbatch.png</iconset>
+    <iconset>../../core/images/icons/sys_flreloadbatch.png</iconset>
    </property>
    <property name="text">
     <string>Cargar Directorio de Módulos</string>
@@ -166,8 +162,7 @@
   </action>
   <action name="flreloadlast">
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_flreloadlast.png</normaloff>../../core/images/icons/sys_flreloadlast.png</iconset>
+    <iconset>../../core/images/icons/sys_flreloadlast.png</iconset>
    </property>
    <property name="text">
     <string>Recargar Ú&amp;ltimo Módulo</string>
@@ -181,8 +176,7 @@
   </action>
   <action name="flareas">
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_flareas.png</normaloff>../../core/images/icons/sys_flareas.png</iconset>
+    <iconset>../../core/images/icons/sys_flareas.png</iconset>
    </property>
    <property name="text">
     <string>A&amp;reas</string>
@@ -196,8 +190,7 @@
   </action>
   <action name="flmodules">
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_flmodules.png</normaloff>../../core/images/icons/sys_flmodules.png</iconset>
+    <iconset>../../core/images/icons/sys_flmodules.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Módulos</string>
@@ -211,8 +204,7 @@
   </action>
   <action name="flmrproper">
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_flmrproper.png</normaloff>../../core/images/icons/sys_flmrproper.png</iconset>
+    <iconset>../../core/images/icons/sys_flmrproper.png</iconset>
    </property>
    <property name="text">
     <string>Regenerar Base de Dat&amp;os</string>
@@ -226,8 +218,7 @@
   </action>
   <action name="flreinit">
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_flreinit.png</normaloff>../../core/images/icons/sys_flreinit.png</iconset>
+    <iconset>../../core/images/icons/sys_flreinit.png</iconset>
    </property>
    <property name="text">
     <string>Reiniciar</string>
@@ -241,8 +232,7 @@
   </action>
   <action name="fldumpdb">
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_fldumpdb.png</normaloff>../../core/images/icons/sys_fldumpdb.png</iconset>
+    <iconset>../../core/images/icons/sys_fldumpdb.png</iconset>
    </property>
    <property name="text">
     <string>Co&amp;pia de Seguridad</string>
@@ -256,8 +246,7 @@
   </action>
   <action name="flusers">
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_flusers.png</normaloff>../../core/images/icons/sys_flusers.png</iconset>
+    <iconset>../../core/images/icons/sys_flusers.png</iconset>
    </property>
    <property name="text">
     <string>U&amp;suarios</string>
@@ -271,8 +260,7 @@
   </action>
   <action name="flgroups">
    <property name="icon">
-    <iconset>
-     <normaloff>../../core/images/icons/sys_flgroups.png</normaloff>../../core/images/icons/sys_flgroups.png</iconset>
+    <iconset>../../core/images/icons/sys_flgroups.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Grupos</string>

@@ -2,7 +2,7 @@
 Module for Date type.
 """
 from typing import Union, Optional, Any
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 from pineboolib.application.utils.date_conversion import date_dma_to_amd
 
 

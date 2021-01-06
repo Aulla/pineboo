@@ -1,6 +1,6 @@
 """AQSignalmapper module."""
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 
 class AQSignalMapper(QtCore.QSignalMapper):

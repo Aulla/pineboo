@@ -4,7 +4,7 @@
 import datetime
 from typing import Union, Optional
 
-from PyQt5 import QtCore, QtWidgets  # type: ignore
+from PyQt6 import QtCore, QtWidgets  # type: ignore
 from pineboolib.q3widgets import qdateedit
 from pineboolib.application.utils.date_conversion import convert_to_qdate
 from pineboolib.application.types import Date

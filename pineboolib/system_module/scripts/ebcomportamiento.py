@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from pineboolib.qsa import qsa
 from typing import Any, Union
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
 
 from pineboolib.core import settings
 

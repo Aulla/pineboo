@@ -9,7 +9,7 @@ from pineboolib.application.utils import sql_tools
 from pineboolib import application
 from pineboolib.application import types
 
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 
 from typing import Any, Union, List, Dict, Optional, TYPE_CHECKING

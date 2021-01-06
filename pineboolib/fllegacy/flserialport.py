@@ -1,11 +1,11 @@
 """Flserial por module."""
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 from pineboolib.core import decorators
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtSerialPort  # type: ignore [attr-defined] # pragma: no cover
+    from PyQt6 import QtSerialPort  # type: ignore [attr-defined] # pragma: no cover
 
 
 class BaudRateType(object):
@@ -89,7 +89,7 @@ class FLSerialPort(QtCore.QObject, BaudRateType, DataBitsType, ParityType, StopB
             )
             return
         else:
-            from PyQt5 import QtSerialPort  # type: ignore [attr-defined] # noqa: F821
+            from PyQt6 import QtSerialPort  # type: ignore [attr-defined] # noqa: F821
 
             self._obj = QtSerialPort.QSerialPort(port_name)
 

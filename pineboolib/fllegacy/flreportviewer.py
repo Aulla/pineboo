@@ -1,5 +1,5 @@
 """Flreportviewer module."""
-from PyQt5 import QtWidgets, QtCore, QtXml
+from PyQt6 import QtWidgets, QtCore, QtXml
 
 from pineboolib.core import decorators, settings
 from pineboolib import application
@@ -15,7 +15,7 @@ from .flreportengine import FLReportEngine
 from pineboolib import logging
 
 from typing import Any, List, Mapping, Sized, Union, Dict, Optional, Callable, TYPE_CHECKING
-from PyQt5.QtGui import QPalette, QPixmap
+from PyQt6.QtGui import QPalette, QPixmap
 
 from PIL.ImageQt import ImageQt
 
@@ -24,7 +24,7 @@ import pathlib
 
 if TYPE_CHECKING:
     from pineboolib.q3widgets import qmainwindow  # noqa: F401
-    from PyQt5.QtGui import QImage  # noqa: F401
+    from PyQt6.QtGui import QImage  # noqa: F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -145,7 +145,7 @@ class FLReportViewer(QtWidgets.QWidget):
         if self.slot_print_disabled:
             return
 
-        from PyQt5 import QtPrintSupport
+        from PyQt6 import QtPrintSupport
 
         dialog = QtPrintSupport.QPrintDialog()
         if dialog.exec_() == QtWidgets.QDialog.Accepted:

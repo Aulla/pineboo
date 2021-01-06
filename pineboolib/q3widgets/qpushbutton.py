@@ -1,12 +1,12 @@
 """Qpushbutton module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtCore  # type: ignore
+from PyQt6 import QtWidgets, QtCore  # type: ignore
 from pineboolib.core import decorators
 
 from typing import Union, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtGui  # pragma: no cover
+    from PyQt6 import QtGui  # pragma: no cover
 
 
 class QPushButton(QtWidgets.QPushButton):

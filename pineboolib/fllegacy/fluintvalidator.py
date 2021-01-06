@@ -1,10 +1,10 @@
 """Fluintvalidator module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtGui
+from PyQt6 import QtGui
 from typing import Tuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets  # noqa: F401 # pragma: no cover
+    from PyQt6 import QtWidgets  # noqa: F401 # pragma: no cover
 
 
 class FLUIntValidator(QtGui.QIntValidator):

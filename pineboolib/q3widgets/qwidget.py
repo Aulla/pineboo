@@ -1,7 +1,7 @@
 """Qwidget module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
 from typing import cast, Any
 from pineboolib.core import decorators
 

@@ -8,7 +8,7 @@ from pineboolib import application
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5.QtCore import QSize  # type: ignore # pragma: no cover
+    from PyQt6.QtCore import QSize  # type: ignore # pragma: no cover
 
 
 def save_geometry_form(name: str, geo: "QSize") -> None:

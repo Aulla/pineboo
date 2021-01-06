@@ -11,7 +11,7 @@ from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
 
 
 # from pineboolib.fllegacy.flaccesscontrollists import FLAccessControlLists # FIXME: Not allowed yet
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 from pineboolib.core.utils.struct import AreaStruct

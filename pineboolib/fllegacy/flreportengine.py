@@ -1,9 +1,9 @@
 """Flreportengine module."""
 from typing import List
-from PyQt5 import QtXml, QtCore  # type: ignore
-from PyQt5.QtGui import QPainter
+from PyQt6 import QtXml, QtCore  # type: ignore
+from PyQt6.QtGui import QPainter
 
-from PyQt5.QtXml import QDomNode as FLDomNodeInterface  # type: ignore # FIXME
+from PyQt6.QtXml import QDomNode as FLDomNodeInterface  # type: ignore # FIXME
 
 from pdf2image import convert_from_path  # type: ignore
 
@@ -13,8 +13,8 @@ from pineboolib.application.database.pnsqlquery import PNSqlQuery
 from typing import Any, Optional, Dict, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets  # noqa: F401
-    from PyQt5 import QtPrintSupport  # noqa: F401
+    from PyQt6 import QtWidgets  # noqa: F401
+    from PyQt6 import QtPrintSupport  # noqa: F401
 
 
 LOGGER = logging.get_logger(__name__)
@@ -149,7 +149,7 @@ class FLReportEngine(QtCore.QObject):
         """Print report to a printer."""
 
         try:
-            from PyQt5.QtPrintSupport import QPrinter
+            from PyQt6.QtPrintSupport import QPrinter
             from PIL.ImageQt import ImageQt  # type: ignore
 
             page_filter = []

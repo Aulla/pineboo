@@ -2,18 +2,19 @@
 
 # -*- coding: utf-8 -*-
 from typing import Optional, Any, List, Union, cast
-from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QAbstractItemView
+from PyQt6 import QtWidgets, QtCore, QtGui
+from PyQt6.QtCore import Qt
+from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QAbstractItemView
 from pineboolib.core import decorators
 from pineboolib.core.utils.utils_base import format_double
 from . import qwidget
 
 
+# FIXMEQT6 class Q3TableWidget(QtWidgets.QTableWidget, qwidget.QWidget):
 class Q3TableWidget(QtWidgets.QTableWidget, qwidget.QWidget):
     """
-    Remove problematic properties from PyQt5-Stubs that we need to redefine.
+    Remove problematic properties from PyQt6-Stubs that we need to redefine.
     """
 
     currentChanged: Any

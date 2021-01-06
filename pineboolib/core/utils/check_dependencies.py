@@ -23,7 +23,7 @@ MINIMUM_VERSION = {
     "ply": "3.9",
     "Pillow": "5.1.0",
     "fpdf": "1.7.3",
-    "PyQt5": "5.11",
+    "PyQt6": "5.11",
 }
 PYTHON_INCLUDED_BATTERIES = {"Python", "sqlite3"}
 
@@ -50,7 +50,7 @@ def get_dependency_errors(dict_: DependencyCheck) -> DependencyError:
             try:
                 mod_ = import_module(key)
                 version = getattr(mod_, "__version__", None)
-                if key == "PyQt5.QtCore":
+                if key == "PyQt6.QtCore":
                     version = getattr(mod_, "QT_VERSION_STR", None)
                 del mod_
             except ImportError:

@@ -3,7 +3,7 @@
 
 import os
 from pathlib import Path
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt6 import QtWidgets, QtGui, QtCore
 
 from pineboolib.core.utils.utils_base import filedir
 from pineboolib.core import settings
@@ -35,13 +35,14 @@ class DlgConnect(QtWidgets.QWidget):
         """
         Initialize.
         """
-        from pineboolib.application.database.pnsqldrivers import PNSqlDrivers
 
-        super(DlgConnect, self).__init__()
+        super().__init__()
         self._options_showed = False
         self._min_size = QtCore.QSize(350, 140)
         self._max_size = QtCore.QSize(350, 495)
         self.profile_dir: str = ProjectConfig.profile_dir
+        from pineboolib.application.database.pnsqldrivers import PNSqlDrivers
+
         self.sql_drivers = PNSqlDrivers()
         self.edit_mode = False
         self.profiles = {}
@@ -59,13 +60,14 @@ class DlgConnect(QtWidgets.QWidget):
         if not self._user_interface:
             raise Exception("Error creating dlgConnect")
         # Centrado en pantalla
-        frame_geo = self.frameGeometry()
-        screen = QtWidgets.QApplication.desktop().screenNumber(
-            QtWidgets.QApplication.desktop().cursor().pos()  # type: ignore [misc] # noqa: F821
-        )
-        center_point = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
-        frame_geo.moveCenter(center_point)
-        self.move(frame_geo.topLeft())
+        # FIXMEPYQT6
+        # frame_geo = self.frameGeometry()
+        # screen = QtWidgets.QApplication.desktop().screenNumber(
+        #    QtWidgets.QApplication.desktop().cursor().pos()  # type: ignore [misc] # noqa: F821
+        # )
+        # center_point = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
+        # frame_geo.moveCenter(center_point)
+        # self.move(frame_geo.topLeft())
 
         self._user_interface.pbLogin.clicked.connect(self.open)
         self._user_interface.tbOptions.clicked.connect(self.toggleOptions)
@@ -264,11 +266,12 @@ class DlgConnect(QtWidgets.QWidget):
                 "¿Desea borrar el perfil %s?" % self._user_interface.cbProfiles.currentText(),
                 cast(
                     QtWidgets.QMessageBox.StandardButtons,
-                    QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.No,
+                    QtWidgets.QMessageBox.StandardButtons.Ok
+                    | QtWidgets.QMessageBox.StandardButtons.No,
                 ),
-                QtWidgets.QMessageBox.No,
+                QtWidgets.QMessageBox.StandardButtons.No,
             )
-            if res == QtWidgets.QMessageBox.No:
+            if res == QtWidgets.QMessageBox.StandardButtons.No:
                 return
 
             pconf: ProjectConfig = self.profiles[self._user_interface.cbProfiles.currentText()]
@@ -384,7 +387,7 @@ class DlgConnect(QtWidgets.QWidget):
             self._user_interface,
             self.tr("Carpeta profiles"),
             self.profile_dir,
-            QtWidgets.QFileDialog.ShowDirsOnly,
+            QtWidgets.QFileDialog.Options.ShowDirsOnly,
         )
 
         if new_dir and new_dir is not self.profile_dir:
@@ -397,11 +400,11 @@ class DlgConnect(QtWidgets.QWidget):
         """Event Filter."""
 
         if isinstance(event, QtGui.QKeyEvent):
-            if event.key() in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
+            if event.key() in (QtCore.Qt.Key.Key_Return, QtCore.Qt.Key.Key_Enter):
                 self.open()
                 return True
 
-            elif event.key() == QtCore.Qt.Key_Escape:
+            elif event.key() == QtCore.Qt.Key.Key_Escape:
                 self.close()
                 return True
 

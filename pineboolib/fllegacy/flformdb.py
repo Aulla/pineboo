@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 import traceback
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from pineboolib import logging
 
@@ -227,7 +227,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.layout_.setContentsMargins(1, 1, 1, 1)
         self.layout_.setSpacing(1)
         self.layout_.setContentsMargins(1, 1, 1, 1)
-        self.layout_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self.layout_.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
         self.setLayout(self.layout_)
 
         self.pushButtonCancel = None
@@ -271,7 +271,7 @@ class FLFormDB(QtWidgets.QDialog):
         self.layout_.insertWidget(0, widget)
         self.layout_.setSpacing(1)
         self.layout_.setContentsMargins(1, 1, 1, 1)
-        self.layout_.setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
+        self.layout_.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
         if self._ui_name:
 
             if application.PROJECT.conn_manager is None:
@@ -764,7 +764,7 @@ class FLFormDB(QtWidgets.QDialog):
         # elif type(self).__name__ == "FLFormDB":
         #    application.PROJECT.actions[self.action().name()]._record_widget.form._loaded = False
 
-        # from PyQt5.QtWidgets import qApp
+        # from PyQt6.QtWidgets import qApp
 
         # qApp.processEvents() #Si se habilita pierde mucho tiempo!
 

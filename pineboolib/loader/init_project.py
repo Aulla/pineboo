@@ -19,7 +19,7 @@ def init_project(
     dgi: Any, options: Any, project: Any, main_window: Optional["imainwindow.IMainWindow"], app: Any
 ) -> Any:
     """Initialize the project and start it."""
-    # from PyQt5 import QtCore  # type: ignore
+    # from PyQt6 import QtCore  # type: ignore
 
     # if dgi.useDesktop() and dgi.localDesktop() and splash:
     #     splash.showMessage("Iniciando proyecto ...", QtCore.Qt.AlignLeft, QtCore.Qt.white)

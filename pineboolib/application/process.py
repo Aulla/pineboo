@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Process Module."""
 
-from PyQt5 import QtCore  # type: ignore
+from PyQt6 import QtCore  # type: ignore
 
-# from PyQt5.QtCore import pyqtSignal
+# from PyQt6.QtCore import pyqtSignal
 import sys
 
 # from pineboolib.core import decorators

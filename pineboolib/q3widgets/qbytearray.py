@@ -1,7 +1,7 @@
 """QBytearray module."""
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore  # type: ignore
+from PyQt6 import QtCore  # type: ignore
 from typing import Union
 
 

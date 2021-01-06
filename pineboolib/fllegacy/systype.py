@@ -7,7 +7,7 @@ import sys
 import re
 
 
-from PyQt5 import QtCore, QtWidgets, QtGui, QtXml
+from PyQt6 import QtCore, QtWidgets, QtGui, QtXml
 
 
 from pineboolib.core.system import System

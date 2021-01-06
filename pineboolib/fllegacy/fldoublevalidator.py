@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 
-from PyQt5 import QtGui
-from PyQt5.QtGui import QValidator
+from PyQt6 import QtGui
+from PyQt6.QtGui import QValidator
 
 from pineboolib import application
 
 from typing import Tuple, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets  # pragma: no cover
+    from PyQt6 import QtWidgets  # pragma: no cover
 
 
 class FLDoubleValidator(QtGui.QDoubleValidator):

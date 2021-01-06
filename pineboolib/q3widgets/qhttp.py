@@ -1,6 +1,6 @@
 """QHttp module."""
 
-from PyQt5 import QtCore, QtNetwork
+from PyQt6 import QtCore, QtNetwork
 from typing import Union, Optional, cast, Dict, List, Any
 from pineboolib.core import decorators
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from pineboolib.q3widgets import qcheckbox
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 from typing import Optional
 
 

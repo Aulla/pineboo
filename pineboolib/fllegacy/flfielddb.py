@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from pineboolib.application.database import pnsqlcursor, pnsqlquery
 from pineboolib.application.metadata import pnrelationmetadata
@@ -83,17 +83,17 @@ class FLFieldDB(QtWidgets.QWidget):
 
     _showed: bool
     _show_alias: bool
-    _auto_com_popup: Optional[fldatatable.FLDataTable]
-    _auto_com_frame: Optional[QtWidgets.QWidget]
+    _auto_com_popup: Optional["fldatatable.FLDataTable"]
+    _auto_com_frame: Optional["QtWidgets.QWidget"]
     _auto_com_field_name: str
     _auto_com_field_relation: Optional[str]
-    _accel: Dict[str, QtWidgets.QShortcut]
+    _accel: Dict[str, "QtGui.QShortcut"]
     _keep_disabled: bool
 
-    _pbaux: Optional[qpushbutton.QPushButton]
-    _pbaux2: Optional[qpushbutton.QPushButton]
-    _pbaux3: Optional[qpushbutton.QPushButton]
-    _pbaux4: Optional[qpushbutton.QPushButton]
+    _pbaux: Optional["qpushbutton.QPushButton"]
+    _pbaux2: Optional["qpushbutton.QPushButton"]
+    _pbaux3: Optional["qpushbutton.QPushButton"]
+    _pbaux4: Optional["qpushbutton.QPushButton"]
     _field_alias: Optional[str]
     _show_editor: bool
     _field_map_value: Optional["FLFieldDB"]
@@ -2427,8 +2427,8 @@ class FLFieldDB(QtWidgets.QWidget):
 
             self.cursor_.setValueBuffer(self._field_name, None)
 
-    @decorators.pyqt_slot(QtWidgets.QAction)
-    def savePixmap(self, action_: QtWidgets.QAction) -> None:
+    @decorators.pyqt_slot(QtGui.QAction)
+    def savePixmap(self, action_: "QtGui.QAction") -> None:
         """
         Save image in Pixmap type fields.
 

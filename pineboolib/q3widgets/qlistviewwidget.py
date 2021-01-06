@@ -1,5 +1,5 @@
 """Qlistviewwidget module."""
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 
 class QListViewWidget(QtWidgets.QListWidget):

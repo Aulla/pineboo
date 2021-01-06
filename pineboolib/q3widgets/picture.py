@@ -1,5 +1,5 @@
 """Picture module."""
-from PyQt5 import QtGui, Qt
+from PyQt6 import QtGui, Qt
 
 from typing import Callable
 

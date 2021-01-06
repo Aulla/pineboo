@@ -322,7 +322,7 @@ class TestACLS(unittest.TestCase):
 
     def test_mainwindow_flacos(self) -> None:
         """Test mainwindow flacos."""
-        from PyQt5 import QtWidgets
+        from PyQt6 import QtGui
         from pineboolib.plugins.mainform.eneboo import eneboo
         from pineboolib import application
 
@@ -345,22 +345,22 @@ class TestACLS(unittest.TestCase):
         self.main_w.show()
         self.assertTrue(self.main_w)
 
-        action_1 = self.main_w.findChild(QtWidgets.QAction, "ebcomportamiento")
+        action_1 = self.main_w.findChild(QtGui.QAction, "ebcomportamiento")
         self.assertTrue(action_1)
         self.assertFalse(action_1.isVisible())
 
-        action_2 = self.main_w.findChild(QtWidgets.QAction, "flgroups")
+        action_2 = self.main_w.findChild(QtGui.QAction, "flgroups")
         self.assertTrue(action_2)
         self.assertFalse(action_2.isVisible())
 
-        action_3 = self.main_w.findChild(QtWidgets.QAction, "flareas")
+        action_3 = self.main_w.findChild(QtGui.QAction, "flareas")
         self.assertTrue(action_3)
         self.assertTrue(action_3.isVisible())
 
     def test_mainwindow_global(self) -> None:
         """Test mainwindow global."""
 
-        from PyQt5 import QtWidgets
+        from PyQt6 import QtGui
         from pineboolib.plugins.mainform.eneboo import eneboo
         from pineboolib import application
 
@@ -383,7 +383,7 @@ class TestACLS(unittest.TestCase):
         self.main_w.show()
         self.assertTrue(self.main_w)
 
-        action_1 = self.main_w.findChild(QtWidgets.QAction, "flusers")
+        action_1 = self.main_w.findChild(QtGui.QAction, "flusers")
         self.assertTrue(action_1)
         self.assertFalse(action_1.isVisible())
 

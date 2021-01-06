@@ -4,7 +4,7 @@ Collection of controls used on Pineboo.
 
 Those are loaded from selected DGI.
 """
-from PyQt5 import QtCore, QtWidgets, QtGui, QtXml  # noqa: F401
+from PyQt6 import QtCore, QtWidgets, QtGui, QtXml  # noqa: F401
 
 from pineboolib.core.system import System  # noqa: F401
 
@@ -59,46 +59,47 @@ from pineboolib.q3widgets.qdir import QDir  # noqa: F401
 
 from pineboolib.q3widgets.qhttp import QHttp, QHttpResponseHeader, QHttpRequestHeader  # noqa: F401
 
-from PyQt5.QtWidgets import QActionGroup  # noqa: F401
-from PyQt5.QtWidgets import QInputDialog  # noqa: F401
-from PyQt5.QtWidgets import QApplication  # noqa: F401
-from PyQt5.QtWidgets import qApp  # noqa: F401
-from PyQt5.QtWidgets import QStyleFactory  # noqa: F401
-from PyQt5.QtWidgets import QFontDialog  # noqa: F401
-from PyQt5.QtWidgets import QDockWidget  # noqa: F401
-from PyQt5.QtWidgets import QMdiSubWindow  # noqa: F401
-from PyQt5.QtWidgets import QSizePolicy  # noqa: F401
-from PyQt5.QtWidgets import QToolBox  # noqa: F401
-from PyQt5.QtWidgets import QProgressDialog  # noqa: F401
-from PyQt5.QtWidgets import QFileDialog  # noqa: F401
-from PyQt5.QtWidgets import QTreeWidget  # noqa: F401
-from PyQt5.QtWidgets import QTreeWidgetItem  # noqa: F401
-from PyQt5.QtWidgets import QTreeWidgetItemIterator  # noqa: F401
-from PyQt5.QtWidgets import QListWidgetItem  # noqa: F401
-from PyQt5.QtWidgets import QMdiArea  # noqa: F401
-from PyQt5.QtWidgets import QMessageBox  # noqa: F401
+from PyQt6.QtGui import QActionGroup  # noqa: F401
+from PyQt6.QtWidgets import QInputDialog  # noqa: F401
+from PyQt6.QtWidgets import QApplication  # noqa: F401
 
-from PyQt5.QtCore import QSignalMapper  # noqa: F401
-from PyQt5.QtCore import QSize  # noqa: F401
+qApp = QApplication  # noqa: F401
+from PyQt6.QtWidgets import QStyleFactory  # noqa: F401
+from PyQt6.QtWidgets import QFontDialog  # noqa: F401
+from PyQt6.QtWidgets import QDockWidget  # noqa: F401
+from PyQt6.QtWidgets import QMdiSubWindow  # noqa: F401
+from PyQt6.QtWidgets import QSizePolicy  # noqa: F401
+from PyQt6.QtWidgets import QToolBox  # noqa: F401
+from PyQt6.QtWidgets import QProgressDialog  # noqa: F401
+from PyQt6.QtWidgets import QFileDialog  # noqa: F401
+from PyQt6.QtWidgets import QTreeWidget  # noqa: F401
+from PyQt6.QtWidgets import QTreeWidgetItem  # noqa: F401
+from PyQt6.QtWidgets import QTreeWidgetItemIterator  # noqa: F401
+from PyQt6.QtWidgets import QListWidgetItem  # noqa: F401
+from PyQt6.QtWidgets import QMdiArea  # noqa: F401
+from PyQt6.QtWidgets import QMessageBox  # noqa: F401
 
-from PyQt5.QtCore import QBuffer  # noqa: F401
+from PyQt6.QtCore import QSignalMapper  # noqa: F401
+from PyQt6.QtCore import QSize  # noqa: F401
 
-from PyQt5.QtGui import QPainter  # noqa: F401
-from PyQt5.QtGui import QBrush  # noqa: F401
-from PyQt5.QtGui import QKeySequence  # noqa: F401
-from PyQt5.QtGui import QPixmap  # noqa: F401
-from PyQt5.QtGui import QImage  # noqa: F401
-from PyQt5.QtGui import QIcon  # noqa: F401
-from PyQt5.QtGui import QColor  # noqa: F401
+from PyQt6.QtCore import QBuffer  # noqa: F401
+
+from PyQt6.QtGui import QPainter  # noqa: F401
+from PyQt6.QtGui import QBrush  # noqa: F401
+from PyQt6.QtGui import QKeySequence  # noqa: F401
+from PyQt6.QtGui import QPixmap  # noqa: F401
+from PyQt6.QtGui import QImage  # noqa: F401
+from PyQt6.QtGui import QIcon  # noqa: F401
+from PyQt6.QtGui import QColor  # noqa: F401
 
 
-from PyQt5.QtXml import QDomDocument  # noqa: F401
+from PyQt6.QtXml import QDomDocument  # noqa: F401
 
 # Clases FL
-from PyQt5.QtXml import QDomDocument as FLDomDocument  # noqa: F401
-from PyQt5.QtXml import QDomElement as FLDomElement  # noqa: F401
-from PyQt5.QtXml import QDomNode as FLDomNode  # noqa: F401
-from PyQt5.QtXml import QDomNodeList as FLDomNodeList  # noqa: F401
+from PyQt6.QtXml import QDomDocument as FLDomDocument  # noqa: F401
+from PyQt6.QtXml import QDomElement as FLDomElement  # noqa: F401
+from PyQt6.QtXml import QDomNode as FLDomNode  # noqa: F401
+from PyQt6.QtXml import QDomNodeList as FLDomNodeList  # noqa: F401
 
 from .formdbwidget import FormDBWidget  # noqa: F401
 from .object_class import Object_class as ObjectClass  # noqa: F401
@@ -144,9 +145,9 @@ from pineboolib.fllegacy.flscripteditor import FLScriptEditor  # noqa: F401
 
 # Clases QSA
 
-from PyQt5.QtGui import QColor as Color  # noqa: F401
-from PyQt5.QtWidgets import QLabel as Label  # noqa: F401
-from PyQt5.QtGui import QFont as Font  # noqa: F401
+from PyQt6.QtGui import QColor as Color  # noqa: F401
+from PyQt6.QtWidgets import QLabel as Label  # noqa: F401
+from PyQt6.QtGui import QFont as Font  # noqa: F401
 
 
 from pineboolib.q3widgets.line import Line  # noqa: F401

@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from pineboolib.application.database import pnsqlcursor
 from pineboolib.application.metadata import pnfieldmetadata, pnrelationmetadata
@@ -1175,17 +1175,17 @@ class FLTableDB(QtWidgets.QWidget):
         """Create all controls."""
 
         size_policy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum
         )
         size_policy.setHeightForWidth(True)
 
         size_policy_clean = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
         )
         size_policy_clean.setHeightForWidth(True)
 
         size_policy_group_box = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
         )
 
         self._data_layout = QtWidgets.QHBoxLayout()  # Contiene _tab_data y _tab_filters
@@ -1218,7 +1218,7 @@ class FLTableDB(QtWidgets.QWidget):
         self._pb_data.setSizePolicy(size_policy)
         if self._icon_size is not None:
             self._pb_data.setMinimumSize(self._icon_size)
-        self._pb_data.setFocusPolicy(QtCore.Qt.NoFocus)
+        self._pb_data.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._pb_data.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "fltable-data.png"))
         )
@@ -1232,7 +1232,7 @@ class FLTableDB(QtWidgets.QWidget):
         self._pb_filter.setSizePolicy(size_policy)
         if self._icon_size is not None:
             self._pb_filter.setMinimumSize(self._icon_size)
-        self._pb_filter.setFocusPolicy(QtCore.Qt.NoFocus)
+        self._pb_filter.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._pb_filter.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "fltable-filter.png"))
         )
@@ -1246,7 +1246,7 @@ class FLTableDB(QtWidgets.QWidget):
         self._pb_odf.setSizePolicy(size_policy)
         if self._icon_size is not None:
             self._pb_odf.setMinimumSize(self._icon_size)
-        self._pb_odf.setFocusPolicy(QtCore.Qt.NoFocus)
+        self._pb_odf.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._pb_odf.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "fltable-odf.png"))
         )
@@ -1262,7 +1262,7 @@ class FLTableDB(QtWidgets.QWidget):
         self.pb_clean.setSizePolicy(size_policy_clean)
         if self._icon_size is not None:
             self.pb_clean.setMinimumSize(self._icon_size)
-        self.pb_clean.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.pb_clean.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.pb_clean.setIcon(
             QtGui.QIcon(utils_base.filedir("./core/images/icons", "fltable-clean.png"))
         )
@@ -1273,7 +1273,7 @@ class FLTableDB(QtWidgets.QWidget):
         self.pb_clean.clicked.connect(self.tdbFilterClear)
 
         spacer = QtWidgets.QSpacerItem(
-            20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+            20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding
         )
         self._buttons_layout.addItem(spacer)
 
@@ -1294,7 +1294,7 @@ class FLTableDB(QtWidgets.QWidget):
         if self._tab_control_layout is not None:
             control_frame = QtWidgets.QFrame()
             lay = QtWidgets.QHBoxLayout()
-            control_frame.setFrameStyle(QtWidgets.QFrame.Raised)
+            control_frame.setFrameStyle(QtWidgets.QFrame.Shadow.Raised)
             control_frame.setStyleSheet("QFrame { border: 1px solid black; }")
             lay.setContentsMargins(2, 2, 2, 2)
             lay.setSpacing(2)
@@ -1908,7 +1908,7 @@ class FLTableDB(QtWidgets.QWidget):
             self._fake_editor = QtWidgets.QTextEdit(self._tab_data)
 
             size_policy = QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+                QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding
             )
             size_policy.setHeightForWidth(True)
 

@@ -6,8 +6,8 @@ Loads old Qt3 UI files and creates a Qt5 UI.
 """
 from importlib import import_module
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QWidget
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QWidget
 from xml.etree import ElementTree as ET
 from binascii import unhexlify
 from pineboolib import logging
@@ -205,7 +205,7 @@ def load_ui(form_path: str, widget: Any, parent: Optional[QWidget] = None) -> No
 
                 if receiver is None:
                     receiver = widget.findChild(
-                        QtCore.QObject, receiv_name, QtCore.Qt.FindChildrenRecursively
+                        QtCore.QObject, receiv_name, QtCore.Qt.FindChildOptions.FindChildrenRecursively
                     )
 
                 if receiver is None:
@@ -392,14 +392,14 @@ def process_item(
             process_item(item, menu_, widget)
 
 
-def clone_action(action: QtWidgets.QAction, widget: QWidget) -> None:
+def clone_action(action: QtGui.QAction, widget: QWidget) -> None:
     """
     Clone action into widget.
 
     widget: pre-created widget to store the object.
     used only on loadToolBar and process_item
     """
-    real_action = cast(QtWidgets.QAction, widget.findChild(QtWidgets.QAction, action.objectName()))
+    real_action = cast(QtGui.QAction, widget.findChild(QtGui.QAction, action.objectName()))
     if real_action is not None:
         action.setText(real_action.text())
         action.setIcon(real_action.icon())
@@ -413,9 +413,7 @@ def clone_action(action: QtWidgets.QAction, widget: QWidget) -> None:
         action.toggled.connect(real_action.toggle)
 
 
-def load_action(
-    action: ET.Element, widget: QWidget, action_widget: QtWidgets.QAction = None
-) -> None:
+def load_action(action: ET.Element, widget: QWidget, action_widget: QtGui.QAction = None) -> None:
     """
     Load Action into widget.
 
@@ -425,7 +423,7 @@ def load_action(
     if action_widget is not None:
         new_action = action_widget
     else:
-        new_action = QtWidgets.QAction(widget)
+        new_action = QtGui.QAction(widget)
 
     action_name = action.get("name")
     for root_action in ROOT.findall("actions//action"):  # type: ignore [union-attr] # noqa: F821
@@ -722,7 +720,7 @@ class LoadWidget:
                         cast(QtWidgets.QWidget, self.widget).setLayout(lay)
 
                     if isinstance(self.widget, qtoolbar.QToolBar):
-                        if isinstance(new_widget, QtWidgets.QAction):
+                        if isinstance(new_widget, QtGui.QAction):
                             self.widget.addAction(new_widget)
                         else:
                             self.widget.addWidget(cast(QtWidgets.QWidget, new_widget))
@@ -909,7 +907,7 @@ class LoadWidget:
         """
         Process a QAction.
         """
-        action = cast(QtWidgets.QAction, create_widget("QAction"))
+        action = cast(QtGui.QAction, create_widget("QAction"))
         for item in xmlaction:
             action_name = item.get("name")
             if action_name in self.translate_properties:

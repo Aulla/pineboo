@@ -151,8 +151,7 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>../../core/images/icons/insert.png</normaloff>../../core/images/icons/insert.png</iconset>
+              <iconset>../../core/images/icons/insert.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -183,8 +182,7 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>../../core/images/icons/edit.png</normaloff>../../core/images/icons/edit.png</iconset>
+              <iconset>../../core/images/icons/edit.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -212,8 +210,7 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>../../core/images/icons/delete.png</normaloff>../../core/images/icons/delete.png</iconset>
+              <iconset>../../core/images/icons/delete.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -241,8 +238,7 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>../../core/images/icons/zoom.png</normaloff>../../core/images/icons/zoom.png</iconset>
+              <iconset>../../core/images/icons/zoom.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -277,8 +273,7 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>../../core/images/icons/down.png</normaloff>../../core/images/icons/down.png</iconset>
+              <iconset>../../core/images/icons/down.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -294,8 +289,7 @@
               <string/>
              </property>
              <property name="icon">
-              <iconset>
-               <normaloff>../../core/images/icons/up.png</normaloff>../../core/images/icons/up.png</iconset>
+              <iconset>../../core/images/icons/up.png</iconset>
              </property>
              <property name="iconSize">
               <size>

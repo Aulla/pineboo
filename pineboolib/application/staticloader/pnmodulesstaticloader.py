@@ -6,7 +6,7 @@ Performs load of scripts from disk instead of database.
 """
 
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
 
 from pineboolib.core import settings, decorators
 from pineboolib.core.utils import logging, utils_base

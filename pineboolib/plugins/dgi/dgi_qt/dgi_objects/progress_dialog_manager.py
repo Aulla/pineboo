@@ -1,6 +1,6 @@
 """Progressdialogmanager module."""
 from typing import Any, List
-from PyQt5 import QtCore, QtWidgets  # type: ignore
+from PyQt6 import QtCore, QtWidgets  # type: ignore
 
 
 class ProgressDialogManager(object):

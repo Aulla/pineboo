@@ -3,7 +3,7 @@ Manage Qt Signal-Slot connections.
 """
 
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from pineboolib.q3widgets import qdateedit
 from pineboolib.q3widgets import qtable
@@ -101,7 +101,7 @@ def slot_done(
     def new_fn(*args: Any, **kwargs: Any) -> Any:
 
         res = False
-        # PyQt5-Stubs seems to miss QtCore.pyqtSignal.name (also, this seems to be internal)
+        # PyQt6-Stubs seems to miss QtCore.pyqtSignal.name (also, this seems to be internal)
         original_signal_name: str = getattr(signal, "signal")
 
         # Este parche es para evitar que las conexiones de un clicked de error de cantidad de argumentos.
@@ -122,7 +122,7 @@ def slot_done(
 
         if caller is not None:
             try:
-                # PyQt5-Stubs seems to miss QtCore.pyqtSignal.name (also, this seems to be internal)
+                # PyQt6-Stubs seems to miss QtCore.pyqtSignal.name (also, this seems to be internal)
                 caller_signal_name: str = getattr(caller.signal_test, "signal")
                 if original_signal_name != caller_signal_name:
                     signal_name = original_signal_name[
@@ -178,7 +178,7 @@ def connect(
 
     try:
         slot_done_fn: Callable = slot_done(new_slot, new_signal, sender, caller)
-        # MyPy/PyQt5-Stubs misses connect(type=param)
+        # MyPy/PyQt6-Stubs misses connect(type=param)
 
         new_signal.connect(slot_done_fn, type=conntype)  # type: ignore
     except Exception as error:

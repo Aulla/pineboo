@@ -1,13 +1,13 @@
 """Qradiobutton module."""
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets  # type: ignore
 from pineboolib import logging
 
 from .qbuttongroup import QButtonGroup
 
 from typing import Optional, cast
-from PyQt5.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 
 LOGGER = logging.get_logger(__name__)
 

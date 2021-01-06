@@ -11,7 +11,7 @@ from pineboolib.application.database import utils
 from pineboolib import application
 
 
-from PyQt5 import QtCore  # type: ignore
+from PyQt6 import QtCore  # type: ignore
 from typing import Any
 
 

@@ -145,7 +145,7 @@ class TestSysType(unittest.TestCase):
     def test_pixmap(self) -> None:
         """Text str to pixmap function."""
         from pineboolib.application.database import pnsqlcursor
-        from PyQt5 import QtCore
+        from PyQt6 import QtCore
 
         sys = systype.SysType()
         cursor = pnsqlcursor.PNSqlCursor("flmodules")
@@ -159,7 +159,7 @@ class TestSysType(unittest.TestCase):
             self.assertTrue(pixmap)
             res_txt = sys.fromPixmap(pixmap)
             self.assertTrue(res_txt.find("22 22 214 2") > -1)
-            pixmap_2 = sys.scalePixmap(pixmap, 50, 50, QtCore.Qt.KeepAspectRatio)
+            pixmap_2 = sys.scalePixmap(pixmap, 50, 50, QtCore.Qt.AspectRatioMode.KeepAspectRatio)
             self.assertTrue(pixmap_2)
 
     def test_project_info(self) -> None:
@@ -213,12 +213,7 @@ class TestSysType(unittest.TestCase):
         ad_.initDump()
         ad_.buildGui()
         self.assertTrue(ad_.launchProc(["dir"]))
-        self.assertNotEqual(
-            ad_.proc_.readLine()  # type: ignore[attr-defined] # noqa : F821
-            .data()
-            .decode(sys.getdefaultencoding()),
-            None,
-        )
+        self.assertNotEqual(ad_.proc_.readLine().data().decode(sys.getdefaultencoding()), None)
         ad_.changeDirBase(".")
 
     def test_basic_1(self) -> None:

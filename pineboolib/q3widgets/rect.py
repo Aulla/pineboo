@@ -1,5 +1,5 @@
 """Rect module."""
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 
 class Rect(QtCore.QRect):

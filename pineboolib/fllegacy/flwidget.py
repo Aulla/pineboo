@@ -1,11 +1,11 @@
 """Flwidget module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import Qt  # pragma: no cover
+    from PyQt6 import Qt  # pragma: no cover
 
 
 class FLWidget(QtWidgets.QWidget):

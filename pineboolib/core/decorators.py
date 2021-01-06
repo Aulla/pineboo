@@ -8,7 +8,7 @@ import time
 import re
 import functools
 from .utils import logging
-from PyQt5 import QtCore  # type: ignore
+from PyQt6 import QtCore  # type: ignore
 from typing import Callable, Any, Dict, TypeVar, cast
 
 TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])

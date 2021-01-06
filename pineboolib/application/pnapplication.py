@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """PNApplication Module."""
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui
 
 from pineboolib.core import decorators, settings
 from pineboolib.core.utils import logging, utils_base
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from .database import pnsqlcursor  # noqa: F401 # pragma: no cover
     from .database import pnsqlquery  # noqa: F401 # pragma: no cover
     from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
-    from PyQt5 import QtXml  # noqa: F401 # pragma: no cover
+    from PyQt6 import QtXml  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -215,7 +215,7 @@ class PNApplication(QtCore.QObject):
         """Initialize styles."""
 
         self.style_mapper = QtCore.QSignalMapper()
-        self.style_mapper.mapped[str].connect(self.setStyle)  # type: ignore
+        self.style_mapper.mappedString.connect(self.setStyle)  # type: ignore
         style_read = settings.CONFIG.value("application/style", None)
         if not style_read:
             style_read = "Fusion"
@@ -225,7 +225,7 @@ class PNApplication(QtCore.QObject):
         )
 
         if style_menu:
-            action_group = QtWidgets.QActionGroup(style_menu)
+            action_group = QtGui.QActionGroup(style_menu)
             for style_ in QtWidgets.QStyleFactory.keys():
                 action_ = style_menu.addAction(style_)  # type: ignore [union-attr] # noqa : F821
                 action_.setObjectName("style_%s" % style_)

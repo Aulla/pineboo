@@ -1,11 +1,11 @@
 """Qaction module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtCore, QtWidgets  # type: ignore
+from PyQt6 import QtCore, QtGui  # type: ignore
 from typing import Optional
 
 
-class QAction(QtWidgets.QAction):
+class QAction(QtGui.QAction):
     """QAction class."""
 
     activated = QtCore.pyqtSignal()

@@ -1,11 +1,11 @@
 """Flinvalidator module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtGui  # type: ignore
+from PyQt6 import QtGui  # type: ignore
 from typing import Any, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets  # pragma: no cover
+    from PyQt6 import QtWidgets  # pragma: no cover
 
 
 class FLIntValidator(QtGui.QIntValidator):

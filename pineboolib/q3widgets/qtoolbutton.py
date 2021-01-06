@@ -1,6 +1,6 @@
 """Qtoolbutton module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets  # type: ignore
 from pineboolib.core import decorators
 
 

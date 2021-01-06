@@ -4,7 +4,7 @@ PNPackager package.
 
 Build .eneboopkg packages.
 """
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 from pineboolib.core import decorators
 from pineboolib import logging
@@ -233,7 +233,7 @@ class PNPackager(object):
         files_def = self.filesDef(module_folder_list)
 
         file_ = QtCore.QFile(QtCore.QDir.cleanPath(outputfile))
-        if not file_.open(QtCore.QIODevice.WriteOnly):
+        if not file_.open(QtCore.QIODevice.OpenMode.WriteOnly):
             error = "Error opening file %r" % outputfile
             self._addError("pack", error)
             raise Exception(error)

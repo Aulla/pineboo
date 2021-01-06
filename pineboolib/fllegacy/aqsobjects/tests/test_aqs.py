@@ -43,11 +43,11 @@ class TestAQS(unittest.TestCase):
 
     def test_aqs_attributes(self) -> None:
         """Test AQS Attributes."""
-        from PyQt5 import QtCore, QtGui
+        from PyQt6 import QtCore, QtGui
 
         at_1 = qsa.AQS.WaitCursor
         at_2 = qsa.AQS.ContextMenu
-        self.assertEqual(at_1, QtCore.Qt.WaitCursor)
+        self.assertEqual(at_1, QtCore.Qt.CursorShape.WaitCursor)
         self.assertEqual(at_2, QtGui.QContextMenuEvent)
 
     def test_others(self) -> None:

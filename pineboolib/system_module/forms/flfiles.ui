@@ -73,8 +73,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>../../core/images/icons/edit_file_xml.png</normaloff>../../core/images/icons/edit_file_xml.png</iconset>
+        <iconset>../../core/images/icons/edit_file_xml.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -90,8 +89,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset>
-         <normaloff>../../core/images/icons/edit_file.png</normaloff>../../core/images/icons/edit_file.png</iconset>
+        <iconset>../../core/images/icons/edit_file.png</iconset>
        </property>
        <property name="iconSize">
         <size>

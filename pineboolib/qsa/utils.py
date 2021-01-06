@@ -7,7 +7,7 @@ import math
 import sys
 import threading
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 from pineboolib.application import types
 from pineboolib.core.utils import utils_base
 from pineboolib.core.utils import logging

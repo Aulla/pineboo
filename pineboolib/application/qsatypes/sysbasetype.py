@@ -10,7 +10,7 @@ import ast
 
 from typing import Any, Dict, Optional, List, Union
 
-from PyQt5 import QtCore, QtWidgets, QtXml
+from PyQt6 import QtCore, QtWidgets, QtXml
 
 from pineboolib.core import settings
 from pineboolib.core import decorators

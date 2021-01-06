@@ -17,7 +17,7 @@ import json
 import time
 from .utils import logging
 
-from PyQt5.QtCore import QSettings, QSize
+from PyQt6.QtCore import QSettings, QSize
 
 from typing import Dict, List, Any, Union, Tuple, Type
 
@@ -36,8 +36,8 @@ class PinebooSettings(QSettings):
         "name" will be used for creating/opening the INI file.
         Values are saved in JSON oposed to plain text.
         """
-        format = QSettings.IniFormat  # QSettings.NativeFormat - usar solo ficheros ini.
-        scope = QSettings.UserScope
+        format = QSettings.Format.IniFormat  # QSettings.NativeFormat - usar solo ficheros ini.
+        scope = QSettings.Scope.UserScope
         self.organization = "Eneboo"
         self.application = "Pineboo" + name
         self.cache: Dict[str, Tuple[float, Any]] = {}

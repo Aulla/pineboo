@@ -2,7 +2,7 @@
 # # -*- coding: utf-8 -*-
 from importlib import import_module
 
-from PyQt5 import QtWidgets, QtCore, QtGui, Qt, QtXml  # type: ignore
+from PyQt6 import QtWidgets, QtCore, QtGui, Qt, QtXml  # type: ignore
 
 from pineboolib import logging
 from pineboolib.plugins.dgi import dgi_schema
@@ -52,26 +52,28 @@ class DgiQt(dgi_schema.DgiSchema):
 
     def msgBoxWarning(
         self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
-    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Show a message box warning."""
 
         if parent is None:
-            parent = QtWidgets.qApp.activeWindow()
+            parent = QtWidgets.QApplication.activeWindow()
 
         LOGGER.warning("%s", text)
 
         if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
-            return QtWidgets.QMessageBox.warning(parent, title, text, QtWidgets.QMessageBox.Ok)
+            return QtWidgets.QMessageBox.warning(
+                parent, title, text, QtWidgets.QMessageBox.StandardButtons.Ok
+            )
 
         return None
 
     def msgBoxQuestion(
         self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
-    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Show a message box warning."""
 
         if parent is None:
-            parent = QtWidgets.qApp.activeWindow()
+            parent = QtWidgets.QApplication.activeWindow()
 
         # LOGGER.warning("%s", text)
 
@@ -82,7 +84,8 @@ class DgiQt(dgi_schema.DgiSchema):
                 text,
                 cast(
                     QtWidgets.QMessageBox.StandardButton,
-                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                    QtWidgets.QMessageBox.StandardButtons.Yes
+                    | QtWidgets.QMessageBox.StandardButtons.No,
                 ),
             )
 
@@ -90,28 +93,30 @@ class DgiQt(dgi_schema.DgiSchema):
 
     def msgBoxError(
         self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
-    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Show a message box warning."""
 
         if parent is None:
-            parent = QtWidgets.qApp.activeWindow()
+            parent = QtWidgets.QApplication.activeWindow()
 
         LOGGER.warning("%s", text)
 
         if QtWidgets.QApplication.platformName() not in ["offscreen", ""]:
 
             if parent is not None:
-                return QtWidgets.QMessageBox.critical(parent, title, text, QtWidgets.QMessageBox.Ok)
+                return QtWidgets.QMessageBox.critical(
+                    parent, title, text, QtWidgets.QMessageBox.StandardButtons.Ok
+                )
 
         return None
 
     def msgBoxInfo(
         self, text: str, parent: Optional["QtWidgets.QWidget"] = None, title: str = "Pineboo"
-    ) -> Optional["QtWidgets.QMessageBox.StandardButton"]:
+    ) -> Optional["QtWidgets.QMessageBox.StandardButtons"]:
         """Show a message box warning."""
 
         if parent is None:
-            parent = QtWidgets.qApp.activeWindow()
+            parent = QtWidgets.QApplication.activeWindow()
 
         LOGGER.warning("%s", text)
 

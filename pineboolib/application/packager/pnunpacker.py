@@ -5,7 +5,7 @@ PNUnpacker package.
 Extract the files from the .abanq and .eneboopkg packages and save them in the flfiles table
 """
 
-from PyQt5 import QtCore  # type: ignore
+from PyQt6 import QtCore  # type: ignore
 from typing import Any, List
 
 err_msgs_: List[str] = []

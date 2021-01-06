@@ -1,5 +1,5 @@
 """PNConnection_manager module."""
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 from pineboolib import application

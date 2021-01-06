@@ -1,6 +1,6 @@
 """Object_class module."""
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 from typing import Set, Tuple, Any
 from pineboolib.application import connections
@@ -35,7 +35,7 @@ class Object_class(object):
 
         if hasattr(self, "_class_connections"):
             for conn_ in self._class_connections:
-                # PyQt5-Stubs misses signal.signal
+                # PyQt6-Stubs misses signal.signal
                 if (
                     conn_[0].signal == getattr(signal_slot[0], "signal")
                     and conn_[1].__name__ == signal_slot[1].__name__

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from pineboolib.application.metadata import pnfieldmetadata  # noqa: F401 # pragma: no cover
     from pineboolib.application.metadata import pnrelationmetadata  # noqa: F401 # pragma: no cover
     from xml.etree import ElementTree  # noqa: F401 # pragma: no cover
-    from PyQt5 import QtXml  # noqa: F401 # pragma: no cover
+    from PyQt6 import QtXml  # noqa: F401 # pragma: no cover
 #     import pineboolib.application.database.pnconnection
 #     import pineboolib.application.metadata.pnfieldmetadata
 #     import pineboolib.application.metadata.pntablemetadata

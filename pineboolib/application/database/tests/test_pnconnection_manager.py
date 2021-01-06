@@ -59,7 +59,7 @@ class TestPNConnectionManager(unittest.TestCase):
 
     def test_basic3(self) -> None:
         """Basic test 3."""
-        from PyQt5 import QtWidgets
+        from PyQt6 import QtWidgets
 
         global USER_ID
 

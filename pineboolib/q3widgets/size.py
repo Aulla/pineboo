@@ -1,5 +1,5 @@
 """Size module."""
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 
 class Size(QtCore.QSize):

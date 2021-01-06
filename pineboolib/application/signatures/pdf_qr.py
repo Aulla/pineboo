@@ -1,6 +1,6 @@
 """Pdf_qr module."""
 
-from PyQt5 import QtGui, QtCore
+from PyQt6 import QtGui, QtCore
 
 from pineboolib import application
 from pineboolib.core.utils import logging
@@ -124,7 +124,9 @@ class pdfQr:
             if mark:
                 painter = QtGui.QPainter()
                 painter.begin(page_image)
-                painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+                painter.setCompositionMode(
+                    QtGui.QPainter.CompositionMode.CompositionMode_SourceOver
+                )
                 painter.drawImage(
                     page_image.width() - (pos_x * self._factor) - signed_image.width(),
                     page_image.height() - (pos_y * self._factor) - signed_image.height(),
@@ -193,17 +195,23 @@ class pdfQr:
                 image_label_resized.fill(0)
                 label_painter = QtGui.QPainter()
                 label_painter.begin(image_label_resized)
-                label_painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
-                label_painter.setPen(QtGui.QPen(QtCore.Qt.black))
+                label_painter.setCompositionMode(
+                    QtGui.QPainter.CompositionMode.CompositionMode_SourceOver
+                )
+                label_painter.setPen(QtGui.QPen(QtCore.Qt.GlobalColor.black))
                 label_painter.setFont(
                     QtGui.QFont(
-                        self._font_name, int(self._font_size * self._factor), QtGui.QFont.Bold
+                        self._font_name,
+                        int(self._font_size * self._factor),
+                        QtGui.QFont.Weight.Bold,
                     )
                 )
                 label_painter.drawText(
-                    image_label_resized.rect(), QtCore.Qt.AlignTop, " " + self._text
+                    image_label_resized.rect(), QtCore.Qt.Alignment.AlignTop, " " + self._text
                 )
-                label_painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+                label_painter.setCompositionMode(
+                    QtGui.QPainter.CompositionMode.CompositionMode_SourceOver
+                )
                 label_painter.drawImage(
                     image_label_resized.width() - image_qr.width(),
                     int((self._font_size + 2) * self._factor),
@@ -240,7 +248,7 @@ class pdfQr:
         for img_data in self._signed_data:
 
             buffer = QtCore.QBuffer()
-            buffer.open(QtCore.QBuffer.ReadWrite)
+            buffer.open(QtCore.QIODeviceBase.OpenMode.ReadWrite)
             img_data.save(buffer, "PNG")
             page = Image.open(io.BytesIO(buffer.data()))  # type: ignore[arg-type] # noqa: F821
             page.save(

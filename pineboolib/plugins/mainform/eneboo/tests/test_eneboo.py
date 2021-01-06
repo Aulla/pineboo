@@ -1,7 +1,7 @@
 """Test Eneboo module."""
 
 import unittest
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets, QtGui
 
 from pineboolib.loader.main import init_testing, finish_testing
 
@@ -75,8 +75,7 @@ class TestEnebooGUI(unittest.TestCase):
         )  # Remove page and show again.
 
         action = cast(
-            QtWidgets.QAction,
-            application.PROJECT.main_window.findChild(QtWidgets.QAction, "clientes"),
+            QtGui.QAction, application.PROJECT.main_window.findChild(QtGui.QAction, "clientes")
         )
         application.PROJECT.main_window.addMark(action)
 

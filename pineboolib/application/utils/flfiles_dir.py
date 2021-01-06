@@ -4,8 +4,8 @@ import os
 import hashlib
 from typing import List, Any
 
-from PyQt5.QtXml import QDomDocument
-from PyQt5 import QtCore
+from PyQt6.QtXml import QDomDocument
+from PyQt6 import QtCore
 from pineboolib.core.utils import logging
 
 

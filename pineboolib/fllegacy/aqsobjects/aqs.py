@@ -5,7 +5,7 @@ AQS package.
 Main entrance to the different AQS resources.
 """
 
-from PyQt5 import QtCore, QtWidgets, QtGui, QtXml
+from PyQt6 import QtCore, QtWidgets, QtGui, QtXml
 
 from pineboolib.core.utils import logging
 
@@ -35,7 +35,7 @@ class SMTP(object):
 class Docker(object):
     """Docker enumerate class."""
 
-    LeftDockWidgetArea: int = 1
+    LeftDockWidgetArea = QtCore.Qt.DockWidgetAreas.LeftDockWidgetArea
     InDock: str = "InDock"
     OutSideDock: str = "OutSideDock"
 

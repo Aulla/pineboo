@@ -1,7 +1,7 @@
 """Qtextedit module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets  # type: ignore
 from pineboolib.core import decorators
 from typing import Optional
 
@@ -12,7 +12,7 @@ class QTextEdit(QtWidgets.QTextEdit):
     LogText: int = 0
     RichText: int = 1
 
-    def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
+    def __init__(self, parent: Optional["QtWidgets.QWidget"] = None) -> None:
         """Inicialize."""
         super().__init__(parent)
         self.LogText = 0
@@ -56,10 +56,10 @@ class QTextEdit(QtWidgets.QTextEdit):
         """Return text in plain text format."""
         return super(QTextEdit, self).toPlainText()
 
-    def setAutoFormatting(self, value=QtWidgets.QTextEdit.AutoAll) -> None:
+    def setAutoFormatting(self, value=QtWidgets.QTextEdit.AutoFormatting.AutoAll) -> None:
         """Set auto formating mode."""
 
-        super().setAutoFormatting(QtWidgets.QTextEdit.AutoAll)
+        super().setAutoFormatting(QtWidgets.QTextEdit.AutoFormatting.AutoAll)
 
     textFormat = property(getTextFormat, setTextFormat)
     text = property(getText, setText)

@@ -1,7 +1,7 @@
 """Messagebox module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 from pineboolib import application
 from pineboolib.core.utils import logging
@@ -15,12 +15,12 @@ LOGGER = logging.get_logger(__name__)
 class MessageBox:
     """MessageBox class."""
 
-    Yes = QtWidgets.QMessageBox.Yes
-    No = QtWidgets.QMessageBox.No
-    NoButton = QtWidgets.QMessageBox.NoButton
-    Ok = QtWidgets.QMessageBox.Ok
-    Cancel = QtWidgets.QMessageBox.Cancel
-    Ignore = QtWidgets.QMessageBox.Ignore
+    Yes = QtWidgets.QMessageBox.StandardButtons.Yes
+    No = QtWidgets.QMessageBox.StandardButtons.No
+    NoButton = QtWidgets.QMessageBox.StandardButtons.NoButton
+    Ok = QtWidgets.QMessageBox.StandardButtons.Ok
+    Cancel = QtWidgets.QMessageBox.StandardButtons.Cancel
+    Ignore = QtWidgets.QMessageBox.StandardButtons.Ignore
 
     @classmethod
     def msgbox(cls, typename, *args) -> Optional["QtWidgets.QMessageBox.StandardButton"]:

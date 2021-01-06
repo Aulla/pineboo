@@ -1,6 +1,6 @@
 """Qtabwidget module."""
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets  # type: ignore
+from PyQt6 import QtWidgets  # type: ignore
 from pineboolib import logging
 from typing import Optional, Union
 

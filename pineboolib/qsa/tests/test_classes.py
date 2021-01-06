@@ -1,7 +1,7 @@
 """Test classes module."""
 
 from pineboolib.qsa import qsa
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 import unittest
 from pineboolib.loader.main import init_testing, finish_testing
@@ -76,7 +76,7 @@ class TestClasses(unittest.TestCase):
     def test_aq_global_functions(self) -> None:
         """Test AQGlobal function."""
 
-        from PyQt5 import QtWidgets
+        from PyQt6 import QtWidgets
 
         qsa.sys.AQGlobalFunctions.set("saludo", self.saludo)
         btn = QtWidgets.QPushButton()

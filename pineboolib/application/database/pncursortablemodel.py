@@ -4,7 +4,7 @@ Defines PNCursorTableModel class.
 """
 
 
-from PyQt5 import QtCore, QtGui, Qt, QtWidgets
+from PyQt6 import QtCore, QtGui, Qt, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 
@@ -188,7 +188,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
         self._disable_refresh = disable
 
-    def sort(self, column: int, order: QtCore.Qt.SortOrder = QtCore.Qt.AscendingOrder) -> None:
+    def sort(
+        self, column: int, order: QtCore.Qt.SortOrder = QtCore.Qt.SortOrder.AscendingOrder
+    ) -> None:
         """
         Change order by used ASC/DESC and column.
 
@@ -245,7 +247,9 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self._sort_order = ""
         self._sort_order = sort_order
 
-    def data(self, index: QtCore.QModelIndex, role: int = QtCore.Qt.DisplayRole) -> Any:
+    def data(
+        self, index: QtCore.QModelIndex, role: int = QtCore.Qt.ItemDataRole.DisplayRole
+    ) -> Any:
         """
         Retrieve information about a record.
 
@@ -1009,17 +1013,20 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         )
 
     def headerData(
-        self, section: int, orientation: QtCore.Qt.Orientation, role: int = QtCore.Qt.DisplayRole
+        self,
+        section: int,
+        orientation: "QtCore.Qt.Orientations",
+        role: int = QtCore.Qt.ItemDataRole.DisplayRole,
     ) -> Any:
         """
         Retrieve header data.
 
         @param section. Column
         @param orientation. Horizontal, Vertical
-        @param role. QtCore.Qt.DisplayRole only. Every other option is ommitted.
+        @param role. QtCore.Qt.ItemDataRole.DisplayRole only. Every other option is ommitted.
         @return info for section, orientation and role.
         """
-        if role == QtCore.Qt.DisplayRole:
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
             if orientation == QtCore.Qt.Horizontal:
                 if not self.col_aliases:
                     self.loadColAliases()

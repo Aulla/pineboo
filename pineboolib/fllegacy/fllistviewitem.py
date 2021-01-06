@@ -1,19 +1,19 @@
 """Fllistview module."""
 # -*- coding: utf-8 -*-
 
-from PyQt5 import Qt  # type: ignore
+from PyQt6 import QtGui  # type: ignore
 from pineboolib.core import decorators
 from pineboolib import logging
 from pineboolib.q3widgets import qlistview
 from typing import Any, Optional, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets  # noqa: F401 # pragma: no cover
+    from PyQt6 import QtWidgets  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger("FLListViewItem")
 
 
-class FLListViewItem(Qt.QStandardItem):
+class FLListViewItem(QtGui.QStandardItem):
     """FLListView class."""
 
     _expandable: bool

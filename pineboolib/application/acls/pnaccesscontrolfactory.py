@@ -4,7 +4,7 @@ PNAccessControlFactory Module.
 
 Manage ACLs between different application objects.
 """
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 from pineboolib.application.metadata import pntablemetadata
 from . import pnaccesscontrol
@@ -59,7 +59,7 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         """Inicialize."""
 
         super().__init__()
-        from PyQt5 import QtGui, QtWidgets
+        from PyQt6 import QtGui, QtWidgets
 
         self.pal = QtGui.QPalette()
         palette_ = QtWidgets.qApp.palette()  # type: ignore[misc] # noqa: F821

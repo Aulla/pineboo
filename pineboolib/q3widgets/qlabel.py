@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtWidgets, QtGui
+from PyQt6 import QtWidgets, QtGui
 from typing import Any, Union, Optional
 
 from pineboolib.core import decorators

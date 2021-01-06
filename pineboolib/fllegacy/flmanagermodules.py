@@ -1,7 +1,7 @@
 """Flmanagermodules module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets, QtGui
+from PyQt6 import QtWidgets, QtGui
 
 from pineboolib.core import decorators
 from pineboolib.core.utils import utils_base
@@ -449,12 +449,18 @@ class FLManagerModules(object):
         if ui_version < "4.0":
             qt3ui.load_ui(form_path, parent)
         else:
-            from PyQt5 import uic  # type: ignore
+            if ui_version < "6.0":
+                LOGGER.warning(
+                    "PLEASE FIXME: %s form V.%s will fail on load", form_path, ui_version
+                )
+
+            from PyQt6 import uic  # type: ignore
 
             qt_widgets_path = utils_base.filedir("plugins/custom_widgets")
             if qt_widgets_path not in uic.widgetPluginPath:
                 LOGGER.info("Añadiendo path %s a uic.widgetPluginPath", qt_widgets_path)
                 uic.widgetPluginPath.append(qt_widgets_path)
+
             uic.loadUi(form_path, parent)
 
         if geometry[0]:

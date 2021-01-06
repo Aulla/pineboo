@@ -8,8 +8,8 @@ import collections
 from typing import Any, Optional, Dict, Union, Generator, List
 
 from os.path import expanduser
-from PyQt5 import QtCore  # type: ignore
-from PyQt5.Qt import QIODevice  # type: ignore
+from PyQt6 import QtCore  # type: ignore
+from PyQt6.QtCore import QIODevice  # type: ignore
 
 from pineboolib.core import decorators, settings
 
@@ -47,7 +47,7 @@ def boolean(value: Union[bool, str, float] = False) -> bool:
 
 class QString(str):
     """
-    Emulate original QString as was removed from PyQt5.
+    Emulate original QString as was removed from PyQt6.
     """
 
     def mid(self, start: int, length: Optional[int] = None) -> str:
@@ -343,13 +343,13 @@ class Dir(object):
     path: Optional[str]
 
     # Filters :
-    Files = QtCore.QDir.Files
-    Dirs = QtCore.QDir.Dirs
-    NoFilter = QtCore.QDir.NoFilter
+    Files = QtCore.QDir.Filters.Files
+    Dirs = QtCore.QDir.Filters.Dirs
+    NoFilter = QtCore.QDir.Filters.NoFilter
 
     # Sort Flags:
-    Name = QtCore.QDir.Name
-    NoSort = QtCore.QDir.NoSort
+    Name = QtCore.QDir.SortFlags.Name
+    NoSort = QtCore.QDir.SortFlags.NoSort
 
     # other:
     home = expanduser("~")
@@ -484,10 +484,10 @@ class FileBaseClass(object):
     Constants for File and FileStatic.
     """
 
-    ReadOnly = QIODevice.ReadOnly
-    WriteOnly = QIODevice.WriteOnly
-    ReadWrite = QIODevice.ReadWrite
-    Append = QIODevice.Append
+    ReadOnly = QIODevice.OpenMode.ReadOnly
+    WriteOnly = QIODevice.OpenMode.WriteOnly
+    ReadWrite = QIODevice.OpenMode.ReadWrite
+    Append = QIODevice.OpenMode.Append
     ioDevice = QIODevice
 
     @staticmethod
@@ -552,7 +552,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         self._mode = self.ReadWrite
 
-    def open(self, mode: QIODevice) -> bool:
+    def open(self, mode: "QIODevice.OpenMode") -> bool:
         """Open file."""
 
         self._mode = mode

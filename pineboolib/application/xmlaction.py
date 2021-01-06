@@ -1,7 +1,7 @@
 """
 XMLAction module.
 """
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 from pineboolib.core.utils import logging, struct, utils_base
 from xml.etree import ElementTree as ET  # noqa: F401

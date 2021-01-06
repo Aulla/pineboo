@@ -5,7 +5,7 @@ import os
 from pineboolib.core import decorators
 from pineboolib import application, logging
 
-from PyQt5 import QtCore, Qt
+from PyQt6 import QtCore
 from typing import Any, Union
 
 
@@ -73,12 +73,12 @@ class PNTranslations(object):
         verbose = False
         meta_trans = False
 
-        file_ = Qt.QFile(ts_input_file)
+        file_ = QtCore.QFile(ts_input_file)
         if not file_.open(QtCore.QIODevice.ReadOnly):
             LOGGER.warning("Cannot open file '%s'", ts_input_file)
             return
 
-        stream = Qt.QTextStream(file_)
+        stream = QtCore.QTextStream(file_)
         full_text = stream.readAll()
         file_.close()
 

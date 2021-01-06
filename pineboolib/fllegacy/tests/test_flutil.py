@@ -108,7 +108,7 @@ class TestFLUtil(unittest.TestCase):
 
     def test_basic_2(self) -> None:
         """Test basic 2."""
-        from PyQt5 import QtCore
+        from PyQt6 import QtCore
 
         from pineboolib.fllegacy import flutil
 

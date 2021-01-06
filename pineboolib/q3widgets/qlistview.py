@@ -1,7 +1,7 @@
 """Qlistview module."""
 
 # -*- coding: utf-8 -*-
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui
 from pineboolib.core import decorators
 
 from typing import Any, List, Optional, Union, cast

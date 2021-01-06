@@ -239,7 +239,7 @@ class TestFLTableDB(unittest.TestCase):
     def test_x_tab_filter(self) -> None:
         """Test tab filter."""
 
-        # from PyQt5 import QtCore
+        # from PyQt6 import QtCore
         widget = application.PROJECT.actions[  # type: ignore [attr-defined] # noqa F821
             "flareas"
         ]._master_widget
