@@ -19,7 +19,7 @@ class QByteArray(QtCore.QByteArray):
     def set(self, pos: int, ch: Union[str, int]) -> None:
         """Set a char into a position."""
         _ch = ch if isinstance(ch, str) else chr(ch)
-        super().insert(pos, _ch)
+        super().insert(pos, _ch.encode())
 
     def get(self, pos: int):
         """Get a char number from a position."""
@@ -36,13 +36,13 @@ class QByteArray(QtCore.QByteArray):
 
     def sha1(self) -> str:
         """Return sha1."""
-        hash = QtCore.QCryptographicHash(QtCore.QCryptographicHash.Sha1)
+        hash = QtCore.QCryptographicHash(QtCore.QCryptographicHash.Algorithm.Sha1)
         hash.addData(self.data())
         return hash.result().toHex().data().decode("utf-8").upper()
 
     def setString(self, val: str) -> None:
         """Set string to QByteArray."""
-        self.append(val)
+        self.append(val.encode())
 
     def getString(self) -> str:
         """Return string value format."""

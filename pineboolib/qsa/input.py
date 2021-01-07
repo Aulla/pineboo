@@ -21,7 +21,7 @@ class Input(object):
         """
         parent = QtWidgets.QApplication.activeWindow()
         text, result = QtWidgets.QInputDialog.getText(
-            parent, title, question, QtWidgets.QLineEdit.Normal, prevtxt
+            parent, title, question, QtWidgets.QLineEdit.EchoMode.Normal, prevtxt
         )
         if not result:
             return None
@@ -38,7 +38,7 @@ class Input(object):
             parent,
             title,
             question,
-            QtWidgets.QLineEdit.Normal,
+            QtWidgets.QLineEdit.EchoMode.Normal,
             str(round(float(value), part_decimal)),
         )
         ret: float = 0.00

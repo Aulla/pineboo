@@ -98,7 +98,7 @@ class FLListViewItem(QtGui.QStandardItem):
 
             item.setText(value)
 
-    def text(self, col: int) -> str:
+    def text(self, col: int = 0) -> str:
         """Return text from a column."""
 
         ret = ""

@@ -577,6 +577,7 @@ class SysType(sysbasetype.SysBaseType):
                     return False
             if ok_:
                 unpacker = pnunpacker.PNUnpacker(input_)
+                print("*", unpacker.package_version_)
                 errors = unpacker.errorMessages()
                 if len(errors) != 0:
                     msg = self.translate(
@@ -611,10 +612,11 @@ class SysType(sysbasetype.SysBaseType):
 
         return ok_
 
-    def loadFilesDef(self, document: Any) -> bool:
+    def loadFilesDef(self, document: "pnunpacker.PNUnpacker") -> bool:
         """Load files definition from a package to a QDomDocument."""
 
         files_definition = self.toUnicode(document.getText(), u"utf8")
+        print("**", files_definition)
         doc = QtXml.QDomDocument()
         if not doc.setContent(files_definition):
             self.errorMsgBox(

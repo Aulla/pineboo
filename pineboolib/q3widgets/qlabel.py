@@ -70,7 +70,7 @@ class QLabel(QtWidgets.QLabel):
     def set_palette_fore_ground(self, color: QtGui.QColor) -> None:
         """Set palette foreground color."""
         pal = self.palette()
-        pal.setColor(pal.WindowText, color)
+        pal.setColor(pal.ColorRole.WindowText, color)
         self.setPalette(pal)
 
     alignment = property(getAlign, setAlign)  # type: ignore

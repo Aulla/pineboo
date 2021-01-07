@@ -12,4 +12,4 @@ class QEventLoop(QtCore.QEventLoop):
 
     def enterLoop(self) -> None:
         """Call exec_ loop."""
-        super().exec_()
+        super().exec()

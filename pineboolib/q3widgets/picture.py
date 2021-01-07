@@ -1,5 +1,5 @@
 """Picture module."""
-from PyQt6 import QtGui, Qt
+from PyQt6 import QtGui
 
 from typing import Callable
 
@@ -10,7 +10,7 @@ class Picture(QtGui.QPicture):
     def __getattr__(self, name: str) -> Callable:
         """Return painter attributes."""
 
-        painter = Qt.QPainter(self)
+        painter = QtGui.QPainter(self)
         ret = getattr(painter, name, None)
         if ret is None:
             raise AttributeError("Attribute %s not found!" % name)

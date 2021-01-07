@@ -45,6 +45,6 @@ class FileDialog(object):
             folder = "%s/" % core_system.System.getenv("HOME")
 
         ret = QtWidgets.QFileDialog.getExistingDirectory(
-            None, caption, folder, QtWidgets.QFileDialog.ShowDirsOnly
+            None, caption, folder, QtWidgets.QFileDialog.Options.ShowDirsOnly
         )
         return "%s/" % ret if ret else ""

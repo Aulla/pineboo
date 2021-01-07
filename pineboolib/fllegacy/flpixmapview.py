@@ -28,7 +28,10 @@ class FLPixmapView(QtWidgets.QScrollArea):
         self._pixmapview = QtWidgets.QLabel(self)
         self._lay.addWidget(self._pixmapview)
         self._pixmapview.setAlignment(
-            cast(QtCore.Qt.AlignmentFlag, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignCenter)
+            cast(
+                QtCore.Qt.Alignment,
+                QtCore.Qt.Alignment.AlignHCenter | QtCore.Qt.Alignment.AlignCenter,
+            )
         )
         self._pixmapview.installEventFilter(self)
         self.setStyleSheet("QScrollArea { border: 1px solid darkgray; border-radius: 3px; }")
@@ -41,7 +44,7 @@ class FLPixmapView(QtWidgets.QScrollArea):
         #    ), self._parent.cursor_.valueBuffer(self._parent.fieldName_))
         #    return
 
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
         self._pixmap = pix
         if self._pixmapview is not None:
             self._pixmapview.clear()
@@ -73,13 +76,17 @@ class FLPixmapView(QtWidgets.QScrollArea):
                 self._pixmap.height() > self._pixmapview.height()
                 or self._pixmap.width() > self._pixmapview.width()
             ):
-                new_pix = self._pixmap.scaled(self._pixmapview.size(), QtCore.Qt.KeepAspectRatio)
+                new_pix = self._pixmap.scaled(
+                    self._pixmapview.size(), QtCore.Qt.AspectRatioMode.KeepAspectRatio
+                )
 
             elif (
                 self._pixmap.height() < self._pixmapview.pixmap().height()
                 or self._pixmap.width() < self._pixmapview.pixmap().width()
             ):
-                new_pix = self._pixmap.scaled(self._pixmapview.size(), QtCore.Qt.KeepAspectRatio)
+                new_pix = self._pixmap.scaled(
+                    self._pixmapview.size(), QtCore.Qt.AspectRatioMode.KeepAspectRatio
+                )
 
         if self._pixmapview is not None:
             self._pixmapview.clear()
@@ -100,7 +107,7 @@ class FLPixmapView(QtWidgets.QScrollArea):
                 return
 
             pix = QtGui.QPixmap()
-            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.WaitCursor)
             pix.convertFromImage(img)
             QtWidgets.QApplication.restoreOverrideCursor()
 

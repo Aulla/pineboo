@@ -22,13 +22,13 @@ class QDateEdit(QtWidgets.QDateEdit):
             self.setObjectName(name)
         self.setSeparator("-")
         self._parent = parent
-        self.date_ = super().date().toString(QtCore.Qt.ISODate)
+        self.date_ = super().date().toString(QtCore.Qt.DateFormat.ISODate)
         # if not project.DGI.localDesktop():
         #    project.DGI._par.addQueque("%s_CreateWidget" % self._parent.objectName(), "QDateEdit")
 
     def getDate(self) -> str:
         """Return string date."""
-        ret = super().date().toString(QtCore.Qt.ISODate)
+        ret = super().date().toString(QtCore.Qt.DateFormat.ISODate)
         if ret != "2000-01-01":
             return ret
         else:
