@@ -121,7 +121,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 name,
                 stack_info=True,
             )
-        print("**", name)
+
         if self.setAction(name):
             private_cursor._count_ref_cursor += 1
         else:
@@ -140,7 +140,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         mtd = private_cursor.metadata_
         if not mtd:
             return
-        print("****", name)
+
         self._cursor_model = qsadictmodules.QSADictModules.from_project("%s_orm" % mtd.name())
         # Por si se crea un metadata al vuelo y no se ha registrado al inicio...
         if not self._cursor_model:

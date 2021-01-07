@@ -245,17 +245,17 @@ class PNPackager(object):
             package_name = "AbanQ Packager (Pineboo %s)" % PINEBOO_VER
 
         stream.writeBytes(package_name.encode())
-        stream = stream.writeBytes(b"")
-        stream = stream.writeBytes(b"")
-        stream = stream.writeBytes(b"")
-        stream = stream.writeBytes(QtCore.qCompress(modules_def).data())
-        stream = stream.writeBytes(QtCore.qCompress(files_def).data())
+        stream.writeBytes(b"")
+        stream.writeBytes(b"")
+        stream.writeBytes(b"")
+        stream.writeBytes(QtCore.qCompress(modules_def).data())
+        stream.writeBytes(QtCore.qCompress(files_def).data())
         # FILE CONTENTS
         try:
             for filepath in self._file_list:
                 sys.stdout.write(".")
                 sys.stdout.flush()
-                stream = stream.writeBytes(QtCore.qCompress(open(filepath, "rb").read()).data())
+                stream.writeBytes(QtCore.qCompress(open(filepath, "rb").read()).data())
 
         except Exception as exception:
             self._addError("pack (add files)", str(exception))
