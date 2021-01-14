@@ -9,7 +9,7 @@ from OpenSSL import crypto  # type: ignore[import] # noqa: F821
 from xades import policy, utils, template, XAdESContext  # type: ignore[import] # noqa: F821
 
 
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Union
 
 LOGGER = logging.get_logger(__name__)
 
@@ -30,11 +30,11 @@ class xmlDigest:
     _use_algorithm: str
 
     def __init__(
-        self, file_path_or_xml: Optional[str, "etree.Element"], cert_path: str, pwsd_: str = ""
+        self, file_path_or_xml: Union[str, "etree.Element"], cert_path: str, pwsd_: str = ""
     ) -> None:
         """Initialize."""
 
-        for path in [file_path, cert_path]:
+        for path in [file_path_or_xml, cert_path]:
             if not os.path.exists(path):
                 raise Exception("%s doesn't exists!" % path)
 
