@@ -61,7 +61,7 @@ class pdfQr:
 
         # (size * 4 ) + 17
 
-        self._size = size
+        self._size = int(size)
 
     def set_extension(self, ext_name: str = "PNG") -> None:
         """Set extension."""
@@ -89,7 +89,7 @@ class pdfQr:
         """Set font name and size."""
 
         self._font_name = name
-        self._font_size = size
+        self._font_size = int(size)
 
     def set_position(self, pos_x: int, pos_y: int) -> None:
         """Set Possition. 0,0 = Bottom Right."""
@@ -126,8 +126,8 @@ class pdfQr:
                 painter.begin(page_image)
                 painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
                 painter.drawImage(
-                    page_image.width() - (pos_x * self._factor) - signed_image.width(),
-                    page_image.height() - (pos_y * self._factor) - signed_image.height(),
+                    int(page_image.width() - (pos_x * self._factor) - signed_image.width()),
+                    int(page_image.height() - (pos_y * self._factor) - signed_image.height()),
                     signed_image,
                 )
                 painter.end()
@@ -165,7 +165,7 @@ class pdfQr:
             qr_folder = os.path.join(
                 application.PROJECT.tmpdir,
                 "cache",
-                application.PROJECT.conn_manager.mainConn()._db_name,
+                application.PROJECT.conn_manager.mainConn().driver().DBName(),
                 "QR",
             )
 
@@ -184,8 +184,8 @@ class pdfQr:
                 image_label = QtGui.QImage(self._tmp_qr_img)
                 text_width = len(self._text) * 2.7
                 image_label_resized = image_label.scaled(
-                    (qr_image.height + text_width) * self._factor,
-                    (qr_image.height + (self._font_size + 2)) * self._factor,
+                    int((qr_image.height + text_width) * self._factor),
+                    int((qr_image.height + (self._font_size + 2)) * self._factor),
                 )
                 image_qr = image_qr.scaled(
                     int(image_qr.width() * self._factor), int(image_qr.height() * self._factor)
