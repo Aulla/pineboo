@@ -25,6 +25,7 @@ pyfiglet
 python-daemon
 pdf2image==1.14.0
 poppler-utils
+Click>=7.0
 xmlsig
 lxml
 pyOpenSSL

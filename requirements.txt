@@ -52,6 +52,7 @@ pyfiglet
 Pillow==6.2.2
 pdf2image==1.14.0
 poppler-utils
+Click>=7.0
 xmlsig
 lxml
 pyOpenSSL
