@@ -15,81 +15,81 @@ variables:
 # them in a virtualenv and cache it as well.
 
 stages:
-    - test
-    - deploy
+  - test
+  - deploy
 
 before_script:
-    - python3 -V | ts # Print out python version for debugging
-    - pip3 install --upgrade pip
-    - pip3 install -r requirements.txt | ts
-    - pip3 install -i https://test.pypi.org/simple/ -r requirements_from_test.txt | ts
-    # - pip install virtualenv
-    # - virtualenv venv
-    # - source venv/bin/activate
+  - python3 -V | ts # Print out python version for debugging
+  - apt-get install poppler-utils
+  - pip3 install --upgrade pip
+  - pip3 install -r requirements.txt | ts
+  - pip3 install -i https://test.pypi.org/simple/ -r requirements_from_test.txt | ts
+  # - pip install virtualenv
+  # - virtualenv venv
+  # - source venv/bin/activate
 
 # Spawn 2 runners for testing:
 test_flake8_pydocstyle:
-    stage: test
-    script:
-        - flake8 pineboolib/
-        # PyDocStyle lacks "exclude":
-        - rm pineboolib/application/parsers/parser_qsa/lextab.py || /bin/true
-        - pydocstyle pineboolib
+  stage: test
+  script:
+    - flake8 pineboolib/
+    # PyDocStyle lacks "exclude":
+    - rm pineboolib/application/parsers/parser_qsa/lextab.py || /bin/true
+    - pydocstyle pineboolib
 
 test_mypy_pyroma_black_pytest:
-    cache:
-        key: "mypy-1-$CI_COMMIT_REF_SLUG"
-        paths:
-            - .mypy_cache/
-    stage: test
-    script:
-        - mypy -p pineboolib
-        - pyroma .
-        - black --check --fast -l 100 --exclude='(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|lextab.py)' pineboolib/
-        - pytest --cov=pineboolib pineboolib/
-        - coverage report --fail-under=75
-        - ./test_import_safety.sh
-
+  cache:
+    key: "mypy-1-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .mypy_cache/
+  stage: test
+  script:
+    - mypy -p pineboolib
+    - pyroma .
+    - black --check --fast -l 100 --exclude='(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|lextab.py)' pineboolib/
+    - pytest --cov=pineboolib pineboolib/
+    - coverage report --fail-under=75
+    - ./test_import_safety.sh
 
 deploy_build:
-    stage: deploy
-    script:
-        - pip3 install twine
-        - python3 setup.py bdist_wheel
-        # an alternative approach is to install and run:
-        #- pip3 install dist/*
-        ##- python3 -m twine upload --repository-url $TWINE_URL dist/* -u $TWINE_USER -p $TWINE_PASSWORD --skip-existing
-        # run the command here
-        # pineboo --help
-    artifacts:
-        paths:
-            - dist/*.whl
+  stage: deploy
+  script:
+    - pip3 install twine
+    - python3 setup.py bdist_wheel
+    # an alternative approach is to install and run:
+    #- pip3 install dist/*
+    ##- python3 -m twine upload --repository-url $TWINE_URL dist/* -u $TWINE_USER -p $TWINE_PASSWORD --skip-existing
+    # run the command here
+    # pineboo --help
+  artifacts:
+    paths:
+      - dist/*.whl
 
-    only:
-        - master
+  only:
+    - master
 
 pages:
-    cache:
-        key: "pages-1-$CI_COMMIT_REF_SLUG"
-        paths:
-            - .mypy_cache/
-            - docs/source/_static/linters/
-            - docs/source/linters/pylint/static
-            - docs/index_template.rst
-            - docs/source/code/pineboolib
-            - docs/build/
-    stage: deploy
-    script:
-        # NOTE: to be able to use cache for sphinx:
-        # Reset modification time of the files to the original authored time.
-        - ./git_reset_mtime.sh
-        - cd docs
-        - ./create_docs.sh | ts
-        - ./update_linters.sh | ts
-        - make html | ts
-        - cp -R build/html/ ../public/
-    artifacts:
-        paths:
-            - public
-    only:
-        - master
+  cache:
+    key: "pages-1-$CI_COMMIT_REF_SLUG"
+    paths:
+      - .mypy_cache/
+      - docs/source/_static/linters/
+      - docs/source/linters/pylint/static
+      - docs/index_template.rst
+      - docs/source/code/pineboolib
+      - docs/build/
+  stage: deploy
+  script:
+    # NOTE: to be able to use cache for sphinx:
+    # Reset modification time of the files to the original authored time.
+    - ./git_reset_mtime.sh
+    - cd docs
+    - ./create_docs.sh | ts
+    - ./update_linters.sh | ts
+    - make html | ts
+    - cp -R build/html/ ../public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - master

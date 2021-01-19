@@ -37,3 +37,4 @@ lxml
 flup
 xmljson
 cryptography
+poppler-utils

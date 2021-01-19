@@ -6,7 +6,6 @@ RUN apt-get update && \
     moreutils make \
     python3-pip python3-setuptools \
     python3-psycopg2 python3-mysqldb python3-pymysql python3-venv python3-cryptography \
-    poppler-utils \
     && \
     rm -rf /var/lib/apt/lists/*
 
