@@ -24,6 +24,7 @@ python-barcode
 pyfiglet
 python-daemon
 pdf2image==1.14.0
+poppler-utils
 xmlsig
 lxml
 pyOpenSSL
