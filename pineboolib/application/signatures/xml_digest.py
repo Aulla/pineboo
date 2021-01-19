@@ -71,7 +71,7 @@ class xmlDigest:
         try:
 
             with open(self._cert_path, "rb") as cert_file:
-                self._certificate = crypto.load_pkcs12(cert_file.read(), self._pass)
+                self._certificate = crypto.load_pkcs12(cert_file.read(), self._pass.encode())
         except Exception as error:
             LOGGER.warning("Error loading certificate: %s", str(error))
             return False
