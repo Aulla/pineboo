@@ -49,7 +49,8 @@ coloredlogs
 psycopg2
 watchdog>=0.10.2
 pyfiglet
-pdf2image
+Pillow==6.2.2
+pdf2image==1.14.0
 xmlsig
 lxml
 pyOpenSSL

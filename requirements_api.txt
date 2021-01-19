@@ -23,7 +23,7 @@ watchdog>=0.10.2
 python-barcode
 pyfiglet
 python-daemon
-pdf2image
+pdf2image==1.14.0
 xmlsig
 lxml
 pyOpenSSL
