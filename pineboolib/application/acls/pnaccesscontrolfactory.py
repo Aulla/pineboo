@@ -177,9 +177,6 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
     def setFromObject(self, table_mtd: "pntablemetadata.PNTableMetaData") -> None:
         """Apply permissions from a pntablemetadata.PNTableMetaData."""
 
-        if table_mtd is None:
-            return
-
         if self._acos_perms:
             self._acos_perms.clear()
 
