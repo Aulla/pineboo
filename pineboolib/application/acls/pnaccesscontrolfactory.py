@@ -10,7 +10,7 @@ from pineboolib.application.metadata import pntablemetadata
 from . import pnaccesscontrol
 
 
-from typing import Dict, Optional, Union, cast
+from typing import Dict, Union, cast
 
 import logging
 
@@ -20,20 +20,13 @@ LOGGER = logging.getLogger(__name__)
 class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
     """PNAccessControlMainWindow Class."""
 
-    def __init__(self) -> None:
-        """Inicialize."""
-
-        super(PNAccessControlMainWindow, self).__init__()
-
     def type(self) -> str:
         """Return target type."""
 
         return "mainwindow"
 
-    def processObject(self, main_window: Optional["QtWidgets.QMainWindow"]) -> None:
+    def processObject(self, main_window: "QtWidgets.QMainWindow") -> None:
         """Process the object."""
-        if main_window is None:
-            return
 
         if self._perm:
             for action in main_window.findChildren(QtWidgets.QAction):
@@ -44,12 +37,6 @@ class PNAccessControlMainWindow(pnaccesscontrol.PNAccessControl):
 
                 elif self._perm in ["-w", "--"]:
                     action.setVisible(False)  # type: ignore [attr-defined] # noqa: F821
-
-    def setFromObject(self, object: QtWidgets.QMainWindow) -> None:
-        """Not implemented jet."""
-        LOGGER.warning(
-            "PNAccessControlMainWindow::setFromObject %s", "No implementado todavía.", object
-        )
 
 
 class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
@@ -74,7 +61,7 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         """Return target type."""
         return "form"
 
-    def processObject(self, widget: Optional["QtWidgets.QWidget"]) -> None:
+    def processObject(self, widget: "QtWidgets.QWidget") -> None:
         """
         Process objects that are of the FLFormDB class.
 
@@ -90,8 +77,6 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         This allows any component of an AbanQ form (FLFormDB,
         FLFormRecordDB and FLFormSearchDB) can be made not visible or not editable for convenience.
         """
-        if widget is None:
-            return
 
         if self._perm != "":
             for children in widget.findChildren(QtWidgets.QWidget):
@@ -126,10 +111,6 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
                     "PNAccessControlFactory: No se encuentra el control %s para procesar ACLS.",
                     object_name,
                 )
-
-    def setFromObject(self, widget: QtWidgets.QWidget) -> None:
-        """Not implemented jet."""
-        LOGGER.warning("PNAccessControlForm::setFromObject %s No implementado todavía.", widget)
 
 
 class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
@@ -193,7 +174,7 @@ class PNAccessControlTable(pnaccesscontrol.PNAccessControl):
                 field.setVisible(True)
                 field.setEditable(True)
 
-    def setFromObject(self, table_mtd: Optional["pntablemetadata.PNTableMetaData"]) -> None:
+    def setFromObject(self, table_mtd: "pntablemetadata.PNTableMetaData") -> None:
         """Apply permissions from a pntablemetadata.PNTableMetaData."""
 
         if table_mtd is None:
@@ -233,12 +214,10 @@ class PNAccessControlFactory(object):
         raise ValueError("type_ %r unknown" % type_)
 
     def type(
-        self, obj: Optional[Union["QtWidgets.QWidget", "pntablemetadata.PNTableMetaData"]] = None
+        self,
+        obj: Union["QtWidgets.QWidget", "pntablemetadata.PNTableMetaData", "QtWidgets.QMainWindow"],
     ) -> str:
         """Return the type of instance target."""
-
-        if obj is None:
-            LOGGER.warning("NO OBJ")
 
         ret_ = ""
 
