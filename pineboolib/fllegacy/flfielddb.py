@@ -660,11 +660,11 @@ class FLFieldDB(QtWidgets.QWidget):
         """
 
         LOGGER.info("****************STATUS**************")
-        LOGGER.info("FLField:", self._field_name)
-        LOGGER.info("FieldAlias:", self._field_alias)
-        LOGGER.info("FieldRelation:", self._field_relation)
-        LOGGER.info("Cursor:", self.cursor_)
-        LOGGER.info("CurName:", self.cursor().curName() if self.cursor_ else None)
+        LOGGER.info("FLField: %s", self._field_name)
+        LOGGER.info("FieldAlias: %s", self._field_alias)
+        LOGGER.info("FieldRelation: %s", self._field_relation)
+        LOGGER.info("Cursor: %s", self.cursor_)
+        LOGGER.info("CurName: %s", self.cursor().curName() if self.cursor_ else None)
         LOGGER.info(
             "Editor: %s, EditorImg: %s"
             % (getattr(self, "editor_", None), getattr(self, "_editor_img", None))
