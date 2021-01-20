@@ -77,6 +77,13 @@ def load_script(script_name: str, action_: "xmlaction.XMLAction") -> "formdbwidg
         _remove(static_flag)
 
         if script_path_py_static and cached_script_path_py.find("system_module") == -1:
+            if not cached_script_path_py:
+                msg = (
+                    "The %s.py file that does not exist in pineboo's cache is being overloaded."
+                    % script_name
+                )
+                msg += "Check that the file exists in the flfiles table"
+                LOGGER.exception(msg)
             # si es carga estática y no es módulo sistema lo marco
             static_flag = "%s/static.xml" % os.path.dirname(cached_script_path_py)
             _build_static_flag(static_flag, cached_script_path_py, script_path_py)
@@ -184,6 +191,7 @@ def _build_static_flag(flag, script, static) -> None:
 
     xml_data = get_static_flag(script, static)
     my_data = ET.tostring(xml_data, encoding="utf8", method="xml")
+
     file_ = open(flag, "wb")
     file_.write(my_data)
 

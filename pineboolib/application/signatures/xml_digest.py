@@ -9,7 +9,7 @@ from OpenSSL import crypto  # type: ignore[import] # noqa: F821
 from xades import policy, utils, template, XAdESContext  # type: ignore[import] # noqa: F821
 
 
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Union
 
 LOGGER = logging.get_logger(__name__)
 
@@ -29,14 +29,20 @@ class xmlDigest:
     _rsa: Optional[int]
     _use_algorithm: str
 
-    def __init__(self, file_path: str, cert_path: str, pwsd_: str = "") -> None:
+    def __init__(
+        self, file_path_or_xml: Union[str, "etree.Element"], cert_path: str, pwsd_: str = ""
+    ) -> None:
         """Initialize."""
 
-        for path in [file_path, cert_path]:
+        for path in [file_path_or_xml, cert_path]:
             if not os.path.exists(path):
                 raise Exception("%s doesn't exists!" % path)
 
-        self._root = etree.parse(file_path).getroot()
+        self._root = (
+            etree.parse(file_path_or_xml).getroot()
+            if isinstance(file_path_or_xml, str)
+            else file_path_or_xml
+        )
         self._cert_path = cert_path
         self._pass = pwsd_
         self._policy_list = [
@@ -65,7 +71,7 @@ class xmlDigest:
         try:
 
             with open(self._cert_path, "rb") as cert_file:
-                self._certificate = crypto.load_pkcs12(cert_file.read(), self._pass)
+                self._certificate = crypto.load_pkcs12(cert_file.read(), self._pass.encode())
         except Exception as error:
             LOGGER.warning("Error loading certificate: %s", str(error))
             return False

@@ -1353,3 +1353,8 @@ class FLUtil(object):
         """Return database name."""
 
         return sysbasetype.SysBaseType.nameBD()
+
+    def timestamp(cls) -> str:
+        """Return timestamp."""
+
+        return QtCore.QDateTime.currentDateTime().toString("ddMMyyyyhhmmsszzz")

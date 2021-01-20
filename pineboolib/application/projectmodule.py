@@ -99,7 +99,16 @@ class Project(object):
             settings.CONFIG.set_value("ebcomportamiento/temp_dir", self.tmpdir)
 
         if not os.path.exists(self.tmpdir):
-            Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
+            try:
+                Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
+            except Exception as error:
+                LOGGER.error("Error creating %s folder : %s", self.tmpdir, str(error))
+                return
+
+        if not os.access(self.tmpdir, os.W_OK):
+            LOGGER.error("%s folder is not writable!. Please change permissions!", self.tmpdir)
+            return
+
         self._conn_manager = None
         self._session_func_ = None
         LOGGER.debug("Initializing connection manager for the application.PROJECT %s", self)
