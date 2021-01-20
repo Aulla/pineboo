@@ -669,7 +669,7 @@ class FLFieldDB(QtWidgets.QWidget):
             "Editor: %s, EditorImg: %s"
             % (getattr(self, "editor_", None), getattr(self, "_editor_img", None))
         )
-        LOGGER.info("RefreshLaterEditor:", self._refresh_later)
+        LOGGER.info("RefreshLaterEditor: %s", self._refresh_later)
         LOGGER.info("************************************")
 
     def setValue(self, value: Any = "") -> None:
