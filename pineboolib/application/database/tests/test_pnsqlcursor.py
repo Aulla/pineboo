@@ -48,6 +48,12 @@ class TestInsertData(unittest.TestCase):
         self.assertEqual(cursor.size(), 0)
         cursor.select()
         self.assertEqual(cursor.size(), 1)
+        mode_access = cursor.modeAccess()
+        self.assertEqual(mode_access, cursor.Browse)
+        self.assertTrue(cursor.first())
+        cursor.setModeAccess(cursor.Edit)
+        cursor.setValueBuffer("descripcion", " ")
+        self.assertTrue(cursor.commitBuffer())
 
     def test_basic_2(self) -> None:
         """SetAtomitValuebuffer."""
