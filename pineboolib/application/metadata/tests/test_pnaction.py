@@ -3,6 +3,7 @@ import unittest
 from pineboolib.loader.main import init_testing, finish_testing
 from pineboolib.application.metadata import pnaction
 from pineboolib import application
+from pineboolib.qsa import qsa
 
 
 class TestPNAction(unittest.TestCase):
@@ -14,6 +15,7 @@ class TestPNAction(unittest.TestCase):
     def test_basic1(self) -> None:
         """Test basic 1."""
 
+        qsa.sys.reinit()
         act_struct = application.PROJECT.actions["flareas"]
         self.assertTrue(act_struct is not None)
         act_ = pnaction.PNAction(act_struct)
@@ -25,6 +27,7 @@ class TestPNAction(unittest.TestCase):
         act2_ = act_
         self.assertTrue(act2_ == act_)
         self.assertTrue(str(act_) is not None)
+        self.assertFalse(act_.class_())
 
     @classmethod
     def tearDownClass(cls) -> None:
