@@ -45,9 +45,10 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(obj_, new_)
         query = orm_utils.DynamicFilter(query=session_.query(model_class), model_class=model_class)
         query.set_filter_condition_from_string(
-            "%s = %s" % ("idarea", "ir".replace(" ", "_|_space_|_"))
+            "%s = %s order by idarea desc" % ("idarea", "ir".replace(" ", "_|_space_|_"))
         )
         ret_ = query.return_query().first()
+        self.assertEqual(query.order_by, [["idarea", "desc"]])
         self.assertEqual(ret_.idarea, "ir")
 
     @classmethod
