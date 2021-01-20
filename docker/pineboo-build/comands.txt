@@ -1,0 +1,3 @@
+docker login
+docker build -t "my_id/pineboo-build:latest-devel" .
+docker push my_id/pineboo-build:latest-devel
