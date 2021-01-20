@@ -372,7 +372,7 @@ class PNSqlQuery(object):
                 except Exception:
                     pass
 
-                if field == "*" and not table:
+                if field == "*" and table:
                     mtd = self.db().connManager().manager().metadata(table, True)
                     if mtd is not None:
                         self.private_query._field_list = mtd.fieldNames()
@@ -533,8 +533,6 @@ class PNSqlQuery(object):
 
         @param gd Dictionary of parameters.
         """
-        if not group_dict:
-            return
 
         self.private_query._group_dict = group_dict
 
@@ -551,9 +549,6 @@ class PNSqlQuery(object):
 
         @param pd Parameter dictionary
         """
-
-        if not parameter_dict:
-            return
 
         self.private_query._parameter_dict = parameter_dict
 
