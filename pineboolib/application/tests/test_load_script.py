@@ -33,6 +33,13 @@ class TestLoadScript(unittest.TestCase):
         data = f1_.read()
         self.assertNotEqual(data.decode(), "")
 
+    def test_basic2(self) -> None:
+        """Test basic 2."""
+
+        file_name = "test_file.txt"
+        file_path = fixture_path(file_name)
+        result = load_script._resolve_flag(file_path, "uno", "dos")
+
         load_script._remove(file_path)
         self.assertFalse(os.path.exists(file_path))
 
