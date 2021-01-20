@@ -23,7 +23,7 @@ class TestLoadScript(unittest.TestCase):
 
         file_name = "test_file.txt"
 
-        with open(os.path.join(db_path, file_name), "w") as fp:
+        with open(os.path.join(db_path, file_name), "w"):
             pass
 
         file_path = fixture_path(file_name)
@@ -38,7 +38,7 @@ class TestLoadScript(unittest.TestCase):
 
         file_name = "test_file.txt"
         file_path = fixture_path(file_name)
-        result = load_script._resolve_flag(file_path, "uno", "dos")
+        load_script._resolve_flag(file_path, "uno", "dos")
 
         load_script._remove(file_path)
         self.assertFalse(os.path.exists(file_path))
