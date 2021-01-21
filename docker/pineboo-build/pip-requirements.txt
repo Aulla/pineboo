@@ -28,7 +28,7 @@ sphinx-rtd-theme
 pyroma
 defusedxml
 bandit
-coverage
+coverage==4.5.4
 pylint-json2html
 pytest-cov
 json-rpc
