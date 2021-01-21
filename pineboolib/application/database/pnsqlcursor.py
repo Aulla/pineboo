@@ -1492,11 +1492,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not self.private_cursor.buffer_ or not self.private_cursor.metadata_:
             return 0
         # Faster version for this function::
-        if self.isValid():
-            pos = self.at()
-        else:
-            pos = 0
-        return pos
+        return self.at() if self.isValid() else 0
 
     def atFromBinarySearch(self, field_name: str, value: Any, order_asc: bool = True) -> int:
         """
@@ -1573,65 +1569,52 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         return self.private_cursor.cursor_name_
 
     def filterAssoc(
-        self, fieldName: str, tableMD: Optional["pntablemetadata.PNTableMetaData"] = None
+        self, field_name: str, tableMD: Optional["pntablemetadata.PNTableMetaData"] = None
     ) -> Optional[str]:
         """
         To get the default filter in associated fields.
 
-        @param fieldName Name of the field that has associated fields. It must be the name of a field of this cursor.
-        @param tableMD Metadata to use as a foreign table. If it is zero use the foreign table defined by the relation M1 of 'fieldName'.
+        @param field_name Name of the field that has associated fields. It must be the name of a field of this cursor.
+        @param tableMD Metadata to use as a foreign table. If it is zero use the foreign table defined by the relation M1 of 'field_name'.
         """
-        fieldName = fieldName
 
-        mtd = self.private_cursor.metadata_
-        if not mtd:
+        if self.private_cursor.buffer_ is None:
             return None
 
-        field = mtd.field(fieldName)
+        mtd = self.private_cursor.metadata_
+        if mtd is None:
+            return None
+
+        field = mtd.field(field_name)
         if field is None:
             return None
 
-        # ownTMD = False
-
-        if not tableMD:
-            # ownTMD = True
+        if tableMD is None:
             rel_m1 = field.relationM1()
             if rel_m1 is None:
                 raise Exception("relation is empty!")
             tableMD = self.db().connManager().manager().metadata(rel_m1.foreignTable())
 
-        if not tableMD:
+        if tableMD is None:
             return None
 
         assoc_field = field.associatedField()
         if assoc_field is None:
-            # if ownTMD and not tableMD.inCache():
-            # del tableMD
             return None
 
         field_by = field.associatedFieldFilterTo()
 
-        if self.private_cursor.buffer_ is None:
-            return None
-
         if not tableMD.field(field_by) or self.buffer().is_null(assoc_field.name()):
-            # if ownTMD and not tableMD.inCache():
-            # del tableMD
             return None
 
         assoc_value = self.buffer().value(assoc_field.name())
         if assoc_value:
-            # if ownTMD and not tableMD.inCache():
-            # del tableMD
             return (
                 self.db()
                 .connManager()
                 .manager()
                 .formatAssignValue(field_by, assoc_field, assoc_value, True)
             )
-
-        # if ownTMD and not tableMD.inCache():
-        # del rableMD
 
         return None
 
@@ -1680,24 +1663,21 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @param previous. old item selected.
         """
 
-        if self.currentRegister() != current.row():
-            self.private_cursor._currentregister = current.row()
+        current_row = current.row()
+
+        if self.private_cursor._currentregister != current_row:
+            self.private_cursor._currentregister = current_row
             self.private_cursor._current_changed.emit(self.at())
 
         self.refreshBuffer()
 
-        # if self.currentRegister() == current.row():
-        #    self.private_cursor.doAcl()
-        #    return None
-
-        # self.private_cursor._currentregister = current.row()
-        # self.private_cursor._current_changed.emit(self.at())
-        # self.refreshBuffer()
-
         self.private_cursor.doAcl()
         if self._action:
             LOGGER.debug(
-                "cursor:%s , row:%s:: %s", self._action.table(), self.currentRegister(), self
+                "cursor:%s , row:%s:: %s",
+                self._action.table(),
+                self.private_cursor._currentregister,
+                self,
             )
 
     def selection_pk(self, value: Any) -> bool:
@@ -1708,27 +1688,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return True if seek the position else False.
         """
 
-        # if value is None:
-        #     return False
-
         if not self.private_cursor.buffer_:
             raise Exception("Buffer not set")
 
-        # pk_value = self.buffer().value(self.primaryKey())
         grid_row = self.model().find_pk_row(value)
 
         if grid_row > -1:
-            if self.at() != grid_row:
-                return self.move(grid_row)
-            else:
-                return True
-        # for i in range(self.private_cursor._model.rowCount()):
-        #    pk_value = self.private_cursor.buffer_.pK()
-        #    if pk_value is None:
-        #        raise ValueError("pk_value is empty!")
-
-        #    if self.private_cursor._model.value(i, pk_value) == value:
-        #        return self.move(i) if self.at() != i else True
+            return self.move(grid_row) if self.at() != grid_row else True
 
         return False
 
@@ -1739,15 +1705,13 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return Index position.
         """
 
-        if not self.currentRegister():
+        row = self.currentRegister()
+
+        if not row:
             row = 0
-        else:
-            row = self.currentRegister()
-
-        if row < 0:
+        elif row < 0:
             return -1
-
-        if row >= self.size():
+        elif row >= self.size():
             return -2
         # LOGGER.debug("%s.Row %s ----> %s" % (self.curName(), row, self))
         return row
@@ -1759,12 +1723,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         @return True if ok else False.
         """
 
-        if self.at() >= 0 and self._valid:
-            return True
-        else:
-            if not self.size():
-                return True
-            return False
+        return True if (self._valid and self.at() >= 0) or not self.size() else False
 
     @decorators.pyqt_slot()
     @decorators.pyqt_slot(str)
@@ -1822,8 +1781,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 if buffer is not None:
                     buffer.clear()
                 pos = self.atFrom()
-                if pos > self.size():
-                    pos = self.size() - 1
+                current_size = self.size()
+                if pos > current_size:
+                    pos = current_size - 1
 
                 if not self.seek(pos, False, True):
                     emite = True
@@ -2135,28 +2095,20 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not model:
             return False
 
-        if row < 0:
-            row = -1
-        # while row >= model.rows and model.canFetchMoreRows:
-        #    model.updateRows()
-
-        # if row >= model.rows:
-        #    row = model.rows
-        if not model.seek_row(row):
+        if not model.seek_row(-1 if row < 0 else row):
             return False
-        row = model._current_row_index
-        if self.currentRegister() == row:
+        elif self.private_cursor._currentregister == model._current_row_index:
             return False
 
-        top_left = model.index(row, 0)
-        botton_right = model.index(row, model.cols - 1)
+        top_left = model.index(model._current_row_index, 0)
+        botton_right = model.index(model._current_row_index, model.cols - 1)
         new_selection = QtCore.QItemSelection(top_left, botton_right)
         if self._selection is None:
             raise Exception("Call setAction first.")
         self._selection.select(new_selection, QtCore.QItemSelectionModel.ClearAndSelect)
         # self.private_cursor._current_changed.emit(self.at())
-        if row < self.size() and row >= 0:
-            self.private_cursor._currentregister = row
+        if model._current_row_index > -1 and model._current_row_index < self.size():
+            self.private_cursor._currentregister = model._current_row_index
             return True
         else:
             return False
@@ -2171,10 +2123,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         """
         # if self.private_cursor.mode_access_ == self.Del:
         #    return False
-        if not self.currentRegister() == 0:
-            result = self.move(0)
-        else:
-            result = True
+
+        result = self.move(0) if not self.currentRegister() == 0 else True
+
         if result:
             if emite:
                 self.private_cursor._current_changed.emit(self.at())
@@ -3319,7 +3270,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             update_successful = True
 
             # dict_update = {
-            #    fieldName: self.private_cursor.buffer_.value(fieldName) for fieldName in lista
+            #    field_name: self.private_cursor.buffer_.value(field_name) for field_name in lista
             # }
             # try:
             #    update_successful = self.model.data_update(
