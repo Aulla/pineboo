@@ -385,7 +385,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         return self.private._relation_m1
 
     def setAssociatedField(
-        self, r_or_name: Union[str, "interfaces.IFieldMetaData"], f: str
+        self, r_or_name: Union[str, "interfaces.IFieldMetaData"], field_name: str
     ) -> None:
         """
         Set an associated field for this field, and the name of the foreign table field to use to filter.
@@ -399,7 +399,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         name = r_or_name if isinstance(r_or_name, str) else r_or_name.name()
 
         self.private.associated_field_name = name
-        self.private.associated_field_filter_to = f
+        self.private.associated_field_filter_to = field_name
 
     def associatedField(self) -> Optional["PNFieldMetaData"]:
         """
@@ -649,10 +649,7 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
         if value is None or not field_name:
             return "1 = 1"
 
-        is_text = False
-
-        if self.type() in ("string", "time", "date", "pixmap", "timestamp"):
-            is_text = True
+        is_text = self.type() in ("string", "time", "date", "pixmap", "timestamp")
 
         format_value: Any = "'%s'" % value if is_text else value
 
@@ -995,19 +992,11 @@ class PNFieldMetaDataPrivate(object):
                 self.type_,
             )
 
-        if int(length_) < 0:
+        if self.type_ != "string" or self.length_ < 0:
             self.length_ = 0
-
-        if int(part_integer) < 0:
+        if self.type_ != "double" or self._part_integer < 0:
             self._part_integer = 0
-        if int(part_decimal) < 0:
-            self._part_decimal = 0
-        # print("Tipo ", t)
-
-        if not type_ == "string" and not int(length_) == 0:
-            self.length_ = 0
-
-        elif type_ == "double" and not int(part_decimal) >= 0:
+        if self.type_ != "double" or self._part_decimal < 0:
             self._part_decimal = 0
 
     def __del_(self):

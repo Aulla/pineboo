@@ -84,26 +84,6 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
         self.private._compound_key = pncompoundkeymetadata.PNCompoundKeyMetaData()
 
-        """
-        try:
-            table = self._prj.tables[name]
-        except:
-            return None
-
-        for field in table.fields:
-            field.setMetadata(self)
-            if field.isCompoundKey():
-                self.private._compound_key.addFieldMD(field)
-            if field.isPrimaryKey():
-                self.private._primary_key = field.name()
-
-            self.private._field_list.append(field)
-            self.private._field_names.append(field.name())
-
-            if field.type() == FLFieldMetaData.Unlock:
-                self.private._field_names_unlock.append(field.name())
-        """
-
     def name(self) -> str:
         """
         Get the name of the table.
@@ -187,7 +167,7 @@ class PNTableMetaData(itablemetadata.ITableMetaData):
 
         if field_metadata.type() == pnfieldmetadata.PNFieldMetaData.Unlock:
             self.private._field_names_unlock.append(field_metadata.name())
-        if field_metadata.isPrimaryKey():
+        elif field_metadata.isPrimaryKey():
             self.private._primary_key = field_metadata.name()
 
     def removeFieldMD(self, field_name: str) -> None:

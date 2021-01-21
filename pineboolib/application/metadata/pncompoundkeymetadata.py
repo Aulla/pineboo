@@ -56,11 +56,7 @@ class PNCompoundKeyMetaData(object):
         @return TRUE if the field is part of the composite key, FALSE otherwise.
         """
 
-        for item in self._field_list:
-            if item.name() == str(field_name):
-                return True
-
-        return False
+        return field_name in [item.name() for item in self._field_list]
 
     def fieldList(self) -> List["PNFieldMetaData"]:
         """
