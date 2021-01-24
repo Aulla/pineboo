@@ -37,6 +37,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self._like_true = "1"
         self._like_false = "0"
         self._text_like = " "
+        self._create_isolation = False
 
         self._database_not_found_keywords = ["Unknown database"]
         self._default_charset = "DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
@@ -279,3 +280,10 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             if self.db_.connManager().manager().metadata(table_name) is not None:
                 self.execute_query("ANALYZE TABLE %s" % table_name)
         self._connection.connection.set_isolation_level(1)
+
+    def getAlternativeConn(
+        self, name: str, host: str, port: int, usern: str, passw_: str
+    ) -> Optional["base.Connection"]:
+        """Return alternative connection."""
+        return self.getConn("", host, port, usern, passw_)
+
