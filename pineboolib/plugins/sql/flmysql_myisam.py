@@ -288,3 +288,9 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         """Return alternative connection."""
         return self.getConn("", host, port, usern, passw_)
 
+    def get_common_params(self) -> None:
+        """Load common params."""
+
+        super().get_common_params()
+
+        self._queqe_params["isolation_level"] = "READ COMMITTED"

@@ -477,12 +477,14 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
             session = self.session()
             if not session.transaction:
+                LOGGER.info("ISOLATION LEVEL %s", session.connection().get_isolation_level())
                 session.begin()
             else:
                 session.begin_nested()
             return True
         except Exception as error:
             self._last_error = "No se pudo crear la transacción: %s" % str(error)
+            LOGGER.warning(self._last_error)
 
         return False
 

@@ -327,4 +327,4 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         super().get_common_params()
 
-        self._queqe_params["isolation_level"] = "AUTOCOMMIT"
+        # self._queqe_params["isolation_level"] = "AUTOCOMMIT"
