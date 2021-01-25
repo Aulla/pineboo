@@ -78,6 +78,8 @@ class PNSqlSchema(object):
     _engine: "base.Engine"
     _session: "orm_session.Session"
     _extra_alternative: str
+    _sp_level: int
+    _use_altenative_isolation_level: bool
 
     def __init__(self):
         """Inicialize."""
@@ -109,6 +111,8 @@ class PNSqlSchema(object):
         self._extra_alternative = ""
         self._connection = None  # type: ignore [assignment] # noqa: F821
         self._sqlalchemy_name = ""
+        self._sp_level = 0
+        self._use_altenative_isolation_level = False
 
     def safe_load(self, exit: bool = False) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -249,6 +253,11 @@ class PNSqlSchema(object):
 
                 self.get_common_params()
                 self._engine = create_engine(str_conn, **self._queqe_params)
+                if self._use_altenative_isolation_level:
+                    # event.listen(self._engine, "connect", self.do_connect)
+                    event.listen(self._engine, "begin", self.do_begin)
+                    event.listen(self._engine, "savepoint", self.do_savepoint)
+
                 ENGINES[str_conn] = self._engine
 
             if application.SHOW_CONNECTION_EVENTS:

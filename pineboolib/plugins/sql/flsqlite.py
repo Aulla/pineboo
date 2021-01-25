@@ -75,6 +75,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self.loadConnectionString(name, host, port, usern, passw_), **self._queqe_params
             )
 
+            event.listen(self._engine, "connect", self.do_connect)
+            event.listen(self._engine, "begin", self.do_begin)
+            event.listen(self._engine, "savepoint", self.do_savepoint)
+
             if application.SHOW_CONNECTION_EVENTS:
                 self.listen_engine()
 
@@ -327,4 +331,16 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         super().get_common_params()
 
-        # self._queqe_params["isolation_level"] = "AUTOCOMMIT"
+        self._queqe_params["isolation_level"] = None
+
+    def do_connect(self, dbapi_connection, connection_record):
+        dbapi_connection.isolation_level = None
+
+    def do_begin(self, conn):
+        conn.exec_driver_sql("BEGIN")
+
+    def do_savepoint(self, conn, name):
+        self._sp_level += 1
+        name = "sp_%s" % self._sp_level
+        conn.exec_driver_sql("SAVEPOINT %s" % name)
+
