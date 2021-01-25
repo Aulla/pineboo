@@ -334,13 +334,6 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
         self._queqe_params["isolation_level"] = None
 
     def do_connect(self, dbapi_connection, connection_record):
+        """Isolation Level fix."""
+
         dbapi_connection.isolation_level = None
-
-    def do_begin(self, conn):
-        conn.exec_driver_sql("BEGIN")
-
-    def do_savepoint(self, conn, name):
-        self._sp_level += 1
-        name = "sp_%s" % self._sp_level
-        conn.exec_driver_sql("SAVEPOINT %s" % name)
-

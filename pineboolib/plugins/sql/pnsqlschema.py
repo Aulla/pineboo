@@ -254,7 +254,6 @@ class PNSqlSchema(object):
                 self.get_common_params()
                 self._engine = create_engine(str_conn, **self._queqe_params)
                 if self._use_altenative_isolation_level:
-                    # event.listen(self._engine, "connect", self.do_connect)
                     event.listen(self._engine, "begin", self.do_begin)
                     event.listen(self._engine, "savepoint", self.do_savepoint)
 
@@ -1257,3 +1256,15 @@ class PNSqlSchema(object):
 
         event.listen(self._engine, "close_detached", self.close_connection_warning)
         event.listen(self._engine, "close", self.close_connection_warning)
+
+    def do_begin(self, conn):
+        """Begin event."""
+
+        conn.exec_driver_sql("BEGIN")
+
+    def do_savepoint(self, conn, name):
+        """Save point event."""
+
+        self._sp_level += 1
+        name = "sp_%s" % self._sp_level
+        conn.exec_driver_sql("SAVEPOINT %s" % name)
