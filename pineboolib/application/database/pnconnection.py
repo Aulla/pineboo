@@ -475,12 +475,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Create a transaction."""
 
         try:
-            session = self.session()
-            if not session.transaction:
-                LOGGER.info("ISOLATION LEVEL %s", session.connection().get_isolation_level())
-                session.begin()
+            session_ = self.session()
+            if not session_.transaction:
+                LOGGER.info("ISOLATION LEVEL %s", session_.connection().get_isolation_level())
+                session_.begin()
             else:
-                session.begin_nested()
+                session_.begin_nested()
             return True
         except Exception as error:
             self._last_error = "No se pudo crear la transacción: %s" % str(error)
@@ -491,17 +491,11 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
     def commit(self) -> bool:
         """Release a transaction."""
 
-        # print("COMMIT TRANSACCION!!", self.session().transaction)
         try:
 
             session_ = self.session()
-            # LOGGER.debug("COMMIT session: %s, transaction: %s", session_, session_.transaction)
-            # self.driver()._session = None
             session_.commit()
-            # session_.close()
-            # session_.begin()
-            # session_.close()
-            # self.driver()._session = None
+
             return True
         except Exception as error:
             LOGGER.warning("Commit: %s", str(error), stack_info=True)
@@ -511,18 +505,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def rollback(self) -> bool:
         """Roll back a transaction."""
-
-        # print("ROLLBACK TRANSACCION!!", self.session().transaction)
         try:
             session_ = self.session()
-            # self.driver()._session = None
-
             session_.rollback()
-            # session_.close()
-            # session_.begin()
-            # session_.close()
-            # self.driver()._session = None
-
             return True
         except Exception as error:
             self._last_error = "No se pudo deshacer la transacción: %s" % str(error)
