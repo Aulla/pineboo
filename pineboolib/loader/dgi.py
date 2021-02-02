@@ -30,7 +30,7 @@ def load_dgi(name: str, param: Any) -> "dgi_schema":
     if param:
         dgi.setParameter(param)
 
-    LOGGER.info("DGI loaded: %s", name)
+    LOGGER.debug("DGI loaded: %s", name)
 
     return dgi
 
