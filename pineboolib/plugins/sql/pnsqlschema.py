@@ -243,7 +243,7 @@ class PNSqlSchema(object):
         try:
             str_conn = self.loadConnectionString(name, host, port, usern, passw_)
             if str_conn in ENGINES.keys():
-                LOGGER.info(
+                LOGGER.debug(
                     "Reusing engine %s:%s/%s to %s connection", host, port, name, self.db_._name
                 )
                 self._engine = ENGINES[str_conn]
@@ -1240,7 +1240,7 @@ class PNSqlSchema(object):
                 self._queqe_params["pool_timeout"] = int(mng_.connections_time_out)
 
         else:
-            LOGGER.info("SqlAlchemy pool disabled")
+            LOGGER.debug("SqlAlchemy pool disabled")
             self._queqe_params["poolclass"] = pool.NullPool
 
         if application.LOG_SQL:
@@ -1249,7 +1249,7 @@ class PNSqlSchema(object):
                 self._queqe_params["echo_pool"] = True
 
         for key, value in self._queqe_params.items():
-            LOGGER.info("    * %s = %s", key, value)
+            LOGGER.debug("    * %s = %s", key, value)
 
     def listen_engine(self) -> None:
         """Listen engine events."""

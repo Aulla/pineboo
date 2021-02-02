@@ -41,7 +41,7 @@ def atomic(conn_name: str = "default", wait: bool = True) -> TYPEFN:
             try:
                 try:
                     with new_session.begin():
-                        LOGGER.info(
+                        LOGGER.debug(
                             "New atomic session : %s, connection : %s, transaction: %s",
                             new_session,
                             conn_name,
@@ -98,7 +98,7 @@ def serialize(conn_name: str = "default") -> TYPEFN:
 
             result_ = None
             try:
-                LOGGER.info("New serialize function connection : %s", conn_name)
+                LOGGER.debug("New serialize function connection : %s", conn_name)
 
                 try:
                     result_ = fun_(*args, **kwargs)
