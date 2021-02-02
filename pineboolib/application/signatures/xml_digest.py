@@ -35,8 +35,9 @@ class xmlDigest:
         """Initialize."""
 
         for path in [file_path_or_xml, cert_path]:
-            if not os.path.exists(path):
-                raise Exception("%s doesn't exists!" % path)
+            if isinstance(path, str):
+                if not os.path.exists(path):
+                    raise Exception("%s doesn't exists!" % path)
 
         self._root = (
             etree.parse(file_path_or_xml).getroot()
