@@ -203,9 +203,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         # if self._db_name:
         #    self.driver().alias_ = self.driverName() + ":" + self._name
         self.driver().db_ = self
-        LOGGER.info("")
+        LOGGER.debug("")
         result = self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
-        LOGGER.info(
+        LOGGER.debug(
             " NEW CONNECTION NAME: %s, HOST: %s, PORT: %s, DB NAME: %s, USER NAME: %s, STATUS: %s",
             self._name,
             db_host,
@@ -477,7 +477,7 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         try:
             session_ = self.session()
             if not session_.transaction:
-                LOGGER.info("ISOLATION LEVEL %s", session_.connection().get_isolation_level())
+                LOGGER.debug("ISOLATION LEVEL %s", session_.connection().get_isolation_level())
                 session_.begin()
             else:
                 session_.begin_nested()
