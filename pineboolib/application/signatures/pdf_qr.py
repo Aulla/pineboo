@@ -43,7 +43,7 @@ class pdfQr:
         self._pos_x = 100
         self._pos_y = 100
         self._all_pages = False
-        self._size = 5  # 5
+        self._size = 7  # 5
         self._text = ""
         self._qr_text = ""
         self._signed_data = []
