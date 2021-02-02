@@ -215,7 +215,9 @@ class xmlDigest:
                     os.remove(file_path)
 
                 element_tree = etree.ElementTree(self._root)
-                element_tree.write(file_path, pretty_print=False)
+                element_tree.write(
+                    file_path, pretty_print=False, xml_declaration=True, encoding="UTF-8"
+                )
                 return True
             except Exception as error:
                 LOGGER.warning("Error saving file %s: %s", file_path, str(error))
