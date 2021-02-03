@@ -147,7 +147,7 @@ def _delete_data(session: Optional["orm.Session"], key: str, wait: bool = True) 
 
     if session is not None:
         if application.SHOW_CONNECTION_EVENTS:
-            LOGGER.info("Removing session %s", session)
+            LOGGER.debug("Removing session %s", session)
 
         application.PROJECT.conn_manager.remove_session(session)
     _delete_session(key, wait)
@@ -176,5 +176,5 @@ def _delete_session(key: str, wait: bool = True) -> None:
         time.sleep(0.05)
         for conn_name in mng_.enumerate():
             if application.SHOW_CONNECTION_EVENTS:
-                LOGGER.info("Removing connection %s after decorator", conn_name)
+                LOGGER.debug("Removing connection %s after decorator", conn_name)
             mng_.removeConn(conn_name)
