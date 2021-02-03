@@ -65,7 +65,6 @@ class FormDBWidget(QtWidgets.QWidget):
         if signal_slot:
             for conn_ in self._formconnections:
                 # PyQt5-Stubs misses signal.signal
-                # print("**", conn_[1].__name__, signal_slot[1].__name__)
                 if (
                     conn_[0].signal == signal_slot[0].signal
                     and conn_[1].__name__ == signal_slot[1].__name__
