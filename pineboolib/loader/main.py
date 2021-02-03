@@ -491,7 +491,7 @@ def exec_main(options: Values) -> int:
     return ret
 
 
-def _initialize_data(is_framework=False) -> None:
+def _initialize_data(is_framework: bool = False) -> None:
     """Initialize data."""
 
     if is_framework:
