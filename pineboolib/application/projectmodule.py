@@ -566,19 +566,17 @@ class Project(object):
 
         conn = self.conn_manager.mainConn()
         db_name = conn.DBName()
+        base_dir = utils_base.get_base_dir()
+        is_library = utils_base.is_library()
 
-        file_object = open(
-            utils_base.filedir(utils_base.get_base_dir(), "system_module", "sys.xpm"), "r"
-        )
+        file_object = open(utils_base.filedir(base_dir, "system_module", "sys.xpm"), "r")
         icono = file_object.read()
         file_object.close()
 
         self.modules["sys"] = module.Module("sys", "sys", "Administración", icono, "1.0")
-        for root, dirs, files in os.walk(
-            utils_base.filedir(utils_base.get_base_dir(), "system_module")
-        ):
+        for root, dirs, files in os.walk(utils_base.filedir(base_dir, "system_module")):
             for nombre in files:
-                if utils_base.is_library() and nombre.endswith("ui"):
+                if is_library and nombre.endswith("ui"):
                     continue
 
                 if root.find("modulos") == -1:
@@ -614,7 +612,7 @@ class Project(object):
 
         conn = self.conn_manager.dbAux()
         db_name = conn.DBName()
-
+        is_library = utils_base.is_library()
         result: Any = []
         static_flfiles = None
 
@@ -643,11 +641,11 @@ class Project(object):
             )
 
         for idarea, idmodulo, descripcion, icono, version in list(result):
-            icono = xpm.cache_xpm(icono)
 
             if idmodulo not in self.modules:
+                icon_cached = xpm.cache_xpm(icono)
                 self.modules[idmodulo] = module.Module(
-                    idarea, idmodulo, descripcion, icono, version
+                    idarea, idmodulo, descripcion, icon_cached, version
                 )
 
         result = []
@@ -663,11 +661,11 @@ class Project(object):
         list_files: List[str] = []
         LOGGER.info("RUN: Populating cache.")
         for idmodulo, nombre, sha, contenido in list(result):
-            # print("*", idmodulo, nombre, sha, contenido[0:10] if contenido else ".")
+
             if idmodulo not in self.modules:  # Si el módulo no existe.
                 continue
 
-            elif utils_base.is_library() and nombre.endswith("ui"):  # Si es un UI en modo librería.
+            elif is_library and nombre.endswith("ui"):  # Si es un UI en modo librería.
                 continue
 
             elif nombre in self.files:  # Si se sobreescribe un fichero ya existente.
@@ -685,13 +683,9 @@ class Project(object):
 
             fileobjdir = os.path.dirname(path._dir("cache", fileobj.filekey))
             file_name = path._dir("cache", fileobj.filekey)
-            if not os.path.exists(
-                file_name
-            ):  # Borra contenido de la carpeta si no existe el fichero destino
+            if not os.path.exists(file_name):  # Borra
                 if os.path.exists(fileobjdir):
-                    for root, dirs, files in os.walk(fileobjdir):
-                        for file_item in files:
-                            os.remove(os.path.join(root, file_item))
+                    utils_base.empty_dir(fileobjdir)
                 else:
                     os.makedirs(fileobjdir)
 
