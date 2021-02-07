@@ -354,7 +354,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
 
                 result = None
 
-            elif _type in ("string", "stringlist", "timestamp"):
+            elif _type in ("string", "stringlist", "timestamp", "json"):
                 if not result:
                     if _type == "stringlist":
                         result = "..."

@@ -142,6 +142,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             res_ = "CLOB"
         elif type_ == "timestamp":
             res_ = "DATETIME"
+        elif type_ == "json":
+            res_ = "JSON"
         else:
             LOGGER.warning("seType: unknown type %s", type_)
             leng = 0
@@ -271,6 +273,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             ret = "uint"
         elif type_ == "DATETIME":
             ret = "timestamp"
+        elif type_ == "JSON":
+            ret = "json"
 
         return ret
 

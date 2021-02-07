@@ -123,6 +123,8 @@ class FLPYMSSQL(pnsqlschema.PNSqlSchema):
             res_ = "NVARCHAR"
         elif type_ == "timestamp":
             res_ = "DATETIME2"
+        elif type_ == "json":
+            res_ = "NVARCHAR"
         else:
             LOGGER.warning("seType: unknown type %s", type_)
             leng = 0
@@ -233,6 +235,8 @@ class FLPYMSSQL(pnsqlschema.PNSqlSchema):
             ret = "stringlist"
         elif type_ == "datetime2":
             ret = "timestamp"
+        elif type_ == "json":
+            ret = "json"
 
         return ret
 

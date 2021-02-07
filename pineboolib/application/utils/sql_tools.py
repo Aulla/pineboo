@@ -470,6 +470,8 @@ class SqlInspector(object):
             ret_ = "00:00:00"
         elif type_ == "bytearray":
             ret_ = bytearray()
+        elif type_ == "json":
+            ret_ = {}
 
         return ret_
 
@@ -516,7 +518,7 @@ class SqlInspector(object):
                     type_ = field_metadata.type()
 
         ret_: Any = value
-        if type_ in ("string", "stringlist", "timestamp"):
+        if type_ in ("string", "stringlist", "timestamp", "json"):
             pass
         elif type_ == "double":
             try:

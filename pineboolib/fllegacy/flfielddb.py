@@ -801,6 +801,16 @@ class FLFieldDB(QtWidgets.QWidget):
 
             if do_home:
                 editor_ts.home(False)
+        elif type_ == "json":
+            do_home = False
+            editor_ts = cast(fllineedit.FLLineEdit, self.editor_)
+            if not editor_ts.text():
+                do_home = True
+
+            editor_ts.setText(value)
+
+            if do_home:
+                editor_ts.home(False)
 
     def value(self) -> Any:
         """
@@ -831,7 +841,7 @@ class FLFieldDB(QtWidgets.QWidget):
             if type_ == "double" or type_ == "int" or type_ == "uint":
                 return 0
 
-        if type_ in ("string", "stringlist", "timestamp"):
+        if type_ in ("string", "stringlist", "timestamp", "json"):
             if self.editor_:
                 ed_ = self.editor_
                 if isinstance(ed_, fllineedit.FLLineEdit):
@@ -899,7 +909,7 @@ class FLFieldDB(QtWidgets.QWidget):
             return
         type_ = field.type()
 
-        if type_ in ("double", "int", "uint", "string", "timestamp"):
+        if type_ in ("double", "int", "uint", "string", "timestamp", "json"):
             editor_le = cast(fllineedit.FLLineEdit, self.editor_)
             if editor_le:
                 editor_le.selectAll()
@@ -1232,7 +1242,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 cast(QtCore.pyqtSignal, editor_str.textChanged).connect(self.updateValue)
 
-        elif type_ == "timestamp":
+        elif type_ in ("timestamp", "json"):
 
             do_home = False
             editor_str = cast(fllineedit.FLLineEdit, self.editor_)
@@ -1509,7 +1519,7 @@ class FLFieldDB(QtWidgets.QWidget):
 
                 cast(QtCore.pyqtSignal, editor.textChanged).connect(self.updateValue)
 
-        elif type_ in ("uint", "int", "serial", "timestamp"):
+        elif type_ in ("uint", "int", "serial", "timestamp", "json"):
             editor_le = cast(fllineedit.FLLineEdit, self.editor_)
             if value == editor_le.text():
                 return
@@ -1883,7 +1893,7 @@ class FLFieldDB(QtWidgets.QWidget):
         self._init_max_size = self.maximumSize()
         self._init_min_size = self.minimumSize()
 
-        if type_ in ("uint", "int", "double", "string", "timestamp"):
+        if type_ in ("uint", "int", "double", "string", "timestamp", "json"):
             self.initEditorControlForNumber(
                 has_option_list=hol,
                 field=field,

@@ -572,6 +572,8 @@ class PNFieldMetaData(interfaces.IFieldMetaData):
             _type = "string"
         elif fltype_ == "bytearray":
             _type = "bytearray"
+        elif fltype_ == "json":
+            _type = "json"
 
         # print("Return", _type)
         return _type

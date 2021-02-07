@@ -79,6 +79,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             res_ = "BYTEA"
         elif type_ == "timestamp":
             res_ = "TIMESTAMPTZ"
+        elif type_ == "json":
+            res_ = "JSON"
         else:
             LOGGER.warning("seType: unknown type %s", type_)
             leng = 0
@@ -236,6 +238,8 @@ class FLQPSQL(pnsqlschema.PNSqlSchema):
             ret = "string"
         elif type_ == 1184:
             ret = "timestamp"
+        elif type_ == 114:
+            ret = "json"
 
         return ret
 

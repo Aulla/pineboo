@@ -116,6 +116,9 @@ def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
     elif type_ == "timestamp":
         ret = "sqlalchemy.DateTime"
 
+    elif type_ == "json":
+        ret = "sqlalchemy.types.JSON"
+
     elif type_ == "time":
         ret = "sqlalchemy.Time"
 

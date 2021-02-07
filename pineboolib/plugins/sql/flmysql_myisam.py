@@ -103,6 +103,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             res_ = "LONGBLOB"
         elif type_ == "timestamp":
             res_ = "TIMESTAMP"
+        elif type_ == "json":
+            res_ = "JSON"
         else:
             LOGGER.warning("seType: unknown type %s", type_)
             leng = 0
@@ -268,6 +270,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             ret = "time"
         elif t == "timestamp":
             ret = "timestamp"
+        elif t == "json":
+            ret = "json"
 
         else:
             LOGGER.warning("formato desconocido %s", ret)

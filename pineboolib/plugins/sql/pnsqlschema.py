@@ -400,6 +400,9 @@ class PNSqlSchema(object):
                 result_ = "'%s'" % value
             else:
                 result_ = ""
+        elif type_ == "json":
+            if not value:
+                result_ = {}
 
         return str(result_)
 
@@ -677,6 +680,8 @@ class PNSqlSchema(object):
                 ):
                     ret = True
                 elif db_type == "timestamp" and meta_type != "timestamp":
+                    ret = True
+                elif db_type == "json" and meta_type != "json":
                     ret = True
 
         except Exception as error:

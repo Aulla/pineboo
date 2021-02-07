@@ -545,6 +545,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 value = ""
             elif type_ in ("double", "int", "uint", "serial"):
                 value = 0
+            elif type_ == "json":
+                value = {}
 
         return value
 
@@ -596,6 +598,8 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 value = ""
             elif type_ in ("double", "int", "uint"):
                 value = 0
+            elif type_ == "json":
+                value = {}
 
         return value
 
