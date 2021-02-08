@@ -19,7 +19,7 @@ class TestStress(unittest.TestCase):
         from random import randint, random
 
         cursor = qsa.FLSqlCursor("fltest")
-        registers = 100000
+        registers = 25000
         util = qsa.FLUtil()
 
         for number in range(registers):

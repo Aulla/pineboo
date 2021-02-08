@@ -52,8 +52,8 @@ class PNConnectionManager(QtCore.QObject):
         self.SAFE_TIME_SLEEP = 0.01
         self.safe_mode_level = 0
 
-        LOGGER.info("Initializing PNConnection Manager:")
-        LOGGER.info(
+        LOGGER.debug("Initializing PNConnection Manager:")
+        LOGGER.debug(
             "Limit : %s, Time out: %s. (0 disabled)",
             self.limit_connections,
             self.connections_time_out,
@@ -331,10 +331,10 @@ class PNConnectionManager(QtCore.QObject):
             conn_identifier = utils_base.session_id(conn_name)
             if conn_identifier in self.connections_dict.keys():
                 conn_ = self.connections_dict[conn_identifier]
-                LOGGER.info("Checking connection %s", conn_identifier)
+                LOGGER.debug("Checking connection %s", conn_identifier)
                 valid = True
                 if not conn_.isOpen():
-                    LOGGER.info("Connection %s is closed.", conn_identifier)
+                    LOGGER.debug("Connection %s is closed.", conn_identifier)
                     valid = False
                 else:
                     if not self.test_session(conn_):
@@ -342,7 +342,7 @@ class PNConnectionManager(QtCore.QObject):
 
                 if not valid:
                     if not self.removeConn(conn_identifier):
-                        LOGGER.info("Connection %s removing failed!", conn_identifier)
+                        LOGGER.debug("Connection %s removing failed!", conn_identifier)
                         return False
 
         return True

@@ -35,8 +35,9 @@ class xmlDigest:
         """Initialize."""
 
         for path in [file_path_or_xml, cert_path]:
-            if not os.path.exists(path):
-                raise Exception("%s doesn't exists!" % path)
+            if isinstance(path, str):
+                if not os.path.exists(path):
+                    raise Exception("%s doesn't exists!" % path)
 
         self._root = (
             etree.parse(file_path_or_xml).getroot()
@@ -214,7 +215,9 @@ class xmlDigest:
                     os.remove(file_path)
 
                 element_tree = etree.ElementTree(self._root)
-                element_tree.write(file_path, pretty_print=False)
+                element_tree.write(
+                    file_path, pretty_print=False, xml_declaration=True, encoding="UTF-8"
+                )
                 return True
             except Exception as error:
                 LOGGER.warning("Error saving file %s: %s", file_path, str(error))

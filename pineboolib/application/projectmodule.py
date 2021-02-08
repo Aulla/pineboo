@@ -395,77 +395,41 @@ class Project(object):
             function = function[:-2]
 
         array_fun = function.split(".")
+        module_name = array_fun[0]
+        function_name = array_fun[-1]
 
         if object_context is None:
-            if not array_fun[0] in self.actions:
-                if len(array_fun) > 1:
-                    msg = "%s en el módulo %s" % (array_fun[1], array_fun[0])
-                else:
-                    msg = array_fun[0]
+
+            if module_name not in self.actions.keys():
                 if show_exceptions:
+                    msg = (
+                        "%s en el módulo %s" % (array_fun[1], module_name)
+                        if len(array_fun) > 1
+                        else module_name
+                    )
                     LOGGER.warning("No existe la acción %s", msg)
                 return None
             else:
 
-                fun_action = self.actions[array_fun[0]]
-                main_window = fun_action.load_master_widget()
+                object_context = self.actions[module_name].load_master_widget()  # siempre devuelve
+                if hasattr(object_context, "iface") and hasattr(
+                    object_context.iface, function_name
+                ):
+                    object_context = object_context.iface
 
-                if len(array_fun) == 2:
-
-                    if hasattr(main_window.iface, array_fun[1]):
-                        object_context = main_window.iface
-                    elif hasattr(main_window, array_fun[1]):
-                        object_context = main_window
-
-                    if object_context is None:
-                        object_context = main_window
-
-                elif array_fun[1] == "iface":
-                    object_context = main_window.iface
-
-                elif array_fun[1] == "widget":
-                    if hasattr(main_window.iface, array_fun[2]):
-                        object_context = main_window.iface
-                    elif hasattr(main_window, array_fun[2]):
-                        object_context = main_window
-                else:
-                    return False
-
-            if not object_context:
-                if show_exceptions:
-                    LOGGER.error(
-                        "No existe el script para la acción %s en el módulo %s",
-                        array_fun[0],
-                        array_fun[0],
-                    )
-                return None
-
-        function_name_object = None
-        function_name = ""
-
-        if len(array_fun) == 0:
-            function_name_object = object_context
-        elif len(array_fun) == 1:  # Si no hay puntos en la llamada a functión
-            function_name = array_fun[0]
-        elif len(array_fun) == 2:  # si no exite self.iface
-            function_name = array_fun[1]
-        elif len(array_fun) > 2:  # si existe self.iface por ejemplo
-            function_name = array_fun[2]
-
-        if function_name_object is None:
-            function_name_object = getattr(object_context, function_name, None)
-
-            if function_name_object is None:
-                if show_exceptions:
-                    LOGGER.error("No existe la función %s en %s", function_name, array_fun[0])
-                return default_value
-                # FIXME: debería ser false, pero igual se usa por el motor para detectar propiedades
-
-        try:
-            return function_name_object(*args)
-        except Exception:
-
-            LOGGER.exception("JSCALL: Error executing function %s", function_name, stack_info=True)
+        function_object = getattr(object_context, function_name, None)
+        if function_object is not None:
+            try:
+                return function_object(*args)
+            except Exception:
+                LOGGER.exception(
+                    "JSCALL: Error executing function %s", function_name, stack_info=True
+                )
+        else:
+            if show_exceptions:
+                LOGGER.error("No existe la función %s en %s", function_name, module_name)
+            return default_value
+            # FIXME: debería ser false, pero igual se usa por el motor para detectar propiedades
 
         return None
 
@@ -602,19 +566,17 @@ class Project(object):
 
         conn = self.conn_manager.mainConn()
         db_name = conn.DBName()
+        base_dir = utils_base.get_base_dir()
+        is_library = utils_base.is_library()
 
-        file_object = open(
-            utils_base.filedir(utils_base.get_base_dir(), "system_module", "sys.xpm"), "r"
-        )
+        file_object = open(utils_base.filedir(base_dir, "system_module", "sys.xpm"), "r")
         icono = file_object.read()
         file_object.close()
 
         self.modules["sys"] = module.Module("sys", "sys", "Administración", icono, "1.0")
-        for root, dirs, files in os.walk(
-            utils_base.filedir(utils_base.get_base_dir(), "system_module")
-        ):
+        for root, dirs, files in os.walk(utils_base.filedir(base_dir, "system_module")):
             for nombre in files:
-                if utils_base.is_library() and nombre.endswith("ui"):
+                if is_library and nombre.endswith("ui"):
                     continue
 
                 if root.find("modulos") == -1:
@@ -650,7 +612,7 @@ class Project(object):
 
         conn = self.conn_manager.dbAux()
         db_name = conn.DBName()
-
+        is_library = utils_base.is_library()
         result: Any = []
         static_flfiles = None
 
@@ -679,11 +641,11 @@ class Project(object):
             )
 
         for idarea, idmodulo, descripcion, icono, version in list(result):
-            icono = xpm.cache_xpm(icono)
 
             if idmodulo not in self.modules:
+                icon_cached = xpm.cache_xpm(icono)
                 self.modules[idmodulo] = module.Module(
-                    idarea, idmodulo, descripcion, icono, version
+                    idarea, idmodulo, descripcion, icon_cached, version
                 )
 
         result = []
@@ -699,11 +661,11 @@ class Project(object):
         list_files: List[str] = []
         LOGGER.info("RUN: Populating cache.")
         for idmodulo, nombre, sha, contenido in list(result):
-            # print("*", idmodulo, nombre, sha, contenido[0:10] if contenido else ".")
+
             if idmodulo not in self.modules:  # Si el módulo no existe.
                 continue
 
-            elif utils_base.is_library() and nombre.endswith("ui"):  # Si es un UI en modo librería.
+            elif is_library and nombre.endswith("ui"):  # Si es un UI en modo librería.
                 continue
 
             elif nombre in self.files:  # Si se sobreescribe un fichero ya existente.
@@ -721,13 +683,9 @@ class Project(object):
 
             fileobjdir = os.path.dirname(path._dir("cache", fileobj.filekey))
             file_name = path._dir("cache", fileobj.filekey)
-            if not os.path.exists(
-                file_name
-            ):  # Borra contenido de la carpeta si no existe el fichero destino
+            if not os.path.exists(file_name):  # Borra
                 if os.path.exists(fileobjdir):
-                    for root, dirs, files in os.walk(fileobjdir):
-                        for file_item in files:
-                            os.remove(os.path.join(root, file_item))
+                    utils_base.empty_dir(fileobjdir)
                 else:
                     os.makedirs(fileobjdir)
 

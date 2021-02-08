@@ -1556,7 +1556,15 @@ class FLTableDB(QtWidgets.QWidget):
 
                 idx_j = 2
                 while idx_j < 5:
-                    if type_ in ("uint", "int", "double", "string", "stringlist", "timestamp"):
+                    if type_ in (
+                        "uint",
+                        "int",
+                        "double",
+                        "string",
+                        "stringlist",
+                        "timestamp",
+                        "json",
+                    ):
                         if has_option_list:
                             editor_qcb = QtWidgets.QComboBox(self)
                             option_list_translated = []
@@ -1739,7 +1747,7 @@ class FLTableDB(QtWidgets.QWidget):
             if type_ in ("string", "stringlist", "timestamp"):
                 _field_arg = "UPPER(%s)" % field_name
 
-            if type_ in ("uint", "int", "double", "string", "stringlist", "timestamp"):
+            if type_ in ("uint", "int", "double", "string", "stringlist", "timestamp", "json"):
                 if has_option_list:
                     if cond_type == self._from_to:
                         editor_op_1 = self._tdb_filter.cellWidget(idx, 3)

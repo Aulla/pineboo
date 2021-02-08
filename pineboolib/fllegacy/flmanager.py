@@ -854,6 +854,7 @@ class FLManager(QtCore.QObject, IManager):
             "unlock",
             "serial",
             "timestamp",
+            "json",
         ]
         util = flutil.FLUtil()
 

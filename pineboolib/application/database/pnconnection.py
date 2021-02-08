@@ -203,9 +203,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         # if self._db_name:
         #    self.driver().alias_ = self.driverName() + ":" + self._name
         self.driver().db_ = self
-        LOGGER.info("")
+        LOGGER.debug("")
         result = self.driver().connect(db_name, db_host, db_port, db_user_name, db_password)
-        LOGGER.info(
+        LOGGER.debug(
             " NEW CONNECTION NAME: %s, HOST: %s, PORT: %s, DB NAME: %s, USER NAME: %s, STATUS: %s",
             self._name,
             db_host,
@@ -475,31 +475,27 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         """Create a transaction."""
 
         try:
-            session = self.session()
-            if not session.transaction:
-                session.begin()
+            session_ = self.session()
+            if not session_.transaction:
+                LOGGER.debug("ISOLATION LEVEL %s", session_.connection().get_isolation_level())
+                session_.begin()
             else:
-                session.begin_nested()
+                session_.begin_nested()
             return True
         except Exception as error:
             self._last_error = "No se pudo crear la transacción: %s" % str(error)
+            LOGGER.warning(self._last_error)
 
         return False
 
     def commit(self) -> bool:
         """Release a transaction."""
 
-        # print("COMMIT TRANSACCION!!", self.session().transaction)
         try:
 
             session_ = self.session()
-            # LOGGER.debug("COMMIT session: %s, transaction: %s", session_, session_.transaction)
-            # self.driver()._session = None
             session_.commit()
-            # session_.close()
-            # session_.begin()
-            # session_.close()
-            # self.driver()._session = None
+
             return True
         except Exception as error:
             LOGGER.warning("Commit: %s", str(error), stack_info=True)
@@ -509,18 +505,9 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
     def rollback(self) -> bool:
         """Roll back a transaction."""
-
-        # print("ROLLBACK TRANSACCION!!", self.session().transaction)
         try:
             session_ = self.session()
-            # self.driver()._session = None
-
             session_.rollback()
-            # session_.close()
-            # session_.begin()
-            # session_.close()
-            # self.driver()._session = None
-
             return True
         except Exception as error:
             self._last_error = "No se pudo deshacer la transacción: %s" % str(error)

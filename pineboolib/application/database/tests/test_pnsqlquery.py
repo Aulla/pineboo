@@ -100,6 +100,7 @@ class TestPNSqlQuery1(unittest.TestCase):
         self.assertFalse(qry.isValid())
         self.assertTrue(qry.isNull("field_01"))
         self.assertEqual(qry.value("field_01"), None)
+        qry.showDebug()
 
     def test_basic_3(self) -> None:
         """Test basic_3."""

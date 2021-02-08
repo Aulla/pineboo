@@ -116,6 +116,9 @@ def generate_field(field: "pnfieldmetadata.PNFieldMetaData") -> str:
     elif type_ == "timestamp":
         ret = "sqlalchemy.DateTime"
 
+    elif type_ == "json":
+        ret = "sqlalchemy.types.JSON"
+
     elif type_ == "time":
         ret = "sqlalchemy.Time"
 
@@ -223,7 +226,7 @@ def generate_field_metadata(field: "pnfieldmetadata.PNFieldMetaData") -> List[st
 
     # DEFAULT_VALUE
     if field.defaultValue() is not None:
-        if field.type() in ["bool", "unlock", "int", "uint", "double", "serial"]:
+        if field.type() in ["bool", "unlock", "int", "uint", "double", "serial", "json"]:
             value = field.defaultValue()
         else:
             value = "'%s'" % field.defaultValue()

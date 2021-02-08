@@ -85,7 +85,7 @@ class PNSqlDrivers(object, metaclass=Singleton):
 
         if self.driver():
             # self.driverName = driverName
-            LOGGER.info("Driver %s v%s", self.driver().driverName(), self.driver().version())
+            LOGGER.debug("Driver %s v%s", self.driver().driverName(), self.driver().version())
             return True
         else:
             return False

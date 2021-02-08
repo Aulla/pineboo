@@ -10,6 +10,7 @@ from typing import Any, Optional, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
+    from sqlalchemy.engine import base  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -37,6 +38,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self._like_true = "1"
         self._like_false = "0"
         self._text_like = " "
+        self._create_isolation = False
+        self._use_altenative_isolation_level = True
 
         self._database_not_found_keywords = ["Unknown database"]
         self._default_charset = "DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
@@ -100,6 +103,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             res_ = "LONGBLOB"
         elif type_ == "timestamp":
             res_ = "TIMESTAMP"
+        elif type_ == "json":
+            res_ = "JSON"
         else:
             LOGGER.warning("seType: unknown type %s", type_)
             leng = 0
@@ -265,6 +270,8 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             ret = "time"
         elif t == "timestamp":
             ret = "timestamp"
+        elif t == "json":
+            ret = "json"
 
         else:
             LOGGER.warning("formato desconocido %s", ret)
@@ -279,3 +286,16 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             if self.db_.connManager().manager().metadata(table_name) is not None:
                 self.execute_query("ANALYZE TABLE %s" % table_name)
         self._connection.connection.set_isolation_level(1)
+
+    def getAlternativeConn(
+        self, name: str, host: str, port: int, usern: str, passw_: str
+    ) -> Optional["base.Connection"]:
+        """Return alternative connection."""
+        return self.getConn("", host, port, usern, passw_)
+
+    def get_common_params(self) -> None:
+        """Load common params."""
+
+        super().get_common_params()
+
+        self._queqe_params["isolation_level"] = "READ COMMITTED"

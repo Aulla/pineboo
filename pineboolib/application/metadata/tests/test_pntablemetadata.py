@@ -109,7 +109,7 @@ class TestPNTableMetaData(unittest.TestCase):
             self.assertEqual(mtd.fieldIsPrimaryKey("idgroup"), True)
             self.assertEqual(mtd.fieldIsIndex("descripcion"), 1)
             self.assertEqual(mtd.fieldLength("descripcion"), 100)
-            self.assertEqual(mtd.fieldPartInteger("descripcion"), 4)
+            self.assertEqual(mtd.fieldPartInteger("descripcion"), 0)
             self.assertEqual(mtd.fieldPartDecimal("descripcion"), 0)
             self.assertEqual(mtd.fieldCalculated("descripcion"), False)
             self.assertEqual(mtd.fieldVisible("descripcion"), True)

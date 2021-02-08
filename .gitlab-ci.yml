@@ -1,4 +1,4 @@
-image: deavidsedice/pineboo-build:latest-devel
+image: aulla/pineboo-build:latest-devel
 variables:
   GIT_STRATEGY: fetch
   GIT_CLEAN_FLAGS: none

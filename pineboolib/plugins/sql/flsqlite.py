@@ -75,6 +75,10 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
                 self.loadConnectionString(name, host, port, usern, passw_), **self._queqe_params
             )
 
+            event.listen(self._engine, "connect", self.do_connect)
+            event.listen(self._engine, "begin", self.do_begin)
+            event.listen(self._engine, "savepoint", self.do_savepoint)
+
             if application.SHOW_CONNECTION_EVENTS:
                 self.listen_engine()
 
@@ -138,6 +142,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             res_ = "CLOB"
         elif type_ == "timestamp":
             res_ = "DATETIME"
+        elif type_ == "json":
+            res_ = "JSON"
         else:
             LOGGER.warning("seType: unknown type %s", type_)
             leng = 0
@@ -267,6 +273,8 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
             ret = "uint"
         elif type_ == "DATETIME":
             ret = "timestamp"
+        elif type_ == "JSON":
+            ret = "json"
 
         return ret
 
@@ -327,4 +335,9 @@ class FLSQLITE(pnsqlschema.PNSqlSchema):
 
         super().get_common_params()
 
-        self._queqe_params["isolation_level"] = "AUTOCOMMIT"
+        self._queqe_params["isolation_level"] = None
+
+    def do_connect(self, dbapi_connection, connection_record):
+        """Isolation Level fix."""
+
+        dbapi_connection.isolation_level = None

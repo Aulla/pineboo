@@ -943,6 +943,11 @@ class PNApplication(QtCore.QObject):
         """Return temporary folder."""
         return application.PROJECT.tmpdir
 
+    def applicationDirPath(self) -> str:
+        """Return application dir path."""
+
+        return QtWidgets.QApplication.applicationDirPath()
+
     def transactionLevel(self):
         """Return number of concurrent transactions."""
         return application.PROJECT.conn_manager.useConn("default").transactionLevel()

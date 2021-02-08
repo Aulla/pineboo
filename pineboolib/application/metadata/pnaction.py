@@ -88,6 +88,7 @@ class PNAction(object):
             self.setForm(action._master_form)
             self.setFormRecord(action._record_form)
             self.setCaption(action._alias)
+            self.setTable(action._table)
         else:
             raise Exception("Unsupported action %r" % action)
 

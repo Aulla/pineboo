@@ -257,10 +257,8 @@ def load_module(script_name: str) -> Optional["ModuleType"]:
     """Return class from path."""
 
     script_path_py = _resolve_script(script_name)
-    if script_path_py:
-        return _load(script_name[:-3], script_path_py)
 
-    return None
+    return _load(script_name[:-3], script_path_py) if script_path_py else None
 
 
 def _resolve_script(file_name, alternative: str = "") -> str:

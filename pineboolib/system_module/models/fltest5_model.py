@@ -43,6 +43,7 @@ class Fltest5(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
             },
             {"name": "string_timestamp", "alias": "String timestamp", "type": "timestamp"},
             {"name": "uint_field", "alias": "Unsigned int field", "type": "uint"},
+            {"name": "my_json", "alias": "json field", "type": "json"},
         ],
     }
 
@@ -55,6 +56,7 @@ class Fltest5(basemodel.BaseModel):  # type: ignore [misc] # noqa: F821
     idarea = sqlalchemy.Column("idarea", sqlalchemy.String(15))
     string_timestamp = sqlalchemy.Column("string_timestamp", sqlalchemy.DateTime)
     uint_field = sqlalchemy.Column("uint_field", sqlalchemy.BigInteger)
+    my_json = sqlalchemy.Column("my_json", sqlalchemy.types.JSON)
 
 
 # <--- Fields ---

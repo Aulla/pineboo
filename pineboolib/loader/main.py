@@ -61,7 +61,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     if not main_conn_established:
         raise Exception("No main connection was established. Aborting Pineboo load.")
 
-    _initialize_data()
+    _initialize_data(True)
 
 
 def startup(enable_gui: bool = None) -> None:
@@ -403,7 +403,7 @@ def exec_main(options: Values) -> int:
     # if options.enable_gui:
     #    init_gui()
 
-    if dgi.useDesktop() and not options.enable_gui:
+    if dgi.useDesktop() and not options.enable_gui and options.dgi != "qt":
         LOGGER.info(
             "Selected DGI <%s> is not compatible with <pineboo-core>. Use <pineboo> instead"
             % options.dgi
@@ -489,10 +489,11 @@ def exec_main(options: Values) -> int:
     return ret
 
 
-def _initialize_data() -> None:
+def _initialize_data(is_framework: bool = False) -> None:
     """Initialize data."""
 
-    LOGGER.info("STARTUP_FRAMEWORK:(3/7) Loading database.")
+    if is_framework:
+        LOGGER.info("STARTUP_FRAMEWORK:(3/7) Loading database.")
     if not application.PROJECT.run():
         if not application.DEVELOPER_MODE:
             raise Exception("Project initialization failed!")
@@ -503,19 +504,24 @@ def _initialize_data() -> None:
     acl.init()
 
     if acl._access_control_list:
-        LOGGER.info("STARTUP_FRAMEWORK:(4/7) Loading ACLS.")
+        if is_framework:
+            LOGGER.info("STARTUP_FRAMEWORK:(4/7) Loading ACLS.")
         application.PROJECT.aq_app.set_acl(acl)
 
     # LOGGER.info("STARTUP_FRAMEWORK:(5/9) Loading area definitions.")
     # application.PROJECT.conn_manager.managerModules().loadIdAreas()
     # LOGGER.info("STARTUP_FRAMEWORK:(6/9) Loading module definitions.")
     # application.PROJECT.conn_manager.managerModules().loadAllIdModules()
-    LOGGER.info("STARTUP_FRAMEWORK:(5/7) Loading modules. Making QSA Tree.")
+    if is_framework:
+        LOGGER.info("STARTUP_FRAMEWORK:(5/7) Loading modules. Making QSA Tree.")
     application.PROJECT.load_modules()
-    LOGGER.info("STARTUP_FRAMEWORK:(6/7) Loading classes. Making QSA Tree.")
+    if is_framework:
+        LOGGER.info("STARTUP_FRAMEWORK:(6/7) Loading classes. Making QSA Tree.")
     application.PROJECT.load_classes()
-    LOGGER.info("STARTUP_FRAMEWORK:(7/7) Loading orm models. Making QSA Tree. ")
+    if is_framework:
+        LOGGER.info("STARTUP_FRAMEWORK:(7/7) Loading orm models. Making QSA Tree. ")
     application.PROJECT.load_orm()
-    LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
+    if is_framework:
+        LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
     application.PROJECT.conn_manager.removeConn("default")
     application.PROJECT.conn_manager.removeConn("dbAux")

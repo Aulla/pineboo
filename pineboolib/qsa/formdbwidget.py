@@ -53,10 +53,8 @@ class FormDBWidget(QtWidgets.QWidget):
         """Connect two objects."""
 
         signal_slot = connections.connect(sender, signal, receiver, slot, caller=self)
-        if not signal_slot:
-            return
-
-        self._formconnections.add(signal_slot)
+        if signal_slot:
+            self._formconnections.add(signal_slot)
 
     def module_disconnect(self, sender: Any, signal: str, receiver: Any, slot: str) -> None:
         """Disconnect two objects."""
@@ -64,17 +62,16 @@ class FormDBWidget(QtWidgets.QWidget):
         # print(" > > > disconnect:", self)
 
         signal_slot = connections.disconnect(sender, signal, receiver, slot, caller=self)
-        if not signal_slot:
-            return
-
-        for conn_ in self._formconnections:
-            # PyQt6-Stubs misses signal.signal
-            if (
-                conn_[0].signal == getattr(signal_slot[0], "signal")
-                and conn_[1].__name__ == signal_slot[1].__name__
-            ):
-                self._formconnections.remove(conn_)
-                break
+        if signal_slot:
+            for conn_ in self._formconnections:
+                # PyQt5-Stubs misses signal.signal
+                if (
+                    conn_[0].signal
+                    == signal_slot[0].signal  # type: ignore [attr-defined] # noqa: F821
+                    and conn_[1].__name__ == signal_slot[1].__name__
+                ):
+                    self._formconnections.remove(conn_)
+                    break
 
     def obj(self) -> "FormDBWidget":
         """Return self."""

@@ -45,6 +45,7 @@ TVALUES = Union[
     bytearray,
     datetime.timedelta,
     None,
+    Dict[Any, Any],
 ]
 
 

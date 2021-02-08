@@ -554,3 +554,11 @@ def session_id(conn_name: str = "default", with_time: bool = False) -> str:
         result += "|%s" % time.time()
 
     return result
+
+
+def empty_dir(dir_name: str) -> None:
+    """Empty a dir."""
+
+    for root, dirs, files in os.walk(dir_name):
+        for file_item in files:
+            os.remove(os.path.join(root, file_item))

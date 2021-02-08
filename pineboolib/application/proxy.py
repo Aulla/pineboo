@@ -68,7 +68,7 @@ class DelayedObjectProxyLoader(object):
             *self._args, **self._kwargs
         )
 
-        LOGGER.info(
+        LOGGER.debug(
             "DelayedObjectProxyLoader: name: %s, object: %s( *%s **%s) ---> %s",
             self._name,
             self._obj,

@@ -78,6 +78,8 @@ class PNSqlSchema(object):
     _engine: "base.Engine"
     _session: "orm_session.Session"
     _extra_alternative: str
+    _sp_level: int
+    _use_altenative_isolation_level: bool
 
     def __init__(self):
         """Inicialize."""
@@ -109,6 +111,8 @@ class PNSqlSchema(object):
         self._extra_alternative = ""
         self._connection = None  # type: ignore [assignment] # noqa: F821
         self._sqlalchemy_name = ""
+        self._sp_level = 0
+        self._use_altenative_isolation_level = False
 
     def safe_load(self, exit: bool = False) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -240,7 +244,7 @@ class PNSqlSchema(object):
         try:
             str_conn = self.loadConnectionString(name, host, port, usern, passw_)
             if str_conn in ENGINES.keys():
-                LOGGER.info(
+                LOGGER.debug(
                     "Reusing engine %s:%s/%s to %s connection", host, port, name, self.db_._name
                 )
                 self._engine = ENGINES[str_conn]
@@ -250,6 +254,10 @@ class PNSqlSchema(object):
 
                 self.get_common_params()
                 self._engine = create_engine(str_conn, **self._queqe_params)
+                if self._use_altenative_isolation_level:
+                    event.listen(self._engine, "begin", self.do_begin)
+                    event.listen(self._engine, "savepoint", self.do_savepoint)
+
                 ENGINES[str_conn] = self._engine
 
             if application.SHOW_CONNECTION_EVENTS:
@@ -393,6 +401,9 @@ class PNSqlSchema(object):
                 result_ = "'%s'" % value
             else:
                 result_ = ""
+        elif type_ == "json":
+            if not value:
+                result_ = {}
 
         return str(result_)
 
@@ -670,6 +681,8 @@ class PNSqlSchema(object):
                 ):
                     ret = True
                 elif db_type == "timestamp" and meta_type != "timestamp":
+                    ret = True
+                elif db_type == "json" and meta_type != "json":
                     ret = True
 
         except Exception as error:
@@ -1233,7 +1246,7 @@ class PNSqlSchema(object):
                 self._queqe_params["pool_timeout"] = int(mng_.connections_time_out)
 
         else:
-            LOGGER.info("SqlAlchemy pool disabled")
+            LOGGER.debug("SqlAlchemy pool disabled")
             self._queqe_params["poolclass"] = pool.NullPool
 
         if application.LOG_SQL:
@@ -1242,10 +1255,22 @@ class PNSqlSchema(object):
                 self._queqe_params["echo_pool"] = True
 
         for key, value in self._queqe_params.items():
-            LOGGER.info("    * %s = %s", key, value)
+            LOGGER.debug("    * %s = %s", key, value)
 
     def listen_engine(self) -> None:
         """Listen engine events."""
 
         event.listen(self._engine, "close_detached", self.close_connection_warning)
         event.listen(self._engine, "close", self.close_connection_warning)
+
+    def do_begin(self, conn):
+        """Begin event."""
+
+        conn.exec_driver_sql("BEGIN")
+
+    def do_savepoint(self, conn, name):
+        """Save point event."""
+
+        self._sp_level += 1
+        name = "sp_%s" % self._sp_level
+        conn.exec_driver_sql("SAVEPOINT %s" % name)
