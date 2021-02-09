@@ -93,9 +93,12 @@ class AQSClass(SMTP, Docker, FLTableDB, PrinterColorMode, aqods.OdsStyleFlags, E
                 QtWidgets.QFrame,
                 QtWidgets.QLabel,
                 QtWidgets.QSizePolicy,
+                QtCore.Qt.TextFlag,
                 QtCore.Qt,
+                QtCore.Qt.TextFormat,
                 QtCore.Qt.CursorShape,
                 QtCore.QEvent,
+                QtCore.QEvent.Type,
             ]:
                 ret_ = getattr(lib, name, None)
                 if ret_ is not None:

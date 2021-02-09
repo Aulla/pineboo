@@ -48,7 +48,7 @@ coloredlogs
 psycopg2
 watchdog>=0.10.2
 pyfiglet
-Pillow==6.2.2
+Pillow
 pdf2image==1.14.0
 poppler-utils
 Click>=7.0

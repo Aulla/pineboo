@@ -525,7 +525,7 @@ class FLFieldDB(QtWidgets.QWidget):
         if obj is None:
             return True
 
-        QtWidgets.QWidget.eventFilter(self, obj, event)
+        super().eventFilter(obj, event)
         if event.type() == QtCore.QEvent.Type.KeyPress:
             key_ = cast(QtGui.QKeyEvent, event)
             if self._process_autocomplete_events(event):

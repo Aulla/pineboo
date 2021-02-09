@@ -107,21 +107,21 @@ class MainForm(imainwindow.IMainWindow):
         self.window_menu = QtWidgets.QMenu(self.container_)
         self.window_menu.setObjectName("windowMenu")
 
-        self.window_cascade_action = QtWidgets.QAction(
+        self.window_cascade_action = QtGui.QAction(
             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("cascada.png")),
             self.tr("Cascada"),
             self.container_,
         )
         self.window_menu.addAction(self.window_cascade_action)
 
-        self.window_tile_action = QtWidgets.QAction(
+        self.window_tile_action = QtGui.QAction(
             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("mosaico.png")),
             self.tr("Mosaico"),
             self.container_,
         )
         self.window_menu.addAction(self.window_tile_action)
 
-        self.window_close_action = QtWidgets.QAction(
+        self.window_close_action = QtGui.QAction(
             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("cerrar.png")),
             self.tr("Cerrar"),
             self.container_,
@@ -142,9 +142,11 @@ class MainForm(imainwindow.IMainWindow):
         self.exit_button.setObjectName("pbSalir")
         self.exit_button.setShortcut(QtGui.QKeySequence(self.tr("Ctrl+Q")))
         self.exit_button.setSizePolicy(
-            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+            QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed
+            )
         )
-        self.exit_button.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.exit_button.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.exit_button.setToolTip(self.tr("Salir de la aplicación (Ctrl+Q)"))
         self.exit_button.setWhatsThis(self.tr("Salir de la aplicación (Ctrl+Q)"))
         self.exit_button.clicked.connect(self.exit_button_clicked)
@@ -216,17 +218,17 @@ class MainForm(imainwindow.IMainWindow):
             self.toogle_bars_.setObjectName("toggleBars")
             # self.toogle_bars_.setCheckable(True)
 
-            # ag = QtWidgets.QActionGroup(self.container_)
+            # ag = QtGui.QActionGroup(self.container_)
             # ag.setObjectName("agToggleBars")
 
-            tools_action = QtWidgets.QAction(self.tr("Barra de Herramientas"), self.container_)
+            tools_action = QtGui.QAction(self.tr("Barra de Herramientas"), self.container_)
             tools_action.setObjectName("Herramientas")
             tools_action.setCheckable(True)
             tools_action.setChecked(True)
             tools_action.triggered.connect(self.toggleToolBar)
             self.toogle_bars_.addAction(tools_action)
 
-            status_action = QtWidgets.QAction(self.tr("Barra de Estado"), self.container_)
+            status_action = QtGui.QAction(self.tr("Barra de Estado"), self.container_)
             status_action.setObjectName("Estado")
             status_action.setCheckable(True)
             status_action.setChecked(True)
@@ -335,14 +337,14 @@ class MainForm(imainwindow.IMainWindow):
         for id_area in self.db().managerModules().listIdAreas():
             descript_area = self.db().managerModules().idAreaToDescription(id_area)
             new_area_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
-            new_area_bar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+            new_area_bar.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             # new_area_bar.setFrameStyle(QFrame.NoFrame)
-            new_area_bar.setOrientation(QtCore.Qt.Vertical)
+            new_area_bar.setOrientation(QtCore.Qt.Orientations.Vertical)
             new_area_bar.layout().setSpacing(3)
             self.tool_box_.addItem(new_area_bar, self.tr(descript_area))
-            action_group = QtWidgets.QActionGroup(new_area_bar)
+            action_group = QtGui.QActionGroup(new_area_bar)
             action_group.setObjectName(descript_area)
-            # ac = QtWidgets.QAction(ag)
+            # ac = QtGui.QAction(ag)
             # ac.setText(descript_area)
             # ac.setUsesDropDown(True)
 
@@ -361,11 +363,11 @@ class MainForm(imainwindow.IMainWindow):
                             str(chr(char_num)),
                             self.tr("Carga Estática desde Disco Duro"),
                         )
-                        new_module_action = QtWidgets.QAction(new_area_bar)
+                        new_module_action = QtGui.QAction(new_area_bar)
                         new_module_action.setObjectName("StaticLoadAction")
                         new_module_action.setText(self.tr(descript_module))
                         new_module_action.setShortcut(
-                            getattr(QtCore.Qt, "Key_%s" % str(chr(char_num)))
+                            getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num))).value
                         )
                         new_module_action.setIcon(
                             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("folder_update.png"))
@@ -381,11 +383,11 @@ class MainForm(imainwindow.IMainWindow):
                             str(chr(char_num)),
                             self.tr("Reiniciar Script"),
                         )
-                        new_module_action = QtWidgets.QAction(new_area_bar)
+                        new_module_action = QtGui.QAction(new_area_bar)
                         new_module_action.setObjectName("reinitScriptAction")
                         new_module_action.setText(self.tr(descript_module))
                         new_module_action.setShortcut(
-                            getattr(QtCore.Qt, "Key_%s" % str(chr(char_num)))
+                            getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num))).value
                         )
                         new_module_action.setIcon(
                             QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("reload.png"))
@@ -401,10 +403,12 @@ class MainForm(imainwindow.IMainWindow):
                         str(chr(char_num)),
                         self.tr("Mostrar Consola de mensajes"),
                     )
-                    new_module_action = QtWidgets.QAction(new_area_bar)
+                    new_module_action = QtGui.QAction(new_area_bar)
                     new_module_action.setObjectName("shConsoleAction")
                     new_module_action.setText(self.tr(descript_module))
-                    new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(char_num))))
+                    new_module_action.setShortcut(
+                        getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num)))
+                    ).value
                     new_module_action.setIcon(
                         QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("consola.png"))
                     )
@@ -417,17 +421,19 @@ class MainForm(imainwindow.IMainWindow):
                     str(chr(char_num)),
                     self.db().managerModules().idModuleToDescription(mod),
                 )
-                new_module_action = QtWidgets.QAction(new_area_bar)
+                new_module_action = QtGui.QAction(new_area_bar)
                 new_module_action.setObjectName(mod)
                 new_module_action.setText(self.tr(descript_module))
-                new_module_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(char_num))))
+                new_module_action.setShortcut(
+                    getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num)))
+                ).value
                 new_module_action.setIcon(QtGui.QIcon(self.db().managerModules().iconModule(mod)))
                 new_area_bar.addAction(new_module_action)
                 new_module_action.triggered.connect(self.activateModule)
                 action_group.addAction(new_module_action)
                 char_num += 1
 
-            # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+            # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
 
             lay = new_area_bar.layout()
             for child in new_area_bar.children():
@@ -441,14 +447,14 @@ class MainForm(imainwindow.IMainWindow):
 
         descript_area = "Configuración"
         config_tool_bar = QtWidgets.QToolBar(self.tr(descript_area), self.container_)
-        config_tool_bar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+        config_tool_bar.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         # config_tool_bar.setFrameStyle(QFrame.NoFrame)
-        config_tool_bar.setOrientation(QtCore.Qt.Vertical)
+        config_tool_bar.setOrientation(QtCore.Qt.Orientations.Vertical)
         # config_tool_bar.layout().setSpacing(3)
         self.tool_box_.addItem(config_tool_bar, self.tr(descript_area))
 
         descript_module = self.tr("Fuente")
-        font_action = QtWidgets.QAction(new_area_bar)
+        font_action = QtGui.QAction(new_area_bar)
         font_action.setObjectName("fontAction")
         font_action.setText(self.tr(descript_module))
         # font_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -458,7 +464,7 @@ class MainForm(imainwindow.IMainWindow):
         action_group.addAction(font_action)
 
         descript_module = self.tr("Estilo")
-        style_action = QtWidgets.QAction(new_area_bar)
+        style_action = QtGui.QAction(new_area_bar)
         style_action.setObjectName("styleAction")
         style_action.setText(self.tr(descript_module))
         # style_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -468,7 +474,7 @@ class MainForm(imainwindow.IMainWindow):
         action_group.addAction(style_action)
 
         descript_module = self.tr("Indice")
-        help_action = QtWidgets.QAction(new_area_bar)
+        help_action = QtGui.QAction(new_area_bar)
         help_action.setObjectName("helpAction")
         help_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -478,7 +484,7 @@ class MainForm(imainwindow.IMainWindow):
         action_group.addAction(help_action)
 
         descript_module = self.tr("Acerca de Pineboo")
-        about_pineboo_action = QtWidgets.QAction(new_area_bar)
+        about_pineboo_action = QtGui.QAction(new_area_bar)
         about_pineboo_action.setObjectName("aboutPinebooAction")
         about_pineboo_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -488,7 +494,7 @@ class MainForm(imainwindow.IMainWindow):
         action_group.addAction(about_pineboo_action)
 
         descript_module = self.tr("Visita Eneboo.org")
-        visit_pineboo_action = QtWidgets.QAction(new_area_bar)
+        visit_pineboo_action = QtGui.QAction(new_area_bar)
         visit_pineboo_action.setObjectName("visitPinebooAction")
         visit_pineboo_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -498,7 +504,7 @@ class MainForm(imainwindow.IMainWindow):
         action_group.addAction(visit_pineboo_action)
 
         descript_module = self.tr("Acerca de Qt")
-        about_qt_action = QtWidgets.QAction(new_area_bar)
+        about_qt_action = QtGui.QAction(new_area_bar)
         about_qt_action.setObjectName("aboutQtAction")
         about_qt_action.setText(self.tr(descript_module))
         # help_action.setShortcut(getattr(QtCore.Qt, "Key_%s" % str(chr(c))))
@@ -511,7 +517,7 @@ class MainForm(imainwindow.IMainWindow):
         for child in config_tool_bar.children():
             if isinstance(child, QtWidgets.QToolButton):
                 self.mdi_toolbuttons.append(child)
-                lay.setAlignment(child, QtCore.Qt.AlignCenter)
+                lay.setAlignment(child, QtCore.Qt.Alignment.AlignCenter)
 
         if application.PROJECT.aq_app.acl_:
             application.PROJECT.aq_app.acl_.process(self.container_)
@@ -655,16 +661,12 @@ class MainForm(imainwindow.IMainWindow):
                         slot = itn.namedItem("slot").toElement().text()
                         if receiver in [idm, "pncore"] and signal == "triggered()":
                             action_list = []
-                            action = cast(
-                                QtWidgets.QAction, widget.findChild(QtWidgets.QAction, sender)
-                            )
+                            action = cast(QtGui.QAction, widget.findChild(QtGui.QAction, sender))
                             if action is not None:
                                 action_list.append(action)
 
                             for menu in widget.findChildren(QtWidgets.QToolBar):
-                                action = cast(
-                                    QtWidgets.QAction, menu.findChild(QtWidgets.QAction, sender)
-                                )
+                                action = cast(QtGui.QAction, menu.findChild(QtGui.QAction, sender))
                                 if action is not None and action not in action_list:
                                     action_list.append(action)
 
@@ -817,8 +819,7 @@ class MainForm(imainwindow.IMainWindow):
                         widget = self._dict_main_widgets[id_module]
                     if widget is None:
                         act = cast(
-                            QtWidgets.QAction,
-                            self.container_.findChild(QtWidgets.QAction, id_module),
+                            QtGui.QAction, self.container_.findChild(QtGui.QAction, id_module)
                         )
                         if not act or not act.isVisible():
                             continue
@@ -873,7 +874,7 @@ class MainForm(imainwindow.IMainWindow):
         # windows_opened = settings.SETTINGS.value("windowsOpened/%s" % idm, None)
         # if windows_opened:
         #    for it in windows_opened:
-        #        act = cast(QtWidgets.QAction, main_widget.findChild(QtWidgets.QAction, it))
+        #        act = cast(QtGui.QAction, main_widget.findChild(QtGui.QAction, it))
         #        if act and act.isVisible():
         # application.PROJECT.aq_app.openMasterForm(it, act.icon())
         #            application.PROJECT.aq_app.openMasterForm(it)

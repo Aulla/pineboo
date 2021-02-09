@@ -1,14 +1,14 @@
 PyYAML==5.3.1
 PyQt6==6.0.0
 PyQt5-tools==5.14.2.2
-Pillow==6.2.2
+Pillow
 black==19.3b0
 clipboard==0.0.4
 coloredlogs==14.0
 fernet==1.0.1
 flake8==3.8.3
 flup==1.0.3
-fpdf2==2.0.5
+fpdf2
 ninja==1.10.0.post1
 odfpy
 ply

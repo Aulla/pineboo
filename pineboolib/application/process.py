@@ -45,6 +45,11 @@ class ProcessBaseClass(QtCore.QProcess):
 
         return super().workingDirectory()
 
+    def readLine(self, val: int = 100000000) -> bytes:
+        """readLine overload."""
+
+        return super().readLine(val)
+
     def set_working_directory(self, working_directory: str) -> None:
         """Set working directory."""
 

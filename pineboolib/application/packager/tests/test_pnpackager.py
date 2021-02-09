@@ -45,7 +45,7 @@ class TestProcess(unittest.TestCase):
         qry.setWhere("1=1")
         self.assertTrue(qry.exec_())
         self.assertTrue(qry.first())
-        self.assertEqual(qry.value(0), 14)
+        self.assertEqual(qry.value(0), 13)
 
     @classmethod
     def tearDownClass(cls) -> None:

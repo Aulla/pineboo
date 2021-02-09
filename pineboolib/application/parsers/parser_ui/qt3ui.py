@@ -1122,11 +1122,16 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
         policy = QtWidgets.QSizePolicy()
         for item in variant:
             ivalue_policy = int((item.text or "0").strip())
-            policy_ = policy.Policy(ivalue_policy)
+            real_policy = None
+            for it_ in policy.Policy:
+                if it_.value == ivalue_policy:
+                    real_policy = it_
+                    break
+
             if item.tag == "hsizetype":
-                policy.setHorizontalPolicy(policy_)
+                policy.setHorizontalPolicy(real_policy)
             elif item.tag == "vsizetype":
-                policy.setVerticalPolicy(policy_)
+                policy.setVerticalPolicy(real_policy)
             elif item.tag == "horstretch":
                 policy.setHorizontalStretch(ivalue_policy)
             elif item.tag == "verstretch":

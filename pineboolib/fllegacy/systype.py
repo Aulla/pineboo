@@ -1670,7 +1670,7 @@ class AbanQDbDumper(QtCore.QObject):
         while self.proc_.running:
             SysType.processEvents()
 
-        return self.proc_.exitcode() == self.proc_.normalExit
+        return self.proc_.exitcode() == self.proc_.ExitStatus.NormalExit.value
 
     def readFromStdout(self) -> None:
         """Read data from stdOutput."""

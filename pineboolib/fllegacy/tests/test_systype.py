@@ -213,7 +213,7 @@ class TestSysType(unittest.TestCase):
         ad_.initDump()
         ad_.buildGui()
         self.assertTrue(ad_.launchProc(["dir"]))
-        self.assertNotEqual(ad_.proc_.readLine().data().decode(sys.getdefaultencoding()), None)
+        self.assertNotEqual(ad_.proc_.readLine().decode(sys.getdefaultencoding()), None)
         ad_.changeDirBase(".")
 
     def test_basic_1(self) -> None:
