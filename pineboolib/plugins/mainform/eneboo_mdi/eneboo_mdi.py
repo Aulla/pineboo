@@ -684,7 +684,7 @@ class MainForm(imainwindow.IMainWindow):
                                 else:
                                     LOGGER.warning("Action %s not found", sender)
 
-                widget.setWindowModality(QtCore.Qt.WindowModal)
+                widget.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
                 self._dict_main_widgets[idm] = widget
                 widget.setObjectName(idm)
                 if application.PROJECT.aq_app.acl_:
@@ -887,17 +887,18 @@ class MainForm(imainwindow.IMainWindow):
             rect_.setY(settings.SETTINGS.value("%s/Y" % key, rect_.y()))
             rect_.setWidth(settings.SETTINGS.value("%s/Width" % key, rect_.width()))
             rect_.setHeight(settings.SETTINGS.value("%s/Height" % key, rect_.height()))
-            desk = QtWidgets.QApplication.desktop().availableGeometry(main_widget)
-            inter = desk.intersected(rect_)
-            main_widget.resize(rect_.size())
-            if (inter.width() * inter.height()) - 100 > (rect_.width() * rect_.height()):
-                main_widget.move(rect_.topLeft())
-            else:
-                main_widget.hide()
-                main_widget.resize(
-                    QtWidgets.QApplication.desktop().availableGeometry(main_widget).size()
-                )
-                main_widget.show()
+            # FIXME:
+            # desk = QtWidgets.QApplication.desktop().availableGeometry(main_widget)
+            # inter = desk.intersected(rect_)
+            # main_widget.resize(rect_.size())
+            # if (inter.width() * inter.height()) - 100 > (rect_.width() * rect_.height()):
+            #    main_widget.move(rect_.topLeft())
+            # else:
+            #    main_widget.hide()
+            #    main_widget.resize(
+            #        QtWidgets.QApplication.desktop().availableGeometry(main_widget).size()
+            #    )
+            #    main_widget.show()
 
     def __del__(self) -> None:
         """Cleanup."""
@@ -927,12 +928,12 @@ class MainForm(imainwindow.IMainWindow):
             view_back.setBackground(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
             # view_back.logo = pixmap_fromMimeSource("pineboo-logo.png")
             # view_back.logo = aqs.AQS.pixmap_fromMimeSource("pineboo-logo.png")
-            view_back.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-            view_back.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+            view_back.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+            view_back.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
             self._p_work_space = flworkspace.FLWorkSpace(
                 view_back, self.db().managerModules().activeIdModule()
             )
-            self._p_work_space.setAttribute(QtCore.Qt.WA_NoSystemBackground)
+            self._p_work_space.setAttribute(QtCore.Qt.WidgetAttribute.WA_NoSystemBackground)
             # p_work_space.setScrollBarsEnabled(True)
             # FIXME: setScrollBarsEnabled
             cast(QtWidgets.QMainWindow, self.main_widget).setCentralWidget(view_back)
