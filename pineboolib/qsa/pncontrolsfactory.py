@@ -63,7 +63,7 @@ from PyQt6.QtGui import QActionGroup  # noqa: F401
 from PyQt6.QtWidgets import QInputDialog  # noqa: F401
 from PyQt6.QtWidgets import QApplication  # noqa: F401
 
-qApp = QApplication  # noqa: F401
+
 from PyQt6.QtWidgets import QStyleFactory  # noqa: F401
 from PyQt6.QtWidgets import QFontDialog  # noqa: F401
 from PyQt6.QtWidgets import QDockWidget  # noqa: F401
@@ -189,12 +189,6 @@ from pineboolib.core.utils.utils_base import is_deployed as __is_deployed
 from pineboolib.application.database.orm.utils import OrmManager
 from pineboolib.application.database.utils import ClassManager
 
-if not __is_deployed():
-    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsGenerator, AQOdsSpreadSheet  # noqa: F401
-    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsSheet, AQOdsRow  # noqa: F401
-    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsStyle  # noqa: F401
-    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsImage  # noqa: F401
-    from pineboolib.fllegacy.aqsobjects.aqods import aq_ods_color as AQOdsColor  # noqa: F401
 
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagState  # noqa: F401
 from pineboolib.fllegacy.aqsobjects.aqboolflagstate import AQBoolFlagStateList  # noqa: F401
@@ -203,6 +197,14 @@ from pineboolib.fllegacy.aqsobjects.aqsbuttongroup import AQSButtonGroup  # noqa
 from pineboolib.application.signatures.xml_digest import xmlDigest  # noqa: F401
 from pineboolib.application.signatures.pdf_qr import pdfQr  # noqa: F401
 
+if not __is_deployed():
+    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsGenerator, AQOdsSpreadSheet  # noqa: F401
+    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsSheet, AQOdsRow  # noqa: F401
+    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsStyle  # noqa: F401
+    from pineboolib.fllegacy.aqsobjects.aqods import AQOdsImage  # noqa: F401
+    from pineboolib.fllegacy.aqsobjects.aqods import aq_ods_color as AQOdsColor  # noqa: F401
+
+qApp = QApplication  # noqa: F401
 ORM_MANAGER = OrmManager()
 CLASS_MANAGER = ClassManager()
 

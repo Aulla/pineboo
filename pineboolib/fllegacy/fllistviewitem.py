@@ -39,7 +39,7 @@ class FLListViewItem(QtGui.QStandardItem):
                 # self._root = True
                 parent.model().setItem(0, 0, self)
             else:
-                if isinstance(parent, self):
+                if isinstance(parent, self):  # type: ignore [arg-type] # noqa: F821
                     # print("Añadiendo nueva linea a", parent.text(0))
                     cast(FLListViewItem, parent).appendRow(self)
 
@@ -125,7 +125,9 @@ class FLListViewItem(QtGui.QStandardItem):
         """Return key."""
 
         if self.parent() and self.column() > 0:
-            return self.parent().child(self.row(), 0).key()
+            return (
+                self.parent().child(self.row(), 0).key()  # type: ignore [attr-defined] # noqa: F821
+            )
         return self._key
 
     def setOpen(self, open: bool) -> None:

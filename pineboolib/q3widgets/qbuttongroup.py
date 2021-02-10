@@ -1,7 +1,7 @@
 """Qbuttongroup module."""
 
 # -*- coding: utf-8 -*-
-from PyQt6 import QtWidgets, QtCore  # type: ignore
+from PyQt6 import QtWidgets, QtCore
 from . import qgroupbox
 from pineboolib.core import decorators
 
@@ -12,8 +12,8 @@ from typing import Callable
 class QButtonGroup(qgroupbox.QGroupBox):
     """QButtonGroup class."""
 
-    pressed = QtCore.pyqtSignal(int)
-    clicked = QtCore.pyqtSignal(int)
+    pressed = QtCore.pyqtSignal(int)  # type: ignore [assignment] # noqa: F821
+    clicked = QtCore.pyqtSignal(int)  # type: ignore [assignment] # noqa: F821
 
     def __init__(self, *args) -> None:
         """Inicialize."""

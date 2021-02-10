@@ -390,7 +390,7 @@ def start_timer(time: int, fun: Callable) -> "QtCore.QTimer":
     """Create new timer that calls a function."""
     global TIMERS
     timer = QtCore.QTimer()
-    timer.timeout.connect(fun)
+    timer.timeout.connect(fun)  # type: ignore [attr-defined] # noqa: F821
     timer.start(time)
     TIMERS.append(timer)
     return timer

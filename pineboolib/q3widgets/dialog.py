@@ -44,8 +44,8 @@ class Dialog(qdialog.QDialog):
         self._button_box.addButton(
             self.cancelButton, QtWidgets.QDialogButtonBox.ButtonRole.RejectRole
         )
-        self.okButton.clicked.connect(self.accept)
-        self.cancelButton.clicked.connect(self.reject)
+        self.okButton.clicked.connect(self.accept)  # type: ignore [attr-defined] # noqa: F821
+        self.cancelButton.clicked.connect(self.reject)  # type: ignore [attr-defined] # noqa: F821
         self._tab = qtabwidget.QTabWidget()
         self._tab.hide()
 

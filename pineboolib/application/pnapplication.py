@@ -334,7 +334,9 @@ class PNApplication(QtCore.QObject):
         """Start timer."""
         if not self.timer_idle_:
             self.timer_idle_ = QtCore.QTimer()
-            self.timer_idle_.timeout.connect(self.aqAppIdle)
+            self.timer_idle_.timeout.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.aqAppIdle
+            )
         else:
             self.timer_idle_.stop()
 

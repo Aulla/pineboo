@@ -1,7 +1,7 @@
 """Flcodbar module."""
 
 # # -*- coding: utf-8 -*-
-from PyQt6 import QtCore, QtGui, QtSvg, QtWidgets  # type: ignore
+from PyQt6 import QtCore, QtGui, QtSvg  # type: ignore
 
 from pineboolib.core.utils.utils_base import load2xml
 

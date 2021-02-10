@@ -45,7 +45,7 @@ class ProcessBaseClass(QtCore.QProcess):
 
         return super().workingDirectory()
 
-    def readLine(self, val: int = 100000000) -> bytes:
+    def readLine(self, val: int = 100000000) -> bytes:  # noqa: D403
         """readLine overload."""
 
         return super().readLine(val)

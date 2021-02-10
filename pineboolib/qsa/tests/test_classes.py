@@ -82,7 +82,7 @@ class TestClasses(unittest.TestCase):
         btn = QtWidgets.QPushButton()
         qsa.sys.AQGlobalFunctions.mapConnect(btn, "clicked()", "saludo")
         self.assertFalse(self._prueba)
-        btn.clicked.emit()
+        btn.clicked.emit()  # type: ignore [attr-defined] # noqa: F821
         self.assertTrue(self._prueba)
 
     def test_sort(self) -> None:

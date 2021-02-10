@@ -427,7 +427,7 @@ class FLTableDB(QtWidgets.QWidget):
             self.setObjectName("FLTableDB")
 
         self._timer = QtCore.QTimer(self)
-        self._timer.timeout.connect(self.refreshDelayed)
+        self._timer.timeout.connect(self.refreshDelayed)  # type: ignore [attr-defined] # noqa: F821
 
         # FIXME: El problema de que aparezca al editar un registro que no es, es por carga doble de initCursor()
         # ...... Cuando se lanza showWidget, y tiene _initCursorWhenLoad, lanza initCursor y luego otra vez.
@@ -818,11 +818,15 @@ class FLTableDB(QtWidgets.QWidget):
             self.refresh(False, True)
 
             try:
-                self._line_edit_search.textChanged.disconnect(self.filterRecords)
+                self._line_edit_search.textChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.filterRecords
+                )
             except Exception:
                 pass
             self._line_edit_search.setText(text_search)
-            self._line_edit_search.textChanged.connect(self.filterRecords)
+            self._line_edit_search.textChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.filterRecords
+            )
             self._line_edit_search.selectAll()
             # self.seekCursor()
             QtCore.QTimer.singleShot(0, self._table_records.ensureRowSelectedVisible)
@@ -1229,7 +1233,9 @@ class FLTableDB(QtWidgets.QWidget):
         self._pb_data.setToolTip("Mostrar registros")
         self._pb_data.setWhatsThis("Mostrar registros")
         self._buttons_layout.addWidget(self._pb_data)
-        self._pb_data.clicked.connect(self.activeTabData)
+        self._pb_data.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.activeTabData
+        )
 
         self._pb_filter = QtWidgets.QPushButton(self)
         self._pb_filter.setSizePolicy(size_policy)
@@ -1243,7 +1249,9 @@ class FLTableDB(QtWidgets.QWidget):
         self._pb_filter.setToolTip("Mostrar filtros")
         self._pb_filter.setWhatsThis("Mostrar filtros")
         self._buttons_layout.addWidget(self._pb_filter)
-        self._pb_filter.clicked.connect(self.activeTabFilter)
+        self._pb_filter.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.activeTabFilter
+        )
 
         self._pb_odf = QtWidgets.QPushButton(self)
         self._pb_odf.setSizePolicy(size_policy)
@@ -1257,7 +1265,7 @@ class FLTableDB(QtWidgets.QWidget):
         self._pb_odf.setToolTip("Exportar a hoja de cálculo")
         self._pb_odf.setWhatsThis("Exportar a hoja de cálculo")
         self._buttons_layout.addWidget(self._pb_odf)
-        self._pb_odf.clicked.connect(self.exportToOds)
+        self._pb_odf.clicked.connect(self.exportToOds)  # type: ignore [attr-defined] # noqa: F821
         if settings.CONFIG.value("ebcomportamiento/FLTableExport2Calc", "false") == "true":
             self._pb_odf.setDisabled(True)
 
@@ -1273,7 +1281,9 @@ class FLTableDB(QtWidgets.QWidget):
         self.pb_clean.setToolTip("Limpiar filtros")
         self.pb_clean.setWhatsThis("Limpiar filtros")
         filter_layout.addWidget(self.pb_clean)
-        self.pb_clean.clicked.connect(self.tdbFilterClear)
+        self.pb_clean.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.tdbFilterClear
+        )
 
         spacer = QtWidgets.QSpacerItem(
             20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding
@@ -1285,7 +1295,9 @@ class FLTableDB(QtWidgets.QWidget):
         # self._combo_box_field_to_search_1.addItem("*")
         # self._combo_box_field_to_search_2.addItem("*")
         self._line_edit_search = QtWidgets.QLineEdit()
-        self._line_edit_search.textChanged.connect(self.filterRecords)
+        self._line_edit_search.textChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.filterRecords
+        )
         label1 = QtWidgets.QLabel()
         label2 = QtWidgets.QLabel()
         label1.setStyleSheet("border: 0px")
@@ -1324,8 +1336,12 @@ class FLTableDB(QtWidgets.QWidget):
             self._tab_filter.hide()
 
         self._data_layout.addLayout(self._buttons_layout)
-        self._combo_box_field_to_search_1.currentIndexChanged.connect(self.putFirstCol)
-        self._combo_box_field_to_search_2.currentIndexChanged.connect(self.putSecondCol)
+        self._combo_box_field_to_search_1.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.putFirstCol
+        )
+        self._combo_box_field_to_search_2.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.putSecondCol
+        )
 
         self._tdb_filter = qtable.QTable()
 
@@ -1396,20 +1412,32 @@ class FLTableDB(QtWidgets.QWidget):
 
         if self._check_column_enabled:
             try:
-                self._table_records.clicked.disconnect(self._table_records.setChecked)
+                self._table_records.clicked.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self._table_records.setChecked
+                )
             except Exception:
                 LOGGER.warning("setTableRecordsCursor: Error disconnecting setChecked signal")
-            self._table_records.clicked.connect(self._table_records.setChecked)
+            self._table_records.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self._table_records.setChecked
+            )
 
         t_cursor = self._table_records.cursor_
         if t_cursor is not self.cursor():
             self._table_records.setFLSqlCursor(self.cursor())
             if t_cursor:
-                self._table_records.recordChoosed.disconnect(self.recordChoosedSlot)
-                t_cursor.newBuffer.disconnect(self.currentChangedSlot)
+                self._table_records.recordChoosed.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.recordChoosedSlot
+                )
+                t_cursor.newBuffer.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.currentChangedSlot
+                )
 
-            self._table_records.recordChoosed.connect(self.recordChoosedSlot)
-            self.cursor().newBuffer.connect(self.currentChangedSlot)
+            self._table_records.recordChoosed.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.recordChoosedSlot
+            )
+            self.cursor().newBuffer.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.currentChangedSlot
+            )
 
     @decorators.pyqt_slot()
     def recordChoosedSlot(self) -> None:
@@ -2118,10 +2146,10 @@ class FLTableDB(QtWidgets.QWidget):
                     raise Exception("comboBoxFieldSearch2 is not defined!")
 
                 try:
-                    self._combo_box_field_to_search_1.currentIndexChanged.disconnect(
+                    self._combo_box_field_to_search_1.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
                         self.putFirstCol
                     )
-                    self._combo_box_field_to_search_2.currentIndexChanged.disconnect(
+                    self._combo_box_field_to_search_2.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
                         self.putSecondCol
                     )
                 except Exception:
@@ -2160,8 +2188,12 @@ class FLTableDB(QtWidgets.QWidget):
                 self._combo_box_field_to_search_2.addItem("*")
                 self._combo_box_field_to_search_1.setCurrentIndex(self._sort_column_1)
                 self._combo_box_field_to_search_2.setCurrentIndex(self._sort_column_2)
-                self._combo_box_field_to_search_1.currentIndexChanged.connect(self.putFirstCol)
-                self._combo_box_field_to_search_2.currentIndexChanged.connect(self.putSecondCol)
+                self._combo_box_field_to_search_1.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putFirstCol
+                )
+                self._combo_box_field_to_search_2.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putSecondCol
+                )
 
             else:
                 self._combo_box_field_to_search_1.addItem("*")
@@ -2183,11 +2215,15 @@ class FLTableDB(QtWidgets.QWidget):
 
         if self._init_search:
             try:
-                self._line_edit_search.textChanged.disconnect(self.filterRecords)
+                self._line_edit_search.textChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.filterRecords
+                )
             except Exception:
                 pass
             self._line_edit_search.setText(self._init_search)
-            self._line_edit_search.textChanged.connect(self.filterRecords)
+            self._line_edit_search.textChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.filterRecords
+            )
             self._line_edit_search.selectAll()
             self._init_search = None
             # self.seekCursor()
@@ -2453,17 +2489,23 @@ class FLTableDB(QtWidgets.QWidget):
 
         if to_ == 0:  # Si ha cambiado la primera columna
             try:
-                self._combo_box_field_to_search_1.currentIndexChanged.disconnect(self.putFirstCol)
+                self._combo_box_field_to_search_1.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putFirstCol
+                )
             except Exception:
                 LOGGER.error("Se ha producido un problema al desconectar")
                 return
 
             self._combo_box_field_to_search_1.setCurrentIndex(from_)
-            self._combo_box_field_to_search_1.currentIndexChanged.connect(self.putFirstCol)
+            self._combo_box_field_to_search_1.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.putFirstCol
+            )
 
             # Actializamos el segundo combo
             try:
-                self._combo_box_field_to_search_2.currentIndexChanged.disconnect(self.putSecondCol)
+                self._combo_box_field_to_search_2.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putSecondCol
+                )
             except Exception:
                 pass
             # Falta mejorar
@@ -2474,22 +2516,28 @@ class FLTableDB(QtWidgets.QWidget):
                 self._combo_box_field_to_search_2.setCurrentIndex(
                     self._table_records._h_header.logicalIndex(self._sort_column_1)
                 )
-            self._combo_box_field_to_search_2.currentIndexChanged.connect(self.putSecondCol)
+            self._combo_box_field_to_search_2.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.putSecondCol
+            )
 
         if to_ == 1:  # Si es la segunda columna ...
             try:
-                self._combo_box_field_to_search_2.currentIndexChanged.disconnect(self.putSecondCol)
+                self._combo_box_field_to_search_2.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putSecondCol
+                )
             except Exception:
                 pass
             self._combo_box_field_to_search_2.setCurrentIndex(from_)
-            self._combo_box_field_to_search_2.currentIndexChanged.connect(self.putSecondCol)
+            self._combo_box_field_to_search_2.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.putSecondCol
+            )
 
             if (
                 self._combo_box_field_to_search_1.currentIndex()
                 == self._combo_box_field_to_search_2.currentIndex()
             ):
                 try:
-                    self._combo_box_field_to_search_1.currentIndexChanged.disconnect(
+                    self._combo_box_field_to_search_1.currentIndexChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
                         self.putFirstCol
                     )
                 except Exception:
@@ -2501,7 +2549,9 @@ class FLTableDB(QtWidgets.QWidget):
                     self._combo_box_field_to_search_1.setCurrentIndex(
                         self._table_records._h_header.logicalIndex(self._sort_column_2)
                     )
-                self._combo_box_field_to_search_1.currentIndexChanged.connect(self.putFirstCol)
+                self._combo_box_field_to_search_1.currentIndexChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.putFirstCol
+                )
 
         if not text_search:
             text_search = self.cursor().valueBuffer(field.name())
@@ -2511,11 +2561,15 @@ class FLTableDB(QtWidgets.QWidget):
         if text_search:
             self.refresh(False, True)
             try:
-                self._line_edit_search.textChanged.disconnect(self.filterRecords)
+                self._line_edit_search.textChanged.disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.filterRecords
+                )
             except Exception:
                 pass
             self._line_edit_search.setText(str(text_search))
-            self._line_edit_search.textChanged.connect(self.filterRecords)
+            self._line_edit_search.textChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.filterRecords
+            )
             self._line_edit_search.selectAll()
             # self.seekCursor()
             QtCore.QTimer.singleShot(0, self._table_records.ensureRowSelectedVisible)

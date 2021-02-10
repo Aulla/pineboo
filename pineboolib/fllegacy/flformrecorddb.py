@@ -244,7 +244,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
             pushButtonExport.setToolTip("Exportar a XML(F3)")
             pushButtonExport.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             self.bottomToolbar.layout().addWidget(pushButtonExport)
-            pushButtonExport.clicked.connect(self.exportToXml)
+            pushButtonExport.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.exportToXml
+            )
 
             if settings.CONFIG.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton()
@@ -260,7 +262,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.bottomToolbar.layout().addWidget(push_button_snapshot)
-                push_button_snapshot.clicked.connect(self.saveSnapShot)
+                push_button_snapshot.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.saveSnapShot
+                )
 
             spacer = QtWidgets.QSpacerItem(
                 20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
@@ -274,7 +278,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonFirst.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-goto-first-ltr.png"))
                 )
-                self.pushButtonFirst.clicked.connect(self.firstRecord)
+                self.pushButtonFirst.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.firstRecord
+                )
                 self.pushButtonFirst.setSizePolicy(size_policy)
                 self.pushButtonFirst.setMaximumSize(push_button_size)
                 self.pushButtonFirst.setMinimumSize(push_button_size)
@@ -293,7 +299,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonPrevious.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-go-back-ltr.png"))
                 )
-                self.pushButtonPrevious.clicked.connect(self.previousRecord)
+                self.pushButtonPrevious.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.previousRecord
+                )
                 self.pushButtonPrevious.setSizePolicy(size_policy)
                 self.pushButtonPrevious.setMaximumSize(push_button_size)
                 self.pushButtonPrevious.setMinimumSize(push_button_size)
@@ -314,7 +322,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonNext.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-go-back-rtl.png"))
                 )
-                self.pushButtonNext.clicked.connect(self.nextRecord)
+                self.pushButtonNext.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.nextRecord
+                )
                 self.pushButtonNext.setSizePolicy(size_policy)
                 self.pushButtonNext.setMaximumSize(push_button_size)
                 self.pushButtonNext.setMinimumSize(push_button_size)
@@ -335,7 +345,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
                 self.pushButtonLast.setIcon(
                     QtGui.QIcon(utils_base.filedir("./core/images/icons", "gtk-goto-last-ltr.png"))
                 )
-                self.pushButtonLast.clicked.connect(self.lastRecord)
+                self.pushButtonLast.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.lastRecord
+                )
                 self.pushButtonLast.setSizePolicy(size_policy)
                 self.pushButtonLast.setMaximumSize(push_button_size)
                 self.pushButtonLast.setMinimumSize(push_button_size)
@@ -349,7 +361,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
         if not self.cursor().modeAccess() == self.cursor().Browse:
             self.pushButtonAcceptContinue = QtWidgets.QToolButton()
             self.pushButtonAcceptContinue.setObjectName("pushButtonAcceptContinue")
-            self.pushButtonAcceptContinue.clicked.connect(self.acceptContinue)
+            self.pushButtonAcceptContinue.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.acceptContinue
+            )
             self.pushButtonAcceptContinue.setSizePolicy(size_policy)
             self.pushButtonAcceptContinue.setMaximumSize(push_button_size)
             self.pushButtonAcceptContinue.setMinimumSize(push_button_size)
@@ -372,7 +386,9 @@ class FLFormRecordDB(flformdb.FLFormDB):
             if not self.pushButtonAccept:
                 self.pushButtonAccept = QtWidgets.QToolButton()
                 self.pushButtonAccept.setObjectName("pushButtonAccept")
-                self.pushButtonAccept.clicked.connect(self.accept)
+                self.pushButtonAccept.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.accept
+                )
 
             self.pushButtonAccept.setSizePolicy(size_policy)
             self.pushButtonAccept.setMaximumSize(push_button_size)
@@ -391,11 +407,15 @@ class FLFormRecordDB(flformdb.FLFormDB):
             self.pushButtonCancel = QtWidgets.QToolButton()
             self.pushButtonCancel.setObjectName("pushButtonCancel")
             try:
-                self.cursor().autoCommit.connect(self.disablePushButtonCancel)
+                self.cursor().autoCommit.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.disablePushButtonCancel
+                )
             except Exception:
                 pass
 
-            self.pushButtonCancel.clicked.connect(self.reject)
+            self.pushButtonCancel.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.reject
+            )
 
         self.pushButtonCancel.setSizePolicy(size_policy)
         self.pushButtonCancel.setMaximumSize(push_button_size)

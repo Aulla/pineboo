@@ -152,7 +152,9 @@ class FLFormSearchDB(flformdb.FLFormDB):
             pushButtonExport.setToolTip("Exportar a XML(F3)")
             pushButtonExport.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             self.bottomToolbar.layout().addWidget(pushButtonExport)
-            pushButtonExport.clicked.connect(self.exportToXml)
+            pushButtonExport.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.exportToXml
+            )
 
             if settings.CONFIG.value("ebcomportamiento/show_snaptshop_button", False):
                 push_button_snapshot = QtWidgets.QToolButton(self)
@@ -168,7 +170,9 @@ class FLFormSearchDB(flformdb.FLFormDB):
                 push_button_snapshot.setToolTip("Capturar pantalla(F8)")
                 push_button_snapshot.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
                 self.bottomToolbar.layout().addWidget(push_button_snapshot)
-                push_button_snapshot.clicked.connect(self.saveSnapShot)
+                push_button_snapshot.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.saveSnapShot
+                )
 
             spacer = QtWidgets.QSpacerItem(
                 20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed
@@ -178,7 +182,9 @@ class FLFormSearchDB(flformdb.FLFormDB):
         if not self.pushButtonAccept:
             self.pushButtonAccept = QtWidgets.QToolButton(self)
             self.pushButtonAccept.setObjectName("pushButtonAccept")
-            self.pushButtonAccept.clicked.connect(self.accept)
+            self.pushButtonAccept.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.accept
+            )
 
         self.pushButtonAccept.setSizePolicy(size_policy)
         self.pushButtonAccept.setMaximumSize(push_button_size)
@@ -197,7 +203,9 @@ class FLFormSearchDB(flformdb.FLFormDB):
         if not self.pushButtonCancel:
             self.pushButtonCancel = QtWidgets.QToolButton(self)
             self.pushButtonCancel.setObjectName("pushButtonCancel")
-            self.pushButtonCancel.clicked.connect(self.reject)
+            self.pushButtonCancel.clicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.reject
+            )
 
         self.pushButtonCancel.setSizePolicy(size_policy)
         self.pushButtonCancel.setMaximumSize(push_button_size)

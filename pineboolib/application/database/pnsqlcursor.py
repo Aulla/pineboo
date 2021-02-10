@@ -161,16 +161,24 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         private_cursor.mode_access_ = self.Browse
         if cursor_relation and relation_mtd is not None:
 
-            cursor_relation.bufferChanged.connect(self.refresh)
-            cursor_relation.newBuffer.connect(self.refresh)
-            cursor_relation.newBuffer.connect(self.clearPersistentFilter)
+            cursor_relation.bufferChanged.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.refresh
+            )
+            cursor_relation.newBuffer.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.refresh
+            )
+            cursor_relation.newBuffer.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.clearPersistentFilter
+            )
 
         else:
             self.seek(self.at())
 
         self._valid = True
         private_cursor.timer_ = QtCore.QTimer(self)
-        private_cursor.timer_.timeout.connect(self.refreshDelayed)
+        private_cursor.timer_.timeout.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.refreshDelayed
+        )
 
     def conn(self) -> "iconnection.IConnection":
         """Get current connection for this cursor."""

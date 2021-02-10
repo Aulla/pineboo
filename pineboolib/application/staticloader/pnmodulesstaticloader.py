@@ -204,7 +204,11 @@ class PNStaticLoader(QtCore.QObject):
         cast(
             QtWidgets.QToolButton, self._dialog.pbOk  # type: ignore[attr-defined] # noqa: F821
         ).clicked.connect(self._dialog.accept)
-        cast(QtWidgets.QCheckBox, self.chkEnabled).toggled.connect(self.setEnabled)
+        cast(
+            QtWidgets.QCheckBox, self.chkEnabled
+        ).toggled.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.setEnabled
+        )
 
     @decorators.pyqt_slot()
     def load(self) -> None:
@@ -236,7 +240,7 @@ class PNStaticLoader(QtCore.QObject):
                 tbl_dir.setItem(row, 0, item)
                 chk = QtWidgets.QCheckBox(tbl_dir)
                 chk.setChecked(info_dir.active_)
-                chk.toggled.connect(self.setChecked)
+                chk.toggled.connect(self.setChecked)  # type: ignore [attr-defined] # noqa: F821
                 tbl_dir.setCellWidget(row, 1, chk)
 
             tbl_dir.setCurrentCell(n_rows, 0)
@@ -266,7 +270,7 @@ class PNStaticLoader(QtCore.QObject):
 
             chk = QtWidgets.QCheckBox(tbl_dir)
             chk.setChecked(True)
-            chk.toggled.connect(self.setChecked)
+            chk.toggled.connect(self.setChecked)  # type: ignore [attr-defined] # noqa: F821
 
             tbl_dir.setCellWidget(n_rows, 1, chk)
             tbl_dir.setCurrentCell(n_rows, 0)

@@ -104,7 +104,7 @@ class PNTranslator(QtCore.QTranslator):
 
         return ret_
 
-    def translate(
+    def translate(  # type: ignore [override] # noqa: F821
         self, context: str, source_text: str, disambiguation: str = None, num: int = -1
     ) -> Optional[str]:
         """Return a translated text."""

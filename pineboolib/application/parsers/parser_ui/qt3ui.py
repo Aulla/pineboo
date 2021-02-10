@@ -411,8 +411,8 @@ def clone_action(action: QtGui.QAction, widget: QWidget) -> None:
         else:
             action.setStatusTip(real_action.whatsThis())
         action.setWhatsThis(real_action.whatsThis())
-        action.triggered.connect(real_action.trigger)
-        action.toggled.connect(real_action.toggle)
+        action.triggered.connect(real_action.trigger)  # type: ignore [attr-defined] # noqa: F821
+        action.toggled.connect(real_action.toggle)  # type: ignore [attr-defined] # noqa: F821
 
 
 def load_action(action: ET.Element, widget: QWidget, action_widget: QtGui.QAction = None) -> None:
@@ -1122,7 +1122,7 @@ def _load_variant(variant: ET.Element, widget: Optional[QtCore.QObject] = None) 
         policy = QtWidgets.QSizePolicy()
         for item in variant:
             ivalue_policy = int((item.text or "0").strip())
-            real_policy = None
+            real_policy: Any = None
             for it_ in policy.Policy:
                 if it_.value == ivalue_policy:
                     real_policy = it_

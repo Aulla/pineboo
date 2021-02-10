@@ -10,7 +10,7 @@ from pdf2image import convert_from_path  # type: ignore
 from pineboolib.core import decorators, settings
 from pineboolib import logging, application
 from pineboolib.application.database.pnsqlquery import PNSqlQuery
-from typing import Any, Optional, Dict, Union, TYPE_CHECKING
+from typing import Any, Optional, Dict, Union, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PyQt6 import QtWidgets  # noqa: F401
@@ -158,7 +158,7 @@ class FLReportEngine(QtCore.QObject):
                 range_ = name_or_dialog.printRange()
                 first = name_or_dialog.fromPage()
                 last = name_or_dialog.toPage()
-                if range_ == 2:
+                if cast(int, range_) == 2:
                     for num in range(first, last + 1):
                         page_filter.append(num)
 

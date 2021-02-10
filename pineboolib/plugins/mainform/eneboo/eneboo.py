@@ -63,7 +63,9 @@ class DockListView(QtCore.QObject):
         w.setFixedExtentWidth(300);
         """
 
-        self.tree_widget.doubleClicked.connect(self.activateAction)
+        self.tree_widget.doubleClicked.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.activateAction
+        )
 
     def writeState(self) -> None:
         """Save the state and geometry."""
@@ -137,7 +139,9 @@ class DockListView(QtCore.QObject):
         self.doc_widget = doc_widget
         self.tree_widget = doc_widget.widget()
         if self.tree_widget and self.tree_widget.doubleClicked:
-            self.tree_widget.doubleClicked.connect(self.activateAction)
+            self.tree_widget.doubleClicked.connect(  # type: ignore [attr-defined] # noqa: F821
+                self.activateAction
+            )
 
     def change_state(self, state: bool) -> None:
         """Change the display status."""
@@ -162,7 +166,7 @@ class DockListView(QtCore.QObject):
             QtGui.QAction, self.action_group.findChild(QtGui.QAction, action_name)
         )
         if action:
-            action.triggered.emit()
+            action.triggered.emit()  # type: ignore [attr-defined] # noqa: F821
 
     def update(
         self, action_group: Optional[QtGui.QActionGroup] = None, reverse: bool = False
@@ -332,7 +336,11 @@ class MainForm(imainwindow.IMainWindow):
                 return True
 
             elif isinstance(obj_, QtWidgets.QDockWidget):
-                cast(QtCore.pyqtSignal, obj_.topLevelChanged).emit(False)
+                cast(
+                    QtCore.pyqtSignal, obj_.topLevelChanged
+                ).emit(  # type: ignore [attr-defined] # noqa: F821
+                    False
+                )
             elif isinstance(obj_, flformdb.FLFormDB):
                 for number in range(self.tab_widget.count()):
                     if self.tab_widget.widget(number) is obj_:
@@ -854,22 +862,34 @@ class MainForm(imainwindow.IMainWindow):
         self.dck_mod_.update(self.ag_menu_)
         self.dck_rec_.update(self.ag_rec_)
         self.dck_mar_.update(self.ag_mar_)
-        cast(QtGui.QAction, self.findChild(QtGui.QAction, "aboutQtAction")).triggered.connect(
+        cast(
+            QtGui.QAction, self.findChild(QtGui.QAction, "aboutQtAction")
+        ).triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             aq_app.aboutQt
         )
-        cast(QtGui.QAction, self.findChild(QtGui.QAction, "aboutPinebooAction")).triggered.connect(
+        cast(
+            QtGui.QAction, self.findChild(QtGui.QAction, "aboutPinebooAction")
+        ).triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             aq_app.aboutPineboo
         )
-        cast(QtGui.QAction, self.findChild(QtGui.QAction, "fontAction")).triggered.connect(
+        cast(
+            QtGui.QAction, self.findChild(QtGui.QAction, "fontAction")
+        ).triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             aq_app.chooseFont
         )
-        cast(QtGui.QAction, self.findChild(QtWidgets.QMenu, "style")).triggered.connect(
+        cast(
+            QtGui.QAction, self.findChild(QtWidgets.QMenu, "style")
+        ).triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             aq_app.showStyles
         )
-        cast(QtGui.QAction, self.findChild(QtGui.QAction, "helpIndexAction")).triggered.connect(
+        cast(
+            QtGui.QAction, self.findChild(QtGui.QAction, "helpIndexAction")
+        ).triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             aq_app.helpIndex
         )
-        cast(QtGui.QAction, self.findChild(QtGui.QAction, "urlPinebooAction")).triggered.connect(
+        cast(
+            QtGui.QAction, self.findChild(QtGui.QAction, "urlPinebooAction")
+        ).triggered.connect(  # type: ignore [attr-defined] # noqa: F821
             aq_app.urlPineboo
         )
 
@@ -929,7 +949,9 @@ class MainForm(imainwindow.IMainWindow):
                 ac_action.setObjectName("%s_module_actiongroup_name" % module)
                 ac_action.setText(mng.idModuleToDescription(module))
                 ac_action.setIcon(self.iconSet16x16(mng.iconModule(module)))
-                ac_action.triggered.connect(self.act_sig_map_.map)
+                ac_action.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.act_sig_map_.map
+                )
                 self.act_sig_map_.setMapping(
                     ac_action, "triggered():initModule():%s_module_actiongroup_name" % module
                 )
@@ -941,7 +963,9 @@ class MainForm(imainwindow.IMainWindow):
                         static_load.setIcon(
                             QtGui.QIcon(AQS.pixmap_fromMimeSource("folder_update.png"))
                         )
-                        static_load.triggered.connect(self.act_sig_map_.map)
+                        static_load.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                            self.act_sig_map_.map
+                        )
                         self.act_sig_map_.setMapping(
                             static_load,
                             "triggered():staticLoaderSetup():%s" % static_load.objectName(),
@@ -951,7 +975,9 @@ class MainForm(imainwindow.IMainWindow):
                         re_init.setObjectName("reinitAction")
                         re_init.setText(self.tr("Recargar scripts"))
                         re_init.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("reload.png")))
-                        re_init.triggered.connect(self.act_sig_map_.map)
+                        re_init.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+                            self.act_sig_map_.map
+                        )
                         self.act_sig_map_.setMapping(
                             re_init, "triggered():reinit():%s" % re_init.objectName()
                         )
@@ -960,7 +986,9 @@ class MainForm(imainwindow.IMainWindow):
         sh_console.setObjectName("shConsoleAction")
         sh_console.setText(self.tr("Mostrar Consola de mensajes"))
         sh_console.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("consola.png")))
-        sh_console.triggered.connect(self.act_sig_map_.map)
+        sh_console.triggered.connect(  # type: ignore [attr-defined] # noqa: F821
+            self.act_sig_map_.map
+        )
         self.act_sig_map_.setMapping(
             sh_console, "triggered():shConsole():%s" % sh_console.objectName()
         )
@@ -969,7 +997,7 @@ class MainForm(imainwindow.IMainWindow):
         exit.setObjectName("exitAction")
         exit.setText(self.tr("&Salir"))
         exit.setIcon(QtGui.QIcon(AQS.pixmap_fromMimeSource("exit.png")))
-        exit.triggered.connect(self.act_sig_map_.map)
+        exit.triggered.connect(self.act_sig_map_.map)  # type: ignore [attr-defined] # noqa: F821
         self.act_sig_map_.setMapping(exit, "triggered():exit():%s" % exit.objectName())
 
     def initTabWidget(self) -> None:
@@ -1070,8 +1098,12 @@ class MainForm(imainwindow.IMainWindow):
             # FIXME: Comprobar si estoy visible o no
             # action.setChecked(dock.doc_widget.isVisible())
             dock.set_visible.connect(action.setChecked)
-            action.triggered.connect(dock.change_state)
-            cast(QtCore.pyqtSignal, dock.doc_widget.topLevelChanged).connect(action.setChecked)
+            action.triggered.connect(dock.change_state)  # type: ignore [attr-defined] # noqa: F821
+            cast(
+                QtCore.pyqtSignal, dock.doc_widget.topLevelChanged
+            ).connect(  # type: ignore [attr-defined] # noqa: F821
+                action.setChecked
+            )
             # dock.doc_widget.Close.connect(action.setChecked)
 
     def cloneAction(self, old_action, parent) -> Any:
@@ -1085,8 +1117,8 @@ class MainForm(imainwindow.IMainWindow):
         new_action.setWhatsThis(old_action.whatsThis())
         new_action.setEnabled(old_action.isEnabled())
         new_action.setVisible(old_action.isVisible())
-        new_action.triggered.connect(old_action.trigger)
-        new_action.toggled.connect(old_action.toggle)
+        new_action.triggered.connect(old_action.trigger)  # type: ignore [attr-defined] # noqa: F821
+        new_action.toggled.connect(old_action.toggle)  # type: ignore [attr-defined] # noqa: F821
         if not old_action.icon().isNull():
             new_action.setIcon(self.iconSet16x16(old_action.icon().pixmap(16, 16)))
 
@@ -1293,12 +1325,16 @@ class MainForm(imainwindow.IMainWindow):
 
         self.writeState()
         self.removeAllPages()
-        cast(QtGui.QAction, self.findChild(QtGui.QAction, "aboutQtAction")).triggered.disconnect(
+        cast(
+            QtGui.QAction, self.findChild(QtGui.QAction, "aboutQtAction")
+        ).triggered.disconnect(  # type: ignore [attr-defined] # noqa: F821
             application.PROJECT.aq_app.aboutQt
         )
         cast(
             QtGui.QAction, self.findChild(QtGui.QAction, "aboutPinebooAction")
-        ).triggered.disconnect(application.PROJECT.aq_app.aboutPineboo)
+        ).triggered.disconnect(  # type: ignore [attr-defined] # noqa: F821
+            application.PROJECT.aq_app.aboutPineboo
+        )
         self.main_widget = self
         self.updateMenuAndDocks()
         self.initialized_mods_ = []

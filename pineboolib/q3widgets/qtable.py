@@ -27,8 +27,8 @@ class QTable(Q3TableWidget):
     currentChanged = QtCore.pyqtSignal(
         int, int
     )  # need overload (in Qt5, this signal is dataChanged)
-    doubleClicked = QtCore.pyqtSignal(int, int)
-    clicked = QtCore.pyqtSignal(int, int)  # need overload
+    doubleClicked = QtCore.pyqtSignal(int, int)  # type: ignore [assignment] # noqa: F821
+    clicked = QtCore.pyqtSignal(int, int)  # type: ignore [assignment] # noqa: F821
     valueChanged = QtCore.pyqtSignal(int, int)
     read_only_cols: List[int]
     read_only_rows: List[int]
@@ -52,10 +52,22 @@ class QTable(Q3TableWidget):
 
         self.cols_list = []
         self.lineaActual = -1
-        cast(pyqtSignal, self.currentCellChanged).connect(self.currentChanged_)
-        cast(pyqtSignal, self.cellDoubleClicked).connect(self.doubleClicked_)
-        cast(pyqtSignal, self.cellClicked).connect(self.simpleClicked_)
-        cast(pyqtSignal, self.itemChanged).connect(self.valueChanged_)
+        cast(
+            pyqtSignal, self.currentCellChanged
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
+            self.currentChanged_
+        )
+        cast(
+            pyqtSignal, self.cellDoubleClicked
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
+            self.doubleClicked_
+        )
+        cast(pyqtSignal, self.cellClicked).connect(  # type: ignore [attr-defined] # noqa: F821
+            self.simpleClicked_
+        )
+        cast(pyqtSignal, self.itemChanged).connect(  # type: ignore [attr-defined] # noqa: F821
+            self.valueChanged_
+        )
         self.read_only_cols = []
         self.read_only_rows = []
         self.resize_policy = cast(QtWidgets.QSizePolicy, 0)  # Default
@@ -66,15 +78,19 @@ class QTable(Q3TableWidget):
     ) -> None:
         """Emit current changed signal."""
         if current_row > -1 and current_column > -1:
-            cast(pyqtSignal, self.currentChanged).emit(current_row, current_column)
+            cast(pyqtSignal, self.currentChanged).emit(  # type: ignore [attr-defined] # noqa: F821
+                current_row, current_column
+            )
 
     def doubleClicked_(self, f, c) -> None:
         """Emit double clicked signal."""
-        cast(pyqtSignal, self.cellDoubleClicked).emit(f, c)
+        cast(pyqtSignal, self.cellDoubleClicked).emit(  # type: ignore [attr-defined] # noqa: F821
+            f, c
+        )
 
     def simpleClicked_(self, f, c) -> None:
         """Emit simple clicked signal."""
-        cast(pyqtSignal, self.cellClicked).emit(f, c)
+        cast(pyqtSignal, self.cellClicked).emit(f, c)  # type: ignore [attr-defined] # noqa: F821
 
     @decorators.not_implemented_warn
     def setResizePolicy(self, pol: QtWidgets.QSizePolicy) -> None:
@@ -94,7 +110,9 @@ class QTable(Q3TableWidget):
         """Emit valueChanged signal."""
 
         if item and self.text(item.row(), item.column()) != "":
-            cast(pyqtSignal, self.valueChanged).emit(item.row(), item.column())
+            cast(pyqtSignal, self.valueChanged).emit(  # type: ignore [attr-defined] # noqa: F821
+                item.row(), item.column()
+            )
 
     def numRows(self) -> int:
         """Return num rows."""

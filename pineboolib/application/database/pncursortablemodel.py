@@ -523,7 +523,7 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.endInsertRows()
         top_left = self.index(0, 0)
         botom_rigth = self.index(to_row, self.cols - 1)
-        self.dataChanged.emit(top_left, botom_rigth)
+        self.dataChanged.emit(top_left, botom_rigth)  # type: ignore [attr-defined] # noqa: F821
         self.indexes_valid = True
 
     def _refresh_field_info(self) -> None:
@@ -667,7 +667,11 @@ class PNCursorTableModel(QtCore.QAbstractTableModel):
         self.beginRemoveRows(parent, 0, rows)
         self.endRemoveRows()
         if rows > 0:
-            cast(QtCore.pyqtSignal, self.rowsRemoved).emit(parent, 0, rows - 1)
+            cast(
+                QtCore.pyqtSignal, self.rowsRemoved
+            ).emit(  # type: ignore [attr-defined] # noqa: F821
+                parent, 0, rows - 1
+            )
 
         self._refresh_field_info()
 

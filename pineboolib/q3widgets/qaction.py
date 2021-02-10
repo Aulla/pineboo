@@ -15,7 +15,7 @@ class QAction(QtGui.QAction):
         """Inicialize."""
 
         super().__init__(*args)
-        self.triggered.connect(self.send_activated)
+        self.triggered.connect(self.send_activated)  # type: ignore [attr-defined] # noqa: F821
         self._menuText = ""
 
     def send_activated(self, b: Optional[bool] = None) -> None:

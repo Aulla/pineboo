@@ -24,7 +24,9 @@ class QRadioButton(QtWidgets.QRadioButton):
         super().setChecked(False)
         self.dg_id = None
 
-        cast(pyqtSignal, self.clicked).connect(self.send_clicked)
+        cast(pyqtSignal, self.clicked).connect(  # type: ignore [attr-defined] # noqa: F821
+            self.send_clicked
+        )
 
     def setButtonGroupId(self, id: int) -> None:
         """Set button group id."""
@@ -39,7 +41,9 @@ class QRadioButton(QtWidgets.QRadioButton):
 
         if self.parent() and hasattr(self.parent(), "selectedId"):
             cast(QButtonGroup, self.parent()).presset.emit(self.dg_id)
-            cast(QButtonGroup, self.parent()).clicked.emit(self.dg_id)
+            cast(QButtonGroup, self.parent()).clicked.emit(  # type: ignore [has-type] # noqa: F821
+                self.dg_id
+            )
 
     def get_checked(self) -> bool:
         """Return is checked."""

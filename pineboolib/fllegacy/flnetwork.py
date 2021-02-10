@@ -33,7 +33,11 @@ class FLNetwork(QtCore.QObject):
 
         self.manager = QtNetwork.QNetworkAccessManager()
         # self.manager.readyRead.connect(self._slotNetworkStart)
-        cast(QtCore.pyqtSignal, self.manager.finished).connect(self._slotNetworkFinished)
+        cast(
+            QtCore.pyqtSignal, self.manager.finished
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
+            self._slotNetworkFinished
+        )
         # finished_signal["QNetworkReply*"].connect(self._slotNetworkFinished) # FIXME: What does this code?
         # self.data.connect(self._slotNetWorkData)
         # self.dataTransferProgress.connect(self._slotNetworkProgress)
@@ -45,14 +49,24 @@ class FLNetwork(QtCore.QObject):
         self.request.setUrl(QtCore.QUrl("%s%s" % (self.url, location)))
         self.reply = cast(QtNetwork.QNetworkReply, self.manager.get(self.request))
         try:
-            cast(QtCore.pyqtSignal, self.reply.uploadProgress).disconnect(self._slotNetworkProgress)
-            cast(QtCore.pyqtSignal, self.reply.downloadProgress).disconnect(
+            cast(
+                QtCore.pyqtSignal, self.reply.uploadProgress
+            ).disconnect(  # type: ignore [attr-defined] # noqa: F821
+                self._slotNetworkProgress
+            )
+            cast(
+                QtCore.pyqtSignal, self.reply.downloadProgress
+            ).disconnect(  # type: ignore [attr-defined] # noqa: F821
                 self._slotNetworkProgress
             )
         except Exception:
             pass
 
-        cast(QtCore.pyqtSignal, self.reply.downloadProgress).connect(self._slotNetworkProgress)
+        cast(
+            QtCore.pyqtSignal, self.reply.downloadProgress
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
+            self._slotNetworkProgress
+        )
 
     @decorators.beta_implementation
     def put(self, data: Any, location: str) -> None:
@@ -61,13 +75,23 @@ class FLNetwork(QtCore.QObject):
         self.request.setUrl(QtCore.QUrl("%s%s" % (self.url, location)))
         self.reply = cast(QtNetwork.QNetworkReply, self.manager.put(self.request, data))
         try:
-            cast(QtCore.pyqtSignal, self.reply.uploadProgress).disconnect(self._slotNetworkProgress)
-            cast(QtCore.pyqtSignal, self.reply.downloadProgress).disconnect(
+            cast(
+                QtCore.pyqtSignal, self.reply.uploadProgress
+            ).disconnect(  # type: ignore [attr-defined] # noqa: F821
+                self._slotNetworkProgress
+            )
+            cast(
+                QtCore.pyqtSignal, self.reply.downloadProgress
+            ).disconnect(  # type: ignore [attr-defined] # noqa: F821
                 self._slotNetworkProgress
             )
         except Exception:
             pass
-        cast(QtCore.pyqtSignal, self.reply.uploadProgress).connect(self._slotNetworkProgress)
+        cast(
+            QtCore.pyqtSignal, self.reply.uploadProgress
+        ).connect(  # type: ignore [attr-defined] # noqa: F821
+            self._slotNetworkProgress
+        )
 
     @decorators.beta_implementation
     def copy(self, from_location: str, to_location: str) -> None:

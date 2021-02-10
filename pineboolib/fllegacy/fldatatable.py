@@ -193,7 +193,11 @@ class FLDataTable(QtWidgets.QTableView):
             if self.cursor_ and not self.cursor_ == cursor:
                 self.cursor_.restoreEditionFlag(self.objectName())
                 self.cursor_.restoreBrowseFlag(self.objectName())
-                cast(QtCore.pyqtSignal, self.cursor_.commited).disconnect(self.refresh)
+                cast(
+                    QtCore.pyqtSignal, self.cursor_.commited
+                ).disconnect(  # type: ignore [attr-defined] # noqa: F821
+                    self.refresh
+                )
 
                 cur_chg = True
 
@@ -207,7 +211,11 @@ class FLDataTable(QtWidgets.QTableView):
                 self.setInsertOnly(self.insertonly_)
                 self.setOnlyTable(self.only_table_)
 
-                cast(QtCore.pyqtSignal, self.cursor_.commited).connect(self.refresh)
+                cast(
+                    QtCore.pyqtSignal, self.cursor_.commited
+                ).connect(  # type: ignore [attr-defined] # noqa: F821
+                    self.refresh
+                )
 
                 self.setModel(self.cursor_.model())
                 self.setSelectionModel(self.cursor_.selection())
@@ -600,7 +608,9 @@ class FLDataTable(QtWidgets.QTableView):
                         data_table.setColumnHidden(i, True)
 
                 sub_menu = popup.addMenu(sub_popup)
-                sub_menu.hovered.connect(sub_popup_frame.show)
+                sub_menu.hovered.connect(  # type: ignore [attr-defined] # noqa: F821
+                    sub_popup_frame.show
+                )
                 sub_popup_frame.move(
                     tmp_pos.x() + 200, tmp_pos.y()
                 )  # FIXME: Hay que mejorar esto ...

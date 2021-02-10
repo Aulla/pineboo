@@ -567,7 +567,7 @@ class File(FileBaseClass):  # FIXME : Rehacer!!
 
         return True
 
-    def ioDevice(self) -> QIODevice:
+    def ioDevice(self) -> QIODevice:  # type: ignore [override] # noqa: F821
         """Return ioDevice mode."""
         return self._q_file
 
