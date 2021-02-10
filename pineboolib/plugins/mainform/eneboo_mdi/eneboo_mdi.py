@@ -407,8 +407,8 @@ class MainForm(imainwindow.IMainWindow):
                     new_module_action.setObjectName("shConsoleAction")
                     new_module_action.setText(self.tr(descript_module))
                     new_module_action.setShortcut(
-                        getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num)))
-                    ).value
+                        getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num))).value
+                    )
                     new_module_action.setIcon(
                         QtGui.QIcon(aqs.AQS.pixmap_fromMimeSource("consola.png"))
                     )
@@ -425,8 +425,8 @@ class MainForm(imainwindow.IMainWindow):
                 new_module_action.setObjectName(mod)
                 new_module_action.setText(self.tr(descript_module))
                 new_module_action.setShortcut(
-                    getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num)))
-                ).value
+                    getattr(QtCore.Qt.Key, "Key_%s" % str(chr(char_num))).value
+                )
                 new_module_action.setIcon(QtGui.QIcon(self.db().managerModules().iconModule(mod)))
                 new_area_bar.addAction(new_module_action)
                 new_module_action.triggered.connect(self.activateModule)
@@ -439,7 +439,7 @@ class MainForm(imainwindow.IMainWindow):
             for child in new_area_bar.children():
                 if isinstance(child, QtWidgets.QToolButton):
                     self.mdi_toolbuttons.append(child)
-                    lay.setAlignment(child, QtCore.Qt.AlignCenter)
+                    lay.setAlignment(child, QtCore.Qt.Alignment.AlignCenter)
 
             a_menu = self.modules_menu.addMenu(descript_area)
             for action in action_group.actions():
@@ -797,11 +797,12 @@ class MainForm(imainwindow.IMainWindow):
                     settings.SETTINGS.value("Geometry/MainWindowHeight", rect_.height())
                 )
 
-                desk = QtWidgets.QApplication.desktop().availableGeometry(self.container_)
-                inter = desk.intersected(rect_)
-                self.container_.resize(rect_.size())
-                if inter.width() * inter.height() > (rect_.width() * rect_.height() / 20):
-                    self.container_.move(rect_.topLeft())
+                # FIXME
+                # desk = QtWidgets.QApplication.desktop().availableGeometry(self.container_)
+                # inter = desk.intersected(rect_)
+                # self.container_.resize(rect_.size())
+                # if inter.width() * inter.height() > (rect_.width() * rect_.height() / 20):
+                #    self.container_.move(rect_.topLeft())
 
             else:
                 self.container_.resize(
