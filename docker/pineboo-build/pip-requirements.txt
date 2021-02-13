@@ -40,3 +40,4 @@ flup
 xmljson
 cryptography
 poppler-utils
+pympler
