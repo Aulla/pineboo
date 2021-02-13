@@ -732,7 +732,7 @@ def pool_status(conn_name: str = "main_conn") -> str:
 
 
 def memory_status() -> None:
-    """Return merory status."""
+    """Return memory status."""
 
     from pineboolib.fllegacy import flutil
 
@@ -742,7 +742,7 @@ def memory_status() -> None:
     file_ = open(file_path, "w", encoding="UTF-8")
 
     try:
-        from pympler import muppy, summary
+        from pympler import muppy, summary  # type: ignore [import] # noqa: F821
 
         all_objects = muppy.get_objects()
 
