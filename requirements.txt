@@ -58,3 +58,4 @@ lxml
 pyOpenSSL
 xades
 qrcode[pil]
+pympler

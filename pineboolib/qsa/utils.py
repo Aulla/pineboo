@@ -6,6 +6,7 @@ import re
 import math
 import sys
 import threading
+import os
 
 from PyQt5 import QtCore
 from pineboolib.application import types
@@ -728,3 +729,31 @@ def pool_status(conn_name: str = "main_conn") -> str:
     """Return pool status used for the conn_name."""
 
     return application.PROJECT.conn_manager.pool_status(conn_name)
+
+
+def memory_status() -> None:
+    """Return merory status."""
+
+    from pineboolib.fllegacy import flutil
+
+    time_stamp = flutil.FLUtil().timestamp()
+    file_path = os.path.join(application.PROJECT.tmpdir, "%s.txt" % time_stamp)
+
+    file_ = open(file_path, "w", encoding="UTF-8")
+
+    try:
+        from pympler import muppy, summary
+
+        all_objects = muppy.get_objects()
+
+        file_.write("SIZE OBJECTS IN MEMORY : %s\n\n" % len(all_objects))
+        file_.write("\nTYPES,OBJECTS,MEMORY SIZE")
+
+        for item in summary.summarize(all_objects):
+            file_.write("\n%s" % item)
+
+        file_.close()
+        LOGGER.warning("MEMORY_STATUS: File %s is created with debug.", file_path)
+
+    except ImportError:
+        LOGGER.warning("need install 'pympler' module first.")
