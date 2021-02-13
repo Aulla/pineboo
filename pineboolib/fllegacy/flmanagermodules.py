@@ -449,11 +449,6 @@ class FLManagerModules(object):
         if ui_version < "4.0":
             qt3ui.load_ui(form_path, parent)
         else:
-            if ui_version < "6.0":
-                LOGGER.warning(
-                    "PLEASE FIXME: %s form V.%s will fail on load", form_path, ui_version
-                )
-
             from PyQt6 import uic  # type: ignore
 
             qt_widgets_path = utils_base.filedir("plugins/custom_widgets")
