@@ -746,12 +746,16 @@ def memory_status() -> None:
 
         all_objects = muppy.get_objects()
 
-        file_.write("SIZE OBJECTS IN MEMORY : %s\n\n" % len(all_objects))
-        file_.write("\nTYPES,OBJECTS,MEMORY SIZE")
-
+        file_.write("TYPES,OBJECTS,MEMORY SIZE")
+        sum_memory = 0
+        sum_objects = 0
         for item in summary.summarize(all_objects):
             file_.write("\n%s" % item)
+            sum_objects += item[1]
+            sum_memory += item[2]
 
+        file_.write("\nOBJECTS IN MEMORY  : %s" % len(all_objects))
+        file_.write("\nTOTAL MEMORY USAGE : %s" % sum_memory)
         file_.close()
         LOGGER.warning("MEMORY_STATUS: File %s is created with debug.", file_path)
 
