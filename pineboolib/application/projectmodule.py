@@ -653,7 +653,7 @@ class Project(object):
             result = static_flfiles.files()
         else:
             result = conn.execute_query(
-                """SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
+                """SELECT idmodulo, nombre, sha, idmodulo FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
             )
 
         log_file = open(path._dir("project.txt"), "w")
@@ -688,6 +688,21 @@ class Project(object):
                     utils_base.empty_dir(fileobjdir)
                 else:
                     os.makedirs(fileobjdir)
+
+                if not static_flfiles:
+                    result = conn.execute_query(
+                        """SELECT contenido FROM flfiles WHERE sha = %s AND nombre = %s """
+                        % (
+                            conn.driver().formatValue("string", sha, False),
+                            conn.driver().formatValue("string", nombre, False),
+                        )
+                    ).first()
+
+                    contenido = None
+                    if result is not None:
+                        contenido = result[
+                            0
+                        ]  # Recogemos verdadero contenido. cuando usamos flfiles. más rpapido conexiones lentas.
 
                 if contenido is not None:
                     encode_ = "UTF-8" if str(nombre).endswith((".ts", ".py")) else "ISO-8859-15"
