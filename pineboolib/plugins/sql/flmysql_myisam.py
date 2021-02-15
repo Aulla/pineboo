@@ -6,7 +6,7 @@ Module for MYISAM driver.
 from pineboolib import logging
 from . import pnsqlschema
 
-from typing import Any, Optional, List, TYPE_CHECKING
+from typing import Any, Optional, List, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
@@ -293,9 +293,14 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         """Return alternative connection."""
         return self.getConn("", host, port, usern, passw_)
 
+    def do_connect(self, dbapi_connection, connection_record):
+        """Isolation Level fix."""
+
+        dbapi_connection.isolation_level = "READ COMMITTED"
+
     def get_common_params(self) -> None:
         """Load common params."""
 
         super().get_common_params()
-
         self._queqe_params["isolation_level"] = "READ COMMITTED"
+
