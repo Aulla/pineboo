@@ -653,7 +653,7 @@ class Project(object):
             result = static_flfiles.files()
         else:
             result = conn.execute_query(
-                """SELECT idmodulo, nombre, sha, idmodulo FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
+                """SELECT idmodulo, nombre, sha, bloqueo FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
             )
 
         log_file = open(path._dir("project.txt"), "w")
