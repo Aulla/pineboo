@@ -6,7 +6,7 @@ Module for MYISAM driver.
 from pineboolib import logging
 from . import pnsqlschema
 
-from typing import Any, Optional, List, Tuple, TYPE_CHECKING
+from typing import Any, Optional, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.application.metadata import pntablemetadata  # noqa: F401 # pragma: no cover
@@ -303,4 +303,3 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         super().get_common_params()
         self._queqe_params["isolation_level"] = "READ COMMITTED"
-
