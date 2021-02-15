@@ -106,7 +106,7 @@ class QSADictModules:
         module_name = action._name if action._name != "sys" else "sys_module"
         if cls.action_exists(module_name):
             if module_name != "sys_module":
-                LOGGER.warning("Module found twice, will not be overriden: %s", module_name)
+                LOGGER.info("Module found twice, will not be overriden: %s", module_name)
             return False
 
         # Se crea la action del módulo
@@ -128,7 +128,7 @@ class QSADictModules:
 
         actionname = "form%s" % name
         if cls.action_exists(actionname):
-            LOGGER.warning(
+            LOGGER.info(
                 "No se sobreescribe variable de entorno %s. Hay una definición previa.",
                 "%s.form%s" % (module.module_name, name),
             )
@@ -150,7 +150,7 @@ class QSADictModules:
             raise ValueError("Action.module must be set before calling")
         actionname = "formRecord" + name
         if cls.action_exists(actionname):
-            LOGGER.warning(
+            LOGGER.info(
                 "No se sobreescribe variable de entorno %s. Hay una definición previa.",
                 "%s.formRecord%s" % (module.module_name, name),
             )
@@ -176,7 +176,7 @@ class QSADictModules:
 
         if class_name:
             if cls.action_exists(class_name):
-                LOGGER.warning(
+                LOGGER.info(
                     "No se sobreescribe variable de entorno %s. Hay una definición previa.",
                     "%s.%s" % (module.module_name, class_name),
                 )

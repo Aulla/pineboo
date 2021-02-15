@@ -204,7 +204,7 @@ class Project(object):
             if file_.filename.endswith(".mtd"):
 
                 if "%s_model.py" % file_.filename[:-4] in self.files.keys():
-                    LOGGER.warning(
+                    LOGGER.info(
                         "Ya existe un model para %s.mtd (%s), no se convertirá a model.",
                         file_.filename[:-4],
                         self.files["%s_model.py" % file_.filename[:-4]].path(),
@@ -226,7 +226,7 @@ class Project(object):
                     )
 
         self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
-        LOGGER.warning("Loading ORMS ...")
+        LOGGER.info("Loading ORMS ...")
         pnormmodelsfactory.load_models()
 
     def load_classes(self) -> None:
