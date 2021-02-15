@@ -22,7 +22,9 @@ LOGGER = logging.get_logger(__name__)
 RESERVER_WORDS = ["pass"]
 
 
-def mtd_parse(table_name: Union[str, "pntablemetadata.PNTableMetaData"], path_mtd: str = "") -> str:
+def mtd_parse(
+    meta_or_name: Union[str, "pntablemetadata.PNTableMetaData"], path_mtd: str = ""
+) -> str:
     """
     Parse MTD into SqlAlchemy model.
     """
@@ -30,23 +32,22 @@ def mtd_parse(table_name: Union[str, "pntablemetadata.PNTableMetaData"], path_mt
     if application.PROJECT.conn_manager is None:
         raise Exception("Project is not connected yet")
 
-    if isinstance(table_name, str):
-        dest_file = "%s_model.py" % path_mtd
-        if not os.path.exists(dest_file):
-            mtd_ = application.PROJECT.conn_manager.manager().metadata(table_name, True)
-            if mtd_ is None:
-                return ""
-        else:
-            return dest_file
+    dest_file = "%s_model.py" % path_mtd  # str
 
+    if not isinstance(meta_or_name, str):
+        dest_file = "%s/cache/%s_model.py" % (application.PROJECT.tmpdir, meta_or_name.name())
+
+    if os.path.exists(dest_file):
+        return dest_file
+
+    if isinstance(meta_or_name, str):
+        metadata = application.PROJECT.conn_manager.manager().metadata(meta_or_name, True)
+        if metadata is None:
+            return ""
     else:
-        dest_file = "%s/cache/%s_model.py" % (application.PROJECT.tmpdir, table_name.name())
-        if os.path.exists(dest_file):
-            return dest_file
+        metadata = meta_or_name
 
-        mtd_ = table_name
-
-    lines = _generate_model(mtd_)
+    lines = _generate_model(metadata)
     if not lines:
         dest_file = ""
     else:
