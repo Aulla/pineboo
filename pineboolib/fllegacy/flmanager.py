@@ -1354,9 +1354,7 @@ class FLManager(QtCore.QObject, IManager):
         @param n Name of the table.
         @return TRUE if it is a system table
         """
-        return (
-            True
-            if table_name[0:3] == "sys"
+        return table_name[0:3] == "sys"
             or table_name.startswith(
                 (
                     "flfiles",
@@ -1375,8 +1373,6 @@ class FLManager(QtCore.QObject, IManager):
                     "flusers",
                 )
             )
-            else False
-        )
 
     def storeLargeValue(
         self, mtd: "pntablemetadata.PNTableMetaData", large_value: str

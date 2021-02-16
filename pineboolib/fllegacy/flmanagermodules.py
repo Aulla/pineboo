@@ -228,7 +228,7 @@ class FLManagerModules(object):
             )
         )
 
-        ret = result_conn.fetchone() if result_conn else None
+        ret = result_conn.first()
         if ret is not None:
             return ret[0]
 
@@ -287,37 +287,35 @@ class FLManagerModules(object):
         @param file_name File name.
         @return QString with the contents of the file or None in case of error.
         """
-        sys_table: bool = False
-        if file_name.endswith(".mtd"):
-            if file_name[0:3] == "sys":
-                sys_table = True
-            else:
-                sys_table = self.conn_.connManager().manager().isSystemTable(file_name)
+
+        sys_table: bool = self.conn_.connManager().manager().isSystemTable(
+            file_name
+        ) if file_name.endswith(".mtd") else False
+
+        data = ""
 
         if not sys_table and self.static_db_info_ and self.static_db_info_.enabled_:
-            str_ret = self.contentStatic(file_name)
-            if str_ret:
-                return str_ret
+            data = self.contentStatic(file_name)
 
-        if file_name in self._files_cached.keys():
-            return self._files_cached[file_name]
+        if not data:
+            if file_name in self._files_cached.keys():
+                data = self._files_cached[file_name]
+            else:
+                path_file = _path(file_name, False)
+                if path_file is not None and os.path.exists(path_file):
+                    file_encode = encoding = (
+                        "UTF8" if file_name.endswith((".ts", ".py")) else "ISO-8859-15"
+                    )
+                    file_ = codecs.open(path_file, "r", file_encode)
+                    data = file_.read()
+                    file_.close()
 
-        path_file = _path(file_name, False) or ""
-        data = ""
-        if path_file and os.path.exists(path_file):
-            file_ = codecs.open(
-                path_file,
-                "r",
-                encoding="UTF8" if file_name.endswith((".ts", ".py")) else "ISO-8859-15",
-            )
-            data = file_.read()
-            file_.close()
-
-        else:
-            data = self.content(file_name)
+                else:  # load from database
+                    data = self.content(file_name)
 
         if data:
             self._files_cached[file_name] = data
+
         return data
 
     def setContent(self, file_name: str, id_module: str, content: str) -> None:
@@ -772,7 +770,7 @@ class FLManagerModules(object):
             return application.PROJECT.files[name].module
         else:
             LOGGER.warning(
-                "No encuentro %s ** %s", name, application.PROJECT.files.keys(), stack_info=True
+                "Can't found %s ** %s", name, application.PROJECT.files.keys(), stack_info=True
             )
 
         return ""
@@ -861,13 +859,11 @@ class FLManagerModules(object):
             if file_name.endswith(".mtd"):
                 mtd = mng.metadata(ET.fromstring(str_ret), True)
 
-                if not mtd or mtd.isQuery():
-                    return str_ret
-
-                if not mng.existsTable(mtd.name()):
-                    mng.createTable(mtd)
-                elif self.conn_.canRegenTables():
-                    self.conn_.regenTable(mtd.name(), mtd)
+                if mtd is not None and not mtd.isQuery():
+                    if not self.conn_.existsTable(mtd.name()):
+                        self.conn_.createTable(mtd)
+                    elif self.conn_.canRegenTables():
+                        self.conn_.regenTable(mtd.name(), mtd)
 
         return str_ret
 
