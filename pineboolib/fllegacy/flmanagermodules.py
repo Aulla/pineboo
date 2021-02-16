@@ -303,9 +303,8 @@ class FLManagerModules(object):
             else:
                 path_file = _path(file_name, False)
                 if path_file is not None and os.path.exists(path_file):
-                    file_encode = encoding = (
-                        "UTF8" if file_name.endswith((".ts", ".py")) else "ISO-8859-15"
-                    )
+                    file_encode = "UTF8" if file_name.endswith((".ts", ".py")) else "ISO-8859-15"
+
                     file_ = codecs.open(path_file, "r", file_encode)
                     data = file_.read()
                     file_.close()
