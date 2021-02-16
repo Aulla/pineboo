@@ -33,12 +33,8 @@ class AQStaticDirInfo(object):
     def __init__(self, *args) -> None:
         """Inicialize."""
 
-        if len(args) == 1:
-            self.active_ = str(args[0]) == "True"
-            self.path_ = ""
-        else:
-            self.active_ = str(args[0]) == "True"
-            self.path_ = args[1]
+        self.active_ = str(args[0]) == "True"
+        self.path_ = "" if len(args) == 1 else args[1]
 
 
 class AQStaticBdInfo(object):
