@@ -314,4 +314,3 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
             )
 
         return super().connect(db_name, db_host, db_port, db_user_name, db_password)
-
