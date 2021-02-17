@@ -39,7 +39,6 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self._like_false = "0"
         self._text_like = " "
         self._create_isolation = False
-        self._use_altenative_isolation_level = True
 
         self._database_not_found_keywords = ["Unknown database"]
         self._default_charset = "DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
@@ -303,3 +302,16 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
 
         super().get_common_params()
         self._queqe_params["isolation_level"] = "READ COMMITTED"
+
+    def connect(
+        self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str
+    ) -> Optional["base.Connection"]:
+        """Connect to database."""
+
+        if self._no_inno_db:
+            LOGGER.warning(
+                "MyISAM engines doesn't support transactions. ROLLBACK statement doesn't produce any effect"
+            )
+
+        return super().connect(db_name, db_host, db_port, db_user_name, db_password)
+
