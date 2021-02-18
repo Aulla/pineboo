@@ -33,18 +33,6 @@ def init_project(
         LOGGER.info("Finished preloading")
         return
 
-    if options.action:
-        list = options.action.split(":")
-        action_name = list[0].split(".")[0]
-        # FIXME: Why is commented out?
-        # objaction = project.conn_manager.manager(options.action)
-        if action_name in project.actions.keys():
-
-            ret = project.call(list[0], list[1:] if len(list) > 1 else [])
-            return ret
-        else:
-            raise ValueError("Action name %s not found" % options.action)
-
     call_function = settings.SETTINGS.value("application/callFunction", None)
     if options.call_function:
         call_function = options.call_function
@@ -53,7 +41,7 @@ def init_project(
         LOGGER.debug("callFunction (%s)", call_function)
         args = call_function.split(":")
         try:
-            project.call(call_function, args[1:] if args else [])
+            project.call(args[0], args[1:] if len(args) > 1 else [])
         except Exception as error:
             from pineboolib import application
 
