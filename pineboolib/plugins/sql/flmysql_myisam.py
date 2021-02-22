@@ -39,7 +39,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self._like_false = "0"
         self._text_like = " "
         self._create_isolation = False
-        self._use_transactions = False
+        self._use_create_table_save_points = False
 
         self._database_not_found_keywords = ["Unknown database"]
         self._default_charset = "DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"

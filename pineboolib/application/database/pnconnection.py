@@ -524,16 +524,16 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().existsTable(name)
 
-    def createTable(
-        self, tmd: "pntablemetadata.PNTableMetaData", use_transactions: bool = True
-    ) -> bool:
+    def createTable(self, tmd: "pntablemetadata.PNTableMetaData") -> bool:
         """Create a table in the database, from a PNTableMetaData."""
 
         sql = self.driver().sqlCreateTable(tmd, True)
         if not sql:
             return False
 
-        if use_transactions:
+        use_save_points = self.driver()._use_create_table_save_points
+
+        if use_save_points:
             self.transaction()
         for single_sql in sql.split(";"):
             self.execute_query(single_sql)
@@ -542,12 +542,12 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     "createTable: Error happened executing sql: %s...%s"
                     % (single_sql[:80], str(self.driver().last_error()))
                 )
-                if use_transactions:
+                if use_save_points:
                     self.rollback()
                 self.driver().set_last_error_null()
                 return False
 
-        if use_transactions:
+        if use_save_points:
             self.commit()
         return True
 

@@ -80,7 +80,7 @@ class PNSqlSchema(object):
     _extra_alternative: str
     _sp_level: int
     _use_altenative_isolation_level: bool
-    _use_transactions: bool
+    _use_create_table_save_points: bool
 
     def __init__(self):
         """Inicialize."""
@@ -114,7 +114,7 @@ class PNSqlSchema(object):
         self._sqlalchemy_name = ""
         self._sp_level = 0
         self._use_altenative_isolation_level = False
-        self._use_transactions = True
+        self._use_create_table_save_points = True
 
     def safe_load(self, exit: bool = False) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -743,8 +743,6 @@ class PNSqlSchema(object):
         util = flutil.FLUtil()
         table_name = new_metadata.name()
 
-        use_transactions = not self.invalid_engine(table_name, True)
-
         old_columns_info = self.recordInfo2(table_name)
         old_field_names: List[str] = [old_column[0] for old_column in old_columns_info]
 
@@ -781,7 +779,7 @@ class PNSqlSchema(object):
                 session_.rollback()
                 return False
 
-        if not self.db_.createTable(new_metadata, use_transactions):
+        if not self.db_.createTable(new_metadata):
             session_.rollback()
             return False
 
