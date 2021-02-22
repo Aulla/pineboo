@@ -14,4 +14,3 @@ class FLMYSQL_INNODB(FLMYSQL_MYISAM):
         self._no_inno_db = False
         self._default_charset = "DEFAULT CHARACTER SET = UTF8MB4 COLLATE = UTF8MB4_BIN"
         self._use_transactions = True
-

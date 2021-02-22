@@ -344,4 +344,3 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
                 return True
 
         return False
-
