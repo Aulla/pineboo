@@ -524,14 +524,17 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
 
         return self.driver().existsTable(name)
 
-    def createTable(self, tmd: "pntablemetadata.PNTableMetaData") -> bool:
+    def createTable(
+        self, tmd: "pntablemetadata.PNTableMetaData", use_transactions: bool = True
+    ) -> bool:
         """Create a table in the database, from a PNTableMetaData."""
 
         sql = self.driver().sqlCreateTable(tmd, True)
         if not sql:
             return False
 
-        self.transaction()
+        if use_transactions:
+            self.transaction()
         for single_sql in sql.split(";"):
             self.execute_query(single_sql)
             if self.driver().last_error():
@@ -539,11 +542,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     "createTable: Error happened executing sql: %s...%s"
                     % (single_sql[:80], str(self.driver().last_error()))
                 )
-                self.rollback()
+                if use_transactions:
+                    self.rollback()
                 self.driver().set_last_error_null()
                 return False
 
-        self.commit()
+        if use_transactions:
+            self.commit()
         return True
 
     def mismatchedTable(self, tablename: str, tmd: "pntablemetadata.PNTableMetaData") -> bool:
