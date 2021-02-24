@@ -149,7 +149,9 @@ class KParserTools(object):
 
             sep = "-"
             if date_format_num is not None:
-                if date_format_num == "18":
+                if date_format_num == "11":
+                    ret_ = ret_.replace(sep, ".")
+                elif date_format_num == "18":
                     ret_ = ret_.replace(sep, "/")
                 elif date_format_num == "19":
                     ret_ = ret_.replace(sep, "-")
