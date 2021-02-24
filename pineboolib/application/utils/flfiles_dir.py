@@ -90,8 +90,13 @@ class FlFiles(object):
 
         descripcion_modulo = self.traducirCadena(descripcion_modulo, root_folder, modulo)
         descripcion_area = self.traducirCadena(descripcion_area, root_folder, modulo)
-        fichero_icono = open(os.path.join(root_folder, nombre_icono), "r", encoding="ISO-8859-15")
-        datos_icono = fichero_icono.read()
+        datos_icono = None
+        if os.path.exists(os.path.join(root_folder, nombre_icono)):
+            fichero_icono = open(
+                os.path.join(root_folder, nombre_icono), "r", encoding="ISO-8859-15"
+            )
+            datos_icono = fichero_icono.read()
+            fichero_icono.close()
 
         if area not in [idarea for idarea, descripcion_area in self._areas]:
             self._areas.append([area, descripcion_area])
