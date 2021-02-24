@@ -174,7 +174,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
         ret_ = None
         if name == "init":
-            return None
+            return None  # type: ignore [return-value] # noqa F821
 
         if self._action is not None:
 
