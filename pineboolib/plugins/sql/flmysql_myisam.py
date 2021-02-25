@@ -39,7 +39,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         self._like_false = "0"
         self._text_like = " "
         self._create_isolation = False
-        self._use_altenative_isolation_level = True
+        self._use_create_table_save_points = False
 
         self._database_not_found_keywords = ["Unknown database"]
         self._default_charset = "DEFAULT CHARACTER SET = utf8 COLLATE = utf8_bin"
@@ -202,6 +202,7 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         """Obtain current cursor information on columns."""
 
         info = []
+
         sql = "SHOW FIELDS FROM %s" % table_name
 
         cursor = self.execute_query(sql)
@@ -293,9 +294,53 @@ class FLMYSQL_MYISAM(pnsqlschema.PNSqlSchema):
         """Return alternative connection."""
         return self.getConn("", host, port, usern, passw_)
 
+    def do_connect(self, dbapi_connection, connection_record):
+        """Isolation Level fix."""
+
+        dbapi_connection.isolation_level = "READ COMMITTED"
+
     def get_common_params(self) -> None:
         """Load common params."""
 
         super().get_common_params()
-
         self._queqe_params["isolation_level"] = "READ COMMITTED"
+
+    def connect(
+        self, db_name: str, db_host: str, db_port: int, db_user_name: str, db_password: str
+    ) -> Optional["base.Connection"]:
+        """Connect to database."""
+
+        if self._no_inno_db:
+            LOGGER.warning(
+                "MyISAM engines doesn't support transactions. ROLLBACK statement doesn't produce any effect"
+            )
+
+        return super().connect(db_name, db_host, db_port, db_user_name, db_password)
+
+    def mismatchedTable(self, table_name: str, metadata: "pntablemetadata.PNTableMetaData") -> bool:
+        """Return if a table is mismatched."""
+
+        if self.invalid_engine(table_name):
+            return True
+
+        return super().mismatchedTable(table_name, metadata)
+
+    def invalid_engine(self, table_name: str, mute: bool = False) -> bool:
+        """Return if table engine is valid."""
+
+        sql_status = "SHOW TABLE STATUS WHERE Name = '%s'" % table_name
+        cursor_status = self.execute_query(sql_status)
+        reg_status = cursor_status.fetchone() if cursor_status else ""
+        if reg_status:
+            engine_name = reg_status[1]
+            if not self._no_inno_db == (engine_name == "MyISAM"):
+                if not mute:
+                    LOGGER.warning(
+                        "The engine of the %s table is of type %s, but the driver uses the %s engine",
+                        table_name,
+                        engine_name,
+                        "MyISAM" if self._no_inno_db else "InnoDB",
+                    )
+                return True
+
+        return False

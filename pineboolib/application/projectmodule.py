@@ -191,42 +191,31 @@ class Project(object):
     def load_orm(self) -> None:
         """Load Orm objects."""
 
-        # from pineboolib.application.parsers.mtdparser import pnmtdparser, pnormmodelsfactory
-
-        # print("FIXME parse solo no existentes! y todos los mtd")
-        # for action_name in self.actions:
-        #    pnmtdparser.mtd_parse(self.actions[action_name])
-        conn = self.conn_manager.mainConn()
-        db_name = conn.DBName()
-
-        for key in list(self.files.keys()):
-            file_ = self.files[key]
-            if file_.filename.endswith(".mtd"):
-
-                if "%s_model.py" % file_.filename[:-4] in self.files.keys():
-                    LOGGER.warning(
-                        "Ya existe un model para %s.mtd (%s), no se convertirá a model.",
-                        file_.filename[:-4],
-                        self.files["%s_model.py" % file_.filename[:-4]].path(),
-                    )
-                    continue
-                dest_file = pnmtdparser.mtd_parse(file_.filename, file_.path())
-
-                if dest_file:
-                    self.files["%s_model.py" % file_.filename[:-4]] = file.File(
-                        file_.module,
-                        "%s_model.py" % file_.path(),
-                        basedir=file_.basedir,
-                        sha=file_.sha,
-                        db_name=db_name,
+        for file_name_model, file_item in [
+            ["%s_model.py" % item.filename[:-4], item]
+            for item in self.files.values()
+            if item.filename.endswith(".mtd")
+        ]:
+            if file_name_model not in self.files.keys():
+                path_file = pnmtdparser.mtd_parse(file_item.filename, file_item.path())
+                if path_file:
+                    self.files[file_name_model] = file.File(
+                        file_item.module,
+                        "%s_model.py" % file_item.path(),
+                        basedir=file_item.basedir,
+                        sha=file_item.sha,
+                        db_name=self.conn_manager.mainConn().DBName(),
                     )
 
-                    self.files["%s_model.py" % file_.filename[:-4]].filekey = (
-                        "%s_model.py" % file_.filekey
-                    )
+                    self.files[file_name_model].filekey = "%s_model.py" % file_item.filekey
+
+            else:
+                LOGGER.info(
+                    "%s already exists (%s).", file_name_model, self.files[file_name_model].path()
+                )
 
         self.message_manager().send("splash", "showMessage", ["Cargando objetos ..."])
-        LOGGER.warning("Loading ORMS ...")
+        LOGGER.info("Loading ORMS ...")
         pnormmodelsfactory.load_models()
 
     def load_classes(self) -> None:
@@ -278,28 +267,31 @@ class Project(object):
         if self.dgi is None:
             raise Exception("DGI not loaded")
 
-        conn = self.conn_manager.mainConn()
-        db_name = conn.DBName()
         delete_cache = self.delete_cache
         cache_ver = PARSER_QSA_VERSION
-        if not os.path.exists(path._dir("cache")):
-            cache_path = path._dir("cache")
+
+        cache_folder = path._dir("cache")
+        db_cache_folder = os.path.join(path._dir("cache"), self.conn_manager.mainConn().DBName())
+        cache_version_file_path = os.path.join(db_cache_folder, "cache_version.txt")
+
+        if not os.path.exists(cache_folder):
             path_build: List[str] = []
             try:
-                LOGGER.info("RUN: Checking if cache folder exists (%s)", cache_path)
-                for folder in os.path.split(cache_path):
+                LOGGER.info("RUN: Checking if cache folder exists (%s)", cache_folder)
+                for folder in os.path.split(cache_folder):
                     path_build.append(folder)
                     if not os.path.exists(os.path.join(*path_build)):
                         os.mkdir(os.path.join(*path_build))
             except Exception as error:
                 raise Exception("Error building cache folder (%s) : %s" % (path_build, error))
 
-        if os.path.exists(path._dir("cache/%s" % db_name)):
-            if not os.path.exists(path._dir("cache/%s/cache_version.txt" % db_name)):
+        if os.path.exists(db_cache_folder):
+
+            if not os.path.exists(cache_version_file_path):
                 delete_cache = True
             else:
                 cache_ver = ""
-                file_ver = open(path._dir("cache/%s/cache_version.txt" % db_name), "r")
+                file_ver = open(cache_version_file_path, "r")
                 cache_ver = file_ver.read()
                 file_ver.close()
                 if cache_ver != PARSER_QSA_VERSION:
@@ -315,14 +307,12 @@ class Project(object):
                 else:
                     LOGGER.warning("Deleting cache.")
 
-        if delete_cache and os.path.exists(path._dir("cache/%s" % db_name)):
+        if delete_cache and os.path.exists(db_cache_folder):
 
             self.message_manager().send("splash", "showMessage", ["Borrando caché ..."])
-            LOGGER.info(
-                "DEVELOP: delete_cache Activado\nBorrando %s", path._dir("cache/%s" % db_name)
-            )
+            LOGGER.info("DEVELOP: delete_cache Activado\nBorrando %s", db_cache_folder)
 
-            for root, dirs, files in os.walk(path._dir("cache/%s" % db_name), topdown=False):
+            for root, dirs, files in os.walk(db_cache_folder, topdown=False):
                 for name in files:
                     if os.path.exists(os.path.join(root, name)):
                         os.remove(os.path.join(root, name))
@@ -345,27 +335,19 @@ class Project(object):
                             )
                             pass
 
-        if not os.path.exists(path._dir("cache")):
-            LOGGER.warning("RUN: Creating %s folder.", path._dir("cache"))
-            os.makedirs(path._dir("cache"))
+        if not os.path.exists(cache_folder):
+            LOGGER.info("RUN: Creating %s folder.", cache_folder)
+            os.makedirs(cache_folder)
 
-        if not os.path.exists(path._dir("cache/%s" % db_name)):
-            LOGGER.warning("RUN: Creating %s folder.", path._dir("cache/%s" % db_name))
-            os.makedirs(path._dir("cache/%s" % db_name))
+        if not os.path.exists(db_cache_folder):
+            LOGGER.info("RUN: Creating %s folder.", db_cache_folder)
+            os.makedirs(db_cache_folder)
 
-        ret_ = False
-        if self.load_system_module() and self.load_database_modules():
-            ret_ = True
-
-        # FIXME: ACLs needed at this level?
-        # self.acl_ = FLAccessControlLists()
-        # self.acl_.init()
-
-        file_ver = open(path._dir("cache/%s/cache_version.txt" % db_name), "w")
+        file_ver = open(cache_version_file_path, "w")
         file_ver.write(PARSER_QSA_VERSION)
         file_ver.close()
 
-        return ret_
+        return self.load_system_module() and self.load_database_modules()
 
     def call(
         self,
@@ -479,8 +461,9 @@ class Project(object):
         pytnyzer.STRICT_MODE = True
 
         itemlist = []
-        for num, path_file in enumerate(path_list):
-            dest_file_name = "%s.py" % path_file[:-3]
+        size_list = len(path_list)
+        for num, orig_file_name in enumerate(path_list):
+            dest_file_name = "%s.py" % orig_file_name[:-3]
             if dest_file_name in self.pending_conversion_list:
                 LOGGER.warning("The file %s is already being converted. Waiting", dest_file_name)
                 while dest_file_name in self.pending_conversion_list:
@@ -490,18 +473,9 @@ class Project(object):
                 self.pending_conversion_list.append(dest_file_name)
                 itemlist.append(
                     pyconvert.PythonifyItem(
-                        src=path_file, dst=dest_file_name, number=num, len=len(path_list), known={}
+                        src=orig_file_name, dst=dest_file_name, number=num, len=size_list, known={}
                     )
                 )
-
-        # itemlist = [
-        #    pyconvert.PythonifyItem(
-        #        src=path_file, dst="%s.py" % path_file[:-3], n=n, len=len(path_list), known={}
-        #    )
-        #    for n, path_file in enumerate(path_list)
-        # ]
-        # msg = "Convirtiendo a Python . . ."
-        # LOGGER.info(msg)
 
         threads_num = pyconvert.CPU_COUNT
         if len(itemlist) < threads_num:
@@ -564,8 +538,6 @@ class Project(object):
     def load_system_module(self) -> bool:
         """Load system module."""
 
-        conn = self.conn_manager.mainConn()
-        db_name = conn.DBName()
         base_dir = utils_base.get_base_dir()
         is_library = utils_base.is_library()
 
@@ -580,7 +552,9 @@ class Project(object):
                     continue
 
                 if root.find("modulos") == -1:
-                    fileobj = file.File("sys", nombre, basedir=root, db_name=db_name)
+                    fileobj = file.File(
+                        "sys", nombre, basedir=root, db_name=self.conn_manager.mainConn().DBName()
+                    )
                     self.files[nombre] = fileobj
                     self.modules["sys"].add_project_file(fileobj)
 
@@ -653,7 +627,7 @@ class Project(object):
             result = static_flfiles.files()
         else:
             result = conn.execute_query(
-                """SELECT idmodulo, nombre, sha, contenido FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
+                """SELECT idmodulo, nombre, sha, bloqueo FROM flfiles WHERE NOT sha = '' ORDER BY idmodulo, nombre """
             )
 
         log_file = open(path._dir("project.txt"), "w")
@@ -668,7 +642,7 @@ class Project(object):
             elif is_library and nombre.endswith("ui"):  # Si es un UI en modo librería.
                 continue
 
-            elif nombre in self.files:  # Si se sobreescribe un fichero ya existente.
+            elif nombre in self.files.keys():  # Si se sobreescribe un fichero ya existente.
                 if self.files[nombre].module == "sys":
                     continue
                 else:
@@ -688,6 +662,21 @@ class Project(object):
                     utils_base.empty_dir(fileobjdir)
                 else:
                     os.makedirs(fileobjdir)
+
+                if not static_flfiles:
+                    result = conn.execute_query(
+                        """SELECT contenido FROM flfiles WHERE sha = %s AND nombre = %s """
+                        % (
+                            conn.driver().formatValue("string", sha, False),
+                            conn.driver().formatValue("string", nombre, False),
+                        )
+                    ).first()
+
+                    contenido = None
+                    if result is not None:
+                        contenido = result[
+                            0
+                        ]  # Recogemos verdadero contenido. cuando usamos flfiles. más rpapido conexiones lentas.
 
                 if contenido is not None:
                     encode_ = "UTF-8" if str(nombre).endswith((".ts", ".py")) else "ISO-8859-15"

@@ -531,7 +531,10 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
         if not sql:
             return False
 
-        self.transaction()
+        use_save_points = self.driver()._use_create_table_save_points
+
+        if use_save_points:
+            self.transaction()
         for single_sql in sql.split(";"):
             self.execute_query(single_sql)
             if self.driver().last_error():
@@ -539,11 +542,13 @@ class PNConnection(QtCore.QObject, iconnection.IConnection):
                     "createTable: Error happened executing sql: %s...%s"
                     % (single_sql[:80], str(self.driver().last_error()))
                 )
-                self.rollback()
+                if use_save_points:
+                    self.rollback()
                 self.driver().set_last_error_null()
                 return False
 
-        self.commit()
+        if use_save_points:
+            self.commit()
         return True
 
     def mismatchedTable(self, tablename: str, tmd: "pntablemetadata.PNTableMetaData") -> bool:

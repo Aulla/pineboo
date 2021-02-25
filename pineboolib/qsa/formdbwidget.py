@@ -173,6 +173,9 @@ class FormDBWidget(QtWidgets.QWidget):
         """Guess if attribute can be found in other related objects."""
 
         ret_ = None
+        if name == "init":
+            return None  # type: ignore [return-value] # noqa F821
+
         if self._action is not None:
 
             if self._action._table:

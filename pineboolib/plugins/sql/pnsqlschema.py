@@ -80,6 +80,7 @@ class PNSqlSchema(object):
     _extra_alternative: str
     _sp_level: int
     _use_altenative_isolation_level: bool
+    _use_create_table_save_points: bool
 
     def __init__(self):
         """Inicialize."""
@@ -113,6 +114,7 @@ class PNSqlSchema(object):
         self._sqlalchemy_name = ""
         self._sp_level = 0
         self._use_altenative_isolation_level = False
+        self._use_create_table_save_points = True
 
     def safe_load(self, exit: bool = False) -> bool:
         """Return if the driver can loads dependencies safely."""
@@ -255,8 +257,11 @@ class PNSqlSchema(object):
                 self.get_common_params()
                 self._engine = create_engine(str_conn, **self._queqe_params)
                 if self._use_altenative_isolation_level:
+                    event.listen(self._engine, "connect", self.do_connect)
                     event.listen(self._engine, "begin", self.do_begin)
                     event.listen(self._engine, "savepoint", self.do_savepoint)
+                    event.listen(self._engine, "rollback", self.do_rollback)
+                    event.listen(self._engine, "commit", self.do_commit)
 
                 ENGINES[str_conn] = self._engine
 
@@ -1266,11 +1271,29 @@ class PNSqlSchema(object):
     def do_begin(self, conn):
         """Begin event."""
 
-        conn.exec_driver_sql("BEGIN")
+        pass
+
+    def do_commit(self, conn):
+        """Commit event."""
+
+        pass
+
+    def do_rollback(self, conn):
+        """Rollback event."""
+
+        pass
 
     def do_savepoint(self, conn, name):
         """Save point event."""
 
-        self._sp_level += 1
-        name = "sp_%s" % self._sp_level
-        conn.exec_driver_sql("SAVEPOINT %s" % name)
+        pass
+
+    def do_connect(self, dbapi_connection, connection_record):
+        """Isolation Level fix."""
+
+        pass
+
+    def invalid_engine(self, table_name: str, mute: bool = False) -> bool:
+        """Return if table engine is valid."""
+
+        return False

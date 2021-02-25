@@ -39,6 +39,9 @@ class FLDateEdit(qdateedit.QDateEdit):
     ) -> None:
         """Set Date."""
 
+        if isinstance(date, QtCore.QDate) and date.isNull():
+            date = None
+
         if date in (None, "NAN", ""):
             date_ = QtCore.QDate.fromString(str("01-01-2000"), self.DMY)
         else:

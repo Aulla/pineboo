@@ -94,7 +94,7 @@ def startup(enable_gui: bool = None) -> None:
 
     init_logging(logtime=options.log_time, loglevel=options.loglevel, trace_loggers=trace_loggers)
     if application.DEVELOPER_MODE:
-        LOGGER.warning("Developer mode activated")
+        LOGGER.info("Developer mode activated")
 
     if options.enable_profiler:
         ret = exec_main_with_profiler(options)

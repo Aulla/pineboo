@@ -1025,7 +1025,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             for field in field_list:
                 field_name = field.name()
                 relation_m1 = field.relationM1()
-                value = None
+                value = self.buffer().value(field_name)
                 table_metadata = (
                     self.db().connManager().manager().metadata(relation_m1.foreignTable())
                     if relation_m1
@@ -1047,7 +1047,6 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                             )
                             continue
 
-                        value = self.buffer().value(field_name)
                         field_metadata_name = assoc_field_metadata.name()
                         assoc_value = self.private_cursor.buffer_.value(field_metadata_name)
                         if field.type() == "uint" and value == 0:
@@ -1333,6 +1332,7 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
                 elif self.private_cursor.mode_access_ == self.Del:
                     self.private_cursor.msgBoxWarning("No se puede borrar registro:\n" + msg)
 
+            LOGGER.warning(msg)
             return False
 
         return True
@@ -1763,16 +1763,20 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             if not self.private_cursor.cursor_relation_.metadata():
                 return
             if (
-                self.private_cursor.cursor_relation_.metadata().primaryKey() == field_name
+                self.private_cursor.cursor_relation_.primaryKey() == field_name
                 and self.private_cursor.cursor_relation_.modeAccess() == self.Insert
             ):
                 return
+
+            if self.private_cursor.cursor_relation_.modeAccess() == self.Insert:
+                self.setModeAccess(self.Browse)
 
             if not field_name or self.private_cursor.relation_.foreignField() == field_name:
                 # if self.private_cursor.buffer_:
                 #    self.private_cursor.buffer_.clear_buffer()
                 self.refreshDelayed(0)
                 return
+
         else:
             emite = False
             pk_value = self.valueBuffer(self.primaryKey())
