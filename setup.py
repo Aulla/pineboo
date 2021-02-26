@@ -24,7 +24,7 @@ for lang in languages:
         pathlib.Path("pineboolib/system_module/translations/sys.%s.ts" % lang).absolute()
     )
 
-ret = subprocess.call(["pylupdate6", *py_files, *ui_files, "-ts", *ts_files])
+ret = subprocess.call(["pylupdate5", *py_files, *ui_files, "-ts", *ts_files])
 if ret != 0:
     raise Exception("Error updating .ts files!")
 
@@ -60,7 +60,7 @@ setuptools.setup(
     },
     install_requires=required,
     keywords="erp pineboo eneboo accounting sales warehouse",
-    python_requires="~=3.6.9",
+    python_requires=">=3.6.9",
     entry_points={
         "console_scripts": [
             "pineboo-parse=pineboolib.application.parsers.parser_qsa.postparse:main",
