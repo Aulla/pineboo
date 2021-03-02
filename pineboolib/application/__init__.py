@@ -11,6 +11,7 @@ PROJECT = Project()
 
 SERIALIZE_LIST: Dict[int, List[str]] = {}
 FILE_CLASSES: Dict[str, str] = {}
+ID_SESSION = ""
 
 PINEBOO_VER = "0.99.2.1"
 

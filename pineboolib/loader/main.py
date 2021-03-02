@@ -492,6 +492,10 @@ def exec_main(options: Values) -> int:
 def _initialize_data(is_framework: bool = False) -> None:
     """Initialize data."""
 
+    application.ID_SESSION = QtCore.QDateTime.currentDateTime().toString(
+        QtCore.Qt.DateFormat.ISODate
+    )
+
     if is_framework:
         LOGGER.info("STARTUP_FRAMEWORK:(3/7) Loading database.")
     if not application.PROJECT.run():
