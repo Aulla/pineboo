@@ -30,6 +30,8 @@ class SysBaseType(object):
     Obtain useful data from the application.
     """
 
+    time_user_ = QtCore.QDateTime.currentDateTime()
+
     @classmethod
     def nameUser(cls) -> str:
         """Get current database user."""
@@ -232,7 +234,7 @@ class SysBaseType(object):
         """Get Session ID."""
 
         # FIXME: Code copied from flapplication.aqApp
-        return application.ID_SESSION.toString(QtCore.Qt.DateFormat.ISODate)
+        return application.ID_SESSION
 
     @classmethod
     def reportChanges(cls, changes: Dict[str, str] = {}):
