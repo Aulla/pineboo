@@ -230,8 +230,13 @@ class SysBaseType(object):
     @classmethod
     def idSession(cls) -> str:
         """Get Session ID."""
+
         # FIXME: Code copied from flapplication.aqApp
+<<<<<<< HEAD
         return application.ID_SESSION.toString(QtCore.Qt.DateFormat.ISODate)
+=======
+        return application.ID_SESSION
+>>>>>>> f9cb9004fb767f929cf126289b1b006c3a809289
 
     @classmethod
     def reportChanges(cls, changes: Dict[str, str] = {}):
