@@ -206,7 +206,7 @@ class pdfQr:
                 label_painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
                 label_painter.drawImage(
                     image_label_resized.width() - image_qr.width(),
-                    int((self._font_size + 2) * self._factor),
+                    int((self._font_size + 4) * self._factor),
                     image_qr,
                 )
                 label_painter.end()
