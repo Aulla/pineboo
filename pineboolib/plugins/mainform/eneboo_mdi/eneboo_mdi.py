@@ -1121,9 +1121,9 @@ class MainForm(imainwindow.IMainWindow):
             do_exit = application.PROJECT.aq_app.queryExit()
         if do_exit:
             self._destroying = True
-            if application.PROJECT.aq_app.consoleShown():
-                if application.PROJECT.aq_app._ted_output is not None:
-                    application.PROJECT.aq_app._ted_output.close()
+            # if application.PROJECT.aq_app.consoleShown():
+            #    if application.PROJECT.aq_app._ted_output is not None:
+            #        application.PROJECT.aq_app._ted_output.close()
 
             if not application.PROJECT.aq_app.form_alone_:
                 self.writeState()

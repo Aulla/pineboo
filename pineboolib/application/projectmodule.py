@@ -704,7 +704,7 @@ class Project(object):
 
         log_file.close()
         LOGGER.info("RUN: End populating cache.")
-
+        self.conn_manager.removeConn("dbaux")
         del log_file
 
         self.message_manager().send(

@@ -639,7 +639,9 @@ class PNApplication(QtCore.QObject):
 
     def consoleShown(self) -> bool:
         """Return if console is shown."""
-        return bool(self._ted_output and not self._ted_output.isHidden())
+
+        hidden = getattr(self._ted_output, "isHidden", False)
+        return hidden() if hidden is not None else False
 
     def modMainWidget(self, id_modulo: str) -> Optional[QtWidgets.QWidget]:
         """Set module main widget."""
