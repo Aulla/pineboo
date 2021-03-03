@@ -11,7 +11,7 @@ import weakref
 from . import load_script
 
 
-from typing import Optional, Union, Dict, List, TYPE_CHECKING
+from typing import Optional, Union, Dict, List, Any, TYPE_CHECKING
 
 from pineboolib import application
 from pineboolib.application.database import pnsqlcursor
@@ -349,9 +349,9 @@ class XMLAction(struct.ActionStruct):
 
         # limpieza
         threads_ids: List[Optional[int]] = [thread.ident for thread in threading.enumerate()]
-        obj_list = [self.__cursor, self.__master_widget, self.__record_widget]
+        obj_list: List[Dict[int, Any]] = [self.__cursor, self.__master_widget, self.__record_widget]
         for obj_ in obj_list:
-            for id_thread in list(obj_.keys()):
+            for id_thread in list(obj_.keys()):  # type: ignore [attr-defined] # noqa: F821
                 if obj_[id_thread] is not None:
                     if id_thread not in threads_ids:
                         check_gc_referrers(

@@ -327,7 +327,6 @@ class PNApplication(QtCore.QObject):
                 if hasattr(main_window, "_p_work_space"):
                     main_window._p_work_space = None
 
-        application.PROJECT.conn_manager.mainConn().driver().empty_base()
         self.reinitP()
 
     def startTimerIdle(self) -> None:
