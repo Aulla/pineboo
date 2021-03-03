@@ -704,8 +704,7 @@ class Project(object):
 
         log_file.close()
         LOGGER.info("RUN: End populating cache.")
-        conn.close()
-        del conn
+
         del log_file
 
         self.message_manager().send(
