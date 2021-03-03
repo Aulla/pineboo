@@ -4,8 +4,10 @@ XMLAction module.
 from PyQt5 import QtWidgets
 
 from pineboolib.core.utils import logging, struct, utils_base
+from pineboolib.core.garbage_collector import check_gc_referrers
 from xml.etree import ElementTree as ET  # noqa: F401
 import threading
+import weakref
 from . import load_script
 
 
@@ -347,21 +349,19 @@ class XMLAction(struct.ActionStruct):
 
         # limpieza
         threads_ids: List[Optional[int]] = [thread.ident for thread in threading.enumerate()]
-
-        for id_thread in list(self.__master_widget.keys()):
-            if id_thread not in threads_ids:
-                # self.__master_widget[id_thread] = None
-                del self.__master_widget[id_thread]
-
-        for id_thread in list(self.__record_widget.keys()):
-            if id_thread not in threads_ids:
-                # self.__record_widget[id_thread] = None
-                del self.__record_widget[id_thread]
-
-        for id_thread in list(self.__cursor.keys()):
-            if id_thread not in threads_ids:
-                # self.__cursor[id_thread] = None
-                del self.__cursor[id_thread]
+        obj_list = [self.__cursor, self.__master_widget, self.__record_widget]
+        for obj_ in obj_list:
+            for id_thread in list(obj_.keys()):
+                if obj_[id_thread] is not None:
+                    if id_thread not in threads_ids:
+                        check_gc_referrers(
+                            obj_[id_thread].__class__.__name__,
+                            weakref.ref(obj_[id_thread]),
+                            self._name,
+                        )
+                        if hasattr(obj_[id_thread], "form"):
+                            del obj_[id_thread].form
+                        del obj_[id_thread]
 
     _master_widget = property(get_master_widget, set_master_widget)
     _record_widget = property(get_record_widget, set_record_widget)

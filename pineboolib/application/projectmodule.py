@@ -253,22 +253,20 @@ class Project(object):
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
-        from .parsers.parser_qsa import PARSER_QSA_VERSION
 
         LOGGER.info("RUN: Loading project data.")
 
-        self.pending_conversion_list = []
-
-        self.actions = {}
-        self.files = {}
-        self.areas = {}
-        self.modules = {}
+        self.pending_conversion_list.clear()
+        self.actions.clear()
+        self.files.clear()
+        self.areas.clear()
+        self.modules.clear()
 
         if self.dgi is None:
             raise Exception("DGI not loaded")
 
         delete_cache = self.delete_cache
-        cache_ver = PARSER_QSA_VERSION
+        cache_ver = parser_qsa.PARSER_QSA_VERSION
 
         cache_folder = path._dir("cache")
         db_cache_folder = os.path.join(path._dir("cache"), self.conn_manager.mainConn().DBName())
@@ -294,15 +292,15 @@ class Project(object):
                 file_ver = open(cache_version_file_path, "r")
                 cache_ver = file_ver.read()
                 file_ver.close()
-                if cache_ver != PARSER_QSA_VERSION:
+                if cache_ver != parser_qsa.PARSER_QSA_VERSION:
                     delete_cache = True
 
             if delete_cache:
-                if cache_ver != PARSER_QSA_VERSION:
+                if cache_ver != parser_qsa.PARSER_QSA_VERSION:
                     LOGGER.warning(
                         "QSA parser version has changed from %s to %s!. Deleting cache.",
                         cache_ver,
-                        PARSER_QSA_VERSION,
+                        parser_qsa.PARSER_QSA_VERSION,
                     )
                 else:
                     LOGGER.warning("Deleting cache.")
@@ -344,8 +342,9 @@ class Project(object):
             os.makedirs(db_cache_folder)
 
         file_ver = open(cache_version_file_path, "w")
-        file_ver.write(PARSER_QSA_VERSION)
+        file_ver.write(parser_qsa.PARSER_QSA_VERSION)
         file_ver.close()
+        del file_ver
 
         return self.load_system_module() and self.load_database_modules()
 
@@ -449,7 +448,7 @@ class Project(object):
     def parse_script_list(self, path_list: List[str]) -> bool:
         """Convert QS scripts list into Python and stores it in the same folders."""
 
-        from pineboolib.application.parsers.parser_qsa import pytnyzer, pyconvert
+        from .parsers.parser_qsa import pytnyzer, pyconvert
 
         if not path_list:
             return True
@@ -545,6 +544,8 @@ class Project(object):
         icono = file_object.read()
         file_object.close()
 
+        del file_object
+
         self.modules["sys"] = module.Module("sys", "sys", "Administración", icono, "1.0")
         for root, dirs, files in os.walk(utils_base.filedir(base_dir, "system_module")):
             for nombre in files:
@@ -557,6 +558,7 @@ class Project(object):
                     )
                     self.files[nombre] = fileobj
                     self.modules["sys"].add_project_file(fileobj)
+                    del fileobj
 
         pnormmodelsfactory.load_models()
         # Se verifica que existen estas tablas
@@ -702,6 +704,9 @@ class Project(object):
 
         log_file.close()
         LOGGER.info("RUN: End populating cache.")
+        conn.close()
+        del conn
+        del log_file
 
         self.message_manager().send(
             "splash",

@@ -6,14 +6,16 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from pineboolib.core import decorators, settings
 from pineboolib.core.utils import logging, utils_base
 
+
 from pineboolib.plugins import mainform
 
 from pineboolib import application
-from .database import DB_SIGNALS
+from .database import DB_SIGNALS, utils
 from .qsatypes import sysbasetype
 from .acls import pnaccesscontrollists
-from .database import utils
 from .translator import pntranslator
+from .qsadictmodules import QSADictModules
+from .parsers.parser_mtd import pnormmodelsfactory
 
 import sys
 
@@ -325,9 +327,7 @@ class PNApplication(QtCore.QObject):
                 if hasattr(main_window, "_p_work_space"):
                     main_window._p_work_space = None
 
-        from pineboolib.application.parsers.parser_mtd.pnormmodelsfactory import empty_base
-
-        empty_base()
+        application.PROJECT.conn_manager.mainConn().driver().empty_base()
         self.reinitP()
 
     def startTimerIdle(self) -> None:
@@ -408,14 +408,11 @@ class PNApplication(QtCore.QObject):
 
     def reinitP(self) -> None:
         """Reinitialize application.PROJECT."""
-        from pineboolib.application.qsadictmodules import QSADictModules
-        from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
 
         self.db().managerModules().finish()
         self.db().manager().finish()
         self.setMainWidget(None)
         self.db().managerModules().setActiveIdModule("")
-
         self.clearProject()
 
         if application.PROJECT.main_window is None and not utils_base.is_library():

@@ -309,6 +309,12 @@ class PNSqlSchema(object):
         """Return sqlAlchemy ORM engine."""
         return self._engine
 
+    def empty_base(self) -> None:
+        """Delete declarative base."""
+        if hasattr(self, "_declarative_base"):
+            del self._declarative_base
+            self._declarative_base = None
+
     def session(self) -> Tuple[str, "orm_session.Session"]:
         """Create a sqlAlchemy session."""
         while True:
