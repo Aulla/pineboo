@@ -57,6 +57,7 @@ setuptools.setup(
         "pineboolib.plugins.dgi.dgi_qt.dgi_objects.dlg_about": ["*.ui"],
         "pineboolib.plugins.mainform.eneboo": ["*.ui"],
         "pineboolib.plugins.mainform.eneboo_mdi": ["*.ui"],
+        "pineboolib.fllegacy.forms": ["*.ui"],
     },
     install_requires=required,
     keywords="erp pineboo eneboo accounting sales warehouse",
