@@ -5,11 +5,10 @@ import os
 from pathlib import Path
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from pineboolib.core.utils.utils_base import filedir
-from pineboolib.core import settings
-from pineboolib.core.utils import logging
-from pineboolib.core import decorators
-from pineboolib.loader.projectconfig import ProjectConfig, PasswordMismatchError
+
+from pineboolib import logging
+from pineboolib.core import decorators, settings
+from pineboolib.loader import projectconfig
 
 from typing import Optional, cast, Dict, Any
 
@@ -24,25 +23,29 @@ class DlgConnect(QtWidgets.QWidget):
     """
 
     _options_showed: bool
-    _min_size: QtCore.QSize
-    _max_size: QtCore.QSize
+    _min_size: "QtCore.QSize"
+    _max_size: "QtCore.QSize"
     edit_mode: bool
 
-    profiles: Dict[str, ProjectConfig]  #: Index of loaded profiles. Keyed by description.
-    selected_project_config: Optional[ProjectConfig]  #: Contains the selected item to load.
+    profiles: Dict[
+        str, "projectconfig.ProjectConfig"
+    ]  #: Index of loaded profiles. Keyed by description.
+    selected_project_config: Optional[
+        "projectconfig.ProjectConfig"
+    ]  #: Contains the selected item to load.
 
     def __init__(self) -> None:
         """
         Initialize.
         """
-        from pineboolib.application.database.pnsqldrivers import PNSqlDrivers
+        from pineboolib.application.database import pnsqldrivers
 
         super(DlgConnect, self).__init__()
         self._options_showed = False
         self._min_size = QtCore.QSize(350, 140)
         self._max_size = QtCore.QSize(350, 495)
-        self.profile_dir: str = ProjectConfig.profile_dir
-        self.sql_drivers = PNSqlDrivers()
+        self.profile_dir: str = projectconfig.ProjectConfig.profile_dir
+        self.sql_drivers = pnsqldrivers.PNSqlDrivers()
         self.edit_mode = False
         self.profiles = {}
         self.selected_project_config = None
@@ -51,11 +54,12 @@ class DlgConnect(QtWidgets.QWidget):
         """
         Load the dlgconnect form.
         """
-        from pineboolib.fllegacy.flmanagermodules import FLManagerModules
+        from pineboolib.fllegacy import flmanagermodules
+        from pineboolib.core.utils import utils_base
 
-        dlg_ = filedir("loader/dlgconnect/dlgconnect.ui")
+        dlg_ = utils_base.filedir("loader/dlgconnect/dlgconnect.ui")
 
-        self._user_interface: Any = FLManagerModules.createUI(dlg_, None, self)
+        self._user_interface: Any = flmanagermodules.FLManagerModules.createUI(dlg_, None, self)
         if not self._user_interface:
             raise Exception("Error creating dlgConnect")
         # Centrado en pantalla
@@ -106,8 +110,8 @@ class DlgConnect(QtWidgets.QWidget):
         Update ComboBox of profiles.
         """
         if not os.path.exists(self.profile_dir):
-            # os.mkdir(filedir(self.profile_dir))
             return
+
         self._user_interface.cbProfiles.clear()
         self.profiles.clear()
 
@@ -120,14 +124,14 @@ class DlgConnect(QtWidgets.QWidget):
                 if not entry.is_file():
                     continue
 
-                pconf = ProjectConfig(
+                pconf = projectconfig.ProjectConfig(
                     filename=os.path.join(self.profile_dir, entry.name),
                     database="unset",
                     type="unset",
                 )
                 try:
                     pconf.load_projectxml()
-                except PasswordMismatchError:
+                except projectconfig.PasswordMismatchError:
                     LOGGER.trace(
                         "Profile %r [%r] requires a password", pconf.description, entry.name
                     )
@@ -221,7 +225,7 @@ class DlgConnect(QtWidgets.QWidget):
                 return
             pconf.description = self._user_interface.leDescription.text()
         else:
-            pconf = ProjectConfig(
+            pconf = projectconfig.ProjectConfig(
                 description=self._user_interface.leDescription.text(),
                 database="unset",
                 type="unset",
@@ -271,18 +275,20 @@ class DlgConnect(QtWidgets.QWidget):
             if res == QtWidgets.QMessageBox.No:
                 return
 
-            pconf: ProjectConfig = self.profiles[self._user_interface.cbProfiles.currentText()]
+            pconf: "projectconfig.ProjectConfig" = self.profiles[
+                self._user_interface.cbProfiles.currentText()
+            ]
             os.remove(pconf.filename)
             self.loadProfiles()
 
-    def getProjectConfig(self, name: str) -> Optional[ProjectConfig]:
+    def getProjectConfig(self, name: str) -> Optional["projectconfig.ProjectConfig"]:
         """
         Get a profile by name and ensure its fully loaded.
         """
         if name not in self.profiles.keys():
             return None
 
-        pconf: ProjectConfig = self.profiles[name]
+        pconf: "projectconfig.ProjectConfig" = self.profiles[name]
 
         if pconf.password_required:
             # As it failed to load earlier, it needs a password.
@@ -290,7 +296,7 @@ class DlgConnect(QtWidgets.QWidget):
             pconf.project_password = self._user_interface.lePassword.text()
             try:
                 pconf.load_projectxml()
-            except PasswordMismatchError:
+            except projectconfig.PasswordMismatchError:
                 QtWidgets.QMessageBox.information(
                     self._user_interface, "Pineboo", "Contraseña Incorrecta"
                 )
@@ -348,7 +354,9 @@ class DlgConnect(QtWidgets.QWidget):
         """
         if self._user_interface.cbProfiles.count() == 0:
             return
-        pconf: ProjectConfig = self.profiles[self._user_interface.cbProfiles.currentText()]
+        pconf: "projectconfig.ProjectConfig" = self.profiles[
+            self._user_interface.cbProfiles.currentText()
+        ]
         # NOTE: This disables the password entry once the password has been processed for
         # .. the profile once. So the user does not need to retype it.
         self._user_interface.lePassword.setEnabled(pconf.password_required)
@@ -390,7 +398,7 @@ class DlgConnect(QtWidgets.QWidget):
         if new_dir and new_dir is not self.profile_dir:
             settings.CONFIG.set_value("ebcomportamiento/profiles_folder", new_dir)
             self.profile_dir = new_dir
-            ProjectConfig.profile_dir = new_dir
+            projectconfig.ProjectConfig.profile_dir = new_dir
             self.loadProfiles()
 
     def eventFilter(self, object: QtCore.QObject, event: QtCore.QEvent) -> bool:

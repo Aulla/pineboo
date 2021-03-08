@@ -10,15 +10,17 @@ from PyQt5 import QtCore, QtWidgets
 
 from pineboolib import logging
 from pineboolib.core import settings
-from pineboolib.core.utils.utils_base import is_deployed
-from pineboolib.loader.dlgconnect.conn_dialog import show_connection_dialog
-from pineboolib.loader.options import parse_options
+
+
 from pineboolib.loader.dgi import load_dgi
-from pineboolib.loader.connection import config_dbconn, connect_to_db
-from pineboolib.loader.connection import DEFAULT_SQLITE_CONN, IN_MEMORY_SQLITE_CONN
+from pineboolib.loader.connection import (
+    DEFAULT_SQLITE_CONN,
+    IN_MEMORY_SQLITE_CONN,
+    config_dbconn,
+    connect_to_db,
+)
 from pineboolib import application
 from pineboolib.application.parsers.parser_qsa import pytnyzer
-from .init_project import init_project
 
 if TYPE_CHECKING:
     from pineboolib.loader import projectconfig  # noqa: F401 # pragma: no cover
@@ -68,6 +70,7 @@ def startup(enable_gui: bool = None) -> None:
     """Start up pineboo."""
     # FIXME: No hemos cargado pineboo aún. No se pueden usar métodos internos.
     from pineboolib.core.utils.check_dependencies import check_dependencies_cli
+    from pineboolib.loader.options import parse_options
 
     if not check_dependencies_cli(
         {"ply": "python3-ply", "PyQt5.QtCore": "python3-pyqt5", "Python": "Python"}
@@ -219,7 +222,7 @@ def init_cli(catch_ctrl_c: bool = True) -> None:
 #    eneboo_mdi.mainWindow = eneboo_mdi.MainForm()
 
 
-def setup_gui(app: QtWidgets.QApplication) -> None:
+def setup_gui(app: "QtWidgets.QApplication") -> None:
     """Configure GUI app."""
     from pineboolib.core.utils.utils_base import filedir
     from PyQt5 import QtGui
@@ -348,6 +351,9 @@ def exec_main(options: Values) -> int:
     # from pineboolib.core.utils.utils_base import filedir
     # from pineboolib.pnsqldrivers import PNSqlDrivers
 
+    from pineboolib.core.utils.utils_base import is_deployed
+    from .init_project import init_project
+
     init_cli()
 
     # TODO: Refactorizar función en otras más pequeñas
@@ -432,6 +438,7 @@ def exec_main(options: Values) -> int:
 
     if not configdb and dgi.useDesktop() and dgi.localDesktop():
         if not dgi.mobilePlatform():
+            from pineboolib.loader.dlgconnect.conn_dialog import show_connection_dialog
 
             configdb = show_connection_dialog(application.PROJECT.app)
             if configdb is None:
