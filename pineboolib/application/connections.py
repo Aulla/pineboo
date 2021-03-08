@@ -94,7 +94,7 @@ def slot_done(
     function: Callable,
     signal: "QtCore.pyqtSignal",
     sender: "QtWidgets.QWidget",
-    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.Object_class"]] = None,
+    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.ObjectClass"]] = None,
 ) -> Callable:
     """Create a fake slot for QS connects."""
 
@@ -148,7 +148,7 @@ def connect(
     signal: str,
     receiver: QtCore.QObject,
     slot: str,
-    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.Object_class"]] = None,
+    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.ObjectClass"]] = None,
 ) -> Optional[Tuple["QtCore.pyqtSignal", Callable]]:
     """Connect signal to slot for QSA."""
 
@@ -196,7 +196,7 @@ def disconnect(
     signal: str,
     receiver: QtCore.QObject,
     slot: str,
-    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.Object_class"]] = None,
+    caller: Optional[Union["formdbwidget.FormDBWidget", "object_class.ObjectClass"]] = None,
 ) -> Optional[Tuple["QtCore.pyqtSignal", Callable]]:
     """Disconnect signal from slot for QSA."""
     signal_slot = solve_connection(sender, signal, receiver, slot)
