@@ -6,9 +6,10 @@ Just an assortment of functions that don't depend on externals and don't fit oth
 """
 
 
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5 import QtCore
 
-from pineboolib.core import utils, settings
+from . import logging
+from .. import settings
 
 import os
 import re
@@ -28,7 +29,7 @@ from xml.etree import ElementTree
 if TYPE_CHECKING:
     from pineboolib.application.qsatypes.date import Date  # noqa: F401 # pragma: no cover
 
-LOGGER = utils.logging.get_logger(__name__)
+LOGGER = logging.get_logger(__name__)
 T1 = TypeVar("T1")
 
 # FIXME: Move commaSeparator to Pineboo internals, not aqApp
@@ -475,6 +476,8 @@ def is_deployed() -> bool:
 
 def is_library() -> bool:
     """Return if pineboolib is used as external library."""
+    from PyQt5 import QtWidgets
+
     global _showed_force_desktop_warning
 
     if FORCE_DESKTOP:
@@ -531,7 +534,10 @@ def download_files() -> None:
 
 def pixmap_from_mime_source(name: str) -> Any:
     """Convert mime source into a pixmap."""
+    from PyQt5 import QtGui
+
     file_name = filedir("./core/images/icons", name)
+
     return QtGui.QPixmap(file_name) if os.path.exists(file_name) else None
 
 

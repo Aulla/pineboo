@@ -22,7 +22,7 @@ class VersionNumber:
     is_null: bool  # True if no version at all.
     raw_text: str  # Raw version text or empty string if null.
     text: str  # Version text or empty string if null.
-    normalized: List[SubVersionTuple]  # Normalized version
+    normalized: List["SubVersionTuple"]  # Normalized version
 
     def __init__(self, version_string: Optional[str], default: Optional[str] = None) -> None:
         """
@@ -91,7 +91,7 @@ class VersionNumber:
         return other
 
     @classmethod
-    def normalize_complex(cls, raw_text: str) -> List[SubVersionTuple]:
+    def normalize_complex(cls, raw_text: str) -> List["SubVersionTuple"]:
         """
         Normalize a complex version as 1.0.5b-ubuntu0 into something that can be used for comparison.
         """

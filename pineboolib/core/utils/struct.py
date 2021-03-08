@@ -38,7 +38,7 @@ class XMLStruct(Struct):
     Can be easily accessed by properties.
     """
 
-    def __init__(self, xmlobj: Optional[ET.Element] = None) -> None:
+    def __init__(self, xmlobj: Optional["ET.Element"] = None) -> None:
         """
         Build instance from parsed xml.
         """
@@ -118,13 +118,13 @@ class ActionStruct(XMLStruct):
     _class_script: str = ""
     _class_orm: str = ""
 
-    load: Callable
-    load_record: Callable
-    openDefaultForm: Callable
-    openDefaultFormRecord: Callable
-    formRecordWidget: Callable
-    execMainScript: Callable
-    execDefaultScript: Callable
-    unknownSlot: Callable
-    setCursor: Callable
-    cursor: Callable
+    load: "Callable"
+    load_record: "Callable"
+    openDefaultForm: "Callable"
+    openDefaultFormRecord: "Callable"
+    formRecordWidget: "Callable"
+    execMainScript: "Callable"
+    execDefaultScript: "Callable"
+    unknownSlot: "Callable"
+    setCursor: "Callable"
+    cursor: "Callable"

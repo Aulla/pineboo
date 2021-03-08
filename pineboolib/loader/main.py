@@ -7,6 +7,7 @@ from pineboolib.core import settings
 
 from . import dgi as dgi_module
 from . import connection
+from pineboolib.core.utils import utils_base
 
 import gc
 import sys
@@ -219,7 +220,7 @@ def init_cli(catch_ctrl_c: bool = True) -> None:
 
 def setup_gui(app: "QtWidgets.QApplication") -> None:
     """Configure GUI app."""
-    from pineboolib.core.utils.utils_base import filedir
+
     from PyQt5 import QtGui
 
     noto_fonts = [
@@ -229,7 +230,9 @@ def setup_gui(app: "QtWidgets.QApplication") -> None:
         "NotoSans-Regular.ttf",
     ]
     for fontfile in noto_fonts:
-        QtGui.QFontDatabase.addApplicationFont(filedir("./core/fonts/noto_sans", fontfile))
+        QtGui.QFontDatabase.addApplicationFont(
+            utils_base.filedir("./core/fonts/noto_sans", fontfile)
+        )
 
     style_app: str = settings.CONFIG.value("application/style", "Fusion")
     app.setStyle(style_app)  # type: ignore
@@ -346,7 +349,6 @@ def exec_main(options: "optparse.Values") -> int:
     # from pineboolib.core.utils.utils_base import filedir
     # from pineboolib.pnsqldrivers import PNSqlDrivers
 
-    from pineboolib.core.utils import utils_base
     from .init_project import init_project
 
     init_cli()
@@ -375,10 +377,8 @@ def exec_main(options: "optparse.Values") -> int:
         application.PROJECT.USE_FLFILES_FOLDER = options.flfiles_folder
 
     if options.trace_debug:
-        from pineboolib.core.utils.utils_base import traceit
-
         # "sys.settrace" function could lead to arbitrary code execution
-        sys.settrace(traceit)  # noqa: DUO111
+        sys.settrace(utils_base.traceit)  # noqa: DUO111
 
     if options.trace_signals:
         from .utils import monkey_patch_connect
