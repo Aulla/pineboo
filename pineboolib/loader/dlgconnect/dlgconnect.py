@@ -64,10 +64,11 @@ class DlgConnect(QtWidgets.QWidget):
             raise Exception("Error creating dlgConnect")
         # Centrado en pantalla
         frame_geo = self.frameGeometry()
-        screen = QtWidgets.QApplication.desktop().screenNumber(
-            QtWidgets.QApplication.desktop().cursor().pos()  # type: ignore [misc] # noqa: F821
+        desktop = QtWidgets.QApplication.desktop()
+        screen = desktop.screenNumber(
+            desktop.cursor().pos()  # type: ignore [misc] # noqa: F821
         )
-        center_point = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
+        center_point = desktop.screenGeometry(screen).center()
         frame_geo.moveCenter(center_point)
         self.move(frame_geo.topLeft())
 
@@ -401,7 +402,7 @@ class DlgConnect(QtWidgets.QWidget):
             projectconfig.ProjectConfig.profile_dir = new_dir
             self.loadProfiles()
 
-    def eventFilter(self, object: QtCore.QObject, event: QtCore.QEvent) -> bool:
+    def eventFilter(self, object: "QtCore.QObject", event: "QtCore.QEvent") -> bool:
         """Event Filter."""
 
         if isinstance(event, QtGui.QKeyEvent):

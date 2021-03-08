@@ -426,8 +426,8 @@ def exec_main(options: "optparse.Values") -> int:
     LOGGER.debug(configdb)
     application.PROJECT.init_dgi(dgi)
 
-    lang = application.PROJECT.aq_app._multi_lang_id
-    if lang == "C":
+    lang = application.PROJECT.aq_app._multi_lang_id.lower()
+    if lang == "c":
         lang = "es"
     application.PROJECT.aq_app.loadTranslationFromModule("sys", lang)
 
