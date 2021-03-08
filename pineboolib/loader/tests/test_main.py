@@ -12,7 +12,7 @@ class TestMain(unittest.TestCase):
 
     @patch("pineboolib.loader.main.sys.exit")
     @patch("pineboolib.loader.main.exec_main")
-    @patch("pineboolib.loader.main.parse_options")
+    @patch("pineboolib.loader.options.parse_options")
     def test_startup(
         self, mock_parse_options: Mock, mock_exec_main: Mock, mock_sys_exit: Mock
     ) -> None:

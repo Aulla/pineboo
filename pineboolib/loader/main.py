@@ -1,29 +1,25 @@
 """Main module for starting up Pineboo."""
-import gc
-import sys
-from optparse import Values
-from typing import List, Type, Optional, TYPE_CHECKING
-from types import TracebackType
-import coloredlogs  # type: ignore [import]
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 
-from pineboolib import logging
+from pineboolib import application, logging
+from pineboolib.application.parsers.parser_qsa import pytnyzer
 from pineboolib.core import settings
 
+from . import dgi as dgi_module
+from . import connection
 
-from pineboolib.loader.dgi import load_dgi
-from pineboolib.loader.connection import (
-    DEFAULT_SQLITE_CONN,
-    IN_MEMORY_SQLITE_CONN,
-    config_dbconn,
-    connect_to_db,
-)
-from pineboolib import application
-from pineboolib.application.parsers.parser_qsa import pytnyzer
+import gc
+import sys
+from types import TracebackType
+import coloredlogs  # type: ignore [import]
+from typing import List, Type, Optional, TYPE_CHECKING
+
 
 if TYPE_CHECKING:
-    from pineboolib.loader import projectconfig  # noqa: F401 # pragma: no cover
+    from . import projectconfig  # noqa: F401 # pragma: no cover
+    import optparse  # noqa: F401
+    from PyQt5 import QtWidgets
 
 LOGGER = logging.get_logger(__name__)
 
@@ -40,7 +36,7 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
 
     import pyfiglet  # type: ignore
 
-    qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
+    qapp = call_qapplication(sys.argv + ["-platform", "offscreen"])
     init_logging(True)
     init_cli(catch_ctrl_c=False)
     pytnyzer.STRICT_MODE = False
@@ -51,12 +47,12 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     # application.PROJECT.load_version()
     application.PROJECT.setDebugLevel(1000)
     application.PROJECT.set_app(qapp)
-    dgi = load_dgi("qt", None)
+    dgi = dgi_module.load_dgi("qt", None)
     application.PROJECT.init_dgi(dgi)
     application.PROJECT.aq_app._inicializing = False
 
     LOGGER.info("STARTUP_FRAMEWORK:(1/7) Setting profile data.")
-    conn_ = connect_to_db(conn)
+    conn_ = connection.connect_to_db(conn)
     LOGGER.info("STARTUP_FRAMEWORK:(2/7) Establishing connection.")
     main_conn_established = application.PROJECT.init_conn(connection=conn_)
 
@@ -70,7 +66,7 @@ def startup(enable_gui: bool = None) -> None:
     """Start up pineboo."""
     # FIXME: No hemos cargado pineboo aún. No se pueden usar métodos internos.
     from pineboolib.core.utils.check_dependencies import check_dependencies_cli
-    from pineboolib.loader.options import parse_options
+    from .options import parse_options
 
     if not check_dependencies_cli(
         {"ply": "python3-ply", "PyQt5.QtCore": "python3-pyqt5", "Python": "Python"}
@@ -169,7 +165,7 @@ def init_logging(
         modlogger.setLevel(logging.TRACE)
 
 
-def exec_main_with_profiler(options: Values) -> int:
+def exec_main_with_profiler(options: "optparse.Values") -> int:
     """Enable profiler."""
     import cProfile
     import pstats
@@ -264,7 +260,7 @@ def init_testing() -> None:
         application.PROJECT._conn_manager = pnconnectionmanager.PNConnectionManager()
 
     else:
-        qapp = QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"])
+        qapp = call_qapplication(sys.argv + ["-platform", "offscreen"])
 
         init_logging(True)  # NOTE: Use pytest --log-level=0 for debug
         init_cli(catch_ctrl_c=False)
@@ -275,13 +271,13 @@ def init_testing() -> None:
         application.PROJECT.setDebugLevel(1000)
         application.PROJECT.set_app(qapp)
 
-        dgi = load_dgi("qt", None)
+        dgi = dgi_module.load_dgi("qt", None)
 
         application.PROJECT.init_dgi(dgi)
 
     setattr(application, "TESTING_MODE", True)
     application.PROJECT.aq_app._inicializing = False
-    conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
+    conn = connection.connect_to_db(connection.IN_MEMORY_SQLITE_CONN)
     main_conn_established = application.PROJECT.init_conn(connection=conn)
 
     if not main_conn_established:
@@ -302,7 +298,7 @@ def finish_testing() -> None:
     if application.PROJECT.main_window:
         application.PROJECT.main_window.initialized_mods_ = []
 
-    # application.PROJECT.conn.execute_query("DROP DATABASE %s" % IN_MEMORY_SQLITE_CONN.database)
+    # application.PROJECT.conn.execute_query("DROP DATABASE %s" % connection.IN_MEMORY_SQLITE_CONN.database)
     application.PROJECT.conn_manager.finish()
     # application.PROJECT.conn_manager.mainConn().driver_ = None
     # application.PROJECT.conn_manager.conn.close()
@@ -331,12 +327,12 @@ def finish_testing() -> None:
         os.mkdir(application.PROJECT.tmpdir)
     # needed for delete older virtual database.
 
-    # conn = connect_to_db(IN_MEMORY_SQLITE_CONN)
+    # conn = connection.connect_to_db(connection.IN_MEMORY_SQLITE_CONN)
     # application.PROJECT.init_conn(connection=conn)
     # application.PROJECT.run()
 
 
-def exec_main(options: Values) -> int:
+def exec_main(options: "optparse.Values") -> int:
     """
     Exec main program.
 
@@ -351,7 +347,7 @@ def exec_main(options: Values) -> int:
     # from pineboolib.core.utils.utils_base import filedir
     # from pineboolib.pnsqldrivers import PNSqlDrivers
 
-    from pineboolib.core.utils.utils_base import is_deployed
+    from pineboolib.core.utils import utils_base
     from .init_project import init_project
 
     init_cli()
@@ -362,15 +358,16 @@ def exec_main(options: Values) -> int:
 
     application.PROJECT.setDebugLevel(options.debug_level)
 
-    application.PROJECT.options = options
-    if options.enable_gui:
-        app_ = QtWidgets.QApplication
-        app_.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    # application.PROJECT.options = options
 
-        application.PROJECT.set_app(app_(sys.argv))
+    app_args: List[str] = sys.argv
+    if not options.enable_gui:
+        app_args += ["-platform", "offscreen"]
+
+    application.PROJECT.set_app(call_qapplication(app_args))
+
+    if options.enable_gui:
         setup_gui(application.PROJECT.app)
-    else:
-        application.PROJECT.set_app(QtWidgets.QApplication(sys.argv + ["-platform", "offscreen"]))
 
     if options.log_sql:
         application.LOG_SQL = True
@@ -400,13 +397,12 @@ def exec_main(options: Values) -> int:
 
     application.PROJECT.load_version()
 
-    if is_deployed():
+    if utils_base.is_deployed():
         logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-        from pineboolib.core.utils.utils_base import download_files
 
-        download_files()
+        utils_base.download_files()
 
-    dgi = load_dgi(options.dgi, options.dgi_parameter)
+    dgi = dgi_module.load_dgi(options.dgi, options.dgi_parameter)
     # if options.enable_gui:
     #    init_gui()
 
@@ -427,7 +423,7 @@ def exec_main(options: Values) -> int:
         # and let it take control of the remaining pieces.
         return dgi.alternativeMain(options)
 
-    configdb = config_dbconn(options)
+    configdb = connection.config_dbconn(options)
     LOGGER.debug(configdb)
     application.PROJECT.init_dgi(dgi)
 
@@ -445,12 +441,12 @@ def exec_main(options: Values) -> int:
                 return 2
         else:
             settings.CONFIG.set_value("application/dbadmin_enabled", True)
-            configdb = DEFAULT_SQLITE_CONN
+            configdb = connection.DEFAULT_SQLITE_CONN
 
     if not configdb:
         raise ValueError("No connection given. Nowhere to connect. Cannot start.")
 
-    conn = connect_to_db(configdb)
+    conn = connection.connect_to_db(configdb)
     main_conn_established = application.PROJECT.init_conn(connection=conn)
     if not main_conn_established:
         LOGGER.warning("No main connection was provided. Aborting Pineboo load.")
@@ -536,3 +532,10 @@ def _initialize_data(is_framework: bool = False) -> None:
         LOGGER.info("STARTUP_FRAMEWORK: All processes completed. Continue ...")
     application.PROJECT.conn_manager.removeConn("default")
     application.PROJECT.conn_manager.removeConn("dbAux")
+
+
+def call_qapplication(args: List[str] = []) -> "QtWidgets.QApplication":
+    """Call to QApplication."""
+    from PyQt5 import QtWidgets
+
+    return QtWidgets.QApplication(args)

@@ -18,13 +18,11 @@ from .qsadictmodules import QSADictModules
 from .parsers.parser_mtd import pnormmodelsfactory
 
 import sys
-
 from typing import Any, Optional, List, cast, Union, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from .database import pnsqlcursor  # noqa: F401 # pragma: no cover
-    from .database import pnsqlquery  # noqa: F401 # pragma: no cover
+    from .database import pnsqlcursor, pnsqlquery  # noqa: F401 # pragma: no cover
     from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
     from PyQt5 import QtXml  # noqa: F401 # pragma: no cover
 
@@ -46,18 +44,18 @@ class PNApplication(QtCore.QObject):
 
     _inicializing: bool
     _destroying: bool
-    _ted_output: Optional[QtWidgets.QWidget]
+    _ted_output: Optional["QtWidgets.QWidget"]
     _not_exit: bool
     _multi_lang_enabled: bool
     _multi_lang_id: str
     _translator: List["pntranslator.PNTranslator"]
 
-    container_: Optional[QtWidgets.QWidget]  # Contenedor actual??
+    container_: Optional["QtWidgets.QWidget"]  # Contenedor actual??
 
     # project_ = None
 
     form_alone_: bool
-    acl_: Optional[pnaccesscontrollists.PNAccessControlLists]
+    acl_: Optional["pnaccesscontrollists.PNAccessControlLists"]
     popup_warn_: Any
     fl_factory_: Any
     op_check_update_: bool
@@ -65,16 +63,16 @@ class PNApplication(QtCore.QObject):
 
     init_single_fl_large: bool
     show_debug_: bool
-    timer_idle_: Optional[QtCore.QTimer]
-    time_user_: QtCore.QTimer
+    timer_idle_: Optional["QtCore.QTimer"]
+    time_user_: "QtCore.QTimer"
     script_entry_function_: str
-    _event_loop: Optional[QtCore.QEventLoop]
-    window_menu: Optional[QtWidgets.QMenu] = None
+    _event_loop: Optional["QtCore.QEventLoop"]
+    window_menu: Optional["QtWidgets.QMenu"] = None
     modules_menu: Any
 
-    transactionBegin: QtCore.pyqtSignal = QtCore.pyqtSignal()
-    transactionEnd: QtCore.pyqtSignal = QtCore.pyqtSignal()
-    transactionRollback: QtCore.pyqtSignal = QtCore.pyqtSignal()
+    transactionBegin: "QtCore.pyqtSignal" = QtCore.pyqtSignal()
+    transactionEnd: "QtCore.pyqtSignal" = QtCore.pyqtSignal()
+    transactionRollback: "QtCore.pyqtSignal" = QtCore.pyqtSignal()
 
     def __init__(self) -> None:
         """Create new FLApplication."""
@@ -116,7 +114,7 @@ class PNApplication(QtCore.QObject):
         self._event_loop = None
 
     @property
-    def event_loop(self) -> QtCore.QEventLoop:
+    def event_loop(self) -> "QtCore.QEventLoop":
         """Get Eventloop, create one if it does not exist."""
         if self._event_loop is None:
             self._event_loop = QtCore.QEventLoop()
@@ -480,7 +478,7 @@ class PNApplication(QtCore.QObject):
 
         sysbasetype.SysBaseType.openUrl([url_])
 
-    def toPixmap(self, value: str) -> QtGui.QPixmap:
+    def toPixmap(self, value: str) -> "QtGui.QPixmap":
         """Create a QPixmap from a text."""
 
         from pineboolib.application.utils import xpm
@@ -493,7 +491,7 @@ class PNApplication(QtCore.QObject):
 
         return ret_
 
-    def fromPixmap(self, pix_: QtGui.QPixmap) -> str:
+    def fromPixmap(self, pix_: "QtGui.QPixmap") -> str:
         """Return a text from a QPixmap."""
         ret_: str = ""
         if pix_.isNull():
@@ -509,8 +507,8 @@ class PNApplication(QtCore.QObject):
         return str(buffer_.data())
 
     def scalePixmap(
-        self, pix_: QtGui.QPixmap, width: int, height: int, mode_: QtCore.Qt.AspectRatioMode
-    ) -> QtGui.QImage:
+        self, pix_: "QtGui.QPixmap", width: int, height: int, mode_: "QtCore.Qt.AspectRatioMode"
+    ) -> "QtGui.QImage":
         """Return QImage scaled from a QPixmap."""
 
         img_ = pix_.toImage()
@@ -527,7 +525,7 @@ class PNApplication(QtCore.QObject):
         return application.PROJECT.call(function, argument_list, object_content, show_exceptions)
 
     @decorators.not_implemented_warn
-    def setNotExit(self, value):
+    def setNotExit(self, value: bool) -> None:
         """Protect against window close."""
         self._not_exit = value
 
@@ -643,7 +641,7 @@ class PNApplication(QtCore.QObject):
         hidden = getattr(self._ted_output, "isHidden", False)
         return hidden() if hidden is not None else False
 
-    def modMainWidget(self, id_modulo: str) -> Optional[QtWidgets.QWidget]:
+    def modMainWidget(self, id_modulo: str) -> Optional["QtWidgets.QWidget"]:
         """Set module main widget."""
 
         main_window = application.PROJECT.main_window
@@ -747,7 +745,7 @@ class PNApplication(QtCore.QObject):
 
         return str(type(obj))
 
-    def mainWidget(self) -> Optional[QtWidgets.QWidget]:
+    def mainWidget(self) -> Optional["QtWidgets.QWidget"]:
         """Return current mainWidget."""
         return getattr(application.PROJECT.main_window, "main_widget", None)
 
@@ -984,7 +982,7 @@ class TextEditOutput(QtWidgets.QPlainTextEdit):
     oldStdout: Any
     oldStderr: Any
 
-    def __init__(self, parent: QtWidgets.QWidget) -> None:
+    def __init__(self, parent: "QtWidgets.QWidget") -> None:
         """Inicialize."""
         super().__init__(parent)
 
