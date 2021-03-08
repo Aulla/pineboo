@@ -1,21 +1,15 @@
 # -*- coding: utf-8 -*-
 """PNApplication Module."""
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.core import decorators, settings
 from pineboolib.core.utils import logging, utils_base
 
-
-from pineboolib.plugins import mainform
-
 from pineboolib import application
 from .database import DB_SIGNALS, utils
 from .qsatypes import sysbasetype
-from .acls import pnaccesscontrollists
-from .translator import pntranslator
-from .qsadictmodules import QSADictModules
-from .parsers.parser_mtd import pnormmodelsfactory
+from . import qsadictmodules
 
 import sys
 from typing import Any, Optional, List, cast, Union, TYPE_CHECKING
@@ -23,8 +17,11 @@ from typing import Any, Optional, List, cast, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .database import pnsqlcursor, pnsqlquery  # noqa: F401 # pragma: no cover
+    from .acls import pnaccesscontrollists
+    from .translator import pntranslator
+
     from pineboolib.interfaces import isqlcursor  # noqa: F401 # pragma: no cover
-    from PyQt5 import QtXml  # noqa: F401 # pragma: no cover
+    from PyQt5 import QtXml, QtGui  # noqa: F401 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -177,7 +174,7 @@ class PNApplication(QtCore.QObject):
         if application.PROJECT.main_window is not None:
             application.PROJECT.main_window.main_widget = main_widget
             if main_widget is not None:
-                QtWidgets.QApplication.setActiveWindow(main_widget)
+                application.PROJECT._app.setActiveWindow(main_widget)
 
     @decorators.not_implemented_warn
     def makeStyle(self, style_):
@@ -189,7 +186,7 @@ class PNApplication(QtCore.QObject):
 
         font_ = QtWidgets.QFontDialog().getFont()  # type: ignore[misc] # noqa: F821
         if font_:
-            QtWidgets.QApplication.setFont(font_[0])
+            application.PROJECT._app.setFont(font_[0])
             save_ = [font_[0].family(), font_[0].pointSize(), font_[0].weight(), font_[0].italic()]
 
             settings.CONFIG.set_value("application/font", save_)
@@ -209,7 +206,7 @@ class PNApplication(QtCore.QObject):
     def setStyle(self, style_: str) -> None:
         """Change application style."""
         settings.CONFIG.set_value("application/style", style_)
-        QtWidgets.QApplication.setStyle(style_)
+        application.PROJECT._app.setStyle(style_)
 
     def initStyles(self) -> None:
         """Initialize styles."""
@@ -344,7 +341,10 @@ class PNApplication(QtCore.QObject):
 
     def aqAppIdle(self) -> None:
         """Check and fix transaction level."""
-        if QtWidgets.QApplication.activeModalWidget() or QtWidgets.QApplication.activePopupWidget():
+        if (
+            application.PROJECT._app.activeModalWidget()
+            or application.PROJECT._app.activePopupWidget()
+        ):
             return
 
         self.checkAndFixTransactionLevel("Application::aqAppIdle()")
@@ -406,6 +406,8 @@ class PNApplication(QtCore.QObject):
     def reinitP(self) -> None:
         """Reinitialize application.PROJECT."""
 
+        from .parsers.parser_mtd import pnormmodelsfactory
+
         self.db().managerModules().finish()
         self.db().manager().finish()
         self.setMainWidget(None)
@@ -413,6 +415,7 @@ class PNApplication(QtCore.QObject):
         self.clearProject()
 
         if application.PROJECT.main_window is None and not utils_base.is_library():
+            from pineboolib.plugins import mainform
 
             main_form_name = settings.CONFIG.value("ebcomportamiento/main_form_name", "eneboo")
             main_form = getattr(mainform, main_form_name, None)
@@ -426,7 +429,7 @@ class PNApplication(QtCore.QObject):
                 application.PROJECT.main_window.initScript()
                 application.PROJECT.main_window.initialized_mods_ = []
 
-        QSADictModules.clean_all()
+        qsadictmodules.QSADictModules.clean_all()
         pnormmodelsfactory.PROCESSED = []
         application.PROJECT.files = {}
         application.PROJECT.conn_manager.useConn("default")
@@ -482,6 +485,7 @@ class PNApplication(QtCore.QObject):
         """Create a QPixmap from a text."""
 
         from pineboolib.application.utils import xpm
+        from PyQt5 import QtGui
 
         ret_ = QtGui.QPixmap()
 
@@ -497,12 +501,12 @@ class PNApplication(QtCore.QObject):
         if pix_.isNull():
             return ret_
 
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        application.PROJECT._app.setOverrideCursor(QtCore.Qt.WaitCursor)
         buffer_ = QtCore.QBuffer()
         buffer_.open(QtCore.QIODevice.WriteOnly)
         pix_.save(buffer_, "xpm")
 
-        QtWidgets.QApplication.restoreOverrideCursor()
+        application.PROJECT._app.restoreOverrideCursor()
 
         return str(buffer_.data())
 
@@ -592,7 +596,7 @@ class PNApplication(QtCore.QObject):
                 main_window,
             )
             QtCore.QTimer.singleShot(2000, QtWidgets.QWhatsThis.hideText)
-            QtWidgets.QApplication.processEvents()
+            application.PROJECT._app.processEvents()
 
     @decorators.not_implemented_warn
     def checkDatabaseLocks(self, timer_):
@@ -654,7 +658,7 @@ class PNApplication(QtCore.QObject):
             mod_widget = dict_main_widgets[id_modulo]
 
         if mod_widget is None:
-            list_ = QtWidgets.QApplication.topLevelWidgets()
+            list_ = application.PROJECT._app.topLevelWidgets()
             for widget in list_:
                 if widget.objectName() == id_modulo:
                     mod_widget = widget
@@ -777,12 +781,12 @@ class PNApplication(QtCore.QObject):
     def loadScripts(self) -> None:
         """Load scripts for all modules."""
 
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        application.PROJECT._app.setOverrideCursor(QtCore.Qt.WaitCursor)
         list_modules = self.db().managerModules().listAllIdModules()
         for item in list_modules:
             self.loadScriptsFromModule(item)
 
-        QtWidgets.QApplication.restoreOverrideCursor()
+        application.PROJECT._app.restoreOverrideCursor()
 
     def urlPineboo(self) -> None:
         """Open Eneboo URI."""
@@ -795,7 +799,7 @@ class PNApplication(QtCore.QObject):
     # def tr(self, sourceText: str, disambiguation: Optional[str] = None, n: int = 0) -> Any:
     #    """Open translations."""
 
-    #    return QtWidgets.QApplication.translate("system", sourceText)
+    #    return application.PROJECT._app.translate("system", sourceText)
 
     def loadTranslations(self) -> None:
         """
@@ -919,6 +923,8 @@ class PNApplication(QtCore.QObject):
                 key = self.db().managerModules().shaOfFile(file_ts)
 
         if key:
+            from .translator import pntranslator
+
             tor = pntranslator.PNTranslator(
                 self.mainWidget(), "%s_%s" % (id_module, lang), lang == "multilang"
             )
@@ -942,7 +948,7 @@ class PNApplication(QtCore.QObject):
     def applicationDirPath(self) -> str:
         """Return application dir path."""
 
-        return QtWidgets.QApplication.applicationDirPath()
+        return application.PROJECT._app.applicationDirPath()
 
     def transactionLevel(self):
         """Return number of concurrent transactions."""
