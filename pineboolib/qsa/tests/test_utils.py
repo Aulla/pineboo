@@ -233,8 +233,12 @@ class TestUtils(unittest.TestCase):
 
 
 class Prueba(object):
+    """Prueba class."""
+
     pass
 
 
 class Prueba2(Prueba):
+    """Prueba2 class."""
+
     pass

@@ -443,8 +443,8 @@ def is_nan(value: Any) -> bool:
     if isinstance(value, str) and value.find(":"):
         value = value.replace(":", "")
     try:
-        x = float(value)
-        return math.isnan(x)
+        value = float(value)
+        return math.isnan(value)
     except ValueError:
         return True
 
