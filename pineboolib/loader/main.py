@@ -1,6 +1,5 @@
 """Main module for starting up Pineboo."""
 
-from PyQt5 import QtCore
 
 from pineboolib import application, logging
 from pineboolib.application.parsers.parser_qsa import pytnyzer
@@ -427,7 +426,7 @@ def exec_main(options: "optparse.Values") -> int:
     LOGGER.debug(configdb)
     application.PROJECT.init_dgi(dgi)
 
-    lang = QtCore.QLocale().name()[:2]
+    lang = application.PROJECT.aq_app._multi_lang_id
     if lang == "C":
         lang = "es"
     application.PROJECT.aq_app.loadTranslationFromModule("sys", lang)
@@ -496,6 +495,8 @@ def exec_main(options: "optparse.Values") -> int:
 
 def _initialize_data(is_framework: bool = False) -> None:
     """Initialize data."""
+
+    from PyQt5 import QtCore
 
     application.ID_SESSION = QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate)
 

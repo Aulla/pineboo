@@ -40,7 +40,7 @@ class Project(object):
 
     _conn_manager: Optional["pnconnectionmanager.PNConnectionManager"]
 
-    _app: Optional["QtWidgets.QApplication"] = None
+    _app: "QtWidgets.QApplication"
     _aq_app: Optional["pnapplication.PNApplication"] = None
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
     debug_level = 100
@@ -463,7 +463,7 @@ class Project(object):
                 LOGGER.warning("The file %s is already being converted. Waiting", dest_file_name)
                 while dest_file_name in self.pending_conversion_list:
                     # Esperamos a que el fichero se convierta.
-                    self._app.processEvents()
+                    self.app.processEvents()  # type: ignore[misc] # noqa: F821
             else:
                 self.pending_conversion_list.append(dest_file_name)
                 itemlist.append(

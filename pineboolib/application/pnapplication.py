@@ -174,7 +174,7 @@ class PNApplication(QtCore.QObject):
         if application.PROJECT.main_window is not None:
             application.PROJECT.main_window.main_widget = main_widget
             if main_widget is not None:
-                application.PROJECT._app.setActiveWindow(main_widget)
+                application.PROJECT.app.setActiveWindow(main_widget)
 
     @decorators.not_implemented_warn
     def makeStyle(self, style_):
@@ -186,7 +186,7 @@ class PNApplication(QtCore.QObject):
 
         font_ = QtWidgets.QFontDialog().getFont()  # type: ignore[misc] # noqa: F821
         if font_:
-            application.PROJECT._app.setFont(font_[0])
+            application.PROJECT.app.setFont(font_[0])
             save_ = [font_[0].family(), font_[0].pointSize(), font_[0].weight(), font_[0].italic()]
 
             settings.CONFIG.set_value("application/font", save_)
@@ -206,7 +206,7 @@ class PNApplication(QtCore.QObject):
     def setStyle(self, style_: str) -> None:
         """Change application style."""
         settings.CONFIG.set_value("application/style", style_)
-        application.PROJECT._app.setStyle(style_)
+        application.PROJECT.app.setStyle(style_)  # type: ignore [misc,call-overload] # noqa: F821
 
     def initStyles(self) -> None:
         """Initialize styles."""
@@ -342,8 +342,8 @@ class PNApplication(QtCore.QObject):
     def aqAppIdle(self) -> None:
         """Check and fix transaction level."""
         if (
-            application.PROJECT._app.activeModalWidget()
-            or application.PROJECT._app.activePopupWidget()
+            application.PROJECT.app.activeModalWidget()
+            or application.PROJECT.app.activePopupWidget()
         ):
             return
 
@@ -501,12 +501,12 @@ class PNApplication(QtCore.QObject):
         if pix_.isNull():
             return ret_
 
-        application.PROJECT._app.setOverrideCursor(QtCore.Qt.WaitCursor)
+        application.PROJECT.app.setOverrideCursor(QtCore.Qt.WaitCursor)
         buffer_ = QtCore.QBuffer()
         buffer_.open(QtCore.QIODevice.WriteOnly)
         pix_.save(buffer_, "xpm")
 
-        application.PROJECT._app.restoreOverrideCursor()
+        application.PROJECT.app.restoreOverrideCursor()
 
         return str(buffer_.data())
 
@@ -596,7 +596,7 @@ class PNApplication(QtCore.QObject):
                 main_window,
             )
             QtCore.QTimer.singleShot(2000, QtWidgets.QWhatsThis.hideText)
-            application.PROJECT._app.processEvents()
+            application.PROJECT.app.processEvents()  # type: ignore[misc] # noqa: F821
 
     @decorators.not_implemented_warn
     def checkDatabaseLocks(self, timer_):
@@ -658,7 +658,7 @@ class PNApplication(QtCore.QObject):
             mod_widget = dict_main_widgets[id_modulo]
 
         if mod_widget is None:
-            list_ = application.PROJECT._app.topLevelWidgets()
+            list_ = application.PROJECT.app.topLevelWidgets()
             for widget in list_:
                 if widget.objectName() == id_modulo:
                     mod_widget = widget
@@ -781,12 +781,12 @@ class PNApplication(QtCore.QObject):
     def loadScripts(self) -> None:
         """Load scripts for all modules."""
 
-        application.PROJECT._app.setOverrideCursor(QtCore.Qt.WaitCursor)
+        application.PROJECT.app.setOverrideCursor(QtCore.Qt.WaitCursor)
         list_modules = self.db().managerModules().listAllIdModules()
         for item in list_modules:
             self.loadScriptsFromModule(item)
 
-        application.PROJECT._app.restoreOverrideCursor()
+        application.PROJECT.app.restoreOverrideCursor()
 
     def urlPineboo(self) -> None:
         """Open Eneboo URI."""
@@ -799,7 +799,7 @@ class PNApplication(QtCore.QObject):
     # def tr(self, sourceText: str, disambiguation: Optional[str] = None, n: int = 0) -> Any:
     #    """Open translations."""
 
-    #    return application.PROJECT._app.translate("system", sourceText)
+    #    return application.PROJECT.app.translate("system", sourceText)
 
     def loadTranslations(self) -> None:
         """
@@ -948,7 +948,7 @@ class PNApplication(QtCore.QObject):
     def applicationDirPath(self) -> str:
         """Return application dir path."""
 
-        return application.PROJECT._app.applicationDirPath()
+        return application.PROJECT.app.applicationDirPath()
 
     def transactionLevel(self):
         """Return number of concurrent transactions."""

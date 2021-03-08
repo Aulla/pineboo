@@ -1,20 +1,19 @@
 """
 XMLAction module.
 """
-from PyQt5 import QtWidgets
 
-from pineboolib.core.utils import logging, struct, utils_base
+from pineboolib import application
+from pineboolib.core.utils import struct, utils_base
 from pineboolib.core.garbage_collector import check_gc_referrers
+from pineboolib import logging
+
 from xml.etree import ElementTree as ET  # noqa: F401
 import threading
 import weakref
 from . import load_script
 
-
 from typing import Optional, Union, Dict, List, Any, TYPE_CHECKING
 
-from pineboolib import application
-from pineboolib.application.database import pnsqlcursor
 
 if TYPE_CHECKING:
     from . import moduleactions  # noqa : F401 # pragma: no cover
@@ -80,6 +79,8 @@ class XMLAction(struct.ActionStruct):
     def cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
         """Return xmlAction cursor."""
         if not self._cursor and self._table:
+            from pineboolib.application.database import pnsqlcursor
+
             # LOGGER.warning("Creando cursor para %s %s", self._name, self._master_widget)
             self._cursor = pnsqlcursor.PNSqlCursor(self._name)
 
@@ -238,6 +239,7 @@ class XMLAction(struct.ActionStruct):
         if self.is_form_loaded(self._record_widget):
             if self._record_widget is not None and self._record_widget.form is not None:
                 if self._record_widget.form._showed:
+                    from PyQt5 import QtWidgets
 
                     QtWidgets.QMessageBox.information(
                         QtWidgets.QApplication.activeWindow(),
