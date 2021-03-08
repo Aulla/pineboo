@@ -24,14 +24,14 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def init(self) -> None:
         """Init function."""
-        botonCargar = self.child(u"botonCargar")
-        botonExportar = self.child(u"botonExportar")
-        self.module_connect(botonCargar, u"clicked()", self, u"botonCargar_clicked")
-        self.module_connect(botonExportar, u"clicked()", self, u"botonExportar_clicked")
+        btn_load = self.child(u"botonCargar")
+        btn_export = self.child(u"botonExportar")
+        self.module_connect(btn_load, u"clicked()", self, u"botonCargar_clicked")
+        self.module_connect(btn_export, u"clicked()", self, u"botonExportar_clicked")
         cursor = self.cursor()
         if cursor.modeAccess() == cursor.Browse:
-            botonCargar.setEnabled(False)
-            botonExportar.setEnabled(False)
+            btn_load.setEnabled(False)
+            btn_export.setEnabled(False)
 
     def cargarFicheroEnBD(
         self, nombre: str, contenido: str, log: "QtWidgets.QTextEdit", directorio: str
@@ -77,13 +77,15 @@ class FormInternalObj(qsa.FormDBWidget):
                 log.append(qsa.util.translate(u"scripts", u"- Actualizando :: ") + nombre)
                 cursor_ficheros.setModeAccess(cursor_ficheros.Insert)
                 cursor_ficheros.refreshBuffer()
-                d = qsa.Date()
-                cursor_ficheros.setValueBuffer(u"nombre", nombre + qsa.parseString(d))
+                this_date = qsa.Date()
+                cursor_ficheros.setValueBuffer(u"nombre", nombre + qsa.parseString(this_date))
                 cursor_ficheros.setValueBuffer(u"idmodulo", cursor.valueBuffer(u"idmodulo"))
                 cursor_ficheros.setValueBuffer(u"contenido", contenidoCopia)
                 cursor_ficheros.commitBuffer()
                 log.append(
-                    qsa.util.translate(u"scripts", u"- Backup :: ") + nombre + qsa.parseString(d)
+                    qsa.util.translate(u"scripts", u"- Backup :: ")
+                    + nombre
+                    + qsa.parseString(this_date)
                 )
                 cursor_ficheros.select(qsa.ustr(u"nombre = '", nombre, u"'"))
                 cursor_ficheros.first()
@@ -111,10 +113,8 @@ class FormInternalObj(qsa.FormDBWidget):
         contenido = qsa.from_project("flar2kut").iface.pub_ar2kut(contenido)
         nombre = qsa.ustr(qsa.parseString(nombre)[0 : len(nombre) - 3], u".kut")
         if contenido:
-            localEnc = qsa.util.readSettingEntry(u"scripts/sys/conversionArENC")
-            if not localEnc:
-                localEnc = u"ISO-8859-15"
-            contenido = qsa.sys.fromUnicode(contenido, localEnc)
+            local_encode = qsa.util.readSettingEntry(u"scripts/sys/conversionArENC", "ISO-8859-15")
+            contenido = qsa.sys.fromUnicode(contenido, local_encode)
             self.cargarFicheroEnBD(nombre, contenido, log, directorio)
             log.append(qsa.util.translate(u"scripts", u"Volcando a disco ") + nombre)
             qsa.FileStatic.write(
@@ -150,9 +150,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
                     self.cargarFicheroEnBD("%s.py" % fichero[-3], value_py, log, directorio)
 
-            encode = "ISO-8859-1"
-            if path_.endswith((".ts", ".py")):
-                encode = "UTF-8"
+            encode = "UTF-8" if path_.endswith((".ts", ".py")) else "ISO-8859-1"
             try:
                 value = qsa.File(path_, encode).read()
             except UnicodeDecodeError:
@@ -215,10 +213,10 @@ class FormInternalObj(qsa.FormDBWidget):
         else:
             return False
 
-    def cargarDeDisco(self, directorio: str, comprobarLicencia: bool) -> None:
+    def cargarDeDisco(self, directorio: str, check_license: bool) -> None:
         """Load a folder from file system."""
         if directorio:
-            if comprobarLicencia:
+            if check_license:
                 if not self.aceptarLicenciaDelModulo(directorio):
                     qsa.MessageBox.critical(
                         qsa.util.translate(
@@ -266,8 +264,8 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def tipoDeFichero(self, nombre: str) -> str:
         """Return file type."""
-        posPunto = nombre.rfind(u".")
-        return nombre[posPunto:]
+        dot_pos = nombre.rfind(u".")
+        return nombre[dot_pos:]
 
     def exportarADisco(self, directorio: str) -> None:
         """Export a module to disk."""
@@ -277,7 +275,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 raise Exception("lineas control not found")
 
             curFiles = tdb_lineas.cursor()
-            cursorModules = qsa.FLSqlCursor(u"flmodules")
+            cur_modules = qsa.FLSqlCursor(u"flmodules")
             cursorAreas = qsa.FLSqlCursor(u"flareas")
             if curFiles.size() != 0:
                 dir = qsa.Dir()
@@ -353,11 +351,6 @@ class FormInternalObj(qsa.FormDBWidget):
                         elif tipo == ".kut":
                             sub_carpeta = "reports"
 
-                        print(
-                            "Escribiendo",
-                            codec,
-                            qsa.ustr(directorio, "/%s/" % sub_carpeta, file_name),
-                        )
                         qsa.sys.write(
                             codec, qsa.ustr(directorio, "/%s/" % sub_carpeta, file_name), contenido
                         )
@@ -369,59 +362,59 @@ class FormInternalObj(qsa.FormDBWidget):
 
                     # qsa.sys.processEvents()
 
-                cursorModules.select(qsa.ustr(u"idmodulo = '", idModulo, u"'"))
-                if cursorModules.first():
+                cur_modules.select(qsa.ustr(u"idmodulo = '", idModulo, u"'"))
+                if cur_modules.first():
                     cursorAreas.select(
-                        qsa.ustr(u"idarea = '", cursorModules.valueBuffer(u"idarea"), u"'")
+                        qsa.ustr(u"idarea = '", cur_modules.valueBuffer(u"idarea"), u"'")
                     )
                     cursorAreas.first()
-                    areaName = cursorAreas.valueBuffer(u"descripcion")
+                    name_area = cursorAreas.valueBuffer(u"descripcion")
                     if not qsa.FileStatic.exists(
-                        qsa.ustr(directorio, u"/", cursorModules.valueBuffer(u"idmodulo"), u".xpm")
+                        qsa.ustr(directorio, u"/", cur_modules.valueBuffer(u"idmodulo"), u".xpm")
                     ):
                         qsa.sys.write(
                             u"ISO-8859-1",
                             qsa.ustr(
-                                directorio, u"/", cursorModules.valueBuffer(u"idmodulo"), u".xpm"
+                                directorio, u"/", cur_modules.valueBuffer(u"idmodulo"), u".xpm"
                             ),
-                            cursorModules.valueBuffer(u"icono"),
+                            cur_modules.valueBuffer(u"icono"),
                         )
                         log.append(
                             qsa.util.translate(
                                 u"scripts",
                                 qsa.ustr(
                                     u"* Exportando ",
-                                    cursorModules.valueBuffer(u"idmodulo"),
+                                    cur_modules.valueBuffer(u"idmodulo"),
                                     u".xpm (Regenerado).",
                                 ),
                             )
                         )
                     if not qsa.FileStatic.exists(
-                        qsa.ustr(directorio, u"/", cursorModules.valueBuffer(u"idmodulo"), u".mod")
+                        qsa.ustr(directorio, u"/", cur_modules.valueBuffer(u"idmodulo"), u".mod")
                     ):
                         contenido = qsa.ustr(
                             u"<!DOCTYPE MODULE>\n<MODULE>\n<name>",
-                            cursorModules.valueBuffer(u"idmodulo"),
+                            cur_modules.valueBuffer(u"idmodulo"),
                             u'</name>\n<alias>QT_TRANSLATE_NOOP("FLWidgetApplication","',
-                            cursorModules.valueBuffer(u"descripcion"),
+                            cur_modules.valueBuffer(u"descripcion"),
                             u'")</alias>\n<area>',
-                            cursorModules.valueBuffer(u"idarea"),
-                            u'</area>\n<areaname>QT_TRANSLATE_NOOP("FLWidgetApplication","',
-                            areaName,
-                            u'")</areaname>\n<version>',
-                            cursorModules.valueBuffer(u"version"),
+                            cur_modules.valueBuffer(u"idarea"),
+                            u'</area>\n<name_area>QT_TRANSLATE_NOOP("FLWidgetApplication","',
+                            name_area,
+                            u'")</name_area>\n<version>',
+                            cur_modules.valueBuffer(u"version"),
                             u"</version>\n<icon>",
-                            cursorModules.valueBuffer(u"idmodulo"),
+                            cur_modules.valueBuffer(u"idmodulo"),
                             u".xpm</icon>\n<flversion>",
-                            cursorModules.valueBuffer(u"version"),
+                            cur_modules.valueBuffer(u"version"),
                             u"</flversion>\n<description>",
-                            cursorModules.valueBuffer(u"idmodulo"),
+                            cur_modules.valueBuffer(u"idmodulo"),
                             u"</description>\n</MODULE>",
                         )
                         qsa.sys.write(
                             u"ISO-8859-1",
                             qsa.ustr(
-                                directorio, u"/", cursorModules.valueBuffer(u"idmodulo"), u".mod"
+                                directorio, u"/", cur_modules.valueBuffer(u"idmodulo"), u".mod"
                             ),
                             contenido,
                         )
@@ -430,7 +423,7 @@ class FormInternalObj(qsa.FormDBWidget):
                                 u"scripts",
                                 qsa.ustr(
                                     u"* Generando ",
-                                    cursorModules.valueBuffer(u"idmodulo"),
+                                    cur_modules.valueBuffer(u"idmodulo"),
                                     u".mod (Regenerado).",
                                 ),
                             )

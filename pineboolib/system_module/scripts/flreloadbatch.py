@@ -17,32 +17,32 @@ class FormInternalObj(qsa.FormDBWidget):
         """Entry function."""
         util = qsa.FLUtil()
         setting = "scripts/sys/modLastDirModules_%s" % qsa.sys.nameBD()
-        dirAnt = util.readSettingEntry(setting)
-        dirMods = qsa.FileDialog.getExistingDirectory(
-            dirAnt, util.translate(u"scripts", u"Directorio de Módulos")
+        last_dir = util.readSettingEntry(setting)
+        modules_dir = qsa.FileDialog.getExistingDirectory(
+            last_dir, util.translate(u"scripts", u"Directorio de Módulos")
         )
 
-        if not dirMods:
+        if not modules_dir:
             return
-        qsa.Dir().setCurrent(dirMods)
+        qsa.Dir().setCurrent(modules_dir)
 
-        resComando = qsa.Array()
+        command_result = qsa.Array()
         if util.getOS() == u"WIN32":
-            resComando = self.ejecutarComando("cmd.exe /C dir /B /S *.mod")
+            command_result = self.ejecutarComando("cmd.exe /C dir /B /S *.mod")
         else:
-            resComando = self.ejecutarComando("find . -name *.mod")
+            command_result = self.ejecutarComando("find . -name *.mod")
 
-        if not resComando.ok:
+        if not command_result.ok:
             qsa.MessageBox.warning(
                 util.translate(u"scripts", u"Error al buscar los módulos en el directorio:\n")
-                + dirMods,
+                + modules_dir,
                 qsa.MessageBox.Ok,
                 qsa.MessageBox.NoButton,
                 qsa.MessageBox.NoButton,
             )
             return
 
-        opciones = resComando.salida.split(u"\n")
+        opciones = command_result.salida.split(u"\n")
         opciones.pop()
         modulos = self.elegirOpcion(opciones)
         if not modulos:
@@ -59,7 +59,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 )
                 return
 
-        util.writeSettingEntry(setting, dirMods)
+        util.writeSettingEntry(setting, modules_dir)
         app_ = qsa.aqApp
         if app_ is None:
             return

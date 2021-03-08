@@ -7,10 +7,6 @@ from typing import Any
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
 
-    def _class_init(self) -> None:
-        """Inicialize."""
-        self.util = qsa.FLUtil()
-
     def main(self) -> None:
         """Entry function."""
         continuar = qsa.MessageBox.warning(
@@ -41,10 +37,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 return
 
             if qsa.from_project("formflreloadlast").cargarModulo(nombre_fichero):
-                app_ = qsa.aqApp
-                if app_ is None:
-                    return
-                app_.reinit()
+                qsa.aqApp.reinit()
 
     def dameValor(self, linea: str) -> str:
         """Return value."""
@@ -53,42 +46,22 @@ class FormInternalObj(qsa.FormDBWidget):
 
 def valorPorClave(tabla: str, campo: str, where: str) -> Any:
     """Return a value from database."""
-    valor = None
-    query = qsa.FLSqlQuery()
-    query.setTablesList(tabla)
-    query.setSelect(campo)
-    query.setFrom(tabla)
-    query.setWhere(qsa.ustr(where, u";"))
-    query.exec_()
-    if query.next():
-        valor = query.value(0)
-    return valor
+    return qsa.util.sqlSelect(tabla, campo, where)
 
 
-def compararVersiones(v1: str, v2: str) -> int:
+def compararVersiones(ver1: str, ver2: str) -> int:
     """Compare two versions and return the hightest."""
-    return qsa.from_project("formflreloadlast").compararVersiones(v1, v2)
+    return qsa.from_project("formflreloadlast").compararVersiones(ver1, ver2)
 
 
-def evaluarDependencias(dependencias: qsa.Array) -> bool:
+def evaluarDependencias(deps: qsa.Array) -> bool:
     """Evaluate dependencies."""
-    res = None
-    if not dependencias:
-        return True
-    i = 0
-    while_pass = True
-    while i < len(dependencias):
-        if not while_pass:
-            i += 1
-            while_pass = True
-            continue
-        while_pass = False
-        if dependencias[i] == "":
-            continue
-        if not qsa.sys.isLoadedModule(dependencias[i]):
+
+    for dep in deps:
+        if not qsa.sys.isLoadedModule(dep):
             res = qsa.MessageBox.warning(
                 qsa.util.translate(u"scripts", u"Este módulo depende del módulo ")
-                + dependencias[i]
+                + dep
                 + qsa.util.translate(
                     u"scripts",
                     u", que no está instalado.\nFacturaLUX puede fallar por esta causa.\n¿Desea continuar la carga?",
@@ -98,12 +71,6 @@ def evaluarDependencias(dependencias: qsa.Array) -> bool:
             )
             if res == qsa.MessageBox.No:
                 return False
-        i += 1
-        while_pass = True
-        try:
-            i < len(dependencias)
-        except Exception:
-            break
 
     return True
 
