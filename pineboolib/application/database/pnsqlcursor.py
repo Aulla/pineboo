@@ -2193,7 +2193,9 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
         if not hasattr(self, "private_cursor"):
             return
 
-        if self.private_cursor._transactions_opened:
+        if self.private_cursor._transactions_opened and not getattr(
+            application, "TESTING_MODE", False
+        ):
             LOGGER.warning(
                 "FLSqlCursor(%s).Transacciones abiertas!! %s",
                 self.curName(),
