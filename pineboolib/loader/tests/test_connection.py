@@ -5,10 +5,14 @@ import unittest
 from pineboolib.loader.projectconfig import ProjectConfig
 from pineboolib.loader.connection import config_dbconn  # , connect_to_db
 from pineboolib.loader.options import parse_options
-import getpass
+
 from . import fixture_path
+from typing import TYPE_CHECKING
 
 from unittest.mock import patch, Mock
+
+if TYPE_CHECKING:
+    import getpass
 
 
 class TestConfigDBConn(unittest.TestCase):
