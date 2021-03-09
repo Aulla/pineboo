@@ -12,11 +12,11 @@ ModuleVersion = str
 SuggestedPackageNameForInstall = str
 ErrorString = str
 
-DependencyCheck = Dict[ModuleName, SuggestedPackageNameForInstall]
-DependencyError = Dict[Tuple[ModuleName, SuggestedPackageNameForInstall], ErrorString]
+DependencyCheck = Dict["ModuleName", "SuggestedPackageNameForInstall"]
+DependencyError = Dict[Tuple["ModuleName", "SuggestedPackageNameForInstall"], "ErrorString"]
 
 LOGGER = logging.get_logger(__name__)
-DEPENDENCIES_CHECKED: Dict[ModuleName, ModuleVersion] = {}
+DEPENDENCIES_CHECKED: Dict["ModuleName", "ModuleVersion"] = {}
 
 MINIMUM_VERSION = {
     "Python": "3.6",
@@ -28,7 +28,7 @@ MINIMUM_VERSION = {
 PYTHON_INCLUDED_BATTERIES = {"Python", "sqlite3"}
 
 
-def get_dependency_errors(dict_: DependencyCheck) -> DependencyError:
+def get_dependency_errors(dict_: "DependencyCheck") -> "DependencyError":
     """
     Check if a package is installed and return the result.
 
@@ -85,7 +85,7 @@ def get_dependency_errors(dict_: DependencyCheck) -> DependencyError:
     return error
 
 
-def check_dependencies_cli(dict_: DependencyCheck) -> bool:
+def check_dependencies_cli(dict_: "DependencyCheck") -> bool:
     """
     Check if a package is installed and return the result.
 

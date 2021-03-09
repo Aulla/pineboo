@@ -24,7 +24,7 @@ def clean_repr(obj: Any) -> str:
     return CLEAN_REGEX.sub("", repr(obj))
 
 
-def not_implemented_warn(func_: TYPEFN) -> TYPEFN:
+def not_implemented_warn(func_: "TYPEFN") -> "TYPEFN":
     """
     Mark function as not implemented. Its contents do almost nothing at all. Emits a Warning.
 
@@ -59,7 +59,7 @@ def not_implemented_warn(func_: TYPEFN) -> TYPEFN:
     return mock_fn
 
 
-def not_implemented_debug(func_: TYPEFN) -> TYPEFN:
+def not_implemented_debug(func_: "TYPEFN") -> "TYPEFN":
     """
     Mark function as not implemented. Its contents do almost nothing at all. Emits a Debug.
 
@@ -87,7 +87,7 @@ def not_implemented_debug(func_: TYPEFN) -> TYPEFN:
     return mock_fn
 
 
-def working_on_this(func_: TYPEFN) -> TYPEFN:
+def working_on_this(func_: "TYPEFN") -> "TYPEFN":
     """Emit a message to tell other devs that someone is already working on this function."""
 
     @functools.wraps(func_)
@@ -110,7 +110,7 @@ def working_on_this(func_: TYPEFN) -> TYPEFN:
     return mock_fn
 
 
-def beta_implementation(func_: TYPEFN) -> TYPEFN:
+def beta_implementation(func_: "TYPEFN") -> "TYPEFN":
     """Mark function as beta. This means that more or less works but it might need more tweaking or errors may arise."""
 
     @functools.wraps(func_)
@@ -133,7 +133,7 @@ def beta_implementation(func_: TYPEFN) -> TYPEFN:
     return mock_fn
 
 
-def empty(func_: TYPEFN) -> TYPEFN:
+def empty(func_: "TYPEFN") -> "TYPEFN":
     """
     Mark function as Empty, not doing anything. Similar to NotImplemented* but does no add traceback.
 
@@ -158,7 +158,7 @@ def empty(func_: TYPEFN) -> TYPEFN:
     return mock_fn
 
 
-def incomplete(func_: TYPEFN) -> TYPEFN:
+def incomplete(func_: "TYPEFN") -> "TYPEFN":
     """Mark the function as Incomplete, meaning that functionaility is still missing."""
 
     @functools.wraps(func_)
@@ -181,7 +181,7 @@ def incomplete(func_: TYPEFN) -> TYPEFN:
     return mock_fn
 
 
-def need_revision(func_: TYPEFN) -> TYPEFN:
+def need_revision(func_: "TYPEFN") -> "TYPEFN":
     """Mark the function as needs to be revised. Some bug might have been found and needs help from other devs."""
 
     def newfn(*args: Any, **kwargs: Any) -> Any:
@@ -203,7 +203,7 @@ def need_revision(func_: TYPEFN) -> TYPEFN:
     return mock_fn
 
 
-def deprecated(func_: TYPEFN) -> TYPEFN:
+def deprecated(func_: "TYPEFN") -> "TYPEFN":
     """Mark functionality as deprecated in favor of other one."""
 
     @functools.wraps(func_)
@@ -230,7 +230,7 @@ def deprecated(func_: TYPEFN) -> TYPEFN:
     return mock_fn
 
 
-def pyqt_slot(*args: Any) -> Callable[[TYPEFN], TYPEFN]:
+def pyqt_slot(*args: Any) -> Callable[["TYPEFN"], "TYPEFN"]:
     """
     Create Qt Slot from class method.
 

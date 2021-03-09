@@ -1,23 +1,23 @@
 """projectconfig module."""
 
-import re
+
 import base64
 import hashlib
-import os.path
-from pathlib import Path
-from xml.etree import ElementTree as ET
+import os
+import pathlib
+import fernet  # type: ignore [import] # noqa: F821
+
+from xml.etree import ElementTree as ELT
 from typing import Tuple, Optional, Any
 
-from fernet import Fernet  # type: ignore
-
 from pineboolib import logging
-from pineboolib.core.utils.version import VersionNumber
+from pineboolib.core.utils import utils_base
+from pineboolib.core.utils import version as utils_version
 from pineboolib.core import settings
-from pineboolib.core.utils.utils_base import filedir, pretty_print_xml
 
-VERSION_1_0 = VersionNumber("1.0")
-VERSION_1_1 = VersionNumber("1.1")
-VERSION_1_2 = VersionNumber("1.2")
+VERSION_1_0 = utils_version.VersionNumber("1.0")
+VERSION_1_1 = utils_version.VersionNumber("1.1")
+VERSION_1_2 = utils_version.VersionNumber("1.2")
 
 LOGGER = logging.get_logger(__name__)
 
@@ -30,14 +30,14 @@ class ProjectConfig:
     SAVE_VERSION = VERSION_1_2  #: Version for saving
 
     #: Folder where to read/write project configs.
-    profile_dir: str = filedir(
+    profile_dir: str = utils_base.filedir(
         settings.CONFIG.value(
-            "ebcomportamiento/profiles_folder", "%s/Pineboo/profiles" % Path.home()
+            "ebcomportamiento/profiles_folder", "%s/Pineboo/profiles" % pathlib.Path.home()
         )
     )
 
-    version: VersionNumber  #: Version number for the profile read.
-    fernet: Optional[Fernet]  #: Cipher used, if any.
+    version: "utils_version.VersionNumber"  #: Version number for the profile read.
+    fernet: Optional["fernet.Fernet"]  #: Cipher used, if any.
 
     database: str  #: Database Name, file path to store it, or :memory:
     host: Optional[str]  #: DB server Hostname. None for local files.
@@ -161,9 +161,9 @@ class ProjectConfig:
         if not os.path.isfile(file_name):
             raise ValueError("El proyecto %r no existe." % file_name)
 
-        tree = ET.parse(file_name)
+        tree = ELT.parse(file_name)
         root = tree.getroot()
-        version = VersionNumber(root.get("Version"), default="1.0")
+        version = utils_version.VersionNumber(root.get("Version"), default="1.0")
         self.version = version
         self.description = ""
         for xmldescription in root.findall("name"):
@@ -177,17 +177,16 @@ class ProjectConfig:
         self.password_required = True
         self.checkProfilePasswordForVersion(self.project_password, profile_pwd, version)
 
+        self.fernet = None
         if self.project_password and self.version > VERSION_1_1:
             key_salt = hashlib.sha256(profile_pwd.encode()).digest()
             key = hashlib.pbkdf2_hmac("sha256", self.project_password.encode(), key_salt, 10000)
             key64 = base64.urlsafe_b64encode(key)
-            self.fernet = Fernet(key64)
-        else:
-            self.fernet = None
+            self.fernet = fernet.Fernet(key64)
 
-        from pineboolib.application.database.pnsqldrivers import PNSqlDrivers
+        from pineboolib.application.database import pnsqldrivers
 
-        sql_drivers_manager = PNSqlDrivers()
+        sql_drivers_manager = pnsqldrivers.PNSqlDrivers()
         self.database = self.retrieveCipherSubElement(root, "database-name")
         for item in root.findall("database-server"):
             self.host = self.retrieveCipherSubElement(item, "host")
@@ -209,16 +208,20 @@ class ProjectConfig:
         return True
 
     @classmethod
-    def encodeProfilePasswordForVersion(cls, password: str, save_version: VersionNumber) -> str:
+    def encodeProfilePasswordForVersion(
+        cls,
+        password: str,
+        version_: "utils_version.VersionNumber",  # type: ignore [name-defined] # noqa: F821
+    ) -> str:
         """
         Hash a password for a profile/projectconfig using the protocol for specified version.
         """
         if password == "":
             return ""
-        if save_version < VERSION_1_1:
+        if version_ < VERSION_1_1:
             return password
 
-        if save_version < VERSION_1_2:
+        if version_ < VERSION_1_2:
             return hashlib.sha256(password.encode()).hexdigest()
         # Minimum salt size recommended is 8 bytes
         # multiple of 3 bytes as it is shorter in base64
@@ -239,7 +242,10 @@ class ProjectConfig:
 
     @classmethod
     def checkProfilePasswordForVersion(
-        cls, user_pwd: str, profile_pwd: str, version: VersionNumber
+        cls,
+        user_pwd: str,
+        profile_pwd: str,
+        version_: "utils_version.VersionNumber",  # type: ignore [name-defined] # noqa: F821
     ) -> None:
         """
         Check a saved password against a user-supplied one.
@@ -256,12 +262,12 @@ class ProjectConfig:
         if not profile_pwd:
             return
 
-        if version < VERSION_1_1:
+        if version_ < VERSION_1_1:
             if user_pwd == profile_pwd:
                 return
             raise PasswordMismatchError("La contraseña es errónea")
 
-        if version < VERSION_1_2:
+        if version_ < VERSION_1_2:
             user_hash = hashlib.sha256(user_pwd.encode()).hexdigest()
             if profile_pwd == user_hash:
                 return
@@ -282,9 +288,11 @@ class ProjectConfig:
 
         raise PasswordMismatchError("La contraseña es errónea")
 
-    def createCipherSubElement(self, parent: ET.Element, tagname: str, text: str) -> ET.Element:
+    def createCipherSubElement(
+        self, parent: "ELT.Element", tagname: str, text: str
+    ) -> "ELT.Element":
         """Create a XML SubElement ciphered if self.fernet is present."""
-        child = ET.SubElement(parent, tagname)
+        child = ELT.SubElement(parent, tagname)
         if self.fernet is None:
             child.text = text
             return child
@@ -299,7 +307,7 @@ class ProjectConfig:
         child.set("cipher-text", encoded_text)
         return child
 
-    def retrieveCipherSubElement(self, parent: ET.Element, tagname: str) -> str:
+    def retrieveCipherSubElement(self, parent: "ELT.Element", tagname: str) -> str:
         """Get a XML SubElement ciphered if self.fernet is present."""
         child = parent.find(tagname)
         if child is None:
@@ -326,7 +334,7 @@ class ProjectConfig:
         """
         Save the connection.
         """
-        profile = ET.Element("Profile")
+        profile = ELT.Element("Profile")
         profile.set("Version", str(self.SAVE_VERSION))
         description = self.description
         filename = self.filename
@@ -338,36 +346,38 @@ class ProjectConfig:
 
         passw_db = self.password or ""
 
-        profile_user = ET.SubElement(profile, "profile-data")
-        profile_password = ET.SubElement(profile_user, "password")
+        profile_user = ELT.SubElement(profile, "profile-data")
+        profile_password = ELT.SubElement(profile_user, "password")
         profile_password.text = self.encodeProfilePasswordForVersion(
             self.project_password, self.SAVE_VERSION
         )
+
+        self.fernet = None
         if self.project_password and self.SAVE_VERSION > VERSION_1_1:
             key_salt = hashlib.sha256(profile_password.text.encode()).digest()
             key = hashlib.pbkdf2_hmac("sha256", self.project_password.encode(), key_salt, 10000)
             key64 = base64.urlsafe_b64encode(key)
-            self.fernet = Fernet(key64)
+            self.fernet = fernet.Fernet(key64)
         else:
             # Mask the password if no cipher is used!
             passw_db = base64.b64encode(passw_db.encode()).decode()
-            self.fernet = None
-        name = ET.SubElement(profile, "name")
+
+        name = ELT.SubElement(profile, "name")
         name.text = description
-        dbs = ET.SubElement(profile, "database-server")
+        dbs = ELT.SubElement(profile, "database-server")
         self.createCipherSubElement(dbs, "type", text=self.type)
         self.createCipherSubElement(dbs, "host", text=self.host or "")
         self.createCipherSubElement(dbs, "port", text=str(self.port) if self.port else "")
 
-        dbc = ET.SubElement(profile, "database-credentials")
+        dbc = ELT.SubElement(profile, "database-credentials")
         self.createCipherSubElement(dbc, "username", text=self.username or "")
         self.createCipherSubElement(dbc, "password", text=passw_db)
 
         self.createCipherSubElement(profile, "database-name", text=self.database)
 
-        pretty_print_xml(profile)
+        utils_base.pretty_print_xml(profile)
 
-        tree = ET.ElementTree(profile)
+        tree = ELT.ElementTree(profile)
 
         tree.write(filename, xml_declaration=True, encoding="utf-8")
         self.version = self.SAVE_VERSION
@@ -388,6 +398,9 @@ class ProjectConfig:
         driver_alias = "PostgreSQL (PSYCOPG2)"
         user_pass = None
         host_port = None
+
+        import re
+
         if "/" not in connstring:
             dbname = connstring
             if not re.match(r"\w+", dbname):

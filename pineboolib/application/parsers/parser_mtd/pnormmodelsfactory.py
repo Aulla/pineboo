@@ -52,18 +52,6 @@ LOGGER = logging.get_logger(__name__)
 PROCESSED: List[str] = []
 
 
-def empty_base():
-    """Cleanup sqlalchemy models."""
-
-    if application.PROJECT.conn_manager is None:
-        raise Exception("Project is not connected yet")
-
-    # FIXME: Not a good idea to delete from other module
-    if hasattr(application.PROJECT.conn_manager.mainConn().driver(), "_declarative_base"):
-        del application.PROJECT.conn_manager.mainConn().driver()._declarative_base
-    application.PROJECT.conn_manager.mainConn().driver()._declarative_base = None
-
-
 def register_metadata_as_model(metadata: "pntablemetadata.PNTableMetaData") -> bool:
     """Register a mtd as model."""
 
@@ -163,3 +151,6 @@ def load_models() -> None:
     for key, data in views_.items():
         save_model(data, key)
         application.PROJECT.conn_manager.manager().createTable(key)
+
+    del models_
+    del views_

@@ -9,6 +9,7 @@ from .xmlaction import XMLAction
 from .proxy import DelayedObjectProxyLoader
 from .safeqsa import SafeQSA
 import sqlalchemy
+import gc
 
 LOGGER = logging.get_logger(__name__)
 
@@ -201,3 +202,5 @@ class QSADictModules:
                 name.endswith(("_orm", "_class")) and not name.startswith("fl")
             ):
                 delattr(qsa_dict_modules, name)
+
+        gc.collect()

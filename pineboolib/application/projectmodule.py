@@ -1,35 +1,28 @@
 """
 Project Module.
 """
-import os
-from optparse import Values
-from pathlib import Path
 
-import multiprocessing
+from pineboolib import logging
 
-from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
-
-
-# from pineboolib.fllegacy.flaccesscontrollists import FLAccessControlLists # FIXME: Not allowed yet
-from PyQt6 import QtWidgets
-
-from pineboolib.core.utils import logging, utils_base
-from pineboolib.core.utils.struct import AreaStruct
+from pineboolib.core.utils import utils_base, struct
 from pineboolib.core import exceptions, settings, message_manager, decorators
+
 from .database import pnconnectionmanager
 from .database import utils as db_utils
-from .utils import path, xpm, flfiles_dir
-from . import module, file
-
-
 from .parsers.parser_mtd import pnmtdparser, pnormmodelsfactory
 from .parsers import parser_qsa
+from .utils import path, xpm, flfiles_dir
 
+from . import module, file as file_module
+
+import os
+from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pineboolib.interfaces import dgi_schema, imainwindow  # noqa: F401 # pragma: no cover
     from .database import pnconnection  # pragma: no cover
     from . import xmlaction, pnapplication  # noqa: F401 # pragma: no cover
+    from PyQt6 import QtWidgets
 
 
 LOGGER = logging.get_logger(__name__)
@@ -44,11 +37,11 @@ class Project(object):
 
     _conn_manager: Optional["pnconnectionmanager.PNConnectionManager"]
 
-    _app: Optional[QtWidgets.QApplication] = None
+    _app: "QtWidgets.QApplication"
     _aq_app: Optional["pnapplication.PNApplication"] = None
     # _conn: Optional["PNConnection"] = None  # Almacena la conexión principal a la base de datos
     debug_level = 100
-    options: Values
+    # options: Values
 
     main_window: Optional["imainwindow.IMainWindow"] = None
     acl_ = None
@@ -64,7 +57,7 @@ class Project(object):
     alternative_folder: Optional[str]
     _session_func_: Optional[Callable]
 
-    areas: Dict[str, AreaStruct]
+    areas: Dict[str, "struct.AreaStruct"]
     files: Dict[str, Any]
     tables: Dict[str, Any]
     actions: Dict[str, "xmlaction.XMLAction"]
@@ -93,14 +86,16 @@ class Project(object):
         self.files = {}  # FIXME: Add proper type
         self.areas = {}
         self.modules = {}
-        self.options = Values()
+        # self.options = Values()
+        import pathlib
+
         if not self.tmpdir:
-            self.tmpdir = utils_base.filedir("%s/Pineboo/tempdata" % Path.home())
+            self.tmpdir = utils_base.filedir("%s/Pineboo/tempdata" % pathlib.Path.home())
             settings.CONFIG.set_value("ebcomportamiento/temp_dir", self.tmpdir)
 
         if not os.path.exists(self.tmpdir):
             try:
-                Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
+                pathlib.Path(self.tmpdir).mkdir(parents=True, exist_ok=True)
             except Exception as error:
                 LOGGER.error("Error creating %s folder : %s", self.tmpdir, str(error))
                 return
@@ -115,13 +110,13 @@ class Project(object):
         self.pending_conversion_list = []
 
     @property
-    def app(self) -> QtWidgets.QApplication:
+    def app(self) -> "QtWidgets.QApplication":
         """Retrieve current Qt Application or throw error."""
         if self._app is None:
             raise Exception("No application set")
         return self._app
 
-    def set_app(self, app: QtWidgets.QApplication):
+    def set_app(self, app: "QtWidgets.QApplication"):
         """Set Qt Application."""
         self._app = app
 
@@ -129,7 +124,7 @@ class Project(object):
     def aq_app(self) -> "pnapplication.PNApplication":
         """Retrieve current Qt Application or throw error."""
         if self._aq_app is None:
-            from pineboolib.application import pnapplication
+            from . import pnapplication
 
             self._aq_app = pnapplication.PNApplication()
         return self._aq_app
@@ -199,7 +194,7 @@ class Project(object):
             if file_name_model not in self.files.keys():
                 path_file = pnmtdparser.mtd_parse(file_item.filename, file_item.path())
                 if path_file:
-                    self.files[file_name_model] = file.File(
+                    self.files[file_name_model] = file_module.File(
                         file_item.module,
                         "%s_model.py" % file_item.path(),
                         basedir=file_item.basedir,
@@ -253,22 +248,20 @@ class Project(object):
 
     def run(self) -> bool:
         """Run project. Connects to DB and loads data."""
-        from .parsers.parser_qsa import PARSER_QSA_VERSION
 
         LOGGER.info("RUN: Loading project data.")
 
-        self.pending_conversion_list = []
-
-        self.actions = {}
-        self.files = {}
-        self.areas = {}
-        self.modules = {}
+        self.pending_conversion_list.clear()
+        self.actions.clear()
+        self.files.clear()
+        self.areas.clear()
+        self.modules.clear()
 
         if self.dgi is None:
             raise Exception("DGI not loaded")
 
         delete_cache = self.delete_cache
-        cache_ver = PARSER_QSA_VERSION
+        cache_ver = parser_qsa.PARSER_QSA_VERSION
 
         cache_folder = path._dir("cache")
         db_cache_folder = os.path.join(path._dir("cache"), self.conn_manager.mainConn().DBName())
@@ -294,15 +287,15 @@ class Project(object):
                 file_ver = open(cache_version_file_path, "r")
                 cache_ver = file_ver.read()
                 file_ver.close()
-                if cache_ver != PARSER_QSA_VERSION:
+                if cache_ver != parser_qsa.PARSER_QSA_VERSION:
                     delete_cache = True
 
             if delete_cache:
-                if cache_ver != PARSER_QSA_VERSION:
+                if cache_ver != parser_qsa.PARSER_QSA_VERSION:
                     LOGGER.warning(
                         "QSA parser version has changed from %s to %s!. Deleting cache.",
                         cache_ver,
-                        PARSER_QSA_VERSION,
+                        parser_qsa.PARSER_QSA_VERSION,
                     )
                 else:
                     LOGGER.warning("Deleting cache.")
@@ -344,8 +337,9 @@ class Project(object):
             os.makedirs(db_cache_folder)
 
         file_ver = open(cache_version_file_path, "w")
-        file_ver.write(PARSER_QSA_VERSION)
+        file_ver.write(parser_qsa.PARSER_QSA_VERSION)
         file_ver.close()
+        del file_ver
 
         return self.load_system_module() and self.load_database_modules()
 
@@ -421,7 +415,7 @@ class Project(object):
 
         @param scriptname, Nombre del script a convertir
         """
-        from pineboolib.application.parsers.parser_qsa import postparse
+        from .parsers.parser_qsa import postparse
 
         # Intentar convertirlo a Python primero con flscriptparser2
         if not os.path.isfile(scriptname):
@@ -449,7 +443,7 @@ class Project(object):
     def parse_script_list(self, path_list: List[str]) -> bool:
         """Convert QS scripts list into Python and stores it in the same folders."""
 
-        from pineboolib.application.parsers.parser_qsa import pytnyzer, pyconvert
+        from .parsers.parser_qsa import pytnyzer, pyconvert
 
         if not path_list:
             return True
@@ -468,7 +462,7 @@ class Project(object):
                 LOGGER.warning("The file %s is already being converted. Waiting", dest_file_name)
                 while dest_file_name in self.pending_conversion_list:
                     # Esperamos a que el fichero se convierta.
-                    QtWidgets.QApplication.processEvents()
+                    self.app.processEvents()  # type: ignore[misc] # noqa: F821
             else:
                 self.pending_conversion_list.append(dest_file_name)
                 itemlist.append(
@@ -484,6 +478,8 @@ class Project(object):
         pycode_list: List[bool] = []
 
         if parser_qsa.USE_THREADS:
+            import multiprocessing
+
             with multiprocessing.Pool(threads_num) as thread:
                 # TODO: Add proper signatures to Python files to avoid reparsing
                 pycode_list = thread.map(pyconvert.pythonify_item, itemlist, chunksize=2)
@@ -545,6 +541,8 @@ class Project(object):
         icono = file_object.read()
         file_object.close()
 
+        del file_object
+
         self.modules["sys"] = module.Module("sys", "sys", "Administración", icono, "1.0")
         for root, dirs, files in os.walk(utils_base.filedir(base_dir, "system_module")):
             for nombre in files:
@@ -552,11 +550,12 @@ class Project(object):
                     continue
 
                 if root.find("modulos") == -1:
-                    fileobj = file.File(
+                    fileobj = file_module.File(
                         "sys", nombre, basedir=root, db_name=self.conn_manager.mainConn().DBName()
                     )
                     self.files[nombre] = fileobj
                     self.modules["sys"].add_project_file(fileobj)
+                    del fileobj
 
         pnormmodelsfactory.load_models()
         # Se verifica que existen estas tablas
@@ -600,9 +599,9 @@ class Project(object):
         for idarea, descripcion in list(result):
             if idarea == "sys":
                 continue
-            self.areas[idarea] = AreaStruct(idarea=idarea, descripcion=descripcion)
+            self.areas[idarea] = struct.AreaStruct(idarea=idarea, descripcion=descripcion)
 
-        self.areas["sys"] = AreaStruct(idarea="sys", descripcion="Area de Sistema")
+        self.areas["sys"] = struct.AreaStruct(idarea="sys", descripcion="Area de Sistema")
 
         result = []
         # Obtener módulos activos
@@ -648,7 +647,7 @@ class Project(object):
                 else:
                     LOGGER.warning("run: file %s already loaded, overwritting..." % nombre)
 
-            fileobj = file.File(idmodulo, nombre, sha, db_name=db_name)
+            fileobj = file_module.File(idmodulo, nombre, sha, db_name=db_name)
             self.files[nombre] = fileobj
 
             self.modules[idmodulo].add_project_file(fileobj)
@@ -702,6 +701,8 @@ class Project(object):
 
         log_file.close()
         LOGGER.info("RUN: End populating cache.")
+        self.conn_manager.removeConn("dbaux")
+        del log_file
 
         self.message_manager().send(
             "splash",

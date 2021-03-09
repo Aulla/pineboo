@@ -20,7 +20,7 @@ TYPEFN = TypeVar("TYPEFN", bound=Callable[..., Any])
 LOGGER = logging.get_logger(__name__)
 
 
-def atomic(conn_name: str = "default", wait: bool = True) -> TYPEFN:
+def atomic(conn_name: str = "default", wait: bool = True) -> "TYPEFN":
     """Return pineboo atomic decorator."""
 
     def decorator(fun_: TYPEFN) -> TYPEFN:
@@ -81,10 +81,10 @@ def atomic(conn_name: str = "default", wait: bool = True) -> TYPEFN:
     return decorator  # type: ignore [return-value] # noqa: F723
 
 
-def serialize(conn_name: str = "default") -> TYPEFN:
+def serialize(conn_name: str = "default") -> "TYPEFN":
     """Return pineboo atomic decorator."""
 
-    def decorator(fun_: TYPEFN) -> TYPEFN:
+    def decorator(fun_: "TYPEFN") -> "TYPEFN":
         @functools.wraps(fun_)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             key = utils_base.session_id(conn_name)

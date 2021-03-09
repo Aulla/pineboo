@@ -1,14 +1,13 @@
 """options module."""
 
-from optparse import OptionParser
-from optparse import Values
+import optparse
 from typing import Optional, List
 
 
-def parse_options(custom_argv: Optional[List] = None) -> Values:
+def parse_options(custom_argv: Optional[List] = None) -> "optparse.Values":
     """Load and parse options."""
 
-    parser = OptionParser()
+    parser = optparse.OptionParser()
     parser.add_option(
         "-l",
         "--load",

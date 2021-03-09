@@ -443,8 +443,8 @@ def is_nan(value: Any) -> bool:
     if isinstance(value, str) and value.find(":"):
         value = value.replace(":", "")
     try:
-        x = float(value)
-        return math.isnan(x)
+        value = float(value)
+        return math.isnan(value)
     except ValueError:
         return True
 
@@ -757,7 +757,9 @@ def memory_status() -> None:
         file_.write("\nOBJECTS IN MEMORY  : %s" % len(all_objects))
         file_.write("\nTOTAL MEMORY USAGE : %s" % sum_memory)
         file_.close()
-        LOGGER.warning("MEMORY_STATUS: File %s is created with debug.", file_path)
+        LOGGER.warning(
+            "MEMORY_STATUS: File %s is created with debug. Usage(%s)", file_path, sum_memory
+        )
 
     except ImportError:
         LOGGER.warning("need install 'pympler' module first.")

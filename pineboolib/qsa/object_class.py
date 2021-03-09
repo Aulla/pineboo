@@ -6,8 +6,8 @@ from typing import Set, Tuple, Any
 from pineboolib.application import connections
 
 
-class Object_class(object):
-    """Object class."""
+class ObjectClass(object):
+    """ObjectClass class."""
 
     _class_connections: Set[Tuple]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)

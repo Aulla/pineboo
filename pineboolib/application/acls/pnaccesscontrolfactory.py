@@ -46,7 +46,6 @@ class PNAccessControlForm(pnaccesscontrol.PNAccessControl):
         """Inicialize."""
 
         super().__init__()
-        from PyQt6 import QtGui, QtWidgets
 
         self.pal = QtGui.QPalette()
         palette_ = QtWidgets.QApplication.palette()  # type: ignore[misc] # noqa: F821

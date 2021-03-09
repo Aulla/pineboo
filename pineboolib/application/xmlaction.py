@@ -1,18 +1,19 @@
 """
 XMLAction module.
 """
-from PyQt6 import QtWidgets
-
-from pineboolib.core.utils import logging, struct, utils_base
-from xml.etree import ElementTree as ET  # noqa: F401
-import threading
-from . import load_script
-
-
-from typing import Optional, Union, Dict, List, TYPE_CHECKING
 
 from pineboolib import application
-from pineboolib.application.database import pnsqlcursor
+from pineboolib.core.utils import struct, utils_base
+from pineboolib.core.garbage_collector import check_gc_referrers
+from pineboolib import logging
+
+from xml.etree import ElementTree as ET  # noqa: F401
+import threading
+import weakref
+from . import load_script
+
+from typing import Optional, Union, Dict, List, Any, TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from . import moduleactions  # noqa : F401 # pragma: no cover
@@ -78,6 +79,8 @@ class XMLAction(struct.ActionStruct):
     def cursor(self) -> Optional["isqlcursor.ISqlCursor"]:
         """Return xmlAction cursor."""
         if not self._cursor and self._table:
+            from pineboolib.application.database import pnsqlcursor
+
             # LOGGER.warning("Creando cursor para %s %s", self._name, self._master_widget)
             self._cursor = pnsqlcursor.PNSqlCursor(self._name)
 
@@ -236,6 +239,7 @@ class XMLAction(struct.ActionStruct):
         if self.is_form_loaded(self._record_widget):
             if self._record_widget is not None and self._record_widget.form is not None:
                 if self._record_widget.form._showed:
+                    from PyQt6 import QtWidgets
 
                     QtWidgets.QMessageBox.information(
                         QtWidgets.QApplication.activeWindow(),
@@ -347,21 +351,19 @@ class XMLAction(struct.ActionStruct):
 
         # limpieza
         threads_ids: List[Optional[int]] = [thread.ident for thread in threading.enumerate()]
-
-        for id_thread in list(self.__master_widget.keys()):
-            if id_thread not in threads_ids:
-                # self.__master_widget[id_thread] = None
-                del self.__master_widget[id_thread]
-
-        for id_thread in list(self.__record_widget.keys()):
-            if id_thread not in threads_ids:
-                # self.__record_widget[id_thread] = None
-                del self.__record_widget[id_thread]
-
-        for id_thread in list(self.__cursor.keys()):
-            if id_thread not in threads_ids:
-                # self.__cursor[id_thread] = None
-                del self.__cursor[id_thread]
+        obj_list: List[Dict[int, Any]] = [self.__cursor, self.__master_widget, self.__record_widget]
+        for obj_ in obj_list:
+            for id_thread in list(obj_.keys()):  # type: ignore [attr-defined] # noqa: F821
+                if obj_[id_thread] is not None:
+                    if id_thread not in threads_ids:
+                        check_gc_referrers(
+                            obj_[id_thread].__class__.__name__,
+                            weakref.ref(obj_[id_thread]),
+                            self._name,
+                        )
+                        if hasattr(obj_[id_thread], "form"):
+                            del obj_[id_thread].form
+                        del obj_[id_thread]
 
     _master_widget = property(get_master_widget, set_master_widget)
     _record_widget = property(get_record_widget, set_record_widget)

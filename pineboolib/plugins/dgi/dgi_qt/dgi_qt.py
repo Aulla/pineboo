@@ -2,15 +2,20 @@
 # # -*- coding: utf-8 -*-
 from importlib import import_module
 
+<<<<<<< HEAD
 from PyQt6 import QtWidgets, QtCore, QtGui, Qt, QtXml  # type: ignore
+=======
+import PyQt6
+from PyQt6 import QtWidgets
+>>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
 
 from pineboolib import logging
 from pineboolib.plugins.dgi import dgi_schema
 
-from .dgi_objects.dlg_about import about_pineboo
+from typing import Any, Optional, cast, TYPE_CHECKING
 
-from .dgi_objects import splash_screen, progress_dialog_manager, status_help_msg
-from typing import Any, Optional, cast
+if TYPE_CHECKING:
+    from .dgi_objects import splash_screen, progress_dialog_manager
 
 LOGGER = logging.get_logger(__name__)
 
@@ -28,6 +33,10 @@ class DgiQt(dgi_schema.DgiSchema):
         self._name = "qt"
         self._alias = "Qt5"
 
+    def extraProjectInit(self):
+        """Extra init."""
+        from .dgi_objects import splash_screen, progress_dialog_manager, status_help_msg
+
         self.splash = splash_screen.SplashScreen()
         self.progress_dialog_manager = progress_dialog_manager.ProgressDialogManager()
         self.status_help_msg = status_help_msg.StatusHelpMsg()
@@ -40,13 +49,11 @@ class DgiQt(dgi_schema.DgiSchema):
             cls = getattr(mod_, name, None)
 
         if cls is None:
-            cls = (
-                getattr(QtWidgets, name, None)
-                or getattr(QtXml, name, None)
-                or getattr(QtGui, name, None)
-                or getattr(Qt, name, None)
-                or getattr(QtCore, name, None)
-            )
+            array_mod = [PyQt6.QtWidgets, PyQt6.QtXml, PyQt6.QtGui, PyQt6.Qt, PyQt6.QtCore]
+            for mod in array_mod:
+                cls = getattr(mod, name, None)
+                if cls is not None:
+                    break
 
         return cls
 
@@ -129,6 +136,8 @@ class DgiQt(dgi_schema.DgiSchema):
 
     def about_pineboo(self) -> None:
         """Show about pineboo dialog."""
+
+        from .dgi_objects.dlg_about import about_pineboo
 
         about_ = about_pineboo.AboutPineboo()
         about_.show()

@@ -46,13 +46,13 @@ class Kut2FPDF(object):
     _avalible_fonts: List[str]
     _unavalible_fonts: List[str]
     design_mode: bool
-    _actual_data_line: Optional[Element]
+    _actual_data_line: Optional['Element']
     _no_print_footer: bool
     _actual_section_size: int
     increase_section_size: int
     last_detail: bool
     actual_data_level: int
-    last_data_processed: Element
+    last_data_processed: 'Element'
     prev_level: int
     draws_at_header: Dict[str, str]
     detailn: Dict[str, int]
@@ -311,7 +311,7 @@ class Kut2FPDF(object):
 
         application.PROJECT.message_manager().send("progress_dialog_manager", "destroy", ["kugar"])
 
-    def processData(self, section_name: str, data: Element, data_level: int) -> None:
+    def processData(self, section_name: str, data: 'Element', data_level: int) -> None:
         """
         Check if detailHeader + detail + detailFooter do fit in the remaining page and create a new page if not.
 
@@ -426,7 +426,7 @@ class Kut2FPDF(object):
             ):
                 self.processXML(sec_)
 
-    def processXML(self, xml: Element, data: Optional[Element] = None) -> None:
+    def processXML(self, xml: 'Element', data: Optional['Element'] = None) -> None:
         """
         Process single XML element.
 
@@ -501,7 +501,7 @@ class Kut2FPDF(object):
             self.setTopSection(self.topSection() + self.increase_section_size)
             self.increase_section_size = 0
 
-    def processLine(self, xml: Element, fix_height: bool = True) -> None:
+    def processLine(self, xml: 'Element', fix_height: bool = True) -> None:
         """
         Process single line.
 
@@ -722,7 +722,7 @@ class Kut2FPDF(object):
                 self.drawText(pos_x, pos_y, width, height, xml, text)
 
     def drawText(
-        self, pos_x: int, pos_y: int, width: int, height: int, xml: Element, txt: str
+        self, pos_x: int, pos_y: int, width: int, height: int, xml: 'Element', txt: str
     ) -> None:
         """
         Draw a text field onto the page.
@@ -992,7 +992,7 @@ class Kut2FPDF(object):
         return [red, green, blue]
 
     def drawRect(
-        self, pos_x: int, pos_y: int, width: int, height: int, xml: Element = None
+        self, pos_x: int, pos_y: int, width: int, height: int, xml: 'Element' = None
     ) -> None:
         """
         Draw a rectangle in current page.
@@ -1094,7 +1094,7 @@ class Kut2FPDF(object):
         self._document.set_font(current_font_family, current_font_style, current_font_size)
 
     def draw_image(
-        self, pos_x: int, pos_y: int, width: int, height: int, xml: Element, file_name: str
+        self, pos_x: int, pos_y: int, width: int, height: int, xml: 'Element', file_name: str
     ) -> None:
         """
         Draw image onto current page.
@@ -1121,7 +1121,7 @@ class Kut2FPDF(object):
             self._document.image(file_name, pos_x, pos_y, width, height, "PNG")
 
     def draw_barcode(
-        self, pos_x: int, pos_y: int, width: int, height: int, xml: Element, text: str
+        self, pos_x: int, pos_y: int, width: int, height: int, xml: 'Element', text: str
     ) -> None:
         """
         Draw barcode onto currrent page.
@@ -1149,7 +1149,7 @@ class Kut2FPDF(object):
 
         self.draw_image(pos_x + 10, pos_y, width - 20, height, xml, file_name)
 
-    def setPageFormat(self, xml: Element) -> None:
+    def setPageFormat(self, xml: 'Element') -> None:
         """
         Define page parameters.
 

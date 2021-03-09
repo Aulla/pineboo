@@ -969,12 +969,12 @@ class MainForm(imainwindow.IMainWindow):
             # FIXME: setScrollBarsEnabled
             cast(QtWidgets.QMainWindow, self.main_widget).setCentralWidget(view_back)
 
-    def setMainWidget(self, w) -> None:
+    def setMainWidget(self, widget) -> None:
         """Set mainWidget."""
         if not self.container_:
             return
 
-        application.PROJECT.aq_app.setMainWidget(w)
+        application.PROJECT.aq_app.setMainWidget(widget)
 
         main_widget = (
             self.main_widget if isinstance(self.main_widget, QtWidgets.QMainWindow) else None
@@ -983,29 +983,33 @@ class MainForm(imainwindow.IMainWindow):
         if main_widget is None:
             return
 
+        tools_action = None
+        status_action = None
+
         if self.toogle_bars_:
             tool_bar = cast(QtWidgets.QToolBar, main_widget.findChild(QtWidgets.QToolBar))
-            for ac in self.toogle_bars_.actions():
-                if ac.objectName() == "Herramientas":
-                    a = ac
-                elif ac.objectName() == "Estado":
-                    b = ac
+            for action in self.toogle_bars_.actions():
+                if action.objectName() == "Herramientas":
+                    tools_action = action
+                elif action.objectName() == "Estado":
+                    status_action = action
 
-            if tool_bar:
-                a.setChecked(tool_bar.isVisible())
+            if tool_bar and tools_action is not None:
+                tools_action.setChecked(tool_bar.isVisible())
 
-            b.setChecked(main_widget.statusBar().isVisible())
+            if status_action is not None:
+                status_action.setChecked(main_widget.statusBar().isVisible())
 
-    def showMainWidget(self, w) -> None:
+    def showMainWidget(self, widget) -> None:
         """Show UI."""
 
         if not self.container_:
-            if w:
-                w.show()
+            if widget:
+                widget.show()
             return
 
         focus_w = QtWidgets.QApplication.focusWidget()
-        if w is self.container_ or not w:
+        if widget is self.container_ or not widget:
             if self.container_.isMinimized():
                 self.container_.showNormal()
             elif not self.container_.isVisible():
@@ -1030,22 +1034,24 @@ class MainForm(imainwindow.IMainWindow):
 
             return
 
-        if w.isMinimized():
-            w.showNormal()
-        elif not w.isVisible():
-            w.show()
-            w.setFont(QtWidgets.QApplication.font())
+        if widget.isMinimized():
+            widget.showNormal()
+        elif not widget.isVisible():
+            widget.show()
+            widget.setFont(QtWidgets.QApplication.font())
 
-        if focus_w and isinstance(focus_w, QtWidgets.QMainWindow) and focus_w != w:
-            w.setFocus()
-        if not w.isActiveWindow():
-            w.raise_()
-            QtWidgets.QApplication.setActiveWindow(w)
+        if focus_w and isinstance(focus_w, QtWidgets.QMainWindow) and focus_w != widget:
+            widget.setFocus()
+        if not widget.isActiveWindow():
+            widget.raise_()
+            QtWidgets.QApplication.setActiveWindow(widget)
 
-        if w:
-            view_back = w.centralWidget()
+        if widget:
+            view_back = widget.centralWidget()
             if view_back:
-                self._p_work_space = view_back.findChild(flworkspace.FLWorkSpace, w.objectName())
+                self._p_work_space = view_back.findChild(
+                    flworkspace.FLWorkSpace, widget.objectName()
+                )
                 view_back.show()
 
         self.setCaptionMainWidget("")
@@ -1054,7 +1060,9 @@ class MainForm(imainwindow.IMainWindow):
             .managerModules()
             .idAreaToDescription(self.db().managerModules().activeIdArea())
         )
-        w.setWindowIcon(QtGui.QIcon(self.db().managerModules().iconModule(w.objectName())))
+        widget.setWindowIcon(
+            QtGui.QIcon(self.db().managerModules().iconModule(widget.objectName()))
+        )
         self.tool_box_.setCurrentIndex(
             self.tool_box_.indexOf(self.tool_box_.findChild(QtWidgets.QToolBar, descript_area))
         )
@@ -1066,8 +1074,8 @@ class MainForm(imainwindow.IMainWindow):
             return
 
         if main_widget:
-            ac = main_widget.menuBar().addMenu(self.window_menu)
-            ac.setText(self.tr("&Ventana"))
+            action = main_widget.menuBar().addMenu(self.window_menu)
+            action.setText(self.tr("&Ventana"))
             # main_widget.setCentralWidget(None)
 
         self.initView()
@@ -1134,15 +1142,15 @@ class MainForm(imainwindow.IMainWindow):
         if not main_widget:
             return
 
-        tb = cast(QtWidgets.QToolBar, main_widget.findChild(QtWidgets.QToolBar))
+        tool_bar = cast(QtWidgets.QToolBar, main_widget.findChild(QtWidgets.QToolBar))
 
-        if not tb:
+        if not tool_bar:
             return
 
         if toggle:
-            tb.show()
+            tool_bar.show()
         else:
-            tb.hide()
+            tool_bar.hide()
 
     def toggleStatusBar(self, toggle: bool) -> None:
         """Toggle status bar."""
@@ -1161,9 +1169,9 @@ class MainForm(imainwindow.IMainWindow):
             do_exit = application.PROJECT.aq_app.queryExit()
         if do_exit:
             self._destroying = True
-            if application.PROJECT.aq_app.consoleShown():
-                if application.PROJECT.aq_app._ted_output is not None:
-                    application.PROJECT.aq_app._ted_output.close()
+            # if application.PROJECT.aq_app.consoleShown():
+            #    if application.PROJECT.aq_app._ted_output is not None:
+            #        application.PROJECT.aq_app._ted_output.close()
 
             if not application.PROJECT.aq_app.form_alone_:
                 self.writeState()
@@ -1181,7 +1189,3 @@ class MainForm(imainwindow.IMainWindow):
         else:
 
             return False
-
-
-# mainWindow: MainForm
-# mainWindow = MainForm()

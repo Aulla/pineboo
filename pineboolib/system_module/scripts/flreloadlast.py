@@ -19,18 +19,18 @@ class FormInternalObj(qsa.FormDBWidget):
         """Entry function."""
         util = qsa.FLUtil()
         setting = "scripts/sys/modLastModule_%s" % qsa.sys.nameBD()
-        fichMod = util.readSettingEntry(setting)
-        if not fichMod:
-            fichMod = qsa.FileDialog.getOpenFileName(
+        last_module = util.readSettingEntry(setting)
+        if not last_module:
+            last_module = qsa.FileDialog.getOpenFileName(
                 util.translate(u"scripts", u"Módulo a cargar (*.mod)"),
                 util.translate(u"scripts", u"Módulo a cargar"),
             )
-            if not fichMod:
+            if not last_module:
                 return
-            util.writeSettingEntry(setting, fichMod)
+            util.writeSettingEntry(setting, last_module)
 
         qsa.sys.processEvents()
-        self.cargarModulo(fichMod)
+        self.cargarModulo(last_module)
         qsa.sys.reinit()
 
     def cargarModulo(self, nombre_fichero: str) -> bool:
@@ -40,55 +40,60 @@ class FormInternalObj(qsa.FormDBWidget):
         modulo = None
         descripcion = None
         area = None
-        desArea = None
+        area_description = None
         version = None
-        nombreIcono = None
+        icon_name = None
         # versionMinimaFL = None
         dependencias = qsa.Array()
         fichero.open(qsa.File.ReadOnly)
-        f = fichero.read()
-        xmlModule = qsa.FLDomDocument()
-        if xmlModule.setContent(f):
-            nodeModule = xmlModule.namedItem(u"MODULE")
-            if nodeModule is None:
+        file_ = fichero.read()
+        module_xml = qsa.FLDomDocument()
+        if module_xml.setContent(file_):
+            module_node = module_xml.namedItem(u"MODULE")
+            if module_node is None:
                 qsa.MessageBox.critical(
                     util.translate(u"scripts", u"Error en la carga del fichero xml .mod"),
                     qsa.MessageBox.Ok,
                     qsa.MessageBox.NoButton,
                 )
-            modulo = nodeModule.namedItem(u"name").toElement().text()
-            descripcion = nodeModule.namedItem(u"alias").toElement().text()
-            area = nodeModule.namedItem(u"area").toElement().text()
-            desArea = nodeModule.namedItem(u"areaname").toElement().text()
-            version = nodeModule.namedItem(u"version").toElement().text()
-            nombreIcono = nodeModule.namedItem(u"icon").toElement().text()
-            # if nodeModule.namedItem(u"flversion"):
-            #    versionMinimaFL = nodeModule.namedItem(u"flversion").toElement().text()
-            if nodeModule.namedItem(u"dependencies") is not None:
-                nodeDepend = xmlModule.elementsByTagName(u"dependency")
+            modulo = module_node.namedItem(u"name").toElement().text()
+            descripcion = module_node.namedItem(u"alias").toElement().text()
+            area = module_node.namedItem(u"area").toElement().text()
+            area_description = module_node.namedItem(u"areaname").toElement().text()
+            version = module_node.namedItem(u"version").toElement().text()
+            icon_name = module_node.namedItem(u"icon").toElement().text()
+            # if module_node.namedItem(u"flversion"):
+            #    versionMinimaFL = module_node.namedItem(u"flversion").toElement().text()
+            if module_node.namedItem(u"dependencies") is not None:
+                depend_node = module_xml.elementsByTagName(u"dependency")
                 i = 0
-                while i < len(nodeDepend):
-                    dependencias[i] = nodeDepend.item(i).toElement().text()
+                while i < len(depend_node):
+                    dependencias[i] = depend_node.item(i).toElement().text()
                     i += 1
         else:
-            if not isinstance(f, str):
+            if not isinstance(file_, str):
                 raise Exception("data must be str, not bytes!!")
-            aF = f.split(u"\n")
-            modulo = self.dameValor(aF[0])
-            descripcion = self.dameValor(aF[1])
-            area = self.dameValor(aF[2]) or ""
-            desArea = self.dameValor(aF[3])
-            version = self.dameValor(aF[4])
-            nombreIcono = self.dameValor(aF[5])
+            file_array = file_.split(u"\n")
+            modulo = self.dameValor(file_array[0])
+            descripcion = self.dameValor(file_array[1])
+            area = self.dameValor(file_array[2]) or ""
+            area_description = self.dameValor(file_array[3])
+            version = self.dameValor(file_array[4])
+            icon_name = self.dameValor(file_array[5])
 
         descripcion = self.traducirCadena(descripcion or "", fichero.path or "", modulo or "")
-        desArea = self.traducirCadena(desArea or "", fichero.path or "", modulo or "")
-        fichIcono = qsa.File(qsa.ustr(fichero.path, u"/", nombreIcono))
-        fichIcono.open(qsa.File.ReadOnly)
-        icono = fichIcono.read()
+        area_description = self.traducirCadena(
+            area_description or "", fichero.path or "", modulo or ""
+        )
+        icon_file = qsa.File(qsa.ustr(fichero.path, u"/", icon_name))
+        icon_file.open(qsa.File.ReadOnly)
+        icono = icon_file.read()
+        icon_file.close()
 
         if not util.sqlSelect(u"flareas", u"idarea", qsa.ustr(u"idarea = '", area, u"'")):
-            if not util.sqlInsert(u"flareas", u"idarea,descripcion", qsa.ustr(area, u",", desArea)):
+            if not util.sqlInsert(
+                u"flareas", u"idarea,descripcion", qsa.ustr(area, u",", area_description)
+            ):
                 qsa.MessageBox.warning(
                     util.translate(u"scripts", u"Error al crear el área:\n") + area,
                     qsa.MessageBox.Ok,
@@ -98,29 +103,29 @@ class FormInternalObj(qsa.FormDBWidget):
         recargar = util.sqlSelect(
             u"flmodules", u"idmodulo", qsa.ustr(u"idmodulo = '", modulo, u"'")
         )
-        curModulo = qsa.FLSqlCursor(u"flmodules")
+        modules_cursor = qsa.FLSqlCursor(u"flmodules")
         if recargar:
             # WITH_START
-            curModulo.select(qsa.ustr(u"idmodulo = '", modulo, u"'"))
-            curModulo.first()
-            curModulo.setModeAccess(curModulo.Edit)
+            modules_cursor.select(qsa.ustr(u"idmodulo = '", modulo, u"'"))
+            modules_cursor.first()
+            modules_cursor.setModeAccess(modules_cursor.Edit)
             # WITH_END
 
         else:
-            curModulo.setModeAccess(curModulo.Insert)
+            modules_cursor.setModeAccess(modules_cursor.Insert)
 
         # WITH_START
-        curModulo.refreshBuffer()
-        curModulo.setValueBuffer(u"idmodulo", modulo)
-        curModulo.setValueBuffer(u"descripcion", descripcion)
-        curModulo.setValueBuffer(u"idarea", area)
-        curModulo.setValueBuffer(u"version", version)
-        curModulo.setValueBuffer(u"icono", icono)
-        curModulo.commitBuffer()
+        modules_cursor.refreshBuffer()
+        modules_cursor.setValueBuffer(u"idmodulo", modulo)
+        modules_cursor.setValueBuffer(u"descripcion", descripcion)
+        modules_cursor.setValueBuffer(u"idarea", area)
+        modules_cursor.setValueBuffer(u"version", version)
+        modules_cursor.setValueBuffer(u"icono", icono)
+        modules_cursor.commitBuffer()
         # WITH_END
         # curSeleccion = qsa.FLSqlCursor(u"flmodules")
-        curModulo.setMainFilter(qsa.ustr(u"idmodulo = '", modulo, u"'"))
-        curModulo.editRecord(False)
+        modules_cursor.setMainFilter(qsa.ustr(u"idmodulo = '", modulo, u"'"))
+        modules_cursor.editRecord(False)
         qsa.from_project("formRecordflmodules").cargarDeDisco(qsa.ustr(fichero.path, u"/"), False)
         qsa.from_project("formRecordflmodules").accept()
         setting = "scripts/sys/modLastModule_%s" % qsa.sys.nameBD()
@@ -165,13 +170,15 @@ class FormInternalObj(qsa.FormDBWidget):
 
         fichero = qsa.File(nombre_fichero)
         fichero.open(qsa.File.ReadOnly)
-        f = fichero.read()
-        xmlTranslations = qsa.FLDomDocument()
-        if xmlTranslations.setContent(f):
-            nodeMess = xmlTranslations.elementsByTagName(u"message")
-            for item in range(len(nodeMess)):
-                if nodeMess.item(item).namedItem(u"source").toElement().text() == cadena:
-                    traduccion = nodeMess.item(item).namedItem(u"translation").toElement().text()
+        file_data = fichero.read()
+        xml_trans = qsa.FLDomDocument()
+        if xml_trans.setContent(file_data):
+            message_node = xml_trans.elementsByTagName(u"message")
+            for item in range(len(message_node)):
+                if message_node.item(item).namedItem(u"source").toElement().text() == cadena:
+                    traduccion = (
+                        message_node.item(item).namedItem(u"translation").toElement().text()
+                    )
                     if traduccion:
                         cadena = traduccion
                         break

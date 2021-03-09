@@ -5,6 +5,7 @@ import unittest
 from pineboolib.loader.projectconfig import ProjectConfig
 from pineboolib.loader.connection import config_dbconn  # , connect_to_db
 from pineboolib.loader.options import parse_options
+import getpass
 from . import fixture_path
 
 from unittest.mock import patch, Mock
@@ -49,7 +50,7 @@ class TestConfigDBConn(unittest.TestCase):
         cfg2 = ProjectConfig(database="mydb", type="SQLite3 (SQLITE3)")
         self.assertEqual(cfg1, cfg2)
 
-    @patch("pineboolib.loader.connection.getpass.getpass")
+    @patch("getpass.getpass")
     def test_project_passwd(self, mock_get_pass: Mock) -> None:
         """Test to provide a project template with password."""
         mock_get_pass.return_value = "myhardtoguesspassword"

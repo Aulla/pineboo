@@ -102,7 +102,7 @@ from PyQt6.QtXml import QDomNode as FLDomNode  # noqa: F401
 from PyQt6.QtXml import QDomNodeList as FLDomNodeList  # noqa: F401
 
 from .formdbwidget import FormDBWidget  # noqa: F401
-from .object_class import Object_class as ObjectClass  # noqa: F401
+from .object_class import ObjectClass  # noqa: F401
 
 from pineboolib.fllegacy.fltable import FLTable  # noqa: F401
 from pineboolib.fllegacy.fllineedit import FLLineEdit  # noqa: F401

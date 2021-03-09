@@ -47,7 +47,7 @@ class DgiSchema(object):
         """Return DGI alias."""
         return self._alias
 
-    def create_app(self) -> QtWidgets.QApplication:
+    def create_app(self) -> "QtWidgets.QApplication":
         """Create an alternative Core.Application."""
         from pineboolib import application
 
@@ -131,11 +131,11 @@ class DgiSchema(object):
 
         return size
 
-    def __getattr__(self, name: str) -> Optional[QtCore.QObject]:
+    def __getattr__(self, name: str) -> Optional["QtCore.QObject"]:
         """Return and object specified by name."""
         return self.resolveObject(self._name, name)
 
-    def resolveObject(self, module_name: str, name: str) -> Optional[QtCore.QObject]:
+    def resolveObject(self, module_name: str, name: str) -> Optional["QtCore.QObject"]:
         """Return a DGI specific object."""
         cls = None
         mod_name_full = "pineboolib.plugins.dgi.dgi_%s.dgi_objects.%s" % (module_name, name.lower())

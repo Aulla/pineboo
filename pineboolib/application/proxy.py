@@ -5,6 +5,8 @@ from typing import Callable
 from pineboolib import logging
 from typing import Any, Optional, Dict, TYPE_CHECKING
 import threading
+import weakref
+from pineboolib.core.garbage_collector import check_gc_referrers
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flformdb import FLFormDB  # noqa: F401 # pragma: no cover
@@ -53,6 +55,11 @@ class DelayedObjectProxyLoader(object):
         for key in list(self.loaded_obj.keys()):
             if key not in list([thread.ident for thread in threading.enumerate()]):
                 self.loaded_obj[key] = None
+                check_gc_referrers(
+                    self.loaded_obj[key].__class__.__name__,
+                    weakref.ref(self.loaded_obj[key]),
+                    "widget",
+                )
                 del self.loaded_obj[key]
 
         if not list_name[-1].startswith("formRecord"):

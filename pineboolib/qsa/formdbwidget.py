@@ -64,7 +64,7 @@ class FormDBWidget(QtWidgets.QWidget):
         signal_slot = connections.disconnect(sender, signal, receiver, slot, caller=self)
         if signal_slot:
             for conn_ in self._formconnections:
-                # PyQt5-Stubs misses signal.signal
+                # PyQt6-Stubs misses signal.signal
                 if (
                     conn_[0].signal
                     == signal_slot[0].signal  # type: ignore [attr-defined] # noqa: F821
@@ -86,7 +86,7 @@ class FormDBWidget(QtWidgets.QWidget):
             else None
         )
 
-    def parent(self) -> QtWidgets.QWidget:
+    def parent(self) -> "QtWidgets.QWidget":
         """Return parent widget."""
 
         return self.form
@@ -95,7 +95,7 @@ class FormDBWidget(QtWidgets.QWidget):
         """Initialize the class."""
         pass
 
-    def closeEvent(self, event: QtCore.QEvent) -> None:
+    def closeEvent(self, event: "QtCore.QEvent") -> None:
         """Close event."""
 
         if self._action is None:
@@ -169,7 +169,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return cast(flsqlcursor.FLSqlCursor, self._action.cursor())
 
-    def __getattr__(self, name: str) -> QtWidgets.QWidget:
+    def __getattr__(self, name: str) -> "QtWidgets.QWidget":
         """Guess if attribute can be found in other related objects."""
 
         ret_ = None
@@ -227,7 +227,7 @@ class FormDBWidget(QtWidgets.QWidget):
 
         return self._form if self._form is not self else None
 
-    def get_module(self) -> types.ModuleType:
+    def get_module(self) -> "types.ModuleType":
         """Return module."""
         LOGGER.warning(
             "This method is deprecated. Plese replace with qsa._super('class_name', object):\n\t %s",

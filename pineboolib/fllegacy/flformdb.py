@@ -158,7 +158,7 @@ class FLFormDB(QtWidgets.QDialog):
 
     bottomToolbar: QtWidgets.QFrame
 
-    toolButtonClose: Optional[QtWidgets.QToolButton]
+    toolButtonClose: Optional["QtWidgets.QToolButton"]
 
     _ui_name: str
 
@@ -170,7 +170,7 @@ class FLFormDB(QtWidgets.QDialog):
     def __init__(
         self,
         action_or_name: Union["pnaction.PNAction", str],
-        parent: Optional[Union[QtWidgets.QWidget, int]] = None,
+        parent: Optional[Union["QtWidgets.QWidget", int]] = None,
         load: Union[bool, int] = False,
     ) -> None:
         """Create a new FLFormDB for given action."""
@@ -359,7 +359,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         return self.cursor_
 
-    def mainWidget(self) -> Optional[QtWidgets.QWidget]:
+    def mainWidget(self) -> Optional["QtWidgets.QWidget"]:
         """
         To get the form's main widget.
         """
@@ -380,7 +380,7 @@ class FLFormDB(QtWidgets.QDialog):
 
         return self._id_mdi
 
-    def setMainWidget(self, widget: Optional[QtWidgets.QWidget] = None) -> None:
+    def setMainWidget(self, widget: Optional["QtWidgets.QWidget"] = None) -> None:
         """
         Set widget as the main form.
         """
@@ -389,7 +389,7 @@ class FLFormDB(QtWidgets.QDialog):
         else:
             self.main_widget = self
 
-    def snapShot(self) -> QtGui.QImage:
+    def snapShot(self) -> "QtGui.QImage":
         """
         Return the image or screenshot of the form.
         """
@@ -420,7 +420,7 @@ class FLFormDB(QtWidgets.QDialog):
 
             self.snapShot().save(file_, "PNG")
 
-    def saveGeometry(self) -> QtCore.QByteArray:
+    def saveGeometry(self) -> "QtCore.QByteArray":
         """Save current window size into settings."""
         # pW = self.parentWidget()
         # if not pW:
@@ -543,10 +543,8 @@ class FLFormDB(QtWidgets.QDialog):
 
     def emitFormReady(self) -> None:
         """Emit formReady signal, after the form has been loaded."""
-        from pineboolib.application.qsatypes.sysbasetype import SysBaseType
 
-        qsa_sys = SysBaseType()
-        if qsa_sys.isLoadedModule("fltesttest"):
+        if "fltesttest" in application.PROJECT.conn_manager.managerModules().listAllIdModules():
 
             application.PROJECT.call(
                 "fltesttest.iface.recibeEvento", ["formReady", self._action_name], None
@@ -931,7 +929,7 @@ class FLFormDB(QtWidgets.QDialog):
         #                     (self._action_name, tiempo_fin - self.tiempo_ini, self, self.iface))
         # self.tiempo_ini = None
 
-    def initMainWidget(self, widget: Optional[QtWidgets.QWidget] = None) -> None:
+    def initMainWidget(self, widget: Optional["QtWidgets.QWidget"] = None) -> None:
         """Initialize widget."""
 
         if widget is not None:
@@ -940,9 +938,9 @@ class FLFormDB(QtWidgets.QDialog):
         if self.main_widget and not getattr(self.main_widget, "_showed", False):
             self.main_widget.show()
 
-    def child(self, child_name: str) -> Optional[QtWidgets.QWidget]:
+    def child(self, child_name: str) -> Optional["QtWidgets.QWidget"]:
         """Get child by name."""
-        ret: Optional[QtCore.QObject] = None
+        ret: Optional["QtCore.QObject"] = None
         try:
             ret = self.findChild(QtWidgets.QWidget, child_name)
         except Exception:

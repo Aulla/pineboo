@@ -281,6 +281,7 @@ class MainForm(imainwindow.IMainWindow):
 
     MAX_RECENT = 10
     app_ = None
+<<<<<<< HEAD
     ag_menu_: Optional[QtGui.QActionGroup]
     ag_rec_: Optional[QtGui.QActionGroup]
     ag_mar_: Optional[QtGui.QActionGroup]
@@ -289,11 +290,21 @@ class MainForm(imainwindow.IMainWindow):
     dck_mar_: DockListView
     tab_widget: QtWidgets.QTabWidget
     w_: QtWidgets.QMainWindow
+=======
+    ag_menu_: Optional["QtWidgets.QActionGroup"]
+    ag_rec_: Optional["QtWidgets.QActionGroup"]
+    ag_mar_: Optional["QtWidgets.QActionGroup"]
+    dck_mod_: "DockListView"
+    dck_rec_: "DockListView"
+    dck_mar_: "DockListView"
+    tab_widget: "QtWidgets.QTabWidget"
+    w_: "QtWidgets.QMainWindow"
+>>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
     # tw_corner = None  # deprecated
-    act_sig_map_: QtCore.QSignalMapper
+    act_sig_map_: "QtCore.QSignalMapper"
     initialized_mods_: List[str]
 
-    main_widgets_: Dict[str, QtWidgets.QWidget] = {}
+    main_widgets_: Dict[str, "QtWidgets.QWidget"] = {}
     # lista_tabs_ = []
 
     def __init__(self) -> None:
@@ -304,7 +315,7 @@ class MainForm(imainwindow.IMainWindow):
         self.ag_rec_ = None
         self.ag_mar_ = None
 
-    def eventFilter(self, obj_: QtCore.QObject, event: QtCore.QEvent) -> bool:
+    def eventFilter(self, obj_: "QtCore.QObject", event: "QtCore.QEvent") -> bool:
         """Process GUI events."""
 
         if isinstance(event, AQS.ContextMenu):
@@ -657,7 +668,11 @@ class MainForm(imainwindow.IMainWindow):
             except RuntimeError as error:
                 LOGGER.warning(str(error))
 
+<<<<<<< HEAD
     def addRecent(self, action: QtGui.QAction) -> None:
+=======
+    def addRecent(self, action: "QtWidgets.QAction") -> None:
+>>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
         """Add new entry to recent list."""
         if not action:
             return
@@ -694,7 +709,11 @@ class MainForm(imainwindow.IMainWindow):
 
         self.dck_rec_.update(self.ag_rec_)
 
+<<<<<<< HEAD
     def addMark(self, action: QtGui.QAction) -> None:
+=======
+    def addMark(self, action: "QtWidgets.QAction") -> None:
+>>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
         """Add new entry to Mark list."""
         if not action:
             return
@@ -717,7 +736,7 @@ class MainForm(imainwindow.IMainWindow):
         if self.dck_mar_:
             self.dck_mar_.update(self.ag_mar_, True)
 
-    def addMarkFromItem(self, item: Any, pos: QtCore.QPoint) -> bool:
+    def addMarkFromItem(self, item: Any, pos: "QtCore.QPoint") -> bool:
         """Add a new item to the Bookmarks docket."""
 
         if not item:
@@ -737,7 +756,7 @@ class MainForm(imainwindow.IMainWindow):
 
         return True
 
-    def removeMarkFromItem(self, item: Any, pos: QtCore.QPoint) -> bool:
+    def removeMarkFromItem(self, item: Any, pos: "QtCore.QPoint") -> bool:
         """Add a new item to the Bookmarks docket."""
         if not item or not self.ag_mar_ or self.dck_mar_ is None:
             return False
@@ -1167,8 +1186,13 @@ class MainForm(imainwindow.IMainWindow):
             action_group.setVisible(False)
 
     def widgetActions(
+<<<<<<< HEAD
         self, ui_file: str, parent: QtWidgets.QWidget
     ) -> Optional[QtGui.QActionGroup]:
+=======
+        self, ui_file: str, parent: "QtWidgets.QWidget"
+    ) -> Optional["QtWidgets.QActionGroup"]:
+>>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
         """Collect the actions provided by a widget."""
         mng = application.PROJECT.conn_manager.managerModules()
         doc = QtXml.QDomDocument()
