@@ -3,6 +3,7 @@
 from importlib import import_module
 
 import PyQt5
+from PyQt5 import QtWidgets
 
 from pineboolib import logging
 from pineboolib.plugins.dgi import dgi_schema
@@ -10,7 +11,6 @@ from pineboolib.plugins.dgi import dgi_schema
 from typing import Any, Optional, cast, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyQt5 import QtWidgets
     from .dgi_objects import splash_screen, progress_dialog_manager
 
 LOGGER = logging.get_logger(__name__)
