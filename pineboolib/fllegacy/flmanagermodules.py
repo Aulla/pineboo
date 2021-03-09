@@ -7,7 +7,7 @@ from pineboolib.core import decorators
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings
 
-
+from pineboolib.application.metadata import pnaction
 from pineboolib.application.staticloader import pnmodulesstaticloader
 
 
@@ -34,7 +34,6 @@ from xml.etree import ElementTree as ET
 if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # noqa: F401 # pragma: no cover
     from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401 # pragma: no cover
-    from pineboolib.application.metadata import pnaction  # pragma: no cover
 
 
 """
@@ -487,7 +486,7 @@ class FLManagerModules(object):
         @return QWidget corresponding to the built form.
         """
 
-        if action.__class__.__name__ == "XMLAction":
+        if not isinstance(action, pnaction.PNAction):
             action = convert_flaction.convert_to_flaction(action)
 
         if action is None:
@@ -519,7 +518,7 @@ class FLManagerModules(object):
         LOGGER.trace("createFormRecord: init")
 
         # Falta implementar conector y name
-        if action.__class__.__name__ == "XMLAction":
+        if not isinstance(action, pnaction.PNAction):
             LOGGER.trace("createFormRecord: convert2FLAction")
 
             action = convert_flaction.convert_to_flaction(action)
