@@ -222,6 +222,8 @@ class PNApplication(QtCore.QObject):
         )
 
         if style_menu:
+            from PyQt6 import QtGui
+
             action_group = QtGui.QActionGroup(style_menu)
             for style_ in QtWidgets.QStyleFactory.keys():
                 action_ = style_menu.addAction(style_)  # type: ignore [union-attr] # noqa : F821
@@ -524,7 +526,7 @@ class PNApplication(QtCore.QObject):
     def timeUser(self) -> "QtCore.QDateTime":
         """Get amount of time running."""
 
-        return sysbasetype.SysBaseType.time_user_
+        return QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.DateFormat.ISODate)
 
     def call(self, function, argument_list=[], object_content=None, show_exceptions=True) -> Any:
         """Call a QS project function."""

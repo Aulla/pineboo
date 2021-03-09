@@ -281,16 +281,6 @@ class MainForm(imainwindow.IMainWindow):
 
     MAX_RECENT = 10
     app_ = None
-<<<<<<< HEAD
-    ag_menu_: Optional[QtGui.QActionGroup]
-    ag_rec_: Optional[QtGui.QActionGroup]
-    ag_mar_: Optional[QtGui.QActionGroup]
-    dck_mod_: DockListView
-    dck_rec_: DockListView
-    dck_mar_: DockListView
-    tab_widget: QtWidgets.QTabWidget
-    w_: QtWidgets.QMainWindow
-=======
     ag_menu_: Optional["QtWidgets.QActionGroup"]
     ag_rec_: Optional["QtWidgets.QActionGroup"]
     ag_mar_: Optional["QtWidgets.QActionGroup"]
@@ -299,7 +289,6 @@ class MainForm(imainwindow.IMainWindow):
     dck_mar_: "DockListView"
     tab_widget: "QtWidgets.QTabWidget"
     w_: "QtWidgets.QMainWindow"
->>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
     # tw_corner = None  # deprecated
     act_sig_map_: "QtCore.QSignalMapper"
     initialized_mods_: List[str]
@@ -668,11 +657,7 @@ class MainForm(imainwindow.IMainWindow):
             except RuntimeError as error:
                 LOGGER.warning(str(error))
 
-<<<<<<< HEAD
-    def addRecent(self, action: QtGui.QAction) -> None:
-=======
     def addRecent(self, action: "QtWidgets.QAction") -> None:
->>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
         """Add new entry to recent list."""
         if not action:
             return
@@ -709,11 +694,7 @@ class MainForm(imainwindow.IMainWindow):
 
         self.dck_rec_.update(self.ag_rec_)
 
-<<<<<<< HEAD
-    def addMark(self, action: QtGui.QAction) -> None:
-=======
     def addMark(self, action: "QtWidgets.QAction") -> None:
->>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
         """Add new entry to Mark list."""
         if not action:
             return
@@ -1186,13 +1167,8 @@ class MainForm(imainwindow.IMainWindow):
             action_group.setVisible(False)
 
     def widgetActions(
-<<<<<<< HEAD
-        self, ui_file: str, parent: QtWidgets.QWidget
-    ) -> Optional[QtGui.QActionGroup]:
-=======
         self, ui_file: str, parent: "QtWidgets.QWidget"
-    ) -> Optional["QtWidgets.QActionGroup"]:
->>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
+    ) -> Optional["QtGui.QActionGroup"]:
         """Collect the actions provided by a widget."""
         mng = application.PROJECT.conn_manager.managerModules()
         doc = QtXml.QDomDocument()

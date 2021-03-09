@@ -22,7 +22,7 @@ class FLVar(object):
         """Save a variable to database."""
         from pineboolib.application.database import pnsqlquery
 
-        id_sesion = application.PROJECT.aq_app.timeUser().toString(QtCore.Qt.DateFormat.ISODate)
+        id_sesion = application.ID_SESSION
         where = "idvar = '%s' AND idsesion ='%s'" % (name, id_sesion)
 
         qry = pnsqlquery.PNSqlQuery()

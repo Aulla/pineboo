@@ -2,12 +2,8 @@
 # # -*- coding: utf-8 -*-
 from importlib import import_module
 
-<<<<<<< HEAD
-from PyQt6 import QtWidgets, QtCore, QtGui, Qt, QtXml  # type: ignore
-=======
 import PyQt6
 from PyQt6 import QtWidgets
->>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
 
 from pineboolib import logging
 from pineboolib.plugins.dgi import dgi_schema

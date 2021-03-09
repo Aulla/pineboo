@@ -6,11 +6,7 @@ Just an assortment of functions that don't depend on externals and don't fit oth
 """
 
 
-<<<<<<< HEAD
-from PyQt6 import QtGui, QtCore, QtWidgets
-=======
 from PyQt6 import QtCore
->>>>>>> 78a90685e68c8099ce76c15b69dd4a6984fff0ca
 
 from . import logging
 from .. import settings
