@@ -35,7 +35,7 @@ class KParserTools(object):
         self._fix_ratio_h = 0.927  # Corrector de altura 0.927
         self._fix_ratio_w = 0.92
 
-    def loadKut(self, data: str) -> ElementTree:
+    def loadKut(self, data: str) -> "ElementTree":
         """
         Parse KUT xml from text.
 
@@ -62,7 +62,7 @@ class KParserTools(object):
         """
         return int(value * self._fix_ratio_w)
 
-    def convertToNode(self, data: Element) -> QtXml.QDomElement:
+    def convertToNode(self, data: Element) -> "QtXml.QDomElement":
         """
         Convert XML line to Node XML.
 
@@ -112,7 +112,7 @@ class KParserTools(object):
         return ret
 
     def calculated(
-        self, value: Any, data_type: int, xml: Element = None, data: Element = None
+        self, value: Any, data_type: int, xml: "Element" = None, data: "Element" = None
     ) -> Any:
         """
         Get value of type "calculated".

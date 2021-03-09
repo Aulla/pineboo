@@ -1,10 +1,12 @@
 """Connection Module."""
-import getpass
+
 import optparse
-from pineboolib.application.database import pnconnection
 from . import projectconfig
 
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.application.database import pnconnection
 
 DEFAULT_SQLITE_CONN = projectconfig.ProjectConfig(
     database="pineboo.sqlite3", type="SQLite3 (SQLITE3)"
@@ -27,6 +29,9 @@ def config_dbconn(options: "optparse.Values") -> Optional["projectconfig.Project
             # If fails without password, ignore the exception so the stack is cleaned.
             # This avoids seeing two exceptions if password is wrong.
             pass
+
+        import getpass
+
         password = getpass.getpass()
         return projectconfig.ProjectConfig(load_xml=prj_name, project_password=password)
 
@@ -42,6 +47,9 @@ def connect_to_db(config: "projectconfig.ProjectConfig") -> "pnconnection.PNConn
         raise ValueError("database not set")
     if config.type is None:
         raise ValueError("type not set")
+
+    from pineboolib.application.database import pnconnection
+
     port = int(config.port) if config.port else None
     connection = pnconnection.PNConnection(
         config.database, config.host, port, config.username, config.password or "", config.type

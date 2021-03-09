@@ -16,9 +16,6 @@ from .utils import path, xpm, flfiles_dir
 from . import module, file as file_module
 
 import os
-import pathlib
-import multiprocessing
-
 from typing import List, Optional, Any, Dict, Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -90,6 +87,8 @@ class Project(object):
         self.areas = {}
         self.modules = {}
         # self.options = Values()
+        import pathlib
+
         if not self.tmpdir:
             self.tmpdir = utils_base.filedir("%s/Pineboo/tempdata" % pathlib.Path.home())
             settings.CONFIG.set_value("ebcomportamiento/temp_dir", self.tmpdir)
@@ -479,6 +478,8 @@ class Project(object):
         pycode_list: List[bool] = []
 
         if parser_qsa.USE_THREADS:
+            import multiprocessing
+
             with multiprocessing.Pool(threads_num) as thread:
                 # TODO: Add proper signatures to Python files to avoid reparsing
                 pycode_list = thread.map(pyconvert.pythonify_item, itemlist, chunksize=2)

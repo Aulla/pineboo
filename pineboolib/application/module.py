@@ -10,6 +10,7 @@ is stored within. Its composed of a name and description; and they contain code,
 """
 
 from pineboolib.core.utils import logging
+from .moduleactions import ModuleActions
 
 
 from .utils.path import _path
@@ -40,7 +41,7 @@ class Module(object):
         self.description = description  # En python2 era .decode(UTF-8)
         self.icon = icon
         self.files: Dict[str, "File"] = {}
-        self.tables: Dict[str, TableStruct] = {}
+        self.tables: Dict[str, "TableStruct"] = {}
         self.loaded = False
         self.version = version
 
@@ -58,7 +59,7 @@ class Module(object):
 
         @return Boolean True if ok, False if there are problems.
         """
-        from .moduleactions import ModuleActions
+
         from pineboolib import application
 
         mng_modules = application.PROJECT.conn_manager.managerModules()

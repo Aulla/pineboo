@@ -28,7 +28,7 @@ if black:
 else:
     BLACK_FILEMODE = None
 
-STRICT_MODE = True
+STRICT_MODE = False
 
 # To get the following list updated, do:
 # In [1]: from pineboolib.qsa import qsa

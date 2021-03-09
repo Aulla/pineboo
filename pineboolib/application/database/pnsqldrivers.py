@@ -5,8 +5,9 @@ Module for PNSqlDrivers class.
 
 import importlib
 import sys
+import os
 
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import logging, utils_base
 from pineboolib.core.utils.singleton import Singleton
 
 from typing import Dict, Any, List
@@ -31,9 +32,6 @@ class PNSqlDrivers(object, metaclass=Singleton):
     def __init__(self, _DGI: Any = None) -> None:
         """Collect the information of the available cursors."""
 
-        from pineboolib.core.utils.utils_base import filedir  # , is_deployed
-        import os
-
         # self._only_pure_python = is_deployed()
 
         self._drivers_dict = {}
@@ -42,7 +40,7 @@ class PNSqlDrivers(object, metaclass=Singleton):
 
         dir_list = [
             file
-            for file in os.listdir(filedir("plugins/sql"))
+            for file in os.listdir(utils_base.filedir("plugins/sql"))
             if not file[0] == "_" and file.find(".py") > -1
         ]
         for item in dir_list:

@@ -1,6 +1,6 @@
 """projectconfig module."""
 
-import re
+
 import base64
 import hashlib
 import os
@@ -398,6 +398,9 @@ class ProjectConfig:
         driver_alias = "PostgreSQL (PSYCOPG2)"
         user_pass = None
         host_port = None
+
+        import re
+
         if "/" not in connstring:
             dbname = connstring
             if not re.match(r"\w+", dbname):

@@ -72,27 +72,27 @@ class FLTableDB(QtWidgets.QWidget):
     _null: int = 9
     _not_null: int = 10
 
-    _parent: QtWidgets.QWidget
+    _parent: "QtWidgets.QWidget"
     _name: str
 
     _tdb_filter: Optional[Any]
 
-    _pb_data: QtWidgets.QPushButton
-    _pb_filter: QtWidgets.QPushButton
-    _pb_odf: QtWidgets.QPushButton
+    _pb_data: "QtWidgets.QPushButton"
+    _pb_filter: "QtWidgets.QPushButton"
+    _pb_odf: "QtWidgets.QPushButton"
 
-    _combo_box_field_to_search_1: QtWidgets.QComboBox
-    _combo_box_field_to_search_2: QtWidgets.QComboBox
-    _line_edit_search: QtWidgets.QLineEdit
+    _combo_box_field_to_search_1: "QtWidgets.QComboBox"
+    _combo_box_field_to_search_2: "QtWidgets.QComboBox"
+    _line_edit_search: "QtWidgets.QLineEdit"
 
-    _tab_data_layout: QtWidgets.QVBoxLayout
-    _tab_control_layout: QtWidgets.QHBoxLayout
+    _tab_data_layout: "QtWidgets.QVBoxLayout"
+    _tab_control_layout: "QtWidgets.QHBoxLayout"
 
-    _data_layout: QtWidgets.QHBoxLayout
-    _tab_data: QtWidgets.QFrame
-    _tab_filter: QtWidgets.QFrame
-    _buttons_layout: QtWidgets.QVBoxLayout
-    _master_layout: QtWidgets.QVBoxLayout
+    _data_layout: "QtWidgets.QHBoxLayout"
+    _tab_data: "QtWidgets.QFrame"
+    _tab_filter: "QtWidgets.QFrame"
+    _buttons_layout: "QtWidgets.QVBoxLayout"
+    _master_layout: "QtWidgets.QVBoxLayout"
     _tab_filter_loader: bool
 
     _loaded: bool
@@ -104,7 +104,7 @@ class FLTableDB(QtWidgets.QWidget):
     """
     Componente para visualizar los registros
     """
-    _table_records: Optional[fldatatable.FLDataTable]
+    _table_records: Optional["fldatatable.FLDataTable"]
 
     """
     Nombre de la tabla a la que esta asociado este componente.
@@ -135,7 +135,7 @@ class FLTableDB(QtWidgets.QWidget):
     """
     Matiene la ventana padre
     """
-    _top_widget: Optional[QtWidgets.QWidget]
+    _top_widget: Optional["QtWidgets.QWidget"]
 
     """
     Indica que la ventana ya ha sido mostrada una vez
@@ -173,19 +173,19 @@ class FLTableDB(QtWidgets.QWidget):
     """
     Almacena los metadatos del campo por el que está actualmente ordenada la tabla
     """
-    _sort_field_1: Optional[pnfieldmetadata.PNFieldMetaData]
+    _sort_field_1: Optional["pnfieldmetadata.PNFieldMetaData"]
 
     """
     Almacena los metadatos del campo por el que está actualmente ordenada la tabla en segunda instancia
 
     @author Silix - dpinelo
     """
-    _sort_field_2: Optional[pnfieldmetadata.PNFieldMetaData]
+    _sort_field_2: Optional["pnfieldmetadata.PNFieldMetaData"]
 
     """
     Crónometro interno
     """
-    _timer: Optional[QtCore.QTimer]
+    _timer: Optional["QtCore.QTimer"]
 
     """
     Filtro inicial de búsqueda
@@ -1026,7 +1026,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         return self._auto_sort_column
 
-    def eventFilter(self, obj_: QtCore.QObject, event: QtCore.QEvent) -> bool:
+    def eventFilter(self, obj_: "QtCore.QObject", event: "QtCore.QEvent") -> bool:
         """
         Process user events.
         """
@@ -1078,7 +1078,7 @@ class FLTableDB(QtWidgets.QWidget):
         else:
             return super().eventFilter(obj_, event)
 
-    def showEvent(self, event: QtGui.QShowEvent) -> None:
+    def showEvent(self, event: "QtGui.QShowEvent") -> None:
         """
         Proccess show event.
         """
@@ -1328,7 +1328,7 @@ class FLTableDB(QtWidgets.QWidget):
 
         filter_layout.addWidget(self._tdb_filter)
 
-    def tableRecords(self) -> fldatatable.FLDataTable:
+    def tableRecords(self) -> "fldatatable.FLDataTable":
         """
         Obtiene el componente tabla de registros.
         """
@@ -2317,7 +2317,7 @@ class FLTableDB(QtWidgets.QWidget):
             self.cursor().deleteRecord(wait)
 
     @decorators.pyqt_slot()
-    def copyRecord(self):
+    def copyRecord(self) -> None:
         """
         Call method FLSqlCursor.copyRecord.
         """

@@ -47,32 +47,32 @@ class FLFormRecordDB(flformdb.FLFormDB):
     Boton Aceptar
     """
 
-    pushButtonAccept: Optional[QtWidgets.QToolButton]
+    pushButtonAccept: Optional["QtWidgets.QToolButton"]
 
     """
     Boton Aceptar y continuar
     """
-    pushButtonAcceptContinue: Optional[QtWidgets.QToolButton]
+    pushButtonAcceptContinue: Optional["QtWidgets.QToolButton"]
 
     """
     Boton Primero
     """
-    pushButtonFirst: Optional[QtWidgets.QToolButton]
+    pushButtonFirst: Optional["QtWidgets.QToolButton"]
 
     """
     Boton Anterior
     """
-    pushButtonPrevious: Optional[QtWidgets.QToolButton]
+    pushButtonPrevious: Optional["QtWidgets.QToolButton"]
 
     """
     Boton Siguiente
     """
-    pushButtonNext: Optional[QtWidgets.QToolButton]
+    pushButtonNext: Optional["QtWidgets.QToolButton"]
 
     """
     Boton Ultimo
     """
-    pushButtonLast: Optional[QtWidgets.QToolButton]
+    pushButtonLast: Optional["QtWidgets.QToolButton"]
 
     """
     Indica si se debe mostrar el botón Aceptar y Continuar
@@ -97,7 +97,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
     def __init__(
         self,
         action: "pnaction.PNAction",
-        parent_or_cursor: Optional[Union[QtWidgets.QWidget, "isqlcursor.ISqlCursor", int]] = None,
+        parent_or_cursor: Optional[Union["QtWidgets.QWidget", "isqlcursor.ISqlCursor", int]] = None,
         load: bool = False,
     ) -> None:
         """
@@ -107,8 +107,8 @@ class FLFormRecordDB(flformdb.FLFormDB):
             "__init__: parent_or_cursor=%s, action=%s, load=%s", parent_or_cursor, action, load
         )
 
-        cursor: Optional[pnsqlcursor.PNSqlCursor] = None
-        parent: Optional[QtWidgets.QWidget] = None
+        cursor: Optional["pnsqlcursor.PNSqlCursor"] = None
+        parent: Optional["QtWidgets.QWidget"] = None
 
         if isinstance(parent_or_cursor, pnsqlcursor.PNSqlCursor):
             cursor = parent_or_cursor
@@ -437,7 +437,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
 
         return "formRecord%s" % self._id_mdi
 
-    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+    def closeEvent(self, event: "QtGui.QCloseEvent") -> None:
         """
         Capture event close.
         """

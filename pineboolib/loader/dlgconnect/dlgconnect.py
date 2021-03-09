@@ -2,7 +2,6 @@
 """dlgconnect module."""
 
 import os
-from pathlib import Path
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 
@@ -233,7 +232,9 @@ class DlgConnect(QtWidgets.QWidget):
             )
 
         if not os.path.exists(self.profile_dir):
-            Path(self.profile_dir).mkdir(parents=True, exist_ok=True)
+            import pathlib
+
+            pathlib.Path(self.profile_dir).mkdir(parents=True, exist_ok=True)
 
         if os.path.exists(pconf.filename) and not self.edit_mode:
             QtWidgets.QMessageBox.information(

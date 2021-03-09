@@ -9,9 +9,6 @@ from pineboolib.application.utils import sql_tools
 from pineboolib import application
 from pineboolib.application import types
 
-from PyQt5 import QtWidgets
-
-
 from typing import Any, Union, List, Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -474,6 +471,8 @@ class PNSqlQuery(object):
         if self.private_query._parameter_dict:
             for key, parameter in self.private_query._parameter_dict.items():
                 if parameter is None:
+                    from PyQt5 import QtWidgets
+
                     dialog = QtWidgets.QInputDialog()
 
                     if dialog is not None:

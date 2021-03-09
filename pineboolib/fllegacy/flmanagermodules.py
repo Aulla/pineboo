@@ -7,17 +7,16 @@ from pineboolib.core import decorators
 from pineboolib.core.utils import utils_base
 from pineboolib.core import settings
 
-from pineboolib.application.metadata import pnaction
+
 from pineboolib.application.staticloader import pnmodulesstaticloader
-from pineboolib.application.database import pnsqlquery, pnsqlcursor
+
 
 from pineboolib.application.utils import path, xpm, convert_flaction
-from pineboolib.application.parsers.parser_ui import qt3ui
+
 
 from pineboolib import application
 from pineboolib.application.utils.path import _path
 
-from pineboolib.q3widgets import qmainwindow, qdialog
 
 from . import flutil
 from . import flformdb
@@ -35,6 +34,7 @@ from xml.etree import ElementTree as ET
 if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # noqa: F401 # pragma: no cover
     from pineboolib.interfaces import iconnection, isqlcursor  # noqa : F401 # pragma: no cover
+    from pineboolib.application.metadata import pnaction  # pragma: no cover
 
 
 """
@@ -87,7 +87,7 @@ class FLManagerModules(object):
     Uso interno.
     Informacion para la carga estatica desde el disco local
     """
-    static_db_info_: pnmodulesstaticloader.AQStaticBdInfo
+    static_db_info_: "pnmodulesstaticloader.AQStaticBdInfo"
     _file_watcher: "observers.Observer"
     root_dir_: str
     scripts_dir_: str
@@ -326,6 +326,8 @@ class FLManagerModules(object):
         @param content File content.
         """
 
+        from pineboolib.application.database import pnsqlcursor
+
         format_val = (
             self.conn_.connManager()
             .manager()
@@ -430,8 +432,12 @@ class FLManagerModules(object):
 
             if ui_version < "4.0":
                 if xclass == "QMainWindow":
+                    from pineboolib.q3widgets import qmainwindow
+
                     parent = qmainwindow.QMainWindow()
                 elif xclass in ["QDialog", "QWidget"]:
+                    from pineboolib.q3widgets import qdialog
+
                     parent = qdialog.QDialog()
             else:
                 if xclass == "QMainWindow":
@@ -444,6 +450,8 @@ class FLManagerModules(object):
 
         LOGGER.info("Procesando %s (v%s)", file_name, ui_version)
         if ui_version < "4.0":
+            from pineboolib.application.parsers.parser_ui import qt3ui
+
             qt3ui.load_ui(form_path, parent)
         else:
             from PyQt5 import uic  # type: ignore
@@ -479,7 +487,7 @@ class FLManagerModules(object):
         @return QWidget corresponding to the built form.
         """
 
-        if not isinstance(action, pnaction.PNAction):
+        if action.__class__.__name__ == "XMLAction":
             action = convert_flaction.convert_to_flaction(action)
 
         if action is None:
@@ -511,7 +519,7 @@ class FLManagerModules(object):
         LOGGER.trace("createFormRecord: init")
 
         # Falta implementar conector y name
-        if not isinstance(action, pnaction.PNAction):
+        if action.__class__.__name__ == "XMLAction":
             LOGGER.trace("createFormRecord: convert2FLAction")
 
             action = convert_flaction.convert_to_flaction(action)
@@ -665,6 +673,8 @@ class FLManagerModules(object):
         if not self.conn_.connManager().dbAux():
             return ""
 
+        from pineboolib.application.database import pnsqlquery
+
         qry = pnsqlquery.PNSqlQuery(None, "dbAux")
         qry.setForwardOnly(True)
         qry.exec_("SELECT sha FROM flserial")
@@ -704,6 +714,9 @@ class FLManagerModules(object):
 
         self.dict_key_files_ = {}
         self.dict_module_files_ = {}
+
+        from pineboolib.application.database import pnsqlquery
+
         qry = pnsqlquery.PNSqlQuery(None, "dbAux")
         # qry.setForwardOnly(True)
         qry.exec_("SELECT nombre, sha, idmodulo FROM flfiles")

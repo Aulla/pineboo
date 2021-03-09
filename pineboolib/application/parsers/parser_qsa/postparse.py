@@ -818,6 +818,7 @@ def parse_args(argv: List[str]) -> Tuple[Any, List[str]]:
 
 def main() -> None:
     """Run the program from command line."""
+    pytnyzer.STRICT_MODE = True
     log_format = "%(asctime)s - %(levelname)s: %(name)s: %(message)s"
     logging.basicConfig(format=log_format, level=0)
     blib_logger = logging.get_logger("blib2to3.pgen2.driver")

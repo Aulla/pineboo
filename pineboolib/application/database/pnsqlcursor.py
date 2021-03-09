@@ -12,6 +12,7 @@ from . import pnsqlquery, utils
 from pineboolib.application.utils import xpm
 from pineboolib.application import types, qsadictmodules
 from pineboolib.application.parsers.parser_mtd import pnormmodelsfactory
+from pineboolib.application.acls import pnaccesscontrolfactory
 
 from pineboolib import application
 
@@ -3504,7 +3505,6 @@ class PNCursorPrivate(isqlcursor.ICursorPrivate):
         """
         Create restrictions according to access control list.
         """
-        from pineboolib.application.acls import pnaccesscontrolfactory
 
         if self.metadata_ is None:
             return

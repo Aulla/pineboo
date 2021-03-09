@@ -6,11 +6,10 @@ Manage buffers used by PNSqlCursor.
 Buffers are the data records pointed to by a PNSqlCursor.
 """
 from pineboolib.application import types
-from pineboolib.core.utils import utils_base
-from pineboolib import logging
+from pineboolib.core.utils import utils_base, logging
 
 import datetime
-import decimal
+
 import sqlalchemy
 
 from typing import List, Union, Optional, Callable, Dict, Any, TYPE_CHECKING
@@ -19,6 +18,7 @@ from typing import List, Union, Optional, Callable, Dict, Any, TYPE_CHECKING
 if TYPE_CHECKING:
     from pineboolib.interfaces import isqlcursor  # pragma: no cover
     from . import pncursortablemodel  # pragma: no cover
+    import decimal  # noqa : F821 # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -26,24 +26,24 @@ ACCEPTABLE_VALUES = (
     int,
     float,
     str,
-    datetime.time,
-    datetime.date,
+    "datetime.time",
+    "datetime.date",
     bool,
     types.Date,
     bytearray,
-    decimal.Decimal,
-    datetime.timedelta,
+    "decimal.Decimal",
+    "datetime.timedelta",
 )
 TVALUES = Union[
     int,
     float,
     str,
-    datetime.time,
-    datetime.date,
+    "datetime.time",
+    "datetime.date",
     bool,
     types.Date,
     bytearray,
-    datetime.timedelta,
+    "datetime.timedelta",
     None,
     Dict[Any, Any],
 ]
@@ -114,7 +114,7 @@ class PNBuffer(object):
         """
         setattr(self._orm_obj, name, None)
 
-    def value(self, field_name: str) -> TVALUES:
+    def value(self, field_name: str) -> "TVALUES":
         """
         Return the value of a field.
 
@@ -149,7 +149,7 @@ class PNBuffer(object):
 
         return value
 
-    def set_value(self, field_name: str, value: TVALUES) -> bool:
+    def set_value(self, field_name: str, value: "TVALUES") -> bool:
         """Set values to cache_buffer."""
 
         if field_name in self._cursor.metadata().fieldNames():
@@ -192,7 +192,7 @@ class PNBuffer(object):
 
         return ret_
 
-    def set_value_to_objet(self, field_name: str, value: TVALUES) -> bool:
+    def set_value_to_objet(self, field_name: str, value: "TVALUES") -> bool:
         """
         Set the value of a field.
 

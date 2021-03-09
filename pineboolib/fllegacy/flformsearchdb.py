@@ -40,7 +40,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
     """
     Boton Aceptar
     """
-    pushButtonAccept: Optional[QtWidgets.QToolButton]
+    pushButtonAccept: Optional["QtWidgets.QToolButton"]
 
     """
     Almacena si se ha abierto el formulario con el método FLFormSearchDB::exec()
@@ -301,7 +301,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
         return "formSearch%s" % self._id_mdi
 
-    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+    def closeEvent(self, event: "QtGui.QCloseEvent") -> None:
         """Capture event close."""
 
         self.frameGeometry()

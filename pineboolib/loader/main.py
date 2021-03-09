@@ -2,7 +2,7 @@
 
 
 from pineboolib import application, logging
-from pineboolib.application.parsers.parser_qsa import pytnyzer
+
 from pineboolib.core import settings
 
 from . import dgi as dgi_module
@@ -11,15 +11,16 @@ from pineboolib.core.utils import utils_base
 
 import gc
 import sys
-from types import TracebackType
-import coloredlogs  # type: ignore [import]
+
+
 from typing import List, Type, Optional, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
     from . import projectconfig  # noqa: F401 # pragma: no cover
-    import optparse  # noqa: F401
-    from PyQt5 import QtWidgets
+    import optparse  # noqa: F401 # pragma: no cover
+    from PyQt5 import QtWidgets  # pragma: no cover
+    from types import TracebackType  # pragma: no cover
 
 LOGGER = logging.get_logger(__name__)
 
@@ -39,7 +40,6 @@ def startup_framework(conn: Optional["projectconfig.ProjectConfig"] = None) -> N
     qapp = call_qapplication(sys.argv + ["-platform", "offscreen"])
     init_logging(True)
     init_cli(catch_ctrl_c=False)
-    pytnyzer.STRICT_MODE = False
 
     LOGGER.info(pyfiglet.figlet_format("\nPINEBOO %s " % application.PINEBOO_VER, font="starwars"))
     if application.DEVELOPER_MODE:
@@ -126,6 +126,8 @@ def init_logging(
 
     app_loglevel = logging.TRACE if trace_loggers else loglevel
 
+    import coloredlogs  # type: ignore [import]
+
     coloredlogs.DEFAULT_LOG_LEVEL = app_loglevel
     coloredlogs.DEFAULT_LOG_FORMAT = log_format
     # 'black', 'blue', 'cyan', 'green', 'magenta', 'red', 'white' and 'yellow'
@@ -188,7 +190,7 @@ def init_cli(catch_ctrl_c: bool = True) -> None:
     """Initialize singletons, signal handling and exception handling."""
 
     def _excepthook(
-        type_: Type[BaseException], value: BaseException, traceback: TracebackType
+        type_: Type["BaseException"], value: "BaseException", traceback: "TracebackType"
     ) -> None:
         import traceback as pytback
 
@@ -267,7 +269,6 @@ def init_testing() -> None:
         init_logging(True)  # NOTE: Use pytest --log-level=0 for debug
         init_cli(catch_ctrl_c=False)
 
-        pytnyzer.STRICT_MODE = False
         LOGGER.info("PINEBOO TESTING %s.", application.PINEBOO_VER)
         # application.PROJECT.load_version()
         application.PROJECT.setDebugLevel(1000)
@@ -354,8 +355,6 @@ def exec_main(options: "optparse.Values") -> int:
     init_cli()
 
     # TODO: Refactorizar función en otras más pequeñas
-
-    pytnyzer.STRICT_MODE = False
 
     application.PROJECT.setDebugLevel(options.debug_level)
 
