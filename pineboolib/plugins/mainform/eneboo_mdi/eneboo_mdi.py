@@ -909,7 +909,6 @@ class MainForm(imainwindow.IMainWindow):
             self._dict_main_widgets = {}
 
         self._ted_output = None
-        self.aqApp = None
 
     def initView(self) -> None:
         """Initialize view."""
