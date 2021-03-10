@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch, Mock
 
 if TYPE_CHECKING:
-    import getpass
+    import getpass  # noqa: F401 # pragma: no cover
 
 
 class TestConfigDBConn(unittest.TestCase):
