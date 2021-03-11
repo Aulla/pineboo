@@ -751,7 +751,7 @@ class FLUtil(object):
             LOGGER.exception("writeDBSettingEntry: Error al ejecutar SQL: %s", sql)
             return False
 
-        session_.close()
+        # session_.close()
         return True
 
     @classmethod
