@@ -208,7 +208,7 @@ class FormInternalObj(qsa.FormDBWidget):
         dialog.cancelButtonText = qsa.util.translate(
             u"scripts", u"No, no acepto este acuerdo de licencia."
         )
-        if dialog.exec_():
+        if dialog.exec():
             return True
         else:
             return False

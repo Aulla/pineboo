@@ -270,7 +270,7 @@ class FLFormSearchDB(flformdb.FLFormDB):
 
         self.loop = True
         if self.eventloop:
-            self.eventloop.exec_()
+            self.eventloop.exec()
         self.loop = False
         self._in_exec = False
 

@@ -196,7 +196,7 @@ class PNApplication(QtCore.QObject):
         if not self.style:
             self.initStyles()
         # if self.style:
-        #    self.style.exec_()
+        #    self.style.exec()
 
     @decorators.not_implemented_warn
     def showToggleBars(self):
@@ -981,7 +981,7 @@ class PNApplication(QtCore.QObject):
         # file_dialog.setPreviewMode(QtWidgets.QFileDialog.Contents)
 
         file_name = None
-        if file_dialog.exec_() == QtWidgets.QDialog.DialogCode.Accepted:
+        if file_dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
             list_ = file_dialog.selectedFiles()
             if list_:
                 file_name = list_[0]

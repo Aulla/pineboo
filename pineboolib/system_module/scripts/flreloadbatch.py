@@ -113,7 +113,7 @@ class FormInternalObj(qsa.FormDBWidget):
             check_box_list[num].text = opcion
             check_box_list[num].checked = True
 
-        if dialog.exec_():
+        if dialog.exec():
             for num, opcion in enumerate(opciones):
                 if check_box_list[num].checked:
                     resultado[len(resultado)] = opciones[num]
