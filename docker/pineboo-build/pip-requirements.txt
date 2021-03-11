@@ -11,7 +11,7 @@ pylint
 PyQt5
 PyQt5-sip
 PyQt5-stubs
-PyQt6==6.0.2
+PyQt6==6.0.3
 PyQt6-sip
 pytest
 python-barcode
