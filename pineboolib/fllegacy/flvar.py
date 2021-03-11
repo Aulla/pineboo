@@ -42,18 +42,18 @@ class FLVar(object):
 
     def get(self, name: str) -> Any:
         """Get variable from database."""
-        id_sesion = application.PROJECT.aq_app.timeUser().toString(QtCore.Qt.DateFormat.ISODate)
+        id_sesion = application.PROJECT.aq_app.timeUser()
         where = "idvar = '%s' AND idsesion ='%s'" % (name, id_sesion)
         return utils.sql_select("flvar", "valor", where, "flvar")
 
     def del_(self, name: str) -> bool:
         """Delete variable from database."""
-        id_sesion = application.PROJECT.aq_app.timeUser().toString(QtCore.Qt.DateFormat.ISODate)
+        id_sesion = application.PROJECT.aq_app.timeUser()
         where = "idvar = '%s' AND idsesion ='%s'" % (name, id_sesion)
         return utils.sql_delete("flvar", where)
 
     def clean(self) -> bool:
         """Clean variables for this session."""
-        id_sesion = application.PROJECT.aq_app.timeUser().toString(QtCore.Qt.DateFormat.ISODate)
+        id_sesion = application.PROJECT.aq_app.timeUser()
         where = "idsesion = '%s'" % id_sesion
         return utils.sql_delete("flvar", where)

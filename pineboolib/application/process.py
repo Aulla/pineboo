@@ -46,7 +46,7 @@ class ProcessBaseClass(QtCore.QProcess):
         return super().workingDirectory()
 
     def readLine(self) -> bytes:  # type: ignore [override] # noqa: F821
-        """ReadLine overload."""
+        """Readline overload."""
 
         return super().readLine().data()
 
