@@ -281,9 +281,9 @@ class MainForm(imainwindow.IMainWindow):
 
     MAX_RECENT = 10
     app_ = None
-    ag_menu_: Optional["QtWidgets.QActionGroup"]
-    ag_rec_: Optional["QtWidgets.QActionGroup"]
-    ag_mar_: Optional["QtWidgets.QActionGroup"]
+    ag_menu_: Optional["QtGui.QActionGroup"]
+    ag_rec_: Optional["QtGui.QActionGroup"]
+    ag_mar_: Optional["QtGui.QActionGroup"]
     dck_mod_: "DockListView"
     dck_rec_: "DockListView"
     dck_mar_: "DockListView"
@@ -657,7 +657,7 @@ class MainForm(imainwindow.IMainWindow):
             except RuntimeError as error:
                 LOGGER.warning(str(error))
 
-    def addRecent(self, action: "QtWidgets.QAction") -> None:
+    def addRecent(self, action: "QtGui.QAction") -> None:
         """Add new entry to recent list."""
         if not action:
             return
@@ -694,7 +694,7 @@ class MainForm(imainwindow.IMainWindow):
 
         self.dck_rec_.update(self.ag_rec_)
 
-    def addMark(self, action: "QtWidgets.QAction") -> None:
+    def addMark(self, action: "QtGui.QAction") -> None:
         """Add new entry to Mark list."""
         if not action:
             return
