@@ -523,7 +523,7 @@ class PNApplication(QtCore.QObject):
 
         return img_.scaled(height, height, mode_)
 
-    def timeUser(self) -> "QtCore.QDateTime":
+    def timeUser(self) -> "str":
         """Get amount of time running."""
 
         return QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.DateFormat.ISODate)
