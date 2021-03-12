@@ -610,7 +610,7 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
         self._internal._auto_close = settings.SETTINGS.value("rptViewer/autoClose", False)
         form_path = utils_base.filedir("fllegacy/forms/FLWidgetReportViewer.ui")
         self = flmanagermodules.FLManagerModules.createUI(form_path, None, self)
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
         self._fr_mail = self.findChild(qframe.QFrame, "frEMail")
         self._auto_widget = self.findChild(qcheckbox.QCheckBox, "chkAutoClose")
         self._pixel_control = self.findChild(qspinbox.QSpinBox, "spnPixel")
@@ -622,13 +622,13 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
         self._auto_widget.setChecked(self._auto_close)
         self._fr_mail.hide()
         self._image_label = QtWidgets.QLabel()
-        self._image_label.setBackgroundRole(QPalette.Base)
+        self._image_label.setBackgroundRole(QPalette.ColorRole.Base)
         self._image_label.setSizePolicy(
-            QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored
+            QtWidgets.QSizePolicy.Policy.Ignored, QtWidgets.QSizePolicy.Policy.Ignored
         )
         self._image_label.setScaledContents(True)
         self._scroll_area = QtWidgets.QScrollArea()
-        self._scroll_area.setBackgroundRole(QPalette.Dark)
+        self._scroll_area.setBackgroundRole(QPalette.ColorRole.Dark)
         self._scroll_area.setWidget(self._image_label)
         self._scroll_area.setVisible(False)
 
@@ -686,7 +686,9 @@ class FLWidgetReportViewer(QtWidgets.QMainWindow):
             height_ = 591
             scaled_size = QtCore.QSize(width_ * self._scale_factor, height_ * self._scale_factor)
             scaled = image_qt.scaled(
-                scaled_size, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+                scaled_size,
+                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                QtCore.Qt.TransformationMode.SmoothTransformation,
             )
             pix = QPixmap.fromImage(scaled)
             self._image_label.setPixmap(pix)
