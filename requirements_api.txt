@@ -2,14 +2,12 @@ PyYAML==5.3.1
 PyQt5==5.14.2
 PyQt5-tools==5.14.2.2
 PyQt5-sip==12.7.2
-Pillow==6.2.2
 black==19.3b0
 clipboard==0.0.4
 coloredlogs==14.0
 fernet==1.0.1
 flake8==3.8.3
 flup==1.0.3
-fpdf2==2.0.5
 ninja==1.10.0.post1
 odfpy
 ply
@@ -23,6 +21,8 @@ watchdog>=0.10.2
 python-barcode
 pyfiglet
 python-daemon
+Pillow==8.1.2
+fpdf2==2.3.1
 pdf2image==1.14.0
 poppler-utils
 Click>=7.0

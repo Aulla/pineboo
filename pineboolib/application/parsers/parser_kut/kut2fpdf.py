@@ -119,19 +119,16 @@ class Kut2FPDF(object):
         # self._page_orientation =
         # self._page_size =
         if report is None:
-            from fpdf import FPDF  # type: ignore
+            import fpdf
 
             self._actual_append_page_no = 0
-            self._document = FPDF(self._page_orientation, "pt", self._page_size)
+            self._document = fpdf.FPDF(self._page_orientation, "pt", self._page_size)
             for font in self._document.core_fonts:
                 LOGGER.debug("KUT2FPDF :: Adding font %s", font)
                 self._avalible_fonts.append(font)
         else:
             self._document = report
         # Seteamos rutas a carpetas con tipos de letra ...
-
-        if not hasattr(self._document, "set_stretching"):
-            raise Exception("incorrect pyfpdf versión , you need <= 1.7.3")
 
         # Cargamos las fuentes disponibles
         next_page_break = (flags[2] == 1) if len(flags) == 3 else True
