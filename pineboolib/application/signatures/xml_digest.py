@@ -47,8 +47,9 @@ class xmlDigest:
         self._cert_path = cert_path
         self._pass = pwsd_
         self._policy_list = [
-            "http://www.facturae.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
+            "http://www.facturae.gob.es/politica_de_firma_formato_facturae/politica_de_firma_formato_facturae_v3_1.pdf",
             "Politica de Firma FacturaE v3.1",
+            "xmlsig.constants.TransformSha1",
         ]
         self._certificate = ""
         self._policy = ""
