@@ -23,7 +23,7 @@ setuptools
 sqlalchemy==1.4.0b1
 sqlalchemy-stubs
 sqlparse
-sphinx==3.0.1
+sphinx==3.5.2
 sphinxcontrib-serializinghtml==1.1.4
 sphinx-autodoc-typehints==1.10.3
 testresources
