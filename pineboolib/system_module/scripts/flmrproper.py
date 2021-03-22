@@ -15,4 +15,4 @@ class FormInternalObj(qsa.FormDBWidget):
         qsa.sys.Mr_Proper()
 
 
-form = None
+form = None  # pylint: disable=C0103

@@ -30,89 +30,89 @@ class FormInternalObj(qsa.FormDBWidget):
         btn_color = self.ui_.findChild(QtWidgets.QWidget, u"pbnCO")
         self.module_connect(btn_accept, u"clicked()", self, u"guardar_clicked")
         self.module_connect(btn_cancel, u"clicked()", self, u"cerrar_clicked")
-        self.module_connect(btn_color, u"clicked()", self, u"seleccionarColor_clicked")
+        self.module_connect(btn_color, u"clicked()", self, u"color_chooser_clicked")
         self.module_connect(btn_accept_tmp, u"clicked()", self, u"cambiar_temporales_clicked")
-        self.cargarConfiguracion()
+        self.load_config()
         self.initEventFilter()
         if qsa.sys.interactiveGUI() == "Pineboo":
             self.ui_.show()
 
-    def cargarConfiguracion(self) -> None:
+    def load_config(self) -> None:
         """Load configuration."""
 
         self.ui_.findChild(QtWidgets.QWidget, u"cbFLTableDC").setChecked(
-            self.leerValorLocal("FLTableDoubleClick")
+            self.read_local_value("FLTableDoubleClick")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbFLTableSC").setChecked(
-            self.leerValorLocal("FLTableShortCut")
+            self.read_local_value("FLTableShortCut")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbFLTableCalc").setChecked(
-            self.leerValorLocal("FLTableExport2Calc")
+            self.read_local_value("FLTableExport2Calc")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbDebuggerMode").setChecked(
-            self.leerValorLocal("isDebuggerMode")
+            self.read_local_value("isDebuggerMode")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbSLConsola").setChecked(
-            self.leerValorLocal("SLConsola")
+            self.read_local_value("SLConsola")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"leCallFunction").setText(
-            self.leerValorLocal("ebCallFunction")
+            self.read_local_value("ebCallFunction")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"leMaxPixImages").setText(
-            self.leerValorLocal("maxPixImages")
+            self.read_local_value("maxPixImages")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"leNombreVertical").setText(
-            self.leerValorGlobal("verticalName")
+            self.read_db_value("verticalName")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbFLLarge").setChecked(
-            self.leerValorGlobal("FLLargeMode") == "True"
+            self.read_db_value("FLLargeMode") == "True"
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbPosInfo").setChecked(
-            self.leerValorGlobal("PosInfo") == "True"
+            self.read_db_value("PosInfo") == "True"
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbMobile").setChecked(
-            self.leerValorLocal("mobileMode")
+            self.read_local_value("mobileMode")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbDeleteCache").setChecked(
-            self.leerValorLocal("deleteCache")
+            self.read_local_value("deleteCache")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbParseProject").setChecked(
-            self.leerValorLocal("parseProject")
+            self.read_local_value("parseProject")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbNoPythonCache").setChecked(
-            self.leerValorLocal("noPythonCache")
+            self.read_local_value("noPythonCache")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbActionsMenuRed").setChecked(
-            self.leerValorLocal("ActionsMenuRed")
+            self.read_local_value("ActionsMenuRed")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbSpacerLegacy").setChecked(
-            self.leerValorLocal("spacerLegacy")
+            self.read_local_value("spacerLegacy")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cbParseModulesOnLoad").setChecked(
-            self.leerValorLocal("parseModulesOnLoad")
+            self.read_local_value("parseModulesOnLoad")
         )
         self.ui_.findChild(QtWidgets.QWidget, u"cb_traducciones").setChecked(
-            self.leerValorLocal("translations_from_qm")
+            self.read_local_value("translations_from_qm")
         )
         self.ui_.findChild(QtWidgets.QWidget, "le_temporales").setText(
-            self.leerValorLocal("temp_dir")
+            self.read_local_value("temp_dir")
         )
         self.ui_.findChild(QtWidgets.QWidget, "cb_kut_debug").setChecked(
-            self.leerValorLocal("kugar_debug_mode")
+            self.read_local_value("kugar_debug_mode")
         )
         self.ui_.findChild(QtWidgets.QWidget, "cb_no_borrar_cache").setChecked(
-            self.leerValorLocal("keep_general_cache")
+            self.read_local_value("keep_general_cache")
         )
         self.ui_.findChild(QtWidgets.QWidget, "cb_snapshot").setChecked(
-            self.leerValorLocal("show_snaptshop_button")
+            self.read_local_value("show_snaptshop_button")
         )
         self.ui_.findChild(QtWidgets.QWidget, "cb_imagenes").setChecked(
-            self.leerValorLocal("no_img_cached")
+            self.read_local_value("no_img_cached")
         )
         self.ui_.findChild(QtWidgets.QWidget, "cb_dbadmin").setChecked(
-            self.leerValorLocal("dbadmin_enabled")
+            self.read_local_value("dbadmin_enabled")
         )
-        valor = self.leerValorLocal("autoComp")
+        valor = self.read_local_value("autoComp")
         auto_complete = "Siempre"
         if not valor or valor == "OnDemandF4":
             auto_complete = "Bajo Demanda (F4)"
@@ -122,19 +122,19 @@ class FormInternalObj(qsa.FormDBWidget):
         self.ui_.findChild(QtWidgets.QWidget, u"cbAutoComp").setCurrentText = auto_complete
 
         self.ui_.findChild(QtWidgets.QWidget, u"leCO").hide()
-        self.colorActual_ = self.leerValorLocal("colorObligatorio")
-        if not self.colorActual_:
-            self.colorActual_ = "#FFE9AD"
+        self.color_actual = self.read_local_value("colorObligatorio")
+        if not self.color_actual:
+            self.color_actual = "#FFE9AD"
 
         self.ui_.findChild(QtWidgets.QWidget, u"leCO").setStyleSheet(
-            "background-color:" + self.colorActual_
+            "background-color:" + self.color_actual
         )
 
         if os.path.exists(filedir("../.git")):
             self.ui_.findChild(QtWidgets.QWidget, "cb_git_activar").setChecked(
-                self.leerValorLocal("git_updates_enabled")
+                self.read_local_value("git_updates_enabled")
             )
-            ruta = self.leerValorLocal("git_updates_repo")
+            ruta = self.read_local_value("git_updates_repo")
             if ruta is False:
                 ruta = "https://github.com/Aulla/pineboo.git"
             self.ui_.findChild(QtWidgets.QWidget, "le_git_ruta").setText(ruta)
@@ -154,7 +154,7 @@ class FormInternalObj(qsa.FormDBWidget):
         url = self.ui_.findChild(QtWidgets.QWidget, "le_git_ruta").text
         qsa.sys.search_git_updates(url)
 
-    def leerValorGlobal(self, valor_name: str = None) -> Any:
+    def read_db_value(self, valor_name: str = None) -> Any:
         """Return global value."""
         util = qsa.FLUtil()
         value = util.sqlSelect("flsettings", "valor", "flkey='%s'" % valor_name)
@@ -164,7 +164,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return value
 
-    def grabarValorGlobal(self, valor_name: str, value: Union[str, bool]) -> None:
+    def write_db_value(self, valor_name: str, value: Union[str, bool]) -> None:
         """Set global value."""
         util = qsa.FLUtil()
         if not util.sqlSelect("flsettings", "flkey", "flkey='%s'" % valor_name):
@@ -172,7 +172,7 @@ class FormInternalObj(qsa.FormDBWidget):
         else:
             util.sqlUpdate("flsettings", u"valor", str(value), "flkey = '%s'" % valor_name)
 
-    def leerValorLocal(self, valor_name: str) -> Any:
+    def read_local_value(self, valor_name: str) -> Any:
         """Return local value."""
 
         if valor_name in ("isDebuggerMode", "dbadmin_enabled"):
@@ -199,7 +199,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 valor = settings.CONFIG.value("ebcomportamiento/%s" % valor_name, False)
         return valor
 
-    def grabarValorLocal(self, valor_name: str, value: Union[str, bool]) -> None:
+    def write_local_value(self, valor_name: str, value: Union[str, bool]) -> None:
         """Set local value."""
 
         if valor_name in ("isDebuggerMode", "dbadmin_enabled"):
@@ -230,89 +230,89 @@ class FormInternalObj(qsa.FormDBWidget):
     def guardar_clicked(self) -> None:
         """Save actual configuration."""
 
-        self.grabarValorGlobal(
+        self.write_db_value(
             "verticalName", self.ui_.findChild(QtWidgets.QWidget, u"leNombreVertical").text()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "FLTableDoubleClick", self.ui_.findChild(QtWidgets.QWidget, u"cbFLTableDC").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "FLTableShortCut", self.ui_.findChild(QtWidgets.QWidget, u"cbFLTableSC").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "FLTableExport2Calc",
             self.ui_.findChild(QtWidgets.QWidget, u"cbFLTableCalc").isChecked(),
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "isDebuggerMode", self.ui_.findChild(QtWidgets.QWidget, u"cbDebuggerMode").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "SLConsola", self.ui_.findChild(QtWidgets.QWidget, u"cbSLConsola").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "ebCallFunction", self.ui_.findChild(QtWidgets.QWidget, u"leCallFunction").text()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "maxPixImages", self.ui_.findChild(QtWidgets.QWidget, u"leMaxPixImages").text()
         )
-        self.grabarValorLocal("colorObligatorio", self.colorActual_)
-        self.grabarValorLocal(
+        self.write_local_value("colorObligatorio", self.color_actual)
+        self.write_local_value(
             "ActionsMenuRed", self.ui_.findChild(QtWidgets.QWidget, u"cbActionsMenuRed").isChecked()
         )
-        self.grabarValorGlobal(
+        self.write_db_value(
             "FLLargeMode", self.ui_.findChild(QtWidgets.QWidget, u"cbFLLarge").isChecked()
         )
-        self.grabarValorGlobal(
+        self.write_db_value(
             "PosInfo", self.ui_.findChild(QtWidgets.QWidget, u"cbPosInfo").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "deleteCache", self.ui_.findChild(QtWidgets.QWidget, u"cbDeleteCache").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "parseProject", self.ui_.findChild(QtWidgets.QWidget, u"cbParseProject").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "noPythonCache", self.ui_.findChild(QtWidgets.QWidget, u"cbNoPythonCache").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "mobileMode", self.ui_.findChild(QtWidgets.QWidget, u"cbMobile").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "spacerLegacy", self.ui_.findChild(QtWidgets.QWidget, u"cbSpacerLegacy").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "parseModulesOnLoad",
             self.ui_.findChild(QtWidgets.QWidget, u"cbParseModulesOnLoad").isChecked(),
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "translations_from_qm",
             self.ui_.findChild(QtWidgets.QWidget, u"cb_traducciones").isChecked(),
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "temp_dir", self.ui_.findChild(QtWidgets.QWidget, "le_temporales").text()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "kugar_debug_mode", self.ui_.findChild(QtWidgets.QWidget, "cb_kut_debug").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "keep_general_cache",
             self.ui_.findChild(QtWidgets.QWidget, "cb_no_borrar_cache").isChecked(),
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "git_updates_enabled",
             self.ui_.findChild(QtWidgets.QWidget, "cb_git_activar").isChecked(),
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "git_updates_repo", self.ui_.findChild(QtWidgets.QWidget, "le_git_ruta").text()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "show_snaptshop_button",
             self.ui_.findChild(QtWidgets.QWidget, "cb_snapshot").isChecked(),
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "no_img_cached", self.ui_.findChild(QtWidgets.QWidget, "cb_imagenes").isChecked()
         )
-        self.grabarValorLocal(
+        self.write_local_value(
             "dbadmin_enabled", self.ui_.findChild(QtWidgets.QWidget, "cb_dbadmin").isChecked()
         )
 
@@ -323,14 +323,14 @@ class FormInternalObj(qsa.FormDBWidget):
         elif valor == "Bajo Demanda (F4)":
             auto_complete = "OnDemandF4"
 
-        self.grabarValorLocal("autoComp", auto_complete)
+        self.write_local_value("autoComp", auto_complete)
         self.cerrar_clicked()
 
-    def seleccionarColor_clicked(self) -> None:
+    def color_chooser_clicked(self) -> None:
         """Set mandatory color."""
-        self.colorActual_ = qsa.AQS.ColorDialog_getColor(self.colorActual_, self.ui_).name()
+        self.color_actual = qsa.AQS.ColorDialog_getColor(self.color_actual, self.ui_).name()
         self.ui_.findChild(QtWidgets.QWidget, u"leCO").setStyleSheet(
-            "background-color:" + self.colorActual_
+            "background-color:" + self.color_actual
         )
 
     def cambiar_temporales_clicked(self) -> None:
@@ -345,4 +345,4 @@ class FormInternalObj(qsa.FormDBWidget):
             application.PROJECT.tmpdir = new_dir
 
 
-form = None
+form = None  # pylint: disable=C0103

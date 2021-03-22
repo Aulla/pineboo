@@ -5,8 +5,7 @@ import hashlib
 from typing import List, Any
 
 from PyQt6.QtXml import QDomDocument
-from PyQt6 import QtCore
-from pineboolib.core.utils import logging
+from pineboolib.core.utils import logging, utils_base
 
 
 LOGGER = logging.get_logger(__name__)
@@ -88,8 +87,8 @@ class FlFiles(object):
             #        dependencias[i] = node_depend.item(i).toElement().text()
             #        i += 1
 
-        descripcion_modulo = self.traducirCadena(descripcion_modulo, root_folder, modulo)
-        descripcion_area = self.traducirCadena(descripcion_area, root_folder, modulo)
+        descripcion_modulo = utils_base.qt_translate_noop(descripcion_modulo, root_folder, modulo)
+        descripcion_area = utils_base.qt_translate_noop(descripcion_area, root_folder, modulo)
         datos_icono = None
         if os.path.exists(os.path.join(root_folder, nombre_icono)):
             fichero_icono = open(
@@ -133,34 +132,3 @@ class FlFiles(object):
 
             for sub_dir in subdirs:
                 self.process_files(os.path.join(root_folder, sub_dir), id_module)
-
-    def traducirCadena(self, cadena: str, path: str, modulo: str) -> str:
-        """Translate string."""
-
-        if cadena.find(u"QT_TRANSLATE_NOOP") == -1:
-            return cadena
-        cadena_list = cadena[18:-1].split(",")
-        cadena = cadena_list[1][1:-1]
-
-        nombre_fichero = os.path.join(
-            path, "translations", "%s.%s.ts" % (modulo, QtCore.QLocale().name()[:2])
-        )
-        if not os.path.exists(nombre_fichero):
-            LOGGER.debug(
-                "flreloadlast.traducirCadena: No se encuentra el fichero %s" % nombre_fichero
-            )
-            return cadena
-
-        fichero = open(nombre_fichero, "r", encoding="ISO-8859-15")
-        file_data = fichero.read()
-        xml_translations = QDomDocument()
-        if xml_translations.setContent(file_data):
-            node_mess = xml_translations.elementsByTagName(u"message")
-            for item in range(len(node_mess)):
-                if node_mess.item(item).namedItem(u"source").toElement().text() == cadena:
-                    traduccion = node_mess.item(item).namedItem(u"translation").toElement().text()
-                    if traduccion:
-                        cadena = traduccion
-                        break
-
-        return cadena

@@ -15,4 +15,4 @@ class FormInternalObj(qsa.FormDBWidget):
         qsa.sys.loadModules()
 
 
-form = None
+form = None  # pylint: disable=C0103

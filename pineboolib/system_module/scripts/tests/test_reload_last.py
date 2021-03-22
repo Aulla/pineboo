@@ -94,9 +94,9 @@ class TestFLReloadLast(unittest.TestCase):
 
         mod_ = qsa.from_project("formflreloadlast")
         tr_dir = utils_base.filedir(utils_base.get_base_dir(), "system_module")
-        self.assertEqual(mod_.traducirCadena("unodostres", tr_dir, "sys"), "unodostres")
+        self.assertEqual(mod_.translate_string("unodostres", tr_dir, "sys"), "unodostres")
         self.assertEqual(
-            mod_.traducirCadena(
+            mod_.translate_string(
                 "QT_TRANSLATE_NOOP('FLWidgetApplication','undostres')", tr_dir, "sys"
             ),
             "undostres",

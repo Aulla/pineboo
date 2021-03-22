@@ -24,16 +24,16 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def init(self) -> None:
         """Init function."""
-        btn_load = self.child(u"botonCargar")
-        btn_export = self.child(u"botonExportar")
-        self.module_connect(btn_load, u"clicked()", self, u"botonCargar_clicked")
-        self.module_connect(btn_export, u"clicked()", self, u"botonExportar_clicked")
+        btn_load = self.child(u"load_button")
+        btn_export = self.child(u"expoort_button")
+        self.module_connect(btn_load, u"clicked()", self, u"load_button_clicked")
+        self.module_connect(btn_export, u"clicked()", self, u"expoort_button_clicked")
         cursor = self.cursor()
         if cursor.modeAccess() == cursor.Browse:
             btn_load.setEnabled(False)
             btn_export.setEnabled(False)
 
-    def cargarFicheroEnBD(
+    def load_file_to_db(
         self, nombre: str, contenido: str, log: "QtWidgets.QTextEdit", directorio: str
     ) -> None:
         """Load a file into database."""
@@ -58,7 +58,7 @@ class FormInternalObj(qsa.FormDBWidget):
         cursor_ficheros.select(qsa.ustr(u"nombre = '", nombre, u"'"))
         if not cursor_ficheros.first():
             if nombre.endswith(u".ar"):
-                if not self.cargarAr(nombre, contenido, log, directorio):
+                if not self.load_ar(nombre, contenido, log, directorio):
                     return
             log.append(qsa.util.translate(u"scripts", u"- Cargando :: ") + nombre)
             cursor_ficheros.setModeAccess(cursor_ficheros.Insert)
@@ -72,15 +72,15 @@ class FormInternalObj(qsa.FormDBWidget):
         else:
             cursor_ficheros.setModeAccess(cursor_ficheros.Edit)
             cursor_ficheros.refreshBuffer()
-            contenidoCopia = cursor_ficheros.valueBuffer(u"contenido")
-            if contenidoCopia != contenido:
+            copy_content = cursor_ficheros.valueBuffer(u"contenido")
+            if copy_content != contenido:
                 log.append(qsa.util.translate(u"scripts", u"- Actualizando :: ") + nombre)
                 cursor_ficheros.setModeAccess(cursor_ficheros.Insert)
                 cursor_ficheros.refreshBuffer()
                 this_date = qsa.Date()
                 cursor_ficheros.setValueBuffer(u"nombre", nombre + qsa.parseString(this_date))
                 cursor_ficheros.setValueBuffer(u"idmodulo", cursor.valueBuffer(u"idmodulo"))
-                cursor_ficheros.setValueBuffer(u"contenido", contenidoCopia)
+                cursor_ficheros.setValueBuffer(u"contenido", copy_content)
                 cursor_ficheros.commitBuffer()
                 log.append(
                     qsa.util.translate(u"scripts", u"- Backup :: ")
@@ -96,11 +96,11 @@ class FormInternalObj(qsa.FormDBWidget):
                 cursor_ficheros.setValueBuffer(u"contenido", contenido)
                 cursor_ficheros.commitBuffer()
                 if nombre.endswith(u".ar"):
-                    self.cargarAr(nombre, contenido, log, directorio)
+                    self.load_ar(nombre, contenido, log, directorio)
 
         # cursor_ficheros.close()
 
-    def cargarAr(
+    def load_ar(
         self, nombre: str, contenido: str, log: "QtWidgets.QTextEdit", directorio: str
     ) -> bool:
         """Load AR reports."""
@@ -115,7 +115,7 @@ class FormInternalObj(qsa.FormDBWidget):
         if contenido:
             local_encode = qsa.util.readSettingEntry(u"scripts/sys/conversionArENC", "ISO-8859-15")
             contenido = qsa.sys.fromUnicode(contenido, local_encode)
-            self.cargarFicheroEnBD(nombre, contenido, log, directorio)
+            self.load_file_to_db(nombre, contenido, log, directorio)
             log.append(qsa.util.translate(u"scripts", u"Volcando a disco ") + nombre)
             qsa.FileStatic.write(
                 qsa.Dir.cleanDirPath(qsa.ustr(directorio, u"/", nombre)), contenido
@@ -127,7 +127,7 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return True
 
-    def cargarFicheros(self, directorio: str, extension: str) -> None:
+    def load_files(self, directorio: str, extension: str) -> None:
         """Load files into database."""
         dir = qsa.Dir(directorio)
         ficheros = dir.entryList(extension, qsa.Dir.Files)
@@ -148,7 +148,7 @@ class FormInternalObj(qsa.FormDBWidget):
                     if not isinstance(value_py, str):
                         raise Exception("value_py must be string not bytes.")
 
-                    self.cargarFicheroEnBD("%s.py" % fichero[-3], value_py, log, directorio)
+                    self.load_file_to_db("%s.py" % fichero[-3], value_py, log, directorio)
 
             encode = "UTF-8" if path_.endswith((".ts", ".py")) else "ISO-8859-1"
             try:
@@ -161,24 +161,24 @@ class FormInternalObj(qsa.FormDBWidget):
             if not isinstance(value, str):
                 raise Exception("value must be string not bytes.")
 
-            self.cargarFicheroEnBD(fichero, value, log, directorio)
+            self.load_file_to_db(fichero, value, log, directorio)
             # qsa.sys.processEvents()
 
-    def botonCargar_clicked(self) -> None:
+    def load_button_clicked(self) -> None:
         """Load a directory from file system."""
         directorio = qsa.FileDialog.getExistingDirectory(
             u"", qsa.util.translate(u"scripts", u"Elegir Directorio")
         )
-        self.cargarDeDisco(directorio or "", True)
+        self.load_from_disk(directorio or "", True)
 
-    def botonExportar_clicked(self) -> None:
+    def expoort_button_clicked(self) -> None:
         """Export a module to file system."""
         directorio = qsa.FileDialog.getExistingDirectory(
             u"", qsa.util.translate(u"scripts", u"Elegir Directorio")
         )
-        self.exportarADisco(directorio or "")
+        self.export_to_disk(directorio or "")
 
-    def aceptarLicenciaDelModulo(self, directorio: str) -> bool:
+    def accept_license(self, directorio: str) -> bool:
         """Accept license dialog."""
         path_licencia = qsa.Dir.cleanDirPath(qsa.ustr(directorio, u"/COPYING"))
         if not qsa.FileStatic.exists(path_licencia):
@@ -213,11 +213,11 @@ class FormInternalObj(qsa.FormDBWidget):
         else:
             return False
 
-    def cargarDeDisco(self, directorio: str, check_license: bool) -> None:
+    def load_from_disk(self, directorio: str, check_license: bool) -> None:
         """Load a folder from file system."""
         if directorio:
             if check_license:
-                if not self.aceptarLicenciaDelModulo(directorio):
+                if not self.accept_license(directorio):
                     qsa.MessageBox.critical(
                         qsa.util.translate(
                             u"scripts",
@@ -241,20 +241,20 @@ class FormInternalObj(qsa.FormDBWidget):
 
                 log.text = u""
                 self.setDisabled(True)
-                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.xml")
-                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.mod")
-                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.xpm")
-                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.signatures")
-                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.certificates")
-                self.cargarFicheros(qsa.ustr(directorio, u"/"), u"*.checksum")
-                self.cargarFicheros(qsa.ustr(directorio, u"/forms/"), u"*.ui")
-                self.cargarFicheros(qsa.ustr(directorio, u"/tables/"), u"*.mtd")
-                self.cargarFicheros(qsa.ustr(directorio, u"/scripts/"), u"*.qs")
-                self.cargarFicheros(qsa.ustr(directorio, u"/scripts/"), u"*.py")
-                self.cargarFicheros(qsa.ustr(directorio, u"/queries/"), u"*.qry")
-                self.cargarFicheros(qsa.ustr(directorio, u"/reports/"), u"*.kut")
-                self.cargarFicheros(qsa.ustr(directorio, u"/reports/"), u"*.ar")
-                self.cargarFicheros(qsa.ustr(directorio, u"/translations/"), u"*.ts")
+                self.load_files(qsa.ustr(directorio, u"/"), u"*.xml")
+                self.load_files(qsa.ustr(directorio, u"/"), u"*.mod")
+                self.load_files(qsa.ustr(directorio, u"/"), u"*.xpm")
+                self.load_files(qsa.ustr(directorio, u"/"), u"*.signatures")
+                self.load_files(qsa.ustr(directorio, u"/"), u"*.certificates")
+                self.load_files(qsa.ustr(directorio, u"/"), u"*.checksum")
+                self.load_files(qsa.ustr(directorio, u"/forms/"), u"*.ui")
+                self.load_files(qsa.ustr(directorio, u"/tables/"), u"*.mtd")
+                self.load_files(qsa.ustr(directorio, u"/scripts/"), u"*.qs")
+                self.load_files(qsa.ustr(directorio, u"/scripts/"), u"*.py")
+                self.load_files(qsa.ustr(directorio, u"/queries/"), u"*.qry")
+                self.load_files(qsa.ustr(directorio, u"/reports/"), u"*.kut")
+                self.load_files(qsa.ustr(directorio, u"/reports/"), u"*.ar")
+                self.load_files(qsa.ustr(directorio, u"/translations/"), u"*.ts")
 
                 log.append(qsa.util.translate(u"scripts", u"* Carga finalizada."))
                 self.setDisabled(False)
@@ -262,12 +262,12 @@ class FormInternalObj(qsa.FormDBWidget):
                 if tdb_lineas is not None:
                     tdb_lineas.refresh()
 
-    def tipoDeFichero(self, nombre: str) -> str:
+    def file_type(self, nombre: str) -> str:
         """Return file type."""
         dot_pos = nombre.rfind(u".")
         return nombre[dot_pos:]
 
-    def exportarADisco(self, directorio: str) -> None:
+    def export_to_disk(self, directorio: str) -> None:
         """Export a module to disk."""
         if directorio:
             tdb_lineas = self.child(u"lineas")
@@ -309,7 +309,7 @@ class FormInternalObj(qsa.FormDBWidget):
                 while s01_dowhile_1stloop or curFiles.next():
                     s01_dowhile_1stloop = False
                     file_name = curFiles.valueBuffer(u"nombre")
-                    tipo = self.tipoDeFichero(file_name)
+                    tipo = self.file_type(file_name)
                     contenido = curFiles.valueBuffer(u"contenido")
                     if contenido:
                         codec: str = ""
@@ -433,4 +433,4 @@ class FormInternalObj(qsa.FormDBWidget):
                 log.append(qsa.util.translate(u"scripts", u"* Exportación finalizada."))
 
 
-form = None
+form = None  # pylint: disable=C0103
