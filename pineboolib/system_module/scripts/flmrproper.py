@@ -9,4 +9,3 @@ class FormInternalObj(qsa.FormDBWidget):
     def main(self) -> None:
         """Entry function."""
         qsa.sys.Mr_Proper()
-
