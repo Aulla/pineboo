@@ -126,7 +126,7 @@ class FormInternalObj(qsa.FormDBWidget):
         # curSeleccion = qsa.FLSqlCursor(u"flmodules")
         modules_cursor.setMainFilter(qsa.ustr(u"idmodulo = '", modulo, u"'"))
         modules_cursor.editRecord(False)
-        qsa.from_project("formRecordflmodules").cargarDeDisco(qsa.ustr(fichero.path, u"/"), False)
+        qsa.from_project("formRecordflmodules").load_from_disk(qsa.ustr(fichero.path, u"/"), False)
         qsa.from_project("formRecordflmodules").accept()
         setting = "scripts/sys/modLastModule_%s" % qsa.sys.nameBD()
         nombre_fichero = "%s" % os.path.abspath(nombre_fichero)

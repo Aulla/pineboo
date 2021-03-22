@@ -69,8 +69,8 @@ class TestFLReloadLast(unittest.TestCase):
         form_cursor.model().refresh()
         utils_base.FORCE_DESKTOP = True
         self.assertTrue(form_cursor.size())
-        self.assertTrue(form.exportarADisco)
-        form.exportarADisco(application.PROJECT.tmpdir)  # type: ignore [operator] # noqa: F821
+        self.assertTrue(form.export_to_disk)
+        form.export_to_disk(application.PROJECT.tmpdir)  # type: ignore [operator] # noqa: F821
         ruta = os.path.join(application.PROJECT.tmpdir, "flfactppal", "flfactppal.mod")
         self.assertTrue(ruta)
         self.assertTrue(os.path.exists(ruta))
@@ -85,18 +85,18 @@ class TestFLReloadLast(unittest.TestCase):
 
         mod_ = qsa.from_project("formflreloadlast")
         self.assertTrue(mod_)
-        self.assertEqual(mod_.compararVersiones("1.0", "1.1"), 2)
-        self.assertEqual(mod_.compararVersiones("1.0", "0.1"), 1)
-        self.assertEqual(mod_.compararVersiones("2.1", "2.1"), 0)
+        self.assertEqual(mod_.version_compare("1.0", "1.1"), 2)
+        self.assertEqual(mod_.version_compare("1.0", "0.1"), 1)
+        self.assertEqual(mod_.version_compare("2.1", "2.1"), 0)
 
     def test_traducir_cadena(self) -> None:
         """Test traducir cadena."""
 
         mod_ = qsa.from_project("formflreloadlast")
         tr_dir = utils_base.filedir(utils_base.get_base_dir(), "system_module")
-        self.assertEqual(mod_.translate_string("unodostres", tr_dir, "sys"), "unodostres")
+        self.assertEqual(utils_base.qt_translate_noop("unodostres", tr_dir, "sys"), "unodostres")
         self.assertEqual(
-            mod_.translate_string(
+            utils_base.qt_translate_noop(
                 "QT_TRANSLATE_NOOP('FLWidgetApplication','undostres')", tr_dir, "sys"
             ),
             "undostres",
@@ -106,7 +106,7 @@ class TestFLReloadLast(unittest.TestCase):
         """Test dame valor."""
 
         mod_ = qsa.from_project("formflreloadlast")
-        self.assertEqual(mod_.dameValor("unodostres"), "unodostres")
+        self.assertEqual(mod_.get_value("unodostres"), "unodostres")
 
     @classmethod
     def tearDownClass(cls) -> None:

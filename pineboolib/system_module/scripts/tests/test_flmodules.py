@@ -54,8 +54,8 @@ class TestFlModules(unittest.TestCase):
         cursor_form.setValueBuffer("idmodulo", "mod_sysco")
         cursor_form.setValueBuffer("idarea", "sysco")
         # cursor_form.commitBuffer()
-        qsa.from_project("formRecordflmodules").cargarFicheros(fixture_path("scripts"), "*.py")
-        qsa.from_project("formRecordflmodules").cargarFicheros(fixture_path("scripts"), "*.qs")
+        qsa.from_project("formRecordflmodules").load_files(fixture_path("scripts"), "*.py")
+        qsa.from_project("formRecordflmodules").load_files(fixture_path("scripts"), "*.qs")
         self.assertTrue(
             qsa.sys.disableObj(qsa.from_project("formRecordflmodules").form, "toolButtonEdit")
         )
