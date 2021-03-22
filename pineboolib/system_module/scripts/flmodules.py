@@ -24,8 +24,8 @@ class FormInternalObj(qsa.FormDBWidget):
 
     def init(self) -> None:
         """Init function."""
-        btn_load = self.child(u"load_button")
-        btn_export = self.child(u"expoort_button")
+        btn_load = self.child(u"botonCargar")
+        btn_export = self.child(u"botonExportar")
         self.module_connect(btn_load, u"clicked()", self, u"load_button_clicked")
         self.module_connect(btn_export, u"clicked()", self, u"expoort_button_clicked")
         cursor = self.cursor()
