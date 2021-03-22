@@ -872,7 +872,7 @@ class FLFormRecordDB(flformdb.FLFormDB):
         self.loop = True
         self.show()
         if self.eventloop:
-            self.eventloop.exec_()
+            self.eventloop.exec()
 
         self.loop = False
 
