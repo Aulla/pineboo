@@ -2627,12 +2627,12 @@ def file_template(ast: ET.Element, import_refs: Dict[str, Tuple[str, str]] = {})
     for dtype, data in parse_ast(sourceclasses).generate():
         yield dtype, data
 
-    yield "line", ""
-    yield "line", "if TYPE_CHECKING:"
-    yield "line", '    form: "FormInternalObj" = FormInternalObj()'
-    yield "line", "    iface = form.iface"
-    yield "line", "else:"
-    yield "line", "    form = None"
+    # yield "line", ""
+    # yield "line", "if TYPE_CHECKING:"
+    # yield "line", '    form: "FormInternalObj" = FormInternalObj()'
+    # yield "line", "    iface = form.iface"
+    # yield "line", "else:"
+    # yield "line", "    form = None"
 
 
 def expression_template(
