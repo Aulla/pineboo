@@ -6,7 +6,7 @@ Just an assortment of functions that don't depend on externals and don't fit oth
 """
 
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore, QtXml
 
 from . import logging
 from .. import settings
@@ -54,6 +54,36 @@ def auto_qt_translate_text(text: Optional[str]) -> str:
             text = match.group(1) if match else ""
 
     return text
+
+
+def qt_translate_noop(string: str, path: str, mod: str) -> str:
+    """Translate string."""
+
+    if string.find(u"QT_TRANSLATE_NOOP") == -1:
+        return string
+    string_list = string[18:-1].split(",")
+    string = string_list[1][1:-1]
+
+    nombre_fichero = os.path.join(
+        path, "translations", "%s.%s.ts" % (mod, QtCore.QLocale().name()[:2])
+    )
+    if not os.path.exists(nombre_fichero):
+        LOGGER.debug("flreloadlast.traducirCadena: No se encuentra el fichero %s" % nombre_fichero)
+        return string
+
+    fichero = open(nombre_fichero, "r", encoding="ISO-8859-15")
+    file_data = fichero.read()
+    xml_translations = QtXml.QDomDocument()
+    if xml_translations.setContent(file_data):
+        node_mess = xml_translations.elementsByTagName(u"message")
+        for item in range(len(node_mess)):
+            if node_mess.item(item).namedItem(u"source").toElement().text() == string:
+                traduccion = node_mess.item(item).namedItem(u"translation").toElement().text()
+                if traduccion:
+                    string = traduccion
+                    break
+
+    return string
 
 
 AQTT = auto_qt_translate_text

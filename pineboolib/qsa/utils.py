@@ -763,3 +763,9 @@ def memory_status() -> None:
 
     except ImportError:
         LOGGER.warning("need install 'pympler' module first.")
+
+
+def qt_translate_noop(string: str, path: str, mod: str) -> str:
+    """Return a translation."""
+
+    return utils_base.qt_translate_noop(string, path, mod)
