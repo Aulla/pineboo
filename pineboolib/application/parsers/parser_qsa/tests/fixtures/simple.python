@@ -21,10 +21,3 @@ class FormInternalObj(qsa.FormDBWidget):
     # /** @class_definition FormInternalObj */
     def _class_init(self):
         pass
-
-
-if TYPE_CHECKING:
-    form: "FormInternalObj" = FormInternalObj()
-    iface = form.iface
-else:
-    form = None
