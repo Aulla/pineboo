@@ -92,7 +92,6 @@ class TestFLReloadLast(unittest.TestCase):
     def test_traducir_cadena(self) -> None:
         """Test traducir cadena."""
 
-        mod_ = qsa.from_project("formflreloadlast")
         tr_dir = utils_base.filedir(utils_base.get_base_dir(), "system_module")
         self.assertEqual(utils_base.qt_translate_noop("unodostres", tr_dir, "sys"), "unodostres")
         self.assertEqual(
