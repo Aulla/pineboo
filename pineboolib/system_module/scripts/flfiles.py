@@ -6,10 +6,6 @@ from pineboolib.qsa import qsa
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
 
-    def _class_init(self) -> None:
-        """Inicialize."""
-        pass
-
     def init(self) -> None:
         """Init function."""
         fdb_contenido = self.child("contenido")

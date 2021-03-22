@@ -8,10 +8,6 @@ sys = qsa.SysType()
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
 
-    def _class_init(self) -> None:
-        """Inicialize."""
-        pass
-
     def init(self) -> None:
         """Init function."""
         self.module_connect(self.cursor(), "cursorUpdated()", self, "areas_update")

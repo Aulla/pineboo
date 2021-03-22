@@ -7,10 +7,6 @@ import os
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
 
-    def _class_init(self) -> None:
-        """Inicialize."""
-        self = self
-
     def init(self) -> None:
         """Init function."""
         pass

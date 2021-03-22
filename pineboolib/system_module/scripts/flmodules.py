@@ -18,10 +18,6 @@ LOGGER = logging.get_logger(__name__)
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
 
-    def _class_init(self) -> None:
-        """Inicialize."""
-        pass
-
     def init(self) -> None:
         """Init function."""
         btn_load = self.child(u"botonCargar")

@@ -15,10 +15,6 @@ from typing import Any, Union
 class FormInternalObj(qsa.FormDBWidget):
     """FormInternalObj class."""
 
-    def _class_init(self) -> None:
-        """Inicialize."""
-        pass
-
     def main(self) -> None:
         """Entry function."""
 
