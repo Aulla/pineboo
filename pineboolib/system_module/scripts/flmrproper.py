@@ -10,5 +10,3 @@ class FormInternalObj(qsa.FormDBWidget):
         """Entry function."""
         qsa.sys.Mr_Proper()
 
-
-form = None  # pylint: disable=C0103

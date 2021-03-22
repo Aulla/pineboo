@@ -15,6 +15,3 @@ class FormInternalObj(qsa.FormDBWidget):
     def areas_update(self) -> None:
         """Update avaliable areas."""
         qsa.sys.updateAreas()
-
-
-form = None  # pylint: disable=C0103

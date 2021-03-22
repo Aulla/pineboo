@@ -339,6 +339,3 @@ class FormInternalObj(qsa.FormDBWidget):
             self.ui_.findChild(QtWidgets.QWidget, "le_temporales").setText(new_dir)
 
             application.PROJECT.tmpdir = new_dir
-
-
-form = None  # pylint: disable=C0103

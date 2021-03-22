@@ -9,6 +9,3 @@ class FormInternalObj(qsa.FormDBWidget):
     def main(self) -> None:
         """Entry function."""
         qsa.sys.reinit()
-
-
-form = None  # pylint: disable=C0103

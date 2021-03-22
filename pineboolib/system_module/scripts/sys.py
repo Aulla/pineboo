@@ -128,6 +128,3 @@ class FormInternalObj(qsa.FormDBWidget):
         """Retrun description string."""
 
         return "Área de prueba T."
-
-
-form = None  # pylint: disable=C0103

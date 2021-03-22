@@ -112,6 +112,3 @@ class FormInternalObj(qsa.FormDBWidget):
                     resultado[len(resultado)] = opciones[num]
 
         return resultado if len(resultado) else qsa.Array()
-
-
-form = None  # pylint: disable=C0103

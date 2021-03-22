@@ -427,6 +427,3 @@ class FormInternalObj(qsa.FormDBWidget):
 
                 self.setDisabled(False)
                 log.append(qsa.util.translate(u"scripts", u"* Exportación finalizada."))
-
-
-form = None  # pylint: disable=C0103

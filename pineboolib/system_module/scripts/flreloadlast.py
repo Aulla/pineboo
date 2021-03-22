@@ -149,6 +149,3 @@ class FormInternalObj(qsa.FormDBWidget):
     def get_value(self, linea: str) -> str:
         """Return value."""
         return linea
-
-
-form = None  # pylint: disable=C0103

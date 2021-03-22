@@ -21,6 +21,3 @@ class FormInternalObj(qsa.FormDBWidget):
 
         if edit_pb_xml:
             edit_pb_xml.setEnabled(False)
-
-
-form = None  # pylint: disable=C0103

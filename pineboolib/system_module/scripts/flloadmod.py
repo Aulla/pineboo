@@ -67,6 +67,3 @@ def deps_evaluate(deps: qsa.Array) -> bool:
                 return False
 
     return True
-
-
-form = None  # pylint: disable=C0103
