@@ -87,10 +87,10 @@ class FormInternalObj(qsa.FormDBWidget):
 
         return qsa.from_project("formflreloadlast").load_module(nombre_fichero)
 
-    def version_compare(self, v1: str, v2: str) -> int:
+    def version_compare(self, ver1: str, ver2: str) -> int:
         """Compare two versions and return the highest."""
 
-        return qsa.from_project("formflreloadlast").version_compare(v1, v2)
+        return qsa.from_project("formflreloadlast").version_compare(ver1, ver2)
 
     def options_chooser(self, opciones: qsa.Array) -> qsa.Array:
         """Show a choose option dialog and return selected values."""
