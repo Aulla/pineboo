@@ -9,6 +9,10 @@ from pineboolib import application, logging
 
 from typing import Any, TYPE_CHECKING, NoReturn
 
+if TYPE_CHECKING:
+    from . import module
+    from . import projectmodule
+
 LOGGER = logging.get_logger(__name__)
 
 
@@ -17,7 +21,12 @@ class ModuleActions(object):
     Generate tree with actions from modules.
     """
 
-    def __init__(self, module: Any, path: str, modulename: str) -> None:
+    module_name: str
+    path: str
+    mod: "module.Module"
+    project: "projectmodule.Project"
+
+    def __init__(self, module_: "module.Module", path: str, modulename: str) -> None:
         """
         Initialize.
 
@@ -26,9 +35,13 @@ class ModuleActions(object):
         @param modulename. Nombre del módulo
         """
 
-        self.project = module if TYPE_CHECKING else application.PROJECT
+        self.project = (
+            module_  # type: ignore [assignment] # noqa: F821
+            if TYPE_CHECKING
+            else application.PROJECT
+        )
 
-        self.mod = module  # application.Module
+        self.mod = module_
         self.path = path
         self.module_name = modulename
         if not self.path:

@@ -298,4 +298,3 @@ def solve_connection(
                 )
                 return None
             return original_signal, original_slot
-
