@@ -4,16 +4,19 @@ SafeQSA Module.
 Stores methods for safe and typed retrieval of project actions.
 
 """
-from pineboolib.application.proxy import DelayedObjectProxyLoader
-from typing import Dict, Optional
+
+from typing import Dict, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pineboolib.application import proxy
 
 
 class SafeQSA:
     """Store safely project elements for internal Pineboo load."""
 
-    _root_module: Dict[str, DelayedObjectProxyLoader] = {}
-    _mainform: Dict[str, DelayedObjectProxyLoader] = {}
-    _formrecord: Dict[str, DelayedObjectProxyLoader] = {}
+    _root_module: Dict[str, "proxy.DelayedObjectProxyLoader"] = {}
+    _mainform: Dict[str, "proxy.DelayedObjectProxyLoader"] = {}
+    _formrecord: Dict[str, "proxy.DelayedObjectProxyLoader"] = {}
 
     @classmethod
     def clean_all(cls):
@@ -23,37 +26,43 @@ class SafeQSA:
         cls._formrecord.clear()
 
     @classmethod
-    def save_formrecord(cls, actionname: str, delayed_action: DelayedObjectProxyLoader) -> None:
+    def save_formrecord(
+        cls, actionname: str, delayed_action: "proxy.DelayedObjectProxyLoader"
+    ) -> None:
         """Store a new formRecord for safe retrieval."""
         cls._formrecord[actionname] = delayed_action
 
     @classmethod
-    def save_mainform(cls, actionname: str, delayed_action: DelayedObjectProxyLoader) -> None:
+    def save_mainform(
+        cls, actionname: str, delayed_action: "proxy.DelayedObjectProxyLoader"
+    ) -> None:
         """Store a new main form for safe retrieval."""
         cls._mainform[actionname] = delayed_action
 
     @classmethod
-    def save_root_module(cls, actionname: str, delayed_action: DelayedObjectProxyLoader) -> None:
+    def save_root_module(
+        cls, actionname: str, delayed_action: "proxy.DelayedObjectProxyLoader"
+    ) -> None:
         """Store a new root module for safe retrieval."""
         cls._root_module[actionname] = delayed_action
 
     @classmethod
-    def get_root_module(cls, actionname: str) -> Optional[DelayedObjectProxyLoader]:
+    def get_root_module(cls, actionname: str) -> Optional["proxy.DelayedObjectProxyLoader"]:
         """Get a root module."""
         return cls._root_module.get(actionname, None)
 
     @classmethod
-    def get_mainform(cls, actionname: str) -> Optional[DelayedObjectProxyLoader]:
+    def get_mainform(cls, actionname: str) -> Optional["proxy.DelayedObjectProxyLoader"]:
         """Get a main form."""
         return cls._mainform.get(actionname, None)
 
     @classmethod
-    def get_formrecord(cls, actionname: str) -> Optional[DelayedObjectProxyLoader]:
+    def get_formrecord(cls, actionname: str) -> Optional["proxy.DelayedObjectProxyLoader"]:
         """Get a form record."""
         return cls._formrecord.get(actionname, None)
 
     @classmethod
-    def get_any(cls, actionname: str) -> Optional[DelayedObjectProxyLoader]:
+    def get_any(cls, actionname: str) -> Optional["proxy.DelayedObjectProxyLoader"]:
         """
         Get an action of any type.
 
@@ -66,22 +75,22 @@ class SafeQSA:
         return return_value
 
     @classmethod
-    def root_module(cls, actionname: str) -> DelayedObjectProxyLoader:
+    def root_module(cls, actionname: str) -> "proxy.DelayedObjectProxyLoader":
         """Get a root module or error out."""
         return cls._root_module[actionname]
 
     @classmethod
-    def mainform(cls, actionname: str) -> DelayedObjectProxyLoader:
+    def mainform(cls, actionname: str) -> "proxy.DelayedObjectProxyLoader":
         """Get a main form or error out."""
         return cls._mainform[actionname]
 
     @classmethod
-    def formrecord(cls, actionname: str) -> DelayedObjectProxyLoader:
+    def formrecord(cls, actionname: str) -> "proxy.DelayedObjectProxyLoader":
         """Get a form record or error out."""
         return cls._formrecord[actionname]
 
     @classmethod
-    def any(cls, actionname: str) -> DelayedObjectProxyLoader:
+    def any(cls, actionname: str) -> "proxy.DelayedObjectProxyLoader":
         """
         Get an action of any type or error out.
 

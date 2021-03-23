@@ -7,7 +7,6 @@ import os.path
 import collections
 from typing import Any, Optional, Dict, Union, Generator, List
 
-from os.path import expanduser
 from PyQt6 import QtCore  # type: ignore
 from PyQt6.QtCore import QIODevice  # type: ignore
 
@@ -352,7 +351,7 @@ class Dir(object):
     NoSort = QtCore.QDir.SortFlags.NoSort
 
     # other:
-    home = expanduser("~")
+    home = os.path.expanduser("~")
 
     def __init__(self, path: Optional[str] = None):
         """Create a new Dir."""
@@ -361,8 +360,8 @@ class Dir(object):
     def entryList(
         self,
         patron: str,
-        type_: "QtCore.QDir.Filters" = NoFilter,
-        sort: "QtCore.QDir.SortFlags" = NoSort,
+        type_: "QtCore.QDir.Filters" = QtCore.QDir.Filters.NoFilter,
+        sort: "QtCore.QDir.SortFlags" = QtCore.QDir.SortFlags.NoSort,
     ) -> list:
         """
         Create listing for files inside given folder.

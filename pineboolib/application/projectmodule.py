@@ -55,7 +55,7 @@ class Project(object):
     no_python_cache: bool
     _msg_mng = None
     alternative_folder: Optional[str]
-    _session_func_: Optional[Callable]
+    _session_func_: Optional["Callable"]
 
     areas: Dict[str, "struct.AreaStruct"]
     files: Dict[str, Any]

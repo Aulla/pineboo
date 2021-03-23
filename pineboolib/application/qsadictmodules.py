@@ -4,10 +4,10 @@ QSADictModules.
 Manages read and writting QSA dynamic properties that are loaded during project startup.
 """
 from typing import Any, TYPE_CHECKING
-from pineboolib.core.utils import logging
-from .xmlaction import XMLAction
-from .proxy import DelayedObjectProxyLoader
-from .safeqsa import SafeQSA
+from pineboolib import logging
+from . import xmlaction
+from . import proxy
+from . import safeqsa
 import sqlalchemy
 import gc
 
@@ -87,7 +87,7 @@ class QSADictModules:
         return hasattr(cls.qsa_dict_modules(), scriptname)
 
     @classmethod
-    def save_action(cls, scriptname: str, delayed_action: DelayedObjectProxyLoader) -> None:
+    def save_action(cls, scriptname: str, delayed_action: "proxy.DelayedObjectProxyLoader") -> None:
         """
         Save Action into project for QSA.
         """
@@ -101,7 +101,7 @@ class QSADictModules:
         setattr(cls.qsa_dict_modules(), scriptname, other)
 
     @classmethod
-    def save_action_for_root_module(cls, action: XMLAction) -> bool:
+    def save_action_for_root_module(cls, action: "xmlaction.XMLAction") -> bool:
         """Save a new module as an action."""
 
         module_name = action._name if action._name != "sys" else "sys_module"
@@ -111,15 +111,15 @@ class QSADictModules:
             return False
 
         # Se crea la action del módulo
-        proxy = DelayedObjectProxyLoader(
+        proxy_ = proxy.DelayedObjectProxyLoader(
             action.load_master_widget, name="QSA.Module.%s" % module_name
         )
-        cls.save_action(module_name, proxy)
-        SafeQSA.save_root_module(module_name, proxy)
+        cls.save_action(module_name, proxy_)
+        safeqsa.SafeQSA.save_root_module(module_name, proxy_)
         return True
 
     @classmethod
-    def save_action_for_mainform(cls, action: XMLAction):
+    def save_action_for_mainform(cls, action: "xmlaction.XMLAction"):
         """Save a new mainform."""
 
         name = action._name
@@ -135,15 +135,15 @@ class QSADictModules:
             )
             return False
         # Se crea la action del form
-        delayed_action = DelayedObjectProxyLoader(
+        delayed_action = proxy.DelayedObjectProxyLoader(
             action.load_master_widget, name="QSA.Module.%s.Action.form%s" % (module.mod.name, name)
         )
         cls.save_action(actionname, delayed_action)
-        SafeQSA.save_mainform(actionname, delayed_action)
+        safeqsa.SafeQSA.save_mainform(actionname, delayed_action)
         return True
 
     @classmethod
-    def save_action_for_formrecord(cls, action: XMLAction):
+    def save_action_for_formrecord(cls, action: "xmlaction.XMLAction"):
         """Save a new formrecord."""
         name = action._name
         module = action._mod
@@ -157,17 +157,17 @@ class QSADictModules:
             )
             return False
         # Se crea la action del formRecord
-        delayed_action = DelayedObjectProxyLoader(
+        delayed_action = proxy.DelayedObjectProxyLoader(
             action.load_record_widget,
             name="QSA.Module.%s.Action.formRecord%s" % (module.mod.name, name),
         )
 
         cls.save_action(actionname, delayed_action)
-        SafeQSA.save_formrecord(actionname, delayed_action)
+        safeqsa.SafeQSA.save_formrecord(actionname, delayed_action)
         return True
 
     @classmethod
-    def save_action_for_class(cls, action: XMLAction):
+    def save_action_for_class(cls, action: "xmlaction.XMLAction"):
         """Save action class action."""
 
         class_name = action._class_script
@@ -183,7 +183,7 @@ class QSADictModules:
                 )
                 return False
 
-            delayed_action = DelayedObjectProxyLoader(
+            delayed_action = proxy.DelayedObjectProxyLoader(
                 action.load_class,
                 name="QSA.Module.%s.Action.class_%s" % (module.mod.name, class_name),
             )
@@ -194,11 +194,11 @@ class QSADictModules:
         """Clean all saved data."""
         qsa_dict_modules = cls.qsa_dict_modules()
 
-        SafeQSA.clean_all()
+        safeqsa.SafeQSA.clean_all()
         list_ = [attr for attr in dir(qsa_dict_modules) if not attr[0] == "_"]
         for name in list_:
             att = getattr(qsa_dict_modules, name)
-            if isinstance(att, DelayedObjectProxyLoader) or (
+            if isinstance(att, proxy.DelayedObjectProxyLoader) or (
                 name.endswith(("_orm", "_class")) and not name.startswith("fl")
             ):
                 delattr(qsa_dict_modules, name)

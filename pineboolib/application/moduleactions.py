@@ -3,9 +3,9 @@ ModuleActions module.
 """
 
 from pineboolib.core import exceptions
-from pineboolib.core.utils import utils_base, logging
-from pineboolib.application import xmlaction
-from pineboolib import application
+from pineboolib.core.utils import utils_base
+from . import xmlaction
+from pineboolib import application, logging
 
 from typing import Any, TYPE_CHECKING, NoReturn
 
@@ -70,13 +70,13 @@ class ModuleActions(object):
             QSADictModules.save_action_for_formrecord(action_xml)
             QSADictModules.save_action_for_class(action_xml)
 
-    def __contains__(self, k) -> bool:
+    def __contains__(self, name: str) -> bool:
         """Determine if it is the owner of an action."""
         return (
-            k in self.project.actions
+            name in self.project.actions
         )  # FIXME: Actions should be loaded to their parent, not the singleton
 
-    def __getitem__(self, name) -> Any:
+    def __getitem__(self, name: str) -> Any:
         """
         Retrieve particular action by name.
 
@@ -87,7 +87,7 @@ class ModuleActions(object):
             name
         ]  # FIXME: Actions should be loaded to their parent, not the singleton
 
-    def __setitem__(self, name, action_) -> NoReturn:
+    def __setitem__(self, name: str, action_: "xmlaction.XMLAction") -> "NoReturn":
         """
         Add action to a module property.
 
