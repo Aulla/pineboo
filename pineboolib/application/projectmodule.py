@@ -635,7 +635,7 @@ class Project(object):
         LOGGER.info("RUN: Populating cache.")
         for idmodulo, nombre, sha, contenido in list(result):
 
-            if idmodulo not in self.modules:  # Si el módulo no existe.
+            if idmodulo not in self.modules.keys():  # Si el módulo no existe.
                 continue
 
             elif is_library and nombre.endswith("ui"):  # Si es un UI en modo librería.

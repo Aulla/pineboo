@@ -114,7 +114,6 @@ class FlFiles(object):
             for idarea, idmodulo, descripcion_modulo, icono_modulo, version_modulo in self._modules
         ]:
             self._modules.append([area, modulo, descripcion_modulo, datos_icono, version])
-
             self.process_files(root_folder, modulo)
 
     def process_files(self, root_folder: str, id_module: str) -> None:
@@ -139,11 +138,14 @@ class FlFiles(object):
                         byte_data = data.encode()
                         sha_ = hashlib.new("sha1", byte_data)
                         string_sha = str(sha_.hexdigest()).upper()
-
                         self._files.append([id_module, file_name, string_sha, data])
                     except Exception as error:
                         LOGGER.error("Error processing %s:%s", file_name, str(error))
                         return
+                else:
+                    LOGGER.warning("FLFILES_DIR: file %s already loaded, ignoring..." % file_name)
 
             for sub_dir in subdirs:
                 self.process_files(os.path.join(root_folder, sub_dir), id_module)
+
+            break  # despues de los subdirs salimos...
