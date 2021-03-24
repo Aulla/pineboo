@@ -71,7 +71,7 @@ class FlFiles(object):
             datos_module = fichero.read()
             fichero.close()
         except Exception as error:
-            LOGGER.error("Error processing %s", nombre_fichero)
+            LOGGER.error("Error processing %s:%s", nombre_fichero, str(error))
             return
         xml_module = QDomDocument()
 
@@ -103,7 +103,7 @@ class FlFiles(object):
                 datos_icono = fichero_icono.read()
                 fichero_icono.close()
             except Exception as error:
-                LOGGER.error("Error processing %s", nombre_icono)
+                LOGGER.error("Error processing %s:%s", nombre_icono, str(error))
                 return
 
         if area not in [idarea for idarea, descripcion_area in self._areas]:
@@ -142,7 +142,7 @@ class FlFiles(object):
 
                         self._files.append([id_module, file_name, string_sha, data])
                     except Exception as error:
-                        LOGGER.error("Error processing %s", file_name)
+                        LOGGER.error("Error processing %s:%s", file_name, str(error))
                         return
 
             for sub_dir in subdirs:
