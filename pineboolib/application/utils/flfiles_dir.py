@@ -66,8 +66,13 @@ class FlFiles(object):
 
         nombre_fichero = os.path.join(root_folder, module_file)
         # print("Buscando ...", nombre_fichero)
-        fichero = open(nombre_fichero, "r", encoding="iso-8859-15")
-        datos_module = fichero.read()
+        try:
+            fichero = open(nombre_fichero, "r", encoding="iso-8859-15")
+            datos_module = fichero.read()
+            fichero.close()
+        except Exception as error:
+            LOGGER.error("Error processing %s", nombre_fichero)
+            return
         xml_module = QDomDocument()
 
         if xml_module.setContent(datos_module):
@@ -91,11 +96,15 @@ class FlFiles(object):
         descripcion_area = utils_base.qt_translate_noop(descripcion_area, root_folder, modulo)
         datos_icono = None
         if os.path.exists(os.path.join(root_folder, nombre_icono)):
-            fichero_icono = open(
-                os.path.join(root_folder, nombre_icono), "r", encoding="ISO-8859-15"
-            )
-            datos_icono = fichero_icono.read()
-            fichero_icono.close()
+            try:
+                fichero_icono = open(
+                    os.path.join(root_folder, nombre_icono), "r", encoding="ISO-8859-15"
+                )
+                datos_icono = fichero_icono.read()
+                fichero_icono.close()
+            except Exception as error:
+                LOGGER.error("Error processing %s", nombre_icono)
+                return
 
         if area not in [idarea for idarea, descripcion_area in self._areas]:
             self._areas.append([area, descripcion_area])
@@ -117,18 +126,24 @@ class FlFiles(object):
                     continue
 
                 if file_name not in [nombre for idmodule, nombre, sha, contenido in self._files]:
-                    fichero = open(
-                        os.path.join(root, file_name),
-                        "r",
-                        encoding="UTF-8" if file_name.endswith((".ts", ".py")) else "ISO-8859-15",
-                    )
-                    # print("Guardando ...", os.path.join(root, file_name))
-                    data = fichero.read()
-                    byte_data = data.encode()
-                    sha_ = hashlib.new("sha1", byte_data)
-                    string_sha = str(sha_.hexdigest()).upper()
+                    try:
+                        fichero = open(
+                            os.path.join(root, file_name),
+                            "r",
+                            encoding="UTF-8"
+                            if file_name.endswith((".ts", ".py"))
+                            else "ISO-8859-15",
+                        )
+                        # print("Guardando ...", os.path.join(root, file_name))
+                        data = fichero.read()
+                        byte_data = data.encode()
+                        sha_ = hashlib.new("sha1", byte_data)
+                        string_sha = str(sha_.hexdigest()).upper()
 
-                    self._files.append([id_module, file_name, string_sha, data])
+                        self._files.append([id_module, file_name, string_sha, data])
+                    except Exception as error:
+                        LOGGER.error("Error processing %s", file_name)
+                        return
 
             for sub_dir in subdirs:
                 self.process_files(os.path.join(root_folder, sub_dir), id_module)
