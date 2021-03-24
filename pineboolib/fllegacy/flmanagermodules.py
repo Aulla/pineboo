@@ -308,7 +308,7 @@ class FLManagerModules(object):
                     data = file_.read()
                     file_.close()
 
-                else:  # load from database
+                elif not application.PROJECT.USE_FLFILES_FOLDER:  # load from database
                     data = self.content(file_name)
 
         if data:
