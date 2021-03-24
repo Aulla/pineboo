@@ -205,7 +205,7 @@ class Project(object):
                     self.files[file_name_model].filekey = "%s_model.py" % file_item.filekey
 
             else:
-                LOGGER.info(
+                LOGGER.debug(
                     "%s already exists (%s).", file_name_model, self.files[file_name_model].path()
                 )
 
