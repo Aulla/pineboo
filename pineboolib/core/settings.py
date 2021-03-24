@@ -36,19 +36,19 @@ class PinebooSettings(QSettings):
         "name" will be used for creating/opening the INI file.
         Values are saved in JSON oposed to plain text.
         """
-        format = QSettings.Format.IniFormat  # QSettings.NativeFormat - usar solo ficheros ini.
-        scope = QSettings.Scope.UserScope
+        format_ = QSettings.Format.IniFormat  # QSettings.NativeFormat - usar solo ficheros ini.
+        scope_ = QSettings.Scope.UserScope
         self.organization = "Eneboo"
         self.application = "Pineboo" + name
         self.cache: Dict[str, Tuple[float, Any]] = {}
-        super().__init__(format, scope, self.organization, self.application)
+        super().__init__(format_, scope_, self.organization, self.application)
 
     @staticmethod
-    def dump_qsize(value: QSize) -> Dict[str, Any]:
+    def dump_qsize(value: "QSize") -> Dict[str, Any]:
         """Convert QSize into a Dict suitable to be converted to JSON."""
         return {"__class__": "QSize", "width": value.width(), "height": value.height()}
 
-    def dump_value(self, value: Union[QSize, str, bool, int, List[str], Dict[Any, Any]]) -> str:
+    def dump_value(self, value: Union["QSize", str, bool, int, List[str], Dict[Any, Any]]) -> str:
         """Convert Any value into JSON to be used for saving in INI."""
         if isinstance(value, QSize):
             value = self.dump_qsize(value)
@@ -99,7 +99,7 @@ class PinebooSettings(QSettings):
             LOGGER.debug("Error trying to parse json for %s: %s (%s)", key, exc, value)
             return value
 
-    def set_value(self, key: str, value: Union[QSize, str, bool, int, List[Any]]) -> None:
+    def set_value(self, key: str, value: Union["QSize", str, bool, int, List[Any]]) -> None:
         """Set a value into INI file for specified key."""
         LOGGER.debug("%s.set_value(%s) <- %s %r", self.application, key, type(value), value)
         curtime = time.time()
