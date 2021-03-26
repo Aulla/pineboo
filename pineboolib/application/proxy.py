@@ -55,11 +55,11 @@ class DelayedObjectProxyLoader(object):
         for key in list(self.loaded_obj.keys()):
             if key not in list([thread.ident for thread in threading.enumerate()]):
                 self.loaded_obj[key] = None
-                check_gc_referrers(
-                    self.loaded_obj[key].__class__.__name__,
-                    weakref.ref(self.loaded_obj[key]),
-                    "widget",
-                )
+                # check_gc_referrers(
+                #    self.loaded_obj[key].__class__.__name__,
+                #    weakref.ref(self.loaded_obj[key]),
+                #    "widget",
+                # )
                 del self.loaded_obj[key]
 
         if not list_name[-1].startswith("formRecord"):
