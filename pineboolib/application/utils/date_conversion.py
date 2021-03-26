@@ -35,9 +35,14 @@ def date_dma_to_amd(date_str: str) -> Optional[str]:
 
     if array_:
         if len(array_) == 3:
-            dia_ = array_[0]
-            mes_ = array_[1]
-            ano_ = array_[2]
+            if len(array_)[0] == 2:
+                dia_ = array_[0]
+                mes_ = array_[1]
+                ano_ = array_[2]
+            else:
+                dia_ = array_[2]
+                mes_ = array_[1]
+                ano_ = array_[0]
         else:
             dia_ = date_str[0:2]
             mes_ = date_str[2:2]
@@ -72,9 +77,14 @@ def date_amd_to_dma(date_str: str) -> Optional[str]:
 
     if array_:
         if len(array_) == 3:
-            ano_ = array_[0]
-            mes_ = array_[1]
-            dia_ = array_[2]
+            if len(array_)[0] == 2:
+                dia_ = array_[2]
+                mes_ = array_[1]
+                ano_ = array_[0]
+            else:
+                dia_ = array_[0]
+                mes_ = array_[1]
+                ano_ = array_[2]
         else:
             ano_ = date_str[0:4]
             mes_ = date_str[4:2]
