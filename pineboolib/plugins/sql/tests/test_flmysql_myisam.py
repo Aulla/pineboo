@@ -18,7 +18,7 @@ class TestFLSqlite(unittest.TestCase):
         driver = flmysql_myisam.FLMYSQL_MYISAM()
 
         self.assertEqual(driver.formatValueLike("bool", "true", False), "=0")
-        self.assertEqual(driver.formatValueLike("date", "2020-01-27", True), " LIKE '%%27-01-2020'")
+        self.assertEqual(driver.formatValueLike("date", "27-01-2020", True), " LIKE '%%2020-01-27'")
 
         self.assertEqual(driver.formatValue("bool", "false", True), "False")
         self.assertEqual(driver.formatValue("time", "", True), "")

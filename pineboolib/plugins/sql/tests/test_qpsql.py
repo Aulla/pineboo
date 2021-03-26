@@ -19,7 +19,7 @@ class TestFLPGSql(unittest.TestCase):
 
         self.assertEqual(driver.formatValueLike("bool", "true", False), "='f'")
         self.assertEqual(
-            driver.formatValueLike("date", "2020-01-27", True), "::text LIKE '%%27-01-2020'"
+            driver.formatValueLike("date", "27-01-2020", True), "::text LIKE '%%2020-01-27'"
         )
 
         self.assertEqual(driver.formatValue("bool", "false", True), "False")
