@@ -44,7 +44,7 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
                     if "<frame" in str(repr(ref)):
                         continue
                     # print(" - obj:", repr(ref), [x for x in dir(ref) if getattr(ref, x) is obj])
-        except Exception as error:
+        except Exception as error:  # noqa : F841
             LOGGER.warning("Error cleaning %r::%r (%r) :", typename, obj, name)
 
     threading.Thread(target=checkfn).start()

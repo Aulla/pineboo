@@ -5,8 +5,6 @@ from typing import Callable
 from pineboolib import logging
 from typing import Any, Optional, Dict, TYPE_CHECKING
 import threading
-import weakref
-from pineboolib.core.garbage_collector import check_gc_referrers
 
 if TYPE_CHECKING:
     from pineboolib.fllegacy.flformdb import FLFormDB  # noqa: F401 # pragma: no cover

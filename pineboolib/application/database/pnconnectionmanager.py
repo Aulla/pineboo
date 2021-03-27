@@ -11,7 +11,6 @@ from . import pnsqlcursor
 
 from sqlalchemy import exc
 import threading
-import weakref
 
 from typing import Dict, Union, List, Optional, TYPE_CHECKING
 

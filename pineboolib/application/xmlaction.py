@@ -4,15 +4,15 @@ XMLAction module.
 
 from pineboolib import application
 from pineboolib.core.utils import struct, utils_base
-from pineboolib.core.garbage_collector import check_gc_referrers
+
 from pineboolib import logging
 
 from xml.etree import ElementTree as ET  # noqa: F401
 import threading
-import weakref
+
 from . import load_script
 
-from typing import Optional, Union, Dict, List, Any, TYPE_CHECKING
+from typing import Optional, Union, Dict, List, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
