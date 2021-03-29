@@ -54,7 +54,7 @@ class DelayedObjectProxyLoader(object):
         for key in list(self.loaded_obj.keys()):
             if key not in list([thread.ident for thread in threading.enumerate()]):
 
-                if not garbage_collector.async_delete(self.loaded_obj[key], "widget")
+                if not garbage_collector.async_delete(self.loaded_obj[key], "widget"):
                     self.loaded_obj[key] = None
                     del self.loaded_obj[key]
 
