@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets, QtCore
 
 from pineboolib.application import connections
 from pineboolib.fllegacy import flsqlcursor
-from pineboolib.core.garbage_collector import check_gc_referrers
+from pineboolib.core import garbage_collector
 from pineboolib import logging, application
 
 
@@ -120,7 +120,7 @@ class FormDBWidget(QtWidgets.QWidget):
             iface = getattr(self, "iface", None)
 
             if iface is not None:
-                check_gc_referrers(
+                garbage_collector.check_gc_referrers(
                     "FormDBWidget.iface:" + self.iface.__class__.__name__,
                     weakref.ref(self.iface),
                     action._name,
