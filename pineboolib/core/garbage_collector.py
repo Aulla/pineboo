@@ -12,7 +12,7 @@ import gc
 LOGGER = logging.get_logger(__name__)
 
 
-@decorators.not_implemented_warn()
+@decorators.not_implemented_warn
 def async_delete(obj_: Callable, name: str) -> bool:
     """Delete a object."""
 
@@ -28,7 +28,7 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
 
     def checkfn() -> None:
 
-        time.sleep(2)
+        # time.sleep(2)
         try:
             gc.collect()
             obj = w_obj()
