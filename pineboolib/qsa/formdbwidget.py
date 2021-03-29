@@ -10,7 +10,6 @@ from pineboolib import logging, application
 
 from typing import Set, Tuple, Optional, Any, cast, Union, TYPE_CHECKING
 import traceback
-import weakref
 import sys
 import types
 
@@ -111,20 +110,20 @@ class FormDBWidget(QtWidgets.QWidget):
         """Cleanup gabange and connections."""
 
         self.clear_connections()
-        action = self._action
 
-        if action is not None:
-            if self is action._record_widget:
-                action._record_widget = None
-
-            iface = getattr(self, "iface", None)
-
-            if iface is not None:
-                garbage_collector.check_gc_referrers(
-                    "FormDBWidget.iface:" + self.iface.__class__.__name__,
-                    weakref.ref(self.iface),
-                    action._name,
+        if self._action is not None:
+            if self is self._action._record_widget:
+                if hasattr(self._action._record_widget.iface, "ctx"):
+                    self._action._record_widget.iface.ctx = None
+                obj_ = self._action._record_widget
+                self._action._record_widget = None
+                garbage_collector.check_delete(
+                    obj_, "formdbwidget.%s.recordWidget" % self._action._name, True
                 )
+            elif hasattr(self, "iface"):
+                obj_ = self.iface
+                self.iface = None
+                garbage_collector.check_delete(obj_, "formdbwidget.%s" % self._action._name, True)
 
     def clear_connections(self) -> None:
         """Clear al conecctions established on the module."""

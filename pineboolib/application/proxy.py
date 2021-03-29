@@ -53,10 +53,10 @@ class DelayedObjectProxyLoader(object):
         # limpieza de objetos
         for key in list(self.loaded_obj.keys()):
             if key not in list([thread.ident for thread in threading.enumerate()]):
-
-                if not garbage_collector.async_delete(self.loaded_obj[key], "widget"):
-                    self.loaded_obj[key] = None
-                    del self.loaded_obj[key]
+                obj_ = self.loaded_obj[key]
+                self.loaded_obj[key] = None
+                del self.loaded_obj[key]
+                garbage_collector.check_delete(obj_, "widget")
 
         if not list_name[-1].startswith("formRecord"):
             if id_thread in self.loaded_obj.keys():

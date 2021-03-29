@@ -748,50 +748,19 @@ class FLFormDB(QtWidgets.QDialog):
 
         self.saveGeometry()
 
-        # self.setCursor(None)
-        # self.closed.emit()
         self.hide()
         self.emitFormClosed()
-        # super().closeEvent(e)
-        # self._action.mainform_widget = None
-        # self.deleteLater()
         self._loaded = False
-        # print("Marcando", self, "como", self._loaded, type(self).__name__)
-        # if type(self).__name__ == "FLFormRecordDB":
-        #    application.PROJECT.actions[self.action().name()]._record_widget.form._loaded = False
-        # elif type(self).__name__ == "FLFormDB":
-        #    application.PROJECT.actions[self.action().name()]._record_widget.form._loaded = False
 
-        # from PyQt5.QtWidgets import qApp
-
-        # qApp.processEvents() #Si se habilita pierde mucho tiempo!
-
-        # self.hide()
         try:
-            # if hasattr(self.script, "form"):
-            #    print("Borrando self.script.form", self.script.form)
-            #    self.script.form = None
-            # widget = getattr(self.action_widget, "form", None)
+
             if type(self).__name__ != "FLFormSearchDB":
                 super().close()
-                # application.PROJECT.actions[self._action.name()]._record_widget.form = None
-                # application.PROJECT.actions[self._action.name()]._record_widget = None
 
-                # del self.widget
-
-            # self.iface = None
-            # del self.iface
-            # if hasattr(self, "widget"):
-            #    print("Borrando self.widget", self.widget)
-            #    self.widget.close()
-            #    del self.widget
             instance_name = (self.__class__, self._action.name())
             if instance_name in self.known_instances.keys():
                 del self.known_instances[instance_name]
 
-            # if hasattr(self, "script"):
-            #    print("Borrando self.script", self.script)
-            # self.script = None
         except Exception:
 
             LOGGER.error(

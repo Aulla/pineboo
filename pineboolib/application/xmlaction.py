@@ -99,13 +99,14 @@ class XMLAction(struct.ActionStruct):
             widget.doCleanUp()
 
             if widget is self._master_widget:
-                del self._master_widget
+                # del self._master_widget
                 self._master_widget = None
-                del widget
             elif widget is self._record_widget:
-                del self._record_widget
+                # del self._record_widget
                 self._record_widget = None
-                del widget
+
+            del widget
+
             # else:
             #    raise Exception("Unknown widget to delete! : %s" % widget)
 
@@ -357,9 +358,10 @@ class XMLAction(struct.ActionStruct):
             for id_thread in list(obj_.keys()):  # type: ignore [attr-defined] # noqa: F821
                 if obj_[id_thread] is not None:
                     if id_thread not in threads_ids:
-                        if not garbage_collector.async_delete(obj_[id_thread], self._name):
-                            obj_[id_thread] = None
-                            del obj_[id_thread]
+                        obj_to_delete = obj_[id_thread]
+                        obj_[id_thread] = None
+                        del obj_[id_thread]
+                        garbage_collector.ckeck_delete(obj_to_delete, self._name)
 
     _master_widget = property(get_master_widget, set_master_widget)
     _record_widget = property(get_record_widget, set_record_widget)

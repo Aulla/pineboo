@@ -4,7 +4,9 @@ Module for garbage collector checks.
 from typing import Any, Callable, List
 from . import decorators
 from .utils import logging
+from . import DISABLE_CHECK_MEMORY_LEAKS
 
+import weakref
 import threading
 import time
 import gc
@@ -12,11 +14,12 @@ import gc
 LOGGER = logging.get_logger(__name__)
 
 
-@decorators.not_implemented_warn
-def async_delete(obj_: Callable, name: str) -> bool:
+def check_delete(obj_: Callable, name: str, force: bool = False) -> bool:
     """Delete a object."""
 
-    return False
+    if not DISABLE_CHECK_MEMORY_LEAKS or force:
+        check_gc_referrers(obj_.__class__.__name__, weakref.ref(obj_), name)
+    return True
 
 
 def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
@@ -29,28 +32,34 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
     def checkfn() -> None:
 
         # time.sleep(2)
+        list_: List[str] = []
         try:
-            gc.collect()
-            obj = w_obj()
-            if not obj:
-                return
-            # TODO: Si ves el mensaje a continuación significa que "algo" ha dejado
-            # ..... alguna referencia a un formulario (o similar) que impide que se destruya
-            # ..... cuando se deja de usar. Causando que los connects no se destruyan tampoco
-            # ..... y que se llamen referenciando al código antiguo y fallando.
-            LOGGER.debug("HINT: Objetos referenciando %r::%r (%r) :", typename, obj, name)
-            for ref in gc.get_referrers(obj):
-                if isinstance(ref, dict):
-                    list_: List[str] = []
-                    for key, value in ref.items():
-                        if value is obj:
-                            key = "(**)" + key
-                            list_.insert(0, key)
-                    # print(" - dict:", repr(x), gc.get_referrers(ref))
-                else:
-                    if "<frame" in str(repr(ref)):
-                        continue
-                    # print(" - obj:", repr(ref), [x for x in dir(ref) if getattr(ref, x) is obj])
+            if w_obj is not None:
+                gc.collect()
+                obj = w_obj()
+                if not obj:
+                    return
+                # TODO: Si ves el mensaje a continuación significa que "algo" ha dejado
+                # ..... alguna referencia a un formulario (o similar) que impide que se destruya
+                # ..... cuando se deja de usar. Causando que los connects no se destruyan tampoco
+                # ..... y que se llamen referenciando al código antiguo y fallando.
+                for ref in gc.get_referrers(obj):
+                    if isinstance(ref, dict):
+                        for key, value in ref.items():
+                            if value is obj:
+                                list_.append("[%s] (dict) %s -> %s (%s)" % (name, key, value, ref))
+                        # print(" - dict:", repr(x), gc.get_referrers(ref))
+                    else:
+                        if "<frame" in str(repr(ref)):
+                            continue
+                        else:
+                            list_.append("[%s] (%s) %s" % (name, type(ref), str(repr(ref))))
+                        # print(" - obj:", repr(ref), [x for x in dir(ref) if getattr(ref, x) is obj])
+                if list_:
+                    LOGGER.warning("HINT: Objetos referenciando %r::%r (%r) :", typename, obj, name)
+                    for item in list_:
+                        LOGGER.warning(item)
+
         except Exception as error:  # noqa : F841
             LOGGER.warning("Error cleaning %r::%r (%r) :", typename, obj, name)
 

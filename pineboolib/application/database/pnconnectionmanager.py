@@ -106,9 +106,9 @@ class PNConnectionManager(QtCore.QObject):
 
         try:
             session.close()
-
-            if not garbage_collector.async_delete(session, str(session)):
-                del session
+            obj_ = session
+            del session
+            garbage_collector.check_delete(obj_, str(obj_))
         except Exception as error:
             LOGGER.warning("Error removing session:%s", error)
             return False
@@ -231,9 +231,12 @@ class PNConnectionManager(QtCore.QObject):
             if not result:
                 self.delete_from_sessions_dict(name_conn_)
 
-            if not garbage_collector.async_delete(self.connections_dict[name_conn_], name_conn_):
-                self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
-                del self.connections_dict[name_conn_]
+            self.connections_dict[name_conn_].driver().db_ = None
+            obj_ = self.connections_dict[name_conn_]
+            self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
+            del self.connections_dict[name_conn_]
+
+            garbage_collector.check_delete(obj_, name_conn_)
 
         return result
 
