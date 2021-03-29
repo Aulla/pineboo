@@ -224,7 +224,10 @@ class PNConnectionManager(QtCore.QObject):
                     if application.SHOW_CONNECTION_EVENTS:
                         LOGGER.info("Closing connection %s", name_conn_)
                     self.connections_dict[name_conn_].close()
-                    self.connections_dict[name_conn_]._driver.db_ = None
+                    self.connections_dict[  # type: ignore [union-attr] # noqa: F821
+                        name_conn_
+                    ]._driver.db_ = None
+
                     obj_ = self.connections_dict[name_conn_]
                     garbage_collector.check_delete(obj_, name_conn_)
 
