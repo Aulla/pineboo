@@ -2,19 +2,19 @@
 Module for garbage collector checks.
 """
 from typing import Any, Callable, List
-from . import decorators
+
 from .utils import logging
 from . import DISABLE_CHECK_MEMORY_LEAKS
 
 import weakref
 import threading
-import time
+
 import gc
 
 LOGGER = logging.get_logger(__name__)
 
 
-def check_delete(obj_: Callable, name: str, force: bool = False) -> bool:
+def check_delete(obj_: Any, name: str, force: bool = False) -> bool:
     """Delete a object."""
 
     if not DISABLE_CHECK_MEMORY_LEAKS or force:

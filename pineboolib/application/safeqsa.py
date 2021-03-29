@@ -4,7 +4,7 @@ SafeQSA Module.
 Stores methods for safe and typed retrieval of project actions.
 
 """
-from pineboolib.application import proxy
+
 from typing import Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:

@@ -9,6 +9,9 @@ from pineboolib import application
 
 from typing import Any, TYPE_CHECKING, NoReturn
 
+if TYPE_CHECKING:
+    from . import module
+
 LOGGER = logging.get_logger(__name__)
 
 
@@ -16,6 +19,9 @@ class ModuleActions(object):
     """
     Generate tree with actions from modules.
     """
+
+    module_name: str
+    mod: "module.Module"
 
     def __init__(self, module: Any, path: str, modulename: str) -> None:
         """

@@ -13,7 +13,7 @@ import threading
 
 from . import load_script
 
-from typing import Optional, Union, Dict, List, TYPE_CHECKING
+from typing import Optional, Union, Dict, List, Any, TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -361,7 +361,7 @@ class XMLAction(struct.ActionStruct):
                         obj_to_delete = obj_[id_thread]
                         obj_[id_thread] = None
                         del obj_[id_thread]
-                        garbage_collector.ckeck_delete(obj_to_delete, self._name)
+                        garbage_collector.check_delete(obj_to_delete, self._name)
 
     _master_widget = property(get_master_widget, set_master_widget)
     _record_widget = property(get_record_widget, set_record_widget)
