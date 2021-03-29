@@ -4,6 +4,7 @@ XMLAction module.
 
 from pineboolib import application
 from pineboolib.core.utils import struct, utils_base
+from pineboolib.core import garbage_collector
 
 from pineboolib import logging
 
@@ -351,20 +352,14 @@ class XMLAction(struct.ActionStruct):
 
         # limpieza
         threads_ids: List[Optional[int]] = [thread.ident for thread in threading.enumerate()]
-        for id_thread in list(self.__master_widget.keys()):
-            if id_thread not in threads_ids:
-                # self.__master_widget[id_thread] = None
-                del self.__master_widget[id_thread]
-
-        for id_thread in list(self.__record_widget.keys()):
-            if id_thread not in threads_ids:
-                # self.__record_widget[id_thread] = None
-                del self.__record_widget[id_thread]
-
-        for id_thread in list(self.__cursor.keys()):
-            if id_thread not in threads_ids:
-                # self.__cursor[id_thread] = None
-                del self.__cursor[id_thread]
+        obj_list: List[Dict[int, Any]] = [self.__cursor, self.__master_widget, self.__record_widget]
+        for obj_ in obj_list:
+            for id_thread in list(obj_.keys()):  # type: ignore [attr-defined] # noqa: F821
+                if obj_[id_thread] is not None:
+                    if id_thread not in threads_ids:
+                        if not garbage_collector.async_delete(obj_[id_thread], self._name):
+                            obj_[id_thread] = None
+                            del obj_[id_thread]
 
     _master_widget = property(get_master_widget, set_master_widget)
     _record_widget = property(get_record_widget, set_record_widget)

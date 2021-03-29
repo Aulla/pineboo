@@ -2,7 +2,7 @@
 Module for garbage collector checks.
 """
 from typing import Any, Callable, List
-
+from . import decorators
 from .utils import logging
 
 import threading
@@ -10,6 +10,13 @@ import time
 import gc
 
 LOGGER = logging.get_logger(__name__)
+
+
+@decorators.not_implemented_warn()
+def async_delete(obj_: Callable, name: str) -> bool:
+    """Delete a object."""
+
+    return False
 
 
 def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:

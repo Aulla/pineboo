@@ -1,9 +1,10 @@
 """
 Proxy Module.
 """
-from typing import Callable
 from pineboolib import logging
-from typing import Any, Optional, Dict, TYPE_CHECKING
+from pineboolib.core import garbage_collector
+
+from typing import Any, Optional, Dict, Callable, TYPE_CHECKING
 import threading
 
 if TYPE_CHECKING:
@@ -52,13 +53,10 @@ class DelayedObjectProxyLoader(object):
         # limpieza de objetos
         for key in list(self.loaded_obj.keys()):
             if key not in list([thread.ident for thread in threading.enumerate()]):
-                self.loaded_obj[key] = None
-                # check_gc_referrers(
-                #    self.loaded_obj[key].__class__.__name__,
-                #    weakref.ref(self.loaded_obj[key]),
-                #    "widget",
-                # )
-                del self.loaded_obj[key]
+
+                if not garbage_collector.async_delete(self.loaded_obj[key], "widget")
+                    self.loaded_obj[key] = None
+                    del self.loaded_obj[key]
 
         if not list_name[-1].startswith("formRecord"):
             if id_thread in self.loaded_obj.keys():

@@ -3,7 +3,7 @@ from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.core.utils import logging, utils_base
 
-# from pineboolib.core.garbage_collector import check_gc_referrers
+from pineboolib.core import garbage_collector
 from pineboolib import application
 from pineboolib.interfaces import iconnection
 from . import pnconnection
@@ -107,9 +107,8 @@ class PNConnectionManager(QtCore.QObject):
         try:
             session.close()
 
-            # check_gc_referrers(session.__class__.__name__, weakref.ref(session), str(session))
-
-            del session
+            if not garbage_collector.async_delete(session, str(session)):
+                del session
         except Exception as error:
             LOGGER.warning("Error removing session:%s", error)
             return False
@@ -232,14 +231,9 @@ class PNConnectionManager(QtCore.QObject):
             if not result:
                 self.delete_from_sessions_dict(name_conn_)
 
-            # check_gc_referrers(
-            #    self.connections_dict[name_conn_].__class__.__name__,
-            #    weakref.ref(self.connections_dict[name_conn_]),
-            #    name_conn_,
-            # )
-
-            self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
-            del self.connections_dict[name_conn_]
+            if not garbage_collector.async_delete(self.connections_dict[name_conn_], name_conn_):
+                self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
+                del self.connections_dict[name_conn_]
 
         return result
 
