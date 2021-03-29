@@ -218,12 +218,16 @@ class PNConnectionManager(QtCore.QObject):
         if name_conn_ in self.connections_dict.keys():
 
             self.connections_dict[name_conn_]._is_open = False
+
             if self.connections_dict[name_conn_].conn not in [None, self.mainConn().conn]:
                 try:
                     if application.SHOW_CONNECTION_EVENTS:
                         LOGGER.info("Closing connection %s", name_conn_)
                     self.connections_dict[name_conn_].close()
-                    del self.connections_dict[name_conn_]._driver
+                    self.connections_dict[name_conn_]._driver.db_ = None
+                    obj_ = self.connections_dict[name_conn_]
+                    garbage_collector.check_delete(obj_, name_conn_)
+
                 except Exception:
                     LOGGER.warning("Connection %s failed when close", name_conn_.split("|")[1])
                     result = False
@@ -231,12 +235,8 @@ class PNConnectionManager(QtCore.QObject):
             if not result:
                 self.delete_from_sessions_dict(name_conn_)
 
-            self.connections_dict[name_conn_].driver().db_ = None
-            obj_ = self.connections_dict[name_conn_]
             self.connections_dict[name_conn_] = None  # type: ignore [assignment] # noqa: F821
             del self.connections_dict[name_conn_]
-
-            garbage_collector.check_delete(obj_, name_conn_)
 
         return result
 
