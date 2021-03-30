@@ -29,6 +29,10 @@ class TestFLReloadLast(unittest.TestCase):
         settings.CONFIG.set_value("ebcomportamiento/main_form_name", "eneboo")
         cls.prev_reload_last = settings.SETTINGS.value("scripts/sys/modLastModule_temp_db", False)
 
+        from pineboolib.core.utils import utils_base
+
+        utils_base.FORCE_DESKTOP = True
+
         init_testing()
 
     def test_main(self) -> None:
@@ -54,12 +58,12 @@ class TestFLReloadLast(unittest.TestCase):
             cursor._action.name()  # type: ignore [union-attr] # noqa: F821
         ]
         form = action.formRecordWidget()
-
         self.assertTrue(form)
         self.assertTrue(form._showed)
         child = form.child("lineas")
         self.assertTrue(child._loaded)
         form_cursor = child.cursor()
+        self.assertTrue(form_cursor)
 
         cursor_relation = form_cursor.cursorRelation()
 
@@ -77,8 +81,8 @@ class TestFLReloadLast(unittest.TestCase):
         form.close()
         settings.SETTINGS.set_value("scripts/sys/modLastModule_temp_db", ruta)
 
-        mod_ = qsa.from_project("formflreloadlast")
-        mod_.main()
+        # mod_ = qsa.from_project("formflreloadlast")
+        # mod_.main()
 
     def test_comparar_versiones(self) -> None:
         """Test comparar_versiones."""
@@ -114,3 +118,7 @@ class TestFLReloadLast(unittest.TestCase):
         settings.SETTINGS.set_value("scripts/sys/modLastModule_temp_db", cls.prev_reload_last)
         settings.CONFIG.set_value("ebcomportamiento/main_form_name", cls.prev_main_window_name)
         finish_testing()
+
+        from pineboolib.core.utils import utils_base
+
+        utils_base.FORCE_DESKTOP = False

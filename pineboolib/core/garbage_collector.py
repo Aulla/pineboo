@@ -44,7 +44,7 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
                 # ..... cuando se deja de usar. Causando que los connects no se destruyan tampoco
                 # ..... y que se llamen referenciando al código antiguo y fallando.
                 for ref in gc.get_referrers(obj):
-                    if "<frame" in str(repr(ref)) or "<_frozen_importlib" in str(repr(ref)):
+                    if "<frame" in str(repr(ref)):
                         continue
 
                     elif isinstance(ref, dict):

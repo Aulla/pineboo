@@ -97,6 +97,8 @@ class FormDBWidget(QtWidgets.QWidget):
         pass
 
     def set_proxy_parent(self, proxy_parent: "proxy.DelayedObjectProxyLoader") -> None:
+        """Set proxy parent for future deletion."""
+
         self._my_proxy = proxy_parent
 
     def closeEvent(self, event: "QtCore.QEvent") -> None:
@@ -207,9 +209,9 @@ class FormDBWidget(QtWidgets.QWidget):
                 elif self is self._action._record_widget and self._action._record_form:
                     self._action.load_record_form()
 
-        setattr(
-            sys.modules[self.__module__], "form", self._form
-        )  # Con esto seteamos el global form en el módulo
+        # setattr(
+        #    sys.modules[self.__module__], "form", self._form
+        # )  # Con esto seteamos el global form en el módulo
 
         return self._form if self._form is not self else None
 

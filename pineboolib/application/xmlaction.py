@@ -124,6 +124,7 @@ class XMLAction(struct.ActionStruct):
                 #        child._top_widget = None
                 #    if hasattr(child, "fltable_iface"):
                 #        child.fltable_iface = None
+                # FIXME: Duplicado borrado form viejo... simplificar
                 widget._form.setParent(None)  # type: ignore [call-overload] # noqa: F821
                 widget._form.deleteLater()
                 widget._form = None
@@ -244,6 +245,7 @@ class XMLAction(struct.ActionStruct):
                         self._name,
                         self._record_form,
                     )
+
             if self._record_widget._form is not None:
                 # FIXME: Borrar bien el formrecord viejo!
                 self._record_widget._form.setParent(  # type: ignore [call-overload] # noqa: F821
