@@ -95,46 +95,45 @@ class XMLAction(struct.ActionStruct):
         """Clear old widget."""
 
         if widget is not None:
-            id_thread = threading.current_thread().ident
+            id_thread = threading.current_thread().ident or 0
 
             widget.clear_connections()
             proxy_parent = widget._my_proxy
             if id_thread in proxy_parent.loaded_obj.keys():
                 del proxy_parent.loaded_obj[id_thread]
-                proxy_parent.loaded_obj[id_thread] = None
 
             if widget is self._record_widget:
-                self.__record_widget[id_thread] = None
+                del self.__record_widget[id_thread]
             elif widget is self._master_widget:
-                self.__master_widget[id_thread] = None
+                del self.__master_widget[id_thread]
 
-            from PyQt5 import QtCore
+            # from PyQt5 import QtCore
 
-            if hasattr(widget, "_form"):
+            if widget._form is not None:
                 # if application.PROJECT.main_window:
                 #    # if application.PROJECT.main_window.main_widget is widget._form:
                 #    for child in application.PROJECT.main_window.findChildren(QtCore.QObject):
                 #        if child is widget._form:
                 #            del child
 
-                obj_form = widget._form
-                ## Cerrando hijos ...
+                # obj_form = widget._form
+                # Cerrando hijos ...
 
                 # for child in widget._form.findChildren(QtCore.QObject):
                 #    if hasattr(child, "_loaded"):
                 #        child._top_widget = None
                 #    if hasattr(child, "fltable_iface"):
                 #        child.fltable_iface = None
-                widget._form.setParent(None)
+                widget._form.setParent(None)  # type: ignore [call-overload] # noqa: F821
                 widget._form.deleteLater()
                 widget._form = None
                 # garbage_collector.check_delete(obj_form, "widget.form")
 
             if hasattr(widget, "iface"):
                 if hasattr(widget.iface, "ctx"):
-                    obj_ctx = widget.iface.ctx
-                    widget.iface.ctx.deleteLater()
-                    widget.iface.ctx = None
+                    obj_ctx = widget.iface.ctx  # type: ignore [attr-defined] # noqa: F821
+                    widget.iface.ctx.deleteLater()  # type: ignore [attr-defined] # noqa: F821
+                    widget.iface.ctx = None  # type: ignore [attr-defined] # noqa: F821
                     garbage_collector.check_delete(obj_ctx, "widget.iface.ctx")
                 obj_iface = widget.iface
                 del widget.iface
