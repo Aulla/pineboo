@@ -143,12 +143,14 @@ class XMLAction(struct.ActionStruct):
             garbage_collector.check_delete(widget, "widget")
             # del widget
 
-    def clear_form(self, widget: Optional["formdbwidget.FormDBWidget"]) -> bool:
+    def clear_form(self, widget: "formdbwidget.FormDBWidget") -> bool:
         """Delete form associated ."""
         if widget._form is not None:
             widget._form.setParent(None)  # type: ignore [call-overload] # noqa: F821
             widget._form.deleteLater()
             widget._form = None
+
+        return True
 
     def is_form_loaded(self, widget: Optional["formdbwidget.FormDBWidget"]) -> bool:
         """Return if widget.form is loaded."""
