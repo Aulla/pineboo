@@ -98,8 +98,8 @@ class XMLAction(struct.ActionStruct):
             id_thread = threading.current_thread().ident or 0
 
             widget.clear_connections()
-            proxy_parent = widget._my_proxy
-            if id_thread in proxy_parent.loaded_obj.keys():
+            proxy_parent = getattr(widget, "_my_proxy", None)
+            if proxy_parent is not None and id_thread in proxy_parent.loaded_obj.keys():
                 del proxy_parent.loaded_obj[id_thread]
 
             if widget is self._record_widget:
@@ -124,10 +124,9 @@ class XMLAction(struct.ActionStruct):
                 #        child._top_widget = None
                 #    if hasattr(child, "fltable_iface"):
                 #        child.fltable_iface = None
-                # FIXME: Duplicado borrado form viejo... simplificar
-                widget._form.setParent(None)  # type: ignore [call-overload] # noqa: F821
-                widget._form.deleteLater()
-                widget._form = None
+                self.clear_form(widget)
+                print(widget._form)
+
                 # garbage_collector.check_delete(obj_form, "widget.form")
 
             if hasattr(widget, "iface"):
@@ -143,6 +142,13 @@ class XMLAction(struct.ActionStruct):
 
             garbage_collector.check_delete(widget, "widget")
             # del widget
+
+    def clear_form(self, widget: Optional["formdbwidget.FormDBWidget"]) -> bool:
+        """Delete form associated ."""
+        if widget._form is not None:
+            widget._form.setParent(None)  # type: ignore [call-overload] # noqa: F821
+            widget._form.deleteLater()
+            widget._form = None
 
     def is_form_loaded(self, widget: Optional["formdbwidget.FormDBWidget"]) -> bool:
         """Return if widget.form is loaded."""
@@ -246,15 +252,7 @@ class XMLAction(struct.ActionStruct):
                         self._record_form,
                     )
 
-            if self._record_widget._form is not None:
-                # FIXME: Borrar bien el formrecord viejo!
-                self._record_widget._form.setParent(  # type: ignore [call-overload] # noqa: F821
-                    None
-                )
-                self._record_widget._form.deleteLater()
-                del self._record_widget._form
-                self._record_widget._form = None
-
+            self.clear_form(self._record_widget)
             self._record_widget._form = form  # type: ignore [assignment] # noqa: F821
 
     def openDefaultForm(self) -> None:
