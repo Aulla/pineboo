@@ -113,11 +113,11 @@ class QSADictModules:
             return False
 
         # Se crea la action del módulo
-        proxy = proxy_module.DelayedObjectProxyLoader(
+        delayed_action = proxy_module.DelayedObjectProxyLoader(
             action.load_master_widget, name="QSA.Module.%s" % module_name
         )
-        cls.save_action(module_name, proxy)
-        safeqsa.SafeQSA.save_root_module(module_name, proxy)
+        cls.save_action(module_name, delayed_action)
+        safeqsa.SafeQSA.save_root_module(module_name, delayed_action)
         return True
 
     @classmethod

@@ -5,7 +5,6 @@ XMLAction module.
 from pineboolib import application
 from pineboolib.core.utils import struct, utils_base
 from pineboolib.core import garbage_collector
-
 from pineboolib import logging
 
 from xml.etree import ElementTree as ET  # noqa: F401
@@ -96,19 +95,54 @@ class XMLAction(struct.ActionStruct):
         """Clear old widget."""
 
         if widget is not None:
-            widget.doCleanUp()
+            id_thread = threading.current_thread().ident
 
-            if widget is self._master_widget:
-                # del self._master_widget
-                self._master_widget = None
-            elif widget is self._record_widget:
-                # del self._record_widget
-                self._record_widget = None
+            widget.clear_connections()
+            proxy_parent = widget._my_proxy
+            if id_thread in proxy_parent.loaded_obj.keys():
+                del proxy_parent.loaded_obj[id_thread]
+                proxy_parent.loaded_obj[id_thread] = None
 
-            del widget
+            if widget is self._record_widget:
+                self.__record_widget[id_thread] = None
+            elif widget is self._master_widget:
+                self.__master_widget[id_thread] = None
 
-            # else:
-            #    raise Exception("Unknown widget to delete! : %s" % widget)
+            from PyQt5 import QtCore
+
+            if hasattr(widget, "_form"):
+                # if application.PROJECT.main_window:
+                #    # if application.PROJECT.main_window.main_widget is widget._form:
+                #    for child in application.PROJECT.main_window.findChildren(QtCore.QObject):
+                #        if child is widget._form:
+                #            del child
+
+                obj_form = widget._form
+                ## Cerrando hijos ...
+
+                # for child in widget._form.findChildren(QtCore.QObject):
+                #    if hasattr(child, "_loaded"):
+                #        child._top_widget = None
+                #    if hasattr(child, "fltable_iface"):
+                #        child.fltable_iface = None
+                widget._form.setParent(None)
+                widget._form.deleteLater()
+                widget._form = None
+                # garbage_collector.check_delete(obj_form, "widget.form")
+
+            if hasattr(widget, "iface"):
+                if hasattr(widget.iface, "ctx"):
+                    obj_ctx = widget.iface.ctx
+                    widget.iface.ctx.deleteLater()
+                    widget.iface.ctx = None
+                    garbage_collector.check_delete(obj_ctx, "widget.iface.ctx")
+                obj_iface = widget.iface
+                del widget.iface
+                widget.iface = None
+                garbage_collector.check_delete(obj_iface, "widget.iface")
+
+            garbage_collector.check_delete(widget, "widget")
+            # del widget
 
     def is_form_loaded(self, widget: Optional["formdbwidget.FormDBWidget"]) -> bool:
         """Return if widget.form is loaded."""

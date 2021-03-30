@@ -44,16 +44,21 @@ def check_gc_referrers(typename: Any, w_obj: Callable, name: str) -> None:
                 # ..... cuando se deja de usar. Causando que los connects no se destruyan tampoco
                 # ..... y que se llamen referenciando al código antiguo y fallando.
                 for ref in gc.get_referrers(obj):
-                    if isinstance(ref, dict):
+                    if "<frame" in str(repr(ref)) or "<_frozen_importlib" in str(repr(ref)):
+                        continue
+
+                    elif isinstance(ref, dict):
                         for key, value in ref.items():
                             if value is obj:
-                                list_.append("[%s] (dict) %s -> %s (%s)" % (name, key, value, ref))
+                                list_.append(
+                                    "(%s.%s -> %s (%s)" % (ref.__class__.__name__, key, name, ref)
+                                )
                         # print(" - dict:", repr(x), gc.get_referrers(ref))
                     else:
-                        if "<frame" in str(repr(ref)):
-                            continue
-                        else:
-                            list_.append("[%s] (%s) %s" % (name, type(ref), str(repr(ref))))
+                        list_.append(
+                            "(%s) %s.%s -> %s (%s)"
+                            % (ref.__class__.__name__, type(ref), str(repr(ref)), name, ref)
+                        )
                         # print(" - obj:", repr(ref), [x for x in dir(ref) if getattr(ref, x) is obj])
                 if list_:
                     LOGGER.warning("HINT: Objetos referenciando %r::%r (%r) :", typename, obj, name)

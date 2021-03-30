@@ -56,7 +56,7 @@ class DelayedObjectProxyLoader(object):
                 obj_ = self.loaded_obj[key]
                 self.loaded_obj[key] = None
                 del self.loaded_obj[key]
-                garbage_collector.check_delete(obj_, "widget")
+                garbage_collector.check_delete(obj_, "proxy.widget")
 
         if not list_name[-1].startswith("formRecord"):
             if id_thread in self.loaded_obj.keys():
@@ -86,6 +86,7 @@ class DelayedObjectProxyLoader(object):
             del self.loaded_obj[id_thread]  # type: ignore [arg-type] # noqa: F821
             raise Exception("Failed to load object")
         else:
+            return_object.set_proxy_parent(self)
             return return_object
 
     def class_(self):

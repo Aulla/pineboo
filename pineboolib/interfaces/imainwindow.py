@@ -117,7 +117,7 @@ class IMainWindow(QtWidgets.QMainWindow):
 
         pass  # pragma: no cover
 
-    def setMainWidget(self, widget: QtWidgets.QWidget) -> None:
+    def setMainWidget(self, widget: "QtWidgets.QWidget") -> None:
         """Set mainWidget."""
 
         pass  # pragma: no cover

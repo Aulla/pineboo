@@ -2029,9 +2029,10 @@ class FLTableDB(QtWidgets.QWidget):
             self._sort_column_3 = 2
             self._check_column_visible = False
 
-        self._table_records.setFunctionGetColor(
-            self.functionGetColor(), getattr(self._top_widget, "iface", None)
-        )
+        if self._function_get_color:
+            self._table_records.setFunctionGetColor(  # FIXME: no usar top_widget
+                self._function_get_color, getattr(self._top_widget, "iface", None)
+            )
 
         if refresh_head:
             if not self.tableRecords().header().isHidden():

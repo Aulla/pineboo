@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets, QtCore
 
 from pineboolib.application import connections
 from pineboolib.fllegacy import flsqlcursor
-from pineboolib.core import garbage_collector
+
 from pineboolib import logging, application
 
 
@@ -17,6 +17,7 @@ import types
 if TYPE_CHECKING:
     from pineboolib.application import xmlaction  # noqa: F401 # pragma: no cover
     from pineboolib.fllegacy import flformdb  # noqa: F401 # pragma: no cover
+    from pineboolib.application import proxy
 
 LOGGER = logging.get_logger(__name__)
 
@@ -29,6 +30,7 @@ class FormDBWidget(QtWidgets.QWidget):
     _form: Optional[Union["flformdb.FLFormDB", "FormDBWidget"]]
     _action: Optional["xmlaction.XMLAction"]
     _formconnections: Set[Tuple]
+    _my_proxy: "proxy.DelayedObjectProxyLoader"
     iface: Optional[object]
     signal_test = QtCore.pyqtSignal(str, QtCore.QObject)
     _loaded: bool
@@ -94,36 +96,21 @@ class FormDBWidget(QtWidgets.QWidget):
         """Initialize the class."""
         pass
 
+    def set_proxy_parent(self, proxy_parent: "proxy.DelayedObjectProxyLoader") -> None:
+        self._my_proxy = proxy_parent
+
     def closeEvent(self, event: "QtCore.QEvent") -> None:
         """Close event."""
 
         if self._action is None:
             self._action = getattr(self.parent(), "_action")
 
-        if self._action is not None:
-            LOGGER.debug("closeEvent para accion %r", self._action._name)
         self.closed.emit()
         event.accept()  # let the window close
-        self.doCleanUp()
-
-    def doCleanUp(self) -> None:
-        """Cleanup gabange and connections."""
-
-        self.clear_connections()
 
         if self._action is not None:
-            if self is self._action._record_widget:
-                if hasattr(self._action._record_widget.iface, "ctx"):
-                    self._action._record_widget.iface.ctx = None
-                obj_ = self._action._record_widget
-                self._action._record_widget = None
-                garbage_collector.check_delete(
-                    obj_, "formdbwidget.%s.recordWidget" % self._action._name, True
-                )
-            elif hasattr(self, "iface"):
-                obj_ = self.iface
-                self.iface = None
-                garbage_collector.check_delete(obj_, "formdbwidget.%s" % self._action._name, True)
+            LOGGER.debug("closeEvent para accion %r", self._action._name)
+            self._action.clear_widget(self)
 
     def clear_connections(self) -> None:
         """Clear al conecctions established on the module."""
