@@ -125,7 +125,7 @@ class XMLAction(struct.ActionStruct):
                 #    if hasattr(child, "fltable_iface"):
                 #        child.fltable_iface = None
                 self.clear_form(widget)
-                print(widget._form)
+                # print(widget._form)
 
                 # garbage_collector.check_delete(obj_form, "widget.form")
 
