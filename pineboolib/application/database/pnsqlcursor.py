@@ -6,7 +6,7 @@ Module for PNSqlCursor class.
 from PyQt5 import QtCore, QtWidgets
 
 from pineboolib.core.utils import logging
-from pineboolib.core import decorators, settings
+from pineboolib.core import decorators, settings, garbage_collector
 
 from . import pnsqlquery, utils
 from pineboolib.application.utils import xpm
@@ -2216,6 +2216,11 @@ class PNSqlCursor(isqlcursor.ISqlCursor):
             # ===================================================================
         # except Exception as error:
         #    LOGGER.warning("__del__: %s", error)
+
+        obj_ = self.private_cursor._model
+        del self.private_cursor._model
+        self.private_cursor._model = None
+        garbage_collector.check_delete(obj_, "cursor_%s.tableModel" % self.curName())
 
     @decorators.pyqt_slot()
     def select(
