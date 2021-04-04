@@ -10,8 +10,8 @@ ply
 pylint
 six
 PyQt6==6.0.3
-PyQt5-tools==5.14.2.2
-PyQt5-stubs==5.14.2
+PyQt5-tools==5.15.2.3.0.2
+PyQt5-stubs==5.15.2.0
 pytest
 python-barcode
 python-dateutil
